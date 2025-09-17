@@ -521,17 +521,14 @@ public final class WrapperStatementBuilder {
                 .collect(Collectors.joining(", ")) + ")";
     }
 
-    public String buildMethodParameters(MethodWrapper method,
-                                        boolean includeArgumentNames) {
+    public String buildMethodParameters(MethodWrapper method, boolean includeArgumentNames) {
         List<ParameterWrapper> params = method.getParameters();
 
-        AtomicInteger idx = new AtomicInteger(0);
-
-        return "(" + params.stream()
-                .filter(p->!p.isJavaInjection()) // exclude Java-initialized args
-                .map(p -> {
-                    String mappedType = getMappedType(p);
-                    return mappedType + (includeArgumentNames ? " arg" + idx.getAndIncrement() : "");
+        return "(" + IntStream.range(0, params.size())
+                .filter(i -> !params.get(i).isJavaInjection()) // Exclude injected
+                .mapToObj(i -> {
+                    String mappedType = getMappedType(params.get(i));
+                    return mappedType + (includeArgumentNames ? " arg" + i : "");
                 })
                 .collect(Collectors.joining(", ")) + ")";
     }

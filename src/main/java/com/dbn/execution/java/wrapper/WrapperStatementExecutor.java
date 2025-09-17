@@ -28,7 +28,6 @@ import com.dbn.object.DBMethod;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
-import java.util.Map;
 import lombok.experimental.UtilityClass;
 
 import java.sql.SQLException;
@@ -45,10 +44,6 @@ import static com.dbn.object.type.DBObjectType.TYPE;
 @UtilityClass
 public class WrapperStatementExecutor {
     public static void createExecutionWrappers(WrapperModel model) throws SQLException {
-        createExecutionWrappers(model, null);
-    }
-
-    public static void createExecutionWrappers(WrapperModel model, Map<Integer, String> javaInitializedParameters) throws SQLException {
         if (model.getInput().isClassLevel()) {
             createClassExecutionWrappers(model);
         } else {

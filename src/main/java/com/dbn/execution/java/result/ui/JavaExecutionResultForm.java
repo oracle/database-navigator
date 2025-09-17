@@ -94,7 +94,6 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         return new ArrayList<>(getExecutionResult().getExecutionInput().getInputValues().values());
     }
 
-
     public DBJavaMethod getMethod() {
         JavaExecutionResult executionResult = getExecutionResult();
         return executionResult.getMethod();

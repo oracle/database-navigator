@@ -18,7 +18,6 @@ package com.dbn.execution.java.wrapper;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.info.ConnectionInfo;
-import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.common.DBObject;

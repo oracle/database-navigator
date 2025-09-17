@@ -38,6 +38,7 @@ import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
+import java.util.ArrayList;
 import java.util.Map;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NonNls;
@@ -93,17 +94,13 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		StringBuilder buffer = new StringBuilder();
 		StringBuilder methodCallPrepare = new StringBuilder();
 
+		List<String> inputPlaceHolders = new ArrayList<>();
 		for (DBJavaParameter argument : arguments) {
-			if(javaInjectedParams.containsKey(argument.getName()))
-				continue;
-			methodCallPrepare.append("?");
-
-			boolean isLast = arguments.indexOf(argument)
-					== arguments.size()- javaInjectedParams.size() - 1;
-			if (!isLast) {
-				methodCallPrepare.append(", ");
+			if (!javaInjectedParams.containsKey(argument.getName())) {
+				inputPlaceHolders.add("?");
 			}
 		}
+		methodCallPrepare.append(String.join(", ", inputPlaceHolders));
 
 		buffer.append("declare\n");
 
@@ -143,40 +140,41 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement statement, WrapperModel wrapperModel) {
 		// bind input variables
 		Map<String, String> javaInjectedParams = wrapperModel.getInput().getJavaInjectedParameters();
-		int parameterIndex = 1;
+		int parameterIndexInSQLStatement = 1;
 		MethodWrapper methodWrapper = wrapperModel.getMethods().get(0);
-		for (DBJavaParameter parameter : getArguments()) {
-
+		List<DBJavaParameter> parameters = getArguments();
+		for (int i=0; i<parameters.size(); i++) {
+			DBJavaParameter parameter = parameters.get(i);
 			if(javaInjectedParams.containsKey(parameter.getName()))
 				continue;
 
 			String parameterName = parameter.getName();
 			if (parameter.isArray()) {
-				String objectName = methodWrapper.getParameters().get(parameterIndex - 1).getSqlTypeName();
+				String objectName = methodWrapper.getParameters().get(i).getSqlTypeName();
 				Array arrObj = getArrayObject(executionInput, parameter.getJavaClassRef(), wrapperModel, objectName, parameterName);
-				statement.setArray(parameterIndex, arrObj);
+				statement.setArray(parameterIndexInSQLStatement, arrObj);
 
 			} else if (!parameter.isScalar()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
-				String objectName = methodWrapper.getParameters().get(parameterIndex - 1).getSqlTypeName();
+				String objectName = methodWrapper.getParameters().get(i).getSqlTypeName();
 				Object structObj = getStructObject(executionInput, parameter.getJavaClass().getFields(), wrapperModel, objectName, parameterName);
-				statement.setObject(parameterIndex, structObj);
+				statement.setObject(parameterIndexInSQLStatement, structObj);
 
 			} else {
 				String clazz = parameter.getJavaClassRef().getObjectName();
 				String value = executionInput.getInputValue(parameterName);
-				if (value == null) statement.setObject(parameterIndex, null);
-				else if (clazz.equals("String")) statement.setString(parameterIndex, value);
-				else if (clazz.equals("byte")) statement.setByte(parameterIndex, Byte.parseByte(value));
-				else if (clazz.equals("short")) statement.setShort(parameterIndex, Short.parseShort(value));
-				else if (clazz.equals("int")) statement.setInt(parameterIndex, Integer.parseInt(value));
-				else if (clazz.equals("long")) statement.setLong(parameterIndex, Long.parseLong(value));
-				else if (clazz.equals("float")) statement.setFloat(parameterIndex, Float.parseFloat(value));
-				else if (clazz.equals("double")) statement.setDouble(parameterIndex, Double.parseDouble(value));
-				else if (clazz.equals("boolean")) statement.setBoolean(parameterIndex, Boolean.parseBoolean(value));
-				else statement.setObject(parameterIndex, value);
+				if (value == null) statement.setObject(parameterIndexInSQLStatement, null);
+				else if (clazz.equals("String")) statement.setString(parameterIndexInSQLStatement, value);
+				else if (clazz.equals("byte")) statement.setByte(parameterIndexInSQLStatement, Byte.parseByte(value));
+				else if (clazz.equals("short")) statement.setShort(parameterIndexInSQLStatement, Short.parseShort(value));
+				else if (clazz.equals("int")) statement.setInt(parameterIndexInSQLStatement, Integer.parseInt(value));
+				else if (clazz.equals("long")) statement.setLong(parameterIndexInSQLStatement, Long.parseLong(value));
+				else if (clazz.equals("float")) statement.setFloat(parameterIndexInSQLStatement, Float.parseFloat(value));
+				else if (clazz.equals("double")) statement.setDouble(parameterIndexInSQLStatement, Double.parseDouble(value));
+				else if (clazz.equals("boolean")) statement.setBoolean(parameterIndexInSQLStatement, Boolean.parseBoolean(value));
+				else statement.setObject(parameterIndexInSQLStatement, value);
 
 			}
-			parameterIndex++;
+			parameterIndexInSQLStatement++;
 		}
 		String returnArgument = getReturnArgument();
         if (!isProcedure()) {
@@ -189,9 +187,9 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
             CallableStatement callableStatement = (CallableStatement) statement;
             if (sqlType == Types.STRUCT || sqlType == OracleTypes.ARRAY) {
                 String returnTypeSQL = methodWrapper.getReturnParameter().getSqlTypeName();
-                callableStatement.registerOutParameter(parameterIndex, sqlType, returnTypeSQL);
+                callableStatement.registerOutParameter(parameterIndexInSQLStatement, sqlType, returnTypeSQL);
             } else
-                callableStatement.registerOutParameter(parameterIndex, sqlType);
+                callableStatement.registerOutParameter(parameterIndexInSQLStatement, sqlType);
         }
 
     }

@@ -43,7 +43,6 @@ import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaClassKind;
 import com.dbn.object.type.DBJavaScalarType;
 import com.dbn.object.type.DBObjectType;
-
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -109,6 +108,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		set(PRIMITIVE, metadata.isPrimitive());
 		set(SOURCE, metadata.isSource());
 		set(SCALAR, isPrimitive() || DBJavaScalarType.isScalar(className));
+
 
 		return className;
 	}

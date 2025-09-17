@@ -48,9 +48,7 @@ class ArgumentValuesTree extends DBNTree{
     }
 
     @NotNull
-    private static ArgumentValuesTreeModel createModel(JavaExecutionResultForm parentForm,
-                                                       List<ExecutionValue> inputValues,
-                                                       List<ExecutionValue> outputValues) {
+    private static ArgumentValuesTreeModel createModel(JavaExecutionResultForm parentForm, List<ExecutionValue> inputValues, List<ExecutionValue> outputValues) {
         return new ArgumentValuesTreeModel(parentForm.getMethod(), inputValues, outputValues);
     }
 

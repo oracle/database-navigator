@@ -86,37 +86,41 @@ public class ClassComplianceAndUICalculator {
         classesSeenTillNow.add(dbJavaClass);
 
         int displayRowCount = 1;
-        for (DBJavaField field : dbJavaClass.getFields()) {
-            if (!(field.getAccessibility() == DBJavaAccessibility.PUBLIC)) {
-                boolean hasMethod = isArgument
-                        ? field.findSetterMethod() != null
-                        : field.findGetterMethod() != null;
-                if (!hasMethod) {
-                    ComplianceData complianceData = new ComplianceData();
-                    complianceData.setSupported(false);
-                    complianceData.setDisplayRowCount(-1);
-                    String accessor = isArgument ? "set" : "get";
-                    complianceData.setUnsupportedReason(
-                            accessor + capitalize(field.getName()) + " " + (isArgument ? "setter" : "getter")
-                                    + " method not found for "
-                                    + dbJavaClass.getCanonicalName() + "." + capitalize(field.getName())
-                    );
-                    cache.put(dbJavaClass, complianceData);
-                    return complianceData;
+        try {
+
+            for (DBJavaField field : dbJavaClass.getFields()) {
+                if (!(field.getAccessibility() == DBJavaAccessibility.PUBLIC)) {
+                    boolean hasMethod = isArgument
+                            ? field.findSetterMethod() != null
+                            : field.findGetterMethod() != null;
+                    if (!hasMethod) {
+                        ComplianceData complianceData = new ComplianceData();
+                        complianceData.setSupported(false);
+                        complianceData.setDisplayRowCount(-1);
+                        String accessor = isArgument ? "set" : "get";
+                        complianceData.setUnsupportedReason(
+                                accessor + capitalize(field.getName()) + " " + (isArgument ? "setter" : "getter")
+                                        + " method not found for "
+                                        + dbJavaClass.getCanonicalName() + "." + capitalize(field.getName())
+                        );
+                        cache.put(dbJavaClass, complianceData);
+                        return complianceData;
+                    }
                 }
+                ComplianceData fieldCompliance = getComplianceData(
+                        field.getJavaClass(), arrayDepth, classesSeenTillNow, cachedData,
+                        isArgument, maxScalarArrayDepth, maxNonScalarArrayDepth);
+                if (!fieldCompliance.isSupported()) return fieldCompliance;
+                displayRowCount += fieldCompliance.getDisplayRowCount();
             }
-            ComplianceData fieldCompliance = getComplianceData(
-                    field.getJavaClass(), arrayDepth, classesSeenTillNow, cachedData,
-                    isArgument, maxScalarArrayDepth, maxNonScalarArrayDepth);
-            if (!fieldCompliance.isSupported()) return fieldCompliance;
-            displayRowCount += fieldCompliance.getDisplayRowCount();
+            ComplianceData classComplianceData = new ComplianceData();
+            classComplianceData.setSupported(true);
+            classComplianceData.setDisplayRowCount(displayRowCount);
+            cache.put(dbJavaClass, classComplianceData);
+            return classComplianceData;
+        } finally {
+            classesSeenTillNow.remove(dbJavaClass);
         }
-        ComplianceData classComplianceData = new ComplianceData();
-        classComplianceData.setSupported(true);
-        classComplianceData.setDisplayRowCount(displayRowCount);
-        cache.put(dbJavaClass, classComplianceData);
-        classesSeenTillNow.remove(dbJavaClass);
-        return classComplianceData;
     }
 
     private ComplianceData checkCommonComplianceIssues(
