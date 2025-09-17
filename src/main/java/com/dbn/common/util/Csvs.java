@@ -40,9 +40,12 @@ public class Csvs {
     public static <T> List<T> csvToValues(String csv, Function<String, T> converter) {
         if (csv == null) return emptyList();
         if (csv.isEmpty()) return emptyList();
+        if (converter.apply("1") instanceof String) {
+            return cast(csvToStrings(csv));
+        }
 
-        List<String> strings = csvToStrings(csv);
-        return Lists.convert(strings, converter);
+        return Lists.fromCsv(csv, converter);
+
     }
 
 
