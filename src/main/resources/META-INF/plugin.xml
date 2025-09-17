@@ -52,6 +52,12 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.6.2</b>
+            <ul>
+                <li>Resolved credential storage issues
+                <li>Resolved compatibility issues with 2025.3 EAP
+                <li>Small bug fixes
+            </ul>
             <li><b>3.6.1</b>
             <ul>
                 <li>Resolved connectivity issues (timeouts / concurrency)
