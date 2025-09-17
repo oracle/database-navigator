@@ -49,6 +49,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.content.DynamicContentProperty.LOADING;
+import static com.dbn.common.content.DynamicContentProperty.REFRESHING;
 import static com.dbn.common.notification.NotificationCategory.METADATA;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -251,14 +252,21 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
     }
 
     @Override
-    public void refresh() {
-        // refresh sources even if this content itself does not need refresh
-        // (e.g. if not loaded yet or already marked dirty)
-        refreshSources();
+    public synchronized void refresh() {
+        if (is(REFRESHING)) return;
 
-        if (shouldRefresh()) {
-            refreshElements();
-            markDirty();
+        try {
+            set(REFRESHING, true);
+            // refresh sources even if this content itself does not need refresh
+            // (e.g. if not loaded yet or already marked dirty)
+            refreshSources();
+
+            if (shouldRefresh()) {
+                refreshElements();
+                markDirty();
+            }
+        } finally {
+            set(REFRESHING, false);
         }
     }
 
