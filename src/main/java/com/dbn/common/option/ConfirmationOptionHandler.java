@@ -32,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class ConfirmationOptionHandler implements DoNotAskOption, PersistentConfiguration{
+public class ConfirmationOptionHandler implements RememberOption, PersistentConfiguration{
     private final String configName;
     private final String title;
     private final String message;
