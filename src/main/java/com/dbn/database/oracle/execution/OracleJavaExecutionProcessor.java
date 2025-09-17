@@ -18,6 +18,7 @@
 package com.dbn.database.oracle.execution;
 
 import com.dbn.common.data.Data;
+import com.dbn.common.util.Java;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.SessionId;
@@ -32,6 +33,7 @@ import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
 import com.dbn.execution.java.wrapper.model.ParameterWrapper;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
@@ -276,16 +278,16 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		}
 
 		// 2) Try the primitive / wrapper / well-known types first
-		Object simple = parseValue(field.getJavaClassRef(), fieldValue);
-		if (simple != null) {
-			return simple;
-		}
+        if (field.isScalar()) {
+            return parseValue(field.getJavaClassRef(), fieldValue);
+        }
 
 		// 3) Complex struct handling (only in this overload)
 		if (field.isClass()) {
-			String objectName = getTypeName(field, wrapperModel);
-			return getStructObject(executionInput,
-					field.getJavaClass().getFields(),
+            DBJavaClass javaClass = field.getJavaClass();
+            String objectName = getTypeName(field, wrapperModel);
+            return getStructObject(executionInput,
+					javaClass.getFields(),
 					wrapperModel,
 					objectName,
 					fieldPath);
@@ -297,10 +299,14 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 	@Nullable
 	private Object parseValue(DBObjectRef javaClass, String fieldValue) {
-		if (javaClass == null || fieldValue == null) {
-			return null;
-		}
-		String className = getCanonicalName(javaClass);;
+		if (javaClass == null) return null;
+		if (fieldValue == null) {
+            // primitives cannot be null, let the Data.asAbcPrimitive default the values
+            String className = javaClass.getObjectName();
+            if (!Java.isPrimitive(className)) return null;
+        }
+
+		String className = getCanonicalName(javaClass);
 		switch (className) {
 			// primitives
 			case "boolean": return asBooleanPrimitive(fieldValue);

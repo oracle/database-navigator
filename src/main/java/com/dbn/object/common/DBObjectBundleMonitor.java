@@ -29,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
+import static com.dbn.object.event.ObjectChangeAction.DISABLE;
+import static com.dbn.object.event.ObjectChangeAction.ENABLE;
 import static com.dbn.object.event.ObjectChangeAction.UNSPECIFIED;
 import static com.dbn.object.event.ObjectChangeAction.UPDATE;
 
@@ -49,14 +51,14 @@ class DBObjectBundleMonitor implements ObjectChangeListener {
         String connectionName = objectBundle.getConnection().getName();
 
         DBObject object = event.getObject();
-        if (object != null) {
+        ObjectChangeAction action = event.getChangeAction();
+        if (object != null && action.isOneOf(UPDATE, ENABLE, DISABLE)) {
             log.info("{}: refreshing {}", connectionName, object.getQualifiedNameWithType());
             object.refresh();
             return;
         }
 
         DBObjectType objectType = event.getObjectType();
-        ObjectChangeAction action = event.getChangeAction();
         SchemaId ownerId = event.getOwnerId();
 
         if (ownerId == null) {
