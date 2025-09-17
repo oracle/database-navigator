@@ -837,49 +837,6 @@
                 HAS_SOURCE desc, d.OBJECT_OWNER, d.OBJECT_NAME
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="all-java-class-dependencies" is-query="true" is-prepared-statement="true">
-        <statement prefixes="DBA, ALL, USER">
-            select
-                d.OBJECT_OWNER,
-                d.OBJECT_NAME,
-                case when s.OWNER is not null then 'Y' else 'N' end as HAS_SOURCE
-            from (
-                select distinct
-                    REFERENCED_OWNER as OBJECT_OWNER,
-                    REFERENCED_NAME as OBJECT_NAME
-                from [PREFIX]_DEPENDENCIES
-                where
-                    REFERENCED_TYPE = 'JAVA CLASS' and
-                    REFERENCED_OWNER != 'SYS' and
-                    (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME)
-                start with OWNER = {0}
-                    connect by nocycle
-                    prior REFERENCED_OWNER = OWNER and
-                    prior REFERENCED_NAME = NAME
-                union
-                select distinct
-                    OWNER as OBJECT_OWNER,
-                    NAME as OBJECT_NAME
-                from [PREFIX]_DEPENDENCIES
-                where
-                    owner = {0} and
-                    REFERENCED_TYPE = 'JAVA CLASS'
-            ) d
-            inner join [PREFIX]_JAVA_CLASSES c
-                    on c.OWNER = d.OBJECT_OWNER
-                   and c.NAME = d.OBJECT_NAME
-                   and c.IS_INNER = 'NO'
-                   and c.NAME not like 'OJVM_%'
-                   and c.NAME not like 'DBN_OJVM_%'
-            left join [PREFIX]_SOURCE s
-                   on s.OWNER = d.OBJECT_OWNER
-                  and s.NAME = d.OBJECT_NAME
-                  and s.LINE = 1
-            order by
-                HAS_SOURCE desc, d.OBJECT_OWNER, d.OBJECT_NAME
-        </statement>
-    </statement-execution-processor>
-
     <statement-execution-processor id="java-resources" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
@@ -2955,6 +2912,19 @@
                         principal_type => xs_acl.ptype_db)
                     );
             END;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="has-quota-on-tablespace" is-query="true" is-prepared-statement="true">
+        <statement>
+            select
+                case
+                    when exists (
+                        select 1
+                        from user_ts_quotas )
+                    then 'Y'
+                    else 'N'
+                end as value
+            from DUAL
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="explain-plan-result" is-query="true" is-prepared-statement="true">

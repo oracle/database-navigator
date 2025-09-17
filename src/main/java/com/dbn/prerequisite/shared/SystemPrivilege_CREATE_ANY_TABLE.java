@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package com.dbn.common.option;
+package com.dbn.prerequisite.shared;
 
-import com.dbn.common.options.PersistentConfiguration;
-import com.dbn.common.routine.Consumer;
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.Nls;
+import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
 
-import javax.swing.Icon;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.CREATE_ANY_TABLE;
 
-public interface OptionBroker<T> extends RememberOption, PersistentConfiguration {
-    void resolve(Project project, Object[] messageArgs, Consumer<T> consumer);
+public class SystemPrivilege_CREATE_ANY_TABLE extends SystemPrivilegePrerequisite {
 
-    OptionBroker<T> withIcon(Icon icon);
-
-    OptionBroker<T> withDoNotShowMessage(@Nls String doNotShowMessage);
-
-    T getSelectedOption();
-
-    void selectOption(T option);
+    public SystemPrivilege_CREATE_ANY_TABLE() {
+        super(CREATE_ANY_TABLE, "CREATE ANY TABLE");
+    }
 }

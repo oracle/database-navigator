@@ -76,30 +76,30 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		return projectService(project, JavaDownloadManager.class);
 	}
 
-	public void openCodeDownloader(DBObject sourceObject) {
+	public void openJavaClassDownloader(DBObject sourceObject) {
 		ConnectionHandler connection = sourceObject.getConnection();
 		ConnectionAction.invoke(null, true, connection, a -> {
 			Progress.prompt(getProject(), connection, true,
 					"Preparing Java Download",
 					"Loading java dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
-					progress -> prepareDownloadDialog(sourceObject, null));
+					progress -> prepareDownloadDialog(sourceObject, DBObjectType.JAVA_CLASS));
 		});
 	}
 
-	public void openResourceDownloader(DBObject sourceObject, DBObjectList sourceObjectList) {
+	public void openJavaResourceDownloader(DBObject sourceObject) {
 		ConnectionHandler connection = sourceObject.getConnection();
 		ConnectionAction.invoke(null, true, connection, a -> {
 			Progress.prompt(getProject(), connection, true,
 					"Preparing Java Resource Download",
 					null,
-					progress -> prepareDownloadDialog(sourceObject, sourceObjectList));
+					progress -> prepareDownloadDialog(sourceObject, DBObjectType.JAVA_RESOURCE));
 		});
 	}
 
-	private void prepareDownloadDialog(DBObject sourceObject, DBObjectList sourceObjectList) {
+	private void prepareDownloadDialog(DBObject sourceObject, DBObjectType objectType) {
 		Project project = getProject();
 		try {
-			List<JavaDownloadTask> tasks = createDownloadTasks(sourceObject, sourceObjectList);
+			List<JavaDownloadTask> tasks = createDownloadTasks(sourceObject, objectType);
 			JavaDownloadInput input = new JavaDownloadInput(project, sourceObject, tasks);
 			JavaDownloadBatch batch = new JavaDownloadBatch(input);
 
@@ -111,17 +111,17 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		}
 	}
 
-	private List<JavaDownloadTask> createDownloadTasks(DBObject sourceObject, DBObjectList sourceObjectList) throws SQLException {
+	private List<JavaDownloadTask> createDownloadTasks(DBObject sourceObject, DBObjectType objectType) throws SQLException {
 		ConnectionHandler connection = sourceObject.getConnection();
 		return DatabaseInterfaceInvoker.load(HIGH,
 				"Loading Java Dependencies",
 				"Loading java dependencies for " + sourceObject.getQualifiedNameWithType() + "...",
 				connection.getProject(),
 				connection.getConnectionId(),
-				c -> createDownloadTasks(connection, sourceObject, sourceObjectList, c));
+				c -> createDownloadTasks(connection, sourceObject, objectType, c));
 	}
 
-	private List<JavaDownloadTask> createDownloadTasks(ConnectionHandler connection, DBObject sourceObject, DBObjectList sourceObjectList, DBNConnection conn) throws SQLException {
+	private List<JavaDownloadTask> createDownloadTasks(ConnectionHandler connection, DBObject sourceObject, DBObjectType objectType, DBNConnection conn) throws SQLException {
 		List<JavaDownloadTask> tasks = new ArrayList<>();
 
 		ResultSet resultSet = null;
@@ -129,22 +129,29 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 			DatabaseMetadataInterface metadata = connection.getMetadataInterface();
 			if (sourceObject instanceof DBSchema) {
 				DBSchema schema = (DBSchema) sourceObject;
-				if(sourceObjectList == null) {
-					String schemaName = schema.getName();
-					resultSet = metadata.loadAllJavaClassDependencies(schemaName, conn);
-				} else {
-					// java resource in the list
-					// TODO dangerous cast assumption
-					for(Object object : sourceObjectList.getObjects()) {
-						DBJavaResource javaResource = (DBJavaResource) object;
-						JavaDownloadTask downloadElement = new JavaDownloadTask(javaResource);
-						downloadElement.setEnabled(true);
-						downloadElement.setSelected(true); // select by default if sources are available
-						tasks.add(downloadElement);
-					}
-				}
+                DBObjectList<DBObject> childObjectList = schema.getChildObjectList(objectType);
+                if (childObjectList == null) return tasks;
 
-			} else if (sourceObject instanceof DBJavaClass) {
+                for (Object object : childObjectList.getObjects()) {
+                    JavaDownloadTask downloadElement = null;
+                    if (object instanceof DBJavaClass) {
+                        DBJavaClass javaClass = (DBJavaClass) object;
+                        downloadElement = new JavaDownloadTask(javaClass);
+
+                    } else if (object instanceof DBJavaResource) {
+                        DBJavaResource javaResource = (DBJavaResource) object;
+                        downloadElement = new JavaDownloadTask(javaResource);
+                    }
+                    if (downloadElement == null) continue;
+
+                    downloadElement.setEnabled(true);
+                    downloadElement.setSelected(true);
+                    tasks.add(downloadElement);
+                }
+                return tasks;
+			}
+
+            if (sourceObject instanceof DBJavaClass) {
 				DBJavaClass javaClass = (DBJavaClass) sourceObject;
 				JavaDownloadTask task = new JavaDownloadTask(javaClass);
 				task.setEnabled(true);
@@ -154,6 +161,8 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 				String schemaName = javaClass.getSchemaName();
 				String className = javaClass.getName();
 				resultSet = metadata.loadJavaClassDependencies(schemaName, className, conn);
+                List<JavaDownloadTask> dependencyTasks = createDownloadDependencyTasks(connection, resultSet);
+                tasks.addAll(dependencyTasks);
 
 			} else if (sourceObject instanceof DBJavaResource) {
 				DBJavaResource javaResource = (DBJavaResource) sourceObject;
@@ -162,9 +171,6 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 				task.setSelected(true);
 				tasks.add(task);
 			}
-
-			List<JavaDownloadTask> dependencyTasks = createDownloadDependencyTasks(connection, resultSet);
-			tasks.addAll(dependencyTasks);
 		} finally {
 			Resources.close(resultSet);
 		}

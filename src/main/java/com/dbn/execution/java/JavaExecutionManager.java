@@ -111,11 +111,11 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 	}
 
 	public void startMethodExecution(@NotNull JavaExecutionInput executionInput, @NotNull DBDebuggerType debuggerType) {
-		promptExecutionDialog(executionInput, debuggerType, () -> JavaExecutionManager.this.execute(executionInput));
+		promptExecutionDialog(executionInput, debuggerType, () -> execute(executionInput));
 	}
 
 	public void startMethodExecution(@NotNull DBJavaMethod method, @NotNull DBDebuggerType debuggerType) {
-		promptExecutionDialog(method, debuggerType, () -> JavaExecutionManager.this.execute(method));
+        promptExecutionDialog(method, debuggerType, () -> execute(method));
 	}
 
 	private void promptExecutionDialog(@NotNull DBJavaMethod method, @NotNull DBDebuggerType debuggerType, Runnable callback) {
