@@ -20,7 +20,7 @@ import com.dbn.common.Reflection;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.compatibility.Workaround;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.DoNotAskOption;
+import com.intellij.openapi.ui.DialogWrapper.DoNotAskOption;
 
 import java.lang.reflect.Proxy;
 
