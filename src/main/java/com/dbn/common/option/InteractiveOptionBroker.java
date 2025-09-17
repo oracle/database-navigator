@@ -39,7 +39,7 @@ import java.util.List;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class InteractiveOptionBroker<T extends InteractiveOption> implements DoNotAskOption, PersistentConfiguration{
+public class InteractiveOptionBroker<T extends InteractiveOption> implements RememberOption, PersistentConfiguration{
     private final String configName;
     private final @Nls String title;
     private final @Nls String message;
