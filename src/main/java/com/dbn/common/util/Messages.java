@@ -16,6 +16,9 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.Reflection;
+import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.InteractiveMessage;
 import com.dbn.common.message.Message;
@@ -26,30 +29,36 @@ import com.dbn.common.message.TitledMessage;
 import com.dbn.common.message.TitledMessageBundle;
 import com.dbn.common.message.ui.MessageBundleDialog;
 import com.dbn.common.message.ui.MessageBundleDialogConfig;
-import com.dbn.common.option.DoNotAskOption;
+import com.dbn.common.option.RememberOption;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.messages.DBNMessageDialog;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DoNotAskOption;
 import com.intellij.openapi.util.NlsContexts.Button;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import java.lang.reflect.Method;
+import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.thread.Dispatch.getCurrentModalityState;
 import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDialogs;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
 // TODO NLS
+@Slf4j
 @UtilityClass
 public class Messages {
 
@@ -87,7 +96,7 @@ public class Messages {
                     interactiveMessage.getDefaultOptionIndex(),
                     getDialogIcon(interactiveMessage.getType()),
                     interactiveMessage.getCallback(),
-                    interactiveMessage.getDoNotAskOption());
+                    interactiveMessage.getRememberOption());
             return;
 
         }
@@ -160,8 +169,8 @@ public class Messages {
         showQuestionDialog(project, title, message, options, defaultOptionIndex, callback, null);
     }
 
-    public static void showQuestionDialog(@Nullable Project project,  @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex, MessageCallback callback, @Nullable DoNotAskOption doNotAskOption) {
-        showDialog(project, message, title, options, defaultOptionIndex, Icons.DIALOG_QUESTION, callback, doNotAskOption);
+    public static void showQuestionDialog(@Nullable Project project,  @DialogTitle String title, @DialogMessage String message, @Button String[] options, int defaultOptionIndex, MessageCallback callback, @Nullable RememberOption rememberOption) {
+        showDialog(project, message, title, options, defaultOptionIndex, Icons.DIALOG_QUESTION, callback, rememberOption);
     }
 
 
@@ -193,11 +202,11 @@ public class Messages {
             int defaultOptionIndex,
             @Nullable Icon icon,
             @Nullable MessageCallback callback,
-            @Nullable DoNotAskOption doNotAskOption) {
+            @Nullable RememberOption rememberOption) {
 
         Dispatch.execute(getCurrentModalityState(), () -> {
             if (project != null) nd(project);
-            int option = showDialog(project, message, title, options, defaultOptionIndex, icon, doNotAskOption);
+            int option = showDialog(project, message, title, options, defaultOptionIndex, icon, rememberOption);
             //int option = com.intellij.openapi.ui.Messages.showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, icon, doNotAskOption);
             if (callback != null) {
                 callback.accept(option);
@@ -205,14 +214,34 @@ public class Messages {
         });
     }
 
-    public static int showDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable DoNotAskOption doNotAskOption) {
+    public static int showDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
         closeProgressDialogs();
-        if (Diagnostics.isNativeAlertsEnabled()) {
-            return com.intellij.openapi.ui.Messages.showDialog(message, title, options, defaultOptionIndex, icon, doNotAskOption);
-        } else {
-            DBNMessageDialog messageDialog = new DBNMessageDialog(project, icon, title, message, options, defaultOptionIndex, doNotAskOption);
-            messageDialog.show();
-            return messageDialog.getExitCode();
+        return Diagnostics.isNativeAlertsEnabled() ?
+                showNativeDialog(project, message, title, options, defaultOptionIndex, icon, rememberOption) :
+                showCustomDialog(project, message, title, options, defaultOptionIndex, icon, rememberOption);
+    }
+
+    private static int showCustomDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
+        DBNMessageDialog messageDialog = new DBNMessageDialog(project, icon, title, message, options, defaultOptionIndex, rememberOption);
+        messageDialog.show();
+        return messageDialog.getExitCode();
+    }
+
+    @Workaround
+    @Compatibility
+    private static int showNativeDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable RememberOption rememberOption) {
+        try {
+            Class<DoNotAskOption> optionClass = RememberOption.spec();
+            DoNotAskOption option = RememberOption.wrap(rememberOption);
+            Method method = Reflection.findMethod(
+                    com.intellij.openapi.ui.Messages.class,
+                    "showDialog", String.class, String.class, String[].class, int.class, Icon.class, optionClass);
+            Objects.requireNonNull(method);
+            return cast(method.invoke(null, message, title, options, defaultOptionIndex, icon, option));
+            //return com.intellij.openapi.ui.Messages.showDialog(message, title, options, defaultOptionIndex, icon, doNotAskOption);
+        } catch (Throwable e) {
+            log.error("Failed to open native dialog.", e);
+            return showCustomDialog(project, message, title, options, defaultOptionIndex, icon, rememberOption);
         }
     }
 
