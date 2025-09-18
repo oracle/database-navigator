@@ -56,7 +56,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.ui.CardLayouts.addCard;
 import static com.dbn.common.ui.CardLayouts.isBlankCard;
 import static com.dbn.common.ui.CardLayouts.showBlankCard;
@@ -314,6 +317,9 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
                 AssistantState assistantState = assistantStates.get(assistantType);
                 Element stateElement = newElement(statesElement, "assistant-state");
                 assistantState.writeState(stateElement);
+
+                boolean selected = selectedAssistantTypes.get(connectionId) == assistantType;
+                if (selected) setBooleanAttribute(stateElement, "selected", true);
             }
         }
         return element;
@@ -322,18 +328,19 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     @Override
     public void loadComponentState(@NotNull Element element) {
         Element statesElement = element.getChild("assistants");
-        if (statesElement != null) {
-            List<Element> stateElements = statesElement.getChildren();
-            for (Element stateElement : stateElements) {
-                AssistantState assistantState = new AssistantStateDelegate(getProject());
-                assistantState.readState(stateElement);
+        List<Element> stateElements = childrenOf(statesElement);
+        for (Element stateElement : stateElements) {
+            AssistantState assistantState = new AssistantStateDelegate(getProject());
+            assistantState.readState(stateElement);
 
-                ConnectionId connectionId = assistantState.getConnectionId();
-                AssistantType assistantType = assistantState.getAssistantType();
+            ConnectionId connectionId = assistantState.getConnectionId();
+            AssistantType assistantType = assistantState.getAssistantType();
 
-                var assistantStates = ensureAssistantStates(connectionId);
-                assistantStates.put(assistantType, assistantState);
-            }
+            var assistantStates = ensureAssistantStates(connectionId);
+            assistantStates.put(assistantType, assistantState);
+
+            boolean selected = booleanAttribute(stateElement, "selected", false);
+            if (selected) selectedAssistantTypes.put(connectionId, assistantType);
         }
     }
 }
