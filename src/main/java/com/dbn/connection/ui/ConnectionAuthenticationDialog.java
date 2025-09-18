@@ -17,6 +17,7 @@
 package com.dbn.connection.ui;
 
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.option.RememberOption;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
@@ -44,7 +45,7 @@ public class ConnectionAuthenticationDialog extends DBNDialog<ConnectionAuthenti
         renameAction(okAction, "Connect");
         okAction.setEnabled(false);
         if (connection != null) {
-            setDoNotAskOption(new DoNotAskOption() {
+            setDoNotAskOption(new RememberOption() {
                 @Override
                 public boolean isToBeShown() {
                     return true;
