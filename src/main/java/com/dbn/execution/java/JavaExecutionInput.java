@@ -228,9 +228,10 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
             String value = entry.getValue().getValueHolder().getValue();
             if(isCodeBlock(value)) {
                 CodeBlock codeBlock = deserialize(value);
-                assert codeBlock != null;
-                if(codeBlock.getLanguage()== CodeBlock.Language.JAVA) {
-                    injectedParameters.put(entry.getKey(), codeBlock.getContent());
+                if (codeBlock != null) {
+                    if (codeBlock.getLanguage() == CodeBlock.Language.JAVA) {
+                        injectedParameters.put(entry.getKey(), codeBlock.getContent());
+                    }
                 }
             }
         }

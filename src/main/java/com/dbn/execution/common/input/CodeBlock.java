@@ -19,6 +19,8 @@ package com.dbn.execution.common.input;
 import lombok.Getter;
 import lombok.Setter;
 
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+
 @Getter
 @Setter
 public class CodeBlock {
@@ -42,7 +44,8 @@ public class CodeBlock {
                     return lang;
                 }
             }
-            throw new IllegalArgumentException("Unknown language: " + language);
+
+            return null;
         }
     }
 
@@ -76,11 +79,13 @@ public class CodeBlock {
             if (bracketIndex < 0 || lastBracket < 0 || lastBracket <= bracketIndex) return null;
 
             String languageString = serialized.substring(langStart, bracketIndex);
+            Language language = Language.fromString(languageString);
+            if(language == null) return null;
             String content = serialized.substring(bracketIndex + 1, lastBracket);
 
             return new CodeBlock(content, Language.fromString(languageString));
         } catch (Exception e) {
-            // Consider logging here
+            conditionallyLog(e);
             return null;
         }
     }
