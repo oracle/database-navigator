@@ -86,6 +86,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         if (action == null) return null;
 
         return new ChatContextImpl(
+                AssistantType.SELECT_AI,
                 profile.getName(),
                 profile.getProviderId(),
                 model.getId(),

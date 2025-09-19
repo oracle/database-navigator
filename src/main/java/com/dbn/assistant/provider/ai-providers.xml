@@ -1,0 +1,284 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<language-model-provider version="1.0">
+    <provider-types>
+        <provider id="OPEN_AI" name="OpenAI" host="api.openai.com" base-url="https://api.openai.com/v1/">
+            <urls>
+                <url type="OFFICIAL">https://openai.com</url>
+                <url type="DOCS">https://platform.openai.com/docs</url>
+                <url type="KEYS">https://platform.openai.com/api-keys</url>
+                <url type="API">https://api.openai.com/v1/</url>
+            </urls>
+            <models>
+                <model id="GPT_4_O"                api-name="gpt-4o"/>
+                <model id="GPT_4_O_MINI"           api-name="gpt-4o-mini"/>
+                <model id="GPT_4_1"                api-name="gpt-4.1"/>
+                <model id="GPT_4_1_MINI"           api-name="gpt-4.1-mini"/>
+                <model id="GPT_4_1_NANO"           api-name="gpt-4.1-nano"/>
+                <model id="GPT_5"                  api-name="gpt-5"/>
+                <model id="GPT_5_MINI"             api-name="gpt-5-mini"/>
+                <model id="GPT_5_NANO"             api-name="gpt-5-nano"/>
+                <model id="GPT_4"                  api-name="gpt-4"/>
+                <model id="GPT_4_0613"             api-name="gpt-4-0613"/>
+                <model id="GPT_4_32K"              api-name="gpt-4-32k"/>
+                <model id="GPT_4_32K_0613"         api-name="gpt-4-32k-0613"/>
+                <model id="GPT_3_5_TURBO"          api-name="gpt-3.5-turbo"/>
+                <model id="GPT_3_5_TURBO_0613"     api-name="gpt-3.5-turbo-0613"/>
+                <model id="GPT_3_5_TURBO_16K"      api-name="gpt-3.5-turbo-16k"/>
+                <model id="GPT_3_5_TURBO_16K_0613" api-name="gpt-3.5-turbo-16k-0613"/>
+                <model id="O1"                     api-name="o1"/>
+                <model id="O1_MINI"                api-name="o1-mini"/>
+                <model id="O1_PRO"                 api-name="o1-pro"/>
+                <model id="O3"                     api-name="o3"/>
+                <model id="O3_MINI"                api-name="o3-mini"/>
+                <model id="O4_MINI"                api-name="o4-mini"/>
+            </models>
+        </provider>
+
+        <provider id="COHERE" name="Cohere" host="api.cohere.ai">
+            <urls>
+                <url type="OFFICIAL">https://cohere.com</url>
+                <url type="API">https://dashboard.cohere.com/welcome/login?redirect_uri=%2Fapi-keys</url>
+            </urls>
+            <models>
+                <model id="COMMAND"                 api-name="command"/>
+                <model id="COMMAND_NIGHTLY"         api-name="command-nightly"/>
+                <model id="COMMAND_LIGHT"           api-name="command-light"/>
+                <model id="COMMAND_LIGHT_NIGHTLY"   api-name="command-light-nightly"/>
+                <model id="COMMAND_R"               api-name="command-r"/>
+                <model id="COMMAND_R_08_2024"       api-name="command-r-08-2024"/>
+                <model id="COMMAND_R_PLUS"          api-name="command-r-plus"/>
+                <model id="COMMAND_R_PLUS_08_2024"  api-name="command-r-plus-08-2024"/>
+            </models>
+        </provider>
+
+        <provider id="OCI" name="OCI Generative AI" host="api.oci.com">
+            <models>
+                <model id="META_LLAMA_3_1_70B_INSTRUCT"          api-name="meta.llama-3.1-70b-instruct"/>
+                <model id="META_LLAMA_3_1_405B_INSTRUCT"         api-name="meta.llama-3.1-405b-instruct"/>
+                <model id="META_LLAMA_3_2_11B_VISION_INSTRUCT"   api-name="meta.llama-3.2-11b-vision-instruct"/>
+                <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"   api-name="meta.llama-3.2-90b-vision-instruct"/>
+                <model id="META_LLAMA_3_3_70B_INSTRUCT"          api-name="meta.llama-3.3-70b-instruct"/>
+                <model id="COHERE_COMMAND_R_08_2024"             api-name="cohere.command-r-08-2024"/>
+                <model id="COHERE_COMMAND_R_PLUS_08_2024"        api-name="cohere.command-r-plus-08-2024"/>
+            </models>
+        </provider>
+
+        <provider id="GOOGLE" name="Google" host="generativelanguage.googleapis.com" base-url="https://generativelanguage.googleapis.com/v1beta/">
+            <urls>
+                <url type="OFFICIAL">https://deepmind.google/technologies/gemini</url>
+                <url type="DOCS">https://ai.google.dev</url>
+                <url type="KEYS">https://aistudio.google.com/app/apikey</url>
+                <url type="API">https://generativelanguage.googleapis.com/v1beta/</url>
+            </urls>
+            <models>
+                <model id="GEMINI_1_5_FLASH" api-name="gemini-1.5-flash"/>
+                <model id="GEMINI_1_5_PRO"   api-name="gemini-1.5-pro"/>
+                <model id="GEMINI_1_0_PRO"   api-name="gemini-1.0-pro"/>
+                <model id="GEMINI_2_5_FLASH" api-name="gemini-2.5-flash"/>
+                <model id="GEMINI_2_5_PRO"   api-name="gemini-2.5-pro"/>
+            </models>
+        </provider>
+
+        <provider id="ANTHROPIC" name="Anthropic" host="api.anthropic.com" base-url="https://api.anthropic.com/v1/">
+            <urls>
+                <url type="OFFICIAL">https://www.anthropic.com</url>
+                <url type="DOCS">https://docs.anthropic.com</url>
+                <url type="KEYS">https://console.anthropic.com/settings/keys</url>
+                <url type="API">https://api.anthropic.com/v1/</url>
+            </urls>
+            <models>
+                <model id="CLAUDE_OPUS_4_1_20250805"   api-name="claude-opus-4-1-20250805"/>
+                <model id="CLAUDE_OPUS_4_20250514"     api-name="claude-opus-4-20250514"/>
+                <model id="CLAUDE_SONNET_4_20250514"   api-name="claude-sonnet-4-20250514"/>
+                <model id="CLAUDE_3_7_SONNET_20250219" api-name="claude-3-7-sonnet-20250219"/>
+                <model id="CLAUDE_3_5_HAIKU_20241022" api-name="claude-3-5-haiku-20241022"/>
+
+                <model id="CLAUDE_3_5_SONNET_20240620" api-name="claude-3-5-sonnet-20240620"/>
+                <model id="CLAUDE_3_OPUS_20240229"     api-name="claude-3-opus-20240229"/>
+                <model id="CLAUDE_3_SONNET_20240229"   api-name="claude-3-sonnet-20240229"/>
+                <model id="CLAUDE_3_HAIKU_20240307"    api-name="claude-3-haiku-20240307"/>
+                <!--<model id="CLAUDE_SONNET_4_20250514"   api-name="claude-sonnet-4-20250514"/>-->
+            </models>
+        </provider>
+        <provider id="HUGGING_FACE" name="Hugging Face" host="api-inference.huggingface.co">
+            <urls>
+                <url type="OFFICIAL">https://huggingface.co/</url>
+                <url type="API">https://huggingface.co/settings/tokens</url>
+            </urls>
+            <models>
+                <model id="MIXTRAL_8X7B_INSTRUCT_V0_1" api-name="mistralai/Mixtral-8x7B-Instruct-v0.1"/>
+                <model id="META_LLAMA_3_70B_INSTRUCT"  api-name="meta-llama/Meta-Llama-3-70B-Instruct"/>
+                <model id="QWEN_1_5_1_8B"              api-name="Qwen/Qwen1.5-1.8B"/>
+            </models>
+        </provider>
+        <provider id="MISTRAL_AI" name="Mistral AI" host="api.mistral.ai" base-url="https://api.mistral.ai/v1/">
+            <urls>
+                <url type="OFFICIAL">https://mistral.ai//</url>
+                <url type="DOCS">https://docs.mistral.ai</url>
+                <url type="KEYS">https://console.mistral.ai/api-keys</url>
+                <url type="API">https://api.mistral.ai/v1/</url>
+            </urls>
+            <models>
+                <model id="CODESTRAL_2508" api-name="codestral-2508"/>
+                <model id="MISTRAL_MEDIUM_2508" api-name="mistral-medium-2508"/>
+                <model id="MAGISTRAL_MEDIUM_2507" api-name="magistral-medium-2507"/>
+                <model id="MAGISTRAL_SMALL_2507" api-name="magistral-small-2507"/>
+                <model id="MAGISTRAL_SMALL_2506" api-name="magistral-small-2506"/>
+                <model id="MISTRAL_SMALL_2506" api-name="mistral-small-2506"/>
+                <model id="VOXTRAL_SMALL_2507" api-name="voxtral-small-2507"/>
+                <model id="VOXTRAL_MINI_2507" api-name="voxtral-mini-2507"/>
+            </models>
+        </provider>
+    </provider-types>
+
+    <provider-support>
+        <assistant type="SELECT_AI">
+            <!-- https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-3721296F-14A1-428A-B464-7FA25E9EC8F3 -->
+            <!-- https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/select-ai-manage-profiles.html -->
+            <!-- https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/select-ai-about.html-->
+            <provider id="OPEN_AI" api-name="OPENAI" host="api.openai.com">
+                <urls>
+                    <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-D9EFE56B-402D-4A8B-90E0-96C99FCF81AD</url>
+                </urls>
+                <models>
+                    <model id="GPT_4_O"/>
+                    <model id="GPT_4_O_MINI"/>
+                    <model id="GPT_4"/>
+                    <model id="GPT_4_0613"/>
+                    <model id="GPT_4_32K"/>
+                    <model id="GPT_4_32K_0613"/>
+                    <model id="GPT_3_5_TURBO"/>
+                    <model id="GPT_3_5_TURBO_0613"/>
+                    <model id="GPT_3_5_TURBO_16K"/>
+                    <model id="GPT_3_5_TURBO_16K_0613"/>
+                </models>
+            </provider>
+            <provider id="COHERE" api-name="COHERE" host="api.cohere.ai">
+                <urls>
+                    <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-3AA3B2FB-1EEC-481E-940F-832B97187564</url>
+                </urls>
+                <models>
+                    <model id="COMMAND" default="true"/>
+                    <model id="COMMAND_NIGHTLY" experimental="true"/>
+                    <model id="COMMAND_LIGHT" experimental="true"/>
+                    <model id="COMMAND_LIGHT_NIGHTLY"/>
+                    <model id="COMMAND_R"/>
+                    <model id="COMMAND_R_08_2024"/>
+                    <model id="COMMAND_R_PLUS"/>
+                    <model id="COMMAND_R_PLUS_08_2024"/>
+                </models>
+            </provider>
+            <provider id="OCI" api-name="OCI" host="api.oci.com">
+                <urls>
+                    <url type="OFFICIAL">https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service</url>
+                    <url type="API">https://docs.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#How</url>
+                    <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-9CD3FF6F-E380-4E17-8AB0-8153D80B73FB</url>
+                </urls>
+                <models>
+                    <model id="META_LLAMA_3_1_70B_INSTRUCT"/>
+                    <model id="META_LLAMA_3_1_405B_INSTRUCT"/>
+                    <model id="META_LLAMA_3_2_11B_VISION_INSTRUCT"/>
+                    <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"/>
+                    <model id="META_LLAMA_3_3_70B_INSTRUCT"/>
+                    <model id="COHERE_COMMAND_R_08_2024"/>
+                    <model id="COHERE_COMMAND_R_PLUS_08_2024"/>
+                </models>
+            </provider>
+            <provider id="GOOGLE" api-name="GOOGLE" host="generativelanguage.googleapis.com">
+                <urls>
+                    <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-4FDC2F94-36CD-41C3-AC1A-84F67B161DB2</url>
+                </urls>
+                <models>
+                    <model id="GEMINI_1_5_FLASH" default="true"/>
+                    <model id="GEMINI_1_5_PRO"/>
+                    <model id="GEMINI_1_0_PRO"/>
+                </models>
+            </provider>
+            <provider id="ANTHROPIC" api-name="ANTHROPIC" host="api.anthropic.com">
+                <urls>
+                    <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-CD371DA8-6C1B-447F-9420-64F1F01205A0</url>
+                </urls>
+                <models>
+                    <model id="CLAUDE_3_5_SONNET_20240620" default="true"/>
+                    <model id="CLAUDE_3_OPUS_20240229"/>
+                    <model id="CLAUDE_3_SONNET_20240229"/>
+                    <model id="CLAUDE_3_HAIKU_20240307"/>
+                </models>
+            </provider>
+            <provider id="HUGGING_FACE" api-name="HUGGINGFACE" host="api-inference.huggingface.co">
+                <urls>
+                    <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/select-ai-manage-profiles.html#GUID-7D964B69-2A68-4FB8-BC10-C37C1F5945E0</url>
+                </urls>
+                <models>
+                    <model id="MIXTRAL_8X7B_INSTRUCT_V0_1" default="true"/>
+                    <model id="META_LLAMA_3_70B_INSTRUCT"/>
+                    <model id="QWEN_1_5_1_8B"/>
+                </models>
+            </provider>
+        </assistant>
+        <assistant type="PUBLIC">
+            <provider id="OPEN_AI">
+                <models>
+                    <model id="GPT_4_1" default="true"/>
+                    <model id="GPT_4_1_MINI"/>
+                    <model id="GPT_4_1_NANO"/>
+                    <model id="GPT_5"/>
+                    <model id="GPT_5_MINI"/>
+                    <model id="GPT_5_NANO"/>
+                    <model id="O1"/>
+                    <model id="O1_MINI"/>
+                    <model id="O1_PRO"/>
+                    <model id="O3"/>
+                    <model id="O3_MINI"/>
+                    <model id="O4_MINI"/>
+                </models>
+            </provider>
+            <provider id="GOOGLE">
+                <models>
+                    <model id="GEMINI_1_5_FLASH"/>
+                    <model id="GEMINI_1_5_PRO"/>
+                    <model id="GEMINI_2_5_FLASH"/>
+                    <model id="GEMINI_2_5_PRO"/>
+                </models>
+            </provider>
+            <provider id="ANTHROPIC">
+                <models>
+                    <model id="CLAUDE_OPUS_4_1_20250805"/>
+                    <model id="CLAUDE_OPUS_4_20250514"/>
+                    <model id="CLAUDE_SONNET_4_20250514"/>
+                    <model id="CLAUDE_3_7_SONNET_20250219"/>
+                    <model id="CLAUDE_3_5_HAIKU_20241022"/>
+                    <model id="CLAUDE_3_HAIKU_20240307"/>
+                </models>
+            </provider>
+            <provider id="MISTRAL_AI">
+                <models>
+                    <model id="CODESTRAL_2508"/>
+                    <model id="MISTRAL_MEDIUM_2508"/>
+                    <model id="MAGISTRAL_MEDIUM_2507"/>
+                    <model id="MAGISTRAL_SMALL_2507"/>
+                    <model id="MAGISTRAL_SMALL_2506"/>
+                    <model id="MISTRAL_SMALL_2506"/>
+                    <model id="VOXTRAL_SMALL_2507"/>
+                    <model id="VOXTRAL_MINI_2507"/>
+                </models>
+            </provider>
+        </assistant>
+    </provider-support>
+
+</language-model-provider>

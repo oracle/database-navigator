@@ -27,12 +27,12 @@ import dev.langchain4j.model.openai.OpenAiLanguageModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.OPENAI;
+import static com.dbn.assistant.provider.AIProviders.OPEN_AI;
 
 public class OpenAiModelFactory extends AbstractModelFactory {
 
     public OpenAiModelFactory() {
-        super(OPENAI);
+        super(OPEN_AI);
     }
 
     @Nullable

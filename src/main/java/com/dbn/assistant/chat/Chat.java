@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.common.state.PersistentStateElement;
@@ -129,9 +130,11 @@ public class Chat implements PersistentStateElement {
         title = stringAttribute(element, "title");
         sessionSignature = stringAttribute(element, "session-signature");
         timestamp = longAttribute(element, "timestamp", 0L);
+
+        AssistantType assistantType = getContext().getAssistantType();
         List<Element> messagesElements = element.getChild("messages").getChildren();
         for(Element msgElement : messagesElements){
-            ChatMessage chatMessage = new ChatMessage();
+            ChatMessage chatMessage = new ChatMessage(assistantType);
             chatMessage.readState(msgElement);
             messages.add(chatMessage);
         }

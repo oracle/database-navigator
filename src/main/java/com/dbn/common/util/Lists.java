@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -243,6 +244,11 @@ public class Lists {
             buffer.append(toString.apply(element));
         }
         return buffer.toString();
+    }
+
+    public static <K, V> Map<K, V> toMap(Collection<V> elements, Function<V, K> keyFunction) {
+        if (elements == null) return Collections.emptyMap();
+        return  elements.stream().collect(Collectors.toMap(keyFunction, v -> v));
     }
 
     public static List<String> fromCsv(String csvString) {

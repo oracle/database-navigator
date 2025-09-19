@@ -104,6 +104,7 @@ public class PromptActionSelectAction extends ToggleAction implements AssistantA
         // preserve profile and model from the current context
         ChatContext currentContext = chatBox.getCurrentContext();
         ChatContext targetContext = new ChatContextImpl(
+                currentContext.getAssistantType(),
                 currentContext.getProfileName(),
                 currentContext.getProviderId(),
                 currentContext.getModelId(),

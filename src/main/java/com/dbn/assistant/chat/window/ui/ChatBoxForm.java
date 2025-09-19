@@ -450,7 +450,7 @@ public class ChatBoxForm extends DBNFormBase {
         if (chatContext == null) return;
 
         assistantState.set(QUERYING, true);
-        ChatMessage userMessage = new ChatMessage(NEUTRAL, question, USER, chatContext);
+        ChatMessage userMessage = new ChatMessage(getAssistantType(), NEUTRAL, question, USER, chatContext);
         userMessage.setProgress(true);
 
         String chatId = assistantState.getCurrentChatId();

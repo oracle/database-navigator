@@ -20,10 +20,6 @@ import com.dbn.common.property.PropertyHolderBase.ShortStore;
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * AI models
@@ -52,28 +48,16 @@ public final class AIModel extends ShortStore<AIModelProperty> implements Presen
         return apiName; // TODO presentable profile names
     }
 
-    @Nullable
-    public static AIModel forId(String id) {
-        return get(m -> m.getId().equals(id));
+    public boolean isDefault() {
+        return is(AIModelProperty.DEFAULT);
     }
 
-    @Nullable
-    public static AIModel forApiName(String apiName) {
-        return get(m -> m.getApiName().equals(apiName));
+    public boolean isExperimental() {
+        return is(AIModelProperty.EXPERIMENTAL);
     }
 
-    @Nullable
-    private static AIModel get(Predicate<AIModel> condition) {
-        List<AIProvider> providers = AIProvider.values();
-        for (AIProvider provider : providers) {
-            List<AIModel> models = provider.getModels();
-            for (AIModel model : models) {
-                if (condition.test(model)) return model;
-            }
-        }
-
-        return null;
-
+    public boolean isDeprecated() {
+        return is(AIModelProperty.DEPRECATED);
     }
 
     @Override

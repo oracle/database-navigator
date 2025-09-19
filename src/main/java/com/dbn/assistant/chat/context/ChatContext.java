@@ -16,11 +16,14 @@
 
 package com.dbn.assistant.chat.context;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.common.state.PersistentStateElement;
 
 public interface ChatContext extends PersistentStateElement {
+
+    AssistantType getAssistantType();
 
     AIProvider getProvider();
 

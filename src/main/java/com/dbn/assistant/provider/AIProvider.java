@@ -20,9 +20,11 @@ import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Lists;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * This enum is for listing the possible credential providers we have
@@ -35,41 +37,39 @@ import java.util.Map;
 @Setter
 public final class AIProvider implements Presentable {
 
-  private final String id;
-  private final String name;
-  private final String host;
+    private final String id;
+    private final String name;
+    private String host;
+    private String baseUrl;
+    private String apiName;
 
-  private List<AIModel> models;
-  private Map<ProviderUrlType, String> urls;
+    private List<AIModel> models;
+    private Map<ProviderUrlType, String> urls;
 
-  AIProvider(String id, String name, String host) {
-    this.id = id;
-    this.name = name;
-    this.host = host;
-  }
+    AIProvider(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
-  public static List<AIProvider> values() {
-    return LanguageModelDefinition.providers();
-  }
+    public AIModel getModel(String id) {
+        return Lists.first(models, m -> m.getId().equals(id));
+    }
 
-  public static AIProvider forId(String id) {
-      return Lists.first(values(),  p -> p.getId().equals(id));
-  }
+    @Nullable
+    public AIModel getModel(Predicate<AIModel> predicate) {
+        return Lists.first(models, predicate);
+    }
 
-  public AIModel getModel(String id) {
-    return Lists.first(models, m -> m.getId().equals(id));
-  }
+    public AIModel getDefaultModel() {
+        return Lists.firstElement(models);
+    }
 
-  public AIModel getDefaultModel() {
-    return Lists.firstElement(models);
-  }
+    public String getUrl(ProviderUrlType type) {
+        return urls.get(type);
+    }
 
-  public String getUrl(ProviderUrlType type) {
-    return urls.get(type);
-  }
-
-  @Override
-  public String toString() {
-    return getName();
-  }
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

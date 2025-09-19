@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.message;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.editor.SQLChatMessageConverter;
@@ -31,7 +32,6 @@ import com.intellij.lang.Language;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
@@ -63,13 +63,13 @@ import static com.dbn.common.util.Lists.removeLast;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class ChatMessage implements PersistentStateElement {
     /**
      * Unique identifier of the chat message to establish causality relations and chaining of messages
      */
     protected String id = UUIDs.regular();
 
+    private final AssistantType assistantType;
     protected MessageType type = MessageType.NEUTRAL;
     protected AuthorType author;
     protected @NonNls String content;
@@ -82,6 +82,9 @@ public class ChatMessage implements PersistentStateElement {
 
     private transient boolean progress;
 
+    public ChatMessage(AssistantType assistantType) {
+        this.assistantType = assistantType;
+    }
 
     /**
      * Creates a new ChatMessage
@@ -91,7 +94,8 @@ public class ChatMessage implements PersistentStateElement {
      * @param author  the author of the message
      * @param context the context in which the chat message was produced
      */
-    public ChatMessage(MessageType type, String content, AuthorType author, ChatContext context) {
+    public ChatMessage(AssistantType assistantType, MessageType type, String content, AuthorType author, ChatContext context) {
+        this.assistantType = assistantType;
         this.type = type;
         this.content = removeCodeBlockIndents(content.trim());
         this.author = author;
@@ -252,7 +256,7 @@ public class ChatMessage implements PersistentStateElement {
         content = readCdata(contentElement);
 
         Element contextElement = element.getChild("context");
-        context = new ChatContextImpl();
+        context = new ChatContextImpl(assistantType);
         context.readState(contextElement);
 
         Element toolsElement = element.getChild("tools");

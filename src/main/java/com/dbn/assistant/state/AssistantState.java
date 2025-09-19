@@ -87,7 +87,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     private String currentChatId;
     private String currentSessionSignature; // the resourceId of the com.dbn.connection.jdbc.Resource
     private String defaultProfileName;
-    private ChatContext lastContext = new ChatContextImpl();
+    private ChatContext lastContext;
 
     @Delegate
     private final UserDataHolder userData = new UserDataHolderBase();
@@ -95,6 +95,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     public AssistantState(ConnectionId connectionId, AssistantType assistantType) {
         this.connectionId = connectionId;
         this.assistantType = assistantType;
+        this.lastContext = new ChatContextImpl(assistantType);
     }
 
     @Override
@@ -269,7 +270,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         List<Element> chatElements = childrenOf(chatsElement);
 
         for (Element chatElement : chatElements) {
-            ChatContext chatContext = new ChatContextImpl();
+            ChatContext chatContext = new ChatContextImpl(assistantType);
             Chat chat = new Chat(chatContext);
             chat.readState(chatElement);
             chats.put(chat.getId(), chat);

@@ -58,7 +58,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
 
     @Override
     public ChatContext createChatContext(ConnectionId connectionId) {
-        return new ChatContextImpl("OPENAI", "GPT_4_O");
+        return new ChatContextImpl(getAssistantType(), "OPENAI", "GPT_4_O");
         //return new ChatContextImpl("GOOGLE", "GEMINI_1_5_FLASH");
         //return new ChatContextImpl("ANTHROPIC", "CLAUDE_SONNET_4_20250514");
         //return new ChatContextImpl("MISTRALAI", "CODESTRAL_2501");

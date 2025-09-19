@@ -16,8 +16,10 @@
 
 package com.dbn.assistant.chat.context;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderData;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -32,19 +34,23 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 @Getter
 @Setter
 public final class ChatContextImpl implements ChatContext{
+    private final AssistantType assistantType;
     private String profileName;
     private String providerId;
     private String modelId;
     private String actionId;
     private boolean interactive = true;
 
-    public ChatContextImpl() {}
-
-    public ChatContextImpl(String providerId, String modelId) {
-        this(null, providerId, modelId, null, true);
+    public ChatContextImpl(AssistantType assistantType) {
+        this.assistantType = assistantType;
     }
 
-    public ChatContextImpl(String profileName, String providerId, String modelId, String actionId, boolean interactive) {
+    public ChatContextImpl(AssistantType assistantType, String providerId, String modelId) {
+        this(assistantType, null, providerId, modelId, null, true);
+    }
+
+    public ChatContextImpl(AssistantType assistantType, String profileName, String providerId, String modelId, String actionId, boolean interactive) {
+        this(assistantType);
         this.profileName = profileName;
         this.providerId = providerId;
         this.modelId = modelId;
@@ -54,11 +60,14 @@ public final class ChatContextImpl implements ChatContext{
 
     @Override
     public AIProvider getProvider() {
-        return AIProvider.forId(this.providerId);
+        return AIProviderData.getProvider(assistantType, this.providerId);
     }
 
     public AIModel getModel() {
-        return AIModel.forId(this.modelId);
+        AIProvider provider = getProvider();
+        if (provider == null) return null;
+
+        return provider.getModel(this.modelId);
     }
 
     @Override

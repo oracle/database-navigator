@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.window.ui;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.adapter.AssistantAdapter;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.chat.Chat;
@@ -29,9 +30,11 @@ import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.execution.AssistantToolInvocationMonitor;
 import com.dbn.assistant.tool.execution.AssistantToolRequest;
+import com.dbn.common.message.MessageType;
 import com.dbn.connection.ConnectionId;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.assistant.chat.message.AuthorType.SYSTEM;
@@ -63,7 +66,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         AuthorType author = lastMessage.getAuthor();
         if (author == USER) {
             // consume first agent token
-            ChatMessage agentMessage = new ChatMessage(NEUTRAL, token, AGENT, chatContext);
+            ChatMessage agentMessage = createMessage(NEUTRAL, token, AGENT);
             chatBoxForm.appendMessage(chatId, agentMessage);
         } else if (author == AGENT) {
             lastMessage.appendToken(token);
@@ -78,7 +81,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         if (tokenized) return;
         if (message == null) return;
 
-        ChatMessage agentMessage = new ChatMessage(NEUTRAL, message, AGENT, chatContext);
+        ChatMessage agentMessage = createMessage(NEUTRAL, message, AGENT);
         chatBoxForm.appendMessage(chatId, agentMessage);
         log.info("Assistant query processed successfully.");
     }
@@ -93,7 +96,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         AssistantAdapter assistantAdapter = chatBoxForm.getAssistantAdapter();
 
         String message = assistantAdapter.prepareError(connectionId, chatContext, e);
-        ChatMessage errorMessage = new ChatMessage(ERROR, message, SYSTEM, chatContext);
+        ChatMessage errorMessage = createMessage(ERROR, message, SYSTEM);
         chatBoxForm.appendMessage(chatId, errorMessage);
     }
 
@@ -117,7 +120,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         AuthorType author = lastMessage.getAuthor();
         if (author == USER) {
             // agent responded directly with a tool request
-            lastMessage = new ChatMessage(NEUTRAL, "", AGENT, chatContext);
+            lastMessage = createMessage(NEUTRAL, "", AGENT);
             lastMessage.appendToolRequest(invocation);
             chatBoxForm.appendMessage(chatId, lastMessage);
         } else if (author == AGENT) {
@@ -155,6 +158,10 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         }
     }
 
+    private @NonNull ChatMessage createMessage(MessageType type, String message, AuthorType author) {
+        return new ChatMessage(getAssistantType(), type, message, author, chatContext);
+    }
+
 
     private ConnectionId getConnectionId() {
         return chatBoxForm.getConnectionId();
@@ -166,6 +173,10 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     private AssistantState getAssistantState() {
         return chatBoxForm.getAssistantState();
+    }
+
+    private AssistantType getAssistantType() {
+        return getAssistantState().getAssistantType();
     }
 
     private AssistantToolCache getToolCache() {

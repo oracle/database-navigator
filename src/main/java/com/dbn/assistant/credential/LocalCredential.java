@@ -48,6 +48,7 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
     private String id = UUID.randomUUID().toString();
     private String name;
     private String user;
+    private String provider;
     private char[] key;
 
 

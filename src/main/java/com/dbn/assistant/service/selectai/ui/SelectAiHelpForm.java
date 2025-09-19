@@ -16,11 +16,14 @@
 
 package com.dbn.assistant.service.selectai.ui;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.assistant.service.selectai.SelectAiPrerequisiteManager;
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.intellij.ui.HyperlinkLabel;
@@ -38,6 +41,7 @@ import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.util.List;
 
 /**
  * Database Assistant prerequisites information form
@@ -93,7 +97,8 @@ public class SelectAiHelpForm extends DBNFormBase {
   }
 
   private void initializeWindow() {
-    AIProvider.values().forEach(p -> providerComboBox.addItem(p));
+    List<AIProvider> providers = AIProviderData.getProviders(AssistantType.SELECT_AI);
+    ComboBoxes.initComboBox(providerComboBox, providers);
 
     docuLink.setHyperlinkText("Select AI Docs");
     docuLink.setHyperlinkTarget(SELECT_AI_DOCS);

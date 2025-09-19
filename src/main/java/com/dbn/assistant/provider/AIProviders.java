@@ -16,12 +16,20 @@
 
 package com.dbn.assistant.provider;
 
+import com.dbn.assistant.AssistantType;
+import org.jetbrains.annotations.NonNls;
+
 public class AIProviders {
-    public static final AIProvider ANTHROPIC = AIProvider.forId("ANTHROPIC");
-    public static final AIProvider COHERE = AIProvider.forId("COHERE");
-    public static final AIProvider GOOGLE = AIProvider.forId("GOOGLE");
-    public static final AIProvider HUGGINGFACE = AIProvider.forId("HUGGINGFACE");
-    public static final AIProvider OLLAMA = AIProvider.forId("OLLAMA");
-    public static final AIProvider OPENAI = AIProvider.forId("OPENAI");
-    public static final AIProvider MISTRALAI = AIProvider.forId("MISTRALAI");
+    public static final AIProvider ANTHROPIC = forId("ANTHROPIC");
+    public static final AIProvider COHERE = forId("COHERE");
+    public static final AIProvider GOOGLE = forId("GOOGLE");
+    public static final AIProvider HUGGING_FACE = forId("HUGGING_FACE");
+    public static final AIProvider OLLAMA = forId("OLLAMA");
+    public static final AIProvider BEDROCK = forId("BEDROCK");
+    public static final AIProvider OPEN_AI = forId("OPEN_AI");
+    public static final AIProvider MISTRAL_AI = forId("MISTRAL_AI");
+
+    private static AIProvider forId(@NonNls String id) {
+        return AIProviderData.getProvider(AssistantType.PUBLIC, id);
+    }
 }

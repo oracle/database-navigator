@@ -25,12 +25,12 @@ import dev.langchain4j.model.huggingface.HuggingFaceEmbeddingModel;
 import dev.langchain4j.model.language.LanguageModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.HUGGINGFACE;
+import static com.dbn.assistant.provider.AIProviders.HUGGING_FACE;
 
 public class HuggingFaceModelFactory extends AbstractModelFactory {
 
     public HuggingFaceModelFactory() {
-        super(HUGGINGFACE);
+        super(HUGGING_FACE);
     }
 
     @Override
