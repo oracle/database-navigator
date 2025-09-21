@@ -28,6 +28,7 @@ import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.service.generic.model.AssistantModelFactories;
 import com.dbn.assistant.service.generic.model.AssistantModelFactory;
@@ -58,7 +59,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
 
     @Override
     public ChatContext createChatContext(ConnectionId connectionId) {
-        return new ChatContextImpl(getAssistantType(), "OPENAI", "GPT_4_O");
+        return new ChatContextImpl(getAssistantType(), "OPEN_AI", "GPT_4_1");
         //return new ChatContextImpl("GOOGLE", "GEMINI_1_5_FLASH");
         //return new ChatContextImpl("ANTHROPIC", "CLAUDE_SONNET_4_20250514");
         //return new ChatContextImpl("MISTRALAI", "CODESTRAL_2501");
@@ -164,7 +165,8 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
 
 
     private static AssistantModelInput createModelInput(ChatContext chatContext) {
-        String modelName = chatContext.getModel().getApiName();
+        AIModel model = chatContext.getModel();
+        String modelName = model == null ? "not-specified" : model.getApiName();
         // TODO user, token, url from assistant config...
 
         return AssistantModelInput.create(modelName)

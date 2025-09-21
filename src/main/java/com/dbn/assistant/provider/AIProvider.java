@@ -18,6 +18,7 @@ package com.dbn.assistant.provider;
 
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Lists;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +36,7 @@ import java.util.function.Predicate;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(of = "id")
 public final class AIProvider implements Presentable {
 
     private final String id;

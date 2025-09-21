@@ -18,6 +18,7 @@ package com.dbn.assistant.provider;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.common.util.Lists;
+import com.dbn.common.util.Safe;
 import com.dbn.common.util.XmlContents;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Lists.convert;
@@ -103,7 +105,7 @@ public class AIProvidersDefinition {
         List<AIProvider> assistantProviders = new ArrayList<>();
         for (Element providerElement : providerElements) {
             String providerId = stringAttribute(providerElement, "id");
-            AIProvider template = providers == null ? null : providers.get(providerId);
+            AIProvider template = Safe.call(providers, p -> p.get(providerId));
             AIProvider provider = createProvider(providerElement, template);
             assistantProviders.add(provider);
         }
@@ -153,18 +155,13 @@ public class AIProvidersDefinition {
     }
 
     private static void createUrls(Element element, AIProvider provider, AIProvider providerTemplate) {
-        Element urlsElement = element.getChild("urls");
-        if (urlsElement == null) {
-            provider.setUrls(Collections.emptyMap());
-            return;
-        }
-
-        List<Element> urlElements = urlsElement.getChildren();
         Map<ProviderUrlType, String> urls = new LinkedHashMap<>();
         if (providerTemplate != null) {
             urls.putAll(providerTemplate.getUrls());
         }
 
+        Element urlsElement = element.getChild("urls");
+        List<Element> urlElements = childrenOf(urlsElement);
         for (Element urlElement : urlElements) {
             ProviderUrlType urlType = enumAttribute(urlElement, "type", ProviderUrlType.class);
             urls.put(urlType, urlElement.getText());
