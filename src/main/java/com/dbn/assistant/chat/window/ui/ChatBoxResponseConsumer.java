@@ -42,6 +42,7 @@ import static com.dbn.assistant.chat.message.AuthorType.USER;
 import static com.dbn.assistant.state.AssistantStatus.QUERYING;
 import static com.dbn.common.message.MessageType.ERROR;
 import static com.dbn.common.message.MessageType.NEUTRAL;
+import static com.dbn.common.util.Commons.nvl;
 
 @Slf4j
 class ChatBoxResponseConsumer implements AssistantResponseConsumer {
@@ -79,7 +80,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
     public void acceptMessage(String message) {
         // ignore if token-stream is supported
         if (tokenized) return;
-        if (message == null) return;
+        message = nvl(message, "");
 
         ChatMessage agentMessage = createMessage(NEUTRAL, message, AGENT);
         chatBoxForm.appendMessage(chatId, agentMessage);

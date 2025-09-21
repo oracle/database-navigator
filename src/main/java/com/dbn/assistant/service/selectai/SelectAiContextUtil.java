@@ -16,8 +16,8 @@
 
 package com.dbn.assistant.service.selectai;
 
+import com.dbn.assistant.AssistantContextUtil;
 import com.dbn.assistant.AssistantType;
-import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
@@ -32,7 +32,6 @@ import com.dbn.object.DBAIProfile;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectBundle;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
@@ -128,20 +127,12 @@ public class SelectAiContextUtil {
 
     @Nullable
     public static AssistantState getAssistantState(ConnectionId connectionId) {
-        ConnectionHandler connection = getConnection(connectionId);
-        if (connection == null) return null;
-
-        Project project = connection.getProject();
-        DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
-        return assistantManager.getAssistantState(connectionId, AssistantType.SELECT_AI);
+        return AssistantContextUtil.getAssistantState(connectionId, AssistantType.SELECT_AI);
     }
 
     @Nullable
     public static ChatContext getChatContext(ConnectionId connectionId) {
-        AssistantState assistantState = getAssistantState(connectionId);
-        if (assistantState == null) return null;
-
-        return assistantState.getCurrentContext();
+        return AssistantContextUtil.getChatContext(connectionId, AssistantType.SELECT_AI);
     }
 
 

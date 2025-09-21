@@ -99,14 +99,14 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
     public void applyFormChanges() {
         profile.setName(nameTextField.getText());
-        profile.setProvider(getSelectedProviderId());
+        profile.setProviderId(getSelectedProviderId());
         profile.setCredentialId(getSelectedCredentialId());
     }
 
     public void resetFormChanges() {
         nameTextField.setText(profile.getName());
 
-        AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, profile.getProvider());
+        AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, profile.getProviderId());
         ComboBoxes.setSelection(providerComboBox, provider);
 
         AssistantCredential credential = getCredential(profile.getCredentialId());

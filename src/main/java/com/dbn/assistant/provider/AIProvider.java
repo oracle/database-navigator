@@ -17,7 +17,7 @@
 package com.dbn.assistant.provider;
 
 import com.dbn.common.ui.Presentable;
-import com.dbn.common.util.Lists;
+import com.dbn.common.util.Commons;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +26,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+
+import static com.dbn.common.util.Lists.first;
+import static com.dbn.common.util.Lists.firstElement;
 
 /**
  * This enum is for listing the possible credential providers we have
@@ -54,16 +57,22 @@ public final class AIProvider implements Presentable {
     }
 
     public AIModel getModel(String id) {
-        return Lists.first(models, m -> m.getId().equals(id));
+        return first(models, m -> m.getId().equals(id));
     }
 
     @Nullable
     public AIModel getModel(Predicate<AIModel> predicate) {
-        return Lists.first(models, predicate);
+        return first(models, predicate);
     }
 
     public AIModel getDefaultModel() {
-        return Lists.firstElement(models);
+        return Commons.coalesce(
+                () -> first(models, m -> m.isDefault()),
+                () -> firstElement(models));
+    }
+
+    public String getDefaultModelId() {
+        return getDefaultModel().getId();
     }
 
     public String getUrl(ProviderUrlType type) {

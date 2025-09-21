@@ -37,7 +37,7 @@ public class AssistantProfilesTableModel extends DBNTypedEditableTableModel<Assi
         this.credentials = credentials;
 
         addColumn("Profile Name", String.class, c -> c.getName(), null);
-        addColumn("LLM Provider", String.class, c -> getProviderName(c.getProvider()), null);
+        addColumn("LLM Provider", String.class, c -> getProviderName(c.getProviderId()), null);
         addColumn("Credential", String.class, c -> getCredentialName(c.getCredentialId()), null);
     }
 

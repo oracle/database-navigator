@@ -39,7 +39,7 @@ public class HuggingFaceModelFactory extends AbstractModelFactory {
         return HuggingFaceChatModel.builder()
                 .modelId(input.getModel())
                 .baseUrl(input.getUrl())
-                .accessToken(input.getToken())
+                .accessToken(input.getTokenString())
                 .temperature(input.getTemperature())
                 //.httpClientBuilder(createHttpClientBuilder())
                 .build();
@@ -63,7 +63,7 @@ public class HuggingFaceModelFactory extends AbstractModelFactory {
         return HuggingFaceEmbeddingModel.builder()
                 .modelId(input.getModel())
                 .baseUrl(input.getUrl())
-                .accessToken(input.getToken())
+                .accessToken(input.getTokenString())
                 //.httpClientBuilder(createHttpClientBuilder())
                 .build();
     }

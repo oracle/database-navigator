@@ -18,6 +18,7 @@ package com.dbn.assistant.profile;
 
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.CollectionUtil;
+import com.dbn.common.util.Lists;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -65,6 +66,10 @@ public class AssistantProfileBundle implements Iterable<AssistantProfile>, Clone
 
     public int size() {
         return elements.size();
+    }
+
+    public AssistantProfile get(String profileName) {
+        return Lists.first(elements, p -> p.getName().equals(profileName));
     }
 
     public AssistantProfile get(int index) {

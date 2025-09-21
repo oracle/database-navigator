@@ -16,15 +16,21 @@
 
 package com.dbn.assistant.profile;
 
+import com.dbn.assistant.AssistantType;
+import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Commons.nvl;
@@ -32,23 +38,37 @@ import static com.dbn.common.util.Commons.nvl;
 @Getter
 @Setter
 public class AssistantProfile implements PersistentConfiguration, Presentable, Cloneable<AssistantProfile> {
+    private AssistantType assistantType = AssistantType.PUBLIC;
     private String id = UUID.randomUUID().toString();
     private String name;
-    private String provider;
+    private String providerId;
     private String credentialId;
 
+    @Nullable
+    public AIProvider getProvider(){
+        return AIProviderData.getProvider(assistantType, providerId);
+    }
+
+    public String getDefaultModelId() {
+        AIProvider provider = getProvider();
+        if (provider == null) return null;
+        return provider.getDefaultModelId();
+    }
+
     public void readConfiguration(Element element) {
+        assistantType = enumAttribute(element, "assistant-type", assistantType);
         id = nvl(stringAttribute(element, "id"), id);
         name = stringAttribute(element, "name");
-        provider = stringAttribute(element, "provider");
+        providerId = stringAttribute(element, "provider-id");
         credentialId = stringAttribute(element, "credential-id");
     }
 
     @Override
     public void writeConfiguration(Element element) {
+        setEnumAttribute(element, "assistant-type", assistantType);
         setStringAttribute(element, "id", id);
         setStringAttribute(element, "name", name);
-        setStringAttribute(element, "provider", provider);
+        setStringAttribute(element, "provider-id", providerId);
         setStringAttribute(element, "credential-id", credentialId);
     }
 
@@ -57,7 +77,7 @@ public class AssistantProfile implements PersistentConfiguration, Presentable, C
         AssistantProfile clone = new AssistantProfile();
         clone.id = id;
         clone.name = name;
-        clone.provider = provider;
+        clone.providerId = providerId;
         clone.credentialId = credentialId;
         return clone;
     }

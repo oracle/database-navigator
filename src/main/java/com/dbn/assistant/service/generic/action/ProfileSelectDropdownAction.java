@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.service.selectai.action;
+package com.dbn.assistant.service.generic.action;
 
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.service.selectai.SelectAiContextUtil;
+import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
-import com.dbn.common.action.DataKeys;
-import com.dbn.connection.ConnectionId;
-import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import javax.swing.JComponent;
 import java.util.List;
@@ -42,23 +41,18 @@ import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
 import static com.dbn.nls.NlsResources.txt;
 
-/**
- * Action for selecting the current AI-assistant profile
- *
- * @author Dan Cioca (Oracle)
- */
 @BackgroundUpdate
 public class ProfileSelectDropdownAction extends ComboBoxAction implements AssistantActionSupport, DumbAware {
 
     @Override
     @NotNull
-    protected DefaultActionGroup createPopupActionGroup(JComponent component, DataContext dataContext) {
+    protected DefaultActionGroup createPopupActionGroup(@NonNull JComponent component, DataContext dataContext) {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
 
-        ChatBoxForm chatBox = dataContext.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        if (chatBox == null) return actionGroup;
+        Project project = dataContext.getData(PlatformDataKeys.PROJECT);
+        if (project == null) return actionGroup;
 
-        List<DBAIProfile> profiles = SelectAiContextUtil.getProfiles(chatBox.getConnectionId());
+        List<AssistantProfile> profiles = getAssistantProfiles(project);
         profiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
         actionGroup.addSeparator();
 
@@ -70,13 +64,10 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
     public void update(@NotNull AnActionEvent e) {
         boolean enabled = isEnabled(e);
 
-        DBAIProfile profile = getSelectedProfile(e);
-
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e), false);
         presentation.setDescription(txt("app.assistant.tooltip.ChooseProfile"));
         presentation.setEnabled(enabled);
-        presentation.setIcon(profile == null ? null : profile.getIcon());
     }
 
     private boolean isEnabled(@NotNull AnActionEvent e) {
@@ -96,22 +87,6 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
         if (text != null) return text;
 
         return txt("app.assistant.action.Profile");
-    }
-
-    @Nullable
-    public String getSelectedProfileName(@NotNull AnActionEvent e) {
-        DBAIProfile profile = getSelectedProfile(e);
-        if (profile == null) return null;
-
-        return profile.getName();
-    }
-
-    @Nullable
-    private DBAIProfile getSelectedProfile(@NotNull AnActionEvent e) {
-        ConnectionId connectionId = getConnectionId(e);
-        if (connectionId == null) return null;
-
-        return SelectAiContextUtil.getSelectedProfile(connectionId);
     }
 
     @Override

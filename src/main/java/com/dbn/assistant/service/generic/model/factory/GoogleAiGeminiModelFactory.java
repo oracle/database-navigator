@@ -39,7 +39,7 @@ public class GoogleAiGeminiModelFactory extends AbstractModelFactory {
     public ChatModel createChatModel(AssistantModelInput input) {
         return GoogleAiGeminiChatModel.builder()
                 .modelName(input.getModel())
-                .apiKey(input.getToken())
+                .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
@@ -50,7 +50,7 @@ public class GoogleAiGeminiModelFactory extends AbstractModelFactory {
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return GoogleAiGeminiStreamingChatModel.builder()
                 .modelName(input.getModel())
-                .apiKey(input.getToken())
+                .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
@@ -67,7 +67,7 @@ public class GoogleAiGeminiModelFactory extends AbstractModelFactory {
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return GoogleAiEmbeddingModel.builder()
                 .modelName(input.getModel())
-                .apiKey(input.getToken())
+                .apiKey(input.getTokenString())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
     }

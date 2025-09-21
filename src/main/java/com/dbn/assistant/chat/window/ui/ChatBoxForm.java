@@ -477,6 +477,7 @@ public class ChatBoxForm extends DBNFormBase {
             }
             if (title == null) return;
 
+            title = title.trim();
             title = title.replaceAll("\"", "");
             title = title.replaceAll("'", "");
             chat.setTitle(title);

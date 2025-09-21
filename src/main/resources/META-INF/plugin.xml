@@ -365,13 +365,17 @@
         </group>
         <group id="DBNavigator.ActionGroup.SelectAiContextActions" text="Assistant Chat-Box Profiles">
             <action class="com.dbn.assistant.service.selectai.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectProfile"/>
-            <action class="com.dbn.assistant.service.selectai.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectModel"/>
+            <action class="com.dbn.assistant.service.selectai.action.ModelSelectDropdownAction" text="Select Model" id="DBNavigator.Actions.Assistant.SelectModel"/>
             <action class="com.dbn.assistant.service.selectai.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Assistant.RefreshProfiles" icon="AllIcons.Actions.Refresh"/>
             <action class="com.dbn.assistant.service.selectai.action.ConfigurationHelpAction" text="Help" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
             <group id="DBNavigator.Actions.Assistant.OpenSettings" text="Options" icon="AllIcons.General.GearPlain" popup="true">
                 <action class="com.dbn.assistant.service.selectai.action.ProfilesSetupAction" text="Profile Setup..." id="DBNavigator.Actions.Assistant.ProfileSetup"/>
                 <action class="com.dbn.assistant.chat.window.action.AssistantSettingsAction" text="Settings..." id="DBNavigator.Actions.Assistant.AssistantSettings"/>
             </group>
+        </group>
+        <group id="DBNavigator.ActionGroup.GenericAssistantContextActions" text="Assistant Chat-Box Profiles">
+            <action class="com.dbn.assistant.service.generic.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectAssistantProfile"/>
+            <action class="com.dbn.assistant.service.generic.action.ModelSelectDropdownAction" text="Select Model" id="DBNavigator.Actions.Assistant.SelectAssistantModel"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantChatActions" text="Assistant Chat Actions">
             <action class="com.dbn.assistant.chat.window.action.ChatStartNewAction" text="New Chat" id="DBNavigator.Actions.Assistant.NewChat" icon="AllIcons.General.Add"/>

@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.service.generic;
 
+import com.dbn.assistant.AssistantContextUtil;
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.adapter.AssistantAdapterBase;
 import com.dbn.assistant.adapter.AssistantResponseAdapter;
@@ -26,8 +27,9 @@ import com.dbn.assistant.adapter.ui.AssistantPromptActionsForm;
 import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
-import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.service.generic.model.AssistantModelFactories;
@@ -39,11 +41,14 @@ import com.dbn.assistant.service.generic.model.AssistantModelType;
 import com.dbn.assistant.service.generic.ui.GenericAssistantContextActionsForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantIntroductionForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantPromptActionsForm;
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.UUIDs;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.intellij.openapi.project.Project;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -59,10 +64,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
 
     @Override
     public ChatContext createChatContext(ConnectionId connectionId) {
-        return new ChatContextImpl(getAssistantType(), "OPEN_AI", "GPT_4_1");
-        //return new ChatContextImpl("GOOGLE", "GEMINI_1_5_FLASH");
-        //return new ChatContextImpl("ANTHROPIC", "CLAUDE_SONNET_4_20250514");
-        //return new ChatContextImpl("MISTRALAI", "CODESTRAL_2501");
+        return AssistantContextUtil.getChatContext(connectionId, getAssistantType());
     }
 
     @Override
@@ -125,7 +127,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
     @Override
     public void generate(String prompt, String chatId, ConnectionId connectionId, ChatContext context, AssistantResponseConsumer responseConsumer) {
         try {
-            AssistantModelInput input = createModelInput(context);
+            AssistantModelInput input = createModelInput(connectionId, context);
             AssistantState state = getAssistantState(connectionId);
 
             var model = resolveModel(context, input);
@@ -151,7 +153,8 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         String prompts = Lists.toCsv(userPrompts, "\n", s -> "\"" + s + "\"");
         String titlePrompt = "Summarize the following user prompts into a concise title (3-5 words). Respond with the title only, no punctuation, quotes, or filler words:\n\n" + prompts;
 
-        AssistantModelInput input = createModelInput(context);
+        AssistantModelInput input = createModelInput(connectionId, context);
+        if (input == null) return null;
 
         var model = resolveModel(context, input);
         var invoker = resolveModelInvoker(model);
@@ -164,26 +167,39 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
     }
 
 
-    private static AssistantModelInput createModelInput(ChatContext chatContext) {
+    private static AssistantModelInput createModelInput(ConnectionId connectionId, ChatContext chatContext) {
+        ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+
+        AIProvider provider = chatContext.getProvider();
+        if (provider == null) return null;
+
         AIModel model = chatContext.getModel();
-        String modelName = model == null ? "not-specified" : model.getApiName();
-        // TODO user, token, url from assistant config...
+        if (model == null) return null;
+
+        String modelName = model.getApiName();
+        String profileName = chatContext.getProfileName();
+
+        Project project = connection.getProject();
+        AssistantProfile profile = getAssistantProfile(project, profileName);
+        if (profile == null) return null;
+
+        String credentialId = profile.getCredentialId();
+        AssistantCredential credential = getAssistantCredential(project, credentialId);
+        if (credential == null) return null;
 
         return AssistantModelInput.create(modelName)
-                .withUser(System.getProperty("tempOpenAiUser"))
-                .withToken(System.getProperty("tempOpenAiApiKey"));
+                .withUser(credential.getUser())
+                .withToken(credential.getKey());
+    }
 
-/*            AssistantModelInput input = AssistantModelInput.create(modelName)
-                    .withUser(System.getProperty("tempGoogleAiUser"))
-                    .withToken(System.getProperty("tempGoogleAiApiKey"));
+    private static AssistantProfile getAssistantProfile(Project project, String profileName) {
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+        return assistantSettings.getProfileSettings().getProfiles().get(profileName);
+    }
 
-            AssistantModelInput input = AssistantModelInput.create(modelName)
-                    .withToken(System.getProperty("tempAnthropicApiKey"));
-
-
-            return AssistantModelInput.create(modelName)
-                    .withToken(System.getProperty("tempMistralAiApiKey"));
-*/
+    private static AssistantCredential getAssistantCredential(Project project, String credentialId) {
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+        return assistantSettings.getCredentialSettings().getCredentials().get(credentialId);
     }
 
     private static Object resolveModel(ChatContext context, AssistantModelInput input) {

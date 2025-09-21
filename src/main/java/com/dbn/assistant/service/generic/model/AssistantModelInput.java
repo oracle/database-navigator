@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.service.generic.model;
 
+import com.dbn.common.util.Chars;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -26,12 +27,16 @@ public class AssistantModelInput {
     private final String model;
     private String url;
     private String user;
-    private String token;
+    private char[] token;
     private Double temperature;
     private Map<String, String> headers = new HashMap<>();
 
     private AssistantModelInput(String model) {
         this.model = model;
+    }
+
+    public String getTokenString() {
+        return Chars.toString(token);
     }
 
     public AssistantModelInput withUrl(String url) {
@@ -44,7 +49,7 @@ public class AssistantModelInput {
         return this;
     }
 
-    public AssistantModelInput withToken(String token) {
+    public AssistantModelInput withToken(char[] token) {
         this.token = token;
         return this;
     }

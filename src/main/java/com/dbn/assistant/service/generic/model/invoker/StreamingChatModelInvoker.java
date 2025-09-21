@@ -83,6 +83,18 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
                 consumer.acceptCompletion();
             });
 
+            aiTokenStream.onRetrieved(l -> {
+                System.out.println();
+            });
+
+            aiTokenStream.onIntermediateResponse(r -> {
+                System.out.println();
+            });
+
+            aiTokenStream.onPartialThinking(t -> {
+                System.out.println();
+            });
+
             tokenStream.start();
         }
     }
