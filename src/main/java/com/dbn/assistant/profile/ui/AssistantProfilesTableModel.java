@@ -14,29 +14,31 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.credential.ui;
+package com.dbn.assistant.profile.ui;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.credential.AssistantCredentialBundle;
+import com.dbn.assistant.profile.AssistantProfile;
+import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.common.ui.table.DBNTypedEditableTableModel;
-import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
 import lombok.Getter;
 
 @Getter
-public class AssistantCredentialsTableModel extends DBNTypedEditableTableModel<AssistantCredential> {
+public class AssistantProfilesTableModel extends DBNTypedEditableTableModel<AssistantProfile> {
+    private final AssistantCredentialBundle credentials;
 
-    AssistantCredentialsTableModel(AssistantCredentialBundle credentials) {
-        super(AssistantCredential.class, credentials.getElements());
+    AssistantProfilesTableModel(AssistantProfileBundle profiles, AssistantCredentialBundle credentials) {
+        super(AssistantProfile.class, profiles.getElements());
+        this.credentials = credentials;
 
-        addColumn("Credential Name", String.class, c -> c.getName(), (c, v) -> c.setName(v));
+        addColumn("Profile Name", String.class, c -> c.getName(), null);
         addColumn("LLM Provider", String.class, c -> getProviderName(c.getProvider()), null);
-        addColumn("User", String.class, c -> c.getUser(), (c, v) -> c.setUser(v));
-        addColumn("Secret", String.class, c -> Chars.toString(c.getKey()), (c, v) -> c.setKey(Chars.fromString(v)));
+        addColumn("Credential", String.class, c -> getCredentialName(c.getCredentialId()), null);
     }
 
     private String getProviderName(String providerId) {
@@ -46,10 +48,16 @@ public class AssistantCredentialsTableModel extends DBNTypedEditableTableModel<A
         return provider == null ? "" : provider.getName();
     }
 
+    private String getCredentialName(String credentialId) {
+        if (Strings.isEmpty(credentialId)) return "";
+        AssistantCredential credential = credentials.get(credentialId);
+        return credential == null ? "" : credential.getName();
+    }
+
     public void validate() throws ConfigurationException {
-        for (AssistantCredential credential : getElements()) {
-            if (Strings.isEmpty(credential.getName())) {
-                throw new ConfigurationException("Please provide names for all credentials.");
+        for (AssistantProfile profile : getElements()) {
+            if (Strings.isEmpty(profile.getName())) {
+                throw new ConfigurationException("Please provide names for all profiles.");
             }
         }
     }

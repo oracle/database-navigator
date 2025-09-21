@@ -16,26 +16,49 @@
 
 package com.dbn.assistant.profile;
 
-import com.dbn.assistant.credential.AssistantCredential;
-import com.dbn.assistant.provider.AIProvider;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
+import com.dbn.common.util.Cloneable;
 import lombok.Getter;
+import lombok.Setter;
 import org.jdom.Element;
 
+import java.util.UUID;
+
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Commons.nvl;
+
 @Getter
-public class AssistantProfile implements PersistentConfiguration, Presentable {
+@Setter
+public class AssistantProfile implements PersistentConfiguration, Presentable, Cloneable<AssistantProfile> {
+    private String id = UUID.randomUUID().toString();
     private String name;
-    private AIProvider provider;
-    private AssistantCredential credential;
+    private String provider;
+    private String credentialId;
 
-    @Override
     public void readConfiguration(Element element) {
-
+        id = nvl(stringAttribute(element, "id"), id);
+        name = stringAttribute(element, "name");
+        provider = stringAttribute(element, "provider");
+        credentialId = stringAttribute(element, "credential-id");
     }
 
     @Override
     public void writeConfiguration(Element element) {
+        setStringAttribute(element, "id", id);
+        setStringAttribute(element, "name", name);
+        setStringAttribute(element, "provider", provider);
+        setStringAttribute(element, "credential-id", credentialId);
+    }
 
+    @Override
+    public AssistantProfile clone() {
+        AssistantProfile clone = new AssistantProfile();
+        clone.id = id;
+        clone.name = name;
+        clone.provider = provider;
+        clone.credentialId = credentialId;
+        return clone;
     }
 }

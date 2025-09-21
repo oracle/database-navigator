@@ -22,16 +22,17 @@ import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 
 
 public class AssistantSettingsForm extends CompositeConfigurationEditorForm<AssistantSettings> {
   private JPanel mainPanel;
   private JPanel credentialsPanel;
+  private JPanel profilesPanel;
 
   public AssistantSettingsForm(AssistantSettings settings) {
     super(settings);
-    credentialsPanel.add(settings.getCredentialSettings().createComponent(), BorderLayout.CENTER);
+    credentialsPanel.add(settings.getCredentialSettings().createComponent());
+    profilesPanel.add(settings.getProfileSettings().createComponent());
   }
 
   @Override

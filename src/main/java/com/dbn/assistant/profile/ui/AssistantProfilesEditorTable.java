@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.credential.ui;
+package com.dbn.assistant.profile.ui;
 
 import com.dbn.assistant.credential.AssistantCredentialBundle;
+import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNEditableTable;
 import com.intellij.util.ui.UIUtil;
@@ -26,35 +27,34 @@ import javax.swing.ListSelectionModel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
-/**
- * Table model for provider credentials information
- * The template credential stored locally.
- */
-public class AssistantCredentialsEditorTable extends DBNEditableTable<AssistantCredentialsTableModel> {
+public class AssistantProfilesEditorTable extends DBNEditableTable<AssistantProfilesTableModel> {
+    private final AssistantCredentialBundle credentials;
 
-    AssistantCredentialsEditorTable(DBNComponent parent, AssistantCredentialBundle credentials) {
-        super(parent, createModel(credentials), true);
+    AssistantProfilesEditorTable(DBNComponent parent, AssistantProfileBundle profiles, AssistantCredentialBundle credentials) {
+        super(parent, createModel(profiles, credentials), true);
+        this.credentials = credentials;
+
         setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         setSelectionBackground(UIUtil.getTableBackground());
         setSelectionForeground(UIUtil.getTableForeground());
         setCellSelectionEnabled(true);
-        setDefaultRenderer(String.class, new AssistantCredentialsTableCellRenderer());
+        setDefaultRenderer(String.class, new AssistantProfilesTableCellRenderer());
 
-        setAccessibleName(this, "Assistant Credentials");
+        setAccessibleName(this, "Assistant Profiles");
         setProportionalColumnWidths(15, 15, 15, 55);
     }
 
     @NotNull
-    private static AssistantCredentialsTableModel createModel(AssistantCredentialBundle credentials) {
-        return new AssistantCredentialsTableModel(credentials);
+    private static AssistantProfilesTableModel createModel(AssistantProfileBundle profiles, AssistantCredentialBundle credentials) {
+        return new AssistantProfilesTableModel(profiles, credentials);
     }
 
-    void setCredentials(AssistantCredentialBundle credentials) {
-        super.setModel(createModel(credentials));
+    void setProfiles(AssistantProfileBundle profiles) {
+        super.setModel(createModel(profiles, credentials));
     }
 
     @Override
     public boolean isCellEditable(int row, int column) {
-        return false; //getModel().isCellEditable(row, column);
+        return false;
     }
 }

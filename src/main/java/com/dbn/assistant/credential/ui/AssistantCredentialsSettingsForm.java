@@ -20,20 +20,16 @@ package com.dbn.assistant.credential.ui;
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.credential.AssistantCredentialSettings;
-import com.dbn.common.action.BasicAction;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Dialogs;
 import com.dbn.credentials.Secret;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
-import javax.swing.table.TableCellEditor;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,17 +60,6 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
         decorator.setMoveUpAction(b -> credentialsTable.moveRowUp());
         decorator.setMoveDownAction(b -> credentialsTable.moveRowDown());
         decorator.setEditAction(b -> openCredentialEditor(false));
-        decorator.addExtraAction(new BasicAction("Revert Changes", null, Icons.ACTION_REVERT) {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
-                TableCellEditor cellEditor = credentialsTable.getCellEditor();
-                if (cellEditor != null) {
-                    cellEditor.cancelCellEditing();
-                }
-                credentialsTable.setCredentials(getConfiguration().getCredentials());
-            }
-
-        });
 
         Mouse.onMouseDoubleClick(credentialsTable, e -> openCredentialEditor(false));
         return createToolbarDecoratorComponent(decorator, credentialsTable);

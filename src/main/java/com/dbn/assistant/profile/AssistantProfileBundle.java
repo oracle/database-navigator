@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.credential;
+package com.dbn.assistant.profile;
 
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.CollectionUtil;
@@ -26,29 +26,27 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.dbn.common.util.Lists.first;
-
 @Getter
 @Setter
 @NoArgsConstructor
-public class AssistantCredentialBundle implements Iterable<AssistantCredential>, Cloneable {
-    private final List<AssistantCredential> elements = new ArrayList<>();
+public class AssistantProfileBundle implements Iterable<AssistantProfile>, Cloneable {
+    private final List<AssistantProfile> elements = new ArrayList<>();
 
-    public AssistantCredentialBundle(AssistantCredentialBundle source) {
+    public AssistantProfileBundle(AssistantProfileBundle source) {
         this(source.getElements());
     }
 
-    public AssistantCredentialBundle(List<AssistantCredential> elements) {
+    public AssistantProfileBundle(List<AssistantProfile> elements) {
         setElements(elements);
     }
 
-    public void setElements(List<AssistantCredential> credentials) {
+    public void setElements(List<AssistantProfile> profiles) {
         this.elements.clear();
-        CollectionUtil.cloneElements(credentials, this.elements);
+        CollectionUtil.cloneElements(profiles, this.elements);
     }
 
     @Override
-    public Iterator<AssistantCredential> iterator() {
+    public Iterator<AssistantProfile> iterator() {
         return elements.iterator();
     }
 
@@ -56,12 +54,12 @@ public class AssistantCredentialBundle implements Iterable<AssistantCredential>,
         elements.clear();
     }
 
-    public void add(AssistantCredential credential) {
-        elements.add(credential);
+    public void add(AssistantProfile profile) {
+        elements.add(profile);
     }
 
-    public void add(int index, AssistantCredential credential) {
-        elements.add(index, credential);
+    public void add(int index, AssistantProfile profile) {
+        elements.add(index, profile);
     }
 
 
@@ -69,26 +67,16 @@ public class AssistantCredentialBundle implements Iterable<AssistantCredential>,
         return elements.size();
     }
 
-    public AssistantCredential get(String id) {
-        return first(elements, c -> c.getId().equals(id));
-    }
-
-    public AssistantCredential get(int index) {
+    public AssistantProfile get(int index) {
         return elements.get(index);
     }
 
-    public AssistantCredential remove(int index) {
+    public AssistantProfile remove(int index) {
         return elements.remove(index);
     }
 
     @Override
-    public AssistantCredentialBundle clone() {
-        return new AssistantCredentialBundle(this);
-    }
-
-    public void initSecrets() {
-        for (AssistantCredential element : elements) {
-            element.initSecrets();
-        }
+    public AssistantProfileBundle clone() {
+        return new AssistantProfileBundle(this);
     }
 }

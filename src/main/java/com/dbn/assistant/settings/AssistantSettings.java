@@ -17,6 +17,7 @@
 package com.dbn.assistant.settings;
 
 import com.dbn.assistant.credential.AssistantCredentialSettings;
+import com.dbn.assistant.profile.AssistantProfileSettings;
 import com.dbn.assistant.settings.ui.AssistantSettingsForm;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
@@ -28,6 +29,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.util.Commons.array;
+
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class AssistantSettings
@@ -35,6 +38,7 @@ public class AssistantSettings
     implements TopLevelConfig {
 
   private final AssistantCredentialSettings credentialSettings = new AssistantCredentialSettings(this);
+  private final AssistantProfileSettings profileSettings = new AssistantProfileSettings(this);
 
   public AssistantSettings(ProjectSettings parent) {
     super(parent);
@@ -83,8 +87,9 @@ public class AssistantSettings
 
   @Override
   protected Configuration[] createConfigurations() {
-    return new Configuration[]{
-            credentialSettings};
+    return array(
+            credentialSettings,
+            profileSettings);
   }
 
   @Override

@@ -31,48 +31,48 @@ import static com.dbn.common.options.setting.Settings.newElement;
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class AssistantCredentialSettings
-    extends BasicProjectConfiguration<AssistantSettings, AssistantCredentialsSettingsForm> {
+        extends BasicProjectConfiguration<AssistantSettings, AssistantCredentialsSettingsForm> {
 
-  private AssistantCredentialBundle credentials = new AssistantCredentialBundle();
+    private AssistantCredentialBundle credentials = new AssistantCredentialBundle();
 
-  public AssistantCredentialSettings(AssistantSettings parent) {
-    super(parent);
-  }
-
-  public void setCredentials(AssistantCredentialBundle credentials) {
-    this.credentials = new AssistantCredentialBundle(credentials);
-  }
-
-  @NotNull
-  @Override
-  public AssistantCredentialsSettingsForm createConfigurationEditor() {
-    return new AssistantCredentialsSettingsForm(this);
-  }
-
-  @Override
-  public String getConfigElementName() {
-    return "credential-settings";
-  }
-
-  @Override
-  public void readConfiguration(Element element) {
-    Element credentialsElement = element.getChild("credentials");
-    if (credentialsElement != null) {
-      credentials.clear();
-      for (Element credentialElement : credentialsElement.getChildren()) {
-        AssistantCredential credential = new AssistantCredential();
-        credential.readConfiguration(credentialElement);
-        credentials.add(credential);
-      }
+    public AssistantCredentialSettings(AssistantSettings parent) {
+        super(parent);
     }
-  }
 
-  @Override
-  public void writeConfiguration(Element element) {
-    Element credentialsElement = newElement(element, "credentials");
-    for (AssistantCredential credential : credentials) {
-      Element credentialElement = newElement(credentialsElement, "credential");
-      credential.writeConfiguration(credentialElement);
+    public void setCredentials(AssistantCredentialBundle credentials) {
+        this.credentials = new AssistantCredentialBundle(credentials);
     }
-  }
+
+    @NotNull
+    @Override
+    public AssistantCredentialsSettingsForm createConfigurationEditor() {
+        return new AssistantCredentialsSettingsForm(this);
+    }
+
+    @Override
+    public String getConfigElementName() {
+        return "credential-settings";
+    }
+
+    @Override
+    public void readConfiguration(Element element) {
+        Element credentialsElement = element.getChild("credentials");
+        if (credentialsElement != null) {
+            credentials.clear();
+            for (Element credentialElement : credentialsElement.getChildren()) {
+                AssistantCredential credential = new AssistantCredential();
+                credential.readConfiguration(credentialElement);
+                credentials.add(credential);
+            }
+        }
+    }
+
+    @Override
+    public void writeConfiguration(Element element) {
+        Element credentialsElement = newElement(element, "credentials");
+        for (AssistantCredential credential : credentials) {
+            Element credentialElement = newElement(credentialsElement, "credential");
+            credential.writeConfiguration(credentialElement);
+        }
+    }
 }

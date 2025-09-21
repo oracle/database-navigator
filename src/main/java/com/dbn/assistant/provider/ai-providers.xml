@@ -16,7 +16,7 @@
 
 <language-model-provider version="1.0">
     <provider-types>
-        <provider id="OPEN_AI" name="OpenAI" host="api.openai.com" base-url="https://api.openai.com/v1/">
+        <provider id="OPEN_AI" name="Open AI" host="api.openai.com" base-url="https://api.openai.com/v1/">
             <urls>
                 <url type="OFFICIAL">https://openai.com</url>
                 <url type="DOCS">https://platform.openai.com/docs</url>
