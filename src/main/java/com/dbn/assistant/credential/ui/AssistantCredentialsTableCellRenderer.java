@@ -20,8 +20,8 @@ import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import org.jetbrains.annotations.Nullable;
 
-public class LocalCredentialsTableCellRenderer extends DBNColoredTableCellRenderer {
-    public static final int SECRET_COLUMN = 2;
+public class AssistantCredentialsTableCellRenderer extends DBNColoredTableCellRenderer {
+    public static final int SECRET_COLUMN = 3;
 
     @Override
     protected void customizeCellRenderer(DBNTable table, @Nullable Object value, boolean selected, boolean hasFocus, int row, int column) {

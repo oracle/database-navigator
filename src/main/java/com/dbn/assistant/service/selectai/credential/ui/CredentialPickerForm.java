@@ -16,9 +16,9 @@
 
 package com.dbn.assistant.service.selectai.credential.ui;
 
-import com.dbn.assistant.credential.LocalCredential;
-import com.dbn.assistant.credential.LocalCredentialBundle;
-import com.dbn.assistant.credential.LocalCredentialSettings;
+import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.credential.AssistantCredentialBundle;
+import com.dbn.assistant.credential.AssistantCredentialSettings;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -65,15 +65,15 @@ public class CredentialPickerForm extends DBNFormBase {
   }
 
   private void initCredentialTable(Project project) {
-    LocalCredentialSettings settings = AssistantSettings.getInstance(project).getCredentialSettings();
-    LocalCredentialBundle credentials = settings.getCredentials();
+    AssistantCredentialSettings settings = AssistantSettings.getInstance(project).getCredentialSettings();
+    AssistantCredentialBundle credentials = settings.getCredentials();
 
     CredentialPickerTableModel credentialTableModel = new CredentialPickerTableModel(credentials);
     credentialsTable = new DBNTable<>(this, credentialTableModel, true);
     credentialsTable.setCellSelectionEnabled(false);
     credentialsTable.setRowSelectionAllowed(true);
 
-    credentialsTable.setDefaultRenderer(LocalCredential.class, createCellRenderer());
+    credentialsTable.setDefaultRenderer(AssistantCredential.class, createCellRenderer());
     credentialsScrollPane.setViewportView(credentialsTable);
 
     credentialsTable.getSelectionModel().addListSelectionListener(e -> selectionChanged());
@@ -92,7 +92,7 @@ public class CredentialPickerForm extends DBNFormBase {
     return new ColoredTableCellRenderer() {
       @Override
       protected void customizeCellRenderer(@NotNull JTable table, @Nullable Object value, boolean selected, boolean hasFocus, int row, int column) {
-        LocalCredential credential = (LocalCredential) value;
+        AssistantCredential credential = (AssistantCredential) value;
         if (credential == null) return;
         switch (column) {
           case 0: append(credential.getName()); break;
@@ -104,14 +104,14 @@ public class CredentialPickerForm extends DBNFormBase {
     };
   }
 
-  private static class CredentialPickerTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<LocalCredential> {
+  private static class CredentialPickerTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<AssistantCredential> {
     private final String NAME = "Credential Name";
     private final String USERNAME = "User Name";
     private final String KEY = "Secret";
-    private final LocalCredentialBundle credentials;
+    private final AssistantCredentialBundle credentials;
     private final String[] columnNames = {NAME, USERNAME, KEY};
 
-    public CredentialPickerTableModel(LocalCredentialBundle credentials) {
+    public CredentialPickerTableModel(AssistantCredentialBundle credentials) {
       this.credentials = credentials;
     }
 
@@ -137,7 +137,7 @@ public class CredentialPickerForm extends DBNFormBase {
 
     @Override
     public Class<?> getColumnClass(int i) {
-      return LocalCredential.class;
+      return AssistantCredential.class;
     }
 
     @Override
@@ -146,10 +146,10 @@ public class CredentialPickerForm extends DBNFormBase {
   }
 
   @Nullable
-  public LocalCredential getSelectedCredential() {
+  public AssistantCredential getSelectedCredential() {
     int selectedRow = credentialsTable.getSelectedRow();
     if (selectedRow == -1) return null;
-    return (LocalCredential) credentialsTable.getModel().getValueAt(selectedRow, 0);
+    return (AssistantCredential) credentialsTable.getModel().getValueAt(selectedRow, 0);
   }
 
 }

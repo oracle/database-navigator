@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.settings;
 
-import com.dbn.assistant.credential.LocalCredentialSettings;
+import com.dbn.assistant.credential.AssistantCredentialSettings;
 import com.dbn.assistant.settings.ui.AssistantSettingsForm;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
@@ -34,7 +34,7 @@ public class AssistantSettings
     extends CompositeProjectConfiguration<ProjectSettings, AssistantSettingsForm>
     implements TopLevelConfig {
 
-  private final LocalCredentialSettings credentialSettings = new LocalCredentialSettings(this);
+  private final AssistantCredentialSettings credentialSettings = new AssistantCredentialSettings(this);
 
   public AssistantSettings(ProjectSettings parent) {
     super(parent);

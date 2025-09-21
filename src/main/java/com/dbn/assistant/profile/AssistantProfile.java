@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.profile;
 
-import com.dbn.assistant.credential.LocalCredential;
+import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
@@ -27,7 +27,7 @@ import org.jdom.Element;
 public class AssistantProfile implements PersistentConfiguration, Presentable {
     private String name;
     private AIProvider provider;
-    private LocalCredential credential;
+    private AssistantCredential credential;
 
     @Override
     public void readConfiguration(Element element) {

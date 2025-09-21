@@ -98,6 +98,10 @@ public class Mouse {
         });
     }
 
+    public static void onMouseDoubleClick(JComponent component, Consumer<MouseEvent> consumer) {
+        onMouseClick(component, MouseEvent.BUTTON1, 2, consumer);
+    }
+
     public static void onButtonRelease(JComponent component, int button, Consumer<MouseEvent> consumer) {
         component.addMouseListener(new MouseAdapter() {
             @Override

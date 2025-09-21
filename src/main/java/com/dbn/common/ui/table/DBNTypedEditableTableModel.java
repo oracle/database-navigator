@@ -76,6 +76,11 @@ public abstract class DBNTypedEditableTableModel<T extends Cloneable<T>> extends
         }
     }
 
+    public void addElement(T element) {
+        elements.add(element);
+        notifyListeners(elements.size() - 1, elements.size() - 1, -1);
+    }
+
     /**
      * Utility for adding a column to the table model
      * @param name the name of the column

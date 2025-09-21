@@ -44,7 +44,7 @@ import static com.dbn.credentials.SecretType.GENERIC_CREDENTIAL;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class LocalCredential implements Cloneable<LocalCredential>, PersistentConfiguration, Presentable, SecretsOwner {
+public class AssistantCredential implements Cloneable<AssistantCredential>, PersistentConfiguration, Presentable, SecretsOwner {
     private String id = UUID.randomUUID().toString();
     private String name;
     private String user;
@@ -52,7 +52,7 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
     private char[] key;
 
 
-    public LocalCredential() {
+    public AssistantCredential() {
         SecretsOwnerRegistry.register(this);
     }
 
@@ -63,11 +63,12 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
     }
 
     @Override
-    public LocalCredential clone() {
-        LocalCredential clone = new LocalCredential();
+    public AssistantCredential clone() {
+        AssistantCredential clone = new AssistantCredential();
         clone.id = id;
         clone.name = name;
         clone.user = user;
+        clone.provider = provider;
         clone.key = key;
         return clone;
     }
@@ -83,6 +84,8 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
         id = nvl(stringAttribute(element, "id"), id);
         name = stringAttribute(element, "name");
         user = stringAttribute(element, "user");
+        provider = stringAttribute(element, "provider");
+
         if (isTransientContext()) {
             // only propagate credential key when config context is transient
             // (avoid storing it in config xml)
@@ -95,6 +98,7 @@ public class LocalCredential implements Cloneable<LocalCredential>, PersistentCo
         setStringAttribute(element, "id", id);
         setStringAttribute(element, "name", name);
         setStringAttribute(element, "user", user);
+        setStringAttribute(element, "provider", provider);
 
         if (isTransientContext()) {
             // only propagate credential key when config context is transient

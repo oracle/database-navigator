@@ -16,7 +16,8 @@
 
 package com.dbn.assistant.credential.ui;
 
-import com.dbn.assistant.credential.LocalCredential;
+import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -28,13 +29,15 @@ import java.util.Set;
 @Getter
 public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredentialEditForm> {
     private final Set<String> usedTitles;
-    private final LocalCredential credential;
+    private final AssistantCredential credential;
+    private final Consumer<AssistantCredential> onSave;
 
-    public AssistantCredentialEditDialog(Project project, LocalCredential credential, boolean create, Set<String> usedNames) {
-        super(project, create ? "Create Credential" : "Update Credential", true);
-        this.credential = credential;
+    public AssistantCredentialEditDialog(Project project, AssistantCredential credential, Set<String> usedNames, Consumer<AssistantCredential> onSave) {
+        super(project, credential == null ? "Create Credential" : "Update Credential", true);
+        this.credential = credential == null ? new AssistantCredential() : credential;
         this.usedTitles = usedNames;
-        renameAction(getOKAction(), create ? "Create" : "Update");
+        this.onSave = onSave;
+        renameAction(getOKAction(), credential == null ? "Create" : "Update");
         setModal(true);
         init();
     }
@@ -61,7 +64,9 @@ public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredential
 
     @Override
     protected void doOKAction() {
-        // TODO create / update
+        AssistantCredentialEditForm form = getForm();
+        form.applyFormChanges();
+        onSave.accept(credential);
         super.doOKAction();
     }
 }

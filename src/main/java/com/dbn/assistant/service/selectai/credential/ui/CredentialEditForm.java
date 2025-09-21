@@ -16,8 +16,8 @@
 
 package com.dbn.assistant.service.selectai.credential.ui;
 
-import com.dbn.assistant.credential.LocalCredential;
-import com.dbn.assistant.credential.LocalCredentialSettings;
+import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.credential.AssistantCredentialSettings;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.outcome.OutcomeHandler;
@@ -91,7 +91,7 @@ public class CredentialEditForm extends DBNFormBase {
 
   private final ConnectionRef connection;
   private DBCredential credential;
-  private LocalCredential localCredential;
+  private AssistantCredential localCredential;
   private final Set<String> usedCredentialNames;
 
   /**
@@ -169,7 +169,7 @@ private boolean isNotUsed(String name) {
     Dialogs.show(() -> new CredentialPickerDialog(getProject(), c -> pickLocalCredential(c)));
   }
 
-  private void pickLocalCredential(LocalCredential credential) {
+  private void pickLocalCredential(AssistantCredential credential) {
     localCredential = credential;
     passwordCredentialUsernameField.setText(credential.getUser());
     passwordCredentialPasswordField.setText(Chars.toString(credential.getKey()));
@@ -275,8 +275,8 @@ private boolean isNotUsed(String name) {
 
   protected void saveProviderInfo() {
     Project project = ensureProject();
-    LocalCredentialSettings settings = AssistantSettings.getInstance(project).getCredentialSettings();
-    LocalCredential credential = new LocalCredential();
+    AssistantCredentialSettings settings = AssistantSettings.getInstance(project).getCredentialSettings();
+    AssistantCredential credential = new AssistantCredential();
     credential.setName(credentialNameField.getText());
     credential.setUser(passwordCredentialUsernameField.getText());
     credential.setKey(passwordCredentialPasswordField.getPassword());

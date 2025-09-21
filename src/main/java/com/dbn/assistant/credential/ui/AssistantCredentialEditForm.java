@@ -17,7 +17,7 @@
 package com.dbn.assistant.credential.ui;
 
 import com.dbn.assistant.AssistantType;
-import com.dbn.assistant.credential.LocalCredential;
+import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -44,7 +44,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
     private DBNComboBox<AIProvider> providerComboBox;
 
 
-    private final LocalCredential credential;
+    private final AssistantCredential credential;
     private final Set<String> usedNames;
 
     AssistantCredentialEditForm(AssistantCredentialEditDialog parent, Set<String> usedNames) {
@@ -53,6 +53,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
         this.usedNames = usedNames;
 
         ComboBoxes.initComboBox(providerComboBox, getProviders());
+        resetFormChanges();
     }
 
     private static List<AIProvider> getProviders() {
@@ -66,11 +67,16 @@ public class AssistantCredentialEditForm extends DBNFormBase {
         addTextValidation(keyPasswordField, Strings::isNotEmpty, "Please provide a credential key");
     }
 
-    private void applyFormChanges() {
+    public void applyFormChanges() {
+        credential.setName(nameTextField.getText());
+        credential.setUser(userTextField.getText());
+        credential.setKey(keyPasswordField.getPassword());
 
+        AIProvider provider = ComboBoxes.getSelection(providerComboBox);
+        credential.setProvider(provider == null ? null : provider.getId());
     }
 
-    private void resetFormChanges() {
+    public void resetFormChanges() {
         nameTextField.setText(credential.getName());
         userTextField.setText(credential.getUser());
         keyPasswordField.setText(Chars.toString(credential.getKey()));

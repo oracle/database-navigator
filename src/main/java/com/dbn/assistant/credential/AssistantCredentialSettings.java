@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.credential;
 
-import com.dbn.assistant.credential.ui.LocalCredentialsSettingsForm;
+import com.dbn.assistant.credential.ui.AssistantCredentialsSettingsForm;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.options.BasicProjectConfiguration;
 import lombok.EqualsAndHashCode;
@@ -30,23 +30,23 @@ import static com.dbn.common.options.setting.Settings.newElement;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class LocalCredentialSettings
-    extends BasicProjectConfiguration<AssistantSettings, LocalCredentialsSettingsForm> {
+public class AssistantCredentialSettings
+    extends BasicProjectConfiguration<AssistantSettings, AssistantCredentialsSettingsForm> {
 
-  private LocalCredentialBundle credentials = new LocalCredentialBundle();
+  private AssistantCredentialBundle credentials = new AssistantCredentialBundle();
 
-  public LocalCredentialSettings(AssistantSettings parent) {
+  public AssistantCredentialSettings(AssistantSettings parent) {
     super(parent);
   }
 
-  public void setCredentials(LocalCredentialBundle credentials) {
-    this.credentials = new LocalCredentialBundle(credentials);
+  public void setCredentials(AssistantCredentialBundle credentials) {
+    this.credentials = new AssistantCredentialBundle(credentials);
   }
 
   @NotNull
   @Override
-  public LocalCredentialsSettingsForm createConfigurationEditor() {
-    return new LocalCredentialsSettingsForm(this);
+  public AssistantCredentialsSettingsForm createConfigurationEditor() {
+    return new AssistantCredentialsSettingsForm(this);
   }
 
   @Override
@@ -60,7 +60,7 @@ public class LocalCredentialSettings
     if (credentialsElement != null) {
       credentials.clear();
       for (Element credentialElement : credentialsElement.getChildren()) {
-        LocalCredential credential = new LocalCredential();
+        AssistantCredential credential = new AssistantCredential();
         credential.readConfiguration(credentialElement);
         credentials.add(credential);
       }
@@ -70,7 +70,7 @@ public class LocalCredentialSettings
   @Override
   public void writeConfiguration(Element element) {
     Element credentialsElement = newElement(element, "credentials");
-    for (LocalCredential credential : credentials) {
+    for (AssistantCredential credential : credentials) {
       Element credentialElement = newElement(credentialsElement, "credential");
       credential.writeConfiguration(credentialElement);
     }
