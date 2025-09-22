@@ -28,6 +28,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static com.dbn.common.util.Commons.nvl;
 
@@ -59,7 +60,8 @@ public class AssistantToolRequest {
 
     @SneakyThrows
     public List<?> getArgumentValues() {
-        Map map = OBJECT_MAPPER.readValue(utilityArguments, Map.class);
+        // arguments sorted alphabetically (some providers do not return arguments in alphabetical order: arg0, arg1... aso)
+        Map<String, ?> map = OBJECT_MAPPER.readValue(utilityArguments, TreeMap.class);
         return new ArrayList<>(map.values());
     }
 
