@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.credential.ui;
 
+import com.dbn.common.data.Data;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import org.jetbrains.annotations.Nullable;
@@ -26,6 +27,10 @@ public class AssistantCredentialsTableCellRenderer extends DBNColoredTableCellRe
     @Override
     protected void customizeCellRenderer(DBNTable table, @Nullable Object value, boolean selected, boolean hasFocus, int row, int column) {
         if (value == null) return;
+
+        String stringValue = Data.asString(value);
+        if (stringValue == null) return;
+        if (stringValue.isEmpty()) return;
 
         if (column == SECRET_COLUMN) {
             //String text = value.toString();
