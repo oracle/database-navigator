@@ -108,7 +108,7 @@ public class ClassComplianceAndUICalculator {
                     }
                 }
                 ComplianceData fieldCompliance = getComplianceData(
-                        field.getJavaClass(), arrayDepth, classesSeenTillNow, cachedData,
+                        field.getJavaClass(), field.getArrayDepth(), classesSeenTillNow, cachedData,
                         isArgument, maxScalarArrayDepth, maxNonScalarArrayDepth);
                 if (!fieldCompliance.isSupported()) return fieldCompliance;
                 displayRowCount += fieldCompliance.getDisplayRowCount();
@@ -186,7 +186,7 @@ public class ClassComplianceAndUICalculator {
         data.setDisplayRowCount(-1);
         int maxDepthSupported = dbJavaClass.isScalar() ? maxScalarArrayDepth : maxNonScalarArrayDepth;
         data.setUnsupportedReason(
-                "Array of type " + dbJavaClass.getClass().getName()
+                "Array of type " + dbJavaClass.getCanonicalName()
                         + " with depth greater than " + maxDepthSupported + " is not supported as "
                         + (isArgument ? "argument" : "return") + "."
         );
@@ -198,7 +198,7 @@ public class ClassComplianceAndUICalculator {
         data.setSupported(false);
         data.setDisplayRowCount(-1);
         data.setUnsupportedReason(
-                "Class " + dbJavaClass.getClass().getName() +
+                "Class " + dbJavaClass.getCanonicalName() +
                         " contains a cyclic self-reference, which is not supported for arguments or return values."
         );
         return data;
@@ -231,9 +231,9 @@ public class ClassComplianceAndUICalculator {
         if (dbJavaMethod == null) return cachedData;
         // Arguments
         for (DBJavaParameter dbJavaParameter : dbJavaMethod.getParameters()) {
-            if (dbJavaParameter.isScalar()) continue;
-            if (dbJavaParameter.getArrayDepth() > ARGUMENT_MAX_COMPLIANT_NONSCALAR_ARRAY_DEPTH ||
-                    cachedData.getArgumentData().containsKey(dbJavaParameter.getJavaClass())) continue;
+            if (dbJavaParameter.isScalar()
+                    || dbJavaParameter.getArrayDepth() > ARGUMENT_MAX_COMPLIANT_NONSCALAR_ARRAY_DEPTH
+                    || cachedData.getArgumentData().containsKey(dbJavaParameter.getJavaClass())) continue;
             getArgumentComplianceData(dbJavaParameter.getJavaClass(), (short) 0, cachedData);
         }
         // Return
@@ -241,8 +241,9 @@ public class ClassComplianceAndUICalculator {
         if (!returnIsVoid) {
             DBJavaClass returnClass = dbJavaMethod.getReturnClass();
             short returnArrayDepth = dbJavaMethod.getReturnArrayDepth();
-            if (returnArrayDepth < RETURN_MAX_COMPLIANT_NONSCALAR_ARRAY_DEPTH &&
-                    !cachedData.getReturnData().containsKey(returnClass)) {
+            if (!returnClass.isScalar()
+                    && returnArrayDepth <= RETURN_MAX_COMPLIANT_NONSCALAR_ARRAY_DEPTH
+                    && !cachedData.getReturnData().containsKey(returnClass)) {
                 getReturnComplianceData(returnClass, returnArrayDepth, cachedData);
             }
         }
