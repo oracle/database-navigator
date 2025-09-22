@@ -17,7 +17,7 @@
 package com.dbn.assistant.profile.ui;
 
 import com.dbn.assistant.credential.AssistantCredential;
-import com.dbn.assistant.profile.AssistantProfile;
+import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.intellij.openapi.project.Project;
@@ -31,14 +31,14 @@ import java.util.Set;
 @Getter
 public class AssistantProfileEditDialog extends DBNDialog<AssistantProfileEditForm> {
     private final Set<String> usedTitles;
-    private final AssistantProfile profile;
+    private final DeclaredAssistantProfile profile;
     private final List<AssistantCredential> credentials;
-    private final Consumer<AssistantProfile> onSave;
+    private final Consumer<DeclaredAssistantProfile> onSave;
 
 
-    public AssistantProfileEditDialog(Project project, AssistantProfile profile, List<AssistantCredential> credentials, Set<String> usedNames, Consumer<AssistantProfile> onSave) {
+    public AssistantProfileEditDialog(Project project, DeclaredAssistantProfile profile, List<AssistantCredential> credentials, Set<String> usedNames, Consumer<DeclaredAssistantProfile> onSave) {
         super(project, profile == null ? "Create Profile" : "Update Profile", true);
-        this.profile = profile == null ? new AssistantProfile() : profile;
+        this.profile = profile == null ? new DeclaredAssistantProfile() : profile;
         this.credentials = credentials;
         this.usedTitles = usedNames;
         this.onSave = onSave;

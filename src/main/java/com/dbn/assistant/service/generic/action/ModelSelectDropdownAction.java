@@ -42,6 +42,9 @@ import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.DISABLED_PROFILE_SELECTED;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
+import static com.dbn.assistant.profile.AssistantProfileLookup.getDeclaredProfile;
+import static com.dbn.assistant.profile.AssistantProfileLookup.getImplicitProfile;
+import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
@@ -66,7 +69,9 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         if (project == null) return emptyList();
 
         String profileName = context.getProfileName();
-        AssistantProfile profile = getAssistantProfile(project, profileName);
+        AssistantProfile profile = coalesce(
+                () -> getDeclaredProfile(project, profileName),
+                () -> getImplicitProfile(project, profileName));
         if (profile == null) return emptyList();
 
         AIProvider provider = profile.getProvider();

@@ -19,7 +19,9 @@ package com.dbn.assistant.service.generic.action;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.profile.AssistantProfile;
+import com.dbn.assistant.profile.DeclaredAssistantProfile;
+import com.dbn.assistant.profile.ImplicitAssistantProfile;
+import com.dbn.assistant.profile.PotentialAssistantProfile;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -39,6 +41,9 @@ import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.DISABLED_PROFILE_SELECTED;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
+import static com.dbn.assistant.profile.AssistantProfileLookup.getDeclaredProfiles;
+import static com.dbn.assistant.profile.AssistantProfileLookup.getUndefinedImplicitProfiles;
+import static com.dbn.assistant.profile.AssistantProfileLookup.getUndefinedPotentialProfiles;
 import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
@@ -52,8 +57,16 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
         Project project = dataContext.getData(PlatformDataKeys.PROJECT);
         if (project == null) return actionGroup;
 
-        List<AssistantProfile> profiles = getAssistantProfiles(project);
-        profiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
+        List<DeclaredAssistantProfile> declaredProfiles = getDeclaredProfiles(project);
+        declaredProfiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
+        actionGroup.addSeparator();
+
+        List<ImplicitAssistantProfile> implicitProfiles = getUndefinedImplicitProfiles(project);
+        implicitProfiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
+
+        List<PotentialAssistantProfile> potentialProfiles = getUndefinedPotentialProfiles(project);
+        potentialProfiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
+
         actionGroup.addSeparator();
 
         actionGroup.add(new ProfileCreateAction());

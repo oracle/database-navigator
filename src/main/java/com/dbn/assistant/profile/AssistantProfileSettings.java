@@ -33,14 +33,17 @@ import static com.dbn.common.options.setting.Settings.newElement;
 public class AssistantProfileSettings
         extends BasicProjectConfiguration<AssistantSettings, AssistantProfilesSettingsForm> {
 
-    private AssistantProfileBundle profiles = new AssistantProfileBundle();
+    private AssistantProfileBundle profiles;
 
     public AssistantProfileSettings(AssistantSettings parent) {
         super(parent);
+        this.profiles = new AssistantProfileBundle(parent.getProject());
     }
 
     public void setProfiles(AssistantProfileBundle profiles) {
-        this.profiles = new AssistantProfileBundle(profiles);
+        this.profiles = new AssistantProfileBundle(
+                profiles.getProject(),
+                profiles.getDeclaredProfiles());
     }
 
     @NotNull
@@ -61,16 +64,16 @@ public class AssistantProfileSettings
 
         profiles.clear();
         for (Element profileElement : profilesElement.getChildren()) {
-            AssistantProfile profile = new AssistantProfile();
+            DeclaredAssistantProfile profile = new DeclaredAssistantProfile();
             profile.readConfiguration(profileElement);
-            profiles.add(profile);
+            profiles.addDeclaredProfile(profile);
         }
     }
 
     @Override
     public void writeConfiguration(Element element) {
         Element profilesElement = newElement(element, "profiles");
-        for (AssistantProfile profile : profiles) {
+        for (DeclaredAssistantProfile profile : profiles.getDeclaredProfiles()) {
             Element profileElement = newElement(profilesElement, "profile");
             profile.writeConfiguration(profileElement);
         }

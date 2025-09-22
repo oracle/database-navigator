@@ -280,6 +280,6 @@ private boolean isNotUsed(String name) {
     credential.setName(credentialNameField.getText());
     credential.setUser(passwordCredentialUsernameField.getText());
     credential.setKey(passwordCredentialPasswordField.getPassword());
-    settings.getCredentials().add(credential);
+    settings.getCredentials().addCredential(credential);
   }
 }

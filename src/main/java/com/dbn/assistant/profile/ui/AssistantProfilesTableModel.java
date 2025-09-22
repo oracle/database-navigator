@@ -21,6 +21,7 @@ import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.profile.AssistantProfileBundle;
+import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.common.ui.table.DBNTypedEditableTableModel;
@@ -29,11 +30,11 @@ import com.intellij.openapi.options.ConfigurationException;
 import lombok.Getter;
 
 @Getter
-public class AssistantProfilesTableModel extends DBNTypedEditableTableModel<AssistantProfile> {
+public class AssistantProfilesTableModel extends DBNTypedEditableTableModel<DeclaredAssistantProfile> {
     private final AssistantCredentialBundle credentials;
 
     AssistantProfilesTableModel(AssistantProfileBundle profiles, AssistantCredentialBundle credentials) {
-        super(AssistantProfile.class, profiles.getElements());
+        super(DeclaredAssistantProfile.class, profiles.getDeclaredProfiles());
         this.credentials = credentials;
 
         addColumn("Profile Name", String.class, c -> c.getName(), null);
@@ -50,7 +51,7 @@ public class AssistantProfilesTableModel extends DBNTypedEditableTableModel<Assi
 
     private String getCredentialName(String credentialId) {
         if (Strings.isEmpty(credentialId)) return "";
-        AssistantCredential credential = credentials.get(credentialId);
+        AssistantCredential credential = credentials.getCredential(credentialId);
         return credential == null ? "" : credential.getName();
     }
 

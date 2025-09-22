@@ -18,7 +18,7 @@ package com.dbn.assistant.profile.ui;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
-import com.dbn.assistant.profile.AssistantProfile;
+import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -46,7 +46,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
     private DBNComboBox<AssistantCredential> credentialComboBox;
 
 
-    private final AssistantProfile profile;
+    private final DeclaredAssistantProfile profile;
     private final Set<String> usedNames;
 
     AssistantProfileEditForm(AssistantProfileEditDialog parent, Set<String> usedNames) {
@@ -67,9 +67,9 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
         String selectedProviderId = getSelectedProviderId();
         return Lists.filter(parent.getCredentials(), c ->
-                c.getProvider() == null ||
+                c.getProviderId() == null ||
                 selectedProviderId == null ||
-                c.getProvider().equals(selectedProviderId));
+                c.getProviderId().equals(selectedProviderId));
     }
 
     private AssistantCredential getCredential(String id) {

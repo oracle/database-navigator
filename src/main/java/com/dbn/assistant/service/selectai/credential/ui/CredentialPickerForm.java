@@ -127,7 +127,7 @@ public class CredentialPickerForm extends DBNFormBase {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-      return credentials.get(rowIndex);
+      return credentials.getCredential(rowIndex);
     }
 
     @Override

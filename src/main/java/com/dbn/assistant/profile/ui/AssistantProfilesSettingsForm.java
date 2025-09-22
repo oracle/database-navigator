@@ -19,14 +19,15 @@ package com.dbn.assistant.profile.ui;
 
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.credential.AssistantCredentialBundle;
-import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.assistant.profile.AssistantProfileSettings;
+import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
@@ -68,11 +69,11 @@ public class AssistantProfilesSettingsForm extends ConfigurationEditorForm<Assis
     }
 
     private void openProfileEditor(boolean create) {
-        AssistantProfile selectedProfile = getSelectedProfile();
+        DeclaredAssistantProfile selectedProfile = getSelectedProfile();
         if (selectedProfile == null && !create) return;
 
-        AssistantProfile profile = create ? null : selectedProfile;
-        Consumer<AssistantProfile> onSave = c -> {
+        DeclaredAssistantProfile profile = create ? null : selectedProfile;
+        Consumer<DeclaredAssistantProfile> onSave = c -> {
             if (create) {
                 AssistantProfilesTableModel model = profilesTable.getModel();
                 model.addElement(c);
@@ -100,7 +101,7 @@ public class AssistantProfilesSettingsForm extends ConfigurationEditorForm<Assis
                 .collect(Collectors.toSet());
     }
 
-    private AssistantProfile getSelectedProfile() {
+    private DeclaredAssistantProfile getSelectedProfile() {
         int[] selectedIndices = profilesTable.getSelectionModel().getSelectedIndices();
         if (selectedIndices.length != 1) return null;
 
@@ -118,16 +119,17 @@ public class AssistantProfilesSettingsForm extends ConfigurationEditorForm<Assis
         AssistantProfilesTableModel model = profilesTable.getModel();
         model.validate();
 
-        List<AssistantProfile> profiles = model.getElements();
+        List<DeclaredAssistantProfile> profiles = model.getElements();
 
         AssistantProfileSettings configuration = getConfiguration();
-        configuration.setProfiles(new AssistantProfileBundle(profiles));
+        Project project = configuration.getProject();
+        configuration.setProfiles(new AssistantProfileBundle(project, profiles));
     }
 
     @Override
     public void resetFormChanges() {
         AssistantProfileSettings settings = getConfiguration();
-        List<AssistantProfile> profiles = settings.getProfiles().getElements();
+        List<DeclaredAssistantProfile> profiles = settings.getProfiles().getDeclaredProfiles();
         profilesTable.getModel().setElements(profiles);
     }
 }

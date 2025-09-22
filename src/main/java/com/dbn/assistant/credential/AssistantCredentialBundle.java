@@ -16,74 +16,49 @@
 
 package com.dbn.assistant.credential;
 
-import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.CollectionUtil;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import static com.dbn.common.util.Lists.first;
 
 @Getter
 @Setter
-@NoArgsConstructor
-public class AssistantCredentialBundle implements Iterable<AssistantCredential>, Cloneable {
+public class AssistantCredentialBundle {
     private final List<AssistantCredential> elements = new ArrayList<>();
+
+    public AssistantCredentialBundle() {}
 
     public AssistantCredentialBundle(AssistantCredentialBundle source) {
         this(source.getElements());
     }
 
     public AssistantCredentialBundle(List<AssistantCredential> elements) {
-        setElements(elements);
+        setCredentials(elements);
     }
 
-    public void setElements(List<AssistantCredential> credentials) {
+    public void setCredentials(List<AssistantCredential> credentials) {
         this.elements.clear();
         CollectionUtil.cloneElements(credentials, this.elements);
     }
 
-    @Override
-    public Iterator<AssistantCredential> iterator() {
-        return elements.iterator();
+    public void addCredential(AssistantCredential credential) {
+        this.elements.add(credential);
     }
-
-    public void clear() {
-        elements.clear();
-    }
-
-    public void add(AssistantCredential credential) {
-        elements.add(credential);
-    }
-
-    public void add(int index, AssistantCredential credential) {
-        elements.add(index, credential);
-    }
-
 
     public int size() {
         return elements.size();
     }
 
-    public AssistantCredential get(String id) {
+    public AssistantCredential getCredential(String id) {
         return first(elements, c -> c.getId().equals(id));
     }
 
-    public AssistantCredential get(int index) {
+    public AssistantCredential getCredential(int index) {
         return elements.get(index);
-    }
-
-    public AssistantCredential remove(int index) {
-        return elements.remove(index);
-    }
-
-    @Override
-    public AssistantCredentialBundle clone() {
-        return new AssistantCredentialBundle(this);
     }
 
     public void initSecrets() {

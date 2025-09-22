@@ -73,7 +73,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
         credential.setKey(keyPasswordField.getPassword());
 
         AIProvider provider = ComboBoxes.getSelection(providerComboBox);
-        credential.setProvider(provider == null ? null : provider.getId());
+        credential.setProviderId(provider == null ? null : provider.getId());
     }
 
     public void resetFormChanges() {
@@ -81,7 +81,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
         userTextField.setText(credential.getUser());
         keyPasswordField.setText(Chars.toString(credential.getKey()));
 
-        AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, credential.getProvider());
+        AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, credential.getProviderId());
         ComboBoxes.setSelection(providerComboBox, provider);
     }
 

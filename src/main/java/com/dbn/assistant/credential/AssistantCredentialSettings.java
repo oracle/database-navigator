@@ -25,6 +25,9 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.dbn.common.options.setting.Settings.newElement;
 
 @Getter
@@ -58,19 +61,21 @@ public class AssistantCredentialSettings
     public void readConfiguration(Element element) {
         Element credentialsElement = element.getChild("credentials");
         if (credentialsElement != null) {
-            credentials.clear();
+            List<AssistantCredential> credentials = new ArrayList<>();
             for (Element credentialElement : credentialsElement.getChildren()) {
                 AssistantCredential credential = new AssistantCredential();
                 credential.readConfiguration(credentialElement);
                 credentials.add(credential);
             }
+
+            this.credentials.setCredentials(credentials);
         }
     }
 
     @Override
     public void writeConfiguration(Element element) {
         Element credentialsElement = newElement(element, "credentials");
-        for (AssistantCredential credential : credentials) {
+        for (AssistantCredential credential : credentials.getElements()) {
             Element credentialElement = newElement(credentialsElement, "credential");
             credential.writeConfiguration(credentialElement);
         }

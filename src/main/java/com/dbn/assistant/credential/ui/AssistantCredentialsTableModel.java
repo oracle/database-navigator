@@ -34,7 +34,7 @@ public class AssistantCredentialsTableModel extends DBNTypedEditableTableModel<A
         super(AssistantCredential.class, credentials.getElements());
 
         addColumn("Credential Name", String.class, c -> c.getName(), (c, v) -> c.setName(v));
-        addColumn("LLM Provider", String.class, c -> getProviderName(c.getProvider()), null);
+        addColumn("LLM Provider", String.class, c -> getProviderName(c.getProviderId()), null);
         addColumn("User", String.class, c -> c.getUser(), (c, v) -> c.setUser(v));
         addColumn("Secret", String.class, c -> Chars.toString(c.getKey()), (c, v) -> c.setKey(Chars.fromString(v)));
     }

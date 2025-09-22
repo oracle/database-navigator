@@ -49,7 +49,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
     private String id = UUID.randomUUID().toString();
     private String name;
     private String user;
-    private String provider;
+    private String providerId;
     private char[] key;
 
 
@@ -69,7 +69,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         clone.id = id;
         clone.name = name;
         clone.user = user;
-        clone.provider = provider;
+        clone.providerId = providerId;
         clone.key = key;
         return clone;
     }
@@ -85,7 +85,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         id = nvl(stringAttribute(element, "id"), id);
         name = stringAttribute(element, "name");
         user = stringAttribute(element, "user");
-        provider = stringAttribute(element, "provider");
+        providerId = stringAttribute(element, "provider");
 
         if (isTransientContext()) {
             // only propagate credential key when config context is transient
@@ -99,7 +99,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         setStringAttribute(element, "id", id);
         setStringAttribute(element, "name", name);
         setStringAttribute(element, "user", user);
-        setStringAttribute(element, "provider", provider);
+        setStringAttribute(element, "provider", providerId);
 
         if (isTransientContext()) {
             // only propagate credential key when config context is transient

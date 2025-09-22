@@ -52,7 +52,7 @@
         </constraints>
         <properties>
           <labelFor value="b730e"/>
-          <text value="LLM &amp;Provider"/>
+          <text value="LLM &amp;provider"/>
         </properties>
       </component>
       <component id="2975b" class="com.dbn.common.ui.misc.DBNComboBox" binding="credentialComboBox">

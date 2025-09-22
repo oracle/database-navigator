@@ -21,6 +21,7 @@ import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.profile.AssistantProfile;
+import com.dbn.assistant.profile.PotentialAssistantProfile;
 import com.dbn.common.ref.WeakRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -38,18 +39,22 @@ public class ProfileSelectAction extends AbstractChatBoxAction {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        // preserve action from the current context
         AssistantProfile profile = getProfile();
-        ChatContext currentContext = chatBox.getCurrentContext();
-        ChatContext targetContext = new ChatContextImpl(
-                currentContext.getAssistantType(),
-                profile.getName(),
-                profile.getProviderId(),
-                profile.getDefaultModelId(),
-                currentContext.getActionId(),
-                true);
+        if (profile instanceof PotentialAssistantProfile) {
 
-        chatBox.attemptContextSwitch(targetContext);
+        } else {
+            // preserve action from the current context
+            ChatContext currentContext = chatBox.getCurrentContext();
+            ChatContext targetContext = new ChatContextImpl(
+                    currentContext.getAssistantType(),
+                    profile.getName(),
+                    profile.getProviderId(),
+                    profile.getDefaultModelId(),
+                    currentContext.getActionId(),
+                    true);
+
+            chatBox.attemptContextSwitch(targetContext);
+        }
     }
 
     private AssistantProfile getProfile() {

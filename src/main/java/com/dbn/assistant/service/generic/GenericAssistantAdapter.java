@@ -30,6 +30,7 @@ import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.profile.AssistantProfile;
+import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.service.generic.model.AssistantModelFactories;
@@ -44,6 +45,7 @@ import com.dbn.assistant.service.generic.ui.GenericAssistantPromptActionsForm;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.exception.Exceptions;
+import com.dbn.common.util.Commons;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.UUIDs;
 import com.dbn.connection.ConnectionHandler;
@@ -194,12 +196,15 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
 
     private static AssistantProfile getAssistantProfile(Project project, String profileName) {
         AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
-        return assistantSettings.getProfileSettings().getProfiles().get(profileName);
+        AssistantProfileBundle profiles = assistantSettings.getProfileSettings().getProfiles();
+        return Commons.coalesce(
+                () -> profiles.getDeclaredProfile(profileName),
+                () -> profiles.getImplicitProfile(profileName));
     }
 
     private static AssistantCredential getAssistantCredential(Project project, String credentialId) {
         AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
-        return assistantSettings.getCredentialSettings().getCredentials().get(credentialId);
+        return assistantSettings.getCredentialSettings().getCredentials().getCredential(credentialId);
     }
 
     private static Object resolveModel(ChatContext context, AssistantModelInput input) {
