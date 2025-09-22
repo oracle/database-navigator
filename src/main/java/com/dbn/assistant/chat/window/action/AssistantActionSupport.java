@@ -20,6 +20,7 @@ import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.DataKeys;
 import com.dbn.connection.ConnectionId;
@@ -29,6 +30,8 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
 
 public interface AssistantActionSupport {
 
@@ -95,8 +98,13 @@ public interface AssistantActionSupport {
     @Nullable
     default String getSelectedProfileName(@NotNull AnActionEvent e) {
         ChatContext chatContext = getCurrentChatContext(e);
-        if (chatContext == null) return null;
+        if (chatContext == null) return "Undefined";
 
-        return chatContext.getProfileName();
+        Project project = e.getProject();
+        if (project == null) return "Undefined";
+
+        String profileId = chatContext.getProfileId();
+        AssistantProfile profile = getProfile(project, profileId);
+        return profile == null ? "Undefined" : profile.getName();
     }
 }

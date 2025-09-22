@@ -58,7 +58,7 @@ public final class SelectAiChatContext implements ChatContext {
         this.delegate = new ChatContextImpl(AssistantType.SELECT_AI);
         if (profile == null) return;
 
-        setProfileName(profile.getName());
+        this.setProfileId(profile.getName());
         this.setProviderId(profile.getProviderId());
         this.setModelId(profile.getModelId());
         setInteractive(profile.isInteractive());

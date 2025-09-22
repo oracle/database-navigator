@@ -39,12 +39,7 @@ import javax.swing.JComponent;
 import java.util.List;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
-import static com.dbn.assistant.chat.ChatAvailability.DISABLED_PROFILE_SELECTED;
-import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_AVAILABLE;
-import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
-import static com.dbn.assistant.profile.AssistantProfileLookup.getDeclaredProfile;
-import static com.dbn.assistant.profile.AssistantProfileLookup.getImplicitProfile;
-import static com.dbn.common.util.Commons.coalesce;
+import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
 import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
@@ -68,10 +63,8 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         Project project = getProject(dataContext);
         if (project == null) return emptyList();
 
-        String profileName = context.getProfileName();
-        AssistantProfile profile = coalesce(
-                () -> getDeclaredProfile(project, profileName),
-                () -> getImplicitProfile(project, profileName));
+        String profileId = context.getProfileId();
+        AssistantProfile profile = getProfile(project, profileId);
         if (profile == null) return emptyList();
 
         AIProvider provider = profile.getProvider();
@@ -92,11 +85,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
 
     private boolean isEnabled(@NotNull AnActionEvent e) {
         ChatAvailability availability = getChatAvailability(e);
-        return availability.isOneOf(
-                AVAILABLE,
-                NO_PROFILE_AVAILABLE,
-                NO_PROFILE_SELECTED,
-                DISABLED_PROFILE_SELECTED);
+        return availability == AVAILABLE;
     }
 
     private String getText(@NotNull AnActionEvent e) {

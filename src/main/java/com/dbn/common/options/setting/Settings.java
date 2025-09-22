@@ -123,7 +123,11 @@ public final class Settings {
 
     @NonNls
     public static String stringAttribute(Element element, @NonNls String name) {
-        String attributeValue = element == null ? null : element.getAttributeValue(name);
+        return stringAttribute(element, name, null);
+    }
+
+    public static String stringAttribute(Element element, @NonNls String name, String defaultValue) {
+        String attributeValue = element == null ? defaultValue : element.getAttributeValue(name);
         return Strings.isEmptyOrSpaces(attributeValue) ? attributeValue : attributeValue.intern();
     }
 

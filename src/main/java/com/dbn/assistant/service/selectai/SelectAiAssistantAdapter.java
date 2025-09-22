@@ -199,7 +199,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         ChatContext chatContext = getChatContext(connectionId);
         if (chatContext == null) return false;
 
-        String profileName = chatContext.getProfileName();
+        String profileName = chatContext.getProfileId();
         if (isEmpty(profileName)) return false;
 
         DBAIProfile profile = SelectAiContextUtil.getProfile(connectionId, profileName);
@@ -211,7 +211,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         ChatContext chatContext = getChatContext(connectionId);
         if (chatContext == null) return false;
 
-        String profileName = chatContext.getProfileName();
+        String profileName = chatContext.getProfileId();
         String modelName = chatContext.getModelId();
 
         if (isEmpty(profileName)) return false;
@@ -233,7 +233,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
 
     @Override
     public String buildChatContextTitle(ChatContext context) {
-        return context.getProfileName() + " / " +
+        return context.getProfileId() + " / " +
                 context.getModel().getName() + " / " +
                 PromptAction.get(context.getActionId()).getName();
     }
@@ -276,7 +276,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         ConnectionHandler connection = getConnection(connectionId);
 
         SelectAiChatContext customChatContext = SelectAiChatContext.wrap(chatContext);
-        String profile = chatContext.getProfileName();
+        String profile = chatContext.getProfileId();
         String action = customChatContext.getAction().getApiId();
         String attributes = customChatContext.getAttributes();
 
@@ -299,7 +299,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
 
         ChatContext chatContext = chat.getContext();
         SelectAiChatContext customChatContext = SelectAiChatContext.wrap(chatContext);
-        String profile = customChatContext.getProfileName();
+        String profile = customChatContext.getProfileId();
         String action = PromptAction.CHAT.getApiId();
         String attributes = customChatContext.getAttributes();
 

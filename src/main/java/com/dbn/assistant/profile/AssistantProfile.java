@@ -22,6 +22,7 @@ import com.dbn.common.ui.Presentable;
 
 public interface AssistantProfile extends Presentable {
     AssistantType getAssistantType();
+    String getId();
     String getProviderId();
     String getDefaultModelId();
     String getCredentialId();

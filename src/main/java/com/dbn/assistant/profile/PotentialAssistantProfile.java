@@ -19,14 +19,18 @@ package com.dbn.assistant.profile;
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIProvider;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class PotentialAssistantProfile implements AssistantProfile{
+    @NonNls
+    private final String id;
     private final AIProvider provider;
 
     public PotentialAssistantProfile(AIProvider provider) {
         this.provider = provider;
+        this.id = "potential-profile-" + provider.getId();
     }
 
     @Override

@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.chat.message.ui;
 
-import com.dbn.common.dispose.Disposer;
+import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
@@ -25,15 +25,10 @@ import com.dbn.common.util.Viewers;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.lang.Language;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
-import com.intellij.openapi.ui.popup.JBPopup;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
@@ -56,8 +51,11 @@ public class AssistantToolDataForm extends DBNFormBase {
     private final EditorEx requestViewer;
     private final EditorEx responseViewer;
 
-    public AssistantToolDataForm(@Nullable Disposable parent, @NotNull Project project, String request, String response) {
+    public AssistantToolDataForm(@Nullable Disposable parent, @NotNull Project project, AssistantToolInvocation invocation) {
         super(parent, project);
+
+        String request = invocation.getRequestContent();
+        String response = invocation.getResponseContent();
 
         requestViewer = createViewer(project, "ai_tool_request.json", request);
         responseViewer = createViewer(project, "ai_tool_response.json", response);
@@ -131,7 +129,7 @@ public class AssistantToolDataForm extends DBNFormBase {
         return viewer;
     }
 
-    public static void showPopup(DataContext context, String request, String response) {
+/*    public static void showPopup(DataContext context, String request, String response) {
         Project project = context.getData(CommonDataKeys.PROJECT);
         if (project == null) return;
 
@@ -140,7 +138,7 @@ public class AssistantToolDataForm extends DBNFormBase {
         JBPopup popup = popupBuilder.createPopup();
         Disposer.register(popup, dataForm);
         popup.showInBestPositionFor(context);
-    }
+    }*/
 
     @Override
     public void dispose() {

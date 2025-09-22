@@ -45,6 +45,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
 import static com.dbn.common.ui.util.Fonts.regularBold;
+import static com.dbn.common.util.Commons.array;
 
 /**
  * Stub implementation for chat message forms
@@ -132,7 +133,7 @@ public abstract class ChatMessageForm extends DBNFormBase {
     }
 
     protected AnAction[] createActions() {
-        return new AnAction[]{new CopyContentAction()};
+        return array(new CopyContentAction(() -> getMessage().getContent()));
     }
 
     @Nullable

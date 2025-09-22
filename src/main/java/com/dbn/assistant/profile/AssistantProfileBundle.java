@@ -87,12 +87,13 @@ public class AssistantProfileBundle {
     }
 
     private List<ImplicitAssistantProfile> createImplicitProfiles() {
-        AssistantSettings assistantSettings = AssistantSettings.getInstance(getProject());
+        Project project = getProject();
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
         List<AssistantCredential> credentials = assistantSettings.getCredentialSettings().getCredentials().getElements();
         return credentials
                 .stream()
                 .filter(c -> c.getProviderId() != null)
-                .map(c -> new ImplicitAssistantProfile(c))
+                .map(c -> new ImplicitAssistantProfile(project, c))
                 .collect(Collectors.toList());
     }
 

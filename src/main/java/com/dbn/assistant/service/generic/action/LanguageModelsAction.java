@@ -16,44 +16,30 @@
 
 package com.dbn.assistant.service.generic.action;
 
-import com.dbn.assistant.chat.context.ChatContext;
-import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.provider.AIModel;
+import com.dbn.assistant.service.selectai.SelectAiContextUtil;
+import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public class ModelSelectAction extends AbstractChatBoxAction {
-    private final AIModel model;
+import static com.dbn.nls.NlsResources.txt;
 
-    ModelSelectAction(AIModel model) {
-        this.model = model;
-    }
-
+public class LanguageModelsAction extends AbstractChatBoxAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        // preserve profile and action from the current context
-        ChatContext currentContext = chatBox.getCurrentContext();
-        ChatContext targetContext = new ChatContextImpl(
-                chatBox.getAssistantType(),
-                currentContext.getProfileId(),
-                currentContext.getProviderId(),
-                model.getId(),
-                currentContext.getActionId(),
-                currentContext.isInteractive());
-
-        chatBox.attemptContextSwitch(targetContext);
+        ConnectionId connectionId = chatBox.getConnectionId();
+        SelectAiContextUtil.openProfileConfiguration(connectionId);
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(model.getName(), false);
+        presentation.setText(txt("app.assistant.action.ProfileSetup"));
     }
 }

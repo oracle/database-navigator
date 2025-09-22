@@ -50,7 +50,6 @@ import com.dbn.connection.ConnectionRef;
 import com.intellij.icons.AllIcons;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBOptionButton;
@@ -218,7 +217,12 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         }
 
         for (String option : options) {
-            JLabel optionLabel = new JLabel("<html><body>" + option + "</body></html>");
+            String optionText = option
+                    .replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;");
+
+            JLabel optionLabel = new JLabel("<html><body>" + optionText + "</body></html>");
             boolean selected = Objects.equals(option, invocation.getOption());
             boolean highlighted = active || selected;
 
@@ -360,14 +364,9 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         executionMonitor.cancel();
     }
 
-    public void showToolExecutionData(DataContext context) {
+    public void showToolExecutionData() {
         Point location = getMainComponent().getLocationOnScreen();
-        AssistantToolRequest toolRequest = getToolRequest();
-        AssistantToolResponse toolResponse = getToolResponse();
-
-        String request = toolRequest.getUtilityArguments();
-        String response = toolResponse == null ? null : toolResponse.getContent();
-        Dialogs.show(() -> new AssistantToolDataDialog(getProject(), info.getToolName(), request, response, location));
+        Dialogs.show(() -> new AssistantToolDataDialog(getProject(), info.getToolName(), getToolInvocation(), location));
     }
 
     public AssistantToolInvocation getToolInvocation() {

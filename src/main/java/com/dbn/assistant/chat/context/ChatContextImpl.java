@@ -35,7 +35,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 @Setter
 public final class ChatContextImpl implements ChatContext{
     private final AssistantType assistantType;
-    private String profileName;
+    private String profileId;
     private String providerId;
     private String modelId;
     private String actionId;
@@ -45,13 +45,9 @@ public final class ChatContextImpl implements ChatContext{
         this.assistantType = assistantType;
     }
 
-    public ChatContextImpl(AssistantType assistantType, String providerId, String modelId) {
-        this(assistantType, null, providerId, modelId, null, true);
-    }
-
-    public ChatContextImpl(AssistantType assistantType, String profileName, String providerId, String modelId, String actionId, boolean interactive) {
+    public ChatContextImpl(AssistantType assistantType, String profileId, String providerId, String modelId, String actionId, boolean interactive) {
         this(assistantType);
-        this.profileName = profileName;
+        this.profileId = profileId;
         this.providerId = providerId;
         this.modelId = modelId;
         this.actionId = actionId;
@@ -95,7 +91,7 @@ public final class ChatContextImpl implements ChatContext{
 
     @Override
     public boolean isProfileSwitch(ChatContext that) {
-        return !Objects.equals(this.profileName, that.getProfileName());
+        return !Objects.equals(this.profileId, that.getProfileId());
     }
 
     @Override
@@ -105,7 +101,7 @@ public final class ChatContextImpl implements ChatContext{
 
     @Override
     public void readState(Element element) {
-        profileName = stringAttribute(element, "profile");
+        profileId = stringAttribute(element, "profile");
         providerId = stringAttribute(element, "provider");
         modelId = stringAttribute(element, "model");
         actionId = stringAttribute(element, "action");
@@ -114,7 +110,7 @@ public final class ChatContextImpl implements ChatContext{
 
     @Override
     public void writeState(Element element) {
-        setStringAttribute(element, "profile", profileName);
+        setStringAttribute(element, "profile", profileId);
         setStringAttribute(element, "provider", providerId);
         setStringAttribute(element, "model", modelId);
         setStringAttribute(element, "action", actionId);
@@ -122,6 +118,6 @@ public final class ChatContextImpl implements ChatContext{
     }
 
     public String toString() {
-        return (profileName == null ? "" : (profileName + " / ")) + providerId + " / " + modelId + " / " + actionId;
+        return (profileId == null ? "" : (profileId + " / ")) + providerId + " / " + modelId + " / " + actionId;
     }
 }

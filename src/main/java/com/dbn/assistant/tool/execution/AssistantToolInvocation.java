@@ -30,6 +30,7 @@ import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.options.setting.Settings.writeCdata;
+import static com.dbn.common.util.Commons.nvl;
 
 @Getter
 @Setter
@@ -102,5 +103,13 @@ public class AssistantToolInvocation implements PersistentStateElement {
             Element resposeElement = newElement(element,"tool-response");
             writeCdata(resposeElement, response.getContent());
         }
+    }
+
+    public String getRequestContent() {
+        return request == null ? "" : nvl(request.getUtilityArguments(), "");
+    }
+
+    public String getResponseContent() {
+        return response == null ? "" : nvl(response.getContent(), "");
     }
 }

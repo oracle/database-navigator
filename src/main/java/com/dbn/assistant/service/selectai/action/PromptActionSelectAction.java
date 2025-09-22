@@ -105,7 +105,7 @@ public class PromptActionSelectAction extends ToggleAction implements AssistantA
         ChatContext currentContext = chatBox.getCurrentContext();
         ChatContext targetContext = new ChatContextImpl(
                 currentContext.getAssistantType(),
-                currentContext.getProfileName(),
+                currentContext.getProfileId(),
                 currentContext.getProviderId(),
                 currentContext.getModelId(),
                 action.getId(),

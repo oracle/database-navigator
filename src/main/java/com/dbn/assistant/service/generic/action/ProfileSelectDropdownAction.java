@@ -19,6 +19,7 @@ package com.dbn.assistant.service.generic.action;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.assistant.profile.ImplicitAssistantProfile;
 import com.dbn.assistant.profile.PotentialAssistantProfile;
@@ -44,6 +45,7 @@ import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
 import static com.dbn.assistant.profile.AssistantProfileLookup.getDeclaredProfiles;
 import static com.dbn.assistant.profile.AssistantProfileLookup.getUndefinedImplicitProfiles;
 import static com.dbn.assistant.profile.AssistantProfileLookup.getUndefinedPotentialProfiles;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
@@ -58,19 +60,21 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
         if (project == null) return actionGroup;
 
         List<DeclaredAssistantProfile> declaredProfiles = getDeclaredProfiles(project);
-        declaredProfiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
-        actionGroup.addSeparator();
-
         List<ImplicitAssistantProfile> implicitProfiles = getUndefinedImplicitProfiles(project);
-        implicitProfiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
-
         List<PotentialAssistantProfile> potentialProfiles = getUndefinedPotentialProfiles(project);
-        potentialProfiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
 
-        actionGroup.addSeparator();
+        addProfileActions(actionGroup, declaredProfiles);
+        addProfileActions(actionGroup, implicitProfiles);
+        addProfileActions(actionGroup, potentialProfiles);
 
-        actionGroup.add(new ProfileCreateAction());
         return actionGroup;
+    }
+
+    private static void addProfileActions(DefaultActionGroup actionGroup, List<? extends AssistantProfile> profiles) {
+        if (profiles.isEmpty()) return;
+
+        profiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
+        actionGroup.addSeparator();
     }
 
     @Override
@@ -97,7 +101,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
         if (chatBox == null) return txt("app.assistant.action.Profile");
 
         String text = getSelectedProfileName(e);
-        if (text != null) return text;
+        if (isNotEmpty(text)) return text;
 
         return txt("app.assistant.action.Profile");
     }

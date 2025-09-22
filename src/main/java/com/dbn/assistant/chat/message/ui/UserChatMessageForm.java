@@ -97,7 +97,7 @@ public class UserChatMessageForm extends ChatMessageForm {
     protected AnAction[] createActions() {
         return new AnAction[]{
                 new AskAgainAction(),
-                new CopyContentAction()};
+                new CopyContentAction(() -> getMessage().getContent())};
     }
 
     private void createUIComponents() {

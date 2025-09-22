@@ -18,43 +18,33 @@ package com.dbn.assistant.service.generic.action;
 
 import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.service.selectai.SelectAiContextUtil;
-import com.dbn.assistant.service.selectai.profile.wizard.ProfileEditionWizard;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
-import com.dbn.object.DBAIProfile;
+import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.tool.config.AssistantToolSettings;
+import com.dbn.assistant.tool.config.ui.AssistantToolApprovalDialog;
+import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import static com.dbn.nls.NlsResources.txt;
 
-public class ProfileCreateAction extends AbstractChatBoxAction {
+public class ToolSettingsAction extends AbstractChatBoxAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        ConnectionHandler connection = chatBox.getConnection();
-        ConnectionId connectionId = connection.getConnectionId();
-        Set<String> profileNames = getProfileNames(connectionId);
+        AssistantState assistantState = getAssistantState(e);
+        if (assistantState == null) return;
 
-        ProfileEditionWizard.showWizard(connection, null, profileNames, null);
+        AssistantToolSettings settings = AssistantToolSettings.get(assistantState);
+        Dialogs.show(() -> new AssistantToolApprovalDialog(project, settings));
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.assistant.action.NewProfile"));
-    }
-
-    public Set<String> getProfileNames(ConnectionId connectionId) {
-        List<DBAIProfile> profiles = SelectAiContextUtil.getProfiles(connectionId);
-        return profiles.stream().map(p -> p.getName()).collect(Collectors.toSet());
+        presentation.setText(txt("app.assistant.action.ToolSettings"));
     }
 }

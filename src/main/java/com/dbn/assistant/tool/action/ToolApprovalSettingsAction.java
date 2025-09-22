@@ -20,13 +20,12 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.assistant.tool.config.ui.AssistantToolApprovalDialog;
 import com.dbn.common.util.Dialogs;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public class ToolExecutionSettingsAction extends AssistantToolAction {
+public class ToolApprovalSettingsAction extends AssistantToolAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         AssistantState assistantState = getAssistantState(e);
@@ -39,8 +38,8 @@ public class ToolExecutionSettingsAction extends AssistantToolAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Tool Settings");
-        presentation.setIcon(AllIcons.General.GearPlain);
+        presentation.setText("Tool Approvals...");
+        //presentation.setIcon(AllIcons.General.GearPlain);
         presentation.setVisible(!isInteractive(e));
     }
 }

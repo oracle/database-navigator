@@ -74,7 +74,7 @@ public class SelectAiContextUtil {
         List<DBAIProfile> profiles = getProfiles(connectionId);
         if (profiles.isEmpty()) return null;
 
-        String profileName = chatContext.getProfileName();
+        String profileName = chatContext.getProfileId();
         if (isEmpty(profileName)) return null;
 
         return getProfile(connectionId, profileName);

@@ -30,7 +30,6 @@ import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.profile.AssistantProfile;
-import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.service.generic.model.AssistantModelFactories;
@@ -45,7 +44,6 @@ import com.dbn.assistant.service.generic.ui.GenericAssistantPromptActionsForm;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.exception.Exceptions;
-import com.dbn.common.util.Commons;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.UUIDs;
 import com.dbn.connection.ConnectionHandler;
@@ -55,6 +53,7 @@ import com.intellij.openapi.project.Project;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
 import static com.dbn.nls.NlsResources.txt;
 
 public class GenericAssistantAdapter extends AssistantAdapterBase {
@@ -86,6 +85,12 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
 
     @Override
     public ChatAvailability getChatAvailability(ConnectionId connectionId) {
+        ChatContext chatContext = getChatContext(connectionId);
+        if (chatContext == null) return ChatAvailability.NOT_INITIALIZED;
+
+        AIProvider provider = chatContext.getProvider();
+        if (provider == null) return ChatAvailability.NO_PROFILE_SELECTED;
+
         return ChatAvailability.AVAILABLE;
     }
 
@@ -179,10 +184,10 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         if (model == null) return null;
 
         String modelName = model.getApiName();
-        String profileName = chatContext.getProfileName();
+        String profileId = chatContext.getProfileId();
 
         Project project = connection.getProject();
-        AssistantProfile profile = getAssistantProfile(project, profileName);
+        AssistantProfile profile = getProfile(project, profileId);
         if (profile == null) return null;
 
         String credentialId = profile.getCredentialId();
@@ -192,14 +197,6 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         return AssistantModelInput.create(modelName)
                 .withUser(credential.getUser())
                 .withToken(credential.getKey());
-    }
-
-    private static AssistantProfile getAssistantProfile(Project project, String profileName) {
-        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
-        AssistantProfileBundle profiles = assistantSettings.getProfileSettings().getProfiles();
-        return Commons.coalesce(
-                () -> profiles.getDeclaredProfile(profileName),
-                () -> profiles.getImplicitProfile(profileName));
     }
 
     private static AssistantCredential getAssistantCredential(Project project, String credentialId) {

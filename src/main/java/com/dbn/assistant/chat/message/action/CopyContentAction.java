@@ -24,19 +24,15 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.util.function.Supplier;
 
-import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.nls.NlsResources.txt;
 
 public class CopyContentAction extends ChatMessageAction {
-    private final String content;
+    private final Supplier<String> content;
 
-    public CopyContentAction(String content) {
+    public CopyContentAction(Supplier<String> content) {
         this.content = content;
-    }
-
-    public CopyContentAction() {
-        this(null);
     }
 
     @Override
@@ -49,11 +45,11 @@ public class CopyContentAction extends ChatMessageAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        copyTextToClipboard(e);
+        copyTextToClipboard();
     }
 
-    private void copyTextToClipboard(AnActionEvent e) {
-        String content = nvln(this.content, () -> getMessageContent(e));
+    private void copyTextToClipboard() {
+        String content = this.content.get();
         StringSelection selection = new StringSelection(content);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(selection, null);

@@ -17,26 +17,26 @@
 package com.dbn.assistant.tool.action;
 
 import com.dbn.assistant.chat.message.ui.ChatMessageToolSectionForm;
+import com.dbn.common.ui.util.ActionPopupBuilder;
+import com.dbn.common.ui.util.Popups;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public class ToolExecutionDataAction extends AssistantToolAction {
+public class ToolExecutionDetailsAction extends AssistantToolAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
         if (toolSectionForm == null) return;
 
-        toolSectionForm.showToolExecutionData();
+        ActionPopupBuilder popupBuilder = Popups.popupBuilder("DBNavigator.ActionGroup.AssistantToolDetailActions", e.getDataContext());
+        popupBuilder.buildAndShow();
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-
         Presentation presentation = e.getPresentation();
-        presentation.setText("Tool Execution Data");
-        //presentation.setIcon(AllIcons.Actions.ListFiles);
         presentation.setVisible(isVisible(e));
     }
 

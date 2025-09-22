@@ -20,15 +20,26 @@ import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.settings.AssistantSettings;
+import com.dbn.common.project.ProjectRef;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 public class ImplicitAssistantProfile implements AssistantProfile {
-    private final AssistantCredential credential;
+    @NonNls
+    private final String id;
+    private final String credentialId;
 
-    public ImplicitAssistantProfile(AssistantCredential credential) {
-        this.credential = credential;
+    private final ProjectRef project;
+
+    public ImplicitAssistantProfile(Project project, AssistantCredential credential) {
+        this.project = ProjectRef.of(project);
+        this.credentialId = credential.getId();
+        this.id = "implicit-profile-" + credential.getId();
     }
 
     @Override
@@ -38,7 +49,19 @@ public class ImplicitAssistantProfile implements AssistantProfile {
 
     @Override
     public String getProviderId() {
-        return credential.getProviderId();
+        AssistantCredential credential = getCredential();
+        return credential == null ? null : credential.getProviderId();
+    }
+
+    private Project getProject() {
+        return ProjectRef.ensure(project);
+    }
+
+    @Nullable
+    public AssistantCredential getCredential() {
+        Project project = getProject();
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+        return assistantSettings.getCredentialSettings().getCredentials().getCredential(credentialId);
     }
 
     public AIProvider getProvider() {
@@ -52,12 +75,8 @@ public class ImplicitAssistantProfile implements AssistantProfile {
     }
 
     @Override
-    public String getCredentialId() {
-        return credential.getId();
-    }
-
-    @Override
     public @NotNull String getName() {
-        return credential.getName();
+        AssistantCredential credential = getCredential();
+        return credential == null ? "Undefined" : credential.getName();
     }
 }

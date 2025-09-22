@@ -20,6 +20,7 @@ import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.util.Lists;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -49,14 +50,27 @@ public class AssistantProfileLookup {
         return assistantSettings.getProfileSettings().getProfiles();
     }
 
-    public static DeclaredAssistantProfile getDeclaredProfile(Project project, String profileName) {
+    @Nullable
+    public static DeclaredAssistantProfile getDeclaredProfile(Project project, String profileId) {
         List<DeclaredAssistantProfile> profiles = getDeclaredProfiles(project);
-        return first(profiles, p -> p.getName().equals(profileName));
+        return first(profiles, p -> p.getId().equals(profileId));
     }
 
-    public static ImplicitAssistantProfile getImplicitProfile(Project project, String profileName) {
+    @Nullable
+    public static ImplicitAssistantProfile getImplicitProfile(Project project, String profileId) {
         List<ImplicitAssistantProfile> profiles = getImplicitProfiles(project);
-        return first(profiles, p -> p.getName().equals(profileName));
+        return first(profiles, p -> p.getId().equals(profileId));
+    }
+
+    @Nullable
+    public static AssistantProfile getProfile(Project project, String profileId) {
+        DeclaredAssistantProfile declaredProfile = getDeclaredProfile(project, profileId);
+        if (declaredProfile != null) return declaredProfile;
+
+        ImplicitAssistantProfile implicitProfile = getImplicitProfile(project, profileId);
+        if (implicitProfile != null) return implicitProfile;
+
+        return null;
     }
 
     public static List<ImplicitAssistantProfile> getUndefinedImplicitProfiles(Project project) {

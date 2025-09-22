@@ -95,7 +95,13 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     public AssistantState(ConnectionId connectionId, AssistantType assistantType) {
         this.connectionId = connectionId;
         this.assistantType = assistantType;
-        this.lastContext = new ChatContextImpl(assistantType);
+    }
+
+    public synchronized ChatContext getLastContext() {
+        if (lastContext == null) {
+            lastContext = new ChatContextImpl(assistantType);
+        }
+        return lastContext;
     }
 
     @Override
@@ -170,7 +176,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     public synchronized Chat getCurrentChat() {
         Chat currentChat = chats.get(currentChatId);
         if (currentChat == null) {
-            currentChat = new Chat(lastContext);
+            currentChat = new Chat(getLastContext());
             currentChat.setSessionSignature(currentSessionSignature);
             currentChatId = currentChat.getId();
             chats.put(currentChatId, currentChat);

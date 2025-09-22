@@ -24,7 +24,6 @@ import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.execution.AssistantToolResponse;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.state.PersistentStateElement;
-import com.dbn.common.util.Strings;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.common.util.UUIDs;
 import com.dbn.language.sql.SQLLanguage;
@@ -196,7 +195,7 @@ public class ChatMessage implements PersistentStateElement {
 
     private boolean isSelectStatement() {
         // TODO move to AssistantAdapter (quick workaround for Select AI context)
-        if (Strings.isEmpty(context.getProfileName())) return false;
+        if (getAssistantType() != AssistantType.SELECT_AI) return false;
 
         return
             StringUtil.startsWithIgnoreCase(content, "select") ||

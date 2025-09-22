@@ -34,7 +34,7 @@ public interface ChatContext extends PersistentStateElement {
 
     String getProviderId();
 
-    String getProfileName();
+    String getProfileId();
 
     String getModelId();
 
@@ -44,7 +44,7 @@ public interface ChatContext extends PersistentStateElement {
 
     void setProviderId(String providerId);
 
-    void setProfileName(String profileName);
+    void setProfileId(String profileId);
 
     void setModelId(String modelId);
 

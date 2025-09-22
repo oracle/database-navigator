@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.message.ui;
 
+import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -24,17 +25,13 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Action;
 import java.awt.Point;
 
-import static com.dbn.common.util.Commons.nvl;
-
 public class AssistantToolDataDialog extends DBNDialog<AssistantToolDataForm> {
-    private final String request;
-    private final String response;
     private final Point location;
+    private AssistantToolInvocation invocation;
 
-    protected AssistantToolDataDialog(@Nullable Project project, String title, String request, String response, Point location) {
+    protected AssistantToolDataDialog(@Nullable Project project, String title, AssistantToolInvocation invocation, Point location) {
         super(project, title, false);
-        this.request = nvl(request, "");
-        this.response = nvl(response, "");
+        this.invocation = invocation;
         this.location = location;
         renameAction(getCancelAction(), "Close");
         setDefaultSize(600, 400);
@@ -49,7 +46,7 @@ public class AssistantToolDataDialog extends DBNDialog<AssistantToolDataForm> {
 
     @Override
     protected @NotNull AssistantToolDataForm createForm() {
-        return new AssistantToolDataForm(this, getProject(), request, response);
+        return new AssistantToolDataForm(this, getProject(), invocation);
     }
 
     protected final Action[] createActions() {

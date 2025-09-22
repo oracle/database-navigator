@@ -21,6 +21,7 @@ import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.util.Cloneable;
+import com.dbn.common.util.UUIDs;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -35,6 +36,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 @Setter
 public class DeclaredAssistantProfile implements AssistantProfile, PersistentConfiguration, Cloneable<DeclaredAssistantProfile> {
     private AssistantType assistantType = AssistantType.PUBLIC;
+    private String id = UUIDs.compact();
     private String name;
     private String providerId;
     private String credentialId;
@@ -52,6 +54,7 @@ public class DeclaredAssistantProfile implements AssistantProfile, PersistentCon
 
     public void readConfiguration(Element element) {
         assistantType = enumAttribute(element, "assistant-type", assistantType);
+        id = stringAttribute(element, "id", id);
         name = stringAttribute(element, "name");
         providerId = stringAttribute(element, "provider-id");
         credentialId = stringAttribute(element, "credential-id");
@@ -60,6 +63,7 @@ public class DeclaredAssistantProfile implements AssistantProfile, PersistentCon
     @Override
     public void writeConfiguration(Element element) {
         setEnumAttribute(element, "assistant-type", assistantType);
+        setStringAttribute(element, "id", id);
         setStringAttribute(element, "name", name);
         setStringAttribute(element, "provider-id", providerId);
         setStringAttribute(element, "credential-id", credentialId);
