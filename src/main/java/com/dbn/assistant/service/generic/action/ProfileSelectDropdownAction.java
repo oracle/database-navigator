@@ -33,7 +33,6 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import javax.swing.JComponent;
 import java.util.List;
@@ -53,7 +52,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
 
     @Override
     @NotNull
-    protected DefaultActionGroup createPopupActionGroup(@NonNull JComponent component, DataContext dataContext) {
+    protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent component, DataContext dataContext) {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
 
         Project project = dataContext.getData(PlatformDataKeys.PROJECT);

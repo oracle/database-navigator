@@ -55,7 +55,7 @@ public class ChatMessageParser {
         String parseContent = content.substring(offset);
         ASTNode rootNode;
         try {
-            rootNode = parseMadkdownContent(parseContent);
+            rootNode = parseMarkdownContent(parseContent);
         } catch (Exception e) {
             createTextSection(sections, offset, sliceOffsets, parseContent);
             return sections;
@@ -88,7 +88,7 @@ public class ChatMessageParser {
         return sections;
     }
 
-    private static ASTNode parseMadkdownContent(String content) {
+    private static ASTNode parseMarkdownContent(String content) {
         MarkdownParser markdownParser = new MarkdownParser(new GFMFlavourDescriptor());
         return markdownParser.buildMarkdownTreeFromString(content);
     }
@@ -152,7 +152,7 @@ public class ChatMessageParser {
         GFMFlavourDescriptor flavourDescriptor = new GFMFlavourDescriptor();
         //content = content.replaceAll("<", "&lt;");
         //content = content.replaceAll(">", "&gt;");
-        ASTNode rootNode = parseMadkdownContent(content);
+        ASTNode rootNode = parseMarkdownContent(content);
 
         HtmlGenerator htmlGenerator = new HtmlGenerator(content, rootNode, flavourDescriptor, false);
         HtmlGenerator.TagRenderer tagRenderer = new HtmlGenerator.DefaultTagRenderer((n, s, cs) -> cs, false);

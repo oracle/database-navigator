@@ -27,7 +27,7 @@ import com.dbn.common.util.Lists;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +80,7 @@ public class AssistantProfileBundle extends ProjectUnit {
         return first(getImplicitProfiles(), p -> p.getName().equals(profileName));
     }
 
-    private static @NonNull List<PotentialAssistantProfile> createPotentialProfiles() {
+    private static @NotNull List<PotentialAssistantProfile> createPotentialProfiles() {
         List<AIProvider> providers = AIProviderData.getProviders(AssistantType.PUBLIC);
         return Lists.convert(providers, p -> new PotentialAssistantProfile(p));
     }

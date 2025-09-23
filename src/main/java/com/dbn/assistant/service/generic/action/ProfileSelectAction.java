@@ -35,7 +35,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 public class ProfileSelectAction extends AbstractChatBoxAction {
     private final WeakRef<AssistantProfile> profile;
@@ -75,7 +74,7 @@ public class ProfileSelectAction extends AbstractChatBoxAction {
         chatBox.attemptContextSwitch(targetContext);
     }
 
-    private void promptCredentialInput(@NonNull AnActionEvent e, @NonNull Project project, AIProvider provider) {
+    private void promptCredentialInput(@NotNull AnActionEvent e, @NotNull Project project, AIProvider provider) {
         Consumer<AssistantCredential> onSave = credential -> {
             AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
             assistantSettings.getCredentialSettings().getCredentials().addCredential(credential);

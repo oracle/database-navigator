@@ -23,7 +23,7 @@ import com.dbn.common.util.XmlContents;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jdom.Element;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,7 +77,7 @@ public class AIProvidersDefinition {
     }
 
     @SneakyThrows
-    private static @NonNull Map<String, AIProvider> initProviders() {
+    private static @NotNull Map<String, AIProvider> initProviders() {
         Element element = XmlContents.fileToElement(AIProvidersDefinition.class, "ai-providers.xml");
         Element typesElement = element.getChild("provider-types");
         List<AIProvider> templates = loadProviders(typesElement);
@@ -100,7 +100,7 @@ public class AIProvidersDefinition {
         return Collections.emptyList();
     }
 
-    private @NonNull List<AIProvider> loadProviders(Element element) {
+    private @NotNull List<AIProvider> loadProviders(Element element) {
         List<Element> providerElements = element.getChildren();
         List<AIProvider> assistantProviders = new ArrayList<>();
         for (Element providerElement : providerElements) {

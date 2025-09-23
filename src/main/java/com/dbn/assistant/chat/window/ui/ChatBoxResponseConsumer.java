@@ -33,8 +33,8 @@ import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.common.message.MessageType;
 import com.dbn.connection.ConnectionId;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.assistant.chat.message.AuthorType.SYSTEM;
@@ -159,7 +159,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         }
     }
 
-    private @NonNull ChatMessage createMessage(MessageType type, String message, AuthorType author) {
+    private @NotNull ChatMessage createMessage(MessageType type, String message, AuthorType author) {
         return new ChatMessage(getAssistantType(), type, message, author, chatContext);
     }
 

@@ -29,7 +29,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import java.util.UUID;
 
@@ -118,7 +117,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         return id;
     }
 
-    @NonNull
+    @NotNull
     @Override
     public String getSecretOwnerName() {
         return name;
