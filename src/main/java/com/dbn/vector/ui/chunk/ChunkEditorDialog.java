@@ -17,7 +17,7 @@ public class ChunkEditorDialog extends DBNDialog<ChunkEditorForm> {
     super(project, "Chunk Lab", canBeParent);
     this.chunkConfiguration = chunkConfiguration;
     this.connectionHandler = connection;
-
+    renameAction(getOKAction(), "Use Settings");
     init();
   }
 

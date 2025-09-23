@@ -80,7 +80,7 @@ public class ChunkEditorForm extends DBNFormBase {
   }
 
   private void initInputTextArea() {
-    inputTextArea.getEmptyText().appendLine("Put your text to be chunked ");
+    inputTextArea.getEmptyText().appendLine("Enter your sample text for chunking here");
     inputTextArea.setBackground(chunkDataTable.getBackground());
     inputTextArea.setFont(Fonts.regular());
   }
