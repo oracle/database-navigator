@@ -24,15 +24,10 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.UserValueHolderImpl;
-import com.dbn.execution.common.input.ExecutionVariable;
-import com.dbn.execution.common.input.ExecutionVariableHistory;
 import com.dbn.execution.java.JavaExecutionInput;
-import com.dbn.execution.java.JavaExecutionManager;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaParameter;
@@ -48,7 +43,6 @@ import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.nd;
@@ -158,23 +152,6 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
                 return executionInput.getInputValueHistory(parameter.getName());
 
             }
-
-			@Override
-			public List<String> getSecondaryValues() {
-				DBJavaParameter parameter = getParameter();
-                if (parameter == null) return emptyList();
-
-                ConnectionHandler connection = parameter.getConnection();
-                ConnectionId connectionId = connection.getConnectionId();
-                JavaExecutionManager executionManager = JavaExecutionManager.getInstance(parameter.getProject());
-                ExecutionVariableHistory valuesHistory = executionManager.getInputValuesHistory();
-                ExecutionVariable argumentValue = valuesHistory.getExecutionVariable(connectionId, parameter.getName(), false);
-                if (argumentValue == null) return emptyList();
-
-                List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
-                cachedValues.removeAll(getValues());
-                return cachedValues;
-            }
 		};
 	}
 
@@ -204,13 +181,12 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
         if (fieldForms.isEmpty()) {
 			JavaExecutionInput executionInput = getParentForm().getExecutionInput();
-			String parameterName = parameter.getName();
 			if (userValueHolder != null) {
 				String value = userValueHolder.getUserValue();
-				executionInput.setInputValue(parameterName, value);
+				executionInput.setInputValue(parameter, value);
 			} else {
 				String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
-				executionInput.setInputValue(parameterName, value);
+				executionInput.setInputValue(parameter, value);
 			}
 		} else {
 			fieldForms.forEach(f -> f.updateExecutionInput());

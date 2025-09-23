@@ -77,6 +77,8 @@ public class EditableStringList extends DBNEditableTable<EditableStringListModel
 
     @Override
     public Component prepareEditor(TableCellEditor editor, int rowIndex, int columnIndex) {
+        if (!isEditable()) return null;
+
         JTextField component = (JTextField) super.prepareEditor(editor, rowIndex, columnIndex);
         component.addFocusListener(new FocusAdapter() {
             @Override

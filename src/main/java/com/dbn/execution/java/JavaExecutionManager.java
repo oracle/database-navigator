@@ -38,8 +38,6 @@ import com.dbn.database.interfaces.DatabaseExecutionInterface;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.ExecutionStatus;
-import com.dbn.execution.common.input.ExecutionVariable;
-import com.dbn.execution.common.input.ExecutionVariableHistory;
 import com.dbn.execution.java.browser.JavaBrowserSettings;
 import com.dbn.execution.java.browser.ui.JavaExecutionBrowserDialog;
 import com.dbn.execution.java.history.ui.JavaExecutionHistoryDialog;
@@ -54,7 +52,6 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import lombok.Getter;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -78,7 +75,6 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 
 	private final JavaBrowserSettings browserSettings = new JavaBrowserSettings();
 	private final JavaExecutionHistory executionHistory = new JavaExecutionHistory(getProject());
-	private final ExecutionVariableHistory inputValuesHistory = new ExecutionVariableHistory();
 
 	private JavaExecutionManager(Project project) {
 		super(project, COMPONENT_NAME);
@@ -92,7 +88,6 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 			public void connectionRemoved(ConnectionId connectionId) {
 				browserSettings.connectionRemoved(connectionId);
 				executionHistory.connectionRemoved(connectionId);
-				inputValuesHistory.connectionRemoved(connectionId);
 			}
 		};
 	}
@@ -202,7 +197,6 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 	}
 
 	public void execute(JavaExecutionInput input) {
-		cacheArgumentValues(input);
 		executionHistory.setSelection(input.getMethodRef());
 		DBJavaMethod method = input.getMethod();
 		JavaExecutionContext context = input.getExecutionContext();
@@ -243,20 +237,6 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 							}
 						}
 					});
-		}
-	}
-
-	private void cacheArgumentValues(JavaExecutionInput input) {
-		ConnectionHandler connection = input.getExecutionContext().getTargetConnection();
-		if (connection == null) return;
-
-		for (val entry : input.getExecutionVariables().entrySet()) {
-			ExecutionVariable argumentValue = entry.getValue();
-
-			inputValuesHistory.cacheVariable(
-					connection.getConnectionId(),
-					argumentValue.getPath(),
-					argumentValue.getValue());
 		}
 	}
 
@@ -338,7 +318,6 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 		browserSettings.writeConfiguration(browserSettingsElement);
 
 		executionHistory.writeState(element);
-		inputValuesHistory.writeState(element);
 		return element;
 	}
 
@@ -350,7 +329,6 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 		}
 
 		executionHistory.readState(element);
-		inputValuesHistory.readState(element);
 	}
 
 
