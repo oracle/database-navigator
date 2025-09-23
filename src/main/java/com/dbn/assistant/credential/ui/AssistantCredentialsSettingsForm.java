@@ -122,7 +122,7 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
         model.validate();
 
         List<AssistantCredential> credentials = model.getElements();
-        configuration.setCredentials(new AssistantCredentialBundle(credentials));
+        configuration.setCredentials(new AssistantCredentialBundle(getProject(), credentials));
 
         for (AssistantCredential credential : credentials) {
             AssistantCredential olsCredential = oldCredentials.remove(credential.getSecretOwnerId());

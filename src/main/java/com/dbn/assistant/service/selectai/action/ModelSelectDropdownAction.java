@@ -102,7 +102,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         return txt("app.assistant.action.Model");
     }
 
-    private String getSelectedModelName(@NotNull AnActionEvent e) {
+    public String getSelectedModelName(@NotNull AnActionEvent e) {
         ConnectionId connectionId = getConnectionId(e);
         if (connectionId == null) return null;
 

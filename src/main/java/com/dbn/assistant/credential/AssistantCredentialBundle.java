@@ -16,38 +16,64 @@
 
 package com.dbn.assistant.credential;
 
-import com.dbn.common.util.CollectionUtil;
+import com.dbn.assistant.profile.ImplicitAssistantProfile;
+import com.dbn.assistant.settings.AssistantSettings;
+import com.dbn.common.component.ProjectUnit;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.dbn.common.util.CollectionUtil.cloneElements;
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.first;
 
 @Getter
 @Setter
-public class AssistantCredentialBundle {
+public class AssistantCredentialBundle extends ProjectUnit {
+
     private final List<AssistantCredential> elements = new ArrayList<>();
+    private List<ImplicitAssistantProfile> implicitProfiles;
 
-    public AssistantCredentialBundle() {}
-
-    public AssistantCredentialBundle(AssistantCredentialBundle source) {
-        this(source.getElements());
+    public AssistantCredentialBundle(Project project) {
+        super(project);
     }
 
-    public AssistantCredentialBundle(List<AssistantCredential> elements) {
+    public AssistantCredentialBundle(Project project, List<AssistantCredential> elements) {
+        this(project);
         setCredentials(elements);
     }
 
     public void setCredentials(List<AssistantCredential> credentials) {
         this.elements.clear();
-        CollectionUtil.cloneElements(credentials, this.elements);
+        this.implicitProfiles = null;
+        cloneElements(credentials, this.elements);
     }
 
     public void addCredential(AssistantCredential credential) {
         this.elements.add(credential);
+        this.implicitProfiles = null;
     }
+
+    public synchronized List<ImplicitAssistantProfile> getImplicitProfiles() {
+        this.implicitProfiles = nvl(this.implicitProfiles, () -> createImplicitProfiles());
+        return implicitProfiles;
+    }
+
+    private List<ImplicitAssistantProfile> createImplicitProfiles() {
+        Project project = getProject();
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+        List<AssistantCredential> credentials = assistantSettings.getCredentialSettings().getCredentials().getElements();
+        return credentials
+                .stream()
+                .filter(c -> c.getProviderId() != null)
+                .map(c -> new ImplicitAssistantProfile(project, c))
+                .collect(Collectors.toList());
+    }
+
 
     public int size() {
         return elements.size();

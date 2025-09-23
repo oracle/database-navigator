@@ -36,14 +36,15 @@ import static com.dbn.common.options.setting.Settings.newElement;
 public class AssistantCredentialSettings
         extends BasicProjectConfiguration<AssistantSettings, AssistantCredentialsSettingsForm> {
 
-    private AssistantCredentialBundle credentials = new AssistantCredentialBundle();
+    private AssistantCredentialBundle credentials;
 
     public AssistantCredentialSettings(AssistantSettings parent) {
         super(parent);
+        credentials = new AssistantCredentialBundle(parent.getProject());
     }
 
     public void setCredentials(AssistantCredentialBundle credentials) {
-        this.credentials = new AssistantCredentialBundle(credentials);
+        this.credentials = new AssistantCredentialBundle(getProject(), credentials.getElements());
     }
 
     @NotNull

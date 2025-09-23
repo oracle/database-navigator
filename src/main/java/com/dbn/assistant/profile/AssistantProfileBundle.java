@@ -17,12 +17,11 @@
 package com.dbn.assistant.profile;
 
 import com.dbn.assistant.AssistantType;
-import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.assistant.settings.AssistantSettings;
-import com.dbn.common.project.ProjectRef;
-import com.dbn.common.ref.WeakRefCache;
+import com.dbn.common.component.ProjectUnit;
 import com.dbn.common.util.CollectionUtil;
 import com.dbn.common.util.Lists;
 import com.intellij.openapi.project.Project;
@@ -32,29 +31,22 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Lists.first;
 
 @Getter
 @Setter
-public class AssistantProfileBundle {
-    private final ProjectRef project;
+public class AssistantProfileBundle extends ProjectUnit {
     private final List<DeclaredAssistantProfile> declaredProfiles = new ArrayList<>();
     private static final List<PotentialAssistantProfile> potentialProfiles = createPotentialProfiles();
-    private static final WeakRefCache<AssistantProfileBundle, List<ImplicitAssistantProfile>> implicitProfiles = WeakRefCache.weakKey();
 
     public AssistantProfileBundle(Project project) {
-        this.project = ProjectRef.of(project);
+        super(project);
     }
 
     public AssistantProfileBundle(Project project, List<DeclaredAssistantProfile> declaredProfiles) {
         this(project);
         setDeclaredProfiles(declaredProfiles);
-    }
-
-    public Project getProject() {
-        return project.ensure();
     }
 
     public void setDeclaredProfiles(List<DeclaredAssistantProfile> profiles) {
@@ -75,7 +67,9 @@ public class AssistantProfileBundle {
     }
 
     public List<ImplicitAssistantProfile> getImplicitProfiles() {
-        return implicitProfiles.computeIfAbsent(this, b -> createImplicitProfiles());
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(getProject());
+        AssistantCredentialBundle credentials = assistantSettings.getCredentialSettings().getCredentials();
+        return credentials.getImplicitProfiles();
     }
 
     public List<PotentialAssistantProfile> getPotentialProfiles() {
@@ -84,17 +78,6 @@ public class AssistantProfileBundle {
 
     public ImplicitAssistantProfile getImplicitProfile(String profileName) {
         return first(getImplicitProfiles(), p -> p.getName().equals(profileName));
-    }
-
-    private List<ImplicitAssistantProfile> createImplicitProfiles() {
-        Project project = getProject();
-        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
-        List<AssistantCredential> credentials = assistantSettings.getCredentialSettings().getCredentials().getElements();
-        return credentials
-                .stream()
-                .filter(c -> c.getProviderId() != null)
-                .map(c -> new ImplicitAssistantProfile(project, c))
-                .collect(Collectors.toList());
     }
 
     private static @NonNull List<PotentialAssistantProfile> createPotentialProfiles() {

@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.profile;
 
+import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.util.Lists;
 import com.intellij.openapi.project.Project;
@@ -92,5 +93,10 @@ public class AssistantProfileLookup {
         return Lists.filter(potentialProfiles, p ->
                 !declaredProviderIds.contains(p.getProviderId()) &&
                 !implicitProviderIds.contains(p.getProviderId()));
+    }
+
+    public static ImplicitAssistantProfile getImplicitProfile(Project project, AIProvider provider) {
+        List<ImplicitAssistantProfile> implicitProfiles = getImplicitProfiles(project);
+        return first(implicitProfiles, p -> p.getProviderId().equals(provider.getId()));
     }
 }

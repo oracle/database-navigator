@@ -20,13 +20,22 @@ import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.credential.ui.AssistantCredentialQuickInputDialog;
 import com.dbn.assistant.profile.AssistantProfile;
+import com.dbn.assistant.profile.AssistantProfileLookup;
+import com.dbn.assistant.profile.ImplicitAssistantProfile;
 import com.dbn.assistant.profile.PotentialAssistantProfile;
+import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.ref.WeakRef;
+import com.dbn.common.routine.Consumer;
+import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 public class ProfileSelectAction extends AbstractChatBoxAction {
     private final WeakRef<AssistantProfile> profile;
@@ -41,20 +50,45 @@ public class ProfileSelectAction extends AbstractChatBoxAction {
 
         AssistantProfile profile = getProfile();
         if (profile instanceof PotentialAssistantProfile) {
-
+            promptCredentialInput(e, project, profile.getProvider());
         } else {
             // preserve action from the current context
-            ChatContext currentContext = chatBox.getCurrentContext();
-            ChatContext targetContext = new ChatContextImpl(
-                    currentContext.getAssistantType(),
-                    profile.getId(),
-                    profile.getProviderId(),
-                    profile.getDefaultModelId(),
-                    currentContext.getActionId(),
-                    true);
-
-            chatBox.attemptContextSwitch(targetContext);
+            switchContext(e, profile);
         }
+    }
+
+    private void switchContext(@NotNull AnActionEvent e, AssistantProfile profile) {
+        if (profile == null) return;
+
+        ChatBoxForm chatBox = getChatBox(e);
+        if (chatBox == null) return;
+
+        ChatContext currentContext = chatBox.getCurrentContext();
+        ChatContext targetContext = new ChatContextImpl(
+                currentContext.getAssistantType(),
+                profile.getId(),
+                profile.getProviderId(),
+                profile.getDefaultModelId(),
+                currentContext.getActionId(),
+                true);
+
+        chatBox.attemptContextSwitch(targetContext);
+    }
+
+    private void promptCredentialInput(@NonNull AnActionEvent e, @NonNull Project project, AIProvider provider) {
+        Consumer<AssistantCredential> onSave = credential -> {
+            AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+            assistantSettings.getCredentialSettings().getCredentials().addCredential(credential);
+
+            ChatContext currentContext = getCurrentChatContext(e);
+            if (currentContext == null) return;
+
+            ImplicitAssistantProfile profile = AssistantProfileLookup.getImplicitProfile(project, provider);
+            switchContext(e, profile);
+        };
+
+
+        Dialogs.show(() -> new AssistantCredentialQuickInputDialog(project, provider, onSave));
     }
 
     private AssistantProfile getProfile() {

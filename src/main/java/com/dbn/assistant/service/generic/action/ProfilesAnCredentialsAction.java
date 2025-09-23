@@ -18,8 +18,8 @@ package com.dbn.assistant.service.generic.action;
 
 import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.service.selectai.SelectAiContextUtil;
-import com.dbn.connection.ConnectionId;
+import com.dbn.options.ConfigId;
+import com.dbn.options.ProjectSettingsManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -27,19 +27,19 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class LanguageModelsAction extends AbstractChatBoxAction {
+public class ProfilesAnCredentialsAction extends AbstractChatBoxAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        ConnectionId connectionId = chatBox.getConnectionId();
-        SelectAiContextUtil.openProfileConfiguration(connectionId);
+        ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
+        settingsManager.openProjectSettings(ConfigId.ASSISTANT);
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.assistant.action.ProfileSetup"));
+        presentation.setText(txt("app.assistant.action.ProfilesAndApiKeys"));
     }
 }

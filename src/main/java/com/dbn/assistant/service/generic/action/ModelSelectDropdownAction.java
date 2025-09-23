@@ -26,7 +26,6 @@ import com.dbn.assistant.provider.AIProvider;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.util.Lists;
-import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -96,19 +95,6 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         if (text != null) return text;
 
         return txt("app.assistant.action.Model");
-    }
-
-    private String getSelectedModelName(@NotNull AnActionEvent e) {
-        ConnectionId connectionId = getConnectionId(e);
-        if (connectionId == null) return null;
-
-        ChatContext chatContext = getCurrentChatContext(e);
-        if (chatContext == null) return null;
-
-        AIModel model = chatContext.getModel();
-        if (model == null) return null;
-
-        return model.getName();
     }
 
     @Override

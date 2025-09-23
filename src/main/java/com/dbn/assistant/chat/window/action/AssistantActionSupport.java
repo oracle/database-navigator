@@ -21,6 +21,7 @@ import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.profile.AssistantProfile;
+import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.DataKeys;
 import com.dbn.connection.ConnectionId;
@@ -98,13 +99,32 @@ public interface AssistantActionSupport {
     @Nullable
     default String getSelectedProfileName(@NotNull AnActionEvent e) {
         ChatContext chatContext = getCurrentChatContext(e);
-        if (chatContext == null) return "Undefined";
+        if (chatContext == null) return null;
 
         Project project = e.getProject();
-        if (project == null) return "Undefined";
+        if (project == null) return null;
 
         String profileId = chatContext.getProfileId();
         AssistantProfile profile = getProfile(project, profileId);
-        return profile == null ? "Undefined" : profile.getName();
+        if (profile == null) return null;
+
+        return profile.getName();
+    }
+
+    default String getSelectedModelName(@NotNull AnActionEvent e) {
+        ChatContext chatContext = getCurrentChatContext(e);
+        if (chatContext == null) return null;
+
+        Project project = e.getProject();
+        if (project == null) return null;
+
+        String profileId = chatContext.getProfileId();
+        AssistantProfile profile = getProfile(project, profileId);
+        if (profile == null) return null;
+
+        AIModel model = chatContext.getModel();
+        if (model == null) return null;
+
+        return model.getName();
     }
 }

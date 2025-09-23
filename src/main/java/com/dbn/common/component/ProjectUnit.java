@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.provider;
+package com.dbn.common.component;
 
-/**
- * Classification for URLs featured along with AI-Provider information
- * Provider urls of various types will be contextually presented in setup and help screens
- *
- * @author Dan Cioca (Oracle)
- */
-public enum ProviderUrlType {
-    API,      // provider api documentation
-    KEYS,     // provider api keys setup
-    DOCS,     // provider documentation
-    GUIDE,    // guide for setting up provider profiles (oracle select-ai)
-    OFFICIAL, // official provider site
+import com.dbn.common.project.ProjectRef;
+import com.intellij.openapi.project.Project;
+
+public abstract class ProjectUnit {
+    private final ProjectRef project;
+
+    public ProjectUnit(Project project) {
+        this.project = ProjectRef.of(project);
+    }
+
+    public Project getProject() {
+        return project.ensure();
+    }
 }
