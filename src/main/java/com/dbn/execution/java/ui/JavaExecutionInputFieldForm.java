@@ -25,15 +25,10 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.UserValueHolderImpl;
-import com.dbn.execution.common.input.ExecutionVariable;
-import com.dbn.execution.common.input.ExecutionVariableHistory;
 import com.dbn.execution.java.JavaExecutionInput;
-import com.dbn.execution.java.JavaExecutionManager;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.lookup.DBObjectRef;
@@ -48,7 +43,6 @@ import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -198,23 +192,6 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 
                 JavaExecutionInput executionInput = getExecutionInput();
                 return executionInput.getInputValueHistory(fieldPath);
-            }
-
-			@Override
-			public List<String> getSecondaryValues() {
-				DBJavaField field = getField();
-                if (field == null) return emptyList();
-
-                ConnectionHandler connection = field.getConnection();
-                ConnectionId connectionId = connection.getConnectionId();
-				JavaExecutionManager executionManager = JavaExecutionManager.getInstance(field.getProject());
-                ExecutionVariableHistory valuesHistory = executionManager.getInputValuesHistory();
-				ExecutionVariable argumentValue = valuesHistory.getExecutionVariable(connectionId, field.getName(), false);
-                if (argumentValue == null) return emptyList();
-
-                List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
-                cachedValues.removeAll(getValues());
-                return cachedValues;
             }
 		};
 	}

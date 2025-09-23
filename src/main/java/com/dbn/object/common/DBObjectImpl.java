@@ -80,6 +80,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.object.common.property.DBObjectProperty.DISPOSED;
 import static com.dbn.object.common.property.DBObjectProperty.LISTS_LOADED;
+import static com.dbn.object.common.property.DBObjectProperty.REFRESHING;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
@@ -522,11 +523,17 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public final void refresh() {
-        DBObjectListContainer childObjects = getChildObjects();
-        if (childObjects == null) return;
+    public synchronized final void refresh() {
+        if (is(REFRESHING)) return;
+        try {
+            set(REFRESHING, true);
+            DBObjectListContainer childObjects = getChildObjects();
+            if (childObjects == null) return;
 
-        childObjects.refreshObjects();
+            childObjects.refreshObjects();
+        } finally {
+            set(REFRESHING, false);
+        }
     }
 
     public final void refresh(@NotNull DBObjectType childObjectType) {

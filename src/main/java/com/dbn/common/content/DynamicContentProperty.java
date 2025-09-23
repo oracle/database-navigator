@@ -34,6 +34,7 @@ public enum DynamicContentProperty implements Property.ShortBase {
 
     CHANGING,
     LOADING,
+    REFRESHING,
     LOADING_IN_BACKGROUND,
 
     SEARCHABLE
