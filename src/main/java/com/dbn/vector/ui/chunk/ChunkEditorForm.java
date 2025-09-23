@@ -1,8 +1,10 @@
 package com.dbn.vector.ui.chunk;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Fonts;
@@ -45,42 +47,61 @@ public class ChunkEditorForm extends DBNFormBase {
   private JPanel spinPanel;
   private JPanel inputPanel;
   private JPanel outputPanel;
-  private ConnectionRef connection;
+  private JPanel hintPanel;
+  private final ConnectionRef connection;
 
-  public ChunkEditorForm(@Nullable Disposable parent, @Nullable Project project, ConnectionHandler connection, ChunkConfiguration chunkConfiguration) {
+  public ChunkEditorForm(@Nullable Disposable parent, @Nullable Project project, ConnectionHandler connection, ChunkConfiguration config) {
     super(parent, project);
     this.connection = connection.ref();
 
-    RecordViewInfo recordViewInfo = new RecordViewInfo("Chunk data", null);
+    initHintPanel();
+    initOutputPanel();
+    initConfigFields(config);
+    initInputTextArea();
+    initSpinner();
+    initTestButton();
+  }
 
+  private void initHintPanel() {
+    TextContent textContent = TextContent.plain(
+            "Use this tool to experiment with different chunking settings before applying them in embedding and retrieval workflows. " +
+                 "Adjust the parameters, preview the resulting chunks, and fine-tune the configuration that works best for your data.");
+    DBNHintForm hintForm = new DBNHintForm(this, textContent, null, true);
+    hintPanel.add(hintForm.getComponent());
+  }
+
+  private void initOutputPanel() {
+    ConnectionHandler connection = getConnection();
+    RecordViewInfo recordViewInfo = new RecordViewInfo("Chunk data", null);
     ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
     chunkDataTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
-
     outputScrollPane.setViewportView(chunkDataTable);
     outputPanel.setBorder(Borders.lineBorder(Colors.getOutlineColor()));
-    spinPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
-    spinPanel.setVisible(false);
-    System.out.println("f");
+  }
+
+  private void initInputTextArea() {
     inputTextArea.getEmptyText().appendLine("Put your text to be chunked ");
     inputTextArea.setBackground(chunkDataTable.getBackground());
     inputTextArea.setFont(Fonts.regular());
+  }
 
-    fillConfig(chunkConfiguration);
-    initTestButtonListner();
+  private void initSpinner() {
+    spinPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
+    spinPanel.setVisible(false);
   }
 
   private ConnectionHandler getConnection() {
     return connection.ensure();
   }
 
-  private void fillConfig(ChunkConfiguration chunkConfiguration) {
+  private void initConfigFields(ChunkConfiguration chunkConfiguration) {
     chunkByComboBox.setSelectedItem(chunkConfiguration.getBy());
     maxSpinner.setValue(chunkConfiguration.getMax());
     splitByComboBox.setSelectedItem(chunkConfiguration.getSplitBy());
     overlapSpinner.setValue(chunkConfiguration.getOverlap());
   }
 
-  private void initTestButtonListner() {
+  private void initTestButton() {
     testButton.addActionListener(e -> {
       Dispatch.async(mainPanel,
               () -> chunkTextContent(),

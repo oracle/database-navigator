@@ -13,8 +13,8 @@ public class ChunkEditorDialog extends DBNDialog<ChunkEditorForm> {
   @Getter
   private ChunkConfiguration chunkConfiguration;
 
-  public ChunkEditorDialog(@Nullable Project project, String title, boolean canBeParent, ConnectionHandler connection, ChunkConfiguration chunkConfiguration) {
-    super(project, title, canBeParent);
+  public ChunkEditorDialog(@Nullable Project project, boolean canBeParent, ConnectionHandler connection, ChunkConfiguration chunkConfiguration) {
+    super(project, "Chunk Lab", canBeParent);
     this.chunkConfiguration = chunkConfiguration;
     this.connectionHandler = connection;
 
