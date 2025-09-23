@@ -26,6 +26,7 @@ import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
 import com.dbn.editor.code.options.CodeEditorSettings;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -34,16 +35,25 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.operation.DatabaseOperation.CHANGE_JAVA_CODE;
 import static com.dbn.editor.DBContentType.CODE_BODY;
 import static com.dbn.editor.DBContentType.CODE_SPEC;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
+import static com.dbn.object.type.DBObjectType.JAVA_RESOURCE;
 import static com.dbn.vfs.file.status.DBFileStatus.SAVING;
 
 public class SourceCodeSaveAction extends AbstractCodeEditorAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
-         performSave(project, fileEditor, sourceCodeFile);
+        DBObjectType objectType = sourceCodeFile.getObjectType();
+
+        if (objectType != null && objectType.isOneOf(JAVA_CLASS, JAVA_RESOURCE)) {
+            CHANGE_JAVA_CODE.start(sourceCodeFile, () -> performSave(project, fileEditor, sourceCodeFile));
+        } else {
+            performSave(project, fileEditor, sourceCodeFile);
+        }
     }
 
     private static void performSave(@NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {

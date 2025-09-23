@@ -95,10 +95,6 @@ public class DatabasePrerequisiteManager extends ProjectComponentBase implements
 
     public void startOperation(DatabaseContext context, DatabaseOperation operation, Runnable operationRunner) {
         ConnectionHandler connection = context.ensureConnection();
-        startOperation(connection, operation, operationRunner);
-    }
-
-    public void startOperation(ConnectionHandler connection, DatabaseOperation operation, Runnable operationRunner) {
         PrerequisiteGroup prerequisiteGroup = getPrerequisiteGroup(connection, operation);
         resetPrerequisites(prerequisiteGroup);
 

@@ -515,8 +515,6 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
 
     ResultSet loadJavaClassDependencies(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
-    ResultSet loadAllJavaClassDependencies(String ownerName, DBNConnection connection) throws SQLException;
-
     /*********************************************************
 	 *                        TYPES                          *
 	 *********************************************************/
@@ -757,6 +755,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     boolean hasSystemPrivilege(String privilegeName, DBNConnection connection) throws SQLException;
 
     boolean hasObjectPrivilege(String privilegeName, String ownerName, String objectName, DBNConnection connection) throws SQLException;
+
+    boolean hasTablespaceQuota(DBNConnection connection) throws SQLException;
 
     boolean hasNetworkPrivilege(String userName, String hostName, String privilegeName, DBNConnection connection) throws SQLException;
 

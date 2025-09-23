@@ -19,6 +19,7 @@ package com.dbn.common.ui.form;
 import com.dbn.common.ref.WeakRefWrapper;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.list.CheckBoxList;
+import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.DocumentAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -249,6 +250,27 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         }
 
         return result;
+    }
+
+    public boolean isVisitedField(JComponent component) {
+        if (component == null) return false;
+        if (VISITED.is(component)) return true;
+
+        if (component instanceof JTextComponent) {
+            JTextComponent textComponent = (JTextComponent) component;
+            return Strings.isNotEmptyOrSpaces(textComponent.getText());
+        }
+
+        if (component instanceof JComboBox) {
+            JComboBox comboBox = (JComboBox) component;
+            return comboBox.getSelectedItem() != null;
+        }
+
+        if (component instanceof CheckBoxList) {
+            CheckBoxList checkBoxList = (CheckBoxList) component;
+            return checkBoxList.hasSelection();
+        }
+        return false;
     }
 
     private static class WrappedValidator<T extends JComponent> extends WeakRefWrapper<T> {

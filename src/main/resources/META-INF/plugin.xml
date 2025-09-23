@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.6.1.0</version>
+    <version>3.6.2.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -52,6 +52,12 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.6.2</b>
+            <ul>
+                <li>Resolved credential storage issues
+                <li>Resolved compatibility issues with 2025.3 EAP
+                <li>Small bug fixes
+            </ul>
             <li><b>3.6.1</b>
             <ul>
                 <li>Resolved connectivity issues (timeouts / concurrency)
@@ -240,10 +246,19 @@
     </extensionPoints>
     <extensions defaultExtensionNs="com.dbn">
         <!--shared prerequisites-->
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TABLE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_PROCEDURE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TYPE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_TABLE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_PROCEDURE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_ANY_TYPE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_UNLIMITED_TABLESPACE"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.TablespaceQuotaPrivilege"/>
+
+        <!--java prerequisites-->
+        <prerequisiteRequirementEvaluator implementation="com.dbn.execution.java.prerequisite.CreateJavaPrerequisiteEvaluator"/>
+        <prerequisiteRequirementEvaluator implementation="com.dbn.execution.java.prerequisite.ExecuteJavaPrerequisitesEvaluator"/>
+        <prerequisiteRequirementEvaluator implementation="com.dbn.execution.java.prerequisite.JavaWrapperPrerequisitesEvaluator"/>
 
         <!--debug prerequisites-->
         <prerequisiteRequirementEvaluator implementation="com.dbn.debugger.prerequisite.DebugPrerequisitesEvaluator"/>
@@ -254,7 +269,6 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.debugger.prerequisite.NetworkAccess_HOST_ACE_JDWP"/>
 
         <!--change notification prerequisites-->
-        <prerequisiteRequirementEvaluator implementation="com.dbn.debugger.prerequisite.DebugPrerequisitesEvaluator"/>
         <prerequisiteRequirementEvaluator implementation="com.dbn.event.prerequisite.ChangeNotificationPrerequisitesEvaluator"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.event.prerequisite.SystemPrivilege_CHANGE_NOTIFICATION"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.event.prerequisite.ObjectPrivilege_EXECUTE_DBMS_CHANGE_NOTIFICATION"/>
@@ -263,11 +277,14 @@
         <assistantAdapter implementation="com.dbn.assistant.service.selectai.SelectAiAssistantAdapter"/>
         <assistantAdapter implementation="com.dbn.assistant.service.generic.GenericAssistantAdapter"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.AnthropicModelFactory"/>
+        <!--<assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.BedrockModelFactory"/>-->
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.CohereModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.GoogleModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.HuggingFaceModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.MistralAiModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OllamaModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OpenAiModelFactory"/>
+
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.ChatModelInvoker"/>
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.EmbeddingModelInvoker"/>
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.LanguageModelInvoker"/>

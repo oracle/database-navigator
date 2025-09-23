@@ -24,15 +24,10 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.UserValueHolderImpl;
-import com.dbn.execution.common.input.ExecutionVariable;
-import com.dbn.execution.common.input.ExecutionVariableHistory;
 import com.dbn.execution.java.JavaExecutionInput;
-import com.dbn.execution.java.JavaExecutionManager;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaParameter;
@@ -48,15 +43,16 @@ import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.execution.java.ui.JavaExecutionInputUtil.setupSingleDimArrayEditor;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static java.util.Collections.emptyList;
+
 
 public class JavaExecutionInputParameterForm extends DBNFormBase implements ComponentAligner.Form {
 	private JPanel mainPanel;
@@ -95,8 +91,6 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
-
-		inputField.createValuesListPopup(createValuesProvider(), parameter, true);
 		DBObjectRef<DBJavaClass> javaClass = parameter.getJavaClassRef();
 		parameterTypeLabel.setText(getCanonicalName(javaClass));
 		if (parameter.isClass()) {
@@ -105,11 +99,18 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 		inputTextField = inputField.getTextField();
 		inputTextField.setText(value);
-		inputFieldPanel.add(inputField, BorderLayout.CENTER);
+		inputFieldPanel.add(inputField);
 
 		inputTextField.setDisabledTextColor(inputTextField.getForeground());
 		fieldsPanel.setVisible(false);
+
+        if (parameter.getArrayDepth() == 1) {
+            setupSingleDimArrayEditor(inputField, parameter);
+        }
+        inputField.createValuesListPopup(createValuesProvider(), parameter, true);
 	}
+
+
 
 	private void initClassField() {
 		DBJavaClass javaClass = getParameter().getJavaClass();
@@ -151,23 +152,6 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
                 return executionInput.getInputValueHistory(parameter.getName());
 
             }
-
-			@Override
-			public List<String> getSecondaryValues() {
-				DBJavaParameter parameter = getParameter();
-                if (parameter == null) return emptyList();
-
-                ConnectionHandler connection = parameter.getConnection();
-                ConnectionId connectionId = connection.getConnectionId();
-                JavaExecutionManager executionManager = JavaExecutionManager.getInstance(parameter.getProject());
-                ExecutionVariableHistory valuesHistory = executionManager.getInputValuesHistory();
-                ExecutionVariable argumentValue = valuesHistory.getExecutionVariable(connectionId, parameter.getName(), false);
-                if (argumentValue == null) return emptyList();
-
-                List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
-                cachedValues.removeAll(getValues());
-                return cachedValues;
-            }
 		};
 	}
 
@@ -197,13 +181,12 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
         if (fieldForms.isEmpty()) {
 			JavaExecutionInput executionInput = getParentForm().getExecutionInput();
-			String parameterName = parameter.getName();
 			if (userValueHolder != null) {
 				String value = userValueHolder.getUserValue();
-				executionInput.setInputValue(parameterName, value);
+				executionInput.setInputValue(parameter, value);
 			} else {
 				String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
-				executionInput.setInputValue(parameterName, value);
+				executionInput.setInputValue(parameter, value);
 			}
 		} else {
 			fieldForms.forEach(f -> f.updateExecutionInput());

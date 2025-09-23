@@ -31,6 +31,7 @@ public interface UserValueHolder<T> {
     T getUserValue();
     String getPresentableValue();
     String getName();
+    Class<?> getDataClass();
     DBDataType getDataType();
     DBObjectType getObjectType();
     Project getProject();

@@ -21,7 +21,6 @@ import com.dbn.common.util.Java;
 import com.dbn.object.DBSchema;
 import com.dbn.object.action.AnObjectAction;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.common.list.DBObjectList;
 import com.dbn.sync.java.download.JavaDownloadManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -31,16 +30,14 @@ import org.jetbrains.annotations.Nullable;
 
 public class JavaResourceDownloadAction extends AnObjectAction<DBObject> {
 
-	DBObjectList objectList;
-	public JavaResourceDownloadAction(DBObject sourceObject, DBObjectList objectList) {
+	public JavaResourceDownloadAction(DBObject sourceObject) {
 		super(sourceObject);
-		this.objectList = objectList;
 	}
 
 	@Override
 	protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBObject target) {
 		JavaDownloadManager manager = JavaDownloadManager.getInstance(project);
-		manager.openResourceDownloader(getTarget(), objectList);
+		manager.openJavaResourceDownloader(getTarget());
 	}
 
 	@Override

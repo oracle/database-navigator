@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.common.option;
+package com.dbn.prerequisite.shared;
 
-import com.intellij.openapi.ui.DialogWrapper;
+import com.dbn.prerequisite.definition.impl.SystemPrivilegePrerequisite;
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.UNLIMITED_TABLESPACE;
 
-public interface DoNotAskOption extends DialogWrapper.DoNotAskOption {
+public class SystemPrivilege_UNLIMITED_TABLESPACE extends SystemPrivilegePrerequisite {
+
+    public SystemPrivilege_UNLIMITED_TABLESPACE() {
+        super(UNLIMITED_TABLESPACE, "UNLIMITED TABLESPACE");
+    }
 }

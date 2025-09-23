@@ -324,10 +324,6 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         return executeQuery(connection, "java-class-dependencies", ownerName, objectName);
     }
 
-    public ResultSet loadAllJavaClassDependencies(String ownerName, DBNConnection connection) throws SQLException {
-        return executeQuery(connection, "all-java-class-dependencies", ownerName);
-    }
-
     /*********************************************************
      *                        TYPES                          *
      *********************************************************/
@@ -651,6 +647,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public boolean hasObjectPrivilege(String privilegeName, String ownerName, String objectName, DBNConnection connection) throws SQLException {
         return getBooleanValue(connection, "has-object-privilege", privilegeName, ownerName, objectName);
+    }
+
+    @Override
+    public boolean hasTablespaceQuota(DBNConnection connection) throws SQLException {
+        return getBooleanValue(connection, "has-quota-on-tablespace");
     }
 
     @Override
