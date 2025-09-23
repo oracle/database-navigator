@@ -47,7 +47,7 @@ public class DBTableSourceForm extends DBNFormBase {
     initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
     initComboboxListeners();
     initValidation();
-    populateSchemas();
+    whenShown(() -> populateSchemas());
   }
 
   private void initComboboxListeners() {

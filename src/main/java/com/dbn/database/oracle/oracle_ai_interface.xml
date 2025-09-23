@@ -338,9 +338,9 @@
     <statement-execution-processor id="chunk-text-from-chunk-lab" timeout="120" is-query="true"   >
         <statement>
             select
-                CHUNK_OFFSET,
-                CHUNK_LENGTH,
-                CHUNK_TEXT
+                CHUNK_OFFSET as "Chunk offset",
+                CHUNK_LENGTH as "Chunk length",
+                CHUNK_TEXT as "Chunk text"
             from VECTOR_CHUNKS(
                 '{0}'
                 BY {1}

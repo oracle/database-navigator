@@ -13,7 +13,6 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.object.DBSchema;
-import com.dbn.vector.model.ChunkData;
 import com.dbn.vector.model.chunk.ChunkConfiguration;
 import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
@@ -34,17 +33,22 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.io.*;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import java.io.FileReader;
+import java.io.Reader;
+import java.io.Writer;
 import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.common.Priority.HIGHEST;
-import static com.dbn.common.ui.CardLayouts.*;
+import static com.dbn.common.Priority.MEDIUM;
+import static com.dbn.common.ui.CardLayouts.addCard;
+import static com.dbn.common.ui.CardLayouts.isBlankCard;
+import static com.dbn.common.ui.CardLayouts.showCard;
+import static com.dbn.common.ui.CardLayouts.visibleCardId;
 
 
 @Slf4j
@@ -134,27 +138,19 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
 
     }
 
-  public List<ChunkData> chunk(ChunkConfiguration chunkConfiguration, String text, DBNConnection conn) throws SQLException {
-//      DBNConnection conn = connectionHandler.getConnection(SessionId.POOL);
+    public ResultSet chunkTextContent(ConnectionHandler connection, ChunkConfiguration configuration, String text) throws SQLException {
+        return DatabaseInterfaceInvoker.load(MEDIUM,
+                "Chunking Data",
+                "Chunking text content",
+                connection.getProject(),
+                connection.getConnectionId(),
+                conn -> {
+                    DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
+                    return assistantInterface.chunk(text, configuration, conn);
+                });
+    }
 
-      DatabaseAssistantInterface assistantInterface = conn.getConnectionHandler().getAssistantInterface();
-      ResultSet resultSet = assistantInterface.chunk(text,chunkConfiguration,conn);
-      List<ChunkData> chunks = new ArrayList<>();
-
-      while (resultSet.next()) {
-          long chunkOffset = resultSet.getLong("CHUNK_OFFSET");
-          long chunkLength = resultSet.getLong("CHUNK_LENGTH");
-          String chunkText = resultSet.getString("CHUNK_TEXT");
-
-          chunks.add(new ChunkData(chunkOffset,chunkLength,chunkText));
-      }
-
-      return chunks;
-
-
-
-  }
-  @SneakyThrows
+    @SneakyThrows
     public void query(SourceConfig sourceConfig, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig, ConnectionHandler handler, Runnable callbackInfo, Consumer<Exception> callbackError) throws SQLException {
         Progress.modal(
                 getProject(),

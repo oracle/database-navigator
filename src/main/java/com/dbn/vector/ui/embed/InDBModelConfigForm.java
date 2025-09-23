@@ -19,8 +19,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.util.List;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
@@ -66,7 +68,7 @@ public class InDBModelConfigForm extends DBNFormBase {
 
         List<DBAIModel> models =schema.getAiModels();
         modelDBNComboBox.setValues(models);
-        modelDBNComboBox.setSelectedIndex(0);
+        if (!models.isEmpty()) modelDBNComboBox.setSelectedIndex(0);
       }finally {
         stopActivityNotifier();
       }
