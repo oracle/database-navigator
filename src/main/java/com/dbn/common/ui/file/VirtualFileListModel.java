@@ -45,6 +45,10 @@ public class VirtualFileListModel implements ListModel<VirtualFile> {
         });
     }
 
+    public List<VirtualFile> getFiles() {
+        return files;
+    }
+
     public void addAll(Collection<VirtualFile> files) {
         int index = this.files.size();
         this.files.addAll(files);

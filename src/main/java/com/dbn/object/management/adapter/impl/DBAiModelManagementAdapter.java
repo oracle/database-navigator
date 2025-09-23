@@ -2,6 +2,7 @@ package com.dbn.object.management.adapter.impl;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBAIModel;
 import com.dbn.object.management.ObjectManagementAdapterFactoryBase;
 
@@ -45,10 +46,9 @@ public class DBAiModelManagementAdapter extends ObjectManagementAdapterFactoryBa
 
     @Override
     protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBAIModel object) throws SQLException {
-//        DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
-//        databaseInterface.deleteProfile(conn,
-//                object.getSchemaName(true),
-//                object.getName(true));
+        DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
+        databaseInterface.deleteAIModel(conn,
+                object.getName(true));
     }
 
     @Override

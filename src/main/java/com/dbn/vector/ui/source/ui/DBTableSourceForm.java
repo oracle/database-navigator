@@ -11,6 +11,9 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObjectBundle;
+import com.dbn.vector.model.common.CreateTableConfig;
+import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
+import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.util.ui.AsyncProcessIcon;
@@ -38,16 +41,29 @@ public class DBTableSourceForm extends DBNFormBase {
   public DBTableSourceForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
     super(parent);
     this.connectionHandler = connectionHandler;
-
+    System.out.println("jfj");
     initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
     initComboboxListeners();
+    initValidation();
     loadSchemas();
   }
 
   private void initComboboxListeners() {
     schemaComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
+    sourceTableComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
+    sourceDataColumnComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
+    sourceColumnIdComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
     schemaComboBox.addListener((ov,nv)-> populateDatabseObjectTable(nv));
     sourceTableComboBox.addListener((ov,nv)-> populateColumns(nv));
+  }
+
+  @Override
+  protected void initValidation() {
+    addSelectionValidation(schemaComboBox,"Please select a schema");
+    addSelectionValidation(sourceTableComboBox,"Please select a  table");
+    addSelectionValidation(sourceDataColumnComboBox,"Please select a  data column");
+    addSelectionValidation(sourceColumnIdComboBox,"Please select a  column id");
+
   }
 
   private void populateColumns(DBTable table) {
@@ -136,6 +152,18 @@ public class DBTableSourceForm extends DBNFormBase {
    */
   private void stopActivityNotifier() {
     initializingIconPanel.setVisible(false);
+  }
+
+
+  public DBTableSourceConfig getDBTableSourceConfig() {
+    DBTableSourceConfig dbTableSourceConfig = new DBTableSourceConfig();
+    dbTableSourceConfig.setSourceSchema(schemaComboBox.getSelectedValue());
+    dbTableSourceConfig.setSourceTable(sourceTableComboBox.getSelectedValue());
+    dbTableSourceConfig.setDataColumn(sourceDataColumnComboBox.getSelectedValue());
+    dbTableSourceConfig.setIdColumn(sourceColumnIdComboBox.getSelectedValue());
+    dbTableSourceConfig.setAutoSync(autoSyncCheckBox.isSelected());
+
+    return dbTableSourceConfig;
   }
 
   @Override

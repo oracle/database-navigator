@@ -18,8 +18,11 @@ package com.dbn.common.ui.file;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.vector.ui.source.ui.FileSystemSourceForm;
+import com.dbn.vector.ui.source.ui.SourceDataForm;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ToolbarDecorator;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
@@ -35,6 +38,7 @@ public class VirtualFileListForm extends DBNFormBase {
     private JLabel titleLabel;
     private JPanel listPanel;
 
+    @Getter
     private final VirtualFileList fileList;
 
     public VirtualFileListForm(DBNComponent parent, String title) {
@@ -48,6 +52,18 @@ public class VirtualFileListForm extends DBNFormBase {
         listPanel.add(initListComponent());
     }
 
+    @Override
+    protected void initValidation() {
+        addValidation(component,l-> {
+            // get the sourceForm to get whiche source type is selected .
+            SourceDataForm parentForm = ((FileSystemSourceForm)getParentComponent()).getParentComponent();
+            if (SourceDataForm.SourceType.TABLE.equals(parentForm.getSourceType())){
+                return true;
+            };
+            return !getFileList().getModel().getFiles().isEmpty();
+        },"Please select a file ");
+    }
+
     private JPanel initListComponent() {
         ToolbarDecorator decorator = createToolbarDecorator(fileList);
         decorator.setAddAction(b -> fileList.insertRows());
@@ -58,7 +74,7 @@ public class VirtualFileListForm extends DBNFormBase {
         return createToolbarDecoratorComponent(decorator, fileList);
     }
 
-    @NotNull
+  @NotNull
     @Override
     public JPanel getMainComponent() {
         return component;

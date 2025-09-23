@@ -84,6 +84,76 @@
             end;
         </statement>
     </statement-execution-processor>
+
+    <statement-execution-processor id="ai-generate-rag-example" timeout="60" is-prepared-statement="true">
+        <statement>
+            DECLARE
+            v_prompt   CLOB;
+            v_response CLOB;
+            BEGIN
+            WITH ranked AS (
+                SELECT CONTENT
+                    FROM REPORTS_NO_WEEK rnw
+                    ORDER BY vector_distance(
+                                rnw.EMBEDDING_TITLE,
+                                vector_embedding(doc_model
+                                        USING {0} AS data)
+                    ) ASC
+                FETCH FIRST 5 ROWS ONLY
+            ), prompt_text AS (
+                    SELECT LISTAGG(CONTENT, CHR(10))
+                    WITHIN GROUP (ORDER BY NULL) AS prompt
+                    FROM ranked
+                    )
+            SELECT prompt
+                    INTO v_prompt
+                    FROM prompt_text;
+
+            v_response := DBMS_VECTOR.UTL_TO_GENERATE_TEXT(
+            v_prompt,
+            JSON({1})
+            );
+
+            ? := v_response;
+            END;
+        </statement>
+    </statement-execution-processor>
+
+<!--    <statement-execution-processor id="ai-generate-rag" timeout="60" is-prepared-statement="true">-->
+<!--        <statement>-->
+<!--            DECLARE-->
+<!--            v_prompt   CLOB;-->
+<!--            v_response CLOB;-->
+<!--            BEGIN-->
+<!--            SELECT LISTAGG(CONTENT, CHR(10)) WITHIN GROUP (ORDER BY NULL)-->
+<!--                INTO v_prompt-->
+<!--                FROM (-->
+<!--                    SELECT {2}-->
+<!--                    FROM {1} rnw-->
+<!--                    ORDER BY vector_distance(-->
+<!--                        rnw.{3},-->
+<!--                        vector_embedding(-->
+<!--                            {4}-->
+<!--                            USING {0} AS data-->
+<!--                            )-->
+<!--                        ) ASC-->
+<!--                FETCH FIRST 5 ROWS ONLY-->
+<!--            );-->
+
+<!--            v_response := DBMS_VECTOR.UTL_TO_GENERATE_TEXT(-->
+<!--                v_prompt,-->
+<!--                JSON('{-->
+<!--                        "provider":        "cohere",-->
+<!--                        "credential_name": "NJHUH",-->
+<!--                        "url":             "https://api.cohere.ai/v1/chat",-->
+<!--                        "model":           "command-r"-->
+<!--                        }')-->
+<!--            );-->
+
+<!--            ? := v_response;-->
+<!--            END;-->
+<!--        </statement>-->
+<!--    </statement-execution-processor>-->
     <statement-execution-processor id="update-credential-attribute" timeout="120">
         <statement>
             begin
@@ -194,6 +264,69 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="drop-embed-model" timeout="120">
+        <statement>
+            begin
+            DBMS_VECTOR.DROP_ONNX_MODEL(model_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="create-table" timeout="120" >
+        <statement>
+            BEGIN
+            EXECUTE IMMEDIATE '
+            CREATE TABLE IF NOT EXISTS {0} (
+            id    NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+            chunk_text CLOB,
+            embedding  VECTOR(384)
+            )
+            ';
+            END;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="insert-vector-embeddings">
+        <statement>
+            BEGIN
+            EXECUTE IMMEDIATE '
+            INSERT INTO {0} (chunk_text, embedding)
+            SELECT
+            chunk.chunk_text,
+            VECTOR_EMBEDDING({1} USING chunk.chunk_text AS DATA)
+            FROM {2} src,
+            VECTOR_CHUNKS(
+            src.{3}
+            BY {4} MAX {5} OVERLAP {6} SPLIT BY {7}
+            ) chunk
+            ';
+            END;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="insert-vector-embeddings-from-filesystem" timeout="12000" is-prepared-statement="true"  is-query="false">
+        <statement>
+            DECLARE
+            v_doc   CLOB          := {0};
+            v_tbl   VARCHAR2(128) := {1};
+            v_model VARCHAR2(4000):= {2};
+            v_by    VARCHAR2(100) := {3};
+            v_max   NUMBER        := {4};
+            v_ovl   NUMBER        := {5};
+            v_split VARCHAR2(100) := {6};
+            BEGIN
+            EXECUTE IMMEDIATE
+            'INSERT INTO ' || DBMS_ASSERT.SIMPLE_SQL_NAME(v_tbl) || ' (chunk_text, embedding)
+            SELECT
+            chunk.chunk_text,
+            VECTOR_EMBEDDING(' || v_model || ' USING chunk.chunk_text AS DATA)
+            FROM VECTOR_CHUNKS(
+            :1
+            BY ' || v_by || ' MAX ' || v_max || ' OVERLAP ' || v_ovl || ' SPLIT BY ' || v_split || '
+            ) chunk'
+            USING v_doc;  -- binds :1 inside the dynamic SQL
+            END;
+        </statement>
+    </statement-execution-processor>
     <statement-execution-processor id="load-onnx-model-through-jdbc" timeout="12000" is-prepared-statement="true"  is-query="false">
         <statement>
             BEGIN

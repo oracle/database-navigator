@@ -3,6 +3,7 @@ package com.dbn.vector.ui.source.ui;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.vector.model.sourceconfig.SourceConfig;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.ui.ComboBox;
 import org.jetbrains.annotations.Nullable;
@@ -13,8 +14,11 @@ import java.awt.*;
 public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
   private JPanel dataPanel;
-  private ComboBox sourceCombo;
+  private ComboBox<SourceType> sourceCombo;
   ConnectionHandler connectionHandler;
+  private FileSystemSourceForm fileSystemSourceForm;
+  private DBTableSourceForm tableSourceForm;
+
 
   public SourceDataForm(@Nullable Disposable parent,ConnectionHandler connectionHandler) {
     super(parent);
@@ -24,31 +28,39 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   }
 
   private void initDataPanel() {
-    JPanel fileSystemPanel = (JPanel) new FileSystemSourceForm(this,connectionHandler).getMainComponent();
-    JPanel tablePanel = (JPanel) new DBTableSourceForm(this,connectionHandler).getMainComponent();
-
-    dataPanel.add(fileSystemPanel,"FILESYSTEM");
-    dataPanel.add(tablePanel,"TABLE");
-    CardLayout cardLayout = (CardLayout) dataPanel.getLayout();
-
-    // default with table
-
-    cardLayout.show(dataPanel, "TABLE");
+    fileSystemSourceForm = new FileSystemSourceForm(this, connectionHandler);
+    tableSourceForm = new DBTableSourceForm(this, connectionHandler);
+    JPanel tablePanel = (JPanel) tableSourceForm.getMainComponent();
+    dataPanel.setLayout(new BorderLayout());
+    sourceCombo.setSelectedItem(SourceType.TABLE);
+    SourceType initial = (SourceType) sourceCombo.getSelectedItem();
+    JPanel initialPanel = initial == SourceType.FILESYSTEM
+        ? (JPanel) fileSystemSourceForm.getMainComponent()
+        : (JPanel) tableSourceForm.getMainComponent();
+    dataPanel.add(initialPanel, BorderLayout.CENTER);
   }
 
   private void initComboBox() {
+    sourceCombo.setModel(new DefaultComboBoxModel<>(SourceType.values()));
     sourceCombo.addActionListener(e -> {
-      CardLayout cardLayout = (CardLayout) dataPanel.getLayout();
-      String source = (String) sourceCombo.getSelectedItem();
-      if (source != null) {
-        if (source.equalsIgnoreCase("FILESYSTEM")) {
-          cardLayout.show(dataPanel, "FILESYSTEM");
-        }
-        else if (source.equalsIgnoreCase("TABLE")) {
-          cardLayout.show(dataPanel, "TABLE");
-        }
+      dataPanel.removeAll();
+      SourceType source = (SourceType) sourceCombo.getSelectedItem();
+      switch (source) {
+        case FILESYSTEM :
+          dataPanel.add((JPanel) fileSystemSourceForm.getMainComponent(), BorderLayout.CENTER);
+          break;
+        case TABLE :
+          dataPanel.add((JPanel) tableSourceForm.getMainComponent(), BorderLayout.CENTER);
       }
+      dataPanel.revalidate();
+      dataPanel.repaint();
     });
+  }
+
+  public SourceConfig getSourceConfig() {
+    return sourceCombo.getSelectedItem() == SourceType.FILESYSTEM
+        ? fileSystemSourceForm.getFileSystemSourceConfig()
+        : tableSourceForm.getDBTableSourceConfig();
   }
 
   @Override
@@ -70,4 +82,18 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   public String getExpandedTitle() {
     return "Source data";
   }
+
+  public SourceType getSourceType() {
+    return (SourceType) sourceCombo.getSelectedItem();
+  }
+
+  public enum SourceType {
+    FILESYSTEM("Filesystem"),
+    TABLE("Database table");
+    private final String label;
+    SourceType(String label) { this.label = label; }
+    @Override public String toString() { return label; }
+  }
+
+
 }

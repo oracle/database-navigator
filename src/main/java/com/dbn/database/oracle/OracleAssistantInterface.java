@@ -24,10 +24,15 @@ import com.dbn.database.common.util.BooleanResultSetConsumer;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.object.factory.ModelFactoryInput;
-import com.dbn.vector.model.ChunkConfiguration;
+import com.dbn.vector.model.chunk.ChunkConfiguration;
+import com.dbn.vector.model.embed.EmbedConfig;
+import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
+import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
+import com.dbn.vector.model.store.StoreConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -46,6 +51,14 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
 
   public AssistantQueryResponse generate(DBNConnection connection, String action, String profile, String attributes, String prompt) throws SQLException {
     return executeCall(connection, new AssistantQueryResponse(), "ai-generate", profile, action, attributes, prompt);
+  }
+  public AssistantQueryResponse generateRag(DBNConnection connection,String prompt) throws SQLException {
+    return executeCall(connection, new AssistantQueryResponse(), "ai-generate-rag-example", prompt,"{\n" +
+            "            \"provider\"        : \"cohere\",\n" +
+            "            \"credential_name\" : \"NJHUH\",\n" +
+            "            \"url\"             : \"https://api.cohere.ai/v1/chat\",\n" +
+            "            \"model\"           : \"command-r\"\n" +
+            "            }");
   }
 
   @Override
@@ -76,8 +89,36 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
+  public void deleteAIModel(DBNConnection conn,String modelName) throws SQLException {
+    executeUpdate(conn,"drop-embed-model",modelName);
+  }
+
+  @Override
   public ResultSet chunk(String text, ChunkConfiguration chunkConfiguration, DBNConnection conn) throws SQLException {
     return executeQuery(conn,"chunk-text-from-chunk-lab",text,chunkConfiguration.getBy(),chunkConfiguration.getMax(),chunkConfiguration.getOverlap(),chunkConfiguration.getSplitBy());
+  }
+
+  @Override
+  public void embed(DBNConnection conn, DBTableSourceConfig sourceConfig, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException {
+    executeUpdate(conn,"insert-vector-embeddings",storeConfig.getTableName(),
+            embedConfig.getModelName(),sourceConfig.getSourceTable().getName(),
+            sourceConfig.getDataColumn().getName(),chunkConfiguration.getBy(),
+            chunkConfiguration.getMax(),chunkConfiguration.getOverlap(),chunkConfiguration.getSplitBy());
+  }
+
+  @Override
+  public void embed(DBNConnection conn, Clob sourceFileClob, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException {
+
+    executeUpdate(conn,"insert-vector-embeddings-from-filesystem",storeConfig.getTableName(),
+            embedConfig.getModelName(),sourceFileClob,
+            chunkConfiguration.getBy(),
+            chunkConfiguration.getMax(),chunkConfiguration.getOverlap(),chunkConfiguration.getSplitBy() );
+  }
+
+  @Override
+  public void createTable(DBNConnection conn, String tableName) throws SQLException {
+    executeUpdate(conn,"create-table",tableName);
+
   }
 
   @Override
