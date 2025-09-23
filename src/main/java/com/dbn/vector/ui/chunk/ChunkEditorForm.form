@@ -157,13 +157,11 @@
                   </hspacer>
                   <component id="6e8fb" class="javax.swing.JButton" binding="testButton" default-binding="true">
                     <constraints>
-                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <autoscrolls value="false"/>
-                      <horizontalAlignment value="0"/>
-                      <horizontalTextPosition value="0"/>
-                      <text value="Test chunk configuration"/>
+                      <text value="Test Chunk Configuration"/>
                     </properties>
                   </component>
                   <grid id="7c323" binding="spinPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
