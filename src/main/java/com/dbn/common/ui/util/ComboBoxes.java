@@ -30,9 +30,11 @@ import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static com.dbn.common.ui.util.ClientProperty.VISITED;
 import static com.dbn.common.util.Unsafe.cast;
 
 public class ComboBoxes {
@@ -66,6 +68,12 @@ public class ComboBoxes {
 
     public static String getEmptyOptionsText(JComboBox comboBox) {
         return ClientProperty.EMPTY_OPTIONS_TEXT.get(comboBox);
+    }
+
+    public static <T extends Presentable> void resetComboBox(JComboBox<T> comboBox) {
+        initComboBox(comboBox, Collections.emptyList());
+        selectElement(comboBox, null);
+        VISITED.set(comboBox, false); // reset validation "visited" marker
     }
 
     public static <T extends Presentable> void initComboBox(JComboBox<T> comboBox, Collection<T> options) {
