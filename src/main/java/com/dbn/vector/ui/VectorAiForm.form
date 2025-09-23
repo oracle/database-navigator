@@ -55,7 +55,7 @@
                 <border type="none"/>
                 <children/>
               </grid>
-              <grid id="18735" layout-manager="GridLayoutManager" row-count="2" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="18735" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
@@ -63,33 +63,11 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="16bfc" class="javax.swing.JButton" binding="ApplyButton">
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <text value="Apply"/>
-                    </properties>
-                  </component>
-                  <hspacer id="f861e">
-                    <constraints>
-                      <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                  </hspacer>
                   <vspacer id="de83c">
                     <constraints>
-                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                     </constraints>
                   </vspacer>
-                  <component id="5d1c0" class="javax.swing.JButton" binding="chatNowButton" default-binding="true">
-                    <constraints>
-                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <enabled value="false"/>
-                      <text value="Chat Now"/>
-                    </properties>
-                  </component>
                 </children>
               </grid>
             </children>
@@ -98,7 +76,7 @@
       </scrollpane>
       <grid id="9953a" binding="hintPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -107,14 +85,14 @@
             <constraints border-constraint="North"/>
             <properties>
               <font style="1"/>
-              <text value="Vector AI: embed &amp; chunk your data"/>
+              <text value="Vector Tool: embed &amp; chunk your data"/>
             </properties>
           </component>
         </children>
       </grid>
       <grid id="ef8cf" binding="headerPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>

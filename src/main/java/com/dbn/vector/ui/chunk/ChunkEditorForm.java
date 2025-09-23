@@ -67,7 +67,8 @@ public class ChunkEditorForm extends DBNFormBase {
   private void initTestButtonListner() {
     testButton.addActionListener(e -> {
       ChunkConfiguration chunkConfiguration = getChunkConfiguration();
-      String text = contentTextArea.getText();
+      String query = contentTextArea.getText();
+      String preparedQuery = query.replace("'", "");
       SchemaId schemaId = connectionHandler.getUserSchema();
 
       try {
@@ -80,7 +81,7 @@ public class ChunkEditorForm extends DBNFormBase {
                 conn -> {
                   try {
                     startActivityNotifier();
-                    chunkDataModel.refresh(chunkConfiguration,text,conn);
+                    chunkDataModel.refresh(chunkConfiguration,preparedQuery,conn);
                   }finally {
                     stopActivityNotifier();
                   }

@@ -98,7 +98,7 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
 
     @Override
     public void addSelectionValidation(JComboBox comboBox, String message) {
-        addValidation(comboBox, c -> c.getSelectedItem() != null, message);
+        addValidation(comboBox, c -> !c.isShowing() ||  c.getSelectedItem() != null, message);
     }
 
     @Override

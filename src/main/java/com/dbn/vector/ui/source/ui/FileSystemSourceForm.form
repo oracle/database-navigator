@@ -24,6 +24,7 @@
         </constraints>
         <properties>
           <text value="Save files in a table ?"/>
+          <visible value="false"/>
         </properties>
       </component>
       <component id="65406" class="javax.swing.JCheckBox" binding="storetableCheckbox">
@@ -32,6 +33,7 @@
         </constraints>
         <properties>
           <text value=""/>
+          <visible value="false"/>
         </properties>
       </component>
       <vspacer id="eca8c">

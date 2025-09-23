@@ -14,10 +14,11 @@ import java.awt.*;
 public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
   private JPanel dataPanel;
-  private ComboBox<String> sourceCombo;
+  private ComboBox<SourceType> sourceCombo;
   ConnectionHandler connectionHandler;
   private FileSystemSourceForm fileSystemSourceForm;
   private DBTableSourceForm tableSourceForm;
+
 
   public SourceDataForm(@Nullable Disposable parent,ConnectionHandler connectionHandler) {
     super(parent);
@@ -31,17 +32,25 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
     tableSourceForm = new DBTableSourceForm(this, connectionHandler);
     JPanel tablePanel = (JPanel) tableSourceForm.getMainComponent();
     dataPanel.setLayout(new BorderLayout());
-    dataPanel.add(tablePanel, BorderLayout.CENTER);
+    sourceCombo.setSelectedItem(SourceType.TABLE);
+    SourceType initial = (SourceType) sourceCombo.getSelectedItem();
+    JPanel initialPanel = initial == SourceType.FILESYSTEM
+        ? (JPanel) fileSystemSourceForm.getMainComponent()
+        : (JPanel) tableSourceForm.getMainComponent();
+    dataPanel.add(initialPanel, BorderLayout.CENTER);
   }
 
   private void initComboBox() {
+    sourceCombo.setModel(new DefaultComboBoxModel<>(SourceType.values()));
     sourceCombo.addActionListener(e -> {
       dataPanel.removeAll();
-      String source = (String) sourceCombo.getSelectedItem();
-      if ("FILESYSTEM".equalsIgnoreCase(source)) {
-        dataPanel.add((JPanel) fileSystemSourceForm.getMainComponent(), BorderLayout.CENTER);
-      } else if ("TABLE".equalsIgnoreCase(source)) {
-        dataPanel.add((JPanel) tableSourceForm.getMainComponent(), BorderLayout.CENTER);
+      SourceType source = (SourceType) sourceCombo.getSelectedItem();
+      switch (source) {
+        case FILESYSTEM :
+          dataPanel.add((JPanel) fileSystemSourceForm.getMainComponent(), BorderLayout.CENTER);
+          break;
+        case TABLE :
+          dataPanel.add((JPanel) tableSourceForm.getMainComponent(), BorderLayout.CENTER);
       }
       dataPanel.revalidate();
       dataPanel.repaint();
@@ -49,11 +58,9 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   }
 
   public SourceConfig getSourceConfig() {
-    if (sourceCombo.getSelectedItem().equals("Filesystem")) {
-      return fileSystemSourceForm.getfileSystemSourceConfig();
-    }else{
-      return tableSourceForm.getDBTableSourceConfig();
-    }
+    return sourceCombo.getSelectedItem() == SourceType.FILESYSTEM
+        ? fileSystemSourceForm.getFileSystemSourceConfig()
+        : tableSourceForm.getDBTableSourceConfig();
   }
 
   @Override
@@ -75,4 +82,18 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   public String getExpandedTitle() {
     return "Source data";
   }
+
+  public SourceType getSourceType() {
+    return (SourceType) sourceCombo.getSelectedItem();
+  }
+
+  public enum SourceType {
+    FILESYSTEM("Filesystem"),
+    TABLE("Database table");
+    private final String label;
+    SourceType(String label) { this.label = label; }
+    @Override public String toString() { return label; }
+  }
+
+
 }

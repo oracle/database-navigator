@@ -36,6 +36,8 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
 
       updateChunkConfig(dialog.getChunkConfiguration());
     });
+
+    initValidation();
   }
 
   private void updateChunkConfig(ChunkConfiguration chunkConfiguration) {
@@ -48,6 +50,31 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   private void initComponents() {
     MAXSpinner.setValue(300);
     OVERLAPSpinner.setValue(30);
+  }
+
+  @Override
+  protected void initValidation() {
+    addValidation(MAXSpinner,n-> {
+              int max = (Integer) n.getValue();
+              int overlap = (Integer) OVERLAPSpinner.getValue();
+              String by = (String) BYComboBox.getSelectedItem();
+              switch (by) {
+                case "CHARACTERS":
+                  return max > 50 && max < 4000;
+                case "WORDS":
+                  return max > 10 && max < 1000;
+              }
+              return false;
+            }
+            ,"Please enter a valid max");
+
+
+    addValidation(OVERLAPSpinner,o->{
+              int max = (Integer) MAXSpinner.getValue();
+              int overlap = (Integer) o.getValue();
+              return overlap == 0 || (overlap>max*5/100 && overlap<max*20/100);
+            }
+            ,"Please enter a valid overlap: 5% to 20% of MAX");
   }
 
   public ChunkConfiguration getChunkConfig() {

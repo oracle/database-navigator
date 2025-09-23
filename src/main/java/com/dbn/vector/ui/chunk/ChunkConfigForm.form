@@ -84,7 +84,7 @@
           </component>
           <component id="5708d" class="javax.swing.JComboBox" binding="SPLITBYComboBox" default-binding="true">
             <constraints>
-              <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <model>
@@ -99,7 +99,9 @@
           </component>
           <component id="c8c7b" class="javax.swing.JLabel">
             <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <preferred-size width="56" height="54"/>
+              </grid>
             </constraints>
             <properties>
               <labelFor value="5708d"/>

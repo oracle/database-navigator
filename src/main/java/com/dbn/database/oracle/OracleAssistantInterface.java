@@ -89,6 +89,11 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
+  public void deleteAIModel(DBNConnection conn,String modelName) throws SQLException {
+    executeUpdate(conn,"drop-embed-model",modelName);
+  }
+
+  @Override
   public ResultSet chunk(String text, ChunkConfiguration chunkConfiguration, DBNConnection conn) throws SQLException {
     return executeQuery(conn,"chunk-text-from-chunk-lab",text,chunkConfiguration.getBy(),chunkConfiguration.getMax(),chunkConfiguration.getOverlap(),chunkConfiguration.getSplitBy());
   }

@@ -44,6 +44,7 @@ public class DBTableSourceForm extends DBNFormBase {
     System.out.println("jfj");
     initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
     initComboboxListeners();
+    initValidation();
     loadSchemas();
   }
 
@@ -54,6 +55,15 @@ public class DBTableSourceForm extends DBNFormBase {
     sourceColumnIdComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
     schemaComboBox.addListener((ov,nv)-> populateDatabseObjectTable(nv));
     sourceTableComboBox.addListener((ov,nv)-> populateColumns(nv));
+  }
+
+  @Override
+  protected void initValidation() {
+    addSelectionValidation(schemaComboBox,"Please select a schema");
+    addSelectionValidation(sourceTableComboBox,"Please select a  table");
+    addSelectionValidation(sourceDataColumnComboBox,"Please select a  data column");
+    addSelectionValidation(sourceColumnIdComboBox,"Please select a  column id");
+
   }
 
   private void populateColumns(DBTable table) {

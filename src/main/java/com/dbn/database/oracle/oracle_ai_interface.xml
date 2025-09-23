@@ -264,6 +264,14 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="drop-embed-model" timeout="120">
+        <statement>
+            begin
+            DBMS_VECTOR.DROP_ONNX_MODEL(model_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="create-table" timeout="120" >
         <statement>
             BEGIN
@@ -298,19 +306,24 @@
     <statement-execution-processor id="insert-vector-embeddings-from-filesystem" timeout="12000" is-prepared-statement="true"  is-query="false">
         <statement>
             DECLARE
-            v_doc   CLOB := :doc_clob;  -- supplied by caller
+            v_doc   CLOB          := {0};
+            v_tbl   VARCHAR2(128) := {1};
+            v_model VARCHAR2(4000):= {2};
+            v_by    VARCHAR2(100) := {3};
+            v_max   NUMBER        := {4};
+            v_ovl   NUMBER        := {5};
+            v_split VARCHAR2(100) := {6};
             BEGIN
-                EXECUTE IMMEDIATE '
-                    INSERT INTO {0} (chunk_text, embedding)
-                    SELECT
+            EXECUTE IMMEDIATE
+            'INSERT INTO ' || DBMS_ASSERT.SIMPLE_SQL_NAME(v_tbl) || ' (chunk_text, embedding)
+            SELECT
             chunk.chunk_text,
-            VECTOR_EMBEDDING({1} USING chunk.chunk_text AS DATA)
-            FROM
-                VECTOR_CHUNKS(
-                    {2}
-                    BY {3} MAX {4} OVERLAP {5} SPLIT BY {6}
-                    ) chunk'
-            USING v_doc;
+            VECTOR_EMBEDDING(' || v_model || ' USING chunk.chunk_text AS DATA)
+            FROM VECTOR_CHUNKS(
+            :1
+            BY ' || v_by || ' MAX ' || v_max || ' OVERLAP ' || v_ovl || ' SPLIT BY ' || v_split || '
+            ) chunk'
+            USING v_doc;  -- binds :1 inside the dynamic SQL
             END;
         </statement>
     </statement-execution-processor>

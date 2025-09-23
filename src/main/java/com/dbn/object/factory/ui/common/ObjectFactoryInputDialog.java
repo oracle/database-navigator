@@ -56,7 +56,7 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
         this.schema = DBObjectRef.of(schema);
         this.objectType = objectType;
         this.initialInput = initialInput;
-        setModal(false);
+//        setModal(false);
         setResizable(true);
         init();
     }
@@ -105,7 +105,6 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
                     "Creating " + input.getObjectTypeName(),
                     "Creating " + input.getObjectDescription(),
                     p -> invokeObjectFactory(project,schema,objectType,p, input));
-            close(OK_EXIT_CODE);
         }else {
             Progress.prompt(
                     getProject(),

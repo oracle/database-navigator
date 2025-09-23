@@ -17,6 +17,7 @@ import com.dbn.vector.ui.chunk.ChunkConfigForm;
 import com.dbn.vector.ui.embed.EmbedConfigForm;
 import com.dbn.vector.ui.source.ui.SourceDataForm;
 import com.dbn.vector.ui.store.SaveVectorsForm;
+import com.intellij.openapi.Disposable;
 
 import javax.swing.*;
 
@@ -31,8 +32,6 @@ public class VectorAIForm extends DBNFormBase {
   private JPanel saveDataPanel;
   private JPanel hintPanel;
   private JPanel headerPanel;
-  private JButton ApplyButton;
-  private JButton chatNowButton;
 
   private SourceDataForm sourceDataForm;
   private ChunkConfigForm chunkConfigForm;
@@ -42,8 +41,8 @@ public class VectorAIForm extends DBNFormBase {
   private ConnectionHandler connectionHandler;
 
 
-  public VectorAIForm(ConnectionHandler connection) {
-    super(connection, connection.getProject());
+  public VectorAIForm(Disposable parent, ConnectionHandler connection) {
+    super(parent, connection.getProject());
     this.connectionHandler = connection;
     System.out.println("fkaravvvaaaaweeeeaenkjhf");
     sourceDataForm = new SourceDataForm(this,connection);
@@ -70,45 +69,44 @@ public class VectorAIForm extends DBNFormBase {
 
     initHintPanel();
     initHeaderPanel();
-    initButtonListners();
+//    initButtonListners();
   }
 
-  private void initButtonListners() {
-    ApplyButton.addActionListener(e -> {
-
-
-      SourceConfig sourceConfig = this.getSourceDataForm().getSourceConfig();
-      ChunkConfiguration chunkConfiguration = this.getChunkConfigForm().getChunkConfig();
-      EmbedConfig embedConfig = this.getEmbedConfigForm().getEmbedConfig();
-      StoreConfig storeConfig = this.getSaveVectorsForm().getStoreConfig();
-
-      try {
-        Runnable callbackInfo = ()->{
-          Messages.showInfoDialog(getProject(), "Embedding Succeeded ","Your data has been embedded successfully!");
-          chatNowButton.setEnabled(true);
-        };
-        Consumer<Exception> callbackError = (ex) -> {
-          Messages.showErrorDialog(getProject(), "Embedding Failed", ex.getMessage(), ex);
-        };
-        DatabaseVectorManager.getInstance(getProject()).query(sourceConfig,chunkConfiguration,embedConfig,storeConfig,connectionHandler,callbackInfo,callbackError);
-      } catch (SQLException ex) {
-        Messages.showErrorDialog(getProject(), null,
-                ex.getMessage(),ex);
-        throw new RuntimeException(ex);
-      }
-    });
-
-    chatNowButton.addActionListener(e -> {
-      //todo open select ai
-
-    });
-  }
+//  private void initButtonListners() {
+//    ApplyButton.addActionListener(e -> {
+//
+//      SourceConfig sourceConfig = this.getSourceDataForm().getSourceConfig();
+//      ChunkConfiguration chunkConfiguration = this.getChunkConfigForm().getChunkConfig();
+//      EmbedConfig embedConfig = this.getEmbedConfigForm().getEmbedConfig();
+//      StoreConfig storeConfig = this.getSaveVectorsForm().getStoreConfig();
+//
+//      try {
+//        Runnable callbackInfo = ()->{
+//          Messages.showInfoDialog(getProject(), "Embedding Succeeded ","Your data has been embedded successfully!");
+//          chatNowButton.setEnabled(true);
+//        };
+//        Consumer<Exception> callbackError = (ex) -> {
+//          Messages.showErrorDialog(getProject(), "Embedding Failed", ex.getMessage(), ex);
+//        };
+//        DatabaseVectorManager.getInstance(getProject()).query(sourceConfig,chunkConfiguration,embedConfig,storeConfig,connectionHandler,callbackInfo,callbackError);
+//      } catch (SQLException ex) {
+//        Messages.showErrorDialog(getProject(), null,
+//                ex.getMessage(),ex);
+//        throw new RuntimeException(ex);
+//      }
+//    });
+//
+//    chatNowButton.addActionListener(e -> {
+//      //todo open select ai
+//
+//    });
+//  }
 
   private void initHeaderPanel() {
 
     ConnectionHandler connection = connectionHandler;
     DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
-    headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+    headerPanel.add(headerForm.getComponent());
   }
 
   private void initHintPanel() {

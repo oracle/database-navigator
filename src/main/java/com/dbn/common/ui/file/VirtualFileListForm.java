@@ -18,6 +18,8 @@ package com.dbn.common.ui.file;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.vector.ui.source.ui.FileSystemSourceForm;
+import com.dbn.vector.ui.source.ui.SourceDataForm;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ToolbarDecorator;
 import lombok.Getter;
@@ -48,6 +50,18 @@ public class VirtualFileListForm extends DBNFormBase {
         titleLabel.setText(title);
         fileList = new VirtualFileList(elements);
         listPanel.add(initListComponent());
+    }
+
+    @Override
+    protected void initValidation() {
+        addValidation(component,l-> {
+            // get the sourceForm to get whiche source type is selected .
+            SourceDataForm parentForm = ((FileSystemSourceForm)getParentComponent()).getParentComponent();
+            if (SourceDataForm.SourceType.TABLE.equals(parentForm.getSourceType())){
+                return true;
+            };
+            return !getFileList().getModel().getFiles().isEmpty();
+        },"Please select a file ");
     }
 
     private JPanel initListComponent() {
