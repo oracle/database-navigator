@@ -76,6 +76,7 @@ public class ChunkEditorForm extends DBNFormBase {
     ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
     chunkDataTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
     outputScrollPane.setViewportView(chunkDataTable);
+    chunkDataTable.installValuePopupAddon();
     outputPanel.setBorder(Borders.lineBorder(Colors.getOutlineColor()));
   }
 
