@@ -43,7 +43,7 @@ public class DBTableSourceForm extends DBNFormBase {
   public DBTableSourceForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
     super(parent);
     this.connectionHandler = connectionHandler;
-    System.out.println("jfj");
+    System.out.println("hhhhfj");
     initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
     initComboboxListeners();
     initValidation();

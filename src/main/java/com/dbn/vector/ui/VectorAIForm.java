@@ -109,8 +109,7 @@ public class VectorAIForm extends DBNFormBase {
             "<html>" +
                     "<body>" +
                     "<p>" +
-                    "Turn Oracle tables or local files into vector embeddings — ready for semantic search, " +
-                    "“chat-with-your-data,” and RAG workflows in minutes." +
+                    "Turn Oracle tables or local files into embeddings — ready for semantic search, \"chat-with-your-data\", and RAG workflows in minutes." +
                     "</p>" +
                     "</body>" +
                     "</html>"

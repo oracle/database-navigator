@@ -96,7 +96,7 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
 
   @Override
   public String getCollapsedTitle() {
-    return "Chunk Config";
+    return "Chunk Configuration";
   }
 
   @Override
@@ -106,6 +106,6 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
 
   @Override
   public String getExpandedTitle() {
-    return "Chunk Config";
+    return "Chunk Configuration";
   }
 }

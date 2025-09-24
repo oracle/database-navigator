@@ -14,30 +14,12 @@
     <children>
       <grid id="a8cbd" binding="dataPanel" layout-manager="CardLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
         <children/>
       </grid>
-      <vspacer id="48616">
-        <constraints>
-          <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </vspacer>
-      <component id="a779a" class="com.intellij.openapi.ui.ComboBox" binding="sourceCombo">
-        <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <alignmentX value="0.0"/>
-          <alignmentY value="0.0"/>
-          <model>
-            <item value="Table"/>
-            <item value="Filesystem"/>
-          </model>
-        </properties>
-      </component>
       <hspacer id="180af">
         <constraints>
           <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -51,6 +33,24 @@
           <text value="Source Type"/>
         </properties>
       </component>
+      <component id="a779a" class="com.intellij.openapi.ui.ComboBox" binding="sourceCombo">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <alignmentX value="0.0"/>
+          <alignmentY value="0.0"/>
+          <model>
+            <item value="Table"/>
+            <item value="Filesystem"/>
+          </model>
+        </properties>
+      </component>
+      <vspacer id="48616">
+        <constraints>
+          <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
     </children>
   </grid>
 </form>

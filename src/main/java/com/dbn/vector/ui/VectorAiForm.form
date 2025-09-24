@@ -85,7 +85,7 @@
             <constraints border-constraint="North"/>
             <properties>
               <font style="1"/>
-              <text value="Vector Tool: embed &amp; chunk your data"/>
+              <text value="Create vector embeddings from your data "/>
             </properties>
           </component>
         </children>

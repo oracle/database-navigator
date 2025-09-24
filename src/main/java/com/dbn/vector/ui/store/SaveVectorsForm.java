@@ -31,7 +31,7 @@ public class SaveVectorsForm extends DBNFormBase implements DBNCollapsibleForm {
   }
   @Override
   public String getCollapsedTitle() {
-    return "Save Vectors";
+    return "Embedding Destination";
   }
 
   @Override
@@ -41,6 +41,6 @@ public class SaveVectorsForm extends DBNFormBase implements DBNCollapsibleForm {
 
   @Override
   public String getExpandedTitle() {
-    return "Save Vectors";
+    return "Embedding Destination";
   }
 }

@@ -30,7 +30,6 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   private void initDataPanel() {
     fileSystemSourceForm = new FileSystemSourceForm(this, connectionHandler);
     tableSourceForm = new DBTableSourceForm(this, connectionHandler);
-    JPanel tablePanel = (JPanel) tableSourceForm.getMainComponent();
     dataPanel.setLayout(new BorderLayout());
     sourceCombo.setSelectedItem(SourceType.TABLE);
     SourceType initial = (SourceType) sourceCombo.getSelectedItem();
@@ -70,7 +69,7 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
 
   @Override
   public String getCollapsedTitle() {
-    return "Source data";
+    return "Data Source";
   }
 
   @Override
@@ -80,7 +79,7 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
 
   @Override
   public String getExpandedTitle() {
-    return "Source data";
+    return "Data Source";
   }
 
   public SourceType getSourceType() {

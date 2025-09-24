@@ -26,12 +26,13 @@ import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.FileReader;
-import java.io.Reader;
-import java.io.Writer;
+import javax.swing.*;
+import java.io.*;
+import java.nio.file.Files;
 import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.Priority.MEDIUM;
@@ -100,11 +101,25 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                                         dataDefinition.embed(conn, (DBTableSourceConfig) sourceConfig, chunkConfiguration, embedConfig, storeConfig);
                                         System.out.println("Embedding data created");
                                     } else {
-                                      Clob clob = prepareFileClob(conn,((FileSystemSourceConfig)sourceConfig).getVirtualFiles().get(0));
-                                        dataDefinition.embed(conn,clob,chunkConfiguration,
-                                                             embedConfig,storeConfig );
-                                      System.out.println("Embedding data created");
+                                      FileSystemSourceConfig fs = (FileSystemSourceConfig) sourceConfig;
+                                      List<VirtualFile> files = fs.getVirtualFiles();
 
+                                      for (int i = 0; i < files.size(); i++) {
+                                        VirtualFile vf = files.get(i);
+                                        p.setText2("Embedding (" + (i + 1) + "/" + files.size() + "): " + vf.getName());
+
+                                        Clob clob = null;
+                                        try {
+                                          clob = prepareFileClob(conn, vf);
+                                          dataDefinition.embed(conn, clob, chunkConfiguration, embedConfig, storeConfig);
+                                        } catch (Exception e) {
+                                          throw new RuntimeException(e);
+                                        } finally {
+                                          if (clob != null) try { clob.free(); } catch (Throwable ignored) {}
+                                        }
+                                      }
+
+                                      System.out.println("Embedding data created (" + files.size() + " file(s))");
                                     }
                                     callbackInfo.run();
                                 });
@@ -116,24 +131,20 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
 
     }
 
-  private Clob prepareFileClob(DBNConnection conn,VirtualFile virtualFile)  {
-    try{
-      Clob docClob = conn.createClob();
-      String path = virtualFile.getPath();
-      Reader reader = new FileReader(path);
-      Writer writer = docClob.setCharacterStream(1);
+  private Clob prepareFileClob(DBNConnection conn, VirtualFile virtualFile) throws Exception {
+    Clob clob = conn.createClob();
 
-      char[] buffer = new char[8192];
-      int len;
-      while ((len = reader.read(buffer)) != -1) {
-        writer.write(buffer, 0, len);
+    try (InputStream in = virtualFile.getInputStream();
+         Reader reader = new InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8);
+         Writer writer = clob.setCharacterStream(1)) {
+
+      char[] buf = new char[64 * 1024]; // 64 KiB buffer for large files
+      int n;
+      while ((n = reader.read(buf)) != -1) {
+        writer.write(buf, 0, n);
       }
-
-      return docClob;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
     }
 
-
+    return clob;
   }
 }

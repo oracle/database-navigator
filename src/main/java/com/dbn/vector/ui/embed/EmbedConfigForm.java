@@ -69,7 +69,7 @@ public class EmbedConfigForm extends DBNFormBase implements DBNCollapsibleForm {
 
   @Override
   public String getCollapsedTitle() {
-    return "Embed Config";
+    return "Embedding Model";
   }
 
   @Override
@@ -79,6 +79,6 @@ public class EmbedConfigForm extends DBNFormBase implements DBNCollapsibleForm {
 
   @Override
   public String getExpandedTitle() {
-    return "Embed Config";
+    return "Embedding Model";
   }
 }

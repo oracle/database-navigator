@@ -35,6 +35,7 @@ import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+
 /**
  * Oracle specialized database interface responsible for interactions related to AI-Assistance
  *
@@ -106,12 +107,18 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public void embed(DBNConnection conn, Clob sourceFileClob, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException {
+  public void embed(DBNConnection conn, Clob sourceFileClob, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException
+  {
 
-    executeUpdate(conn,"insert-vector-embeddings-from-filesystem",storeConfig.getTableName(),
-            embedConfig.getModelName(),sourceFileClob,
-            chunkConfiguration.getBy(),
-            chunkConfiguration.getMax(),chunkConfiguration.getOverlap(),chunkConfiguration.getSplitBy() );
+      executeUpdate(conn,
+              "insert-vector-embeddings-from-filesystem",
+              storeConfig.getTableName(),                    // {0}
+              embedConfig.getModelName(),                    // {1}
+              sourceFileClob,                                // {2}
+              chunkConfiguration.getBy(),                    // {3}
+              chunkConfiguration.getMax(),                   // {4}
+              chunkConfiguration.getOverlap(),               // {5}
+              chunkConfiguration.getSplitBy());              // {6}
   }
 
   @Override
@@ -123,7 +130,6 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   @Override
   public void loadOnnxModelThroughJdbc(String modelName, Blob modelBlob, DBNConnection conn) throws SQLException {
     executeCall(conn,null,"load-onnx-model-through-jdbc",modelName, modelBlob);
-
   }
 
   @Override

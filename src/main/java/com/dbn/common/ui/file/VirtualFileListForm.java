@@ -55,7 +55,7 @@ public class VirtualFileListForm extends DBNFormBase {
     @Override
     protected void initValidation() {
         addValidation(component,l-> {
-            // get the sourceForm to get whiche source type is selected .
+            // get the sourceForm to get which source type is selected .
             SourceDataForm parentForm = ((FileSystemSourceForm)getParentComponent()).getParentComponent();
             if (SourceDataForm.SourceType.TABLE.equals(parentForm.getSourceType())){
                 return true;

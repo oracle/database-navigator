@@ -20,8 +20,6 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
     super(connection.getProject(), "Vector Toolkit", true);
     this.connection = connection.ref();
     setDefaultSize(600, 1000);
-//    hideAction(getOKAction());
-//    renameAction(getCancelAction(),"Close");
     init();
   }
 
