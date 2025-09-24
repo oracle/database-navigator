@@ -1,102 +1,144 @@
 package com.dbn.vector.ui.chunk;
 
+import com.dbn.common.color.Colors;
+import com.dbn.common.text.TextContent;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
-import com.dbn.common.ui.table.DBNTableWithGutter;
+import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Fonts;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.SchemaId;
-import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.jdbc.DBNResultSet;
+import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
+import com.dbn.data.model.resultSet.ResultSetDataModel;
+import com.dbn.data.record.RecordViewInfo;
+import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.chunk.ChunkConfiguration;
-import com.dbn.vector.model.ChunkDataModel;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-
-import java.awt.*;
-import java.sql.SQLException;
-
-import static com.dbn.common.Priority.HIGHEST;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import java.awt.BorderLayout;
+import java.sql.ResultSet;
 
 public class ChunkEditorForm extends DBNFormBase {
 
-  private final ConnectionHandler connectionHandler;
   private JPanel mainPanel;
-  private JBTextArea contentTextArea;
-  private JTable table1;
+  private JBTextArea inputTextArea;
+  private ResultSetTable chunkDataTable;
   private JButton testButton;
-  private DBNScrollPane scrollPane;
-  private JScrollPane textAreatScrolPane;
-  private JComboBox<String> BYComboBox;
-  private JSpinner MAXSpinner;
-  private JComboBox<String> SPLITBYComboBox;
-  private JSpinner OVERLAPSpinner;
+  private DBNScrollPane outputScrollPane;
+  private JScrollPane inputScrollPane;
+  private JComboBox<String> chunkByComboBox;
+  private JSpinner maxSpinner;
+  private JComboBox<String> splitByComboBox;
+  private JSpinner overlapSpinner;
   private JPanel spinPanel;
-  private ChunkDataModel chunkDataModel;
+  private JPanel inputPanel;
+  private JPanel outputPanel;
+  private JPanel hintPanel;
+  private final ConnectionRef connection;
 
-  public ChunkEditorForm(@Nullable Disposable parent, @Nullable Project project, ConnectionHandler connectionHandler, ChunkConfiguration chunkConfiguration) {
-    super(parent, project);
-    this.connectionHandler = connectionHandler;
-    chunkDataModel = new ChunkDataModel(connectionHandler);
-    table1 = new DBNTableWithGutter<>(this, chunkDataModel, true);
-    scrollPane.setViewportView(table1);
+  public ChunkEditorForm(@Nullable Disposable parent, ConnectionHandler connection, ChunkConfiguration config) {
+    super(parent, connection.getProject());
+    this.connection = connection.ref();
+
+    initHintPanel();
+    initOutputPanel();
+    initConfigFields(config);
+    initInputTextArea();
+    initSpinner();
+    initTestButton();
+  }
+
+  private void initHintPanel() {
+    TextContent textContent = TextContent.plain(
+            "Use this tool to experiment with different chunking settings before applying them in embedding and retrieval workflows. " +
+                 "Adjust the parameters, preview the resulting chunks, and fine-tune the configuration that works best for your data.");
+    DBNHintForm hintForm = new DBNHintForm(this, textContent, null, true);
+    hintPanel.add(hintForm.getComponent());
+  }
+
+  private void initOutputPanel() {
+    ConnectionHandler connection = getConnection();
+    RecordViewInfo recordViewInfo = new RecordViewInfo("Chunk data", null);
+    ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
+    chunkDataTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
+    outputScrollPane.setViewportView(chunkDataTable);
+    chunkDataTable.installValuePopupAddon();
+    outputPanel.setBorder(Borders.lineBorder(Colors.getOutlineColor()));
+  }
+
+  private void initInputTextArea() {
+    inputTextArea.getEmptyText().appendLine("Enter your sample text for chunking here");
+    inputTextArea.setBackground(chunkDataTable.getBackground());
+    inputTextArea.setFont(Fonts.regular());
+  }
+
+  private void initSpinner() {
     spinPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
-    System.out.println("f");
-    contentTextArea.getEmptyText().appendLine("Put your text to be chunked ");
-
-
-
-    contentTextArea.setBorder(
-        BorderFactory.createLineBorder(com.intellij.ui.JBColor.GRAY)
-    );
-    textAreatScrolPane.setBorder(BorderFactory.createEmptyBorder());
-    fillConfig(chunkConfiguration);
-    initTestButtonListner();
+    spinPanel.setVisible(false);
   }
 
-  private void fillConfig(ChunkConfiguration chunkConfiguration) {
-    BYComboBox.setSelectedItem(chunkConfiguration.getBy());
-    MAXSpinner.setValue(chunkConfiguration.getMax());
-    SPLITBYComboBox.setSelectedItem(chunkConfiguration.getSplitBy());
-    OVERLAPSpinner.setValue(chunkConfiguration.getOverlap());
+  private ConnectionHandler getConnection() {
+    return connection.ensure();
   }
 
-  private void initTestButtonListner() {
+  private void initConfigFields(ChunkConfiguration chunkConfiguration) {
+    chunkByComboBox.setSelectedItem(chunkConfiguration.getBy());
+    maxSpinner.setValue(chunkConfiguration.getMax());
+    splitByComboBox.setSelectedItem(chunkConfiguration.getSplitBy());
+    overlapSpinner.setValue(chunkConfiguration.getOverlap());
+  }
+
+  private void initTestButton() {
     testButton.addActionListener(e -> {
-      ChunkConfiguration chunkConfiguration = getChunkConfiguration();
-      String query = contentTextArea.getText();
-      String preparedQuery = query.replace("'", "");
-      SchemaId schemaId = connectionHandler.getUserSchema();
-
-      try {
-        DatabaseInterfaceInvoker.execute(HIGHEST,
-                "",
-                "",
-                connectionHandler.getProject(),
-                connectionHandler.getConnectionId(),
-                schemaId,
-                conn -> {
-                  try {
-                    startActivityNotifier();
-                    chunkDataModel.refresh(chunkConfiguration,preparedQuery,conn);
-                  }finally {
-                    stopActivityNotifier();
-                  }
-
-                });
-      } catch (SQLException ex) {
-        throw new RuntimeException(ex);
-      }
-//      Background.run(()->);
-
+      Dispatch.async(mainPanel,
+              () -> chunkTextContent(),
+              d -> applyChunkResult(d));
     });
+  }
+
+  private ResultSetDataModel chunkTextContent() {
+    startActivityNotifier();
+    String query = inputTextArea.getText().replace("'", ""); // TODO prepared statement param binding
+
+    ChunkConfiguration configuration = getChunkConfiguration();
+    ConnectionHandler connection = getConnection();
+    Project project = connection.getProject();
+
+    try {
+      DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(project);
+      ResultSet resultSet = vectorManager.chunkTextContent(connection, configuration, query);
+      ResultSetDataModel dataModel = new ResultSetDataModel((DBNResultSet) resultSet, connection, -1);
+      dataModel.fetchNextRecords(1000, false);
+      return dataModel;
+    } catch (Exception e) {
+      Messages.showErrorDialog(project, "Failed to chunk data", e);
+      return new ResultSetDataModel(connection);
+    } finally {
+      stopActivityNotifier();
+    }
+  }
+
+  private void applyChunkResult(ResultSetDataModel chunkData){
+    chunkDataTable.setModel(chunkData);
   }
 
   private void startActivityNotifier() {
     spinPanel.setVisible(true);
+    testButton.setEnabled(false);
   }
 
   /**
@@ -104,13 +146,14 @@ public class ChunkEditorForm extends DBNFormBase {
    */
   private void stopActivityNotifier() {
     spinPanel.setVisible(false);
+    testButton.setEnabled(true);
   }
 
   public ChunkConfiguration getChunkConfiguration() {
-    String by = (String) BYComboBox.getSelectedItem();
-    int max = (int) MAXSpinner.getValue();
-    String splitBy = (String) SPLITBYComboBox.getSelectedItem();
-    int overlap = (int) OVERLAPSpinner.getValue();
+    String by = (String) chunkByComboBox.getSelectedItem();
+    int max = (int) maxSpinner.getValue();
+    String splitBy = (String) splitByComboBox.getSelectedItem();
+    int overlap = (int) overlapSpinner.getValue();
 
     return new ChunkConfiguration(by, max, splitBy, overlap);
   }

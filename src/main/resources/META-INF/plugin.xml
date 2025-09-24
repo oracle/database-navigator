@@ -758,7 +758,6 @@
         <toolWindow id="DB Execution Console" anchor="bottom" factoryClass="com.dbn.execution.ExecutionConsoleToolWindowFactory" />
         <toolWindow id="DB Assistant" anchor="right" factoryClass="com.dbn.assistant.DatabaseAssistantToolWindowFactory"/>
         <toolWindow id="DB Events" anchor="bottom" factoryClass="com.dbn.event.EventMonitorToolWindowFactory" canCloseContents="true"/>
-        <toolWindow id="DB Vector" anchor="right" factoryClass="com.dbn.vector.DatabaseVectorToolWindowFactory"/>
 
         <fileType name="DBN-SQL" language="DBN-SQL" implementationClass="com.dbn.language.sql.SQLFileType" fieldName="INSTANCE" extensions="sql;ddl;vw"/>
         <fileType name="DBN-PSQL" language="DBN-PSQL" implementationClass="com.dbn.language.psql.PSQLFileType" fieldName="INSTANCE" extensions="psql;plsql;trg;prc;fnc;pkg;pks;pkb;tpe;tps;tpb"/>

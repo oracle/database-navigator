@@ -23,7 +23,6 @@ import com.dbn.object.factory.ModelFactoryInput;
 import com.dbn.vector.model.chunk.ChunkConfiguration;
 import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
-import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 
 import java.sql.Blob;

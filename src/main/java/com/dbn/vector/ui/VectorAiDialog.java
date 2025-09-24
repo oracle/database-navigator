@@ -4,33 +4,34 @@ import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.chunk.ChunkConfiguration;
 import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.sourceconfig.SourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 
 public class VectorAiDialog extends DBNDialog<VectorAIForm> {
-  ConnectionHandler connectionHandler;
-
-  public VectorAiDialog(@Nullable Project project, String title, boolean canBeParent, ConnectionHandler connection) {
-    super(project, title, canBeParent);
-    connectionHandler = connection;
+  private final ConnectionRef connection;
+  public VectorAiDialog(ConnectionHandler connection) {
+    super(connection.getProject(), "Vector Toolkit", true);
+    this.connection = connection.ref();
     setDefaultSize(600, 1000);
 //    hideAction(getOKAction());
 //    renameAction(getCancelAction(),"Close");
     init();
+  }
 
+  private ConnectionHandler getConnection() {
+    return connection.ensure();
   }
 
   @Override
   protected @NotNull VectorAIForm createForm() {
-    return new VectorAIForm(this,connectionHandler);
+    return new VectorAIForm(this,getConnection());
   }
 
   @Override
@@ -48,7 +49,7 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
       Consumer<Exception> callbackError = (ex) -> {
         Messages.showErrorDialog(getProject(), "Embedding Failed", ex.getMessage(), ex);
       };
-      DatabaseVectorManager.getInstance(getProject()).query(sourceConfig,chunkConfiguration,embedConfig,storeConfig,connectionHandler,callbackInfo,callbackError);
+      DatabaseVectorManager.getInstance(getProject()).query(sourceConfig,chunkConfiguration,embedConfig,storeConfig,getConnection(),callbackInfo,callbackError);
     } catch (SQLException ex) {
       Messages.showErrorDialog(getProject(), null,
               ex.getMessage(),ex);

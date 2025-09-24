@@ -5,11 +5,14 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.chunk.ChunkConfiguration;
-import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
 
 public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
@@ -31,7 +34,7 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
               (String) SPLITBYComboBox.getSelectedItem(),
               (Integer) OVERLAPSpinner.getValue()
       );
-      ChunkEditorDialog dialog = new ChunkEditorDialog(getProject(),"Chunk Editor",true,connectionHandler,chunkConfiguration);
+      ChunkEditorDialog dialog = new ChunkEditorDialog(connectionHandler,chunkConfiguration);
       Dialogs.show(()->dialog);
 
       updateChunkConfig(dialog.getChunkConfiguration());
