@@ -126,7 +126,7 @@ public class Icons {
 
     public static final Icon SQL_CONSOLE = load("/img/tools/SQLConsole.svg");
     public static final Icon SESSION_BROWSER = load("/img/tools/SessionBrowser.svg");
-    public static final Icon VECTOR_TOOLBOX = load("/img/tools/VectorToolkit.svg");
+    public static final Icon VECTOR_TOOLBOX = load("/img/tools/VectorToolbox.svg");
 
     public static final Icon FILE_SQL_CONSOLE = load("/img/file/SQLConsoleFile.svg");
     public static final Icon FILE_SQL_DEBUG_CONSOLE = load("/img/file/SQLDebugConsole.svg");
