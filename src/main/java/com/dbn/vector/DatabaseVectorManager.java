@@ -6,9 +6,7 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -19,36 +17,24 @@ import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
 import com.dbn.vector.model.sourceconfig.SourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
-import com.dbn.vector.ui.VectorAiDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.ui.content.Content;
 import groovy.util.logging.Slf4j;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
 import java.io.FileReader;
 import java.io.Reader;
 import java.io.Writer;
 import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Objects;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.Priority.MEDIUM;
-import static com.dbn.common.ui.CardLayouts.addCard;
-import static com.dbn.common.ui.CardLayouts.isBlankCard;
-import static com.dbn.common.ui.CardLayouts.showCard;
-import static com.dbn.common.ui.CardLayouts.visibleCardId;
 
 
 @Slf4j
@@ -57,11 +43,7 @@ import static com.dbn.common.ui.CardLayouts.visibleCardId;
         storages = @Storage(DatabaseNavigator.STORAGE_FILE)
 )
 public  class DatabaseVectorManager extends ProjectComponentBase implements PersistentState {
-    public static final String TOOL_WINDOW_ID = "DB Vector";
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseVectorManager";
-
-
-
 
     public DatabaseVectorManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -69,63 +51,6 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
 
     public static DatabaseVectorManager getInstance(Project project) {
         return Components.projectService(project, DatabaseVectorManager.class);
-    }
-
-    /**
-     * switch from current connection to the new selected one from DBN navigator
-     *
-     * @param connectionId the new selected connection
-     */
-    public void switchToConnection(@Nullable ConnectionId connectionId) {
-        JPanel toolWindowPanel = getToolWindowPanel();
-        if (toolWindowPanel == null) return;
-
-        String id = visibleCardId(toolWindowPanel);
-        ConnectionId selectedConnectionId = isBlankCard(id) ? null : ConnectionId.get(id);
-
-        if (Objects.equals(selectedConnectionId, connectionId)) return;
-        initToolWindow(connectionId);
-    }
-
-
-    private void initToolWindow(ConnectionId connectionId) {
-        ToolWindow toolWindow = getToolWindow();
-        if (toolWindow == null) return;
-
-        JPanel toolWindowPanel = getToolWindowPanel();
-        if (toolWindowPanel == null) return;
-
-//        VectorAIForm chatBox = new VectorAIForm(ConnectionHandler.get(connectionId));
-        JButton vectorAiButton = new JButton("Vector AI");
-        vectorAiButton.addActionListener(e -> {
-            Dialogs.show(()->new VectorAiDialog(getProject(),"Vector Ai",true,ConnectionHandler.get(connectionId)));
-        });
-        addCard(toolWindowPanel, vectorAiButton, connectionId);
-
-//        if (chatBox == null) {
-        showCard(toolWindowPanel,connectionId);
-        toolWindow.setAvailable(true);
-//        } else {
-//            showCard(toolWindowPanel, connectionId);
-//            toolWindow.setAvailable(true);
-//        }
-
-
-    }
-
-    @Nullable
-    private JPanel getToolWindowPanel() {
-        ToolWindow toolWindow = getToolWindow();
-        if (toolWindow == null) return null;
-
-        Content content = toolWindow.getContentManager().getContent(0);
-        return content == null ? null : (JPanel) content.getComponent();
-    }
-
-    @Nullable
-    public ToolWindow getToolWindow() {
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject());
-        return toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
     }
 
     @Override

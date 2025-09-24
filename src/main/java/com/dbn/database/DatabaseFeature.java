@@ -52,6 +52,7 @@ public enum DatabaseFeature {
     READONLY_CONNECTIVITY("Readonly connectivity"),
     AI_ASSISTANT("AI assistant"),
     DATA_CHANGE_NOTIFICATION("Data change notification"),
+    VECTOR_EMBEDDING("Vector embedding"),
 
     // OJVM
     JAVA_VIRTUAL_MACHINE("Embedded JVM"),

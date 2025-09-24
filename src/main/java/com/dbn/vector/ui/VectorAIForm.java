@@ -1,28 +1,20 @@
 package com.dbn.vector.ui;
 
-import com.dbn.common.routine.Consumer;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.vector.DatabaseVectorManager;
-import com.dbn.vector.model.chunk.ChunkConfiguration;
-import com.dbn.vector.model.embed.EmbedConfig;
-import com.dbn.vector.model.sourceconfig.SourceConfig;
-import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.vector.ui.chunk.ChunkConfigForm;
 import com.dbn.vector.ui.embed.EmbedConfigForm;
 import com.dbn.vector.ui.source.ui.SourceDataForm;
 import com.dbn.vector.ui.store.SaveVectorsForm;
 import com.intellij.openapi.Disposable;
 
-import javax.swing.*;
-
-import java.awt.*;
-import java.sql.SQLException;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 public class VectorAIForm extends DBNFormBase {
   private JPanel mainPanel;
@@ -38,12 +30,12 @@ public class VectorAIForm extends DBNFormBase {
   private EmbedConfigForm embedConfigForm;
   private SaveVectorsForm saveVectorsForm;
 
-  private ConnectionHandler connectionHandler;
+  private final ConnectionRef connection;
 
 
   public VectorAIForm(Disposable parent, ConnectionHandler connection) {
     super(parent, connection.getProject());
-    this.connectionHandler = connection;
+    this.connection = connection.ref();
     System.out.println("fkaravvvaaaaweeeeaenkjhf");
     sourceDataForm = new SourceDataForm(this,connection);
     chunkConfigForm = new ChunkConfigForm(this,connection);
@@ -102,10 +94,12 @@ public class VectorAIForm extends DBNFormBase {
 //    });
 //  }
 
-  private void initHeaderPanel() {
+  private ConnectionHandler getConnection() {
+    return connection.ensure();
+  }
 
-    ConnectionHandler connection = connectionHandler;
-    DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
+  private void initHeaderPanel() {
+    DBNHeaderForm headerForm = new DBNHeaderForm(this, getConnection());
     headerPanel.add(headerForm.getComponent());
   }
 

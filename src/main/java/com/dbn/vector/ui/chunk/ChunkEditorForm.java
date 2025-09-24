@@ -50,8 +50,8 @@ public class ChunkEditorForm extends DBNFormBase {
   private JPanel hintPanel;
   private final ConnectionRef connection;
 
-  public ChunkEditorForm(@Nullable Disposable parent, @Nullable Project project, ConnectionHandler connection, ChunkConfiguration config) {
-    super(parent, project);
+  public ChunkEditorForm(@Nullable Disposable parent, ConnectionHandler connection, ChunkConfiguration config) {
+    super(parent, connection.getProject());
     this.connection = connection.ref();
 
     initHintPanel();

@@ -34,7 +34,7 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
               (String) SPLITBYComboBox.getSelectedItem(),
               (Integer) OVERLAPSpinner.getValue()
       );
-      ChunkEditorDialog dialog = new ChunkEditorDialog(getProject(),true,connectionHandler,chunkConfiguration);
+      ChunkEditorDialog dialog = new ChunkEditorDialog(connectionHandler,chunkConfiguration);
       Dialogs.show(()->dialog);
 
       updateChunkConfig(dialog.getChunkConfiguration());
