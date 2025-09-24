@@ -18,6 +18,7 @@ package com.dbn.object.factory;
 
 import com.dbn.common.component.Components;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
@@ -42,7 +43,7 @@ import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputDialog;
 import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.vector.common.ModelPathType;
+import com.dbn.vector.common.ModelSourceType;
 import com.dbn.vfs.DatabaseFileManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -61,6 +62,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.common.Priority.MEDIUM;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -120,21 +122,21 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
         if (factoryInput instanceof ModelFactoryInput) {
             ModelFactoryInput modelFactoryInput = (ModelFactoryInput) factoryInput;
-            createModel(modelFactoryInput,progress);
+            createModel(modelFactoryInput);
             return ;
         }
         // TODO other factory inputs
 
     }
 
-    private void createModel(ModelFactoryInput input, ProgressIndicator progress) throws SQLException {
-        ModelPathType modelPathType = input.getModelPathType();
+    private void createModel(ModelFactoryInput input) throws SQLException {
+        ModelSourceType modelSourceType = input.getSourceType();
         DBSchema schema = input.getSchema();
 
         ConnectionId connectionId = schema.getConnectionId();
         SchemaId schemaId = schema.getSchemaId();
 
-        DatabaseInterfaceInvoker.execute(HIGHEST,
+        DatabaseInterfaceInvoker.execute(MEDIUM,
                 "Creating " + input.getObjectType().getCapitalizedName(),
                 "Creating " + input.getObjectDescription(),
                 schema.getProject(),
@@ -142,13 +144,15 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 schemaId,
                 conn -> {
                     DatabaseAssistantInterface dataDefinition = schema.getAssistantInterface();
-                    if (ModelPathType.OBJECT_STORAGE.equals(modelPathType)) {
-
+                    if (modelSourceType == ModelSourceType.OBJECT_STORAGE) {
                         dataDefinition.loadOnnxModelFromOci(input, conn);
-                    }else {
 
-                        Blob modelBlob = prepareOnnxModel(conn,input.getLocation(),progress);
+                    } else if (modelSourceType == ModelSourceType.MODEL_FILE){
+                        Blob modelBlob = prepareOnnxModel(conn,input.getSourceLocation());
                         dataDefinition.loadOnnxModelThroughJdbc(input.getModelName(),modelBlob, conn);
+
+                    } else {
+                        throw new IllegalArgumentException("Unsupported model source type: " + modelSourceType);
                     }
                 });
 
@@ -157,14 +161,14 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     private Blob prepareOnnxModel(
             DBNConnection conn,
-            String modelLocation,
-            ProgressIndicator progress
+            String modelLocation
     ) throws SQLException {
         File modelFile = new File(modelLocation);
         long fileSize      = modelFile.length();
         double totalMB     = fileSize / (1024.0 * 1024.0);
 
         // Tell the ProgressIndicator what we're doing
+        ProgressIndicator progress = ProgressMonitor.ensureProgressIndicator();
         progress.setIndeterminate(false);
         progress.setText("Uploading ONNX model");
         progress.setFraction(0.0);

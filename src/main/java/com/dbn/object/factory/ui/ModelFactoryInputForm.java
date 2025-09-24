@@ -20,66 +20,62 @@ import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.vector.common.ModelPathType;
+import com.dbn.vector.common.ModelSourceType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
-import static com.dbn.common.util.Lists.convert;
+import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.toUpperCase;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
+import static com.dbn.vector.common.ModelSourceType.MODEL_FILE;
+import static com.dbn.vector.common.ModelSourceType.OBJECT_STORAGE;
 
 public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryInput> {
   public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFile().
           withTitle("Select ONNX Model File").
           withDescription("Select a valid ONNX file").
-          withFileFilter(virtualFile -> Objects.equals(virtualFile.getExtension(), "onnx"));
+          withExtensionFilter("onnx");
 
   private JPanel mainPanel;
   private JPanel headerPanel;
   private DBNComboBox<ConnectionHandler> connectionComboBox;
   private DBNComboBox<SchemaId> schemaComboBox;
-  private JRadioButton localFileRadioButton;
-  private JRadioButton objectStorageRadioButton;
+  private DBNComboBox<DBCredential> credentialComboBox;
+  private DBNComboBox<ModelSourceType> sourceComboBox;
   private JTextField modelNameTextField;
-  private TextFieldWithBrowseButton onnxModel;
-  private JTextField objectUrl;
+  private TextFieldWithBrowseButton modelFileTextField;
+  private JTextField objectUrlTextField;
   private JLabel fileLabel;
   private JLabel objectUrlLabel;
-  private JComboBox credentialDBNComboBox;
   private JButton addCredentialButton;
   private JLabel credentialLabel;
 
   private final DBObjectRef<DBSchema> schema;
 
   public ModelFactoryInputForm(DBNComponent parent, DBSchema schema,DBObjectType objectType, int index) {
-
-
     super(parent,schema.getConnection(),DBObjectType.AI_MODEL,index);
+
     this.schema = DBObjectRef.of(schema);
-    onnxModel.addBrowseFolderListener(
-            getProject(),
-            FILE_CHOOSER_DESCRIPTOR);
+    modelFileTextField.addBrowseFolderListener(getProject(), FILE_CHOOSER_DESCRIPTOR);
 
     ConnectionHandler connection = getConnection();
     connectionComboBox.setValues(connection);
@@ -93,17 +89,26 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
     schemaComboBox.set(HIDE_DESCRIPTION, true);
     schemaComboBox.setEnabled(false); // TODO support connection switch
 
+    initComboBox(sourceComboBox, ModelSourceType.values());
+    setSelection(sourceComboBox, MODEL_FILE);
+
     DBNHeaderForm headerForm = createHeaderForm(schema,objectType);
-    ButtonGroup pathGroup = new ButtonGroup();
-    pathGroup.add(localFileRadioButton);
-    pathGroup.add(objectStorageRadioButton);
     onTextChange(modelNameTextField, e -> headerForm.setTitle(schema.getName() + "." + toUpperCase(getObjectName()))); // TODO support quoted names
     whenFirstShown(mainPanel, () -> populateCredentials());
 
+    updatePathControls();
     initCredentialAddButton();
     setListeners();
   }
 
+  @Override
+  protected void initValidation() {
+    String objectTypeName = getObjectType().getName();
+    addTextValidation(modelNameTextField, n -> isNotEmptyOrSpaces(n), "Please enter a " + objectTypeName + " name");
+    addTextValidation(modelFileTextField.getTextField(), n -> isNotEmptyOrSpaces(n), "Please select a model file");
+    addTextValidation(objectUrlTextField, n -> isNotEmptyOrSpaces(n), "Please provide an object URL");
+    addSelectionValidation(credentialComboBox, "Please select or create a credential");
+  }
 
   private void initCredentialAddButton() {
     addCredentialButton.setIcon(Icons.ACTION_ADD);
@@ -120,18 +125,14 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
     });
   }
 
+  private DBSchema getSchema() {
+    return DBObjectRef.ensure(schema);
+  }
+
   private void populateCredentials() {
-    ConnectionHandler connection = getConnection();
-    Project project = connection.getProject();
-
     Background.run(() -> {
-
-      java.util.List<DBCredential> credentials = schema.getSchema().getCredentials();
-      List<String> credentialNames = convert(credentials, c -> c.getName());
-
-
-      credentialDBNComboBox.removeAllItems();
-      credentialNames.forEach(c -> credentialDBNComboBox.addItem(c));
+      List<DBCredential> credentials = getSchema().getCredentials();
+      initComboBox(credentialComboBox, credentials);
     });
   }
 
@@ -147,28 +148,28 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
             headerIcon,
             headerBackground
     );
-    headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+    headerPanel.add(headerForm.getComponent());
     return headerForm;
   }
 
 
   private void setListeners() {
     ActionListener actionListener = (e)->updatePathControls();
-
-    localFileRadioButton.addActionListener(actionListener);
-
-    objectStorageRadioButton.addActionListener(actionListener);
+    sourceComboBox.addActionListener(actionListener);
   }
 
   private void updatePathControls() {
-    boolean local = localFileRadioButton.isSelected();
+    ModelSourceType source = getModelSourceType();
+    boolean local = source == MODEL_FILE;
+    boolean storage = source == OBJECT_STORAGE;
+
     fileLabel.setVisible(local);
-    onnxModel.setVisible(local);
-    objectUrlLabel.setVisible(!local);
-    objectUrl.setVisible(!local);
-    credentialDBNComboBox.setVisible(!local);
-    addCredentialButton.setVisible(!local);
-    credentialLabel.setVisible(!local);
+    modelFileTextField.setVisible(local);
+    objectUrlLabel.setVisible(storage);
+    objectUrlTextField.setVisible(storage);
+    credentialComboBox.setVisible(storage);
+    addCredentialButton.setVisible(storage);
+    credentialLabel.setVisible(storage);
   }
 
 
@@ -184,13 +185,22 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
 
   @Override
   public ModelFactoryInput createFactoryInput(ObjectFactoryInput parent) {
+    ModelSourceType sourceType = getModelSourceType();
+    String sourceLocation = sourceType == MODEL_FILE ?
+            modelFileTextField.getText() :
+            objectUrlTextField.getText();
+    DBCredential credential = getSelection(credentialComboBox);
+
     return new ModelFactoryInput(
             schema.getSchema(),
             modelNameTextField.getText(),
-            localFileRadioButton.isSelected() ? ModelPathType.LOCAL:ModelPathType.OBJECT_STORAGE,
-            localFileRadioButton.isSelected() ? onnxModel.getText() : objectUrl.getText(),
-            (String) credentialDBNComboBox.getSelectedItem()
-    ) ;
+            sourceType,
+            sourceLocation,
+            credential) ;
+  }
+
+  private ModelSourceType getModelSourceType() {
+    return getSelection(sourceComboBox);
   }
 
   @Override
@@ -200,6 +210,6 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
 
   @Override
   public void focus() {
-    objectStorageRadioButton.requestFocus();
+    modelNameTextField.requestFocus();
   }
 }
