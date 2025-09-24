@@ -364,9 +364,10 @@ public class Icons {
 //    public static final Icon DBO_ARGUMENT_OUT        = createRowIcon(DBO_ARGUMENT, COMMON_DIRECTION_OUT);
 //    public static final Icon DBO_ARGUMENT_IN_OUT     = createRowIcon(DBO_ARGUMENT, COMMON_DIRECTION_IN_OUT);
 
-    public static final Icon DBO_AI_MODEL                      = load("/img/object/model/AIModel.svg");
 
 
+    public static final Icon DBO_AI_MODEL                        = load("/img/object/model/AIModel.svg");
+    public static final Icon DBO_AI_MODELS                       = load("/img/object/model/AIModels.svg");
     public static final Icon DBO_AI_PROFILE                      = load("/img/object/profile/AIProfile.png");
     public static final Icon DBO_AI_PROFILE_CONVERSATION         = load("/img/object/profile/AIProfileConversation.png");
     public static final Icon DBO_AI_PROFILE_DISABLED             = load("/img/object/profile/AIProfileDisabled.png");
