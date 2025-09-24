@@ -16,6 +16,7 @@
 
 package com.dbn.connection.action;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.DatabaseFeature;
@@ -28,8 +29,8 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class VectorToolkitOpenAction extends AbstractConnectionAction {
-    VectorToolkitOpenAction(ConnectionHandler connection) {
+public class VectorToolboxOpenAction extends AbstractConnectionAction {
+    VectorToolboxOpenAction(ConnectionHandler connection) {
         super(connection);
     }
 
@@ -38,7 +39,8 @@ public class VectorToolkitOpenAction extends AbstractConnectionAction {
         boolean supported = DatabaseFeature.VECTOR_EMBEDDING.isSupported(target);
 
         presentation.setVisible(supported);
-        presentation.setText(txt("app.connection.action.OpenVectorToolkit"));
+        presentation.setText(txt("app.connection.action.OpenVectorToolbox"));
+        presentation.setIcon(Icons.VECTOR_TOOLBOX);
     }
 
     @Override

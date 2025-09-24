@@ -17,7 +17,7 @@ import java.sql.SQLException;
 public class VectorAiDialog extends DBNDialog<VectorAIForm> {
   private final ConnectionRef connection;
   public VectorAiDialog(ConnectionHandler connection) {
-    super(connection.getProject(), "Vector Toolkit", true);
+    super(connection.getProject(), "Vector Toolbox", true);
     this.connection = connection.ref();
     setDefaultSize(600, 1000);
 //    hideAction(getOKAction());

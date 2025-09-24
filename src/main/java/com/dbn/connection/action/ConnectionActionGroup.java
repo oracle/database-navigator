@@ -39,7 +39,7 @@ public class ConnectionActionGroup extends AbstractConnectionActionGroup {
         add(new DatabaseLoggingToggleAction(connection));
         addSeparator();
         add(new SQLConsoleOpenAction(connection));
-        add(new VectorToolkitOpenAction(connection));
+        add(new VectorToolboxOpenAction(connection));
         add(new GenerateCodeActionGroup(connection));
         addSeparator();
         add(new AutoConnectToggleAction(connection));
