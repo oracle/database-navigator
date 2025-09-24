@@ -52,7 +52,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @Slf4j
 @Getter
 public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentable {
-    AI_MODEL(DatabaseObjectTypeId.AI_MODEL,"AI model","AI models",Icons.DBO_AI_MODEL, Icons.DBO_AI_MODEL, Icons.DBO_AI_MODEL,false),
+    AI_MODEL(DatabaseObjectTypeId.AI_MODEL,"AI model","AI models", Icons.DBO_AI_MODEL, null, Icons.DBO_AI_MODELS,false),
     AI_PROFILE(DatabaseObjectTypeId.AI_PROFILE, "AI profile", "AI profiles", Icons.DBO_AI_PROFILE, Icons.DBO_AI_PROFILE_DISABLED, Icons.DBO_AI_PROFILES, false),
     ATTRIBUTE(DatabaseObjectTypeId.ATTRIBUTE, "attribute", "attribute", Icons.DBO_ATTRIBUTE, null, Icons.DBO_ATTRIBUTES, false),
     ARGUMENT(DatabaseObjectTypeId.ARGUMENT, "argument", "arguments", Icons.DBO_ARGUMENT, null, Icons.DBO_ARGUMENTS, false),

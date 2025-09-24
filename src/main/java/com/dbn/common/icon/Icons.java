@@ -126,6 +126,7 @@ public class Icons {
 
     public static final Icon SQL_CONSOLE = load("/img/tools/SQLConsole.svg");
     public static final Icon SESSION_BROWSER = load("/img/tools/SessionBrowser.svg");
+    public static final Icon VECTOR_TOOLBOX = load("/img/tools/VectorToolbox.svg");
 
     public static final Icon FILE_SQL_CONSOLE = load("/img/file/SQLConsoleFile.svg");
     public static final Icon FILE_SQL_DEBUG_CONSOLE = load("/img/file/SQLDebugConsole.svg");
@@ -364,13 +365,14 @@ public class Icons {
 //    public static final Icon DBO_ARGUMENT_OUT        = createRowIcon(DBO_ARGUMENT, COMMON_DIRECTION_OUT);
 //    public static final Icon DBO_ARGUMENT_IN_OUT     = createRowIcon(DBO_ARGUMENT, COMMON_DIRECTION_IN_OUT);
 
-    public static final Icon DBO_AI_MODEL                      = load("/img/object/model/AIModel.svg");
 
 
-    public static final Icon DBO_AI_PROFILE                      = load("/img/object/profile/AIProfile.png");
-    public static final Icon DBO_AI_PROFILE_CONVERSATION         = load("/img/object/profile/AIProfileConversation.png");
-    public static final Icon DBO_AI_PROFILE_DISABLED             = load("/img/object/profile/AIProfileDisabled.png");
-    public static final Icon DBO_AI_PROFILES                     = load("/img/object/profile/AIProfiles.png");
+    public static final Icon DBO_AI_MODEL                        = load("/img/object/model/AIModel.svg");
+    public static final Icon DBO_AI_MODELS                       = load("/img/object/model/AIModels.svg");
+    public static final Icon DBO_AI_PROFILE                      = load("/img/object/profile/AIProfile.svg");
+    public static final Icon DBO_AI_PROFILE_CONVERSATION         = load("/img/object/profile/AIProfileConversation.svg");
+    public static final Icon DBO_AI_PROFILE_DISABLED             = load("/img/object/profile/AIProfileDisabled.svg");
+    public static final Icon DBO_AI_PROFILES                     = load("/img/object/profile/AIProfiles.svg");
     public static final Icon DBO_ATTRIBUTE                       = load("/img/object/Attribute.png");
     public static final Icon DBO_ATTRIBUTES                      = load("/img/object/Attributes.png");
     public static final Icon DBO_ARGUMENT                        = load("/img/object/Argument.png");

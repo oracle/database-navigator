@@ -16,10 +16,10 @@
 
 package com.dbn.connection.action;
 
-import com.dbn.common.util.Dialogs;
+import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.DatabaseFeature;
-import com.dbn.vector.ui.VectorAiDialog;
+import com.dbn.vector.DatabaseVectorManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -28,8 +28,8 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class VectorToolkitOpenAction extends AbstractConnectionAction {
-    VectorToolkitOpenAction(ConnectionHandler connection) {
+public class VectorToolboxOpenAction extends AbstractConnectionAction {
+    VectorToolboxOpenAction(ConnectionHandler connection) {
         super(connection);
     }
 
@@ -38,11 +38,13 @@ public class VectorToolkitOpenAction extends AbstractConnectionAction {
         boolean supported = DatabaseFeature.VECTOR_EMBEDDING.isSupported(target);
 
         presentation.setVisible(supported);
-        presentation.setText(txt("app.connection.action.OpenVectorToolkit"));
+        presentation.setText(txt("app.connection.action.OpenVectorToolbox"));
+        presentation.setIcon(Icons.VECTOR_TOOLBOX);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionHandler connection) {
-        Dialogs.show(() -> new VectorAiDialog(connection));
+        DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(project);
+        vectorManager.openVectorToolbox(connection);
     }
 }

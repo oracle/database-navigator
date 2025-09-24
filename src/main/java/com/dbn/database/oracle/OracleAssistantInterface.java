@@ -85,7 +85,7 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
 
   @Override
   public void loadOnnxModelFromOci(ModelFactoryInput input, DBNConnection conn) throws SQLException {
-    executeUpdate(conn,"load-onnx-model-from-object-storage",input.getModelName(), input.getCredential(), input.getLocation());
+    executeUpdate(conn,"load-onnx-model-from-object-storage",input.getModelName(), input.getCredentialName(), input.getSourceLocation());
   }
 
   @Override

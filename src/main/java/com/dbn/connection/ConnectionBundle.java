@@ -21,6 +21,7 @@ import com.dbn.common.dispose.Disposed;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.filter.Filter;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.list.FilteredList;
 import com.dbn.common.options.SettingsChangeNotifier;
@@ -31,6 +32,7 @@ import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.console.DatabaseConsoleManager;
+import com.dbn.database.DatabaseFeature;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.navigation.ItemPresentation;
@@ -218,6 +220,21 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
 
     public List<ConnectionHandler> getConnections() {
         return connections;
+    }
+
+    public boolean hasConnections(DatabaseFeature feature) {
+        for (ConnectionHandler connection : connections) {
+            if (feature.isSupported(connection)) return true;
+        }
+        return false;
+    }
+
+    public List<ConnectionHandler> getConnections(DatabaseFeature feature) {
+        return getConnections(c -> feature.isSupported(c));
+    }
+
+    public List<ConnectionHandler> getConnections(Filter<ConnectionHandler> filter) {
+        return Lists.filter(connections, filter);
     }
 
     public List<ConnectionHandler> getAllConnections() {

@@ -6,6 +6,7 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
@@ -17,6 +18,7 @@ import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
 import com.dbn.vector.model.sourceconfig.SourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.vector.ui.VectorAiDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -62,6 +64,10 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
     @Override
     public void loadComponentState(@NotNull Element state) {
 
+    }
+
+    public void openVectorToolbox(ConnectionHandler connection) {
+        Dialogs.show(() -> new VectorAiDialog(connection));
     }
 
     public ResultSet chunkTextContent(ConnectionHandler connection, ChunkConfiguration configuration, String text) throws SQLException {

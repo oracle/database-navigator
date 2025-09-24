@@ -98,7 +98,7 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
 
     @Override
     public void addSelectionValidation(JComboBox comboBox, String message) {
-        addValidation(comboBox, c -> !c.isShowing() ||  c.getSelectedItem() != null, message);
+        addValidation(comboBox, c -> c.getSelectedItem() != null, message);
     }
 
     @Override
@@ -229,6 +229,7 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         Set<JComponent> invalidFields = new HashSet<>();
         for (WrappedValidator<?> validator : validators) {
             JComponent target = validator.getTarget();
+            if (!target.isShowing()) continue; // skip conditionally hidden components
 
             // prevent multiple validation issues on same field (e.g. "empty value" and "invalid value pattern")
             if (invalidFields.contains(target)) continue;
