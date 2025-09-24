@@ -17,10 +17,9 @@
 package com.dbn.connection.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.DatabaseFeature;
-import com.dbn.vector.ui.VectorAiDialog;
+import com.dbn.vector.DatabaseVectorManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -45,6 +44,7 @@ public class VectorToolboxOpenAction extends AbstractConnectionAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionHandler connection) {
-        Dialogs.show(() -> new VectorAiDialog(connection));
+        DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(project);
+        vectorManager.openVectorToolbox(connection);
     }
 }

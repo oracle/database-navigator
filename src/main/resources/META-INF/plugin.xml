@@ -410,6 +410,7 @@
             <action class="com.dbn.menu.action.SessionBrowserOpenAction" text="Open Session Browser..." id="DBNavigator.Actions.MainMenu.OpenSessionBrowser" icon="com.dbn.common.icon.Icons.SESSION_BROWSER">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift S"/>
             </action>
+            <action class="com.dbn.menu.action.VectorToolboxOpenAction" text="Open Vector Toolbox..." id="DBNavigator.Actions.MainMenu.OpenVectorToolbox" icon="com.dbn.common.icon.Icons.VECTOR_TOOLBOX"/>
             <separator/>
             <action class="com.dbn.menu.action.MethodExecutionHistoryAction" text="Method Execution History" id="DBNavigator.Actions.MainMenu.MethodExecutionHistory">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>
