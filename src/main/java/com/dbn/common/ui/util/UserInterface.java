@@ -33,6 +33,7 @@ import com.intellij.ui.border.IdeaTitledBorder;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
@@ -129,6 +130,7 @@ public class UserInterface {
         AncestorListener listener = new AncestorListenerAdapter() {
             @Override
             public void ancestorAdded(AncestorEvent event) {
+                if (event.getAncestor() != component) return;
                 try {
                     runnable.run();
                 } finally {
@@ -200,6 +202,11 @@ public class UserInterface {
     public static boolean isFocusableComponent(Component component) {
         if (!component.isFocusable()) return false;
         if (!component.isEnabled()) return false;
+        if (!component.isVisible()) return false;
+        if (component instanceof JTextComponent) {
+            JTextComponent textComponent = (JTextComponent) component;
+            if (!textComponent.isEditable()) return false;
+        }
 
         return
             component instanceof JTextComponent ||
@@ -459,6 +466,50 @@ public class UserInterface {
 
     public static <T extends JComponent> boolean hasChildComponent(Component rootComponent, Predicate<JComponent> check) {
         return hasChildComponent(rootComponent, JComponent.class, check);
+    }
+
+    public static JComponent findTopLeftmostFocusComponent(Container container) {
+        TopLeftmost topLeftmost = new TopLeftmost(container);
+        findTopLeftmostFocusComponent(container, topLeftmost);
+        return topLeftmost.getComponent();
+    }
+
+    private static void findTopLeftmostFocusComponent(Container container, TopLeftmost topLeftmost) {
+        for (Component component : container.getComponents()) {
+            if (isFocusableComponent(component)) {
+                topLeftmost.update(cast(component));
+            }
+
+            if (component instanceof Container) {
+                findTopLeftmostFocusComponent((Container) component, topLeftmost);
+            }
+        }
+    }
+
+    @Getter
+    @Setter
+    private class TopLeftmost {
+        private final Container rootContainer;
+        private JComponent component;
+        private int x = Integer.MAX_VALUE;
+        private int y = Integer.MAX_VALUE;
+
+        private TopLeftmost(Container rootContainer) {
+            this.rootContainer = rootContainer;
+        }
+
+        private void update(Component component) {
+            if (component instanceof JComponent) {
+                Point location = SwingUtilities.convertPoint(component, component.getLocation(), rootContainer);
+                if ((location.x < x && location.y < y) ||
+                        (location.y == y && location.x < x) ||
+                        (location.x == x && location.y < y)) {
+                    x = location.x;
+                    y = location.y;
+                    this.component = (JComponent) component;
+                }
+            }
+        }
     }
 
     @Nullable

@@ -129,6 +129,7 @@ public class JavaUploadInputForm extends DBNFormBase {
 
         whenShown(() -> {
             schemaComboBox.setValueLoader(() -> loadSchemas());
+            schemaComboBox.loadValues();
             onSelectionChange(connectionComboBox, s -> schemaComboBox.reloadValues());
         });
     }

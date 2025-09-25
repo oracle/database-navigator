@@ -49,6 +49,11 @@ public class DBTableSourceForm extends DBNFormBase {
     sourceTableComboBox.setValueLoader(() -> loadTables());
     sourceKeyColumnComboBox.setValueLoader(() -> loadKeyColumns());
     sourceDataColumnComboBox.setValueLoader(() -> loadDataColumns());
+
+    schemaComboBox.loadValues();
+    sourceTableComboBox.loadValues();
+    sourceKeyColumnComboBox.loadValues();
+    sourceDataColumnComboBox.loadValues();
   }
 
   private void refreshComboBoxes() {
