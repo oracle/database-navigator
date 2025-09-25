@@ -88,7 +88,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     public void openFactoryInputDialog(DBSchema schema, DBObjectType objectType) {
         Project project = getProject();
-        if (objectType.isOneOf(FUNCTION, PROCEDURE, JAVA_CLASS,AI_MODEL)) {
+        if (objectType.isOneOf(FUNCTION, PROCEDURE, JAVA_CLASS, AI_MODEL)) {
             Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType));
         } else {
             Messages.showErrorDialog(project,
@@ -97,7 +97,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         }
     }
 
-    public void createObject(ObjectFactoryInput factoryInput, ProgressIndicator progress) throws SQLException {
+    public void createObject(ObjectFactoryInput factoryInput) throws SQLException {
         Project project = getProject();
         List<String> errors = new ArrayList<>();
         factoryInput.validate(errors);

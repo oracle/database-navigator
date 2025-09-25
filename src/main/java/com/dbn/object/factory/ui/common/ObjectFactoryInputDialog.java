@@ -26,7 +26,6 @@ import com.dbn.common.util.Messages;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.DatabaseObjectFactory;
-import com.dbn.object.factory.ModelFactoryInput;
 import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ui.FunctionFactoryInputForm;
 import com.dbn.object.factory.ui.JavaFactoryInputForm;
@@ -34,7 +33,6 @@ import com.dbn.object.factory.ui.ModelFactoryInputForm;
 import com.dbn.object.factory.ui.ProcedureFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -98,27 +96,18 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
         ObjectFactoryInput input = form.createFactoryInput();
         super.doOKAction();
 
-        if (input instanceof ModelFactoryInput){
-            Progress.prompt(
-                    getProject(),
-                    getSchema(), true,
-                    "Creating " + input.getObjectTypeName(),
-                    "Creating " + input.getObjectDescription(),
-                    p -> invokeObjectFactory(project,schema,objectType,p, input));
-        }else {
-            Progress.prompt(
-                    getProject(),
-                    getSchema(), true,
-                    "Creating " + input.getObjectTypeName(),
-                    "Creating " + input.getObjectDescription(),
-                    p -> invokeObjectFactory(project, schema, objectType,p, input));
-        }
+        Progress.prompt(
+                getProject(),
+                getSchema(), true,
+                "Creating " + input.getObjectTypeName(),
+                "Creating " + input.getObjectDescription(),
+                p -> invokeObjectFactory(project, schema, objectType, input));
     }
 
-    private void invokeObjectFactory(Project project, DBSchema schema, DBObjectType objectType, ProgressIndicator progress, ObjectFactoryInput input) {
+    private void invokeObjectFactory(Project project, DBSchema schema, DBObjectType objectType, ObjectFactoryInput input) {
         DatabaseObjectFactory factory = DatabaseObjectFactory.getInstance(project);
         try {
-            factory.createObject(input, progress);
+            factory.createObject(input);
         } catch (SQLException e) {
             //Messages.showErrorDialog(project, "Failed to create " + input.getObjectTypeName() + ".", e);
 
