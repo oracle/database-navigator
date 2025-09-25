@@ -16,7 +16,6 @@ import javax.swing.JSpinner;
 
 public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
-  private JPanel chunkConfigPanel;
   private JComboBox<String> chunkByComboBox;
   private JComboBox<String> splitByComboBox;
   private JSpinner maxSizeSpinner;

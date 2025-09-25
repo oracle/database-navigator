@@ -24,7 +24,6 @@ import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 
 public class DBTableSourceForm extends DBNFormBase {
   private JPanel mainPanel;
-  private JPanel dataPanel;
   private DBNComboBox<DBSchema> schemaComboBox;
   private DBNComboBox<DBTable> sourceTableComboBox;
 

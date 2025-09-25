@@ -8,10 +8,10 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.vector.model.sourceconfig.SourceConfig;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.ui.ComboBox;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -20,7 +20,7 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
   private JPanel dataPanel;
-  private ComboBox<SourceType> sourceCombo;
+  private JComboBox<SourceType> sourceComboBox;
   private FileSystemSourceForm fileSystemSourceForm;
   private DBTableSourceForm tableSourceForm;
   private final ConnectionRef connection;
@@ -40,9 +40,9 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   }
 
   private void initComboBox() {
-    ComboBoxes.initComboBox(sourceCombo, SourceType.values());
-    setSelection(sourceCombo, SourceType.TABLE);
-    sourceCombo.addActionListener(e -> updateSourceForm());
+    ComboBoxes.initComboBox(sourceComboBox, SourceType.values());
+    setSelection(sourceComboBox, SourceType.TABLE);
+    sourceComboBox.addActionListener(e -> updateSourceForm());
   }
 
   private void updateSourceForm() {
@@ -58,7 +58,7 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   }
 
   public SourceConfig getSourceConfig() {
-    return sourceCombo.getSelectedItem() == SourceType.FILESYSTEM
+    return sourceComboBox.getSelectedItem() == SourceType.FILESYSTEM
         ? fileSystemSourceForm.getFileSystemSourceConfig()
         : tableSourceForm.getConfiguration();
   }
@@ -74,12 +74,12 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
 
   @Override
   public String getCollapsedTitle() {
-    return "Data Source";
+    return "Data Source:";
   }
 
   @Override
   public String getCollapsedTitleDetail() {
-    return "";
+      return getSourceType().getName();
   }
 
   @Override
@@ -88,12 +88,12 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   }
 
   public SourceType getSourceType() {
-    return ComboBoxes.getSelection(sourceCombo);
+    return ComboBoxes.getSelection(sourceComboBox);
   }
 
   @Getter
   public enum SourceType implements Presentable {
-    FILESYSTEM("Filesystem"),
+    FILESYSTEM("File system"),
     TABLE("Database table");
     private final String name;
     SourceType(String name) { this.name = name; }
