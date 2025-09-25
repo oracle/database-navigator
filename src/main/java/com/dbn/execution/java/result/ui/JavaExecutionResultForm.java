@@ -17,6 +17,7 @@
 package com.dbn.execution.java.result.ui;
 
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.data.Data;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNForm;
@@ -30,7 +31,9 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SessionId;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.execution.common.input.ExecutionValue;
+import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
+import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
@@ -51,6 +54,7 @@ import javax.swing.JTree;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.dbn.common.util.Commons.nvl;
 
@@ -121,6 +125,7 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
     private void updateOutputTabs() {
         outputTabs.removeAllTabs();
         JavaExecutionResult executionResult = getExecutionResult();
+        addInputArgumentTabs(executionResult);
         addOutputArgumentTabs(executionResult);
         addLoggingConsoleTab(executionResult);
         UserInterface.repaint(outputTabs);
@@ -150,9 +155,31 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         outputTabs.addTab(console.getTitle(), Icons.EXEC_LOG_OUTPUT_CONSOLE, console.getComponent());
     }
 
+    private void addInputArgumentTabs(JavaExecutionResult executionResult) {
+        JavaExecutionInput executionInput = executionResult.getExecutionInput();
+        Map<String, ExecutionValue<String>> inputValues = executionInput.getInputValues();
+
+        for (Map.Entry<String, ExecutionValue<String>> entry : inputValues.entrySet()) {
+            String key = entry.getKey();
+            ExecutionValue<String> value = entry.getValue();
+
+            if (value.isArrayObject()) {
+                List<String> elements = Data.arrayStringToList((String) value.getValue(), String.class);
+                ExecutionValue executionValue = new ExecutionValue<>(key, ValueHolder.basic(elements));
+                executionValue.setArrayObject(true);
+                DBNForm argumentForm = new JavaExecutionArrayResultForm(this, executionValue);
+                addOutputTab(key, argumentForm);
+            }
+        }
+    }
+
     private void addOutputArgumentTabs(JavaExecutionResult executionResult) {
         List<ExecutionValue> fieldValues = executionResult.getFieldValues();
         for (ExecutionValue fieldValue : fieldValues) {
+            if (fieldValue.isArrayObject()) {
+                DBNForm argumentForm = new JavaExecutionArrayResultForm(this, fieldValue);
+                addOutputTab(fieldValue.getPath(), argumentForm);
+            }
             DBJavaParameter parameter = null;  // TODO inputValue.getArgument();
             if (parameter == null) continue;
 
@@ -174,6 +201,15 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         DBNTabs.initTabComponent(component, parameter.getIcon(), null, form);
 
         outputTabs.addTab(title, component);
+        if (select) outputTabs.setSelectedIndex(0);
+    }
+
+    private void addOutputTab(String parameter, DBNForm form) {
+        boolean select = outputTabs.getTabCount() == 0;
+        JComponent component = form.getComponent();
+        DBNTabs.initTabComponent(component, Icons.getIcon("DBO_ARGUMENT_IN_OUT"), null, form);
+
+        outputTabs.addTab(parameter, component);
         if (select) outputTabs.setSelectedIndex(0);
     }
 
