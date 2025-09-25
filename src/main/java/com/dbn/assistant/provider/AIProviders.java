@@ -28,6 +28,7 @@ public class AIProviders {
     public static final AIProvider BEDROCK = forId("BEDROCK");
     public static final AIProvider OPEN_AI = forId("OPEN_AI");
     public static final AIProvider MISTRAL_AI = forId("MISTRAL_AI");
+    public static final AIProvider OCI_GEN_AI = forId("OCI_GEN_AI");
 
     private static AIProvider forId(@NonNls String id) {
         return AIProviderData.getProvider(AssistantType.PUBLIC, id);

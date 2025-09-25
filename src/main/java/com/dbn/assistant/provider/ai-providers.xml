@@ -66,7 +66,7 @@
             </models>
         </provider>
 
-        <provider id="OCI" name="OCI Generative AI" host="api.oci.com">
+        <provider id="OCI_GEN_AI" name="OCI Generative AI" host="api.oci.com">
             <models>
                 <model id="META_LLAMA_3_1_70B_INSTRUCT"          api-name="meta.llama-3.1-70b-instruct"/>
                 <model id="META_LLAMA_3_1_405B_INSTRUCT"         api-name="meta.llama-3.1-405b-instruct"/>
@@ -151,6 +151,22 @@
             <!-- https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-3721296F-14A1-428A-B464-7FA25E9EC8F3 -->
             <!-- https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/select-ai-manage-profiles.html -->
             <!-- https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/select-ai-about.html-->
+            <provider id="OCI_GEN_AI" api-name="OCI" host="api.oci.com">
+                <urls>
+                    <url type="OFFICIAL">https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service</url>
+                    <url type="API">https://docs.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#How</url>
+                    <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-9CD3FF6F-E380-4E17-8AB0-8153D80B73FB</url>
+                </urls>
+                <models>
+                    <model id="META_LLAMA_3_1_70B_INSTRUCT"/>
+                    <model id="META_LLAMA_3_1_405B_INSTRUCT"/>
+                    <model id="META_LLAMA_3_2_11B_VISION_INSTRUCT"/>
+                    <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"/>
+                    <model id="META_LLAMA_3_3_70B_INSTRUCT"/>
+                    <model id="COHERE_COMMAND_R_08_2024"/>
+                    <model id="COHERE_COMMAND_R_PLUS_08_2024"/>
+                </models>
+            </provider>
             <provider id="OPEN_AI" api-name="OPENAI" host="api.openai.com">
                 <urls>
                     <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-D9EFE56B-402D-4A8B-90E0-96C99FCF81AD</url>
@@ -181,22 +197,6 @@
                     <model id="COMMAND_R_08_2024"/>
                     <model id="COMMAND_R_PLUS"/>
                     <model id="COMMAND_R_PLUS_08_2024"/>
-                </models>
-            </provider>
-            <provider id="OCI" api-name="OCI" host="api.oci.com">
-                <urls>
-                    <url type="OFFICIAL">https://www.oracle.com/artificial-intelligence/generative-ai/generative-ai-service</url>
-                    <url type="API">https://docs.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#How</url>
-                    <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-9CD3FF6F-E380-4E17-8AB0-8153D80B73FB</url>
-                </urls>
-                <models>
-                    <model id="META_LLAMA_3_1_70B_INSTRUCT"/>
-                    <model id="META_LLAMA_3_1_405B_INSTRUCT"/>
-                    <model id="META_LLAMA_3_2_11B_VISION_INSTRUCT"/>
-                    <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"/>
-                    <model id="META_LLAMA_3_3_70B_INSTRUCT"/>
-                    <model id="COHERE_COMMAND_R_08_2024"/>
-                    <model id="COHERE_COMMAND_R_PLUS_08_2024"/>
                 </models>
             </provider>
             <provider id="GOOGLE" api-name="GOOGLE" host="generativelanguage.googleapis.com">
@@ -232,6 +232,17 @@
             </provider>
         </assistant>
         <assistant type="PUBLIC">
+            <provider id="OCI_GEN_AI">
+                <models>
+                    <model id="META_LLAMA_3_1_70B_INSTRUCT"/>
+                    <model id="META_LLAMA_3_1_405B_INSTRUCT"/>
+                    <model id="META_LLAMA_3_2_11B_VISION_INSTRUCT"/>
+                    <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"/>
+                    <model id="META_LLAMA_3_3_70B_INSTRUCT"/>
+                    <model id="COHERE_COMMAND_R_08_2024"/>
+                    <model id="COHERE_COMMAND_R_PLUS_08_2024"/>
+                </models>
+            </provider>
             <provider id="OPEN_AI">
                 <models>
                     <model id="GPT_4_1" default="true"/>
