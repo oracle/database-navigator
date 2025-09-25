@@ -51,6 +51,7 @@ import javax.swing.JLabel;
 import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +59,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_ICON;
@@ -65,7 +67,6 @@ import static com.dbn.common.ui.util.ClientProperty.LOADING;
 import static com.dbn.common.ui.util.ComboBoxes.getEmptyOptionsText;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBoxRenderer;
 import static com.dbn.common.util.Conditional.when;
-import static com.dbn.common.util.Lists.firstElement;
 
 public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements PropertyHolder<ValueSelectorOption> {
 
@@ -73,6 +74,9 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
     private ListPopup popup;
     private PresentableFactory<T> valueFactory;
     private Loader<List<T>> valueLoader;
+    private AtomicInteger loadingSignature = new AtomicInteger(0);
+    private transient boolean enabled = true;
+    private transient ActionListener[] actionListeners;
 
     @Delegate
     private final PropertyHolder<ValueSelectorOption> options = PropertyHolderBase.intBase(ValueSelectorOption.VALUES);
@@ -208,28 +212,68 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
         return getValueName(value);
     }
 
-    public void loadValues() {
+    public synchronized void loadValues() {
+        if (valueLoader == null) return;
+
+        // block the control
+        LOADING.set(this, true);
+        super.setEnabled(false);
+        muteActionListeners();
+
+        // reset values and selection
         setValues(new ArrayList<>());
         setSelectedValue(null);
 
-        if (valueLoader == null) return;
-
+        int signature = loadingSignature.incrementAndGet();
         Background.run(() -> {
-            boolean enabled = isEnabled();
+            if (!matchesLoadingSignature(signature)) return;
             try {
-                setEnabled(false);
-                LOADING.set(this, true);
                 List<T> values = valueLoader.load();
-                setValues(values);
 
-                T selectedValue = firstElement(values);
-                setSelectedValue(selectedValue);
+                if (matchesLoadingSignature(signature)) {
+                    setValues(values);
+
+                    // TODO cleanup (preselecting first value is bad practice)
+                    //T selectedValue = firstElement(values);
+                    //setSelectedValue(selectedValue);
+                }
 
             } finally {
-                LOADING.set(this, false);
-                setEnabled(enabled);
+                if (matchesLoadingSignature(signature)) {
+                    LOADING.set(this, false);
+                    super.setEnabled(enabled);
+                    unmuteActionListeners();
+                }
             }
         });
+    }
+
+    private void muteActionListeners() {
+        actionListeners = getActionListeners();
+        if (actionListeners == null) return;
+
+        for (ActionListener actionListener : actionListeners) {
+            removeActionListener(actionListener);
+        }
+    }
+
+    private void unmuteActionListeners() {
+        if (actionListeners == null) return;
+        for (ActionListener actionListener : actionListeners) {
+            addActionListener(actionListener);
+        }
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        // retain the "enabled" status set by the user
+        // (it is relevant when the valueLoader briefly disables component)
+        super.setEnabled(enabled);
+        this.enabled = enabled;
+    }
+
+    private boolean matchesLoadingSignature(int signature) {
+        return signature == loadingSignature.get();
     }
 
     public void reloadValues() {
@@ -333,10 +377,9 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
         setValues(Arrays.asList(values));
     }
 
-    public void setValues(java.util.List<T> values) {
-        DBNComboBoxModel<T> model = getModel();
-        model.removeAllElements();
-        addValues(values);
+    public void setValues(List<T> values) {
+        DBNComboBoxModel<T> model = new DBNComboBoxModel<>(values);
+        setModel(model);
     }
 
     private void addValue(T value) {

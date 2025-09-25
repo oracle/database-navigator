@@ -30,8 +30,16 @@ import java.util.List;
 @Setter
 public class DBNComboBoxModel<T extends Presentable> implements MutableComboBoxModel<T> {
     private final Listeners<ListDataListener> listDataListeners = Listeners.create();
-    private final List<T> items = new ArrayList<>();
+    private final List<T> items;
     private T selectedItem;
+
+    public DBNComboBoxModel() {
+        items = new ArrayList<>();
+    }
+
+    public DBNComboBoxModel(List<T> items) {
+        this.items = items;
+    }
 
     @Override
     public void addElement(T item) {

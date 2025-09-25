@@ -1,31 +1,26 @@
 package com.dbn.vector.ui.source.ui;
 
-import com.dbn.common.thread.Background;
-import com.dbn.common.thread.Dispatch;
-import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.intellij.openapi.Disposable;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
+import java.util.Collections;
 import java.util.List;
 
-import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
-import static com.dbn.common.ui.util.ComboBoxes.resetComboBox;
-import static com.dbn.common.ui.util.ComboBoxes.setSelection;
-import static com.dbn.data.type.GenericDataType.LITERAL;
+import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 
 public class DBTableSourceForm extends DBNFormBase {
   private JPanel mainPanel;
@@ -34,125 +29,120 @@ public class DBTableSourceForm extends DBNFormBase {
   private DBNComboBox<DBTable> sourceTableComboBox;
 
   private DBNComboBox<DBColumn> sourceDataColumnComboBox;
-  private DBNComboBox<DBColumn> sourceColumnIdComboBox;
+  private DBNComboBox<DBColumn> sourceKeyColumnComboBox;
   private JCheckBox autoSyncCheckBox;
-  private JPanel initializingIconPanel;
 
-  private ConnectionHandler connectionHandler;
+  private final ConnectionRef connection;
 
-  public DBTableSourceForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
+  public DBTableSourceForm(@Nullable Disposable parent, ConnectionHandler connection) {
     super(parent);
-    this.connectionHandler = connectionHandler;
-    System.out.println("hhhhfj");
-    initializingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
+    this.connection = connection.ref();
+
     initComboboxListeners();
     initValidation();
-    whenShown(() -> populateSchemas());
+
+
+    whenShown(() -> initComboBoxes());
+  }
+
+  private void initComboBoxes() {
+    schemaComboBox.setValueLoader(() -> loadSchemas());
+    sourceTableComboBox.setValueLoader(() -> loadTables());
+    sourceKeyColumnComboBox.setValueLoader(() -> loadKeyColumns());
+    sourceDataColumnComboBox.setValueLoader(() -> loadDataColumns());
+  }
+
+  private void refreshComboBoxes() {
+      DBSchema schema = getSelectedSchema();
+      DBTable table = getSelectedTable();
+      sourceTableComboBox.setEnabled(schema != null);
+      sourceKeyColumnComboBox.setEnabled(table != null);
+      sourceDataColumnComboBox.setEnabled(table != null);
+  }
+
+  private List<DBSchema> loadSchemas() {
+    DBObjectBundle objectBundle = getConnection().getObjectBundle();
+    return objectBundle.getSchemas();
+  }
+
+  private List<DBTable> loadTables() {
+    DBSchema schema = getSelectedSchema();
+    return schema == null ?
+            Collections.emptyList() :
+            schema.getTables();
+  }
+
+
+  private List<DBColumn> loadKeyColumns() {
+    DBTable table = ComboBoxes.getSelection(sourceTableComboBox);
+    return table == null ?
+            Collections.emptyList() :
+            table.getPrimaryKeyColumns();
+  }
+
+  private List<DBColumn> loadDataColumns() {
+    DBTable table = ComboBoxes.getSelection(sourceTableComboBox);
+    List<DBColumn> columns = table == null ?
+            Collections.emptyList() :
+            table.getColumns();
+
+    return Lists.filter(columns, c -> c.getDataType().isLiteral());
   }
 
   private void initComboboxListeners() {
-    schemaComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
-    sourceTableComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
-    sourceDataColumnComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
-    sourceColumnIdComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
-    schemaComboBox.addListener((ov,nv)-> populateTables(nv));
-    sourceTableComboBox.addListener((ov,nv)-> populateColumns(nv));
+    schemaComboBox.set(HIDE_DESCRIPTION, true);
+    sourceTableComboBox.set(HIDE_DESCRIPTION, true);
+    sourceDataColumnComboBox.set(HIDE_DESCRIPTION, true);
+    sourceKeyColumnComboBox.set(HIDE_DESCRIPTION, true);
+
+    schemaComboBox.addListener((ov,nv)-> populateTables());
+    sourceTableComboBox.addListener((ov,nv)-> populateColumns());
   }
 
   @Override
   protected void initValidation() {
     addSelectionValidation(schemaComboBox,"Please select a schema");
-    addSelectionValidation(sourceTableComboBox,"Please select a  table");
-    addSelectionValidation(sourceDataColumnComboBox,"Please select a  data column");
-    addSelectionValidation(sourceColumnIdComboBox,"Please select a  column id");
-
+    addSelectionValidation(sourceTableComboBox,"Please select a table");
+    addSelectionValidation(sourceKeyColumnComboBox,"Please select the primary key column");
+    addSelectionValidation(sourceDataColumnComboBox,"Please select a data column");
   }
 
-  private void populateColumns(DBTable table) {
-    resetComboBox(sourceColumnIdComboBox);
-    resetComboBox(sourceDataColumnComboBox);
-    if (table == null) return;
-
-    Background.run(()->{
-      try{
-        startActivityNotifier();
-        List<DBColumn> columns = table.getColumns();
-        List<DBColumn> primaryKeyColumns = table.getPrimaryKeyColumns();
-        DBColumn idColumn = primaryKeyColumns.isEmpty() ? null : primaryKeyColumns.get(0);
-        // find first literal column
-        DBColumn dataColumn = Lists.first(columns, c ->
-                c.getDataType().isNative() &&
-                c.getDataType().getGenericDataType().is(LITERAL));
-
-        Dispatch.run(mainPanel, () -> {
-          initComboBox(sourceColumnIdComboBox, columns);
-          initComboBox(sourceDataColumnComboBox, columns);
-          setSelection(sourceColumnIdComboBox, idColumn);
-          setSelection(sourceDataColumnComboBox, dataColumn);
-        });
-      } finally {
-        stopActivityNotifier();
-      }
-    });
+  private void populateColumns() {
+    refreshComboBoxes();
+    sourceKeyColumnComboBox.reloadValues();
+    sourceDataColumnComboBox.reloadValues();
   }
 
-  private void populateSchemas() {
-    resetComboBox(schemaComboBox);
-    Background.run(() -> {
-      try {
-        startActivityNotifier();
-        DBObjectBundle objectBundle = connectionHandler.getObjectBundle();
-        List<DBSchema> schemas = objectBundle.getSchemas();
-        DBSchema schema = objectBundle.getUserSchema();
-
-        Dispatch.run(mainPanel, () -> {
-          initComboBox(schemaComboBox, schemas);
-          setSelection(schemaComboBox, schema);
-        });
-      } finally {
-        stopActivityNotifier();
-      }
-    });
+  private void populateTables() {
+    refreshComboBoxes();
+    sourceTableComboBox.reloadValues();
+    sourceKeyColumnComboBox.reloadValues();
+    sourceDataColumnComboBox.reloadValues();
   }
 
-  private void populateTables(DBSchema schema) {
-    resetComboBox(sourceTableComboBox);
-    resetComboBox(sourceDataColumnComboBox);
-    resetComboBox(sourceColumnIdComboBox);
-    if (schema == null) return;
-
-    Background.run(() -> {
-      startActivityNotifier();
-      try {
-        List<DBTable> tables = schema.getTables();
-        Dispatch.run(mainPanel, () -> initComboBox(sourceTableComboBox, tables));
-      } finally {
-        stopActivityNotifier();
-      }
-    });
+  @Nullable
+  private DBSchema getSelectedSchema() {
+    return ComboBoxes.getSelection(schemaComboBox);
   }
 
-  private void startActivityNotifier() {
-    initializingIconPanel.setVisible(true);
+  @Nullable
+  private DBTable getSelectedTable() {
+    return sourceTableComboBox.getSelectedValue();
   }
 
-  /**
-   * Stops the spining wheel
-   */
-  private void stopActivityNotifier() {
-    initializingIconPanel.setVisible(false);
+  public DBTableSourceConfig getConfiguration() {
+    DBTableSourceConfig config = new DBTableSourceConfig();
+    config.setSourceSchema(getSelectedSchema());
+    config.setSourceTable(getSelectedTable());
+    config.setDataColumn(sourceDataColumnComboBox.getSelectedValue());
+    config.setIdColumn(sourceKeyColumnComboBox.getSelectedValue());
+    config.setAutoSync(autoSyncCheckBox.isSelected());
+
+    return config;
   }
 
-
-  public DBTableSourceConfig getDBTableSourceConfig() {
-    DBTableSourceConfig dbTableSourceConfig = new DBTableSourceConfig();
-    dbTableSourceConfig.setSourceSchema(schemaComboBox.getSelectedValue());
-    dbTableSourceConfig.setSourceTable(sourceTableComboBox.getSelectedValue());
-    dbTableSourceConfig.setDataColumn(sourceDataColumnComboBox.getSelectedValue());
-    dbTableSourceConfig.setIdColumn(sourceColumnIdComboBox.getSelectedValue());
-    dbTableSourceConfig.setAutoSync(autoSyncCheckBox.isSelected());
-
-    return dbTableSourceConfig;
+  public ConnectionHandler getConnection() {
+    return connection.ensure();
   }
 
   @Override

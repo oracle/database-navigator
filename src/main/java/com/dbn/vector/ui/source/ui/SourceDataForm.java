@@ -1,65 +1,70 @@
 package com.dbn.vector.ui.source.ui;
 
+import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.vector.model.sourceconfig.SourceConfig;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.ui.ComboBox;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 
 public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
   private JPanel dataPanel;
   private ComboBox<SourceType> sourceCombo;
-  ConnectionHandler connectionHandler;
   private FileSystemSourceForm fileSystemSourceForm;
   private DBTableSourceForm tableSourceForm;
+  private final ConnectionRef connection;
 
-
-  public SourceDataForm(@Nullable Disposable parent,ConnectionHandler connectionHandler) {
+  public SourceDataForm(@Nullable Disposable parent,ConnectionHandler connection) {
     super(parent);
-    this.connectionHandler = connectionHandler;
+    this.connection = connection.ref();
     initComboBox();
     initDataPanel();
   }
 
   private void initDataPanel() {
-    fileSystemSourceForm = new FileSystemSourceForm(this, connectionHandler);
-    tableSourceForm = new DBTableSourceForm(this, connectionHandler);
-    dataPanel.setLayout(new BorderLayout());
-    sourceCombo.setSelectedItem(SourceType.TABLE);
-    SourceType initial = (SourceType) sourceCombo.getSelectedItem();
-    JPanel initialPanel = initial == SourceType.FILESYSTEM
-        ? (JPanel) fileSystemSourceForm.getMainComponent()
-        : (JPanel) tableSourceForm.getMainComponent();
-    dataPanel.add(initialPanel, BorderLayout.CENTER);
+    ConnectionHandler connection = getConnection();
+    fileSystemSourceForm = new FileSystemSourceForm(this);
+    tableSourceForm = new DBTableSourceForm(this, connection);
+    updateSourceForm();
   }
 
   private void initComboBox() {
-    sourceCombo.setModel(new DefaultComboBoxModel<>(SourceType.values()));
-    sourceCombo.addActionListener(e -> {
-      dataPanel.removeAll();
-      SourceType source = (SourceType) sourceCombo.getSelectedItem();
-      switch (source) {
-        case FILESYSTEM :
-          dataPanel.add((JPanel) fileSystemSourceForm.getMainComponent(), BorderLayout.CENTER);
-          break;
-        case TABLE :
-          dataPanel.add((JPanel) tableSourceForm.getMainComponent(), BorderLayout.CENTER);
-      }
-      dataPanel.revalidate();
-      dataPanel.repaint();
-    });
+    ComboBoxes.initComboBox(sourceCombo, SourceType.values());
+    setSelection(sourceCombo, SourceType.TABLE);
+    sourceCombo.addActionListener(e -> updateSourceForm());
+  }
+
+  private void updateSourceForm() {
+    SourceType sourceType = getSourceType();
+    dataPanel.removeAll();
+    if (sourceType == SourceType.FILESYSTEM) {
+      dataPanel.add(fileSystemSourceForm.getComponent());
+    } else if (sourceType == SourceType.TABLE) {
+      dataPanel.add(tableSourceForm.getComponent());
+    }
+    dataPanel.revalidate();
+    dataPanel.repaint();
   }
 
   public SourceConfig getSourceConfig() {
     return sourceCombo.getSelectedItem() == SourceType.FILESYSTEM
         ? fileSystemSourceForm.getFileSystemSourceConfig()
-        : tableSourceForm.getDBTableSourceConfig();
+        : tableSourceForm.getConfiguration();
+  }
+
+  public ConnectionHandler getConnection() {
+    return connection.ensure();
   }
 
   @Override
@@ -83,15 +88,15 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   }
 
   public SourceType getSourceType() {
-    return (SourceType) sourceCombo.getSelectedItem();
+    return ComboBoxes.getSelection(sourceCombo);
   }
 
-  public enum SourceType {
+  @Getter
+  public enum SourceType implements Presentable {
     FILESYSTEM("Filesystem"),
     TABLE("Database table");
-    private final String label;
-    SourceType(String label) { this.label = label; }
-    @Override public String toString() { return label; }
+    private final String name;
+    SourceType(String name) { this.name = name; }
   }
 
 
