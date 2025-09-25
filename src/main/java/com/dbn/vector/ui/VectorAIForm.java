@@ -105,15 +105,7 @@ public class VectorAIForm extends DBNFormBase {
 
   private void initHintPanel() {
 
-    TextContent hintText = TextContent.html(
-            "<html>" +
-                    "<body>" +
-                    "<p>" +
-                    "Turn Oracle tables or local files into embeddings — ready for semantic search, \"chat-with-your-data\", and RAG workflows in minutes." +
-                    "</p>" +
-                    "</body>" +
-                    "</html>"
-    );
+    TextContent hintText = TextContent.plain("Turn Oracle tables or local files into embeddings — ready for semantic search, \"chat-with-your-data\", and RAG workflows in minutes.");
     DBNHintForm hintForm = new DBNHintForm(null, hintText, null, true);
 
     JComponent hintComponent = hintForm.getComponent();

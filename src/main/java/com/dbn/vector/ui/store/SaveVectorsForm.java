@@ -1,20 +1,26 @@
 package com.dbn.vector.ui.store;
 
+import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.store.StoreConfig;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.ui.ComboBox;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 
 public class SaveVectorsForm extends DBNFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
   private JPanel dataPanel;
-  JToggleButton toggleButton1;
+  private JComboBox<DestinationType> destinationComboBox;
   // Sub-forms (defined as inner classes below)
   private CreateVectorDestinationForm createForm;
   private ExistingTableDestinationForm existingForm;
@@ -31,22 +37,25 @@ public class SaveVectorsForm extends DBNFormBase implements DBNCollapsibleForm {
     createForm = new CreateVectorDestinationForm(this);
     existingForm = new ExistingTableDestinationForm(this,connection);
     dataPanel.setLayout(new BorderLayout());
-    JComponent initialPanel = toggleButton1.isSelected()
+
+    DestinationType destinationType = getDestinationType();
+    JComponent initialPanel = destinationType == DestinationType.NEW_TABLE
         ? createForm.getMainComponent()
         : existingForm.getMainComponent();
-    dataPanel.add(initialPanel, BorderLayout.CENTER);
+    dataPanel.add(initialPanel);
   }
 
   private void initToggleButton() {
-    toggleButton1.setText(toggleButton1.isSelected() ? "Create new Table? Yes" : "Create new Table? No");
-    toggleButton1.addActionListener(e -> {
+    ComboBoxes.initComboBox(destinationComboBox, DestinationType.values());
+    setSelection(destinationComboBox, DestinationType.NEW_TABLE);
+
+    destinationComboBox.addActionListener(e -> {
       dataPanel.removeAll();
-      if (toggleButton1.isSelected()) {
-        dataPanel.add(createForm.getMainComponent(), BorderLayout.CENTER);
-        toggleButton1.setText("Create new Table? Yes");
+      if (getDestinationType() == DestinationType.NEW_TABLE) {
+        dataPanel.add(createForm.getMainComponent());
+
       } else {
-        dataPanel.add(existingForm.getMainComponent(), BorderLayout.CENTER);
-        toggleButton1.setText("Create new Table? No");
+        dataPanel.add(existingForm.getMainComponent());
       }
       dataPanel.revalidate();
       dataPanel.repaint();
@@ -59,10 +68,14 @@ public class SaveVectorsForm extends DBNFormBase implements DBNCollapsibleForm {
   }
 
   public StoreConfig getStoreConfig() {
-    return toggleButton1.isSelected()
+    return getDestinationType() == DestinationType.NEW_TABLE
         ? createForm.toStoreConfig()
         : existingForm.toStoreConfig();
   }
+  public DestinationType getDestinationType() {
+    return ComboBoxes.getSelection(destinationComboBox);
+  }
+
   @Override
   public String getCollapsedTitle() {
     return "Embedding Destination";
@@ -76,5 +89,14 @@ public class SaveVectorsForm extends DBNFormBase implements DBNCollapsibleForm {
   @Override
   public String getExpandedTitle() {
     return "Embedding Destination";
+  }
+
+  @Getter
+  public enum DestinationType implements Presentable {
+    EXISTING_TABLE("Existing table"),
+    NEW_TABLE("New table");
+
+    private final String name;
+    DestinationType(String name) { this.name = name; }
   }
 }

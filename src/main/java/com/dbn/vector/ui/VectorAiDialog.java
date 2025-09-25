@@ -20,6 +20,8 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
     super(connection.getProject(), "Vector Toolbox", true);
     this.connection = connection.ref();
     setDefaultSize(600, 1000);
+    renameAction(getOKAction(), "Create Embeddings");
+    renameAction(getCancelAction(), "Close");
     init();
   }
 
