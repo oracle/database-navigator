@@ -17,22 +17,21 @@ import javax.swing.JSpinner;
 public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
   private JPanel chunkConfigPanel;
-  private JComboBox<String> BYComboBox;
-  private JSpinner MAXSpinner;
-  private JComboBox<String> SPLITBYComboBox;
-  private JSpinner OVERLAPSpinner;
+  private JComboBox<String> chunkByComboBox;
+  private JComboBox<String> splitByComboBox;
+  private JSpinner maxSizeSpinner;
+  private JSpinner overlapSpinner;
   private JButton chunkLaboButton;
 
   public ChunkConfigForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
     super(parent);
-    System.out.println("fsakhj hjkdshkj hkjhw23qqgffkjhrftreffaaafjfjkhadfjkh jkht kjehkjthr afdff");
     initComponents();
     chunkLaboButton.addActionListener(e -> {
       ChunkConfiguration chunkConfiguration = new ChunkConfiguration(
-              BYComboBox.getSelectedItem().toString(),
-              (Integer) MAXSpinner.getValue(),
-              (String) SPLITBYComboBox.getSelectedItem(),
-              (Integer) OVERLAPSpinner.getValue()
+              chunkByComboBox.getSelectedItem().toString(),
+              (Integer) maxSizeSpinner.getValue(),
+              (String) splitByComboBox.getSelectedItem(),
+              (Integer) overlapSpinner.getValue()
       );
       ChunkEditorDialog dialog = new ChunkEditorDialog(connectionHandler,chunkConfiguration);
       Dialogs.show(()->dialog);
@@ -44,23 +43,23 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   }
 
   private void updateChunkConfig(ChunkConfiguration chunkConfiguration) {
-    BYComboBox.setSelectedItem(chunkConfiguration.getBy());
-    MAXSpinner.setValue(chunkConfiguration.getMax());
-    SPLITBYComboBox.setSelectedItem(chunkConfiguration.getSplitBy());
-    OVERLAPSpinner.setValue(chunkConfiguration.getOverlap());
+    chunkByComboBox.setSelectedItem(chunkConfiguration.getBy());
+    maxSizeSpinner.setValue(chunkConfiguration.getMax());
+    splitByComboBox.setSelectedItem(chunkConfiguration.getSplitBy());
+    overlapSpinner.setValue(chunkConfiguration.getOverlap());
   }
 
   private void initComponents() {
-    MAXSpinner.setValue(300);
-    OVERLAPSpinner.setValue(30);
+    maxSizeSpinner.setValue(300);
+    overlapSpinner.setValue(30);
   }
 
   @Override
   protected void initValidation() {
-    addValidation(MAXSpinner,n-> {
+    addValidation(maxSizeSpinner, n-> {
               int max = (Integer) n.getValue();
-              int overlap = (Integer) OVERLAPSpinner.getValue();
-              String by = (String) BYComboBox.getSelectedItem();
+              int overlap = (Integer) overlapSpinner.getValue();
+              String by = (String) chunkByComboBox.getSelectedItem();
               switch (by) {
                 case "CHARACTERS":
                   return max > 50 && max < 4000;
@@ -72,8 +71,8 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
             ,"Please enter a valid max");
 
 
-    addValidation(OVERLAPSpinner,o->{
-              int max = (Integer) MAXSpinner.getValue();
+    addValidation(overlapSpinner, o->{
+              int max = (Integer) maxSizeSpinner.getValue();
               int overlap = (Integer) o.getValue();
               return overlap == 0 || (overlap>max*5/100 && overlap<max*20/100);
             }
@@ -82,10 +81,10 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
 
   public ChunkConfiguration getChunkConfig() {
     ChunkConfiguration chunkConfig = new ChunkConfiguration();
-    chunkConfig.setBy(BYComboBox.getSelectedItem().toString());
-    chunkConfig.setSplitBy(SPLITBYComboBox.getSelectedItem().toString());
-    chunkConfig.setOverlap((Integer) OVERLAPSpinner.getValue());
-    chunkConfig.setMax((Integer) MAXSpinner.getValue());
+    chunkConfig.setBy(chunkByComboBox.getSelectedItem().toString());
+    chunkConfig.setSplitBy(splitByComboBox.getSelectedItem().toString());
+    chunkConfig.setOverlap((Integer) overlapSpinner.getValue());
+    chunkConfig.setMax((Integer) maxSizeSpinner.getValue());
     return chunkConfig;
   }
 
