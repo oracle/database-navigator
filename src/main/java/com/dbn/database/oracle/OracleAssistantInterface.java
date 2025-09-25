@@ -118,7 +118,14 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
               chunkConfiguration.getBy(),                    // {3}
               chunkConfiguration.getMax(),                   // {4}
               chunkConfiguration.getOverlap(),               // {5}
-              chunkConfiguration.getSplitBy());              // {6}
+              chunkConfiguration.getSplitBy(),                // {6}
+              storeConfig.getTextColumn(),                    //{7}
+              storeConfig.getEmbeddingColumn(),               //{8}
+              storeConfig.getMetadataColumn(),                 //{9}
+              storeConfig.getMetadata(),                       //{10}
+              storeConfig.getId()                               //{11}
+      );
+
   }
 
   @Override

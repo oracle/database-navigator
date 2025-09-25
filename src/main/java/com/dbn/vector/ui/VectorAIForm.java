@@ -40,7 +40,7 @@ public class VectorAIForm extends DBNFormBase {
     sourceDataForm = new SourceDataForm(this,connection);
     chunkConfigForm = new ChunkConfigForm(this,connection);
     embedConfigForm = new EmbedConfigForm(this,connection);
-    saveVectorsForm = new SaveVectorsForm(this);
+    saveVectorsForm = new SaveVectorsForm(this,connection);
 
     System.out.println("faa");
     DBNCollapsiblePanel sourceCollapsiblePanel = new DBNCollapsiblePanel(this,sourceDataForm,true);

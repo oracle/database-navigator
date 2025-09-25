@@ -130,7 +130,6 @@ public class UserInterface {
         AncestorListener listener = new AncestorListenerAdapter() {
             @Override
             public void ancestorAdded(AncestorEvent event) {
-                if (event.getAncestor() != component) return;
                 try {
                     runnable.run();
                 } finally {

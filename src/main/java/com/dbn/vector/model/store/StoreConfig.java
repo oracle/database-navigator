@@ -1,10 +1,27 @@
 package com.dbn.vector.model.store;
 
+import com.dbn.vector.ui.source.ui.SourceDataForm;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.UUID;
 
 @Setter
 @Getter
 public class StoreConfig {
-  String tableName;
+  SourceDataForm.SourceType sourceType;
+  private String id =  UUID.randomUUID().toString();
+  private String tableName;
+  private String embeddingColumn = "embedding";
+  private String textColumn = "text";
+  private String metadataColumn = "metadata";
+  private String metadata;
+
+
+  public String getMetadata() {
+    if (SourceDataForm.SourceType.TABLE.equals(sourceType)) {
+      return "{\"model\":\"allminiv12\"}";
+    }
+    return "{\"model\":\"allminiv12\"}";
+  }
 }

@@ -277,9 +277,10 @@
             BEGIN
             EXECUTE IMMEDIATE '
             CREATE TABLE IF NOT EXISTS {0} (
-            id    NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            chunk_text CLOB,
-            embedding  VECTOR(384)
+            id    VARCHAR(4000) PRIMARY KEY,
+            embedding  VECTOR(*, FLOAT32) NOT NULL,
+            text CLOB,
+            metadata JSON
             )
             ';
             END;
@@ -290,8 +291,9 @@
         <statement>
             BEGIN
             EXECUTE IMMEDIATE '
-            INSERT INTO {0} (chunk_text, embedding)
+            INSERT INTO {0} (id,text, embedding)
             SELECT
+            SYS_GUID(),
             chunk.chunk_text,
             VECTOR_EMBEDDING({1} USING chunk.chunk_text AS DATA)
             FROM {2} src,
@@ -306,26 +308,32 @@
     <statement-execution-processor id="insert-vector-embeddings-from-filesystem" timeout="12000" is-prepared-statement="true"  is-query="false">
         <statement>
             DECLARE
-            v_tbl   VARCHAR2(128)  := {0};
-            v_model VARCHAR2(4000) := {1};
-            v_doc   CLOB           := {2};
-            v_by    VARCHAR2(100)  := {3};
-            v_max   NUMBER         := {4};
-            v_ovl   NUMBER         := {5};
-            v_split VARCHAR2(100)  := {6};
-            v_sql   CLOB;
+                v_tbl              VARCHAR2(128)  := {0};
+                v_model            VARCHAR2(4000) := {1};
+                v_doc              CLOB           := {2};
+                v_by               VARCHAR2(100)  := {3};
+                v_max              NUMBER         := {4};
+                v_ovl              NUMBER         := {5};
+                v_split            VARCHAR2(100)  := {6};
+                v_text_column      VARCHAR2(128)  := {7};
+                v_embedding_column VARCHAR2(128)  := {8};
+                v_metadata_column  VARCHAR2(128)  := {9};
+                v_metadata         CLOB           := {10};
+                v_id               VARCHAR2(4000)  := {11};
+                v_sql              CLOB;
             BEGIN
+                v_sql :=
+                   'INSERT INTO ' || v_tbl || ' (' ||
+                      'id, ' ||
+                      v_text_column || ', ' ||
+                      v_embedding_column || ', ' ||
+                      v_metadata_column || ') ' ||
+                   'SELECT SYS_GUID(), ch.chunk_text, ' ||
+                      'VECTOR_EMBEDDING(' || v_model || ' USING ch.chunk_text AS DATA), ' ||
+                      'null ' ||
+                   'FROM VECTOR_CHUNKS(:1 BY ' || v_by || ' MAX ' || v_max || ' OVERLAP ' || v_ovl || ' SPLIT BY ' || v_split || ') ch';
 
-            v_sql :=
-            'INSERT INTO '||DBMS_ASSERT.SIMPLE_SQL_NAME(v_tbl)||' (chunk_text, embedding)'
-            || ' SELECT ch.chunk_text,'
-            || '        VECTOR_EMBEDDING('||v_model||' USING ch.chunk_text AS DATA)'
-            || '   FROM VECTOR_CHUNKS('
-            || '        :1'
-            || '        BY '||v_by||' MAX '||v_max||' OVERLAP '||v_ovl||' SPLIT BY '||v_split
-            || '   ) ch';
-
-            EXECUTE IMMEDIATE v_sql USING v_doc;
+                EXECUTE IMMEDIATE v_sql USING v_doc ;
             END;
         </statement>
     </statement-execution-processor>
