@@ -232,7 +232,7 @@
             </provider>
         </assistant>
         <assistant type="PUBLIC">
-<!--            <provider id="OCI_GEN_AI">
+            <provider id="OCI_GEN_AI">
                 <models>
                     <model id="META_LLAMA_3_1_70B_INSTRUCT"/>
                     <model id="META_LLAMA_3_1_405B_INSTRUCT"/>
@@ -242,7 +242,7 @@
                     <model id="COHERE_COMMAND_R_08_2024"/>
                     <model id="COHERE_COMMAND_R_PLUS_08_2024"/>
                 </models>
-            </provider>-->
+            </provider>
             <provider id="OPEN_AI">
                 <auth>
                     <field id="API_KEY" required="true"/>

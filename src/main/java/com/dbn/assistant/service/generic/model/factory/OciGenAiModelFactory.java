@@ -17,12 +17,22 @@
 package com.dbn.assistant.service.generic.model.factory;
 
 import com.dbn.assistant.service.generic.model.AssistantModelInput;
+import com.dbn.common.compatibility.Workaround;
+import com.dbn.common.routine.ThrowableCallable;
+import com.dbn.common.util.Classes;
+import com.oracle.bmc.auth.AuthenticationDetailsProvider;
+import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;
+import dev.langchain4j.community.model.oracle.oci.genai.OciGenAiChatModel;
+import dev.langchain4j.community.model.oracle.oci.genai.OciGenAiStreamingChatModel;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.language.LanguageModel;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+
+import java.io.IOException;
 
 import static com.dbn.assistant.provider.AIProviders.OCI_GEN_AI;
 
@@ -36,37 +46,39 @@ public class OciGenAiModelFactory extends AbstractModelFactory {
     @Override
     @SneakyThrows
     public ChatModel createChatModel(AssistantModelInput input) {
-        String configFilePath = "~/.oci/config";
-        String profileName = "DEFAULT"; // Use the profile name from your config file
+        AuthenticationDetailsProvider provider = createAuthProvider();
 
-/*
-        AuthenticationDetailsProvider provider = new ConfigFileAuthenticationDetailsProvider(configFilePath, profileName);
-
-        return OciGenAiChatModel.builder()
+        return wrapped(() -> OciGenAiChatModel.builder()
                 .modelName(input.getModel())
                 .temperature(input.getTemperature())
                 .authProvider(provider)
-                .build();
-*/
-        return null;
+                .build());
+    }
+
+    private static @NonNull AuthenticationDetailsProvider createAuthProvider() throws IOException {
+        String configFilePath = "~/.oci/config";
+        String profileName = "DEFAULT"; // Use the profile name from your config file
+
+        return new ConfigFileAuthenticationDetailsProvider(configFilePath, profileName);
     }
 
     @Nullable
     @Override
     @SneakyThrows
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
-        String configFilePath = "~/.oci/config";
-        String profileName = "DEFAULT"; // Use the profile name from your config file
-
-/*
-        AuthenticationDetailsProvider provider = new ConfigFileAuthenticationDetailsProvider(configFilePath, profileName);
-        return OciGenAiStreamingChatModel.builder()
+        AuthenticationDetailsProvider provider = createAuthProvider();
+        return wrapped(() -> OciGenAiStreamingChatModel.builder()
                 .modelName(input.getModel())
                 .temperature(input.getTemperature())
                 .authProvider(provider)
-                .build();
-*/
-        return null;
+                .build());
+    }
+
+    @Workaround
+    private static <T> T wrapped(ThrowableCallable<T, RuntimeException> callable) {
+        // the internal httpProvider initialization using ServiceLoader favors the thread context class loader
+        // (jersey http client implementation fails to load unless the plugin class loader is used)
+        return Classes.withClassLoader(OciGenAiModelFactory.class, callable);
     }
 
     @Nullable

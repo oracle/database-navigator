@@ -59,35 +59,40 @@ dependencies {
   implementation("org.apache.poi:poi-ooxml-lite:5.4.1")
 
   // poi library dependencies
-  implementation("commons-io:commons-io:2.17.0")
+  implementation("commons-io:commons-io:2.18.0")
   implementation("org.apache.commons:commons-compress:1.27.1")
   implementation("org.apache.commons:commons-collections4:4.4")
   implementation("org.apache.commons:commons-lang3:3.18.0")
-  implementation("org.apache.logging.log4j:log4j-api:2.24.1")
-  implementation("org.apache.xmlbeans:xmlbeans:5.2.1")
+  implementation("org.apache.logging.log4j:log4j-api:2.24.3")
+  implementation("org.apache.xmlbeans:xmlbeans:5.3.0")
 
   // ssh tunnel libraries
-  implementation("org.apache.sshd:sshd-common:2.13.2")
-  implementation("org.apache.sshd:sshd-core:2.13.2")
+  implementation("org.apache.sshd:sshd-common:2.14.0")
+  implementation("org.apache.sshd:sshd-core:2.14.0")
 
   // driver download libraries
   implementation("org.apache.maven.resolver:maven-resolver-connector-basic:1.9.22")
   implementation("org.apache.maven:maven-resolver-provider:3.9.9")
 
   // db assistant
-  implementation("dev.langchain4j:langchain4j:1.4.0")
-  implementation("dev.langchain4j:langchain4j-core:1.4.0")
-  implementation("dev.langchain4j:langchain4j-http-client:1.4.0")
-  implementation("dev.langchain4j:langchain4j-mcp:1.4.0-beta10")
+  implementation("dev.langchain4j:langchain4j:1.5.0")
+  implementation("dev.langchain4j:langchain4j-core:1.5.0")
+  implementation("dev.langchain4j:langchain4j-http-client:1.5.0")
+  implementation("dev.langchain4j:langchain4j-mcp:1.5.0-beta11")
 
-  implementation("dev.langchain4j:langchain4j-open-ai:1.4.0")
-  implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.4.0")
-  implementation("dev.langchain4j:langchain4j-anthropic:1.4.0")
-  implementation("dev.langchain4j:langchain4j-cohere:1.4.0-beta10")
-  implementation("dev.langchain4j:langchain4j-hugging-face:1.4.0-beta10")
-  implementation("dev.langchain4j:langchain4j-ollama:1.4.0")
-  implementation("dev.langchain4j:langchain4j-bedrock:1.4.0")
-  implementation("dev.langchain4j:langchain4j-mistral-ai:1.4.0")
+  implementation("dev.langchain4j:langchain4j-community-oci-genai:1.5.0-beta11")
+  implementation("dev.langchain4j:langchain4j-open-ai:1.5.0")
+  implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.5.0")
+  implementation("dev.langchain4j:langchain4j-anthropic:1.5.0")
+  implementation("dev.langchain4j:langchain4j-cohere:1.5.0-beta11")
+  implementation("dev.langchain4j:langchain4j-hugging-face:1.5.0-beta11")
+  implementation("dev.langchain4j:langchain4j-ollama:1.5.0")
+  implementation("dev.langchain4j:langchain4j-bedrock:1.5.0")
+  implementation("dev.langchain4j:langchain4j-mistral-ai:1.5.0")
+
+  implementation("com.oracle.oci.sdk:oci-java-sdk-common:3.74.0")
+  implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.74.0")
+  implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.74.0")
 
   implementation("com.fasterxml.jackson.core:jackson-core:2.20.0")
   implementation("com.fasterxml.jackson.core:jackson-databind:2.20.0")
