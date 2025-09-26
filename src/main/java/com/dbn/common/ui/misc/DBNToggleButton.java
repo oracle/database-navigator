@@ -20,6 +20,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.ValueSelectorListener;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Keyboard;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.RoundedCornerBorder;
@@ -35,6 +36,10 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import java.awt.Color;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.function.Function;
 
@@ -52,20 +57,46 @@ public class DBNToggleButton<T extends Presentable> extends JLabel {
     private T selectedValue;
     private Function<T, Color> textColor = t -> getDefaultForeground();
     private boolean highlighted;
+    private boolean focused;
 
     private final Listeners<ValueSelectorListener<T>> listeners = Listeners.create();
 
     public DBNToggleButton() {
         Mouse.onMouseClick(this, MouseEvent.BUTTON1, e -> selectNextValue(e.getClickCount()));
-        addMouseListener(Mouse.listener()
-                .onEnter(e -> markHighlighted(true))
-                .onExit(e -> markHighlighted(false)));
-        //setCursor(Cursors.handCursor());
+        addMouseListener(createMouseListener());
+        addFocusListener(createFocusListener());
+        Keyboard.onKeyPress(this, KeyEvent.VK_SPACE, e -> selectNextValue(1));
         setHorizontalAlignment(SwingConstants.CENTER);
+        setFocusable(true);
+    }
+
+    private Mouse.Listener createMouseListener() {
+        return Mouse.listener()
+                .onEnter(e -> markHighlighted(true))
+                .onExit(e -> markHighlighted(false));
+    }
+
+    private FocusListener createFocusListener() {
+        return new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                markFocused(true);
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                markFocused(false);
+            }
+        };
     }
 
     private void markHighlighted(boolean highlighted) {
         this.highlighted = highlighted && isEnabled();
+        setBorder(createBorder());
+    }
+
+    private void markFocused(boolean focused) {
+        this.focused = focused && isEnabled();
         setBorder(createBorder());
 
     }
@@ -108,7 +139,9 @@ public class DBNToggleButton<T extends Presentable> extends JLabel {
     private Border createBorder() {
         Color color = getBorderColor();
 
-        Border outsideBorder = new RoundedCornerBorder(color, 1, 6, 2);
+        int margin = focused ? 1 : 2;
+        int thickness = focused ? 2 : 1;
+        Border outsideBorder = new RoundedCornerBorder(color, thickness, 6, margin);
         Border insideBorder = Borders.insetBorder(0, 8, 0, 8);
         return new CompoundBorder(outsideBorder, insideBorder);
     }
@@ -116,9 +149,10 @@ public class DBNToggleButton<T extends Presentable> extends JLabel {
     @NonNull
     private Color getBorderColor() {
         Color outlineColor = Colors.getOutlineColor();
-        return highlighted ?
-                Colors.lafDarker(outlineColor, 10) :
-                outlineColor;
+        return
+            focused ? UIUtil.getFocusedBorderColor() :
+            highlighted ? Colors.lafDarker(outlineColor, 10) :
+            outlineColor;
     }
 
     private Color getTextColor() {

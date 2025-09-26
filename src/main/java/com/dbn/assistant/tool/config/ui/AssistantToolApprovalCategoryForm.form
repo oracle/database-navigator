@@ -41,8 +41,6 @@
             </constraints>
             <properties>
               <editable value="false"/>
-              <focusCycleRoot value="false"/>
-              <focusable value="false"/>
               <opaque value="false"/>
             </properties>
           </component>

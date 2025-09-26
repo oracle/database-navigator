@@ -96,7 +96,7 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
     private void initDescriptionPanel() {
         descriptionTextPane.setForeground(Colors.faded(UIUtil.getLabelForeground()));
         descriptionTextPane.setText(category.getDescription());
-        descriptionTextPane.setVisible(false);
+        descriptionTextPane.setVisible(false); // TODO overcrowds the tool approval screens
     }
 
     private void initToolTypesPanel() {
