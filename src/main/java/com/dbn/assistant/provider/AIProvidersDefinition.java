@@ -17,6 +17,7 @@
 package com.dbn.assistant.provider;
 
 import com.dbn.assistant.AssistantType;
+import com.dbn.assistant.provider.AIAuthentication.Field;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Safe;
 import com.dbn.common.util.XmlContents;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.dbn.assistant.provider.AIAuthentication.Field.API_KEY;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -125,13 +127,14 @@ public class AIProvidersDefinition {
         provider.setApiName(apiName);
         provider.setBaseUrl(baseUrl);
 
-        createModels(element, provider, providerTemplate);
-        createUrls(element, provider, providerTemplate);
+        initModels(element, provider, providerTemplate);
+        initUrls(element, provider, providerTemplate);
+        initAuth(element, provider, providerTemplate);
 
         return provider;
     }
 
-    private static void createModels(Element element, AIProvider provider, AIProvider providerTemplate) {
+    private static void initModels(Element element, AIProvider provider, AIProvider providerTemplate) {
         List<Element> modelElements = element.getChild("models").getChildren();
         List<AIModel> models = convert(modelElements, e -> createModel(e, provider, providerTemplate));
         provider.setModels(unmodifiableList(models));
@@ -154,7 +157,7 @@ public class AIProvidersDefinition {
         return model;
     }
 
-    private static void createUrls(Element element, AIProvider provider, AIProvider providerTemplate) {
+    private static void initUrls(Element element, AIProvider provider, AIProvider providerTemplate) {
         Map<ProviderUrlType, String> urls = new LinkedHashMap<>();
         if (providerTemplate != null) {
             urls.putAll(providerTemplate.getUrls());
@@ -167,6 +170,29 @@ public class AIProvidersDefinition {
             urls.put(urlType, urlElement.getText());
         }
         provider.setUrls(unmodifiableMap(urls));
+    }
+
+    private static void initAuth(Element element, AIProvider provider, AIProvider providerTemplate) {
+        AIAuthentication authentication;
+
+        Element authElement = element.getChild("auth");
+        if (authElement == null) {
+            authentication = providerTemplate == null ? null : providerTemplate.getAuthentication();
+            if (authentication == null) {
+                authentication = new AIAuthentication();
+                authentication.addField(API_KEY, true);
+            }
+        } else {
+            authentication = new AIAuthentication();
+            List<Element> fieldElements = childrenOf(authElement, "field");
+            for (Element fieldElement : fieldElements) {
+                Field field = enumAttribute(fieldElement, "id", Field.class);
+                boolean required = booleanAttribute(fieldElement, "required", false);
+                authentication.addField(field, required);
+            }
+        }
+
+        provider.setAuthentication(authentication);
     }
 
     private <T, F> T fallback(T value, F fallback, Function<F, T> supplier) {

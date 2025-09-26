@@ -244,6 +244,9 @@
                 </models>
             </provider>-->
             <provider id="OPEN_AI">
+                <auth>
+                    <field id="API_KEY" required="true"/>
+                </auth>
                 <models>
                     <model id="GPT_4_1" default="true"/>
                     <model id="GPT_4_1_MINI"/>
@@ -260,6 +263,9 @@
                 </models>
             </provider>
             <provider id="GOOGLE">
+                <auth>
+                    <field id="API_KEY" required="true"/>
+                </auth>
                 <models>
                     <model id="GEMINI_1_5_FLASH"/>
                     <model id="GEMINI_1_5_PRO"/>
@@ -268,6 +274,9 @@
                 </models>
             </provider>
             <provider id="ANTHROPIC">
+                <auth>
+                    <field id="API_KEY" required="true"/>
+                </auth>
                 <models>
                     <model id="CLAUDE_OPUS_4_1_20250805"/>
                     <model id="CLAUDE_OPUS_4_20250514"/>
@@ -278,6 +287,9 @@
                 </models>
             </provider>
             <provider id="MISTRAL_AI">
+                <auth>
+                    <field id="API_KEY" required="true"/>
+                </auth>
                 <models>
                     <model id="CODESTRAL_2508"/>
                     <model id="MISTRAL_MEDIUM_2508"/>

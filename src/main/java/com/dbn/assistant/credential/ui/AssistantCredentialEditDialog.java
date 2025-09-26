@@ -39,6 +39,7 @@ public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredential
         this.onSave = onSave;
         renameAction(getOKAction(), credential == null ? "Create" : "Update");
         setModal(true);
+        setAutoSize(true);
         init();
     }
 
@@ -47,7 +48,6 @@ public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredential
     protected AssistantCredentialEditForm createForm() {
         return new AssistantCredentialEditForm(this, usedTitles);
     }
-
 
     @Override
     @NotNull

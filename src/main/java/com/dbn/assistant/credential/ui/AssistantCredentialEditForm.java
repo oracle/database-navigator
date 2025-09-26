@@ -18,9 +18,13 @@ package com.dbn.assistant.credential.ui;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.provider.AIAuthentication;
+import com.dbn.assistant.provider.AIAuthentication.Field;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.ProviderUrlType;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Chars;
@@ -30,56 +34,121 @@ import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import static com.dbn.assistant.provider.AIAuthentication.Field.API_KEY;
+import static com.dbn.assistant.provider.AIAuthentication.Field.USER;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.TextFields.setTextSilently;
+import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 
 public class AssistantCredentialEditForm extends DBNFormBase {
     private JPanel headerPanel;
     private JPanel mainPanel;
     private JBTextField nameTextField;
     private JBTextField userTextField;
-    private JBPasswordField keyPasswordField;
+    private JBPasswordField secretTextField;
     private DBNComboBox<AIProvider> providerComboBox;
+    private JLabel secretLabel;
+    private JLabel userLabel;
+    private DBNHyperlinkLabel guideHyperlink;
 
 
     private final AssistantCredential credential;
     private final Set<String> usedNames;
+    private boolean generatedName;
 
     AssistantCredentialEditForm(AssistantCredentialEditDialog parent, Set<String> usedNames) {
         super(parent);
         this.credential = parent.getCredential();
         this.usedNames = usedNames;
+        this.generatedName = Strings.isEmpty(credential.getName());
 
-        ComboBoxes.initComboBox(providerComboBox, getProviders());
+        initComboBox(providerComboBox, getProviders());
         resetFormChanges();
+
+        initCredentialName();
+        onSelectionChange(providerComboBox, p -> updateFields());
+        onTextChange(nameTextField, e -> generatedName = false);
+    }
+
+    private void initCredentialName() {
+        if (!generatedName) return;
+
+        AIProvider provider = getSelectedProvider();
+        String baseName = provider == null ? "Credential" : provider.getName();
+
+        String name = nextNumberedIdentifier(baseName + " 1", true, () -> usedNames);
+        setTextSilently(nameTextField, name);
     }
 
     private static List<AIProvider> getProviders() {
-        return AIProviderData.getProviders(AssistantType.PUBLIC);
+        List<AIProvider> providers = new ArrayList<>();
+        providers.add(null);
+        providers.addAll(AIProviderData.getProviders(AssistantType.PUBLIC));
+        return providers;
     }
 
     @Override
     protected void initValidation() {
         addTextValidation(nameTextField, Strings::isNotEmpty, "Please provide a credential name");
         addTextValidation(nameTextField, this::isNotUsed, "The credential name is already in use");
-        addTextValidation(keyPasswordField, Strings::isNotEmpty, "Please provide a credential key");
+        addTextValidation(secretTextField, Strings::isNotEmpty, "Please provide a credential");
+    }
+
+    private void updateFields() {
+        initCredentialName();
+
+        AIAuthentication authentication = getAuthentication();
+
+        boolean userSupported = authentication.isSupported(USER);
+        userTextField.setVisible(userSupported);
+        userLabel.setVisible(userSupported);
+
+        Field secretField = authentication.getSecretField();
+        secretLabel.setText(secretField.getName());
+
+        AIProvider provider = getSelectedProvider();
+        boolean infoAvailable = provider != null && secretField == API_KEY;
+        guideHyperlink.setVisible(infoAvailable);
+        if (infoAvailable) {
+            String providerName = provider.getName();
+            guideHyperlink.setHyperlinkText(providerName + " API keys");
+            guideHyperlink.setHyperlinkTarget(provider.getUrl(ProviderUrlType.KEYS));
+        }
+    }
+
+    private AIAuthentication getAuthentication() {
+        AIProvider provider = getSelectedProvider();
+        return provider == null ?
+                AIAuthentication.USER_PASSWORD :
+                provider.getAuthentication();
+    }
+
+    private @Nullable AIProvider getSelectedProvider() {
+        return getSelection(providerComboBox);
     }
 
     public void applyFormChanges() {
         credential.setName(nameTextField.getText());
         credential.setUser(userTextField.getText());
-        credential.setKey(keyPasswordField.getPassword());
+        credential.setKey(secretTextField.getPassword());
 
-        AIProvider provider = ComboBoxes.getSelection(providerComboBox);
+        AIProvider provider = getSelectedProvider();
         credential.setProviderId(provider == null ? null : provider.getId());
     }
 
     public void resetFormChanges() {
         nameTextField.setText(credential.getName());
         userTextField.setText(credential.getUser());
-        keyPasswordField.setText(Chars.toString(credential.getKey()));
+        secretTextField.setText(Chars.toString(credential.getKey()));
 
         AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, credential.getProviderId());
         ComboBoxes.setSelection(providerComboBox, provider);
@@ -91,12 +160,6 @@ public class AssistantCredentialEditForm extends DBNFormBase {
 
     public String getCredentialName() {
         return nameTextField.getText();
-    }
-
-    @Nullable
-    @Override
-    public JComponent getPreferredFocusedComponent() {
-        return nameTextField;
     }
 
     @NotNull

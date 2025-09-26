@@ -49,6 +49,7 @@ public final class AIProvider implements Presentable {
     private String apiName;
 
     private List<AIModel> models;
+    private AIAuthentication authentication;
     private Map<ProviderUrlType, String> urls;
 
     AIProvider(String id, String name) {

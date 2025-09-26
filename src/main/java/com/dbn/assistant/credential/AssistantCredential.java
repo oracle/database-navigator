@@ -136,6 +136,6 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
     public void initSecrets() {
         DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
         Secret secret = credentialManager.loadSecret(GENERIC_CREDENTIAL, getSecretOwnerId(), user);
-        key = secret.getToken();
+        this.key = secret.getToken();
     }
 }

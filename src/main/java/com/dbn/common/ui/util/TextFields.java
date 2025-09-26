@@ -27,9 +27,12 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 
 import static com.dbn.common.ui.util.ClientProperty.FIELD_ERROR;
 
@@ -76,6 +79,25 @@ public class TextFields {
                 }
             }
         });
+    }
+
+    public static void setTextSilently(JTextComponent textComponent, String text) {
+        Document document = textComponent.getDocument();
+        if (document instanceof AbstractDocument) {
+            AbstractDocument abstractDocument = (AbstractDocument) document;
+            DocumentListener[] documentListeners = abstractDocument.getDocumentListeners();
+            try {
+                Arrays.stream(documentListeners).forEach(document::removeDocumentListener);
+                textComponent.setText(text);
+                textComponent.revalidate();
+                textComponent.repaint();
+            } finally {
+                Arrays.stream(documentListeners).forEach(document::addDocumentListener);
+            }
+        } else {
+            textComponent.setText(text);
+        }
+
     }
 
     public static void updateFieldError(JTextComponent textComponent, @Nullable String error) {

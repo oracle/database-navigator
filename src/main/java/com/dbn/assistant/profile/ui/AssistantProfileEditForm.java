@@ -37,6 +37,10 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.TextFields.setTextSilently;
+import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 
 public class AssistantProfileEditForm extends DBNFormBase {
     private JPanel headerPanel;
@@ -48,17 +52,36 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
     private final DeclaredAssistantProfile profile;
     private final Set<String> usedNames;
+    private boolean generatedName;
 
     AssistantProfileEditForm(AssistantProfileEditDialog parent, Set<String> usedNames) {
         super(parent);
         this.profile = parent.getProfile();
         this.usedNames = usedNames;
+        this.generatedName = Strings.isEmpty(profile.getName());
 
         initComboBox(providerComboBox, getProviders());
         initComboBox(credentialComboBox, getCredentials());
 
-        ComboBoxes.onSelectionChange(providerComboBox, c -> initComboBox(credentialComboBox, getCredentials()));
         resetFormChanges();
+        initProfileName();
+        onSelectionChange(providerComboBox, c -> updateFields());
+        onTextChange(nameTextField, e -> generatedName = false);
+    }
+
+    private void updateFields() {
+        initProfileName();
+        initComboBox(credentialComboBox, getCredentials());
+    }
+
+    private void initProfileName() {
+        if (!generatedName) return;
+
+        AIProvider provider = getSelectedProvider();
+        String baseName = provider == null ? "Profile" : provider.getName();
+
+        String name = nextNumberedIdentifier(baseName + " 1", true, () -> usedNames);
+        setTextSilently(nameTextField, name);
     }
 
     private List<AssistantCredential> getCredentials() {
@@ -82,8 +105,12 @@ public class AssistantProfileEditForm extends DBNFormBase {
     }
 
     private String getSelectedProviderId() {
-        AIProvider provider = ComboBoxes.getSelection(providerComboBox);
+        AIProvider provider = getSelectedProvider();
         return provider == null ? null : provider.getId();
+    }
+
+    private @Nullable AIProvider getSelectedProvider() {
+        return ComboBoxes.getSelection(providerComboBox);
     }
 
     private String getSelectedCredentialId() {
