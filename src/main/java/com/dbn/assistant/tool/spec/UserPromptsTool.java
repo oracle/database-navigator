@@ -47,8 +47,7 @@ public interface UserPromptsTool extends AssistantTool {
     @Tool(name = "REQUEST_USER_CONFIRMATION")
     @UtilitySpec(
             name = "Request user confirmation",
-            description = "Prompts the user with a question and waits for an affirmative or negative response. " +
-                    "Offers a quick way for the user to decide on the continuation of certain assistant tasks.")
+            description = "Prompts the user with a yes/no question and returns their response.")
     boolean requestUserConfirmation(
             @P("Brief description of the topic") String title,
             @P("Confirmation message") String question,
@@ -59,8 +58,7 @@ public interface UserPromptsTool extends AssistantTool {
     @Tool(name = "REQUEST_USER_DECISION")
     @UtilitySpec(
             name = "Request user decision",
-            description = "Prompts the user with a question and waits for a selection from the given options. " +
-                    "Offers a quick way for the user to decide which path to take for the continuation of given assistant tasks.")
+            description = "Presents the user with a multiple-choice question and returns their selected option.")
     String requestUserDecision(
             @P("Brief description of the topic") String title,
             @P("Question") String question,
