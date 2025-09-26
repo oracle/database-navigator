@@ -887,6 +887,9 @@
         <additionalTextAttributes scheme="Default" file="textAttributes/DBNDefaultColors.xml" id="DBN-Default"/>
         <additionalTextAttributes scheme="Darcula" file="textAttributes/DBNDarculaColors.xml" id="DBN-Darcula"/>
         <additionalTextAttributes scheme="IntelliJ Light" file="textAttributes/DBNLightColors.xml" id="DBN-IntelliJ-Light"/>
+        <additionalTextAttributes scheme="Classic Light" file="textAttributes/DBNLightColors.xml" id="DBN-ClassicLight"/>
+        <additionalTextAttributes scheme="Islands Dark" file="textAttributes/DBNIslandDarkColors.xml" id="DBN-IslandDark"/>
+        <additionalTextAttributes scheme="Islands Light" file="textAttributes/DBNIslandLightColors.xml" id="DBN-IslandLight"/>
         <additionalTextAttributes scheme="High contrast" file="textAttributes/DBNHighContrastColors.xml" id="DBN-HighContrast"/>
         <additionalTextAttributes scheme="AllHallowsEve" file="textAttributes/DBNAllHallowsEveColors.xml" id="DBN-AllHallowsEve"/>
         <additionalTextAttributes scheme="Blackboard" file="textAttributes/DBNBlackboardColors.xml" id="DBN-Blackboard"/>
