@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
-import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.DISABLED;
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
 import static com.dbn.common.util.Commons.nvl;
 
@@ -68,11 +68,11 @@ public class AssistantToolApprovals {
     }
 
     public boolean isDisabled(@NotNull AssistantToolType type) {
-        return types.get(type) == DISABLED;
+        return types.get(type) == BLOCKED;
     }
 
     public boolean isDisabled(@NotNull AssistantToolCategory category) {
-        return categories.get(category) == DISABLED;
+        return categories.get(category) == BLOCKED;
     }
 
     public void setStatus(AssistantToolCategory category, AssistantToolApprovalStatus status) {

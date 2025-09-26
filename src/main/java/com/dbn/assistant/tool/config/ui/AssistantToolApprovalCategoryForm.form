@@ -41,6 +41,8 @@
             </constraints>
             <properties>
               <editable value="false"/>
+              <focusCycleRoot value="false"/>
+              <focusable value="false"/>
               <opaque value="false"/>
             </properties>
           </component>
@@ -59,14 +61,6 @@
           <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
       </hspacer>
-      <grid id="640af" binding="actionsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
-        <constraints>
-          <grid row="2" column="3" row-span="2" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-        <border type="none"/>
-        <children/>
-      </grid>
       <component id="7da83" class="javax.swing.JSeparator">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -80,6 +74,16 @@
           </grid>
         </constraints>
       </vspacer>
+      <component id="e8414" class="com.dbn.common.ui.misc.DBNToggleButton" binding="statusToggle">
+        <constraints>
+          <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false">
+            <preferred-size width="92" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <text value="[status]"/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>

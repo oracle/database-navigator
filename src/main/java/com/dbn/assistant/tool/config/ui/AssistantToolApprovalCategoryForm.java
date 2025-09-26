@@ -22,10 +22,9 @@ import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.Layouts;
+import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.ui.util.Fonts;
-import com.dbn.common.util.Actions;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.UIUtil;
@@ -35,13 +34,15 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
-import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Map;
 
 import static com.dbn.assistant.tool.AssistantToolData.getToolTypes;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
+import static com.dbn.common.ui.misc.DBNToggleButton.getDefaultForeground;
+import static com.dbn.common.ui.misc.DBNToggleButton.getErrorForeground;
+import static com.dbn.common.ui.misc.DBNToggleButton.getSuccessForeground;
 
 public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItemForm {
     private JPanel mainPanel;
@@ -49,7 +50,7 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
     private JLabel infoLabel;
     private JPanel toolTypesPanel;
     private JTextPane descriptionTextPane;
-    private JPanel actionsPanel;
+    private DBNToggleButton<AssistantToolApprovalStatus> statusToggle;
 
     private final AssistantToolCategory category;
     private final Map<AssistantToolType, AssistantToolApprovalTypeForm> toolTypeForms = ContainerUtil.createConcurrentWeakValueMap();
@@ -58,11 +59,27 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
         super(settingsForm);
         this.category = category;
 
+
         initNameLabel();
         initInfoLabel();
         initDescriptionPanel();
-        initActionsPanel();
         initToolTypesPanel();
+        initStatusToggle();
+    }
+
+    private void initStatusToggle() {
+        statusToggle.setTextColor(s -> {
+            switch (s) {
+                case PROMPTED: return getDefaultForeground();
+                case APPROVED: return getSuccessForeground();
+                case BLOCKED: return getErrorForeground();
+                default: return null;
+            }
+        });
+
+        statusToggle.setValues(AssistantToolApprovalStatus.values());
+        statusToggle.setSelectedValue(getApprovalStatus());
+        statusToggle.addListener((os, ns) -> setApprovalStatus(ns));
     }
 
     private void initNameLabel() {
@@ -80,13 +97,6 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
         descriptionTextPane.setForeground(Colors.faded(UIUtil.getLabelForeground()));
         descriptionTextPane.setText(category.getDescription());
         descriptionTextPane.setVisible(false);
-    }
-
-    private void initActionsPanel() {
-        ActionToolbar chatActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantToolApprovalActions");
-        JComponent component = chatActions.getComponent();
-        component.setOpaque(false);
-        this.actionsPanel.add(component, BorderLayout.NORTH);
     }
 
     private void initToolTypesPanel() {
@@ -126,8 +136,9 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
     public void refreshState() {
         AssistantToolApprovalStatus categoryStatus = getApprovalStatus();
         getToolApprovals().setStatus(category, categoryStatus);
-        boolean enabled = categoryStatus.isOneOf(PROMPTED, APPROVED);
+        statusToggle.setSelectedValue(categoryStatus);
 
+        boolean enabled = categoryStatus.isOneOf(PROMPTED, APPROVED);
         nameLabel.setEnabled(enabled);
 
         Icon infoIcon = enabled ? AllIcons.General.Note : IconLoader.getDisabledIcon(AllIcons.General.Note);

@@ -22,7 +22,7 @@ import lombok.Getter;
 
 @Getter
 public enum AssistantToolApprovalStatus implements Constant<AssistantToolApprovalStatus>, Presentable {
-    DISABLED ("Disabled"),
+    BLOCKED("Blocked"),
     PROMPTED ("Prompted"),
     APPROVED("Approved");
 

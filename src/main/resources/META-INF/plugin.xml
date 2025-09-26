@@ -407,9 +407,6 @@
             <action class="com.dbn.assistant.tool.action.ToolExecutionDataAction" text="Tool Execution Data" id="DBNavigator.Actions.Assistant.ToolExecutionData"/>
             <action class="com.dbn.assistant.tool.action.ToolApprovalSettingsAction" text="Tool Approvals..." id="DBNavigator.Actions.Assistant.ToolApprovalSettings"/>
         </group>
-        <group id="DBNavigator.ActionGroup.AssistantToolApprovalActions" text="Assistant Tool Approval Actions">
-            <action class="com.dbn.assistant.tool.config.action.AssistantToolStatusAction" text="Tool Status" id="DBNavigator.Actions.Assistant.ToolStatusAction"/>
-        </group>
         <group id="DBNavigator.ActionGroup.AssistantCredentialManagement" text="Credential Management">
             <action class="com.dbn.assistant.service.selectai.credential.action.CredentialCreateAction" id="DBNavigator.Actions.Assistant.CreateCredential"/>
             <action class="com.dbn.assistant.service.selectai.credential.action.CredentialDeleteAction" id="DBNavigator.Actions.Assistant.DeleteCredential"/>

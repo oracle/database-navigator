@@ -20,7 +20,7 @@
     <ul>
         <li>Tools marked as "Approved" will be invoked automatically.</li>
         <li>Tools marked as "Prompted" will be prompted for approval before every invocation.</li>
-        <li>Disabled tools will not be visible to the LLM.</li>
+        <li>Blocked tools will not be visible to the LLM.</li>
     </ul>
 </body>
 </html>

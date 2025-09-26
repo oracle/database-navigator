@@ -72,7 +72,7 @@ import java.util.Objects;
 
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
-import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.DISABLED;
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.icon.Icons.ASSISTANT_QUESTION;
 import static com.dbn.common.ui.Layouts.horizontalBoxLayout;
@@ -340,7 +340,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
                 options, 0);
 
         AssistantToolApprovals toolApprovals = getToolApprovals();
-        AssistantToolApprovalStatus status = approval ? APPROVED : DISABLED;
+        AssistantToolApprovalStatus status = approval ? APPROVED : BLOCKED;
         if (option == 0) {
             toolApprovals.setStatus(tool.getType(), status);
             return true;
