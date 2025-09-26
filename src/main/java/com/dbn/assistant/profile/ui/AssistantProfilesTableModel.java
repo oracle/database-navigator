@@ -18,22 +18,25 @@ package com.dbn.assistant.profile.ui;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
-import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.common.ui.table.DBNTypedEditableTableModel;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
 import lombok.Getter;
 
+import java.util.List;
+import java.util.function.Supplier;
+
 @Getter
 public class AssistantProfilesTableModel extends DBNTypedEditableTableModel<DeclaredAssistantProfile> {
-    private final AssistantCredentialBundle credentials;
+    private final Supplier<List<AssistantCredential>> credentials;
 
-    AssistantProfilesTableModel(AssistantProfileBundle profiles, AssistantCredentialBundle credentials) {
+    AssistantProfilesTableModel(AssistantProfileBundle profiles, Supplier<List<AssistantCredential>> credentials) {
         super(DeclaredAssistantProfile.class, profiles.getDeclaredProfiles());
         this.credentials = credentials;
 
@@ -51,7 +54,8 @@ public class AssistantProfilesTableModel extends DBNTypedEditableTableModel<Decl
 
     private String getCredentialName(String credentialId) {
         if (Strings.isEmpty(credentialId)) return "";
-        AssistantCredential credential = credentials.getCredential(credentialId);
+
+        AssistantCredential credential = Lists.first(credentials.get(), c -> c.getId().equals(credentialId));
         return credential == null ? "" : credential.getName();
     }
 

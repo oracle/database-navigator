@@ -18,7 +18,8 @@ package com.dbn.assistant.profile.ui;
 
 
 import com.dbn.assistant.credential.AssistantCredential;
-import com.dbn.assistant.credential.AssistantCredentialBundle;
+import com.dbn.assistant.credential.AssistantCredentialSettings;
+import com.dbn.assistant.credential.ui.AssistantCredentialsSettingsForm;
 import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.assistant.profile.AssistantProfileSettings;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
@@ -48,9 +49,8 @@ public class AssistantProfilesSettingsForm extends ConfigurationEditorForm<Assis
     public AssistantProfilesSettingsForm(AssistantProfileSettings settings) {
         super(settings);
 
-        AssistantCredentialBundle credentials = settings.ensureParent().getCredentialSettings().getCredentials();
         AssistantProfileBundle profiles = settings.getProfiles();
-        profilesTable = new AssistantProfilesEditorTable(this, profiles, credentials);
+        profilesTable = new AssistantProfilesEditorTable(this, profiles, () -> getCredentials());
         profilesTablePanel.add(initTableComponent());
 
         registerComponents(mainPanel);
@@ -88,7 +88,12 @@ public class AssistantProfilesSettingsForm extends ConfigurationEditorForm<Assis
     }
 
     private List<AssistantCredential> getCredentials() {
-        return getConfiguration().ensureParent().getCredentialSettings().getCredentials().getElements();
+        // support transient credentials if hosted inside the "Assistant" settings tab
+        AssistantCredentialSettings credentialSettings = getConfiguration().ensureParent().getCredentialSettings();
+        AssistantCredentialsSettingsForm credentialsSettingsForm = credentialSettings.getSettingsEditor();
+        return credentialsSettingsForm == null ?
+                credentialSettings.getCredentials().getElements() :
+                credentialsSettingsForm.getCredentials();
     }
 
     private Set<String> getProfileNames(String excludeName) {

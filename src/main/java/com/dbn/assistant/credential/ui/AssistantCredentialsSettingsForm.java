@@ -133,6 +133,10 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
         oldCredentials.values().forEach(c -> c.removeSecrets());
     }
 
+    public List<AssistantCredential> getCredentials() {
+        return credentialsTable.getModel().getElements();
+    }
+
     @Override
     public void resetFormChanges() {
         AssistantCredentialSettings settings = getConfiguration();
