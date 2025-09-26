@@ -19,8 +19,11 @@ package com.dbn.assistant.tool.approval;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.assistant.tool.AssistantToolType;
+import com.dbn.common.state.PersistentStateElement;
+import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,9 +31,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
+import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.constantAttribute;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.util.Commons.nvl;
 
-public class AssistantToolApprovals {
+public class AssistantToolApprovals implements PersistentStateElement {
     private final Map<AssistantToolType, AssistantToolApprovalStatus> types = new ConcurrentHashMap<>();
     private final Map<AssistantToolCategory, AssistantToolApprovalStatus> categories = new ConcurrentHashMap<>();
 
@@ -75,6 +84,10 @@ public class AssistantToolApprovals {
         return categories.get(category) == BLOCKED;
     }
 
+    public boolean isEmpty() {
+        return categories.isEmpty() && types.isEmpty();
+    }
+
     public void setStatus(AssistantToolCategory category, AssistantToolApprovalStatus status) {
         categories.put(category, status);
         updateSignature();
@@ -83,5 +96,53 @@ public class AssistantToolApprovals {
     public void setStatus(AssistantToolType type, AssistantToolApprovalStatus status) {
         types.put(type, status);
         updateSignature();
+    }
+
+    @Override
+    public void readState(Element element) {
+        if (element == null) return;
+
+        Element categoriesElement = element.getChild("categories");
+        List<Element> categoryElements = childrenOf(categoriesElement);
+        for (Element categoryElement : categoryElements) {
+            AssistantToolCategory toolCategory = enumAttribute(categoryElement, "id", AssistantToolCategory.class);
+            AssistantToolApprovalStatus approvalStatus = enumAttribute(categoryElement, "status", AssistantToolApprovalStatus.class);
+            categories.put(toolCategory, approvalStatus);
+        }
+
+        Element typesElement = element.getChild("types");
+        List<Element> typeElements = childrenOf(typesElement);
+        for (Element typeElement : typeElements) {
+            AssistantToolType toolType = constantAttribute(typeElement, "id", AssistantToolType.class);
+            AssistantToolApprovalStatus approvalStatus = enumAttribute(typeElement, "status", AssistantToolApprovalStatus.class);
+            types.put(toolType, approvalStatus);
+        }
+    }
+
+    @Override
+    public void writeState(Element element) {
+        if (element == null) return;
+
+        if (!categories.isEmpty()) {
+            Element categoriesElement = newElement(element, "categories");
+            for (AssistantToolCategory toolCategory : categories.keySet()) {
+                AssistantToolApprovalStatus approvalStatus = categories.get(toolCategory);
+
+                Element categoryElement = newElement(categoriesElement, "category");
+                setEnumAttribute(categoryElement, "id", toolCategory);
+                setEnumAttribute(categoryElement, "status", approvalStatus);
+            }
+        }
+
+        if (!types.isEmpty()) {
+            Element typesElement = newElement(element, "types");
+            for (AssistantToolType toolType : types.keySet()) {
+                AssistantToolApprovalStatus approvalStatus = types.get(toolType);
+
+                Element typeElement = newElement(typesElement, "type");
+                setConstantAttribute(typeElement, "id", toolType);
+                setEnumAttribute(typeElement, "status", approvalStatus);
+            }
+        }
     }
 }

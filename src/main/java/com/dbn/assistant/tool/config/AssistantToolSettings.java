@@ -20,12 +20,16 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.common.action.UserDataKeys;
+import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;
+import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.common.options.setting.Settings.newElement;
 
 
 @Getter
-public class AssistantToolSettings extends AssistantStateExtension {
+public class AssistantToolSettings extends AssistantStateExtension implements PersistentStateElement {
     private final AssistantToolApprovals approvals = new AssistantToolApprovals();
 
     protected AssistantToolSettings(@NotNull AssistantState assistantState) {
@@ -36,5 +40,21 @@ public class AssistantToolSettings extends AssistantStateExtension {
         return UserDataKeys.getUserDataSync(assistantState, UserDataKeys.ASSISTANT_TOOL_SETTINGS, () -> new AssistantToolSettings(assistantState));
     }
 
+    @Override
+    public void readState(Element element) {
+        if (element == null) return;
 
+        Element approvalsElement = element.getChild("approvals");
+        approvals.readState(approvalsElement);
+    }
+
+    @Override
+    public void writeState(Element element) {
+        if (element == null) return;
+
+        if (!approvals.isEmpty()) {
+            Element approvalsElement = newElement(element, "approvals");
+            approvals.writeState(approvalsElement);
+        }
+    }
 }
