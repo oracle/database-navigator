@@ -60,7 +60,7 @@ public class TextFields {
 
     public static String getText(@Nullable TextFieldWithBrowseButton textComponent) {
         if (textComponent == null) return "";
-        return getText(textComponent);
+        return getText(textComponent.getTextField());
 
     }
     public static String getText(@Nullable JTextComponent textComponent) {
