@@ -18,7 +18,7 @@
 <list>
     <option name="DBN.DefaultAttributes.DataEditor.PlainData">
         <value>
-            <option name="BACKGROUND" value="1E1F22"/>
+            <option name="BACKGROUND" value="191A1C"/>
         </value>
     </option>
     <option name="DBN.DefaultAttributes.DataEditor.CaretRow">
@@ -29,7 +29,7 @@
     <option name="DBN.DefaultAttributes.DataEditor.AuditData">
         <value>
             <option name="FOREGROUND" value="7A7E85"/>
-            <option name="BACKGROUND" value="1E1F22"/>
+            <option name="BACKGROUND" value="191A1C"/>
         </value>
     </option>
     <option name="DBN.DefaultAttributes.DataEditor.ModifiedData">
@@ -40,7 +40,7 @@
     <option name="DBN.DefaultAttributes.DataEditor.DeletedData">
         <value>
             <option name="FOREGROUND" value="7A7E85"/>
-            <option name="BACKGROUND" value="1E1F22"/>
+            <option name="BACKGROUND" value="191A1C"/>
         </value>
     </option>
     <option name="DBN.DefaultAttributes.DataEditor.ErrorData">
@@ -52,7 +52,7 @@
     <option name="DBN.DefaultAttributes.DataEditor.ReadonlyData">
         <value>
             <option name="FOREGROUND" value="7A7E85"/>
-            <option name="BACKGROUND" value="1E1F22"/>
+            <option name="BACKGROUND" value="191A1C"/>
         </value>
     </option>
     <option name="DBN.DefaultAttributes.DataEditor.LoadingData">
@@ -87,31 +87,31 @@
     </option>
     <option name="DBN.DefaultAttributes.SessionBrowser.ActiveSession">
         <value>
-            <option name="BACKGROUND" value="1E1F22"/>
+            <option name="BACKGROUND" value="191A1C"/>
         </value>
     </option>
     <option name="DBN.DefaultAttributes.SessionBrowser.InactiveSession">
         <value>
             <option name="FOREGROUND" value="7A7E85"/>
-            <option name="BACKGROUND" value="1E1F22"/>
+            <option name="BACKGROUND" value="191A1C"/>
         </value>
     </option>
     <option name="DBN.DefaultAttributes.SessionBrowser.CachedSession">
         <value>
             <option name="FOREGROUND" value="C9D5C9"/>
-            <option name="BACKGROUND" value="1E1F22"/>
+            <option name="BACKGROUND" value="191A1C"/>
         </value>
     </option>
     <option name="DBN.DefaultAttributes.SessionBrowser.SnipedSession">
         <value>
             <option name="FOREGROUND" value="C4D1DC"/>
-            <option name="BACKGROUND" value="1E1F22"/>
+            <option name="BACKGROUND" value="191A1C"/>
         </value>
     </option>
     <option name="DBN.DefaultAttributes.SessionBrowser.KilledSession">
         <value>
             <option name="FOREGROUND" value="8B4233"/>
-            <option name="BACKGROUND" value="1E1F22"/>
+            <option name="BACKGROUND" value="191A1C"/>
         </value>
     </option>
     <option name="DBN.DefaultAttributes.SessionBrowser.Selection">
