@@ -39,6 +39,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.List;
 
+import static com.dbn.common.ui.util.TextFields.getText;
+
 public class AssistantCredentialQuickInputForm extends DBNFormBase {
     private JPanel hintPanel;
     private JPanel mainPanel;
@@ -96,7 +98,7 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
     }
 
     public void applyFormChanges() {
-        credential.setUser(userTextField.getText());
+        credential.setUser(getText(userTextField));
         credential.setKey(keyPasswordField.getPassword());
     }
 

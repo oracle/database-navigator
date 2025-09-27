@@ -58,6 +58,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.addDocumentListener;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.isEmptyText;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
@@ -197,7 +198,7 @@ public class ExportDataForm extends DBNFormBase {
         return new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent documentEvent) {
-                String beginQuote = beginQuoteTextField.getText();
+                String beginQuote = getText(beginQuoteTextField);
                 String endQuote = ExportQuotePair.endQuoteOf(beginQuote);
                 endQuoteTextField.setText(endQuote);
             }
@@ -222,12 +223,12 @@ public class ExportDataForm extends DBNFormBase {
         instructions.setFriendlyHeaders(friendlyHeadersCheckBox.isSelected());
         instructions.setQuoteValuesContainingSeparator(quoteValuesCheckBox.isSelected());
         instructions.setQuoteAllValues(quoteAllValuesCheckBox.isSelected());
-        instructions.setBeginQuote(beginQuoteTextField.getText().trim());
-        instructions.setEndQuote(endQuoteTextField.getText().trim());
-        instructions.setValueSeparator(valueSeparatorTextField.getText().trim());
+        instructions.setBeginQuote(getText(beginQuoteTextField));
+        instructions.setEndQuote(getText(endQuoteTextField));
+        instructions.setValueSeparator(getText(valueSeparatorTextField));
         if (destinationFileRadioButton.isSelected()) {
-            instructions.setFileName(fileNameTextField.getText());
-            instructions.setFileLocation(fileLocationTextField.getText());
+            instructions.setFileName(getText(fileNameTextField));
+            instructions.setFileLocation(getText(fileLocationTextField));
         }
 
         instructions.setDestination(destinationClipboardRadioButton.isSelected() ?

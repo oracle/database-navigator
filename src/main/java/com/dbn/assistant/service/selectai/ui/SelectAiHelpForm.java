@@ -43,6 +43,8 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.util.List;
 
+import static com.dbn.common.ui.util.TextFields.getText;
+
 /**
  * Database Assistant prerequisites information form
  * Explains the necessary grants and access rights for Select AI.
@@ -116,8 +118,8 @@ public class SelectAiHelpForm extends DBNFormBase {
 
     providerComboBox.addActionListener(e -> aclTextArea.setText(txt("cfg.assistant.code.AllowNetworkAccess", getAccessPoint(), userName)));
 
-    copyPrivilegeButton.addActionListener(e -> copyTextToClipboard(grantTextArea.getText()));
-    copyACLButton.addActionListener(e -> copyTextToClipboard(aclTextArea.getText()));
+    copyPrivilegeButton.addActionListener(e -> copyTextToClipboard(getText(grantTextArea)));
+    copyACLButton.addActionListener(e -> copyTextToClipboard(getText(aclTextArea)));
 
     applyACLButton.addActionListener(e -> grantNetworkAccess());
   }
@@ -128,7 +130,7 @@ public class SelectAiHelpForm extends DBNFormBase {
 
     ConnectionHandler connection = getConnection();
     SelectAiPrerequisiteManager prerequisiteManager = getPrerequisiteManager();
-    prerequisiteManager.grantNetworkAccess(connection, selectedProvider, aclTextArea.getText());
+    prerequisiteManager.grantNetworkAccess(connection, selectedProvider, getText(aclTextArea));
   }
 
   private void grantExecutionPrivileges() {

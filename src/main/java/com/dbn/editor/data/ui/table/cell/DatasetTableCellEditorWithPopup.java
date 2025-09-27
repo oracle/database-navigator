@@ -37,6 +37,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 
+import static com.dbn.common.ui.util.TextFields.isEmptyText;
+
 public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor {
     public DatasetTableCellEditorWithPopup(DatasetEditorTable table) {
         super(table, new CustomTextFieldWithPopup(table));
@@ -81,7 +83,7 @@ public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor {
             if (!isEditable()) {
                 return true;
             } else  if (settings.isActive() && (settings.getDataLengthThreshold() < dataLength || dataLength == 0)) {
-                if (settings.isActiveIfEmpty() || getTextField().getText().length() > 0) {
+                if (settings.isActiveIfEmpty() || !isEmptyText(getTextField())) {
                     return true;
                 }
             }

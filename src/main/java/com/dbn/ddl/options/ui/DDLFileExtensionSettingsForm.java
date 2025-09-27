@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.dbn.common.ui.util.TextFields.getText;
+
 public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFileExtensionSettings> {
     private JPanel mainPanel;
     private JLabel viewIconLabel;
@@ -143,7 +145,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
 
     private void applySetting(JTextField textField, DDLFileTypeId fileTypeId, AtomicBoolean changed) {
         DDLFileType ddlFileType = getConfiguration().getFileType(fileTypeId);
-        boolean valueChanged = ddlFileType.setExtensionsAsString(textField.getText().trim());
+        boolean valueChanged = ddlFileType.setExtensionsAsString(getText(textField));
         if (valueChanged) {
             changed.set(true);
         }

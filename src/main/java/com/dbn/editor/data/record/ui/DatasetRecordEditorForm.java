@@ -49,6 +49,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ComponentAligner.alignFormComponents;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
 public class DatasetRecordEditorForm extends DBNFormBase implements ComponentAligner.Container {
@@ -109,7 +110,7 @@ public class DatasetRecordEditorForm extends DBNFormBase implements ComponentAli
     }
 
     private void filterColumForms() {
-        String text = filterTextField.getText();
+        String text = getText(filterTextField);
         for (DatasetRecordEditorColumnForm columnForm : columnForms) {
             String columnName = columnForm.getColumnName();
             boolean visible = Strings.indexOfIgnoreCase(columnName, text, 0) > -1;

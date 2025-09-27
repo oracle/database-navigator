@@ -53,6 +53,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.common.ui.CardLayouts.showCard;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Strings.startsWith;
@@ -215,7 +216,7 @@ private boolean isNotUsed(String name) {
   private boolean canSaveLocalCredential() {
     if (localCredential == null) return true; // local credential has been chosen to fill the attributes
     return
-        !Objects.equals(localCredential.getUser(), passwordCredentialUsernameField.getText()) ||
+        !Objects.equals(localCredential.getUser(), getText(passwordCredentialUsernameField)) ||
         !Arrays.equals(localCredential.getKey(), passwordCredentialPasswordField.getPassword());
   }
 
@@ -255,19 +256,19 @@ private boolean isNotUsed(String name) {
     if (credentialType == null) return null;
 
     DBSchema schema = getConnection().getObjectBundle().getUserSchema();
-    String credentialName = credentialNameField.getText();
+    String credentialName = getText(credentialNameField);
     boolean selected = statusCheckBox.isSelected();
 
     DBCredential credential = new DBCredentialImpl(schema, credentialName, credentialType, selected);
     if (credentialType == DBCredentialType.PASSWORD) {
-      credential.setAttribute(USER_NAME, passwordCredentialUsernameField.getText());
-      credential.setAttribute(PASSWORD, passwordCredentialPasswordField.getText());
+      credential.setAttribute(USER_NAME, getText(passwordCredentialUsernameField));
+      credential.setAttribute(PASSWORD, getText(passwordCredentialPasswordField));
 
     } else if (credentialType == DBCredentialType.OCI) {
-      credential.setAttribute(USER_OCID,         ociCredentialUserOcidField.getText());
-      credential.setAttribute(USER_TENANCY_OCID, ociCredentialUserTenancyOcidField.getText());
-      credential.setAttribute(PRIVATE_KEY,       ociCredentialPrivateKeyField.getText());
-      credential.setAttribute(FINGERPRINT,       ociCredentialFingerprintField.getText());
+      credential.setAttribute(USER_OCID,         getText(ociCredentialUserOcidField));
+      credential.setAttribute(USER_TENANCY_OCID, getText(ociCredentialUserTenancyOcidField));
+      credential.setAttribute(PRIVATE_KEY,       getText(ociCredentialPrivateKeyField));
+      credential.setAttribute(FINGERPRINT,       getText(ociCredentialFingerprintField));
 
     }
     return credential;
@@ -277,8 +278,8 @@ private boolean isNotUsed(String name) {
     Project project = ensureProject();
     AssistantCredentialSettings settings = AssistantSettings.getInstance(project).getCredentialSettings();
     AssistantCredential credential = new AssistantCredential();
-    credential.setName(credentialNameField.getText());
-    credential.setUser(passwordCredentialUsernameField.getText());
+    credential.setName(getText(credentialNameField));
+    credential.setUser(getText(passwordCredentialUsernameField));
     credential.setKey(passwordCredentialPasswordField.getPassword());
     settings.getCredentials().addCredential(credential);
   }

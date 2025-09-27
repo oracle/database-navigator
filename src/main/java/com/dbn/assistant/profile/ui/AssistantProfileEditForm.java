@@ -38,6 +38,7 @@ import java.util.Set;
 
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setTextSilently;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
@@ -125,7 +126,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
     }
 
     public void applyFormChanges() {
-        profile.setName(nameTextField.getText());
+        profile.setName(getText(nameTextField));
         profile.setProviderId(getSelectedProviderId());
         profile.setCredentialId(getSelectedCredentialId());
     }
@@ -145,7 +146,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
     }
 
     public String getProfileName() {
-        return nameTextField.getText();
+        return getText(nameTextField);
     }
 
     @Nullable

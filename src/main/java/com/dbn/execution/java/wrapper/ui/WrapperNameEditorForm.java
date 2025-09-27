@@ -32,6 +32,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
@@ -60,7 +61,7 @@ public class WrapperNameEditorForm extends DBNFormBase implements ComponentAlign
     }
 
     private void updateStatusLabel() {
-        String identifier = objectNameTextField.getText().trim();
+        String identifier = getText(objectNameTextField);
         int length = identifier.length();
         int maxLength = getMaxIdentifierLength();
 
@@ -84,7 +85,7 @@ public class WrapperNameEditorForm extends DBNFormBase implements ComponentAlign
         objectNameTextField.setText(object.getObjectName(false));
 
         onTextChange(objectNameTextField, e -> {
-            String objectName = objectNameTextField.getText().trim();
+            String objectName = getText(objectNameTextField);
             object.setObjectName(objectName);
             updateStatusLabel();
 
@@ -113,7 +114,7 @@ public class WrapperNameEditorForm extends DBNFormBase implements ComponentAlign
     }
 
     public String getIdentifierName() {
-        return objectNameTextField.getText().trim();
+        return getText(objectNameTextField);
     }
 
     private int getMaxIdentifierLength() {

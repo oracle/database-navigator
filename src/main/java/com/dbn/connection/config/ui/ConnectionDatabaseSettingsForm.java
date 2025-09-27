@@ -64,6 +64,7 @@ import java.util.Objects;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static java.awt.event.KeyEvent.VK_UNDEFINED;
 
 @SuppressWarnings("unused")
@@ -149,7 +150,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
     void notifyPresentationChanges() {
         ConnectionDatabaseSettings configuration = getConfiguration();
-        String name = nameTextField.getText();
+        String name = getConnectionName();
         ConnectivityStatus connectivityStatus = configuration.getConnectivityStatus();
         ConnectionSettings connectionSettings = configuration.ensureParent();
         Icon icon = getIcon(connectionSettings, connectivityStatus);
@@ -228,7 +229,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
     }
 
     public String getConnectionName() {
-        return nameTextField.getText();
+        return getText(nameTextField);
     }
 
     @NotNull
@@ -244,8 +245,8 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         DatabaseUrlType urlType = Commons.nvl(urlSettingsForm.getUrlType(), DatabaseUrlType.CUSTOM);
 
         configuration.setDatabaseType(databaseType);
-        configuration.setName(nameTextField.getText());
-        configuration.setDescription(descriptionTextField.getText());
+        configuration.setName(getConnectionName());
+        configuration.setDescription(getText(descriptionTextField));
         configuration.setDriverLibrary(driverSettingsForm.getDriverLibrary());
         configuration.setDriver(driverOption == null ? null : driverOption.getName());
         configuration.setUrlPattern(DatabaseUrlPattern.get(databaseType, urlType));
@@ -310,7 +311,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
             }
         }
 
-        boolean nameChanged = !Objects.equals(nameTextField.getText(), configuration.getName());
+        boolean nameChanged = !Objects.equals(getText(nameTextField), configuration.getName());
 
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
         boolean settingsChanged =

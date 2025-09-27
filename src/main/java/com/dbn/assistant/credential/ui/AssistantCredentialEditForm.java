@@ -45,6 +45,7 @@ import static com.dbn.assistant.provider.AIAuthentication.Field.USER;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setTextSilently;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
@@ -137,8 +138,8 @@ public class AssistantCredentialEditForm extends DBNFormBase {
     }
 
     public void applyFormChanges() {
-        credential.setName(nameTextField.getText());
-        credential.setUser(userTextField.getText());
+        credential.setName(getText(nameTextField));
+        credential.setUser(getText(userTextField));
         credential.setKey(secretTextField.getPassword());
 
         AIProvider provider = getSelectedProvider();
@@ -159,7 +160,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
     }
 
     public String getCredentialName() {
-        return nameTextField.getText();
+        return getText(nameTextField);
     }
 
     @NotNull

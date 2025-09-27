@@ -37,6 +37,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.debugger.JDWPTunnelType.NONE;
 import static com.dbn.debugger.JDWPTunnelType.SSH_REVERSE_TUNNEL;
 import static com.dbn.debugger.JDWPTunnelType.TCP_DRIVER_TUNNEL;
@@ -126,12 +127,12 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
     public void applyFormChanges(ConnectionDebuggerSettings configuration) throws ConfigurationException {
         configuration.setCompileDependencies(compileDependenciesCheckBox.isSelected());
         configuration.setJdwpTunnelType(getSelection(tunnelTypeComboBox));
-        configuration.setTcpHostAddress(tcpHostTextBox.getText());
+        configuration.setTcpHostAddress(getText(tcpHostTextBox));
         configuration.getDebuggerType().selectOption(getSelection(debuggerTypeComboBox));
         try {
             configuration.setTcpPortRange(new Range<>(
-                    Integer.parseInt(tcpPortFromTextField.getText()),
-                    Integer.parseInt(tcpPortToTextField.getText())));
+                    Integer.parseInt(getText(tcpPortFromTextField)),
+                    Integer.parseInt(getText(tcpPortToTextField))));
         } catch (NumberFormatException e) {
             throw new ConfigurationException(txt("cfg.debugger.error.NonNumericPortRange"));
         }

@@ -48,6 +48,7 @@ import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.execution.java.ui.JavaExecutionInputUtil.setupSingleDimArrayEditor;
@@ -227,7 +228,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 				String value = userValueHolder.getUserValue();
 				executionInput.setInputValue(fieldPath, value);
 			} else {
-				String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
+				String value = Commons.nullIfEmpty(getText(inputTextField));
 				executionInput.setInputValue(fieldPath, value);
 			}
 		} else {

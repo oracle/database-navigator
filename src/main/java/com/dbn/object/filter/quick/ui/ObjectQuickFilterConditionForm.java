@@ -41,6 +41,7 @@ import java.awt.BorderLayout;
 import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 
@@ -74,7 +75,7 @@ public class ObjectQuickFilterConditionForm extends DBNFormBase {
 
         patternTextField.setToolTipText("<html>press <b>Up/Down</b> keys to change the operator</html>");
         patternTextField.addKeyListener(ComboBoxSelectionKeyListener.create(operatorComboBox, false));
-        onTextChange(patternTextField, e -> condition.setPattern(patternTextField.getText().trim()));
+        onTextChange(patternTextField, e -> condition.setPattern(getText(patternTextField)));
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new EnableDisableQuickFilterConditionAction(this),

@@ -18,6 +18,7 @@ package com.dbn.common.ui.util;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
@@ -57,12 +58,23 @@ public class TextFields {
         textField.getDocument().addDocumentListener(documentListener);
     }
 
-    public static String getText(JTextComponent textComponent) {
-        return textComponent.getText().trim();
+    public static String getText(@Nullable TextFieldWithBrowseButton textComponent) {
+        if (textComponent == null) return "";
+        return getText(textComponent);
+
+    }
+    public static String getText(@Nullable JTextComponent textComponent) {
+        if (textComponent == null) return "";
+        String text = textComponent.getText();
+        return text == null ? "" : text.trim();
     }
 
+
     public static boolean isEmptyText(JTextComponent textComponent) {
-        return textComponent.getText().trim().isEmpty();
+        if (textComponent == null) return true;
+
+        String text = textComponent.getText();
+        return Strings.isNotEmptyOrSpaces(text);
     }
 
     public static void limitTextLength(JTextComponent textComponent, int maxLength) {

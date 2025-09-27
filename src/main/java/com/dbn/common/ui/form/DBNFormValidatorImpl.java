@@ -41,6 +41,7 @@ import java.util.function.Predicate;
 import static com.dbn.common.ui.util.ClientProperty.HAS_VALIDATION_LISTENERS;
 import static com.dbn.common.ui.util.ClientProperty.VALIDATION_INFO;
 import static com.dbn.common.ui.util.ClientProperty.VISITED;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Commons.isEmpty;
 import static com.dbn.common.util.Commons.isOneOf;
 import static java.util.Collections.emptyList;
@@ -93,7 +94,7 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
 
     @Override
     public void addTextValidation(JTextComponent textField, Predicate<String> validator, String message) {
-        addValidation(textField, f -> validator.test(f.getText()), message);
+        addValidation(textField, f -> validator.test(getText(f)), message);
     }
 
     @Override
@@ -258,7 +259,7 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
 
         if (component instanceof JTextComponent) {
             JTextComponent textComponent = (JTextComponent) component;
-            return Strings.isNotEmptyOrSpaces(textComponent.getText());
+            return Strings.isNotEmptyOrSpaces(getText(textComponent));
         }
 
         if (component instanceof JComboBox) {

@@ -75,6 +75,7 @@ import java.util.function.Predicate;
 
 import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.ui.util.Borderless.isBorderless;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.common.util.Unsafe.logged;
@@ -493,7 +494,7 @@ public class UserInterface {
 
         if (component instanceof JTextComponent) {
             JTextComponent textComponent = (JTextComponent) component;
-            return textComponent.getText();
+            return getText(textComponent);
         }
 
         if (component instanceof JComboBox) {

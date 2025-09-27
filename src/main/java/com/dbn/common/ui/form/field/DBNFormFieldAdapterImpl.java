@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 
 import static com.dbn.common.ui.util.ClientProperty.AVAILABILITY_CONDITION;
 import static com.dbn.common.ui.util.ClientProperty.VISIBILITY_CONDITION;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.common.util.Unsafe.warned;
 
@@ -161,7 +162,7 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
 
         } else if (component instanceof JTextComponent) {
             JTextComponent textComponent = (JTextComponent) component;
-            return textComponent.getText();
+            return getText(textComponent);
 
         } else if (component instanceof JComboBox) {
             JComboBox comboBox = (JComboBox) component;
