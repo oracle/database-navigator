@@ -25,10 +25,10 @@ import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 public class DBTableSourceForm extends DBNFormBase {
   private JPanel mainPanel;
   private DBNComboBox<DBSchema> schemaComboBox;
-  private DBNComboBox<DBTable> sourceTableComboBox;
+  private DBNComboBox<DBTable> tableComboBox;
 
-  private DBNComboBox<DBColumn> sourceDataColumnComboBox;
-  private DBNComboBox<DBColumn> sourceKeyColumnComboBox;
+  private DBNComboBox<DBColumn> keyColumnComboBox;
+  private DBNComboBox<DBColumn> dataColumnComboBox;
   private JCheckBox autoSyncCheckBox;
 
   private final ConnectionRef connection;
@@ -38,30 +38,27 @@ public class DBTableSourceForm extends DBNFormBase {
     this.connection = connection.ref();
 
     initComboboxListeners();
-    initValidation();
-
-
     whenShown(() -> initComboBoxes());
   }
 
   private void initComboBoxes() {
     schemaComboBox.setValueLoader(() -> loadSchemas());
-    sourceTableComboBox.setValueLoader(() -> loadTables());
-    sourceKeyColumnComboBox.setValueLoader(() -> loadKeyColumns());
-    sourceDataColumnComboBox.setValueLoader(() -> loadDataColumns());
+    tableComboBox.setValueLoader(() -> loadTables());
+    keyColumnComboBox.setValueLoader(() -> loadKeyColumns());
+    dataColumnComboBox.setValueLoader(() -> loadDataColumns());
 
     schemaComboBox.loadValues();
-    sourceTableComboBox.loadValues();
-    sourceKeyColumnComboBox.loadValues();
-    sourceDataColumnComboBox.loadValues();
+    tableComboBox.loadValues();
+    keyColumnComboBox.loadValues();
+    dataColumnComboBox.loadValues();
   }
 
   private void refreshComboBoxes() {
       DBSchema schema = getSelectedSchema();
       DBTable table = getSelectedTable();
-      sourceTableComboBox.setEnabled(schema != null);
-      sourceKeyColumnComboBox.setEnabled(table != null);
-      sourceDataColumnComboBox.setEnabled(table != null);
+      tableComboBox.setEnabled(schema != null);
+      keyColumnComboBox.setEnabled(table != null);
+      dataColumnComboBox.setEnabled(table != null);
   }
 
   private List<DBSchema> loadSchemas() {
@@ -78,14 +75,14 @@ public class DBTableSourceForm extends DBNFormBase {
 
 
   private List<DBColumn> loadKeyColumns() {
-    DBTable table = ComboBoxes.getSelection(sourceTableComboBox);
+    DBTable table = ComboBoxes.getSelection(tableComboBox);
     return table == null ?
             Collections.emptyList() :
             table.getPrimaryKeyColumns();
   }
 
   private List<DBColumn> loadDataColumns() {
-    DBTable table = ComboBoxes.getSelection(sourceTableComboBox);
+    DBTable table = ComboBoxes.getSelection(tableComboBox);
     List<DBColumn> columns = table == null ?
             Collections.emptyList() :
             table.getColumns();
@@ -95,33 +92,36 @@ public class DBTableSourceForm extends DBNFormBase {
 
   private void initComboboxListeners() {
     schemaComboBox.set(HIDE_DESCRIPTION, true);
-    sourceTableComboBox.set(HIDE_DESCRIPTION, true);
-    sourceDataColumnComboBox.set(HIDE_DESCRIPTION, true);
-    sourceKeyColumnComboBox.set(HIDE_DESCRIPTION, true);
+    tableComboBox.set(HIDE_DESCRIPTION, true);
+    dataColumnComboBox.set(HIDE_DESCRIPTION, true);
+    keyColumnComboBox.set(HIDE_DESCRIPTION, true);
 
     schemaComboBox.addListener((ov,nv)-> populateTables());
-    sourceTableComboBox.addListener((ov,nv)-> populateColumns());
+    tableComboBox.addListener((ov, nv)-> populateColumns());
   }
 
   @Override
   protected void initValidation() {
+/*
+    TODO fix validation for hidden fields
     addSelectionValidation(schemaComboBox,"Please select a schema");
-    addSelectionValidation(sourceTableComboBox,"Please select a table");
-    addSelectionValidation(sourceKeyColumnComboBox,"Please select the primary key column");
-    addSelectionValidation(sourceDataColumnComboBox,"Please select a data column");
+    addSelectionValidation(tableComboBox,"Please select a table");
+    addSelectionValidation(keyColumnComboBox,"Please select the primary key column");
+    addSelectionValidation(dataColumnComboBox,"Please select a data column");
+*/
   }
 
   private void populateColumns() {
     refreshComboBoxes();
-    sourceKeyColumnComboBox.reloadValues();
-    sourceDataColumnComboBox.reloadValues();
+    keyColumnComboBox.reloadValues();
+    dataColumnComboBox.reloadValues();
   }
 
   private void populateTables() {
     refreshComboBoxes();
-    sourceTableComboBox.reloadValues();
-    sourceKeyColumnComboBox.reloadValues();
-    sourceDataColumnComboBox.reloadValues();
+    tableComboBox.reloadValues();
+    keyColumnComboBox.reloadValues();
+    dataColumnComboBox.reloadValues();
   }
 
   @Nullable
@@ -131,15 +131,15 @@ public class DBTableSourceForm extends DBNFormBase {
 
   @Nullable
   private DBTable getSelectedTable() {
-    return sourceTableComboBox.getSelectedValue();
+    return tableComboBox.getSelectedValue();
   }
 
   public DBTableSourceConfig getConfiguration() {
     DBTableSourceConfig config = new DBTableSourceConfig();
     config.setSourceSchema(getSelectedSchema());
     config.setSourceTable(getSelectedTable());
-    config.setDataColumn(sourceDataColumnComboBox.getSelectedValue());
-    config.setIdColumn(sourceKeyColumnComboBox.getSelectedValue());
+    config.setDataColumn(dataColumnComboBox.getSelectedValue());
+    config.setIdColumn(keyColumnComboBox.getSelectedValue());
     config.setAutoSync(autoSyncCheckBox.isSelected());
 
     return config;
