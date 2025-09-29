@@ -19,6 +19,7 @@ package com.dbn.assistant.credential;
 import com.dbn.assistant.profile.ImplicitAssistantProfile;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.component.ProjectUnit;
+import com.dbn.common.util.Strings;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,7 +70,7 @@ public class AssistantCredentialBundle extends ProjectUnit {
         List<AssistantCredential> credentials = assistantSettings.getCredentialSettings().getCredentials().getElements();
         return credentials
                 .stream()
-                .filter(c -> c.getProviderId() != null)
+                .filter(c -> Strings.isNotEmpty(c.getProviderId()))
                 .map(c -> new ImplicitAssistantProfile(project, c))
                 .collect(Collectors.toList());
     }
