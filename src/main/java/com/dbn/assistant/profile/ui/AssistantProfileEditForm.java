@@ -18,29 +18,43 @@ package com.dbn.assistant.profile.ui;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.profile.AssistantTemperaturePreset;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
+import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.assistant.profile.AssistantTemperaturePreset.BALANCED;
+import static com.dbn.assistant.profile.AssistantTemperaturePreset.CUSTOM;
+import static com.dbn.assistant.profile.AssistantTemperaturePreset.values;
+import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setTextSilently;
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 
 public class AssistantProfileEditForm extends DBNFormBase {
@@ -49,11 +63,17 @@ public class AssistantProfileEditForm extends DBNFormBase {
     private JBTextField nameTextField;
     private DBNComboBox<AIProvider> providerComboBox;
     private DBNComboBox<AssistantCredential> credentialComboBox;
+    private DBNComboBox<AssistantTemperaturePreset> temperatureComboBox;
+    private JSlider temperatureSlider;
+    private JPanel temperatureDescPanel;
+    private JBTextArea instructionsTextArea;
 
 
     private final DeclaredAssistantProfile profile;
     private final Set<String> usedNames;
     private boolean generatedName;
+
+    private DBNHintForm temperatureDescForm;
 
     AssistantProfileEditForm(AssistantProfileEditDialog parent, Set<String> usedNames) {
         super(parent);
@@ -63,16 +83,41 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
         initComboBox(providerComboBox, getProviders());
         initComboBox(credentialComboBox, getCredentials());
+        initComboBox(temperatureComboBox, values());
+        initTemperatureFields();
+
+        instructionsTextArea.getEmptyText().setText("e.g. ‘Use Java best practices’ or ‘Comment each step.’");
 
         resetFormChanges();
-        initProfileName();
+
+        updateFields();
         onSelectionChange(providerComboBox, c -> updateFields());
+        onSelectionChange(temperatureComboBox, c -> updateFields());
         onTextChange(nameTextField, e -> generatedName = false);
+    }
+
+    private void initTemperatureFields() {
+        temperatureComboBox.set(HIDE_DESCRIPTION, true);
+        temperatureDescForm = new DBNHintForm(this, null, null, true);
+        temperatureDescPanel.add(temperatureDescForm.getMainComponent());
+        temperatureSlider.addChangeListener(e -> updateSliderLabels());
+    }
+
+
+    private void updateSliderLabels() {
+        int currentValue = temperatureSlider.getValue();
+        Hashtable<Integer, JLabel> labels = new Hashtable<>();
+        labels.put(0, new JLabel(currentValue > 5 ? "0" : ""));
+        labels.put(currentValue, new JLabel(String.valueOf((float) currentValue / 100)));
+        labels.put(100, new JLabel(currentValue < 95 ? "1" : ""));
+        temperatureSlider.setLabelTable(labels);
     }
 
     private void updateFields() {
         initProfileName();
         initComboBox(credentialComboBox, getCredentials());
+        temperatureSlider.setVisible(isCustomTemperature());
+        temperatureDescForm.setHintContent(TextContent.plain(getSelectedTemperature().getDescription()));
     }
 
     private void initProfileName() {
@@ -129,16 +174,29 @@ public class AssistantProfileEditForm extends DBNFormBase {
         profile.setName(getText(nameTextField));
         profile.setProviderId(getSelectedProviderId());
         profile.setCredentialId(getSelectedCredentialId());
+        profile.setTemperaturePreset(getSelectedTemperature());
+        profile.setTemperature(isCustomTemperature() ? temperatureSlider.getValue() / 100.0 : getSelectedTemperature().getValue());
+    }
+
+    private AssistantTemperaturePreset getSelectedTemperature() {
+        return nvl(getSelection(temperatureComboBox), BALANCED);
+    }
+
+    private boolean isCustomTemperature() {
+        return getSelectedTemperature() == CUSTOM;
     }
 
     public void resetFormChanges() {
         nameTextField.setText(profile.getName());
 
         AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, profile.getProviderId());
-        ComboBoxes.setSelection(providerComboBox, provider);
+        setSelection(providerComboBox, provider);
 
         AssistantCredential credential = getCredential(profile.getCredentialId());
-        ComboBoxes.setSelection(credentialComboBox, credential);
+        setSelection(credentialComboBox, credential);
+
+        setSelection(temperatureComboBox, profile.getTemperaturePreset());
+        temperatureSlider.setValue((int) (profile.getTemperature() * 100));
     }
 
     private boolean isNotUsed(String name) {

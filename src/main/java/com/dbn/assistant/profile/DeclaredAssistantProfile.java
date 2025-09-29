@@ -27,7 +27,11 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.assistant.profile.AssistantTemperaturePreset.BALANCED;
+import static com.dbn.assistant.profile.AssistantTemperaturePreset.CUSTOM;
+import static com.dbn.common.options.setting.Settings.doubleAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.setDoubleAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -40,6 +44,8 @@ public class DeclaredAssistantProfile implements AssistantProfile, PersistentCon
     private String name;
     private String providerId;
     private String credentialId;
+    private double temperature;
+    private AssistantTemperaturePreset temperaturePreset = BALANCED;
 
     @Nullable
     public AIProvider getProvider(){
@@ -52,12 +58,18 @@ public class DeclaredAssistantProfile implements AssistantProfile, PersistentCon
         return provider.getDefaultModelId();
     }
 
+    public double getTemperature() {
+        return temperaturePreset == CUSTOM ?  temperature : temperaturePreset.getValue();
+    }
+
     public void readConfiguration(Element element) {
         assistantType = enumAttribute(element, "assistant-type", assistantType);
         id = stringAttribute(element, "id", id);
         name = stringAttribute(element, "name");
         providerId = stringAttribute(element, "provider-id");
         credentialId = stringAttribute(element, "credential-id");
+        temperaturePreset = enumAttribute(element, "temperature-preset", temperaturePreset);
+        temperature = doubleAttribute(element, "temperature", 0);
     }
 
     @Override
@@ -67,6 +79,8 @@ public class DeclaredAssistantProfile implements AssistantProfile, PersistentCon
         setStringAttribute(element, "name", name);
         setStringAttribute(element, "provider-id", providerId);
         setStringAttribute(element, "credential-id", credentialId);
+        setEnumAttribute(element, "temperature-preset", temperaturePreset);
+        setDoubleAttribute(element, "temperature", temperature);
     }
 
     @Override

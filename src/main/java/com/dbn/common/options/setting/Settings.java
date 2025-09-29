@@ -320,6 +320,10 @@ public final class Settings {
         element.setAttribute(attributeName, value == null ? "" : new String(value));
     }
 
+    public static void setDoubleAttribute(Element element, @NonNls String attributeName, double value) {
+        element.setAttribute(attributeName, Double.toString(value));
+    }
+
     public static  <T extends Enum<T>> void setEnumAttribute(Element element, String attributeName, T value) {
         element.setAttribute(attributeName, value == null ? "" : value.name());
     }
