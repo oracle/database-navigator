@@ -107,10 +107,14 @@ public class AssistantProfilesSettingsForm extends ConfigurationEditorForm<Assis
     }
 
     private DeclaredAssistantProfile getSelectedProfile() {
+        AssistantProfilesTableModel model = profilesTable.getModel();
+        if (model.isEmpty()) return null;
+
         int[] selectedIndices = profilesTable.getSelectionModel().getSelectedIndices();
         if (selectedIndices.length != 1) return null;
 
-        return profilesTable.getModel().getElements().get(selectedIndices[0]);
+        List<DeclaredAssistantProfile> elements = model.getElements();
+        return elements.get(selectedIndices[0]);
     }
 
     @NotNull
