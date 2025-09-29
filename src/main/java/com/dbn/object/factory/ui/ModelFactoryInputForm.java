@@ -107,7 +107,7 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
     addTextValidation(modelNameTextField, n -> isNotEmptyOrSpaces(n), "Please enter a name for the new model");
     addTextValidation(modelFileTextField.getTextField(), n -> isNotEmptyOrSpaces(n), "Please select a model file");
     addTextValidation(objectUrlTextField, n -> isNotEmptyOrSpaces(n), "Please provide an object URL");
-    addSelectionValidation(credentialComboBox, "Please select or create a credential");
+//    addSelectionValidation(credentialComboBox, "Please select or create a credential");
   }
 
   private void initCredentialAddButton() {
