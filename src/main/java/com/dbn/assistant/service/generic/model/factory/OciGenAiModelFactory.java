@@ -29,8 +29,8 @@ import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.language.LanguageModel;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 
@@ -55,7 +55,7 @@ public class OciGenAiModelFactory extends AbstractModelFactory {
                 .build());
     }
 
-    private static @NonNull AuthenticationDetailsProvider createAuthProvider() throws IOException {
+    private static @NotNull AuthenticationDetailsProvider createAuthProvider() throws IOException {
         String configFilePath = "~/.oci/config";
         String profileName = "DEFAULT"; // Use the profile name from your config file
 

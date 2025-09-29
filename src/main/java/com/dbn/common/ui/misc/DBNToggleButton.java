@@ -29,7 +29,7 @@ import com.intellij.util.ArrayUtil;
 import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 import lombok.Setter;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
@@ -146,7 +146,7 @@ public class DBNToggleButton<T extends Presentable> extends JLabel {
         return new CompoundBorder(outsideBorder, insideBorder);
     }
 
-    @NonNull
+    @NotNull
     private Color getBorderColor() {
         Color outlineColor = Colors.getOutlineColor();
         return
