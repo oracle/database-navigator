@@ -1,10 +1,34 @@
 package com.dbn.generator;
 
+/*
+import com.dbn.common.compatibility.Compatibility;
+import com.dbn.test.util.FileUtil;
+import com.dbn.test.util.TextCompare;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.exception.ResourceNotFoundException;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.io.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.*;
+
 @RunWith(Parameterized.class)
+*/
+// TODO use intellij velocity template engine (compatibility issues with earlier verisons of intellij)
 public class JdbcConnectorCodeGeneratorTest {
+
 /*
 
     public static final String BASE_TEMPLATE_FILE_NAME = "DBN - JDBC Connector.java.ft";
