@@ -16,11 +16,13 @@
 
 package com.dbn.assistant.http;
 
-import com.intellij.util.net.HttpConnectionUtils;
+import com.dbn.common.compatibility.Compatibility;
+import com.intellij.util.net.HttpConfigurable;
 import dev.langchain4j.http.client.HttpClient;
 import dev.langchain4j.http.client.HttpClientBuilder;
 import dev.langchain4j.http.client.HttpMethod;
 import dev.langchain4j.http.client.HttpRequest;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -64,7 +66,7 @@ class AssistantHttpClientBuilder implements HttpClientBuilder {
 
 
     private HttpURLConnection createConnection(HttpRequest request) throws IOException {
-        HttpURLConnection connection = HttpConnectionUtils.openHttpConnection(request.url());
+        HttpURLConnection connection = openConnection(request);
 
         initConnectionTimeouts(connection);
         initRequestMethod(request, connection);
@@ -73,6 +75,14 @@ class AssistantHttpClientBuilder implements HttpClientBuilder {
 
         connection.connect();
         return connection;
+    }
+
+    @NotNull
+    @Compatibility
+    private static HttpURLConnection openConnection(HttpRequest request) throws IOException {
+        // HttpConnection utilities only available since 2024.x versions
+        //HttpURLConnection connection = HttpConnectionUtils.openHttpConnection(request.url());
+        return HttpConfigurable.getInstance().openHttpConnection(request.url());
     }
 
     private void initConnectionTimeouts(HttpURLConnection connection) {
