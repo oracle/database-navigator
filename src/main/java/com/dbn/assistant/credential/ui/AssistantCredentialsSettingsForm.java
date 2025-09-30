@@ -75,6 +75,7 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
                 AssistantCredentialsTableModel model = credentialsTable.getModel();
                 model.addElement(c);
             }
+            mackConfigModified();
             credentialsTable.revalidate();
             credentialsTable.repaint();
         };

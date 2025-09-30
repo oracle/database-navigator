@@ -182,8 +182,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         return new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
-                ConnectionDatabaseSettings configuration = getConfiguration();
-                configuration.setModified(true);
+                mackConfigModified();
 
                 Document document = e.getDocument();
 
@@ -209,8 +208,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
     protected ActionListener createActionListener() {
         return e -> {
             Object source = e.getSource();
-            ConnectionDatabaseSettings configuration = getConfiguration();
-            configuration.setModified(true);
+            mackConfigModified();
             if (source == nameTextField) {
                 ConnectionBundleSettings connectionBundleSettings = getConnectionBundleSettings();
                 ConnectionBundleSettingsForm settingsEditor = connectionBundleSettings.getSettingsEditor();

@@ -93,7 +93,7 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
             if (e.getSource() == tunnelTypeComboBox) {
                 updateTcpFields();
             }
-            getConfiguration().setModified(true);
+            mackConfigModified();
         };
     }
 
@@ -102,7 +102,7 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
         return e -> {
             Object source = e.getSource();
             if (source == debuggerTypeComboBox || source == tunnelTypeComboBox) updateTcpFields();
-            getConfiguration().setModified(true);
+            mackConfigModified();
         };
     }
 

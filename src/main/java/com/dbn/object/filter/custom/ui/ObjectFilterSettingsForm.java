@@ -76,7 +76,7 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
     }
 
     public boolean markModified(ObjectFilter<?> filter) {
-        getConfiguration().setModified(true);
+        mackConfigModified();
         return modifiedFilters.add(filter.getObjectType());
     }
 

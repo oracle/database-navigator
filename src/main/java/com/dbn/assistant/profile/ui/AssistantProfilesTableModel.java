@@ -20,6 +20,7 @@ import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.profile.AssistantProfileBundle;
+import com.dbn.assistant.profile.AssistantTemperaturePreset;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
@@ -41,19 +42,28 @@ public class AssistantProfilesTableModel extends DBNTypedEditableTableModel<Decl
         super(DeclaredAssistantProfile.class, profiles.getDeclaredProfiles());
         this.credentials = credentials;
 
-        addColumn("Profile Name", String.class, c -> c.getName(), null);
-        addColumn("LLM Provider", String.class, c -> getProviderName(c.getProviderId()), null);
-        addColumn("Credential", String.class, c -> getCredentialName(c.getCredentialId()), null);
+        addColumn("Profile Name", String.class, p -> p.getName(), null);
+        addColumn("LLM Provider", String.class, p -> getProviderName(p), null);
+        addColumn("Credential", String.class, p -> getCredentialName(p), null);
+        addColumn("Temperature", String.class, p -> getTemperatureName(p), null);
     }
 
-    private String getProviderName(AIProviderId providerId) {
+    private String getTemperatureName(DeclaredAssistantProfile profile) {
+        double temperature = profile.getTemperature();
+        AssistantTemperaturePreset preset = profile.getTemperaturePreset();
+        return preset == AssistantTemperaturePreset.CUSTOM ? preset.getName() + " (" + temperature + ")" : preset.getName();
+    }
+
+    private String getProviderName(DeclaredAssistantProfile profile) {
+        AIProviderId providerId = profile.getProviderId();
         if (providerId == null) return "";
 
         AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, providerId);
         return provider == null ? "" : provider.getName();
     }
 
-    private String getCredentialName(String credentialId) {
+    private String getCredentialName(DeclaredAssistantProfile profile) {
+        String credentialId = profile.getCredentialId();
         if (Strings.isEmpty(credentialId)) return "";
 
         AssistantCredential credential = Lists.first(credentials.get(), c -> c.getId().equals(credentialId));

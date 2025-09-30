@@ -71,21 +71,25 @@ public abstract class ConfigurationEditorForm<E extends BasicConfiguration> exte
         return new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
-                getConfiguration().setModified(true);
+                mackConfigModified();
             }
         };
     }
 
     protected ActionListener createActionListener() {
-        return e -> getConfiguration().setModified(true);
+        return e -> mackConfigModified();
     }
 
     protected ItemListener createItemListener() {
-        return e -> getConfiguration().setModified(true);
+        return e -> mackConfigModified();
     }
 
     protected TableModelListener createTableModelListener() {
-        return e -> getConfiguration().setModified(true);
+        return e -> mackConfigModified();
+    }
+
+    protected void mackConfigModified() {
+        getConfiguration().setModified(true);
     }
 
     protected void registerComponents(JComponent ... components) {

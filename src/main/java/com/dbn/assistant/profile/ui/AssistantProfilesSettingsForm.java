@@ -78,6 +78,7 @@ public class AssistantProfilesSettingsForm extends ConfigurationEditorForm<Assis
                 AssistantProfilesTableModel model = profilesTable.getModel();
                 model.addElement(c);
             }
+            mackConfigModified();
             profilesTable.revalidate();
             profilesTable.repaint();
         };

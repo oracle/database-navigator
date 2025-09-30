@@ -135,7 +135,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
                     restoreWorkspaceDeepCheckBox.setSelected(false);
                 }
             }
-            getConfiguration().setModified(true);
+            mackConfigModified();
         };
     }
 

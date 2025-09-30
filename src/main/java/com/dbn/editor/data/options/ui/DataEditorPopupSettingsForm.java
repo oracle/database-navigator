@@ -53,7 +53,7 @@ public class DataEditorPopupSettingsForm extends ConfigurationEditorForm<DataEdi
     @Override
     protected ActionListener createActionListener() {
         return e -> {
-            getConfiguration().setModified(true);
+            mackConfigModified();
             if (e.getSource() == activeCheckBox) {
                 enableDisableFields();
             }

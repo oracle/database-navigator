@@ -287,7 +287,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         ConnectionSettingsForm settingsEditor = connectionSettings.getSettingsEditor();
         if (settingsEditor == null) return;
 
-        getConfiguration().setModified(true);
+        mackConfigModified();
 
         try {
             ConnectionSettings duplicate = settingsEditor.getTemporaryConfig();
@@ -312,7 +312,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
     }
 
     public void changeSelectionEnabledStatus(boolean enabled) {
-        getConfiguration().setModified(true);
+        mackConfigModified();
         List<ConnectionSettings> selectedSettings = connectionsList.getSelectedValuesList();
         for (ConnectionSettings connectionSettings : selectedSettings) {
             connectionSettings.setActive(enabled);
@@ -336,7 +336,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
     }
 
     public void removeSelectedConnections() {
-        getConfiguration().setModified(true);
+        mackConfigModified();
         List<ConnectionSettings> connectionSettings = ListUtil.removeSelectedItems(connectionsList);
         for (ConnectionSettings connectionSetting : connectionSettings) {
             connectionSetting.disposeUIResources();
@@ -345,12 +345,12 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
     }
 
     public void moveSelectedConnectionsUp() {
-        getConfiguration().setModified(true);
+        mackConfigModified();
         ListUtil.moveSelectedItemsUp(connectionsList);
     }
 
     public void moveSelectedConnectionsDown() {
-        getConfiguration().setModified(true);
+        mackConfigModified();
         ListUtil.moveSelectedItemsDown(connectionsList);
     }
 
