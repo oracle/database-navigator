@@ -38,6 +38,7 @@ import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Lists.convert;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
@@ -72,14 +73,14 @@ import static java.util.Collections.unmodifiableMap;
  */
 @UtilityClass
 public class AIProvidersDefinition {
-    private static final Map<String, AIProvider> providers = initProviders();
+    private static final Map<AIProviderId, AIProvider> providers = initProviders();
 
     List<AIProvider> getProviders() {
         return new ArrayList<>(providers.values());
     }
 
     @SneakyThrows
-    private static @NotNull Map<String, AIProvider> initProviders() {
+    private static @NotNull Map<AIProviderId, AIProvider> initProviders() {
         Element element = XmlContents.fileToElement(AIProvidersDefinition.class, "ai-providers.xml");
         Element typesElement = element.getChild("provider-types");
         List<AIProvider> templates = loadProviders(typesElement);
@@ -106,7 +107,7 @@ public class AIProvidersDefinition {
         List<Element> providerElements = element.getChildren();
         List<AIProvider> assistantProviders = new ArrayList<>();
         for (Element providerElement : providerElements) {
-            String providerId = stringAttribute(providerElement, "id");
+            AIProviderId providerId = enumAttribute(providerElement, "id", AIProviderId.class);
             AIProvider template = Safe.call(providers, p -> p.get(providerId));
             AIProvider provider = createProvider(providerElement, template);
             assistantProviders.add(provider);
@@ -116,7 +117,7 @@ public class AIProvidersDefinition {
 
 
     private static AIProvider createProvider(Element element, AIProvider providerTemplate) {
-        String id = stringAttribute(element, "id");
+        AIProviderId id = enumAttribute(element, "id", AIProviderId.class);
         String name = fallback(stringAttribute(element, "name"), providerTemplate, t -> t.getName());
         String host = fallback(stringAttribute(element, "host"), providerTemplate, t -> t.getHost());
         String baseUrl = fallback(stringAttribute(element, "base-url"), providerTemplate, t -> t.getBaseUrl());
@@ -146,9 +147,16 @@ public class AIProvidersDefinition {
         boolean templateDefault = modelTemplate != null && modelTemplate.isDefault();
         boolean templateExperimental = modelTemplate != null && modelTemplate.isExperimental();
         boolean templateDeprecated = modelTemplate != null && modelTemplate.isDeprecated();
+        AIProviderId templateBaseProviderId = modelTemplate != null ? modelTemplate.getBaseProviderId() : null;
+
+        AIProviderId baseProviderId = coalesce(
+                () -> enumAttribute(element, "base-provider-id", AIProviderId.class),
+                () -> templateBaseProviderId,
+                () -> provider.getId());
+
 
         String modelApiName = fallback(stringAttribute(element, "api-name"), modelTemplate, t -> t.getApiName());
-        AIModel model = new AIModel(provider, modelId, modelApiName);
+        AIModel model = new AIModel(modelId, modelApiName, provider, baseProviderId);
 
         model.set(AIModelProperty.DEFAULT, booleanAttribute(element, "default", templateDefault));
         model.set(AIModelProperty.DEPRECATED, booleanAttribute(element, "deprecated", templateDeprecated));

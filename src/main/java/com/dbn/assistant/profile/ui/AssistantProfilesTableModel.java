@@ -23,6 +23,7 @@ import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.ui.table.DBNTypedEditableTableModel;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
@@ -45,8 +46,8 @@ public class AssistantProfilesTableModel extends DBNTypedEditableTableModel<Decl
         addColumn("Credential", String.class, c -> getCredentialName(c.getCredentialId()), null);
     }
 
-    private String getProviderName(String providerId) {
-        if (Strings.isEmpty(providerId)) return "";
+    private String getProviderName(AIProviderId providerId) {
+        if (providerId == null) return "";
 
         AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, providerId);
         return provider == null ? "" : provider.getName();

@@ -25,7 +25,8 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.language.LanguageModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.ANTHROPIC;
+import static com.dbn.assistant.provider.AIProviderId.ANTHROPIC;
+
 
 public class AnthropicModelFactory extends AbstractModelFactory {
 
@@ -37,7 +38,7 @@ public class AnthropicModelFactory extends AbstractModelFactory {
     @Override
     protected ChatModel createChatModel(AssistantModelInput input) {
         return AnthropicChatModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
@@ -49,7 +50,7 @@ public class AnthropicModelFactory extends AbstractModelFactory {
     @Override
     protected StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return AnthropicStreamingChatModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())

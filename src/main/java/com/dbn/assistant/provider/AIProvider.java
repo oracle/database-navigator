@@ -42,7 +42,7 @@ import static com.dbn.common.util.Lists.firstElement;
 @EqualsAndHashCode(of = "id")
 public final class AIProvider implements Presentable {
 
-    private final String id;
+    private final AIProviderId id;
     private final String name;
     private String host;
     private String baseUrl;
@@ -52,7 +52,7 @@ public final class AIProvider implements Presentable {
     private AIAuthentication authentication;
     private Map<ProviderUrlType, String> urls;
 
-    AIProvider(String id, String name) {
+    AIProvider(AIProviderId id, String name) {
         this.id = id;
         this.name = name;
     }

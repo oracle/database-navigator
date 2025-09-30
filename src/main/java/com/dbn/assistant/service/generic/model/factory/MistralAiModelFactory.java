@@ -26,7 +26,7 @@ import dev.langchain4j.model.mistralai.MistralAiEmbeddingModel;
 import dev.langchain4j.model.mistralai.MistralAiStreamingChatModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.MISTRAL_AI;
+import static com.dbn.assistant.provider.AIProviderId.MISTRAL_AI;
 
 public class MistralAiModelFactory extends AbstractModelFactory {
 
@@ -38,7 +38,7 @@ public class MistralAiModelFactory extends AbstractModelFactory {
     @Override
     public ChatModel createChatModel(AssistantModelInput input) {
         return MistralAiChatModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
@@ -50,7 +50,7 @@ public class MistralAiModelFactory extends AbstractModelFactory {
     @Override
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return MistralAiStreamingChatModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
@@ -68,7 +68,7 @@ public class MistralAiModelFactory extends AbstractModelFactory {
     @Override
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return MistralAiEmbeddingModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
                 .apiKey(input.getTokenString())
                 .httpClientBuilder(createHttpClientBuilder())

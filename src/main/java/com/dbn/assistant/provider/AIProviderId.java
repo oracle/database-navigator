@@ -14,15 +14,26 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.service.generic.model;
+package com.dbn.assistant.provider;
 
-import com.dbn.assistant.provider.AIProviderId;
-import com.intellij.openapi.extensions.ExtensionPointName;
+import com.dbn.common.constant.Constant;
+import com.dbn.common.constant.Constants;
 
-public interface AssistantModelFactory {
-    ExtensionPointName<AssistantModelFactory> EP = ExtensionPointName.create("com.dbn.assistantModelFactory");
+public enum AIProviderId implements Constant<AIProviderId> {
+    ANTHROPIC,
+    BEDROCK,
+    COHERE,
+    GOOGLE,
+    HUGGING_FACE,
+    META,
+    MISTRAL_AI,
+    OCI_GEN_AI,
+    OLLAMA,
+    OPEN_AI,
+    XAI,
+    ;
 
-    AIProviderId getProviderId();
-
-    <T> T createModel(Class<T> modelType, AssistantModelInput input);
+    public static AIProviderId get(String id) {
+        return Constants.get(values(), id);
+    }
 }

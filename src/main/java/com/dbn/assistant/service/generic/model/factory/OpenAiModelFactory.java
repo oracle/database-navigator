@@ -27,7 +27,7 @@ import dev.langchain4j.model.openai.OpenAiLanguageModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.OPEN_AI;
+import static com.dbn.assistant.provider.AIProviderId.OPEN_AI;
 
 public class OpenAiModelFactory extends AbstractModelFactory {
 
@@ -39,7 +39,7 @@ public class OpenAiModelFactory extends AbstractModelFactory {
     @Override
     public ChatModel createChatModel(AssistantModelInput input) {
         return OpenAiChatModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
                 .user(input.getUser())
                 .apiKey(input.getTokenString())
@@ -53,7 +53,7 @@ public class OpenAiModelFactory extends AbstractModelFactory {
     @Override
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return OpenAiStreamingChatModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
                 .user(input.getUser())
                 .apiKey(input.getTokenString())
@@ -67,7 +67,7 @@ public class OpenAiModelFactory extends AbstractModelFactory {
     @Override
     public LanguageModel createLanguageModel(AssistantModelInput input) {
         return OpenAiLanguageModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
@@ -80,7 +80,7 @@ public class OpenAiModelFactory extends AbstractModelFactory {
     @Override
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return OpenAiEmbeddingModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
                 .user(input.getUser())
                 .apiKey(input.getTokenString())

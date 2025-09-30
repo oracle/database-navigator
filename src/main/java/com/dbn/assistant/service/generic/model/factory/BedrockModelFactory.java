@@ -25,7 +25,7 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.language.LanguageModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.BEDROCK;
+import static com.dbn.assistant.provider.AIProviderId.BEDROCK;
 
 public class BedrockModelFactory extends AbstractModelFactory {
 

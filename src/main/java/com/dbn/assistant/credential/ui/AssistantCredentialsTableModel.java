@@ -21,6 +21,7 @@ import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.ui.table.DBNTypedEditableTableModel;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
@@ -39,8 +40,8 @@ public class AssistantCredentialsTableModel extends DBNTypedEditableTableModel<A
         addColumn("Secret", String.class, c -> Chars.toString(c.getKey()), (c, v) -> c.setKey(Chars.fromString(v)));
     }
 
-    private String getProviderName(String providerId) {
-        if (Strings.isEmpty(providerId)) return "";
+    private String getProviderName(AIProviderId providerId) {
+        if (providerId == null) return "";
 
         AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, providerId);
         return provider == null ? "" : provider.getName();

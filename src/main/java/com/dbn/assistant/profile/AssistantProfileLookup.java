@@ -17,6 +17,7 @@
 package com.dbn.assistant.profile;
 
 import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.util.Lists;
 import com.intellij.openapi.project.Project;
@@ -77,7 +78,7 @@ public class AssistantProfileLookup {
     public static List<ImplicitAssistantProfile> getUndefinedImplicitProfiles(Project project) {
         List<ImplicitAssistantProfile> implicitProfiles = getImplicitProfiles(project);
         List<DeclaredAssistantProfile> declaredProfiles = getDeclaredProfiles(project);
-        Set<String> declaredProviderIds = declaredProfiles.stream().map(p -> p.getProviderId()).collect(Collectors.toSet());
+        Set<AIProviderId> declaredProviderIds = declaredProfiles.stream().map(p -> p.getProviderId()).collect(Collectors.toSet());
 
         return Lists.filter(implicitProfiles, p -> !declaredProviderIds.contains(p.getProviderId()));
     }
@@ -87,8 +88,8 @@ public class AssistantProfileLookup {
         List<DeclaredAssistantProfile> declaredProfiles = getDeclaredProfiles(project);
         List<PotentialAssistantProfile> potentialProfiles = getPotentialProfiles(project);
 
-        Set<String> implicitProviderIds = implicitProfiles.stream().map(p -> p.getProviderId()).collect(Collectors.toSet());
-        Set<String> declaredProviderIds = declaredProfiles.stream().map(p -> p.getProviderId()).collect(Collectors.toSet());
+        Set<AIProviderId> implicitProviderIds = implicitProfiles.stream().map(p -> p.getProviderId()).collect(Collectors.toSet());
+        Set<AIProviderId> declaredProviderIds = declaredProfiles.stream().map(p -> p.getProviderId()).collect(Collectors.toSet());
 
         return Lists.filter(potentialProfiles, p ->
                 !declaredProviderIds.contains(p.getProviderId()) &&
@@ -97,6 +98,6 @@ public class AssistantProfileLookup {
 
     public static ImplicitAssistantProfile getImplicitProfile(Project project, AIProvider provider) {
         List<ImplicitAssistantProfile> implicitProfiles = getImplicitProfiles(project);
-        return first(implicitProfiles, p -> p.getProviderId().equals(provider.getId()));
+        return first(implicitProfiles, p -> p.getProviderId() == provider.getId());
     }
 }

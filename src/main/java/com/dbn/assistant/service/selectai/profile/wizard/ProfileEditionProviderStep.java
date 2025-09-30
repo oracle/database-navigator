@@ -35,6 +35,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -94,7 +95,7 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
 
         List<AIProvider> providers = getProviders();
         for (AIProvider value : providers) {
-            if (captions.stream().anyMatch(c -> Strings.containsIgnoreCase(c, value.getId()))) return value;
+            if (captions.stream().anyMatch(c -> Strings.containsIgnoreCase(c, value.getId().id()))) return value;
         }
         return Lists.firstElement(providers);
     }
@@ -107,11 +108,16 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
         for (AIProvider type : getProviders()) {
             providerNameCombo.addItem(type);
         }
-        ((AIProvider) providerNameCombo.getSelectedItem()).getModels().forEach(m -> providerModelCombo.addItem(m));
+        getModels().forEach(m -> providerModelCombo.addItem(m));
         providerNameCombo.addActionListener((e) -> {
             providerModelCombo.removeAllItems();
-            ((AIProvider) providerNameCombo.getSelectedItem()).getModels().forEach(m -> providerModelCombo.addItem(m));
+            getModels().forEach(m -> providerModelCombo.addItem(m));
         });
+    }
+
+    private List<AIModel> getModels() {
+        AIProvider selectedProvider = (AIProvider) providerNameCombo.getSelectedItem();
+        return selectedProvider == null ? Collections.emptyList() : selectedProvider.getModels();
     }
 
     private void configureTemperatureSlider() {

@@ -26,7 +26,8 @@ import dev.langchain4j.model.googleai.GoogleAiGeminiStreamingChatModel;
 import dev.langchain4j.model.language.LanguageModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.GOOGLE;
+import static com.dbn.assistant.provider.AIProviderId.GOOGLE;
+
 
 public class GoogleAiGeminiModelFactory extends AbstractModelFactory {
 
@@ -38,7 +39,7 @@ public class GoogleAiGeminiModelFactory extends AbstractModelFactory {
     @Override
     public ChatModel createChatModel(AssistantModelInput input) {
         return GoogleAiGeminiChatModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .httpClientBuilder(createHttpClientBuilder())
@@ -49,7 +50,7 @@ public class GoogleAiGeminiModelFactory extends AbstractModelFactory {
     @Override
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return GoogleAiGeminiStreamingChatModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .httpClientBuilder(createHttpClientBuilder())
@@ -66,7 +67,7 @@ public class GoogleAiGeminiModelFactory extends AbstractModelFactory {
     @Override
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return GoogleAiEmbeddingModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .apiKey(input.getTokenString())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();

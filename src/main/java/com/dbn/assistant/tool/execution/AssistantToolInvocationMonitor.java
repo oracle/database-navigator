@@ -92,16 +92,21 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
 
     public void allow() {
         approved = true;
-        approvalLatch.countDown();
+        releaseLatch();
     }
 
     public void deny() {
-        approvalLatch.countDown();
+        releaseLatch();
     }
 
     public void cancel() {
         if (promise == null) return;
         promise.cancel(true);
+    }
+
+    private void releaseLatch() {
+        if (approvalLatch == null) return;
+        approvalLatch.countDown();
     }
 
 }

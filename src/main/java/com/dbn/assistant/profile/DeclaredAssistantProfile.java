@@ -19,6 +19,7 @@ package com.dbn.assistant.profile;
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.UUIDs;
@@ -42,7 +43,7 @@ public class DeclaredAssistantProfile implements AssistantProfile, PersistentCon
     private AssistantType assistantType = AssistantType.PUBLIC;
     private String id = UUIDs.compact();
     private String name;
-    private String providerId;
+    private AIProviderId providerId;
     private String credentialId;
     private double temperature;
     private AssistantTemperaturePreset temperaturePreset = BALANCED;
@@ -66,7 +67,7 @@ public class DeclaredAssistantProfile implements AssistantProfile, PersistentCon
         assistantType = enumAttribute(element, "assistant-type", assistantType);
         id = stringAttribute(element, "id", id);
         name = stringAttribute(element, "name");
-        providerId = stringAttribute(element, "provider-id");
+        providerId = enumAttribute(element, "provider-id", AIProviderId.class);
         credentialId = stringAttribute(element, "credential-id");
         temperaturePreset = enumAttribute(element, "temperature-preset", temperaturePreset);
         temperature = doubleAttribute(element, "temperature", 0);
@@ -77,7 +78,7 @@ public class DeclaredAssistantProfile implements AssistantProfile, PersistentCon
         setEnumAttribute(element, "assistant-type", assistantType);
         setStringAttribute(element, "id", id);
         setStringAttribute(element, "name", name);
-        setStringAttribute(element, "provider-id", providerId);
+        setEnumAttribute(element, "provider-id", providerId);
         setStringAttribute(element, "credential-id", credentialId);
         setEnumAttribute(element, "temperature-preset", temperaturePreset);
         setDoubleAttribute(element, "temperature", temperature);

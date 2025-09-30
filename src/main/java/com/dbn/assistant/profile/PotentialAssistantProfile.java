@@ -18,6 +18,7 @@ package com.dbn.assistant.profile;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderId;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +40,7 @@ public class PotentialAssistantProfile implements AssistantProfile{
     }
 
     @Override
-    public String getProviderId() {
+    public AIProviderId getProviderId() {
         return provider.getId();
     }
 

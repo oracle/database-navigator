@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.credential;
 
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
@@ -33,7 +34,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 import static com.dbn.common.options.setting.Settings.charsAttribute;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.setCharsAttribute;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Base64.decode;
@@ -48,7 +51,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
     private String id = UUID.randomUUID().toString();
     private String name;
     private String user;
-    private String providerId;
+    private AIProviderId providerId;
     private char[] key;
 
 
@@ -84,7 +87,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         id = nvl(stringAttribute(element, "id"), id);
         name = stringAttribute(element, "name");
         user = stringAttribute(element, "user");
-        providerId = stringAttribute(element, "provider");
+        providerId = enumAttribute(element, "provider", AIProviderId.class);
 
         if (isTransientContext()) {
             // only propagate credential key when config context is transient
@@ -98,7 +101,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         setStringAttribute(element, "id", id);
         setStringAttribute(element, "name", name);
         setStringAttribute(element, "user", user);
-        setStringAttribute(element, "provider", providerId);
+        setEnumAttribute(element, "provider", providerId);
 
         if (isTransientContext()) {
             // only propagate credential key when config context is transient

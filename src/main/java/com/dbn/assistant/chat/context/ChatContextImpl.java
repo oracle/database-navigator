@@ -20,6 +20,7 @@ import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.AIProviderId;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -27,7 +28,9 @@ import org.jdom.Element;
 import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
@@ -36,7 +39,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 public final class ChatContextImpl implements ChatContext{
     private final AssistantType assistantType;
     private String profileId;
-    private String providerId;
+    private AIProviderId providerId;
     private String modelId;
     private String actionId;
     private boolean interactive = true;
@@ -45,7 +48,7 @@ public final class ChatContextImpl implements ChatContext{
         this.assistantType = assistantType;
     }
 
-    public ChatContextImpl(AssistantType assistantType, String profileId, String providerId, String modelId, String actionId, boolean interactive) {
+    public ChatContextImpl(AssistantType assistantType, String profileId, AIProviderId providerId, String modelId, String actionId, boolean interactive) {
         this(assistantType);
         this.profileId = profileId;
         this.providerId = providerId;
@@ -101,8 +104,8 @@ public final class ChatContextImpl implements ChatContext{
 
     @Override
     public void readState(Element element) {
+        providerId = enumAttribute(element, "provider", AIProviderId.class);
         profileId = stringAttribute(element, "profile");
-        providerId = stringAttribute(element, "provider");
         modelId = stringAttribute(element, "model");
         actionId = stringAttribute(element, "action");
         interactive = booleanAttribute(element, "interactive", interactive);
@@ -110,8 +113,8 @@ public final class ChatContextImpl implements ChatContext{
 
     @Override
     public void writeState(Element element) {
+        setEnumAttribute(element, "provider", providerId);
         setStringAttribute(element, "profile", profileId);
-        setStringAttribute(element, "provider", providerId);
         setStringAttribute(element, "model", modelId);
         setStringAttribute(element, "action", actionId);
         setBooleanAttribute(element, "interactive", interactive);

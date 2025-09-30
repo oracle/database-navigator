@@ -22,6 +22,7 @@ import com.dbn.assistant.profile.AssistantTemperaturePreset;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
@@ -134,11 +135,11 @@ public class AssistantProfileEditForm extends DBNFormBase {
         AssistantProfileEditDialog parent = getParentDialog();
         if (parent == null) return Collections.emptyList();
 
-        String selectedProviderId = getSelectedProviderId();
+        AIProviderId selectedProviderId = getSelectedProviderId();
         return Lists.filter(parent.getCredentials(), c ->
                 c.getProviderId() == null ||
                 selectedProviderId == null ||
-                c.getProviderId().equals(selectedProviderId));
+                c.getProviderId() != selectedProviderId);
     }
 
     private AssistantCredential getCredential(String id) {
@@ -150,7 +151,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
         return AIProviderData.getProviders(AssistantType.PUBLIC);
     }
 
-    private String getSelectedProviderId() {
+    private AIProviderId getSelectedProviderId() {
         AIProvider provider = getSelectedProvider();
         return provider == null ? null : provider.getId();
     }

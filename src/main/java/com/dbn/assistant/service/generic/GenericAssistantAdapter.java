@@ -32,6 +32,7 @@ import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.service.generic.model.AssistantModelFactories;
 import com.dbn.assistant.service.generic.model.AssistantModelFactory;
 import com.dbn.assistant.service.generic.model.AssistantModelInput;
@@ -194,7 +195,9 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         AssistantCredential credential = getAssistantCredential(project, credentialId);
         if (credential == null) return null;
 
-        return AssistantModelInput.create(modelName)
+        AIProviderId baseProviderId = model.getBaseProviderId();
+        AIProviderId providerId = provider.getId();
+        return AssistantModelInput.create(baseProviderId, providerId, modelName)
                 .withUser(credential.getUser())
                 .withToken(credential.getKey());
     }
@@ -205,8 +208,8 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
     }
 
     private static Object resolveModel(ChatContext context, AssistantModelInput input) {
-        AIProvider provider = context.getProvider();
-        AssistantModelFactory modelFactory = AssistantModelFactories.get(provider);
+        AIProviderId providerId = context.getProviderId();
+        AssistantModelFactory modelFactory = AssistantModelFactories.get(providerId);
 
         Class[] modelTypes = AssistantModelInvokers.types();
         for (Class<?> modelType : modelTypes) {
@@ -214,7 +217,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
             if (assistantModel != null) return assistantModel;
         }
 
-        throw new IllegalArgumentException("Could not resolve assistant model for " + input.getModel());
+        throw new IllegalArgumentException("Could not resolve assistant model for " + input.getModelName());
     }
 
     private static AssistantModelInvoker<Object> resolveModelInvoker(Object model) {

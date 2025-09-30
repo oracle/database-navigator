@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.service.generic.model;
 
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.util.Chars;
 import lombok.Data;
 
@@ -24,15 +25,20 @@ import java.util.Map;
 
 @Data
 public class AssistantModelInput {
-    private final String model;
+    private final AIProviderId baseProviderId;
+    private final AIProviderId providerId;
+    private final String modelName;
     private String url;
     private String user;
     private char[] token;
     private Double temperature;
     private Map<String, String> headers = new HashMap<>();
+    private Map<Attribute, String> attributes = new HashMap<>();
 
-    private AssistantModelInput(String model) {
-        this.model = model;
+    private AssistantModelInput(AIProviderId baseProviderId, AIProviderId providerId, String modelName) {
+        this.baseProviderId = baseProviderId;
+        this.providerId = providerId;
+        this.modelName = modelName;
     }
 
     public String getTokenString() {
@@ -64,10 +70,22 @@ public class AssistantModelInput {
         return this;
     }
 
-    public static AssistantModelInput create(String model) {
-        return new AssistantModelInput(model);
+    public AssistantModelInput withAttribute(Attribute key, String value) {
+        this.attributes.put(key, value);
+        return this;
+    }
+
+    public static AssistantModelInput create(AIProviderId baseProviderId, AIProviderId providerId, String model) {
+        return new AssistantModelInput(baseProviderId, providerId, model);
+    }
+
+    public String getAttribute(Attribute attribute) {
+        return attributes.get(attribute);
     }
 
 
+    public enum Attribute{
+        COMPARTMENT_ID
+    }
 
 }

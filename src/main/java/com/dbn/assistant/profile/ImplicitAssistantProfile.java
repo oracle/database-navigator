@@ -20,6 +20,7 @@ import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.project.ProjectRef;
 import com.intellij.openapi.project.Project;
@@ -48,7 +49,7 @@ public class ImplicitAssistantProfile implements AssistantProfile {
     }
 
     @Override
-    public String getProviderId() {
+    public AIProviderId getProviderId() {
         AssistantCredential credential = getCredential();
         return credential == null ? null : credential.getProviderId();
     }

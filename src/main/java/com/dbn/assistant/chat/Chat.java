@@ -18,6 +18,7 @@ package com.dbn.assistant.chat;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.chat.context.ChatContext;
+import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Lists;
@@ -158,5 +159,9 @@ public class Chat implements PersistentStateElement {
 
         Element contextElement = newElement(element,"context");
         context.writeState(contextElement);
+    }
+
+    public long countMessages(AuthorType authorType) {
+        return messages.stream().filter(m -> m.getAuthor() == authorType).count();
     }
 }

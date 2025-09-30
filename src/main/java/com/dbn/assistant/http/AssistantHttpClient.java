@@ -16,10 +16,8 @@
 
 package com.dbn.assistant.http;
 
-import com.dbn.common.compatibility.Workaround;
+import com.dbn.assistant.AssistantComponent;
 import com.dbn.common.routine.ParametricCallable;
-import com.dbn.common.routine.ThrowableCallable;
-import com.dbn.common.util.Classes;
 import com.dbn.common.util.Unsafe;
 import dev.langchain4j.http.client.HttpClient;
 import dev.langchain4j.http.client.HttpRequest;
@@ -33,7 +31,7 @@ import java.net.HttpURLConnection;
 
 import static com.dbn.common.util.Streams.readInputStream;
 
-class AssistantHttpClient implements HttpClient {
+class AssistantHttpClient implements AssistantComponent, HttpClient {
     private final ParametricCallable<HttpRequest, HttpURLConnection, IOException> connectionBuilder;
 
     public AssistantHttpClient(ParametricCallable<HttpRequest, HttpURLConnection, IOException> connectionBuilder) {
@@ -117,13 +115,5 @@ class AssistantHttpClient implements HttpClient {
 
     private static void handleException(ServerSentEventListener listener, Exception e) {
         listener.onError(e);
-    }
-
-    @Workaround
-    private static <T> T wrapped(ThrowableCallable<T, RuntimeException> callable) {
-        // the internal jackson initialization favors ide class loader,
-        // causing it to initialize on old jackson libraries provided by intellij
-        // (these are incompatible with the current version of langchain4j)
-        return Classes.withClassLoader(AssistantHttpClientBuilder.class, callable);
     }
 }

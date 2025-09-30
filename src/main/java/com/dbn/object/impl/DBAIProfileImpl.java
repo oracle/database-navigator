@@ -19,6 +19,7 @@ package com.dbn.object.impl;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
@@ -96,7 +97,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
                 ociEndpointId,
                 ociRuntimeType,
                 ociApiFormat,
-                provider.getId(),
+                provider.getApiName(),
                 model.getApiName(),
                 description,
                 objectList,
@@ -181,7 +182,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     }
 
     @Override
-    public String getProviderId() {
+    public AIProviderId getProviderId() {
         return provider == null ? null : provider.getId();
     }
 

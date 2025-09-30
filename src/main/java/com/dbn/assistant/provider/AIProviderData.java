@@ -43,7 +43,7 @@ public class AIProviderData {
     }
 
 
-    public static AIProvider getProvider(AssistantType assistantType, String id) {
-        return getProvider(assistantType, p -> p.getId().equals(id));
+    public static AIProvider getProvider(AssistantType assistantType, AIProviderId id) {
+        return getProvider(assistantType, p -> p.getId() == id);
     }
 }

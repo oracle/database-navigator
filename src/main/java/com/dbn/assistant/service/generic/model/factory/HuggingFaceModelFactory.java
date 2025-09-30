@@ -25,7 +25,7 @@ import dev.langchain4j.model.huggingface.HuggingFaceEmbeddingModel;
 import dev.langchain4j.model.language.LanguageModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.HUGGING_FACE;
+import static com.dbn.assistant.provider.AIProviderId.HUGGING_FACE;
 
 public class HuggingFaceModelFactory extends AbstractModelFactory {
 
@@ -37,7 +37,7 @@ public class HuggingFaceModelFactory extends AbstractModelFactory {
     @Nullable
     public ChatModel createChatModel(AssistantModelInput input) {
         return HuggingFaceChatModel.builder()
-                .modelId(input.getModel())
+                .modelId(input.getModelName())
                 .baseUrl(input.getUrl())
                 .accessToken(input.getTokenString())
                 .temperature(input.getTemperature())
@@ -61,7 +61,7 @@ public class HuggingFaceModelFactory extends AbstractModelFactory {
     @Nullable
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return HuggingFaceEmbeddingModel.builder()
-                .modelId(input.getModel())
+                .modelId(input.getModelName())
                 .baseUrl(input.getUrl())
                 .accessToken(input.getTokenString())
                 //.httpClientBuilder(createHttpClientBuilder())

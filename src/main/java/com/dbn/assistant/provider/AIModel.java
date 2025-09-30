@@ -31,11 +31,13 @@ public final class AIModel extends ShortStore<AIModelProperty> implements Presen
     private final String id;
     private final String apiName;
     private final AIProvider provider;
+    private final AIProviderId baseProviderId;
 
-    AIModel(AIProvider provider, String id, String apiName) {
+    AIModel(String id, String apiName, AIProvider provider, AIProviderId baseProviderId) {
         this.id = id;
-        this.provider = provider;
         this.apiName = apiName;
+        this.provider = provider;
+        this.baseProviderId = baseProviderId;
     }
 
     @Override

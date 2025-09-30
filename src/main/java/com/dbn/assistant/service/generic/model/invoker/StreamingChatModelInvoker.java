@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
+import com.dbn.assistant.AssistantComponent;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.state.AssistantState;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
@@ -26,7 +27,7 @@ import dev.langchain4j.service.TokenStream;
 
 import static com.dbn.assistant.service.generic.model.AssistantModelType.STREAMING_CHAT;
 
-public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingChatModel>{
+public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingChatModel> implements AssistantComponent {
     public StreamingChatModelInvoker() {
         super(STREAMING_CHAT);
     }
@@ -50,7 +51,7 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
         initTokenStream(tokenStream, consumer);
     }
 
-    private static void initTokenStream(TokenStream tokenStream, AssistantResponseConsumer consumer) {
+    private void initTokenStream(TokenStream tokenStream, AssistantResponseConsumer consumer) {
         if (tokenStream instanceof AiServiceTokenStream) {
             AiServiceTokenStream aiTokenStream = (AiServiceTokenStream) tokenStream;
             aiTokenStream.beforeToolExecution(e -> {
@@ -95,7 +96,8 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
                 System.out.println();
             });
 
-            tokenStream.start();
+            wrapped(() -> tokenStream.start());
         }
     }
+
 }
