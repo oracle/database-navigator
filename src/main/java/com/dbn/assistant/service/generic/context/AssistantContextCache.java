@@ -29,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,7 +36,7 @@ import java.util.stream.Collectors;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_CONTEXT_PROVIDER;
 
 public class AssistantContextCache extends AssistantStateExtension implements Function<Object, String> {
-    private final Map<String, String> entries = new ConcurrentHashMap<>();
+    private final Map<AssistantMemoryId, String> entries = new ConcurrentHashMap<>();
 
     private AssistantContextCache(@NotNull AssistantState assistantState) {
         super(assistantState);
@@ -49,11 +48,16 @@ public class AssistantContextCache extends AssistantStateExtension implements Fu
 
     @Override
     public String apply(Object memoryId) {
-        String chatId = Objects.toString(memoryId);
-        return entries.computeIfAbsent(chatId, k -> createSystemMessage(chatId));
+        if (memoryId instanceof AssistantMemoryId) {
+            AssistantMemoryId memId = (AssistantMemoryId) memoryId;
+            if (memId.isStateless()) return null;
+
+            return entries.computeIfAbsent(memId, k -> createSystemMessage());
+        }
+        return null;
     }
 
-    private String createSystemMessage(String chatId) {
+    private String createSystemMessage() {
         AssistantState assistantState = getAssistantState();
 
         ConnectionHandler connection = assistantState.getConnection();

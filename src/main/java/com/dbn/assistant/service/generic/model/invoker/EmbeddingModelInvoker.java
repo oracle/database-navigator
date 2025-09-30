@@ -17,6 +17,7 @@
 package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import com.dbn.assistant.service.generic.context.AssistantMemoryId;
 import com.dbn.assistant.state.AssistantState;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 
@@ -28,6 +29,6 @@ public class EmbeddingModelInvoker extends AbstractModelInvoker<EmbeddingModel>{
     }
 
     @Override
-    public void invokeModel(EmbeddingModel model, AssistantState state, String chatId, String prompt, AssistantResponseConsumer consumer) {
+    public void invokeModel(EmbeddingModel model, AssistantState state, AssistantMemoryId memoryId, String prompt, AssistantResponseConsumer consumer) {
     }
 }

@@ -17,6 +17,7 @@
 package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import com.dbn.assistant.service.generic.context.AssistantMemoryId;
 import com.dbn.assistant.service.generic.model.AssistantModelType;
 import com.dbn.assistant.state.AssistantState;
 import dev.langchain4j.model.chat.ChatModel;
@@ -28,7 +29,7 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
     }
 
     @Override
-    public void invokeModel(ChatModel model, AssistantState state, String chatId, String prompt, AssistantResponseConsumer consumer) {
+    public void invokeModel(ChatModel model, AssistantState state, AssistantMemoryId memoryId, String prompt, AssistantResponseConsumer consumer) {
         try {
             var context = prepareContext(state);
             var memory = prepareMemory(state);
@@ -43,7 +44,7 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
                     build();
 
 
-            String message = adapter.chat(chatId, prompt);
+            String message = adapter.chat(memoryId, prompt);
             consumer.acceptMessage(message);
 
         } catch (Throwable e) {

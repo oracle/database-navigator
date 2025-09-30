@@ -14,12 +14,26 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.service.generic.model.invoker;
+package com.dbn.assistant.service.generic.context;
 
-import com.dbn.assistant.service.generic.context.AssistantMemoryId;
-import dev.langchain4j.service.MemoryId;
-import dev.langchain4j.service.UserMessage;
+import com.dbn.common.util.UUIDs;
+import lombok.Value;
 
-public interface ChatModelAdapter {
-    String chat(@MemoryId AssistantMemoryId memoryId, @UserMessage String userMessage);
+@Value
+public class AssistantMemoryId {
+    private final String chatId;
+    private final boolean stateless;
+
+    public AssistantMemoryId(String chatId, boolean stateless) {
+        this.chatId = chatId;
+        this.stateless = stateless;
+    }
+
+    public static AssistantMemoryId stateless() {
+        return new AssistantMemoryId(UUIDs.compact(), true);
+    }
+
+    public static AssistantMemoryId stateful(String chatId) {
+        return new AssistantMemoryId(chatId, false);
+    }
 }

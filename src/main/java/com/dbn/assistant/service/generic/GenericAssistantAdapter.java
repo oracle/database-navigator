@@ -33,6 +33,7 @@ import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderId;
+import com.dbn.assistant.service.generic.context.AssistantMemoryId;
 import com.dbn.assistant.service.generic.model.AssistantModelFactories;
 import com.dbn.assistant.service.generic.model.AssistantModelFactory;
 import com.dbn.assistant.service.generic.model.AssistantModelInput;
@@ -46,7 +47,6 @@ import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.Lists;
-import com.dbn.common.util.UUIDs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.project.Project;
@@ -141,7 +141,8 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
             var model = resolveModel(context, input);
             var invoker = resolveModelInvoker(model);
 
-            invoker.invokeModel(model, state, chatId, prompt, responseConsumer);
+            AssistantMemoryId memoryId = AssistantMemoryId.stateful(chatId);
+            invoker.invokeModel(model, state, memoryId, prompt, responseConsumer);
 
         } catch (Throwable t) {
             responseConsumer.acceptError(t);
@@ -169,7 +170,8 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
 
         AtomicReference<String> title = new AtomicReference<>();
         AssistantResponseConsumer responseConsumer = AssistantResponseAdapter.create().withMessageConsumer(m -> title.set(m));
-        invoker.invokeModel(model, state, UUIDs.compact(), titlePrompt, responseConsumer);
+        AssistantMemoryId memoryId = AssistantMemoryId.stateless();
+        invoker.invokeModel(model, state, memoryId, titlePrompt, responseConsumer);
 
         return title.get();
     }

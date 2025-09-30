@@ -17,6 +17,7 @@
 package com.dbn.assistant.service.generic.model;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import com.dbn.assistant.service.generic.context.AssistantMemoryId;
 import com.dbn.assistant.state.AssistantState;
 import com.intellij.openapi.extensions.ExtensionPointName;
 
@@ -25,6 +26,6 @@ public interface AssistantModelInvoker<T> {
 
     AssistantModelType getModelType();
 
-    void invokeModel(T model, AssistantState state, String chatId, String prompt, AssistantResponseConsumer consumer);
+    void invokeModel(T model, AssistantState state, AssistantMemoryId memoryId, String prompt, AssistantResponseConsumer consumer);
 
 }
