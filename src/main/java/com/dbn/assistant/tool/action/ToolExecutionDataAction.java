@@ -35,7 +35,7 @@ public class ToolExecutionDataAction extends AssistantToolAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
 
         Presentation presentation = e.getPresentation();
-        presentation.setText("Tool Execution Data");
+        presentation.setText("Tool Data");
         //presentation.setIcon(AllIcons.Actions.ListFiles);
         presentation.setVisible(isVisible(e));
     }

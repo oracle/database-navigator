@@ -29,6 +29,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.assistant.profile.AssistantTemperaturePreset.BALANCED;
+
 @Getter
 public class ImplicitAssistantProfile implements AssistantProfile {
     @NonNls
@@ -79,5 +81,10 @@ public class ImplicitAssistantProfile implements AssistantProfile {
     public @NotNull String getName() {
         AssistantCredential credential = getCredential();
         return credential == null ? "Undefined" : credential.getName();
+    }
+
+    @Override
+    public double getTemperature() {
+        return BALANCED.getValue();
     }
 }

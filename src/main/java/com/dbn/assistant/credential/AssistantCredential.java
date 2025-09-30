@@ -28,6 +28,7 @@ import com.dbn.credentials.SecretsOwnerRegistry;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,6 +43,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Base64.decode;
 import static com.dbn.common.util.Base64.encode;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.credentials.SecretType.GENERIC_CREDENTIAL;
 
 @Getter
@@ -66,14 +68,9 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
     }
 
     @Override
+    @SneakyThrows
     public AssistantCredential clone() {
-        AssistantCredential clone = new AssistantCredential();
-        clone.id = id;
-        clone.name = name;
-        clone.user = user;
-        clone.providerId = providerId;
-        clone.key = key;
-        return clone;
+        return cast(super.clone());
     }
 
     @Override

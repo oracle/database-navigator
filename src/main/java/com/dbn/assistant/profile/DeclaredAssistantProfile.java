@@ -25,6 +25,7 @@ import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.UUIDs;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,11 +37,13 @@ import static com.dbn.common.options.setting.Settings.setDoubleAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
 public class DeclaredAssistantProfile implements AssistantProfile, PersistentConfiguration, Cloneable<DeclaredAssistantProfile> {
     private AssistantType assistantType = AssistantType.PUBLIC;
+
     private String id = UUIDs.compact();
     private String name;
     private AIProviderId providerId;
@@ -85,11 +88,8 @@ public class DeclaredAssistantProfile implements AssistantProfile, PersistentCon
     }
 
     @Override
+    @SneakyThrows
     public DeclaredAssistantProfile clone() {
-        DeclaredAssistantProfile clone = new DeclaredAssistantProfile();
-        clone.name = name;
-        clone.providerId = providerId;
-        clone.credentialId = credentialId;
-        return clone;
+        return cast(super.clone());
     }
 }

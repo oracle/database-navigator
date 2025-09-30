@@ -40,6 +40,6 @@ public class ProfilesAnCredentialsAction extends AbstractChatBoxAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(txt("app.assistant.action.ProfilesAndApiKeys"));
+        presentation.setText(txt("app.assistant.action.LanguageModelSettings"));
     }
 }

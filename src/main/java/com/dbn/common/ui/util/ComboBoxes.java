@@ -69,10 +69,14 @@ public class ComboBoxes {
     }
 
     public static <T extends Presentable> void initComboBox(JComboBox<T> comboBox, Collection<T> options) {
+        T selection = getSelection(comboBox);
         DBNComboBoxModel<T> model = new DBNComboBoxModel<>();
         model.getItems().addAll(options);
         comboBox.setModel(model);
         initComboBoxRenderer(comboBox);
+        if (options.contains(selection)) {
+            setSelection(comboBox, selection);
+        }
     }
 
     public static <T extends Presentable> void initComboBoxRenderer(JComboBox<T> comboBox) {

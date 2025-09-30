@@ -27,6 +27,7 @@ public interface AssistantProfile extends Presentable {
     AIProviderId getProviderId();
     String getDefaultModelId();
     String getCredentialId();
+    double getTemperature();
 
     AIProvider getProvider();
 }

@@ -23,6 +23,8 @@ import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.assistant.profile.AssistantTemperaturePreset.BALANCED;
+
 @Getter
 public class PotentialAssistantProfile implements AssistantProfile{
     @NonNls
@@ -57,5 +59,10 @@ public class PotentialAssistantProfile implements AssistantProfile{
     @Override
     public @NotNull String getName() {
         return provider.getName();
+    }
+
+    @Override
+    public double getTemperature() {
+        return BALANCED.getValue();
     }
 }

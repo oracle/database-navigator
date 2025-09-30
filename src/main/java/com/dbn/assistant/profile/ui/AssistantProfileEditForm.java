@@ -139,7 +139,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
         return Lists.filter(parent.getCredentials(), c ->
                 c.getProviderId() == null ||
                 selectedProviderId == null ||
-                c.getProviderId() != selectedProviderId);
+                c.getProviderId() == selectedProviderId);
     }
 
     private AssistantCredential getCredential(String id) {
