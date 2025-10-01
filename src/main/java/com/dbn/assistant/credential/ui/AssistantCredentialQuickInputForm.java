@@ -100,6 +100,7 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
     public void applyFormChanges() {
         credential.setUser(getText(userTextField));
         credential.setKey(keyPasswordField.getPassword());
+        credential.updateSecrets(null);
     }
 
     @Nullable
