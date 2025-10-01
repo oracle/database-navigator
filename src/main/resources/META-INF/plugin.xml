@@ -293,6 +293,7 @@
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.UserPromptsTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.DatabaseMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ConnectionInfoTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ConsoleEditorTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SchemaMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.TableMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ViewMetadataTool$Factory" />

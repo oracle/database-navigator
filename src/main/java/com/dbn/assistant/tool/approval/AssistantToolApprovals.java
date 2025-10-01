@@ -46,7 +46,7 @@ public class AssistantToolApprovals implements PersistentStateElement {
     private final AtomicInteger signature = new AtomicInteger(0);
 
     public boolean isApproved(AssistantTool tool) {
-        if (isApproved(tool.getCategory())) return true;
+        if (isBlocked(tool.getCategory())) return false;
         if (isApproved(tool.getType())) return true;
 
         return false;
@@ -76,11 +76,11 @@ public class AssistantToolApprovals implements PersistentStateElement {
         return categories.get(category) == APPROVED;
     }
 
-    public boolean isDisabled(@NotNull AssistantToolType type) {
+    public boolean isBlocked(@NotNull AssistantToolType type) {
         return types.get(type) == BLOCKED;
     }
 
-    public boolean isDisabled(@NotNull AssistantToolCategory category) {
+    public boolean isBlocked(@NotNull AssistantToolCategory category) {
         return categories.get(category) == BLOCKED;
     }
 

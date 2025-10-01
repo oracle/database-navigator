@@ -19,6 +19,7 @@ package com.dbn.vfs.file;
 import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Documents;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -76,7 +77,7 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
         setCharset(connection.getSettings().getDetailSettings().getCharset());
     }
 
-    public void setText(String text) {
+    public void setContent(String text) {
         if (getObject().getConsoleType() == DBConsoleType.DEBUG && Strings.isEmpty(text)) {
             ConnectionHandler connection = getConnection();
             Project project = connection.getProject();
@@ -86,6 +87,12 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
             text = debuggerInterface.getDebugConsoleTemplate(styleCaseSettings);
         }
         content.importContent(text);
+    }
+
+    public void updateContent(String text) {
+        setContent(text);
+        Document document = Documents.getDocument(this);
+        Documents.setText(document, text);
     }
 
     @Override

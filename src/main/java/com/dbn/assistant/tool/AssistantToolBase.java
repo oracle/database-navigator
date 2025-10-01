@@ -19,6 +19,8 @@ package com.dbn.assistant.tool;
 import com.dbn.common.component.ConnectionComponent;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.editor.DBContentType;
+import com.dbn.editor.DatabaseFileEditorManager;
+import com.dbn.editor.EditorProviderId;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.object.DBSchema;
@@ -26,6 +28,7 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -85,6 +88,12 @@ public abstract class AssistantToolBase extends ConnectionComponent implements A
         SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(object.getProject());
         SourceCodeContent sourceCode = sourceCodeManager.loadSourceFromDatabase(object, contentType);
         return sourceCode.getRawContent();
+    }
+
+    protected static void openEditor(DBObject object) {
+        Project project = object.getProject();
+        DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
+        editorManager.connectAndOpenEditor(object, EditorProviderId.DATA, true, true);
     }
 
     @Override

@@ -38,8 +38,8 @@ public class AssistantToolFilter implements Filter<AssistantTool> {
         AssistantToolCategory category = assistantTool.getCategory();
         AssistantToolType type = assistantTool.getType();
 
-        if (approval.isDisabled(category)) return false;
-        if (approval.isDisabled(type)) return false;
+        if (approval.isBlocked(category)) return false;
+        if (approval.isBlocked(type)) return false;
 
         return true;
     }

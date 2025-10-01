@@ -47,7 +47,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +64,7 @@ public class AssistantToolProvider implements ToolProvider {
 
     @Override
     public ToolProviderResult provideTools(ToolProviderRequest request) {
-        Map<ToolSpecification, ToolExecutor> tools = new HashMap<>();
+        Map<ToolSpecification, ToolExecutor> tools = new LinkedHashMap<>();
 
         for (AssistantTool tool : cache.getAvailableTools()) {
             for (Method method : tool.getClass().getDeclaredMethods()) {
@@ -124,7 +123,9 @@ public class AssistantToolProvider implements ToolProvider {
                 "description = " + utilitySpec.description();
 
         Class<?> returnType = method.getReturnType();
-        if (Collection.class.isAssignableFrom(returnType)) {
+        if (returnType == void.class) {
+            description = description + "\nreturning=void";
+        } else if (Collection.class.isAssignableFrom(returnType)) {
             description = description + "\nreturning=array";
         } else {
             JsonSchemaElement returnElement = Unsafe.warned(null, () -> jsonSchemaElementFrom(returnType));

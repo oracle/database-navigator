@@ -19,14 +19,10 @@ package com.dbn.assistant.tool.impl;
 import com.dbn.assistant.tool.AssistantToolBase;
 import com.dbn.assistant.tool.spec.DatasetEditorTool;
 import com.dbn.common.util.Commons;
-import com.dbn.editor.DatabaseFileEditorManager;
-import com.dbn.editor.EditorProviderId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.DBView;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.type.DBObjectType;
-import com.intellij.openapi.project.Project;
 
 public class DatasetEditorToolImpl extends AssistantToolBase implements DatasetEditorTool {
 
@@ -49,11 +45,5 @@ public class DatasetEditorToolImpl extends AssistantToolBase implements DatasetE
 
         verify(view, DBObjectType.VIEW, viewName);
         openEditor(view);
-    }
-
-    private static void openEditor(DBSchemaObject object) {
-        Project project = object.getProject();
-        DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
-        editorManager.connectAndOpenEditor(object, EditorProviderId.DATA, true, true);
     }
 }

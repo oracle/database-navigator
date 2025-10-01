@@ -56,8 +56,8 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
         AssistantToolApprovals approvals = settings.getApprovals();
         if (approvals.isApproved(this.tool)) return;
 
-        if (approvals.isDisabled(tool.getType())) throw new AssistantToolApprovalException("User has denied the execution of this tool type");
-        if (approvals.isDisabled(tool.getCategory())) throw new AssistantToolApprovalException("User has denied the execution of this tool category");
+        if (approvals.isBlocked(tool.getType())) throw new AssistantToolApprovalException("User has denied the execution of this tool type");
+        if (approvals.isBlocked(tool.getCategory())) throw new AssistantToolApprovalException("User has denied the execution of this tool category");
 
         awaitApproval(1, MINUTES); // TODO configuration
     }
