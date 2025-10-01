@@ -36,9 +36,10 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
     @Override
     public void invokeModel(StreamingChatModel model, AssistantState state, AssistantMemoryId memoryId, String prompt, AssistantResponseConsumer consumer) {
 
-        var memory = prepareMemory(state);
+        boolean stateless = memoryId.isStateless();
         var context = prepareContext(state);
-        var tools = prepareTools(state);
+        var memory = prepareMemory(state);
+        var tools = stateless ? null : prepareTools(state);
 
         StreamingChatModelAdapter adapter = AiServices.
                 builder(StreamingChatModelAdapter.class).

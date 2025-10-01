@@ -16,6 +16,9 @@
 
 package com.dbn.assistant.service.generic.context;
 
+import com.dbn.assistant.chat.Chat;
+import com.dbn.assistant.provider.AIModel;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
@@ -52,16 +55,17 @@ public class AssistantContextCache extends AssistantStateExtension implements Fu
             AssistantMemoryId memId = (AssistantMemoryId) memoryId;
             if (memId.isStateless()) return null;
 
-            return entries.computeIfAbsent(memId, k -> createSystemMessage());
+            return entries.computeIfAbsent(memId, k -> createSystemMessage(k));
         }
         return null;
     }
 
-    private String createSystemMessage() {
+    private String createSystemMessage(AssistantMemoryId memoryId) {
         AssistantState assistantState = getAssistantState();
 
         ConnectionHandler connection = assistantState.getConnection();
-        String content = TextResources.get(this, "system_message.md.ft");
+        String resourceName = isCompact(memoryId) ? "system_message_compact.md.ft" : "system_message.md.ft";
+        String content = TextResources.get(this, resourceName);
         TextContent textContent = TextContent.markdown(content);
         textContent.initField("ASSISTANT_TOOL_CATEGORIES", getToolCategories());
         textContent.initField("ASSISTANT_TOOL_TYPES", getToolTypes());
@@ -69,6 +73,20 @@ public class AssistantContextCache extends AssistantStateExtension implements Fu
         textContent.initField("DATABASE_NAME", connection.getName());
 
         return textContent.getText();
+    }
+
+    private boolean isCompact(AssistantMemoryId memoryId) {
+        String chatId = memoryId.getChatId();
+        Chat chat = getAssistantState().getChat(chatId);
+        if (chat == null) return false;
+
+        AIModel model = chat.getContext().getModel();
+        if (model == null) return false;
+
+        AIProviderId providerId = model.getProviderId();
+        AIProviderId baseProviderId = model.getBaseProviderId();
+        // TODO quick workaround for cohere 4k limits - implement token metrics and limits (config and model definitions)
+        return providerId == AIProviderId.OCI_GEN_AI && baseProviderId == AIProviderId.COHERE;
     }
 
 

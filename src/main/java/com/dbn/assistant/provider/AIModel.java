@@ -50,6 +50,10 @@ public final class AIModel extends ShortStore<AIModelProperty> implements Presen
         return apiName; // TODO presentable profile names
     }
 
+    public AIProviderId getProviderId() {
+        return provider.getId();
+    }
+
     public boolean isDefault() {
         return is(AIModelProperty.DEFAULT);
     }

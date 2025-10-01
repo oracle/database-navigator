@@ -289,4 +289,8 @@ public class Lists {
         Collections.sort(copy);
         return copy;
     }
+
+    public static <T> List<T> nullToEmpty(List<T> list) {
+        return list == null ? emptyList() : list;
+    }
 }

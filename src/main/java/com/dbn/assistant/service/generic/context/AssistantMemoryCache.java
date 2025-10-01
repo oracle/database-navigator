@@ -31,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
@@ -39,30 +38,31 @@ import static com.dbn.assistant.chat.message.AuthorType.USER;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_MEMORY_CACHE;
 
 public class AssistantMemoryCache extends AssistantStateExtension implements ChatMemoryProvider {
-    private final Map<String, ChatMemory> entries = new ConcurrentHashMap<>();
+    private final Map<AssistantMemoryId, ChatMemory> entries = new ConcurrentHashMap<>();
 
     private AssistantMemoryCache(@NotNull AssistantState assistantState) {
         super(assistantState);
     }
 
-    public ChatMemory get(String chatId) {
-        return entries.computeIfAbsent(chatId, k -> createChatMemory(chatId));
+    public ChatMemory get(AssistantMemoryId memoryId) {
+        return entries.computeIfAbsent(memoryId, k -> createChatMemory(memoryId));
     }
 
     public static AssistantMemoryCache get(AssistantState assistantState) {
         return UserDataKeys.getUserDataSync(assistantState, ASSISTANT_MEMORY_CACHE, () -> new AssistantMemoryCache(assistantState));
     }
 
-    private ChatMemory createChatMemory(String chatId) {
+    private ChatMemory createChatMemory(AssistantMemoryId memoryId) {
         // TODO configurative message-window vs. token-window
         // TokenWindowChatMemory.withMaxTokens(10000, new TokenCountEstimator());
 
         ChatMemory chatMemory = MessageWindowChatMemory
                 .builder()
-                .id(chatId)
+                .id(memoryId)
                 .maxMessages(100)
                 .build();
 
+        String chatId = memoryId.getChatId();
         restoreChatMemory(chatMemory, chatId);
         return chatMemory;
     }
@@ -92,6 +92,6 @@ public class AssistantMemoryCache extends AssistantStateExtension implements Cha
 
     @Override
     public ChatMemory get(Object memoryId) {
-        return get(Objects.toString(memoryId));
+        return get((AssistantMemoryId) memoryId);
     }
 }
