@@ -29,6 +29,7 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
+import com.dbn.common.thread.Background;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionStatusListener;
@@ -288,9 +289,29 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
         AssistantState assistantState = getAssistantState(connectionId, assistantType);
         AssistantAdapter assistantAdapter = assistantState.getAssistantAdapter();
-        prompt = assistantAdapter.preparePrompt(connectionId, chatContext, prompt);
+        String preparedPrompt = assistantAdapter.preparePrompt(connectionId, chatContext, prompt);
 
-        assistantAdapter.generate(prompt, chatId, connectionId, chatContext, responseConsumer);
+        assistantAdapter.checkContext(connectionId, chatContext, () -> query(
+                preparedPrompt,
+                chatId, connectionId,
+                chatContext,
+                assistantAdapter,
+                responseConsumer));
+    }
+
+    private static void query(
+            String prompt,
+            String chatId,
+            ConnectionId connectionId,
+            ChatContext chatContext,
+            AssistantAdapter assistantAdapter,
+            AssistantResponseConsumer responseConsumer) {
+        Background.run(() -> assistantAdapter.generate(
+                prompt,
+                chatId,
+                connectionId,
+                chatContext,
+                responseConsumer));
     }
 
     public String generateTitle(

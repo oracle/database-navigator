@@ -67,6 +67,8 @@ public interface AssistantAdapter {
 
     String buildChatContextTitle(ChatContext context);
 
+    void checkContext(ConnectionId connectionId, ChatContext chatContext, Runnable onSuccess);
+
     void generate(
             String prompt,
             String chatId,

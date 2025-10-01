@@ -260,6 +260,11 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
     }
 
     @Override
+    public void checkContext(ConnectionId connectionId, ChatContext chatContext, Runnable onSuccess) {
+        onSuccess.run();
+    }
+
+    @Override
     public final void generate(String prompt, String chatId, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
         try {
             String message = generate(prompt, connectionId, chatContext);

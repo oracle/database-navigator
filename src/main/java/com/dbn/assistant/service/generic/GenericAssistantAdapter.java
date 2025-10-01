@@ -55,6 +55,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.assistant.credential.AssistantCredentialLookup.getCredential;
 import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
+import static com.dbn.assistant.profile.AssistantProfileUtil.verifyAssistantProfile;
 import static com.dbn.nls.NlsResources.txt;
 
 public class GenericAssistantAdapter extends AssistantAdapterBase {
@@ -130,6 +131,24 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         e = Exceptions.rootCauseOf(e);
         String errorMessage = Exceptions.getMessage(e);
         return txt("msg.assistant.error.AssistantInvocationFailure", getAssistantType().getName(), errorMessage);
+    }
+
+    @Override
+    public void checkContext(ConnectionId connectionId, ChatContext chatContext, Runnable onSuccess) {
+        ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+        Project project = connection.getProject();
+
+        AIProvider provider = chatContext.getProvider();
+        if (provider == null) return;
+
+        AIModel model = chatContext.getModel();
+        if (model == null) return;
+
+        String profileId = chatContext.getProfileId();
+        AssistantProfile profile = getProfile(project, profileId);
+        if (profile == null) return;
+
+        verifyAssistantProfile(project, profile, p -> onSuccess.run());
     }
 
     @Override
