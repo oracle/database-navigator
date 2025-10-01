@@ -20,21 +20,14 @@ import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.credential.AssistantCredential;
-import com.dbn.assistant.credential.ui.AssistantCredentialQuickInputDialog;
 import com.dbn.assistant.profile.AssistantProfile;
-import com.dbn.assistant.profile.AssistantProfileLookup;
-import com.dbn.assistant.profile.ImplicitAssistantProfile;
-import com.dbn.assistant.profile.PotentialAssistantProfile;
-import com.dbn.assistant.provider.AIProvider;
-import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.routine.Consumer;
-import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.assistant.profile.AssistantProfileUtil.verifyAssistantProfile;
 
 public class ProfileSelectAction extends AbstractChatBoxAction {
     private final WeakRef<AssistantProfile> profile;
@@ -48,12 +41,7 @@ public class ProfileSelectAction extends AbstractChatBoxAction {
         if (chatBox == null) return;
 
         AssistantProfile profile = getProfile();
-        if (profile instanceof PotentialAssistantProfile) {
-            promptCredentialInput(e, project, profile.getProvider());
-        } else {
-            // preserve action from the current context
-            switchContext(e, profile);
-        }
+        verifyAssistantProfile(project, profile, p -> switchContext(e, p));
     }
 
     private void switchContext(@NotNull AnActionEvent e, AssistantProfile profile) {
@@ -74,24 +62,12 @@ public class ProfileSelectAction extends AbstractChatBoxAction {
         chatBox.attemptContextSwitch(targetContext);
     }
 
-    private void promptCredentialInput(@NotNull AnActionEvent e, @NotNull Project project, AIProvider provider) {
-        Consumer<AssistantCredential> onSave = credential -> {
-            AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
-            assistantSettings.getCredentialSettings().getCredentials().addCredential(credential);
-
-            ChatContext currentContext = getCurrentChatContext(e);
-            if (currentContext == null) return;
-
-            ImplicitAssistantProfile profile = AssistantProfileLookup.getImplicitProfile(project, provider);
-            switchContext(e, profile);
-        };
-
-
-        Dialogs.show(() -> new AssistantCredentialQuickInputDialog(project, provider, onSave));
-    }
-
     private AssistantProfile getProfile() {
         return WeakRef.ensure(profile);
+    }
+
+    public String getProfileId() {
+        return getProfile().getId();
     }
 
     @Override

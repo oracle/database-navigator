@@ -151,7 +151,7 @@ public class DBNToggleButton<T extends Presentable> extends JLabel {
         Color outlineColor = Colors.getOutlineColor();
         return
             focused ? UIUtil.getFocusedBorderColor() :
-            highlighted ? Colors.lafDarker(outlineColor, 10) :
+            highlighted ? Colors.lafDarker(outlineColor, 4) :
             outlineColor;
     }
 

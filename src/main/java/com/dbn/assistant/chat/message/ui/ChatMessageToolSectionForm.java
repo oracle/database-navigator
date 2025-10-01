@@ -21,6 +21,9 @@ import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCache;
+import com.dbn.assistant.tool.AssistantToolCategory;
+import com.dbn.assistant.tool.AssistantToolData;
+import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
@@ -347,7 +350,13 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         }
 
         if (option == 1) {
-            toolApprovals.setStatus(tool.getCategory(), status);
+            AssistantToolCategory category = tool.getCategory();
+            toolApprovals.setStatus(category, status);
+
+            // propagate approval to all tool types in the category
+            List<AssistantToolType> toolTypes = AssistantToolData.getToolTypes(category);
+            toolTypes.forEach(toolType -> toolApprovals.setStatus(toolType, status));
+
             return true;
         }
 

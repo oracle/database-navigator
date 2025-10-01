@@ -70,7 +70,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
     public void update(@NotNull AnActionEvent e) {
         boolean enabled = isEnabled(e);
 
-        DBAIProfile profile = getSelectedProfile(e);
+        DBAIProfile profile = getSelectedAIProfile(e);
 
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e), false);
@@ -100,14 +100,14 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
 
     @Nullable
     public String getSelectedProfileName(@NotNull AnActionEvent e) {
-        DBAIProfile profile = getSelectedProfile(e);
+        DBAIProfile profile = getSelectedAIProfile(e);
         if (profile == null) return null;
 
         return profile.getName();
     }
 
     @Nullable
-    private DBAIProfile getSelectedProfile(@NotNull AnActionEvent e) {
+    private DBAIProfile getSelectedAIProfile(@NotNull AnActionEvent e) {
         ConnectionId connectionId = getConnectionId(e);
         if (connectionId == null) return null;
 

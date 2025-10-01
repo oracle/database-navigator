@@ -16,15 +16,23 @@
 
 package com.dbn.assistant.credential.ui;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.AIProviderId;
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
+
+import static com.dbn.common.util.Modality.nonModal;
 
 @Getter
 public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCredentialQuickInputForm> {
@@ -67,6 +75,28 @@ public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCred
         form.applyFormChanges();
         onSave.accept(form.getCredential());
         super.doOKAction();
+    }
+
+    public static void promptCredentialCreate(@NotNull Project project, AIProvider provider, Runnable callback) {
+        Consumer<AssistantCredential> onSave = credential -> {
+            AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+            assistantSettings.getCredentialSettings().getCredentials().addCredential(credential);
+
+            Dispatch.run(nonModal(), callback);
+        };
+
+        Dialogs.show(() -> new AssistantCredentialQuickInputDialog(project, provider, onSave));
+    }
+
+    public static void promptCredentialUpdate(@NotNull Project project, AssistantCredential credential, Runnable callback) {
+        AIProviderId providerId = credential.getProviderId();
+        Consumer<AssistantCredential> onSave = cred -> {
+            credential.setKey(cred.getKey());
+            Dispatch.run(nonModal(), callback);
+        };
+
+        AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, providerId);
+        Dialogs.show(() -> new AssistantCredentialQuickInputDialog(project, provider, onSave));
     }
 }
 

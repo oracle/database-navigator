@@ -25,6 +25,7 @@ import com.dbn.assistant.profile.ImplicitAssistantProfile;
 import com.dbn.assistant.profile.PotentialAssistantProfile;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -32,10 +33,12 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Condition;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.DISABLED_PROFILE_SELECTED;
@@ -49,6 +52,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class ProfileSelectDropdownAction extends ComboBoxAction implements AssistantActionSupport, DumbAware {
+    private transient String selectedProfileId;
 
     @Override
     @NotNull
@@ -67,6 +71,20 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
         addProfileActions(actionGroup, potentialProfiles);
 
         return actionGroup;
+    }
+
+    @Override
+    protected Condition<AnAction> getPreselectCondition() {
+        return new Condition<AnAction>() {
+            @Override
+            public boolean value(AnAction a) {
+                if (a instanceof ProfileSelectAction) {
+                    ProfileSelectAction profileAction = (ProfileSelectAction) a;
+                    return Objects.equals(profileAction.getProfileId(), selectedProfileId);
+                }
+                return false;
+            }
+        };
     }
 
     private static void addProfileActions(DefaultActionGroup actionGroup, List<? extends AssistantProfile> profiles) {
@@ -96,6 +114,10 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
     }
 
     private String getText(@NotNull AnActionEvent e) {
+        // update transient selected profile when action presentation is updated
+        AssistantProfile selectedProfile = getSelectedProfile(e);
+        selectedProfileId = selectedProfile == null ? null : selectedProfile.getId();
+
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return txt("app.assistant.action.Profile");
 

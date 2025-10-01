@@ -375,7 +375,7 @@
             <action class="com.dbn.assistant.service.generic.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectAssistantProfile"/>
             <action class="com.dbn.assistant.service.generic.action.ModelSelectDropdownAction" text="Select Model" id="DBNavigator.Actions.Assistant.SelectAssistantModel"/>
             <group id="DBNavigator.Actions.Assistant.OpenSettings" text="Options" icon="AllIcons.General.GearPlain" popup="true">
-                <action class="com.dbn.assistant.service.generic.action.ProfilesAnCredentialsAction" text="Profiles and API Keys..." id="DBNavigator.Actions.Assistant.LanguageModels"/>
+                <action class="com.dbn.assistant.service.generic.action.AssistantSettingsAction" text="Assistant Settings..." id="DBNavigator.Actions.Assistant.Settings"/>
                 <action class="com.dbn.assistant.service.generic.action.ToolSettingsAction" text="Tool Settings..." id="DBNavigator.Actions.Assistant.ToolSettings"/>
             </group>
         </group>

@@ -16,7 +16,6 @@
 
 package com.dbn.assistant.profile;
 
-import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.util.Lists;
@@ -96,8 +95,8 @@ public class AssistantProfileLookup {
                 !implicitProviderIds.contains(p.getProviderId()));
     }
 
-    public static ImplicitAssistantProfile getImplicitProfile(Project project, AIProvider provider) {
+    public static ImplicitAssistantProfile getImplicitProfile(Project project, AIProviderId providerId) {
         List<ImplicitAssistantProfile> implicitProfiles = getImplicitProfiles(project);
-        return first(implicitProfiles, p -> p.getProviderId() == provider.getId());
+        return first(implicitProfiles, p -> p.getProviderId() == providerId);
     }
 }

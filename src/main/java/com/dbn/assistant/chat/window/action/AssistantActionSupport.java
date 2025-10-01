@@ -97,7 +97,7 @@ public interface AssistantActionSupport {
 
 
     @Nullable
-    default String getSelectedProfileName(@NotNull AnActionEvent e) {
+    default AssistantProfile getSelectedProfile(@NotNull AnActionEvent e) {
         ChatContext chatContext = getCurrentChatContext(e);
         if (chatContext == null) return null;
 
@@ -105,7 +105,12 @@ public interface AssistantActionSupport {
         if (project == null) return null;
 
         String profileId = chatContext.getProfileId();
-        AssistantProfile profile = getProfile(project, profileId);
+        return getProfile(project, profileId);
+    }
+
+    @Nullable
+    default String getSelectedProfileName(@NotNull AnActionEvent e) {
+        AssistantProfile profile = getSelectedProfile(e);
         if (profile == null) return null;
 
         return profile.getName();
@@ -115,11 +120,7 @@ public interface AssistantActionSupport {
         ChatContext chatContext = getCurrentChatContext(e);
         if (chatContext == null) return null;
 
-        Project project = e.getProject();
-        if (project == null) return null;
-
-        String profileId = chatContext.getProfileId();
-        AssistantProfile profile = getProfile(project, profileId);
+        AssistantProfile profile = getSelectedProfile(e);
         if (profile == null) return null;
 
         AIModel model = chatContext.getModel();

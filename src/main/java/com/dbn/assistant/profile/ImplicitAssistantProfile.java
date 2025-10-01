@@ -18,10 +18,10 @@ package com.dbn.assistant.profile;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.credential.AssistantCredentialLookup;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.assistant.provider.AIProviderId;
-import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.project.ProjectRef;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -63,8 +63,7 @@ public class ImplicitAssistantProfile implements AssistantProfile {
     @Nullable
     public AssistantCredential getCredential() {
         Project project = getProject();
-        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
-        return assistantSettings.getCredentialSettings().getCredentials().getCredential(credentialId);
+        return AssistantCredentialLookup.getCredential(project, credentialId);
     }
 
     public AIProvider getProvider() {

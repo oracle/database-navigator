@@ -16,10 +16,8 @@
 
 package com.dbn.assistant.credential.ui;
 
-import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.provider.AIProvider;
-import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.assistant.provider.ProviderUrlType;
 import com.dbn.common.text.MimeType;
 import com.dbn.common.text.TextContent;
@@ -37,7 +35,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.util.List;
 
 import static com.dbn.common.ui.util.TextFields.getText;
 
@@ -86,10 +83,6 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
 
         guideHyperlink.setHyperlinkText(providerName + " API keys");
         guideHyperlink.setHyperlinkTarget(provider.getUrl(ProviderUrlType.KEYS));
-    }
-
-    private static List<AIProvider> getProviders() {
-        return AIProviderData.getProviders(AssistantType.PUBLIC);
     }
 
     @Override

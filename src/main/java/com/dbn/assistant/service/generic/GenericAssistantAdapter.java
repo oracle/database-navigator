@@ -43,7 +43,6 @@ import com.dbn.assistant.service.generic.model.AssistantModelType;
 import com.dbn.assistant.service.generic.ui.GenericAssistantContextActionsForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantIntroductionForm;
 import com.dbn.assistant.service.generic.ui.GenericAssistantPromptActionsForm;
-import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.Lists;
@@ -54,6 +53,7 @@ import com.intellij.openapi.project.Project;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.dbn.assistant.credential.AssistantCredentialLookup.getCredential;
 import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -194,7 +194,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         if (profile == null) return null;
 
         String credentialId = profile.getCredentialId();
-        AssistantCredential credential = getAssistantCredential(project, credentialId);
+        AssistantCredential credential = getCredential(project, credentialId);
         if (credential == null) return null;
 
         AIProviderId baseProviderId = model.getBaseProviderId();
@@ -204,11 +204,6 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
                 .withToken(credential.getKey())
                 .withTemperature(profile.getTemperature());
 
-    }
-
-    private static AssistantCredential getAssistantCredential(Project project, String credentialId) {
-        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
-        return assistantSettings.getCredentialSettings().getCredentials().getCredential(credentialId);
     }
 
     private static Object resolveModel(ChatContext context, AssistantModelInput input) {

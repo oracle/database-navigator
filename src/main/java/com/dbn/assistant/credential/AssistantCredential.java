@@ -19,6 +19,7 @@ package com.dbn.assistant.credential;
 import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Cloneable;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
@@ -67,15 +68,19 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         return nvl(name, "");
     }
 
-    @Override
-    @SneakyThrows
-    public AssistantCredential clone() {
-        return cast(super.clone());
+    public boolean isProvided() {
+        return Chars.isNotEmpty(key);
     }
 
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    @SneakyThrows
+    public AssistantCredential clone() {
+        return cast(super.clone());
     }
 
 
