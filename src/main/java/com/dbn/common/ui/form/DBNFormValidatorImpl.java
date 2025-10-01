@@ -24,11 +24,13 @@ import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.DocumentAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.JTextComponent;
+import java.awt.Component;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.ArrayList;
@@ -52,6 +54,10 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
 
     public DBNFormValidatorImpl(DBNDialog dialog) {
         super(dialog);
+    }
+
+    public DBNDialog getDialog() {
+        return getTarget();
     }
 
     @Override
@@ -169,18 +175,23 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
     private void addFocusValidationListeners(JComponent component) {
         component.addFocusListener(new FocusAdapter() {
             @Override
-            public void focusGained(FocusEvent e) {
+            public void focusLost(FocusEvent e) {
+                // ignore temporary focus loss events (e.g. JCheckBox losing focus in favor of the popup)
+                if (e.isTemporary()) return;
+
+                Component oppositeComponent = e.getOppositeComponent();
+                if (oppositeComponent instanceof JButton) {
+                    // ignore validation if cancel button is pressed
+                    JButton button = (JButton) oppositeComponent;
+
+                    DBNDialog dialog = getDialog();
+                    if (dialog.isCancelButton(button)) return;
+                }
+
+                validateInput(component);
                 if (VISITED.isNot(component)) {
                     VISITED.set(component, true);
-                } else {
-                    validateInput(component);
                 }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (e.isTemporary()) return; // ignore temporary focus loss events (e.g. JCheckBox losing focus in favor of the popup)
-                validateInput(component);
             }
         });
     }
