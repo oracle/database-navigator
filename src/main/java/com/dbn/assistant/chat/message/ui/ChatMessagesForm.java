@@ -118,6 +118,10 @@ public class ChatMessagesForm extends DBNFormBase {
         });
     }
 
+    public void hideProcessingIndicators() {
+        messageForms.forEach(f -> f.hideProcessingIndicators());
+    }
+
     public void refreshMessage(ChatMessage message) {
         refreshContent(message, f -> f.refreshMessageContent());
     }

@@ -144,6 +144,8 @@ public abstract class ChatMessageForm extends DBNFormBase {
 
     protected abstract JPanel getContentPanel();
 
+    public void hideProcessingIndicators() {}
+
     /**
      * Custom painted JPanel to be used as rounded-corner container for chatbox messages
      * This utility is to be used for all chat message form implementations

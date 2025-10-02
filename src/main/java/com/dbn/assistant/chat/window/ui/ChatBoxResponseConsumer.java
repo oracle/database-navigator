@@ -59,6 +59,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptToken(String token) {
+        chatBoxForm.hideProcessingIndicators();
         tokenized = true;
         Chat chat = getChat();
         ChatMessage lastMessage = chat.getLastMessage();
@@ -78,17 +79,21 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptMessage(String message) {
+        chatBoxForm.hideProcessingIndicators();
         // ignore if token-stream is supported
         if (tokenized) return;
         message = nvl(message, "");
 
         ChatMessage agentMessage = createMessage(NEUTRAL, message, AGENT);
         chatBoxForm.appendMessage(chatId, agentMessage);
+
         log.info("Assistant query processed successfully.");
     }
 
     @Override
     public void acceptError(Throwable e) {
+        chatBoxForm.hideProcessingIndicators();
+
         if (e instanceof AssistantToolApprovalException) return;
 
         log.warn("Error processing assistant query", e);
@@ -103,12 +108,14 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptCompletion() {
+        chatBoxForm.hideProcessingIndicators();
         AssistantState assistantState = getAssistantState();
         assistantState.set(QUERYING, false);
     }
 
     @Override
     public void acceptToolRequest(String requestId, String toolName, String toolArguments) {
+        chatBoxForm.hideProcessingIndicators();
         Chat chat = getChat();
         if (chat == null) return; // chat discarded
 

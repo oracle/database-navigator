@@ -56,6 +56,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBOptionButton;
+import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -100,6 +101,8 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private JLabel headerTitleLabel;
     private JPanel headerPanel;
     private JSeparator messageSeparator;
+    private JPanel processingPanel;
+    private JPanel processingIconPanel;
 
     private final ConnectionRef connection;
     private final ChatMessageToolSection section;
@@ -119,6 +122,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         initActionsPanel();
         initDetailPanel();
         initMessagePanel();
+        initProcessingPanel();
     }
 
     private void initHeaderPanel() {
@@ -186,6 +190,11 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         initPromptMessagePanel();
     }
 
+    private void initProcessingPanel() {
+        processingIconPanel.add(new AsyncProcessIcon("Processing tool request"));
+        processingPanel.setVisible(false);
+    }
+
     private void initPromptMessagePanel() {
         if (!isInteractive()) return;
         messagePanel.setVisible(true);
@@ -251,7 +260,10 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         AssistantToolInvocation invocation = getToolInvocation();
         if (invocation.getStatus() != AssistantToolStatus.REQUESTED) return;
         if (getInvocationMonitor() == null) return; // old incomplete tool request
-        if (isPreapproved()) return;
+        if (isPreapproved()) {
+            processingPanel.setVisible(true);
+            return;
+        }
 
         messageTextPane.setText("The agent has requested to run this tool on your database. " +
                 "Please review the request and choose whether to allow or deny it. " +
@@ -301,6 +313,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         if (always && !confirm(true)) return;
 
         messagePanel.setVisible(false);
+        processingPanel.setVisible(true);
         AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
         executionMonitor.allow();
     }
@@ -309,8 +322,13 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         if (always && !confirm(false)) return;
 
         messagePanel.setVisible(false);
+        processingPanel.setVisible(true);
         AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
         executionMonitor.deny();
+    }
+
+    public void hideProcessingIndicator() {
+        processingPanel.setVisible(false);
     }
 
     private boolean confirm(boolean approval) {

@@ -414,6 +414,10 @@ public class ChatBoxForm extends DBNFormBase {
         chatMessagesPanel.add(messagesForm.getComponent());
     }
 
+    public void hideProcessingIndicators() {
+        messagesForm.hideProcessingIndicators();
+    }
+
     public ChatContext getCurrentContext() {
         return getCurrentChat().getContext();
     }

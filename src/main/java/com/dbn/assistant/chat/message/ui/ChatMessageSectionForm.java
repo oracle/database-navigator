@@ -37,7 +37,6 @@ public abstract class ChatMessageSectionForm extends DBNFormBase {
 
     ChatMessageSectionForm(DBNForm parent, ChatMessageSectionType sectionType) {
         this(parent, sectionType, c -> TextContent.plain(c));
-
     }
 
     ChatMessageSectionForm(DBNForm parent, ChatMessageSectionType sectionType, Function<String, TextContent> contentBuilder) {
@@ -54,6 +53,9 @@ public abstract class ChatMessageSectionForm extends DBNFormBase {
         this.textContent = createTextContent(this.content);
         applyContent(this.textContent, section.getLanguage());
     }
+
+    public void hideProcessingIndicator() {}
+
     protected final TextContent createTextContent(String content) {
         return contentBuilder.apply(content);
     }

@@ -123,4 +123,9 @@ public class UserChatMessageForm extends ChatMessageForm {
     protected Color getBackground() {
         return Backgrounds.USER_PROMPT;
     }
+
+    @Override
+    public void hideProcessingIndicators() {
+        progressBar.setVisible(false);
+    }
 }

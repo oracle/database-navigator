@@ -199,6 +199,11 @@ public class AgentChatMessageForm extends ChatMessageForm {
     }
 
     @Override
+    public void hideProcessingIndicators() {
+        sectionForms.forEach(f -> f.hideProcessingIndicator());
+    }
+
+    @Override
     protected Color getBackground() {
         return Backgrounds.AGENT_RESPONSE;
     }

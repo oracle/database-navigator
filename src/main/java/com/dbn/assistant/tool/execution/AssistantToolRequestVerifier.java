@@ -66,7 +66,7 @@ public class AssistantToolRequestVerifier {
         Class<?>[] parameterTypes = request.getMethod().getParameterTypes();
 
         int parameterCount = parameterTypes.length;
-        int argumentCount = args.length;
+        int argumentCount = args == null ? 0 : args.length;
 
         if (parameterCount != argumentCount) {
             throw new IllegalArgumentException("Tool request does not match the expected number of arguments (expected " + parameterCount + ", received " + argumentCount + ")");
