@@ -82,7 +82,7 @@ public class ConsoleEditorToolImpl extends AssistantToolBase implements ConsoleE
     }
 
     @Override
-    public void openNewSqlConsole(String consoleContent) {
+    public String openNewSqlConsole(String consoleContent) {
         ConnectionHandler connection = getConnection();
 
         Set<String> consoleNames = connection.getConsoleBundle().getConsoleNames();
@@ -91,5 +91,6 @@ public class ConsoleEditorToolImpl extends AssistantToolBase implements ConsoleE
 
         DatabaseConsoleManager consoleManager = DatabaseConsoleManager.getInstance(getProject());
         consoleManager.createConsole(connection, consoleName, consoleContent, DBConsoleType.STANDARD);
+        return consoleName;
     }
 }

@@ -53,7 +53,7 @@ public class AssistantToolInvocation implements PersistentStateElement {
     }
 
     public boolean isInteractiveRequest() {
-        return isInteractiveTool(request.getUtilityName());
+        return isInteractiveTool(request.getToolName());
     }
 
     public static AssistantToolInvocation current() {
@@ -75,12 +75,12 @@ public class AssistantToolInvocation implements PersistentStateElement {
         request = new AssistantToolRequest();
 
         request.setRequestId(stringAttribute(element, "request-id"));
-        request.setUtilityName(stringAttribute(element, "tool-name"));
+        request.setToolName(stringAttribute(element, "tool-name"));
         option = stringAttribute(element, "tool-option");
         status = enumAttribute(element, "tool-status", status);
 
         Element argumentsElement = element.getChild("tool-arguments");
-        request.setUtilityArguments(readCdata(argumentsElement));
+        request.setToolArguments(readCdata(argumentsElement));
 
         Element responseElement = element.getChild("tool-response");
         if (responseElement != null) {
@@ -92,12 +92,12 @@ public class AssistantToolInvocation implements PersistentStateElement {
     @Override
     public void writeState(Element element) {
         setStringAttribute(element, "request-id", request.getRequestId());
-        setStringAttribute(element, "tool-name", request.getUtilityName());
+        setStringAttribute(element, "tool-name", request.getToolName());
         setStringAttribute(element, "tool-option", option);
         setEnumAttribute(element, "tool-status", status);
 
         Element contentElement = newElement(element,"tool-arguments");
-        writeCdata(contentElement, request.getUtilityArguments());
+        writeCdata(contentElement, request.getToolArguments());
 
         if (response != null) {
             Element resposeElement = newElement(element,"tool-response");
@@ -106,7 +106,7 @@ public class AssistantToolInvocation implements PersistentStateElement {
     }
 
     public String getRequestContent() {
-        return request == null ? "" : nvl(request.getUtilityArguments(), "");
+        return request == null ? "" : nvl(request.getToolArguments(), "");
     }
 
     public String getResponseContent() {

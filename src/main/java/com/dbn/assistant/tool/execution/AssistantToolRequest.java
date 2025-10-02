@@ -40,34 +40,35 @@ public class AssistantToolRequest {
 
     private String chatId;
     private String requestId;
-    private String utilityName;
-    private String utilityArguments;
+    private String toolName;
+    private String toolArguments;
 
     private Method method;
     private Object[] methodArguments;
 
     public AssistantToolRequest() {}
 
-    public AssistantToolRequest(String chatId, String requestId, String utilityName, String utilityArguments) {
+    public AssistantToolRequest(String chatId, String requestId, String toolName, String toolArguments) {
         this.chatId = chatId;
         this.requestId = nvl(requestId, () -> UUIDs.compact());
 
-        this.utilityName = utilityName;
-        this.utilityArguments = utilityArguments;
+        this.toolName = toolName;
+        this.toolArguments = toolArguments;
 
-        this.method = AssistantToolData.getUtilityMethod(utilityName);
+        this.method = AssistantToolData.getUtilityMethod(toolName);
     }
 
     @SneakyThrows
-    public List<?> getArgumentValues() {
+    public List<String> getToolArgumentNames() {
         // arguments sorted alphabetically (some providers do not return arguments in alphabetical order: arg0, arg1... aso)
-        Map<String, ?> map = OBJECT_MAPPER.readValue(utilityArguments, TreeMap.class);
-        return new ArrayList<>(map.values());
+        Map<String, ?> map = OBJECT_MAPPER.readValue(toolArguments, TreeMap.class);
+        return new ArrayList<>(map.keySet());
     }
 
-    public void verify(Method method) {
-        if (!this.method.equals(method)) {
-            throw new IllegalArgumentException("The method to verify does not match the current request");
-        }
+    @SneakyThrows
+    public List<?> getToolArgumentValues() {
+        // arguments sorted alphabetically (some providers do not return arguments in alphabetical order: arg0, arg1... aso)
+        Map<String, ?> map = OBJECT_MAPPER.readValue(toolArguments, TreeMap.class);
+        return new ArrayList<>(map.values());
     }
 }

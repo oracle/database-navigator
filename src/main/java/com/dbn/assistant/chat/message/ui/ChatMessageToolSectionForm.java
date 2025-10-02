@@ -398,7 +398,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private AssistantTool getTool() {
         AssistantToolCache toolCache = getToolCache();
 
-        String utilityName = getToolRequest().getUtilityName();
+        String utilityName = getToolRequest().getToolName();
         return toolCache.getAssistantTool(utilityName);
     }
 

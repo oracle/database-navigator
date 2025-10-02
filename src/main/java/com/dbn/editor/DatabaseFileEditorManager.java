@@ -151,7 +151,11 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
 
         try {
             handle.init();
-            if (object.is(DBObjectProperty.SCHEMA_OBJECT)) {
+            if (object instanceof DBConsole) {
+                DBConsole console = (DBConsole) object;
+                Editors.openFileEditor(getProject(), console.getVirtualFile(), focusEditor);
+
+            } else if (object.is(DBObjectProperty.SCHEMA_OBJECT)) {
                 openSchemaObject(handle);
 
             } else {

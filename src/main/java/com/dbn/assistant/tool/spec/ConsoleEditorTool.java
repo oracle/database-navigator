@@ -87,8 +87,8 @@ public interface ConsoleEditorTool extends AssistantTool {
     @Tool(name = "OPEN_NEW_SQL_CONSOLE")
     @UtilitySpec(
             name = "Open new SQL console",
-            description = "Creates a new SQL console with the given content and opens it the IDE")
-    void openNewSqlConsole(
+            description = "Creates a new SQL console with the given content and opens it the IDE (returns the name of the new SQL console)")
+    String openNewSqlConsole(
             @P("Console content") String consoleContent);
 
 }

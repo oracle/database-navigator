@@ -48,7 +48,7 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
 
     @Override
     public String getToolName() {
-        String utilityName = getToolRequest().getUtilityName();
+        String utilityName = getToolRequest().getToolName();
 
         AssistantTool tool = getTool();
         UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
@@ -89,7 +89,7 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
 
     private @NotNull String buildToolRequestSummary() {
         AssistantToolRequest request = getToolRequest();
-        String utility = request.getUtilityName();
+        String utility = request.getToolName();
 
         AssistantTool tool = getTool();
         UtilitySpec utilitySpec = getUtilitySpec(tool, utility);
@@ -101,7 +101,7 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
         int placeholderCount =  Strings.countOccurrences(summary, "%s");
         if (placeholderCount == 0) return "";
 
-        List<?> values = request.getArgumentValues();
+        List<?> values = request.getToolArgumentValues();
         if (values.size() < placeholderCount) return "";
 
         Object[] arguments = values.subList(0, placeholderCount).toArray(new Object[0]);
@@ -124,7 +124,7 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
     private AssistantTool getTool() {
         AssistantToolCache toolCache = getToolCache();
 
-        String utilityName = getToolRequest().getUtilityName();
+        String utilityName = getToolRequest().getToolName();
         return toolCache.getAssistantTool(utilityName);
     }
 

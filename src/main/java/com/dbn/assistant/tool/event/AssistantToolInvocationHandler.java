@@ -44,6 +44,7 @@ import static com.dbn.assistant.tool.event.AssistantToolStatus.EXECUTING;
 import static com.dbn.assistant.tool.event.AssistantToolStatus.FAILED;
 import static com.dbn.assistant.tool.event.AssistantToolStatus.REJECTED;
 import static com.dbn.assistant.tool.event.AssistantToolStatus.REQUESTED;
+import static com.dbn.assistant.tool.execution.AssistantToolRequestVerifier.verifyRequest;
 
 @Slf4j
 public class AssistantToolInvocationHandler<T extends AssistantTool> extends AssistantStateExtension implements InvocationHandler {
@@ -67,8 +68,9 @@ public class AssistantToolInvocationHandler<T extends AssistantTool> extends Ass
 
         AssistantToolInvocation invocation = AssistantToolInvocation.current();
         AssistantToolRequest request = invocation.getRequest();
-        request.verify(method);
         request.setMethodArguments(args);
+        verifyRequest(request, method, args);
+
 
         ConnectionHandler connection = getConnection();
         Project project = connection.getProject();

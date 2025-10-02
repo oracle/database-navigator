@@ -29,7 +29,7 @@ public class AssistantPrompt {
     private final List<String> options;
 
     public AssistantPrompt(AssistantToolRequest request) {
-        List<?> values = request.getArgumentValues();
+        List<?> values = request.getToolArgumentValues();
         title = Data.asString(values.get(0));
         message = Data.asString(values.get(1));
         options = new ArrayList<>();

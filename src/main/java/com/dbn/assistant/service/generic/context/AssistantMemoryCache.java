@@ -23,7 +23,6 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.common.action.UserDataKeys;
-import com.dbn.common.util.Strings;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
@@ -41,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.assistant.chat.message.AuthorType.USER;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_MEMORY_CACHE;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static dev.langchain4j.data.message.ToolExecutionResultMessage.toolExecutionResultMessage;
 import static java.util.Collections.singletonList;
 
@@ -64,7 +64,7 @@ public class AssistantMemoryCache extends AssistantStateExtension implements Cha
             AiMessage aiMessage = (AiMessage) message;
             List<ToolExecutionRequest> toolExecutionRequests = aiMessage.toolExecutionRequests();
             boolean hasTools = toolExecutionRequests != null && !toolExecutionRequests.isEmpty();
-            boolean hasContent = Strings.isNotEmpty(aiMessage.text());
+            boolean hasContent = isNotEmpty(aiMessage.text());
 
             return hasTools || hasContent;
         }
@@ -131,26 +131,30 @@ public class AssistantMemoryCache extends AssistantStateExtension implements Cha
                     for (ChatMessageToolSection toolSection : toolSections) {
                         AssistantToolRequest toolRequest = toolSection.getRequest();
                         String toolRequestId = toolRequest.getRequestId();
-                        String toolName = toolRequest.getUtilityName();
-                        String toolArguments = toolRequest.getUtilityArguments();
+                        String toolName = toolRequest.getToolName();
+                        String toolArguments = toolRequest.getToolArguments();
 
                         int toolOffset = toolSection.getOffset();
                         String sectionContent = content.substring(offset, toolOffset);
 
-                        ToolExecutionRequest executionRequest = ToolExecutionRequest
-                                .builder()
-                                .id(toolRequestId)
-                                .name(toolName)
-                                .arguments(toolArguments)
-                                .build();
+                        if (toolSection.hasResponse()) {
+                            // do not restore tool invocations without response
+                            ToolExecutionRequest executionRequest = ToolExecutionRequest
+                                    .builder()
+                                    .id(toolRequestId)
+                                    .name(toolName)
+                                    .arguments(toolArguments)
+                                    .build();
 
-                        AiMessage agentMessage = AiMessage.from(sectionContent, singletonList(executionRequest));
-                        chatMemory.add(agentMessage);
+                            AiMessage agentMessage = AiMessage.from(sectionContent, singletonList(executionRequest));
+                            chatMemory.add(agentMessage);
 
-                        String toolResponseContent = toolSection.getResponseContent();
-                        if (Strings.isNotEmpty(toolResponseContent)) {
+                            String toolResponseContent = toolSection.getResponseContent();
                             ToolExecutionResultMessage toolResultMessage = toolExecutionResultMessage(toolRequestId, toolName, toolResponseContent);
                             chatMemory.add(toolResultMessage);
+                        } else if (isNotEmpty(sectionContent)) {
+                            AiMessage agentMessage = AiMessage.from(sectionContent);
+                            chatMemory.add(agentMessage);
                         }
 
                         offset = toolOffset;
