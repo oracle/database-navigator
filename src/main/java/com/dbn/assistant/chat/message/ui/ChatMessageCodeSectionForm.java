@@ -85,7 +85,8 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm {
     private void initActionToolbar() {
         JPanel actionPanel = new JPanel();
         actionPanel.setOpaque(false);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, true, new CopyContentAction(() ->codeViewer.getDocument().getText()));
+        CopyContentAction copyContentAction = new CopyContentAction(() -> codeViewer.getDocument().getText());
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, true, copyContentAction);
         JComponent component = actionToolbar.getComponent();
         component.setOpaque(false);
         component.setBorder(Borders.EMPTY_BORDER);

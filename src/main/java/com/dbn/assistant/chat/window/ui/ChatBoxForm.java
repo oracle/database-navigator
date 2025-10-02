@@ -28,6 +28,7 @@ import com.dbn.assistant.chat.ChatContextEvent;
 import com.dbn.assistant.chat.ChatInterruptionReason;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.message.ChatMessage;
+import com.dbn.assistant.chat.message.ui.ChatMessageForm;
 import com.dbn.assistant.chat.message.ui.ChatMessagesForm;
 import com.dbn.assistant.chat.ui.ChatSaveDialog;
 import com.dbn.assistant.state.AssistantState;
@@ -242,6 +243,10 @@ public class ChatBoxForm extends DBNFormBase {
 
         messagesForm.clear();
         messagesForm.addMessages(chat.getMessages());
+    }
+
+    public List<ChatMessageForm> getMessageForms() {
+        return messagesForm.getMessageForms();
     }
 
     @NotNull
@@ -558,6 +563,14 @@ public class ChatBoxForm extends DBNFormBase {
     public void focusInputField() {
         if (inputField == null) return;
         inputField.requestFocus();
+    }
+
+    public void expandAllMessages() {
+        messagesForm.expandAllMessages();
+    }
+
+    public void collapseAllMessages() {
+        messagesForm.collapseAllMessages();
     }
 
     private class SelectAssistantTypeAction extends AnAction {

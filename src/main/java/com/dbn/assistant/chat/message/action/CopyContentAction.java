@@ -30,9 +30,15 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class CopyContentAction extends ChatMessageAction {
     private final Supplier<String> content;
+    private final Supplier<Boolean> visible;
 
     public CopyContentAction(Supplier<String> content) {
+        this(content, () -> true);
+    }
+
+    public CopyContentAction(Supplier<String> content, Supplier<Boolean> visible) {
         this.content = content;
+        this.visible = visible;
     }
 
     @Override
@@ -41,6 +47,8 @@ public class CopyContentAction extends ChatMessageAction {
         presentation.setText(txt("app.assistant.action.CopyContent"));
         presentation.setDescription(txt("app.assistant.action.CopyContentDesc"));
         presentation.setIcon(Icons.ACTION_COPY);
+
+        presentation.setVisible(visible.get());
     }
 
     @Override

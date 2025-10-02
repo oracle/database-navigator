@@ -34,6 +34,7 @@ import com.dbn.common.ui.util.ScrollPanes;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Lists;
 import com.intellij.util.Alarm;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -53,6 +54,7 @@ public class ChatMessagesForm extends DBNFormBase {
     private JScrollPane messagesScrollPanel;
     private final Alarm scrollAlarm;
 
+    @Getter
     private final List<ChatMessageForm> messageForms = DisposableContainers.list(this);
 
     public ChatMessagesForm(@Nullable DBNComponent parent) {
@@ -164,5 +166,13 @@ public class ChatMessagesForm extends DBNFormBase {
     public void scrollDown() {
         scrollAlarm.cancelAllRequests();
         scrollAlarm.addRequest(() -> ScrollPanes.scrollDown(messagesScrollPanel, false), 10);
+    }
+
+    public void expandAllMessages() {
+        messageForms.forEach(m -> m.changeContentFolding(false));
+    }
+
+    public void collapseAllMessages() {
+        messageForms.forEach(m -> m.changeContentFolding(true));
     }
 }

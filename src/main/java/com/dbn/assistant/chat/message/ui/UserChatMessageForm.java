@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.chat.message.ui;
 
+import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.AskAgainAction;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
@@ -79,18 +80,13 @@ public class UserChatMessageForm extends ChatMessageForm {
 
     @Override
     protected void changeContentFolding(boolean folded) {
-        ChatMessageForm nextMessageForm = getNextMessageForm();
-        if (nextMessageForm == null) return;
-        if (nextMessageForm instanceof UserChatMessageForm) return; // only fold agent or system messages
-
-        nextMessageForm.changeContentFolding(folded);
-    }
-
-    private ChatMessageForm getNextMessageForm() {
-        ChatMessagesForm messagesForm = getParentComponent();
-        if (messagesForm == null) return null;
-
-        return messagesForm.getNextMessageForm(this);
+        getMessage().setFolded(folded);
+        ChatMessageForm nextForm = getNextMessageForm();
+        while (nextForm != null && nextForm.getMessage().getAuthor() != AuthorType.USER) {
+            // only fold agent or system messages
+            nextForm.changeContentFolding(folded);
+            nextForm = nextForm.getNextMessageForm();
+        }
     }
 
     @Override

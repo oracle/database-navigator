@@ -20,11 +20,13 @@ import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.ChatMessageSection;
 import com.dbn.assistant.chat.message.ChatMessageSectionType;
 import com.dbn.assistant.chat.message.ChatMessageToolSection;
+import com.dbn.assistant.chat.message.action.CopyContentAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
+import com.intellij.openapi.actionSystem.AnAction;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -37,6 +39,7 @@ import static com.dbn.assistant.chat.message.ChatMessageParser.convertMarkdownTo
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.CODE;
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.TEXT;
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Unsafe.cast;
 
@@ -54,7 +57,6 @@ public class AgentChatMessageForm extends ChatMessageForm {
     private JPanel actionPanel;
     private JPanel contentPanel;
 
-    private boolean hasCodeContents = false;
     private final List<ChatMessageSectionForm> sectionForms = DisposableContainers.list(this);
 
     public AgentChatMessageForm(ChatMessagesForm parent, ChatMessage message) {
@@ -131,7 +133,14 @@ public class AgentChatMessageForm extends ChatMessageForm {
 
         sectionForms.add(messageSectionForm);
         sectionsPanel.add(messageSectionForm.getComponent());
-        hasCodeContents = true; // mark as having code contents if successfully created one
+    }
+
+    private boolean hasCodeSections() {
+        return sectionForms.stream().anyMatch(f -> f instanceof ChatMessageCodeSectionForm);
+    }
+
+    private boolean hasToolSections() {
+        return sectionForms.stream().anyMatch(f -> f instanceof ChatMessageToolSectionForm);
     }
 
     private void createToolSectionForms(int offset) {
@@ -185,17 +194,15 @@ public class AgentChatMessageForm extends ChatMessageForm {
         }
     }
 
-    private <T extends ChatMessageSectionForm> List<T> getSectionForms(ChatMessageSectionType ... types) {
-        return cast(filter(this.sectionForms, f -> Commons.isOneOf(f.getSectionType(), types)));
+    @Override
+    protected AnAction[] createActions() {
+        return array(new CopyContentAction(
+                () -> getMessage().getContent(),
+                () -> !hasCodeSections() && !hasToolSections()));
     }
 
-    @Override
-    protected void initActionToolbar() {
-        if (hasCodeContents) {
-            actionPanel.setVisible(false);
-        } else {
-            super.initActionToolbar();
-        }
+    private <T extends ChatMessageSectionForm> List<T> getSectionForms(ChatMessageSectionType ... types) {
+        return cast(filter(this.sectionForms, f -> Commons.isOneOf(f.getSectionType(), types)));
     }
 
     @Override

@@ -74,13 +74,12 @@ public abstract class ChatMessageForm extends DBNFormBase {
 
     public final void toggleContentFolding() {
         boolean folded = message.isFolded();
-        message.setFolded(!folded);
         changeContentFolding(!folded);
     }
 
     protected void changeContentFolding(boolean folded) {
+        message.setFolded(folded);
         getContentPanel().setVisible(!folded);
-        getMessage().setFolded(folded);
     }
 
     public void refreshMessageContent() {}
@@ -97,6 +96,13 @@ public abstract class ChatMessageForm extends DBNFormBase {
             case SYSTEM: return new SystemChatMessageForm(parent, message);
             default: throw new IllegalArgumentException("Unknown author: " + author);
         }
+    }
+
+    protected ChatMessageForm getNextMessageForm() {
+        ChatMessagesForm messagesForm = getParentComponent();
+        if (messagesForm == null) return null;
+
+        return messagesForm.getNextMessageForm(this);
     }
 
     protected abstract Color getBackground();
