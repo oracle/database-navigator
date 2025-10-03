@@ -22,7 +22,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import static com.intellij.icons.AllIcons.General.Menu;
+import static com.intellij.icons.AllIcons.General.LayoutEditorOnly;
 
 public class ToolExecutionDataAction extends AssistantToolAction {
     @Override
@@ -38,7 +38,7 @@ public class ToolExecutionDataAction extends AssistantToolAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setText("Tool Data");
-        presentation.setIcon(Menu);
+        presentation.setIcon(LayoutEditorOnly);
         presentation.setVisible(isVisible(e));
     }
 
