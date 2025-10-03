@@ -64,7 +64,7 @@ public class AssistantToolApprovalForm extends DBNFormBase {
     private void initHeaderPanel() {
         ConnectionHandler connection = settings.getConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
-        this.headerPanel.add(headerForm.getMainComponent());
+        this.headerPanel.add(headerForm.getComponent());
     }
 
     private void initHintPanel() {

@@ -41,6 +41,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.form.DBNForm;
+import com.dbn.common.ui.misc.DBNInfoLabel;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Fonts;
@@ -50,7 +51,6 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
-import com.intellij.icons.AllIcons;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.util.text.StringUtil;
@@ -79,6 +79,7 @@ import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROV
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.icon.Icons.ASSISTANT_QUESTION;
+import static com.dbn.common.text.TextContent.asHtmlContent;
 import static com.dbn.common.ui.Layouts.horizontalBoxLayout;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.util.Messages.showConfirmationDialog;
@@ -90,7 +91,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private JPanel actionsPanel;
     private JPanel toolNamePanel;
     private JPanel framePanel;
-    private JLabel toolInfoLabel;
+    private DBNInfoLabel toolInfoLabel;
     private JPanel toolTypePanel;
     private JLabel toolTypeLabel;
     private JLabel toolIconLabel;
@@ -150,9 +151,6 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         toolIconLabel.setIcon(Icons.ASSISTANT_TOOL);
         toolIconLabel.setText("");
 
-        toolInfoLabel.setText("");
-        toolInfoLabel.setIcon(AllIcons.General.Note);
-
         String wrapperContent = TextResources.get(getClass(), "tool_info_tooltip.html.ft");
         TextContent htmlContent = TextContent.html(wrapperContent);
         htmlContent.initField("TOOL_TYPE_NAME", info.getToolTypeName());
@@ -160,8 +158,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         htmlContent.initField("TOOL_CATEGORY_NAME", info.getToolCategoryName());
         htmlContent.initField("TOOL_CATEGORY_DESCRIPTION", info.getToolCategoryDescription());
 
-        String tooltipText = htmlContent.getText();
-        toolInfoLabel.setToolTipText(tooltipText);
+        toolInfoLabel.setContent(htmlContent);
     }
 
     private void initDetailPanel() {
@@ -234,7 +231,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
                     .replace("<", "&lt;")
                     .replace(">", "&gt;");
 
-            JLabel optionLabel = new JLabel("<html><body>" + optionText + "</body></html>");
+            JLabel optionLabel = new JLabel(asHtmlContent(optionText));
             boolean selected = Objects.equals(option, invocation.getOption());
             boolean highlighted = active || selected;
 
@@ -393,7 +390,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
 
     public void showToolExecutionData() {
         Point location = getMainComponent().getLocationOnScreen();
-        Dialogs.show(() -> new AssistantToolDataDialog(getProject(), info.getToolName(), getToolInvocation(), location));
+        Dialogs.show(() -> new AssistantToolDataDialog(getProject(), info, getToolInvocation(), location));
     }
 
     public AssistantToolInvocation getToolInvocation() {

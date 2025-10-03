@@ -136,6 +136,10 @@ public class TextContent {
         return new TextContent(text, MimeType.TEXT_CSS);
     }
 
+    public static String asHtmlContent(String text) {
+        return "<html><body>" + text + "</body></html>";
+    }
+
     @Override
     public String toString() {
         return "[" + type + "] " + text;

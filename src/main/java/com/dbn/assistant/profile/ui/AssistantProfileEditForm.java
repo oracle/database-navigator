@@ -100,7 +100,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
     private void initTemperatureFields() {
         temperatureComboBox.set(HIDE_DESCRIPTION, true);
         temperatureDescForm = new DBNHintForm(this, null, null, true);
-        temperatureDescPanel.add(temperatureDescForm.getMainComponent());
+        temperatureDescPanel.add(temperatureDescForm.getComponent());
         temperatureSlider.addChangeListener(e -> updateSliderLabels());
     }
 

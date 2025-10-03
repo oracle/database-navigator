@@ -60,7 +60,7 @@ public class ConnectionDebuggerSettingsForm extends ConfigurationEditorForm<Conn
 
         ReverseSshTunnelConfiguration sshTunnelConfig = configuration.getReverseSshTunnelConfig();
         reverseSshTunnelForm = new ReverseSshTunnelConfigForm(sshTunnelConfig);
-        reverseSshTunnelPanel.add(reverseSshTunnelForm.getMainComponent());
+        reverseSshTunnelPanel.add(reverseSshTunnelForm.getComponent());
 
         initComboBox(debuggerTypeComboBox,
                 DebuggerTypeOption.JDWP,

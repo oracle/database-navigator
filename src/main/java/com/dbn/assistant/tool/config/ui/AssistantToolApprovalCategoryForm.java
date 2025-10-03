@@ -21,7 +21,9 @@ import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.common.color.Colors;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.Layouts;
+import com.dbn.common.ui.misc.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.ui.util.Fonts;
 import com.intellij.icons.AllIcons;
@@ -47,7 +49,7 @@ import static com.dbn.common.ui.misc.DBNToggleButton.getSuccessForeground;
 public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItemForm {
     private JPanel mainPanel;
     private JLabel nameLabel;
-    private JLabel infoLabel;
+    private DBNInfoLabel infoLabel;
     private JPanel toolTypesPanel;
     private JTextPane descriptionTextPane;
     private DBNToggleButton<AssistantToolApprovalStatus> statusToggle;
@@ -88,9 +90,7 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
     }
 
     private void initInfoLabel() {
-        infoLabel.setIcon(AllIcons.General.Note);
-        infoLabel.setText("");
-        infoLabel.setToolTipText(category.getDescription());
+        infoLabel.setContent(TextContent.plain(category.getDescription()));
     }
 
     private void initDescriptionPanel() {

@@ -17,14 +17,17 @@
 package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
+import com.dbn.assistant.tool.info.AssistantToolInfoProvider;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.misc.DBNInfoLabel;
+import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Languages;
 import com.dbn.common.util.Viewers;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.lang.Language;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
@@ -38,6 +41,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
@@ -47,18 +51,38 @@ public class AssistantToolDataForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel requestDataPanel;
     private JPanel responseDataPanel;
+    private JLabel toolLabel;
+    private JLabel typeNameLabel;
+    private JLabel categoryNameLabel;
+    private DBNInfoLabel typeInfoLabel;
+    private DBNInfoLabel categoryInfoLabel;
+    private JLabel typeLabel;
+    private JLabel categoryLabel;
 
     private final EditorEx requestViewer;
     private final EditorEx responseViewer;
 
-    public AssistantToolDataForm(@Nullable Disposable parent, @NotNull Project project, AssistantToolInvocation invocation) {
-        super(parent, project);
+    public AssistantToolDataForm(AssistantToolDataDialog dialog, AssistantToolInfoProvider info, AssistantToolInvocation invocation) {
+        super(dialog);
 
-        String request = invocation.getRequestContent();
-        String response = invocation.getResponseContent();
 
-        requestViewer = createViewer(project, "ai_tool_request.json", request);
-        responseViewer = createViewer(project, "ai_tool_response.json", response);
+        typeLabel.setFont(Fonts.regular(-1));
+        categoryLabel.setFont(Fonts.regular(-2));
+
+        toolLabel.setFont(Fonts.regular(2));
+        toolLabel.setText(info.getToolName());
+        typeNameLabel.setText(info.getToolTypeName());
+        categoryNameLabel.setText(info.getToolCategoryName());
+
+        typeInfoLabel.setContent(TextContent.plain(info.getToolTypeDescription()));
+        categoryInfoLabel.setContent(TextContent.plain(info.getToolCategoryDescription()));
+
+        String requestContent = invocation.getRequestContent();
+        String responseContent = invocation.getResponseContent();
+
+        Project project = dialog.getProject();
+        requestViewer = createViewer(project, "ai_tool_request.json", requestContent);
+        responseViewer = createViewer(project, "ai_tool_response.json", responseContent);
 
         if (requestViewer != null && responseViewer != null) {
             requestDataPanel.add(requestViewer.getComponent());
@@ -68,9 +92,9 @@ public class AssistantToolDataForm extends DBNFormBase {
             JTextPane responseTextPane = new JTextPane();
 
             requestTextPane.setEditable(false);
-            requestTextPane.setText(request);
+            requestTextPane.setText(requestContent);
             responseTextPane.setEditable(false);
-            requestTextPane.setText(response);
+            requestTextPane.setText(responseContent);
 
             requestDataPanel.add(requestTextPane);
             responseDataPanel.add(responseTextPane);

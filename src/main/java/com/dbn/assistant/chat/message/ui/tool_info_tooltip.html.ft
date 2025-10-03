@@ -1,5 +1,5 @@
 <html>
-<body>
+<body style="${REGULAR_FONT_STYLE}">
 <b>Tool Information</b><br><br>
 
 <b><span style="font-size:small;">Tool type</span><br></b>

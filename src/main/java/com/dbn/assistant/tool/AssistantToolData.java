@@ -53,6 +53,14 @@ public class AssistantToolData {
         return getToolFactory(utilityName).isInteractive();
     }
 
+    public static AssistantToolType getToolType(String utilityName) {
+        return getToolFactory(utilityName).getToolType();
+    }
+
+    public static AssistantToolCategory getToolCategory(String utilityName) {
+        return getToolFactory(utilityName).getToolCategory();
+    }
+
     private static <T extends AssistantTool> AssistantToolFactory<T> getToolFactory(String utilityName) {
         return cast(factoryCache.computeIfAbsent(utilityName, n -> findToolFactory(n)));
     }
