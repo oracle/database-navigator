@@ -49,7 +49,7 @@ public class AssistantToolDataDialog extends DBNDialog<AssistantToolDataForm> {
 
     @Override
     protected @NotNull AssistantToolDataForm createForm() {
-        return new AssistantToolDataForm(this, info, invocation);
+        return new AssistantToolDataForm(getProject(), this, info, invocation);
     }
 
     protected final Action[] createActions() {

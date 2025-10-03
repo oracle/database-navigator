@@ -47,12 +47,12 @@ import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBOptionButton;
@@ -388,9 +388,10 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         executionMonitor.cancel();
     }
 
-    public void showToolExecutionData() {
+    public void showToolExecutionData(DataContext dataContext) {
         Point location = getMainComponent().getLocationOnScreen();
-        Dialogs.show(() -> new AssistantToolDataDialog(getProject(), info, getToolInvocation(), location));
+        //Dialogs.show(() -> new AssistantToolDataDialog(getProject(), info, getToolInvocation(), location));
+        AssistantToolDataForm.showPopup(dataContext, info, getToolInvocation());
     }
 
     public AssistantToolInvocation getToolInvocation() {

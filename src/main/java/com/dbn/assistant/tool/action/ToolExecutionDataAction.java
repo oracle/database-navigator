@@ -28,7 +28,7 @@ public class ToolExecutionDataAction extends AssistantToolAction {
         ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
         if (toolSectionForm == null) return;
 
-        toolSectionForm.showToolExecutionData();
+        toolSectionForm.showToolExecutionData(e.getDataContext());
     }
 
     @Override

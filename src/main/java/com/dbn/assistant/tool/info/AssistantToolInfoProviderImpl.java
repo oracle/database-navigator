@@ -59,7 +59,12 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
 
     @Override
     public String getToolDescription() {
-        return "";
+        String utilityName = getToolRequest().getToolName();
+
+        AssistantTool tool = getTool();
+        UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
+        if (utilitySpec == null) return "";
+        return utilitySpec.description();
     }
 
     @Override
