@@ -405,9 +405,6 @@
         </group>
         <group id="DBNavigator.ActionGroup.AssistantToolActions" text="Assistant Tool Actions">
             <action class="com.dbn.assistant.tool.action.ToolExecutionStopAction" text="Stop Tool Execution" id="DBNavigator.Actions.Assistant.StopToolExecution" icon="AllIcons.Actions.Suspend"/>
-            <action class="com.dbn.assistant.tool.action.ToolExecutionDetailsAction" text="Tool Details" id="DBNavigator.Actions.Assistant.ToolDetails" icon="AllIcons.Actions.MoreHorizontal"/>
-        </group>
-        <group id="DBNavigator.ActionGroup.AssistantToolDetailActions" text="Assistant Tool Detail Actions">
             <action class="com.dbn.assistant.tool.action.ToolExecutionDataAction" text="Tool Execution Data" id="DBNavigator.Actions.Assistant.ToolExecutionData"/>
             <action class="com.dbn.assistant.tool.action.ToolApprovalSettingsAction" text="Tool Approvals..." id="DBNavigator.Actions.Assistant.ToolApprovalSettings"/>
         </group>

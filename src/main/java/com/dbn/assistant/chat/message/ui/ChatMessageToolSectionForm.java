@@ -391,7 +391,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     public void showToolExecutionData(DataContext dataContext) {
         Point location = getMainComponent().getLocationOnScreen();
         //Dialogs.show(() -> new AssistantToolDataDialog(getProject(), info, getToolInvocation(), location));
-        AssistantToolDataForm.showPopup(dataContext, info, getToolInvocation());
+        AssistantToolDataForm.showPopup(mainPanel, info, getToolInvocation());
     }
 
     public AssistantToolInvocation getToolInvocation() {

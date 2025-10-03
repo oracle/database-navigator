@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2024 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,30 @@
 
 package com.dbn.assistant.tool.action;
 
-import com.dbn.assistant.chat.message.ui.ChatMessageToolSectionForm;
+import com.dbn.assistant.chat.message.ui.AssistantToolDataForm;
+import com.dbn.common.action.DataKeys;
+import com.dbn.common.action.ProjectAction;
+import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import static com.intellij.icons.AllIcons.General.Menu;
+public class ToolExecutionDataCloseAction extends ProjectAction {
 
-public class ToolExecutionDataAction extends AssistantToolAction {
-    @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
-        if (toolSectionForm == null) return;
-
-        toolSectionForm.showToolExecutionData(e.getDataContext());
-    }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-
         Presentation presentation = e.getPresentation();
-        presentation.setText("Tool Data");
-        presentation.setIcon(Menu);
-        presentation.setVisible(isVisible(e));
+        presentation.setText("Close");
+        presentation.setIcon(Icons.ACTION_CLOSE);
     }
 
-    private boolean isVisible(@NotNull AnActionEvent e) {
-        return !isInteractive(e);
-    }
+    @Override
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
+        AssistantToolDataForm dataForm = e.getData(DataKeys.ASSISTANT_TOOL_DATA_FORM);
+        if (dataForm == null) return;
 
+        dataForm.hidePopup();
+    }
 }

@@ -20,6 +20,7 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.assistant.tool.config.ui.AssistantToolApprovalDialog;
 import com.dbn.common.util.Dialogs;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -39,7 +40,7 @@ public class ToolApprovalSettingsAction extends AssistantToolAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText("Tool Approvals...");
-        //presentation.setIcon(AllIcons.General.GearPlain);
+        presentation.setIcon(AllIcons.General.GearPlain);
         presentation.setVisible(!isInteractive(e));
     }
 }
