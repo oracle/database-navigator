@@ -30,8 +30,11 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.util.Modality;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectionStatusListener;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -142,6 +145,17 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         ToolWindow toolWindow = Failsafe.nn(toolWindowManager.getToolWindow(TOOL_WINDOW_ID));
         toolWindow.show(null);
         switchToConnection(connectionId);
+    }
+
+    public void initializeAssistant() {
+        Project project = getProject();
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        List<ConnectionHandler> connections = connectionManager.getConnections();
+        if (connections.isEmpty()) return;
+
+        ConnectionHandler connection = connections.get(0);
+        ConnectionId connectionId = connection.getConnectionId();
+        Dispatch.run(Modality.nonModal(), () -> showToolWindow(connectionId));
     }
 
     public void initializeAssistant(ConnectionId connectionId, AssistantType assistantType) {

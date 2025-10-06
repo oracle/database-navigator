@@ -22,14 +22,12 @@ import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.assistant.provider.AIProviderId;
-import com.dbn.common.ui.table.DBNTypedEditableTableModel;
+import com.dbn.common.ui.table.DBNEntityEditableTableModel;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
-import lombok.Getter;
 
-@Getter
-public class AssistantCredentialsTableModel extends DBNTypedEditableTableModel<AssistantCredential> {
+public class AssistantCredentialsTableModel extends DBNEntityEditableTableModel<AssistantCredential> {
 
     AssistantCredentialsTableModel(AssistantCredentialBundle credentials) {
         super(AssistantCredential.class, credentials.getElements());

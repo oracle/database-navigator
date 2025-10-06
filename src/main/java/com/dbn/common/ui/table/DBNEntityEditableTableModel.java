@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.util.CollectionUtil.cloneElements;
@@ -39,12 +40,12 @@ import static com.dbn.common.util.Unsafe.cast;
  * @author Dan Cioca (Oracle)
  */
 @Getter
-public abstract class DBNTypedEditableTableModel<T extends Cloneable<T>> extends DBNEditableTableModel {
+public abstract class DBNEntityEditableTableModel<T extends Cloneable<T>> extends DBNEditableTableModel {
     private final Class<T> entityType;
     private final List<T> elements;
     private final List<ColumnDefinition<T, ?>> columns = new ArrayList<>();
 
-    protected DBNTypedEditableTableModel(Class<T> entityType, List<T> elements) {
+    protected DBNEntityEditableTableModel(Class<T> entityType, List<T> elements) {
         this.entityType = entityType;
         this.elements = new ArrayList<>();
         cloneElements(elements, this.elements);
@@ -54,6 +55,24 @@ public abstract class DBNTypedEditableTableModel<T extends Cloneable<T>> extends
         this.elements.clear();
         cloneElements(elements, this.elements);
         notifyListeners(0, getRowCount(), -1);
+    }
+
+    public boolean moveRowDown(int row) {
+        if (row >= elements.size() - 1) return false;
+
+        Collections.swap(elements, row, row + 1);
+        notifyListeners(row, row + 1, -1);
+        return true;
+    }
+
+    public boolean moveRowUp(int row) {
+        if (row <= 0) return false;
+
+        Collections.swap(elements, row, row - 1);
+        notifyListeners(row, row - 1, -1);
+        return true;
+
+
     }
 
     /**
@@ -171,11 +190,13 @@ public abstract class DBNTypedEditableTableModel<T extends Cloneable<T>> extends
         ColumnDefinition<T, V> definition = getColumnDefinition(columnIndex);
         if (definition == null) return false;
 
+        ValueSetter<T, V> valueSetter = definition.getValueSetter();
+        if (valueSetter == null) return false;
+
         V currentValue = getValue(rowIndex, columnIndex);
         if (Commons.match(currentValue, value)) return false;
 
         T entity = getElement(rowIndex);
-        ValueSetter<T, V> valueSetter = definition.getValueSetter();
         valueSetter.setValue(entity, value);
 
         return true;

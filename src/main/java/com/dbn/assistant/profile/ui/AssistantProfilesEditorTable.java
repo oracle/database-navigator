@@ -19,7 +19,7 @@ package com.dbn.assistant.profile.ui;
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.common.ui.table.DBNEditableTable;
+import com.dbn.common.ui.table.DBNEntityEditableTable;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,12 +29,10 @@ import java.util.function.Supplier;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
-public class AssistantProfilesEditorTable extends DBNEditableTable<AssistantProfilesTableModel> {
-    private final Supplier<List<AssistantCredential>> credentials;
+public class AssistantProfilesEditorTable extends DBNEntityEditableTable<AssistantProfilesTableModel> {
 
     AssistantProfilesEditorTable(DBNComponent parent, AssistantProfileBundle profiles, Supplier<List<AssistantCredential>> credentials) {
         super(parent, createModel(profiles, credentials), true);
-        this.credentials = credentials;
 
         setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         setSelectionBackground(UIUtil.getTableBackground());
@@ -49,10 +47,6 @@ public class AssistantProfilesEditorTable extends DBNEditableTable<AssistantProf
     @NotNull
     private static AssistantProfilesTableModel createModel(AssistantProfileBundle profiles, Supplier<List<AssistantCredential>> credentials) {
         return new AssistantProfilesTableModel(profiles, credentials);
-    }
-
-    void setProfiles(AssistantProfileBundle profiles) {
-        super.setModel(createModel(profiles, credentials));
     }
 
     @Override

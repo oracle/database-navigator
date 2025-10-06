@@ -25,17 +25,15 @@ import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.assistant.provider.AIProviderId;
-import com.dbn.common.ui.table.DBNTypedEditableTableModel;
+import com.dbn.common.ui.table.DBNEntityEditableTableModel;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
-import lombok.Getter;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-@Getter
-public class AssistantProfilesTableModel extends DBNTypedEditableTableModel<DeclaredAssistantProfile> {
+public class AssistantProfilesTableModel extends DBNEntityEditableTableModel<DeclaredAssistantProfile> {
     private final Supplier<List<AssistantCredential>> credentials;
 
     AssistantProfilesTableModel(AssistantProfileBundle profiles, Supplier<List<AssistantCredential>> credentials) {

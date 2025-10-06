@@ -18,7 +18,7 @@ package com.dbn.assistant.credential.ui;
 
 import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.common.ui.table.DBNEditableTable;
+import com.dbn.common.ui.table.DBNEntityEditableTable;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +30,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
  * Table model for provider credentials information
  * The template credential stored locally.
  */
-public class AssistantCredentialsEditorTable extends DBNEditableTable<AssistantCredentialsTableModel> {
+public class AssistantCredentialsEditorTable extends DBNEntityEditableTable<AssistantCredentialsTableModel> {
 
     AssistantCredentialsEditorTable(DBNComponent parent, AssistantCredentialBundle credentials) {
         super(parent, createModel(credentials), true);
@@ -47,10 +47,6 @@ public class AssistantCredentialsEditorTable extends DBNEditableTable<AssistantC
     @NotNull
     private static AssistantCredentialsTableModel createModel(AssistantCredentialBundle credentials) {
         return new AssistantCredentialsTableModel(credentials);
-    }
-
-    void setCredentials(AssistantCredentialBundle credentials) {
-        super.setModel(createModel(credentials));
     }
 
     @Override
