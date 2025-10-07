@@ -63,7 +63,6 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
                     .temperature(temperature)
                     .authProvider(authProvider)
                     .compartmentId(compartmentId)
-                    .maxTokens(4000)
                     .build());
 
         } else {

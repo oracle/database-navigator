@@ -71,7 +71,9 @@ public class ConsoleEditorToolImpl extends AssistantToolBase implements ConsoleE
         DBConsole console = getConnection().getConsoleBundle().getConsole(consoleName);
         verify(console, DBObjectType.CONSOLE, consoleName);
 
-        console.getVirtualFile().updateContent(newContent);
+        // line breaks are sometimes received as \\n
+        String consoleContent = newContent.replace("\\n", "\n");
+        console.getVirtualFile().updateContent(consoleContent);
     }
 
     @Override
@@ -88,6 +90,9 @@ public class ConsoleEditorToolImpl extends AssistantToolBase implements ConsoleE
         Set<String> consoleNames = connection.getConsoleBundle().getConsoleNames();
         String baseName = connection.getName() + " 1";
         String consoleName = nextNumberedIdentifier(baseName, true, () -> consoleNames);
+
+        // line breaks are sometimes received as \\n
+        consoleContent = consoleContent.replace("\\n", "\n");
 
         DatabaseConsoleManager consoleManager = DatabaseConsoleManager.getInstance(getProject());
         consoleManager.createConsole(connection, consoleName, consoleContent, DBConsoleType.STANDARD);

@@ -18,7 +18,6 @@ package com.dbn.assistant.tool.execution;
 
 import com.dbn.assistant.tool.AssistantToolData;
 import com.dbn.common.util.UUIDs;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -30,13 +29,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static com.dbn.assistant.AssistantComponent.OBJECT_MAPPER;
 import static com.dbn.common.util.Commons.nvl;
 
 @Slf4j
 @Getter
 @Setter
 public class AssistantToolRequest {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private String chatId;
     private String requestId;

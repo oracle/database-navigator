@@ -20,6 +20,9 @@ import com.dbn.assistant.AssistantComponent;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.service.generic.context.AssistantMemoryId;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.tool.execution.AssistantToolRequestNormalizer;
+import com.dbn.common.compatibility.Workaround;
+import com.dbn.common.util.Unsafe;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.service.AiServiceTokenStream;
@@ -58,6 +61,7 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
             AiServiceTokenStream aiTokenStream = (AiServiceTokenStream) tokenStream;
             aiTokenStream.beforeToolExecution(e -> {
                 ToolExecutionRequest request = e.request();
+                normalizeRequest(request);
                 consumer.acceptToolRequest(
                         request.id(),
                         request.name(),
@@ -100,6 +104,11 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
 
             wrapped(() -> tokenStream.start());
         }
+    }
+
+    @Workaround
+    private static void normalizeRequest(ToolExecutionRequest request) {
+        Unsafe.logged(() -> AssistantToolRequestNormalizer.normalize(request));
     }
 
 }

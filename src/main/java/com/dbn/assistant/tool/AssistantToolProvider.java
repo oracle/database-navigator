@@ -19,7 +19,6 @@ package com.dbn.assistant.tool;
 import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
 import com.dbn.common.util.Unsafe;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.agent.tool.ToolSpecifications;
@@ -51,11 +50,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.assistant.AssistantComponent.OBJECT_MAPPER;
 import static dev.langchain4j.internal.JsonSchemaElementUtils.jsonSchemaElementFrom;
 
 @Slf4j
 public class AssistantToolProvider implements ToolProvider {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final AssistantToolCache cache;
 
     public AssistantToolProvider(AssistantToolCache cache) {

@@ -22,6 +22,7 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
@@ -156,4 +157,10 @@ public class Reflection {
         return clazz.getConstructor().newInstance();
     }
 
+    @SneakyThrows
+    public static void updateFieldValue(Object object, String fieldName, Object fieldValue) {
+        Field field = object.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(object, fieldValue);
+    }
 }

@@ -20,6 +20,7 @@ import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.common.routine.ThrowableRunnable;
 import com.dbn.common.util.Classes;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Thread context classloader wrappers<br>
@@ -33,6 +34,8 @@ import com.dbn.common.util.Classes;
  * (jersey http client implementation fails to load unless the plugin class loader is used)
  */
 public interface AssistantComponent {
+    ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     @Workaround
     default <T, E extends Throwable> T wrapped(ThrowableCallable<T, E> callable) throws E{
         return Classes.withClassLoader(getClass(), callable);

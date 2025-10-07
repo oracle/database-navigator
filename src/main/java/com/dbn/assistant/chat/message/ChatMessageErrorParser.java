@@ -16,16 +16,14 @@
 
 package com.dbn.assistant.chat.message;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ChatMessageErrorParser {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+import static com.dbn.assistant.AssistantComponent.OBJECT_MAPPER;
 
+public class ChatMessageErrorParser {
     public static String convertJsonToHtml(String json) {
         try {
             Map<String, Object> jsonMap = OBJECT_MAPPER.readValue(json, Map.class);
