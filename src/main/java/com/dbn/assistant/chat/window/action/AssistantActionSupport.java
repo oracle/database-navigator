@@ -117,15 +117,19 @@ public interface AssistantActionSupport {
     }
 
     default String getSelectedModelName(@NotNull AnActionEvent e) {
+        AIModel model = getSelectedModel(e);
+        if (model == null) return null;
+
+        return model.getName();
+    }
+
+    default @Nullable AIModel getSelectedModel(@NotNull AnActionEvent e) {
         ChatContext chatContext = getCurrentChatContext(e);
         if (chatContext == null) return null;
 
         AssistantProfile profile = getSelectedProfile(e);
         if (profile == null) return null;
 
-        AIModel model = chatContext.getModel();
-        if (model == null) return null;
-
-        return model.getName();
+        return chatContext.getModel();
     }
 }

@@ -27,7 +27,7 @@ import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import lombok.SneakyThrows;
 import org.apache.xmlbeans.impl.common.Levenshtein;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -75,7 +75,7 @@ public class AssistantToolRequestNormalizer {
         return OBJECT_MAPPER.writeValueAsString(normalizedArgs);
     }
 
-    static @NonNull Map<String, ?> normalizeArguments(Map<?, ?> args, Method method) {
+    static @NotNull Map<String, ?> normalizeArguments(Map<?, ?> args, Method method) {
         Map<String, ?> normalizedArgs = normalizeArgumentTypes(args);
 
         normalizedArgs = normalizeArgumentNames(normalizedArgs, method);

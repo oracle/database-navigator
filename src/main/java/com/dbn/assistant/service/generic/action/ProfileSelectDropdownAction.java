@@ -75,15 +75,12 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
 
     @Override
     protected Condition<AnAction> getPreselectCondition() {
-        return new Condition<AnAction>() {
-            @Override
-            public boolean value(AnAction a) {
-                if (a instanceof ProfileSelectAction) {
-                    ProfileSelectAction profileAction = (ProfileSelectAction) a;
-                    return Objects.equals(profileAction.getProfileId(), selectedProfileId);
-                }
-                return false;
+        return a -> {
+            if (a instanceof ProfileSelectAction) {
+                ProfileSelectAction profileAction = (ProfileSelectAction) a;
+                return Objects.equals(profileAction.getProfileId(), selectedProfileId);
             }
+            return false;
         };
     }
 

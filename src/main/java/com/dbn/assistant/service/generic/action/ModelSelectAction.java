@@ -51,6 +51,10 @@ public class ModelSelectAction extends AbstractChatBoxAction {
         chatBox.attemptContextSwitch(targetContext);
     }
 
+    public String getModelId() {
+        return model.getId();
+    }
+
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
