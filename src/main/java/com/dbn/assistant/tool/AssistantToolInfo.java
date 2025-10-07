@@ -54,6 +54,7 @@ public interface AssistantToolInfo {
         String name();
         String description();
         String summary() default "";
+        boolean discontinued() default false;
     }
 
     @NonNls

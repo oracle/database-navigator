@@ -26,25 +26,23 @@ import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import static com.dbn.common.util.Lists.convert;
 
 public class TableMetadataToolImpl extends AssistantToolBase implements TableMetadataTool {
 
     @Override
-    public List<String> listTableNames(String schemaName, boolean includeTemporaryTables) {
+    public List<String> listTableNames(String schemaName, boolean includeRegularTables, boolean includeTemporaryTables) {
         DBSchema schema = getSchema(schemaName);
 
         List<DBTable> tables = schema.getTables();
-        return getObjectNames(tables, false, t -> includeTemporaryTables || !t.isTemporary());
-    }
-
-    @Override
-    public List<String> listTemporaryTableNames(String schemaName) {
-        DBSchema schema = getSchema(schemaName);
-
-        List<DBTable> tables = schema.getTables();
-        return getObjectNames(tables, false, t -> t.isTemporary());
+        Predicate<DBTable> filter = t -> {
+            if (includeTemporaryTables && t.isTemporary()) return true;
+            if (includeRegularTables && !t.isTemporary()) return true;
+            return false;
+        };
+        return getObjectNames(tables, false, filter);
     }
 
     @Override

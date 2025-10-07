@@ -54,23 +54,16 @@ public interface TableMetadataTool extends AssistantTool {
             summary = "schema %s")
     List<String> listTableNames(
             @P("Schema name") String schemaName,
+            @P("Include temporary tables") boolean includeRegularTables,
             @P("Include temporary tables") boolean includeTemporaryTables);
-
-
-    @Tool(name = "LIST_TEMPORARY_TABLE_NAMES")
-    @UtilitySpec(
-            name = "List temporary table names",
-            description = "Lists temporary table names in a given schema",
-            summary = "schema %s")
-    List<String> listTemporaryTableNames(
-            @P("Schema name") String schemaName);
 
 
     @Tool(name = "LOAD_TABLE_DEFINITION")
     @UtilitySpec(
             name = "Load table definition",
             description = "Loads the definition of a given table",
-            summary = "%s.%s")
+            summary = "%s.%s",
+            discontinued = true) // token optimization
     TableDefinition loadTableDefinition(
             @P("Schema name") String schemaName,
             @P("Table name") String tableName,
@@ -80,7 +73,7 @@ public interface TableMetadataTool extends AssistantTool {
     @Tool(name = "LOAD_TABLE_DEFINITIONS")
     @UtilitySpec(
             name = "Load table definitions",
-            description = "Loads the definitions of a given set of tables (optimized version of LOAD_TABLE_DEFINITION for bulk queries)",
+            description = "Loads the definitions of a given set of tables",
             summary = "%s.%s")
     List<TableDefinition> loadTableDefinitions(
             @P("Schema name") String schemaName,

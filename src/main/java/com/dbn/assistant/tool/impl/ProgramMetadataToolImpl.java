@@ -29,6 +29,17 @@ import java.util.List;
 public class ProgramMetadataToolImpl extends AssistantToolBase implements ProgramMetadataTool {
 
     @Override
+    public List<String> listProgramNames(String schemaName, String programType) {
+        switch (programType.toUpperCase()) {
+            case "FUNCTION": return listFunctionNames(schemaName);
+            case "PROCEDURE": return listProcedureNames(schemaName);
+            case "PACKAGE": return listPackageNames(schemaName);
+            case "TYPE": return listTypeNames(schemaName);
+            default: throw new IllegalArgumentException("Invalid program type \"" + programType + "\". Expected one of the following values: FUNCTION, PROCEDURE, PACKAGE or TYPE");
+        }
+    }
+
+    @Override
     public List<String> listTypeNames(String schemaName) {
         DBSchema schema = getSchema(schemaName);
 

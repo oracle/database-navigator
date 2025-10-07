@@ -34,6 +34,17 @@ import java.sql.SQLException;
 public class ProgramSourceCodeToolImpl extends AssistantToolBase implements ProgramSourceCodeTool {
 
     @Override
+    public ProgramSourceCode loadProgramSourceCode(String schemaName, String programName, String programType) throws SQLException {
+        switch (programType.toUpperCase()) {
+            case "FUNCTION": return loadFunctionSourceCode(schemaName, programName);
+            case "PROCEDURE": return loadProcedureSourceCode(schemaName, programName);
+            case "PACKAGE": return loadPackageSourceCode(schemaName, programName);
+            case "TYPE": return loadTypeSourceCode(schemaName, programName);
+            default: throw new IllegalArgumentException("Invalid program type \"" + programType + "\". Expected one of the following values: FUNCTION, PROCEDURE, PACKAGE or TYPE");
+        }
+    }
+
+    @Override
     public ProgramSourceCode loadTypeSourceCode(String schemaName, String typeName) throws SQLException {
         DBSchema schema = getSchema(schemaName);
         DBType type = schema.getType(typeName);
@@ -52,7 +63,7 @@ public class ProgramSourceCodeToolImpl extends AssistantToolBase implements Prog
     }
 
     @Override
-    public MethodSourceCode loadFunctionSourceCode(String schemaName, String functionName) throws SQLException {
+    public ProgramSourceCode loadFunctionSourceCode(String schemaName, String functionName) throws SQLException {
         DBSchema schema = getSchema(schemaName);
         DBFunction function = schema.getFunction(functionName, (short) 0); // TODO support overloads
         verify(function, DBObjectType.FUNCTION, functionName);
@@ -61,7 +72,7 @@ public class ProgramSourceCodeToolImpl extends AssistantToolBase implements Prog
     }
 
     @Override
-    public MethodSourceCode loadProcedureSourceCode(String schemaName, String procedureName) throws SQLException {
+    public ProgramSourceCode loadProcedureSourceCode(String schemaName, String procedureName) throws SQLException {
         DBSchema schema = getSchema(schemaName);
         DBProcedure procedure = schema.getProcedure(procedureName, (short) 0); // TODO support overloads
         verify(procedure, DBObjectType.PROCEDURE, procedureName);
@@ -76,16 +87,18 @@ public class ProgramSourceCodeToolImpl extends AssistantToolBase implements Prog
         ProgramSourceCode programSourceCode = new ProgramSourceCode();
         programSourceCode.setName(program.getName());
         programSourceCode.setSpec(specSourceCode);
-        programSourceCode.setBody(bodySourceCode);
+        programSourceCode.setCode(bodySourceCode);
+        programSourceCode.setType(program.getObjectType().getName());
         return programSourceCode;
     }
 
-    private static @NotNull MethodSourceCode loadMethodSourceCode(DBMethod method) throws SQLException {
+    private static @NotNull ProgramSourceCode loadMethodSourceCode(DBMethod method) throws SQLException {
         String sourceCode = loadObjectSourceCode(method, DBContentType.CODE);
 
-        MethodSourceCode methodSourceCode = new MethodSourceCode();
+        ProgramSourceCode methodSourceCode = new ProgramSourceCode();
         methodSourceCode.setName(method.getName());
         methodSourceCode.setCode(sourceCode);
+        methodSourceCode.setType(method.getObjectType().getName());
         return methodSourceCode;
     }
 }

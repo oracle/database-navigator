@@ -45,11 +45,22 @@ public interface ProgramMetadataTool extends AssistantTool {
      *                 TOOLS                     *
      *********************************************/
 
+    @Tool(name = "LIST_PROGRAM_NAMES")
+    @UtilitySpec(
+            name = "List program names",
+            description = "Lists the names of programs of a given type in a schema",
+            summary = "schema %s - %s")
+    List<String> listProgramNames(
+            @P("Schema name") String schemaName,
+            @P("Program type (FUNCTION, PROCEDURE, PACKAGE or TYPE)") String programType);
+
+
     @Tool(name = "LIST_TYPE_NAMES")
     @UtilitySpec(
             name = "List declared type names",
             description = "Lists the names of declared data-types in a given schema",
-            summary = "schema %s")
+            summary = "schema %s",
+            discontinued = true) // token optimization
     List<String> listTypeNames(@P("Schema name") String schemaName);
 
 
@@ -57,7 +68,8 @@ public interface ProgramMetadataTool extends AssistantTool {
     @UtilitySpec(
             name = "List function names",
             description = "Lists the names of functions in a given schema",
-            summary = "schema %s")
+            summary = "schema %s",
+            discontinued = true) // token optimization
     List<String> listFunctionNames(@P("Schema name") String schemaName);
 
 
@@ -65,7 +77,8 @@ public interface ProgramMetadataTool extends AssistantTool {
     @UtilitySpec(
             name = "List procedure names",
             description = "Lists the names of stored procedures in a given schema",
-            summary = "schema %s")
+            summary = "schema %s",
+            discontinued = true) // token optimization
     List<String> listProcedureNames(@P("Schema name") String schemaName);
 
 
@@ -73,7 +86,8 @@ public interface ProgramMetadataTool extends AssistantTool {
     @UtilitySpec(
             name = "List package names",
             description = "Lists the names of packages in a given schema",
-            summary = "schema %s")
+            summary = "schema %s",
+            discontinued = true) // token optimization
     List<String> listPackageNames(@P("Schema name") String schemaName);
 
 }

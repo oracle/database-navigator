@@ -21,12 +21,20 @@ import com.dbn.assistant.tool.spec.SchemaMetadataTool;
 import com.dbn.object.DBSchema;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 public class SchemaMetadataToolImpl extends AssistantToolBase implements SchemaMetadataTool {
 
     @Override
-    public List<String> listSchemaNames(boolean includeSystemSchemas) {
+    public List<String> listSchemaNames(boolean includeUserSchemas, boolean includeSystemSchemas, boolean includePublicSchemas) {
         List<DBSchema> schemas = getConnection().getObjectBundle().getSchemas();
-        return getObjectNames(schemas, false, s -> includeSystemSchemas || !s.isSystemSchema());
+        Predicate<DBSchema> filter = s -> {
+            if (includeUserSchemas && !s.isSystemSchema() && !s.isPublicSchema()) return true;
+            if (includeSystemSchemas && s.isSystemSchema()) return true;
+            if (includePublicSchemas && s.isPublicSchema()) return true;
+
+            return false;
+        };
+        return getObjectNames(schemas, false, filter);
     }
 }

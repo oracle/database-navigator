@@ -94,6 +94,7 @@ public class AssistantToolProvider implements ToolProvider {
     private void processToolMethod(Map<ToolSpecification, ToolExecutor> tools, Object object, Method method) {
         method = getAnnotatedMethod(method);
         if (method == null) return;
+        if (isDiscontinued(method)) return;
 
         ToolSpecification specification = buildSpecification(method);
         if (isAlreadyDefined(tools, specification)) {
@@ -106,6 +107,11 @@ public class AssistantToolProvider implements ToolProvider {
 
     private static boolean isAlreadyDefined(Map<ToolSpecification, ToolExecutor> tools, ToolSpecification specification) {
         return tools.keySet().stream().anyMatch(s -> s.name().equals(specification.name()));
+    }
+
+    private static boolean isDiscontinued(Method method) {
+        UtilitySpec utilitySpec = method.getAnnotation(UtilitySpec.class);
+        return utilitySpec.discontinued();
     }
 
     private static ToolSpecification buildSpecification(Method method) {

@@ -49,5 +49,8 @@ public interface SchemaMetadataTool extends AssistantTool {
     @UtilitySpec(
             name = "List schema names",
             description = "Lists database schema names")
-    List<String> listSchemaNames(@P("Include system schemas") boolean includeSystemSchemas);
+    List<String> listSchemaNames(
+            @P("Include user schemas") boolean includeUserSchemas,
+            @P("Include system schemas") boolean includeSystemSchemas,
+            @P("Include public schemas") boolean includePublicSchemas);
 }

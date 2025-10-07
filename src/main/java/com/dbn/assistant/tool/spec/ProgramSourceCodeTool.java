@@ -47,11 +47,23 @@ public interface ProgramSourceCodeTool extends AssistantTool {
      *                 TOOLS                     *
      *********************************************/
 
+    @Tool(name = "LOAD_PROGRAM_SOURCE_CODE")
+    @UtilitySpec(
+            name = "Load program source-code",
+            description = "Loads the source code of a given program",
+            summary = "%s.%s - %s")
+    ProgramSourceCode loadProgramSourceCode(
+            @P("Schema name") String schemaName,
+            @P("Program name") String programName,
+            @P("Program type (FUNCTION, PROCEDURE, PACKAGE or TYPE)") String programType) throws SQLException;
+
+
     @Tool(name = "LOAD_TYPE_SOURCE_CODE")
     @UtilitySpec(
             name = "Load type source-code",
             description = "Loads the source code of a given user-defined type",
-            summary = "%s.%s")
+            summary = "%s.%s",
+            discontinued = true) // token optimization
     ProgramSourceCode loadTypeSourceCode(
             @P("Schema name") String schemaName,
             @P("Type name") String typeName) throws SQLException;
@@ -61,7 +73,8 @@ public interface ProgramSourceCodeTool extends AssistantTool {
     @UtilitySpec(
             name = "Load package source-code",
             description = "Loads the source code of a given package",
-            summary = "%s.%s")
+            summary = "%s.%s",
+            discontinued = true) // token optimization
     ProgramSourceCode loadPackageSourceCode(
             @P("Schema name") String schemaName,
             @P("Package name") String packageName) throws SQLException;
@@ -71,8 +84,9 @@ public interface ProgramSourceCodeTool extends AssistantTool {
     @UtilitySpec(
             name = "Load function source-code",
             description = "Loads the source code of a given function",
-            summary = "%s.%s")
-    MethodSourceCode loadFunctionSourceCode(
+            summary = "%s.%s",
+            discontinued = true) // token optimization
+    ProgramSourceCode loadFunctionSourceCode(
             @P("Schema name") String schemaName,
             @P("Function name") String functionName) throws SQLException;
 
@@ -81,22 +95,12 @@ public interface ProgramSourceCodeTool extends AssistantTool {
     @UtilitySpec(
             name = "Load procedure source-code",
             description = "Loads the source code of a given stored procedure",
-            summary = "%s.%s")
-    MethodSourceCode loadProcedureSourceCode(
+            summary = "%s.%s",
+            discontinued = true) // token optimization
+    ProgramSourceCode loadProcedureSourceCode(
             @P("Schema name") String schemaName,
             @P("Procedure name") String procedureName) throws SQLException;
 
-
-
-    @Data
-    @Description("Method source-code")
-    class MethodSourceCode {
-        @Description("Method name")
-        private String name;
-
-        @Description("Code content")
-        private String code;
-    }
 
     @Data
     @Description("Program source-code")
@@ -104,10 +108,13 @@ public interface ProgramSourceCodeTool extends AssistantTool {
         @Description("Program name")
         private String name;
 
-        @Description("Program spec code")
+        @Description("Program type")
+        private String type;
+
+        @Description("Program specification")
         private String spec;
 
-        @Description("Program body code")
-        private String body;
+        @Description("Program code")
+        private String code;
     }
 }
