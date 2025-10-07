@@ -16,7 +16,9 @@
 
 package com.dbn.assistant.tool.event;
 
-public enum AssistantToolStatus {
+import com.dbn.common.constant.Constant;
+
+public enum AssistantToolStatus implements Constant<AssistantToolStatus> {
     REQUESTED,
     EXECUTING,
     CANCELLED,

@@ -190,6 +190,14 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private void initProcessingPanel() {
         processingIconPanel.add(new AsyncProcessIcon("Processing tool request"));
         processingPanel.setVisible(false);
+        if (getInvocationMonitor() == null) return; // old incomplete tool request
+        if (isInteractive()) return;
+        if (!isPreapproved()) return;
+
+        AssistantToolInvocation invocation = getToolInvocation();
+        if (invocation.getStatus() != AssistantToolStatus.REQUESTED) return;
+
+        processingPanel.setVisible(true);
     }
 
     private void initPromptMessagePanel() {
@@ -257,10 +265,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         AssistantToolInvocation invocation = getToolInvocation();
         if (invocation.getStatus() != AssistantToolStatus.REQUESTED) return;
         if (getInvocationMonitor() == null) return; // old incomplete tool request
-        if (isPreapproved()) {
-            processingPanel.setVisible(true);
-            return;
-        }
+        if (isPreapproved()) return;
 
         messageTextPane.setText("The agent has requested to run this tool on your database. " +
                 "Please review the request and choose whether to allow or deny it. " +
