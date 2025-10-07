@@ -21,8 +21,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Properties;
 
 public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
@@ -44,7 +46,7 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
   protected void doOKAction() {
     try {
       McpServerInputForm form = getForm();
-      ToolDefinitionModel toolDefinitionModel = form.getTools().get(0);
+      List<ToolDefinitionModel> toolDefinitionModel = form.getTools();
 
 
       String basePath = project != null ? project.getBasePath() : null;
@@ -59,15 +61,18 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
       props.setProperty("mcp.serverName",   props.getProperty("mcp.serverName", "mcp-server"));
       props.setProperty("mcp.serverVersion", props.getProperty("mcp.serverVersion", "1.0.0"));
 
-//      props.setProperty("tool.sql", rewrittenSql);
-//      props.setProperty("tool.paramOrder", paramOrderCsv);
-      props.setProperty("tool.schema", toolDefinitionModel.getJsonSchema());
-      props.setProperty("generatedAt", DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()));
+      //tools
+      props.setProperty("mcp.tools.count", Integer.toString(toolDefinitionModel.size()));
+      for(int i=0 ; i<toolDefinitionModel.size();i++){
+        ToolDefinitionModel t = toolDefinitionModel.get(i);
+        String prefix = "mcp.tools." + i + ".";
+        props.setProperty(prefix + "name",   t.getName() != null ? t.getName() : "");
+        props.setProperty(prefix + "desc",   t.getDescription() != null ? t.getDescription() : "Parameterized SELECT tool");
+        props.setProperty(prefix + "sql",    t.getSql() != null ? t.getSql() : "SELECT 1 FROM dual");
+        props.setProperty(prefix + "schema", t.getToolJsonSchema() != null ? t.getToolJsonSchema() : "{\"type\":\"object\",\"additionalProperties\":true}");
+      }
 
-      // Also persist DB + tool metadata expected by the generated server
 
-      props.setProperty("mcp.toolName", toolDefinitionModel.getName()!= null ? toolDefinitionModel.getName() : "");
-      props.setProperty("mcp.toolDesc", toolDefinitionModel.getDescription() != null ? toolDefinitionModel.getDescription() : "Parameterized SELECT tool");
       // Optional server identity (has defaults at runtime)
 
       super.doOKAction();
@@ -89,123 +94,126 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
                   "io.modelcontextprotocol.sdk:mcp:0.11.1",
                   "com.oracle.database.jdbc:ojdbc11:23.8.0.25.04",
                   "\n" +
-                          "import com.fasterxml.jackson.core.JsonProcessingException;\n" +
-                          "import com.fasterxml.jackson.databind.ObjectMapper;\n" +
-                          "import io.modelcontextprotocol.server.McpServer;\n" +
-                          "import io.modelcontextprotocol.server.McpServerFeatures;\n" +
-                          "import io.modelcontextprotocol.server.transport.StdioServerTransportProvider;\n" +
-                          "import io.modelcontextprotocol.spec.McpSchema;\n" +
-                          "\n" +
-                          "\n" +
-                          "import java.io.InputStream;\n" +
-                          "import java.sql.*;\n" +
-                          "import java.util.*;\n" +
-                          "import java.util.stream.Collectors;\n" +
-                          "import java.sql.Connection;\n" +
-                          "import java.sql.DriverManager;\n" +
-                          "import java.sql.PreparedStatement;\n" +
-                          "import java.sql.ResultSet;\n" +
-                          "import java.sql.ResultSetMetaData;\n" +
-                          "import java.sql.SQLException;\n" +
-                          "import java.util.HashMap;\n" +
-                          "import java.util.Map;\n" +
-                          "import java.util.ArrayList;\n" +
-                          "import java.util.List;\n" +
-                          "\n" +
-                          "public class Main {\n" +
-                          "\n" +
-                          "    public static void main(String[] args) throws Exception {\n" +
-                          "      // Load configuration from properties (with -D overrides)\n" +
-                          "      Properties cfg = new Properties();\n" +
-                          "      try (InputStream in = Main.class.getResourceAsStream(\"/mcp-config.properties\")) {\n" +
-                          "        if (in != null) cfg.load(in);\n" +
-                          "      }\n" +
-                          "      String url = System.getProperty(\"mcp.url\",cfg.getProperty(\"mcp.url\"));\n" +
-                          "      String password = System.getProperty(\"mcp.password\",cfg.getProperty(\"mcp.password\"));\n" +
-                          "      String user = System.getProperty(\"mcp.user\",cfg.getProperty(\"mcp.user\"));\n" +
-                          "      String serverName = System.getProperty(\"mcp.serverName\", cfg.getProperty(\"mcp.serverName\", \"mcp-server\"));\n" +
-                          "      String serverVersion = System.getProperty(\"mcp.serverVersion\", cfg.getProperty(\"mcp.serverVersion\", \"1.0.0\"));\n" +
-                          "      String toolName = System.getProperty(\"mcp.toolName\", cfg.getProperty(\"mcp.toolName\", \"run_select\"));\n" +
-                          "      String toolDesc = System.getProperty(\"mcp.toolDesc\", cfg.getProperty(\"mcp.toolDesc\", \"Parameterized SELECT tool\"));\n" +
-                          "      String sql = System.getProperty(\"tool.sql\", cfg.getProperty(\"tool.sql\", \"SELECT 1 AS value FROM dual\"));\n" +
-                          "      String schema = System.getProperty(\"tool.schema\", cfg.getProperty(\"tool.schema\", \"{\\\"type\\\":\\\"object\\\",\\\"additionalProperties\\\":true}\"));\n" +
-                          "\n" +
-                          "      // Set up stdio transport\n" +
-                          "      StdioServerTransportProvider transport =\n" +
-                          "              new StdioServerTransportProvider(new ObjectMapper());\n" +
-                          "      McpServer.sync(transport)\n" +
-                          "              .serverInfo(serverName, serverVersion)\n" +
-                          "              .capabilities(McpSchema.ServerCapabilities.builder()\n" +
-                          "                      .tools(true)\n" +
-                          "                      .logging()\n" +
-                          "                      .build())\n" +
-                          "              .tools(createTool(toolName, toolDesc, schema, new DbDetails(url, user, password),sql))\n" +
-                          "              .build();\n" +
-                          "\n" +
-                          "    }\n" +
-                          "\n" +
-                          "  private static McpServerFeatures.SyncToolSpecification createTool(String toolName, String toolDesc, String schema, DbDetails db,String sql) {\n" +
-                          "\n" +
-                          "    McpSchema.Tool tool = new McpSchema.Tool(toolName, toolDesc,schema);\n" +
-                          "    return new McpServerFeatures.SyncToolSpecification(tool,\n" +
-                          "            (e, request) -> {\n" +
-                          "                // Open JDBC connection using inherited url, user, password and sql\n" +
-                          "                try (Connection conn = DriverManager.getConnection(db.url(), db.user(), db.password());\n" +
-                          "                     PreparedStatement ps = conn.prepareStatement(sql)) {\n" +
-                          "                    // Dynamically bind all provided parameters in order\n" +
-                          "                    int idx = 1;\n" +
-                          "                    for (Map.Entry<String, Object> param : request.entrySet()) {\n" +
-                          "                        ps.setObject(idx++, param.getValue());\n" +
-                          "                    }\n" +
-                          "                    // Execute query and build result list\n" +
-                          "                    try (ResultSet rs = ps.executeQuery()) {\n" +
-                          "                        List<Map<String, Object>> rows = new ArrayList<>();\n" +
-                          "                        ResultSetMetaData md = rs.getMetaData();\n" +
-                          "                        int colCount = md.getColumnCount();\n" +
-                          "                        while (rs.next()) {\n" +
-                          "                            Map<String, Object> row = new HashMap<>();\n" +
-                          "                            for (int i = 1; i <= colCount; i++) {\n" +
-                          "                                row.put(md.getColumnLabel(i), rs.getObject(i));\n" +
-                          "                            }\n" +
-                          "                            rows.add(row);\n" +
-                          "                        }\n" +
-                          "\n" +
-                          "                        var json = new ObjectMapper().writeValueAsString(rows);\n" +
-                          "                        return new McpSchema.CallToolResult(List.of(new McpSchema.TextContent(json)), false);\n" +
-                          "                    } catch (JsonProcessingException ex) {\n" +
-                          "                      throw new RuntimeException(ex);\n" +
-                          "                    }\n" +
-                          "                } catch (SQLException ex) {\n" +
-                          "                    return new McpSchema.CallToolResult(ex.getMessage(), true);\n" +
-                          "                }\n" +
-                          "            });\n" +
-                          "  }\n" +
-                          "\n" +
-                          "  public static class DbDetails {\n" +
-                          "    String url;\n" +
-                          "    String user;\n" +
-                          "    String password;\n" +
-                          "\n" +
-                          "\n" +
-                          "    public DbDetails(String url, String user, String password) {\n" +
-                          "      this.url = url;\n" +
-                          "      this.user = user;\n" +
-                          "      this.password = password;\n" +
-                          "    }\n" +
-                          "\n" +
-                          "    String url(){\n" +
-                          "      return url;\n" +
-                          "    }\n" +
-                          "    String user(){\n" +
-                          "      return user;\n" +
-                          "    }\n" +
-                          "    String password(){\n" +
-                          "      return password;\n" +
-                          "    }\n" +
-                          "\n" +
-                          "  }\n" +
-                          "\n" +
-                          "}",
+                  "import com.fasterxml.jackson.core.JsonProcessingException;\n" +
+                  "import com.fasterxml.jackson.databind.ObjectMapper;\n" +
+                  "import io.modelcontextprotocol.server.McpServer;\n" +
+                  "import io.modelcontextprotocol.server.McpServerFeatures;\n" +
+                  "import io.modelcontextprotocol.server.transport.StdioServerTransportProvider;\n" +
+                  "import io.modelcontextprotocol.spec.McpSchema;\n" +
+                  "\n" +
+                  "import java.io.InputStream;\n" +
+                  "import java.sql.*;\n" +
+                  "import java.util.*;\n" +
+                  "import java.util.stream.Collectors;\n" +
+                  "import java.sql.Connection;\n" +
+                  "import java.sql.DriverManager;\n" +
+                  "import java.sql.PreparedStatement;\n" +
+                  "import java.sql.ResultSet;\n" +
+                  "import java.sql.ResultSetMetaData;\n" +
+                  "import java.sql.SQLException;\n" +
+                  "import java.util.HashMap;\n" +
+                  "import java.util.Map;\n" +
+                  "import java.util.ArrayList;\n" +
+                  "import java.util.List;\n" +
+                  "import oracle.jdbc.OraclePreparedStatement;\n" +
+                  "\n" +
+                  "public class Main {\n" +
+                  "\n" +
+                  "    public static void main(String[] args) throws Exception {\n" +
+                  "      // Load configuration from properties (with -D overrides)\n" +
+                  "      Properties cfg = new Properties();\n" +
+                  "      try (InputStream in = Main.class.getResourceAsStream(\"/mcp-config.properties\")) {\n" +
+                  "        if (in != null) cfg.load(in);\n" +
+                  "      }\n" +
+                  "      String url = System.getProperty(\"mcp.url\", cfg.getProperty(\"mcp.url\"));\n" +
+                  "      String password = System.getProperty(\"mcp.password\", cfg.getProperty(\"mcp.password\"));\n" +
+                  "      String user = System.getProperty(\"mcp.user\", cfg.getProperty(\"mcp.user\"));\n" +
+                  "      String serverName = System.getProperty(\"mcp.serverName\", cfg.getProperty(\"mcp.serverName\", \"mcp-server\"));\n" +
+                  "      String serverVersion = System.getProperty(\"mcp.serverVersion\", cfg.getProperty(\"mcp.serverVersion\", \"1.0.0\"));\n" +
+                  "\n" +
+                  "      // Load tools (indexed): mcp.tools.count and mcp.tools.{i}.name|desc|sql|schema\n" +
+                  "      int toolCount = Integer.parseInt(System.getProperty(\n" +
+                  "              \"mcp.tools.count\",\n" +
+                  "              cfg.getProperty(\"mcp.tools.count\", \"0\")));\n" +
+                  "      java.util.List<McpServerFeatures.SyncToolSpecification> specs = new java.util.ArrayList<>();\n" +
+                  "      for (int i = 0; i < toolCount; i++) {\n" +
+                  "        String p = \"mcp.tools.\" + i + \".\";\n" +
+                  "        String tName   = System.getProperty(p + \"name\",   cfg.getProperty(p + \"name\",   \"tool_\" + i));\n" +
+                  "        String tDesc   = System.getProperty(p + \"desc\",   cfg.getProperty(p + \"desc\",   \"Parameterized SELECT tool\"));\n" +
+                  "        String tSql    = System.getProperty(p + \"sql\",    cfg.getProperty(p + \"sql\",    \"SELECT 1 AS value FROM dual\"));\n" +
+                  "        String tSchema = System.getProperty(p + \"schema\", cfg.getProperty(p + \"schema\", \"{\\\"type\\\":\\\"object\\\",\\\"additionalProperties\\\":true}\"));\n" +
+                  "        specs.add(createTool(tName, tDesc, tSchema, new DbDetails(url, user, password), tSql));\n" +
+                  "      }\n" +
+                  "      // Backwards-compat: fall back to single-tool props if none indexed\n" +
+                  "      if (specs.isEmpty()) {\n" +
+                  "        String tName   = System.getProperty(\"mcp.toolName\", cfg.getProperty(\"mcp.toolName\", \"run_select\"));\n" +
+                  "        String tDesc   = System.getProperty(\"mcp.toolDesc\", cfg.getProperty(\"mcp.toolDesc\", \"Parameterized SELECT tool\"));\n" +
+                  "        String tSql    = System.getProperty(\"tool.sql\",    cfg.getProperty(\"tool.sql\",    \"SELECT 1 AS value FROM dual\"));\n" +
+                  "        String tSchema = System.getProperty(\"tool.schema\", cfg.getProperty(\"tool.schema\", \"{\\\"type\\\":\\\"object\\\",\\\"additionalProperties\\\":true}\"));\n" +
+                  "        specs.add(createTool(tName, tDesc, tSchema, new DbDetails(url, user, password), tSql));\n" +
+                  "      }\n" +
+                  "\n" +
+                  "      // Set up stdio transport and start server with all tools\n" +
+                  "      StdioServerTransportProvider transport = new StdioServerTransportProvider(new ObjectMapper());\n" +
+                  "      McpServer.sync(transport)\n" +
+                  "              .serverInfo(serverName, serverVersion)\n" +
+                  "              .capabilities(McpSchema.ServerCapabilities.builder()\n" +
+                  "                      .tools(true)\n" +
+                  "                      .logging()\n" +
+                  "                      .build())\n" +
+                  "              .tools(specs.toArray(new McpServerFeatures.SyncToolSpecification[0]))\n" +
+                  "              .build();\n" +
+                  "\n" +
+                  "    }\n" +
+                  "\n" +
+                  "  private static McpServerFeatures.SyncToolSpecification createTool(String toolName, String toolDesc, String schema, DbDetails db, String sql) {\n" +
+                  "    McpSchema.Tool tool = new McpSchema.Tool(toolName, toolDesc, schema);\n" +
+                  "    return new McpServerFeatures.SyncToolSpecification(tool, (e, request) -> {\n" +
+                  "        try (Connection conn = DriverManager.getConnection(db.url(), db.user(), db.password());\n" +
+                  "             OraclePreparedStatement ps = (OraclePreparedStatement) conn.prepareStatement(sql)) {\n" +
+                  "          // Dynamically bind all provided parameters by name\n" +
+                  "          for (Map.Entry<String, Object> en : request.entrySet()) {\n" +
+                  "            ps.setObjectAtName(en.getKey(), en.getValue());\n" +
+                  "          }\n" +
+
+          "            // Execute query and build result list\n" +
+                  "            try (ResultSet rs = ps.executeQuery()) {\n" +
+                  "                List<Map<String, Object>> rows = new ArrayList<>();\n" +
+                  "                ResultSetMetaData md = rs.getMetaData();\n" +
+                  "                int colCount = md.getColumnCount();\n" +
+                  "                while (rs.next()) {\n" +
+                  "                    Map<String, Object> row = new HashMap<>();\n" +
+                  "                    for (int i = 1; i <= colCount; i++) {\n" +
+                  "                        row.put(md.getColumnLabel(i), rs.getObject(i));\n" +
+                  "                    }\n" +
+                  "                    rows.add(row);\n" +
+                  "                }\n" +
+                  "                String json = new ObjectMapper().writeValueAsString(rows);\n" +
+                  "                return new McpSchema.CallToolResult(List.of(new McpSchema.TextContent(json)), false);\n" +
+                  "            } catch (JsonProcessingException ex) {\n" +
+                  "                throw new RuntimeException(ex);\n" +
+                  "            }\n" +
+                  "        } catch (SQLException ex) {\n" +
+                  "            return new McpSchema.CallToolResult(ex.getMessage(), true);\n" +
+                  "        }\n" +
+                  "    });\n" +
+                  "  }\n" +
+                  "\n" +
+                  "  public static class DbDetails {\n" +
+                  "    String url;\n" +
+                  "    String user;\n" +
+                  "    String password;\n" +
+                  "    public DbDetails(String url, String user, String password) {\n" +
+                  "      this.url = url;\n" +
+                  "      this.user = user;\n" +
+                  "      this.password = password;\n" +
+                  "    }\n" +
+                  "    String url(){ return url; }\n" +
+                  "    String user(){ return user; }\n" +
+                  "    String password(){ return password; }\n" +
+                  "  }\n" +
+                  "\n" +
+                  "}\n",
                   outFile,
                   line -> {
                     if (line == null) return;
