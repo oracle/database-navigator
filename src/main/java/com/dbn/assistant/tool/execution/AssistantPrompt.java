@@ -38,4 +38,12 @@ public class AssistantPrompt {
             options.addAll(Data.asStringList(o));
         }
     }
+
+    protected int getParameterIndex(String option) {
+        int optionIndex = options.indexOf(option);
+        if (optionIndex < 0) {
+            throw new IllegalArgumentException("Invalid option: " + option);
+        }
+        return optionIndex + 2;
+    }
 }

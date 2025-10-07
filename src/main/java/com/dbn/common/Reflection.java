@@ -17,11 +17,13 @@
 package com.dbn.common;
 
 import com.dbn.common.util.Primitives;
+import com.dbn.common.util.Unsafe;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -162,5 +164,21 @@ public class Reflection {
         Field field = object.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(object, fieldValue);
+    }
+
+    public static <T> T[] getParameterAnnotations(Method method, Class<T> annotationClass) {
+        Annotation[][] allAnnotations = method.getParameterAnnotations();
+
+        T[] annotationsArray = Unsafe.cast(Array.newInstance(annotationClass, allAnnotations.length));
+        for (int i = 0; i < allAnnotations.length; i++) {
+            Annotation[] annotations = allAnnotations[i];
+            for (Annotation annotation : annotations) {
+                if (annotationClass.isAssignableFrom(annotation.getClass())) {
+                    annotationsArray[i] = annotationClass.cast(annotation);
+                }
+            }
+        }
+
+        return annotationsArray;
     }
 }

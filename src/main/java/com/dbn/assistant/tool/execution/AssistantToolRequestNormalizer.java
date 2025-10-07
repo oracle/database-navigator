@@ -29,7 +29,6 @@ import lombok.SneakyThrows;
 import org.apache.xmlbeans.impl.common.Levenshtein;
 import org.jspecify.annotations.NonNull;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -210,7 +209,7 @@ public class AssistantToolRequestNormalizer {
         int index = -1;
         double maxSimilarity = 0;
 
-        P[] annotations = getParameterAnnotations(method);
+        P[] annotations = Reflection.getParameterAnnotations(method, P.class);
         for (int i = 0; i < annotations.length; i++) {
             P annotation = annotations[i];
             if (annotation == null) continue;
@@ -236,22 +235,6 @@ public class AssistantToolRequestNormalizer {
         if (index == -1) return argumentName;
 
         return buildArgumentName(index);
-    }
-
-    private static P[] getParameterAnnotations(Method method) {
-        Annotation[][] allAnnotations = method.getParameterAnnotations();
-        P[] descriptionAnnotations = new P[allAnnotations.length];
-
-        for (int i = 0; i < allAnnotations.length; i++) {
-            Annotation[] annotations = allAnnotations[i];
-            for (Annotation annotation : annotations) {
-                if (annotation instanceof P) {
-                    descriptionAnnotations[i] = (P) annotation;
-                }
-            }
-        }
-
-        return descriptionAnnotations;
     }
 
     private static String simplifyArgumentName(String argumentName) {

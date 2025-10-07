@@ -55,4 +55,11 @@ public interface AssistantToolInfo {
         String description();
         String summary() default "";
     }
+
+    @NonNls
+    @Target({ElementType.PARAMETER})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface ParamSpec {
+        String value();
+    }
 }

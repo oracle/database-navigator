@@ -18,6 +18,7 @@ package com.dbn.assistant.tool.spec;
 
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
+import com.dbn.assistant.tool.AssistantToolInfo.ParamSpec;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
 import com.dbn.assistant.tool.impl.UserPromptsToolImpl;
 import dev.langchain4j.agent.tool.P;
@@ -51,8 +52,8 @@ public interface UserPromptsTool extends AssistantTool {
     boolean requestUserConfirmation(
             @P("Brief description of the topic") String title,
             @P("Confirmation message") String question,
-            @P("Label for the affirmative option") String yesOption,
-            @P("Label for negative option") String noOption);
+            @P("Label for the affirmative option") @ParamSpec("true") String yesOption,
+            @P("Label for negative option") @ParamSpec("false") String noOption);
 
 
     @Tool(name = "REQUEST_USER_DECISION")

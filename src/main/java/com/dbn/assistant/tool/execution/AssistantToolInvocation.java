@@ -16,11 +16,16 @@
 
 package com.dbn.assistant.tool.execution;
 
+import com.dbn.assistant.tool.AssistantToolInfo.ParamSpec;
 import com.dbn.assistant.tool.event.AssistantToolStatus;
+import com.dbn.common.Reflection;
+import com.dbn.common.data.Data;
 import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+
+import java.lang.reflect.Method;
 
 import static com.dbn.assistant.tool.AssistantToolData.isInteractiveTool;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -54,6 +59,22 @@ public class AssistantToolInvocation implements PersistentStateElement {
 
     public boolean isInteractiveRequest() {
         return isInteractiveTool(request.getToolName());
+    }
+
+    public Object getOptionValue() {
+        if (option == null) return null;
+        if (prompt == null) return null;
+
+        Method method = getRequest().getMethod();
+        Class<?> returnType = method.getReturnType();
+        if (option.getClass().equals(returnType)) return option;
+
+        int parameterIndex = prompt.getParameterIndex(option);
+        ParamSpec[] parameterAnnotations = Reflection.getParameterAnnotations(method, ParamSpec.class);
+        ParamSpec paramSpec = parameterAnnotations[parameterIndex];
+        Object value = paramSpec == null ? option : paramSpec.value();
+
+        return Data.asType(value, returnType);
     }
 
     public static AssistantToolInvocation current() {
