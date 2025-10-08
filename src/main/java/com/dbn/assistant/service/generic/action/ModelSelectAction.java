@@ -16,11 +16,14 @@
 
 package com.dbn.assistant.service.generic.action;
 
+import com.dbn.assistant.AssistantType;
+import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.provider.AIModel;
+import com.dbn.assistant.provider.AIProviderId;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -38,12 +41,18 @@ public class ModelSelectAction extends AbstractChatBoxAction {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        // preserve profile and action from the current context
+        AssistantType assistantType = chatBox.getAssistantType();
         ChatContext currentContext = chatBox.getCurrentContext();
+        AIProviderId providerId = currentContext.getProviderId();
+
+        DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
+        assistantManager.getSelectionState().setSelectedModel(assistantType, providerId, model);
+
+        // preserve profile and action from the current context
         ChatContext targetContext = new ChatContextImpl(
-                chatBox.getAssistantType(),
+                assistantType,
                 currentContext.getProfileId(),
-                currentContext.getProviderId(),
+                providerId,
                 model.getId(),
                 currentContext.getActionId(),
                 currentContext.isInteractive());

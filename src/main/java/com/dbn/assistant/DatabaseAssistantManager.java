@@ -22,6 +22,7 @@ import com.dbn.assistant.adapter.AssistantAdapters;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.state.AssistantSelectionState;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateDelegate;
 import com.dbn.common.component.PersistentState;
@@ -47,6 +48,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -88,6 +90,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     private final Map<ConnectionId, Map<AssistantType, AssistantState>> assistantStates = new ConcurrentHashMap<>();
     private final Map<ConnectionId, Map<AssistantType, ChatBoxForm>> chatBoxes = new ConcurrentHashMap<>();
     private final Map<ConnectionId, AssistantType> selectedAssistantTypes = new ConcurrentHashMap<>();
+    private final @Getter AssistantSelectionState selectionState = new AssistantSelectionState();
 
     private DatabaseAssistantManager(Project project) {
         super(project, COMPONENT_NAME);
@@ -357,6 +360,9 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
                 if (selected) setBooleanAttribute(stateElement, "selected", true);
             }
         }
+        Element selectionElement = newElement(element, "selection-state");
+        selectionState.writeState(selectionElement);
+
         return element;
     }
 
@@ -377,5 +383,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
             boolean selected = booleanAttribute(stateElement, "selected", false);
             if (selected) selectedAssistantTypes.put(connectionId, assistantType);
         }
+
+        Element selectionElement = element.getChild("selection-state");
+        selectionState.readState(selectionElement);
     }
 }

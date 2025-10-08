@@ -16,11 +16,16 @@
 
 package com.dbn.assistant.service.generic.action;
 
+import com.dbn.assistant.AssistantType;
+import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.profile.AssistantProfile;
+import com.dbn.assistant.provider.AIModel;
+import com.dbn.assistant.provider.AIProviderId;
+import com.dbn.assistant.state.AssistantSelectionState;
 import com.dbn.common.ref.WeakRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -41,21 +46,29 @@ public class ProfileSelectAction extends AbstractChatBoxAction {
         if (chatBox == null) return;
 
         AssistantProfile profile = getProfile();
-        verifyAssistantProfile(project, profile, p -> switchContext(e, p));
+        verifyAssistantProfile(project, profile, p -> switchContext(e, project, p));
     }
 
-    private void switchContext(@NotNull AnActionEvent e, AssistantProfile profile) {
+    private void switchContext(@NotNull AnActionEvent e, @NotNull Project project, AssistantProfile profile) {
         if (profile == null) return;
 
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
+        AssistantType assistantType = chatBox.getAssistantType();
+        DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
+        AssistantSelectionState selectionState = assistantManager.getSelectionState();
+
+        AIProviderId providerId = profile.getProviderId();
+        AIModel model = selectionState.getSelectedModel(assistantType, providerId);
+        String modelId = model == null ?  profile.getDefaultModelId() : model.getId();
+
         ChatContext currentContext = chatBox.getCurrentContext();
         ChatContext targetContext = new ChatContextImpl(
                 currentContext.getAssistantType(),
                 profile.getId(),
-                profile.getProviderId(),
-                profile.getDefaultModelId(),
+                providerId,
+                modelId,
                 currentContext.getActionId(),
                 true);
 
