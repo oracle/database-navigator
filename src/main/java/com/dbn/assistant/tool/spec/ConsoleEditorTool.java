@@ -61,7 +61,8 @@ public interface ConsoleEditorTool extends AssistantTool {
     @Tool(name = "LOAD_SQL_CONSOLE_CONTENT")
     @UtilitySpec(
             name = "Load SQL console content",
-            description = "Loads the content of a given SQL console")
+            description = "Loads the content of a given SQL console",
+            summary = "%s")
     String loadSqlConsoleContent(
             @P("Console name") String consoleName);
 
@@ -69,7 +70,8 @@ public interface ConsoleEditorTool extends AssistantTool {
     @Tool(name = "UPDATE_SQL_CONSOLE_CONTENT")
     @UtilitySpec(
             name = "Update SQL console content",
-            description = "Updates the content of a given SQL console")
+            description = "Updates the content of a given SQL console",
+            summary = "%s")
     void updateSqlConsoleContent(
             @P("Console name") String consoleName,
             @P("Console content") String consoleContent);
