@@ -96,11 +96,15 @@
                 <url type="API">https://generativelanguage.googleapis.com/v1beta/</url>
             </urls>
             <models>
-                <model id="GEMINI_1_5_FLASH" api-name="gemini-1.5-flash"/>
-                <model id="GEMINI_1_5_PRO"   api-name="gemini-1.5-pro"/>
-                <model id="GEMINI_1_0_PRO"   api-name="gemini-1.0-pro"/>
-                <model id="GEMINI_2_5_FLASH" api-name="gemini-2.5-flash"/>
-                <model id="GEMINI_2_5_PRO"   api-name="gemini-2.5-pro"/>
+                <model id="GEMINI_1_5_FLASH"      api-name="gemini-1.5-flash"/>
+                <model id="GEMINI_1_5_PRO"        api-name="gemini-1.5-pro"/>
+                <model id="GEMINI_1_0_PRO"        api-name="gemini-1.0-pro"/>
+                <model id="GEMINI_2_0_FLASH_LITE" api-name="gemini-2.0-flash-lite"/>
+                <model id="GEMINI_2_0_FLASH"      api-name="gemini-2.0-flash"/>
+                <model id="GEMINI_2_5_FLASH_LITE" api-name="gemini-2.5-flash-lite"/>
+                <model id="GEMINI_2_5_FLASH"      api-name="gemini-2.5-flash"/>
+                <model id="GEMINI_2_5_PRO"        api-name="gemini-2.5-pro"/>
+                <model id="GEMINI_FLASH_LATEST"   api-name="gemini-flash-latest"/>
             </models>
         </provider>
 
@@ -116,7 +120,7 @@
                 <model id="CLAUDE_OPUS_4_20250514"     api-name="claude-opus-4-20250514"/>
                 <model id="CLAUDE_SONNET_4_20250514"   api-name="claude-sonnet-4-20250514"/>
                 <model id="CLAUDE_3_7_SONNET_20250219" api-name="claude-3-7-sonnet-20250219"/>
-                <model id="CLAUDE_3_5_HAIKU_20241022" api-name="claude-3-5-haiku-20241022"/>
+                <model id="CLAUDE_3_5_HAIKU_20241022"  api-name="claude-3-5-haiku-20241022"/>
 
                 <model id="CLAUDE_3_5_SONNET_20240620" api-name="claude-3-5-sonnet-20240620"/>
                 <model id="CLAUDE_3_OPUS_20240229"     api-name="claude-3-opus-20240229"/>
@@ -285,10 +289,12 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
-                    <model id="GEMINI_1_5_FLASH"/>
-                    <model id="GEMINI_1_5_PRO"/>
+                    <model id="GEMINI_2_0_FLASH_LITE"/>
+                    <model id="GEMINI_2_0_FLASH"/>
+                    <model id="GEMINI_2_5_FLASH_LITE"/>
                     <model id="GEMINI_2_5_FLASH"/>
                     <model id="GEMINI_2_5_PRO"/>
+                    <model id="GEMINI_FLASH_LATEST"/>
                 </models>
             </provider>
             <provider id="ANTHROPIC">

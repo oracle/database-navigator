@@ -54,7 +54,7 @@ public interface TableMetadataTool extends AssistantTool {
             summary = "schema %s")
     List<String> listTableNames(
             @P("Schema name") String schemaName,
-            @P("Include temporary tables") boolean includeRegularTables,
+            @P("Include regular tables") boolean includeRegularTables,
             @P("Include temporary tables") boolean includeTemporaryTables);
 
 

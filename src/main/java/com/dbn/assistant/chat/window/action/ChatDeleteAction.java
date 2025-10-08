@@ -17,6 +17,7 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.Chat;
+import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.icon.Icons;
@@ -54,6 +55,12 @@ public class ChatDeleteAction extends AbstractChatBoxAction {
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
+
+        if (!chatBox.hasMessages(AuthorType.AGENT)) {
+            // delete without confirmation
+            chatBox.deleteCurrentChat();
+            return;
+        }
 
         boolean persisted = isPersisted(e);
 

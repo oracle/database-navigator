@@ -27,6 +27,7 @@ import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.ChatContextEvent;
 import com.dbn.assistant.chat.ChatInterruptionReason;
 import com.dbn.assistant.chat.context.ChatContext;
+import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.ui.ChatMessageForm;
 import com.dbn.assistant.chat.message.ui.ChatMessagesForm;
@@ -92,12 +93,13 @@ public class ChatBoxForm extends DBNFormBase {
     private JPanel chatBoxPanel;
     private JPanel chatActionsPanel;
     private JPanel chatMessagesPanel;
+    private JPanel actionsPanel;
 
     private final ConnectionRef connection;
     private final AssistantType assistantType;
     private ChatBoxInputField inputField;
     private ChatMessagesForm messagesForm;
-    private String currentChatId; // identifier of currently displayed chat (can be temporarels different from the one in the AssistantState)
+    private String currentChatId; // identifier of currently displayed chat (can be temporarily different from the one in the AssistantState)
 
     private AssistantContextActionsForm contextActionsForm;
     private AssistantPromptActionsForm promptActionsForm;
@@ -110,6 +112,7 @@ public class ChatBoxForm extends DBNFormBase {
         // hide all panels until availability status is known
         this.introPanel.setVisible(false);
         this.chatBoxPanel.setVisible(false);
+        this.actionsPanel.setVisible(false);
 
         initHeaderForm();
         initIntroForm();
@@ -216,6 +219,8 @@ public class ChatBoxForm extends DBNFormBase {
         ActionToolbar promptSubmitActions = Actions.createActionToolbar(promptSubmitActionsPanel, true, "DBNavigator.ActionGroup.AssistantPromptSubmitActions");
         setAccessibleName(promptSubmitActions, txt("app.assistant.aria.ChatActions"));
         this.promptSubmitActionsPanel.add(promptSubmitActions.getComponent());
+
+        actionsPanel.setVisible(true);
     }
 
     public <F extends AssistantContextActionsForm> F getContextActionsForm() {
@@ -409,6 +414,10 @@ public class ChatBoxForm extends DBNFormBase {
                 performContextSwitch(event);
             }
         }
+    }
+
+    public boolean hasMessages(AuthorType authorType) {
+        return messagesForm.getMessageForms().stream().anyMatch(f -> f.getMessage().getAuthor() == authorType);
     }
 
     /**

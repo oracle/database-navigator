@@ -34,14 +34,14 @@ public class ChatCollapseAllAction extends AbstractChatBoxAction {
         presentation.setIcon(Icons.ACTION_COLLAPSE_ALL);
 
 
-        //presentation.setEnabled(isEnabled(e));
+        presentation.setEnabled(isEnabled(e));
     }
 
     boolean isEnabled(@NotNull AnActionEvent e) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return false;
 
-        return chatBox.getMessageForms().stream().anyMatch(f -> !f.getMessage().isFolded());
+        return !chatBox.getMessageForms().isEmpty();
     }
 
     @Override
