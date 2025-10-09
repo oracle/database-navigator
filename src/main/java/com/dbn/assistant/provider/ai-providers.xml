@@ -85,6 +85,7 @@
                 <model id="XAI_GROK_3_MINI"                                api-name="xai.grok-3-mini"                             base-provider-id="XAI"/>
                 <model id="XAI_GROK_3_MINI_FAST"                           api-name="xai.grok-3-mini-fast"                        base-provider-id="XAI"/>
                 <model id="XAI_GROK_4"                                     api-name="xai.grok-4"                                  base-provider-id="XAI"/>
+                <model id="XAI_GROK_CODE_FAST_1"                           api-name="xai.grok-code-fast-1"                        base-provider-id="XAI"/>
             </models>
         </provider>
 
@@ -268,6 +269,7 @@
                     <model id="XAI_GROK_3_MINI"/>
                     <model id="XAI_GROK_3_MINI_FAST"/>
                     <model id="XAI_GROK_4"/>
+                    <model id="XAI_GROK_CODE_FAST_1"/>
                 </models>
             </provider>
             <provider id="OPEN_AI">
