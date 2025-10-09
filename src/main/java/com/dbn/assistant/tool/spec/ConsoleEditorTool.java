@@ -54,14 +54,14 @@ public interface ConsoleEditorTool extends AssistantTool {
     @Tool(name = "GET_CURRENT_SQL_CONSOLE_NAME")
     @UtilitySpec(
             name = "Current SQL console name",
-            description = "Returns the name of the currently selected SQL console (null if none selected)")
+            description = "Returns the name of the currently selected SQL console (NO_CONSOLE_SELECTED is returned if none selected)")
     String getCurrentConsoleName();
 
 
     @Tool(name = "LOAD_SQL_CONSOLE_CONTENT")
     @UtilitySpec(
             name = "Load SQL console content",
-            description = "Loads the content of a given SQL console",
+            description = "Loads the content of a given SQL console (EMPTY_CONSOLE_CONTENT represents a console with no content)",
             summary = "%s")
     String loadSqlConsoleContent(
             @P("Console name") String consoleName);

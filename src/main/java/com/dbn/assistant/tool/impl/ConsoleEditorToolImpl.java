@@ -18,6 +18,7 @@ package com.dbn.assistant.tool.impl;
 
 import com.dbn.assistant.tool.AssistantToolBase;
 import com.dbn.assistant.tool.spec.ConsoleEditorTool;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.console.DatabaseConsoleManager;
 import com.dbn.editor.console.SQLConsoleEditor;
@@ -35,6 +36,9 @@ import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 
 public class ConsoleEditorToolImpl extends AssistantToolBase implements ConsoleEditorTool {
 
+    public static final String EMPTY_CONSOLE_CONTENT = "EMPTY_CONSOLE_CONTENT";
+    public static final String NO_CONSOLE_SELECTED = "NO_CONSOLE_SELECTED";
+
     @Override
     public List<String> listSqlConsoleNames() {
         List<DBConsole> consoles = getConnection().getConsoleBundle().getConsoles();
@@ -45,17 +49,17 @@ public class ConsoleEditorToolImpl extends AssistantToolBase implements ConsoleE
     public String getCurrentConsoleName() {
         FileEditorManager editorManager = FileEditorManager.getInstance(getProject());
         FileEditor selectedEditor = editorManager.getSelectedEditor();
-        if (selectedEditor == null) return null;
+        if (selectedEditor == null) return NO_CONSOLE_SELECTED;
 
         if (selectedEditor instanceof SQLConsoleEditor) {
             SQLConsoleEditor sqlConsoleEditor = (SQLConsoleEditor) selectedEditor;
             VirtualFile consoleFile = sqlConsoleEditor.getFile();
-            if (consoleFile == null) return null;
+            if (consoleFile == null) return NO_CONSOLE_SELECTED;
 
             return consoleFile.getName();
         }
 
-        return null;
+        return NO_CONSOLE_SELECTED;
     }
 
     @Override
@@ -64,7 +68,10 @@ public class ConsoleEditorToolImpl extends AssistantToolBase implements ConsoleE
         verify(console, DBObjectType.CONSOLE, consoleName);
 
         CharSequence consoleContent = console.getVirtualFile().getContent().getText();
-        return consoleContent.toString();
+        String content = consoleContent.toString();
+
+        // lanchain4j asserts non empty tool responses
+        return Strings.isEmptyOrSpaces(content) ? EMPTY_CONSOLE_CONTENT : content;
     }
 
     public void updateSqlConsoleContent(String consoleName, String newContent) {

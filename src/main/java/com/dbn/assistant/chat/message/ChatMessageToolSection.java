@@ -17,7 +17,9 @@
 package com.dbn.assistant.chat.message;
 
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
+import com.dbn.assistant.tool.execution.AssistantToolResponse;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.util.Strings;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Delegate;
@@ -63,6 +65,12 @@ public class ChatMessageToolSection implements PersistentStateElement {
     }
 
     public boolean hasResponse() {
-        return invocation.getResponse() != null;
+        AssistantToolResponse response = invocation.getResponse();
+        if (response == null) return false;
+
+        String content = response.getContent();
+        if (Strings.isEmptyOrSpaces(content)) return false;
+
+        return true;
     }
 }
