@@ -41,6 +41,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.dbn.common.ui.util.ClientProperty.HAS_VALIDATION_LISTENERS;
+import static com.dbn.common.ui.util.ClientProperty.LOADING;
 import static com.dbn.common.ui.util.ClientProperty.VALIDATION_INFO;
 import static com.dbn.common.ui.util.ClientProperty.VISITED;
 import static com.dbn.common.ui.util.TextFields.getText;
@@ -199,32 +200,38 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
     public void validateInput(JComponent component) {
         DBNDialog dialog = getTarget();
         dialog.validateInput(component);
-
     }
 
     private static <C extends JComponent> List<ValidationInfo> validateTarget(C target, Predicate<C> validator, String message) {
         boolean valid = validator.test(target);
         if (valid) {
-            VALIDATION_INFO.reset(target);
+            resetInfo(target);
             return emptyList();
         } else {
             ValidationInfo info = new ValidationInfo(message, target);
-            VALIDATION_INFO.set(target, info);
+            recordInfo(target, info);
             return singletonList(info);
         }
     }
 
-
     private static <C extends JComponent> List<ValidationInfo> validateTarget(Function<C, String> validator, C target) {
         String error = validator.apply(target);
         if (error == null) {
-            VALIDATION_INFO.reset(target);
+            resetInfo(target);
             return emptyList();
         } else {
             ValidationInfo info = new ValidationInfo(error, target);
-            VALIDATION_INFO.set(target, info);
+            recordInfo(target, info);
             return singletonList(info);
         }
+    }
+
+    private static <C extends JComponent> void resetInfo(C target) {
+        VALIDATION_INFO.reset(target);
+    }
+
+    private static <C extends JComponent> void recordInfo(C target, ValidationInfo info) {
+        VALIDATION_INFO.set(target, info);
     }
 
     /**
@@ -241,6 +248,9 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         Set<JComponent> invalidFields = new HashSet<>();
         for (WrappedValidator<?> validator : validators) {
             JComponent target = validator.getTarget();
+            if (!target.isShowing()) continue; // skip conditionally hidden components
+            if (!target.isEnabled()) continue; // skip disabled fields
+            if (LOADING.is(target)) continue; // skip loading components
 
             // prevent multiple validation issues on same field (e.g. "empty value" and "invalid value pattern")
             if (invalidFields.contains(target)) continue;

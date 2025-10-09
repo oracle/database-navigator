@@ -21,7 +21,6 @@ import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.credential.AssistantCredentialSettings;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Dialogs;
 import com.dbn.credentials.Secret;
@@ -70,17 +69,22 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
         if (selectedCredential == null && !create) return;
 
         AssistantCredential credential = create ? null : selectedCredential;
-        Consumer<AssistantCredential> onSave = c -> {
-            if (create) {
-                AssistantCredentialsTableModel model = credentialsTable.getModel();
-                model.addElement(c);
-            }
-            mackConfigModified();
-            credentialsTable.revalidate();
-            credentialsTable.repaint();
-        };
         Set<String> credentialNames = getCredentialNames(credential == null ? null : credential.getName());
-        Dialogs.show(() -> new AssistantCredentialEditDialog(getProject(), credential, credentialNames, onSave));
+        Dialogs.show(() -> new AssistantCredentialEditDialog(
+                getProject(),
+                credential,
+                credentialNames,
+                c -> saveCredential(c, create)));
+    }
+
+    private void saveCredential(AssistantCredential credential, boolean create) {
+        if (create) {
+            AssistantCredentialsTableModel model = credentialsTable.getModel();
+            model.addElement(credential);
+        }
+        mackConfigModified();
+        credentialsTable.revalidate();
+        credentialsTable.repaint();
     }
 
     private Set<String> getCredentialNames(String excludeName) {

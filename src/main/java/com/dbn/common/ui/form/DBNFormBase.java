@@ -35,6 +35,7 @@ import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.containers.ContainerUtil;
 import lombok.Getter;
@@ -60,9 +61,8 @@ import java.util.Set;
 
 import static com.dbn.common.ui.util.Accessibility.initComponentGroupsAccessibility;
 import static com.dbn.common.ui.util.Accessibility.initCustomComponentAccessibility;
-import static com.dbn.common.ui.util.UserInterface.findChildComponent;
+import static com.dbn.common.ui.util.UserInterface.findTopLeftmostFocusComponent;
 import static com.dbn.common.ui.util.UserInterface.hasChildComponent;
-import static com.dbn.common.ui.util.UserInterface.isFocusableComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.intellij.util.ui.UIUtil.getScrollBarWidth;
@@ -108,7 +108,8 @@ public abstract class DBNFormBase
     @Nullable
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return findChildComponent(getMainComponent(), c -> isFocusableComponent(c));
+        return findTopLeftmostFocusComponent(getMainComponent());
+        //return findChildComponent(getMainComponent(), c -> isFocusableComponent(c));
     }
 
     public void focusPreferredComponent() {
@@ -119,11 +120,16 @@ public abstract class DBNFormBase
     }
 
     /**
-     * Passes on the runnable to the dispatch thread (Application.invokeAndWait) under full awareness of the component modality state
+     * Passes on the runnable to the dispatch thread (Application.invokeLater) under full awareness of the component modality state
      * @param runnable the runnable to be sent to dispatch thread
      */
     protected void dispatch(Runnable runnable) {
-        Dispatch.execute(getMainComponent(), runnable);
+        JComponent mainComponent = getMainComponent();
+        if (initialized) {
+            Dispatch.run(mainComponent, runnable);
+        } else {
+            whenFirstShown(mainComponent, () -> Dispatch.run(mainComponent, runnable));
+        }
     }
 
     /**
@@ -216,6 +222,10 @@ public abstract class DBNFormBase
 
     @ApiStatus.OverrideOnly
     protected void lookAndFeelChanged() {}
+
+    public void applyFormChanges() throws ConfigurationException {}
+
+    public void resetFormChanges() {}
 
     protected void updateActionToolbars() {
         dispatch(() -> UserInterface.updateActionToolbars(getMainComponent()));

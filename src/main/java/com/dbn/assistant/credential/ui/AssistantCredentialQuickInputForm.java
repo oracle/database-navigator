@@ -18,13 +18,15 @@ package com.dbn.assistant.credential.ui;
 
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.provider.ProviderUrlType;
-import com.dbn.common.text.MimeType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
+import com.dbn.oci.ui.OciConfigForm;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
@@ -37,6 +39,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.setText;
 
 public class AssistantCredentialQuickInputForm extends DBNFormBase {
     private JPanel hintPanel;
@@ -45,10 +48,12 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
     private JBPasswordField keyPasswordField;
     private DBNHyperlinkLabel guideHyperlink;
     private JLabel userLabel;
-
+    private JPanel ociConfigPanel;
+    private JPanel userPasswordPanel;
 
     private final AIProvider provider;
     private final @Getter AssistantCredential credential;
+    private final OciConfigForm ociConfigForm;
 
     AssistantCredentialQuickInputForm(AssistantCredentialQuickInputDialog parent, AIProvider provider) {
         super(parent);
@@ -62,6 +67,14 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
         this.userLabel.setVisible(false);
         this.userTextField.setVisible(false);
 
+        this.ociConfigForm = new OciConfigForm(this, credential);
+        this.ociConfigPanel.add(ociConfigForm.getComponent());
+
+        boolean ociCredential = provider.getId() == AIProviderId.OCI_GEN_AI;
+        this.ociConfigPanel.setVisible(ociCredential);
+        this.userPasswordPanel.setVisible(!ociCredential);
+        resetFormChanges();
+
         initHintPanel();
         initGuideHyperlink();
     }
@@ -71,9 +84,9 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
         ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
         String ideName = applicationInfo.getVersionName();
 
-        TextContent hintContent = new TextContent("To connect with " + providerName + " language models, please enter your personal API key below. " +
-                "You can create and manage your keys on the official " + providerName + " API key page.\n\n" +
-                "Your key will be safely stored in the password manager of " + ideName + ".", MimeType.TEXT_PLAIN);
+        TextContent hintContent = TextContent.plain("To connect with \"" + providerName + "\" language models, please enter your personal API key below. " +
+                "You can create and manage your keys on the official \"" + providerName + "\" API key page.\n\n" +
+                "Your key will be safely stored in the password manager of " + ideName + ".");
         DBNHintForm hintForm = new DBNHintForm(this, hintContent, null, true);
         hintPanel.add(hintForm.getComponent());
     }
@@ -90,10 +103,19 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
         addTextValidation(keyPasswordField, Strings::isNotEmpty, "Please provide an API key");
     }
 
+    @Override
+    public void resetFormChanges() {
+        setText(userTextField, credential.getUser());
+        setText(keyPasswordField, Chars.toString(credential.getSecret()));
+        ociConfigForm.resetFormChanges();
+    }
+
     public void applyFormChanges() {
         credential.setUser(getText(userTextField));
-        credential.setKey(keyPasswordField.getPassword());
+        credential.setSecret(keyPasswordField.getPassword());
         credential.updateSecrets(null);
+
+        ociConfigForm.applyFormChanges();
     }
 
     @Nullable

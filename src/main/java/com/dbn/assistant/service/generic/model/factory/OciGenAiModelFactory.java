@@ -17,6 +17,7 @@
 package com.dbn.assistant.service.generic.model.factory;
 
 import com.dbn.assistant.AssistantComponent;
+import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.service.generic.model.AssistantModelInput;
 import com.oracle.bmc.auth.AuthenticationDetailsProvider;
 import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;
@@ -36,7 +37,6 @@ import java.io.IOException;
 
 import static com.dbn.assistant.provider.AIProviderId.COHERE;
 import static com.dbn.assistant.provider.AIProviderId.OCI_GEN_AI;
-import static com.dbn.assistant.service.generic.model.AssistantModelInput.Attribute.COMPARTMENT_ID;
 
 
 public class OciGenAiModelFactory extends AbstractModelFactory implements AssistantComponent {
@@ -49,13 +49,12 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
     @Override
     @SneakyThrows
     public ChatModel createChatModel(AssistantModelInput input) {
-        // TODO temporary - read to config
-        input.withAttribute(COMPARTMENT_ID, "ocid1.compartment.oc1..aaaaaaaayiilxjceby5tqp3b42qv2hmvckk2uuqrikhsbfuoepkgxpdfogpq");
+        AssistantCredential credential = input.getCredential();
 
         String modelName = input.getModelName();
         Double temperature = input.getTemperature();
-        String compartmentId = input.getAttribute(COMPARTMENT_ID);
-        AuthenticationDetailsProvider authProvider = createAuthProvider();
+        String compartmentId = credential.getOciCompartmentId();
+        AuthenticationDetailsProvider authProvider = createAuthProvider(credential);
 
         if (input.getBaseProviderId() == COHERE) {
             return wrapped(() -> OciGenAiCohereChatModel.builder()
@@ -63,6 +62,7 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
                     .temperature(temperature)
                     .authProvider(authProvider)
                     .compartmentId(compartmentId)
+                    .maxTokens(4000)
                     .build());
 
         } else {
@@ -79,14 +79,12 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
     @Override
     @SneakyThrows
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
-        // TODO temporary - read to config
-        input.withAttribute(COMPARTMENT_ID, "ocid1.compartment.oc1..aaaaaaaayiilxjceby5tqp3b42qv2hmvckk2uuqrikhsbfuoepkgxpdfogpq");
-
+        AssistantCredential credential = input.getCredential();
 
         String modelName = input.getModelName();
         Double temperature = input.getTemperature();
-        String compartmentId = input.getAttribute(COMPARTMENT_ID);
-        AuthenticationDetailsProvider authProvider = createAuthProvider();
+        String compartmentId = credential.getOciCompartmentId();
+        AuthenticationDetailsProvider authProvider = createAuthProvider(credential);
 
         if (input.getBaseProviderId() == COHERE) {
             return wrapped(() -> OciGenAiCohereStreamingChatModel.builder()
@@ -106,11 +104,11 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
         }
     }
 
-    private static @NotNull AuthenticationDetailsProvider createAuthProvider() throws IOException {
-        String configFilePath = "~/.oci/config";
-        String profileName = "OCI_GEN_AI";
+    private static @NotNull AuthenticationDetailsProvider createAuthProvider(AssistantCredential credential) throws IOException {
+        String configFile = credential.getOciConfigFile();
+        String configProfile = credential.getOciConfigProfile();
 
-        return new ConfigFileAuthenticationDetailsProvider(configFilePath, profileName);
+        return new ConfigFileAuthenticationDetailsProvider(configFile, configProfile);
     }
 
     @Nullable

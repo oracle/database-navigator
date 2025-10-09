@@ -93,6 +93,14 @@ public class TextFields {
         });
     }
 
+    public static void setText(JTextComponent textComponent, String text) {
+        textComponent.setText(text == null ? "" : text.trim());
+    }
+
+    public static void setText(TextFieldWithBrowseButton textComponent, String text) {
+        setText(textComponent.getTextField(), text);
+    }
+
     public static void setTextSilently(JTextComponent textComponent, String text) {
         Document document = textComponent.getDocument();
         if (document instanceof AbstractDocument) {

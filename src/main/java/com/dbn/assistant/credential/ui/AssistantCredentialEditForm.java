@@ -22,13 +22,15 @@ import com.dbn.assistant.provider.AIAuthentication;
 import com.dbn.assistant.provider.AIAuthentication.Field;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.provider.ProviderUrlType;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
+import com.dbn.oci.ui.OciConfigForm;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
@@ -41,27 +43,34 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.assistant.provider.AIAuthentication.Field.API_KEY;
+import static com.dbn.assistant.provider.AIAuthentication.Field.PASSWORD;
 import static com.dbn.assistant.provider.AIAuthentication.Field.USER;
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.ui.util.TextFields.setTextSilently;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
+import static com.dbn.common.util.Strings.isNotEmpty;
 
 public class AssistantCredentialEditForm extends DBNFormBase {
-    private JPanel headerPanel;
     private JPanel mainPanel;
+    private JPanel headerPanel;
+    private JPanel ociConfigPanel;
     private JBTextField nameTextField;
     private JBTextField userTextField;
     private JBPasswordField secretTextField;
     private DBNComboBox<AIProvider> providerComboBox;
-    private JLabel secretLabel;
     private JLabel userLabel;
+    private JLabel secretLabel;
     private DBNHyperlinkLabel guideHyperlink;
 
 
+    private final OciConfigForm ociConfigForm;
     private final AssistantCredential credential;
     private final Set<String> usedNames;
     private boolean generatedName;
@@ -71,13 +80,26 @@ public class AssistantCredentialEditForm extends DBNFormBase {
         this.credential = parent.getCredential();
         this.usedNames = usedNames;
         this.generatedName = Strings.isEmpty(credential.getName());
+        initCredentialName();
 
+        this.ociConfigForm = new OciConfigForm(this, credential);
+        this.ociConfigPanel.add(ociConfigForm.getComponent());
         initComboBox(providerComboBox, getProviders());
         resetFormChanges();
 
-        initCredentialName();
+        initFieldAvailability();
+        updateFields();
+
+        // listeners
         onSelectionChange(providerComboBox, p -> updateFields());
         onTextChange(nameTextField, e -> generatedName = false);
+    }
+
+    private void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.initFieldsAvailability(() -> isNewCredential(), array(providerComboBox));
+        fieldAdapter.initFieldsVisibility(() -> isFieldSupported(USER), array(userLabel, userTextField));
+        fieldAdapter.initFieldsVisibility(() -> isSecretFieldSupported(), array(secretLabel, secretTextField));
     }
 
     private void initCredentialName() {
@@ -97,22 +119,40 @@ public class AssistantCredentialEditForm extends DBNFormBase {
         return providers;
     }
 
+    private boolean isNewCredential() {
+        AssistantCredentialEditDialog dialog = ensureParentComponent();
+        return dialog.isNewCredential();
+    }
+
+    private boolean isFieldSupported(Field field) {
+        return getAuthentication().isSupported(field);
+    }
+
+    private boolean isSecretFieldSupported() {
+        return isFieldSupported(API_KEY) || isFieldSupported(PASSWORD) || isFieldSupported(Field.TOKEN);
+    }
+
+    private boolean isOciFieldSupported() {
+        return getSelectedProviderId() == AIProviderId.OCI_GEN_AI;
+    }
+
+
     @Override
     protected void initValidation() {
-        addTextValidation(nameTextField, Strings::isNotEmpty, "Please provide a credential name");
-        addTextValidation(nameTextField, this::isNotUsed, "The credential name is already in use");
-        addTextValidation(secretTextField, Strings::isNotEmpty, "Please provide a credential");
+        addTextValidation(nameTextField, n -> isNotEmpty(n), "Please provide a credential name");
+        addTextValidation(nameTextField, n -> isNotUsed(n), "The credential name is already in use");
+        addTextValidation(secretTextField, s -> isNotEmpty(s), "Please provide a credential");
     }
 
     private void updateFields() {
         initCredentialName();
 
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.updateFieldsVisibility();
+        fieldAdapter.updateFieldsAvailability();
+        ociConfigPanel.setVisible(isOciFieldSupported());
+
         AIAuthentication authentication = getAuthentication();
-
-        boolean userSupported = authentication.isSupported(USER);
-        userTextField.setVisible(userSupported);
-        userLabel.setVisible(userSupported);
-
         Field secretField = authentication.getSecretField();
         secretLabel.setText(secretField.getName());
 
@@ -133,26 +173,35 @@ public class AssistantCredentialEditForm extends DBNFormBase {
                 provider.getAuthentication();
     }
 
-    private @Nullable AIProvider getSelectedProvider() {
+    @Nullable
+    private AIProviderId getSelectedProviderId() {
+        AIProvider provider = getSelectedProvider();
+        return provider == null ? null : provider.getId();
+    }
+
+    @Nullable
+    private  AIProvider getSelectedProvider() {
         return getSelection(providerComboBox);
     }
 
     public void applyFormChanges() {
         credential.setName(getText(nameTextField));
         credential.setUser(getText(userTextField));
-        credential.setKey(secretTextField.getPassword());
+        credential.setSecret(secretTextField.getPassword());
+        ociConfigForm.applyFormChanges();
 
         AIProvider provider = getSelectedProvider();
         credential.setProviderId(provider == null ? null : provider.getId());
     }
 
     public void resetFormChanges() {
-        nameTextField.setText(credential.getName());
-        userTextField.setText(credential.getUser());
-        secretTextField.setText(Chars.toString(credential.getKey()));
+        setText(nameTextField, credential.getName());
+        setText(userTextField, credential.getUser());
+        setText(secretTextField, Chars.toString(credential.getSecret()));
+        ociConfigForm.resetFormChanges();
 
         AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, credential.getProviderId());
-        ComboBoxes.setSelection(providerComboBox, provider);
+        setSelection(providerComboBox, provider);
     }
 
     private boolean isNotUsed(String name) {

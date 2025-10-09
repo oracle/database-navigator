@@ -350,7 +350,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         updateFieldVisibility();
     }
 
-    void resetFormChanges() {
+    public void resetFormChanges() {
         ConnectionDatabaseSettings configuration = getDatabaseSettings();
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
         applyDatabaseInfo(databaseInfo);

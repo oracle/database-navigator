@@ -247,6 +247,11 @@
         </assistant>
         <assistant type="PUBLIC">
             <provider id="OCI_GEN_AI">
+                <auth>
+                    <field id="OCI_CONFIG_FILE" required="true"/>
+                    <field id="OCI_CONFIG_PROFILE" required="true"/>
+                    <field id="OCI_COMPARTMENT_ID" required="true"/>
+                </auth>
                 <models>
                     <model id="META_LLAMA_3_1_405B_INSTRUCT"/>
                     <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"/>

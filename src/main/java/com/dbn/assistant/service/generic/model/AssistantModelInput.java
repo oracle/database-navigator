@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.service.generic.model;
 
+import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.util.Chars;
 import lombok.Data;
@@ -29,9 +30,8 @@ public class AssistantModelInput {
     private final AIProviderId providerId;
     private final String modelName;
     private String url;
-    private String user;
-    private char[] token;
     private Double temperature;
+    private AssistantCredential credential;
     private Map<String, String> headers = new HashMap<>();
     private Map<Attribute, String> attributes = new HashMap<>();
 
@@ -42,7 +42,8 @@ public class AssistantModelInput {
     }
 
     public String getTokenString() {
-        return Chars.toString(token);
+        char[] secret = credential.getSecret();
+        return Chars.toString(secret);
     }
 
     public AssistantModelInput withUrl(String url) {
@@ -50,13 +51,8 @@ public class AssistantModelInput {
         return this;
     }
 
-    public AssistantModelInput withUser(String user) {
-        this.user = user;
-        return this;
-    }
-
-    public AssistantModelInput withToken(char[] token) {
-        this.token = token;
+    public AssistantModelInput withCredential(AssistantCredential credential) {
+        this.credential = credential;
         return this;
     }
 
@@ -81,6 +77,10 @@ public class AssistantModelInput {
 
     public String getAttribute(Attribute attribute) {
         return attributes.get(attribute);
+    }
+
+    public String getUser() {
+        return credential.getUser();
     }
 
 

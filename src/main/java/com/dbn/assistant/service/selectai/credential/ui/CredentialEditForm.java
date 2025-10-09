@@ -173,7 +173,7 @@ private boolean isNotUsed(String name) {
   private void pickLocalCredential(AssistantCredential credential) {
     localCredential = credential;
     passwordCredentialUsernameField.setText(credential.getUser());
-    passwordCredentialPasswordField.setText(Chars.toString(credential.getKey()));
+    passwordCredentialPasswordField.setText(Chars.toString(credential.getSecret()));
     saveLocalCheckBox.setEnabled(false);
   }
 
@@ -217,7 +217,7 @@ private boolean isNotUsed(String name) {
     if (localCredential == null) return true; // local credential has been chosen to fill the attributes
     return
         !Objects.equals(localCredential.getUser(), getText(passwordCredentialUsernameField)) ||
-        !Arrays.equals(localCredential.getKey(), passwordCredentialPasswordField.getPassword());
+        !Arrays.equals(localCredential.getSecret(), passwordCredentialPasswordField.getPassword());
   }
 
 
@@ -280,7 +280,7 @@ private boolean isNotUsed(String name) {
     AssistantCredential credential = new AssistantCredential();
     credential.setName(getText(credentialNameField));
     credential.setUser(getText(passwordCredentialUsernameField));
-    credential.setKey(passwordCredentialPasswordField.getPassword());
+    credential.setSecret(passwordCredentialPasswordField.getPassword());
     settings.getCredentials().addCredential(credential);
   }
 }

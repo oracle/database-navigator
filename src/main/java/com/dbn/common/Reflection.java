@@ -181,4 +181,12 @@ public class Reflection {
 
         return annotationsArray;
     }
+
+    @SneakyThrows
+    public static <T> T getFieldValue(Object object, String fieldName) {
+        Field field = object.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return cast(field.get(object));
+
+    }
 }

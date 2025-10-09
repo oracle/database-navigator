@@ -91,7 +91,7 @@ public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCred
     public static void promptCredentialUpdate(@NotNull Project project, AssistantCredential credential, Runnable callback) {
         AIProviderId providerId = credential.getProviderId();
         Consumer<AssistantCredential> onSave = cred -> {
-            credential.setKey(cred.getKey());
+            credential.setSecret(cred.getSecret());
             Dispatch.run(nonModal(), callback);
         };
 

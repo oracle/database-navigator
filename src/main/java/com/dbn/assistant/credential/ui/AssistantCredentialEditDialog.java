@@ -31,13 +31,15 @@ public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredential
     private final Set<String> usedTitles;
     private final AssistantCredential credential;
     private final Consumer<AssistantCredential> onSave;
+    private final boolean newCredential;
 
     public AssistantCredentialEditDialog(Project project, AssistantCredential credential, Set<String> usedNames, Consumer<AssistantCredential> onSave) {
         super(project, credential == null ? "Create Credential" : "Update Credential", true);
-        this.credential = credential == null ? new AssistantCredential() : credential;
+        this.newCredential = credential == null;
+        this.credential = newCredential ? new AssistantCredential() : credential;
         this.usedTitles = usedNames;
         this.onSave = onSave;
-        renameAction(getOKAction(), credential == null ? "Create" : "Update");
+        renameAction(getOKAction(), newCredential ? "Create" : "Update");
         setModal(true);
         setAutoSize(true);
         init();

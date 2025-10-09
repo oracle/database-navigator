@@ -22,10 +22,10 @@ import lombok.Getter;
 import javax.swing.Icon;
 
 @Getter
-public abstract class PresentableFactory<T extends Presentable> {
+public abstract class ValueFactory<T> {
     private final String actionName;
 
-    public PresentableFactory(String actionName) {
+    public ValueFactory(String actionName) {
         this.actionName = actionName;
     }
 

@@ -35,7 +35,7 @@ public class AssistantCredentialsTableModel extends DBNEntityEditableTableModel<
         addColumn("Credential Name", String.class, c -> c.getName(), (c, v) -> c.setName(v));
         addColumn("LLM Provider", String.class, c -> getProviderName(c.getProviderId()), null);
         addColumn("User", String.class, c -> c.getUser(), (c, v) -> c.setUser(v));
-        addColumn("Secret", String.class, c -> Chars.toString(c.getKey()), (c, v) -> c.setKey(Chars.fromString(v)));
+        addColumn("Secret", String.class, c -> Chars.toString(c.getSecret()), (c, v) -> c.setSecret(Chars.fromString(v)));
     }
 
     private String getProviderName(AIProviderId providerId) {

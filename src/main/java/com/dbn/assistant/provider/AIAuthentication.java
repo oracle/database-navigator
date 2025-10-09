@@ -63,7 +63,10 @@ public class AIAuthentication {
         USER("User", false),
         PASSWORD("Password", true),
         TOKEN("Token", true),
-        API_KEY("API key", true)
+        API_KEY("API key", true),
+        OCI_CONFIG_FILE("OCI config file", false),
+        OCI_CONFIG_PROFILE("OCI config profile", false),
+        OCI_COMPARTMENT_ID("OCI compartment id", false)
         ;
 
         Field(String name, boolean secret) {

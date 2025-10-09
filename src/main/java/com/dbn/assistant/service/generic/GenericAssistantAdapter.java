@@ -219,8 +219,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         AIProviderId baseProviderId = model.getBaseProviderId();
         AIProviderId providerId = provider.getId();
         return AssistantModelInput.create(baseProviderId, providerId, modelName)
-                .withUser(credential.getUser())
-                .withToken(credential.getKey())
+                .withCredential(credential)
                 .withTemperature(profile.getTemperature());
 
     }
