@@ -35,23 +35,27 @@ import org.jetbrains.annotations.Nullable;
 @UtilityClass
 public class FileChoosers {
     @Compatibility
-    public static void addSingleFileChooser(
+    public static FileChooserDescriptor addSingleFileChooser(
             @Nullable Project project,
             @NotNull TextFieldWithBrowseButton field,
             @Nullable @DialogTitle String title,
             @Nullable @Label String description) {
 
-        field.addBrowseFolderListener(title, description, project, singleFile());
+        FileChooserDescriptor descriptor = singleFile();
+        field.addBrowseFolderListener(title, description, project, descriptor);
+        return descriptor;
     }
 
     @Compatibility
-    public static void addSingleFolderChooser(
+    public static FileChooserDescriptor addSingleFolderChooser(
             @Nullable Project project,
             @NotNull TextFieldWithBrowseButton field,
             @Nullable @DialogTitle String title,
             @Nullable @Label String description) {
 
-        field.addBrowseFolderListener(title, description, project, singleFolder());
+        FileChooserDescriptor descriptor = singleFolder();
+        field.addBrowseFolderListener(title, description, project, descriptor);
+        return descriptor;
     }
 
     public static FileChooserDescriptor singleFile() {

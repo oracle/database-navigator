@@ -67,6 +67,9 @@
         </provider>
 
         <provider id="OCI_GEN_AI" name="OCI Generative AI" host="api.oci.com">
+            <urls>
+                <url type="KEYS">https://cloud.oracle.com/identity/domains/my-profile</url>
+            </urls>
             <models>
                 <model id="META_LLAMA_3_1_70B_INSTRUCT"                    api-name="meta.llama-3.1-70b-instruct"                 base-provider-id="META"/>
                 <model id="META_LLAMA_3_1_405B_INSTRUCT"                   api-name="meta.llama-3.1-405b-instruct"                base-provider-id="META"/>

@@ -134,8 +134,8 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                 AZURE_SERVICE_PRINCIPAL_TOKEN,
                 AZURE_INTERACTIVE);
 
-        onSelectionChange(authTypeComboBox, v -> updateAuthenticationFields());
-        onSelectionChange(tokenTypeComboBox, v -> updateAuthenticationFields());
+        onSelectionChange(authTypeComboBox, v -> updateFieldAvailability());
+        onSelectionChange(tokenTypeComboBox, v -> updateFieldAvailability());
 
         this.warningHintForm = new DBNHintForm(this, null, MessageType.WARNING, true);
         warningPanel.add(warningHintForm.getComponent());
@@ -147,10 +147,9 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                 "File is a certificate file in pem format");
         onTextChange(azureClientCertificateFileTextField, e -> refreshAzureClientCertificateFile());
 
-        initFields();
     }
 
-    private void initFields() {
+    protected void initFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
 
         // init visibility conditions
@@ -213,7 +212,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
                 databaseOcidTextField));
     }
 
-    private void updateAuthenticationFields() {
+    protected void updateFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
 
         // cache values of fields classified as CACHEABLE
@@ -300,7 +299,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         azureTenantIdTextField.setText(authenticationInfo.getAzureTenantId());
         azureClientSecretPasswordField.setText(Chars.toString(authenticationInfo.getAzureClientSecret()));
 
-        updateAuthenticationFields();
+        updateFieldAvailability();
     }
 
     public boolean settingsChanged(AuthenticationInfo authenticationInfo) {

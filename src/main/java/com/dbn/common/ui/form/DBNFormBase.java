@@ -157,6 +157,7 @@ public abstract class DBNFormBase
         initValidation();
         initStatePersistence();
         initFormAccessibility();
+        initFieldAvailability();
 
         JComponent mainComponent = getMainComponent();
         DataProviders.register(mainComponent, this);
@@ -167,6 +168,7 @@ public abstract class DBNFormBase
         adjustFormSize(mainComponent);
 
         ApplicationEvents.subscribe(this, LafManagerListener.TOPIC, source -> lookAndFeelChanged());
+        updateFieldAvailability();
     }
 
     /**
@@ -208,6 +210,15 @@ public abstract class DBNFormBase
 
     @ApiStatus.OverrideOnly
     protected void initAccessibility() {}
+
+    protected void initFieldAvailability() {}
+
+    protected void updateFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.updateFieldsVisibility();
+        fieldAdapter.updateFieldsAvailability();
+        validateInput();
+    }
 
     /**
      * Initializes the persistence mechanisms for the state of the form or component.

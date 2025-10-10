@@ -26,7 +26,7 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
-import com.dbn.oci.ui.OciConfigForm;
+import com.dbn.oci.config.ui.OciConfigForm;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
@@ -67,7 +67,7 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
         this.userLabel.setVisible(false);
         this.userTextField.setVisible(false);
 
-        this.ociConfigForm = new OciConfigForm(this, credential);
+        this.ociConfigForm = new OciConfigForm(this, credential.getOciConfig());
         this.ociConfigPanel.add(ociConfigForm.getComponent());
 
         boolean ociCredential = provider.getId() == AIProviderId.OCI_GEN_AI;

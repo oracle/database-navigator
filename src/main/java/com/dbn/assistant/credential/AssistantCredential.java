@@ -26,6 +26,7 @@ import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretType;
 import com.dbn.credentials.SecretsOwner;
 import com.dbn.credentials.SecretsOwnerRegistry;
+import com.dbn.oci.config.OciConfig;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -36,6 +37,7 @@ import java.util.UUID;
 
 import static com.dbn.common.options.setting.Settings.charsAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setCharsAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
@@ -43,7 +45,6 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Base64.decode;
 import static com.dbn.common.util.Base64.encode;
 import static com.dbn.common.util.Commons.nvl;
-import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.credentials.SecretType.GENERIC_CREDENTIAL;
 
@@ -55,9 +56,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
     private String name;
     private String user;
     private char[] secret;
-    private String ociConfigFile;
-    private String ociConfigProfile;
-    private String ociCompartmentId;
+    private OciConfig ociConfig = new OciConfig();
 
     public AssistantCredential() {
         SecretsOwnerRegistry.register(this);
@@ -70,13 +69,13 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
     }
 
     public boolean isProvided() {
-        if (providerId == AIProviderId.OCI_GEN_AI) {
-            return
-                isNotEmpty(ociConfigFile) &&
-                isNotEmpty(ociConfigProfile) &&
-                isNotEmpty(ociCompartmentId);
-        }
-        return Chars.isNotEmpty(secret);
+        return isOci() ?
+                ociConfig.isProvided() :
+                Chars.isNotEmpty(secret);
+    }
+
+    private boolean isOci() {
+        return providerId == AIProviderId.OCI_GEN_AI;
     }
 
     @Override
@@ -87,7 +86,9 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
     @Override
     @SneakyThrows
     public AssistantCredential clone() {
-        return cast(super.clone());
+        AssistantCredential clone = cast(super.clone());
+        clone.ociConfig = ociConfig.clone();
+        return clone;
     }
 
 
@@ -98,9 +99,10 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         user = stringAttribute(element, "user");
         providerId = enumAttribute(element, "provider", AIProviderId.class);
 
-        ociConfigFile = stringAttribute(element, "oci-config-file");
-        ociConfigProfile = stringAttribute(element, "oci-config-profile");
-        ociCompartmentId = stringAttribute(element, "oci-compartment-id");
+        if (isOci()) {
+            Element ociConfigElement = element.getChild("oci-config");
+            ociConfig.readConfiguration(ociConfigElement);
+        }
 
         if (isTransientContext()) {
             // only propagate credential key when config context is transient
@@ -116,9 +118,10 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         setStringAttribute(element, "user", user);
         setEnumAttribute(element, "provider", providerId);
 
-        setStringAttribute(element, "oci-config-file", ociConfigFile);
-        setStringAttribute(element, "oci-config-profile", ociConfigProfile);
-        setStringAttribute(element, "oci-compartment-id", ociCompartmentId);
+        if (isOci()) {
+            Element ociConfigElement = newElement(element, "oci-config");
+            ociConfig.writeConfiguration(ociConfigElement);
+        }
 
         if (isTransientContext()) {
             // only propagate credential key when config context is transient

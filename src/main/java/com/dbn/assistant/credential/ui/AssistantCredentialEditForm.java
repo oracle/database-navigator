@@ -30,7 +30,7 @@ import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
-import com.dbn.oci.ui.OciConfigForm;
+import com.dbn.oci.config.ui.OciConfigForm;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
@@ -82,20 +82,19 @@ public class AssistantCredentialEditForm extends DBNFormBase {
         this.generatedName = Strings.isEmpty(credential.getName());
         initCredentialName();
 
-        this.ociConfigForm = new OciConfigForm(this, credential);
+        this.ociConfigForm = new OciConfigForm(this, credential.getOciConfig());
         this.ociConfigPanel.add(ociConfigForm.getComponent());
         initComboBox(providerComboBox, getProviders());
         resetFormChanges();
 
-        initFieldAvailability();
-        updateFields();
+        updateFieldAvailability();
 
         // listeners
-        onSelectionChange(providerComboBox, p -> updateFields());
+        onSelectionChange(providerComboBox, p -> updateFieldAvailability());
         onTextChange(nameTextField, e -> generatedName = false);
     }
 
-    private void initFieldAvailability() {
+    protected void initFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
         fieldAdapter.initFieldsAvailability(() -> isNewCredential(), array(providerComboBox));
         fieldAdapter.initFieldsVisibility(() -> isFieldSupported(USER), array(userLabel, userTextField));
@@ -144,12 +143,10 @@ public class AssistantCredentialEditForm extends DBNFormBase {
         addTextValidation(secretTextField, s -> isNotEmpty(s), "Please provide a credential");
     }
 
-    private void updateFields() {
+    protected void updateFieldAvailability() {
+        super.updateFieldAvailability();
         initCredentialName();
 
-        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
-        fieldAdapter.updateFieldsVisibility();
-        fieldAdapter.updateFieldsAvailability();
         ociConfigPanel.setVisible(isOciFieldSupported());
 
         AIAuthentication authentication = getAuthentication();
