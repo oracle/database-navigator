@@ -21,6 +21,8 @@ import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.util.Commons.nvl;
+
 /**
  * AI models
  *
@@ -30,12 +32,14 @@ import org.jetbrains.annotations.NotNull;
 public final class AIModel extends ShortStore<AIModelProperty> implements Presentable {
     private final String id;
     private final String apiName;
+    private final String shortName;
     private final AIProvider provider;
     private final AIProviderId baseProviderId;
 
-    AIModel(String id, String apiName, AIProvider provider, AIProviderId baseProviderId) {
+    AIModel(String id, String apiName, String shortName, AIProvider provider, AIProviderId baseProviderId) {
         this.id = id;
         this.apiName = apiName;
+        this.shortName = shortName;
         this.provider = provider;
         this.baseProviderId = baseProviderId;
     }
@@ -45,9 +49,14 @@ public final class AIModel extends ShortStore<AIModelProperty> implements Presen
         return AIModelProperty.VALUES;
     }
 
+    @NotNull
     @Override
-    public @NotNull String getName() {
-        return apiName; // TODO presentable profile names
+    public String getName() {
+        return apiName;
+    }
+
+    public String getShortName() {
+        return nvl(shortName, apiName);
     }
 
     public AIProviderId getProviderId() {

@@ -113,7 +113,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return txt("app.assistant.action.Model");
 
-        String text = getSelectedModelName(e);
+        String text = model == null ? null : model.getShortName();
         if (text != null) return text;
 
         return txt("app.assistant.action.Model");

@@ -55,14 +55,14 @@
                 <url type="API">https://dashboard.cohere.com/welcome/login?redirect_uri=%2Fapi-keys</url>
             </urls>
             <models>
-                <model id="COMMAND"                 api-name="command"/>
-                <model id="COMMAND_NIGHTLY"         api-name="command-nightly"/>
-                <model id="COMMAND_LIGHT"           api-name="command-light"/>
-                <model id="COMMAND_LIGHT_NIGHTLY"   api-name="command-light-nightly"/>
-                <model id="COMMAND_R"               api-name="command-r"/>
-                <model id="COMMAND_R_08_2024"       api-name="command-r-08-2024"/>
-                <model id="COMMAND_R_PLUS"          api-name="command-r-plus"/>
-                <model id="COMMAND_R_PLUS_08_2024"  api-name="command-r-plus-08-2024"/>
+                <model id="COMMAND"                 api-name="command"                short-name="command"/>
+                <model id="COMMAND_NIGHTLY"         api-name="command-nightly"        short-name="command-nightly"/>
+                <model id="COMMAND_LIGHT"           api-name="command-light"          short-name="command-light"/>
+                <model id="COMMAND_LIGHT_NIGHTLY"   api-name="command-light-nightly"  short-name="command-light-nightly"/>
+                <model id="COMMAND_R"               api-name="command-r"              short-name="command-r"/>
+                <model id="COMMAND_R_08_2024"       api-name="command-r-08-2024"      short-name="command-r-08"/>
+                <model id="COMMAND_R_PLUS"          api-name="command-r-plus"         short-name="command-r-plus"/>
+                <model id="COMMAND_R_PLUS_08_2024"  api-name="command-r-plus-08-2024" short-name="command-r-plus-08"/>
             </models>
         </provider>
 
@@ -71,24 +71,24 @@
                 <url type="KEYS">https://cloud.oracle.com/identity/domains/my-profile</url>
             </urls>
             <models>
-                <model id="META_LLAMA_3_1_70B_INSTRUCT"                    api-name="meta.llama-3.1-70b-instruct"                 base-provider-id="META"/>
-                <model id="META_LLAMA_3_1_405B_INSTRUCT"                   api-name="meta.llama-3.1-405b-instruct"                base-provider-id="META"/>
-                <model id="META_LLAMA_3_2_11B_VISION_INSTRUCT"             api-name="meta.llama-3.2-11b-vision-instruct"          base-provider-id="META"/>
-                <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"             api-name="meta.llama-3.2-90b-vision-instruct"          base-provider-id="META"/>
-                <model id="META_LLAMA_3_3_70B_INSTRUCT"                    api-name="meta.llama-3.3-70b-instruct"                 base-provider-id="META"/>
-                <model id="META_LLAMA_4_MAVERICK_17B_128E_INSTRUCT_FP8"    api-name="meta.llama-4-maverick-17b-128e-instruct-fp8" base-provider-id="META"/>
-                <model id="META_LLAMA_4_SCOUT_17B_16E_INSTRUCT"            api-name="meta.llama-4-scout-17b-16e-instruct"         base-provider-id="META"/>
-                <model id="COHERE_COMMAND_R_08_2024"                       api-name="cohere.command-r-08-2024"                    base-provider-id="COHERE"/>
-                <model id="COHERE_COMMAND_R_PLUS_08_2024"                  api-name="cohere.command-r-plus-08-2024"               base-provider-id="COHERE"/>
-                <model id="COHERE_COMMAND_A_03_2025"                       api-name="cohere.command-a-03-2025"                    base-provider-id="COHERE"/>
-                <model id="COHERE_COMMAND_LATEST"                          api-name="cohere.command-latest"                       base-provider-id="COHERE"/>
-                <model id="COHERE_COMMAND_PLUS_LATEST"                     api-name="cohere.command-plus-latest"                  base-provider-id="COHERE"/>
-                <model id="XAI_GROK_3"                                     api-name="xai.grok-3"                                  base-provider-id="XAI"/>
-                <model id="XAI_GROK_3_FAST"                                api-name="xai.grok-3-fast"                             base-provider-id="XAI"/>
-                <model id="XAI_GROK_3_MINI"                                api-name="xai.grok-3-mini"                             base-provider-id="XAI"/>
-                <model id="XAI_GROK_3_MINI_FAST"                           api-name="xai.grok-3-mini-fast"                        base-provider-id="XAI"/>
-                <model id="XAI_GROK_4"                                     api-name="xai.grok-4"                                  base-provider-id="XAI"/>
-                <model id="XAI_GROK_CODE_FAST_1"                           api-name="xai.grok-code-fast-1"                        base-provider-id="XAI"/>
+                <model id="META_LLAMA_3_1_70B_INSTRUCT"                    api-name="meta.llama-3.1-70b-instruct"                 short-name="llama-3.1-instruct"        base-provider-id="META"/>
+                <model id="META_LLAMA_3_1_405B_INSTRUCT"                   api-name="meta.llama-3.1-405b-instruct"                short-name="llama-3.1-instruct"        base-provider-id="META"/>
+                <model id="META_LLAMA_3_2_11B_VISION_INSTRUCT"             api-name="meta.llama-3.2-11b-vision-instruct"          short-name="llama-3.2-vision-instr"    base-provider-id="META"/>
+                <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"             api-name="meta.llama-3.2-90b-vision-instruct"          short-name="llama-3.2-vision-instr"    base-provider-id="META"/>
+                <model id="META_LLAMA_3_3_70B_INSTRUCT"                    api-name="meta.llama-3.3-70b-instruct"                 short-name="llama-3.3-instruct"        base-provider-id="META"/>
+                <model id="META_LLAMA_4_MAVERICK_17B_128E_INSTRUCT_FP8"    api-name="meta.llama-4-maverick-17b-128e-instruct-fp8" short-name="llama-4-maverick-instr"    base-provider-id="META"/>
+                <model id="META_LLAMA_4_SCOUT_17B_16E_INSTRUCT"            api-name="meta.llama-4-scout-17b-16e-instruct"         short-name="llama-4-scout-instr"       base-provider-id="META"/>
+                <model id="COHERE_COMMAND_R_08_2024"                       api-name="cohere.command-r-08-2024"                    short-name="command-r-08"              base-provider-id="COHERE"/>
+                <model id="COHERE_COMMAND_R_PLUS_08_2024"                  api-name="cohere.command-r-plus-08-2024"               short-name="command-r-plus.08"         base-provider-id="COHERE"/>
+                <model id="COHERE_COMMAND_A_03_2025"                       api-name="cohere.command-a-03-2025"                    short-name="command-a-03"              base-provider-id="COHERE"/>
+                <model id="COHERE_COMMAND_LATEST"                          api-name="cohere.command-latest"                       short-name="command-latest"            base-provider-id="COHERE"/>
+                <model id="COHERE_COMMAND_PLUS_LATEST"                     api-name="cohere.command-plus-latest"                  short-name="command-plus-latest"       base-provider-id="COHERE"/>
+                <model id="XAI_GROK_3"                                     api-name="xai.grok-3"                                  short-name="grok-3"                    base-provider-id="XAI"/>
+                <model id="XAI_GROK_3_FAST"                                api-name="xai.grok-3-fast"                             short-name="grok-3-fast"               base-provider-id="XAI"/>
+                <model id="XAI_GROK_3_MINI"                                api-name="xai.grok-3-mini"                             short-name="grok-3-mini"               base-provider-id="XAI"/>
+                <model id="XAI_GROK_3_MINI_FAST"                           api-name="xai.grok-3-mini-fast"                        short-name="grok-3-mini-fast"          base-provider-id="XAI"/>
+                <model id="XAI_GROK_4"                                     api-name="xai.grok-4"                                  short-name="grok-4"                    base-provider-id="XAI"/>
+                <model id="XAI_GROK_CODE_FAST_1"                           api-name="xai.grok-code-fast-1"                        short-name="grok-code-fast-1"          base-provider-id="XAI"/>
             </models>
         </provider>
 
@@ -120,16 +120,16 @@
                 <url type="API">https://api.anthropic.com/v1/</url>
             </urls>
             <models>
-                <model id="CLAUDE_OPUS_4_1_20250805"   api-name="claude-opus-4-1-20250805"/>
-                <model id="CLAUDE_OPUS_4_20250514"     api-name="claude-opus-4-20250514"/>
-                <model id="CLAUDE_SONNET_4_20250514"   api-name="claude-sonnet-4-20250514"/>
-                <model id="CLAUDE_3_7_SONNET_20250219" api-name="claude-3-7-sonnet-20250219"/>
-                <model id="CLAUDE_3_5_HAIKU_20241022"  api-name="claude-3-5-haiku-20241022"/>
+                <model id="CLAUDE_OPUS_4_1_20250805"   api-name="claude-opus-4-1-20250805"   short-name="claude-opus-4-1"/>
+                <model id="CLAUDE_OPUS_4_20250514"     api-name="claude-opus-4-20250514"     short-name="claude-opus-4"/> />
+                <model id="CLAUDE_SONNET_4_20250514"   api-name="claude-sonnet-4-20250514"   short-name="claude-sonnet-4"/>
+                <model id="CLAUDE_3_7_SONNET_20250219" api-name="claude-3-7-sonnet-20250219" short-name="claude-3-7-sonnet"/>
+                <model id="CLAUDE_3_5_HAIKU_20241022"  api-name="claude-3-5-haiku-20241022"  short-name="claude-3-5-haiku"/>
 
-                <model id="CLAUDE_3_5_SONNET_20240620" api-name="claude-3-5-sonnet-20240620"/>
-                <model id="CLAUDE_3_OPUS_20240229"     api-name="claude-3-opus-20240229"/>
-                <model id="CLAUDE_3_SONNET_20240229"   api-name="claude-3-sonnet-20240229"/>
-                <model id="CLAUDE_3_HAIKU_20240307"    api-name="claude-3-haiku-20240307"/>
+                <model id="CLAUDE_3_5_SONNET_20240620" api-name="claude-3-5-sonnet-20240620" short-name="claude-3-5-sonnet"/>
+                <model id="CLAUDE_3_OPUS_20240229"     api-name="claude-3-opus-20240229"     short-name="claude-3-opus"/>
+                <model id="CLAUDE_3_SONNET_20240229"   api-name="claude-3-sonnet-20240229"   short-name="claude-3-sonnet"/>
+                <model id="CLAUDE_3_HAIKU_20240307"    api-name="claude-3-haiku-20240307"    short-name="claude-3-haiku"/>
                 <!--<model id="CLAUDE_SONNET_4_20250514"   api-name="claude-sonnet-4-20250514"/>-->
             </models>
         </provider>
@@ -153,13 +153,13 @@
             </urls>
             <models>
                 <model id="CODESTRAL_2508" api-name="codestral-2508"/>
-                <model id="MISTRAL_MEDIUM_2508" api-name="mistral-medium-2508"/>
-                <model id="MAGISTRAL_MEDIUM_2507" api-name="magistral-medium-2507"/>
-                <model id="MAGISTRAL_SMALL_2507" api-name="magistral-small-2507"/>
-                <model id="MAGISTRAL_SMALL_2506" api-name="magistral-small-2506"/>
-                <model id="MISTRAL_SMALL_2506" api-name="mistral-small-2506"/>
-                <model id="VOXTRAL_SMALL_2507" api-name="voxtral-small-2507"/>
-                <model id="VOXTRAL_MINI_2507" api-name="voxtral-mini-2507"/>
+                <model id="MISTRAL_MEDIUM_2508"   api-name="mistral-medium-2508"   short-name="mistral-medium"/>
+                <model id="MAGISTRAL_MEDIUM_2507" api-name="magistral-medium-2507" short-name="magistral-medium"/>
+                <model id="MAGISTRAL_SMALL_2507"  api-name="magistral-small-2507"  short-name="magistral-small"/>
+                <model id="MAGISTRAL_SMALL_2506"  api-name="magistral-small-2506"  short-name="magistral-small"/>
+                <model id="MISTRAL_SMALL_2506"    api-name="mistral-small-2506"    short-name="mistral-small"/>
+                <model id="VOXTRAL_SMALL_2507"    api-name="voxtral-small-2507"    short-name="voxtral-small"/>
+                <model id="VOXTRAL_MINI_2507"     api-name="voxtral-mini-2507"     short-name="voxtral-mini"/>
             </models>
         </provider>
     </provider-types>

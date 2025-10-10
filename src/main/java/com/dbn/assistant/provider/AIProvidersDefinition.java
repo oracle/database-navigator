@@ -156,7 +156,8 @@ public class AIProvidersDefinition {
 
 
         String modelApiName = fallback(stringAttribute(element, "api-name"), modelTemplate, t -> t.getApiName());
-        AIModel model = new AIModel(modelId, modelApiName, provider, baseProviderId);
+        String modelShortName = fallback(stringAttribute(element, "short-name"), modelTemplate, t -> t.getShortName());
+        AIModel model = new AIModel(modelId, modelApiName, modelShortName, provider, baseProviderId);
 
         model.set(AIModelProperty.DEFAULT, booleanAttribute(element, "default", templateDefault));
         model.set(AIModelProperty.DEPRECATED, booleanAttribute(element, "deprecated", templateDeprecated));
