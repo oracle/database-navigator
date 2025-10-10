@@ -84,9 +84,12 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
         ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
         String ideName = applicationInfo.getVersionName();
 
-        TextContent hintContent = TextContent.plain("To connect with \"" + providerName + "\" language models, please enter your personal API key below. " +
-                "You can create and manage your keys on the official \"" + providerName + "\" API key page.\n\n" +
-                "Your key will be safely stored in the password manager of " + ideName + ".");
+        boolean oci = provider.getId() == AIProviderId.OCI_GEN_AI;
+        TextContent hintContent =
+                TextContent.plain(oci ?
+                        txt("cfg.assistant.hint.OciConfigRequiredToConnect") :
+                        txt("cfg.assistant.hint.ApiKeyRequiredToConnect", providerName, ideName));
+
         DBNHintForm hintForm = new DBNHintForm(this, hintContent, null, true);
         hintPanel.add(hintForm.getComponent());
     }

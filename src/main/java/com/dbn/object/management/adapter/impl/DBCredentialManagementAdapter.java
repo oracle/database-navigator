@@ -32,9 +32,9 @@ import java.util.Map;
 import static com.dbn.object.type.DBAttributeType.FINGERPRINT;
 import static com.dbn.object.type.DBAttributeType.PASSWORD;
 import static com.dbn.object.type.DBAttributeType.PRIVATE_KEY;
+import static com.dbn.object.type.DBAttributeType.TENANCY_OCID;
 import static com.dbn.object.type.DBAttributeType.USER_NAME;
 import static com.dbn.object.type.DBAttributeType.USER_OCID;
-import static com.dbn.object.type.DBAttributeType.USER_TENANCY_OCID;
 
 /**
  * Implementation of {@link ObjectManagementAdapterFactory} for objects of type {@link DBCredential}
@@ -58,7 +58,7 @@ public class DBCredentialManagementAdapter extends ObjectManagementAdapterFactor
             databaseInterface.createOciCredential(conn,
                     credentialName,
                     object.getAttribute(USER_OCID),
-                    object.getAttribute(USER_TENANCY_OCID),
+                    object.getAttribute(TENANCY_OCID),
                     object.getAttribute(PRIVATE_KEY),
                     object.getAttribute(FINGERPRINT));
         }
