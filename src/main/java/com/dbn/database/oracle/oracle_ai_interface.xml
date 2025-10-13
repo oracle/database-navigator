@@ -337,6 +337,43 @@
             END;
         </statement>
     </statement-execution-processor>
+
+    <statement-execution-processor id="insert-vector-embeddings-from-filesystem-blob" timeout="12000" is-prepared-statement="true"  is-query="false">
+        <statement>
+            DECLARE
+            v_tbl              VARCHAR2(128)  := {0};
+            v_model            VARCHAR2(4000) := {1};
+            v_doc              BLOB           := {2};
+            v_by               VARCHAR2(100)  := {3};
+            v_max              NUMBER         := {4};
+            v_ovl              NUMBER         := {5};
+            v_split            VARCHAR2(100)  := {6};
+            v_text_column      VARCHAR2(128)  := {7};
+            v_embedding_column VARCHAR2(128)  := {8};
+            v_metadata_column  VARCHAR2(128)  := {9};
+            v_metadata         CLOB           := {10};
+            v_id               VARCHAR2(4000)  := {11};
+            v_sql              CLOB;
+            v_text             CLOB;
+            BEGIN
+            v_text := DBMS_VECTOR_CHAIN.UTL_TO_TEXT(v_doc, json(json_object('plaintext' value true)));
+            v_sql :=
+            'INSERT INTO ' || v_tbl || ' (' ||
+            'id, ' ||
+            v_text_column || ', ' ||
+            v_embedding_column || ', ' ||
+            v_metadata_column || ') ' ||
+            'SELECT SYS_GUID(), ch.chunk_text, ' ||
+            'VECTOR_EMBEDDING(' || v_model || ' USING ch.chunk_text AS DATA), ' ||
+            'null ' ||
+            'FROM VECTOR_CHUNKS(:1 BY ' || v_by || ' MAX ' || v_max || ' OVERLAP ' || v_ovl || ' SPLIT BY ' || v_split || ') ch';
+
+            EXECUTE IMMEDIATE v_sql USING v_text ;
+            END;
+        </statement>
+    </statement-execution-processor>
+
+
     <statement-execution-processor id="load-onnx-model-through-jdbc" timeout="12000" is-prepared-statement="true"  is-query="false">
         <statement>
             BEGIN

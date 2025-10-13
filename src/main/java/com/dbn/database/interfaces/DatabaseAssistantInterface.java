@@ -119,4 +119,5 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
   void createTable(DBNConnection connection, String tableName) throws SQLException;
 
   void embed(DBNConnection conn, Clob sourceFileClob, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException;
+  void embed(DBNConnection conn, Blob sourceFileClob, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException;
 }

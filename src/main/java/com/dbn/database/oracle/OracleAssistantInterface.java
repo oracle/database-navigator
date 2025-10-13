@@ -129,6 +129,28 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
+  public void embed(DBNConnection conn, Blob sourceFileClob, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException
+  {
+
+      executeUpdate(conn,
+              "insert-vector-embeddings-from-filesystem-blob",
+              storeConfig.getTableName(),                    // {0}
+              embedConfig.getModelName(),                    // {1}
+              sourceFileClob,                                // {2}
+              chunkConfiguration.getBy(),                    // {3}
+              chunkConfiguration.getMax(),                   // {4}
+              chunkConfiguration.getOverlap(),               // {5}
+              chunkConfiguration.getSplitBy(),                // {6}
+              storeConfig.getTextColumn(),                    //{7}
+              storeConfig.getEmbeddingColumn(),               //{8}
+              storeConfig.getMetadataColumn(),                 //{9}
+              storeConfig.getMetadata(),                       //{10}
+              storeConfig.getId()                               //{11}
+      );
+
+  }
+
+  @Override
   public void createTable(DBNConnection conn, String tableName) throws SQLException {
     executeUpdate(conn,"create-table",tableName);
 

@@ -42,18 +42,13 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
     EmbedConfig embedConfig = form.getEmbedConfigForm().getEmbedConfig();
     StoreConfig storeConfig = form.getSaveVectorsForm().getStoreConfig();
 
-    try {
-      Runnable callbackInfo = ()->{
-        Messages.showInfoDialog(getProject(), "Embedding Succeeded ","Your data has been embedded successfully!");
-      };
-      Consumer<Exception> callbackError = (ex) -> {
-        Messages.showErrorDialog(getProject(), "Embedding Failed", ex.getMessage(), ex);
-      };
-      DatabaseVectorManager.getInstance(getProject()).query(sourceConfig,chunkConfiguration,embedConfig,storeConfig,getConnection(),callbackInfo,callbackError);
-    } catch (SQLException ex) {
-      Messages.showErrorDialog(getProject(), null,
-              ex.getMessage(),ex);
-      throw new RuntimeException(ex);
-    }
+    Runnable callbackInfo = ()->{
+      Messages.showInfoDialog(getProject(), "Embedding Succeeded ","Your data has been embedded successfully!");
+    };
+    Consumer<Exception> callbackError = (ex) -> {
+      Messages.showErrorDialog(getProject(), "Embedding Failed", ex.getMessage(), ex);
+    };
+    DatabaseVectorManager.getInstance(getProject()).query(sourceConfig,chunkConfiguration,embedConfig,storeConfig,getConnection(),callbackInfo,callbackError);
+
   }
 }

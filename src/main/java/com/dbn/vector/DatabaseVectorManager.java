@@ -83,7 +83,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
     }
 
     @SneakyThrows
-    public void query(SourceConfig sourceConfig, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig, ConnectionHandler handler, Runnable callbackInfo, Consumer<Exception> callbackError) throws SQLException {
+    public void query(SourceConfig sourceConfig, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig, ConnectionHandler handler, Runnable callbackInfo, Consumer<Exception> callbackError)  {
         Progress.modal(
                 getProject(),
                 handler.getSchema(), true,
@@ -114,14 +114,22 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                                         VirtualFile vf = files.get(i);
                                         p.setText2("Embedding (" + (i + 1) + "/" + files.size() + "): " + vf.getName());
 
-                                        Clob clob = null;
-                                        try {
-                                          clob = prepareFileClob(conn, vf);
-                                          dataDefinition.embed(conn, clob, chunkConfiguration, embedConfig, storeConfig);
-                                        } catch (Exception e) {
+                                        if (isTextLike(vf.getName())) {
+                                          Clob clob = null;
+                                          try {
+                                            clob = prepareFileClob(conn, vf);
+                                            dataDefinition.embed(conn, clob, chunkConfiguration, embedConfig, storeConfig);
+                                          } catch (Exception e) {
+                                            throw new RuntimeException(e);
+                                          } finally { if (clob != null) try { clob.free(); } catch (Throwable ignored) {} }
+                                        } else {
+                                          java.sql.Blob blob = null;
+                                          try {
+                                            blob = prepareFileBlob(conn, vf);
+                                            dataDefinition.embed(conn, blob, chunkConfiguration, embedConfig, storeConfig); // add this overload
+                                          } catch (Exception e) {
                                           throw new RuntimeException(e);
-                                        } finally {
-                                          if (clob != null) try { clob.free(); } catch (Throwable ignored) {}
+                                        } finally { if (blob != null) try { blob.free(); } catch (Throwable ignored) {} }
                                         }
                                       }
 
@@ -137,7 +145,26 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
 
     }
 
-  private Clob prepareFileClob(DBNConnection conn, VirtualFile virtualFile) throws Exception {
+
+  private java.sql.Blob prepareFileBlob(DBNConnection conn, VirtualFile vf) throws IOException, SQLException {
+    java.sql.Blob blob = conn.createBlob();
+    try (InputStream in = vf.getInputStream();
+         OutputStream out = blob.setBinaryStream(1)) {
+      byte[] buf = new byte[64 * 1024];
+      int n;
+      while ((n = in.read(buf)) != -1) {
+        out.write(buf, 0, n);
+      }
+    }
+    return blob;
+  }
+
+  private static boolean isTextLike(String name) {
+    String n = name.toLowerCase();
+    return n.endsWith(".txt") || n.endsWith(".md") || n.endsWith(".csv") || n.endsWith(".json") || n.endsWith(".xml");
+  }
+
+  private Clob prepareFileClob(DBNConnection conn, VirtualFile virtualFile) throws SQLException, IOException {
     Clob clob = conn.createClob();
 
     try (InputStream in = virtualFile.getInputStream();

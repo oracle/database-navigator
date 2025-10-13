@@ -36,13 +36,11 @@ public class VectorAIForm extends DBNFormBase {
   public VectorAIForm(Disposable parent, ConnectionHandler connection) {
     super(parent, connection.getProject());
     this.connection = connection.ref();
-    System.out.println("fkaravvvaaaaweeeeaenkjhf");
     sourceDataForm = new SourceDataForm(this,connection);
     chunkConfigForm = new ChunkConfigForm(this,connection);
     embedConfigForm = new EmbedConfigForm(this,connection);
     saveVectorsForm = new SaveVectorsForm(this,connection);
 
-    System.out.println("faa");
     DBNCollapsiblePanel sourceCollapsiblePanel = new DBNCollapsiblePanel(this,sourceDataForm,true);
     sourceCollapsiblePanel.setExpanded(true);
     dataPanel.add(sourceCollapsiblePanel.getComponent());
