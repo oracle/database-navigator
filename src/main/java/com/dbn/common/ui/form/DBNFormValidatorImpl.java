@@ -31,6 +31,8 @@ import javax.swing.JTable;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.JTextComponent;
 import java.awt.Component;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.ArrayList;
@@ -151,6 +153,7 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
 
         // add focus listener to perform validation when focus is gained or lost
         addFocusValidationListeners(textField);
+        addVisibilityChangeListener(textField);
     }
 
     private void addValidationListeners(JComboBox comboBox) {
@@ -162,6 +165,7 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
 
         // add focus listener to perform validation when focus is gained or lost
         addFocusValidationListeners(comboBox);
+        addVisibilityChangeListener(comboBox);
     }
 
     private void addValidationListeners(CheckBoxList checkBoxList) {
@@ -171,6 +175,7 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         checkBoxList.addActionListener(e -> validateInput(checkBoxList));
 
         addFocusValidationListeners(checkBoxList);
+        addVisibilityChangeListener(checkBoxList);
     }
 
     private void addFocusValidationListeners(JComponent component) {
@@ -196,6 +201,22 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
             }
         });
     }
+
+    private static void addVisibilityChangeListener(JComponent component) {
+        // reset the VISITED flag when component visibility changes
+        component.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                VISITED.reset(component);
+            }
+
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                VISITED.reset(component);
+            }
+        });
+    }
+
 
     public void validateInput(JComponent component) {
         DBNDialog dialog = getTarget();
