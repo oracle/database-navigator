@@ -27,11 +27,13 @@ import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.text.TextContent;
+import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.misc.DBNInfoLabel;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Lists;
@@ -65,22 +67,20 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 
 public class AssistantProfileEditForm extends DBNFormBase {
-    private JPanel headerPanel;
+    private JPanel hintPanel;
     private JPanel mainPanel;
     private JBTextField nameTextField;
     private DBNComboBox<AIProvider> providerComboBox;
     private DBNComboBox<AssistantCredential> credentialComboBox;
     private DBNComboBox<AssistantTemperaturePreset> temperatureComboBox;
     private JSlider temperatureSlider;
-    private JPanel temperatureDescPanel;
     private JBTextArea instructionsTextArea;
+    private DBNInfoLabel temperatureInfoLabel;
 
 
     private final DeclaredAssistantProfile profile;
     private final Set<String> usedNames;
     private boolean generatedName;
-
-    private DBNHintForm temperatureDescForm;
 
     AssistantProfileEditForm(AssistantProfileEditDialog parent, Set<String> usedNames) {
         super(parent);
@@ -89,10 +89,35 @@ public class AssistantProfileEditForm extends DBNFormBase {
         this.generatedName = Strings.isEmpty(profile.getName());
 
         initComboBox(providerComboBox, getProviders());
-        initComboBox(credentialComboBox, getCredentials());
-        initComboBox(temperatureComboBox, values());
+        initHintPanel();
+        initCredentialFields();
         initTemperatureFields();
+        initInstructionsField();
 
+        resetFormChanges();
+
+        updateFields();
+        onSelectionChange(providerComboBox, c -> updateFields());
+        onSelectionChange(temperatureComboBox, c -> updateFields());
+        onTextChange(nameTextField, e -> generatedName = false);
+    }
+
+    private void initHintPanel() {
+        TextContent hintContent = TextContent.plain(
+                "Profiles let you customize your experience with the LLM. " +
+                    "You can choose from different temperature presets to adjust the balance between accuracy and creativity. " +
+                    "You can also specify custom instructions to help the LLM better understand your needs.");
+        DBNHintForm hintForm = new DBNHintForm(this, hintContent, null, true);
+        hintPanel.add(hintForm.getComponent());
+    }
+
+    private void initInstructionsField() {
+        instructionsTextArea.getEmptyText().setText("e.g. ‘Use Java best practices’ or ‘Comment each step.’");
+    }
+
+    private void initCredentialFields() {
+        initComboBox(credentialComboBox, getCredentials());
+        AssistantProfileEditDialog parent = ensureParentComponent();
         AssistantCredentialBundle credentials = parent.getCredentials();
         credentialComboBox.setValueFactory(new ValueFactory<>("New Credential") {
             @Override
@@ -104,22 +129,31 @@ public class AssistantProfileEditForm extends DBNFormBase {
             }
 
         });
-
-        instructionsTextArea.getEmptyText().setText("e.g. ‘Use Java best practices’ or ‘Comment each step.’");
-
-        resetFormChanges();
-
-        updateFields();
-        onSelectionChange(providerComboBox, c -> updateFields());
-        onSelectionChange(temperatureComboBox, c -> updateFields());
-        onTextChange(nameTextField, e -> generatedName = false);
     }
 
     private void initTemperatureFields() {
+        initComboBox(temperatureComboBox, values());
         temperatureComboBox.set(HIDE_DESCRIPTION, true);
-        temperatureDescForm = new DBNHintForm(this, null, null, true);
-        temperatureDescPanel.add(temperatureDescForm.getComponent());
         temperatureSlider.addChangeListener(e -> updateSliderLabels());
+
+        TextContent infoContent = buildTemperatureInfo();
+        temperatureInfoLabel.setContent(infoContent);
+    }
+
+    private TextContent buildTemperatureInfo() {
+        String infoRawContent = TextResources.get(getClass(), "llm_temperature_info.html.ft");
+        TextContent infoContent = TextContent.html(infoRawContent);
+
+        StringBuilder body = new StringBuilder();
+        for (AssistantTemperaturePreset value : values()) {
+            body.append("<u>").append(value.getName()).append("</u><br>");
+            body.append(value.getDescription()).append("<br><br>");
+        }
+
+        infoContent.initFonts();
+        infoContent.initField("BODY_CONTENT", body.toString());
+
+        return infoContent;
     }
 
 
@@ -136,7 +170,6 @@ public class AssistantProfileEditForm extends DBNFormBase {
         initProfileName();
         initComboBox(credentialComboBox, getCredentials());
         temperatureSlider.setVisible(isCustomTemperature());
-        temperatureDescForm.setHintContent(TextContent.plain(getSelectedTemperature().getDescription()));
     }
 
     private void initProfileName() {

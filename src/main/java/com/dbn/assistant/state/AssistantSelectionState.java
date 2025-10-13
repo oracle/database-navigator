@@ -22,7 +22,7 @@ import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.state.PersistentStateElement;
 import org.jdom.Element;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,7 +48,7 @@ public class AssistantSelectionState implements PersistentStateElement {
         return modelSelections.put(providerId, model);
     }
 
-    private @NonNull Map<AIProviderId, AIModel> getModelSelections(AssistantType assistantType) {
+    private @NotNull Map<AIProviderId, AIModel> getModelSelections(AssistantType assistantType) {
         return this.modelSelections.computeIfAbsent(assistantType, t -> new ConcurrentHashMap<>());
     }
 
