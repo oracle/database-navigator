@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.profile.ui;
 
-import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.dialog.DBNDialog;
@@ -25,18 +25,17 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
-import java.util.List;
 import java.util.Set;
 
 @Getter
 public class AssistantProfileEditDialog extends DBNDialog<AssistantProfileEditForm> {
     private final Set<String> usedTitles;
     private final DeclaredAssistantProfile profile;
-    private final List<AssistantCredential> credentials;
+    private final AssistantCredentialBundle credentials;
     private final Consumer<DeclaredAssistantProfile> onSave;
 
 
-    public AssistantProfileEditDialog(Project project, DeclaredAssistantProfile profile, List<AssistantCredential> credentials, Set<String> usedNames, Consumer<DeclaredAssistantProfile> onSave) {
+    public AssistantProfileEditDialog(Project project, DeclaredAssistantProfile profile, AssistantCredentialBundle credentials, Set<String> usedNames, Consumer<DeclaredAssistantProfile> onSave) {
         super(project, profile == null ? "Create Profile" : "Update Profile", true);
         this.profile = profile == null ? new DeclaredAssistantProfile() : profile;
         this.credentials = credentials;

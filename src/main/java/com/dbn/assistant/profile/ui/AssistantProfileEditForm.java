@@ -18,16 +18,22 @@ package com.dbn.assistant.profile.ui;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.credential.AssistantCredentialBundle;
+import com.dbn.assistant.credential.ui.AssistantCredentialEditDialog;
 import com.dbn.assistant.profile.AssistantTemperaturePreset;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.assistant.provider.AIProviderId;
+import com.dbn.common.routine.Consumer;
 import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.Presentable;
+import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
+import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.intellij.ui.components.JBTextArea;
@@ -87,6 +93,18 @@ public class AssistantProfileEditForm extends DBNFormBase {
         initComboBox(temperatureComboBox, values());
         initTemperatureFields();
 
+        AssistantCredentialBundle credentials = parent.getCredentials();
+        credentialComboBox.setValueFactory(new ValueFactory<>("New Credential") {
+            @Override
+            public void create(Consumer<AssistantCredential> consumer) {
+                Dialogs.show(() -> new AssistantCredentialEditDialog(getProject(), getSelectedProviderId(), null, getCredentialNames(), c -> {
+                    credentials.addCredential(c);
+                    consumer.accept(c);
+                }));
+            }
+
+        });
+
         instructionsTextArea.getEmptyText().setText("e.g. ‘Use Java best practices’ or ‘Comment each step.’");
 
         resetFormChanges();
@@ -136,10 +154,14 @@ public class AssistantProfileEditForm extends DBNFormBase {
         if (parent == null) return Collections.emptyList();
 
         AIProviderId selectedProviderId = getSelectedProviderId();
-        return Lists.filter(parent.getCredentials(), c ->
+        return Lists.filter(parent.getCredentials().getElements(), c ->
                 c.getProviderId() == null ||
                 selectedProviderId == null ||
                 c.getProviderId() == selectedProviderId);
+    }
+
+    private Set<String> getCredentialNames() {
+        return Presentable.names(getCredentials());
     }
 
     private AssistantCredential getCredential(String id) {

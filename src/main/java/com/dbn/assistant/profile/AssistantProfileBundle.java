@@ -22,9 +22,7 @@ import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.component.ProjectUnit;
-import com.dbn.common.util.CollectionUtil;
 import com.dbn.common.util.Lists;
-import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -37,21 +35,17 @@ import static com.dbn.common.util.Lists.first;
 @Getter
 @Setter
 public class AssistantProfileBundle extends ProjectUnit {
+    private AssistantProfileSettings settings;
     private final List<DeclaredAssistantProfile> declaredProfiles = new ArrayList<>();
     private static final List<PotentialAssistantProfile> potentialProfiles = createPotentialProfiles();
 
-    public AssistantProfileBundle(Project project) {
-        super(project);
+    public AssistantProfileBundle(AssistantProfileSettings settings) {
+        super(settings.getProject());
+        this.settings = settings;
     }
 
-    public AssistantProfileBundle(Project project, List<DeclaredAssistantProfile> declaredProfiles) {
-        this(project);
-        setDeclaredProfiles(declaredProfiles);
-    }
-
-    public void setDeclaredProfiles(List<DeclaredAssistantProfile> profiles) {
-        this.declaredProfiles.clear();
-        CollectionUtil.cloneElements(profiles, this.declaredProfiles);
+    public AssistantCredentialBundle getCredentials() {
+        return settings.ensureParent().getCredentialSettings().getCredentials();
     }
 
     public void clear() {

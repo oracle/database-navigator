@@ -17,9 +17,8 @@
 package com.dbn.assistant.profile.ui;
 
 
-import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.credential.AssistantCredentialSettings;
-import com.dbn.assistant.credential.ui.AssistantCredentialsSettingsForm;
 import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.assistant.profile.AssistantProfileSettings;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
@@ -28,7 +27,6 @@ import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,7 +48,7 @@ public class AssistantProfilesSettingsForm extends ConfigurationEditorForm<Assis
         super(settings);
 
         AssistantProfileBundle profiles = settings.getProfiles();
-        profilesTable = new AssistantProfilesEditorTable(this, profiles, () -> getCredentials());
+        profilesTable = new AssistantProfilesEditorTable(this, profiles);
         profilesTablePanel.add(initTableComponent());
 
         registerComponents(mainPanel);
@@ -83,18 +81,14 @@ public class AssistantProfilesSettingsForm extends ConfigurationEditorForm<Assis
             profilesTable.repaint();
         };
 
-        List<AssistantCredential> credentials = getCredentials();
+        AssistantCredentialBundle credentials = getCredentials();
         Set<String> profileNames = getProfileNames(profile == null ? null : profile.getName());
         Dialogs.show(() -> new AssistantProfileEditDialog(getProject(), profile, credentials, profileNames, onSave));
     }
 
-    private List<AssistantCredential> getCredentials() {
-        // support transient credentials if hosted inside the "Assistant" settings tab
+    private AssistantCredentialBundle getCredentials() {
         AssistantCredentialSettings credentialSettings = getConfiguration().ensureParent().getCredentialSettings();
-        AssistantCredentialsSettingsForm credentialsSettingsForm = credentialSettings.getSettingsEditor();
-        return credentialsSettingsForm == null ?
-                credentialSettings.getCredentials().getElements() :
-                credentialsSettingsForm.getCredentials();
+        return credentialSettings.getCredentials();
     }
 
     private Set<String> getProfileNames(String excludeName) {
@@ -129,17 +123,11 @@ public class AssistantProfilesSettingsForm extends ConfigurationEditorForm<Assis
         AssistantProfilesTableModel model = profilesTable.getModel();
         model.validate();
 
-        List<DeclaredAssistantProfile> profiles = model.getElements();
-
-        AssistantProfileSettings configuration = getConfiguration();
-        Project project = configuration.getProject();
-        configuration.setProfiles(new AssistantProfileBundle(project, profiles));
+        model.applyChanges();
     }
 
     @Override
     public void resetFormChanges() {
-        AssistantProfileSettings settings = getConfiguration();
-        List<DeclaredAssistantProfile> profiles = settings.getProfiles().getDeclaredProfiles();
-        profilesTable.getModel().setElements(profiles);
+        profilesTable.getModel().resetChanges();
     }
 }

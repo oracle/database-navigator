@@ -40,7 +40,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static com.dbn.assistant.provider.AIAuthentication.Field.API_KEY;
 import static com.dbn.assistant.provider.AIAuthentication.Field.PASSWORD;
@@ -72,13 +71,11 @@ public class AssistantCredentialEditForm extends DBNFormBase {
 
     private final OciConfigForm ociConfigForm;
     private final AssistantCredential credential;
-    private final Set<String> usedNames;
     private boolean generatedName;
 
-    AssistantCredentialEditForm(AssistantCredentialEditDialog parent, Set<String> usedNames) {
+    AssistantCredentialEditForm(AssistantCredentialEditDialog parent) {
         super(parent);
         this.credential = parent.getCredential();
-        this.usedNames = usedNames;
         this.generatedName = Strings.isEmpty(credential.getName());
         initCredentialName();
 
@@ -96,7 +93,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
 
     protected void initFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
-        fieldAdapter.initFieldsAvailability(() -> isNewCredential(), array(providerComboBox));
+        fieldAdapter.initFieldsAvailability(() -> isProviderSwitchAllowed(), array(providerComboBox));
         fieldAdapter.initFieldsVisibility(() -> isFieldSupported(USER), array(userLabel, userTextField));
         fieldAdapter.initFieldsVisibility(() -> isSecretFieldSupported(), array(secretLabel, secretTextField));
     }
@@ -107,7 +104,8 @@ public class AssistantCredentialEditForm extends DBNFormBase {
         AIProvider provider = getSelectedProvider();
         String baseName = provider == null ? "Credential" : provider.getName();
 
-        String name = nextNumberedIdentifier(baseName + " 1", true, () -> usedNames);
+        AssistantCredentialEditDialog parentDialog = ensureParentComponent();
+        String name = nextNumberedIdentifier(baseName + " 1", true, () -> parentDialog.getUsedNames());
         setTextSilently(nameTextField, name);
     }
 
@@ -118,9 +116,9 @@ public class AssistantCredentialEditForm extends DBNFormBase {
         return providers;
     }
 
-    private boolean isNewCredential() {
+    private boolean isProviderSwitchAllowed() {
         AssistantCredentialEditDialog dialog = ensureParentComponent();
-        return dialog.isNewCredential();
+        return dialog.isNewCredential() && dialog.getProviderId() == null;
     }
 
     private boolean isFieldSupported(Field field) {
@@ -202,7 +200,8 @@ public class AssistantCredentialEditForm extends DBNFormBase {
     }
 
     private boolean isNotUsed(String name) {
-        return !usedNames.contains(name);
+        AssistantCredentialEditDialog dialog = ensureParentComponent();
+        return !dialog.getUsedNames().contains(name);
     }
 
     public String getCredentialName() {

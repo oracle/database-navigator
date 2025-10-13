@@ -37,11 +37,13 @@ public class AssistantSettings
     extends CompositeProjectConfiguration<ProjectSettings, AssistantSettingsForm>
     implements TopLevelConfig {
 
-  private final AssistantCredentialSettings credentialSettings = new AssistantCredentialSettings(this);
-  private final AssistantProfileSettings profileSettings = new AssistantProfileSettings(this);
+  private final AssistantCredentialSettings credentialSettings;
+  private final AssistantProfileSettings profileSettings;
 
   public AssistantSettings(ProjectSettings parent) {
     super(parent);
+    this.credentialSettings = new AssistantCredentialSettings(this);
+    this.profileSettings = new AssistantProfileSettings(this);
   }
 
   @NotNull

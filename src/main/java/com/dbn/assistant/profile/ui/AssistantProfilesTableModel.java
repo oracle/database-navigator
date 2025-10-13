@@ -18,6 +18,7 @@ package com.dbn.assistant.profile.ui;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.assistant.profile.AssistantTemperaturePreset;
@@ -34,11 +35,11 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class AssistantProfilesTableModel extends DBNEntityEditableTableModel<DeclaredAssistantProfile> {
-    private final Supplier<List<AssistantCredential>> credentials;
 
-    AssistantProfilesTableModel(AssistantProfileBundle profiles, Supplier<List<AssistantCredential>> credentials) {
-        super(DeclaredAssistantProfile.class, profiles.getDeclaredProfiles());
-        this.credentials = credentials;
+    private final Supplier<AssistantCredentialBundle> credentials;
+    AssistantProfilesTableModel(AssistantProfileBundle profiles) {
+        super(() -> profiles.getDeclaredProfiles());
+        this.credentials = () -> profiles.getCredentials();
 
         addColumn("Profile Name", String.class, p -> p.getName(), null);
         addColumn("LLM Provider", String.class, p -> getProviderName(p), null);
@@ -64,7 +65,8 @@ public class AssistantProfilesTableModel extends DBNEntityEditableTableModel<Dec
         String credentialId = profile.getCredentialId();
         if (Strings.isEmpty(credentialId)) return "";
 
-        AssistantCredential credential = Lists.first(credentials.get(), c -> c.getId().equals(credentialId));
+        List<AssistantCredential> credentials = this.credentials.get().getElements();
+        AssistantCredential credential = Lists.first(credentials, c -> c.getId().equals(credentialId));
         return credential == null ? "" : credential.getName();
     }
 

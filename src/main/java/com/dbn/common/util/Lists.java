@@ -233,6 +233,12 @@ public class Lists {
         return index < 0 || index >= list.size();
     }
 
+    @Nullable
+    public static <T> T getElementAt(List<T> list, int index) {
+        if (isOutOfBounds(list, index)) return null;
+        return list.get(index);
+    }
+
     public static <T> String toCsv(Collection<T> elements, Function<T, String> toString) {
         return toCsv(elements, ", ", toString);
     }

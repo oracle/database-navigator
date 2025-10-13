@@ -30,7 +30,7 @@ import com.intellij.openapi.options.ConfigurationException;
 public class AssistantCredentialsTableModel extends DBNEntityEditableTableModel<AssistantCredential> {
 
     AssistantCredentialsTableModel(AssistantCredentialBundle credentials) {
-        super(AssistantCredential.class, credentials.getElements());
+        super(() -> credentials.getElements());
 
         addColumn("Credential Name", String.class, c -> c.getName(), (c, v) -> c.setName(v));
         addColumn("LLM Provider", String.class, c -> getProviderName(c.getProviderId()), null);

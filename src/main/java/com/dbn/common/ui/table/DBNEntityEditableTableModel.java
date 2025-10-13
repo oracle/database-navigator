@@ -16,16 +16,17 @@
 
 package com.dbn.common.ui.table;
 
-import com.dbn.common.Reflection;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Lists;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
+import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.dbn.common.util.CollectionUtil.cloneElements;
 import static com.dbn.common.util.Unsafe.cast;
@@ -40,24 +41,33 @@ import static com.dbn.common.util.Unsafe.cast;
  * @author Dan Cioca (Oracle)
  */
 @Getter
+@Setter
 public abstract class DBNEntityEditableTableModel<T extends Cloneable<T>> extends DBNEditableTableModel {
-    private final Class<T> entityType;
-    private final List<T> elements;
+    private Supplier<List<T>> elements;
+    private List<T> originalElements;
     private final List<ColumnDefinition<T, ?>> columns = new ArrayList<>();
+    private transient int elementsCount;
 
-    protected DBNEntityEditableTableModel(Class<T> entityType, List<T> elements) {
-        this.entityType = entityType;
-        this.elements = new ArrayList<>();
-        cloneElements(elements, this.elements);
+    protected DBNEntityEditableTableModel(Supplier<List<T>> elements) {
+        this.elements = elements;
+        this.originalElements = cloneElements(elements.get());
+        this.elementsCount = originalElements.size();
     }
 
-    public void setElements(List<T> elements) {
-        this.elements.clear();
-        cloneElements(elements, this.elements);
-        notifyListeners(0, getRowCount(), -1);
+    public void resetChanges() {
+        List<T> elements = getElements();
+        elements.clear();
+        elements.addAll(originalElements);
+        notifyListeners(-1, -1, -1);
+    }
+
+    public void applyChanges() {
+        List<T> elements = getElements();
+        this.originalElements = cloneElements(elements);
     }
 
     public boolean moveRowDown(int row) {
+        List<T> elements = getElements();
         if (row >= elements.size() - 1) return false;
 
         Collections.swap(elements, row, row + 1);
@@ -66,6 +76,7 @@ public abstract class DBNEntityEditableTableModel<T extends Cloneable<T>> extend
     }
 
     public boolean moveRowUp(int row) {
+        List<T> elements = getElements();
         if (row <= 0) return false;
 
         Collections.swap(elements, row, row - 1);
@@ -73,6 +84,16 @@ public abstract class DBNEntityEditableTableModel<T extends Cloneable<T>> extend
         return true;
 
 
+    }
+
+    public List<T> getElements() {
+        List<T> elements = this.elements.get();
+        int elementsCount = elements.size();
+        if (elementsCount != this.elementsCount) {
+            this.elementsCount = elementsCount;
+            notifyListeners(-1, -1, -1);
+        }
+        return elements;
     }
 
     /**
@@ -96,6 +117,7 @@ public abstract class DBNEntityEditableTableModel<T extends Cloneable<T>> extend
     }
 
     public void addElement(T element) {
+        List<T> elements = this.elements.get();
         elements.add(element);
         notifyListeners(elements.size() - 1, elements.size() - 1, -1);
     }
@@ -119,19 +141,13 @@ public abstract class DBNEntityEditableTableModel<T extends Cloneable<T>> extend
     }
 
     private T getElement(int rowIndex) {
-        while (rowIndex >= elements.size()) {
-            elements.add(createElement());
-        }
-        return elements.get(rowIndex);
-    }
-
-    private @NotNull T createElement() {
-        return Reflection.newInstance(entityType);
+        List<T> elements = this.elements.get();
+        return Lists.getElementAt(elements, rowIndex);
     }
 
     @Override
     public final int getRowCount() {
-        return elements.size();
+        return getElements().size();
     }
 
     @Override
@@ -204,12 +220,18 @@ public abstract class DBNEntityEditableTableModel<T extends Cloneable<T>> extend
 
     @Override
     public final void insertRow(int rowIndex) {
+        List<T> elements = this.elements.get();
         elements.add(rowIndex, createElement());
         notifyListeners(rowIndex, elements.size() - 1, -1);
     }
 
+    protected T createElement() {
+        throw new UnsupportedOperationException("createElement() not implemented");
+    }
+
     @Override
     public final void removeRow(int rowIndex) {
+        List<T> elements = this.elements.get();
         if (elements.size() <= rowIndex) return;
 
         elements.remove(rowIndex);

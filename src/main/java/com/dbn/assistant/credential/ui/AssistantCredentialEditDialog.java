@@ -17,6 +17,7 @@
 package com.dbn.assistant.credential.ui;
 
 import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.intellij.openapi.project.Project;
@@ -28,16 +29,23 @@ import java.util.Set;
 
 @Getter
 public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredentialEditForm> {
-    private final Set<String> usedTitles;
+    private final Set<String> usedNames;
     private final AssistantCredential credential;
     private final Consumer<AssistantCredential> onSave;
+    private final AIProviderId providerId;
     private final boolean newCredential;
 
-    public AssistantCredentialEditDialog(Project project, AssistantCredential credential, Set<String> usedNames, Consumer<AssistantCredential> onSave) {
+    public AssistantCredentialEditDialog(Project project, AIProviderId providerId, AssistantCredential credential, Set<String> usedNames, Consumer<AssistantCredential> onSave) {
         super(project, credential == null ? "Create Credential" : "Update Credential", true);
+        this.providerId = providerId;
         this.newCredential = credential == null;
-        this.credential = newCredential ? new AssistantCredential() : credential;
-        this.usedTitles = usedNames;
+        if (credential == null) {
+            this.credential = new AssistantCredential();
+            this.credential.setProviderId(providerId);
+        } else {
+            this.credential = credential;
+        }
+        this.usedNames = usedNames;
         this.onSave = onSave;
         renameAction(getOKAction(), newCredential ? "Create" : "Update");
         setModal(true);
@@ -48,7 +56,7 @@ public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredential
     @NotNull
     @Override
     protected AssistantCredentialEditForm createForm() {
-        return new AssistantCredentialEditForm(this, usedTitles);
+        return new AssistantCredentialEditForm(this);
     }
 
     @Override

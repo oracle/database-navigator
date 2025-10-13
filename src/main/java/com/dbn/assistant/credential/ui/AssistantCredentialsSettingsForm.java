@@ -64,7 +64,7 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
         return createToolbarDecoratorComponent(decorator, credentialsTable);
     }
 
-    private void openCredentialEditor(boolean create) {
+    public void openCredentialEditor(boolean create) {
         AssistantCredential selectedCredential = getSelectedCredential();
         if (selectedCredential == null && !create) return;
 
@@ -72,6 +72,7 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
         Set<String> credentialNames = getCredentialNames(credential == null ? null : credential.getName());
         Dialogs.show(() -> new AssistantCredentialEditDialog(
                 getProject(),
+                null,
                 credential,
                 credentialNames,
                 c -> saveCredential(c, create)));
@@ -115,16 +116,17 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
         AssistantCredentialSettings configuration = getConfiguration();
 
         // capture old secrets
-        Map<Object, AssistantCredential> oldCredentials = configuration
-                .getCredentials()
-                .getElements()
+        AssistantCredentialsTableModel model = credentialsTable.getModel();
+        Map<Object, AssistantCredential> oldCredentials = model
+                .getOriginalElements()
                 .stream()
                 .collect(Collectors.toMap(
                         o -> o.getSecretOwnerId(),
                         o -> o));
 
-        AssistantCredentialsTableModel model = credentialsTable.getModel();
+
         model.validate();
+        model.applyChanges();
 
         List<AssistantCredential> credentials = model.getElements();
         configuration.setCredentials(new AssistantCredentialBundle(getProject(), credentials));
@@ -138,14 +140,8 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
         oldCredentials.values().forEach(c -> c.removeSecrets());
     }
 
-    public List<AssistantCredential> getCredentials() {
-        return credentialsTable.getModel().getElements();
-    }
-
     @Override
     public void resetFormChanges() {
-        AssistantCredentialSettings settings = getConfiguration();
-        List<AssistantCredential> credentials = settings.getCredentials().getElements();
-        credentialsTable.getModel().setElements(credentials);
+        credentialsTable.getModel().resetChanges();
     }
 }

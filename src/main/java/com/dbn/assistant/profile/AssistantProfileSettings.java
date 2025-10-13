@@ -35,15 +35,9 @@ public class AssistantProfileSettings
 
     private AssistantProfileBundle profiles;
 
-    public AssistantProfileSettings(AssistantSettings parent) {
-        super(parent);
-        this.profiles = new AssistantProfileBundle(parent.getProject());
-    }
-
-    public void setProfiles(AssistantProfileBundle profiles) {
-        this.profiles = new AssistantProfileBundle(
-                profiles.getProject(),
-                profiles.getDeclaredProfiles());
+    public AssistantProfileSettings(AssistantSettings settings) {
+        super(settings);
+        this.profiles = new AssistantProfileBundle(this);
     }
 
     @NotNull
