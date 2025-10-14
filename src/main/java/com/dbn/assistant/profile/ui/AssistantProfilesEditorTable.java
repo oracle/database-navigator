@@ -38,7 +38,7 @@ public class AssistantProfilesEditorTable extends DBNEntityEditableTable<Assista
         setDefaultRenderer(String.class, new AssistantProfilesTableCellRenderer());
 
         setAccessibleName(this, "Assistant Profiles");
-        setProportionalColumnWidths(15, 15, 15, 55);
+        setProportionalColumnWidths(25, 15, 25, 35);
     }
 
     @NotNull

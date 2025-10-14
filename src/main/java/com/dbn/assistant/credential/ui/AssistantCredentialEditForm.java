@@ -102,10 +102,9 @@ public class AssistantCredentialEditForm extends DBNFormBase {
         if (!generatedName) return;
 
         AIProvider provider = getSelectedProvider();
-        String baseName = provider == null ? "Credential" : provider.getName();
+        String baseName = provider == null ? "Credential" : provider.getBasicCredentialName();
 
-        AssistantCredentialEditDialog parentDialog = ensureParentComponent();
-        String name = nextNumberedIdentifier(baseName + " 1", true, () -> parentDialog.getUsedNames());
+        String name = nextNumberedIdentifier(baseName, true, () -> getRequest().getUsedNames());
         setTextSilently(nameTextField, name);
     }
 
@@ -117,8 +116,13 @@ public class AssistantCredentialEditForm extends DBNFormBase {
     }
 
     private boolean isProviderSwitchAllowed() {
+        AssistantCredentialEditRequest request = getRequest();
+        return request.isNewCredential() && request.getProviderId() == null;
+    }
+
+    private AssistantCredentialEditRequest getRequest() {
         AssistantCredentialEditDialog dialog = ensureParentComponent();
-        return dialog.isNewCredential() && dialog.getProviderId() == null;
+        return dialog.getRequest();
     }
 
     private boolean isFieldSupported(Field field) {
@@ -200,8 +204,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
     }
 
     private boolean isNotUsed(String name) {
-        AssistantCredentialEditDialog dialog = ensureParentComponent();
-        return !dialog.getUsedNames().contains(name);
+        return !getRequest().getUsedNames().contains(name);
     }
 
     public String getCredentialName() {

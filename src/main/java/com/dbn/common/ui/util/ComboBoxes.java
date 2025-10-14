@@ -84,6 +84,7 @@ public class ComboBoxes {
         if (options.contains(selection)) {
             setSelection(comboBox, selection);
         }
+        VISITED.set(comboBox, false); // reset validation "visited" marker
     }
 
     public static <T> void initComboBoxRenderer(JComboBox<T> comboBox) {

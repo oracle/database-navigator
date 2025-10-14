@@ -62,6 +62,12 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
         SecretsOwnerRegistry.register(this);
     }
 
+    public void updateFrom(AssistantCredential credential) {
+        this.user = credential.user;
+        this.secret = credential.secret;
+        this.ociConfig = credential.ociConfig.clone();
+    }
+
     @Override
     @NotNull
     public String getName() {

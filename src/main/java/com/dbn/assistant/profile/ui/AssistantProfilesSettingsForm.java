@@ -23,7 +23,6 @@ import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.assistant.profile.AssistantProfileSettings;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.options.ConfigurationException;
@@ -71,19 +70,24 @@ public class AssistantProfilesSettingsForm extends ConfigurationEditorForm<Assis
         if (selectedProfile == null && !create) return;
 
         DeclaredAssistantProfile profile = create ? null : selectedProfile;
-        Consumer<DeclaredAssistantProfile> onSave = c -> {
-            if (create) {
-                AssistantProfilesTableModel model = profilesTable.getModel();
-                model.addElement(c);
-            }
-            mackConfigModified();
-            profilesTable.revalidate();
-            profilesTable.repaint();
-        };
+        AssistantProfileEditRequest request = AssistantProfileEditRequest
+                .builder()
+                .profile(profile)
+                .profiles(getConfiguration().getProfiles())
+                .credentials(getCredentials())
+                .saveConsumer(p -> saveProfile(create, p))
+                .build();
+        Dialogs.show(() -> new AssistantProfileEditDialog(getProject(), request));
+    }
 
-        AssistantCredentialBundle credentials = getCredentials();
-        Set<String> profileNames = getProfileNames(profile == null ? null : profile.getName());
-        Dialogs.show(() -> new AssistantProfileEditDialog(getProject(), profile, credentials, profileNames, onSave));
+    private void saveProfile(boolean create, DeclaredAssistantProfile c) {
+        if (create) {
+            AssistantProfilesTableModel model = profilesTable.getModel();
+            model.addElement(c);
+        }
+        mackConfigModified();
+        profilesTable.revalidate();
+        profilesTable.repaint();
     }
 
     private AssistantCredentialBundle getCredentials() {

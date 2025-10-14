@@ -17,8 +17,6 @@
 package com.dbn.assistant.profile;
 
 import com.dbn.assistant.credential.AssistantCredential;
-import com.dbn.assistant.provider.AIProvider;
-import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.routine.Consumer;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
@@ -26,26 +24,20 @@ import lombok.experimental.UtilityClass;
 import static com.dbn.assistant.credential.AssistantCredentialLookup.getCredential;
 import static com.dbn.assistant.credential.ui.AssistantCredentialQuickInputDialog.promptCredentialCreate;
 import static com.dbn.assistant.credential.ui.AssistantCredentialQuickInputDialog.promptCredentialUpdate;
-import static com.dbn.assistant.profile.AssistantProfileLookup.getImplicitProfile;
 
 @UtilityClass
 public class AssistantProfileUtil {
 
     public static void verifyAssistantProfile(Project project, AssistantProfile profile, Consumer<AssistantProfile> callback) {
-        AIProvider provider = profile.getProvider();
         if (profile instanceof PotentialAssistantProfile) {
-            promptCredentialCreate(project, provider, () -> {
-                AIProviderId providerId = provider.getId();
-                ImplicitAssistantProfile implicitProfile = getImplicitProfile(project, providerId);
-                callback.accept(implicitProfile);
-            });
+            promptCredentialCreate(project, profile, callback);
             return;
         }
 
         if (profile instanceof ImplicitAssistantProfile) {
             ImplicitAssistantProfile implicitProfile = (ImplicitAssistantProfile) profile;
             AssistantCredential credential = implicitProfile.getCredential();
-            verifyAssistantCredential(project, provider, credential, () -> callback.accept(profile));
+            verifyAssistantCredential(project, profile, credential, callback);
             return;
         }
 
@@ -54,19 +46,19 @@ public class AssistantProfileUtil {
             String credentialId = declaredProfile.getCredentialId();
             AssistantCredential credential = getCredential(project, credentialId);
 
-            verifyAssistantCredential(project, provider, credential, () -> callback.accept(profile));
+            verifyAssistantCredential(project, profile, credential, callback);
         }
     }
 
-    private static void verifyAssistantCredential(Project project, AIProvider provider, AssistantCredential credential, Runnable callback) {
+    private static void verifyAssistantCredential(Project project, AssistantProfile profile, AssistantCredential credential, Consumer<AssistantProfile> profileConsumer) {
         if (credential == null) {
-            promptCredentialCreate(project, provider, callback);
+            promptCredentialCreate(project, profile, profileConsumer);
 
         } else if (!credential.isProvided()) {
-            promptCredentialUpdate(project, credential, callback);
+            promptCredentialUpdate(project, profile, credential, profileConsumer);
 
         } else {
-            callback.run();
+            profileConsumer.accept(profile);
         }
     }
 }

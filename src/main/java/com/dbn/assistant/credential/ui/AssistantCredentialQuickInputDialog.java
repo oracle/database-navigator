@@ -18,6 +18,12 @@ package com.dbn.assistant.credential.ui;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.credential.AssistantCredentialBundle;
+import com.dbn.assistant.profile.AssistantProfile;
+import com.dbn.assistant.profile.AssistantProfileBundle;
+import com.dbn.assistant.profile.DeclaredAssistantProfile;
+import com.dbn.assistant.profile.ui.AssistantProfileEditDialog;
+import com.dbn.assistant.profile.ui.AssistantProfileEditRequest;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.assistant.provider.AIProviderId;
@@ -32,17 +38,27 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.assistant.profile.AssistantProfileLookup.getImplicitProfile;
 import static com.dbn.common.util.Modality.nonModal;
 
 @Getter
 public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCredentialQuickInputForm> {
     private final AIProvider provider;
-    private final Consumer<AssistantCredential> onSave;
+    private final AssistantProfile profile;
+    private final Consumer<AssistantProfile> profileConsumer;
+    private final Consumer<AssistantCredential> credentialConsumer;
 
-    public AssistantCredentialQuickInputDialog(Project project, AIProvider provider, Consumer<AssistantCredential> onSave) {
+    public AssistantCredentialQuickInputDialog(
+            Project project,
+            AIProvider provider,
+            AssistantProfile profile,
+            Consumer<AssistantProfile> profileConsumer,
+            Consumer<AssistantCredential> credentialConsumer) {
         super(project, "Provide Credential", true);
         this.provider = provider;
-        this.onSave = onSave;
+        this.profile = profile;
+        this.profileConsumer = profileConsumer;
+        this.credentialConsumer = credentialConsumer;
         setModal(true);
         setAutoSize(true);
         setResizable(false);
@@ -61,7 +77,36 @@ public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCred
     protected final Action[] createActions() {
         return new Action[]{
                 getOKAction(),
+                createAction("Advanced Setup", () -> openAdvancedSettings()),
                 getCancelAction()};
+    }
+
+    private void openAdvancedSettings() {
+        doCancelAction();
+        Project project = getProject();
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+        AssistantCredentialBundle credentials = assistantSettings.getCredentialSettings().getCredentials();
+        AssistantProfileBundle profiles = assistantSettings.getProfileSettings().getProfiles();
+
+        DeclaredAssistantProfile declaredProfile = null;
+        if (profile instanceof DeclaredAssistantProfile) {
+            declaredProfile = (DeclaredAssistantProfile) profile;
+        }
+        boolean createProfile = declaredProfile == null;
+
+        AssistantProfileEditRequest request = AssistantProfileEditRequest
+                .builder()
+                .profile(declaredProfile)
+                .profiles(profiles)
+                .credentials(credentials)
+                .providerId(provider.getId())
+                .saveConsumer(p -> {
+                    if (createProfile) profiles.addDeclaredProfile(p);
+                    profileConsumer.accept(p);
+                })
+                .build();
+
+        Dialogs.show(() -> new AssistantProfileEditDialog(project, request));
     }
 
     @Override
@@ -73,30 +118,42 @@ public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCred
     protected void doOKAction() {
         AssistantCredentialQuickInputForm form = getForm();
         form.applyFormChanges();
-        onSave.accept(form.getCredential());
+        credentialConsumer.accept(form.getCredential());
         super.doOKAction();
     }
 
-    public static void promptCredentialCreate(@NotNull Project project, AIProvider provider, Runnable callback) {
-        Consumer<AssistantCredential> onSave = credential -> {
+    public static void promptCredentialCreate(@NotNull Project project, AssistantProfile profile, Consumer<AssistantProfile> profileConsumer) {
+        AIProvider provider = profile.getProvider();
+
+        Consumer<AssistantCredential> credentialConsumer = credential -> {
             AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
             assistantSettings.getCredentialSettings().getCredentials().addCredential(credential);
+            credential.updateSecrets( null);
 
-            Dispatch.run(nonModal(), callback);
+            AssistantProfile targetProfile;
+            if (profile instanceof DeclaredAssistantProfile) {
+                DeclaredAssistantProfile declaredProfile = (DeclaredAssistantProfile) profile;
+                declaredProfile.setCredentialId(credential.getId());
+                targetProfile = declaredProfile;
+            } else {
+                targetProfile = getImplicitProfile(project, provider.getId());
+            }
+
+            Dispatch.run(nonModal(), () -> profileConsumer.accept(targetProfile));
         };
 
-        Dialogs.show(() -> new AssistantCredentialQuickInputDialog(project, provider, onSave));
+        Dialogs.show(() -> new AssistantCredentialQuickInputDialog(project, provider, profile, profileConsumer, credentialConsumer));
     }
 
-    public static void promptCredentialUpdate(@NotNull Project project, AssistantCredential credential, Runnable callback) {
+    public static void promptCredentialUpdate(@NotNull Project project, AssistantProfile profile, AssistantCredential credential, Consumer<AssistantProfile> profileConsumer) {
         AIProviderId providerId = credential.getProviderId();
-        Consumer<AssistantCredential> onSave = cred -> {
-            credential.setSecret(cred.getSecret());
-            Dispatch.run(nonModal(), callback);
+        Consumer<AssistantCredential> cretentialConsumer = cred -> {
+            credential.updateFrom(cred);
+            Dispatch.run(nonModal(), () -> profileConsumer.accept(profile));
         };
 
         AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, providerId);
-        Dialogs.show(() -> new AssistantCredentialQuickInputDialog(project, provider, onSave));
+        Dialogs.show(() -> new AssistantCredentialQuickInputDialog(project, provider, profile, profileConsumer, cretentialConsumer));
     }
 }
 

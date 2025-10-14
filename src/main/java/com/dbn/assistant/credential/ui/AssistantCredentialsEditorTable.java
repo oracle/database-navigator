@@ -41,7 +41,7 @@ public class AssistantCredentialsEditorTable extends DBNEntityEditableTable<Assi
         setDefaultRenderer(String.class, new AssistantCredentialsTableCellRenderer());
 
         setAccessibleName(this, "Assistant Credentials");
-        setProportionalColumnWidths(15, 15, 15, 55);
+        setProportionalColumnWidths(25, 15, 15, 45);
     }
 
     @NotNull

@@ -60,7 +60,7 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
         this.provider = provider;
 
         this.credential = new AssistantCredential();
-        this.credential.setName(provider.getName());
+        this.credential.setName(provider.getBasicCredentialName());
         this.credential.setProviderId(provider.getId());
 
         // todo show for providers requiring user input
@@ -116,8 +116,6 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
     public void applyFormChanges() {
         credential.setUser(getText(userTextField));
         credential.setSecret(keyPasswordField.getPassword());
-        credential.updateSecrets(null);
-
         ociConfigForm.applyFormChanges();
     }
 

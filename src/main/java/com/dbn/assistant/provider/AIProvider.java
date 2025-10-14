@@ -57,6 +57,10 @@ public final class AIProvider implements Presentable {
         this.name = name;
     }
 
+    public String getBasicCredentialName() {
+        return id == AIProviderId.OCI_GEN_AI ? "OCI Connection Config" : name + " API Key";
+    }
+
     public AIModel getModel(String id) {
         return first(models, m -> m.getId().equals(id));
     }

@@ -37,7 +37,7 @@ import static com.dbn.common.util.Lists.first;
 public class AssistantProfileBundle extends ProjectUnit {
     private AssistantProfileSettings settings;
     private final List<DeclaredAssistantProfile> declaredProfiles = new ArrayList<>();
-    private static final List<PotentialAssistantProfile> potentialProfiles = createPotentialProfiles();
+    private final List<PotentialAssistantProfile> potentialProfiles = createPotentialProfiles();
 
     public AssistantProfileBundle(AssistantProfileSettings settings) {
         super(settings.getProject());
@@ -64,10 +64,6 @@ public class AssistantProfileBundle extends ProjectUnit {
         AssistantSettings assistantSettings = AssistantSettings.getInstance(getProject());
         AssistantCredentialBundle credentials = assistantSettings.getCredentialSettings().getCredentials();
         return credentials.getImplicitProfiles();
-    }
-
-    public List<PotentialAssistantProfile> getPotentialProfiles() {
-        return potentialProfiles;
     }
 
     public ImplicitAssistantProfile getImplicitProfile(String profileName) {

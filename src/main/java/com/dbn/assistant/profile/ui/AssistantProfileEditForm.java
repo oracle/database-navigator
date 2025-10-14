@@ -20,6 +20,7 @@ import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.credential.ui.AssistantCredentialEditDialog;
+import com.dbn.assistant.credential.ui.AssistantCredentialEditRequest;
 import com.dbn.assistant.profile.AssistantTemperaturePreset;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
 import com.dbn.assistant.provider.AIProvider;
@@ -28,10 +29,10 @@ import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
-import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.misc.DBNInfoLabel;
 import com.dbn.common.ui.util.ComboBoxes;
@@ -47,15 +48,14 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Set;
 
 import static com.dbn.assistant.profile.AssistantTemperaturePreset.BALANCED;
 import static com.dbn.assistant.profile.AssistantTemperaturePreset.CUSTOM;
 import static com.dbn.assistant.profile.AssistantTemperaturePreset.values;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
@@ -79,13 +79,11 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
 
     private final DeclaredAssistantProfile profile;
-    private final Set<String> usedNames;
     private boolean generatedName;
 
-    AssistantProfileEditForm(AssistantProfileEditDialog parent, Set<String> usedNames) {
+    AssistantProfileEditForm(AssistantProfileEditDialog parent) {
         super(parent);
         this.profile = parent.getProfile();
-        this.usedNames = usedNames;
         this.generatedName = Strings.isEmpty(profile.getName());
 
         initComboBox(providerComboBox, getProviders());
@@ -116,19 +114,27 @@ public class AssistantProfileEditForm extends DBNFormBase {
     }
 
     private void initCredentialFields() {
-        initComboBox(credentialComboBox, getCredentials());
-        AssistantProfileEditDialog parent = ensureParentComponent();
-        AssistantCredentialBundle credentials = parent.getCredentials();
+        initComboBox(credentialComboBox, getFilteredCredentials());
         credentialComboBox.setValueFactory(new ValueFactory<>("New Credential") {
             @Override
             public void create(Consumer<AssistantCredential> consumer) {
-                Dialogs.show(() -> new AssistantCredentialEditDialog(getProject(), getSelectedProviderId(), null, getCredentialNames(), c -> {
+                AssistantCredentialEditRequest request = createNewCredentialRequest(consumer);
+                Dialogs.show(() -> new AssistantCredentialEditDialog(getProject(), request));
+            }
+        });
+    }
+
+    private AssistantCredentialEditRequest createNewCredentialRequest(Consumer<AssistantCredential> consumer) {
+        AssistantCredentialBundle credentials = getCredentials();
+        return AssistantCredentialEditRequest
+                .builder()
+                .providerId(getSelectedProviderId())
+                .credentials(credentials)
+                .saveConsumer(c -> {
                     credentials.addCredential(c);
                     consumer.accept(c);
-                }));
-            }
-
-        });
+                })
+                .build();
     }
 
     private void initTemperatureFields() {
@@ -156,7 +162,6 @@ public class AssistantProfileEditForm extends DBNFormBase {
         return infoContent;
     }
 
-
     private void updateSliderLabels() {
         int currentValue = temperatureSlider.getValue();
         Hashtable<Integer, JLabel> labels = new Hashtable<>();
@@ -166,9 +171,21 @@ public class AssistantProfileEditForm extends DBNFormBase {
         temperatureSlider.setLabelTable(labels);
     }
 
+    @Override
+    protected void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.initFieldsAvailability(() -> isProviderSwitchAllowed(), array(providerComboBox));
+    }
+
+    private boolean isProviderSwitchAllowed() {
+        AssistantProfileEditRequest request = getRequest();
+        return request.isNewProfile() && request.getProviderId() == null;
+    }
+
+
     private void updateFields() {
         initProfileName();
-        initComboBox(credentialComboBox, getCredentials());
+        initComboBox(credentialComboBox, getFilteredCredentials());
         temperatureSlider.setVisible(isCustomTemperature());
     }
 
@@ -178,29 +195,32 @@ public class AssistantProfileEditForm extends DBNFormBase {
         AIProvider provider = getSelectedProvider();
         String baseName = provider == null ? "Profile" : provider.getName();
 
-        String name = nextNumberedIdentifier(baseName + " 1", true, () -> usedNames);
+        String name = nextNumberedIdentifier(baseName + " 1", true, () -> getRequest().getUsedNames());
         setTextSilently(nameTextField, name);
     }
 
-    private List<AssistantCredential> getCredentials() {
-        AssistantProfileEditDialog parent = getParentDialog();
-        if (parent == null) return Collections.emptyList();
+    private List<AssistantCredential> getFilteredCredentials() {
+        AssistantCredentialBundle credentials = getCredentials();
 
         AIProviderId selectedProviderId = getSelectedProviderId();
-        return Lists.filter(parent.getCredentials().getElements(), c ->
+        return Lists.filter(credentials.getElements(), c ->
                 c.getProviderId() == null ||
                 selectedProviderId == null ||
                 c.getProviderId() == selectedProviderId);
     }
 
-    private Set<String> getCredentialNames() {
-        return Presentable.names(getCredentials());
+    private AssistantProfileEditRequest getRequest() {
+        AssistantProfileEditDialog parent = ensureParentComponent();
+        return parent.getRequest();
+    }
+
+    private AssistantCredentialBundle getCredentials() {
+        return getRequest().getCredentials();
     }
 
     private AssistantCredential getCredential(String id) {
-        return Lists.first(getCredentials(), c -> c.getId().equals(id));
+        return Lists.first(getFilteredCredentials(), c -> c.getId().equals(id));
     }
-
 
     private static List<AIProvider> getProviders() {
         return AIProviderData.getProviders(AssistantType.PUBLIC);
@@ -224,6 +244,8 @@ public class AssistantProfileEditForm extends DBNFormBase {
     protected void initValidation() {
         addTextValidation(nameTextField, Strings::isNotEmpty, "Please provide a profile name");
         addTextValidation(nameTextField, this::isNotUsed, "The profile name is already in use");
+        addSelectionValidation(providerComboBox, "Please select a LLM provider");
+        addSelectionValidation(credentialComboBox, "Please select or create a credential");
     }
 
     public void applyFormChanges() {
@@ -256,7 +278,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
     }
 
     private boolean isNotUsed(String name) {
-        return !usedNames.contains(name);
+        return !getRequest().getUsedNames().contains(name);
     }
 
     public String getProfileName() {

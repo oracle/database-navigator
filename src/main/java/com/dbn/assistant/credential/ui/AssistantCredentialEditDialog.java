@@ -17,40 +17,36 @@
 package com.dbn.assistant.credential.ui;
 
 import com.dbn.assistant.credential.AssistantCredential;
-import com.dbn.assistant.provider.AIProviderId;
-import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
-import java.util.Set;
 
 @Getter
 public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredentialEditForm> {
-    private final Set<String> usedNames;
     private final AssistantCredential credential;
-    private final Consumer<AssistantCredential> onSave;
-    private final AIProviderId providerId;
-    private final boolean newCredential;
+    private final AssistantCredentialEditRequest request;
 
-    public AssistantCredentialEditDialog(Project project, AIProviderId providerId, AssistantCredential credential, Set<String> usedNames, Consumer<AssistantCredential> onSave) {
-        super(project, credential == null ? "Create Credential" : "Update Credential", true);
-        this.providerId = providerId;
-        this.newCredential = credential == null;
-        if (credential == null) {
-            this.credential = new AssistantCredential();
-            this.credential.setProviderId(providerId);
-        } else {
-            this.credential = credential;
-        }
-        this.usedNames = usedNames;
-        this.onSave = onSave;
-        renameAction(getOKAction(), newCredential ? "Create" : "Update");
+    public AssistantCredentialEditDialog(Project project, AssistantCredentialEditRequest request) {
+        super(project, request.isNewCredential() ? "Create Credential" : "Update Credential", true);
+        this.request = request;
+        this.credential = initCredential();
+
+        renameAction(getOKAction(), request.isNewCredential() ? "Create" : "Update");
         setModal(true);
         setAutoSize(true);
         init();
+    }
+
+    private AssistantCredential initCredential() {
+        AssistantCredential credential = request.getCredential();
+        if (credential == null) {
+            credential = new AssistantCredential();
+            credential.setProviderId(request.getProviderId());
+        }
+        return credential;
     }
 
     @NotNull
@@ -76,7 +72,7 @@ public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredential
     protected void doOKAction() {
         AssistantCredentialEditForm form = getForm();
         form.applyFormChanges();
-        onSave.accept(credential);
+        request.acceptCredential(credential);
         super.doOKAction();
     }
 }

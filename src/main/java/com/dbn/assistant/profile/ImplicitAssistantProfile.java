@@ -79,7 +79,13 @@ public class ImplicitAssistantProfile implements AssistantProfile {
     @Override
     public @NotNull String getName() {
         AssistantCredential credential = getCredential();
-        return credential == null ? "Undefined" : credential.getName();
+        if (credential == null) return "Undefined";
+
+        AIProviderId providerId = credential.getProviderId();
+        AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, providerId);
+        if (provider == null) return "Undefined";
+
+        return provider.getName();
     }
 
     @Override

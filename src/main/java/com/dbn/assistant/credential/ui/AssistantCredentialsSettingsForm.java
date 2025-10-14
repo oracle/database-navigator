@@ -31,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPanel;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
@@ -69,13 +68,15 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
         if (selectedCredential == null && !create) return;
 
         AssistantCredential credential = create ? null : selectedCredential;
-        Set<String> credentialNames = getCredentialNames(credential == null ? null : credential.getName());
-        Dialogs.show(() -> new AssistantCredentialEditDialog(
-                getProject(),
-                null,
-                credential,
-                credentialNames,
-                c -> saveCredential(c, create)));
+        AssistantCredentialEditRequest request = AssistantCredentialEditRequest
+                .builder()
+                .credential(credential)
+                .credentials(getConfiguration().getCredentials())
+                .saveConsumer(c -> saveCredential(c, create))
+                .build();
+
+
+        Dialogs.show(() -> new AssistantCredentialEditDialog(getProject(), request));
     }
 
     private void saveCredential(AssistantCredential credential, boolean create) {
@@ -86,16 +87,6 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
         mackConfigModified();
         credentialsTable.revalidate();
         credentialsTable.repaint();
-    }
-
-    private Set<String> getCredentialNames(String excludeName) {
-        return credentialsTable
-                .getModel()
-                .getElements()
-                .stream()
-                .map(c -> c.getName())
-                .filter(n -> !n.equals(excludeName))
-                .collect(Collectors.toSet());
     }
 
     private AssistantCredential getSelectedCredential() {

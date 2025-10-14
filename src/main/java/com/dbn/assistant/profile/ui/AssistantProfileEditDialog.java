@@ -16,40 +16,41 @@
 
 package com.dbn.assistant.profile.ui;
 
-import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
-import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
-import java.util.Set;
 
 @Getter
 public class AssistantProfileEditDialog extends DBNDialog<AssistantProfileEditForm> {
-    private final Set<String> usedTitles;
     private final DeclaredAssistantProfile profile;
-    private final AssistantCredentialBundle credentials;
-    private final Consumer<DeclaredAssistantProfile> onSave;
+    private final AssistantProfileEditRequest request;
 
-
-    public AssistantProfileEditDialog(Project project, DeclaredAssistantProfile profile, AssistantCredentialBundle credentials, Set<String> usedNames, Consumer<DeclaredAssistantProfile> onSave) {
-        super(project, profile == null ? "Create Profile" : "Update Profile", true);
-        this.profile = profile == null ? new DeclaredAssistantProfile() : profile;
-        this.credentials = credentials;
-        this.usedTitles = usedNames;
-        this.onSave = onSave;
-        renameAction(getOKAction(), profile == null ? "Create" : "Update");
+    public AssistantProfileEditDialog(Project project, AssistantProfileEditRequest request) {
+        super(project, request.isNewProfile() ? "Create Profile" : "Update Profile", true);
+        this.request = request;
+        this.profile = initProfile();
+        renameAction(getOKAction(), request.isNewProfile() ? "Create" : "Update");
         setModal(true);
         init();
+    }
+
+    private DeclaredAssistantProfile initProfile() {
+        DeclaredAssistantProfile profile = request.getProfile();
+        if (profile == null) {
+            profile = new DeclaredAssistantProfile();
+            profile.setProviderId(request.getProviderId());
+        }
+        return profile;
     }
 
     @NotNull
     @Override
     protected AssistantProfileEditForm createForm() {
-        return new AssistantProfileEditForm(this, usedTitles);
+        return new AssistantProfileEditForm(this);
     }
 
 
@@ -70,7 +71,7 @@ public class AssistantProfileEditDialog extends DBNDialog<AssistantProfileEditFo
     protected void doOKAction() {
         AssistantProfileEditForm form = getForm();
         form.applyFormChanges();
-        onSave.accept(profile);
+        request.acceptProfile(profile);
         super.doOKAction();
     }
 }
