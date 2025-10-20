@@ -45,6 +45,7 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
+import static com.dbn.common.util.FileChoosers.extensionFilter;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
 public class OciConfigForm extends DBNFormBase {
@@ -73,7 +74,7 @@ public class OciConfigForm extends DBNFormBase {
 
         initComboBox(configTypeComboBox, OciConfigType.values());
         addSingleFileChooser(getProject(), configFileTextField, "Select OCI configuration file", "");
-        addSingleFileChooser(getProject(), privateKeyFileTextField, "Select OCI configuration file", "").withExtensionFilter("pem");
+        addSingleFileChooser(getProject(), privateKeyFileTextField, "Select OCI configuration file", "").withFileFilter(extensionFilter("pem"));
 
         userIdTextField.getEmptyText().setText("ocid1.user.oc1..");
         tenancyIdTextField.getEmptyText().setText("ocid1.tenancy.oc1..");
