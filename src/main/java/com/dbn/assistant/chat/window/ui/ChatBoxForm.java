@@ -34,6 +34,7 @@ import com.dbn.assistant.chat.message.ui.ChatMessagesForm;
 import com.dbn.assistant.chat.ui.ChatSaveDialog;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateListener;
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.event.ProjectEvents;
@@ -49,7 +50,6 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.action.SelectConnectionAction;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction;
@@ -582,7 +582,7 @@ public class ChatBoxForm extends DBNFormBase {
         messagesForm.collapseAllMessages();
     }
 
-    private class SelectAssistantTypeAction extends AnAction {
+    private class SelectAssistantTypeAction extends BasicAction {
         private final AssistantType assistantType;
         public SelectAssistantTypeAction(AssistantType assistantType) {
             super(assistantType.getName());
