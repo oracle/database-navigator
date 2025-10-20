@@ -83,6 +83,10 @@ public class AssistantModelInput {
         return credential.getUser();
     }
 
+    public String getRegionId() {
+        // TODO region specific OCI hosted models
+        return "us-chicago-1";
+    }
 
     public enum Attribute{
         COMPARTMENT_ID

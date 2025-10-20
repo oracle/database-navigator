@@ -59,6 +59,7 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
         String modelName = input.getModelName();
         Double temperature = input.getTemperature();
         String compartmentId = credential.getOciConfig().getCompartmentId();
+        Region region = getRegion(input);
         AuthenticationDetailsProvider authProvider = createAuthProvider(credential);
 
         if (input.getBaseProviderId() == COHERE) {
@@ -67,7 +68,7 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
                     .temperature(temperature)
                     .authProvider(authProvider)
                     .compartmentId(compartmentId)
-                    .maxTokens(4000)
+                    .region(region)
                     .build());
 
         } else {
@@ -76,9 +77,13 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
                     .temperature(temperature)
                     .authProvider(authProvider)
                     .compartmentId(compartmentId)
-                    .region(Region.fromRegionCodeOrId("us-chicago-1")) // TODO region specific models
+                    .region(region)
                     .build());
         }
+    }
+
+    private static Region getRegion(AssistantModelInput input) {
+        return Region.fromRegionCodeOrId(input.getRegionId());
     }
 
     @Nullable
@@ -90,6 +95,7 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
         String modelName = input.getModelName();
         Double temperature = input.getTemperature();
         String compartmentId = credential.getOciConfig().getCompartmentId();
+        Region region = getRegion(input);
         AuthenticationDetailsProvider authProvider = createAuthProvider(credential);
 
         if (input.getBaseProviderId() == COHERE) {
@@ -98,7 +104,7 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
                     .temperature(temperature)
                     .authProvider(authProvider)
                     .compartmentId(compartmentId)
-                    .maxTokens(4000)
+                    .region(region)
                     .build());
         } else {
             return wrapped(() -> OciGenAiStreamingChatModel.builder()
@@ -106,7 +112,7 @@ public class OciGenAiModelFactory extends AbstractModelFactory implements Assist
                     .temperature(temperature)
                     .authProvider(authProvider)
                     .compartmentId(compartmentId)
-                    .region(Region.fromRegionCodeOrId("us-chicago-1")) // TODO region specific models
+                    .region(region)
                     .build());
         }
     }
