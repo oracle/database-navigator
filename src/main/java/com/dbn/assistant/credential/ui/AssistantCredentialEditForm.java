@@ -109,8 +109,10 @@ public class AssistantCredentialEditForm extends DBNFormBase {
     }
 
     private static List<AIProvider> getProviders() {
-        return new ArrayList<>(AIProviderData.getProviders(AssistantType.PUBLIC));
-    }
+        List<AIProvider> providers = new ArrayList<>();
+        providers.add(null);
+        providers.addAll(AIProviderData.getProviders(AssistantType.PUBLIC));
+        return providers;    }
 
     private boolean isProviderSwitchAllowed() {
         AssistantCredentialEditRequest request = getRequest();

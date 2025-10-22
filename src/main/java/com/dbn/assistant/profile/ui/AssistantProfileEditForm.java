@@ -36,6 +36,7 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.misc.DBNInfoLabel;
 import com.dbn.common.ui.util.ComboBoxes;
+import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
@@ -206,10 +207,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
         AssistantCredentialBundle credentials = getCredentials();
 
         AIProviderId selectedProviderId = getSelectedProviderId();
-        return Lists.filter(credentials.getElements(), c ->
-                c.getProviderId() == null ||
-                selectedProviderId == null ||
-                c.getProviderId() == selectedProviderId);
+        return Lists.filter(credentials.getElements(), c -> Commons.match(c.getProviderId(), selectedProviderId));
     }
 
     private AssistantProfileEditRequest getRequest() {

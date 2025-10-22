@@ -371,7 +371,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
 
     @NotNull
     private String getValueName(T value) {
-        if (value == null) return "";
+        if (value == null) return " ";
 
         String name;
         String description = null;
