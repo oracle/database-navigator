@@ -76,13 +76,6 @@ public final class ChatContextImpl implements ChatContext{
     }
 
     @Override
-    public boolean isInteractive() {
-        // all contexts are fundamentally interactive
-        // (except for Oracle "Select AI" with non-conversational profiles)
-        return true;
-    }
-
-    @Override
     public boolean isModelSwitch(ChatContext that) {
         return !Objects.equals(this.modelId, that.getModelId());
     }
