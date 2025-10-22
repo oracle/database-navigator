@@ -102,7 +102,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
         if (!generatedName) return;
 
         AIProvider provider = getSelectedProvider();
-        String baseName = provider == null ? "Credential" : provider.getBasicCredentialName();
+        String baseName = provider == null ? "Credential" : provider.getName();
 
         String name = nextNumberedIdentifier(baseName, true, () -> getRequest().getUsedNames());
         setTextSilently(nameTextField, name);

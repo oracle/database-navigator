@@ -152,8 +152,11 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
         StringBuilder body = new StringBuilder();
         for (AssistantTemperaturePreset value : values()) {
-            body.append("<u>").append(value.getName()).append("</u><br>");
-            body.append(value.getDescription()).append("<br><br>");
+            body.append("\n<u>");
+            body.append(value.getName());
+            body.append("</u><br>");
+            body.append(value.getDescription());
+            body.append("<br><br>");
         }
 
         infoContent.initFonts();

@@ -60,7 +60,7 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
         this.provider = provider;
 
         this.credential = new AssistantCredential();
-        this.credential.setName(provider.getBasicCredentialName());
+        this.credential.setName(provider.getName()); // inherit name from provider (implicit profiles)
         this.credential.setProviderId(provider.getId());
 
         // todo show for providers requiring user input
