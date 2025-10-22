@@ -116,7 +116,7 @@ public class AssistantCredentialEditForm extends DBNFormBase {
 
     private boolean isProviderSwitchAllowed() {
         AssistantCredentialEditRequest request = getRequest();
-        return request.isNewCredential() || request.getProviderId() == null;
+        return request.isNewCredential() && request.getProviderId() == null;
     }
 
     private AssistantCredentialEditRequest getRequest() {
