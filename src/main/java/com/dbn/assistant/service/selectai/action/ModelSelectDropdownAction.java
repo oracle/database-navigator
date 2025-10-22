@@ -112,7 +112,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         AIModel model = SelectAiContextUtil.getSelectedModel(connectionId);
         if (model == null) return null;
 
-        return model.getName();
+        return model.getShortName();
     }
 
     @Override
