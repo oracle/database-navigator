@@ -67,6 +67,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         this.chatBox = WeakRef.of(chatBox);
         this.editor = createEditor();
         add(editor.getComponent(), BorderLayout.CENTER);
+        setBorder(Borders.insetBorder(0, 8, 8, 8));
         Disposer.register(chatBox, this);
 
         ProjectEvents.subscribe(getProject(), this, AssistantStateListener.TOPIC, createStateListener());

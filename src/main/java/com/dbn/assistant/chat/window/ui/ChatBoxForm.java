@@ -94,6 +94,7 @@ public class ChatBoxForm extends DBNFormBase {
     private JPanel chatActionsPanel;
     private JPanel chatMessagesPanel;
     private JPanel actionsPanel;
+    private JPanel footerPanel;
 
     private final ConnectionRef connection;
     private final AssistantType assistantType;
