@@ -64,7 +64,7 @@ public class ConnectionSslSettingsForm extends ConfigurationEditorForm<Connectio
     @Override
     protected ActionListener createActionListener() {
         return e -> {
-            getConfiguration().setModified(true);
+            mackConfigModified();
             Object source = e.getSource();
 
             if (source == activeCheckBox) {

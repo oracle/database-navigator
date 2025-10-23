@@ -46,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
@@ -75,6 +76,7 @@ import java.util.function.Predicate;
 
 import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.ui.util.Borderless.isBorderless;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.common.util.Unsafe.logged;
@@ -381,6 +383,11 @@ public class UserInterface {
         visitRecursively(component, JSplitPane.class, sp -> Splitters.replaceSplitPane(sp));
     }
 
+    public static void updateTextPanes(JComponent component) {
+        // text panes do not properly size when hidden. This should force them to revalidate first time they are shown
+        visitRecursively(component, JTextPane.class, tp -> whenFirstShown(tp, () -> tp.revalidate()));
+    }
+
     public static void setBackgroundRecursive(JComponent component, Color color) {
         if (component == null) return;
 
@@ -537,7 +544,7 @@ public class UserInterface {
 
         if (component instanceof JTextComponent) {
             JTextComponent textComponent = (JTextComponent) component;
-            return textComponent.getText();
+            return getText(textComponent);
         }
 
         if (component instanceof JComboBox) {

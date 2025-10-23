@@ -51,6 +51,7 @@ package com.dbn.editor.data.ui.table.cell;
 
  import static com.dbn.common.ui.table.Tables.isFirstCellSelected;
  import static com.dbn.common.ui.table.Tables.isLastCellSelected;
+ import static com.dbn.common.ui.util.TextFields.getText;
  import static com.dbn.nls.NlsResources.txt;
 
  public class DatasetTableCellEditor extends AbstractDatasetTableCellEditor implements KeyListener{
@@ -131,12 +132,12 @@ package com.dbn.editor.data.ui.table.cell;
 
     void selectText(JTextField textField) {
         if (textField.isEditable()) {
-            String originalText = textField.getText();
+            String originalText = getText(textField);
             Dispatch.run(() -> {
                 checkDisposed();
                 // select all only if the text didn't change
                 if (settings.getGeneralSettings().getSelectContentOnCellEdit().value()) {
-                    if (Objects.equals(originalText, textField.getText())) {
+                    if (Objects.equals(originalText, getText(textField))) {
                         textField.grabFocus();
                         textField.selectAll();
                     }

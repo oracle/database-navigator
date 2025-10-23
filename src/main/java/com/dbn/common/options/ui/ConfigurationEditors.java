@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JTextField;
 
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -33,7 +34,7 @@ public class ConfigurationEditors {
     public static int validateIntegerValue(@NotNull JTextField inputField, @NotNull String name, boolean required, int min, int max, @Nullable String hint) throws ConfigurationException {
         try {
 
-            String value = inputField.getText();
+            String value = getText(inputField);
             if (required && Strings.isEmpty(value)) {
                 String message = txt("cfg.shared.error.MissingInputValue", name);
                 throw new ConfigurationException(message, txt("cfg.shared.title.InvalidConfigValue"));
@@ -58,7 +59,7 @@ public class ConfigurationEditors {
     }
 
     public static String validateStringValue(@NotNull JTextField inputField, @NotNull String name, boolean required) throws ConfigurationException {
-        String value = inputField.getText().trim();
+        String value = getText(inputField);
         if (required && value.isEmpty()) {
             String message = txt("cfg.shared.error.MissingInputValue", name);
             throw new ConfigurationException(message, txt("cfg.shared.title.InvalidConfigValue"));

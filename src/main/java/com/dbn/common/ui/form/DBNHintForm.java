@@ -23,6 +23,7 @@ import com.dbn.common.text.MimeType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.LookAndFeel;
+import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.RoundedLineBorder;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -92,6 +93,8 @@ public class DBNHintForm extends DBNFormBase {
                 updateHintContent();
             }
         });
+
+        hintTextPane.addHyperlinkListener(new BrowserHyperlinkListener());
 
         mainPanel.addComponentListener(new ComponentAdapter() {
             @Override

@@ -71,7 +71,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.util.Commons.list;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Lists.anyMatch;
 import static com.dbn.connection.config.ConnectionConfigListener.whenChangedOrRemoved;
 import static com.dbn.nls.NlsResources.txt;
@@ -153,7 +153,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
 
                 CodeEditorConfirmationSettings confirmationSettings = CodeEditorSettings.getInstance(project).getConfirmationSettings();
                 confirmationSettings.getExitOnChanges().resolve(project,
-                        list(objectDescription),
+                        array(objectDescription),
                         option -> processCodeChangeOption(databaseFile, option));
                 // TODO fix - this prevents the other files from being closed in a "close all.." bulk action
                 throw new ProcessDeferredException();

@@ -109,7 +109,7 @@ import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
 import static com.dbn.common.navigation.NavigationInstruction.OPEN;
 import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
 import static com.dbn.common.notification.NotificationCategory.SOURCE_CODE;
-import static com.dbn.common.util.Commons.list;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Editors.getOpenFiles;
 import static com.dbn.common.util.Messages.options;
@@ -729,7 +729,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                 String objectDescription = object.getQualifiedNameWithType();
                 boolean exitApp = checkAppExitRequested();
                 confirmationSettings.getExitOnChanges().resolve(
-                        project, list(objectDescription),
+                        project, array(objectDescription),
                         option -> {
                             switch (option) {
                                 case SAVE: saveSourceCodeChanges(databaseFile, () -> closeProject(exitApp)); break;

@@ -22,6 +22,7 @@ import com.dbn.assistant.adapter.AssistantAdapters;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.state.AssistantSelectionState;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateDelegate;
 import com.dbn.common.component.PersistentState;
@@ -29,8 +30,12 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
+import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.util.Modality;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectionStatusListener;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -43,6 +48,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -56,7 +62,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.ui.CardLayouts.addCard;
 import static com.dbn.common.ui.CardLayouts.isBlankCard;
 import static com.dbn.common.ui.CardLayouts.showBlankCard;
@@ -81,6 +90,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     private final Map<ConnectionId, Map<AssistantType, AssistantState>> assistantStates = new ConcurrentHashMap<>();
     private final Map<ConnectionId, Map<AssistantType, ChatBoxForm>> chatBoxes = new ConcurrentHashMap<>();
     private final Map<ConnectionId, AssistantType> selectedAssistantTypes = new ConcurrentHashMap<>();
+    private final @Getter AssistantSelectionState selectionState = new AssistantSelectionState();
 
     private DatabaseAssistantManager(Project project) {
         super(project, COMPONENT_NAME);
@@ -138,6 +148,17 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         ToolWindow toolWindow = Failsafe.nn(toolWindowManager.getToolWindow(TOOL_WINDOW_ID));
         toolWindow.show(null);
         switchToConnection(connectionId);
+    }
+
+    public void initializeAssistant() {
+        Project project = getProject();
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        List<ConnectionHandler> connections = connectionManager.getConnections();
+        if (connections.isEmpty()) return;
+
+        ConnectionHandler connection = connections.get(0);
+        ConnectionId connectionId = connection.getConnectionId();
+        Dispatch.run(Modality.nonModal(), () -> showToolWindow(connectionId));
     }
 
     public void initializeAssistant(ConnectionId connectionId, AssistantType assistantType) {
@@ -285,9 +306,39 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
         AssistantState assistantState = getAssistantState(connectionId, assistantType);
         AssistantAdapter assistantAdapter = assistantState.getAssistantAdapter();
-        prompt = assistantAdapter.preparePrompt(connectionId, chatContext, prompt);
+        String preparedPrompt = assistantAdapter.preparePrompt(connectionId, chatContext, prompt);
 
-        assistantAdapter.generate(prompt, chatId, connectionId, chatContext, responseConsumer);
+        assistantAdapter.checkContext(connectionId, chatContext, () -> query(
+                preparedPrompt,
+                chatId, connectionId,
+                chatContext,
+                assistantAdapter,
+                responseConsumer));
+    }
+
+    private static void query(
+            String prompt,
+            String chatId,
+            ConnectionId connectionId,
+            ChatContext chatContext,
+            AssistantAdapter assistantAdapter,
+            AssistantResponseConsumer responseConsumer) {
+        Background.run(() -> assistantAdapter.generate(
+                prompt,
+                chatId,
+                connectionId,
+                chatContext,
+                responseConsumer));
+    }
+
+    public String generateTitle(
+            String chatId,
+            ConnectionId connectionId,
+            ChatContext context,
+            AssistantType assistantType) throws Exception {
+        AssistantState assistantState = getAssistantState(connectionId, assistantType);
+        AssistantAdapter assistantAdapter = assistantState.getAssistantAdapter();
+        return assistantAdapter.generateTitle(chatId, connectionId, context);
     }
 
     /*********************************************
@@ -304,26 +355,36 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
                 AssistantState assistantState = assistantStates.get(assistantType);
                 Element stateElement = newElement(statesElement, "assistant-state");
                 assistantState.writeState(stateElement);
+
+                boolean selected = selectedAssistantTypes.get(connectionId) == assistantType;
+                if (selected) setBooleanAttribute(stateElement, "selected", true);
             }
         }
+        Element selectionElement = newElement(element, "selection-state");
+        selectionState.writeState(selectionElement);
+
         return element;
     }
 
     @Override
     public void loadComponentState(@NotNull Element element) {
         Element statesElement = element.getChild("assistants");
-        if (statesElement != null) {
-            List<Element> stateElements = statesElement.getChildren();
-            for (Element stateElement : stateElements) {
-                AssistantState assistantState = new AssistantStateDelegate(getProject());
-                assistantState.readState(stateElement);
+        List<Element> stateElements = childrenOf(statesElement);
+        for (Element stateElement : stateElements) {
+            AssistantState assistantState = new AssistantStateDelegate(getProject());
+            assistantState.readState(stateElement);
 
-                ConnectionId connectionId = assistantState.getConnectionId();
-                AssistantType assistantType = assistantState.getAssistantType();
+            ConnectionId connectionId = assistantState.getConnectionId();
+            AssistantType assistantType = assistantState.getAssistantType();
 
-                var assistantStates = ensureAssistantStates(connectionId);
-                assistantStates.put(assistantType, assistantState);
-            }
+            var assistantStates = ensureAssistantStates(connectionId);
+            assistantStates.put(assistantType, assistantState);
+
+            boolean selected = booleanAttribute(stateElement, "selected", false);
+            if (selected) selectedAssistantTypes.put(connectionId, assistantType);
         }
+
+        Element selectionElement = element.getChild("selection-state");
+        selectionState.readState(selectionElement);
     }
 }

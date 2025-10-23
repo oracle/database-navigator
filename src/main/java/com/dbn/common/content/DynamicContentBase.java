@@ -428,10 +428,9 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     @Override
     public T getElement(String name, short overload) {
-        if (name != null) {
-            return Lists.first(elements, element -> matchElement(element, name, overload));
-        }
-        return null;
+        if (name == null) return null;
+
+        return Lists.first(elements, element -> matchElement(element, name, overload));
     }
 
     private boolean matchElement(T element, String name, short overload) {

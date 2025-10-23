@@ -18,6 +18,7 @@ package com.dbn.object;
 
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import org.jetbrains.annotations.Nullable;
@@ -48,7 +49,7 @@ public interface DBAIProfile extends DBSchemaObject {
 
     AIProvider getProvider();
 
-    String getProviderId();
+    AIProviderId getProviderId();
 
     AIModel getModel();
 

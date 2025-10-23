@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 import static com.dbn.assistant.service.selectai.SelectAiContextUtil.getSelectedAction;
+//import static com.intellij.openapi.actionSystem.ex.ActionUtil.SHOW_TEXT_IN_TOOLBAR;
 
 /**
  * Action for selecting the type of interaction with the AI-assistant engine
@@ -45,6 +46,9 @@ public class PromptActionSelectAction extends ToggleAction implements AssistantA
         super(action.getName(), action.getDescription(), null);
         this.action = action;
         getTemplatePresentation().setIcon(null);
+
+        // TODO only supported in 2024.x or higer
+        //getTemplatePresentation().putClientProperty(SHOW_TEXT_IN_TOOLBAR, true);
     }
 
     @Override
@@ -102,7 +106,8 @@ public class PromptActionSelectAction extends ToggleAction implements AssistantA
         // preserve profile and model from the current context
         ChatContext currentContext = chatBox.getCurrentContext();
         ChatContext targetContext = new ChatContextImpl(
-                currentContext.getProfileName(),
+                currentContext.getAssistantType(),
+                currentContext.getProfileId(),
                 currentContext.getProviderId(),
                 currentContext.getModelId(),
                 action.getId(),

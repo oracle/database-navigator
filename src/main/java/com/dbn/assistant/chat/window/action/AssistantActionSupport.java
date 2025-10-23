@@ -20,18 +20,33 @@ import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.profile.AssistantProfile;
+import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.DataKeys;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
+
 public interface AssistantActionSupport {
+
+    default ChatBoxForm getChatBox(DataContext dataContext) {
+        return dataContext.getData(DataKeys.ASSISTANT_CHAT_BOX);
+    }
 
     @Nullable
     default ChatBoxForm getChatBox(@NotNull AnActionEvent e) {
-        return e.getData(DataKeys.ASSISTANT_CHAT_BOX);
+        return getChatBox(e.getDataContext());
+    }
+
+    default Project getProject(DataContext dataContext) {
+        return dataContext.getData(PlatformDataKeys.PROJECT);
     }
 
     @Nullable
@@ -41,9 +56,14 @@ public interface AssistantActionSupport {
     }
 
     @Nullable
-    default AssistantState getAssistantState(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = getChatBox(e);
+    default AssistantState getAssistantState(@NotNull DataContext dataContext) {
+        ChatBoxForm chatBox = getChatBox(dataContext);
         return chatBox == null ? null : chatBox.getAssistantState();
+    }
+
+    @Nullable
+    default AssistantState getAssistantState(@NotNull AnActionEvent e) {
+        return getAssistantState(e.getDataContext());
     }
 
     default ChatAvailability getChatAvailability(@NotNull AnActionEvent e) {
@@ -54,14 +74,62 @@ public interface AssistantActionSupport {
     }
 
     @Nullable
-    default Chat getCurrentChat(@NotNull AnActionEvent e) {
-        AssistantState state = getAssistantState(e);
+    default Chat getCurrentChat(@NotNull DataContext dataContext) {
+        AssistantState state = getAssistantState(dataContext);
         return state == null ? null : state.getCurrentChat();
     }
 
     @Nullable
-    default ChatContext getCurrentChatContext(@NotNull AnActionEvent e) {
-        Chat chat = getCurrentChat(e);
+    default Chat getCurrentChat(@NotNull AnActionEvent e) {
+        return getCurrentChat(e.getDataContext());
+    }
+
+
+    @Nullable
+    default ChatContext getCurrentChatContext(@NotNull DataContext dataContext) {
+        Chat chat = getCurrentChat(dataContext);
         return chat == null ? null : chat.getContext();
+    }
+    @Nullable
+    default ChatContext getCurrentChatContext(@NotNull AnActionEvent e) {
+        return getCurrentChatContext(e.getDataContext());
+    }
+
+
+    @Nullable
+    default AssistantProfile getSelectedProfile(@NotNull AnActionEvent e) {
+        ChatContext chatContext = getCurrentChatContext(e);
+        if (chatContext == null) return null;
+
+        Project project = e.getProject();
+        if (project == null) return null;
+
+        String profileId = chatContext.getProfileId();
+        return getProfile(project, profileId);
+    }
+
+    @Nullable
+    default String getSelectedProfileName(@NotNull AnActionEvent e) {
+        AssistantProfile profile = getSelectedProfile(e);
+        if (profile == null) return null;
+
+        return profile.getName();
+    }
+
+    default String getSelectedModelName(@NotNull AnActionEvent e) {
+        AIModel model = getSelectedModel(e);
+        if (model == null) return null;
+
+        return model.getName();
+    }
+
+    default @Nullable AIModel getSelectedModel(@NotNull AnActionEvent e) {
+        ChatContext chatContext = getCurrentChatContext(e);
+        if (chatContext == null) return null;
+
+        AssistantProfile profile = getSelectedProfile(e);
+        if (profile == null) return null;
+
+        return chatContext.getModel();
     }
 }

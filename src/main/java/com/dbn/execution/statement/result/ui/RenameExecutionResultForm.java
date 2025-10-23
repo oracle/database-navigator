@@ -33,6 +33,7 @@ import javax.swing.JTextField;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.util.TextFields.getText;
 
 public class RenameExecutionResultForm extends DBNFormBase {
     private JPanel headerPanel;
@@ -72,7 +73,7 @@ public class RenameExecutionResultForm extends DBNFormBase {
     }
 
     public String getResultName() {
-        return resultNameTextField.getText();
+        return getText(resultNameTextField);
     }
 
     public boolean isStickyResultName() {

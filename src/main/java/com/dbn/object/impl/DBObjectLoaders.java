@@ -16,6 +16,7 @@
 
 package com.dbn.object.impl;
 
+import com.dbn.common.content.GroupedDynamicContent;
 import com.dbn.common.content.loader.DynamicContentLoaderImpl;
 import com.dbn.common.content.loader.DynamicContentResultSetLoader;
 import com.dbn.common.content.loader.DynamicSubcontentLoader;
@@ -107,8 +108,8 @@ import com.dbn.object.DBUser;
 import com.dbn.object.DBView;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
+import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.loader.DBObjectListFromRelationListLoader;
-import com.dbn.object.type.DBObjectRelationType;
 import com.dbn.object.type.DBObjectType;
 import lombok.experimental.UtilityClass;
 
@@ -119,6 +120,65 @@ import static com.dbn.common.content.DynamicContentProperty.MASTER;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
+import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
+import static com.dbn.object.type.DBObjectRelationType.JSON_VIEW_TABLE;
+import static com.dbn.object.type.DBObjectRelationType.ROLE_PRIVILEGE;
+import static com.dbn.object.type.DBObjectRelationType.ROLE_ROLE;
+import static com.dbn.object.type.DBObjectRelationType.USER_PRIVILEGE;
+import static com.dbn.object.type.DBObjectRelationType.USER_ROLE;
+import static com.dbn.object.type.DBObjectType.AI_PROFILE;
+import static com.dbn.object.type.DBObjectType.ARGUMENT;
+import static com.dbn.object.type.DBObjectType.CHARSET;
+import static com.dbn.object.type.DBObjectType.CLUSTER;
+import static com.dbn.object.type.DBObjectType.COLUMN;
+import static com.dbn.object.type.DBObjectType.CONSOLE;
+import static com.dbn.object.type.DBObjectType.CONSTRAINT;
+import static com.dbn.object.type.DBObjectType.CREDENTIAL;
+import static com.dbn.object.type.DBObjectType.DATABASE_TRIGGER;
+import static com.dbn.object.type.DBObjectType.DATASET;
+import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
+import static com.dbn.object.type.DBObjectType.DBLINK;
+import static com.dbn.object.type.DBObjectType.DIMENSION;
+import static com.dbn.object.type.DBObjectType.FUNCTION;
+import static com.dbn.object.type.DBObjectType.GRANTED_PRIVILEGE;
+import static com.dbn.object.type.DBObjectType.GRANTED_ROLE;
+import static com.dbn.object.type.DBObjectType.INCOMING_DEPENDENCY;
+import static com.dbn.object.type.DBObjectType.INDEX;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
+import static com.dbn.object.type.DBObjectType.JAVA_FIELD;
+import static com.dbn.object.type.DBObjectType.JAVA_INNER_CLASS;
+import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
+import static com.dbn.object.type.DBObjectType.JAVA_PARAMETER;
+import static com.dbn.object.type.DBObjectType.JAVA_PRIMITIVE;
+import static com.dbn.object.type.DBObjectType.JAVA_RESOURCE;
+import static com.dbn.object.type.DBObjectType.JSON_VIEW;
+import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
+import static com.dbn.object.type.DBObjectType.METHOD;
+import static com.dbn.object.type.DBObjectType.NESTED_TABLE;
+import static com.dbn.object.type.DBObjectType.OBJECT_PRIVILEGE;
+import static com.dbn.object.type.DBObjectType.OUTGOING_DEPENDENCY;
+import static com.dbn.object.type.DBObjectType.PACKAGE;
+import static com.dbn.object.type.DBObjectType.PACKAGE_BODY;
+import static com.dbn.object.type.DBObjectType.PACKAGE_FUNCTION;
+import static com.dbn.object.type.DBObjectType.PACKAGE_PROCEDURE;
+import static com.dbn.object.type.DBObjectType.PACKAGE_TYPE;
+import static com.dbn.object.type.DBObjectType.PRIVILEGE;
+import static com.dbn.object.type.DBObjectType.PROCEDURE;
+import static com.dbn.object.type.DBObjectType.ROLE;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
+import static com.dbn.object.type.DBObjectType.SEQUENCE;
+import static com.dbn.object.type.DBObjectType.SYNONYM;
+import static com.dbn.object.type.DBObjectType.SYSTEM_PRIVILEGE;
+import static com.dbn.object.type.DBObjectType.TABLE;
+import static com.dbn.object.type.DBObjectType.TYPE;
+import static com.dbn.object.type.DBObjectType.TYPE_ATTRIBUTE;
+import static com.dbn.object.type.DBObjectType.TYPE_BODY;
+import static com.dbn.object.type.DBObjectType.TYPE_FUNCTION;
+import static com.dbn.object.type.DBObjectType.TYPE_PROCEDURE;
+import static com.dbn.object.type.DBObjectType.USER;
+import static com.dbn.object.type.DBObjectType.VIEW;
+import static com.dbn.object.type.DBObjectType.get;
 
 @UtilityClass
 public class DBObjectLoaders {
@@ -127,42 +187,42 @@ public class DBObjectLoaders {
     /* Loaders for root objects (children of DBObjectBundle) */
     static {
         DynamicContentLoaderImpl.<DBConsole, DBObjectMetadata>create(
-                "CONSOLES", null, DBObjectType.CONSOLE, true,
+                "CONSOLES", null, CONSOLE, true,
                 content -> content.setElements(content.getConnection().getConsoleBundle().getConsoles()));
 
 
         DynamicContentResultSetLoader.<DBSchema, DBSchemaMetadata>create(
-                "SCHEMAS", null, DBObjectType.SCHEMA, true, true,
+                "SCHEMAS", null, SCHEMA, true, true,
                 (content, conn, mdi) -> mdi.loadSchemas(conn),
                 (content, cache, md) -> new DBSchemaImpl(content.getConnection(), cast(md)));
 
         DynamicContentResultSetLoader.<DBUser, DBUserMetadata>create(
-                "USERS", null, DBObjectType.USER, true, true,
+                "USERS", null, USER, true, true,
                 (content, conn, mdi) -> mdi.loadUsers(conn),
                 (content, cache, md) -> new DBUserImpl(content.getConnection(), md));
 
         DynamicContentResultSetLoader.<DBRole, DBRoleMetadata>create(
-                "ROLES", null, DBObjectType.ROLE, true, true,
+                "ROLES", null, ROLE, true, true,
                 (content, conn, mdi) -> mdi.loadRoles(conn),
                 (content, cache, md) -> new DBRoleImpl(content.getConnection(), cast(md)));
 
         DynamicContentResultSetLoader.<DBSystemPrivilege, DBPrivilegeMetadata>create(
-                "SYSTEM_PRIVILEGES", null, DBObjectType.SYSTEM_PRIVILEGE, true, true,
+                "SYSTEM_PRIVILEGES", null, SYSTEM_PRIVILEGE, true, true,
                 (content, conn, mdi) -> mdi.loadSystemPrivileges(conn),
                 (content, cache, md) -> new DBSystemPrivilegeImpl(content.getConnection(), md));
 
         DynamicContentResultSetLoader.<DBObjectPrivilege, DBPrivilegeMetadata>create(
-                "OBJECT_PRIVILEGES", null, DBObjectType.OBJECT_PRIVILEGE, true, true,
+                "OBJECT_PRIVILEGES", null, OBJECT_PRIVILEGE, true, true,
                 (content, conn, mdi) -> mdi.loadObjectPrivileges(conn),
                 (content, cache, md) -> new DBObjectPrivilegeImpl(content.getConnection(), md));
 
         DynamicContentResultSetLoader.<DBCharset, DBCharsetMetadata>create(
-                "CHARSETS", null, DBObjectType.CHARSET, true, true,
+                "CHARSETS", null, CHARSET, true, true,
                 (content, conn, mdi) -> mdi.loadCharsets(conn),
                 (content, cache, md) -> new DBCharsetImpl(content.getConnection(), md));
 
         DynamicContentResultSetLoader.<DBUserRoleRelation, DBGrantedRoleMetadata>create(
-                "USER_ROLES", null, DBObjectRelationType.USER_ROLE, true, true,
+                "USER_ROLES", null, USER_ROLE, true, true,
                 (content, conn, mdi) -> mdi.loadAllUserRoles(conn),
                 (content, cache, md) -> {
                     DBObjectBundle objects = content.ensureParentEntity();
@@ -172,7 +232,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBUserPrivilegeRelation, DBGrantedPrivilegeMetadata>create(
-                "USER_PRIVILEGES", null, DBObjectRelationType.USER_PRIVILEGE, true, true,
+                "USER_PRIVILEGES", null, USER_PRIVILEGE, true, true,
                 (content, conn, mdi) -> mdi.loadAllUserPrivileges(conn),
                 (content, cache, md) -> {
                     DBObjectBundle objects = content.ensureParentEntity();
@@ -182,7 +242,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBRoleRoleRelation, DBGrantedRoleMetadata>create(
-                "ROLE_ROLES", null, DBObjectRelationType.ROLE_ROLE, true, true,
+                "ROLE_ROLES", null, ROLE_ROLE, true, true,
                 (content, conn, mdi) -> mdi.loadAllRoleRoles(conn),
                 (content, cache, md) -> {
                     DBObjectBundle objects = content.ensureParentEntity();
@@ -192,7 +252,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBRolePrivilegeRelation, DBGrantedPrivilegeMetadata>create(
-                "ROLE_PRIVILEGES", null, DBObjectRelationType.ROLE_PRIVILEGE, true, true,
+                "ROLE_PRIVILEGES", null, ROLE_PRIVILEGE, true, true,
                 (content, conn, mdi) -> mdi.loadAllRolePrivileges(conn),
                 (content, cache, md) -> {
                     DBObjectBundle objects = content.ensureParentEntity();
@@ -205,7 +265,7 @@ public class DBObjectLoaders {
     /* Loaders for acl objects (DBUser / DBRole / DBPrivilege) */
     static {
         DynamicContentLoaderImpl.<DBUser, DBObjectMetadata>create(
-                "PRIVILEGE_USERS", DBObjectType.PRIVILEGE, DBObjectType.USER, true,
+                "PRIVILEGE_USERS", PRIVILEGE, USER, true,
                 content -> {
                     DBPrivilege privilege = content.ensureParentEntity();
                     List<DBUser> users = nd(privilege.getObjectBundle().getUsers());
@@ -221,7 +281,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentLoaderImpl.<DBRole, DBObjectMetadata>create(
-                "PRIVILEGE_ROLES", DBObjectType.PRIVILEGE, DBObjectType.ROLE, true, content -> {
+                "PRIVILEGE_ROLES", PRIVILEGE, ROLE, true, content -> {
                     DBPrivilege privilege = content.ensureParentEntity();
                     List<DBRole> roles = nd(privilege.getObjectBundle().getRoles());
 
@@ -237,92 +297,92 @@ public class DBObjectLoaders {
     /* Loaders for schema objects (children of DBSchema) */
     static {
         DynamicContentResultSetLoader.<DBTable, DBTableMetadata>create(
-                "TABLES", DBObjectType.SCHEMA, DBObjectType.TABLE, true, true,
+                "TABLES", SCHEMA, TABLE, true, true,
                 (content, conn, mdi) -> mdi.loadTables(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBTableImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBView, DBViewMetadata>create(
-                "VIEWS", DBObjectType.SCHEMA, DBObjectType.VIEW, true, true,
+                "VIEWS", SCHEMA, VIEW, true, true,
                 (content, conn, mdi) -> mdi.loadViews(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBViewImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBJsonView, DBJsonViewMetadata>create(
-                "JSON_VIEWS", DBObjectType.SCHEMA, DBObjectType.JSON_VIEW, true, true,
+                "JSON_VIEWS", SCHEMA, JSON_VIEW, true, true,
                 (content, conn, mdi) -> mdi.loadJsonViews(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBJsonViewImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBMaterializedView, DBMaterializedViewMetadata>create(
-                "MATERIALIZED_VIEWS", DBObjectType.SCHEMA, DBObjectType.MATERIALIZED_VIEW, true, true,
+                "MATERIALIZED_VIEWS", SCHEMA, MATERIALIZED_VIEW, true, true,
                 (content, conn, mdi) -> mdi.loadMaterializedViews(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBMaterializedViewImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBSynonym, DBSynonymMetadata>create(
-                "SYNONYMS", DBObjectType.SCHEMA, DBObjectType.SYNONYM, true, true,
+                "SYNONYMS", SCHEMA, SYNONYM, true, true,
                 (content, conn, mdi) -> mdi.loadSynonyms(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBSynonymImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBSequence, DBSequenceMetadata>create(
-                "SEQUENCES", DBObjectType.SCHEMA, DBObjectType.SEQUENCE, true, true,
+                "SEQUENCES", SCHEMA, SEQUENCE, true, true,
                 (content, conn, mdi) -> mdi.loadSequences(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBSequenceImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBProcedure, DBProcedureMetadata>create(
-                "PROCEDURES", DBObjectType.SCHEMA, DBObjectType.PROCEDURE, true, true,
+                "PROCEDURES", SCHEMA, PROCEDURE, true, true,
                 (content, conn, mdi) -> mdi.loadProcedures(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBProcedureImpl((DBSchema) content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBFunction, DBFunctionMetadata>create(
-                "FUNCTIONS", DBObjectType.SCHEMA, DBObjectType.FUNCTION, true, true,
+                "FUNCTIONS", SCHEMA, FUNCTION, true, true,
                 (content, conn, mdi) -> mdi.loadFunctions(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBFunctionImpl((DBSchema) content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBPackage, DBPackageMetadata>create(
-                "PACKAGES", DBObjectType.SCHEMA, DBObjectType.PACKAGE, true, true,
+                "PACKAGES", SCHEMA, PACKAGE, true, true,
                 (content, conn, mdi) -> mdi.loadPackages(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBPackageImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBType, DBTypeMetadata>create(
-                "TYPES", DBObjectType.SCHEMA, DBObjectType.TYPE, true, true,
+                "TYPES", SCHEMA, TYPE, true, true,
                 (content, conn, mdi) -> mdi.loadTypes(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBTypeImpl((DBSchema) content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBDatabaseTrigger, DBTriggerMetadata>create(
-                "DATABASE_TRIGGERS", DBObjectType.SCHEMA, DBObjectType.DATABASE_TRIGGER, true, true,
+                "DATABASE_TRIGGERS", SCHEMA, DATABASE_TRIGGER, true, true,
                 (content, conn, mdi) -> mdi.loadDatabaseTriggers(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBDatabaseTriggerImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
-                "JAVA_PRIMITIVES", DBObjectType.SCHEMA, DBObjectType.JAVA_PRIMITIVE, true, true,
+                "JAVA_PRIMITIVES", SCHEMA, JAVA_PRIMITIVE, true, true,
                 (content, conn, mdi) -> mdi.loadJavaPrimitives(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBJavaClassImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
-                "JAVA_CLASSES", DBObjectType.SCHEMA, DBObjectType.JAVA_CLASS, true, true,
+                "JAVA_CLASSES", SCHEMA, JAVA_CLASS, true, true,
                 (content, conn, mdi) -> mdi.loadJavaClasses(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBJavaClassImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBJavaResource, DBJavaResourceMetadata>create(
-                "JAVA_RESOURCES", DBObjectType.SCHEMA, DBObjectType.JAVA_RESOURCE, true, true,
+                "JAVA_RESOURCES", SCHEMA, JAVA_RESOURCE, true, true,
                 (content, conn, mdi) -> mdi.loadJavaResources(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBJavaResourceImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBDimension, DBDimensionMetadata>create(
-                "DIMENSIONS", DBObjectType.SCHEMA, DBObjectType.DIMENSION, true, true,
+                "DIMENSIONS", SCHEMA, DIMENSION, true, true,
                 (content, conn, mdi) -> mdi.loadDimensions(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBDimensionImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBCluster, DBClusterMetadata>create(
-                "CLUSTERS", DBObjectType.SCHEMA, DBObjectType.CLUSTER, true, true,
+                "CLUSTERS", SCHEMA, CLUSTER, true, true,
                 (content, conn, mdi) -> mdi.loadClusters(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBClusterImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBCredential, DBCredentialMetadata>create(
-                "CREDENTIALS", DBObjectType.SCHEMA, DBObjectType.CREDENTIAL, true, true,
+                "CREDENTIALS", SCHEMA, CREDENTIAL, true, true,
                 (content, conn, mdi) -> mdi.loadCredentials(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBCredentialImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBAIProfileImpl, DBProfileMetadata>create(
-                "AI_PROFILES", DBObjectType.SCHEMA, DBObjectType.AI_PROFILE, true, true,
+                "AI_PROFILES", SCHEMA, AI_PROFILE, true, true,
                 (content, conn, mdi) -> mdi.loadAiProfiles(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBAIProfileImpl(content.getParentEntity(), md));
 
@@ -331,12 +391,12 @@ public class DBObjectLoaders {
                 (content, conn, mdi) -> mdi.loadAiModels(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBAIModelImpl(content.getParentEntity(), md));
         DynamicContentResultSetLoader.<DBDatabaseLink, DBDatabaseLinkMetadata>create(
-                "DBLINKS", DBObjectType.SCHEMA, DBObjectType.DBLINK, true, true,
+                "DBLINKS", SCHEMA, DBLINK, true, true,
                 (content, conn, mdi) -> mdi.loadDatabaseLinks(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBDatabaseLinkImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBColumn, DBColumnMetadata>create(
-                "ALL_COLUMNS", DBObjectType.SCHEMA, DBObjectType.COLUMN, true, true,
+                "ALL_COLUMNS", SCHEMA, COLUMN, true, true,
                 (content, conn, mdi) -> mdi.loadAllColumns(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String datasetName = md.getDatasetName();
@@ -345,7 +405,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBConstraint, DBConstraintMetadata>create(
-                "ALL_CONSTRAINTS", DBObjectType.SCHEMA, DBObjectType.CONSTRAINT, true, true,
+                "ALL_CONSTRAINTS", SCHEMA, CONSTRAINT, true, true,
                 (content, conn, mdi) -> mdi.loadAllConstraints(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String datasetName = md.getDatasetName();
@@ -354,7 +414,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBIndex, DBIndexMetadata>create(
-                "ALL_INDEXES", DBObjectType.SCHEMA, DBObjectType.INDEX, true, true,
+                "ALL_INDEXES", SCHEMA, INDEX, true, true,
                 (content, conn, mdi) -> mdi.loadAllIndexes(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String datasetName = md.getTableName();
@@ -363,7 +423,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBDatasetTrigger, DBTriggerMetadata>create(
-                "ALL_DATASET_TRIGGERS", DBObjectType.SCHEMA, DBObjectType.DATASET_TRIGGER, true, true,
+                "ALL_DATASET_TRIGGERS", SCHEMA, DATASET_TRIGGER, true, true,
                 (content, conn, mdi) -> mdi.loadAllDatasetTriggers(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String datasetName = md.getDatasetName();
@@ -372,7 +432,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBNestedTable, DBNestedTableMetadata>create(
-                "ALL_NESTED_TABLES", DBObjectType.SCHEMA, DBObjectType.NESTED_TABLE, true, true,
+                "ALL_NESTED_TABLES", SCHEMA, NESTED_TABLE, true, true,
                 (content, conn, mdi) -> mdi.loadAllNestedTables(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String tableName = md.getTableName();
@@ -381,7 +441,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
-                "ALL_JAVA_INNER_CLASSES", DBObjectType.SCHEMA, DBObjectType.JAVA_INNER_CLASS, true, true,
+                "ALL_JAVA_INNER_CLASSES", SCHEMA, JAVA_INNER_CLASS, true, true,
                 (content, conn, mdi) -> mdi.loadAllJavaInnerClasses(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String className = md.getOuterClassName();
@@ -389,7 +449,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBJavaField, DBJavaFieldMetadata>create(
-                "ALL_JAVA_FIELDS", DBObjectType.SCHEMA, DBObjectType.JAVA_FIELD, true, true,
+                "ALL_JAVA_FIELDS", SCHEMA, JAVA_FIELD, true, true,
                 (content, conn, mdi) -> mdi.loadAllJavaFields(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String className = md.getOwnerClassName();
@@ -398,7 +458,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBJavaMethod, DBJavaMethodMetadata>create(
-                "ALL_JAVA_METHODS", DBObjectType.SCHEMA, DBObjectType.JAVA_METHOD, true, true,
+                "ALL_JAVA_METHODS", SCHEMA, JAVA_METHOD, true, true,
                 (content, conn, mdi) -> mdi.loadAllJavaMethods(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String className = md.getOwnerClassName();
@@ -407,7 +467,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBJavaParameter, DBJavaParameterMetadata>create(
-                "ALL_JAVA_METHOD_PARAMETERS", DBObjectType.SCHEMA, DBObjectType.JAVA_PARAMETER, true, true,
+                "ALL_JAVA_METHOD_PARAMETERS", SCHEMA, JAVA_PARAMETER, true, true,
                 (content, conn, mdi) -> mdi.loadAllJavaParameters(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String className = md.getClassName();
@@ -426,7 +486,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBPackageFunction, DBFunctionMetadata>create(
-                "ALL_PACKAGE_FUNCTIONS", DBObjectType.SCHEMA, DBObjectType.PACKAGE_FUNCTION, true, true,
+                "ALL_PACKAGE_FUNCTIONS", SCHEMA, PACKAGE_FUNCTION, true, true,
                 (content, conn, mdi) -> mdi.loadAllPackageFunctions(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String programName = md.getPackageName();
@@ -435,7 +495,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBPackageProcedure, DBProcedureMetadata>create(
-                "ALL_PACKAGE_PROCEDURES", DBObjectType.SCHEMA, DBObjectType.PACKAGE_PROCEDURE, true, true,
+                "ALL_PACKAGE_PROCEDURES", SCHEMA, PACKAGE_PROCEDURE, true, true,
                 (content, conn, mdi) -> mdi.loadAllPackageProcedures(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String programName = md.getPackageName();
@@ -444,7 +504,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBPackageType, DBTypeMetadata>create(
-                "ALL_PACKAGE_TYPES", DBObjectType.SCHEMA, DBObjectType.PACKAGE_TYPE, true, true,
+                "ALL_PACKAGE_TYPES", SCHEMA, PACKAGE_TYPE, true, true,
                 (content, conn, mdi) -> mdi.loadAllPackageTypes(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String programName = md.getPackageName();
@@ -453,7 +513,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBTypeAttribute, DBTypeAttributeMetadata>create(
-                "ALL_TYPE_ATTRIBUTES", DBObjectType.SCHEMA, DBObjectType.TYPE_ATTRIBUTE, true, true,
+                "ALL_TYPE_ATTRIBUTES", SCHEMA, TYPE_ATTRIBUTE, true, true,
                 (content, conn, mdi) -> mdi.loadAllTypeAttributes(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String typeName = md.getTypeName();
@@ -462,7 +522,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBTypeFunction, DBFunctionMetadata>create(
-                "ALL_TYPE_FUNCTIONS", DBObjectType.SCHEMA, DBObjectType.TYPE_FUNCTION, true, true,
+                "ALL_TYPE_FUNCTIONS", SCHEMA, TYPE_FUNCTION, true, true,
                 (content, conn, mdi) -> mdi.loadAllTypeFunctions(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String typeName = md.getTypeName();
@@ -471,7 +531,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBTypeProcedure, DBProcedureMetadata>create(
-                "ALL_TYPE_PROCEDURES", DBObjectType.SCHEMA, DBObjectType.TYPE_PROCEDURE, true, true,
+                "ALL_TYPE_PROCEDURES", SCHEMA, TYPE_PROCEDURE, true, true,
                 (content, conn, mdi) -> mdi.loadAllTypeProcedures(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String typeName = md.getTypeName();
@@ -480,7 +540,7 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBArgument, DBArgumentMetadata>create(
-                "ALL_METHOD_ARGUMENTS", DBObjectType.SCHEMA, DBObjectType.ARGUMENT, true, true,
+                "ALL_METHOD_ARGUMENTS", SCHEMA, ARGUMENT, true, true,
                 (content, conn, mdi) -> mdi.loadAllMethodArguments(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String programName = md.getProgramName();
@@ -492,7 +552,7 @@ public class DBObjectLoaders {
 
                     String key = methodName + methodType + overload;
                     DBMethod method = cache.get(key);
-                    DBObjectType objectType = DBObjectType.get(methodType);
+                    DBObjectType objectType = get(methodType);
 
                     if (method == null || method.getProgram() != program || method.getOverload() != overload) {
                         method = programName == null ?
@@ -504,29 +564,31 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBConstraintColumnRelation, DBConstraintColumnMetadata>create(
-                "ALL_CONSTRAINT_COLUMNS", DBObjectType.SCHEMA, DBObjectRelationType.CONSTRAINT_COLUMN, true, false,
+                "ALL_CONSTRAINT_COLUMNS", SCHEMA, CONSTRAINT_COLUMN, true, false,
                 (content, conn, mdi) -> mdi.loadAllConstraintRelations(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String datasetName = md.getDatasetName();
                     DBDataset dataset = valid(cache.get(datasetName, () -> ((DBSchema) content.ensureParentEntity()).getDataset(datasetName)));
-                    DBColumn column = valid(dataset.getColumn(md.getColumnName()));
-                    DBConstraint constraint = valid(dataset.getConstraint(md.getConstraintName()));
+
+                    DBColumn column = getCachedColumn(dataset, md.getColumnName());
+                    DBConstraint constraint = getCachedConstraint(dataset, md.getConstraintName());
                     return new DBConstraintColumnRelation(constraint, column, md.getPosition());
                 });
 
         DynamicContentResultSetLoader.<DBIndexColumnRelation, DBIndexColumnMetadata>create(
-                "ALL_INDEX_COLUMNS", DBObjectType.SCHEMA, DBObjectRelationType.INDEX_COLUMN, true, false,
+                "ALL_INDEX_COLUMNS", SCHEMA, INDEX_COLUMN, true, false,
                 (content, conn, mdi) -> mdi.loadAllIndexRelations(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String tableName = md.getTableName();
                     DBDataset dataset = valid(cache.get(tableName, () -> ((DBSchema) content.ensureParentEntity()).getDataset(tableName)));
-                    DBColumn column = valid(dataset.getColumn(md.getColumnName()));
-                    DBIndex index = valid(dataset.getIndex(md.getIndexName()));
+
+                    DBColumn column = getCachedColumn(dataset, md.getColumnName());
+                    DBIndex index = getCachedIndex(dataset, md.getIndexName());
                     return new DBIndexColumnRelation(index, column);
                 });
 
         DynamicContentResultSetLoader.<DBJsonViewTableRelation, DBJsonViewTableMetadata>create(
-                "ALL_JSON_VIEW_TABLES", DBObjectType.SCHEMA, DBObjectRelationType.JSON_VIEW_TABLE, true, false,
+                "ALL_JSON_VIEW_TABLES", SCHEMA, JSON_VIEW_TABLE, true, false,
                 (content, conn, mdi) -> mdi.loadAllJsonViewTableRelations(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String jsonViewName = md.getJsonViewName();
@@ -542,33 +604,33 @@ public class DBObjectLoaders {
 
     /* Loaders for table child objects (children of DBDataset) */
     static {
-        DynamicSubcontentLoader.create("DATASET_COLUMNS", DBObjectType.DATASET, DBObjectType.COLUMN,
+        DynamicSubcontentLoader.create("DATASET_COLUMNS", DATASET, COLUMN,
                 DynamicContentResultSetLoader.<DBColumn, DBColumnMetadata>create(
-                        "DATASET_COLUMNS", DBObjectType.DATASET, DBObjectType.COLUMN, false, true,
+                        "DATASET_COLUMNS", DATASET, COLUMN, false, true,
                         (content, conn, mdi) -> mdi.loadColumns(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBColumnImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("DATASET_CONSTRAINTS", DBObjectType.DATASET, DBObjectType.CONSTRAINT,
+        DynamicSubcontentLoader.create("DATASET_CONSTRAINTS", DATASET, CONSTRAINT,
                 DynamicContentResultSetLoader.<DBConstraint, DBConstraintMetadata>create(
-                        "DATASET_CONSTRAINTS", DBObjectType.DATASET, DBObjectType.CONSTRAINT, false, true,
+                        "DATASET_CONSTRAINTS", DATASET, CONSTRAINT, false, true,
                         (content, conn, mdi) -> mdi.loadConstraints(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBConstraintImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("DATASET_TRIGGERS", DBObjectType.DATASET, DBObjectType.DATASET_TRIGGER,
+        DynamicSubcontentLoader.create("DATASET_TRIGGERS", DATASET, DATASET_TRIGGER,
                 DynamicContentResultSetLoader.<DBDatasetTrigger, DBTriggerMetadata>create(
-                        "DATASET_TRIGGERS", DBObjectType.DATASET, DBObjectType.DATASET_TRIGGER, false, true,
+                        "DATASET_TRIGGERS", DATASET, DATASET_TRIGGER, false, true,
                         (content, conn, mdi) -> mdi.loadDatasetTriggers(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBDatasetTriggerImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("DATASET_INDEXES", DBObjectType.DATASET, DBObjectType.INDEX,
+        DynamicSubcontentLoader.create("DATASET_INDEXES", DATASET, INDEX,
                 DynamicContentResultSetLoader.<DBIndex, DBIndexMetadata>create(
-                        "DATASET_INDEXES", DBObjectType.DATASET, DBObjectType.INDEX, false, true,
+                        "DATASET_INDEXES", DATASET, INDEX, false, true,
                         (content, conn, mdi) -> mdi.loadIndexes(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBIndexImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("DATASET_INDEX_COLUMNS", DBObjectType.DATASET, DBObjectRelationType.INDEX_COLUMN,
+        DynamicSubcontentLoader.create("DATASET_INDEX_COLUMNS", DATASET, INDEX_COLUMN,
                 DynamicContentResultSetLoader.<DBIndexColumnRelation, DBIndexColumnMetadata>create(
-                        "DATASET_INDEX_COLUMNS", DBObjectType.DATASET, DBObjectRelationType.INDEX_COLUMN, false, false,
+                        "DATASET_INDEX_COLUMNS", DATASET, INDEX_COLUMN, false, false,
                         (content, conn, mdi) -> mdi.loadIndexRelations(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> {
                             DBDataset dataset = valid(content.getParentEntity());
@@ -577,9 +639,9 @@ public class DBObjectLoaders {
                             return new DBIndexColumnRelation(index, column);
                         }));
 
-        DynamicSubcontentLoader.create("DATASET_CONSTRAINT_COLUMNS", DBObjectType.DATASET, DBObjectRelationType.CONSTRAINT_COLUMN,
+        DynamicSubcontentLoader.create("DATASET_CONSTRAINT_COLUMNS", DATASET, CONSTRAINT_COLUMN,
                 DynamicContentResultSetLoader.<DBConstraintColumnRelation, DBConstraintColumnMetadata>create(
-                        "DATASET_CONSTRAINT_COLUMNS", DBObjectType.DATASET, DBObjectRelationType.CONSTRAINT_COLUMN, false, false,
+                        "DATASET_CONSTRAINT_COLUMNS", DATASET, CONSTRAINT_COLUMN, false, false,
                         (content, conn, mdi) -> mdi.loadConstraintRelations(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> {
                             DBDataset dataset = valid(content.getParentEntity());
@@ -588,9 +650,9 @@ public class DBObjectLoaders {
                             return new DBConstraintColumnRelation(constraint, column, md.getPosition());
                         }));
 
-        DynamicSubcontentLoader.create("JSON_VIEW_TABLES", DBObjectType.JSON_VIEW, DBObjectRelationType.JSON_VIEW_TABLE,
+        DynamicSubcontentLoader.create("JSON_VIEW_TABLES", JSON_VIEW, JSON_VIEW_TABLE,
                 DynamicContentResultSetLoader.<DBJsonViewTableRelation, DBJsonViewTableMetadata>create(
-                        "JSON_VIEW_TABLES", DBObjectType.JSON_VIEW, DBObjectRelationType.JSON_VIEW_TABLE, false, false,
+                        "JSON_VIEW_TABLES", JSON_VIEW, JSON_VIEW_TABLE, false, false,
                         (content, conn, mdi) -> mdi.loadJsonViewTableRelations(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> {
                             DBJsonView jsonView = valid(content.getParentEntity());
@@ -600,53 +662,53 @@ public class DBObjectLoaders {
                         }));
 
 
-        DynamicSubcontentLoader.create("NESTED_TABLES", DBObjectType.TABLE, DBObjectType.NESTED_TABLE,
+        DynamicSubcontentLoader.create("NESTED_TABLES", TABLE, NESTED_TABLE,
                 DynamicContentResultSetLoader.<DBNestedTable, DBNestedTableMetadata>create(
-                        "NESTED_TABLES", DBObjectType.TABLE, DBObjectType.NESTED_TABLE, false, true,
+                        "NESTED_TABLES", TABLE, NESTED_TABLE, false, true,
                         (content, conn, mdi) -> mdi.loadNestedTables(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBNestedTableImpl(valid(content.getParentEntity()), md)));
     }
 
     /* Loaders for program child objects (children of DBProgram) */
     static {
-        DynamicSubcontentLoader.create("PACKAGE_FUNCTIONS", DBObjectType.PACKAGE, DBObjectType.PACKAGE_FUNCTION,
+        DynamicSubcontentLoader.create("PACKAGE_FUNCTIONS", PACKAGE, PACKAGE_FUNCTION,
                 DynamicContentResultSetLoader.<DBPackageFunction, DBFunctionMetadata>create(
-                        "PACKAGE_FUNCTIONS", DBObjectType.PACKAGE, DBObjectType.PACKAGE_FUNCTION, false, true,
+                        "PACKAGE_FUNCTIONS", PACKAGE, PACKAGE_FUNCTION, false, true,
                         (content, conn, mdi) -> mdi.loadPackageFunctions(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBPackageFunctionImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("PACKAGE_PROCEDURES", DBObjectType.PACKAGE, DBObjectType.PACKAGE_PROCEDURE,
+        DynamicSubcontentLoader.create("PACKAGE_PROCEDURES", PACKAGE, PACKAGE_PROCEDURE,
                 DynamicContentResultSetLoader.<DBPackageProcedure, DBProcedureMetadata>create(
-                        "PACKAGE_PROCEDURES", DBObjectType.PACKAGE, DBObjectType.PACKAGE_PROCEDURE, false, true,
+                        "PACKAGE_PROCEDURES", PACKAGE, PACKAGE_PROCEDURE, false, true,
                         (content, conn, mdi) -> mdi.loadPackageProcedures(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBPackageProcedureImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("PACKAGE_TYPES", DBObjectType.PACKAGE, DBObjectType.PACKAGE_TYPE,
+        DynamicSubcontentLoader.create("PACKAGE_TYPES", PACKAGE, PACKAGE_TYPE,
                 DynamicContentResultSetLoader.<DBPackageType, DBTypeMetadata>create(
-                        "PACKAGE_TYPES", DBObjectType.PACKAGE, DBObjectType.PACKAGE_TYPE, false, true,
+                        "PACKAGE_TYPES", PACKAGE, PACKAGE_TYPE, false, true,
                         (content, conn, mdi) -> mdi.loadPackageTypes(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBPackageTypeImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("JAVA_METHODS", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_METHOD,
+        DynamicSubcontentLoader.create("JAVA_METHODS", JAVA_CLASS, JAVA_METHOD,
                 DynamicContentResultSetLoader.<DBJavaMethod, DBJavaMethodMetadata>create(
-                        "JAVA_METHODS", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_METHOD, false, true,
+                        "JAVA_METHODS", JAVA_CLASS, JAVA_METHOD, false, true,
                         (content, conn, mdi) -> mdi.loadJavaMethods(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBJavaMethodImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("JAVA_FIELDS", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_FIELD,
+        DynamicSubcontentLoader.create("JAVA_FIELDS", JAVA_CLASS, JAVA_FIELD,
                 DynamicContentResultSetLoader.<DBJavaField, DBJavaFieldMetadata>create(
-                        "JAVA_FIELDS", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_FIELD, false, true,
+                        "JAVA_FIELDS", JAVA_CLASS, JAVA_FIELD, false, true,
                         (content, conn, mdi) -> mdi.loadJavaFields(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBJavaFieldImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("JAVA_INNER_CLASSES", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_INNER_CLASS,
+        DynamicSubcontentLoader.create("JAVA_INNER_CLASSES", JAVA_CLASS, JAVA_INNER_CLASS,
                 DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
-                        "JAVA_INNER_CLASSES", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_INNER_CLASS, false, true,
+                        "JAVA_INNER_CLASSES", JAVA_CLASS, JAVA_INNER_CLASS, false, true,
                         (content, conn, mdi) -> mdi.loadJavaInnerClasses(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBJavaClassImpl(valid(content.getSchema()), md)));
 
         DynamicContentResultSetLoader.<DBTypeAttribute, DBTypeAttributeMetadata>create(
-                "PACKAGE_TYPE_ATTRIBUTES", DBObjectType.PACKAGE_TYPE, DBObjectType.TYPE_ATTRIBUTE, true, true,
+                "PACKAGE_TYPE_ATTRIBUTES", PACKAGE_TYPE, TYPE_ATTRIBUTE, true, true,
                 (content, conn, mdi) -> {
                     DBPackageType type = valid(content.getParentEntity());
                     return mdi.loadProgramTypeAttributes(
@@ -656,30 +718,30 @@ public class DBObjectLoaders {
                     },
                 (content, cache, md) -> new DBTypeAttributeImpl(valid(content.getParentEntity()), md));
 
-        DynamicSubcontentLoader.create("TYPE_TYPE_ATTRIBUTES", DBObjectType.TYPE, DBObjectType.TYPE_ATTRIBUTE,
+        DynamicSubcontentLoader.create("TYPE_TYPE_ATTRIBUTES", TYPE, TYPE_ATTRIBUTE,
                 DynamicContentResultSetLoader.<DBTypeAttribute, DBTypeAttributeMetadata>create(
-                        "TYPE_TYPE_ATTRIBUTES", DBObjectType.TYPE, DBObjectType.TYPE_ATTRIBUTE, false, true,
+                        "TYPE_TYPE_ATTRIBUTES", TYPE, TYPE_ATTRIBUTE, false, true,
                         (content, conn, mdi) -> mdi.loadTypeAttributes(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBTypeAttributeImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("TYPE_TYPE_FUNCTIONS", DBObjectType.TYPE, DBObjectType.TYPE_FUNCTION,
+        DynamicSubcontentLoader.create("TYPE_TYPE_FUNCTIONS", TYPE, TYPE_FUNCTION,
                 DynamicContentResultSetLoader.<DBTypeFunction, DBFunctionMetadata>create(
-                        "TYPE_TYPE_FUNCTIONS", DBObjectType.TYPE, DBObjectType.TYPE_FUNCTION, false, true,
+                        "TYPE_TYPE_FUNCTIONS", TYPE, TYPE_FUNCTION, false, true,
                         (content, conn, mdi) -> mdi.loadTypeFunctions(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBTypeFunctionImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("TYPE_TYPE_PROCEDURES", DBObjectType.TYPE, DBObjectType.TYPE_PROCEDURE,
+        DynamicSubcontentLoader.create("TYPE_TYPE_PROCEDURES", TYPE, TYPE_PROCEDURE,
                 DynamicContentResultSetLoader.<DBTypeProcedure, DBProcedureMetadata>create(
-                        "TYPE_TYPE_PROCEDURES", DBObjectType.TYPE, DBObjectType.TYPE_PROCEDURE, false, true,
+                        "TYPE_TYPE_PROCEDURES", TYPE, TYPE_PROCEDURE, false, true,
                         (content, conn, mdi) -> mdi.loadTypeProcedures(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBTypeProcedureImpl(valid(content.getParentEntity()), md)));
 
 
-        DynamicSubcontentLoader.create("TYPE_TYPES", DBObjectType.TYPE, DBObjectType.TYPE, null/*TODO*/);
+        DynamicSubcontentLoader.create("TYPE_TYPES", TYPE, TYPE, null/*TODO*/);
 
-        DynamicSubcontentLoader.create("METHOD_ARGUMENTS", DBObjectType.METHOD, DBObjectType.ARGUMENT,
+        DynamicSubcontentLoader.create("METHOD_ARGUMENTS", METHOD, ARGUMENT,
                 DynamicContentResultSetLoader.<DBArgument, DBArgumentMetadata>create(
-                        "METHOD_ARGUMENTS", DBObjectType.METHOD, DBObjectType.ARGUMENT, false, true,
+                        "METHOD_ARGUMENTS", METHOD, ARGUMENT, false, true,
                         (content, conn, mdi) -> {
                             DBMethod method = content.ensureParentEntity();
                             String ownerName = method.getSchemaName();
@@ -691,9 +753,9 @@ public class DBObjectLoaders {
                         },
                         (content, cache, md) -> new DBArgumentImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("JAVA_METHOD_PARAMETERS", DBObjectType.JAVA_METHOD, DBObjectType.JAVA_PARAMETER,
+        DynamicSubcontentLoader.create("JAVA_METHOD_PARAMETERS", JAVA_METHOD, JAVA_PARAMETER,
                 DynamicContentResultSetLoader.<DBJavaParameter, DBJavaParameterMetadata>create(
-                        "JAVA_METHOD_PARAMETERS", DBObjectType.JAVA_METHOD, DBObjectType.JAVA_PARAMETER, false, true,
+                        "JAVA_METHOD_PARAMETERS", JAVA_METHOD, JAVA_PARAMETER, false, true,
                         (content, conn, mdi) -> {
                             DBJavaMethod method = content.ensureParentEntity();
                             String className = method.getOwnerClass().getName();
@@ -708,30 +770,30 @@ public class DBObjectLoaders {
     /* Loaders for object dependencies */
     static {
         DynamicContentResultSetLoader.<DBObject, DBObjectDependencyMetadata>create(
-                "INCOMING_DEPENDENCIES", null, DBObjectType.INCOMING_DEPENDENCY, true, false,
+                "INCOMING_DEPENDENCIES", null, INCOMING_DEPENDENCY, true, false,
                 (content, conn, mdi) ->  mdi.loadReferencedObjects(content.getParentSchemaName(), content.getParentObjectName(), conn),
                 (content, cache, md) -> {
                     String objectOwner = md.getObjectOwner();
                     String objectName = md.getObjectName();
                     String objectTypeName = md.getObjectType();
-                    DBObjectType objectType = DBObjectType.get(objectTypeName);
-                    if (objectType == DBObjectType.PACKAGE_BODY) objectType = DBObjectType.PACKAGE;
-                    if (objectType == DBObjectType.TYPE_BODY) objectType = DBObjectType.TYPE;
+                    DBObjectType objectType = get(objectTypeName);
+                    if (objectType == PACKAGE_BODY) objectType = PACKAGE;
+                    if (objectType == TYPE_BODY) objectType = TYPE;
 
                     DBSchema schema = valid(cache.get(objectOwner, () -> content.ensureParentEntity().getObjectBundle().getSchema(objectOwner)));
                     return schema.getChildObject(objectType, objectName, (short) 0, true);
                 });
 
         DynamicContentResultSetLoader.<DBObject, DBObjectDependencyMetadata>create(
-                "OUTGOING_DEPENDENCIES", null, DBObjectType.OUTGOING_DEPENDENCY, true, false,
+                "OUTGOING_DEPENDENCIES", null, OUTGOING_DEPENDENCY, true, false,
                 (content, conn, mdi) ->  mdi.loadReferencingObjects(content.getParentSchemaName(), content.getParentObjectName(), conn),
                 (content, cache, md) -> {
                     String objectOwner = md.getObjectOwner();
                     String objectName = md.getObjectName();
                     String objectTypeName = md.getObjectType();
-                    DBObjectType objectType = DBObjectType.get(objectTypeName);
-                    if (objectType == DBObjectType.PACKAGE_BODY) objectType = DBObjectType.PACKAGE;
-                    if (objectType == DBObjectType.TYPE_BODY) objectType = DBObjectType.TYPE;
+                    DBObjectType objectType = get(objectTypeName);
+                    if (objectType == PACKAGE_BODY) objectType = PACKAGE;
+                    if (objectType == TYPE_BODY) objectType = TYPE;
 
                     DBSchema schema = valid(cache.get(objectOwner, () -> content.ensureParentEntity().getObjectBundle().getSchema(objectOwner)));
                     return schema.getChildObject(objectType, objectName, (short) 0, true);
@@ -740,21 +802,42 @@ public class DBObjectLoaders {
 
     /* Loaders for sub-contents from relation lists */
     static {
-        DBObjectListFromRelationListLoader.create("COLUMN_CONSTRAINTS", DBObjectType.COLUMN, DBObjectType.CONSTRAINT);
-        DBObjectListFromRelationListLoader.create("COLUMN_INDEXES", DBObjectType.COLUMN, DBObjectType.INDEX);
-        DBObjectListFromRelationListLoader.create("CONSTRAINT_COLUMNS", DBObjectType.CONSTRAINT, DBObjectType.COLUMN);
-        DBObjectListFromRelationListLoader.create("INDEX_COLUMNS", DBObjectType.INDEX, DBObjectType.COLUMN);
-        DBObjectListFromRelationListLoader.create("ROLE_PRIVILEGES", DBObjectType.ROLE, DBObjectType.GRANTED_PRIVILEGE);
-        DBObjectListFromRelationListLoader.create("ROLE_ROLES", DBObjectType.ROLE, DBObjectType.GRANTED_ROLE);
-        DBObjectListFromRelationListLoader.create("USER_ROLES", DBObjectType.USER, DBObjectType.GRANTED_ROLE);
-        DBObjectListFromRelationListLoader.create("USER_PRIVILEGES", DBObjectType.USER, DBObjectType.GRANTED_PRIVILEGE);
-        DBObjectListFromRelationListLoader.create("JSON_VIEW_TABLES", DBObjectType.JSON_VIEW, DBObjectType.TABLE);
+        DBObjectListFromRelationListLoader.create("COLUMN_CONSTRAINTS", COLUMN, CONSTRAINT);
+        DBObjectListFromRelationListLoader.create("COLUMN_INDEXES", COLUMN, INDEX);
+        DBObjectListFromRelationListLoader.create("CONSTRAINT_COLUMNS", CONSTRAINT, COLUMN);
+        DBObjectListFromRelationListLoader.create("INDEX_COLUMNS", INDEX, COLUMN);
+        DBObjectListFromRelationListLoader.create("ROLE_PRIVILEGES", ROLE, GRANTED_PRIVILEGE);
+        DBObjectListFromRelationListLoader.create("ROLE_ROLES", ROLE, GRANTED_ROLE);
+        DBObjectListFromRelationListLoader.create("USER_ROLES", USER, GRANTED_ROLE);
+        DBObjectListFromRelationListLoader.create("USER_PRIVILEGES", USER, GRANTED_PRIVILEGE);
+        DBObjectListFromRelationListLoader.create("JSON_VIEW_TABLES", JSON_VIEW, TABLE);
     }
 
 
     private static <T> T valid(T element) {
-        if (element == null || isNotValid(element)) throw ElementSkippedException.INSTANCE;
+        if (element == null || isNotValid(element)) {
+            throw ElementSkippedException.INSTANCE;
+        }
         return element;
     }
+
+    private static DBColumn getCachedColumn(DBDataset dataset, String columnName) {
+        DBObjectListContainer schemaObjects = valid(dataset.getSchema().getChildObjects());
+        GroupedDynamicContent<DBColumn> columns = valid(cast(schemaObjects.getObjectList(COLUMN)));
+        return valid(columns.getChildElement(dataset, columnName));
+    }
+
+    private static DBConstraint getCachedConstraint(DBDataset dataset, String constraintName) {
+        DBObjectListContainer schemaObjects = valid(dataset.getSchema().getChildObjects());
+        GroupedDynamicContent<DBConstraint> constraint = valid(cast(schemaObjects.getObjectList(CONSTRAINT)));
+        return valid(constraint.getChildElement(dataset, constraintName));
+    }
+
+    private static DBIndex getCachedIndex(DBDataset dataset, String indexName) {
+        DBObjectListContainer schemaObjects = valid(dataset.getSchema().getChildObjects());
+        GroupedDynamicContent<DBIndex> index = valid(cast(schemaObjects.getObjectList(INDEX)));
+        return valid(index.getChildElement(dataset, indexName));
+    }
+
 
 }

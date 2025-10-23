@@ -38,6 +38,7 @@ import java.awt.event.ActionListener;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
@@ -97,7 +98,7 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
 
     @Override
     public String getObjectName() {
-        return nameTextField.getText().trim();
+        return getText(nameTextField);
     }
 
     private final ActionListener actionListener = new ActionListener() {
@@ -119,7 +120,7 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
         return new ArgumentFactoryInput(
                 parent,
                 getIndex(),
-                nameTextField.getText(),
+                getText(nameTextField),
                 getDataTypeEditor().getDataTypeRepresentation(),
                 enforceInArgument || inCheckBox.isSelected(),
                 outCheckBox.isSelected());

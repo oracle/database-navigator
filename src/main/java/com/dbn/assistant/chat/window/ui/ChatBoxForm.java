@@ -19,7 +19,6 @@ import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.adapter.AssistantAdapter;
 import com.dbn.assistant.adapter.AssistantAdapters;
-import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.adapter.ui.AssistantContextActionsForm;
 import com.dbn.assistant.adapter.ui.AssistantIntroductionForm;
 import com.dbn.assistant.adapter.ui.AssistantPromptActionsForm;
@@ -30,14 +29,15 @@ import com.dbn.assistant.chat.ChatInterruptionReason;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
+import com.dbn.assistant.chat.message.ui.ChatMessageForm;
 import com.dbn.assistant.chat.message.ui.ChatMessagesForm;
 import com.dbn.assistant.chat.ui.ChatSaveDialog;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateListener;
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -50,7 +50,6 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.action.SelectConnectionAction;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction;
@@ -65,9 +64,11 @@ import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.assistant.chat.message.AuthorType.USER;
 import static com.dbn.assistant.state.AssistantStatus.QUERYING;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
+import static com.dbn.common.message.MessageType.NEUTRAL;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
@@ -92,12 +93,14 @@ public class ChatBoxForm extends DBNFormBase {
     private JPanel chatBoxPanel;
     private JPanel chatActionsPanel;
     private JPanel chatMessagesPanel;
+    private JPanel actionsPanel;
+    private JPanel footerPanel;
 
     private final ConnectionRef connection;
     private final AssistantType assistantType;
     private ChatBoxInputField inputField;
     private ChatMessagesForm messagesForm;
-    private String currentChatId; // identifier of currently displayed chat (can be temporarels different from the one in the AssistantState)
+    private String currentChatId; // identifier of currently displayed chat (can be temporarily different from the one in the AssistantState)
 
     private AssistantContextActionsForm contextActionsForm;
     private AssistantPromptActionsForm promptActionsForm;
@@ -110,6 +113,7 @@ public class ChatBoxForm extends DBNFormBase {
         // hide all panels until availability status is known
         this.introPanel.setVisible(false);
         this.chatBoxPanel.setVisible(false);
+        this.actionsPanel.setVisible(false);
 
         initHeaderForm();
         initIntroForm();
@@ -216,6 +220,8 @@ public class ChatBoxForm extends DBNFormBase {
         ActionToolbar promptSubmitActions = Actions.createActionToolbar(promptSubmitActionsPanel, true, "DBNavigator.ActionGroup.AssistantPromptSubmitActions");
         setAccessibleName(promptSubmitActions, txt("app.assistant.aria.ChatActions"));
         this.promptSubmitActionsPanel.add(promptSubmitActions.getComponent());
+
+        actionsPanel.setVisible(true);
     }
 
     public <F extends AssistantContextActionsForm> F getContextActionsForm() {
@@ -233,13 +239,20 @@ public class ChatBoxForm extends DBNFormBase {
 
     public void initMessages() {
         if (!hasUserEngaged()) return;
+        if (messagesForm == null) return; // not yet initialized
 
         Chat chat = getCurrentChat();
+        if (Objects.equals(chat.getId(), currentChatId)) return;
+
         currentChatId = chat.getId();
         chat.removeProgress();
 
         messagesForm.clear();
         messagesForm.addMessages(chat.getMessages());
+    }
+
+    public List<ChatMessageForm> getMessageForms() {
+        return messagesForm.getMessageForms();
     }
 
     @NotNull
@@ -404,6 +417,10 @@ public class ChatBoxForm extends DBNFormBase {
         }
     }
 
+    public boolean hasMessages(AuthorType authorType) {
+        return messagesForm.getMessageForms().stream().anyMatch(f -> f.getMessage().getAuthor() == authorType);
+    }
+
     /**
      * Initializes the panel to display messages
      */
@@ -412,12 +429,20 @@ public class ChatBoxForm extends DBNFormBase {
         chatMessagesPanel.add(messagesForm.getComponent());
     }
 
+    public void hideProcessingIndicators() {
+        messagesForm.hideProcessingIndicators();
+    }
+
     public ChatContext getCurrentContext() {
         return getCurrentChat().getContext();
     }
 
     public Chat getCurrentChat() {
         return getAssistantState().getCurrentChat();
+    }
+
+    public Object getCurrentChatId() {
+        return getAssistantState().getCurrentChatId();
     }
 
     public void submitPrompt() {
@@ -444,38 +469,37 @@ public class ChatBoxForm extends DBNFormBase {
         if (chatContext == null) return;
 
         assistantState.set(QUERYING, true);
-        ChatMessage userMessage = new ChatMessage(MessageType.NEUTRAL, question, AuthorType.USER, chatContext);
+        ChatMessage userMessage = new ChatMessage(getAssistantType(), NEUTRAL, question, USER, chatContext);
         userMessage.setProgress(true);
 
         String chatId = assistantState.getCurrentChatId();
         appendMessage(chatId, userMessage);
 
+        ChatBoxResponseConsumer responseConsumer = new ChatBoxResponseConsumer(this, chatContext, chatId);
+
+        initChatTitle(chatId, connectionId, chatContext);
+
         DatabaseAssistantManager assistantManager = getManager();
-        assistantManager.query(question, chatId, connectionId, assistantType, chatContext, new AssistantResponseConsumer() {
-            @Override
-            public void acceptToken(String token) {
-                // TODO incremental response build
-            }
+        assistantManager.query(question, chatId, connectionId, assistantType, chatContext, responseConsumer);
+    }
 
-            @Override
-            public void acceptMessage(String message) {
-                ChatMessage agentMessage = new ChatMessage(MessageType.NEUTRAL, message, AuthorType.AGENT, chatContext);
-                appendMessage(chatId, agentMessage);
-                log.info("Assistant query processed successfully.");
-            }
+    private void initChatTitle(String chatId, ConnectionId connectionId, ChatContext context) {
+        Chat chat = getChat(chatId);
+        if (chat.isPersisted()) return;
 
-            @Override
-            public void acceptError(Throwable e) {
-                log.warn("Error processing assistant query", e);
-                String message = assistantAdapter.prepareError(connectionId, chatContext, e);
-                ChatMessage errorMessage = new ChatMessage(MessageType.ERROR, message, AuthorType.SYSTEM, chatContext);
-                appendMessage(chatId, errorMessage);
+        Background.run(() -> {
+            DatabaseAssistantManager assistantManager = getManager();
+            String title = assistantManager.generateTitle(chatId, connectionId, context, assistantType);
+            if (title != null) {
+                String[] split = title.split("\\s");
+                if (split.length > 6) title = null;
             }
+            if (title == null) return;
 
-            @Override
-            public void acceptCompletion() {
-                assistantState.set(QUERYING, false);
-            }
+            title = title.trim();
+            title = title.replaceAll("\"", "");
+            title = title.replaceAll("'", "");
+            chat.setTitle(title);
         });
     }
 
@@ -487,7 +511,7 @@ public class ChatBoxForm extends DBNFormBase {
         // TODO show error bar (similar to editor error headers)
     }
 
-    private void appendMessage(String chatId, ChatMessage message) {
+    protected void appendMessage(String chatId, ChatMessage message) {
         AssistantState state = getAssistantState();
         Chat chat = state.getChat(chatId);
         if (chat == null) return; // chat already discarded by the time of message arrival
@@ -499,6 +523,20 @@ public class ChatBoxForm extends DBNFormBase {
             messagesForm.addMessages(List.of(message));
             updateActionToolbars();
         }
+    }
+
+    public void refreshMessage(ChatMessage message) {
+        messagesForm.refreshMessage(message);
+    }
+
+    public void refreshTools(ChatMessage message) {
+        messagesForm.refreshTools(message);
+    }
+
+
+    protected Chat getChat(String chatId) {
+        AssistantState state = getAssistantState();
+        return state.getChat(chatId);
     }
 
     public void interruptAssistantSession() {
@@ -532,7 +570,20 @@ public class ChatBoxForm extends DBNFormBase {
         return null;
     }
 
-    private class SelectAssistantTypeAction extends AnAction {
+    public void focusInputField() {
+        if (inputField == null) return;
+        inputField.requestFocus();
+    }
+
+    public void expandAllMessages() {
+        messagesForm.expandAllMessages();
+    }
+
+    public void collapseAllMessages() {
+        messagesForm.collapseAllMessages();
+    }
+
+    private class SelectAssistantTypeAction extends BasicAction {
         private final AssistantType assistantType;
         public SelectAssistantTypeAction(AssistantType assistantType) {
             super(assistantType.getName());
@@ -545,4 +596,5 @@ public class ChatBoxForm extends DBNFormBase {
             assistantManager.switchToAssistant(getConnectionId(), assistantType);
         }
     }
+
 }

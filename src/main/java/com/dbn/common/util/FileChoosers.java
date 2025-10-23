@@ -20,8 +20,10 @@ import com.dbn.common.compatibility.Compatibility;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.openapi.util.NlsContexts.Label;
+import com.intellij.openapi.vfs.VirtualFile;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,23 +37,27 @@ import org.jetbrains.annotations.Nullable;
 @UtilityClass
 public class FileChoosers {
     @Compatibility
-    public static void addSingleFileChooser(
+    public static FileChooserDescriptor addSingleFileChooser(
             @Nullable Project project,
             @NotNull TextFieldWithBrowseButton field,
             @Nullable @DialogTitle String title,
             @Nullable @Label String description) {
 
-        field.addBrowseFolderListener(title, description, project, singleFile());
+        FileChooserDescriptor descriptor = singleFile();
+        field.addBrowseFolderListener(title, description, project, descriptor);
+        return descriptor;
     }
 
     @Compatibility
-    public static void addSingleFolderChooser(
+    public static FileChooserDescriptor addSingleFolderChooser(
             @Nullable Project project,
             @NotNull TextFieldWithBrowseButton field,
             @Nullable @DialogTitle String title,
             @Nullable @Label String description) {
 
-        field.addBrowseFolderListener(title, description, project, singleFolder());
+        FileChooserDescriptor descriptor = singleFolder();
+        field.addBrowseFolderListener(title, description, project, descriptor);
+        return descriptor;
     }
 
     public static FileChooserDescriptor singleFile() {
@@ -68,5 +74,18 @@ public class FileChoosers {
 
     public static FileChooserDescriptor multipleFiles() {
         return new FileChooserDescriptor(true, true, false, false, false, true).withShowHiddenFiles(true);
+    }
+
+    public static Condition<? super VirtualFile> extensionFilter(String extension) {
+        return (Condition<VirtualFile>) file -> Strings.equalsIgnoreCase(file.getExtension(), extension);
+    }
+
+    public static Condition<? super VirtualFile> extensionFilter(String ... extensions) {
+        return (Condition<VirtualFile>) file -> {
+            for (String extension : extensions) {
+                if (Strings.equalsIgnoreCase(file.getExtension(), extension)) return true;
+            }
+            return false;
+        };
     }
 }

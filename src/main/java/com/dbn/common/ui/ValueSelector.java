@@ -67,8 +67,8 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
     private transient ListPopup popup;
 
     private List<T> values;
-    private PresentableFactory<T> valueFactory;
-    private PresentableFactory<T> emptyValueFactory;
+    private ValueFactory<T> valueFactory;
+    private ValueFactory<T> emptyValueFactory;
 
 
     public ValueSelector(@Nullable String text, @Nullable T preselectedValue, ValueSelectorOption... options) {

@@ -55,6 +55,7 @@ import java.util.List;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.ComponentAligner.alignFormComponents;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
 public class ResultSetRecordViewerForm extends DBNFormBase implements ComponentAligner.Container {
@@ -133,7 +134,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase implements ComponentA
     }
 
     private void filterColumForms() {
-        String text = filterTextField.getText();
+        String text = getText(filterTextField);
         for (ResultSetRecordViewerColumnForm columnForm : columnForms) {
             String columnName = columnForm.getColumnName();
             boolean visible = Strings.indexOfIgnoreCase(columnName, text, 0) > -1;

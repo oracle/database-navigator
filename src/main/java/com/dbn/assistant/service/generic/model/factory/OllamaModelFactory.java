@@ -27,7 +27,8 @@ import dev.langchain4j.model.ollama.OllamaLanguageModel;
 import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.OLLAMA;
+import static com.dbn.assistant.provider.AIProviderId.OLLAMA;
+
 
 public class OllamaModelFactory extends AbstractModelFactory {
 
@@ -39,7 +40,7 @@ public class OllamaModelFactory extends AbstractModelFactory {
     @Override
     public ChatModel createChatModel(AssistantModelInput input) {
         return OllamaChatModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
                 .temperature(input.getTemperature())
                 .customHeaders(input.getHeaders())
@@ -51,7 +52,7 @@ public class OllamaModelFactory extends AbstractModelFactory {
     @Override
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return OllamaStreamingChatModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
                 .temperature(input.getTemperature())
                 .customHeaders(input.getHeaders())
@@ -63,7 +64,7 @@ public class OllamaModelFactory extends AbstractModelFactory {
     @Override
     public LanguageModel createLanguageModel(AssistantModelInput input) {
         return OllamaLanguageModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
                 .temperature(input.getTemperature())
                 .customHeaders(input.getHeaders())
@@ -75,7 +76,7 @@ public class OllamaModelFactory extends AbstractModelFactory {
     @Override
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return OllamaEmbeddingModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())

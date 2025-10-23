@@ -42,6 +42,7 @@ public final class Threads {
     private static final ExecutorService TIMEOUT_DAEMON_EXECUTOR     = newThreadPool("DBN - Timeout Execution Daemon",  true,  5, 200);
     private static final ExecutorService CODE_COMPLETION_EXECUTOR    = newThreadPool("DBN - Code Completion Thread",    true,  5, 100);
     private static final ExecutorService OBJECT_LOOKUP_EXECUTOR      = newThreadPool("DBN - Object Lookup Thread",      true,  5, 100);
+    private static final ExecutorService ASSISTANT_TOOL_EXECUTOR     = newThreadPool("DBN - Assistant Tool Executor",   true,  3, 100);
     public static final long DELAY = TimeUnit.MILLISECONDS.toNanos(1);
 
     @NotNull
@@ -94,6 +95,10 @@ public final class Threads {
 
     public static ExecutorService objectLookupExecutor() {
         return OBJECT_LOOKUP_EXECUTOR;
+    }
+
+    public static ExecutorService assistantToolExecutor() {
+        return ASSISTANT_TOOL_EXECUTOR;
     }
 
     public static void delay(Object sync) {

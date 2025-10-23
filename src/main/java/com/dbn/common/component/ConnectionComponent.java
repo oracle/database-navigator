@@ -30,27 +30,36 @@ import java.sql.SQLException;
  * Abstract stub for components revolving around a {@link ConnectionHandler}
  */
 public abstract class ConnectionComponent {
-    private final ConnectionRef connection;
+    private ConnectionRef connection;
+
+    protected ConnectionComponent() {
+        // delayed initialization
+    }
 
     public ConnectionComponent(@NotNull ConnectionHandler connection) {
         this.connection = connection.ref();
     }
 
     @NotNull
-    public Project getProject() {
+    public final Project getProject() {
         return getConnection().getProject();
     }
 
     @NotNull
-    public ConnectionHandler getConnection() {
+    public final ConnectionHandler getConnection() {
         return connection.ensure();
     }
 
-    public DBNConnection getConnection(SessionId sessionId) throws SQLException {
+    public final void initialize(ConnectionHandler connection) {
+        // delayed initialization
+        this.connection = ConnectionRef.of(connection);
+    }
+
+    public final DBNConnection getConnection(SessionId sessionId) throws SQLException {
         return getConnection().getConnection(sessionId);
     }
 
-    public ConnectionId getConnectionId() {
+    public final ConnectionId getConnectionId() {
         return connection.getId();
     }
 }

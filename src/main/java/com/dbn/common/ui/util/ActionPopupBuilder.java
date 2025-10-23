@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.util;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Context;
@@ -180,7 +181,7 @@ public class ActionPopupBuilder {
 
 
     @Getter
-    private static class PresentableSelectAction<T extends Presentable> extends AnAction {
+    private static class PresentableSelectAction<T extends Presentable> extends BasicAction {
         private final T presentable;
         private final Consumer<T> selectionConsumer;
 

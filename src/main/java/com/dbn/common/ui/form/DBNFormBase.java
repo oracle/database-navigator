@@ -35,15 +35,19 @@ import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.containers.ContainerUtil;
 import lombok.Getter;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -51,6 +55,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.util.Arrays;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.Accessibility.initComponentGroupsAccessibility;
@@ -151,15 +157,18 @@ public abstract class DBNFormBase
         initValidation();
         initStatePersistence();
         initFormAccessibility();
+        initFieldAvailability();
 
         JComponent mainComponent = getMainComponent();
         DataProviders.register(mainComponent, this);
         UserInterface.updateScrollPanes(mainComponent);
         UserInterface.updateTitledBorders(mainComponent);
         UserInterface.updateSplitPanes(mainComponent);
+        UserInterface.updateTextPanes(mainComponent);
         adjustFormSize(mainComponent);
 
         ApplicationEvents.subscribe(this, LafManagerListener.TOPIC, source -> lookAndFeelChanged());
+        updateFieldAvailability();
     }
 
     /**
@@ -202,6 +211,15 @@ public abstract class DBNFormBase
     @ApiStatus.OverrideOnly
     protected void initAccessibility() {}
 
+    protected void initFieldAvailability() {}
+
+    protected void updateFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.updateFieldsVisibility();
+        fieldAdapter.updateFieldsAvailability();
+        validateInput();
+    }
+
     /**
      * Initializes the persistence mechanisms for the state of the form or component.
      * This method is intended to be overridden by subclasses to define custom state
@@ -215,6 +233,10 @@ public abstract class DBNFormBase
 
     @ApiStatus.OverrideOnly
     protected void lookAndFeelChanged() {}
+
+    public void applyFormChanges() throws ConfigurationException {}
+
+    public void resetFormChanges() {}
 
     protected void updateActionToolbars() {
         dispatch(() -> UserInterface.updateActionToolbars(getMainComponent()));
@@ -269,6 +291,34 @@ public abstract class DBNFormBase
     @NotNull
     public final <F extends DBNForm> F ensureParentFrom(Class<F> formClass) {
         return Failsafe.nd(getParentFrom(formClass));
+    }
+
+    protected static Action createAction(
+            @NotNull @Nls String name,
+            @NotNull Runnable runnable) {
+        return createAction(name, null, runnable);
+    }
+
+    protected static Action createAction(
+            @NotNull @Nls String name,
+            @Nullable String description,
+            @NotNull Runnable runnable) {
+        return new AbstractAction(name) {
+            {
+                putValue(Action.SHORT_DESCRIPTION, description);
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                runnable.run();
+            }
+        };
+    }
+
+    protected static Action[] createActions(Action ... actions) {
+        return Arrays.stream(actions)
+                .filter(value -> value != null)
+                .toArray(l -> new Action[l]);
+
     }
 
     @Override

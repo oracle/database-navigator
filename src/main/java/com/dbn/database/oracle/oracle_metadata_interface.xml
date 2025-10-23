@@ -385,19 +385,15 @@
 
     <statement-execution-processor id="tables" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
-            with DBN_MVIEWS as (
-                    select MVIEW_NAME,
-                           OWNER
-                      from [PREFIX]_MVIEWS
-                     where OWNER = {0})
             select t.TABLE_NAME,
+                   null as COMMENTS,
                    t.TEMPORARY as IS_TEMPORARY
-              from [PREFIX]_ALL_TABLES t
-                   left join DBN_MVIEWS v
-                          on v.MVIEW_NAME = t.TABLE_NAME
-                         and v.OWNER = t.OWNER
-             where t.OWNER = {0}
-               and v.MVIEW_NAME is null
+            from [PREFIX]_ALL_TABLES t
+            where t.OWNER = {0}
+              and not exists (SELECT 1
+                              from [PREFIX]_MVIEWS mv
+                              where mv.OWNER = t.owner
+                                and mv.MVIEW_NAME = t.TABLE_NAME)
             order by t.TABLE_NAME asc
         </statement>
     </statement-execution-processor>
@@ -408,6 +404,7 @@
                 v.VIEW_NAME,
                 v.VIEW_TYPE_OWNER,
                 v.VIEW_TYPE,
+                null as COMMENTS,
                 'N' as IS_SYSTEM_VIEW,
                 o.EDITIONABLE as IS_EDITIONABLE
             from [PREFIX]_VIEWS v
@@ -426,6 +423,7 @@
                 v.VIEW_NAME,
                 v.VIEW_TYPE_OWNER,
                 v.VIEW_TYPE,
+                null as COMMENTS,
                 'N' as IS_SYSTEM_VIEW,
                 o.EDITIONABLE as IS_EDITIONABLE
             from [PREFIX]_VIEWS v
@@ -441,6 +439,7 @@
                 v.VIEW_NAME,
                 v.VIEW_TYPE_OWNER,
                 v.VIEW_TYPE,
+                null as COMMENTS,
                 'N' as IS_SYSTEM_VIEW,
                 o.EDITIONABLE as IS_EDITIONABLE
             from [PREFIX]_VIEWS v
@@ -457,6 +456,7 @@
                 v.VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
+                null as COMMENTS,
                 v.ROOT_TABLE_OWNER,
                 v.ROOT_TABlE_NAME,
                 v.JSON_COLUMN_NAME,
@@ -498,6 +498,7 @@
                 null as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
+                null as COMMENTS,
                 null as ROOT_TABLE_OWNER,
                 null as ROOT_TABlE_NAME,
                 null as JSON_COLUMN_NAME,
@@ -855,14 +856,15 @@
     <statement-execution-processor id="materialized-views" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
-                MVIEW_NAME as VIEW_NAME,
+                mv.MVIEW_NAME as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
+                null as COMMENTS,
                 'N' as IS_SYSTEM_VIEW,
                 'N' as IS_EDITIONABLE
-            from [PREFIX]_MVIEWS
-            where OWNER = {0}
-            order by MVIEW_NAME asc
+            from [PREFIX]_MVIEWS mv
+            where mv.OWNER = {0}
+            order by mv.MVIEW_NAME asc
         </statement>
     </statement-execution-processor>
 
@@ -886,6 +888,7 @@
                 col.TABLE_NAME as DATASET_NAME,
                 col.COLUMN_NAME,
                 col.COLUMN_ID as POSITION,
+                cc.COMMENTS,
                 REGEXP_REPLACE(col.DATA_TYPE, '\([0-9]+\)', '') as DATA_TYPE_NAME,
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
@@ -905,6 +908,10 @@
                          on o.OWNER = col.OWNER
                         and o.OBJECT_NAME = col.TABLE_NAME
                         and o.OBJECT_TYPE in ('TABLE', 'VIEW', 'MATERIALIZED VIEW')
+                  left join [PREFIX]_COL_COMMENTS cc
+                         on cc.OWNER = col.OWNER
+                        and cc.TABLE_NAME = col.TABLE_NAME
+                        and cc.COLUMN_NAME = col.COLUMN_NAME
                   left join DBN_CONSTRAINTS pk
                          on pk.CONSTRAINT_TYPE = 'P'
                         and pk.OWNER = col.OWNER
@@ -929,6 +936,7 @@
             select distinct
                 col.COLUMN_NAME,
                 col.COLUMN_ID as POSITION,
+                null as COMMENTS,
                 REGEXP_REPLACE(col.DATA_TYPE, '\([0-9]+\)', '') as DATA_TYPE_NAME,
                 col.DATA_TYPE_OWNER AS DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
@@ -1024,6 +1032,7 @@
                 col.TABLE_NAME as DATASET_NAME,
                 col.COLUMN_NAME,
                 col.COLUMN_ID as POSITION,
+                cc.COMMENTS,
                 REGEXP_REPLACE(col.DATA_TYPE, '\([0-9]+\)', '') as DATA_TYPE_NAME,
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,
@@ -1043,6 +1052,10 @@
                          on o.OWNER = col.OWNER
                         and o.OBJECT_NAME = col.TABLE_NAME
                         and o.OBJECT_TYPE in ('TABLE', 'VIEW', 'MATERIALIZED VIEW')
+                  left join [PREFIX]_COL_COMMENTS cc
+                         on cc.OWNER = col.OWNER
+                       and cc.TABLE_NAME = col.TABLE_NAME
+                       and cc.COLUMN_NAME = col.COLUMN_NAME
                   left join DBN_CONSTRAINTS pk
                          on pk.CONSTRAINT_TYPE = 'P'
                         and pk.OWNER = col.OWNER
@@ -1073,6 +1086,7 @@
                 col.TABLE_NAME as DATASET_NAME,
                 col.COLUMN_NAME,
                 col.COLUMN_ID as POSITION,
+                null as COMMENTS,
                 REGEXP_REPLACE(col.DATA_TYPE, '\([0-9]+\)', '') as DATA_TYPE_NAME,
                 col.DATA_TYPE_OWNER as DECL_TYPE_OWNER,
                 col.DATA_TYPE as DECL_TYPE_NAME,

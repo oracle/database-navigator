@@ -17,27 +17,37 @@
 package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
-import dev.langchain4j.memory.ChatMemory;
+import com.dbn.assistant.service.generic.context.AssistantMemoryId;
+import com.dbn.assistant.service.generic.model.AssistantModelType;
+import com.dbn.assistant.state.AssistantState;
 import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.chat.response.ChatResponse;
-import org.jetbrains.annotations.Nullable;
+import dev.langchain4j.service.AiServices;
 
 public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
     public ChatModelInvoker() {
-        super(ChatModel.class);
+        super(AssistantModelType.CHAT);
     }
 
     @Override
-    public void invokeModel(ChatModel model, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
+    public void invokeModel(ChatModel model, AssistantState state, AssistantMemoryId memoryId, String prompt, AssistantResponseConsumer consumer) {
         try {
-            if (memory == null) {
-                String message = model.chat(prompt);
-                consumer.acceptMessage(message);
-            } else {
-                ChatResponse chat = model.chat(memory.messages());
-                String message = chat.aiMessage().text();
-                consumer.acceptMessage(message);
-            }
+            boolean stateless = memoryId.isStateless();
+            var context = prepareContext(state);
+            var memory = prepareMemory(state);
+            var tools = stateless ? null : prepareTools(state);
+
+            ChatModelAdapter adapter = AiServices.
+                    builder(ChatModelAdapter.class).
+                    chatModel(model).
+                    systemMessageProvider(context).
+                    chatMemoryProvider(memory).
+                    toolProvider(tools).
+                    build();
+
+
+            String message = adapter.chat(memoryId, prompt);
+            consumer.acceptMessage(message);
+
         } catch (Throwable e) {
             consumer.acceptError(e);
 

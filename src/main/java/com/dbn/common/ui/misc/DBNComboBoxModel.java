@@ -16,7 +16,6 @@
 
 package com.dbn.common.ui.misc;
 
-import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.util.Listeners;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,21 +23,22 @@ import lombok.Setter;
 import javax.swing.MutableComboBoxModel;
 import javax.swing.event.ListDataListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Getter
 @Setter
-public class DBNComboBoxModel<T extends Presentable> implements MutableComboBoxModel<T> {
+public class DBNComboBoxModel<T> implements MutableComboBoxModel<T> {
     private final Listeners<ListDataListener> listDataListeners = Listeners.create();
     private final List<T> items;
     private T selectedItem;
 
-    public DBNComboBoxModel() {
-        items = new ArrayList<>();
+    public DBNComboBoxModel(Collection<T> items) {
+        this.items = new ArrayList<>(items);
     }
 
-    public DBNComboBoxModel(List<T> items) {
-        this.items = items;
+    public DBNComboBoxModel() {
+        this.items = new ArrayList<>();
     }
 
     @Override

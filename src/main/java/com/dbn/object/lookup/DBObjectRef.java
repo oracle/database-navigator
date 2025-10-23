@@ -80,7 +80,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     private DBObjectType objectType;
     private short overload;
 
-    private WeakRef<T> reference;
+    private transient WeakRef<T> reference;
     private int hashCode = -1;
 
     public DBObjectRef(ConnectionId connectionId, String identifier) {

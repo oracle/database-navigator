@@ -67,6 +67,8 @@ import static com.dbn.common.ui.util.ClientProperty.NO_INDENT;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.isEmptyText;
 
 public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasicFilter> {
     private JPanel conditionsPanel;
@@ -160,7 +162,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
 
     private void updateGeneratedName() {
         if (isDisposed()) return;
-        if (isCustomNamed && !nameTextField.getText().trim().isEmpty()) return;
+        if (isCustomNamed && !isEmptyText(nameTextField)) return;
 
         getConfiguration().setCustomNamed(false);
         boolean addSeparator = false;
@@ -239,7 +241,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     }
 
     public String getFilterName() {
-        return nameTextField.getText();
+        return getText(nameTextField);
     }
 
     public DBDataset getDataset() {
@@ -298,7 +300,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             conditionForm.applyFormChanges();
             filter.addCondition(conditionForm.getConfiguration());
         }
-        filter.setName(nameTextField.getText());
+        filter.setName(getText(nameTextField));
     }
 
     @Override

@@ -19,6 +19,7 @@ package com.dbn.data.editor.ui;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.ui.panel.DBNPanelImpl;
 import com.dbn.common.ui.util.Accessibility;
+import com.dbn.common.ui.util.TextFields;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
@@ -132,7 +133,7 @@ public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataE
     }
 
     public String getText() {
-        return textField.getText();
+        return TextFields.getText(textField);
     }
 
     public void setText(String text) {

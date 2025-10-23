@@ -154,13 +154,13 @@
 <!--            END;-->
 <!--        </statement>-->
 <!--    </statement-execution-processor>-->
-    <statement-execution-processor id="update-credential-attribute" timeout="120">
+    <statement-execution-processor id="update-credential-attribute" timeout="120" is-prepared-statement="true">
         <statement>
             begin
                 DBMS_CLOUD.UPDATE_CREDENTIAL(
-                        credential_name => '{0}',
-                        attribute       => '{1}',
-                        value           => '{2}');
+                        credential_name => {0},
+                        attribute       => {1},
+                        value           => {2});
             end;
         </statement>
     </statement-execution-processor>

@@ -16,6 +16,9 @@
 
 package com.dbn.assistant.service.generic.model;
 
+import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.provider.AIProviderId;
+import com.dbn.common.util.Chars;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -23,15 +26,24 @@ import java.util.Map;
 
 @Data
 public class AssistantModelInput {
-    private final String model;
+    private final AIProviderId baseProviderId;
+    private final AIProviderId providerId;
+    private final String modelName;
     private String url;
-    private String user;
-    private String token;
     private Double temperature;
+    private AssistantCredential credential;
     private Map<String, String> headers = new HashMap<>();
+    private Map<Attribute, String> attributes = new HashMap<>();
 
-    private AssistantModelInput(String model) {
-        this.model = model;
+    private AssistantModelInput(AIProviderId baseProviderId, AIProviderId providerId, String modelName) {
+        this.baseProviderId = baseProviderId;
+        this.providerId = providerId;
+        this.modelName = modelName;
+    }
+
+    public String getTokenString() {
+        char[] secret = credential.getSecret();
+        return Chars.toString(secret);
     }
 
     public AssistantModelInput withUrl(String url) {
@@ -39,13 +51,8 @@ public class AssistantModelInput {
         return this;
     }
 
-    public AssistantModelInput withUser(String user) {
-        this.user = user;
-        return this;
-    }
-
-    public AssistantModelInput withToken(String token) {
-        this.token = token;
+    public AssistantModelInput withCredential(AssistantCredential credential) {
+        this.credential = credential;
         return this;
     }
 
@@ -59,10 +66,30 @@ public class AssistantModelInput {
         return this;
     }
 
-    public static AssistantModelInput create(String model) {
-        return new AssistantModelInput(model);
+    public AssistantModelInput withAttribute(Attribute key, String value) {
+        this.attributes.put(key, value);
+        return this;
     }
 
+    public static AssistantModelInput create(AIProviderId baseProviderId, AIProviderId providerId, String model) {
+        return new AssistantModelInput(baseProviderId, providerId, model);
+    }
 
+    public String getAttribute(Attribute attribute) {
+        return attributes.get(attribute);
+    }
+
+    public String getUser() {
+        return credential.getUser();
+    }
+
+    public String getRegionId() {
+        // TODO region specific OCI hosted models
+        return "us-chicago-1";
+    }
+
+    public enum Attribute{
+        COMPARTMENT_ID
+    }
 
 }

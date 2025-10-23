@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.6.2.0</version>
+    <version>3.7.0.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -240,6 +240,7 @@
         <extensionPoint name="assistantAdapter" qualifiedName="com.dbn.assistantAdapter" interface="com.dbn.assistant.adapter.AssistantAdapter" dynamic="true"/>
         <extensionPoint name="assistantModelFactory" qualifiedName="com.dbn.assistantModelFactory" interface="com.dbn.assistant.service.generic.model.AssistantModelFactory" dynamic="true"/>
         <extensionPoint name="assistantModelInvoker" qualifiedName="com.dbn.assistantModelInvoker" interface="com.dbn.assistant.service.generic.model.AssistantModelInvoker" dynamic="true"/>
+        <extensionPoint name="assistantToolFactory" qualifiedName="com.dbn.assistantToolFactory" interface="com.dbn.assistant.tool.AssistantToolFactory" dynamic="true"/>
 
         <extensionPoint name="prerequisiteDefinitionProvider" qualifiedName="com.dbn.prerequisiteDefinitionProvider" interface="com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider" dynamic="true"/>
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
@@ -279,16 +280,30 @@
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.AnthropicModelFactory"/>
         <!--<assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.BedrockModelFactory"/>-->
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.CohereModelFactory"/>
-        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.GoogleModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.GoogleAiGeminiModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.HuggingFaceModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.MistralAiModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OllamaModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OpenAiModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OciGenAiModelFactory"/>
 
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.ChatModelInvoker"/>
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.EmbeddingModelInvoker"/>
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.LanguageModelInvoker"/>
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.StreamingChatModelInvoker"/>
+
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.UserPromptsTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.DatabaseMetadataTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ConnectionInfoTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ConsoleEditorTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SchemaMetadataTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.TableMetadataTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ViewMetadataTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ViewSourceCodeTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ProgramMetadataTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ProgramSourceCodeTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SourceCodeEditorTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.DatasetEditorTool$Factory" />
     </extensions>
 
     <actions>
@@ -325,7 +340,7 @@
             <action id="DBNavigator.Actions.ConnectionSettings.MoveConnectionsUp" class="com.dbn.connection.config.action.ConnectionMoveUpAction" text="Connection Setup - Move Connections Up" icon="com.dbn.common.icon.Icons.ACTION_MOVE_UP"/>
             <action id="DBNavigator.Actions.ConnectionSettings.MoveConnectionsDown" class="com.dbn.connection.config.action.ConnectionMoveDownAction" text="Connection Setup - Move Connections Down" icon="com.dbn.common.icon.Icons.ACTION_MOVE_DOWN"/>
             <action id="DBNavigator.Actions.ConnectionSettings.DuplicateConnection" class="com.dbn.connection.config.action.ConnectionDuplicateAction" text="Connection Setup - Duplicate Connection" icon="AllIcons.Actions.Copy"/>
-            <action id="DBNavigator.Actions.ConnectionSettings.ToggleConnectionStatus" class="com.dbn.connection.config.action.ConnectionStatusToggleAction" text="Connection Setup - Activate / Deactivate Connection" icon="AllIcons.Diff.GutterCheckBoxSelected"/>
+            <action id="DBNavigator.Actions.ConnectionSettings.ToggleConnectionStatus" class="com.dbn.connection.config.action.ConnectionStatusToggleAction" text="Connection Setup - Activate / Deactivate Connection" icon="com.dbn.common.icon.Icons.ACTION_CHECK_BOX"/>
             <separator/>
             <action id="DBNavigator.Actions.ConnectionSettings.CopyConnections" class="com.dbn.connection.config.action.ConnectionsCopyAction" text="Connection Setup - Copy To Clipboard" icon="com.dbn.common.icon.Icons.CONNECTION_COPY"/>
             <action id="DBNavigator.Actions.ConnectionSettings.PasteConnections" class="com.dbn.connection.config.action.ConnectionPasteAction" text="Connection Setup - Paste From Clipboard" icon="com.dbn.common.icon.Icons.CONNECTION_PASTE"/>
@@ -354,20 +369,27 @@
         </group>
         <group id="DBNavigator.ActionGroup.SelectAiContextActions" text="Assistant Chat-Box Profiles">
             <action class="com.dbn.assistant.service.selectai.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectProfile"/>
-            <action class="com.dbn.assistant.service.selectai.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectModel"/>
+            <action class="com.dbn.assistant.service.selectai.action.ModelSelectDropdownAction" text="Select Model" id="DBNavigator.Actions.Assistant.SelectModel"/>
             <action class="com.dbn.assistant.service.selectai.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Assistant.RefreshProfiles" icon="AllIcons.Actions.Refresh"/>
             <action class="com.dbn.assistant.service.selectai.action.ConfigurationHelpAction" text="Help" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
+            <action class="com.dbn.assistant.service.selectai.action.ProfilesSetupAction" text="Profile Setup..."  icon="AllIcons.General.GearPlain" id="DBNavigator.Actions.Assistant.ProfileSetup"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.GenericAssistantContextActions" text="Assistant Chat-Box Profiles">
+            <action class="com.dbn.assistant.service.generic.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectAssistantProfile"/>
+            <action class="com.dbn.assistant.service.generic.action.ModelSelectDropdownAction" text="Select Model" id="DBNavigator.Actions.Assistant.SelectAssistantModel"/>
             <group id="DBNavigator.Actions.Assistant.OpenSettings" text="Options" icon="AllIcons.General.GearPlain" popup="true">
-                <action class="com.dbn.assistant.service.selectai.action.ProfilesSetupAction" text="Profile Setup..." id="DBNavigator.Actions.Assistant.ProfileSetup"/>
-                <action class="com.dbn.assistant.chat.window.action.AssistantSettingsAction" text="Settings..." id="DBNavigator.Actions.Assistant.AssistantSettings"/>
+                <action class="com.dbn.assistant.service.generic.action.AssistantSettingsAction" text="Assistant Settings..." id="DBNavigator.Actions.Assistant.Settings"/>
+                <action class="com.dbn.assistant.service.generic.action.ToolSettingsAction" text="Tool Settings..." id="DBNavigator.Actions.Assistant.ToolSettings"/>
             </group>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantChatActions" text="Assistant Chat Actions">
+            <action class="com.dbn.assistant.chat.window.action.ChatExpandAllAction" text="Expand All" id="DBNavigator.Actions.Assistant.ExpandAll" icon="AllIcons.Actions.Expandall"/>
+            <action class="com.dbn.assistant.chat.window.action.ChatCollapseAllAction" text="Collapse All" id="DBNavigator.Actions.Assistant.CollapseAll" icon="AllIcons.Actions.Collapseall"/>
+            <separator/>
             <action class="com.dbn.assistant.chat.window.action.ChatStartNewAction" text="New Chat" id="DBNavigator.Actions.Assistant.NewChat" icon="AllIcons.General.Add"/>
             <action class="com.dbn.assistant.chat.window.action.ChatDeleteAction" text="Clear Chat" id="DBNavigator.Actions.Assistant.DeleteChat" icon="AllIcons.Actions.GC"/>
             <group class="com.dbn.assistant.chat.window.action.ChatHistoryDropdownAction" text="Chat History" id="DBNavigator.Actions.Assistant.ChatHistory" icon="AllIcons.Vcs.History"/>
         </group>
-
         <group id="DBNavigator.ActionGroup.AssistantChatHistory" text="Chat History">
             <action class="com.dbn.assistant.chat.action.ChatHistoryDeleteAction" text="Delete Conversations" id="DBNavigator.Actions.Assistant.DeleteChats"/>
         </group>
@@ -382,6 +404,11 @@
             <action class="com.dbn.assistant.chat.window.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Assistant.SubmitPrompt" icon="AllIcons.Actions.Execute">
                 <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
             </action>
+        </group>
+        <group id="DBNavigator.ActionGroup.AssistantToolActions" text="Assistant Tool Actions">
+            <action class="com.dbn.assistant.tool.action.ToolExecutionStopAction" text="Stop Tool Execution" id="DBNavigator.Actions.Assistant.StopToolExecution" icon="AllIcons.Actions.Suspend"/>
+            <action class="com.dbn.assistant.tool.action.ToolExecutionDataAction" text="Tool Execution Data" id="DBNavigator.Actions.Assistant.ToolExecutionData"/>
+            <action class="com.dbn.assistant.tool.action.ToolApprovalSettingsAction" text="Tool Approvals..." id="DBNavigator.Actions.Assistant.ToolApprovalSettings"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantCredentialManagement" text="Credential Management">
             <action class="com.dbn.assistant.service.selectai.credential.action.CredentialCreateAction" id="DBNavigator.Actions.Assistant.CreateCredential"/>
@@ -859,6 +886,9 @@
         <additionalTextAttributes scheme="Default" file="textAttributes/DBNDefaultColors.xml" id="DBN-Default"/>
         <additionalTextAttributes scheme="Darcula" file="textAttributes/DBNDarculaColors.xml" id="DBN-Darcula"/>
         <additionalTextAttributes scheme="IntelliJ Light" file="textAttributes/DBNLightColors.xml" id="DBN-IntelliJ-Light"/>
+        <additionalTextAttributes scheme="Classic Light" file="textAttributes/DBNLightColors.xml" id="DBN-ClassicLight"/>
+        <additionalTextAttributes scheme="Islands Dark" file="textAttributes/DBNIslandDarkColors.xml" id="DBN-IslandDark"/>
+        <additionalTextAttributes scheme="Islands Light" file="textAttributes/DBNIslandLightColors.xml" id="DBN-IslandLight"/>
         <additionalTextAttributes scheme="High contrast" file="textAttributes/DBNHighContrastColors.xml" id="DBN-HighContrast"/>
         <additionalTextAttributes scheme="AllHallowsEve" file="textAttributes/DBNAllHallowsEveColors.xml" id="DBN-AllHallowsEve"/>
         <additionalTextAttributes scheme="Blackboard" file="textAttributes/DBNBlackboardColors.xml" id="DBN-Blackboard"/>
