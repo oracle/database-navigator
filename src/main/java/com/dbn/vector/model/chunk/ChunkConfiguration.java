@@ -18,4 +18,14 @@ public class ChunkConfiguration {
     this.splitBy = splitBy;
     this.overlap = overlap;
   }
+
+  public String getConfigJson(){
+    String chunkCfg = "{"
+            + "\"by\":\"" + by + "\""
+            + ",\"max\":" + max
+            + ",\"overlap\":" + overlap
+            + ",\"split\":\"" + splitBy + "\""
+            + "}";
+    return chunkCfg;
+  }
 }

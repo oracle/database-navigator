@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.io.*;
 import java.nio.file.Files;
+import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -114,15 +115,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                                         VirtualFile vf = files.get(i);
                                         p.setText2("Embedding (" + (i + 1) + "/" + files.size() + "): " + vf.getName());
 
-                                        if (isTextLike(vf.getName())) {
-                                          Clob clob = null;
-                                          try {
-                                            clob = prepareFileClob(conn, vf);
-                                            dataDefinition.embed(conn, clob, chunkConfiguration, embedConfig, storeConfig);
-                                          } catch (Exception e) {
-                                            throw new RuntimeException(e);
-                                          } finally { if (clob != null) try { clob.free(); } catch (Throwable ignored) {} }
-                                        } else {
+
                                           java.sql.Blob blob = null;
                                           try {
                                             blob = prepareFileBlob(conn, vf);
@@ -130,7 +123,6 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                                           } catch (Exception e) {
                                           throw new RuntimeException(e);
                                         } finally { if (blob != null) try { blob.free(); } catch (Throwable ignored) {} }
-                                        }
                                       }
 
                                       System.out.println("Embedding data created (" + files.size() + " file(s))");
@@ -148,15 +140,16 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
 
   private java.sql.Blob prepareFileBlob(DBNConnection conn, VirtualFile vf) throws IOException, SQLException {
     java.sql.Blob blob = conn.createBlob();
-    try (InputStream in = vf.getInputStream();
-         OutputStream out = blob.setBinaryStream(1)) {
+      try (InputStream in = vf.getInputStream();
+           OutputStream out = blob.setBinaryStream(1)) {
       byte[] buf = new byte[64 * 1024];
       int n;
       while ((n = in.read(buf)) != -1) {
         out.write(buf, 0, n);
       }
-    }
-    return blob;
+      }
+      return blob;
+
   }
 
   private static boolean isTextLike(String name) {

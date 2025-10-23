@@ -60,7 +60,10 @@ public class EmbedConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   }
 
   public EmbedConfig getEmbedConfig() {
-    return InDBModelConfigForm.getEmbedConfig();
+    String source = (String) modelTypeComboBox.getSelectedItem();
+    if (source.equalsIgnoreCase("In Database Model"))
+        return InDBModelConfigForm.getEmbedConfig();
+    return thirdPartyModelConfigForm.getEmbedConfig();
   }
   @Override
   protected JComponent getMainComponent() {

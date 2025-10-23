@@ -105,12 +105,10 @@ public class ExistingTableDestinationForm extends DBNFormBase {
 
   @Override
   protected void initValidation() {
-/*
     addSelectionValidation(schemaComboBox,"Please select a schema");
     addSelectionValidation(tableComboBox,"Please select a table");
     addSelectionValidation(dataColumnComboBox,"Please select the primary key column");
     addSelectionValidation(embeddingColumnComboBox,"Please select a data column");
-*/
   }
 
   private void populateColumns() {

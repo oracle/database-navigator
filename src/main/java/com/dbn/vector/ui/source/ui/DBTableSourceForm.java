@@ -102,13 +102,13 @@ public class DBTableSourceForm extends DBNFormBase {
 
   @Override
   protected void initValidation() {
-/*
-    TODO fix validation for hidden fields
+
+    // TODO fix validation for hidden fields
     addSelectionValidation(schemaComboBox,"Please select a schema");
     addSelectionValidation(tableComboBox,"Please select a table");
     addSelectionValidation(keyColumnComboBox,"Please select the primary key column");
     addSelectionValidation(dataColumnComboBox,"Please select a data column");
-*/
+
   }
 
   private void populateColumns() {

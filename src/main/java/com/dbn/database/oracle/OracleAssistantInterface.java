@@ -100,32 +100,16 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
 
   @Override
   public void embed(DBNConnection conn, DBTableSourceConfig sourceConfig, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException {
-    executeUpdate(conn,"insert-vector-embeddings",storeConfig.getTableName(),
-            embedConfig.getModelName(),sourceConfig.getSourceTable().getName(),
-            sourceConfig.getDataColumn().getName(),chunkConfiguration.getBy(),
-            chunkConfiguration.getMax(),chunkConfiguration.getOverlap(),chunkConfiguration.getSplitBy());
-  }
 
-  @Override
-  public void embed(DBNConnection conn, Clob sourceFileClob, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException
-  {
 
-      executeUpdate(conn,
-              "insert-vector-embeddings-from-filesystem",
-              storeConfig.getTableName(),                    // {0}
-              embedConfig.getModelName(),                    // {1}
-              sourceFileClob,                                // {2}
-              chunkConfiguration.getBy(),                    // {3}
-              chunkConfiguration.getMax(),                   // {4}
-              chunkConfiguration.getOverlap(),               // {5}
-              chunkConfiguration.getSplitBy(),                // {6}
-              storeConfig.getTextColumn(),                    //{7}
-              storeConfig.getEmbeddingColumn(),               //{8}
-              storeConfig.getMetadataColumn(),                 //{9}
-              storeConfig.getMetadata(),                       //{10}
-              storeConfig.getId()                               //{11}
-      );
-
+    executeUpdate(conn,
+            "insert-vector-embeddings",
+            storeConfig.getTableName(),                     // {0} -> target table
+            sourceConfig.getSourceTable().getName(),        // {1} -> source table
+            sourceConfig.getDataColumn().getName(),         // {2} -> source column
+            chunkConfiguration.getConfigJson(),                                       // {3} -> chunk config JSON
+            embedConfig.getConfigJson()                                        // {4} -> embed config JSON
+    );
   }
 
   @Override
@@ -133,21 +117,15 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   {
 
       executeUpdate(conn,
-              "insert-vector-embeddings-from-filesystem-blob",
-              storeConfig.getTableName(),                    // {0}
-              embedConfig.getModelName(),                    // {1}
-              sourceFileClob,                                // {2}
-              chunkConfiguration.getBy(),                    // {3}
-              chunkConfiguration.getMax(),                   // {4}
-              chunkConfiguration.getOverlap(),               // {5}
-              chunkConfiguration.getSplitBy(),                // {6}
-              storeConfig.getTextColumn(),                    //{7}
-              storeConfig.getEmbeddingColumn(),               //{8}
-              storeConfig.getMetadataColumn(),                 //{9}
-              storeConfig.getMetadata(),                       //{10}
-              storeConfig.getId()                               //{11}
+              "insert-vector-embeddings-from-filesystem",
+              storeConfig.getTableName(),
+              sourceFileClob,
+              storeConfig.getTextColumn(),
+              storeConfig.getEmbeddingColumn(),
+              storeConfig.getMetadataColumn(),
+              chunkConfiguration.getConfigJson(),
+              embedConfig.getConfigJson()
       );
-
   }
 
   @Override
@@ -232,4 +210,3 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
         executeUpdate(connection, "disable-data-access");
     }
 }
-

@@ -6,15 +6,30 @@ import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public class CreateVectorDestinationForm extends DBNFormBase {
   private JPanel mainPanel;
   private JPanel saveDataPanel;
-  private JTextField textField1;
+  private JTextField tableNameTextField;
   private JTextField embeddingVECTORTextField;
   private JTextField textCLOBTextField;
+  // Oracle unquoted identifier rules (safe baseline)
+  private static final int ORACLE_ID_MAX_LEN = 30;
+  private static final Pattern ORACLE_UNQUOTED_ID =
+          Pattern.compile("^[A-Za-z][A-Za-z0-9_$#]{0,29}$");
+
+  private static final Set<String> ORACLE_RESERVED = Set.of(
+          "SELECT","FROM","WHERE","GROUP","ORDER","BY","TABLE","INDEX","VIEW","TRIGGER",
+          "SEQUENCE","USER","SESSION","NUMBER","DATE","INSERT","UPDATE","DELETE","CREATE",
+          "ALTER","DROP","GRANT","REVOKE","AND","OR","NOT","NULL"
+  );
+
+
   public CreateVectorDestinationForm(@Nullable Disposable parent) {
     super(parent);
+    initValidation();
   }
 
   @Override
@@ -25,7 +40,7 @@ public class CreateVectorDestinationForm extends DBNFormBase {
   public StoreConfig toStoreConfig() {
     StoreConfig storeConfig = new StoreConfig();
 
-    String tableName = textField1.getText() == null ? "" : textField1.getText().trim();
+    String tableName = tableNameTextField.getText() == null ? "" : tableNameTextField.getText().trim();
 //    String embedCol  = embeddingsVECTORTextField.getText() == null ? "" : embeddingsVECTORTextField.getText().trim();
 //    String dataCol   = contentCLOBTextField.getText() == null ? "" : contentCLOBTextField.getText().trim();
     String embedCol = "embedding";
@@ -34,5 +49,24 @@ public class CreateVectorDestinationForm extends DBNFormBase {
     storeConfig.setEmbeddingColumn(embedCol);
     storeConfig.setTextColumn(dataCol);
     return storeConfig;
+  }
+
+  @Override
+  protected void initValidation() {
+    addTextValidation(tableNameTextField,this::isValidOracleUnquotedIdentifier,"Enter a valid Oracle table name (1–30 chars, start with a letter; letters/digits/_/$/#; avoid reserved words).");
+  }
+
+  private static boolean isReservedWord(String s) {
+    return s != null && ORACLE_RESERVED.contains(s.toUpperCase());
+  }
+
+  private boolean isValidOracleUnquotedIdentifier(String s) {
+    if (s == null) return false;
+    String name = s.trim();
+    if (name.isEmpty()) return false;
+    if (name.length() > ORACLE_ID_MAX_LEN) return false;
+    if (!ORACLE_UNQUOTED_ID.matcher(name).matches()) return false;
+    if (isReservedWord(name)) return false;
+    return true;
   }
 }
