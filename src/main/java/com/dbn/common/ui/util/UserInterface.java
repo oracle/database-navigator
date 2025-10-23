@@ -487,6 +487,9 @@ public class UserInterface {
             }
 
             if (component instanceof Container) {
+                // do not step into subcomponents of "container" text components (e.g. browse buttons aso.)
+                if (component instanceof JTextComponent) continue;
+
                 findTopLeftmostFocusComponent((Container) component, topLeftmost);
             }
         }

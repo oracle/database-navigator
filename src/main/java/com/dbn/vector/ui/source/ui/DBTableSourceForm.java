@@ -1,6 +1,7 @@
 package com.dbn.vector.ui.source.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
@@ -20,7 +21,9 @@ import javax.swing.JPanel;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
 
 public class DBTableSourceForm extends DBNFormBase {
   private JPanel mainPanel;
@@ -41,24 +44,21 @@ public class DBTableSourceForm extends DBNFormBase {
     whenShown(() -> initComboBoxes());
   }
 
-  private void initComboBoxes() {
-    schemaComboBox.setValueLoader(() -> loadSchemas());
-    tableComboBox.setValueLoader(() -> loadTables());
-    keyColumnComboBox.setValueLoader(() -> loadKeyColumns());
-    dataColumnComboBox.setValueLoader(() -> loadDataColumns());
-
-    schemaComboBox.loadValues();
-    tableComboBox.loadValues();
-    keyColumnComboBox.loadValues();
-    dataColumnComboBox.loadValues();
+  @Override
+  protected void initFieldAvailability() {
+    DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+    fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedSchema()), array(tableComboBox));
+    fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedTable()), array(
+            keyColumnComboBox,
+            dataColumnComboBox));
   }
 
-  private void refreshComboBoxes() {
-      DBSchema schema = getSelectedSchema();
-      DBTable table = getSelectedTable();
-      tableComboBox.setEnabled(schema != null);
-      keyColumnComboBox.setEnabled(table != null);
-      dataColumnComboBox.setEnabled(table != null);
+  private void initComboBoxes() {
+    // TODO add value preselectors when restoring the screen state
+    schemaComboBox.init(() -> loadSchemas(), null);
+    tableComboBox.init(() -> loadTables(), null);
+    keyColumnComboBox.init(() -> loadKeyColumns(), null);
+    dataColumnComboBox.init(() -> loadDataColumns(), null);
   }
 
   private List<DBSchema> loadSchemas() {
@@ -112,13 +112,13 @@ public class DBTableSourceForm extends DBNFormBase {
   }
 
   private void populateColumns() {
-    refreshComboBoxes();
+    updateFieldAvailability();
     keyColumnComboBox.reloadValues();
     dataColumnComboBox.reloadValues();
   }
 
   private void populateTables() {
-    refreshComboBoxes();
+    updateFieldAvailability();
     tableComboBox.reloadValues();
     keyColumnComboBox.reloadValues();
     dataColumnComboBox.reloadValues();

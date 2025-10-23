@@ -7,8 +7,10 @@ import com.dbn.vector.model.embed.EmbedConfig;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.CardLayout;
 
 public class EmbedConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
@@ -30,11 +32,8 @@ public class EmbedConfigForm extends DBNFormBase implements DBNCollapsibleForm {
     InDBModelConfigForm = new InDBModelConfigForm(this,connectionHandler);
     thirdPartyModelConfigForm = new ThirdPartyModelConfigForm(this,connectionHandler);
 
-    JPanel inDBModelConfigForm = (JPanel) InDBModelConfigForm.getMainComponent();
-    JPanel thirdPartyModelConfigFormPanel = (JPanel) thirdPartyModelConfigForm.getMainComponent();
-
-    configPanel.add(inDBModelConfigForm,"In_Database_Model");
-    configPanel.add(thirdPartyModelConfigFormPanel,"Third_Party_Model");
+    configPanel.add(InDBModelConfigForm.getComponent(),"In_Database_Model");
+    configPanel.add(thirdPartyModelConfigForm.getComponent(),"Third_Party_Model");
     CardLayout cardLayout = (CardLayout) configPanel.getLayout();
 
     // default with table

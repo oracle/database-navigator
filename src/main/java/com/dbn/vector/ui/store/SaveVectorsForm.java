@@ -40,8 +40,8 @@ public class SaveVectorsForm extends DBNFormBase implements DBNCollapsibleForm {
 
     DestinationType destinationType = getDestinationType();
     JComponent initialPanel = destinationType == DestinationType.NEW_TABLE
-        ? createForm.getMainComponent()
-        : existingForm.getMainComponent();
+        ? createForm.getComponent()
+        : existingForm.getComponent();
     dataPanel.add(initialPanel);
   }
 
@@ -52,10 +52,10 @@ public class SaveVectorsForm extends DBNFormBase implements DBNCollapsibleForm {
     destinationComboBox.addActionListener(e -> {
       dataPanel.removeAll();
       if (getDestinationType() == DestinationType.NEW_TABLE) {
-        dataPanel.add(createForm.getMainComponent());
+        dataPanel.add(createForm.getComponent());
 
       } else {
-        dataPanel.add(existingForm.getMainComponent());
+        dataPanel.add(existingForm.getComponent());
       }
       dataPanel.revalidate();
       dataPanel.repaint();

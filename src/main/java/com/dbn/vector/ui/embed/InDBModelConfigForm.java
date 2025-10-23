@@ -2,8 +2,8 @@ package com.dbn.vector.ui.embed;
 
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Background;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Dialogs;
@@ -18,30 +18,30 @@ import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.embed.InDBModel;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
 
 public class InDBModelConfigForm extends DBNFormBase {
   private final ConnectionHandler connectionHandler;
   private JPanel mainPanel;
-  private DBNComboBox<DBAIModel> modelDBNComboBox;
+  private DBNComboBox<DBAIModel> modelComboBox;
+  private DBNComboBox<DBSchema> schemaComboBox;
   private JButton addCredentialButton;
-  private DBNComboBox<DBSchema> schemaDBNComboBox;
 
   public InDBModelConfigForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
     super(parent);
     this.connectionHandler = connectionHandler;
-    modelDBNComboBox.set(HIDE_DESCRIPTION, true);
-    schemaDBNComboBox.set(HIDE_DESCRIPTION, true);
+    modelComboBox.set(HIDE_DESCRIPTION, true);
+    schemaComboBox.set(HIDE_DESCRIPTION, true);
     initComboboxListeners();
     initModelAddButton();
     initComboBoxes();
@@ -57,39 +57,53 @@ public class InDBModelConfigForm extends DBNFormBase {
     ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, e -> {
       if (!e.matches(connection)) return;
       if (!e.matches(DBObjectType.AI_MODEL)) return;
-      modelDBNComboBox.reloadValues();
+      modelComboBox.reloadValues();
     });
   }
 
+  @Override
+  protected void initFieldAvailability() {
+    DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+    fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedSchema()), array(modelComboBox));
+    fieldAdapter.initFieldsVisibility(() -> isValid(getSelectedSchema()), array(addCredentialButton));
+  }
 
   private List<DBSchema> loadSchemas() {
     DBObjectBundle objectBundle = connectionHandler.getObjectBundle();
     return objectBundle.getSchemas();
   }
 
-  private List<DBAIModel> loadAiModelsForSelectedSchema() {
-    DBSchema schema = ComboBoxes.getSelection(schemaDBNComboBox);
+  private List<DBAIModel> loadModels() {
+    DBSchema schema = getSelectedSchema();
     if (schema == null) return java.util.Collections.emptyList();
     return schema.getAiModels();
 
   }
 
+  private @Nullable DBSchema getSelectedSchema() {
+    return ComboBoxes.getSelection(schemaComboBox);
+  }
+
   private void initComboBoxes() {
-    schemaDBNComboBox.setValueLoader(this::loadSchemas);
-    modelDBNComboBox.setValueLoader(this::loadAiModelsForSelectedSchema);
-    schemaDBNComboBox.loadValues();
-    modelDBNComboBox.loadValues();
+    // TODO add value preselectors when restoring the screen state
+    schemaComboBox.init(() -> loadSchemas(), null);
+    modelComboBox.init(() -> loadModels(), null);
   }
 
   private void initComboboxListeners() {
-    schemaDBNComboBox.addListener((ov, nv) -> modelDBNComboBox.reloadValues());
-    modelDBNComboBox.set(HIDE_DESCRIPTION, true);
+    schemaComboBox.addListener((ov, nv) -> populateModels());
+    modelComboBox.set(HIDE_DESCRIPTION, true);
+  }
+
+  private void populateModels() {
+    updateFieldAvailability();
+    modelComboBox.reloadValues();
   }
 
 
   public EmbedConfig getEmbedConfig() {
     // get name as Schema.modelName
-    InDBModel embedConfig = new InDBModel(((DBAIModel) Objects.requireNonNull(modelDBNComboBox.getSelectedItem())).getName());
+    InDBModel embedConfig = new InDBModel(((DBAIModel) Objects.requireNonNull(modelComboBox.getSelectedItem())).getName());
 //    embedConfig.setModelName(((DBAIModel)modelDBNComboBox.getSelectedItem()).getName());
     return embedConfig;
   }

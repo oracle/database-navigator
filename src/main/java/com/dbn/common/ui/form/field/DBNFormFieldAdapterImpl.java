@@ -25,6 +25,7 @@ import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.AbstractButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -136,6 +137,7 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
         if (component instanceof JCheckBox) return component;
         if (component instanceof JLabel) return component;
         if (component instanceof TextFieldWithBrowseButton) return component;
+        if (component instanceof AbstractButton) return component;
         // TODO....
 
         return null;

@@ -56,7 +56,7 @@ public class WrapperNamesEditorForm extends DBNFormBase implements ComponentAlig
     private void initHeaderPanel() {
         DBObject sourceObject = model.getSourceObject();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, sourceObject);
-        this.headerPanel.add(headerForm.getMainComponent());
+        this.headerPanel.add(headerForm.getComponent());
     }
 
     private void initHintPanel() {
