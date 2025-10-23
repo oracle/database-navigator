@@ -18,6 +18,7 @@ import com.github.jk1.license.filter.DependencyFilter
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.ReportRenderer
 import com.github.jk1.license.render.TextReportRenderer
+import org.gradle.kotlin.dsl.register
 
 // import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -32,6 +33,7 @@ val bundledJdbcOracle: Configuration by configurations.creating
 val bundledJdbcMysql: Configuration by configurations.creating
 val bundledJdbcPostgres: Configuration by configurations.creating
 val bundledJdbcSqlite: Configuration by configurations.creating
+val extFolder = "idea-sandbox/plugins/${project.name}/lib/ext"
 
 group = "com.dbn"
 version = "3.6.1.0"
@@ -193,7 +195,6 @@ intellij {
 tasks.register("copyBundledJdbcLibs") {
     group = "build"
     description = "Copies all bundled JDBC libraries to the ext folder in the build directory."
-    val extFolder = "idea-sandbox/plugins/${project.name}/lib/ext"
 
     doLast {
         // Copy for Oracle JDBC
@@ -226,22 +227,15 @@ tasks.register("copyBundledJdbcLibs") {
     }
 }
 
-tasks.register<Zip>("packageDistribution") {
-    archiveFileName.set("DBN.zip")
-    destinationDirectory.set(layout.buildDirectory.dir("dist"))
-
-    from("lib/ext/") {
-        include("**/*.jar")
-        into("dbn/lib/ext")
-    }
-    from(layout.buildDirectory.dir("libs")) {
-        include("${project.name}-${project.version}.jar")
-        into("dbn/lib")
-    }
-}
-
 tasks.build {
     dependsOn("copyBundledJdbcLibs")
+}
+
+tasks.prepareSandbox {
+    dependsOn("copyBundledJdbcLibs")
+    from(layout.buildDirectory.dir(extFolder)) {
+        into("lib/ext")
+    }
 }
 
 tasks {
