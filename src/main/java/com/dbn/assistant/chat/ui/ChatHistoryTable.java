@@ -57,8 +57,7 @@ public class ChatHistoryTable extends DBNTable<ChatHistoryTableModel> {
         });
 
         setAccessibleName(this, "Chat History");
-        //setProportionalColumnWidths(70, 30);
-        setFixedColumnWidth(1, 150);
+        setProportionalColumnWidths(65, 35);
     }
 
     @Override

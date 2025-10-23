@@ -26,21 +26,21 @@ import dev.langchain4j.model.mistralai.MistralAiEmbeddingModel;
 import dev.langchain4j.model.mistralai.MistralAiStreamingChatModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.OPENAI;
+import static com.dbn.assistant.provider.AIProviderId.MISTRAL_AI;
 
 public class MistralAiModelFactory extends AbstractModelFactory {
 
     public MistralAiModelFactory() {
-        super(OPENAI);
+        super(MISTRAL_AI);
     }
 
     @Nullable
     @Override
     public ChatModel createChatModel(AssistantModelInput input) {
         return MistralAiChatModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
-                .apiKey(input.getToken())
+                .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
@@ -50,9 +50,9 @@ public class MistralAiModelFactory extends AbstractModelFactory {
     @Override
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return MistralAiStreamingChatModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
-                .apiKey(input.getToken())
+                .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
@@ -68,9 +68,9 @@ public class MistralAiModelFactory extends AbstractModelFactory {
     @Override
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return MistralAiEmbeddingModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
-                .apiKey(input.getToken())
+                .apiKey(input.getTokenString())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();
     }

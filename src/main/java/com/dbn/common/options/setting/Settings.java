@@ -123,7 +123,11 @@ public final class Settings {
 
     @NonNls
     public static String stringAttribute(Element element, @NonNls String name) {
-        String attributeValue = element == null ? null : element.getAttributeValue(name);
+        return stringAttribute(element, name, null);
+    }
+
+    public static String stringAttribute(Element element, @NonNls String name, String defaultValue) {
+        String attributeValue = element == null ? defaultValue : element.getAttributeValue(name);
         return Strings.isEmptyOrSpaces(attributeValue) ? attributeValue : attributeValue.intern();
     }
 
@@ -234,8 +238,10 @@ public final class Settings {
     }
 
     public static String readCdata(Element element) {
-        StringBuilder builder = new StringBuilder();
         int contentSize = element.getContentSize();
+        if (contentSize == 0) return "";
+
+        StringBuilder builder = new StringBuilder();
         for (int i=0; i<contentSize; i++) {
             Content content = element.getContent(i);
             if (content instanceof Text) {
@@ -247,10 +253,12 @@ public final class Settings {
     }
 
     public static void writeCdata(Element element, @NonNls String content) {
+        if (content == null) return;
         element.setContent(new CDATA(content));
     }
 
     public static void writeCdata(Element element, @NonNls String content, boolean conditional) {
+        if (content == null) return;
         if (needsCdataWrapping(content) || !conditional) {
             element.setContent(new CDATA(content));
         } else {
@@ -310,6 +318,10 @@ public final class Settings {
 
     public static void setCharsAttribute(Element element, @NonNls String attributeName, char[] value) {
         element.setAttribute(attributeName, value == null ? "" : new String(value));
+    }
+
+    public static void setDoubleAttribute(Element element, @NonNls String attributeName, double value) {
+        element.setAttribute(attributeName, Double.toString(value));
     }
 
     public static  <T extends Enum<T>> void setEnumAttribute(Element element, String attributeName, T value) {

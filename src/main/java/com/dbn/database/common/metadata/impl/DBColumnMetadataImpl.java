@@ -41,6 +41,10 @@ public class DBColumnMetadataImpl extends DBObjectMetadataBase implements DBColu
         return getString("DATASET_NAME");
     }
 
+    public String getComments() throws SQLException {
+        return getString("COMMENTS");
+    }
+
     public boolean isPrimaryKey() throws SQLException {
         return isYesFlag("IS_PRIMARY_KEY");
     }

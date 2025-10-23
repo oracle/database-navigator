@@ -16,10 +16,10 @@
 
 package com.dbn.common.text;
 
-import com.intellij.util.Function;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import lombok.Data;
+import org.jetbrains.annotations.NonNls;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.regex.Matcher;
 
 import static com.intellij.ui.ColorUtil.toHex;
 
@@ -67,7 +69,7 @@ public class TextContent {
         fields.forEach((i, r) -> replaceFields(i, r));
     }
 
-    public void initField(String identifier, String replacement) {
+    public void initField(@NonNls String identifier, String replacement) {
         fields.put(identifier, replacement);
         replaceFields(identifier, replacement);
     }
@@ -103,7 +105,8 @@ public class TextContent {
     }
 
     private void replaceFields(String identifier, String replacement) {
-        text = text.replaceAll("\\$\\{"+ identifier + "}", replacement);
+        replacement = Matcher.quoteReplacement(replacement);
+        text = text.replaceAll("\\$\\{" + identifier + "}", replacement);
     }
 
     public String getTypeId() {
@@ -121,6 +124,9 @@ public class TextContent {
     public static TextContent html(String text) {
         return new TextContent(text, MimeType.TEXT_HTML);
     }
+    public static TextContent markdown(String text) {
+        return new TextContent(text, MimeType.TEXT_MARKDOWN);
+    }
 
     public static TextContent xml(String text) {
         return new TextContent(text, MimeType.TEXT_XML);
@@ -128,5 +134,14 @@ public class TextContent {
 
     public static TextContent css(String text) {
         return new TextContent(text, MimeType.TEXT_CSS);
+    }
+
+    public static String asHtmlContent(String text) {
+        return "<html><body>" + text + "</body></html>";
+    }
+
+    @Override
+    public String toString() {
+        return "[" + type + "] " + text;
     }
 }

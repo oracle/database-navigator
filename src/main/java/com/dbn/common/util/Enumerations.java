@@ -17,6 +17,7 @@
 package com.dbn.common.util;
 
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.Nullable;
 
 @UtilityClass
 public class Enumerations {
@@ -29,5 +30,9 @@ public class Enumerations {
             }
         }
         return false;
+    }
+
+    public static String nameOf(@Nullable Enum<?> enumeration) {
+        return enumeration == null ? null : enumeration.name();
     }
 }

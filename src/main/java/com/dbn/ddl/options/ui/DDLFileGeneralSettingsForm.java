@@ -64,7 +64,7 @@ public class DDLFileGeneralSettingsForm extends ConfigurationEditorForm<DDLFileG
     @Override
     protected ActionListener createActionListener() {
         return e -> {
-            getConfiguration().setModified(true);
+            mackConfigModified();
             if (e.getSource() == synchronizeDDLFilesCheckBox) {
                 boolean synchronizeSelected = synchronizeDDLFilesCheckBox.isSelected();
                 useQualifiedObjectNamesCheckBox.setEnabled(synchronizeSelected);

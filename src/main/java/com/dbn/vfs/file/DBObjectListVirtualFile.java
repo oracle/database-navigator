@@ -42,7 +42,7 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 
 public class DBObjectListVirtualFile<T extends DBObjectList> extends DBVirtualFileBase {
-    private final WeakRef<T> objectList;
+    private final transient WeakRef<T> objectList;
 
     public DBObjectListVirtualFile(T objectList) {
         super(objectList.getProject(), Naming.capitalize(objectList.getName()));

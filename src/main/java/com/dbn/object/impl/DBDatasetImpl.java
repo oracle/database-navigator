@@ -28,6 +28,7 @@ import com.dbn.object.DBIndex;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +40,10 @@ import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.CONSTRAINT;
 import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
 
+@Getter
 abstract class DBDatasetImpl<M extends DBObjectMetadata> extends DBSchemaObjectImpl<M> implements DBDataset {
+    protected String comments;
+
     DBDatasetImpl(DBSchema parent, M metadata) throws SQLException {
         super(parent, metadata);
     }

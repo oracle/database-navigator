@@ -16,11 +16,15 @@
 
 package com.dbn.assistant.chat.context;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.state.PersistentStateElement;
 
 public interface ChatContext extends PersistentStateElement {
+
+    AssistantType getAssistantType();
 
     AIProvider getProvider();
 
@@ -28,10 +32,9 @@ public interface ChatContext extends PersistentStateElement {
 
     Object getAction();
 
+    AIProviderId getProviderId();
 
-    String getProviderId();
-
-    String getProfileName();
+    String getProfileId();
 
     String getModelId();
 
@@ -39,9 +42,9 @@ public interface ChatContext extends PersistentStateElement {
 
 
 
-    void setProviderId(String providerId);
+    void setProviderId(AIProviderId providerId);
 
-    void setProfileName(String profileName);
+    void setProfileId(String profileId);
 
     void setModelId(String modelId);
 

@@ -51,7 +51,7 @@ public class DataEditorFilterSettingsForm extends ConfigurationEditorForm<DataEd
     @Override
     protected ActionListener createActionListener() {
         return e -> {
-            getConfiguration().setModified(true);
+            mackConfigModified();
             defaultFilterTypeComboBox.setEnabled(promptFilterDialogCheckBox.isSelected());
         };
     }

@@ -77,7 +77,7 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.common.notification.NotificationCategory.DEBUGGER;
-import static com.dbn.common.util.Commons.list;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -224,7 +224,7 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
     private void startDebugger(@NotNull ConnectionHandler connection, @NotNull Consumer<DBDebuggerType> debuggerStarter) {
         var debuggerTypeOption = connection.getSettings().getDebuggerSettings().getDebuggerType();
         Project project = getProject();
-        debuggerTypeOption.resolve(project, list(), option -> {
+        debuggerTypeOption.resolve(project, array(), option -> {
             DBDebuggerType debuggerType = option.getDebuggerType();
             if (debuggerType == null) return;
 

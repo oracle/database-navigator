@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static java.util.Collections.emptyList;
 
 public class MethodExecutionInputArgumentForm extends DBNFormBase {
@@ -219,7 +220,7 @@ public class MethodExecutionInputArgumentForm extends DBNFormBase {
             String value = userValueHolder.getUserValue();
             executionInput.setInputValue(argument, value);
         } else {
-            String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
+            String value = Commons.nullIfEmpty(getText(inputTextField));
             executionInput.setInputValue(argument, value);
         }
     }

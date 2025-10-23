@@ -36,6 +36,7 @@ import javax.swing.JTextField;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 
 public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseSshTunnelConfiguration> {
@@ -82,15 +83,15 @@ public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseS
         // snapshot old secret before form changes are applied
         Secret[] oldSecrets = configuration.getSecrets();
 
-        configuration.setHost(hostTextField.getText());
-        configuration.setPort(portTextField.getText());
-        configuration.setUser(userTextField.getText());
+        configuration.setHost(getText(hostTextField));
+        configuration.setPort(getText(portTextField));
+        configuration.setUser(getText(userTextField));
         configuration.setAuthType(getSelection(authTypeComboBox));
         configuration.setPassword(passwordField.getPassword());
-        configuration.setKeyFile(keyFileBrowseInput.getText());
+        configuration.setKeyFile(getText(keyFileBrowseInput));
         configuration.setKeyPassphrase(keyPassPhraseInput.getPassword());
-        configuration.setBindHost(bindHostTextField.getText());
-        configuration.setBindPort(bindPortTextField.getText());
+        configuration.setBindHost(getText(bindHostTextField));
+        configuration.setBindPort(getText(bindPortTextField));
 
         if (!ConfigMonitor.isCloning()) {
             // replace secrets in the password store

@@ -8,14 +8,16 @@
     <properties/>
     <border type="none"/>
     <children>
-      <scrollpane id="3d949" binding="messagesScrollPanel">
+      <scrollpane id="74836" class="com.intellij.ui.components.JBScrollPane" binding="messagesScrollPanel">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties/>
+        <properties>
+          <opaque value="false"/>
+        </properties>
         <border type="none"/>
         <children>
-          <grid id="5d607" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="111e9" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="8" left="8" bottom="8" right="8"/>
             <constraints/>
             <properties>
@@ -27,11 +29,13 @@
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
-                <properties/>
+                <properties>
+                  <opaque value="false"/>
+                </properties>
                 <border type="none"/>
                 <children/>
               </grid>
-              <vspacer id="278d9">
+              <vspacer id="15ae5">
                 <constraints>
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>

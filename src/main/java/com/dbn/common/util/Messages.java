@@ -52,6 +52,7 @@ import java.util.Objects;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.thread.Dispatch.getCurrentModalityState;
 import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDialogs;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -246,7 +247,7 @@ public class Messages {
     }
 
     public static @Button String[] options(String ... options) {
-        return Commons.list(options);
+        return array(options);
     }
 
     /**

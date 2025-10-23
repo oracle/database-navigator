@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.lang.Character.isWhitespace;
+import static java.util.Collections.singletonList;
 
 @NonNls
 @UtilityClass
@@ -442,6 +444,16 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return StringUtil.countNewLines(text);
     }
 
+    public static int countOccurrences(String str, String token) {
+        int count = 0;
+        int index = 0;
+        while ((index = str.indexOf(token, index)) != -1) {
+            count++;
+            index += token.length();
+        }
+        return count;
+    }
+
     public static boolean startsWith(CharSequence text, CharSequence prefix) {
         return StringUtil.startsWith(text, prefix);
     }
@@ -487,6 +499,30 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         if (com.intellij.openapi.util.text.Strings.isNotEmpty(value)) {
             withValue.accept(value);
         }
+    }
+
+    public static List<String> slice(String text, int[] indices) {
+        if (indices == null) return singletonList(text);
+        if (indices.length == 0) return singletonList(text);
+
+        List<String> slices = new ArrayList<>();
+
+        int offset = 0;
+        for (int index : indices) {
+            if (index <= offset) continue;
+            if (index > text.length()) continue;
+
+            String slice = text.substring(offset, index);
+            slices.add(slice);
+            offset = index;
+        }
+
+        if (offset < text.length()) {
+            String slice = text.substring(offset);
+            slices.add(slice);
+        }
+
+        return slices;
     }
 
 }

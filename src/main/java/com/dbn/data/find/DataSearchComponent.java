@@ -78,6 +78,7 @@ import java.util.regex.Pattern;
 
 import static com.dbn.common.ui.util.ClientProperty.DATA_SEARCH_ADDON;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -201,9 +202,8 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
 
     @Override
     public void searchResultUpdated(DataSearchResult searchResult) {
-        JTextComponent searchField = getSearchField();
         int count = searchResult.size();
-        if (searchField.getText().isEmpty()) {
+        if (getSearchText().isEmpty()) {
             updateUIWithEmptyResults();
         } else {
             if (count <= searchResult.getMatchesLimit()) {
@@ -261,7 +261,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         //CompatibilityUtil.setSmallerFont(searchField);
 
         searchField.registerKeyboardAction(e -> {
-            if (Strings.isEmptyOrSpaces(searchField.getText())) {
+            if (Strings.isEmptyOrSpaces(getSearchText())) {
                 close();
             } else {
                 // TODO
@@ -277,8 +277,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
     }
 
     private void searchFieldDocumentChanged() {
-        JTextComponent searchField = getSearchField();
-        String text = searchField.getText();
+        String text = getSearchText();
         findModel.setStringToFind(text);
         if (!Strings.isEmpty(text)) {
             updateResults(true);
@@ -286,6 +285,12 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
             nothingToSearchFor();
         }
     }
+
+    private String getSearchText() {
+        JTextComponent searchField = getSearchField();
+        return getText(searchField);
+    }
+
 
     public FindModel getFindModel() {
         return findModel;
@@ -299,10 +304,10 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
     }
 
     private void updateUIWithFindModel() {
-        JTextComponent searchField = getSearchField();
         String stringToFind = findModel.getStringToFind();
 
-        if (!Objects.equals(stringToFind, searchField.getText())) {
+        if (!Objects.equals(stringToFind, getSearchText())) {
+            JTextComponent searchField = getSearchField();
             searchField.setText(stringToFind);
         }
 
@@ -386,7 +391,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
     }
 
     private void addTextToRecent(JTextComponent textField) {
-        String text = textField.getText();
+        String text = getText(textField);
         if (text.isEmpty()) return;
 
         JTextComponent searchField = getSearchField();
@@ -414,7 +419,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
     public void requestFocus() {
         JTextComponent searchField = getSearchField();
         searchField.setSelectionStart(0);
-        searchField.setSelectionEnd(searchField.getText().length());
+        searchField.setSelectionEnd(getSearchText().length());
         requestFocus(searchField);
     }
 
@@ -435,8 +440,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
     }
 
     private void updateResults(final boolean allowedToChangedEditorSelection) {
-        JTextComponent searchField = getSearchField();
-        String text = searchField.getText();
+        String text = getSearchText();
         if (text.isEmpty()) {
             nothingToSearchFor();
             SearchableDataComponent searchableComponent = getSearchableComponent();

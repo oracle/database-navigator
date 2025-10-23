@@ -29,6 +29,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.TextFields.getText;
+
 public class ChatSaveForm extends DBNFormBase {
     private JPanel headerPanel;
     private JPanel mainPanel;
@@ -56,7 +58,7 @@ public class ChatSaveForm extends DBNFormBase {
     }
 
     public String getChatName() {
-        return nameTextField.getText();
+        return getText(nameTextField);
     }
 
     @Nullable

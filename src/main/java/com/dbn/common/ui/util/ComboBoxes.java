@@ -30,9 +30,11 @@ import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static com.dbn.common.ui.util.ClientProperty.VISITED;
 import static com.dbn.common.util.Unsafe.cast;
 
 public class ComboBoxes {
@@ -48,7 +50,7 @@ public class ComboBoxes {
         }
     }
 
-    public static <T extends Presentable> void initComboBox(JComboBox<T> comboBox, boolean withEmptyOption, T... options) {
+    public static <T> void initComboBox(JComboBox<T> comboBox, boolean withEmptyOption, T... options) {
         initComboBox(comboBox, Arrays.asList(options));
         if (withEmptyOption) {
             MutableComboBoxModel<T> mutableModel = cast(comboBox.getModel());
@@ -56,7 +58,7 @@ public class ComboBoxes {
         }
     }
 
-    public static <T extends Presentable> void initComboBox(JComboBox<T> comboBox, T... options) {
+    public static <T> void initComboBox(JComboBox<T> comboBox, T... options) {
         initComboBox(comboBox, Arrays.asList(options));
     }
 
@@ -68,18 +70,28 @@ public class ComboBoxes {
         return ClientProperty.EMPTY_OPTIONS_TEXT.get(comboBox);
     }
 
-    public static <T extends Presentable> void initComboBox(JComboBox<T> comboBox, Collection<T> options) {
-        DBNComboBoxModel<T> model = new DBNComboBoxModel<>();
-        model.getItems().addAll(options);
-        comboBox.setModel(model);
-        initComboBoxRenderer(comboBox);
+    public static <T> void resetComboBox(JComboBox<T> comboBox) {
+        initComboBox(comboBox, Collections.emptyList());
+        selectElement(comboBox, null);
+        VISITED.set(comboBox, false); // reset validation "visited" marker
     }
 
-    public static <T extends Presentable> void initComboBoxRenderer(JComboBox<T> comboBox) {
+    public static <T> void initComboBox(JComboBox<T> comboBox, Collection<T> options) {
+        T selection = getSelection(comboBox);
+        DBNComboBoxModel<T> model = new DBNComboBoxModel<>(options);
+        comboBox.setModel(model);
+        initComboBoxRenderer(comboBox);
+        if (options.contains(selection)) {
+            setSelection(comboBox, selection);
+        }
+        VISITED.set(comboBox, false); // reset validation "visited" marker
+    }
+
+    public static <T> void initComboBoxRenderer(JComboBox<T> comboBox) {
         comboBox.setRenderer(new DBNComboBoxRenderer<T>(comboBox));
     }
 
-    public static <T extends Presentable> void initSelectionListener(JComboBox<T> comboBox, Consumer<T> selectionConsumer) {
+    public static <T> void initSelectionListener(JComboBox<T> comboBox, Consumer<T> selectionConsumer) {
         comboBox.addItemListener(e -> {
             if (e.getStateChange() != ItemEvent.SELECTED) return;
 
@@ -98,10 +110,16 @@ public class ComboBoxes {
         comboBox.setSelectedItem(value);
     }
 
-    public static <T extends Presentable> void selectElement(JComboBox<T> comboBox, String name) {
+    public static <T> void selectElement(JComboBox<T> comboBox, String name) {
         List<T> elements = getElements(comboBox);
         for (T element : elements) {
-            if (element.getName().equals(name)) {
+            String elementName = element.toString();
+            if (element instanceof Presentable) {
+                Presentable presentable = (Presentable) element;
+                elementName = presentable.getName();
+            }
+
+            if (elementName.equals(name)) {
                 setSelection(comboBox, element);
                 return;
             }
@@ -127,13 +145,13 @@ public class ComboBoxes {
         return list;
     }
 
-    public static <T extends Presentable> void onSelectionChange(DBNComboBox<T> comboBox, Consumer<T> consumer) {
+    public static <T> void onSelectionChange(DBNComboBox<T> comboBox, Consumer<T> consumer) {
         comboBox.addListener((oldValue, newValue) -> {
             consumer.accept(newValue);
         });
     }
 
-    public static <T extends Presentable> void onSelectionChange(JComboBox<T> comboBox, Consumer<T> consumer) {
+    public static <T> void onSelectionChange(JComboBox<T> comboBox, Consumer<T> consumer) {
         if (comboBox instanceof DBNComboBox) {
             DBNComboBox<T> dbnComboBox = cast(comboBox);
             onSelectionChange(dbnComboBox, consumer);

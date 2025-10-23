@@ -39,6 +39,7 @@ import javax.swing.JTextField;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -79,7 +80,7 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
     }
 
     private void updateErrorMessage() {
-        String text = executionTimeoutTextField.getText();
+        String text = getText(executionTimeoutTextField);
         try {
             timeout = Integer.parseInt(text);
             executionTimeoutTextField.setForeground(timeout == getSettingsTimeout() ?
@@ -153,7 +154,7 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             ExecutionTimeoutSettings timeoutSettings = executionInput.getExecutionTimeoutSettings();
-            String text = executionTimeoutTextField.getText();
+            String text = getText(executionTimeoutTextField);
             int timeout = Integer.parseInt(text);
 
             if (debuggerType.isDebug())

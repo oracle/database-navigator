@@ -19,7 +19,6 @@ package com.dbn.execution.java.wrapper.ui;
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.ComponentAligner;
-import com.dbn.common.util.Commons;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.util.ui.JBUI;
@@ -33,7 +32,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 
 public class WrapperNameEditorForm extends DBNFormBase implements ComponentAligner.Form {
@@ -60,7 +61,7 @@ public class WrapperNameEditorForm extends DBNFormBase implements ComponentAlign
     }
 
     private void updateStatusLabel() {
-        String identifier = objectNameTextField.getText().trim();
+        String identifier = getText(objectNameTextField);
         int length = identifier.length();
         int maxLength = getMaxIdentifierLength();
 
@@ -84,7 +85,7 @@ public class WrapperNameEditorForm extends DBNFormBase implements ComponentAlign
         objectNameTextField.setText(object.getObjectName(false));
 
         onTextChange(objectNameTextField, e -> {
-            String objectName = objectNameTextField.getText().trim();
+            String objectName = getText(objectNameTextField);
             object.setObjectName(objectName);
             updateStatusLabel();
 
@@ -113,7 +114,7 @@ public class WrapperNameEditorForm extends DBNFormBase implements ComponentAlign
     }
 
     public String getIdentifierName() {
-        return objectNameTextField.getText().trim();
+        return getText(objectNameTextField);
     }
 
     private int getMaxIdentifierLength() {
@@ -123,6 +124,6 @@ public class WrapperNameEditorForm extends DBNFormBase implements ComponentAlign
 
     @Override
     public Component[] getAlignableComponents() {
-        return Commons.list(objectIconLabel, objectNameTextField, statusLabel);
+        return array(objectIconLabel, objectNameTextField, statusLabel);
     }
 }

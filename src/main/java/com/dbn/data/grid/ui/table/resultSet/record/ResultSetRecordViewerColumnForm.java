@@ -40,6 +40,7 @@ import java.awt.event.KeyListener;
 import java.text.ParseException;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.common.ui.util.TextFields.getText;
 
 public class ResultSetRecordViewerColumnForm extends DBNFormBase implements ComponentAligner.Form {
     private JLabel columnLabel;
@@ -120,8 +121,8 @@ public class ResultSetRecordViewerColumnForm extends DBNFormBase implements Comp
     public Object getEditorValue() throws ParseException {
         DBDataType dataType = cell.getColumnInfo().getDataType();
         Class clazz = dataType.getTypeClass();
-        String textValue = valueTextField.getText().trim();
-        if (textValue.length() > 0) {
+        String textValue = getText(valueTextField);
+        if (!textValue.isEmpty()) {
             Object value = cell.getFormatter().parseObject(clazz, textValue);
             return dataType.getNativeType().getDefinition().convert(value);
         } else {

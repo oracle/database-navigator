@@ -18,6 +18,8 @@ package com.dbn.object.impl;
 
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
@@ -46,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.dbn.assistant.AssistantType.SELECT_AI;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.convert;
@@ -94,7 +97,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
                 ociEndpointId,
                 ociRuntimeType,
                 ociApiFormat,
-                provider.getId(),
+                provider.getApiName(),
                 model.getApiName(),
                 description,
                 objectList,
@@ -117,8 +120,13 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         ociRuntimeType = metadata.getOciRuntimeType();
         ociApiFormat = metadata.getOciApiFormat();
         description = metadata.getDescription();
-        provider = AIProvider.forId(metadata.getProvider());
-        model = AIModel.forApiName(metadata.getModel());
+
+        String providerApiName = metadata.getProvider();
+        String modelApiName = metadata.getModel();
+
+        provider = AIProviderData.getProvider(SELECT_AI, p -> p.getApiName().equals(providerApiName));
+        model = provider == null ? null : provider.getModel(m -> m.getApiName().equals(modelApiName));
+
         interactive = metadata.isInteractive();
         temperature = metadata.getTemperature();
         objects = jsonToObjectList(connection.getConnectionId(), metadata.getObjectList());
@@ -130,7 +138,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     public String getAttributesJson() {
         @NonNls
         Map<String, Object> attributes = new HashMap<>(Map.of(
-            "provider", provider.getId(),
+            "provider", provider.getApiName(),
             "model", model.getApiName(),
             "temperature", temperature,
             "credential_name", nvl(getQuotedCredentialName(), ""),
@@ -174,7 +182,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     }
 
     @Override
-    public String getProviderId() {
+    public AIProviderId getProviderId() {
         return provider == null ? null : provider.getId();
     }
 

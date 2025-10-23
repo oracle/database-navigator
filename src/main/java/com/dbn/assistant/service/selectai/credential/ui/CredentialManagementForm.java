@@ -180,7 +180,7 @@ public class CredentialManagementForm extends DBNFormBase {
   public void promptCredentialDeletion(@NotNull DBCredential credential) {
     String credentialName = credential.getName();
 
-    StringBuilder detailedMessage = new StringBuilder(txt("msg.assistant.question.DeleteCredential"));
+    StringBuilder detailedMessage = new StringBuilder(txt("msg.assistant.question.DeleteCredential", credential.getName()));
     detailedMessage.append(' ');
     detailedMessage.append(credentialName);
     Set<String> uses = credentialUsage.get(credentialName);

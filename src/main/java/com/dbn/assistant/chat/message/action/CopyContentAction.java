@@ -24,19 +24,21 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.util.function.Supplier;
 
-import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.nls.NlsResources.txt;
 
 public class CopyContentAction extends ChatMessageAction {
-    private final String content;
+    private final Supplier<String> content;
+    private final Supplier<Boolean> visible;
 
-    public CopyContentAction(String content) {
-        this.content = content;
+    public CopyContentAction(Supplier<String> content) {
+        this(content, () -> true);
     }
 
-    public CopyContentAction() {
-        this(null);
+    public CopyContentAction(Supplier<String> content, Supplier<Boolean> visible) {
+        this.content = content;
+        this.visible = visible;
     }
 
     @Override
@@ -45,15 +47,17 @@ public class CopyContentAction extends ChatMessageAction {
         presentation.setText(txt("app.assistant.action.CopyContent"));
         presentation.setDescription(txt("app.assistant.action.CopyContentDesc"));
         presentation.setIcon(Icons.ACTION_COPY);
+
+        presentation.setVisible(visible.get());
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        copyTextToClipboard(e);
+        copyTextToClipboard();
     }
 
-    private void copyTextToClipboard(AnActionEvent e) {
-        String content = nvln(this.content, () -> getMessageContent(e));
+    private void copyTextToClipboard() {
+        String content = this.content.get();
         StringSelection selection = new StringSelection(content);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(selection, null);

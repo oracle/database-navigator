@@ -53,6 +53,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static com.dbn.common.data.Data.asBooleanPrimitive;
 import static com.dbn.common.dispose.Failsafe.guarded;
@@ -268,6 +270,14 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     @Override
     protected void doHelpAction() {
         super.doHelpAction();
+    }
+
+    public boolean isCancelButton(JButton button) {
+        if (button == null) return false;
+        Action cancelAction = getCancelAction();
+        Map<Action, JButton> buttonMap = getButtonMap();
+        JButton cancelButton = buttonMap.get(cancelAction);
+        return Objects.equals(button, cancelButton);
     }
 
     @Override

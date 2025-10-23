@@ -71,6 +71,7 @@ public final class Data {
         if (type == short.class)      return cast(asShortPrimitive(object));
         if (type == BigDecimal.class) return cast(asBigDecimal(object));
         if (type == BigInteger.class) return cast(asBigInteger(object));
+        if (type == Object.class)     return cast(object);
 
         throw new UnsupportedOperationException("Cast from " + object.getClass() + " to " + type + " is not implemented");
         // TODO add more cast logic if required

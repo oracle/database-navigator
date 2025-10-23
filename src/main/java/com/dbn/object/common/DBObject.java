@@ -71,6 +71,8 @@ public interface DBObject extends
     @NotNull
     String getName(boolean quoted);
 
+    String getComments();
+
     @NotNull
     @Override
     ConnectionId getConnectionId();

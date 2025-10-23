@@ -33,6 +33,7 @@ import com.intellij.ui.border.IdeaTitledBorder;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
@@ -74,6 +76,7 @@ import java.util.function.Predicate;
 
 import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.ui.util.Borderless.isBorderless;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.common.util.Unsafe.logged;
@@ -200,6 +203,11 @@ public class UserInterface {
     public static boolean isFocusableComponent(Component component) {
         if (!component.isFocusable()) return false;
         if (!component.isEnabled()) return false;
+        if (!component.isVisible()) return false;
+        if (component instanceof JTextComponent) {
+            JTextComponent textComponent = (JTextComponent) component;
+            if (!textComponent.isEditable()) return false;
+        }
 
         return
             component instanceof JTextComponent ||
@@ -375,6 +383,11 @@ public class UserInterface {
         visitRecursively(component, JSplitPane.class, sp -> Splitters.replaceSplitPane(sp));
     }
 
+    public static void updateTextPanes(JComponent component) {
+        // text panes do not properly size when hidden. This should force them to revalidate first time they are shown
+        visitRecursively(component, JTextPane.class, tp -> whenFirstShown(tp, () -> tp.revalidate()));
+    }
+
     public static void setBackgroundRecursive(JComponent component, Color color) {
         if (component == null) return;
 
@@ -461,6 +474,50 @@ public class UserInterface {
         return hasChildComponent(rootComponent, JComponent.class, check);
     }
 
+    public static JComponent findTopLeftmostFocusComponent(Container container) {
+        TopLeftmost topLeftmost = new TopLeftmost(container);
+        findTopLeftmostFocusComponent(container, topLeftmost);
+        return topLeftmost.getComponent();
+    }
+
+    private static void findTopLeftmostFocusComponent(Container container, TopLeftmost topLeftmost) {
+        for (Component component : container.getComponents()) {
+            if (isFocusableComponent(component)) {
+                topLeftmost.update(cast(component));
+            }
+
+            if (component instanceof Container) {
+                findTopLeftmostFocusComponent((Container) component, topLeftmost);
+            }
+        }
+    }
+
+    @Getter
+    @Setter
+    private class TopLeftmost {
+        private final Container rootContainer;
+        private JComponent component;
+        private int x = Integer.MAX_VALUE;
+        private int y = Integer.MAX_VALUE;
+
+        private TopLeftmost(Container rootContainer) {
+            this.rootContainer = rootContainer;
+        }
+
+        private void update(Component component) {
+            if (component instanceof JComponent) {
+                Point location = SwingUtilities.convertPoint(component, component.getLocation(), rootContainer);
+                if ((location.x < x && location.y < y) ||
+                        (location.y == y && location.x < x) ||
+                        (location.x == x && location.y < y)) {
+                    x = location.x;
+                    y = location.y;
+                    this.component = (JComponent) component;
+                }
+            }
+        }
+    }
+
     @Nullable
     public static JLabel getComponentLabel(@Nullable Component component) {
         if (component == null) return null;
@@ -487,7 +544,7 @@ public class UserInterface {
 
         if (component instanceof JTextComponent) {
             JTextComponent textComponent = (JTextComponent) component;
-            return textComponent.getText();
+            return getText(textComponent);
         }
 
         if (component instanceof JComboBox) {

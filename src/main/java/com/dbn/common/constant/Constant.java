@@ -20,6 +20,8 @@ package com.dbn.common.constant;
 import java.io.Serializable;
 import java.util.Objects;
 
+import static com.dbn.common.util.Unsafe.cast;
+
 public interface Constant<T extends Constant<T>> extends Serializable, Comparable<T> {
     default String id() {
         if (this instanceof Enum) {
@@ -45,4 +47,19 @@ public interface Constant<T extends Constant<T>> extends Serializable, Comparabl
     }
 
     int ordinal();
+
+    default T next() {
+        if (this instanceof Enum) {
+            Enum enumeration = (Enum) this;
+            int index = enumeration.ordinal();
+            T[] enumValues = cast(enumeration.getDeclaringClass().getEnumConstants());
+
+            int newIndex = index + 1;
+            return newIndex  < enumValues.length ?
+                    enumValues[newIndex] :
+                    enumValues[0];
+
+        }
+        throw new AbstractMethodError();
+    }
 }

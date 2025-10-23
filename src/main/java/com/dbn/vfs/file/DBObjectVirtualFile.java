@@ -53,7 +53,7 @@ import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
     private static final WeakRefCache<DBObjectRef, DBObjectVirtualFile> virtualFileCache = WeakRefCache.weakKey();
     protected final DBObjectRef<T> object;
-    private final Icon icon;
+    private final transient Icon icon;
 
     public DBObjectVirtualFile(@NotNull Project project, @NotNull DBObjectRef<T> object) {
         super(project, object.getFileName());

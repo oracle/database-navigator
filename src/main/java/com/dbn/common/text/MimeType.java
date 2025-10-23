@@ -24,7 +24,8 @@ public enum MimeType implements Constant<MimeType> {
     TEXT_PLAIN("text/plain"),
     TEXT_HTML("text/html"),
     TEXT_XML("text/xml"),
-    TEXT_CSS("text/css")
+    TEXT_CSS("text/css"),
+    TEXT_MARKDOWN("text/markdown")
     //...
     ;
 

@@ -19,7 +19,6 @@ package com.dbn.assistant.chat.message.ui;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.AssistantHelpAction;
 import com.dbn.common.message.MessageType;
-import com.dbn.common.text.MimeType;
 import com.intellij.openapi.actionSystem.AnAction;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,9 +45,8 @@ public class SystemChatMessageForm extends ChatMessageForm {
     }
 
     private void initMessagePanel() {
-        ChatMessageSectionForm messageSectionForm = new ChatMessageSectionForm(this);
         String content = getMessage().getContent();
-        messageSectionForm.setContent(MimeType.TEXT_PLAIN, content);
+        ChatMessageTextSectionForm messageSectionForm = new ChatMessageTextSectionForm(this, content);
         messagePanel.add(messageSectionForm.getComponent());
     }
 

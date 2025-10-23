@@ -24,7 +24,7 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.language.LanguageModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.COHERE;
+import static com.dbn.assistant.provider.AIProviderId.COHERE;
 
 public class CohereModelFactory extends AbstractModelFactory {
 
@@ -54,9 +54,9 @@ public class CohereModelFactory extends AbstractModelFactory {
     @Override
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return CohereEmbeddingModel.builder()
-                .modelName(input.getModel())
+                .modelName(input.getModelName())
                 .baseUrl(input.getUrl())
-                .apiKey(input.getToken())
+                .apiKey(input.getTokenString())
                 //.httpClientBuilder(createHttpClientBuilder())
                 .build();
     }

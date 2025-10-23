@@ -61,6 +61,11 @@ public class ChatStartNewAction extends AbstractChatBoxAction {
     }
 
     private boolean isEnabled(@NotNull AnActionEvent e) {
+        ChatBoxForm chatBox = getChatBox(e);
+        if (chatBox == null) return false;
+
+        if (chatBox.getMessageForms().isEmpty()) return false;
+
         ChatAvailability availability = getChatAvailability(e);
 
         return availability.isOneOf(

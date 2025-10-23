@@ -16,14 +16,34 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
+import com.dbn.assistant.service.generic.context.AssistantContextCache;
+import com.dbn.assistant.service.generic.context.AssistantMemoryCache;
 import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
+import com.dbn.assistant.service.generic.model.AssistantModelType;
+import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.tool.AssistantToolCache;
+import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
-    private final Class<T> modelType;
+    private final AssistantModelType modelType;
 
-    public AbstractModelInvoker(Class<T> modelType) {
+    public AbstractModelInvoker(AssistantModelType modelType) {
         this.modelType = modelType;
+    }
+
+    protected AssistantToolCache prepareTools(AssistantState assistantState) {
+        return AssistantToolCache.get(assistantState);
+    }
+
+    protected ChatMemoryProvider prepareMemory(AssistantState assistantState) {
+        return AssistantMemoryCache.get(assistantState);
+    }
+
+    protected AssistantContextCache prepareContext(AssistantState assistantState) {
+        return AssistantContextCache.get(assistantState);
     }
 }

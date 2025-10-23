@@ -67,12 +67,19 @@ public interface AssistantAdapter {
 
     String buildChatContextTitle(ChatContext context);
 
+    void checkContext(ConnectionId connectionId, ChatContext chatContext, Runnable onSuccess);
+
     void generate(
             String prompt,
             String chatId,
             ConnectionId connectionId,
             ChatContext chatContext,
             AssistantResponseConsumer responseConsumer);
+
+    String generateTitle(
+            String chatId,
+            ConnectionId connectionId,
+            ChatContext context) throws Exception;
 
     String preparePrompt(ConnectionId connectionId, ChatContext chatContext, String prompt);
 

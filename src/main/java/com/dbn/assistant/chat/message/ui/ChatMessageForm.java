@@ -45,6 +45,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
 import static com.dbn.common.ui.util.Fonts.regularBold;
+import static com.dbn.common.util.Commons.array;
 
 /**
  * Stub implementation for chat message forms
@@ -73,14 +74,18 @@ public abstract class ChatMessageForm extends DBNFormBase {
 
     public final void toggleContentFolding() {
         boolean folded = message.isFolded();
-        message.setFolded(!folded);
         changeContentFolding(!folded);
     }
 
     protected void changeContentFolding(boolean folded) {
+        message.setFolded(folded);
         getContentPanel().setVisible(!folded);
-        getMessage().setFolded(folded);
     }
+
+    public void refreshMessageContent() {}
+
+    public void refreshToolContent() {}
+
 
     @NotNull
     public static ChatMessageForm create(ChatMessagesForm parent, ChatMessage message) {
@@ -91,6 +96,13 @@ public abstract class ChatMessageForm extends DBNFormBase {
             case SYSTEM: return new SystemChatMessageForm(parent, message);
             default: throw new IllegalArgumentException("Unknown author: " + author);
         }
+    }
+
+    protected ChatMessageForm getNextMessageForm() {
+        ChatMessagesForm messagesForm = getParentComponent();
+        if (messagesForm == null) return null;
+
+        return messagesForm.getNextMessageForm(this);
     }
 
     protected abstract Color getBackground();
@@ -127,7 +139,7 @@ public abstract class ChatMessageForm extends DBNFormBase {
     }
 
     protected AnAction[] createActions() {
-        return new AnAction[]{new CopyContentAction()};
+        return array(new CopyContentAction(() -> getMessage().getContent()));
     }
 
     @Nullable
@@ -137,6 +149,8 @@ public abstract class ChatMessageForm extends DBNFormBase {
     protected abstract JPanel getActionPanel();
 
     protected abstract JPanel getContentPanel();
+
+    public void hideProcessingIndicators() {}
 
     /**
      * Custom painted JPanel to be used as rounded-corner container for chatbox messages

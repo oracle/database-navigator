@@ -24,7 +24,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.dbn.nls.NlsResources.txt;
@@ -65,6 +67,10 @@ public interface Presentable extends Named {
 
     static List<Presentable> basic(Collection<String> names) {
         return names.stream().map(n -> basic(n)).collect(Collectors.toList());
+    }
+
+    static Set<String> names(Collection<? extends Presentable> presentables) {
+        return presentables.stream().map(Presentable::getName).collect(Collectors.toCollection(() -> new LinkedHashSet<>()));
     }
 
 

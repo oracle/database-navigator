@@ -26,7 +26,7 @@ public enum DBAttributeType implements Constant<DBAttributeType> {
     USER_NAME("username"),
     PASSWORD("password"),
     USER_OCID("user_ocid"),
-    USER_TENANCY_OCID("user_tenancy_oci"),
+    TENANCY_OCID("tenancy_ocid"),
     PRIVATE_KEY("private_key"),
     FINGERPRINT("fingerprint"),
 

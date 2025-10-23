@@ -45,6 +45,11 @@ public class DBConsoleImpl extends DBObjectImpl<DBObjectMetadata> implements DBC
         this.consoleType = consoleType;
     }
 
+    @Override
+    public boolean isEditable() {
+        return true;
+    }
+
     @NotNull
     @Override
     public DBObjectType getObjectType() {
