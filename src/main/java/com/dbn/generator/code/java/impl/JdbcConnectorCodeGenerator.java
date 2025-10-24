@@ -27,7 +27,6 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.EasyConnectParameters;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.diagnostics.Diagnostics;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.java.JavaCodeGenerator;
 import com.intellij.ide.fileTemplates.FileTemplate;
@@ -99,11 +98,6 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         Properties properties = new Properties();
         addInputProperties(input, properties);
         addConnectionProperties(context, properties);
-        if (Diagnostics.isDeveloperMode()) {
-            properties.forEach((key, value) -> {
-                System.out.printf("%s=%s\n", key,value);
-            });
-        }
         return properties;
     }
 
