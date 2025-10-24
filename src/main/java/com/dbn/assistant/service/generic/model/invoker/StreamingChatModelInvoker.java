@@ -91,15 +91,16 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
             });
 
             aiTokenStream.onRetrieved(l -> {
-                System.out.println();
+                return;
             });
 
             aiTokenStream.onIntermediateResponse(r -> {
-                System.out.println();
+                return;
             });
 
             aiTokenStream.onPartialThinking(t -> {
-                System.out.println();
+                // TODO display "thinking..." in chat box
+                return;
             });
 
             wrapped(() -> tokenStream.start());
