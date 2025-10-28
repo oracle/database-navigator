@@ -1,5 +1,6 @@
 package com.dbn.vector.ui.source.ui;
 
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +35,10 @@ public class DBTableSourceForm extends DBNFormBase {
   private DBNComboBox<DBColumn> keyColumnComboBox;
   private DBNComboBox<DBColumn> dataColumnComboBox;
   private JCheckBox autoSyncCheckBox;
+  private JLabel schemaLabel;
+  private JLabel tableLabel;
+  private JLabel keyColumnLabel;
+  private JLabel dataColumnLabel;
 
   private final ConnectionRef connection;
 
@@ -53,6 +59,15 @@ public class DBTableSourceForm extends DBNFormBase {
             dataColumnComboBox));
   }
 
+  @Override
+  protected void initFieldAlignment() {
+    FieldAlignerData alignerData = getFieldAlignerData();
+    alignerData.registerFieldGroup(schemaLabel, schemaComboBox);
+    alignerData.registerFieldGroup(tableLabel, tableComboBox);
+    alignerData.registerFieldGroup(keyColumnLabel, keyColumnComboBox);
+    alignerData.registerFieldGroup(dataColumnLabel, dataColumnComboBox);
+  }
+
   private void initComboBoxes() {
     // TODO add value preselectors when restoring the screen state
     schemaComboBox.init(() -> loadSchemas(), null);
@@ -60,6 +75,8 @@ public class DBTableSourceForm extends DBNFormBase {
     keyColumnComboBox.init(() -> loadKeyColumns(), null);
     dataColumnComboBox.init(() -> loadDataColumns(), null);
   }
+
+
 
   private List<DBSchema> loadSchemas() {
     DBObjectBundle objectBundle = getConnection().getObjectBundle();

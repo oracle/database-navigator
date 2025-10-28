@@ -1,5 +1,6 @@
 package com.dbn.vector.ui.embed;
 
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.embed.EmbedConfig;
@@ -8,7 +9,9 @@ import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public class ThirdPartyModelConfigForm extends DBNFormBase {
   private JPanel mainPanel;
@@ -16,6 +19,10 @@ public class ThirdPartyModelConfigForm extends DBNFormBase {
   private JBTextField CredentialName;
   private JBTextField Url;
   private JBTextField ModelName;
+  private JLabel providerLabel;
+  private JLabel credentialLabel;
+  private JLabel urlLabel;
+  private JLabel modelLabel;
 
   public ThirdPartyModelConfigForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
     super(parent);
@@ -49,5 +56,14 @@ public class ThirdPartyModelConfigForm extends DBNFormBase {
             getModelName()
     );
     return embedConfig;
+  }
+
+  @Override
+  protected void initFieldAlignment() {
+    FieldAlignerData alignerData = getFieldAlignerData();
+    alignerData.registerFieldGroup(providerLabel, Provider);
+    alignerData.registerFieldGroup(credentialLabel, CredentialName);
+    alignerData.registerFieldGroup(urlLabel, Url);
+    alignerData.registerFieldGroup(modelLabel, ModelName);
   }
 }

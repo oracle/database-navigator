@@ -1,6 +1,7 @@
 package com.dbn.vector.ui.store;
 
 import com.dbn.common.ui.Presentable;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.ComboBoxes;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
@@ -21,6 +23,7 @@ public class SaveVectorsForm extends DBNFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
   private JPanel dataPanel;
   private JComboBox<DestinationType> destinationComboBox;
+  private JLabel destinationLabel;
   // Sub-forms (defined as inner classes below)
   private CreateVectorDestinationForm createForm;
   private ExistingTableDestinationForm existingForm;
@@ -98,5 +101,12 @@ public class SaveVectorsForm extends DBNFormBase implements DBNCollapsibleForm {
 
     private final String name;
     DestinationType(String name) { this.name = name; }
+  }
+
+  @Override
+  protected void initFieldAlignment() {
+    FieldAlignerData alignerData = getFieldAlignerData();
+    alignerData.registerFieldGroup(destinationLabel, destinationComboBox);
+    alignerData.registerForms(createForm, existingForm);
   }
 }

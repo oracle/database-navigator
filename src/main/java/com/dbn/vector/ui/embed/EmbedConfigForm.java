@@ -1,5 +1,6 @@
 package com.dbn.vector.ui.embed;
 
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.connection.ConnectionHandler;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.CardLayout;
 
@@ -17,6 +19,7 @@ public class EmbedConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   private JPanel embedConfigPanel;
   private JComboBox modelTypeComboBox;
   private JPanel configPanel;
+  private JLabel modelTypeLabel;
   private ConnectionHandler connectionHandler;
   private InDBModelConfigForm InDBModelConfigForm;
   private ThirdPartyModelConfigForm thirdPartyModelConfigForm;
@@ -26,6 +29,12 @@ public class EmbedConfigForm extends DBNFormBase implements DBNCollapsibleForm {
     this.connectionHandler = connectionHandler;
     initDataPanel();
     initComboBox();
+  }
+  @Override
+  protected void initFieldAlignment() {
+    FieldAlignerData alignerData = getFieldAlignerData();
+    alignerData.registerFieldGroup(modelTypeLabel, modelTypeComboBox);
+    alignerData.registerForms(InDBModelConfigForm, thirdPartyModelConfigForm);
   }
 
   private void initDataPanel() {

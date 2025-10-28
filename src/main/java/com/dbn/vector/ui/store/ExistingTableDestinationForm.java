@@ -1,5 +1,6 @@
 package com.dbn.vector.ui.store;
 
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -18,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +34,10 @@ public class ExistingTableDestinationForm extends DBNFormBase {
   private DBNComboBox<DBTable> tableComboBox;
   private DBNComboBox<DBColumn> embeddingColumnComboBox;
   private DBNComboBox<DBColumn> dataColumnComboBox;
+  private JLabel schemaLabel;
+  private JLabel tableLabel;
+  private JLabel dataColumnLabel;
+  private JLabel embeddingColumnLabel;
 
   private final ConnectionRef connection;
 
@@ -60,6 +66,15 @@ public class ExistingTableDestinationForm extends DBNFormBase {
     fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedTable()), array(
             embeddingColumnComboBox,
             dataColumnComboBox));
+  }
+
+  @Override
+  protected void initFieldAlignment() {
+    FieldAlignerData alignerData = getFieldAlignerData();
+    alignerData.registerFieldGroup(schemaLabel, schemaComboBox);
+    alignerData.registerFieldGroup(tableLabel, tableComboBox);
+    alignerData.registerFieldGroup(dataColumnLabel, dataColumnComboBox);
+    alignerData.registerFieldGroup(embeddingColumnLabel, embeddingColumnComboBox);
   }
 
   private List<DBSchema> loadSchemas() {

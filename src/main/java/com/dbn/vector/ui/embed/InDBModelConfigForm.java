@@ -2,6 +2,7 @@ package com.dbn.vector.ui.embed;
 
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.List;
 import java.util.Objects;
@@ -36,6 +38,8 @@ public class InDBModelConfigForm extends DBNFormBase {
   private DBNComboBox<DBAIModel> modelComboBox;
   private DBNComboBox<DBSchema> schemaComboBox;
   private JButton addCredentialButton;
+  private JLabel schemaLabel;
+  private JLabel modelLabel;
 
   public InDBModelConfigForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
     super(parent);
@@ -59,6 +63,13 @@ public class InDBModelConfigForm extends DBNFormBase {
       if (!e.matches(DBObjectType.AI_MODEL)) return;
       modelComboBox.reloadValues();
     });
+  }
+
+  @Override
+  protected void initFieldAlignment() {
+    FieldAlignerData alignerData = getFieldAlignerData();
+    alignerData.registerFieldGroup(schemaLabel, schemaComboBox);
+    alignerData.registerFieldGroup(modelLabel, modelComboBox);
   }
 
   @Override

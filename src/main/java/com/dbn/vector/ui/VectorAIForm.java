@@ -1,6 +1,7 @@
 package com.dbn.vector.ui;
 
 import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
@@ -15,6 +16,8 @@ import com.intellij.openapi.Disposable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+
+import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 
 public class VectorAIForm extends DBNFormBase {
   private JPanel mainPanel;
@@ -59,10 +62,21 @@ public class VectorAIForm extends DBNFormBase {
 
     initHintPanel();
     initHeaderPanel();
+    alignFormFields(this);
 //    initButtonListners();
   }
 
-//  private void initButtonListners() {
+  @Override
+  protected void initFieldAlignment() {
+    FieldAlignerData alignerData = getFieldAlignerData();
+    alignerData.registerForms(
+            sourceDataForm,
+            chunkConfigForm,
+            embedConfigForm,
+            saveVectorsForm);
+  }
+
+  //  private void initButtonListners() {
 //    ApplyButton.addActionListener(e -> {
 //
 //      SourceConfig sourceConfig = this.getSourceDataForm().getSourceConfig();
@@ -128,7 +142,6 @@ public class VectorAIForm extends DBNFormBase {
 
   @Override
   protected JComponent getMainComponent() {
-//    DBNScrollPane scrollPane = new DBNScrollPane(mainPanel);
     return mainPanel;
   }
 }

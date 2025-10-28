@@ -1,6 +1,7 @@
 package com.dbn.vector.ui.source.ui;
 
 import com.dbn.common.ui.Presentable;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.ComboBoxes;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -21,6 +23,7 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
   private JPanel dataPanel;
   private JComboBox<SourceType> sourceComboBox;
+  private JLabel sourceLabel;
   private FileSystemSourceForm fileSystemSourceForm;
   private DBTableSourceForm tableSourceForm;
   private final ConnectionRef connection;
@@ -43,6 +46,13 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
     ComboBoxes.initComboBox(sourceComboBox, SourceType.values());
     setSelection(sourceComboBox, SourceType.TABLE);
     sourceComboBox.addActionListener(e -> updateSourceForm());
+  }
+
+  @Override
+  protected void initFieldAlignment() {
+    FieldAlignerData alignerData = getFieldAlignerData();
+    alignerData.registerFieldGroup(sourceLabel, sourceComboBox);
+    alignerData.registerForms(tableSourceForm);
   }
 
   private void updateSourceForm() {

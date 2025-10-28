@@ -1,11 +1,15 @@
 package com.dbn.vector.ui.store;
 
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.vector.model.store.StoreConfig;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -15,6 +19,11 @@ public class CreateVectorDestinationForm extends DBNFormBase {
   private JTextField tableNameTextField;
   private JTextField embeddingVECTORTextField;
   private JTextField textCLOBTextField;
+  private JLabel tableNameLabel;
+  private JLabel textColumnNameLabel;
+  private JLabel keyColumnNameLabel;
+  private JLabel vectorColumnNameLabel;
+  private JTextField keyColumnTextField;
   // Oracle unquoted identifier rules (safe baseline)
   private static final int ORACLE_ID_MAX_LEN = 30;
   private static final Pattern ORACLE_UNQUOTED_ID =
@@ -68,5 +77,14 @@ public class CreateVectorDestinationForm extends DBNFormBase {
     if (!ORACLE_UNQUOTED_ID.matcher(name).matches()) return false;
     if (isReservedWord(name)) return false;
     return true;
+  }
+
+  @Override
+  protected void initFieldAlignment() {
+    FieldAlignerData alignerData = getFieldAlignerData();
+    alignerData.registerFieldGroup(tableNameLabel, tableNameTextField);
+    alignerData.registerFieldGroup(textColumnNameLabel, textCLOBTextField);
+    alignerData.registerFieldGroup(keyColumnNameLabel, keyColumnTextField);
+    alignerData.registerFieldGroup(vectorColumnNameLabel, embeddingVECTORTextField);
   }
 }

@@ -1,5 +1,6 @@
 package com.dbn.vector.ui.chunk;
 
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Dialogs;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 
@@ -21,6 +23,8 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   private JSpinner maxSizeSpinner;
   private JSpinner overlapSpinner;
   private JButton chunkLaboButton;
+  private JLabel chunkByLabel;
+  private JLabel splitByLabel;
 
   public ChunkConfigForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
     super(parent);
@@ -51,6 +55,13 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   private void initComponents() {
     maxSizeSpinner.setValue(300);
     overlapSpinner.setValue(30);
+  }
+
+  @Override
+  protected void initFieldAlignment() {
+    FieldAlignerData alignerData = getFieldAlignerData();
+    alignerData.registerFieldGroup(chunkByLabel/*, chunkByComboBox*/);
+    alignerData.registerFieldGroup(splitByLabel/*, splitByComboBox*/);
   }
 
   @Override

@@ -24,10 +24,12 @@ import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.component.DBNComponentBase;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.intellij.ide.DataManager;
@@ -158,6 +160,7 @@ public abstract class DBNFormBase
         initStatePersistence();
         initFormAccessibility();
         initFieldAvailability();
+        initFieldAlignment();
 
         JComponent mainComponent = getMainComponent();
         DataProviders.register(mainComponent, this);
@@ -218,6 +221,12 @@ public abstract class DBNFormBase
         fieldAdapter.updateFieldsVisibility();
         fieldAdapter.updateFieldsAvailability();
         validateInput();
+    }
+
+    protected void initFieldAlignment() {}
+
+    protected FieldAlignerData getFieldAlignerData() {
+        return ClientProperty.FIELD_ALIGNER_DATA.get(getComponent(), () -> new FieldAlignerData());
     }
 
     /**
