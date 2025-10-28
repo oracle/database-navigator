@@ -23,6 +23,7 @@ import com.dbn.connection.jdbc.DBNPreparedStatement;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +85,12 @@ public class StatementDefinition {
         for (int i = 0; i < placeholderIndexes.length; i++) {
             Integer argumentIndex = placeholderIndexes[i];
             Object argumentValue = arguments[argumentIndex];
+            //todo this is just a workaround . i need to recheck it again .
+            if (argumentValue != null && argumentValue instanceof InputStream) {
+                preparedStatement.setBinaryStream(argumentIndex+1,( (InputStream) argumentValue));
+            }else {
                 preparedStatement.setObject(i + 1, argumentValue);
+            }
         }
         return preparedStatement;
     }

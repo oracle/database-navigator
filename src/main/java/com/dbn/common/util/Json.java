@@ -41,7 +41,7 @@ import static java.util.Collections.emptyMap;
 @Slf4j
 @UtilityClass
 public class Json {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT);
 
     public static FileType resolveJsonFileType() {

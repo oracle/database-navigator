@@ -25,8 +25,8 @@ import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 
+import java.io.InputStream;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -118,5 +118,11 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
   void embed(DBNConnection connection, DBTableSourceConfig sourceConfig, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException;
   void createTable(DBNConnection connection, String tableName) throws SQLException;
 
-  void embed(DBNConnection conn, Blob sourceFileClob, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException;
+  void embed(DBNConnection conn, String blobId,String blobTable, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException;
+
+  void ensureDocumentsTable(DBNConnection conn, String filesTable) throws SQLException;
+
+  void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata) throws SQLException;
+
+  void streamContentToBlob(DBNConnection conn, String filesTable, String id, InputStream in) throws SQLException;
 }

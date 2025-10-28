@@ -112,6 +112,7 @@ public class ChunkEditorForm extends DBNFormBase {
 
   private ResultSetDataModel chunkTextContent() {
     startActivityNotifier();
+    // todo recheck
     String query = inputTextArea.getText().replace("'", ""); // TODO prepared statement param binding
 
     ChunkConfiguration configuration = getChunkConfiguration();

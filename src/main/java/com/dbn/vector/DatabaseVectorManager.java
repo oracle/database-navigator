@@ -7,6 +7,7 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Json;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
@@ -36,6 +37,8 @@ import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.Priority.MEDIUM;
@@ -48,6 +51,7 @@ import static com.dbn.common.Priority.MEDIUM;
 )
 public  class DatabaseVectorManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseVectorManager";
+    static final String FILES_TABLE   = "document_files";   // NEWLINE|SENTENCE|PARAGRAPH
 
     public DatabaseVectorManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -84,6 +88,8 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
     }
 
     @SneakyThrows
+    //todo think of an Object as Request that has all the input of the user
+    // also a Result Object .
     public void query(SourceConfig sourceConfig, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig, ConnectionHandler handler, Runnable callbackInfo, Consumer<Exception> callbackError)  {
         Progress.modal(
                 getProject(),
@@ -91,7 +97,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                 "Embedding Data",
                 "Creating store table" + storeConfig.getTableName(),
                  p -> {
-                    try {
+//                    try {
                         DatabaseInterfaceInvoker.execute(HIGHEST,
                                 p.getText(),
                                 p.getText2(),
@@ -107,49 +113,65 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                                     if (sourceConfig instanceof DBTableSourceConfig) {
                                         dataDefinition.embed(conn, (DBTableSourceConfig) sourceConfig, chunkConfiguration, embedConfig, storeConfig);
                                         System.out.println("Embedding data created");
+                                        //todo keep if else open to sother source config
                                     } else {
                                       FileSystemSourceConfig fs = (FileSystemSourceConfig) sourceConfig;
                                       List<VirtualFile> files = fs.getVirtualFiles();
-
+                                      dataDefinition.ensureDocumentsTable(conn,FILES_TABLE);
                                       for (int i = 0; i < files.size(); i++) {
                                         VirtualFile vf = files.get(i);
                                         p.setText2("Embedding (" + (i + 1) + "/" + files.size() + "): " + vf.getName());
 
 
-                                          java.sql.Blob blob = null;
+                                          InputStream in = null ;
                                           try {
-                                            blob = prepareFileBlob(conn, vf);
-                                            dataDefinition.embed(conn, blob, chunkConfiguration, embedConfig, storeConfig); // add this overload
+                                            in = prepareFileBlob(conn, vf);
+
+                                            String id = UUID.randomUUID().toString().replace("-", "");
+                                            Map fileMetadataMap = getFileMeatadata(conn,vf);
+                                            String fileMetadata = Json.OBJECT_MAPPER.writeValueAsString(fileMetadataMap);
+                                            dataDefinition.insertEmptyDocumentRow(conn,FILES_TABLE,id,fileMetadata);
+                                            dataDefinition.streamContentToBlob(conn,FILES_TABLE,id,in);
+
+
+                                            fileMetadataMap.put("doc_Id",id);
+                                            fileMetadataMap.put("embedd_config",embedConfig.getConfigJson());
+                                            fileMetadataMap.put("chunk_config",embedConfig.getConfigJson());
+                                            String rowMetadata = Json.OBJECT_MAPPER.writeValueAsString(fileMetadataMap);
+                                            storeConfig.setMetadata(rowMetadata);
+                                            dataDefinition.embed(conn, id, FILES_TABLE,chunkConfiguration, embedConfig, storeConfig); // add this overload
                                           } catch (Exception e) {
-                                          throw new RuntimeException(e);
-                                        } finally { if (blob != null) try { blob.free(); } catch (Throwable ignored) {} }
+                                            callbackError.accept(e);
+                                          } finally { if (in != null) try { in.close(); } catch (Throwable ignored) {} }
                                       }
 
                                       System.out.println("Embedding data created (" + files.size() + " file(s))");
                                     }
                                     callbackInfo.run();
                                 });
-                    }catch (SQLException e) {
-                      callbackError.accept(e);
-//                      new RuntimeException(e);
-                    }
+//                    }catch (SQLException e) {
+//                      callbackError.accept(e);
+////                      new RuntimeException(e);
+//                    }
                 });
 
     }
+  @SneakyThrows
+  private Map<String, Object> getFileMeatadata(DBNConnection conn, VirtualFile vf) {
+    Map<String, Object> params = new java.util.HashMap<>();
+
+    params.put("filename", vf.getName());
+    params.put("path", vf.getPath());
+    params.put("size_bytes", vf.getLength());
+    params.put("uploaded_by", conn.getSchema() != null ? conn.getSchema() : "unknown");
+    params.put("uploaded_at", java.time.Instant.now().toString());
+
+    return params;
+  }
 
 
-  private java.sql.Blob prepareFileBlob(DBNConnection conn, VirtualFile vf) throws IOException, SQLException {
-    java.sql.Blob blob = conn.createBlob();
-      try (InputStream in = vf.getInputStream();
-           OutputStream out = blob.setBinaryStream(1)) {
-      byte[] buf = new byte[64 * 1024];
-      int n;
-      while ((n = in.read(buf)) != -1) {
-        out.write(buf, 0, n);
-      }
-      }
-      return blob;
-
+  private InputStream prepareFileBlob(DBNConnection conn, VirtualFile vf) throws IOException, SQLException {
+     return vf.getInputStream();
   }
 
   private static boolean isTextLike(String name) {

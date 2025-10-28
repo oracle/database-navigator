@@ -30,8 +30,8 @@ import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.InputStream;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -113,19 +113,36 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public void embed(DBNConnection conn, Blob sourceFileClob, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException
+  public void embed(DBNConnection conn, String  blobId,String blob_table, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException
   {
 
       executeUpdate(conn,
               "insert-vector-embeddings-from-filesystem",
               storeConfig.getTableName(),
-              sourceFileClob,
+              blob_table,
+              blobId,
               storeConfig.getTextColumn(),
               storeConfig.getEmbeddingColumn(),
               storeConfig.getMetadataColumn(),
               chunkConfiguration.getConfigJson(),
-              embedConfig.getConfigJson()
+              embedConfig.getConfigJson(),
+              storeConfig.getMetadata()
       );
+  }
+
+  @Override
+  public void ensureDocumentsTable(DBNConnection conn, String filesTable) throws SQLException {
+    executeUpdate(conn,"ensure-documents-table",filesTable);
+  }
+
+  @Override
+  public void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata) throws SQLException {
+    executeUpdate(conn,"insert-empty-document-row",filesTable,id,fileMetadata);
+  }
+
+  @Override
+  public void streamContentToBlob(DBNConnection conn, String filesTable, String id, InputStream in) throws SQLException {
+    executeUpdate(conn,"stream-file-content-to-blob",filesTable,in,id);
   }
 
   @Override

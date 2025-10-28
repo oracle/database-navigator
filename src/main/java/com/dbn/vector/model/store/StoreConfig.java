@@ -18,10 +18,4 @@ public class StoreConfig {
   private String metadata;
 
 
-  public String getMetadata() {
-    if (SourceDataForm.SourceType.TABLE.equals(sourceType)) {
-      return "{\"model\":\"allminiv12\"}";
-    }
-    return "{\"model\":\"allminiv12\"}";
-  }
 }
