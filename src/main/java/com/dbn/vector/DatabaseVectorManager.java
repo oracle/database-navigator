@@ -140,7 +140,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
 
 
                                             fileMetadataMap.put("doc_Id",id);
-                                            fileMetadataMap.put("embedd_config",embedConfig.getConfigJson());
+                                            fileMetadataMap.put("embed_config",embedConfig.getConfigJson());
                                             fileMetadataMap.put("chunk_config",embedConfig.getConfigJson());
                                             String rowMetadata = Json.writeAsString(fileMetadataMap);
                                             storeConfig.setMetadata(rowMetadata);
