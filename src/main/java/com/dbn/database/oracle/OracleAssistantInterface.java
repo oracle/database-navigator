@@ -129,7 +129,7 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
 
   @Override
   public void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata) throws SQLException {
-    executeUpdate(conn,"insert-empty-document-row",filesTable,id,fileMetadata);
+    executeUpdate(conn,"insert-empty-document-row", filesTable, id, fileMetadata);
   }
 
   @Override

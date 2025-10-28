@@ -289,46 +289,30 @@
     <statement-execution-processor id="ensure-documents-table" timeout="120000" >
         <statement>
             BEGIN
-            EXECUTE IMMEDIATE '
-            CREATE TABLE IF NOT EXISTS {0} (
-            id varchar(50) not null,
-            b_lob blob ,
-            metadata JSON
-            ) LOB(b_lob) STORE AS SECUREFILE (NOCACHE FILESYSTEM_LIKE_LOGGING)
-
-            ';
-            END;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="insert-empty-document-row" is-prepared-statement="true" timeout="120000"  is-query="false" >
-        <statement>
-            DECLARE
-                v_tbl_name VARCHAR2(128) :={0};
-                v_id VARCHAR2(128) :={1};
-                v_metadata VARCHAR2(1000) :={2};
-            BEGIN
                 EXECUTE IMMEDIATE '
-                    INSERT INTO ' || v_tbl_name ||'
-                            (id, b_lob, metadata)
-                            VALUES (:v_id, EMPTY_BLOB(), :v_metadata)
-                ' USING v_id,v_metadata;
+                    CREATE TABLE IF NOT EXISTS {0}
+                    (
+                        id varchar(50) not null,
+                        b_lob blob ,
+                        metadata JSON
+                    ) LOB(b_lob) STORE AS SECUREFILE (NOCACHE FILESYSTEM_LIKE_LOGGING)
+                ';
             END;
         </statement>
     </statement-execution-processor>
-
-    <statement-execution-processor id="stream-file-content-to-blob" timeout="120000" is-prepared-statement="true"  is-query="false" >
+    <statement-execution-processor id="insert-empty-document-row">
         <statement>
-            DECLARE
-            v_tbl_name VARCHAR2(128) :={0};
-            v_doc BLOB :={1};
-            v_id VARCHAR2(128) :={2};
-            BEGIN
-            EXECUTE IMMEDIATE '
-                UPDATE ' || v_tbl_name ||'
-                    SET b_lob = :v_doc
-                    WHERE id = :v_id
-            ' USING v_doc,v_id;
-            END;
+            INSERT INTO {0}
+            (id, b_lob, metadata)
+            VALUES ({#1}, EMPTY_BLOB(), {#2})
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="stream-file-content-to-blob" timeout="120000">
+        <statement>
+            UPDATE {0}
+            SET b_lob = {#1}
+            WHERE id = {#2}
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="insert-vector-embeddings" timeout="120000">
@@ -352,59 +336,41 @@
         <statement-execution-processor id="insert-vector-embeddings-from-filesystem" timeout="120000">
         <statement>
             DECLARE
-            v_tbl              VARCHAR2(128)  := {#0};
-            v_doc_table        VARCHAR2(128)  := {#1};
-            v_doc_id           VARCHAR2(128)   := {#2};
-            v_doc              BLOB;
-            v_text_column      VARCHAR2(128)  := {#3};
-            v_embedding_column VARCHAR2(128)  := {#4};
-            v_metadata_column  VARCHAR2(128)  := {#5};
-            v_chunk_cfg        CLOB           := {#6};
-            v_embed_cfg        CLOB           := {#7};
-            v_metadata         VARCHAR2(1000) := {#8};
+                v_doc BLOB;
             BEGIN
-            EXECUTE IMMEDIATE 'SELECT b_lob FROM ' || v_doc_table || ' WHERE id = :1'
-            INTO v_doc
-            USING v_doc_id;
+                SELECT b_lob INTO v_doc FROM {1} WHERE id = {#2};
 
-            EXECUTE IMMEDIATE '
-            INSERT INTO ' || v_tbl || ' (id, ' || v_text_column || ', ' || v_embedding_column || ', ' || v_metadata_column || ')
-                SELECT
-                    SYS_GUID(),
-                    jt.embed_data,
-                    TO_VECTOR(jt.embed_vector),
-                JSON_MERGEPATCH(
-                  :meta,
-                  JSON_OBJECT(
-                    KEY ''chunk_id''        VALUE JSON_VALUE(t.COLUMN_VALUE, ''$.embed_id'' RETURNING VARCHAR2(50))
-                  ) RETURNING CLOB
-                )
+                INSERT INTO {0} (id, {3}, {4}, {5})
+                    SELECT
+                        SYS_GUID(),
+                        jt.embed_data,
+                        TO_VECTOR(jt.embed_vector),
+                        JSON_MERGEPATCH(
+                            {#8},
+                            JSON_OBJECT(
+                                KEY 'chunk_id'
+                                VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50))
+                            ) RETURNING CLOB
+                        )
                     FROM TABLE(
-                                DBMS_VECTOR_CHAIN.UTL_TO_EMBEDDINGS(
-                                        DBMS_VECTOR_CHAIN.UTL_TO_CHUNKS(
-                                                DBMS_VECTOR_CHAIN.UTL_TO_TEXT(:doc, json(json_object(''plaintext'' VALUE true))),
-                                                json(:chunk_cfg)
-                                                ),
-                                        json(:embed_cfg)
-                                )
+                        DBMS_VECTOR_CHAIN.UTL_TO_EMBEDDINGS(
+                            DBMS_VECTOR_CHAIN.UTL_TO_CHUNKS(
+                                DBMS_VECTOR_CHAIN.UTL_TO_TEXT(v_doc, json(json_object('plaintext' VALUE true))),
+                                json({#6})
+                            ),
+                            json({#7})
+                        )
                     ) t,
                     JSON_TABLE(
-                                t.COLUMN_VALUE, ''$''
-                                    COLUMNS (
-                                            embed_data   CLOB PATH ''$.embed_data'',
-                                            embed_vector CLOB PATH ''$.embed_vector''
-                                            )
-                    ) jt'
-        USING v_metadata, v_doc, v_chunk_cfg, v_embed_cfg;
-
+                        t.COLUMN_VALUE, '$'
+                            COLUMNS (
+                                embed_data   CLOB PATH '$.embed_data',
+                                embed_vector CLOB PATH '$.embed_vector'
+                            )
+                    ) jt;
             END;
         </statement>
     </statement-execution-processor>
-
-
-
-
-
 
     <statement-execution-processor id="load-onnx-model-through-jdbc" timeout="12000">
         <statement>

@@ -1,9 +1,7 @@
 package com.dbn.vector.model.embed;
 
 import com.dbn.common.util.Json;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import lombok.SneakyThrows;
 
 import java.util.Map;
 
@@ -21,21 +19,13 @@ public class ThirdPartyModel extends EmbedConfig{
   }
 
   @Override
-  @SneakyThrows
   public String getConfigJson() {
-    String embedConfig = "{"
-            + "\"provider\":\"" + provider + "\","
-            + "\"credentialName\":\"" + credentialName + "\","
-            + "\"url\":\"" + url + "\","
-            + "\"model\":\"" + model + "\""
-            +"}";
-
     Map params = Map.of(
             "provider", provider,
-            "CredentialName",credentialName,
-            "url",url,
-            "model",model
-            );
-    return Json.OBJECT_MAPPER.writeValueAsString(params);
+            "CredentialName", credentialName,
+            "url", url,
+            "model", model
+    );
+    return Json.writeAsString(params);
   }
 }

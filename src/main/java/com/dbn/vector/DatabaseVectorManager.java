@@ -29,10 +29,11 @@ import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.io.*;
-import java.nio.file.Files;
-import java.sql.Blob;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.Writer;
 import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -129,7 +130,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
 
                                             String id = UUID.randomUUID().toString().replace("-", "");
                                             Map fileMetadataMap = getFileMeatadata(conn,vf);
-                                            String fileMetadata = Json.OBJECT_MAPPER.writeValueAsString(fileMetadataMap);
+                                            String fileMetadata = Json.writeAsString(fileMetadataMap);
                                             dataDefinition.insertEmptyDocumentRow(conn,FILES_TABLE,id,fileMetadata);
                                             dataDefinition.streamContentToBlob(conn,FILES_TABLE,id,in);
 
@@ -137,7 +138,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                                             fileMetadataMap.put("doc_Id",id);
                                             fileMetadataMap.put("embedd_config",embedConfig.getConfigJson());
                                             fileMetadataMap.put("chunk_config",embedConfig.getConfigJson());
-                                            String rowMetadata = Json.OBJECT_MAPPER.writeValueAsString(fileMetadataMap);
+                                            String rowMetadata = Json.writeAsString(fileMetadataMap);
                                             storeConfig.setMetadata(rowMetadata);
                                             dataDefinition.embed(conn, id, FILES_TABLE,chunkConfiguration, embedConfig, storeConfig); // add this overload
                                           } catch (Exception e) {

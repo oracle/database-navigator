@@ -41,7 +41,7 @@ import static java.util.Collections.emptyMap;
 @Slf4j
 @UtilityClass
 public class Json {
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT);
 
     public static FileType resolveJsonFileType() {
@@ -54,6 +54,11 @@ public class Json {
                 () -> Language.findLanguageByID("JSON"),
                 () -> Language.findLanguageByID("JavaScript"),
                 () -> PlainTextLanguage.INSTANCE);
+    }
+
+    @SneakyThrows
+    public static String writeAsString(Object value) {
+        return OBJECT_MAPPER.writeValueAsString(value);
     }
 
     /**
