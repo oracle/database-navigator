@@ -15,10 +15,10 @@ import javax.swing.JPanel;
 
 public class ThirdPartyModelConfigForm extends DBNFormBase {
   private JPanel mainPanel;
-  private JBTextField Provider;
-  private JBTextField CredentialName;
-  private JBTextField Url;
-  private JBTextField ModelName;
+  private JBTextField providerTextField;
+  private JBTextField credentialTextField;
+  private JBTextField urlTextField;
+  private JBTextField modelTextField;
   private JLabel providerLabel;
   private JLabel credentialLabel;
   private JLabel urlLabel;
@@ -34,36 +34,36 @@ public class ThirdPartyModelConfigForm extends DBNFormBase {
   }
 
   public String getProvider() {
-    return Provider.getText();
+    return providerTextField.getText();
   }
+
   public String getCredentialName() {
-    return CredentialName.getText();
+    return credentialTextField.getText();
   }
 
   public String getUrl() {
-    return Url.getText();
+    return urlTextField.getText();
   }
 
   public String getModelName() {
-    return ModelName.getText();
+    return modelTextField.getText();
   }
 
   public EmbedConfig getEmbedConfig() {
-    ThirdPartyModel embedConfig = new ThirdPartyModel(
-            getProvider(),
-            getCredentialName(),
-            getUrl(),
-            getModelName()
-    );
-    return embedConfig;
+      return new ThirdPartyModel(
+              getProvider(),
+              getCredentialName(),
+              getUrl(),
+              getModelName()
+      );
   }
 
   @Override
   protected void initFieldAlignment() {
     FieldAlignerData alignerData = getFieldAlignerData();
-    alignerData.registerFieldGroup(providerLabel, Provider);
-    alignerData.registerFieldGroup(credentialLabel, CredentialName);
-    alignerData.registerFieldGroup(urlLabel, Url);
-    alignerData.registerFieldGroup(modelLabel, ModelName);
+    alignerData.registerFieldGroup(providerLabel, providerTextField);
+    alignerData.registerFieldGroup(credentialLabel, credentialTextField);
+    alignerData.registerFieldGroup(urlLabel, urlTextField);
+    alignerData.registerFieldGroup(modelLabel, modelTextField);
   }
 }

@@ -31,6 +31,8 @@ import java.util.List;
  */
 public class FieldAligner {
     public static void alignFormFields(DBNForm rootForm) {
+        if (rootForm == null) return;
+
         FieldAlignerData rootAlignerData = getAlignerData(rootForm);
         if (rootAlignerData == null) return;
 

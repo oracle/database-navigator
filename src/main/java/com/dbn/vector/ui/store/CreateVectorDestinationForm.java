@@ -15,15 +15,16 @@ import java.util.regex.Pattern;
 
 public class CreateVectorDestinationForm extends DBNFormBase {
   private JPanel mainPanel;
-  private JPanel saveDataPanel;
   private JTextField tableNameTextField;
-  private JTextField embeddingVECTORTextField;
-  private JTextField textCLOBTextField;
+  private JTextField vectorColumnTextField;
+  private JTextField textColumnTextField;
   private JLabel tableNameLabel;
-  private JLabel textColumnNameLabel;
+  private JLabel textColumnLabel;
   private JLabel keyColumnNameLabel;
-  private JLabel vectorColumnNameLabel;
+  private JLabel vectorColumnLabel;
   private JTextField keyColumnTextField;
+  private JLabel metadataColumnLabel;
+  private JTextField metadataColumnTextField;
   // Oracle unquoted identifier rules (safe baseline)
   private static final int ORACLE_ID_MAX_LEN = 30;
   private static final Pattern ORACLE_UNQUOTED_ID =
@@ -83,8 +84,9 @@ public class CreateVectorDestinationForm extends DBNFormBase {
   protected void initFieldAlignment() {
     FieldAlignerData alignerData = getFieldAlignerData();
     alignerData.registerFieldGroup(tableNameLabel, tableNameTextField);
-    alignerData.registerFieldGroup(textColumnNameLabel, textCLOBTextField);
+    alignerData.registerFieldGroup(textColumnLabel, textColumnTextField);
     alignerData.registerFieldGroup(keyColumnNameLabel, keyColumnTextField);
-    alignerData.registerFieldGroup(vectorColumnNameLabel, embeddingVECTORTextField);
+    alignerData.registerFieldGroup(vectorColumnLabel, vectorColumnTextField);
+    alignerData.registerFieldGroup(metadataColumnLabel, metadataColumnTextField);
   }
 }

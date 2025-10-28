@@ -1,78 +1,83 @@
 package com.dbn.vector.ui.embed;
 
+import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.embed.EmbedConfig;
 import com.intellij.openapi.Disposable;
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.CardLayout;
 
 public class EmbedConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
-  private JPanel embedConfigPanel;
-  private JComboBox modelTypeComboBox;
+  private JComboBox<ModelLocation> modelTypeComboBox;
   private JPanel configPanel;
   private JLabel modelTypeLabel;
   private ConnectionHandler connectionHandler;
-  private InDBModelConfigForm InDBModelConfigForm;
+  private InDBModelConfigForm databaseModelConfigForm;
   private ThirdPartyModelConfigForm thirdPartyModelConfigForm;
 
   public EmbedConfigForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
     super(parent);
     this.connectionHandler = connectionHandler;
-    initDataPanel();
     initComboBox();
+    initDataPanel();
   }
+
   @Override
   protected void initFieldAlignment() {
     FieldAlignerData alignerData = getFieldAlignerData();
     alignerData.registerFieldGroup(modelTypeLabel, modelTypeComboBox);
-    alignerData.registerForms(InDBModelConfigForm, thirdPartyModelConfigForm);
+    alignerData.registerForms(databaseModelConfigForm, thirdPartyModelConfigForm);
   }
 
   private void initDataPanel() {
-    InDBModelConfigForm = new InDBModelConfigForm(this,connectionHandler);
+    databaseModelConfigForm = new InDBModelConfigForm(this,connectionHandler);
     thirdPartyModelConfigForm = new ThirdPartyModelConfigForm(this,connectionHandler);
-
-    configPanel.add(InDBModelConfigForm.getComponent(),"In_Database_Model");
-    configPanel.add(thirdPartyModelConfigForm.getComponent(),"Third_Party_Model");
-    CardLayout cardLayout = (CardLayout) configPanel.getLayout();
-
-    // default with table
-
-    cardLayout.show(configPanel, "In_Database_Model");
+    updateConfigForm();
   }
 
 
   private void initComboBox() {
+    ComboBoxes.initComboBox(modelTypeComboBox, ModelLocation.values());
+    ComboBoxes.setSelection(modelTypeComboBox, ModelLocation.IN_DATABASE_MODEL);
+    ComboBoxes.onSelectionChange(modelTypeComboBox, v -> updateConfigForm());
+  }
 
-    modelTypeComboBox.addActionListener(e -> {
-      CardLayout cardLayout = (CardLayout) configPanel.getLayout();
-      String source = (String) modelTypeComboBox.getSelectedItem();
-      if (source != null) {
-        if (source.equalsIgnoreCase("In Database Model")) {
-          cardLayout.show(configPanel, "In_Database_Model");
-        }
-        else if (source.equalsIgnoreCase("Third Party Model")) {
-          cardLayout.show(configPanel, "Third_Party_Model");
-        }
-      }
-    });
+  private void updateConfigForm() {
+    ModelLocation modelLocation = ComboBoxes.getSelection(modelTypeComboBox);
+    configPanel.removeAll();
+    if (modelLocation == ModelLocation.IN_DATABASE_MODEL) {
+      configPanel.add(databaseModelConfigForm.getComponent());
+
+    } else if (modelLocation == ModelLocation.THIRD_PARTY_MODEL) {
+      configPanel.add(thirdPartyModelConfigForm.getComponent());
+    }
+
+    configPanel.revalidate();
+    configPanel.repaint();
   }
 
   public EmbedConfig getEmbedConfig() {
-    String source = (String) modelTypeComboBox.getSelectedItem();
-    if (source.equalsIgnoreCase("In Database Model"))
-        return InDBModelConfigForm.getEmbedConfig();
-    return thirdPartyModelConfigForm.getEmbedConfig();
+    ModelLocation modelLocation = ComboBoxes.getSelection(modelTypeComboBox);
+    if (modelLocation == null) return null;
+
+    switch (modelLocation) {
+      case IN_DATABASE_MODEL: return databaseModelConfigForm.getEmbedConfig();
+      case THIRD_PARTY_MODEL: return thirdPartyModelConfigForm.getEmbedConfig();
+      default:
+        throw new IllegalStateException("Unexpected value: " + modelLocation);
+    }
   }
+
   @Override
   protected JComponent getMainComponent() {
     return mainPanel;
@@ -91,5 +96,13 @@ public class EmbedConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   @Override
   public String getExpandedTitle() {
     return "Embedding Model";
+  }
+
+  @Getter
+  public enum ModelLocation implements Presentable {
+    IN_DATABASE_MODEL("In-database model"),
+    THIRD_PARTY_MODEL("Third-party model");
+    private final String name;
+    ModelLocation(String name) { this.name = name; }
   }
 }
