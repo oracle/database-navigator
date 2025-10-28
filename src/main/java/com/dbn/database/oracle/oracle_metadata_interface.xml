@@ -19,8 +19,6 @@
         <!ELEMENT statement-execution-processor (statement)*>
         <!ATTLIST statement-execution-processor
                 id CDATA #REQUIRED
-                is-query CDATA #IMPLIED
-                is-prepared-statement CDATA #IMPLIED
                 timeout CDATA #IMPLIED>
         <!ELEMENT statement (#PCDATA)>
         <!ATTLIST statement
@@ -29,7 +27,7 @@
                 since-version CDATA #IMPLIED>
         ]>
 <data-dictionary>
-    <statement-execution-processor id="users" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="users">
         <statement>
             select
                 USERNAME as USER_NAME,
@@ -45,7 +43,7 @@
             from ALL_USERS
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="roles" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="roles">
         <statement>
             select distinct ROLE as ROLE_NAME from DBA_ROLES order by ROLE
         </statement>
@@ -53,7 +51,7 @@
             select distinct GRANTED_ROLE as ROLE_NAME from [PREFIX]_ROLE_PRIVS order by GRANTED_ROLE
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="all-user-roles" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-user-roles">
         <statement>
             select
                 rp.GRANTEE as USER_NAME,
@@ -79,7 +77,7 @@
             order by rp.GRANTED_ROLE asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="all-role-roles" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-role-roles">
         <statement>
             select
                 rp.GRANTEE as ROLE_NAME,
@@ -95,12 +93,12 @@
                 rp.GRANTED_ROLE asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="system-privileges" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="system-privileges">
         <statement prefixes="DBA, USER">
             select distinct PRIVILEGE as PRIVILEGE_NAME from [PREFIX]_SYS_PRIVS
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="all-user-privileges" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-user-privileges">
         <statement prefixes="DBA, ALL">
             select
                 sp.GRANTEE as USER_NAME,
@@ -124,7 +122,7 @@
             order by sp.PRIVILEGE asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="all-role-privileges" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-role-privileges">
         <statement>
             select
                 sp.GRANTEE as ROLE_NAME,
@@ -139,7 +137,7 @@
                 sp.PRIVILEGE asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="charsets" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="charsets">
         <statement>
             select
                 VALUE as CHARSET_NAME,
@@ -151,7 +149,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="schemas" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="schemas">
         <statement prefixes="DBA, ALL, USER">
             select
                 u.USERNAME as SCHEMA_NAME,
@@ -220,17 +218,17 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="clusters" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="clusters">
         <statement prefixes="DBA, ALL">
             select CLUSTER_NAME
             from [PREFIX]_CLUSTERS
-            where OWNER = {0}
+            where OWNER = {#0}
             order by CLUSTER_NAME asc
         </statement>
     </statement-execution-processor>
 
 
-    <statement-execution-processor id="credentials" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="credentials">
         <statement prefixes="DBA, ALL">
             select
                 CREDENTIAL_NAME,
@@ -239,12 +237,12 @@
                 JSON_VALUE(comments, '$.comments') as COMMENTS,
                 DECODE(ENABLED, 'TRUE', 'Y', 'N') as IS_ENABLED
             from [PREFIX]_CREDENTIALS d
-            where OWNER = {0}
+            where OWNER = {#0}
             order by CREDENTIAL_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="ai-profiles" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="ai-profiles">
         <statement>
             select
                 p.PROFILE_NAME,
@@ -286,7 +284,7 @@
                 )
             ) pa
             join DBA_CLOUD_AI_PROFILES p on p.PROFILE_ID = pa.PROFILE_ID
-            where p.OWNER = {0}
+            where p.OWNER = {#0}
             order by pa.PROFILE_NAME asc
         </statement>
         <statement>
@@ -330,7 +328,7 @@
                 )
             ) pa
             join USER_CLOUD_AI_PROFILES p on p.PROFILE_ID = pa.PROFILE_ID
-            join USER_USERS uu ON uu.USERNAME = {0}
+            join USER_USERS uu ON uu.USERNAME = {#0}
             order by pa.PROFILE_NAME asc
         </statement>
         <statement>
@@ -354,12 +352,12 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="ai-models" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="ai-models">
         <statement>
             SELECT
             MODEL_NAME
             FROM ALL_MINING_MODELS
-            WHERE OWNER = {0}
+            WHERE OWNER = {#0}
             ORDER BY MODEL_NAME ASC
         </statement>
         <statement>
@@ -383,13 +381,13 @@
     </statement-execution-processor>
 
 
-    <statement-execution-processor id="tables" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="tables">
         <statement prefixes="DBA, ALL">
             select t.TABLE_NAME,
                    null as COMMENTS,
                    t.TEMPORARY as IS_TEMPORARY
             from [PREFIX]_ALL_TABLES t
-            where t.OWNER = {0}
+            where t.OWNER = {#0}
               and not exists (SELECT 1
                               from [PREFIX]_MVIEWS mv
                               where mv.OWNER = t.owner
@@ -398,7 +396,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="views" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="views">
         <statement prefixes="DBA, ALL" since-version="23.0">
             select
                 v.VIEW_NAME,
@@ -414,7 +412,7 @@
                 left join [PREFIX]_JSON_DUALITY_VIEWS jv
                        on jv.VIEW_OWNER = v.OWNER
                       and jv.VIEW_NAME = v.VIEW_NAME
-            where v.OWNER = {0}
+            where v.OWNER = {#0}
               and jv.VIEW_NAME is null
             order by v.VIEW_NAME asc
         </statement>
@@ -430,7 +428,7 @@
                 inner join [PREFIX]_OBJECTS o
                         on o.OWNER = v.OWNER
                        and o.OBJECT_NAME = v.VIEW_NAME
-            where v.OWNER = {0}
+            where v.OWNER = {#0}
               and v.DUALITY_VIEW != 'YES'
             order by v.VIEW_NAME asc
         </statement>
@@ -446,11 +444,11 @@
                 inner join [PREFIX]_OBJECTS o
                         on o.OWNER = v.OWNER
                        and o.OBJECT_NAME = v.VIEW_NAME
-            where v.OWNER = {0}
+            where v.OWNER = {#0}
             order by v.VIEW_NAME asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="json-views" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="json-views">
         <statement prefixes="DBA, ALL" since-version="23.0">
             select
                 v.VIEW_NAME,
@@ -472,7 +470,7 @@
             from [PREFIX]_JSON_DUALITY_VIEWS v,
                  [PREFIX]_JSON_DUALITY_VIEW_TAB_COLS c,
                  [PREFIX]_OBJECTS o
-            where v.VIEW_OWNER = {0}
+            where v.VIEW_OWNER = {#0}
               and c.VIEW_OWNER = v.VIEW_OWNER
               and c.VIEW_NAME = v.VIEW_NAME
               and c.root_table = 'true'
@@ -516,7 +514,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="java-primitives" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="java-primitives">
         <statement prefixes="DBA, ALL">
             with PRIMITIVES as (select 'boolean,byte,char,double,float,int,long,short,void' as CSV from DUAL)
             select
@@ -536,7 +534,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="java-classes" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="java-classes">
         <statement prefixes="DBA, ALL">
             select
                 j.NAME as OBJECT_NAME,
@@ -560,7 +558,7 @@
                   os.OWNER = j.OWNER and
                   os.OBJECT_NAME = j.NAME and
                   os.OBJECT_TYPE = 'JAVA SOURCE'
-            where j.OWNER = {0}
+            where j.OWNER = {#0}
               and j.IS_INNER = 'NO'
               and j.NAME not like '%$%'   /*TODO not all classes containing $ are INNER (!?) */
             order by j.NAME
@@ -570,7 +568,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="java-inner-classes" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="java-inner-classes">
         <statement prefixes="DBA, ALL">
             select
                 j.NAME as OBJECT_NAME,
@@ -596,15 +594,15 @@
                 os.OBJECT_NAME = j.NAME and
                 os.OBJECT_TYPE = 'JAVA SOURCE'
             where
-                j.OWNER = {0} and
-                j.OUTER = {1} and
+                j.OWNER = {#0} and
+                j.OUTER = {#1} and
                 j.IS_INNER = 'YES'
             order by
                 j.NAME
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-java-inner-classes" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-java-inner-classes">
         <statement prefixes="DBA, ALL">
             select
                 j.NAME as OBJECT_NAME,
@@ -630,14 +628,14 @@
                 os.OBJECT_NAME = j.NAME and
                 os.OBJECT_TYPE = 'JAVA SOURCE'
             where
-                j.OWNER = {0} and
+                j.OWNER = {#0} and
                 j.IS_INNER = 'YES'
             order by
                 j.NAME
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="java-fields" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="java-fields">
         <statement prefixes="DBA, ALL">
             select
                 NAME as OWNER_CLASS_NAME,
@@ -651,15 +649,15 @@
             from
                 [PREFIX]_JAVA_FIELDS
             where
-                OWNER = {0} and
-                NAME = {1} and
+                OWNER = {#0} and
+                NAME = {#1} and
                 BASE_TYPE is not null
             order by
                 FIELD_INDEX
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-java-fields" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-java-fields">
         <statement prefixes="DBA, ALL">
             select
                 NAME as OWNER_CLASS_NAME,
@@ -673,7 +671,7 @@
             from
                 [PREFIX]_JAVA_FIELDS
             where
-                OWNER = {0} and
+                OWNER = {#0} and
                 BASE_TYPE is not null
             order by
                 NAME,
@@ -681,7 +679,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="java-methods" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="java-methods" timeout="90">
         <statement prefixes="DBA, ALL">
             select
                 m.NAME as OWNER_CLASS_NAME,
@@ -703,8 +701,8 @@
                     m.NAME = a.NAME and
                     m.METHOD_INDEX = a.METHOD_INDEX
             where
-                m.OWNER = {0} and
-                m.NAME = {1} and
+                m.OWNER = {#0} and
+                m.NAME = {#1} and
                 m.METHOD_NAME != '-' and
                 m.METHOD_NAME != chr(60)||'clinit'||chr(62)
             group by
@@ -724,7 +722,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-java-methods" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-java-methods" timeout="90">
         <statement prefixes="DBA, ALL">
             select
                 m.NAME as OWNER_CLASS_NAME,
@@ -746,7 +744,7 @@
                     m.NAME = a.NAME and
                     m.METHOD_INDEX = a.METHOD_INDEX
             where
-                m.OWNER = {0} and
+                m.OWNER = {#0} and
                 m.METHOD_NAME != '-' and
                 m.METHOD_NAME != chr(60)||'clinit'||chr(62)
             group by
@@ -767,7 +765,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="java-parameters" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="java-parameters" timeout="90">
         <statement prefixes="DBA, ALL">
             select
                 NAME as CLASS_NAME,
@@ -777,16 +775,16 @@
                 ARRAY_DEPTH,
                 decode(ARGUMENT_CLASS, '-', BASE_TYPE, ARGUMENT_CLASS) as ARGUMENT_CLASS_NAME
             from [PREFIX]_JAVA_ARGUMENTS
-            where OWNER = {0}
-              and NAME = {1}
-              and METHOD_NAME = SUBSTR({2}, 1, INSTR({2}, '#') - 1)
-              and METHOD_INDEX = SUBSTR({3}, INSTR({3}, '#') + 1)
+            where OWNER = {#0}
+              and NAME = {#1}
+              and METHOD_NAME = SUBSTR({#2}, 1, INSTR({#2}, '#') - 1)
+              and METHOD_INDEX = SUBSTR({#3}, INSTR({#3}, '#') + 1)
             order by
                 ARGUMENT_POSITION
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-java-parameters" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-java-parameters" timeout="90">
         <statement prefixes="DBA, ALL">
             select
                 NAME as CLASS_NAME,
@@ -796,7 +794,7 @@
                 ARRAY_DEPTH,
                 decode(ARGUMENT_CLASS, '-', BASE_TYPE, ARGUMENT_CLASS) as ARGUMENT_CLASS_NAME
             from [PREFIX]_JAVA_ARGUMENTS
-            where OWNER = {0}
+            where OWNER = {#0}
             order by
                 NAME,
                 METHOD_NAME,
@@ -805,7 +803,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="java-class-dependencies" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="java-class-dependencies" >
         <statement prefixes="DBA, ALL, USER">
             select
                 d.OBJECT_OWNER,
@@ -821,7 +819,7 @@
                     REFERENCED_OWNER != 'SYS' and
                     (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME)
                 start with
-                    OWNER = {0} and NAME = {1}
+                    OWNER = {#0} and NAME = {#1}
                 connect by nocycle
                 prior REFERENCED_OWNER = OWNER and
                 prior REFERENCED_NAME = NAME
@@ -838,7 +836,7 @@
                 HAS_SOURCE desc, d.OBJECT_OWNER, d.OBJECT_NAME
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="java-resources" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="java-resources" >
         <statement prefixes="DBA, ALL">
             select
                 OBJECT_NAME,
@@ -846,14 +844,14 @@
             from
                 [PREFIX]_OBJECTS
             where
-                OWNER = {0}
+                OWNER = {#0}
                 and OBJECT_TYPE = 'JAVA RESOURCE'
             order by
                 OBJECT_NAME
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="materialized-views" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="materialized-views">
         <statement prefixes="DBA, ALL">
             select
                 mv.MVIEW_NAME as VIEW_NAME,
@@ -863,12 +861,12 @@
                 'N' as IS_SYSTEM_VIEW,
                 'N' as IS_EDITIONABLE
             from [PREFIX]_MVIEWS mv
-            where mv.OWNER = {0}
+            where mv.OWNER = {#0}
             order by mv.MVIEW_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="dataset-columns" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="dataset-columns">
         <statement prefixes="DBA, ALL">
             with DBN_CONSTRAINTS as (
                 select /*+ materialize */
@@ -882,8 +880,8 @@
                              on cc.OWNER = c.owner
                             and cc.TABLE_NAME = c.TABLE_NAME
                             and cc.CONSTRAINT_NAME = c.CONSTRAINT_NAME
-                where c.OWNER = {0}
-                  and c.TABLE_NAME = {1})
+                where c.OWNER = {#0}
+                  and c.TABLE_NAME = {#1})
             select distinct
                 col.TABLE_NAME as DATASET_NAME,
                 col.COLUMN_NAME,
@@ -928,8 +926,8 @@
                         and uk.TABLE_NAME = col.TABLE_NAME
                         and uk.COLUMN_NAME = col.COLUMN_NAME
             where
-                col.OWNER = {0} and
-                col.TABLE_NAME = {1}
+                col.OWNER = {#0} and
+                col.TABLE_NAME = {#1}
             order by col.COLUMN_NAME asc
         </statement>
         <statement prefixes="DBA, ALL" comment="Oracle 8.0">
@@ -961,8 +959,8 @@
                       [PREFIX]_CONSTRAINTS con,
                       [PREFIX]_CONS_COLUMNS cc
                  where
-                      cc.OWNER = {0} and
-                      cc.TABLE_NAME = {1} and
+                      cc.OWNER = {#0} and
+                      cc.TABLE_NAME = {#1} and
                       con.OWNER = cc.OWNER and
                       con.TABLE_NAME = cc.TABLE_NAME and
                       con.CONSTRAINT_NAME = cc.CONSTRAINT_NAME and
@@ -976,8 +974,8 @@
                       [PREFIX]_CONSTRAINTS con,
                       [PREFIX]_CONS_COLUMNS cc
                  where
-                      cc.OWNER = {0} and
-                      cc.TABLE_NAME = {1} and
+                      cc.OWNER = {#0} and
+                      cc.TABLE_NAME = {#1} and
                       con.OWNER = cc.OWNER and
                       con.TABLE_NAME = cc.TABLE_NAME and
                       con.CONSTRAINT_NAME = cc.CONSTRAINT_NAME and
@@ -991,15 +989,15 @@
                       [PREFIX]_CONSTRAINTS con,
                       [PREFIX]_CONS_COLUMNS cc
                  where
-                      cc.OWNER = {0} and
-                      cc.TABLE_NAME = {1} and
+                      cc.OWNER = {#0} and
+                      cc.TABLE_NAME = {#1} and
                       con.OWNER = cc.OWNER and
                       con.TABLE_NAME = cc.TABLE_NAME and
                       con.CONSTRAINT_NAME = cc.CONSTRAINT_NAME and
                       con.CONSTRAINT_TYPE = 'U') uk
             where
-                col.OWNER = {0} and
-                col.TABLE_NAME = {1} and
+                col.OWNER = {#0} and
+                col.TABLE_NAME = {#1} and
                 col.OWNER = pk.OWNER(+) and
                 col.TABLE_NAME = pk.TABLE_NAME(+) and
                 col.COLUMN_NAME = pk.COLUMN_NAME(+) and
@@ -1013,7 +1011,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-dataset-columns" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-dataset-columns" timeout="90">
         <statement prefixes="DBA, ALL">
             with DBN_CONSTRAINTS as (
                 select /*+ materialize */
@@ -1027,7 +1025,7 @@
                              on cc.OWNER = c.owner
                             and cc.TABLE_NAME = c.TABLE_NAME
                             and cc.CONSTRAINT_NAME = c.CONSTRAINT_NAME
-                where c.OWNER = {0})
+                where c.OWNER = {#0})
             select DISTINCT
                 col.TABLE_NAME as DATASET_NAME,
                 col.COLUMN_NAME,
@@ -1071,7 +1069,7 @@
                         and uk.OWNER = col.OWNER
                         and uk.TABLE_NAME = col.TABLE_NAME
                         and uk.COLUMN_NAME = col.COLUMN_NAME
-            where col.OWNER = {0}
+            where col.OWNER = {#0}
             order by col.TABLE_NAME asc
         </statement>
         <statement prefixes="DBA, ALL" comment="Oracle 8.0">
@@ -1080,7 +1078,7 @@
                             o.OBJECT_NAME
                         from [PREFIX]_OBJECTS o
                         where
-                            o.OWNER = {0} and
+                            o.OWNER = {#0} and
                             o.OBJECT_TYPE in ('TABLE', 'VIEW', 'MATERIALIZED VIEW'))
            select distinct
                 col.TABLE_NAME as DATASET_NAME,
@@ -1111,7 +1109,7 @@
                       [PREFIX]_CONSTRAINTS con,
                       [PREFIX]_CONS_COLUMNS cc, obj
                  where
-                      cc.OWNER = {0} and
+                      cc.OWNER = {#0} and
                       cc.OWNER = obj.OWNER and
                       cc.TABLE_NAME = obj.OBJECT_NAME and
                       con.OWNER = cc.OWNER and
@@ -1127,7 +1125,7 @@
                       [PREFIX]_CONSTRAINTS con,
                       [PREFIX]_CONS_COLUMNS cc, obj
                  where
-                      cc.OWNER = {0} and
+                      cc.OWNER = {#0} and
                       cc.OWNER = obj.OWNER and
                       cc.TABLE_NAME = obj.OBJECT_NAME and
                       con.OWNER = cc.OWNER and
@@ -1143,7 +1141,7 @@
                       [PREFIX]_CONSTRAINTS con,
                       [PREFIX]_CONS_COLUMNS cc, obj
                  where
-                      cc.OWNER = {0} and
+                      cc.OWNER = {#0} and
                       cc.OWNER = obj.OWNER and
                       cc.TABLE_NAME = obj.OBJECT_NAME and
                       con.OWNER = cc.OWNER and
@@ -1151,7 +1149,7 @@
                       con.CONSTRAINT_NAME = cc.CONSTRAINT_NAME and
                       con.CONSTRAINT_TYPE = 'U') uk
             where
-                col.OWNER = {0} and
+                col.OWNER = {#0} and
                 col.OWNER = obj.OWNER and
                 col.TABLE_NAME = obj.OBJECT_NAME and
                 col.OWNER = pk.OWNER(+) and
@@ -1167,7 +1165,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="column-constraint-relations" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="column-constraint-relations">
         <statement prefixes="DBA, ALL">
             select
                 COLUMN_NAME,
@@ -1175,20 +1173,20 @@
                 POSITION
             from [PREFIX]_CONS_COLUMNS
             where
-                OWNER = {0} and
-                TABLE_NAME = {1}
+                OWNER = {#0} and
+                TABLE_NAME = {#1}
             order by COLUMN_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-column-constraint-relations" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-column-constraint-relations" timeout="90">
         <statement prefixes="DBA, ALL">
             with obj as (select
                             o.OWNER,
                             o.OBJECT_NAME
                         from [PREFIX]_OBJECTS o
                         where
-                            o.OWNER = {0} and
+                            o.OWNER = {#0} and
                             o.OBJECT_TYPE in ('TABLE', 'VIEW', 'MATERIALIZED VIEW'))
             select
                c.TABLE_NAME as DATASET_NAME,
@@ -1197,39 +1195,39 @@
                c.POSITION
             from [PREFIX]_CONS_COLUMNS c, obj
             where
-                c.OWNER = {0} and
+                c.OWNER = {#0} and
                 c.OWNER = obj.OWNER and
                 c.TABLE_NAME = obj.OBJECT_NAME
             order by c.TABLE_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="column-index-relations" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="column-index-relations" >
         <statement prefixes="DBA, ALL">
             select
                 COLUMN_NAME,
                 INDEX_NAME
             from [PREFIX]_IND_COLUMNS
             where
-                TABLE_OWNER = {0} and
-                TABLE_NAME = {1}
+                TABLE_OWNER = {#0} and
+                TABLE_NAME = {#1}
             order by COLUMN_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-column-index-relations" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-column-index-relations" timeout="90">
         <statement prefixes="DBA, ALL">
             select
                 TABLE_NAME,
                 COLUMN_NAME,
                 INDEX_NAME
             from [PREFIX]_IND_COLUMNS
-            where TABLE_OWNER = {0}
+            where TABLE_OWNER = {#0}
             order by TABLE_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-constraints" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-constraints" timeout="90">
         <statement prefixes="DBA, ALL">
             select
                 c.TABLE_NAME as DATASET_NAME,
@@ -1252,7 +1250,7 @@
                         and obj.OBJECT_NAME = c.TABLE_NAME
                         and obj.OBJECT_TYPE in ('TABLE', 'VIEW', 'MATERIALIZED VIEW')
             where
-                c.OWNER = {0}
+                c.OWNER = {#0}
             order by
                 c.TABLE_NAME,
                 c.CONSTRAINT_NAME asc
@@ -1279,14 +1277,14 @@
                         and obj.OBJECT_NAME = c.TABLE_NAME
                         and obj.OBJECT_TYPE in ('TABLE', 'VIEW', 'MATERIALIZED VIEW')
             where
-                c.OWNER = {0}
+                c.OWNER = {#0}
             order by
                 c.TABLE_NAME,
                 c.CONSTRAINT_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="constraints" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="constraints">
         <statement prefixes="DBA, ALL">
             select
                 c.TABLE_NAME as DATASET_NAME,
@@ -1309,8 +1307,8 @@
                         and obj.OBJECT_NAME = c.TABLE_NAME
                         and obj.OBJECT_TYPE in ('TABLE', 'VIEW', 'MATERIALIZED VIEW')
             where
-                c.OWNER = {0} and
-                c.TABLE_NAME = {1}
+                c.OWNER = {#0} and
+                c.TABLE_NAME = {#1}
             order by
                 c.CONSTRAINT_NAME asc
         </statement>	
@@ -1336,14 +1334,14 @@
                         and obj.OBJECT_NAME = c.TABLE_NAME
                         and obj.OBJECT_TYPE in ('TABLE', 'VIEW', 'MATERIALIZED VIEW')
             where
-                c.OWNER = {0} and
-                c.TABLE_NAME = {1}
+                c.OWNER = {#0} and
+                c.TABLE_NAME = {#1}
             order by
                 c.CONSTRAINT_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="indexes" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="indexes">
         <statement prefixes="DBA, ALL">
             select
                 INDEX_NAME,
@@ -1351,13 +1349,13 @@
                 decode(STATUS, 'VALID', 'Y', 'N') as IS_VALID
             from [PREFIX]_INDEXES
             where
-                OWNER = {0} and
-                TABLE_NAME = {1}
+                OWNER = {#0} and
+                TABLE_NAME = {#1}
             order by INDEX_NAME asc            
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-indexes" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-indexes" timeout="90">
         <statement prefixes="DBA, ALL">
             select
                 INDEX_NAME,
@@ -1365,14 +1363,14 @@
                 decode(UNIQUENESS, 'UNIQUE', 'Y', 'N') as IS_UNIQUE,
                 decode(STATUS, 'VALID', 'Y', 'N') as IS_VALID
             from [PREFIX]_INDEXES
-            where OWNER = {0}
+            where OWNER = {#0}
             order by
                 TABLE_NAME,
                 INDEX_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="nested-tables" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="nested-tables">
         <statement prefixes="DBA, ALL">
             select
                 TABLE_NAME as NESTED_TABLE_NAME,
@@ -1381,12 +1379,12 @@
                 TABLE_TYPE_NAME as DECL_TYPE_NAME
                 from [PREFIX]_NESTED_TABLES
             where
-                OWNER = {0} and
-                PARENT_TABLE_NAME = {1}
+                OWNER = {#0} and
+                PARENT_TABLE_NAME = {#1}
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="json-view-table-relations" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="json-view-table-relations">
         <statement prefixes="DBA, ALL" since-version="23.0">
             select
                 VIEW_NAME as JSON_VIEW_NAME,
@@ -1396,13 +1394,13 @@
                 DECODE(ROOT_TABLE, 'true', 'Y', 'N') AS IS_ROOT_TABLE,
                 DECODE(READ_ONLY, 'true', 'Y', 'N') AS IS_READONLY
             from [PREFIX]_JSON_DUALITY_VIEW_TABS
-            where VIEW_OWNER = {0}
-              and VIEW_NAME = {1}
+            where VIEW_OWNER = {#0}
+              and VIEW_NAME = {#1}
             order by TABLE_NUMBER
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-json-view-table-relations" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-json-view-table-relations" timeout="90">
         <statement prefixes="DBA, ALL" since-version="23.0">
             select
                 VIEW_NAME as JSON_VIEW_NAME,
@@ -1412,12 +1410,12 @@
                 DECODE(ROOT_TABLE, 'true', 'Y', 'N') AS IS_ROOT_TABLE,
                 DECODE(READ_ONLY, 'true', 'Y', 'N') AS IS_READONLY
                 from [PREFIX]_JSON_DUALITY_VIEW_TABS
-            where VIEW_OWNER  = {0}
+            where VIEW_OWNER  = {#0}
             order by VIEW_NAME, TABLE_NUMBER
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-nested-tables" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-nested-tables" timeout="90">
         <statement prefixes="DBA, ALL">
             select
                 TABLE_NAME as NESTED_TABLE_NAME,
@@ -1426,12 +1424,12 @@
                 TABLE_TYPE_OWNER as DECL_TYPE_OWNER,
                 TABLE_TYPE_NAME as DECL_TYPE_NAME
             from [PREFIX]_NESTED_TABLES
-            where OWNER = {0}
+            where OWNER = {#0}
             order by PARENT_TABLE_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="dataset-triggers" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="dataset-triggers" >
         <statement prefixes="DBA, ALL">
             select distinct
                 t.TABLE_NAME as DATASET_NAME,
@@ -1446,8 +1444,8 @@
                 [PREFIX]_TRIGGERS t,
                 SYS.ALL_PROBE_OBJECTS o
             where
-                t.TABLE_OWNER = {0} and
-                t.TABLE_NAME = {1} and
+                t.TABLE_OWNER = {#0} and
+                t.TABLE_NAME = {#1} and
                 o.OWNER (+) = t.OWNER and
                 o.OBJECT_NAME (+) = t.TRIGGER_NAME and
                 o.OBJECT_TYPE (+)= 'TRIGGER'
@@ -1470,13 +1468,13 @@
                 o.OWNER = t.OWNER and
                 o.OBJECT_NAME = t.TRIGGER_NAME and
                 o.OBJECT_TYPE = 'TRIGGER' and
-                t.TABLE_OWNER = {0} and
-                t.TABLE_NAME = {1}
+                t.TABLE_OWNER = {#0} and
+                t.TABLE_NAME = {#1}
             order by TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-dataset-triggers" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-dataset-triggers" timeout="90">
         <statement prefixes="DBA, ALL">
             select distinct
                 t.TABLE_NAME as DATASET_NAME,
@@ -1491,7 +1489,7 @@
                 [PREFIX]_TRIGGERS t,
                 SYS.ALL_PROBE_OBJECTS o
             where
-                t.TABLE_OWNER = {0} and
+                t.TABLE_OWNER = {#0} and
                 trim(t.BASE_OBJECT_TYPE) in ('TABLE', 'VIEW') and
                 o.OWNER (+) = t.OWNER and
                 o.OBJECT_NAME (+) = t.TRIGGER_NAME and
@@ -1517,7 +1515,7 @@
                 o.OWNER = t.OWNER and
                 o.OBJECT_NAME = t.TRIGGER_NAME and
                 o.OBJECT_TYPE = 'TRIGGER' and
-                t.TABLE_OWNER = {0} and
+                t.TABLE_OWNER = {#0} and
                 trim(t.BASE_OBJECT_TYPE) in ('TABLE', 'VIEW') and
             order by
                 TABLE_NAME,
@@ -1525,7 +1523,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="database-triggers" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="database-triggers" >
         <statement prefixes="DBA, ALL">
             select distinct
                 t.TRIGGER_NAME,
@@ -1539,7 +1537,7 @@
                 [PREFIX]_TRIGGERS t,
                 SYS.ALL_PROBE_OBJECTS o
             where
-                t.OWNER = {0} and
+                t.OWNER = {#0} and
                 trim(t.BASE_OBJECT_TYPE) in ('DATABASE', 'SCHEMA') and
                 o.OWNER (+) = t.OWNER and
                 o.OBJECT_NAME (+) = t.TRIGGER_NAME and
@@ -1563,14 +1561,14 @@
                 o.OWNER = t.OWNER and
                 o.OBJECT_NAME = t.TRIGGER_NAME and
                 o.OBJECT_TYPE = 'TRIGGER' and
-                t.OWNER = {0} and
+                t.OWNER = {#0} and
                 trim(t.BASE_OBJECT_TYPE) in ('DATABASE', 'SCHEMA') and
             order by
                 TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="functions" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="functions">
         <statement prefixes="DBA, ALL">
             select
                 ao.OBJECT_NAME as FUNCTION_NAME,
@@ -1584,7 +1582,7 @@
                 [PREFIX]_OBJECTS ao,
                 SYS.ALL_PROBE_OBJECTS apo
             where
-                ao.OWNER = {0} and
+                ao.OWNER = {#0} and
                 ao.OBJECT_TYPE = 'FUNCTION' and
                 apo.OWNER (+) = ao.OWNER and
                 apo.OBJECT_NAME (+) = ao.OBJECT_NAME and
@@ -1602,13 +1600,13 @@
                 'PSQL' as LANGUAGE
             from [PREFIX]_OBJECTS
             where
-                OWNER = {0} and
+                OWNER = {#0} and
                 OBJECT_TYPE = 'FUNCTION'
             order by OBJECT_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="procedures" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="procedures">
         <statement prefixes="DBA, ALL">
             select
                 ao.OBJECT_NAME as PROCEDURE_NAME,
@@ -1622,7 +1620,7 @@
                 [PREFIX]_OBJECTS ao,
                 SYS.ALL_PROBE_OBJECTS apo
             where
-                ao.OWNER = {0} and
+                ao.OWNER = {#0} and
                 ao.OBJECT_TYPE = 'PROCEDURE' and
                 apo.OWNER (+) = ao.OWNER and
                 apo.OBJECT_NAME (+) = ao.OBJECT_NAME and
@@ -1640,22 +1638,22 @@
                 'PSQL' as LANGUAGE
             from [PREFIX]_OBJECTS
             where
-                OWNER = {0} and
+                OWNER = {#0} and
                 OBJECT_TYPE = 'PROCEDURE'
             order by OBJECT_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="dimensions" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="dimensions">
         <statement prefixes="DBA, ALL">
             select DIMENSION_NAME
             from [PREFIX]_DIMENSIONS
-            where OWNER = {0}
+            where OWNER = {#0}
             order by DIMENSION_NAME
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="packages" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="packages">
         <statement prefixes="DBA, ALL">
             with
                 PACKAGE_SPECS as (
@@ -1670,7 +1668,7 @@
                           and p.OBJECT_NAME = o.OBJECT_NAME
                           and p.OBJECT_TYPE = o.OBJECT_TYPE
                     where o.OBJECT_TYPE = 'PACKAGE'
-                      and o.OWNER = {0}),
+                      and o.OWNER = {#0}),
                 PACKAGE_BODIES as (
                     select
                         o.OBJECT_NAME,
@@ -1683,7 +1681,7 @@
                           and p.OBJECT_NAME = o.OBJECT_NAME
                           and p.OBJECT_TYPE = o.OBJECT_TYPE
                     where o.OBJECT_TYPE = 'PACKAGE BODY'
-                      and o.OWNER = {0})
+                      and o.OWNER = {#0})
             select
                 nvl(s.OBJECT_NAME, b.OBJECT_NAME) as PACKAGE_NAME,
                 nvl(s.IS_SPEC_PRESENT, 'N') as IS_SPEC_PRESENT,
@@ -1705,7 +1703,7 @@
                         case when o.STATUS = 'VALID' then 'Y' else 'N' end as IS_SPEC_VALID
                     from [PREFIX]_OBJECTS o
                     where o.OBJECT_TYPE = 'PACKAGE'
-                      and o.OWNER = {0}),
+                      and o.OWNER = {#0}),
                 PACKAGE_BODIES as (
                     select
                         o.OBJECT_NAME,
@@ -1713,7 +1711,7 @@
                         case when o.STATUS = 'VALID' then 'Y' else 'N' end as IS_BODY_VALID
                     from [PREFIX]_OBJECTS o
                     where o.OBJECT_TYPE = 'PACKAGE BODY'
-                      and o.OWNER = {0})
+                      and o.OWNER = {#0})
             select
                 nvl(s.OBJECT_NAME, b.OBJECT_NAME) as PACKAGE_NAME,
                 nvl(s.IS_SPEC_PRESENT, 'N') as IS_SPEC_PRESENT,
@@ -1728,7 +1726,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="package-functions" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="package-functions">
         <statement prefixes="DBA, ALL">
             select
                 a.OBJECT_NAME as FUNCTION_NAME,
@@ -1740,8 +1738,8 @@
                 [PREFIX]_ARGUMENTS a,
                 [PREFIX]_PROCEDURES p
             where
-                a.OWNER = {0} and
-                a.PACKAGE_NAME = {1} and
+                a.OWNER = {#0} and
+                a.PACKAGE_NAME = {#1} and
                 a.POSITION = 0 and
                 p.OWNER = a.OWNER and
                 p.OBJECT_NAME = a.PACKAGE_NAME and
@@ -1764,8 +1762,8 @@
                 SYS.USER$ u,
                 SYS.OBJ$ o
             where
-                a.OWNER = {0} and
-                a.PACKAGE_NAME = {1} and
+                a.OWNER = {#0} and
+                a.PACKAGE_NAME = {#1} and
                 a.POSITION = 0 and
                 u.NAME = a.OWNER and
                 o.OWNER# = u.USER# and
@@ -1779,7 +1777,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-package-functions" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-package-functions" timeout="90">
         <statement prefixes="DBA, ALL">
             select
                 a.PACKAGE_NAME,
@@ -1792,12 +1790,12 @@
                 [PREFIX]_ARGUMENTS a,
                 [PREFIX]_PROCEDURES p
             where
-                a.OWNER = {0} and
+                a.OWNER = {#0} and
                 a.POSITION = 0 and
                 a.PACKAGE_NAME in (
                     select OBJECT_NAME
                     from [PREFIX]_OBJECTS
-                    where OWNER = {0} and OBJECT_TYPE = 'PACKAGE') and
+                    where OWNER = {#0} and OBJECT_TYPE = 'PACKAGE') and
                 p.OWNER = a.OWNER and
                 p.OBJECT_NAME = a.PACKAGE_NAME and
                 p.PROCEDURE_NAME = a.OBJECT_NAME and
@@ -1821,12 +1819,12 @@
                 SYS.USER$ u,
                 SYS.OBJ$ o
             where
-                a.OWNER = {0} and
+                a.OWNER = {#0} and
                 a.POSITION = 0 and
                 a.PACKAGE_NAME in (
                     select OBJECT_NAME
                     from [PREFIX]_OBJECTS
-                    where OWNER = {0} and OBJECT_TYPE = 'PACKAGE') and
+                    where OWNER = {#0} and OBJECT_TYPE = 'PACKAGE') and
                 u.NAME = a.OWNER and
                 o.OWNER# = u.USER# and
                 o.NAME = a.PACKAGE_NAME and
@@ -1840,7 +1838,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="package-procedures" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="package-procedures">
         <statement prefixes="DBA, ALL">
             select
                 a.OBJECT_NAME as PROCEDURE_NAME,
@@ -1852,8 +1850,8 @@
                 [PREFIX]_ARGUMENTS a,
                 [PREFIX]_PROCEDURES p
             where
-                a.OWNER = {0} and
-                a.PACKAGE_NAME = {1} and
+                a.OWNER = {#0} and
+                a.PACKAGE_NAME = {#1} and
                 a.POSITION = 1 and
                 a.SEQUENCE IN (1, 0) and
                 p.OWNER = a.OWNER and
@@ -1877,8 +1875,8 @@
                 SYS.USER$ u,
                 SYS.OBJ$ o
             where
-                a.OWNER = {0} and
-                a.PACKAGE_NAME = {1} and
+                a.OWNER = {#0} and
+                a.PACKAGE_NAME = {#1} and
                 a.POSITION = 1 and
                 a.SEQUENCE IN (1, 0) and
                 u.NAME = a.OWNER and
@@ -1893,7 +1891,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-package-procedures" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-package-procedures" timeout="90">
         <statement prefixes="DBA, ALL">
             select
                 a.PACKAGE_NAME,
@@ -1906,13 +1904,13 @@
                 [PREFIX]_ARGUMENTS a,
                 [PREFIX]_PROCEDURES p
             where
-                a.OWNER = {0} and
+                a.OWNER = {#0} and
                 a.POSITION = 1 and
                 a.SEQUENCE IN (1, 0) and
                 a.PACKAGE_NAME in (
                     select OBJECT_NAME
                     from [PREFIX]_OBJECTS
-                    where OWNER = {0} and OBJECT_TYPE = 'PACKAGE') and
+                    where OWNER = {#0} and OBJECT_TYPE = 'PACKAGE') and
                 p.OWNER = a.OWNER and
                 p.OBJECT_NAME = a.PACKAGE_NAME and
                 p.PROCEDURE_NAME = a.OBJECT_NAME and
@@ -1936,13 +1934,13 @@
                 SYS.USER$ u,
                 SYS.OBJ$ o
             where
-                a.OWNER = {0} and
+                a.OWNER = {#0} and
                 a.POSITION = 1 and
                 a.SEQUENCE IN (1, 0) and
                 a.PACKAGE_NAME in (
                     select OBJECT_NAME
                     from [PREFIX]_OBJECTS
-                    where OWNER = {0} and OBJECT_TYPE = 'PACKAGE') and
+                    where OWNER = {#0} and OBJECT_TYPE = 'PACKAGE') and
                 u.NAME = a.OWNER and
                 o.OWNER# = u.USER# and
                 o.NAME = a.PACKAGE_NAME and
@@ -1956,19 +1954,19 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="package-types" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="package-types">
         <statement prefixes="DBA, ALL">
             select distinct TYPE_SUBNAME as TYPE_NAME
             from [PREFIX]_ARGUMENTS
             where
                 TYPE_SUBNAME is not null and 
-                TYPE_OWNER = {0} and
-                TYPE_NAME = {1}
+                TYPE_OWNER = {#0} and
+                TYPE_NAME = {#1}
             order by TYPE_SUBNAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-package-types" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-package-types" timeout="90">
         <statement prefixes="DBA, ALL">
             select distinct
                 TYPE_NAME as PACKAGE_NAME,
@@ -1976,14 +1974,14 @@
             from [PREFIX]_ARGUMENTS
             where
                 TYPE_SUBNAME is not null and
-                TYPE_OWNER = {0}
+                TYPE_OWNER = {#0}
             order by
                 PACKAGE_NAME,
                 TYPE_SUBNAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="types" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="types">
         <statement prefixes="DBA, ALL">
             with
                 TYPE_SPECS as (
@@ -1998,7 +1996,7 @@
                           and p.OBJECT_NAME = o.OBJECT_NAME
                           and p.OBJECT_TYPE = o.OBJECT_TYPE
                     where o.OBJECT_TYPE = 'TYPE'
-                      and o.OWNER = {0}),
+                      and o.OWNER = {#0}),
                 TYPE_BODIES as (
                     select
                         o.OBJECT_NAME,
@@ -2011,7 +2009,7 @@
                          and p.OBJECT_NAME = o.OBJECT_NAME
                          and p.OBJECT_TYPE = o.OBJECT_TYPE
                     where o.OBJECT_TYPE = 'TYPE BODY'
-                      and o.OWNER = {0})
+                      and o.OWNER = {#0})
             select
                 t.TYPE_NAME,
                 t.SUPERTYPE_OWNER,
@@ -2037,7 +2035,7 @@
                 left join [PREFIX]_COLL_TYPES ct
                        on ct.OWNER = t.OWNER
                       and ct.TYPE_NAME = t.TYPE_NAME
-            where t.OWNER = {0}
+            where t.OWNER = {#0}
             order by t.TYPE_NAME
         </statement>
         <statement prefixes="DBA, ALL">
@@ -2050,7 +2048,7 @@
                         'N' as IS_SPEC_DEBUG
                     from [PREFIX]_OBJECTS o
                     where o.OBJECT_TYPE = 'TYPE'
-                      and o.OWNER = {0}),
+                      and o.OWNER = {#0}),
                 TYPE_BODIES as (
                     select
                         o.OBJECT_NAME,
@@ -2063,7 +2061,7 @@
                          and p.OBJECT_NAME = o.OBJECT_NAME
                          and p.OBJECT_TYPE = o.OBJECT_TYPE
                     where o.OBJECT_TYPE = 'TYPE BODY'
-                      and o.OWNER = {0})
+                      and o.OWNER = {#0})
             select
                 t.TYPE_NAME,
                 t.SUPERTYPE_OWNER,
@@ -2089,7 +2087,7 @@
                 left join [PREFIX]_COLL_TYPES ct
                        on ct.OWNER = t.OWNER
                       and ct.TYPE_NAME = t.TYPE_NAME
-            where t.OWNER = {0}
+            where t.OWNER = {#0}
             order by t.TYPE_NAME
         </statement>
         <statement prefixes="DBA, ALL">
@@ -2102,7 +2100,7 @@
                         'N' as IS_SPEC_DEBUG
                     from [PREFIX]_OBJECTS o
                     where o.OBJECT_TYPE = 'TYPE'
-                      and o.OWNER = {0}),
+                      and o.OWNER = {#0}),
                 TYPE_BODIES as (
                     select
                         o.OBJECT_NAME,
@@ -2115,7 +2113,7 @@
                          and p.OBJECT_NAME = o.OBJECT_NAME
                          and p.OBJECT_TYPE = o.OBJECT_TYPE
                     where o.OBJECT_TYPE = 'TYPE BODY'
-                      and o.OWNER = {0})
+                      and o.OWNER = {#0})
             select
                 t.TYPE_NAME,
                 t.SUPERTYPE_OWNER,
@@ -2138,12 +2136,12 @@
             from [PREFIX]_TYPES t
                 left join TYPE_SPECS s on s.OBJECT_NAME = t.TYPE_NAME
                 left join TYPE_BODIES b on b.OBJECT_NAME = t.TYPE_NAME
-            where t.OWNER = {0}
+            where t.OWNER = {#0}
             order by t.TYPE_NAME
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="type-attributes" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="type-attributes">
         <statement prefixes="DBA, ALL">
              select
                  ATTR_NAME as ATTRIBUTE_NAME,
@@ -2158,13 +2156,13 @@
                 'N' as IS_SET
              from  [PREFIX]_TYPE_ATTRS
              where
-                 OWNER = {0} and
-                 TYPE_NAME = {1}
+                 OWNER = {#0} and
+                 TYPE_NAME = {#1}
              order by ATTRIBUTE_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-type-attributes" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-type-attributes" timeout="90">
         <statement prefixes="DBA, ALL">
              select
                  TYPE_NAME,
@@ -2179,12 +2177,12 @@
                  SCALE as DATA_SCALE,
                  'N' as IS_SET
              from [PREFIX]_TYPE_ATTRS
-             where OWNER = {0}
+             where OWNER = {#0}
              order by TYPE_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="program-type-attributes" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="program-type-attributes">
         <statement prefixes="DBA, ALL">
             select distinct
                 ATTR_NAME as ATTRIBUTE_NAME,
@@ -2199,9 +2197,9 @@
                 'N' as IS_SET
             from [PREFIX]_PLSQL_TYPE_ATTRS aa1
             where
-                OWNER = {0} and
-                PACKAGE_NAME = {1} and
-                TYPE_NAME = {2}
+                OWNER = {#0} and
+                PACKAGE_NAME = {#1} and
+                TYPE_NAME = {#2}
             order by ATTR_NO
         </statement>
         <statement prefixes="DBA, ALL">
@@ -2224,9 +2222,9 @@
                     select PACKAGE_NAME
                     from [PREFIX]_ARGUMENTS
                     where
-                       TYPE_OWNER = {0} and
-                       TYPE_NAME = {1} and
-                       TYPE_SUBNAME = {2} and
+                       TYPE_OWNER = {#0} and
+                       TYPE_NAME = {#1} and
+                       TYPE_SUBNAME = {#2} and
                        DATA_LEVEL = 0 and
                        rownum = 1) and
                 SEQUENCE
@@ -2234,9 +2232,9 @@
                         select SEQUENCE
                         from [PREFIX]_ARGUMENTS aa2
                         where
-                            aa2.TYPE_OWNER = {0} and
-                            aa2.TYPE_NAME = {1} and
-                            aa2.TYPE_SUBNAME = {2} and
+                            aa2.TYPE_OWNER = {#0} and
+                            aa2.TYPE_NAME = {#1} and
+                            aa2.TYPE_SUBNAME = {#2} and
                             aa2.DATA_LEVEL = 0and
                             rownum = 1 and
                             aa2.OWNER = aa1.OWNER and
@@ -2257,9 +2255,9 @@
                                 select SEQUENCE
                                 from [PREFIX]_ARGUMENTS aa4
                                 where
-                                    aa4.TYPE_OWNER = {0} and
-                                    aa4.TYPE_NAME = {1} and
-                                    aa4.TYPE_SUBNAME = {2} and
+                                    aa4.TYPE_OWNER = {#0} and
+                                    aa4.TYPE_NAME = {#1} and
+                                    aa4.TYPE_SUBNAME = {#2} and
                                     aa4.DATA_LEVEL = 0 and
                                     rownum = 1 and
                                     aa4.OWNER = aa1.OWNER and
@@ -2270,7 +2268,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="type-functions" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="type-functions">
         <statement  prefixes="DBA, ALL">
             select
                 a.OBJECT_NAME as FUNCTION_NAME,
@@ -2282,8 +2280,8 @@
                 [PREFIX]_ARGUMENTS a,
                 [PREFIX]_PROCEDURES p
             where
-                a.OWNER = {0} and
-                a.PACKAGE_NAME = {1} and
+                a.OWNER = {#0} and
+                a.PACKAGE_NAME = {#1} and
                 a.POSITION = 0  and
                 p.OWNER = a.OWNER and
                 p.OBJECT_NAME = a.PACKAGE_NAME and
@@ -2306,8 +2304,8 @@
                 SYS.USER$ u,
                 SYS.OBJ$ o
             where
-                a.OWNER = {0} and
-                a.PACKAGE_NAME = {1} and
+                a.OWNER = {#0} and
+                a.PACKAGE_NAME = {#1} and
                 a.POSITION = 0 and
                 u.NAME = a.OWNER and
                 o.OWNER# = u.USER# and
@@ -2321,7 +2319,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-type-functions" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-type-functions" timeout="90">
         <statement prefixes="DBA, ALL">
             select
                 a.PACKAGE_NAME as TYPE_NAME,
@@ -2334,12 +2332,12 @@
                 [PREFIX]_ARGUMENTS a,
                 [PREFIX]_PROCEDURES p
             where
-                a.OWNER = {0} and
+                a.OWNER = {#0} and
                 a.POSITION = 0 and
                 a.PACKAGE_NAME in (
                     select OBJECT_NAME
                     from  [PREFIX]_OBJECTS
-                    where OWNER = {0} and OBJECT_TYPE = 'TYPE') and
+                    where OWNER = {#0} and OBJECT_TYPE = 'TYPE') and
                 p.OWNER = a.OWNER and
                 p.OBJECT_NAME = a.PACKAGE_NAME and
                 p.PROCEDURE_NAME = a.OBJECT_NAME and
@@ -2363,12 +2361,12 @@
                 SYS.USER$ u,
                 SYS.OBJ$ o
             where
-                a.OWNER = {0} and
+                a.OWNER = {#0} and
                 a.POSITION = 0 and
                 a.PACKAGE_NAME in (
                     select OBJECT_NAME
                     from [PREFIX]_OBJECTS
-                    where OWNER = {0} and OBJECT_TYPE = 'TYPE') and
+                    where OWNER = {#0} and OBJECT_TYPE = 'TYPE') and
                 u.NAME = a.OWNER and
                 o.OWNER# = u.USER# and
                 o.NAME = a.PACKAGE_NAME and
@@ -2382,7 +2380,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="type-procedures" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="type-procedures">
         <statement prefixes="DBA, ALL">
             select
                 a.OBJECT_NAME as PROCEDURE_NAME,
@@ -2394,8 +2392,8 @@
                 [PREFIX]_ARGUMENTS a,
                 [PREFIX]_PROCEDURES p
             where
-                a.OWNER = {0} and
-                a.PACKAGE_NAME = {1} and
+                a.OWNER = {#0} and
+                a.PACKAGE_NAME = {#1} and
                 a.POSITION = 1 and
                 a.SEQUENCE IN (1, 0) and
                 p.OWNER = a.OWNER and
@@ -2419,8 +2417,8 @@
                 SYS.USER$ u,
                 SYS.OBJ$ o
             where
-                a.OWNER = {0} and
-                a.PACKAGE_NAME = {1} and
+                a.OWNER = {#0} and
+                a.PACKAGE_NAME = {#1} and
                 a.POSITION = 1 and
                 a.SEQUENCE IN (1, 0) and
                 u.NAME = a.OWNER and
@@ -2435,7 +2433,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-type-procedures" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-type-procedures" timeout="90">
         <statement prefixes="DBA, ALL">
             select
                 a.PACKAGE_NAME as TYPE_NAME,
@@ -2448,13 +2446,13 @@
                 [PREFIX]_ARGUMENTS a,
                 [PREFIX]_PROCEDURES p
             where
-                a.OWNER = {0} and
+                a.OWNER = {#0} and
                 a.POSITION = 1 and
                 a.SEQUENCE IN (1, 0) and
                 a.PACKAGE_NAME in (
                     select OBJECT_NAME
                     from [PREFIX]_OBJECTS
-                    where OWNER = {0} and OBJECT_TYPE = 'TYPE') and
+                    where OWNER = {#0} and OBJECT_TYPE = 'TYPE') and
                 p.OWNER = a.OWNER and
                 p.OBJECT_NAME = a.PACKAGE_NAME and
                 p.PROCEDURE_NAME = a.OBJECT_NAME and
@@ -2478,13 +2476,13 @@
                 SYS.USER$ u,
                 SYS.OBJ$ o
             where
-                a.OWNER = {0} and
+                a.OWNER = {#0} and
                 a.POSITION = 1 and
                 a.SEQUENCE IN (1, 0) and
                 a.PACKAGE_NAME in (
                     select OBJECT_NAME
                     from [PREFIX]_OBJECTS
-                    where OWNER = {0} and OBJECT_TYPE = 'TYPE') and
+                    where OWNER = {#0} and OBJECT_TYPE = 'TYPE') and
                 u.NAME = a.OWNER and
                 o.OWNER# = u.USER# and
                 o.NAME = a.PACKAGE_NAME and
@@ -2498,7 +2496,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="method-arguments" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="method-arguments">
         <statement prefixes="DBA, ALL">
             select
                 ARGUMENT_NAME,
@@ -2519,11 +2517,11 @@
                 'N' as IS_SET
             from [PREFIX]_ARGUMENTS
             where
-                OWNER = {0} and
+                OWNER = {#0} and
                 PACKAGE_NAME is null and
-                OBJECT_NAME = {1} and
+                OBJECT_NAME = {#1} and
                 DATA_LEVEL = 0 and
-                (OVERLOAD = {3} or (OVERLOAD is NULL and {3} = 0)) and
+                (OVERLOAD = {#3} or (OVERLOAD is NULL and {#3} = 0)) and
                 (ARGUMENT_NAME is not null or POSITION = 0)
             order by
                 OBJECT_NAME,
@@ -2532,7 +2530,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="program-method-arguments" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="program-method-arguments">
         <statement prefixes="DBA, ALL">
             select
                 ARGUMENT_NAME,
@@ -2553,11 +2551,11 @@
                 'N' as IS_SET
             from [PREFIX]_ARGUMENTS
             where
-                OWNER = {0} and
-                PACKAGE_NAME = {1} and
-                OBJECT_NAME = {2} and
+                OWNER = {#0} and
+                PACKAGE_NAME = {#1} and
+                OBJECT_NAME = {#2} and
                 DATA_LEVEL = 0 and
-                (OVERLOAD = {3} or (OVERLOAD is NULL and {3} = 0)) and
+                (OVERLOAD = {#3} or (OVERLOAD is NULL and {#3} = 0)) and
                 (ARGUMENT_NAME is not null or POSITION = 0)
             order by
                 OVERLOAD,
@@ -2565,7 +2563,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-method-arguments" is-query="true" is-prepared-statement="true" timeout="90">
+    <statement-execution-processor id="all-method-arguments" timeout="90">
         <statement prefixes="DBA, ALL">
             select
                 ARGUMENT_NAME,
@@ -2586,7 +2584,7 @@
                 'N' as IS_SET
             from [PREFIX]_ARGUMENTS
             where
-                OWNER = {0} and
+                OWNER = {#0} and
                 DATA_LEVEL = 0 and
                 (ARGUMENT_NAME is not null or POSITION = 0)
             order by
@@ -2597,18 +2595,18 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="database-links" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="database-links">
         <statement prefixes="DBA, ALL">
             select
                 DB_LINK as DBLINK_NAME,
                 USERNAME as USER_NAME,
                 HOST
             from [PREFIX]_DB_LINKS
-            where OWNER = {0}
+            where OWNER = {#0}
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="referenced-objects" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="referenced-objects">
         <statement prefixes="DBA, ALL">
             select distinct * from (
                 select
@@ -2623,8 +2621,8 @@
                     ro.OBJECT_ID = pd.REFERENCED_OBJECT_ID and
                     o.OBJECT_ID = pd.OBJECT_ID and
                     (o.OWNER != ro.OWNER or o.OBJECT_NAME != ro.OBJECT_NAME) and
-                    o.OWNER = {0} and
-                    o.OBJECT_NAME = {1})
+                    o.OWNER = {#0} and
+                    o.OBJECT_NAME = {#1})
             order by
                 OBJECT_OWNER,
                 OBJECT_TYPE,
@@ -2639,8 +2637,8 @@
                 from [PREFIX]_DEPENDENCIES
                 where
                    (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME) and
-                    OWNER = {0} and
-                    NAME = {1})
+                    OWNER = {#0} and
+                    NAME = {#1})
             order by
                 OBJECT_OWNER,
                 OBJECT_TYPE,
@@ -2648,7 +2646,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="referencing-objects" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="referencing-objects">
         <statement prefixes="DBA, ALL">
             select distinct * from (
                 select
@@ -2663,8 +2661,8 @@
                     o.OBJECT_ID = pd.OBJECT_ID and
                     ro.OBJECT_ID = pd.REFERENCED_OBJECT_ID and
                     (o.OWNER != ro.OWNER or o.OBJECT_NAME != ro.OBJECT_NAME) and
-                    ro.OWNER = {0} and
-                    ro.OBJECT_NAME = {1})
+                    ro.OWNER = {#0} and
+                    ro.OBJECT_NAME = {#1})
             order by
                 OBJECT_OWNER,
                 OBJECT_TYPE,
@@ -2678,8 +2676,8 @@
                     decode(TYPE, 'PACKAGE BODY', 'PACKAGE', 'TYPE BODY', 'TYPE', TYPE) as OBJECT_TYPE
                 from [PREFIX]_DEPENDENCIES where
                     (OWNER != REFERENCED_OWNER or NAME != REFERENCED_NAME) and
-                    REFERENCED_OWNER = {0} and
-                    REFERENCED_NAME = {1})
+                    REFERENCED_OWNER = {#0} and
+                    REFERENCED_NAME = {#1})
             order by
                 OBJECT_OWNER,
                 OBJECT_TYPE,
@@ -2687,28 +2685,28 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="referencing-schemas" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="referencing-schemas">
         <statement prefixes="DBA, ALL">
             select distinct OWNER as SCHEMA_NAME
             from [PREFIX]_DEPENDENCIES
             where
-                REFERENCED_OWNER = {0} and
-                REFERENCED_NAME = {1}
+                REFERENCED_OWNER = {#0} and
+                REFERENCED_NAME = {#1}
             order by
                 OWNER
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="sequences" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="sequences">
         <statement prefixes="DBA, ALL">
             select SEQUENCE_NAME
             from [PREFIX]_SEQUENCES
-            where SEQUENCE_OWNER = {0}
+            where SEQUENCE_OWNER = {#0}
             order by SEQUENCE_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="synonyms" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="synonyms">
         <statement prefixes="DBA, ALL">
             select
                 NAME as SYNONYM_NAME,
@@ -2719,46 +2717,46 @@
             from [PREFIX]_DEPENDENCIES d
             where
                 TYPE = 'SYNONYM' and
-                OWNER = {0}
+                OWNER = {#0}
             order by NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="view-source-code" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="view-source-code">
         <statement prefixes="DBA, ALL" since-version="12.0">
             select TEXT_VC as SOURCE_CODE
             from [PREFIX]_VIEWS
             where
-                OWNER = {0} and
-                VIEW_NAME = {1}
+                OWNER = {#0} and
+                VIEW_NAME = {#1}
         </statement>
         <statement prefixes="DBA, ALL">
             select TEXT as SOURCE_CODE
             from [PREFIX]_VIEWS
             where
-                OWNER = {0} and
-                VIEW_NAME = {1}
+                OWNER = {#0} and
+                VIEW_NAME = {#1}
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="materialized-view-source-code" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="materialized-view-source-code">
         <statement prefixes="DBA, ALL">
             select QUERY as SOURCE_CODE
             from [PREFIX]_MVIEWS
             where
-                OWNER = {0} and
-                MVIEW_NAME = {1}
+                OWNER = {#0} and
+                MVIEW_NAME = {#1}
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="object-source-code" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="object-source-code">
         <statement prefixes="DBA, ALL">
             select TEXT as SOURCE_CODE
             from [PREFIX]_SOURCE
             where
-                OWNER = {0} and
-                NAME = {1} and
-                TYPE = {2} and
+                OWNER = {#0} and
+                NAME = {#1} and
+                TYPE = {#2} and
                 ORIGIN_CON_ID = SYS_CONTEXT('USERENV', 'CON_ID')
             order by LINE asc
         </statement>
@@ -2766,9 +2764,9 @@
             select TEXT as SOURCE_CODE
             from [PREFIX]_SOURCE
             where
-                OWNER = {0} and
-                NAME = {1} and
-                TYPE = {2}
+                OWNER = {#0} and
+                NAME = {#1} and
+                TYPE = {#2}
             order by LINE asc
         </statement>
     </statement-execution-processor>
@@ -2779,7 +2777,7 @@
                 V_CLOB CLOB;
             begin
                 DBMS_LOB.CREATETEMPORARY(V_CLOB, TRUE);
-                DBMS_JAVA.export_resource('{1}', '{0}', V_CLOB);
+                DBMS_JAVA.export_resource({#1}, {#0}, V_CLOB);
                 ? := V_CLOB;
             end;
         </statement>
@@ -2791,55 +2789,55 @@
                 V_BLOB BLOB;
             begin
                 DBMS_LOB.CREATETEMPORARY(v_blob, TRUE);
-                DBMS_JAVA.export_class('{1}', '{0}', v_blob);
+                DBMS_JAVA.export_class({#1}, {#0}, v_blob);
                 ? := V_BLOB;
             end;
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="object-change-timestamp" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="object-change-timestamp">
         <statement prefixes="DBA, ALL">
             select (to_date(TIMESTAMP, 'YYYY-MM-DD:HH24:MI:SS') - TO_DATE('1970-01-01', 'YYYY-MM-DD')) * 86400 * 1000 AS MODIFIED
             from [PREFIX]_OBJECTS
             where
-                 OWNER = {0} and
-                 OBJECT_NAME = {1} and
-                 OBJECT_TYPE = {2}
+                 OWNER = {#0} and
+                 OBJECT_NAME = {#1} and
+                 OBJECT_TYPE = {#2}
         </statement>
         <statement prefixes="DBA, ALL">
             select (LAST_DDL_TIME - TO_DATE('1970-01-01', 'YYYY-MM-DD')) * 86400 * 1000 AS MODIFIED
             from [PREFIX]_OBJECTS
             where
-                 OWNER = {0} and
-                 OBJECT_NAME = {1} and
-                 OBJECT_TYPE = {2}
+                 OWNER = {#0} and
+                 OBJECT_NAME = {#1} and
+                 OBJECT_TYPE = {#2}
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="invalid-objects" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="invalid-objects">
         <statement prefixes="DBA, ALL">
             select
                  OBJECT_NAME,
                  OBJECT_TYPE
             from [PREFIX]_OBJECTS
             where
-                 OWNER = {0} and
+                 OWNER = {#0} and
                  STATUS = 'INVALID'
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="debug-objects" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="debug-objects">
         <statement>
             select
                  OBJECT_NAME,
                  OBJECT_TYPE
             from SYS.ALL_PROBE_OBJECTS
             where
-                 OWNER = {0} and
+                 OWNER = {#0} and
                  DEBUGINFO = 'T'
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="object-compile-errors" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="object-compile-errors">
         <statement prefixes="DBA, ALL">
             select
                 LINE,
@@ -2848,34 +2846,34 @@
                 TYPE as OBJECT_TYPE
             from [PREFIX]_ERRORS
             where
-                OWNER = {0} and
-                NAME = {1}
+                OWNER = {#0} and
+                NAME = {#1}
             order by
                 TYPE,
                 SEQUENCE asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="has-system-privilege" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="has-system-privilege">
         <statement>
             select
                 case
-                    when exists (select 1 from SESSION_PRIVS where PRIVILEGE = {0})
+                    when exists (select 1 from SESSION_PRIVS where PRIVILEGE = {#0})
                     then 'Y'
                     else 'N'
                 end as value
             from DUAL
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="has-object-privilege" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="has-object-privilege">
         <statement>
             select
                 case
                     when exists (
                         select 1
                           from ALL_TAB_PRIVS P
-                          where P.PRIVILEGE = {0}
-                            and P.TABLE_SCHEMA = {1}
-                            and P.TABLE_NAME = {2}
+                          where P.PRIVILEGE = {#0}
+                            and P.TABLE_SCHEMA = {#1}
+                            and P.TABLE_NAME = {#2}
                             and (P.GRANTEE = USER
                               or P.GRANTEE = 'PUBLIC'
                               or exists (select 1 from SESSION_ROLES R where R.ROLE = P.GRANTEE)))
@@ -2885,16 +2883,16 @@
             from DUAL
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="has-network-privilege" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="has-network-privilege">
         <statement>
             select
                 case
                     when exists (
                         SELECT 1 FROM DBA_HOST_ACES
                         WHERE
-                            PRINCIPAL = {0} AND
-                            HOST = {1}  AND
-                            UPPER(PRIVILEGE) = UPPER({2}))
+                            PRINCIPAL = {#0} AND
+                            HOST = {#1}  AND
+                            UPPER(PRIVILEGE) = UPPER({#2}))
                 then 'Y'
                 else 'N'
                 end as value
@@ -2906,29 +2904,29 @@
                     when exists (
                         SELECT 1 FROM USER_HOST_ACES
                         WHERE
-                            USER = {0} AND
-                            HOST = {1} AND
-                            UPPER(PRIVILEGE) = UPPER({2}))
+                            USER = {#0} AND
+                            HOST = {#1} AND
+                            UPPER(PRIVILEGE) = UPPER({#2}))
                     then 'Y'
                     else 'N'
                 end as value
             from DUAL
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="grant-network-privilege" is-prepared-statement="true">
+    <statement-execution-processor id="grant-network-privilege">
         <statement>
             BEGIN
                 DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
-                    host => {1},
+                    host => {#1},
                     ace => xs$ace_type(
-                        privilege_list => xs$name_list({2}),
-                        principal_name => {0},
+                        privilege_list => xs$name_list({#2}),
+                        principal_name => {#0},
                         principal_type => xs_acl.ptype_db)
                     );
             END;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="has-quota-on-tablespace" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="has-quota-on-tablespace">
         <statement>
             select
                 case
@@ -2941,28 +2939,28 @@
             from DUAL
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="explain-plan-result" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="explain-plan-result">
         <statement>
             select * from PLAN_TABLE order by PARENT_ID nulls first, ID
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="clear-explain-plan-data" is-prepared-statement="true">
+    <statement-execution-processor id="clear-explain-plan-data">
         <statement>
             delete PLAN_TABLE
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="enable-log-output" is-prepared-statement="true">
+    <statement-execution-processor id="enable-log-output">
         <statement>
             begin dbms_output.enable(1000000); end;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="disable-log-output" is-prepared-statement="true">
+    <statement-execution-processor id="disable-log-output">
         <statement>
             begin dbms_output.disable(); end;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="read-log-output" is-prepared-statement="true">
+    <statement-execution-processor id="read-log-output">
         <statement>
             declare 
                 v_line varchar2(32767);
@@ -2980,7 +2978,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="load-distinct-values" is-query="true">
+    <statement-execution-processor id="load-distinct-values">
         <statement>
             select distinct {2} from {0}.{1} where {2} is not null order by {2}
         </statement>
@@ -2992,13 +2990,13 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="validate-connection" timeout="5" is-prepared-statement="true">
+    <statement-execution-processor id="validate-connection" timeout="5">
         <statement>
             select 1 from dual
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="session-user" is-prepared-statement="true" is-query="true" timeout="20">
+    <statement-execution-processor id="session-user" timeout="20">
         <statement>
             select USER from DUAL
         </statement>
@@ -3030,7 +3028,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="sessions" is-prepared-statement="true">
+    <statement-execution-processor id="sessions">
         <statement>
             SELECT * FROM (
                 WITH vs AS (SELECT ROWNUM rnum,
@@ -3319,7 +3317,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="data-change-event-registrations" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="data-change-event-registrations">
         <statement>
             select
                 USERNAME as USER_NAME,
@@ -3345,68 +3343,68 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="session-sql" is-prepared-statement="true" timeout="10">
+    <statement-execution-processor id="session-sql" timeout="10">
         <statement>
             select sql.SQL_FULLTEXT as sql_statement
             from V$SESSION s
             join V$SQLAREA sql
             on sql.SQL_ID = nvl(s.SQL_ID, s.PREV_SQL_ID)
-            where s.SID = {0}
+            where s.SID = {#0}
         </statement>
         <statement>
             select sql.SQL_FULLTEXT as sql_statement
             from GV$SESSION s
             join GV$SQLAREA sql
             on sql.SQL_ID = nvl(s.SQL_ID, s.PREV_SQL_ID)
-            where s.SID = {0}
+            where s.SID = {#0}
         </statement>
         <statement>
             select sql.SQL_FULLTEXT as sql_statement
             from V$SESSION s
             join V$SQL sql
             on sql.SQL_ID = nvl(s.SQL_ID, s.PREV_SQL_ID)
-            where s.SID = {0}
+            where s.SID = {#0}
         </statement>
         <statement>
             select sql.SQL_FULLTEXT as sql_statement
             from GV$SESSION s
             join GV$SQL sql
             on sql.SQL_ID = nvl(s.SQL_ID, s.PREV_SQL_ID)
-            where s.SID = {0}
+            where s.SID = {#0}
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="disconnect-session" is-prepared-statement="true" timeout="10">
+    <statement-execution-processor id="disconnect-session" timeout="10">
         <statement>
             ALTER SYSTEM DISCONNECT SESSION '{0},{1}'
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="disconnect-session-immediate" is-prepared-statement="true" timeout="10">
+    <statement-execution-processor id="disconnect-session-immediate" timeout="10">
         <statement>
             ALTER SYSTEM DISCONNECT SESSION '{0},{1}' IMMEDIATE
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="disconnect-session-post-transaction" is-prepared-statement="true" timeout="30">
+    <statement-execution-processor id="disconnect-session-post-transaction" timeout="30">
         <statement>
             ALTER SYSTEM DISCONNECT SESSION '{0},{1}' POST_TRANSACTION
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="kill-session" is-prepared-statement="true" timeout="10">
+    <statement-execution-processor id="kill-session" timeout="10">
         <statement>
             ALTER SYSTEM KILL SESSION '{0},{1}'
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="kill-session-immediate" is-prepared-statement="true" timeout="10">
+    <statement-execution-processor id="kill-session-immediate" timeout="10">
         <statement>
             ALTER SYSTEM KILL SESSION '{0},{1}' IMMEDIATE
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="count-pending-transactions" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="count-pending-transactions">
         <statement>
             select count(*) as COUNT
               from V$TRANSACTION t,

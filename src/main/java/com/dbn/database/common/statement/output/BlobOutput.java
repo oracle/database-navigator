@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.database.common.statement;
+package com.dbn.database.common.statement.output;
 
 import com.dbn.common.exception.Exceptions;
+import com.dbn.database.common.statement.CallableStatementOutputBase;
 import lombok.Getter;
 
 import java.io.InputStream;
@@ -26,17 +27,17 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 @Getter
-public class ByteArray implements CallableStatementOutput{
+public class BlobOutput extends CallableStatementOutputBase {
     private byte[] value;
 
     @Override
     public void registerParameters(CallableStatement statement) throws SQLException {
-        statement.registerOutParameter(1, Types.BLOB);
+        statement.registerOutParameter(shifted(1), Types.BLOB);
     }
 
     @Override
     public void read(CallableStatement statement) throws SQLException {
-        Blob blob = statement.getBlob(1);
+        Blob blob = statement.getBlob(shifted(1));
         try (InputStream binaryStream = blob.getBinaryStream()) {
             value = binaryStream.readAllBytes();
         } catch (Exception e) {

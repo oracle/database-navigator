@@ -205,7 +205,10 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
 
   @Override
   public void restoreUserInput(@Nullable ModelFactoryInput input) {
-    //todo
+    if (input == null) return;
+
+    modelNameTextField.setText(input.getModelName());
+    modelFileTextField.setText(input.getSourceLocation());
   }
 
   @Override

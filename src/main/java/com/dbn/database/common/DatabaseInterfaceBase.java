@@ -26,6 +26,7 @@ import com.dbn.database.common.statement.CallableStatementOutput;
 import com.dbn.database.common.statement.StatementExecutionProcessor;
 import com.dbn.database.interfaces.DatabaseInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
+import com.dbn.language.common.QuotePair;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
@@ -64,56 +65,63 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
         }
     }
 
+    protected QuotePair getIdentifierEnquoter(@NotNull DBNConnection connection) {
+        QuotePair quotePair = connection.getIdentifierEnquoter();
+        if (quotePair != null) return quotePair;
+
+        return interfaces.getCompatibilityInterface().getDefaultIdentifierQuotes();
+    }
+
     @SneakyThrows
     private Element loadDefinition() {
         return XmlContents.fileToElement(getClass(), fileName);
     }
 
-    protected ResultSet executeQuery(@NotNull DBNConnection connection, @NonNls String loaderId, @Nullable Object... arguments) throws SQLException {
-        return executeQuery(connection, false, loaderId, arguments);
+    protected ResultSet executeQuery(@NotNull DBNConnection connection, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
+        return executeQuery(connection, false, statementId, arguments);
     }
 
-    protected ResultSet executeQuery(@NotNull DBNConnection connection, boolean forceExecution, @NonNls String loaderId, @Nullable Object... arguments) throws SQLException {
-        StatementExecutionProcessor executionProcessor = getExecutionProcessor(loaderId);
+    protected ResultSet executeQuery(@NotNull DBNConnection connection, boolean forceExecution, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
+        StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
         ResultSet result = executionProcessor.executeQuery(connection, forceExecution, arguments);
         checkDisposed(connection);
         return result;
     }
 
-    protected <T extends CallableStatementOutput> T executeCall(@NotNull DBNConnection connection, @Nullable T outputReader, @NonNls String loaderId, @Nullable Object... arguments) throws SQLException {
-        StatementExecutionProcessor executionProcessor = getExecutionProcessor(loaderId);
+    protected <T extends CallableStatementOutput> T executeCall(@NotNull DBNConnection connection, @Nullable T outputReader, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
+        StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
         T result = executionProcessor.executeCall(connection, outputReader, arguments);
         checkDisposed(connection);
         return result;
     }
 
     @NonNls
-    protected boolean executeStatement(@NotNull DBNConnection connection, @NonNls String loaderId, @Nullable Object... arguments) throws SQLException {
-        StatementExecutionProcessor executionProcessor = getExecutionProcessor(loaderId);
+    protected boolean executeStatement(@NotNull DBNConnection connection, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
+        StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
         boolean result = executionProcessor.executeStatement(connection, arguments);
         checkDisposed(connection);
         return result;
     }
 
     @NonNls
-    protected void executeUpdate(@NotNull DBNConnection connection, @NonNls String loaderId, @Nullable Object... arguments) throws SQLException {
-        StatementExecutionProcessor executionProcessor = getExecutionProcessor(loaderId);
+    protected void executeUpdate(@NotNull DBNConnection connection, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
+        StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
         executionProcessor.executeUpdate(connection, arguments);
         checkDisposed(connection);
     }
 
     @NonNls
-    protected void executeSilentUpdate(@NotNull DBNConnection connection, @NonNls String loaderId, @Nullable Object... arguments) {
-        Unsafe.warned(() -> executeUpdate(connection, loaderId, arguments));
+    protected void executeSilentUpdate(@NotNull DBNConnection connection, @NonNls String statementId, @Nullable Object... arguments) {
+        Unsafe.warned(() -> executeUpdate(connection, statementId, arguments));
     }
 
 
     @NotNull
-    private StatementExecutionProcessor getExecutionProcessor(@NonNls String loaderId) throws SQLException {
-        StatementExecutionProcessor executionProcessor = processors.get(loaderId);
+    private StatementExecutionProcessor getExecutionProcessor(@NonNls String statementId) throws SQLException {
+        StatementExecutionProcessor executionProcessor = processors.get(statementId);
         if (executionProcessor == null) {
             DatabaseType databaseType = interfaces.getDatabaseType();
-            throw new SQLFeatureNotSupportedException("Feature [" + loaderId + "] not implemented / supported for " + databaseType.getName() + " database type");
+            throw new SQLFeatureNotSupportedException("Feature [" + statementId + "] not implemented / supported for " + databaseType.getName() + " database type");
         }
         return executionProcessor;
     }
@@ -122,15 +130,15 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
         nd(connection.getProject());
     }
 
-    protected final boolean getBooleanValue(DBNConnection connection, String loaderId, Object... arguments) throws SQLException {
-        return Data.asBooleanPrimitive(getSingleValue(connection, loaderId, arguments));
+    protected final boolean getBooleanValue(DBNConnection connection, String statementId, Object... arguments) throws SQLException {
+        return Data.asBooleanPrimitive(getSingleValue(connection, statementId, arguments));
     }
 
 
-    protected final String getSingleValue(DBNConnection connection, String loaderId, Object... arguments) throws SQLException {
+    protected final String getSingleValue(DBNConnection connection, String statementId, Object... arguments) throws SQLException {
         ResultSet resultSet = null;
         try {
-            resultSet = executeQuery(connection, loaderId, arguments);
+            resultSet = executeQuery(connection, statementId, arguments);
             if (resultSet.next()) {
                 return resultSet.getString(1);
             }

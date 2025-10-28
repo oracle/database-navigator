@@ -198,7 +198,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
                 // update the progress bar
                 progress.setFraction(fraction);
-                progress.setText(String.format(
+                progress.setText2(String.format(
                         "Uploaded %.1f MB of %.1f MB",
                         bytesUploaded / (1024.0 * 1024.0),
                         totalMB

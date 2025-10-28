@@ -19,7 +19,7 @@ package com.dbn.database.oracle;
 import com.dbn.assistant.AssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
-import com.dbn.database.common.assistant.AssistantQueryResponse;
+import com.dbn.database.common.statement.output.ClobOutput;
 import com.dbn.database.common.util.BooleanResultSetConsumer;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
@@ -49,16 +49,8 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
     super("oracle_ai_interface.xml", provider);
   }
 
-  public AssistantQueryResponse generate(DBNConnection connection, String action, String profile, String attributes, String prompt) throws SQLException {
-    return executeCall(connection, new AssistantQueryResponse(), "ai-generate", profile, action, attributes, prompt);
-  }
-  public AssistantQueryResponse generateRag(DBNConnection connection,String prompt) throws SQLException {
-    return executeCall(connection, new AssistantQueryResponse(), "ai-generate-rag-example", prompt,"{\n" +
-            "            \"provider\"        : \"cohere\",\n" +
-            "            \"credential_name\" : \"NJHUH\",\n" +
-            "            \"url\"             : \"https://api.cohere.ai/v1/chat\",\n" +
-            "            \"model\"           : \"command-r\"\n" +
-            "            }");
+  public String generate(DBNConnection connection, String action, String profile, String attributes, String prompt) throws SQLException {
+    return executeCall(connection, new ClobOutput(), "ai-generate", profile, action, attributes, prompt).getValue();
   }
 
   @Override

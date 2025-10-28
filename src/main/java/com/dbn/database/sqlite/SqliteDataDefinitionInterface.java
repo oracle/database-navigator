@@ -85,30 +85,30 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         // try instructions
         String objectType = "VIEW";
         String tempViewName = getTempObjectName(objectType);
-        dropObjectIfExists(objectType, tempViewName, connection);
+        dropObjectIfExists(objectType, ownerName, tempViewName, connection);
         createView(tempViewName, code, connection);
-        dropObjectIfExists(objectType, tempViewName, connection);
+        dropObjectIfExists(objectType, ownerName, tempViewName, connection);
 
         // instructions
-        dropObjectIfExists(objectType, viewName, connection);
+        dropObjectIfExists(objectType, ownerName, viewName, connection);
         createView(viewName, code, connection);
     }
 
     @Override
-    public void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+    public void updateTrigger(String ownerName, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
         String objectType = "TRIGGER";
         String tempTriggerName = getTempObjectName(objectType);
-        dropObjectIfExists(objectType, tempTriggerName, connection);
+        dropObjectIfExists(objectType, ownerName, tempTriggerName, connection);
         createObject(newCode.replaceFirst("(?i)" + triggerName, tempTriggerName), connection);
-        dropObjectIfExists(objectType, tempTriggerName, connection);
+        dropObjectIfExists(objectType, ownerName, tempTriggerName, connection);
 
-        dropObjectIfExists(objectType, triggerName, connection);
+        dropObjectIfExists(objectType, ownerName, triggerName, connection);
         createObject(newCode, connection);
     }
 
     @Override
-    public void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
-        dropObjectIfExists(objectType, objectName, connection);
+    public void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+        dropObjectIfExists(objectType, ownerName, objectName, connection);
         try {
             createObject(newCode, connection);
         } catch (SQLException e) {
@@ -116,13 +116,6 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             createObject(oldCode, connection);
             throw e;
         }
-    }
-
-    /*********************************************************
-     *                     DROP statements                   *
-     *********************************************************/
-    private void dropObjectIfExists(String objectType, String objectName, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "drop-object-if-exists", objectType, objectName);
     }
 
     /*********************************************************

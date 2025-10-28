@@ -17,8 +17,6 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.common.statement.ByteArray;
-import com.dbn.database.common.statement.ClobText;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -687,9 +685,9 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
 
     ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, short overload, DBNConnection connection) throws SQLException;
 
-    ClobText loadJavaResourceSourceCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+    String loadJavaResourceSourceCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
-    ByteArray loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+    byte[] loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     /**
      * Loads a actions of invalid object names for the given owner.

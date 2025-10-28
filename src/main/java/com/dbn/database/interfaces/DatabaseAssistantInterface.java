@@ -18,7 +18,6 @@ package com.dbn.database.interfaces;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.common.assistant.AssistantQueryResponse;
 import com.dbn.object.factory.ModelFactoryInput;
 import com.dbn.vector.model.chunk.ChunkConfiguration;
 import com.dbn.vector.model.embed.EmbedConfig;
@@ -50,8 +49,7 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
    * @return The result of the AI query execution.
    * @throws SQLException If there is an error in executing the AI query.
    */
-  AssistantQueryResponse generate(DBNConnection connection, String action, String profile, String attributes, String prompt) throws SQLException;
-  public AssistantQueryResponse generateRag(DBNConnection connection, String prompt) throws SQLException ;
+  String generate(DBNConnection connection, String action, String profile, String attributes, String prompt) throws SQLException;
 
   /**
    * Grant a user the necessary privileges to access needed packages (DBMS_CLOUD, DBMS_CLOUD_AI)

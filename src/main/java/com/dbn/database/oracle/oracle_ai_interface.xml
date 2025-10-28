@@ -19,8 +19,6 @@
         <!ELEMENT statement-execution-processor (statement)*>
         <!ATTLIST statement-execution-processor
                 id CDATA #REQUIRED
-                is-query CDATA #IMPLIED
-                is-prepared-statement CDATA #IMPLIED
                 timeout CDATA #IMPLIED>
         <!ELEMENT statement (#PCDATA)>
         <!ATTLIST statement
@@ -70,26 +68,26 @@
             end;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="ai-generate" timeout="60" is-prepared-statement="true">
+    <statement-execution-processor id="ai-generate" timeout="60">
         <statement>
             declare
                 v_response CLOB;
             begin
                 v_response := DBMS_CLOUD_AI.GENERATE(
-                                    prompt       => {3},
-                                    profile_name => {0},
-                                    action       => {1},
-                                    attributes   => {2});
+                                    prompt       => {#3},
+                                    profile_name => {#0},
+                                    action       => {#1},
+                                    attributes   => {#2});
                 ? := v_response;
             end;
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="ai-generate-rag-example" timeout="60" is-prepared-statement="true">
+    <statement-execution-processor id="ai-generate-rag-example" timeout="60">
         <statement>
             DECLARE
-            v_prompt   CLOB;
-            v_response CLOB;
+                v_prompt   CLOB;
+                v_response CLOB;
             BEGIN
             WITH ranked AS (
                 SELECT CONTENT
@@ -97,7 +95,7 @@
                     ORDER BY vector_distance(
                                 rnw.EMBEDDING_TITLE,
                                 vector_embedding(doc_model
-                                        USING {0} AS data)
+                                        USING {#0} AS data)
                     ) ASC
                 FETCH FIRST 5 ROWS ONLY
             ), prompt_text AS (
@@ -111,7 +109,7 @@
 
             v_response := DBMS_VECTOR.UTL_TO_GENERATE_TEXT(
             v_prompt,
-            JSON({1})
+                JSON({#1})
             );
 
             ? := v_response;
@@ -119,7 +117,7 @@
         </statement>
     </statement-execution-processor>
 
-<!--    <statement-execution-processor id="ai-generate-rag" timeout="60" is-prepared-statement="true">-->
+<!--    <statement-execution-processor id="ai-generate-rag" timeout="60">-->
 <!--        <statement>-->
 <!--            DECLARE-->
 <!--            v_prompt   CLOB;-->
@@ -154,13 +152,13 @@
 <!--            END;-->
 <!--        </statement>-->
 <!--    </statement-execution-processor>-->
-    <statement-execution-processor id="update-credential-attribute" timeout="120" is-prepared-statement="true">
+    <statement-execution-processor id="update-credential-attribute" timeout="120">
         <statement>
             begin
                 DBMS_CLOUD.UPDATE_CREDENTIAL(
-                        credential_name => {0},
-                        attribute       => {1},
-                        value           => {2});
+                        credential_name => {#0},
+                        attribute       => {#1},
+                        value           => {#2});
             end;
         </statement>
     </statement-execution-processor>
@@ -244,7 +242,7 @@
             END;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="is-feature-supported" timeout="20" is-query="true">
+    <statement-execution-processor id="is-feature-supported" timeout="20">
         <statement prefixes="DBA, ALL">
             select 'Y' from DUAL
             where exists (select 1
@@ -252,7 +250,7 @@
                           where OBJECT_NAME like '%DBMS_CLOUD_AI%')
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="load-onnx-model-from-object-storage" timeout="120" is-query="true">
+    <statement-execution-processor id="load-onnx-model-from-object-storage" timeout="120">
         <statement>
             BEGIN
             DBMS_VECTOR.LOAD_ONNX_MODEL_CLOUD(
@@ -333,48 +331,37 @@
             END;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="insert-vector-embeddings" timeout="120000" is-prepared-statement="true"  is-query="false">
+    <statement-execution-processor id="insert-vector-embeddings" timeout="120000">
         <statement>
-            DECLARE
-            v_tbl VARCHAR2(128) := {0};
-            v_src VARCHAR2(128) := {1};
-            v_col VARCHAR2(128) := {2};
-            v_chunk_cfg CLOB := {3};
-            v_embed_cfg CLOB := {4};
             BEGIN
-            EXECUTE IMMEDIATE '
-            INSERT INTO ' || v_tbl || ' (id, text, embedding,metadata)
-            SELECT
-            SYS_GUID(),
-            JSON_VALUE(t.COLUMN_VALUE, ''$.embed_data'' RETURNING CLOB),
-            TO_VECTOR(JSON_VALUE(t.COLUMN_VALUE, ''$.embed_vector'' RETURNING CLOB)), null
-            FROM ' || v_src || ' src,
-            TABLE(
-            DBMS_VECTOR_CHAIN.UTL_TO_EMBEDDINGS(
-            DBMS_VECTOR_CHAIN.UTL_TO_CHUNKS(
-            src.' || v_col || ',
-            json(:chunk_cfg)
-            ),
-            json(:embed_cfg)
-            )
-            ) t'
-            USING  v_chunk_cfg, v_embed_cfg;
+                INSERT INTO {0} (id, text, embedding, metadata)
+                SELECT
+                    SYS_GUID(),
+                    JSON_VALUE(t.COLUMN_VALUE, '$.embed_data' RETURNING CLOB),
+                    TO_VECTOR(JSON_VALUE(t.COLUMN_VALUE, '$.embed_vector' RETURNING CLOB)), null
+                FROM {1} src,
+                    TABLE(
+                        DBMS_VECTOR_CHAIN.UTL_TO_EMBEDDINGS(
+                                DBMS_VECTOR_CHAIN.UTL_TO_CHUNKS(src.{2}, json({#3})),
+                                json({#4})
+                    )
+                ) t;
             END;
         </statement>
     </statement-execution-processor>
-        <statement-execution-processor id="insert-vector-embeddings-from-filesystem" timeout="120000" is-prepared-statement="true"  is-query="false">
+        <statement-execution-processor id="insert-vector-embeddings-from-filesystem" timeout="120000">
         <statement>
             DECLARE
-            v_tbl              VARCHAR2(128)  := {0};
-            v_doc_table        VARCHAR2(128)  := {1};
-            v_doc_id           VARCHAR2(128)   := {2};
+            v_tbl              VARCHAR2(128)  := {#0};
+            v_doc_table        VARCHAR2(128)  := {#1};
+            v_doc_id           VARCHAR2(128)   := {#2};
             v_doc              BLOB;
-            v_text_column      VARCHAR2(128)  := {3};
-            v_embedding_column VARCHAR2(128)  := {4};
-            v_metadata_column  VARCHAR2(128)  := {5};
-            v_chunk_cfg        CLOB           := {6};
-            v_embed_cfg        CLOB           := {7};
-            v_metadata         VARCHAR2(1000) := {8};
+            v_text_column      VARCHAR2(128)  := {#3};
+            v_embedding_column VARCHAR2(128)  := {#4};
+            v_metadata_column  VARCHAR2(128)  := {#5};
+            v_chunk_cfg        CLOB           := {#6};
+            v_embed_cfg        CLOB           := {#7};
+            v_metadata         VARCHAR2(1000) := {#8};
             BEGIN
             EXECUTE IMMEDIATE 'SELECT b_lob FROM ' || v_doc_table || ' WHERE id = :1'
             INTO v_doc
@@ -419,22 +406,22 @@
 
 
 
-    <statement-execution-processor id="load-onnx-model-through-jdbc" timeout="12000" is-prepared-statement="true"  is-query="false">
+    <statement-execution-processor id="load-onnx-model-through-jdbc" timeout="12000">
         <statement>
             BEGIN
-            DBMS_VECTOR.LOAD_ONNX_MODEL({0}, {1});
+                DBMS_VECTOR.LOAD_ONNX_MODEL({#0}, {#1});
             END;
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="chunk-text-from-chunk-lab" timeout="120" is-query="true"   >
+    <statement-execution-processor id="chunk-text-from-chunk-lab" timeout="120">
         <statement>
             select
                 CHUNK_OFFSET as "Chunk offset",
                 CHUNK_LENGTH as "Chunk length",
                 CHUNK_TEXT as "Chunk text"
             from VECTOR_CHUNKS(
-                '{0}'
+                {#0}
                 BY {1}
                 MAX {2}
                 OVERLAP {3}

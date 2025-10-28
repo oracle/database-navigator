@@ -60,20 +60,13 @@ public class GenericDataDefinitionInterface extends DatabaseDataDefinitionInterf
     }
 
     @Override
-    public void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+    public void updateTrigger(String ownerName, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+    public void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
-    }
-
-    /*********************************************************
-     *                     DROP statements                   *
-     *********************************************************/
-    private void dropObjectIfExists(String objectType, String objectName, DBNConnection connection) throws SQLException {
-        executeQuery(connection, true, "drop-object-if-exists", objectType, objectName);
     }
 
     /*********************************************************

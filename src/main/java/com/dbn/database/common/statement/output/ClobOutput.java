@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.database.common.assistant;
+package com.dbn.database.common.statement.output;
 
 import com.dbn.common.exception.Exceptions;
 import com.dbn.database.common.statement.CallableStatementOutputBase;
@@ -33,9 +33,8 @@ import java.sql.Types;
  * @author Dan Cioca (Oracle)
  */
 @Getter
-public class AssistantQueryResponse extends CallableStatementOutputBase {
-
-  private Clob response;
+public class ClobOutput extends CallableStatementOutputBase {
+  private String value;
 
   @Override
   public void registerParameters(CallableStatement statement) throws SQLException {
@@ -44,12 +43,14 @@ public class AssistantQueryResponse extends CallableStatementOutputBase {
 
   @Override
   public void read(CallableStatement statement) throws SQLException {
-    response = statement.getClob(shifted(1));
+      Clob clob = statement.getClob(shifted(1));
+      value = read(clob);
   }
 
-  public String read() throws SQLException {
+  private String read(Clob clob) throws SQLException {
+      if (clob == null) return "";
       StringBuilder builder = new StringBuilder();
-      try (BufferedReader reader = new BufferedReader(response.getCharacterStream())){
+      try (BufferedReader reader = new BufferedReader(clob.getCharacterStream())){
           String line;
           while ((line = reader.readLine()) != null) {
             builder.append(line);
