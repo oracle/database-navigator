@@ -250,14 +250,14 @@
                           where OBJECT_NAME like '%DBMS_CLOUD_AI%')
         </statement>
     </statement-execution-processor>
+
     <statement-execution-processor id="load-onnx-model-from-object-storage" timeout="120">
         <statement>
             BEGIN
-            DBMS_VECTOR.LOAD_ONNX_MODEL_CLOUD(
-                model_name =>   '{0}',
-                credential =>   '{1}',
-                uri  =>    '{2}'
-                );
+                DBMS_VECTOR.LOAD_ONNX_MODEL_CLOUD(
+                    model_name => {#0},
+                    credential => {#1},
+                    uri        => {#2});
             END;
         </statement>
     </statement-execution-processor>
@@ -265,7 +265,8 @@
     <statement-execution-processor id="drop-embed-model" timeout="120">
         <statement>
             begin
-            DBMS_VECTOR.DROP_ONNX_MODEL(model_name => '{0}');
+                DBMS_VECTOR.DROP_ONNX_MODEL(
+                        model_name => {#0});
             end;
         </statement>
     </statement-execution-processor>
@@ -273,27 +274,25 @@
     <statement-execution-processor id="create-table" timeout="120" >
         <statement>
             BEGIN
-            EXECUTE IMMEDIATE '
-            CREATE TABLE IF NOT EXISTS {0} (
-            id    VARCHAR(4000) PRIMARY KEY,
-            embedding  VECTOR(*, FLOAT32) NOT NULL,
-            text CLOB,
-            metadata JSON
-            )
-            ';
+                EXECUTE IMMEDIATE '
+                    CREATE TABLE IF NOT EXISTS {0} (
+                        id         VARCHAR(4000) PRIMARY KEY,
+                        embedding  VECTOR(*, FLOAT32) NOT NULL,
+                        text CLOB,
+                        metadata JSON
+                    )
+                ';
             END;
         </statement>
     </statement-execution-processor>
-
 
     <statement-execution-processor id="ensure-documents-table" timeout="120000" >
         <statement>
             BEGIN
                 EXECUTE IMMEDIATE '
-                    CREATE TABLE IF NOT EXISTS {0}
-                    (
-                        id varchar(50) not null,
-                        b_lob blob ,
+                    CREATE TABLE IF NOT EXISTS {0} (
+                        id       varchar(50) not null,
+                        b_lob    blob ,
                         metadata JSON
                     ) LOB(b_lob) STORE AS SECUREFILE (NOCACHE FILESYSTEM_LIKE_LOGGING)
                 ';

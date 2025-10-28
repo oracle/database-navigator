@@ -76,7 +76,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new VectorAiDialog(connection));
     }
 
-    public ResultSet chunkTextContent(ConnectionHandler connection, ChunkConfiguration configuration, String text) throws SQLException {
+    public ResultSet chunkTextContent(ConnectionHandler connection, ChunkConfiguration config, String text) throws SQLException {
         return DatabaseInterfaceInvoker.load(MEDIUM,
                 "Chunking Data",
                 "Chunking text content",
@@ -84,7 +84,11 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                 connection.getConnectionId(),
                 conn -> {
                     DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
-                    return assistantInterface.chunk(text, configuration, conn);
+                    return assistantInterface.chunkTextContent(text,
+                            config.getBy(),
+                            config.getSplitBy(),
+                            config.getMax(),
+                            config.getOverlap(), conn);
                 });
     }
 

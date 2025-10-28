@@ -86,8 +86,8 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public ResultSet chunk(String text, ChunkConfiguration chunkConfiguration, DBNConnection conn) throws SQLException {
-    return executeQuery(conn,"chunk-text-from-chunk-lab",text,chunkConfiguration.getBy(),chunkConfiguration.getMax(),chunkConfiguration.getOverlap(),chunkConfiguration.getSplitBy());
+  public ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException {
+    return executeQuery(conn,"chunk-text-from-chunk-lab", text, chunkBy, max, overlap, splitBy);
   }
 
   @Override
