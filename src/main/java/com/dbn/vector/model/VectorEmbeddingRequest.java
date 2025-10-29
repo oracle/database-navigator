@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package com.dbn.vector.model.sourceconfig;
+package com.dbn.vector.model;
 
-import com.dbn.common.ui.Presentable;
+import com.dbn.vector.model.chunk.ChunkConfig;
+import com.dbn.vector.model.embed.EmbedConfig;
+import com.dbn.vector.model.sourceconfig.SourceConfig;
+import com.dbn.vector.model.store.StoreConfig;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public enum SourceType implements Presentable {
-    FILE_SYSTEM("File system"),
-    DATABASE_TABLE("Database table");
-    private final String name;
-
-    SourceType(String name) {
-        this.name = name;
-    }
+@Setter
+public class VectorEmbeddingRequest {
+    private SourceConfig sourceConfig;
+    private ChunkConfig chunkConfig;
+    private EmbedConfig embedConfig;
+    private StoreConfig storeConfig;
 }

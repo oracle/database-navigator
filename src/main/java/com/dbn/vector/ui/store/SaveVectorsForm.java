@@ -3,10 +3,10 @@ package com.dbn.vector.ui.store;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
-import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +19,7 @@ import java.awt.BorderLayout;
 
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 
-public class SaveVectorsForm extends DBNFormBase implements DBNCollapsibleForm {
+public class SaveVectorsForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
   private JPanel dataPanel;
   private JComboBox<DestinationType> destinationComboBox;
@@ -27,17 +27,16 @@ public class SaveVectorsForm extends DBNFormBase implements DBNCollapsibleForm {
   // Sub-forms (defined as inner classes below)
   private CreateVectorDestinationForm createForm;
   private ExistingTableDestinationForm existingForm;
-  private ConnectionHandler connection;
 
   public SaveVectorsForm(@Nullable Disposable parent, ConnectionHandler connection) {
-    super(parent);
-    this.connection = connection;
+    super(parent, connection);
     initToggleButton();
     initDataPanel();
   }
 
   private void initDataPanel() {
-    createForm = new CreateVectorDestinationForm(this);
+    ConnectionHandler connection = getConnection();
+    createForm = new CreateVectorDestinationForm(this, connection);
     existingForm = new ExistingTableDestinationForm(this,connection);
     dataPanel.setLayout(new BorderLayout());
 

@@ -5,7 +5,7 @@ import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.vector.model.chunk.ChunkConfiguration;
+import com.dbn.vector.model.chunk.ChunkConfig;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,26 +30,26 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
     super(parent);
     initComponents();
     chunkLaboButton.addActionListener(e -> {
-      ChunkConfiguration chunkConfiguration = new ChunkConfiguration(
+      ChunkConfig chunkConfig = new ChunkConfig(
               chunkByComboBox.getSelectedItem().toString(),
               (Integer) maxSizeSpinner.getValue(),
               (String) splitByComboBox.getSelectedItem(),
               (Integer) overlapSpinner.getValue()
       );
-      ChunkEditorDialog dialog = new ChunkEditorDialog(connectionHandler,chunkConfiguration);
+      ChunkEditorDialog dialog = new ChunkEditorDialog(connectionHandler, chunkConfig);
       Dialogs.show(()->dialog);
 
-      updateChunkConfig(dialog.getChunkConfiguration());
+      updateChunkConfig(dialog.getChunkConfig());
     });
 
     initValidation();
   }
 
-  private void updateChunkConfig(ChunkConfiguration chunkConfiguration) {
-    chunkByComboBox.setSelectedItem(chunkConfiguration.getBy());
-    maxSizeSpinner.setValue(chunkConfiguration.getMax());
-    splitByComboBox.setSelectedItem(chunkConfiguration.getSplitBy());
-    overlapSpinner.setValue(chunkConfiguration.getOverlap());
+  private void updateChunkConfig(ChunkConfig chunkConfig) {
+    chunkByComboBox.setSelectedItem(chunkConfig.getChunkBy());
+    maxSizeSpinner.setValue(chunkConfig.getMax());
+    splitByComboBox.setSelectedItem(chunkConfig.getSplitBy());
+    overlapSpinner.setValue(chunkConfig.getOverlap());
   }
 
   private void initComponents() {
@@ -89,9 +89,9 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
             ,"Please enter a valid overlap: 5% to 20% of MAX");
   }
 
-  public ChunkConfiguration getChunkConfig() {
-    ChunkConfiguration chunkConfig = new ChunkConfiguration();
-    chunkConfig.setBy(chunkByComboBox.getSelectedItem().toString());
+  public ChunkConfig getChunkConfig() {
+    ChunkConfig chunkConfig = new ChunkConfig();
+    chunkConfig.setChunkBy(chunkByComboBox.getSelectedItem().toString());
     chunkConfig.setSplitBy(splitByComboBox.getSelectedItem().toString());
     chunkConfig.setOverlap((Integer) overlapSpinner.getValue());
     chunkConfig.setMax((Integer) maxSizeSpinner.getValue());

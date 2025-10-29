@@ -16,7 +16,7 @@ import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.data.record.RecordViewInfo;
 import com.dbn.vector.DatabaseVectorManager;
-import com.dbn.vector.model.chunk.ChunkConfiguration;
+import com.dbn.vector.model.chunk.ChunkConfig;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextArea;
@@ -50,7 +50,7 @@ public class ChunkEditorForm extends DBNFormBase {
   private JPanel hintPanel;
   private final ConnectionRef connection;
 
-  public ChunkEditorForm(@Nullable Disposable parent, ConnectionHandler connection, ChunkConfiguration config) {
+  public ChunkEditorForm(@Nullable Disposable parent, ConnectionHandler connection, ChunkConfig config) {
     super(parent, connection.getProject());
     this.connection = connection.ref();
 
@@ -95,11 +95,11 @@ public class ChunkEditorForm extends DBNFormBase {
     return connection.ensure();
   }
 
-  private void initConfigFields(ChunkConfiguration chunkConfiguration) {
-    chunkByComboBox.setSelectedItem(chunkConfiguration.getBy());
-    maxSpinner.setValue(chunkConfiguration.getMax());
-    splitByComboBox.setSelectedItem(chunkConfiguration.getSplitBy());
-    overlapSpinner.setValue(chunkConfiguration.getOverlap());
+  private void initConfigFields(ChunkConfig chunkConfig) {
+    chunkByComboBox.setSelectedItem(chunkConfig.getChunkBy());
+    maxSpinner.setValue(chunkConfig.getMax());
+    splitByComboBox.setSelectedItem(chunkConfig.getSplitBy());
+    overlapSpinner.setValue(chunkConfig.getOverlap());
   }
 
   private void initTestButton() {
@@ -115,7 +115,7 @@ public class ChunkEditorForm extends DBNFormBase {
     // todo recheck
     String query = inputTextArea.getText().replace("'", ""); // TODO prepared statement param binding
 
-    ChunkConfiguration configuration = getChunkConfiguration();
+    ChunkConfig configuration = getChunkConfiguration();
     ConnectionHandler connection = getConnection();
     Project project = connection.getProject();
 
@@ -150,13 +150,13 @@ public class ChunkEditorForm extends DBNFormBase {
     testButton.setEnabled(true);
   }
 
-  public ChunkConfiguration getChunkConfiguration() {
+  public ChunkConfig getChunkConfiguration() {
     String by = (String) chunkByComboBox.getSelectedItem();
     int max = (int) maxSpinner.getValue();
     String splitBy = (String) splitByComboBox.getSelectedItem();
     int overlap = (int) overlapSpinner.getValue();
 
-    return new ChunkConfiguration(by, max, splitBy, overlap);
+    return new ChunkConfig(by, max, splitBy, overlap);
   }
 
   @Override

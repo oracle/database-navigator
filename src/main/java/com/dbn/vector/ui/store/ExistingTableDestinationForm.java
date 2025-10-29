@@ -1,19 +1,18 @@
 package com.dbn.vector.ui.store;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
-import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.data.type.GenericDataType;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +27,7 @@ import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 
-public class ExistingTableDestinationForm extends DBNFormBase {
+public class ExistingTableDestinationForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private DBNComboBox<DBSchema> schemaComboBox;
   private DBNComboBox<DBTable> tableComboBox;
@@ -39,11 +38,8 @@ public class ExistingTableDestinationForm extends DBNFormBase {
   private JLabel dataColumnLabel;
   private JLabel embeddingColumnLabel;
 
-  private final ConnectionRef connection;
-
   public ExistingTableDestinationForm(@Nullable Disposable parent, @NotNull ConnectionHandler connection) {
-    super(parent);
-    this.connection = connection.ref();
+    super(parent, connection);
 
     initComboboxListeners();
     initValidation();
@@ -149,10 +145,6 @@ public class ExistingTableDestinationForm extends DBNFormBase {
     return ComboBoxes.getSelection(tableComboBox);
   }
 
-  public ConnectionHandler getConnection() {
-    return connection.ensure();
-  }
-
   @Override
   protected JComponent getMainComponent() {
     return mainPanel;
@@ -161,14 +153,11 @@ public class ExistingTableDestinationForm extends DBNFormBase {
   public StoreConfig toStoreConfig() {
     StoreConfig storeConfig = new StoreConfig();
 
-
-    DBTable table = tableComboBox == null ? null : tableComboBox.getSelectedValue();
-    DBColumn dataCol = dataColumnComboBox == null ? null : dataColumnComboBox.getSelectedValue();
-    DBColumn embeddingCol = embeddingColumnComboBox == null ? null : embeddingColumnComboBox.getSelectedValue();
-
-    storeConfig.setTableName(table.getName());
-    storeConfig.setEmbeddingColumn(embeddingCol.getName());
-    storeConfig.setTextColumn(dataCol.getName());
+    storeConfig.setNewTable(false);
+    storeConfig.setSchemaName(getSelectedObjectName(schemaComboBox));
+    storeConfig.setTableName(getSelectedObjectName(tableComboBox));
+    storeConfig.setEmbeddingColumnName(getSelectedObjectName(embeddingColumnComboBox));
+    storeConfig.setTextColumnName(getSelectedObjectName(dataColumnComboBox));
     return storeConfig;
   }
 }

@@ -3,10 +3,10 @@ package com.dbn.vector.ui.embed;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
-import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.embed.EmbedConfig;
+import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -16,18 +16,16 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class EmbedConfigForm extends DBNFormBase implements DBNCollapsibleForm {
+public class EmbedConfigForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
   private JComboBox<ModelLocation> modelTypeComboBox;
   private JPanel configPanel;
   private JLabel modelTypeLabel;
-  private ConnectionHandler connectionHandler;
   private InDBModelConfigForm databaseModelConfigForm;
   private ThirdPartyModelConfigForm thirdPartyModelConfigForm;
 
-  public EmbedConfigForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
-    super(parent);
-    this.connectionHandler = connectionHandler;
+  public EmbedConfigForm(@Nullable Disposable parent, ConnectionHandler connection) {
+    super(parent, connection);
     initComboBox();
     initDataPanel();
   }
@@ -40,8 +38,9 @@ public class EmbedConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   }
 
   private void initDataPanel() {
-    databaseModelConfigForm = new InDBModelConfigForm(this,connectionHandler);
-    thirdPartyModelConfigForm = new ThirdPartyModelConfigForm(this,connectionHandler);
+    ConnectionHandler connection = getConnection();
+    databaseModelConfigForm = new InDBModelConfigForm(this, connection);
+    thirdPartyModelConfigForm = new ThirdPartyModelConfigForm(this, connection);
     updateConfigForm();
   }
 

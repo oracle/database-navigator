@@ -18,6 +18,7 @@ package com.dbn.common.ui.file;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.vector.model.sourceconfig.SourceType;
 import com.dbn.vector.ui.source.ui.FileSystemSourceForm;
 import com.dbn.vector.ui.source.ui.SourceDataForm;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -57,7 +58,7 @@ public class VirtualFileListForm extends DBNFormBase {
         addValidation(component,l-> {
             // get the sourceForm to get which source type is selected .
             SourceDataForm parentForm = ((FileSystemSourceForm)getParentComponent()).getParentComponent();
-            if (SourceDataForm.SourceType.TABLE.equals(parentForm.getSourceType())){
+            if (SourceType.DATABASE_TABLE.equals(parentForm.getSourceType())){
                 return true;
             };
             return !getFileList().getModel().getFiles().isEmpty();
@@ -78,5 +79,9 @@ public class VirtualFileListForm extends DBNFormBase {
     @Override
     public JPanel getMainComponent() {
         return component;
+    }
+
+    public List<String> getFilePaths() {
+        return fileList.getModel().getFilePaths();
     }
 }

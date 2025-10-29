@@ -17,7 +17,9 @@
 package com.dbn.common.ui.file;
 
 import com.dbn.common.ui.util.Listeners;
+import com.dbn.common.util.Lists;
 import com.intellij.openapi.vfs.VirtualFile;
+import lombok.Getter;
 
 import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
@@ -30,7 +32,7 @@ import static javax.swing.event.ListDataEvent.CONTENTS_CHANGED;
 
 public class VirtualFileListModel implements ListModel<VirtualFile> {
     private final Listeners<ListDataListener> listeners = Listeners.create();
-    private final List<VirtualFile> files;
+    private final @Getter List<VirtualFile> files;
 
     public VirtualFileListModel(List<VirtualFile> files) {
         this.files = new ArrayList<>(files);
@@ -45,8 +47,8 @@ public class VirtualFileListModel implements ListModel<VirtualFile> {
         });
     }
 
-    public List<VirtualFile> getFiles() {
-        return files;
+    public List<String> getFilePaths() {
+        return Lists.convert(files, f -> f.getPath());
     }
 
     public void addAll(Collection<VirtualFile> files) {

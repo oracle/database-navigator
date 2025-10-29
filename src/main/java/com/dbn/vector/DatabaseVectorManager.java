@@ -12,8 +12,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.object.DBSchema;
-import com.dbn.vector.model.chunk.ChunkConfiguration;
+import com.dbn.vector.model.chunk.ChunkConfig;
 import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
@@ -76,7 +75,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new VectorAiDialog(connection));
     }
 
-    public ResultSet chunkTextContent(ConnectionHandler connection, ChunkConfiguration config, String text) throws SQLException {
+    public ResultSet chunkTextContent(ConnectionHandler connection, ChunkConfig config, String text) throws SQLException {
         return DatabaseInterfaceInvoker.load(MEDIUM,
                 "Chunking Data",
                 "Chunking text content",
@@ -85,7 +84,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                 conn -> {
                     DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
                     return assistantInterface.chunkTextContent(text,
-                            config.getBy(),
+                            config.getChunkBy(),
                             config.getSplitBy(),
                             config.getMax(),
                             config.getOverlap(), conn);
@@ -95,7 +94,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
     @SneakyThrows
     //todo think of an Object as Request that has all the input of the user
     // also a Result Object .
-    public void query(SourceConfig sourceConfig, ChunkConfiguration chunkConfiguration, EmbedConfig embedConfig, StoreConfig storeConfig, ConnectionHandler handler, Runnable callbackInfo, Consumer<Exception> callbackError)  {
+    public void query(SourceConfig sourceConfig, ChunkConfig chunkConfig, EmbedConfig embedConfig, StoreConfig storeConfig, ConnectionHandler handler, Runnable callbackInfo, Consumer<Exception> callbackError)  {
         Progress.modal(
                 getProject(),
                 handler.getSchema(), true,
@@ -110,18 +109,25 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                                 handler.getConnectionId(),
                                 handler.getSchemaId(),
                                 conn -> {
-                                    DBSchema schema = handler.getSchema(handler.getUserSchema());
+                                    DatabaseAssistantInterface dataDefinition = handler.getAssistantInterface();
+                                    if (storeConfig.isNewTable()) {
+                                        dataDefinition.createEmbeddingTable(conn,
+                                                storeConfig.getSchemaName(),
+                                                storeConfig.getTableName(),
+                                                storeConfig.getKeyColumnName(),
+                                                storeConfig.getTextColumnName(),
+                                                storeConfig.getEmbeddingColumnName(),
+                                                storeConfig.getMetadataColumnName());
+                                    }
 
-                                    DatabaseAssistantInterface dataDefinition = schema.getAssistantInterface();
-                                    dataDefinition.createTable(conn, storeConfig.getTableName());
                                     p.setText2("Embedding data");
                                     if (sourceConfig instanceof DBTableSourceConfig) {
-                                        dataDefinition.embed(conn, (DBTableSourceConfig) sourceConfig, chunkConfiguration, embedConfig, storeConfig);
+                                        dataDefinition.embed(conn, (DBTableSourceConfig) sourceConfig, chunkConfig, embedConfig, storeConfig);
                                         System.out.println("Embedding data created");
                                         //todo keep if else open to sother source config
                                     } else {
                                       FileSystemSourceConfig fs = (FileSystemSourceConfig) sourceConfig;
-                                      List<VirtualFile> files = fs.getVirtualFiles();
+                                      List<VirtualFile> files = fs.getFiles();
                                       dataDefinition.ensureDocumentsTable(conn,FILES_TABLE);
                                       for (int i = 0; i < files.size(); i++) {
                                         VirtualFile vf = files.get(i);
@@ -141,10 +147,10 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
 
                                             fileMetadataMap.put("doc_Id",id);
                                             fileMetadataMap.put("embed_config",embedConfig.getConfigJson());
-                                            fileMetadataMap.put("chunk_config",embedConfig.getConfigJson());
+                                            fileMetadataMap.put("chunk_config",chunkConfig.getConfigJson());
                                             String rowMetadata = Json.writeAsString(fileMetadataMap);
                                             storeConfig.setMetadata(rowMetadata);
-                                            dataDefinition.embed(conn, id, FILES_TABLE,chunkConfiguration, embedConfig, storeConfig); // add this overload
+                                            dataDefinition.embed(conn, id, FILES_TABLE, chunkConfig, embedConfig, storeConfig); // add this overload
                                           } catch (Exception e) {
                                             callbackError.accept(e);
                                           } finally { if (in != null) try { in.close(); } catch (Throwable ignored) {} }

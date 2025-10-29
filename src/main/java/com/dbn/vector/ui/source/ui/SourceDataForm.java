@@ -1,15 +1,13 @@
 package com.dbn.vector.ui.source.ui;
 
-import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
-import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.vector.model.sourceconfig.SourceConfig;
+import com.dbn.vector.model.sourceconfig.SourceType;
+import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
-import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
@@ -19,18 +17,16 @@ import javax.swing.JPanel;
 
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 
-public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
+public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
   private JPanel dataPanel;
   private JComboBox<SourceType> sourceComboBox;
   private JLabel sourceLabel;
   private FileSystemSourceForm fileSystemSourceForm;
   private DBTableSourceForm tableSourceForm;
-  private final ConnectionRef connection;
 
   public SourceDataForm(@Nullable Disposable parent,ConnectionHandler connection) {
-    super(parent);
-    this.connection = connection.ref();
+    super(parent, connection);
     initComboBox();
     initDataPanel();
   }
@@ -44,7 +40,7 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
 
   private void initComboBox() {
     ComboBoxes.initComboBox(sourceComboBox, SourceType.values());
-    setSelection(sourceComboBox, SourceType.TABLE);
+    setSelection(sourceComboBox, SourceType.DATABASE_TABLE);
     sourceComboBox.addActionListener(e -> updateSourceForm());
   }
 
@@ -58,9 +54,9 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   private void updateSourceForm() {
     SourceType sourceType = getSourceType();
     dataPanel.removeAll();
-    if (sourceType == SourceType.FILESYSTEM) {
+    if (sourceType == SourceType.FILE_SYSTEM) {
       dataPanel.add(fileSystemSourceForm.getComponent());
-    } else if (sourceType == SourceType.TABLE) {
+    } else if (sourceType == SourceType.DATABASE_TABLE) {
       dataPanel.add(tableSourceForm.getComponent());
     }
     dataPanel.revalidate();
@@ -68,13 +64,9 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
   }
 
   public SourceConfig getSourceConfig() {
-    return sourceComboBox.getSelectedItem() == SourceType.FILESYSTEM
+    return sourceComboBox.getSelectedItem() == SourceType.FILE_SYSTEM
         ? fileSystemSourceForm.getFileSystemSourceConfig()
         : tableSourceForm.getConfiguration();
-  }
-
-  public ConnectionHandler getConnection() {
-    return connection.ensure();
   }
 
   @Override
@@ -99,14 +91,6 @@ public class SourceDataForm extends DBNFormBase implements DBNCollapsibleForm {
 
   public SourceType getSourceType() {
     return ComboBoxes.getSelection(sourceComboBox);
-  }
-
-  @Getter
-  public enum SourceType implements Presentable {
-    FILESYSTEM("File system"),
-    TABLE("Database table");
-    private final String name;
-    SourceType(String name) { this.name = name; }
   }
 
 

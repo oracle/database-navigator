@@ -3,7 +3,6 @@ package com.dbn.vector.ui.embed;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.alignment.FieldAlignerData;
-import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
@@ -17,6 +16,7 @@ import com.dbn.object.factory.ui.common.ObjectFactoryInputDialog;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.embed.InDBModel;
+import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
@@ -32,8 +32,7 @@ import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 
-public class InDBModelConfigForm extends DBNFormBase {
-  private final ConnectionHandler connectionHandler;
+public class InDBModelConfigForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private DBNComboBox<DBAIModel> modelComboBox;
   private DBNComboBox<DBSchema> schemaComboBox;
@@ -41,9 +40,8 @@ public class InDBModelConfigForm extends DBNFormBase {
   private JLabel schemaLabel;
   private JLabel modelLabel;
 
-  public InDBModelConfigForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
-    super(parent);
-    this.connectionHandler = connectionHandler;
+  public InDBModelConfigForm(@Nullable Disposable parent, ConnectionHandler connection) {
+    super(parent, connection);
     modelComboBox.set(HIDE_DESCRIPTION, true);
     schemaComboBox.set(HIDE_DESCRIPTION, true);
     initComboboxListeners();
@@ -54,7 +52,7 @@ public class InDBModelConfigForm extends DBNFormBase {
     addCredentialButton.setIcon(Icons.ACTION_ADD);
     addCredentialButton.setText(null);
     System.out.println("kl");
-    ConnectionHandler connection = connectionHandler;
+    ConnectionHandler connection = getConnection();
     addCredentialButton.addActionListener(e -> Dialogs.show(() -> new ObjectFactoryInputDialog(getProject(), connection.getSchema(connection.getUserSchema()),DBObjectType.AI_MODEL)));
 
     Project project = connection.getProject();
@@ -80,7 +78,7 @@ public class InDBModelConfigForm extends DBNFormBase {
   }
 
   private List<DBSchema> loadSchemas() {
-    DBObjectBundle objectBundle = connectionHandler.getObjectBundle();
+    DBObjectBundle objectBundle = getConnection().getObjectBundle();
     return objectBundle.getSchemas();
   }
 

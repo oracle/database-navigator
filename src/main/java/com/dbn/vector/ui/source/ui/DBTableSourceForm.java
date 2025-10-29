@@ -1,18 +1,17 @@
 package com.dbn.vector.ui.source.ui;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
-import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
+import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +26,7 @@ import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 
-public class DBTableSourceForm extends DBNFormBase {
+public class DBTableSourceForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private DBNComboBox<DBSchema> schemaComboBox;
   private DBNComboBox<DBTable> tableComboBox;
@@ -40,11 +39,8 @@ public class DBTableSourceForm extends DBNFormBase {
   private JLabel keyColumnLabel;
   private JLabel dataColumnLabel;
 
-  private final ConnectionRef connection;
-
   public DBTableSourceForm(@Nullable Disposable parent, ConnectionHandler connection) {
-    super(parent);
-    this.connection = connection.ref();
+    super(parent, connection);
 
     initComboboxListeners();
     whenShown(() -> initComboBoxes());
@@ -119,8 +115,6 @@ public class DBTableSourceForm extends DBNFormBase {
 
   @Override
   protected void initValidation() {
-
-    // TODO fix validation for hidden fields
     addSelectionValidation(schemaComboBox,"Please select a schema");
     addSelectionValidation(tableComboBox,"Please select a table");
     addSelectionValidation(keyColumnComboBox,"Please select the primary key column");
@@ -153,17 +147,13 @@ public class DBTableSourceForm extends DBNFormBase {
 
   public DBTableSourceConfig getConfiguration() {
     DBTableSourceConfig config = new DBTableSourceConfig();
-    config.setSourceSchema(getSelectedSchema());
-    config.setSourceTable(getSelectedTable());
-    config.setDataColumn(dataColumnComboBox.getSelectedValue());
-    config.setIdColumn(keyColumnComboBox.getSelectedValue());
+    config.setSchemaName(getSelectedObjectName(schemaComboBox));
+    config.setTableName(getSelectedObjectName(tableComboBox));
+    config.setKeyColumnName(getSelectedObjectName(keyColumnComboBox));
+    config.setDataColumnName(getSelectedObjectName(dataColumnComboBox));
     config.setAutoSync(autoSyncCheckBox.isSelected());
 
     return config;
-  }
-
-  public ConnectionHandler getConnection() {
-    return connection.ensure();
   }
 
   @Override

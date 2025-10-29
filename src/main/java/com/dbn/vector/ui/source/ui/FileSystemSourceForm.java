@@ -31,8 +31,8 @@ public class FileSystemSourceForm extends DBNFormBase {
 
   public FileSystemSourceConfig getFileSystemSourceConfig() {
     FileSystemSourceConfig fileSystemSourceConfig = new FileSystemSourceConfig();
-    fileSystemSourceConfig.setVirtualFiles(fileListForm.getFileList().getModel().getFiles());
-    fileSystemSourceConfig.setToStore(storetableCheckbox.isSelected());
+    fileSystemSourceConfig.setFilePaths(fileListForm.getFilePaths());
+    fileSystemSourceConfig.setStore(storetableCheckbox.isSelected());
     if (storetableCheckbox.isSelected()){
       CreateTableConfig createTableConfig = new CreateTableConfig();
       fileSystemSourceConfig.setTableConfig(createTableConfig);

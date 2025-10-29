@@ -1,10 +1,10 @@
 package com.dbn.vector.ui.embed;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
-import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.embed.ThirdPartyModel;
+import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +13,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class ThirdPartyModelConfigForm extends DBNFormBase {
+public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private JBTextField providerTextField;
   private JBTextField credentialTextField;
@@ -24,8 +24,8 @@ public class ThirdPartyModelConfigForm extends DBNFormBase {
   private JLabel urlLabel;
   private JLabel modelLabel;
 
-  public ThirdPartyModelConfigForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
-    super(parent);
+  public ThirdPartyModelConfigForm(@Nullable Disposable parent, ConnectionHandler connection) {
+    super(parent, connection);
   }
 
   @Override

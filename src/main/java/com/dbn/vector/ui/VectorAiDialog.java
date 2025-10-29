@@ -6,13 +6,11 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.vector.DatabaseVectorManager;
-import com.dbn.vector.model.chunk.ChunkConfiguration;
+import com.dbn.vector.model.chunk.ChunkConfig;
 import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.sourceconfig.SourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import org.jetbrains.annotations.NotNull;
-
-import java.sql.SQLException;
 
 public class VectorAiDialog extends DBNDialog<VectorAIForm> {
   private final ConnectionRef connection;
@@ -38,7 +36,7 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
   protected void doOKAction() {
     VectorAIForm form = getForm();
     SourceConfig sourceConfig = form.getSourceDataForm().getSourceConfig();
-    ChunkConfiguration chunkConfiguration = form.getChunkConfigForm().getChunkConfig();
+    ChunkConfig chunkConfig = form.getChunkConfigForm().getChunkConfig();
     EmbedConfig embedConfig = form.getEmbedConfigForm().getEmbedConfig();
     StoreConfig storeConfig = form.getSaveVectorsForm().getStoreConfig();
 
@@ -48,7 +46,7 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
     Consumer<Exception> callbackError = (ex) -> {
       Messages.showErrorDialog(getProject(), "Embedding Failed", ex.getMessage(), ex);
     };
-    DatabaseVectorManager.getInstance(getProject()).query(sourceConfig,chunkConfiguration,embedConfig,storeConfig,getConnection(),callbackInfo,callbackError);
+    DatabaseVectorManager.getInstance(getProject()).query(sourceConfig, chunkConfig,embedConfig,storeConfig,getConnection(),callbackInfo,callbackError);
 
   }
 }

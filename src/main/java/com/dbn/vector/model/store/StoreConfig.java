@@ -1,6 +1,5 @@
 package com.dbn.vector.model.store;
 
-import com.dbn.vector.ui.source.ui.SourceDataForm;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,13 +8,15 @@ import java.util.UUID;
 @Setter
 @Getter
 public class StoreConfig {
-  SourceDataForm.SourceType sourceType;
   private String id =  UUID.randomUUID().toString();
+  private String schemaName;
   private String tableName;
-  private String embeddingColumn = "embedding";
-  private String textColumn = "text";
-  private String metadataColumn = "metadata";
+  private String keyColumnName = "id";
+  private String textColumnName = "text";
+  private String embeddingColumnName = "embedding";
+  private String metadataColumnName = "metadata";
   private String metadata;
+  private boolean newTable;
 
 
 }

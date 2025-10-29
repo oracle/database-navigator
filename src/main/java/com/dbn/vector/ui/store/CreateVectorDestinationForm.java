@@ -1,19 +1,25 @@
 package com.dbn.vector.ui.store;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
-import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.object.DBSchema;
+import com.dbn.object.common.DBObjectBundle;
 import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-public class CreateVectorDestinationForm extends DBNFormBase {
+public class CreateVectorDestinationForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private JTextField tableNameTextField;
   private JTextField vectorColumnTextField;
@@ -25,6 +31,8 @@ public class CreateVectorDestinationForm extends DBNFormBase {
   private JTextField keyColumnTextField;
   private JLabel metadataColumnLabel;
   private JTextField metadataColumnTextField;
+  private JLabel schemaLabel;
+  private DBNComboBox<DBSchema> schemaComboBox;
   // Oracle unquoted identifier rules (safe baseline)
   private static final int ORACLE_ID_MAX_LEN = 30;
   private static final Pattern ORACLE_UNQUOTED_ID =
@@ -37,9 +45,19 @@ public class CreateVectorDestinationForm extends DBNFormBase {
   );
 
 
-  public CreateVectorDestinationForm(@Nullable Disposable parent) {
-    super(parent);
-    initValidation();
+  public CreateVectorDestinationForm(@Nullable Disposable parent, @NotNull ConnectionHandler connection) {
+    super(parent, connection);
+    initComboBoxes();
+  }
+
+  private void initComboBoxes() {
+    // TODO add value preselectors when restoring the screen state
+    schemaComboBox.init(() -> loadSchemas(), null);
+  }
+
+  private List<DBSchema> loadSchemas() {
+    DBObjectBundle objectBundle = getConnection().getObjectBundle();
+    return objectBundle.getSchemas();
   }
 
   @Override
@@ -55,9 +73,11 @@ public class CreateVectorDestinationForm extends DBNFormBase {
 //    String dataCol   = contentCLOBTextField.getText() == null ? "" : contentCLOBTextField.getText().trim();
     String embedCol = "embedding";
     String dataCol = "text";
+    storeConfig.setNewTable(true);
+    storeConfig.setSchemaName(getSelectedObjectName(schemaComboBox));
     storeConfig.setTableName(tableName);
-    storeConfig.setEmbeddingColumn(embedCol);
-    storeConfig.setTextColumn(dataCol);
+    storeConfig.setEmbeddingColumnName(embedCol);
+    storeConfig.setTextColumnName(dataCol);
     return storeConfig;
   }
 
@@ -83,6 +103,7 @@ public class CreateVectorDestinationForm extends DBNFormBase {
   @Override
   protected void initFieldAlignment() {
     FieldAlignerData alignerData = getFieldAlignerData();
+    alignerData.registerFieldGroup(schemaLabel, schemaComboBox);
     alignerData.registerFieldGroup(tableNameLabel, tableNameTextField);
     alignerData.registerFieldGroup(textColumnLabel, textColumnTextField);
     alignerData.registerFieldGroup(keyColumnNameLabel, keyColumnTextField);
