@@ -498,6 +498,7 @@ public class UserInterface {
     @Getter
     @Setter
     private class TopLeftmost {
+        private static final Point ZERO_POINT = new Point(0, 0);
         private final Container rootContainer;
         private JComponent component;
         private int x = Integer.MAX_VALUE;
@@ -509,7 +510,7 @@ public class UserInterface {
 
         private void update(Component component) {
             if (component instanceof JComponent) {
-                Point location = SwingUtilities.convertPoint(component, component.getLocation(), rootContainer);
+                Point location = SwingUtilities.convertPoint(component, ZERO_POINT, rootContainer);
                 if ((location.x < x && location.y < y) ||
                         (location.y == y && location.x < x) ||
                         (location.x == x && location.y < y)) {
