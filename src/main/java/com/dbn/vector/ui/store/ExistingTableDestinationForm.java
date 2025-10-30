@@ -26,33 +26,50 @@ import java.util.List;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 
 public class ExistingTableDestinationForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private DBNComboBox<DBSchema> schemaComboBox;
   private DBNComboBox<DBTable> tableComboBox;
-  private DBNComboBox<DBColumn> embeddingColumnComboBox;
   private DBNComboBox<DBColumn> dataColumnComboBox;
+  private DBNComboBox<DBColumn> embeddingColumnComboBox;
+  private DBNComboBox<DBColumn> metadataColumnComboBox;
   private JLabel schemaLabel;
   private JLabel tableLabel;
   private JLabel dataColumnLabel;
   private JLabel embeddingColumnLabel;
+  private JLabel metadataColumnLabel;
 
   public ExistingTableDestinationForm(@Nullable Disposable parent, @NotNull ConnectionHandler connection) {
     super(parent, connection);
-
-    initComboboxListeners();
-    initValidation();
-
     whenShown(() -> initComboBoxes());
   }
 
   private void initComboBoxes() {
-    // TODO add value preselectors when restoring the screen state
-    schemaComboBox.init(() -> loadSchemas(), null);
-    tableComboBox.init(() -> loadTables(), null);
-    embeddingColumnComboBox.init(() -> loadEmbeddingColumns(), null);
-    dataColumnComboBox.init(() -> loadDataColumns(), null);
+    initComboBoxesAsync();
+
+    schemaComboBox.set(HIDE_DESCRIPTION, true);
+    tableComboBox.set(HIDE_DESCRIPTION, true);
+    dataColumnComboBox.set(HIDE_DESCRIPTION, true);
+    embeddingColumnComboBox.set(HIDE_DESCRIPTION, true);
+    metadataColumnComboBox.set(HIDE_DESCRIPTION, true);
+
+    updateFieldAvailability();
+  }
+
+  private void initComboBoxesAsync() {
+    StoreConfig config = getConfig();
+    schemaComboBox.init(() -> loadSchemas(), o -> matchesObjectName(o, config.getSchemaName()));
+    tableComboBox.init(() -> loadTables(), o -> matchesObjectName(o, config.getTableName()));
+    dataColumnComboBox.init(() -> loadDataColumns(), o -> matchesObjectName(o, config.getTextColumnName()));
+    embeddingColumnComboBox.init(() -> loadEmbeddingColumns(), o -> matchesObjectName(o, config.getEmbeddingColumnName()));
+    metadataColumnComboBox.init(() -> loadMetadataColumns(), o -> matchesObjectName(o, config.getMetadataColumnName()));
+  }
+
+  protected void initEventListeners() {
+    onSelectionChange(schemaComboBox, e -> populateTables());
+    onSelectionChange(tableComboBox,  e -> populateColumns());
   }
 
   @Override
@@ -60,8 +77,9 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
     DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
     fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedSchema()), array(tableComboBox));
     fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedTable()), array(
+            dataColumnComboBox,
             embeddingColumnComboBox,
-            dataColumnComboBox));
+            metadataColumnComboBox));
   }
 
   @Override
@@ -71,6 +89,7 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
     alignerData.registerFieldGroup(tableLabel, tableComboBox);
     alignerData.registerFieldGroup(dataColumnLabel, dataColumnComboBox);
     alignerData.registerFieldGroup(embeddingColumnLabel, embeddingColumnComboBox);
+    alignerData.registerFieldGroup(metadataColumnLabel, metadataColumnComboBox);
   }
 
   private List<DBSchema> loadSchemas() {
@@ -95,6 +114,15 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
     return Lists.filter(columns, c -> c.getDataType().getGenericDataType() == GenericDataType.VECTOR);
   }
 
+  private List<DBColumn> loadMetadataColumns() {
+    DBTable table = ComboBoxes.getSelection(tableComboBox);
+    List<DBColumn> columns = table == null ?
+            Collections.emptyList() :
+            table.getColumns();
+
+    return Lists.filter(columns, c -> c.getDataType().getGenericDataType() == GenericDataType.JSON);
+  }
+
   private List<DBColumn> loadDataColumns() {
     DBTable table = ComboBoxes.getSelection(tableComboBox);
     List<DBColumn> columns = table == null ?
@@ -104,15 +132,6 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
     return Lists.filter(columns, c -> c.getDataType().isLiteral());
   }
 
-  private void initComboboxListeners() {
-    schemaComboBox.set(HIDE_DESCRIPTION, true);
-    tableComboBox.set(HIDE_DESCRIPTION, true);
-    dataColumnComboBox.set(HIDE_DESCRIPTION, true);
-    embeddingColumnComboBox.set(HIDE_DESCRIPTION, true);
-
-    schemaComboBox.addListener((ov,nv)-> populateTables());
-    tableComboBox.addListener((ov,nv)-> populateColumns());
-  }
 
   @Override
   protected void initValidation() {
@@ -120,19 +139,22 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
     addSelectionValidation(tableComboBox,"Please select a table");
     addSelectionValidation(dataColumnComboBox,"Please select the primary key column");
     addSelectionValidation(embeddingColumnComboBox,"Please select a data column");
+    addSelectionValidation(metadataColumnComboBox,"Please select a metadata column");
   }
 
   private void populateColumns() {
     updateFieldAvailability();
-    embeddingColumnComboBox.reloadValues();
     dataColumnComboBox.reloadValues();
+    embeddingColumnComboBox.reloadValues();
+    metadataColumnComboBox.reloadValues();
   }
 
   private void populateTables() {
     updateFieldAvailability();
     tableComboBox.reloadValues();
-    embeddingColumnComboBox.reloadValues();
     dataColumnComboBox.reloadValues();
+    embeddingColumnComboBox.reloadValues();
+    metadataColumnComboBox.reloadValues();
   }
 
   @Nullable
@@ -150,14 +172,22 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
     return mainPanel;
   }
 
-  public StoreConfig toStoreConfig() {
-    StoreConfig storeConfig = new StoreConfig();
+  @Override
+  public void resetFormChanges() {
+    initComboBoxesAsync();
+  }
 
-    storeConfig.setNewTable(false);
-    storeConfig.setSchemaName(getSelectedObjectName(schemaComboBox));
-    storeConfig.setTableName(getSelectedObjectName(tableComboBox));
-    storeConfig.setEmbeddingColumnName(getSelectedObjectName(embeddingColumnComboBox));
-    storeConfig.setTextColumnName(getSelectedObjectName(dataColumnComboBox));
-    return storeConfig;
+  @Override
+  public void applyFormChanges() {
+    StoreConfig config = getConfig();
+    config.setSchemaName(getSelectedObjectName(schemaComboBox));
+    config.setTableName(getSelectedObjectName(tableComboBox));
+    config.setTextColumnName(getSelectedObjectName(dataColumnComboBox));
+    config.setEmbeddingColumnName(getSelectedObjectName(embeddingColumnComboBox));
+    config.setMetadataColumnName(getSelectedObjectName(metadataColumnComboBox));
+  }
+
+  public StoreConfig getConfig() {
+    return getEmbeddingRequest().getStoreConfig();
   }
 }

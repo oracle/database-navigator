@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.dbn.vector.model.sourceconfig;
+package com.dbn.vector.model.store;
 
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 
 @Getter
-public enum SourceType implements Presentable {
-    FILE_SYSTEM("File system"),
-    DATABASE_TABLE("Database table");
+public enum DestinationType implements Presentable {
+    EXISTING_TABLE("Existing table"),
+    NEW_TABLE("New table");
 
     private final String name;
 
-    SourceType(String name) {
+    DestinationType(String name) {
         this.name = name;
     }
 }

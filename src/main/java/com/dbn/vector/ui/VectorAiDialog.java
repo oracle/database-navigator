@@ -6,10 +6,7 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.vector.DatabaseVectorManager;
-import com.dbn.vector.model.chunk.ChunkConfig;
-import com.dbn.vector.model.embed.EmbedConfig;
-import com.dbn.vector.model.sourceconfig.SourceConfig;
-import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.vector.model.VectorEmbeddingRequest;
 import org.jetbrains.annotations.NotNull;
 
 public class VectorAiDialog extends DBNDialog<VectorAIForm> {
@@ -35,18 +32,26 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
   @Override
   protected void doOKAction() {
     VectorAIForm form = getForm();
-    SourceConfig sourceConfig = form.getSourceDataForm().getSourceConfig();
-    ChunkConfig chunkConfig = form.getChunkConfigForm().getChunkConfig();
-    EmbedConfig embedConfig = form.getEmbedConfigForm().getEmbedConfig();
-    StoreConfig storeConfig = form.getSaveVectorsForm().getStoreConfig();
+    form.applyFormChanges();
+    VectorEmbeddingRequest request = form.getEmbeddingRequest();
 
-    Runnable callbackInfo = ()->{
+    Runnable callbackInfo = () -> {
+      request.resetSoft(); // softly reset the request after successful execution
+      form.resetFormChanges();
       Messages.showInfoDialog(getProject(), "Embedding Succeeded ","Your data has been embedded successfully!");
     };
-    Consumer<Exception> callbackError = (ex) -> {
-      Messages.showErrorDialog(getProject(), "Embedding Failed", ex.getMessage(), ex);
-    };
-    DatabaseVectorManager.getInstance(getProject()).query(sourceConfig, chunkConfig,embedConfig,storeConfig,getConnection(),callbackInfo,callbackError);
+    Consumer<Exception> callbackError = (ex) -> Messages.showErrorDialog(getProject(), "Embedding Failed", ex.getMessage(), ex);
+    DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
+    vectorManager.createEmbeddings(request, getConnection(), callbackInfo, callbackError);
 
+  }
+
+  @Override
+  public void doCancelAction() {
+    // capture the input even if not applied
+    VectorAIForm form = getForm();
+    form.applyFormChanges();
+
+    super.doCancelAction();
   }
 }

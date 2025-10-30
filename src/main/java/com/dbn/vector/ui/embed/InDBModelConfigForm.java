@@ -5,7 +5,6 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBAIModel;
@@ -14,8 +13,7 @@ import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputDialog;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.vector.model.embed.EmbedConfig;
-import com.dbn.vector.model.embed.InDBModel;
+import com.dbn.vector.model.embed.DatabaseModelConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
@@ -26,11 +24,12 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.List;
-import java.util.Objects;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 
 public class InDBModelConfigForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
@@ -44,10 +43,10 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
     super(parent, connection);
     modelComboBox.set(HIDE_DESCRIPTION, true);
     schemaComboBox.set(HIDE_DESCRIPTION, true);
-    initComboboxListeners();
     initModelAddButton();
-    initComboBoxes();
+    whenShown(() -> initComboBoxes());
   }
+
   private void initModelAddButton() {
     addCredentialButton.setIcon(Icons.ACTION_ADD);
     addCredentialButton.setText(null);
@@ -90,18 +89,37 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
   }
 
   private @Nullable DBSchema getSelectedSchema() {
-    return ComboBoxes.getSelection(schemaComboBox);
+    return getSelection(schemaComboBox);
   }
 
   private void initComboBoxes() {
-    // TODO add value preselectors when restoring the screen state
-    schemaComboBox.init(() -> loadSchemas(), null);
-    modelComboBox.init(() -> loadModels(), null);
+    initComboBoxesAsync();
+    modelComboBox.set(HIDE_DESCRIPTION, true);
+
+    updateFieldAvailability();
   }
 
-  private void initComboboxListeners() {
-    schemaComboBox.addListener((ov, nv) -> populateModels());
-    modelComboBox.set(HIDE_DESCRIPTION, true);
+  private void initComboBoxesAsync() {
+    DatabaseModelConfig config = getConfig();
+    schemaComboBox.init(() -> loadSchemas(), s -> matchesObjectName(s, config.getSchemaName()));
+    modelComboBox.init(() -> loadModels(), m -> matchesObjectName(m, config.getModelName()));
+  }
+
+  @Override
+  protected void initEventListeners() {
+    onSelectionChange(schemaComboBox, s -> populateModels());
+  }
+
+  @Override
+  public void resetFormChanges() {
+    initComboBoxesAsync();
+  }
+
+  @Override
+  public void applyFormChanges() {
+    DatabaseModelConfig config = getConfig();
+    config.setSchemaName(getSelectedObjectName(schemaComboBox));
+    config.setModelName(getSelectedObjectName(modelComboBox));
   }
 
   private void populateModels() {
@@ -110,11 +128,8 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
   }
 
 
-  public EmbedConfig getEmbedConfig() {
-    // get name as Schema.modelName
-    InDBModel embedConfig = new InDBModel(((DBAIModel) Objects.requireNonNull(modelComboBox.getSelectedItem())).getName());
-//    embedConfig.setModelName(((DBAIModel)modelDBNComboBox.getSelectedItem()).getName());
-    return embedConfig;
+  public DatabaseModelConfig getConfig() {
+    return getEmbeddingRequest().getEmbedConfig().getDatabaseModelConfig();
   }
 
   @Override

@@ -25,6 +25,7 @@ import java.util.List;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 
 public class DBTableSourceForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
@@ -42,7 +43,6 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
   public DBTableSourceForm(@Nullable Disposable parent, ConnectionHandler connection) {
     super(parent, connection);
 
-    initComboboxListeners();
     whenShown(() -> initComboBoxes());
   }
 
@@ -65,14 +65,22 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
   }
 
   private void initComboBoxes() {
-    // TODO add value preselectors when restoring the screen state
-    schemaComboBox.init(() -> loadSchemas(), null);
-    tableComboBox.init(() -> loadTables(), null);
-    keyColumnComboBox.init(() -> loadKeyColumns(), null);
-    dataColumnComboBox.init(() -> loadDataColumns(), null);
+    initComboBoxesAsync();
+    schemaComboBox.set(HIDE_DESCRIPTION, true);
+    tableComboBox.set(HIDE_DESCRIPTION, true);
+    dataColumnComboBox.set(HIDE_DESCRIPTION, true);
+    keyColumnComboBox.set(HIDE_DESCRIPTION, true);
+
+    updateFieldAvailability();
   }
 
-
+  private void initComboBoxesAsync() {
+    DBTableSourceConfig config = getConfig();
+    schemaComboBox.init(() -> loadSchemas(), s -> matchesObjectName(s, config.getSchemaName()));
+    tableComboBox.init(() -> loadTables(), t -> matchesObjectName(t, config.getTableName()));
+    keyColumnComboBox.init(() -> loadKeyColumns(), c -> matchesObjectName(c, config.getKeyColumnName()));
+    dataColumnComboBox.init(() -> loadDataColumns(), c -> matchesObjectName(c, config.getDataColumnName()));
+  }
 
   private List<DBSchema> loadSchemas() {
     DBObjectBundle objectBundle = getConnection().getObjectBundle();
@@ -103,14 +111,9 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
     return Lists.filter(columns, c -> c.getDataType().isLiteral());
   }
 
-  private void initComboboxListeners() {
-    schemaComboBox.set(HIDE_DESCRIPTION, true);
-    tableComboBox.set(HIDE_DESCRIPTION, true);
-    dataColumnComboBox.set(HIDE_DESCRIPTION, true);
-    keyColumnComboBox.set(HIDE_DESCRIPTION, true);
-
-    schemaComboBox.addListener((ov,nv)-> populateTables());
-    tableComboBox.addListener((ov, nv)-> populateColumns());
+  protected void initEventListeners() {
+    onSelectionChange(schemaComboBox, v -> populateTables());
+    onSelectionChange(tableComboBox, v -> populateColumns());
   }
 
   @Override
@@ -119,7 +122,6 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
     addSelectionValidation(tableComboBox,"Please select a table");
     addSelectionValidation(keyColumnComboBox,"Please select the primary key column");
     addSelectionValidation(dataColumnComboBox,"Please select a data column");
-
   }
 
   private void populateColumns() {
@@ -135,6 +137,24 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
     dataColumnComboBox.reloadValues();
   }
 
+  @Override
+  public void resetFormChanges() {
+    DBTableSourceConfig config = getConfig();
+    autoSyncCheckBox.setSelected(config.isAutoSync());
+
+    initComboBoxesAsync();
+  }
+
+  @Override
+  public void applyFormChanges() {
+    DBTableSourceConfig config = getConfig();
+    config.setAutoSync(autoSyncCheckBox.isSelected());
+    config.setSchemaName(getSelectedObjectName(schemaComboBox));
+    config.setTableName(getSelectedObjectName(tableComboBox));
+    config.setKeyColumnName(getSelectedObjectName(keyColumnComboBox));
+    config.setDataColumnName(getSelectedObjectName(dataColumnComboBox));
+  }
+
   @Nullable
   private DBSchema getSelectedSchema() {
     return ComboBoxes.getSelection(schemaComboBox);
@@ -145,15 +165,8 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
     return tableComboBox.getSelectedValue();
   }
 
-  public DBTableSourceConfig getConfiguration() {
-    DBTableSourceConfig config = new DBTableSourceConfig();
-    config.setSchemaName(getSelectedObjectName(schemaComboBox));
-    config.setTableName(getSelectedObjectName(tableComboBox));
-    config.setKeyColumnName(getSelectedObjectName(keyColumnComboBox));
-    config.setDataColumnName(getSelectedObjectName(dataColumnComboBox));
-    config.setAutoSync(autoSyncCheckBox.isSelected());
-
-    return config;
+  public DBTableSourceConfig getConfig() {
+    return getEmbeddingRequest().getSourceConfig().getTableSourceConfig();
   }
 
   @Override

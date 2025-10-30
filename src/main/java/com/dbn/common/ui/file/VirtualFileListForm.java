@@ -58,7 +58,7 @@ public class VirtualFileListForm extends DBNFormBase {
         addValidation(component,l-> {
             // get the sourceForm to get which source type is selected .
             SourceDataForm parentForm = ((FileSystemSourceForm)getParentComponent()).getParentComponent();
-            if (SourceType.DATABASE_TABLE.equals(parentForm.getSourceType())){
+            if (SourceType.DATABASE_TABLE.equals(parentForm.getSelectedSourceType())){
                 return true;
             };
             return !getFileList().getModel().getFiles().isEmpty();
@@ -83,5 +83,14 @@ public class VirtualFileListForm extends DBNFormBase {
 
     public List<String> getFilePaths() {
         return fileList.getModel().getFilePaths();
+    }
+
+    public List<VirtualFile> getFiles() {
+        return fileList.getModel().getFiles();
+    }
+
+    public void setFiles(List<VirtualFile> files) {
+        VirtualFileListModel model = fileList.getModel();
+        model.reset(files);
     }
 }

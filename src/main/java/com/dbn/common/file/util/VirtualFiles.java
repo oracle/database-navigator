@@ -18,6 +18,7 @@ package com.dbn.common.file.util;
 
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.thread.Write;
+import com.dbn.common.util.Lists;
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.DBVirtualFileBase;
@@ -217,5 +218,11 @@ public final class VirtualFiles {
         }
         return file.getPath();
     }
+
+    public static List<String> toFilePaths(List<VirtualFile> files) {
+        return Lists.convert(files, f -> f.getPath());
+    }
+
+
 }
 

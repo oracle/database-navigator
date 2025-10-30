@@ -1,22 +1,22 @@
 package com.dbn.vector.ui.store;
 
-import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.vector.model.store.DestinationType;
 import com.dbn.vector.model.store.StoreConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
-import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 
+import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 
 public class SaveVectorsForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
@@ -30,15 +30,14 @@ public class SaveVectorsForm extends VectorToolboxFormBase implements DBNCollaps
 
   public SaveVectorsForm(@Nullable Disposable parent, ConnectionHandler connection) {
     super(parent, connection);
-    initToggleButton();
-    initDataPanel();
+    initDestinationPanel();
+    initComboBoxes();
   }
 
-  private void initDataPanel() {
+  private void initDestinationPanel() {
     ConnectionHandler connection = getConnection();
     createForm = new CreateVectorDestinationForm(this, connection);
     existingForm = new ExistingTableDestinationForm(this,connection);
-    dataPanel.setLayout(new BorderLayout());
 
     DestinationType destinationType = getDestinationType();
     JComponent initialPanel = destinationType == DestinationType.NEW_TABLE
@@ -47,21 +46,22 @@ public class SaveVectorsForm extends VectorToolboxFormBase implements DBNCollaps
     dataPanel.add(initialPanel);
   }
 
-  private void initToggleButton() {
-    ComboBoxes.initComboBox(destinationComboBox, DestinationType.values());
+  private void initComboBoxes() {
+    initComboBox(destinationComboBox, DestinationType.values());
     setSelection(destinationComboBox, DestinationType.NEW_TABLE);
+    onSelectionChange(destinationComboBox, t -> updateDestinationPanel());
+  }
 
-    destinationComboBox.addActionListener(e -> {
-      dataPanel.removeAll();
-      if (getDestinationType() == DestinationType.NEW_TABLE) {
-        dataPanel.add(createForm.getComponent());
+  private void updateDestinationPanel() {
+    dataPanel.removeAll();
+    if (getDestinationType() == DestinationType.NEW_TABLE) {
+      dataPanel.add(createForm.getComponent());
 
-      } else {
-        dataPanel.add(existingForm.getComponent());
-      }
-      dataPanel.revalidate();
-      dataPanel.repaint();
-    });
+    } else {
+      dataPanel.add(existingForm.getComponent());
+    }
+    dataPanel.revalidate();
+    dataPanel.repaint();
   }
 
   @Override
@@ -69,11 +69,31 @@ public class SaveVectorsForm extends VectorToolboxFormBase implements DBNCollaps
     return mainPanel;
   }
 
-  public StoreConfig getStoreConfig() {
-    return getDestinationType() == DestinationType.NEW_TABLE
-        ? createForm.toStoreConfig()
-        : existingForm.toStoreConfig();
+  @Override
+  public void resetFormChanges() {
+    StoreConfig config = getConfig();
+    setSelection(destinationComboBox, config.getDestinationType());
+    createForm.resetFormChanges();
+    existingForm.resetFormChanges();
+    updateDestinationPanel();
   }
+
+  @Override
+  public void applyFormChanges() {
+    StoreConfig config = getConfig();
+    DestinationType destinationType = getDestinationType();
+    config.setDestinationType(destinationType);
+    if (destinationType == DestinationType.NEW_TABLE) {
+      createForm.applyFormChanges();
+    } else if (destinationType == DestinationType.EXISTING_TABLE) {
+      existingForm.applyFormChanges();
+    }
+  }
+
+  public StoreConfig getConfig() {
+    return getEmbeddingRequest().getStoreConfig();
+  }
+
   public DestinationType getDestinationType() {
     return ComboBoxes.getSelection(destinationComboBox);
   }
@@ -91,15 +111,6 @@ public class SaveVectorsForm extends VectorToolboxFormBase implements DBNCollaps
   @Override
   public String getExpandedTitle() {
     return "Embedding Destination";
-  }
-
-  @Getter
-  public enum DestinationType implements Presentable {
-    EXISTING_TABLE("Existing table"),
-    NEW_TABLE("New table");
-
-    private final String name;
-    DestinationType(String name) { this.name = name; }
   }
 
   @Override

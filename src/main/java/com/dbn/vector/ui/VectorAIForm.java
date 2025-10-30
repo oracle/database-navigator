@@ -2,12 +2,12 @@ package com.dbn.vector.ui;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
-import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
+import com.dbn.vector.DatabaseVectorManager;
+import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.ui.chunk.ChunkConfigForm;
 import com.dbn.vector.ui.embed.EmbedConfigForm;
 import com.dbn.vector.ui.source.ui.SourceDataForm;
@@ -19,7 +19,7 @@ import javax.swing.JPanel;
 
 import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 
-public class VectorAIForm extends DBNFormBase {
+public class VectorAIForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private JPanel dataPanel;
   private JPanel chunkConfigPanel;
@@ -33,37 +33,39 @@ public class VectorAIForm extends DBNFormBase {
   private EmbedConfigForm embedConfigForm;
   private SaveVectorsForm saveVectorsForm;
 
-  private final ConnectionRef connection;
-
-
   public VectorAIForm(Disposable parent, ConnectionHandler connection) {
-    super(parent, connection.getProject());
-    this.connection = connection.ref();
-    sourceDataForm = new SourceDataForm(this,connection);
-    chunkConfigForm = new ChunkConfigForm(this,connection);
-    embedConfigForm = new EmbedConfigForm(this,connection);
-    saveVectorsForm = new SaveVectorsForm(this,connection);
+    super(parent, connection);
 
+    initHeaderPanel();
+    initHintPanel();
+    initForms();
+    alignFormFields(this);
+//    initButtonListners();
+    resetFormChanges();
+  }
+
+  private void initForms() {
+    ConnectionHandler connection = getConnection();
+
+    sourceDataForm = new SourceDataForm(this,connection);
     DBNCollapsiblePanel sourceCollapsiblePanel = new DBNCollapsiblePanel(this,sourceDataForm,true);
     sourceCollapsiblePanel.setExpanded(true);
     dataPanel.add(sourceCollapsiblePanel.getComponent());
 
+    chunkConfigForm = new ChunkConfigForm(this,connection);
     DBNCollapsiblePanel chunkCollapsiblePanel = new DBNCollapsiblePanel(this,chunkConfigForm,true);
     chunkCollapsiblePanel.setExpanded(true);
     chunkConfigPanel.add(chunkCollapsiblePanel.getComponent());
 
+    embedConfigForm = new EmbedConfigForm(this,connection);
     DBNCollapsiblePanel embedCollapsiblePanel = new DBNCollapsiblePanel(this,embedConfigForm,true);
     embedCollapsiblePanel.setExpanded(true);
     embedConfigPanel.add(embedCollapsiblePanel.getComponent());
 
+    saveVectorsForm = new SaveVectorsForm(this,connection);
     DBNCollapsiblePanel saveCollapsiblePanel = new DBNCollapsiblePanel(this,saveVectorsForm,true);
     saveCollapsiblePanel.setExpanded(true);
     saveDataPanel.add(saveCollapsiblePanel.getComponent());
-
-    initHintPanel();
-    initHeaderPanel();
-    alignFormFields(this);
-//    initButtonListners();
   }
 
   @Override
@@ -106,8 +108,25 @@ public class VectorAIForm extends DBNFormBase {
 //    });
 //  }
 
-  private ConnectionHandler getConnection() {
-    return connection.ensure();
+  public VectorEmbeddingRequest getEmbeddingRequest() {
+    DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
+    return vectorManager.getEmbeddingRequest(getConnectionId());
+  }
+
+  @Override
+  public void resetFormChanges() {
+    sourceDataForm.resetFormChanges();
+    chunkConfigForm.resetFormChanges();
+    embedConfigForm.resetFormChanges();
+    saveVectorsForm.resetFormChanges();
+  }
+
+  @Override
+  public void applyFormChanges() {
+    sourceDataForm.applyFormChanges();
+    chunkConfigForm.applyFormChanges();
+    embedConfigForm.applyFormChanges();
+    saveVectorsForm.applyFormChanges();
   }
 
   private void initHeaderPanel() {
@@ -122,22 +141,6 @@ public class VectorAIForm extends DBNFormBase {
 
     JComponent hintComponent = hintForm.getComponent();
     hintPanel.add(hintComponent);
-  }
-
-  public SourceDataForm getSourceDataForm() {
-    return sourceDataForm;
-  }
-
-  public ChunkConfigForm getChunkConfigForm() {
-    return chunkConfigForm;
-  }
-
-  public EmbedConfigForm getEmbedConfigForm() {
-    return embedConfigForm;
-  }
-
-  public SaveVectorsForm getSaveVectorsForm() {
-    return saveVectorsForm;
   }
 
   @Override

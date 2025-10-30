@@ -41,10 +41,9 @@ public class VirtualFileListModel implements ListModel<VirtualFile> {
     public void add(VirtualFile file) {
         int index = this.files.size();
         this.files.add(file);
-        this.listeners.notify(l -> {
-            ListDataEvent event = new ListDataEvent(this, CONTENTS_CHANGED, index, files.size());
-            l.contentsChanged(event);
-        });
+
+        ListDataEvent event = new ListDataEvent(this, CONTENTS_CHANGED, index, files.size());
+        this.listeners.notify(l -> l.contentsChanged(event));
     }
 
     public List<String> getFilePaths() {
@@ -55,11 +54,15 @@ public class VirtualFileListModel implements ListModel<VirtualFile> {
         int index = this.files.size();
         this.files.addAll(files);
 
-        this.listeners.notify(l -> {
-            ListDataEvent event = new ListDataEvent(this, CONTENTS_CHANGED, index, files.size());
-            l.contentsChanged(event);
-        });
+        ListDataEvent event = new ListDataEvent(this, CONTENTS_CHANGED, index, files.size());
+        this.listeners.notify(l -> l.contentsChanged(event));
     }
+
+    public void reset(List<VirtualFile> files) {
+        this.files.clear();
+        addAll(files);
+    }
+
 
     @Override
     public int getSize() {
@@ -79,10 +82,8 @@ public class VirtualFileListModel implements ListModel<VirtualFile> {
             swap(index, index - 1);
         }
 
-        listeners.notify(l -> {
-            ListDataEvent event = new ListDataEvent(this, CONTENTS_CHANGED, indices[0] -1, indices[indices.length - 1]);
-            l.contentsChanged(event);
-        });
+        ListDataEvent event = new ListDataEvent(this, CONTENTS_CHANGED, indices[0] -1, indices[indices.length - 1]);
+        listeners.notify(l -> l.contentsChanged(event));
 
     }
 
@@ -93,10 +94,9 @@ public class VirtualFileListModel implements ListModel<VirtualFile> {
         for (int i = indices.length - 1; i >= 0; i--) {
             swap(indices[i], indices[i] + 1);
         }
-        listeners.notify(l -> {
-            ListDataEvent event = new ListDataEvent(this, CONTENTS_CHANGED, indices[0], indices[indices.length - 1] + 1);
-            l.contentsChanged(event);
-        });
+
+        ListDataEvent event = new ListDataEvent(this, CONTENTS_CHANGED, indices[0], indices[indices.length - 1] + 1);
+        listeners.notify(l -> l.contentsChanged(event));
     }
 
     private void swap(int index1, int index2) {
@@ -116,10 +116,8 @@ public class VirtualFileListModel implements ListModel<VirtualFile> {
             }
         }
 
-        listeners.notify(l -> {
-            ListDataEvent event = new ListDataEvent(this, CONTENTS_CHANGED, indices[0], files.size());
-            l.contentsChanged(event);
-        });
+        ListDataEvent event = new ListDataEvent(this, CONTENTS_CHANGED, indices[0], files.size());
+        listeners.notify(l -> l.contentsChanged(event));
     }
 
     @Override

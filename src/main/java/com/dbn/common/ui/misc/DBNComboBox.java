@@ -23,6 +23,7 @@ import com.dbn.common.latent.Loader;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.ValueSelectorListener;
@@ -234,8 +235,10 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
                     List<T> values = valueLoader.load();
 
                     if (matchesLoadSignature(signature)) {
-                        setValues(values);
-                        preselectValue();
+                        Dispatch.run(this, () -> {
+                            setValues(values);
+                            preselectValue();
+                        });
                     }
 
                 } finally {
@@ -253,12 +256,22 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     }
 
     private void preselectValue() {
+        DBNComboBoxModel<T> model = getModel();
+        if (model.isEmpty()) return;
+
         Predicate<T> valuePreselector = this.valuePreselector;
         this.valuePreselector = null; // one-time selection
 
-        if (valuePreselector == null) return;
-        T selectedValue = first(getModel().getItems(), valuePreselector);
-        selectValue(selectedValue);
+        if (valuePreselector == null) {
+            if (model.getSize() == 1) {
+                // preselect if only one option available
+                T firstElement = model.getElementAt(0);
+                selectValue(firstElement);
+            }
+        } else {
+            T selectedValue = first(model.getItems(), valuePreselector);
+            selectValue(selectedValue);
+        }
     }
 
     public void init(Loader<List<T>> valueLoader, Predicate<T> valuePreselector){
@@ -455,7 +468,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         if (value != null) {
             value = model.containsItem(value) ? value : model.isEmpty() ? null : model.getElementAt(0);
         }
-        if (!Commons.match(oldValue, value) || (model.isEmpty() && value == null)) {
+        if (!Commons.match(oldValue, value)) {
             setSelectedItem(value);
         }
     }

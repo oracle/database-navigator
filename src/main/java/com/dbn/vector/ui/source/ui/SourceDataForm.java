@@ -15,6 +15,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 
 public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
@@ -22,7 +23,7 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
   private JPanel dataPanel;
   private JComboBox<SourceType> sourceComboBox;
   private JLabel sourceLabel;
-  private FileSystemSourceForm fileSystemSourceForm;
+  private FileSystemSourceForm fileSourceForm;
   private DBTableSourceForm tableSourceForm;
 
   public SourceDataForm(@Nullable Disposable parent,ConnectionHandler connection) {
@@ -33,7 +34,7 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
 
   private void initDataPanel() {
     ConnectionHandler connection = getConnection();
-    fileSystemSourceForm = new FileSystemSourceForm(this);
+    fileSourceForm = new FileSystemSourceForm(this, connection);
     tableSourceForm = new DBTableSourceForm(this, connection);
     updateSourceForm();
   }
@@ -41,7 +42,11 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
   private void initComboBox() {
     ComboBoxes.initComboBox(sourceComboBox, SourceType.values());
     setSelection(sourceComboBox, SourceType.DATABASE_TABLE);
-    sourceComboBox.addActionListener(e -> updateSourceForm());
+  }
+
+  @Override
+  protected void initEventListeners() {
+    onSelectionChange(sourceComboBox, t -> updateSourceForm());
   }
 
   @Override
@@ -52,10 +57,10 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
   }
 
   private void updateSourceForm() {
-    SourceType sourceType = getSourceType();
+    SourceType sourceType = getSelectedSourceType();
     dataPanel.removeAll();
     if (sourceType == SourceType.FILE_SYSTEM) {
-      dataPanel.add(fileSystemSourceForm.getComponent());
+      dataPanel.add(fileSourceForm.getComponent());
     } else if (sourceType == SourceType.DATABASE_TABLE) {
       dataPanel.add(tableSourceForm.getComponent());
     }
@@ -63,10 +68,26 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
     dataPanel.repaint();
   }
 
-  public SourceConfig getSourceConfig() {
-    return sourceComboBox.getSelectedItem() == SourceType.FILE_SYSTEM
-        ? fileSystemSourceForm.getFileSystemSourceConfig()
-        : tableSourceForm.getConfiguration();
+  @Override
+  public void resetFormChanges() {
+    SourceConfig config = getConfig();
+
+    setSelection(sourceComboBox, config.getSourceType());
+    tableSourceForm.resetFormChanges();
+    fileSourceForm.resetFormChanges();
+  }
+
+  @Override
+  public void applyFormChanges() {
+    SourceConfig config = getConfig();
+
+    config.setSourceType(getSelectedSourceType());
+    tableSourceForm.applyFormChanges();
+    fileSourceForm.applyFormChanges();
+  }
+
+  public SourceConfig getConfig() {
+    return getEmbeddingRequest().getSourceConfig();
   }
 
   @Override
@@ -81,7 +102,7 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
 
   @Override
   public String getCollapsedTitleDetail() {
-      return getSourceType().getName();
+      return getSelectedSourceType().getName();
   }
 
   @Override
@@ -89,7 +110,7 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
     return "Data Source";
   }
 
-  public SourceType getSourceType() {
+  public SourceType getSelectedSourceType() {
     return ComboBoxes.getSelection(sourceComboBox);
   }
 

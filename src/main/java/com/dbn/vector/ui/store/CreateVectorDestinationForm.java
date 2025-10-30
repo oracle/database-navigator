@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static com.dbn.common.ui.util.TextFields.getText;
+
 public class CreateVectorDestinationForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private JTextField tableNameTextField;
@@ -47,12 +49,12 @@ public class CreateVectorDestinationForm extends VectorToolboxFormBase {
 
   public CreateVectorDestinationForm(@Nullable Disposable parent, @NotNull ConnectionHandler connection) {
     super(parent, connection);
-    initComboBoxes();
+    whenShown(() -> initComboBoxes());
   }
 
   private void initComboBoxes() {
-    // TODO add value preselectors when restoring the screen state
-    schemaComboBox.init(() -> loadSchemas(), null);
+    StoreConfig config = getConfig();
+    schemaComboBox.init(() -> loadSchemas(), o -> matchesObjectName(o, config.getSchemaName()));
   }
 
   private List<DBSchema> loadSchemas() {
@@ -65,20 +67,29 @@ public class CreateVectorDestinationForm extends VectorToolboxFormBase {
     return mainPanel;
   }
 
-  public StoreConfig toStoreConfig() {
-    StoreConfig storeConfig = new StoreConfig();
+  public StoreConfig getConfig() {
+    return getEmbeddingRequest().getStoreConfig();
+  }
 
-    String tableName = tableNameTextField.getText() == null ? "" : tableNameTextField.getText().trim();
-//    String embedCol  = embeddingsVECTORTextField.getText() == null ? "" : embeddingsVECTORTextField.getText().trim();
-//    String dataCol   = contentCLOBTextField.getText() == null ? "" : contentCLOBTextField.getText().trim();
-    String embedCol = "embedding";
-    String dataCol = "text";
-    storeConfig.setNewTable(true);
-    storeConfig.setSchemaName(getSelectedObjectName(schemaComboBox));
-    storeConfig.setTableName(tableName);
-    storeConfig.setEmbeddingColumnName(embedCol);
-    storeConfig.setTextColumnName(dataCol);
-    return storeConfig;
+  @Override
+  public void resetFormChanges() {
+    StoreConfig config = getConfig();
+
+    tableNameTextField.setText(config.getTableName());
+    keyColumnTextField.setText(config.getKeyColumnName());
+    textColumnTextField.setText(config.getTextColumnName());
+    vectorColumnTextField.setText(config.getEmbeddingColumnName());
+    metadataColumnTextField.setText(config.getMetadataColumnName());
+  }
+
+  @Override
+  public void applyFormChanges() {
+    StoreConfig config = getConfig();
+    config.setTableName(getText(tableNameTextField));
+    config.setEmbeddingColumnName(getText(vectorColumnTextField));
+    config.setTextColumnName(getText(textColumnTextField));
+    config.setKeyColumnName(getText(keyColumnTextField));
+    config.setMetadataColumnName(getText(metadataColumnTextField));
   }
 
   @Override

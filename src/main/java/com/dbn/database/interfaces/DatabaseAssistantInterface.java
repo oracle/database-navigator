@@ -19,8 +19,6 @@ package com.dbn.database.interfaces;
 import com.dbn.assistant.AssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.object.factory.ModelFactoryInput;
-import com.dbn.vector.model.chunk.ChunkConfig;
-import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 
@@ -114,11 +112,11 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
 
   ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException;
 
-  void embed(DBNConnection connection, DBTableSourceConfig sourceConfig, ChunkConfig chunkConfig, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException;
+  void embed(DBNConnection connection, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException;
 
   void createEmbeddingTable(DBNConnection connection, String ownerName, String tableName, String keyColumnName, String textColumnName, String embeddingColumnName, String metadataColumnName) throws SQLException;
 
-  void embed(DBNConnection conn, String blobId, String blobTable, ChunkConfig chunkConfig, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException;
+  void embed(DBNConnection conn, String blobId, String blobTable, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException;
 
   void ensureDocumentsTable(DBNConnection conn, String filesTable) throws SQLException;
 

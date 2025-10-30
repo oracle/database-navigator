@@ -19,9 +19,12 @@ package com.dbn.vector.ui;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.common.DBObject;
+import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,8 +40,26 @@ public abstract class VectorToolboxFormBase extends DBNFormBase {
         return connection.ensure();
     }
 
+    public ConnectionId getConnectionId() {
+        return connection.getId();
+    }
+
+    protected VectorEmbeddingRequest getEmbeddingRequest() {
+        VectorAIForm rootForm = ensureParentFrom(VectorAIForm.class);
+        return rootForm.getEmbeddingRequest();
+    }
+
     protected static String getSelectedObjectName(DBNComboBox<? extends DBObject> comboBox) {
         DBObject selection = ComboBoxes.getSelection(comboBox);
-        return selection == null ? "" : selection.getName();
+        return getObjectName(selection);
     }
+
+    protected static @Nullable String getObjectName(@Nullable DBObject object) {
+        return object == null ? null : object.getName();
+    }
+
+    protected static boolean matchesObjectName(@Nullable DBObject object, String name) {
+        return object != null && Strings.equalsIgnoreCase(object.getName(), name);
+    }
+
 }

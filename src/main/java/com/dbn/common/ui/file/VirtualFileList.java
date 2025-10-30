@@ -67,6 +67,9 @@ public class VirtualFileList extends JList<VirtualFile> {
         return (VirtualFileListModel) super.getModel();
     }
 
+    public List<VirtualFile> getFiles() {
+        return getModel().getFiles();
+    }
 }
 
 

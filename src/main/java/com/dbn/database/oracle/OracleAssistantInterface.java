@@ -24,8 +24,6 @@ import com.dbn.database.common.util.BooleanResultSetConsumer;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.object.factory.ModelFactoryInput;
-import com.dbn.vector.model.chunk.ChunkConfig;
-import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -91,21 +89,19 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public void embed(DBNConnection conn, DBTableSourceConfig sourceConfig, ChunkConfig chunkConfig, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException {
+  public void embed(DBNConnection conn, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException {
     executeUpdate(conn,
             "insert-vector-embeddings",
-            storeConfig.getTableName(),          // {0} -> target table
-            sourceConfig.getTableName(),             // {1} -> source table
-            sourceConfig.getDataColumnName(),        // {2} -> source column
-            chunkConfig.getConfigJson(),  // {3} -> chunk config JSON
-            embedConfig.getConfigJson()          // {4} -> embed config JSON
+            storeConfig.getTableName(),         // {0} -> target table
+            sourceConfig.getTableName(),        // {1} -> source table
+            sourceConfig.getDataColumnName(),   // {2} -> source column
+            chunkConfig,                        // {3} -> chunk config JSON
+            embedConfig                         // {4} -> embed config JSON
     );
   }
 
   @Override
-  public void embed(DBNConnection conn, String  blobId, String blob_table, ChunkConfig chunkConfig, EmbedConfig embedConfig, StoreConfig storeConfig) throws SQLException
-  {
-
+  public void embed(DBNConnection conn, String  blobId, String blob_table, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException {
       executeUpdate(conn,
               "insert-vector-embeddings-from-filesystem",
               storeConfig.getTableName(),
@@ -114,8 +110,8 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
               storeConfig.getTextColumnName(),
               storeConfig.getEmbeddingColumnName(),
               storeConfig.getMetadataColumnName(),
-              chunkConfig.getConfigJson(),
-              embedConfig.getConfigJson(),
+              chunkConfig,
+              embedConfig,
               storeConfig.getMetadata()
       );
   }

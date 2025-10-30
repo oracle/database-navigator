@@ -4,19 +4,26 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Json;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.SchemaId;
+import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.object.event.ObjectChangeEvent;
+import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.chunk.ChunkConfig;
 import com.dbn.vector.model.embed.EmbedConfig;
-import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
 import com.dbn.vector.model.sourceconfig.SourceConfig;
+import com.dbn.vector.model.sourceconfig.SourceType;
+import com.dbn.vector.model.store.DestinationType;
 import com.dbn.vector.model.store.StoreConfig;
 import com.dbn.vector.ui.VectorAiDialog;
 import com.intellij.openapi.components.State;
@@ -27,6 +34,8 @@ import groovy.util.logging.Slf4j;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,9 +48,17 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.Priority.MEDIUM;
+import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.constantAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.object.event.ObjectChangeAction.CREATE;
+import static com.dbn.object.type.DBObjectType.TABLE;
 
 
 @Slf4j
@@ -51,24 +68,38 @@ import static com.dbn.common.Priority.MEDIUM;
 )
 public  class DatabaseVectorManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseVectorManager";
+    private final Map<ConnectionId, VectorEmbeddingRequest> embeddingRequests = new ConcurrentHashMap<>();
     static final String FILES_TABLE   = "document_files";   // NEWLINE|SENTENCE|PARAGRAPH
 
     public DatabaseVectorManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
+        ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC, connectionConfigListener());
     }
 
+    @NotNull
+    private ConnectionConfigListener connectionConfigListener() {
+        return new ConnectionConfigListener() {
+            @Override
+            public void connectionRemoved(ConnectionId connectionId) {
+                // remove embedding requests when connection configs are deleted
+                embeddingRequests.remove(connectionId);
+            }
+        };
+    }
     public static DatabaseVectorManager getInstance(Project project) {
         return Components.projectService(project, DatabaseVectorManager.class);
     }
 
-    @Override
-    public Element getComponentState() {
-        return null;
+    public VectorEmbeddingRequest getEmbeddingRequest(ConnectionId connectionId) {
+        return embeddingRequests.computeIfAbsent(connectionId, c -> createEmbeddingRequest(c));
     }
 
-    @Override
-    public void loadComponentState(@NotNull Element state) {
-
+    @NonNull
+    private static VectorEmbeddingRequest createEmbeddingRequest(ConnectionId connectionId) {
+        VectorEmbeddingRequest embeddingRequest = new VectorEmbeddingRequest();
+        ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+        embeddingRequest.initialize(connection.getUserSchema());
+        return embeddingRequest;
     }
 
     public void openVectorToolbox(ConnectionHandler connection) {
@@ -86,7 +117,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                     return assistantInterface.chunkTextContent(text,
                             config.getChunkBy(),
                             config.getSplitBy(),
-                            config.getMax(),
+                            config.getMaxSize(),
                             config.getOverlap(), conn);
                 });
     }
@@ -94,7 +125,12 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
     @SneakyThrows
     //todo think of an Object as Request that has all the input of the user
     // also a Result Object .
-    public void query(SourceConfig sourceConfig, ChunkConfig chunkConfig, EmbedConfig embedConfig, StoreConfig storeConfig, ConnectionHandler handler, Runnable callbackInfo, Consumer<Exception> callbackError)  {
+    public void createEmbeddings(VectorEmbeddingRequest request, ConnectionHandler handler, Runnable callbackInfo, Consumer<Exception> callbackError)  {
+        SourceConfig sourceConfig = request.getSourceConfig();
+        ChunkConfig chunkConfig = request.getChunkConfig();
+        EmbedConfig embedConfig = request.getEmbedConfig();
+        StoreConfig storeConfig = request.getStoreConfig();
+
         Progress.modal(
                 getProject(),
                 handler.getSchema(), true,
@@ -102,15 +138,16 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                 "Creating store table" + storeConfig.getTableName(),
                  p -> {
 //                    try {
-                        DatabaseInterfaceInvoker.execute(HIGHEST,
+                     ConnectionId connectionId = handler.getConnectionId();
+                     DatabaseInterfaceInvoker.execute(HIGHEST,
                                 p.getText(),
                                 p.getText2(),
                                 handler.getProject(),
-                                handler.getConnectionId(),
+                             connectionId,
                                 handler.getSchemaId(),
                                 conn -> {
                                     DatabaseAssistantInterface dataDefinition = handler.getAssistantInterface();
-                                    if (storeConfig.isNewTable()) {
+                                    if (storeConfig.getDestinationType() == DestinationType.NEW_TABLE) {
                                         dataDefinition.createEmbeddingTable(conn,
                                                 storeConfig.getSchemaName(),
                                                 storeConfig.getTableName(),
@@ -118,15 +155,24 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                                                 storeConfig.getTextColumnName(),
                                                 storeConfig.getEmbeddingColumnName(),
                                                 storeConfig.getMetadataColumnName());
+
+                                        // refresh tables in the browser
+                                        SchemaId ownerId = SchemaId.get(storeConfig.getSchemaName());
+                                        ObjectChangeEvent.notify(CREATE, TABLE, connectionId, ownerId);
+
                                     }
 
                                     p.setText2("Embedding data");
-                                    if (sourceConfig instanceof DBTableSourceConfig) {
-                                        dataDefinition.embed(conn, (DBTableSourceConfig) sourceConfig, chunkConfig, embedConfig, storeConfig);
+                                    SourceType sourceType = sourceConfig.getSourceType();
+                                    String chunkConfigJson = chunkConfig.getConfigJson();
+                                    String embedConfigJson = embedConfig.getConfigJson();
+
+                                    if (sourceType == SourceType.DATABASE_TABLE) {
+                                        dataDefinition.embed(conn, sourceConfig.getTableSourceConfig(), chunkConfigJson, embedConfigJson, storeConfig);
                                         System.out.println("Embedding data created");
                                         //todo keep if else open to sother source config
-                                    } else {
-                                      FileSystemSourceConfig fs = (FileSystemSourceConfig) sourceConfig;
+                                    } else if (sourceType == SourceType.FILE_SYSTEM){
+                                      FileSystemSourceConfig fs = sourceConfig.getFileSourceConfig();
                                       List<VirtualFile> files = fs.getFiles();
                                       dataDefinition.ensureDocumentsTable(conn,FILES_TABLE);
                                       for (int i = 0; i < files.size(); i++) {
@@ -146,11 +192,11 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
 
 
                                             fileMetadataMap.put("doc_Id",id);
-                                            fileMetadataMap.put("embed_config",embedConfig.getConfigJson());
-                                            fileMetadataMap.put("chunk_config",chunkConfig.getConfigJson());
+                                            fileMetadataMap.put("embed_config", embedConfigJson);
+                                            fileMetadataMap.put("chunk_config", chunkConfigJson);
                                             String rowMetadata = Json.writeAsString(fileMetadataMap);
                                             storeConfig.setMetadata(rowMetadata);
-                                            dataDefinition.embed(conn, id, FILES_TABLE, chunkConfig, embedConfig, storeConfig); // add this overload
+                                            dataDefinition.embed(conn, id, FILES_TABLE, chunkConfigJson, embedConfigJson, storeConfig); // add this overload
                                           } catch (Exception e) {
                                             callbackError.accept(e);
                                           } finally { if (in != null) try { in.close(); } catch (Throwable ignored) {} }
@@ -206,4 +252,34 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
 
     return clob;
   }
+
+    /****************************************
+     *       PersistentStateComponent       *
+     *****************************************/
+    @Nullable
+    @Override
+    public Element getComponentState() {
+        Element element = newStateElement();
+        Element requestsElement = newElement(element, "embedding-requests");
+        for (ConnectionId connectionId : embeddingRequests.keySet()) {
+            Element requestElement = newElement(requestsElement, "embedding-request");
+
+            setConstantAttribute(requestElement, "connection-id", connectionId);
+            VectorEmbeddingRequest embeddingRequest = embeddingRequests.get(connectionId);
+            embeddingRequest.writeState(requestElement);
+        }
+        return element;
+    }
+
+    @Override
+    public void loadComponentState(@NotNull Element element) {
+        Element requestsElement = element.getChild("embedding-requests");
+        List<Element> requestElements = childrenOf(requestsElement, "embedding-request");
+        for (Element requestElement : requestElements) {
+            ConnectionId connectionId = constantAttribute(requestElement, "connection-id", ConnectionId.class);
+            VectorEmbeddingRequest embeddingRequest = new VectorEmbeddingRequest();
+            embeddingRequests.put(connectionId, embeddingRequest);
+            embeddingRequest.readState(requestElement);
+        }
+    }
 }

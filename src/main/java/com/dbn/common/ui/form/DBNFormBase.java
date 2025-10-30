@@ -161,6 +161,7 @@ public abstract class DBNFormBase
         initFormAccessibility();
         initFieldAvailability();
         initFieldAlignment();
+        initEventListeners();
 
         JComponent mainComponent = getMainComponent();
         DataProviders.register(mainComponent, this);
@@ -214,7 +215,11 @@ public abstract class DBNFormBase
     @ApiStatus.OverrideOnly
     protected void initAccessibility() {}
 
+    @ApiStatus.OverrideOnly
     protected void initFieldAvailability() {}
+
+    @ApiStatus.OverrideOnly
+    protected void initEventListeners() {}
 
     protected void updateFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();

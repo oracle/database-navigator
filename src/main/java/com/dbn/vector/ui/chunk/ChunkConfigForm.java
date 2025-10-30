@@ -2,10 +2,10 @@ package com.dbn.vector.ui.chunk;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
-import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.chunk.ChunkConfig;
+import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +16,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 
-public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+
+public class ChunkConfigForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
   private JComboBox<String> chunkByComboBox;
   private JComboBox<String> splitByComboBox;
@@ -26,35 +29,31 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   private JLabel chunkByLabel;
   private JLabel splitByLabel;
 
-  public ChunkConfigForm(@Nullable Disposable parent, ConnectionHandler connectionHandler) {
-    super(parent);
-    initComponents();
+  public ChunkConfigForm(@Nullable Disposable parent, ConnectionHandler connection) {
+    super(parent, connection);
+
     chunkLaboButton.addActionListener(e -> {
-      ChunkConfig chunkConfig = new ChunkConfig(
-              chunkByComboBox.getSelectedItem().toString(),
-              (Integer) maxSizeSpinner.getValue(),
-              (String) splitByComboBox.getSelectedItem(),
-              (Integer) overlapSpinner.getValue()
-      );
-      ChunkEditorDialog dialog = new ChunkEditorDialog(connectionHandler, chunkConfig);
+      ChunkConfig chunkConfig = getConfig().clone();
+      ChunkEditorDialog dialog = new ChunkEditorDialog(getConnection(), chunkConfig);
       Dialogs.show(()->dialog);
 
       updateChunkConfig(dialog.getChunkConfig());
     });
+  }
 
-    initValidation();
+  private Integer getMaxSize() {
+    return (Integer) maxSizeSpinner.getValue();
+  }
+
+  private Integer getOverlap() {
+    return (Integer) overlapSpinner.getValue();
   }
 
   private void updateChunkConfig(ChunkConfig chunkConfig) {
     chunkByComboBox.setSelectedItem(chunkConfig.getChunkBy());
-    maxSizeSpinner.setValue(chunkConfig.getMax());
     splitByComboBox.setSelectedItem(chunkConfig.getSplitBy());
+    maxSizeSpinner.setValue(chunkConfig.getMaxSize());
     overlapSpinner.setValue(chunkConfig.getOverlap());
-  }
-
-  private void initComponents() {
-    maxSizeSpinner.setValue(300);
-    overlapSpinner.setValue(30);
   }
 
   @Override
@@ -68,7 +67,7 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
   protected void initValidation() {
     addValidation(maxSizeSpinner, n-> {
               int max = (Integer) n.getValue();
-              int overlap = (Integer) overlapSpinner.getValue();
+              int overlap = getOverlap();
               String by = (String) chunkByComboBox.getSelectedItem();
               switch (by) {
                 case "CHARACTERS":
@@ -82,20 +81,33 @@ public class ChunkConfigForm extends DBNFormBase implements DBNCollapsibleForm {
 
 
     addValidation(overlapSpinner, o->{
-              int max = (Integer) maxSizeSpinner.getValue();
+              int max = getMaxSize();
               int overlap = (Integer) o.getValue();
               return overlap == 0 || (overlap>max*5/100 && overlap<max*20/100);
             }
             ,"Please enter a valid overlap: 5% to 20% of MAX");
   }
 
-  public ChunkConfig getChunkConfig() {
-    ChunkConfig chunkConfig = new ChunkConfig();
-    chunkConfig.setChunkBy(chunkByComboBox.getSelectedItem().toString());
-    chunkConfig.setSplitBy(splitByComboBox.getSelectedItem().toString());
-    chunkConfig.setOverlap((Integer) overlapSpinner.getValue());
-    chunkConfig.setMax((Integer) maxSizeSpinner.getValue());
-    return chunkConfig;
+  @Override
+  public void resetFormChanges() {
+    ChunkConfig config = getConfig();
+    setSelection(chunkByComboBox, config.getChunkBy());
+    setSelection(splitByComboBox, config.getSplitBy());
+    maxSizeSpinner.setValue(config.getMaxSize());
+    overlapSpinner.setValue(config.getOverlap());
+  }
+
+  @Override
+  public void applyFormChanges() {
+    ChunkConfig config = getConfig();
+    config.setChunkBy(getSelection(chunkByComboBox));
+    config.setSplitBy(getSelection(splitByComboBox));
+    config.setMaxSize((Integer) maxSizeSpinner.getValue());
+    config.setOverlap((Integer) overlapSpinner.getValue());
+  }
+
+  public ChunkConfig getConfig() {
+    return getEmbeddingRequest().getChunkConfig();
   }
 
   @Override

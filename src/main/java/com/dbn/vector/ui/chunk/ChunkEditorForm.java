@@ -97,8 +97,8 @@ public class ChunkEditorForm extends DBNFormBase {
 
   private void initConfigFields(ChunkConfig chunkConfig) {
     chunkByComboBox.setSelectedItem(chunkConfig.getChunkBy());
-    maxSpinner.setValue(chunkConfig.getMax());
     splitByComboBox.setSelectedItem(chunkConfig.getSplitBy());
+    maxSpinner.setValue(chunkConfig.getMaxSize());
     overlapSpinner.setValue(chunkConfig.getOverlap());
   }
 

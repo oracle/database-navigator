@@ -2,8 +2,7 @@ package com.dbn.vector.ui.embed;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.vector.model.embed.EmbedConfig;
-import com.dbn.vector.model.embed.ThirdPartyModel;
+import com.dbn.vector.model.embed.ThirdPartyModelConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBTextField;
@@ -49,13 +48,18 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
     return modelTextField.getText();
   }
 
-  public EmbedConfig getEmbedConfig() {
-      return new ThirdPartyModel(
-              getProvider(),
-              getCredentialName(),
-              getUrl(),
-              getModelName()
-      );
+  public ThirdPartyModelConfig getConfig() {
+    return getEmbeddingRequest().getEmbedConfig().getThirdPartyModelConfig();
+  }
+
+  @Override
+  public void resetFormChanges() {
+    // TODO
+  }
+
+  @Override
+  public void applyFormChanges() {
+    // TODO
   }
 
   @Override

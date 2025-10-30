@@ -1,20 +1,24 @@
 package com.dbn.vector.ui.embed;
 
-import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.embed.EmbedConfig;
+import com.dbn.vector.model.embed.ModelLocation;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
-import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 
 public class EmbedConfigForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
@@ -26,7 +30,7 @@ public class EmbedConfigForm extends VectorToolboxFormBase implements DBNCollaps
 
   public EmbedConfigForm(@Nullable Disposable parent, ConnectionHandler connection) {
     super(parent, connection);
-    initComboBox();
+    initComboBoxes();
     initDataPanel();
   }
 
@@ -45,10 +49,10 @@ public class EmbedConfigForm extends VectorToolboxFormBase implements DBNCollaps
   }
 
 
-  private void initComboBox() {
-    ComboBoxes.initComboBox(modelTypeComboBox, ModelLocation.values());
-    ComboBoxes.setSelection(modelTypeComboBox, ModelLocation.IN_DATABASE_MODEL);
-    ComboBoxes.onSelectionChange(modelTypeComboBox, v -> updateConfigForm());
+  private void initComboBoxes() {
+    initComboBox(modelTypeComboBox, ModelLocation.values());
+    setSelection(modelTypeComboBox, ModelLocation.IN_DATABASE_MODEL);
+    onSelectionChange(modelTypeComboBox, v -> updateConfigForm());
   }
 
   private void updateConfigForm() {
@@ -65,16 +69,26 @@ public class EmbedConfigForm extends VectorToolboxFormBase implements DBNCollaps
     configPanel.repaint();
   }
 
-  public EmbedConfig getEmbedConfig() {
-    ModelLocation modelLocation = ComboBoxes.getSelection(modelTypeComboBox);
-    if (modelLocation == null) return null;
+  @Override
+  public void resetFormChanges() {
+    EmbedConfig config = getConfig();
 
-    switch (modelLocation) {
-      case IN_DATABASE_MODEL: return databaseModelConfigForm.getEmbedConfig();
-      case THIRD_PARTY_MODEL: return thirdPartyModelConfigForm.getEmbedConfig();
-      default:
-        throw new IllegalStateException("Unexpected value: " + modelLocation);
-    }
+    setSelection(modelTypeComboBox, config.getModelLocation());
+    databaseModelConfigForm.resetFormChanges();
+    thirdPartyModelConfigForm.resetFormChanges();
+  }
+
+  @Override
+  public void applyFormChanges() {
+    EmbedConfig config = getConfig();
+
+    config.setModelLocation(getSelection(modelTypeComboBox));
+    databaseModelConfigForm.applyFormChanges();
+    thirdPartyModelConfigForm.applyFormChanges();
+  }
+
+  public EmbedConfig getConfig() {
+    return getEmbeddingRequest().getEmbedConfig();
   }
 
   @Override
@@ -97,11 +111,4 @@ public class EmbedConfigForm extends VectorToolboxFormBase implements DBNCollaps
     return "Embedding Model";
   }
 
-  @Getter
-  public enum ModelLocation implements Presentable {
-    IN_DATABASE_MODEL("In-database model"),
-    THIRD_PARTY_MODEL("Third-party model");
-    private final String name;
-    ModelLocation(String name) { this.name = name; }
-  }
 }

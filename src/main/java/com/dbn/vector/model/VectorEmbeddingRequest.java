@@ -16,18 +16,90 @@
 
 package com.dbn.vector.model;
 
+import com.dbn.common.state.PersistentStateElement;
+import com.dbn.connection.SchemaId;
 import com.dbn.vector.model.chunk.ChunkConfig;
 import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.sourceconfig.SourceConfig;
+import com.dbn.vector.model.store.DestinationType;
 import com.dbn.vector.model.store.StoreConfig;
 import lombok.Getter;
 import lombok.Setter;
+import org.jdom.Element;
+
+import static com.dbn.common.options.setting.Settings.newElement;
 
 @Getter
 @Setter
-public class VectorEmbeddingRequest {
-    private SourceConfig sourceConfig;
-    private ChunkConfig chunkConfig;
-    private EmbedConfig embedConfig;
-    private StoreConfig storeConfig;
+public class VectorEmbeddingRequest implements PersistentStateElement {
+    private SourceConfig sourceConfig = new SourceConfig();
+    private ChunkConfig chunkConfig = new ChunkConfig();
+    private EmbedConfig embedConfig = new EmbedConfig();
+    private StoreConfig storeConfig = new StoreConfig();
+
+    public void initialize(SchemaId userSchema) {
+        if (userSchema == null) return;
+
+        // preselect user schema in relevant config blocks
+        String schemaName = userSchema.getName();
+        sourceConfig.getTableSourceConfig().setSchemaName(schemaName);
+        embedConfig.getDatabaseModelConfig().setSchemaName(schemaName);
+        storeConfig.setSchemaName(schemaName);
+    }
+
+    /**
+     * Soft reset, to be used after a request has been executed.
+     * <li>clear source files</li>
+     * <li>switch store config to "existing table" assuming it has been created</li>
+     */
+    public void resetSoft() {
+        sourceConfig.getFileSourceConfig().getFilePaths().clear();
+
+        DestinationType destinationType = storeConfig.getDestinationType();
+        if (destinationType == DestinationType.NEW_TABLE) {
+            storeConfig.setDestinationType(DestinationType.EXISTING_TABLE);
+        }
+    }
+
+    /**
+     * Hard reset, triggered intentionally by user.
+     * (returns the request to its initial state)
+     */
+    public void resetHard(SchemaId userSchema) {
+        sourceConfig = new SourceConfig();
+        chunkConfig = new ChunkConfig();
+        embedConfig = new EmbedConfig();
+        storeConfig = new StoreConfig();
+
+        initialize(userSchema);
+    }
+
+    @Override
+    public void readState(Element element) {
+        if (element == null) return;
+
+        Element sourceConfigElement = element.getChild("source-config");
+        Element chunkConfigElement = element.getChild("chunk-config");
+        Element embedConfigElement = element.getChild("embed-config");
+        Element storeConfigElement = element.getChild("store-config");
+
+        sourceConfig.readState(sourceConfigElement);
+        chunkConfig.readState(chunkConfigElement);
+        embedConfig.readState(embedConfigElement);
+        storeConfig.readState(storeConfigElement);
+    }
+
+    @Override
+    public void writeState(Element element) {
+        Element sourceConfigElement = newElement(element, "source-config");
+        Element chunkConfigElement = newElement(element, "chunk-config");
+        Element embedConfigElement = newElement(element, "embed-config");
+        Element storeConfigElement = newElement(element, "store-config");
+
+        sourceConfig.writeState(sourceConfigElement);
+        chunkConfig.writeState(chunkConfigElement);
+        embedConfig.writeState(embedConfigElement);
+        storeConfig.writeState(storeConfigElement);
+    }
 }
+
