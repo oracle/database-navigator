@@ -39,9 +39,9 @@ public class VectorAIForm extends VectorToolboxFormBase {
     initHeaderPanel();
     initHintPanel();
     initForms();
-    alignFormFields(this);
 //    initButtonListners();
     resetFormChanges();
+    alignFormFields(this);
   }
 
   private void initForms() {
