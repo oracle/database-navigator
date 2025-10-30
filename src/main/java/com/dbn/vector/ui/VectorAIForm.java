@@ -6,6 +6,7 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.ui.chunk.ChunkConfigForm;
@@ -127,6 +128,12 @@ public class VectorAIForm extends VectorToolboxFormBase {
     chunkConfigForm.applyFormChanges();
     embedConfigForm.applyFormChanges();
     saveVectorsForm.applyFormChanges();
+  }
+
+  protected void reset() {
+    SchemaId userSchema = getConnection().getUserSchema();
+    getEmbeddingRequest().resetHard(userSchema);
+    resetFormChanges();
   }
 
   private void initHeaderPanel() {

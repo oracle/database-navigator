@@ -50,7 +50,6 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
   private void initModelAddButton() {
     addCredentialButton.setIcon(Icons.ACTION_ADD);
     addCredentialButton.setText(null);
-    System.out.println("kl");
     ConnectionHandler connection = getConnection();
     addCredentialButton.addActionListener(e -> Dialogs.show(() -> new ObjectFactoryInputDialog(getProject(), connection.getSchema(connection.getUserSchema()),DBObjectType.AI_MODEL)));
 
@@ -95,14 +94,13 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
   private void initComboBoxes() {
     initComboBoxesAsync();
     modelComboBox.set(HIDE_DESCRIPTION, true);
-
-    updateFieldAvailability();
   }
 
   private void initComboBoxesAsync() {
     DatabaseModelConfig config = getConfig();
     schemaComboBox.init(() -> loadSchemas(), s -> matchesObjectName(s, config.getSchemaName()));
     modelComboBox.init(() -> loadModels(), m -> matchesObjectName(m, config.getModelName()));
+    updateFieldAvailability();
   }
 
   @Override

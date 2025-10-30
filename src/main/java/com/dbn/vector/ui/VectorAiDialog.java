@@ -8,6 +8,9 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+
+import javax.swing.Action;
 
 public class VectorAiDialog extends DBNDialog<VectorAIForm> {
   private final ConnectionRef connection;
@@ -27,6 +30,18 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
   @Override
   protected @NotNull VectorAIForm createForm() {
     return new VectorAIForm(this,getConnection());
+  }
+
+  @Override
+  protected Action[] createActions() {
+    return createActions(
+            getOKAction(),
+            getResetAction(),
+            getCancelAction());
+  }
+
+  private @NonNull Action getResetAction() {
+    return createAction("Reset", () -> getForm().reset());
   }
 
   @Override

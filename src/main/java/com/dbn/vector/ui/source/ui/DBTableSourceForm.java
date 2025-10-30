@@ -70,8 +70,6 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
     tableComboBox.set(HIDE_DESCRIPTION, true);
     dataColumnComboBox.set(HIDE_DESCRIPTION, true);
     keyColumnComboBox.set(HIDE_DESCRIPTION, true);
-
-    updateFieldAvailability();
   }
 
   private void initComboBoxesAsync() {
@@ -80,6 +78,7 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
     tableComboBox.init(() -> loadTables(), t -> matchesObjectName(t, config.getTableName()));
     keyColumnComboBox.init(() -> loadKeyColumns(), c -> matchesObjectName(c, config.getKeyColumnName()));
     dataColumnComboBox.init(() -> loadDataColumns(), c -> matchesObjectName(c, config.getDataColumnName()));
+    updateFieldAvailability();
   }
 
   private List<DBSchema> loadSchemas() {

@@ -54,8 +54,6 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
     dataColumnComboBox.set(HIDE_DESCRIPTION, true);
     embeddingColumnComboBox.set(HIDE_DESCRIPTION, true);
     metadataColumnComboBox.set(HIDE_DESCRIPTION, true);
-
-    updateFieldAvailability();
   }
 
   private void initComboBoxesAsync() {
@@ -65,6 +63,7 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
     dataColumnComboBox.init(() -> loadDataColumns(), o -> matchesObjectName(o, config.getTextColumnName()));
     embeddingColumnComboBox.init(() -> loadEmbeddingColumns(), o -> matchesObjectName(o, config.getEmbeddingColumnName()));
     metadataColumnComboBox.init(() -> loadMetadataColumns(), o -> matchesObjectName(o, config.getMetadataColumnName()));
+    updateFieldAvailability();
   }
 
   protected void initEventListeners() {
@@ -129,7 +128,7 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
             Collections.emptyList() :
             table.getColumns();
 
-    return Lists.filter(columns, c -> c.getDataType().isLiteral());
+    return Lists.filter(columns, c -> c.getDataType().isLiteral() && !c.isPrimaryKey() && !c.isHidden());
   }
 
 
