@@ -7,6 +7,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.chunk.ChunkConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
@@ -18,6 +19,7 @@ import javax.swing.JSpinner;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.util.Conditional.when;
 
 public class ChunkConfigForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
@@ -32,13 +34,17 @@ public class ChunkConfigForm extends VectorToolboxFormBase implements DBNCollaps
   public ChunkConfigForm(@Nullable Disposable parent, ConnectionHandler connection) {
     super(parent, connection);
 
-    chunkLaboButton.addActionListener(e -> {
-      ChunkConfig chunkConfig = getConfig().clone();
-      ChunkEditorDialog dialog = new ChunkEditorDialog(getConnection(), chunkConfig);
-      Dialogs.show(()->dialog);
+    chunkLaboButton.addActionListener(e -> openChunkLab());
+  }
 
-      updateChunkConfig(dialog.getChunkConfig());
-    });
+  private void openChunkLab() {
+    ChunkConfig chunkConfig = new ChunkConfig();
+    applyFormChanges(chunkConfig);
+
+    Dialogs.show(() -> new ChunkEditorDialog(getConnection(), chunkConfig),
+            (dialog, exitCode) -> when(
+                    exitCode == DialogWrapper.OK_EXIT_CODE,
+                    () -> resetFormChanges(dialog.getChunkConfig())));
   }
 
   private Integer getMaxSize() {
@@ -47,13 +53,6 @@ public class ChunkConfigForm extends VectorToolboxFormBase implements DBNCollaps
 
   private Integer getOverlap() {
     return (Integer) overlapSpinner.getValue();
-  }
-
-  private void updateChunkConfig(ChunkConfig chunkConfig) {
-    chunkByComboBox.setSelectedItem(chunkConfig.getChunkBy());
-    splitByComboBox.setSelectedItem(chunkConfig.getSplitBy());
-    maxSizeSpinner.setValue(chunkConfig.getMaxSize());
-    overlapSpinner.setValue(chunkConfig.getOverlap());
   }
 
   @Override
@@ -91,6 +90,10 @@ public class ChunkConfigForm extends VectorToolboxFormBase implements DBNCollaps
   @Override
   public void resetFormChanges() {
     ChunkConfig config = getConfig();
+    resetFormChanges(config);
+  }
+
+  private void resetFormChanges(ChunkConfig config) {
     setSelection(chunkByComboBox, config.getChunkBy());
     setSelection(splitByComboBox, config.getSplitBy());
     maxSizeSpinner.setValue(config.getMaxSize());
@@ -100,6 +103,10 @@ public class ChunkConfigForm extends VectorToolboxFormBase implements DBNCollaps
   @Override
   public void applyFormChanges() {
     ChunkConfig config = getConfig();
+    applyFormChanges(config);
+  }
+
+  private void applyFormChanges(ChunkConfig config) {
     config.setChunkBy(getSelection(chunkByComboBox));
     config.setSplitBy(getSelection(splitByComboBox));
     config.setMaxSize((Integer) maxSizeSpinner.getValue());
