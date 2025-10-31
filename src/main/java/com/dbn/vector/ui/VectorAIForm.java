@@ -4,6 +4,7 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
@@ -17,6 +18,7 @@ import com.intellij.openapi.Disposable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import java.awt.BorderLayout;
 
 import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 
@@ -28,6 +30,7 @@ public class VectorAIForm extends VectorToolboxFormBase {
   private JPanel saveDataPanel;
   private JPanel hintPanel;
   private JPanel headerPanel;
+  private JPanel hyperlinkPanel;
 
   private SourceDataForm sourceDataForm;
   private ChunkConfigForm chunkConfigForm;
@@ -39,6 +42,7 @@ public class VectorAIForm extends VectorToolboxFormBase {
 
     initHeaderPanel();
     initHintPanel();
+    initPoweredByPanel();
     initForms();
 //    initButtonListners();
     resetFormChanges();
@@ -143,11 +147,27 @@ public class VectorAIForm extends VectorToolboxFormBase {
 
   private void initHintPanel() {
 
-    TextContent hintText = TextContent.plain("Turn Oracle tables or local files into embeddings — ready for semantic search, \"chat-with-your-data\", and RAG workflows in minutes.");
+    TextContent hintText = TextContent.plain(
+            "Vector Chain Embeddings Configuration\n\n" +
+                    "Use this interface to generate dense vector representations of your data using Oracle DBMS_VECTOR_CHAIN. " +
+                    "Choose data from existing tables or upload file contents, customize chunking parameters, " +
+                    "select from a range of pre-trained embedding models hosted in the database or configure third-party alternatives, " +
+                    "and decide whether to store generated embeddings in an existing table or create a new one.\n\n" +
+                    "These embeddings can be used to power Retrieval-Augmented Generation (RAG) workflows, among other applications.");
     DBNHintForm hintForm = new DBNHintForm(null, hintText, null, true);
 
     JComponent hintComponent = hintForm.getComponent();
     hintPanel.add(hintComponent);
+  }
+
+  private void initPoweredByPanel() {
+    HyperLinkForm hyperLinkForm = HyperLinkForm.create(
+            "Powered by",
+            "Oracle AI Vector Search",
+            "https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/overview-ai-vector-search.html");
+
+    hyperLinkForm.setTooltipText("https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/overview-ai-vector-search.html");
+    hyperlinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
   }
 
   @Override
