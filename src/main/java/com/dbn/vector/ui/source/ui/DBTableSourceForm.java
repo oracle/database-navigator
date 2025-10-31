@@ -43,7 +43,7 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
   public DBTableSourceForm(@Nullable Disposable parent, ConnectionHandler connection) {
     super(parent, connection);
 
-    whenShown(() -> initComboBoxes());
+    initComboBoxes();
   }
 
   @Override
@@ -65,19 +65,16 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
   }
 
   private void initComboBoxes() {
-    initComboBoxesAsync();
     schemaComboBox.set(HIDE_DESCRIPTION, true);
     tableComboBox.set(HIDE_DESCRIPTION, true);
     dataColumnComboBox.set(HIDE_DESCRIPTION, true);
     keyColumnComboBox.set(HIDE_DESCRIPTION, true);
-  }
 
-  private void initComboBoxesAsync() {
-    DBTableSourceConfig config = getConfig();
-    schemaComboBox.init(() -> loadSchemas(), s -> matchesObjectName(s, config.getSchemaName()));
-    tableComboBox.init(() -> loadTables(), t -> matchesObjectName(t, config.getTableName()));
-    keyColumnComboBox.init(() -> loadKeyColumns(), c -> matchesObjectName(c, config.getKeyColumnName()));
-    dataColumnComboBox.init(() -> loadDataColumns(), c -> matchesObjectName(c, config.getDataColumnName()));
+    schemaComboBox.init(() -> loadSchemas(), null);
+    tableComboBox.init(() -> loadTables(), null);
+    keyColumnComboBox.init(() -> loadKeyColumns(), null);
+    dataColumnComboBox.init(() -> loadDataColumns(), null);
+
     updateFieldAvailability();
   }
 
@@ -141,7 +138,10 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
     DBTableSourceConfig config = getConfig();
     autoSyncCheckBox.setSelected(config.isAutoSync());
 
-    initComboBoxesAsync();
+    schemaComboBox.init(() -> loadSchemas(), s -> matchesObjectName(s, config.getSchemaName()));
+    tableComboBox.init(() -> loadTables(), t -> matchesObjectName(t, config.getTableName()));
+    keyColumnComboBox.init(() -> loadKeyColumns(), c -> matchesObjectName(c, config.getKeyColumnName()));
+    dataColumnComboBox.init(() -> loadDataColumns(), c -> matchesObjectName(c, config.getDataColumnName()));
   }
 
   @Override

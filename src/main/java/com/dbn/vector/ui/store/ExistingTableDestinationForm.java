@@ -43,26 +43,22 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
 
   public ExistingTableDestinationForm(@Nullable Disposable parent, @NotNull ConnectionHandler connection) {
     super(parent, connection);
-    whenShown(() -> initComboBoxes());
+    initComboBoxes();
   }
 
   private void initComboBoxes() {
-    initComboBoxesAsync();
-
     schemaComboBox.set(HIDE_DESCRIPTION, true);
     tableComboBox.set(HIDE_DESCRIPTION, true);
     dataColumnComboBox.set(HIDE_DESCRIPTION, true);
     embeddingColumnComboBox.set(HIDE_DESCRIPTION, true);
     metadataColumnComboBox.set(HIDE_DESCRIPTION, true);
-  }
 
-  private void initComboBoxesAsync() {
-    StoreConfig config = getConfig();
-    schemaComboBox.init(() -> loadSchemas(), o -> matchesObjectName(o, config.getSchemaName()));
-    tableComboBox.init(() -> loadTables(), o -> matchesObjectName(o, config.getTableName()));
-    dataColumnComboBox.init(() -> loadDataColumns(), o -> matchesObjectName(o, config.getTextColumnName()));
-    embeddingColumnComboBox.init(() -> loadEmbeddingColumns(), o -> matchesObjectName(o, config.getEmbeddingColumnName()));
-    metadataColumnComboBox.init(() -> loadMetadataColumns(), o -> matchesObjectName(o, config.getMetadataColumnName()));
+    schemaComboBox.init(() -> loadSchemas(), null);
+    tableComboBox.init(() -> loadTables(), null);
+    dataColumnComboBox.init(() -> loadDataColumns(), null);
+    embeddingColumnComboBox.init(() -> loadEmbeddingColumns(), null);
+    metadataColumnComboBox.init(() -> loadMetadataColumns(), null);
+
     updateFieldAvailability();
   }
 
@@ -173,7 +169,12 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
 
   @Override
   public void resetFormChanges() {
-    initComboBoxesAsync();
+    StoreConfig config = getConfig();
+    schemaComboBox.init(() -> loadSchemas(), o -> matchesObjectName(o, config.getSchemaName()));
+    tableComboBox.init(() -> loadTables(), o -> matchesObjectName(o, config.getTableName()));
+    dataColumnComboBox.init(() -> loadDataColumns(), o -> matchesObjectName(o, config.getTextColumnName()));
+    embeddingColumnComboBox.init(() -> loadEmbeddingColumns(), o -> matchesObjectName(o, config.getEmbeddingColumnName()));
+    metadataColumnComboBox.init(() -> loadMetadataColumns(), o -> matchesObjectName(o, config.getMetadataColumnName()));
   }
 
   @Override

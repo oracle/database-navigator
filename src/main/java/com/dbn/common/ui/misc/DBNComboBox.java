@@ -72,6 +72,7 @@ import static com.dbn.common.ui.ValueSelectorOption.HIDE_ICON;
 import static com.dbn.common.ui.util.ClientProperty.LOADING;
 import static com.dbn.common.ui.util.ComboBoxes.getEmptyOptionsText;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBoxRenderer;
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.first;
 
@@ -277,7 +278,11 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     public void init(Loader<List<T>> valueLoader, Predicate<T> valuePreselector){
         this.valueLoader = valueLoader;
         this.valuePreselector = valuePreselector;
-        loadValues();
+        if (isShowing()) {
+            loadValues();
+        } else {
+            whenFirstShown(this, () -> loadValues());
+        }
     }
 
     private void muteActionListeners() {

@@ -49,12 +49,11 @@ public class CreateVectorDestinationForm extends VectorToolboxFormBase {
 
   public CreateVectorDestinationForm(@Nullable Disposable parent, @NotNull ConnectionHandler connection) {
     super(parent, connection);
-    whenShown(() -> initComboBoxes());
+    initComboBoxes();
   }
 
   private void initComboBoxes() {
-    StoreConfig config = getConfig();
-    schemaComboBox.init(() -> loadSchemas(), o -> matchesObjectName(o, config.getSchemaName()));
+    schemaComboBox.init(() -> loadSchemas(), null);
   }
 
   private List<DBSchema> loadSchemas() {
@@ -80,6 +79,8 @@ public class CreateVectorDestinationForm extends VectorToolboxFormBase {
     textColumnTextField.setText(config.getTextColumnName());
     vectorColumnTextField.setText(config.getEmbeddingColumnName());
     metadataColumnTextField.setText(config.getMetadataColumnName());
+
+    schemaComboBox.init(() -> loadSchemas(), o -> matchesObjectName(o, config.getSchemaName()));
   }
 
   @Override

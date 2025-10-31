@@ -44,7 +44,7 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
     modelComboBox.set(HIDE_DESCRIPTION, true);
     schemaComboBox.set(HIDE_DESCRIPTION, true);
     initModelAddButton();
-    whenShown(() -> initComboBoxes());
+    initComboBoxes();
   }
 
   private void initModelAddButton() {
@@ -92,14 +92,12 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
   }
 
   private void initComboBoxes() {
-    initComboBoxesAsync();
     modelComboBox.set(HIDE_DESCRIPTION, true);
-  }
+    schemaComboBox.set(HIDE_DESCRIPTION, true);
 
-  private void initComboBoxesAsync() {
-    DatabaseModelConfig config = getConfig();
-    schemaComboBox.init(() -> loadSchemas(), s -> matchesObjectName(s, config.getSchemaName()));
-    modelComboBox.init(() -> loadModels(), m -> matchesObjectName(m, config.getModelName()));
+    schemaComboBox.init(() -> loadSchemas(), null);
+    modelComboBox.init(() -> loadModels(), null);
+
     updateFieldAvailability();
   }
 
@@ -110,7 +108,9 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
 
   @Override
   public void resetFormChanges() {
-    initComboBoxesAsync();
+    DatabaseModelConfig config = getConfig();
+    schemaComboBox.init(() -> loadSchemas(), s -> matchesObjectName(s, config.getSchemaName()));
+    modelComboBox.init(() -> loadModels(), m -> matchesObjectName(m, config.getModelName()));
   }
 
   @Override

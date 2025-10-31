@@ -127,21 +127,17 @@ public class UserInterface {
 
 
     public static void whenShown(JComponent component, Runnable runnable, boolean first) {
-        // one time invocation of the runnable when component is shown
+        // invocation of the runnable when the component is shown
         AtomicReference<AncestorListener> listenerRef = new AtomicReference<>();
         AncestorListener listener = new AncestorListenerAdapter() {
             @Override
             public void ancestorAdded(AncestorEvent event) {
-                try {
-                    runnable.run();
-                } finally {
-                    if (first) {
-                        // remove the listener if only first shown time is to be considered
-                        AncestorListener listener = listenerRef.get();
-                        component.removeAncestorListener(listener);
-                    }
+                if (first) {
+                    // remove the listener if only the first time is to be considered
+                    AncestorListener listener = listenerRef.get();
+                    component.removeAncestorListener(listener);
                 }
-
+                runnable.run();
             }
         };
         listenerRef.set(listener);
