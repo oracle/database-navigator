@@ -19,16 +19,17 @@ package com.dbn.common.ui.form;
 import com.dbn.common.ref.WeakRefWrapper;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.list.CheckBoxList;
+import com.dbn.common.ui.table.Tables;
+import com.dbn.common.ui.util.Lists;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.ui.DocumentAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JList;
 import javax.swing.JTable;
-import javax.swing.event.DocumentEvent;
 import javax.swing.text.JTextComponent;
 import java.awt.Component;
 import java.awt.event.ComponentAdapter;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -47,6 +49,7 @@ import static com.dbn.common.ui.util.ClientProperty.LOADING;
 import static com.dbn.common.ui.util.ClientProperty.VALIDATION_INFO;
 import static com.dbn.common.ui.util.ClientProperty.VISITED;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.isEmpty;
 import static com.dbn.common.util.Commons.isOneOf;
 import static java.util.Collections.emptyList;
@@ -120,62 +123,58 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         if (component instanceof JTextComponent) {
             JTextComponent textField = (JTextComponent) component;
             addValidationListeners(textField);
-        } else if (component instanceof JTable) {
-            JTable table = (JTable) component;
-            addValidationListeners(table);
-        } else if (component instanceof JComboBox) {
-            JComboBox comboBox = (JComboBox) component;
-            addValidationListeners(comboBox);
+
         } else if (component instanceof CheckBoxList) {
             CheckBoxList checkBoxList = (CheckBoxList) component;
             addValidationListeners(checkBoxList);
+
+        } else if (component instanceof JTable) {
+            JTable table = (JTable) component;
+            addValidationListeners(table);
+
+        } else if (component instanceof JList) {
+            JList list = (JList) component;
+            addValidationListeners(list);
+
+        } else if (component instanceof JComboBox) {
+            JComboBox comboBox = (JComboBox) component;
+            addValidationListeners(comboBox);
+
         }
         // ...
     }
 
     private void addValidationListeners(JTable table) {
-        table.getModel().addTableModelListener(e -> {
-            validateInput(table);
-        });
+        addListener(table, c -> Tables.onModelChange(c, e -> validateInput(c)));
+    }
+
+    private void addValidationListeners(JList list) {
+        addListener(list, c -> Lists.onModelChange(c, e -> validateInput(c)));
     }
 
     private void addValidationListeners(JTextComponent textField) {
-        if (HAS_VALIDATION_LISTENERS.is(textField)) return;
-        HAS_VALIDATION_LISTENERS.set(textField, true);
-
-        // add document listener to perform validation on text change and enable / disable dialog button
-        textField.getDocument().addDocumentListener(new DocumentAdapter() {
-            @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                validateInput(textField);
-            }
-        });
-
-        // add focus listener to perform validation when focus is gained or lost
-        addFocusValidationListeners(textField);
-        addVisibilityChangeListener(textField);
+        // add document-listener to perform validation on text change and enable / disable dialog button
+        addListener(textField, c -> onTextChange(c, e ->  validateInput(c)));
     }
 
     private void addValidationListeners(JComboBox comboBox) {
-        if (HAS_VALIDATION_LISTENERS.is(comboBox)) return;
-        HAS_VALIDATION_LISTENERS.set(comboBox, true);
-
-        // add action listener to perform validation on selection change
-        comboBox.addActionListener(e -> validateInput(comboBox));
-
-        // add focus listener to perform validation when focus is gained or lost
-        addFocusValidationListeners(comboBox);
-        addVisibilityChangeListener(comboBox);
+        // add item listener to perform validation on selection change
+        addListener(comboBox, c -> c.addItemListener(e -> validateInput(c)));
     }
 
     private void addValidationListeners(CheckBoxList checkBoxList) {
-        if (HAS_VALIDATION_LISTENERS.is(checkBoxList)) return;
-        HAS_VALIDATION_LISTENERS.set(checkBoxList, true);
+        addListener(checkBoxList, l -> l.addActionListener(e -> validateInput(l)));
+    }
 
-        checkBoxList.addActionListener(e -> validateInput(checkBoxList));
+    private <T extends JComponent> void addListener(T component, Consumer<T> listener) {
+        if (HAS_VALIDATION_LISTENERS.is(component)) return;
+        HAS_VALIDATION_LISTENERS.set(component, true);
 
-        addFocusValidationListeners(checkBoxList);
-        addVisibilityChangeListener(checkBoxList);
+        listener.accept(component);
+
+        // add focus listener to perform validation when focus is gained or lost
+        addFocusValidationListeners(component);
+        addVisibilityChangeListener(component);
     }
 
     private void addFocusValidationListeners(JComponent component) {
@@ -194,10 +193,8 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
                     if (dialog.isCancelButton(button)) return;
                 }
 
+                VISITED.set(component, true);
                 validateInput(component);
-                if (VISITED.isNot(component)) {
-                    VISITED.set(component, true);
-                }
             }
         });
     }
@@ -269,9 +266,10 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         Set<JComponent> invalidFields = new HashSet<>();
         for (WrappedValidator<?> validator : validators) {
             JComponent target = validator.getTarget();
-            if (!target.isShowing()) continue; // skip conditionally hidden components
-            if (!target.isEnabled()) continue; // skip disabled fields
-            if (LOADING.is(target)) continue; // skip loading components
+            if (!shouldValidate(target)) {
+                VALIDATION_INFO.reset(target);
+                continue;
+            }
 
             // prevent multiple validation issues on same field (e.g. "empty value" and "invalid value pattern")
             if (invalidFields.contains(target)) continue;
@@ -293,6 +291,13 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         }
 
         return result;
+    }
+
+    private static boolean shouldValidate(JComponent component) {
+        if (!component.isShowing()) return false; // skip conditionally hidden components
+        if (!component.isEnabled()) return false; // skip disabled fields
+        if (LOADING.is(component)) return false; // skip loading components
+        return true;
     }
 
     public boolean isVisitedField(JComponent component) {

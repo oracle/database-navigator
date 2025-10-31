@@ -225,8 +225,15 @@ public abstract class DBNFormBase
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
         fieldAdapter.updateFieldsVisibility();
         fieldAdapter.updateFieldsAvailability();
-        validateInput();
     }
+
+    protected void validateFormFields() {
+        DBNDialog parentDialog = getParentDialog();
+        if (parentDialog == null) return;
+
+        parentDialog.validateInput(null);
+    }
+
 
     protected void initFieldAlignment() {}
 

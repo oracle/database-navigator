@@ -62,6 +62,7 @@ public class SaveVectorsForm extends VectorToolboxFormBase implements DBNCollaps
     }
     dataPanel.revalidate();
     dataPanel.repaint();
+    validateFormFields();
   }
 
   @Override

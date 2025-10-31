@@ -31,6 +31,11 @@ public class FileSystemSourceForm extends VectorToolboxFormBase {
   }
 
   @Override
+  protected void initValidation() {
+    addValidation(fileListForm.getFileList(), l -> l.getModel().getSize() > 0, "Please select at least one file");
+  }
+
+  @Override
   public void resetFormChanges() {
     FileSystemSourceConfig config = getConfig();
     fileListForm.setFiles(config.getFiles());

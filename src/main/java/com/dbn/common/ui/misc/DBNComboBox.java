@@ -70,6 +70,7 @@ import java.util.function.Predicate;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_ICON;
 import static com.dbn.common.ui.util.ClientProperty.LOADING;
+import static com.dbn.common.ui.util.ClientProperty.VISITED;
 import static com.dbn.common.ui.util.ComboBoxes.getEmptyOptionsText;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBoxRenderer;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
@@ -435,6 +436,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     public void setValues(List<T> values) {
         DBNComboBoxModel<T> model = new DBNComboBoxModel<>(values);
         setModel(model);
+        VISITED.set(this, false); // reset visited flag on model changes
     }
 
     private void addValue(T value) {

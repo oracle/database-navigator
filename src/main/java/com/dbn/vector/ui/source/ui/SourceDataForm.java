@@ -66,6 +66,7 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
     }
     dataPanel.revalidate();
     dataPanel.repaint();
+    validateFormFields();
   }
 
   @Override
