@@ -3,7 +3,6 @@ package com.dbn.vector.model.embed;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Json;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jdom.Element;
 
@@ -14,26 +13,19 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class ThirdPartyModelConfig implements PersistentStateElement {
   private String provider;
+  private String credentialSchemaName;
   private String credentialName;
-  private String url;
-  private String model;
-
-  public ThirdPartyModelConfig(String providerName, String credentialName, String url, String modelName) {
-    this.provider = providerName;
-    this.credentialName = credentialName;
-    this.url = url;
-    this.model = modelName;
-  }
+  private String endpointUrl;
+  private String modelName;
 
   public String getConfigJson() {
     Map params = Map.of(
             "provider", provider,
-            "CredentialName", credentialName,
-            "url", url,
-            "model", model
+            "credential_name", credentialSchemaName + "." + credentialName,
+            "url", endpointUrl,
+            "model", modelName
     );
     return Json.writeAsString(params);
   }
@@ -43,16 +35,18 @@ public class ThirdPartyModelConfig implements PersistentStateElement {
     if (element == null) return;
 
     provider = stringAttribute(element, "provider");
-    credentialName = stringAttribute(element, "credential-name");
-    url = stringAttribute(element, "url");
-    model = stringAttribute(element, "model");
+    credentialSchemaName = stringAttribute(element, "credential-schema");
+    credentialName = stringAttribute(element, "credential");
+    endpointUrl = stringAttribute(element, "url");
+    modelName = stringAttribute(element, "model");
   }
 
   @Override
   public void writeState(Element element) {
     setStringAttribute(element, "provider", provider);
-    setStringAttribute(element, "credential-name", credentialName);
-    setStringAttribute(element, "url", url);
-    setStringAttribute(element, "model", model);
+    setStringAttribute(element, "credential-schema", credentialSchemaName);
+    setStringAttribute(element, "credential", credentialName);
+    setStringAttribute(element, "url", endpointUrl);
+    setStringAttribute(element, "model", modelName);
   }
 }

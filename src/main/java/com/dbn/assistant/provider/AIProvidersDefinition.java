@@ -136,7 +136,7 @@ public class AIProvidersDefinition {
     }
 
     private static void initModels(Element element, AIProvider provider, AIProvider providerTemplate) {
-        List<Element> modelElements = element.getChild("models").getChildren();
+        List<Element> modelElements = childrenOf(element.getChild("models"));
         List<AIModel> models = convert(modelElements, e -> createModel(e, provider, providerTemplate));
         provider.setModels(unmodifiableList(models));
     }

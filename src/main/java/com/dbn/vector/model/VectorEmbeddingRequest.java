@@ -44,6 +44,7 @@ public class VectorEmbeddingRequest implements PersistentStateElement {
         String schemaName = userSchema.getName();
         sourceConfig.getTableSourceConfig().setSchemaName(schemaName);
         embedConfig.getDatabaseModelConfig().setSchemaName(schemaName);
+        embedConfig.getThirdPartyModelConfig().setCredentialSchemaName(schemaName);
         storeConfig.setSchemaName(schemaName);
     }
 

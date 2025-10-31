@@ -28,6 +28,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.common.metadata.def.DBSchemaMetadata;
+import com.dbn.object.DBAIModel;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.DBCluster;
 import com.dbn.object.DBColumn;
@@ -55,7 +56,6 @@ import com.dbn.object.DBTable;
 import com.dbn.object.DBType;
 import com.dbn.object.DBUser;
 import com.dbn.object.DBView;
-import com.dbn.object.DBAIModel;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBRootObjectImpl;
 import com.dbn.object.common.DBSchemaObject;
@@ -98,8 +98,8 @@ import static com.dbn.object.common.property.DBObjectProperty.USER_SCHEMA;
 import static com.dbn.object.type.DBObjectRelationType.CONSTRAINT_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.INDEX_COLUMN;
 import static com.dbn.object.type.DBObjectRelationType.JSON_VIEW_TABLE;
-import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 import static com.dbn.object.type.DBObjectType.AI_MODEL;
+import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 import static com.dbn.object.type.DBObjectType.ANY;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
 import static com.dbn.object.type.DBObjectType.CLUSTER;
@@ -397,7 +397,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
-    public List<DBAIModel> getAiModels() {
+    public List<DBAIModel> getAIModels() {
         return getChildObjects(AI_MODEL);
     }
 

@@ -133,6 +133,7 @@
                 <!--<model id="CLAUDE_SONNET_4_20250514"   api-name="claude-sonnet-4-20250514"/>-->
             </models>
         </provider>
+
         <provider id="HUGGING_FACE" name="Hugging Face" host="api-inference.huggingface.co">
             <urls>
                 <url type="OFFICIAL">https://huggingface.co/</url>
@@ -144,9 +145,10 @@
                 <model id="QWEN_1_5_1_8B"              api-name="Qwen/Qwen1.5-1.8B"/>
             </models>
         </provider>
+
         <provider id="MISTRAL_AI" name="Mistral AI" host="api.mistral.ai" base-url="https://api.mistral.ai/v1/">
             <urls>
-                <url type="OFFICIAL">https://mistral.ai//</url>
+                <url type="OFFICIAL">https://mistral.ai</url>
                 <url type="DOCS">https://docs.mistral.ai</url>
                 <url type="KEYS">https://console.mistral.ai/api-keys</url>
                 <url type="API">https://api.mistral.ai/v1/</url>
@@ -161,6 +163,10 @@
                 <model id="VOXTRAL_SMALL_2507"    api-name="voxtral-small-2507"    short-name="voxtral-small"/>
                 <model id="VOXTRAL_MINI_2507"     api-name="voxtral-mini-2507"     short-name="voxtral-mini"/>
             </models>
+        </provider>
+
+        <provider id="VERTEX_AI" name="Vertex AI">
+            <url type="OFFICIAL">https://cloud.google.com/vertex-ai</url>
         </provider>
     </provider-types>
 
@@ -248,6 +254,16 @@
                     <model id="QWEN_1_5_1_8B"/>
                 </models>
             </provider>
+        </assistant>
+        <assistant type="VECTOR_AI">
+            <provider id="OCI_GEN_AI" api-name="ocigenai"/>
+            <provider id="OPEN_AI" api-name="openai"/>
+            <provider id="COHERE" api-name="cohere"/>
+            <provider id="GOOGLE" api-name="googleai"/>
+            <provider id="ANTHROPIC" api-name="anthropicai"/>
+            <provider id="HUGGING_FACE" api-name="huggingface"/>
+            <provider id="MISTRAL_AI" api-name="mistralai"/>
+            <provider id="VERTEX_AI" api-name="vertexai"/>
         </assistant>
         <assistant type="PUBLIC">
             <provider id="OCI_GEN_AI">

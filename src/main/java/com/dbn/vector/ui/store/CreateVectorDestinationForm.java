@@ -4,7 +4,6 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBSchema;
-import com.dbn.object.common.DBObjectBundle;
 import com.dbn.vector.model.store.StoreConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
@@ -15,7 +14,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -54,11 +52,6 @@ public class CreateVectorDestinationForm extends VectorToolboxFormBase {
 
   private void initComboBoxes() {
     schemaComboBox.init(() -> loadSchemas(), null);
-  }
-
-  private List<DBSchema> loadSchemas() {
-    DBObjectBundle objectBundle = getConnection().getObjectBundle();
-    return objectBundle.getSchemas();
   }
 
   @Override

@@ -23,10 +23,16 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
+import com.dbn.object.common.DBObjectBundle;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.List;
 
 public abstract class VectorToolboxFormBase extends DBNFormBase {
     private final ConnectionRef connection;
@@ -57,6 +63,23 @@ public abstract class VectorToolboxFormBase extends DBNFormBase {
     protected static @Nullable String getObjectName(@Nullable DBObject object) {
         return object == null ? null : object.getName();
     }
+
+    protected List<DBSchema> loadSchemas() {
+        DBObjectBundle objectBundle = getConnection().getObjectBundle();
+        return objectBundle.getSchemas();
+    }
+
+    protected List<DBTable> loadTables() {
+        DBSchema schema = getSelectedSchema();
+        return schema == null ?
+                Collections.emptyList() :
+                schema.getTables();
+    }
+
+    protected DBSchema getSelectedSchema() {
+        return null;
+    }
+
 
     protected static boolean matchesObjectName(@Nullable DBObject object, String name) {
         return object != null && Strings.equalsIgnoreCase(object.getName(), name);

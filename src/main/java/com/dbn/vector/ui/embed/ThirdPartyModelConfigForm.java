@@ -1,30 +1,110 @@
 package com.dbn.vector.ui.embed;
 
+import com.dbn.assistant.AssistantType;
+import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.alignment.FieldAlignerData;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.util.ComboBoxes;
+import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.object.DBCredential;
+import com.dbn.object.DBSchema;
+import com.dbn.object.event.ObjectChangeEvent;
+import com.dbn.object.factory.ui.common.ObjectFactoryInputDialog;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.model.embed.ThirdPartyModelConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.util.List;
+
+import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.TextFields.getText;
+import static java.util.Collections.emptyList;
 
 public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
-  private JBTextField providerTextField;
-  private JBTextField credentialTextField;
   private JBTextField urlTextField;
   private JBTextField modelTextField;
   private JLabel providerLabel;
   private JLabel credentialLabel;
   private JLabel urlLabel;
   private JLabel modelLabel;
+  private JLabel credentialSchemaLabel;
+  private DBNComboBox<DBSchema> credentialSchemaComboBox;
+  private DBNComboBox<DBCredential> credentialComboBox;
+  private DBNComboBox<AIProvider> providerComboBox;
+  private JButton addCredentialButton;
 
   public ThirdPartyModelConfigForm(@Nullable Disposable parent, ConnectionHandler connection) {
     super(parent, connection);
+    initComboBoxes();
+    initCredentialAddButton();
+  }
+
+  private void initComboBoxes() {
+    List<AIProvider> providers = AIProviderData.getProviders(AssistantType.VECTOR_AI);
+    ComboBoxes.initComboBox(providerComboBox, providers);
+
+    credentialComboBox.set(HIDE_DESCRIPTION, true);
+    credentialSchemaComboBox.set(HIDE_DESCRIPTION, true);
+
+    credentialSchemaComboBox.init(() -> loadSchemas(), null);
+    credentialComboBox.init(() -> loadCredentials(), null);
+
+    updateFieldAvailability();
+  }
+
+  private void initCredentialAddButton() {
+    addCredentialButton.setIcon(Icons.ACTION_ADD);
+    addCredentialButton.setText(null);
+
+    addCredentialButton.addActionListener(e -> Dialogs.show(() ->
+            new ObjectFactoryInputDialog(
+                    ensureProject(),
+                    getSelectedSchema(),
+                    DBObjectType.CREDENTIAL)));
+
+    ObjectChangeEvent.subscribe(this,
+            getConnection(),
+            DBObjectType.CREDENTIAL,
+            () -> credentialComboBox.reloadValues());
+  }
+
+  @Override
+  protected void initFieldAvailability() {
+    DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+    fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedSchema()), array(credentialComboBox));
+    fieldAdapter.initFieldsVisibility(() -> isValid(getSelectedSchema()), array(addCredentialButton));
+  }
+
+  @Override
+  protected void initEventListeners() {
+    onSelectionChange(credentialSchemaComboBox, s -> populateCredentials());
+  }
+
+  @Override
+  protected void initValidation() {
+    addSelectionValidation(credentialSchemaComboBox, "Please select a credential schema");
+    addSelectionValidation(credentialComboBox, "Please select or create a credential");
+    addSelectionValidation(providerComboBox, "Please specify the embedding model provider");
+    addTextValidation(urlTextField, t -> Strings.isNotEmpty(t), "Please specify the embedding model URL");
+    addTextValidation(modelTextField, t -> Strings.isNotEmpty(t), "Please specify the embedding model name");
   }
 
   @Override
@@ -33,11 +113,8 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
   }
 
   public String getProvider() {
-    return providerTextField.getText();
-  }
-
-  public String getCredentialName() {
-    return credentialTextField.getText();
+    AIProvider provider = getSelection(providerComboBox);
+    return provider == null ? null : provider.getApiName();
   }
 
   public String getUrl() {
@@ -53,21 +130,53 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
   }
 
   @Override
+  protected DBSchema getSelectedSchema() {
+    return getSelection(credentialSchemaComboBox);
+  }
+
+  private void populateCredentials() {
+    updateFieldAvailability();
+    credentialComboBox.reloadValues();
+  }
+
+  private List<DBCredential> loadCredentials() {
+    DBSchema schema = getSelectedSchema();
+    if (schema == null) return emptyList();
+
+    return schema.getCredentials();
+  }
+
+  @Override
   public void resetFormChanges() {
-    // TODO
+    ThirdPartyModelConfig config = getConfig();
+    setSelection(providerComboBox, getProvider(config.getProvider()));
+    modelTextField.setText(config.getModelName());
+    urlTextField.setText(config.getEndpointUrl());
+    credentialSchemaComboBox.init(() -> loadSchemas(), s -> matchesObjectName(s, config.getCredentialSchemaName()));
+    credentialComboBox.init(() -> loadCredentials(), m -> matchesObjectName(m, config.getCredentialName()));
+  }
+
+  private static @Nullable AIProvider getProvider(String apiName) {
+    return AIProviderData.getProvider(AssistantType.VECTOR_AI, p -> p.getApiName().equals(apiName));
   }
 
   @Override
   public void applyFormChanges() {
-    // TODO
+    ThirdPartyModelConfig config = getConfig();
+    config.setProvider(getProvider());
+    config.setModelName(getText(modelTextField));
+    config.setEndpointUrl(getText(urlTextField));
+    config.setCredentialSchemaName(getSelectedObjectName(credentialSchemaComboBox));
+    config.setCredentialName(getSelectedObjectName(credentialComboBox));
   }
 
   @Override
   protected void initFieldAlignment() {
     FieldAlignerData alignerData = getFieldAlignerData();
-    alignerData.registerFieldGroup(providerLabel, providerTextField);
-    alignerData.registerFieldGroup(credentialLabel, credentialTextField);
-    alignerData.registerFieldGroup(urlLabel, urlTextField);
+    alignerData.registerFieldGroup(providerLabel, providerComboBox);
     alignerData.registerFieldGroup(modelLabel, modelTextField);
+    alignerData.registerFieldGroup(urlLabel, urlTextField);
+    alignerData.registerFieldGroup(credentialSchemaLabel, credentialSchemaComboBox);
+    alignerData.registerFieldGroup(credentialLabel, credentialComboBox);
   }
 }

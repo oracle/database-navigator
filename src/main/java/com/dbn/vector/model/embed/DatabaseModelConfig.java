@@ -20,7 +20,7 @@ public class DatabaseModelConfig implements PersistentStateElement {
   public String getConfigJson() {
     Map params = Map.of(
             "provider","database",
-            "model",modelName);
+            "model",schemaName + "." + modelName);
 
     return Json.writeAsString(params);
   }

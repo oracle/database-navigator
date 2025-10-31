@@ -10,7 +10,6 @@ import com.dbn.data.type.GenericDataType;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
-import com.dbn.object.common.DBObjectBundle;
 import com.dbn.vector.model.store.StoreConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
@@ -87,19 +86,6 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
     alignerData.registerFieldGroup(metadataColumnLabel, metadataColumnComboBox);
   }
 
-  private List<DBSchema> loadSchemas() {
-    DBObjectBundle objectBundle = getConnection().getObjectBundle();
-    return objectBundle.getSchemas();
-  }
-
-  private List<DBTable> loadTables() {
-    DBSchema schema = getSelectedSchema();
-    return schema == null ?
-            Collections.emptyList() :
-            schema.getTables();
-  }
-
-
   private List<DBColumn> loadEmbeddingColumns() {
     DBTable table = ComboBoxes.getSelection(tableComboBox);
     List<DBColumn> columns = table == null ?
@@ -153,7 +139,7 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
   }
 
   @Nullable
-  private DBSchema getSelectedSchema() {
+  protected DBSchema getSelectedSchema() {
     return ComboBoxes.getSelection(schemaComboBox);
   }
 

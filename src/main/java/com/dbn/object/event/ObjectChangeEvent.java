@@ -24,6 +24,7 @@ import com.dbn.connection.SchemaId;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
@@ -104,6 +105,15 @@ public class ObjectChangeEvent {
 
         Project project = connection.getProject();
         ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(this));
+    }
+
+    public static void subscribe(Disposable parentDisposable, ConnectionHandler connection, DBObjectType objectType, Runnable runnable) {
+        Project project = connection.getProject();
+        ProjectEvents.subscribe(project, parentDisposable, ObjectChangeListener.TOPIC, e -> {
+            if (!e.matches(connection)) return;
+            if (!e.matches(objectType)) return;
+            runnable.run();
+        });
     }
 
     @Nullable

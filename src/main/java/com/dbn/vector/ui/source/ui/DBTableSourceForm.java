@@ -9,7 +9,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
-import com.dbn.object.common.DBObjectBundle;
 import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
@@ -78,19 +77,6 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
     updateFieldAvailability();
   }
 
-  private List<DBSchema> loadSchemas() {
-    DBObjectBundle objectBundle = getConnection().getObjectBundle();
-    return objectBundle.getSchemas();
-  }
-
-  private List<DBTable> loadTables() {
-    DBSchema schema = getSelectedSchema();
-    return schema == null ?
-            Collections.emptyList() :
-            schema.getTables();
-  }
-
-
   private List<DBColumn> loadKeyColumns() {
     DBTable table = ComboBoxes.getSelection(tableComboBox);
     return table == null ?
@@ -155,7 +141,7 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
   }
 
   @Nullable
-  private DBSchema getSelectedSchema() {
+  protected DBSchema getSelectedSchema() {
     return ComboBoxes.getSelection(schemaComboBox);
   }
 

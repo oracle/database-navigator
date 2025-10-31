@@ -1,6 +1,5 @@
 package com.dbn.vector.ui.embed;
 
-import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -9,14 +8,12 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBAIModel;
 import com.dbn.object.DBSchema;
-import com.dbn.object.common.DBObjectBundle;
-import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputDialog;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.model.embed.DatabaseModelConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
@@ -30,12 +27,13 @@ import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static java.util.Collections.emptyList;
 
 public class InDBModelConfigForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private DBNComboBox<DBAIModel> modelComboBox;
   private DBNComboBox<DBSchema> schemaComboBox;
-  private JButton addCredentialButton;
+  private JButton addModelButton;
   private JLabel schemaLabel;
   private JLabel modelLabel;
 
@@ -48,17 +46,18 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
   }
 
   private void initModelAddButton() {
-    addCredentialButton.setIcon(Icons.ACTION_ADD);
-    addCredentialButton.setText(null);
-    ConnectionHandler connection = getConnection();
-    addCredentialButton.addActionListener(e -> Dialogs.show(() -> new ObjectFactoryInputDialog(getProject(), connection.getSchema(connection.getUserSchema()),DBObjectType.AI_MODEL)));
+    addModelButton.setIcon(Icons.ACTION_ADD);
+    addModelButton.setText(null);
+    addModelButton.addActionListener(e -> Dialogs.show(() ->
+            new ObjectFactoryInputDialog(
+                    ensureProject(),
+                    getSelectedSchema(),
+                    DBObjectType.AI_MODEL)));
 
-    Project project = connection.getProject();
-    ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, e -> {
-      if (!e.matches(connection)) return;
-      if (!e.matches(DBObjectType.AI_MODEL)) return;
-      modelComboBox.reloadValues();
-    });
+    ObjectChangeEvent.subscribe(this,
+            getConnection(),
+            DBObjectType.AI_MODEL,
+            () -> modelComboBox.reloadValues());
   }
 
   @Override
@@ -72,22 +71,23 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
   protected void initFieldAvailability() {
     DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
     fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedSchema()), array(modelComboBox));
-    fieldAdapter.initFieldsVisibility(() -> isValid(getSelectedSchema()), array(addCredentialButton));
+    fieldAdapter.initFieldsVisibility(() -> isValid(getSelectedSchema()), array(addModelButton));
   }
 
-  private List<DBSchema> loadSchemas() {
-    DBObjectBundle objectBundle = getConnection().getObjectBundle();
-    return objectBundle.getSchemas();
+  @Override
+  protected void initValidation() {
+    addSelectionValidation(schemaComboBox, "Please select a schema");
+    addSelectionValidation(modelComboBox, "Please select or create a model");
   }
 
   private List<DBAIModel> loadModels() {
     DBSchema schema = getSelectedSchema();
-    if (schema == null) return java.util.Collections.emptyList();
-    return schema.getAiModels();
+    if (schema == null) return emptyList();
 
+    return schema.getAIModels();
   }
 
-  private @Nullable DBSchema getSelectedSchema() {
+  protected @Nullable DBSchema getSelectedSchema() {
     return getSelection(schemaComboBox);
   }
 
