@@ -141,12 +141,12 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
   }
 
   @Nullable
-  protected DBSchema getSelectedSchema() {
+  public DBSchema getSelectedSchema() {
     return ComboBoxes.getSelection(schemaComboBox);
   }
 
   @Nullable
-  private DBTable getSelectedTable() {
+  public DBTable getSelectedTable() {
     return tableComboBox.getSelectedValue();
   }
 

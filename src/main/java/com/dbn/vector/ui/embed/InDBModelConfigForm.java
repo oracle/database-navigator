@@ -87,8 +87,14 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
     return schema.getAIModels();
   }
 
-  protected @Nullable DBSchema getSelectedSchema() {
+  @Nullable
+  public DBSchema getSelectedSchema() {
     return getSelection(schemaComboBox);
+  }
+
+  @Nullable
+  public DBAIModel getSelectedModel() {
+    return getSelection(modelComboBox);
   }
 
   private void initComboBoxes() {

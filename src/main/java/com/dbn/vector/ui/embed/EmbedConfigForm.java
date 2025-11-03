@@ -1,9 +1,13 @@
 package com.dbn.vector.ui.embed;
 
+import com.dbn.assistant.provider.AIProvider;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.util.ComboBoxes;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.object.DBAIModel;
+import com.dbn.object.DBSchema;
 import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.embed.ModelLocation;
 import com.dbn.vector.ui.VectorToolboxFormBase;
@@ -97,18 +101,33 @@ public class EmbedConfigForm extends VectorToolboxFormBase implements DBNCollaps
   }
 
   @Override
-  public String getCollapsedTitle() {
+  public String getFormTitle() {
     return "Embedding Model";
   }
 
   @Override
-  public String getCollapsedTitleDetail() {
-    return "";
-  }
+  public String getFormTitleDetail() {
+    ModelLocation modelLocation = getSelection(modelTypeComboBox);
+    String modelLocationName = modelLocation == null ? "" : modelLocation.getName();
+    if (modelLocation == ModelLocation.IN_DATABASE_MODEL) {
+      DBSchema selectedSchema = databaseModelConfigForm.getSelectedSchema();
+      DBAIModel selectedModel = databaseModelConfigForm.getSelectedModel();
+      if (selectedModel == null) return modelLocationName;
 
-  @Override
-  public String getExpandedTitle() {
-    return "Embedding Model";
-  }
+      return modelLocationName + " - " + selectedSchema + "." + selectedModel;
+    }
 
+    if (modelLocation == ModelLocation.THIRD_PARTY_MODEL) {
+      AIProvider provider = thirdPartyModelConfigForm.getProvider();
+      String modelName = thirdPartyModelConfigForm.getModelName();
+
+      if (provider != null && Strings.isNotEmpty(modelName)) {
+        return modelLocationName + " - " + provider.getName() + " / " + modelName;
+      }
+
+      if (provider != null) return modelLocationName + " - " + provider.getName();
+    }
+
+    return modelLocationName;
+  }
 }

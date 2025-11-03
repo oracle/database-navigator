@@ -57,4 +57,8 @@ public class FileSystemSourceForm extends VectorToolboxFormBase {
   protected JComponent getMainComponent() {
     return mainPanel;
   }
+
+    public int getSelectedFileCount() {
+        return fileListForm.getFileList().getModel().getSize();
+    }
 }

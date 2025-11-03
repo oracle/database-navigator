@@ -123,17 +123,12 @@ public class ChunkConfigForm extends VectorToolboxFormBase implements DBNCollaps
   }
 
   @Override
-  public String getCollapsedTitle() {
+  public String getFormTitle() {
     return "Chunk Configuration";
   }
 
   @Override
-  public String getCollapsedTitleDetail() {
-    return "";
-  }
-
-  @Override
-  public String getExpandedTitle() {
-    return "Chunk Configuration";
+  public String getFormTitleDetail() {
+    return getSelection(chunkByComboBox) + " / " + getSelection(splitByComboBox) + " / " + maxSizeSpinner.getValue() + " / " + overlapSpinner.getValue();
   }
 }

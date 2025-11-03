@@ -76,7 +76,7 @@ public abstract class VectorToolboxFormBase extends DBNFormBase {
                 schema.getTables();
     }
 
-    protected DBSchema getSelectedSchema() {
+    public DBSchema getSelectedSchema() {
         return null;
     }
 

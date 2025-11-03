@@ -21,6 +21,7 @@ import com.dbn.common.ui.DBNTooltip;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.IdeTooltip;
 import com.intellij.ide.IdeTooltipManager;
 import lombok.Setter;
 
@@ -30,17 +31,23 @@ import java.awt.event.MouseEvent;
 @Setter
 public class DBNInfoLabel extends JLabel {
     private TextContent content;
+    private DBNTooltip popup;
 
     public DBNInfoLabel() {
         super("", AllIcons.General.Note, JLabel.LEFT);
         setCursor(Cursors.handCursor());
 
-        Mouse.onMouseClick(this, 1, 1, e -> showTooltip(e));
+        Mouse.onMousePress(this, 1, e -> showTooltip(e));
     }
 
     private void showTooltip(MouseEvent e) {
+
         DBNInfoForm infoForm = new DBNInfoForm(null, content);
-        DBNTooltip popup = new DBNTooltip(this, getLocation(), infoForm.getComponent());
-        IdeTooltipManager.getInstance().show(popup, true);
+        popup = new DBNTooltip(this, getLocation(), infoForm.getComponent());
+
+        IdeTooltipManager tooltipManager = IdeTooltipManager.getInstance();
+
+        IdeTooltip tooltip = tooltipManager.show(popup, true);
+
     }
 }

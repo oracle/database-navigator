@@ -4,6 +4,8 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBTable;
 import com.dbn.vector.model.store.DestinationType;
 import com.dbn.vector.model.store.StoreConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
@@ -18,6 +20,7 @@ import javax.swing.JPanel;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.util.Strings.isNotEmpty;
 
 public class SaveVectorsForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
@@ -100,18 +103,33 @@ public class SaveVectorsForm extends VectorToolboxFormBase implements DBNCollaps
   }
 
   @Override
-  public String getCollapsedTitle() {
+  public String getFormTitle() {
     return "Embedding Destination";
   }
 
   @Override
-  public String getCollapsedTitleDetail() {
-    return "";
-  }
+  public String getFormTitleDetail() {
+    DestinationType destinationType = getDestinationType();
+    String destinationTypeName = destinationType == null ? null : destinationType.getName();
+    if (destinationType == DestinationType.NEW_TABLE) {
+      DBSchema schema = createForm.getSelectedSchema();
+      String tableName = createForm.getTableName();
 
-  @Override
-  public String getExpandedTitle() {
-    return "Embedding Destination";
+      if (schema != null && isNotEmpty(tableName)) {
+        return destinationTypeName + " - " + schema.getName() + "." + tableName;
+      }
+    }
+
+    if (destinationType == DestinationType.EXISTING_TABLE) {
+      DBSchema schema = existingForm.getSelectedSchema();
+      DBTable table = existingForm.getSelectedTable();
+
+      if (schema != null && table != null) {
+        return destinationTypeName + " - " + schema.getName() + "." + table.getName();
+      }
+    }
+
+    return destinationTypeName;
   }
 
   @Override

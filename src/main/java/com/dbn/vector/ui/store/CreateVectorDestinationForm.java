@@ -2,6 +2,7 @@ package com.dbn.vector.ui.store;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBSchema;
 import com.dbn.vector.model.store.StoreConfig;
@@ -53,6 +54,16 @@ public class CreateVectorDestinationForm extends VectorToolboxFormBase {
   private void initComboBoxes() {
     schemaComboBox.init(() -> loadSchemas(), null);
   }
+
+  @Override
+  public DBSchema getSelectedSchema() {
+    return ComboBoxes.getSelection(schemaComboBox);
+  }
+
+  public String getTableName() {
+    return getText(tableNameTextField);
+  }
+
 
   @Override
   protected JComponent getMainComponent() {

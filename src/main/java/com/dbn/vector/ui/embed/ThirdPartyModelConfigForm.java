@@ -112,9 +112,13 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
     return mainPanel;
   }
 
-  public String getProvider() {
-    AIProvider provider = getSelection(providerComboBox);
+  public String getProviderApiName() {
+    AIProvider provider = getProvider();
     return provider == null ? null : provider.getApiName();
+  }
+
+  public @Nullable AIProvider getProvider() {
+    return getSelection(providerComboBox);
   }
 
   public String getUrl() {
@@ -130,7 +134,7 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
   }
 
   @Override
-  protected DBSchema getSelectedSchema() {
+  public DBSchema getSelectedSchema() {
     return getSelection(credentialSchemaComboBox);
   }
 
@@ -163,7 +167,7 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
   @Override
   public void applyFormChanges() {
     ThirdPartyModelConfig config = getConfig();
-    config.setProvider(getProvider());
+    config.setProvider(getProviderApiName());
     config.setModelName(getText(modelTextField));
     config.setEndpointUrl(getText(urlTextField));
     config.setCredentialSchemaName(getSelectedObjectName(credentialSchemaComboBox));

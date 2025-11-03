@@ -21,10 +21,10 @@ import static com.dbn.common.util.Unsafe.cast;
 @Setter
 @NonNls
 public class ChunkConfig implements PersistentStateElement, Cloneable<ChunkConfig> {
-    private String chunkBy = "CHARACTERS";
+    private String chunkBy = "WORDS";
     private String splitBy = "NEWLINE";
-    private int maxSize = 300;
-    private int overlap = 30;
+    private int maxSize = 100;
+    private int overlap = 10;
 
     public ChunkConfig() {
     }

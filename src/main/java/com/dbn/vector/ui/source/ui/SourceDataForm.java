@@ -4,6 +4,8 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBTable;
 import com.dbn.vector.model.sourceconfig.SourceConfig;
 import com.dbn.vector.model.sourceconfig.SourceType;
 import com.dbn.vector.ui.VectorToolboxFormBase;
@@ -97,18 +99,28 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
   }
 
   @Override
-  public String getCollapsedTitle() {
-    return "Data Source:";
-  }
-
-  @Override
-  public String getCollapsedTitleDetail() {
-      return getSelectedSourceType().getName();
-  }
-
-  @Override
-  public String getExpandedTitle() {
+  public String getFormTitle() {
     return "Data Source";
+  }
+
+  @Override
+  public String getFormTitleDetail() {
+    SourceType sourceType = getSelectedSourceType();
+    String sourceTypeName = sourceType == null ? "" : sourceType.getName();
+
+    if (sourceType == SourceType.FILE_SYSTEM) {
+      return sourceTypeName + " - " + fileSourceForm.getSelectedFileCount() + " files";
+    }
+
+    if (sourceType == SourceType.DATABASE_TABLE) {
+      DBSchema schema = tableSourceForm.getSelectedSchema();
+      DBTable table = tableSourceForm.getSelectedTable();
+
+      if (schema != null && table != null) {
+        return sourceTypeName + " - " + schema.getName() + "." + table.getName();
+      }
+    }
+    return sourceTypeName;
   }
 
   public SourceType getSelectedSourceType() {
