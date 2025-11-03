@@ -5,6 +5,7 @@ import com.dbn.common.util.Json;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
 
@@ -21,13 +22,17 @@ public class ThirdPartyModelConfig implements PersistentStateElement {
   private String modelName;
 
   public String getConfigJson() {
-    Map params = Map.of(
+    Map params = getConfigMap();
+    return Json.writeAsString(params);
+  }
+
+  @NonNull
+  public Map<String, ?> getConfigMap() {
+    return Map.of(
             "provider", provider,
             "credential_name", credentialSchemaName + "." + credentialName,
             "url", endpointUrl,
-            "model", modelName
-    );
-    return Json.writeAsString(params);
+            "model", modelName);
   }
 
   @Override

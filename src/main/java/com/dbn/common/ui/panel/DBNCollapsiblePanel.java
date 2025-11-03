@@ -60,7 +60,7 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         this.toggleDetailLabel.setForeground(UIUtil.getLabelDisabledForeground());
 
         togglePanel.setActionConsumer(e -> toggleVisibility(e));
-        updateVisibility();
+        updateComponents();
     }
 
     protected void initAccessibility() {
@@ -78,22 +78,24 @@ public class DBNCollapsiblePanel extends DBNFormBase {
 
     public void setExpanded(boolean expanded) {
         this.expanded = expanded;
-        updateVisibility();
-        listeners.notify(l -> l.toggled(expanded));
+        updateComponents();
         initAccessibility();
+        listeners.notify(l -> l.toggled(expanded));
     }
 
     private static String getStateName(boolean expanded) {
         return expanded ? "expanded" : "collapsed";
     }
 
-    private void updateVisibility() {
-        contentRootPanel.setVisible(expanded);
-        toggleDetailLabel.setVisible(!expanded);
-        String detail = contentForm.getFormTitleDetail();
-        toggleDetailLabel.setText(Strings.isEmpty(detail) ? "" : "(" + detail + ")");
+    public void updateComponents() {
         toggleLabel.setIcon(expanded ? UIUtil.getTreeExpandedIcon() : UIUtil.getTreeCollapsedIcon());
         toggleLabel.setText(contentForm.getFormTitle());
+
+        contentRootPanel.setVisible(expanded);
+        toggleDetailLabel.setVisible(!expanded);
+
+        String detail = contentForm.getFormTitleDetail();
+        toggleDetailLabel.setText(Strings.isEmpty(detail) ? "" : "(" + detail + ")");
     }
 
     public void addToggleListener(ToggleListener listener) {

@@ -1,13 +1,14 @@
 package com.dbn.vector.model.chunk;
 
-import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Json;
+import com.dbn.vector.model.VectorEmbeddingConfig;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
 
@@ -20,7 +21,7 @@ import static com.dbn.common.util.Unsafe.cast;
 @Getter
 @Setter
 @NonNls
-public class ChunkConfig implements PersistentStateElement, Cloneable<ChunkConfig> {
+public class ChunkConfig extends VectorEmbeddingConfig implements Cloneable<ChunkConfig> {
     private String chunkBy = "WORDS";
     private String splitBy = "NEWLINE";
     private int maxSize = 100;
@@ -37,15 +38,23 @@ public class ChunkConfig implements PersistentStateElement, Cloneable<ChunkConfi
     }
 
     public String getConfigJson() {
-        return Json.writeAsString(Map.of(
+        return Json.writeAsString(getConfigMap());
+    }
+
+    @NonNull
+    public Map<String, ?> getConfigMap() {
+        return Map.of(
                 "chunkBy", chunkBy,
                 "splitBy", splitBy,
                 "max", maxSize,
-                "overlap", overlap));
+                "overlap", overlap);
     }
 
     @Override
     public void readState(Element element) {
+        if (element == null) return;
+
+        super.readState(element);
         chunkBy = stringAttribute(element, "chunk-by", chunkBy);
         splitBy = stringAttribute(element, "split-by", splitBy);
         maxSize = integerAttribute(element, "max-size", maxSize);
@@ -54,6 +63,7 @@ public class ChunkConfig implements PersistentStateElement, Cloneable<ChunkConfi
 
     @Override
     public void writeState(Element element) {
+        super.writeState(element);
         setStringAttribute(element, "chunk-by", chunkBy);
         setStringAttribute(element, "split-by", splitBy);
         setIntegerAttribute(element, "max-size", maxSize);

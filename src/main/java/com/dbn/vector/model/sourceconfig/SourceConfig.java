@@ -1,6 +1,6 @@
 package com.dbn.vector.model.sourceconfig;
 
-import com.dbn.common.state.PersistentStateElement;
+import com.dbn.vector.model.VectorEmbeddingConfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -11,7 +11,7 @@ import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 
 @Getter
 @Setter
-public class SourceConfig implements PersistentStateElement {
+public class SourceConfig extends VectorEmbeddingConfig {
     private SourceType sourceType = SourceType.DATABASE_TABLE;
     private final DBTableSourceConfig tableSourceConfig = new DBTableSourceConfig();
     private final FileSystemSourceConfig fileSourceConfig = new FileSystemSourceConfig();
@@ -20,6 +20,7 @@ public class SourceConfig implements PersistentStateElement {
     public void readState(Element element) {
         if (element == null) return;
 
+        super.readState(element);
         sourceType = enumAttribute(element, "source-type", sourceType);
 
         Element tableSourceElement = element.getChild("table-source");
@@ -30,6 +31,7 @@ public class SourceConfig implements PersistentStateElement {
 
     @Override
     public void writeState(Element element) {
+        super.writeState(element);
         setEnumAttribute(element, "source-type", sourceType);
 
         Element tableSourceElement = newElement(element, "table-source");

@@ -61,6 +61,11 @@ public class Json {
         return OBJECT_MAPPER.writeValueAsString(value);
     }
 
+    @SneakyThrows
+    public static String writeAsFormattedString(Object value) {
+        return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(value);
+    }
+
     /**
      * Formats the given JSON content into a prettified or standardized format.
      * Ensures the formatting process is safely logged.

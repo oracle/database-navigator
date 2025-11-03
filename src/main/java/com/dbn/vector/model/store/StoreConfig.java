@@ -1,6 +1,6 @@
 package com.dbn.vector.model.store;
 
-import com.dbn.common.state.PersistentStateElement;
+import com.dbn.vector.model.VectorEmbeddingConfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -12,7 +12,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Setter
 @Getter
-public class StoreConfig implements PersistentStateElement {
+public class StoreConfig extends VectorEmbeddingConfig {
   private DestinationType destinationType = DestinationType.EXISTING_TABLE;
 
   private String schemaName;
@@ -25,6 +25,9 @@ public class StoreConfig implements PersistentStateElement {
 
   @Override
   public void readState(Element element) {
+    if (element == null) return;
+
+    super.readState(element);
     destinationType = enumAttribute(element, "destination-type", destinationType);
 
     schemaName = stringAttribute(element, "schema");
@@ -37,6 +40,7 @@ public class StoreConfig implements PersistentStateElement {
 
   @Override
   public void writeState(Element element) {
+    super.writeState(element);
     setEnumAttribute(element, "destination-type", destinationType);
     setStringAttribute(element, "schema", schemaName);
     setStringAttribute(element, "table", tableName);

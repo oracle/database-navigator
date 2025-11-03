@@ -10,6 +10,10 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
+import com.dbn.vector.model.chunk.ChunkConfig;
+import com.dbn.vector.model.embed.EmbedConfig;
+import com.dbn.vector.model.sourceconfig.SourceConfig;
+import com.dbn.vector.model.store.StoreConfig;
 import com.dbn.vector.ui.chunk.ChunkConfigForm;
 import com.dbn.vector.ui.embed.EmbedConfigForm;
 import com.dbn.vector.ui.source.ui.SourceDataForm;
@@ -51,25 +55,30 @@ public class VectorAIForm extends VectorToolboxFormBase {
 
   private void initForms() {
     ConnectionHandler connection = getConnection();
+    VectorEmbeddingRequest request = getEmbeddingRequest();
 
-    sourceDataForm = new SourceDataForm(this,connection);
-    DBNCollapsiblePanel sourceCollapsiblePanel = new DBNCollapsiblePanel(this,sourceDataForm,true);
-    sourceCollapsiblePanel.setExpanded(true);
+    SourceConfig sourceConfig = request.getSourceConfig();
+    sourceDataForm = new SourceDataForm(this, connection);
+    DBNCollapsiblePanel sourceCollapsiblePanel = new DBNCollapsiblePanel(this, sourceDataForm, true /*TODO async sourceConfig.isExpanded()*/);
+    sourceCollapsiblePanel.addToggleListener(expanded -> sourceConfig.setExpanded(expanded));
     dataPanel.add(sourceCollapsiblePanel.getComponent());
 
-    chunkConfigForm = new ChunkConfigForm(this,connection);
-    DBNCollapsiblePanel chunkCollapsiblePanel = new DBNCollapsiblePanel(this,chunkConfigForm,true);
-    chunkCollapsiblePanel.setExpanded(true);
+    ChunkConfig chunkConfig = request.getChunkConfig();
+    chunkConfigForm = new ChunkConfigForm(this, connection);
+    DBNCollapsiblePanel chunkCollapsiblePanel = new DBNCollapsiblePanel(this, chunkConfigForm, true /*TODO async chunkConfig.isExpanded()*/);
+    chunkCollapsiblePanel.addToggleListener(expanded -> chunkConfig.setExpanded(expanded));
     chunkConfigPanel.add(chunkCollapsiblePanel.getComponent());
 
-    embedConfigForm = new EmbedConfigForm(this,connection);
-    DBNCollapsiblePanel embedCollapsiblePanel = new DBNCollapsiblePanel(this,embedConfigForm,true);
-    embedCollapsiblePanel.setExpanded(true);
+    EmbedConfig embedConfig = request.getEmbedConfig();
+    embedConfigForm = new EmbedConfigForm(this, connection);
+    DBNCollapsiblePanel embedCollapsiblePanel = new DBNCollapsiblePanel(this, embedConfigForm, true /* TODO async embedConfig.isExpanded()*/);
+    embedCollapsiblePanel.addToggleListener(expanded -> embedConfig.setExpanded(expanded));
     embedConfigPanel.add(embedCollapsiblePanel.getComponent());
 
-    saveVectorsForm = new SaveVectorsForm(this,connection);
-    DBNCollapsiblePanel saveCollapsiblePanel = new DBNCollapsiblePanel(this,saveVectorsForm,true);
-    saveCollapsiblePanel.setExpanded(true);
+    StoreConfig storeConfig = request.getStoreConfig();
+    saveVectorsForm = new SaveVectorsForm(this, connection);
+    DBNCollapsiblePanel saveCollapsiblePanel = new DBNCollapsiblePanel(this, saveVectorsForm, true /*TODO async storeConfig.isExpanded()*/);
+    saveCollapsiblePanel.addToggleListener(expanded -> storeConfig.setExpanded(expanded));
     saveDataPanel.add(saveCollapsiblePanel.getComponent());
   }
 

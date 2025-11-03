@@ -185,16 +185,16 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                                             in = prepareFileBlob(conn, vf);
 
                                             String id = UUID.randomUUID().toString().replace("-", "");
-                                            Map fileMetadataMap = getFileMeatadata(conn,vf);
+                                            Map<String, Object> fileMetadataMap = getFileMeatadata(conn,vf);
                                             String fileMetadata = Json.writeAsString(fileMetadataMap);
                                             dataDefinition.insertEmptyDocumentRow(conn,FILES_TABLE,id,fileMetadata);
                                             dataDefinition.streamContentToBlob(conn,FILES_TABLE,id,in);
 
 
-                                            fileMetadataMap.put("doc_Id",id);
-                                            fileMetadataMap.put("embed_config", embedConfigJson);
-                                            fileMetadataMap.put("chunk_config", chunkConfigJson);
-                                            String rowMetadata = Json.writeAsString(fileMetadataMap);
+                                            fileMetadataMap.put("doc_id",id);
+                                            fileMetadataMap.put("embed_config", embedConfig.getConfigMap());
+                                            fileMetadataMap.put("chunk_config", chunkConfig.getConfigMap());
+                                            String rowMetadata = Json.writeAsFormattedString(fileMetadataMap);
                                             storeConfig.setMetadata(rowMetadata);
                                             dataDefinition.embed(conn, id, FILES_TABLE, chunkConfigJson, embedConfigJson, storeConfig); // add this overload
                                           } catch (Exception e) {
