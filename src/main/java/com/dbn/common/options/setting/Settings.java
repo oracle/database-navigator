@@ -238,6 +238,7 @@ public final class Settings {
     }
 
     public static String readCdata(Element element) {
+        if (element == null) return "";
         int contentSize = element.getContentSize();
         if (contentSize == 0) return "";
 

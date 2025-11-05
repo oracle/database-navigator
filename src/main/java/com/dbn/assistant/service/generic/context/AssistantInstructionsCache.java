@@ -17,6 +17,7 @@
 package com.dbn.assistant.service.generic.context;
 
 import com.dbn.assistant.chat.Chat;
+import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.state.AssistantState;
@@ -28,6 +29,7 @@ import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
 import com.dbn.connection.ConnectionHandler;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -36,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_INSTRUCTIONS_CACHE;
 
 public class AssistantInstructionsCache extends AssistantStateExtension implements Function<Object, String> {
@@ -62,8 +65,9 @@ public class AssistantInstructionsCache extends AssistantStateExtension implemen
 
     private String createSystemMessage(AssistantMemoryId memoryId) {
         AssistantState assistantState = getAssistantState();
-
         ConnectionHandler connection = assistantState.getConnection();
+        Project project = connection.getProject();
+
         String resourceName = isCompact(memoryId) ? "system_message_compact.md.ft" : "system_message.md.ft";
         String content = TextResources.get(this, resourceName);
         TextContent textContent = TextContent.markdown(content);
@@ -71,6 +75,13 @@ public class AssistantInstructionsCache extends AssistantStateExtension implemen
         textContent.initField("ASSISTANT_TOOL_TYPES", getToolTypes());
         textContent.initField("DATABASE_TYPE", connection.getDatabaseType().getName());
         textContent.initField("DATABASE_NAME", connection.getName());
+
+        String profileId = assistantState.getCurrentContext().getProfileId();
+
+        AssistantProfile profile = getProfile(project, profileId);
+        String userInstructions = profile == null ? "" : profile.getInstructions();
+
+        textContent.initField("USER_INSTRUCTIONS", userInstructions);
 
         return textContent.getText();
     }
