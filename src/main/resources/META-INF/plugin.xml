@@ -284,6 +284,7 @@
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OllamaModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OpenAiModelFactory"/>
         <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.OciGenAiModelFactory"/>
+        <assistantModelFactory implementation="com.dbn.assistant.service.generic.model.factory.XAIModelFactory"/>
 
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.ChatModelInvoker"/>
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.EmbeddingModelInvoker"/>

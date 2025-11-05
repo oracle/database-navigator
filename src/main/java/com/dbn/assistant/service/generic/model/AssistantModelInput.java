@@ -16,8 +16,12 @@
 
 package com.dbn.assistant.service.generic.model;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.assistant.provider.AIProviderId;
+import com.dbn.assistant.provider.ProviderUrlType;
 import com.dbn.common.util.Chars;
 import lombok.Data;
 
@@ -29,7 +33,7 @@ public class AssistantModelInput {
     private final AIProviderId baseProviderId;
     private final AIProviderId providerId;
     private final String modelName;
-    private String url;
+    private String baseUrl;
     private Double temperature;
     private AssistantCredential credential;
     private Map<String, String> headers = new HashMap<>();
@@ -56,6 +60,22 @@ public class AssistantModelInput {
 
     public String getUser() {
         return credential.getUser();
+    }
+
+    public String getBaseUrl() {
+        if (baseUrl != null) return baseUrl;
+
+        if (providerId == AIProviderId.X_AI || providerId == AIProviderId.HUGGING_FACE) {
+            // TODO both xai and hugging face providers use OPENAI api specifications (same langchain4j libraries)
+            //  (shall we always source urls from the stale ai-providers.xml file?)
+
+
+            AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, providerId);
+            if (provider == null) return null;
+
+            return provider.getUrl(ProviderUrlType.API);
+        }
+        return null;
     }
 
     public String getRegionId() {

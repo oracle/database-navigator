@@ -126,13 +126,11 @@ public class AIProvidersDefinition {
         AIProviderId id = enumAttribute(element, "id", AIProviderId.class);
         String name = fallback(stringAttribute(element, "name"), providerTemplate, t -> t.getName());
         String host = fallback(stringAttribute(element, "host"), providerTemplate, t -> t.getHost());
-        String baseUrl = fallback(stringAttribute(element, "base-url"), providerTemplate, t -> t.getBaseUrl());
         String apiName = fallback(stringAttribute(element, "api-name"), providerTemplate, t -> t.getApiName());
 
         AIProvider provider = new AIProvider(id, name);
         provider.setHost(host);
         provider.setApiName(apiName);
-        provider.setBaseUrl(baseUrl);
 
         initModels(element, provider, providerTemplate);
         initUrls(element, provider, providerTemplate);
