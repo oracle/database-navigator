@@ -16,19 +16,25 @@
 
 package com.dbn.assistant.provider;
 
+import com.dbn.common.constant.Constant;
+import com.dbn.common.constant.Constants;
 import com.dbn.common.property.Property;
 import lombok.Getter;
 
 @Getter
-public enum AIModelProperty implements Property.ShortBase {
-    DEFAULT,
-    DEPRECATED,   // no longer maintained / not recommended
-    DISCONTINUED, // no longer available
-    EXPERIMENTAL;
+public enum AIModelFeature implements Property.ShortBase, Constant<AIModelFeature> {
+    TOOLS,
+    MEMORY,
+    TEMPERATURE,
+    INSTRUCTIONS;
 
-    public static final AIModelProperty[] VALUES = values();
+    public static final AIModelFeature[] VALUES = values();
 
     private final ShortMasks masks = new ShortMasks(this);
+
+    public static AIModelFeature get(String id) {
+        return Constants.get(VALUES, id);
+    }
 
     @Override
     public ShortMasks masks() {

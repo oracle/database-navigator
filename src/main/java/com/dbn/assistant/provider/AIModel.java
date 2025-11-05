@@ -35,6 +35,7 @@ public final class AIModel extends ShortStore<AIModelProperty> implements Presen
     private final String shortName;
     private final AIProvider provider;
     private final AIProviderId baseProviderId;
+    private final AIModelFeatures features = new AIModelFeatures();
 
     AIModel(String id, String apiName, String shortName, AIProvider provider, AIProviderId baseProviderId) {
         this.id = id;
@@ -75,8 +76,17 @@ public final class AIModel extends ShortStore<AIModelProperty> implements Presen
         return is(AIModelProperty.DEPRECATED);
     }
 
+    public boolean isDiscontinued() {
+        return is(AIModelProperty.DISCONTINUED);
+    }
+
+    public boolean isFeatureSupported(AIModelFeature feature){
+        return features.is(feature);
+    }
+
     @Override
     public String toString() {
         return getName();
     }
+
 }

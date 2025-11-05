@@ -40,17 +40,15 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
     public void invokeModel(StreamingChatModel model, AssistantState state, AssistantMemoryId memoryId, String prompt, AssistantResponseConsumer consumer) {
 
         boolean stateless = memoryId.isStateless();
-        var context = prepareContext(state);
-        var memory = prepareMemory(state);
-        var tools = stateless ? null : prepareTools(state);
 
-        StreamingChatModelAdapter adapter = AiServices.
-                builder(StreamingChatModelAdapter.class).
-                streamingChatModel(model).
-                systemMessageProvider(context).
-                chatMemoryProvider(memory).
-                toolProvider(tools).
-                build();
+        var builder = AiServices.builder(StreamingChatModelAdapter.class);
+        builder.streamingChatModel(model);
+
+        initChatMemory(builder, state, stateless);
+        initSystemMessage(builder, state);
+        initToolProvider(builder, state, stateless);
+
+        StreamingChatModelAdapter adapter = builder.build();
 
         TokenStream tokenStream = adapter.chat(memoryId, prompt);
         initTokenStream(tokenStream, consumer);

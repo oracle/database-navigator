@@ -35,12 +35,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
+import static com.dbn.assistant.chat.message.AuthorType.SYSTEM;
 import static com.dbn.assistant.chat.message.AuthorType.USER;
+import static com.dbn.common.message.MessageType.ERROR;
 import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Lists.getNextElement;
 import static com.dbn.common.util.Lists.isLast;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
@@ -123,6 +126,15 @@ public class Chat implements PersistentStateElement {
 
         return true;
 
+    }
+
+    public boolean isFollowedByError(ChatMessage message) {
+        if (message.getAuthor() != USER) return false;
+
+        ChatMessage subsequentMessage = getNextElement(messages, message);
+        return subsequentMessage != null &&
+                subsequentMessage.getAuthor() == SYSTEM &&
+                subsequentMessage.getType() == ERROR;
     }
 
     @Override

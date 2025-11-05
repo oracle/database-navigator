@@ -32,18 +32,15 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
     public void invokeModel(ChatModel model, AssistantState state, AssistantMemoryId memoryId, String prompt, AssistantResponseConsumer consumer) {
         try {
             boolean stateless = memoryId.isStateless();
-            var context = prepareContext(state);
-            var memory = prepareMemory(state);
-            var tools = stateless ? null : prepareTools(state);
 
-            ChatModelAdapter adapter = AiServices.
-                    builder(ChatModelAdapter.class).
-                    chatModel(model).
-                    systemMessageProvider(context).
-                    chatMemoryProvider(memory).
-                    toolProvider(tools).
-                    build();
+            var builder = AiServices.builder(ChatModelAdapter.class);
+            builder.chatModel(model);
 
+            initChatMemory(builder, state, stateless);
+            initSystemMessage(builder, state);
+            initToolProvider(builder, state, stateless);
+
+            ChatModelAdapter adapter = builder.build();
 
             String message = adapter.chat(memoryId, prompt);
             consumer.acceptMessage(message);

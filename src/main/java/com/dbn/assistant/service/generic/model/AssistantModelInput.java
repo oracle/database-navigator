@@ -46,31 +46,6 @@ public class AssistantModelInput {
         return Chars.toString(secret);
     }
 
-    public AssistantModelInput withUrl(String url) {
-        this.url = url;
-        return this;
-    }
-
-    public AssistantModelInput withCredential(AssistantCredential credential) {
-        this.credential = credential;
-        return this;
-    }
-
-    public AssistantModelInput withTemperature(Double temperature) {
-        this.temperature = temperature;
-        return this;
-    }
-
-    public AssistantModelInput withHeader(String key, String value) {
-        this.headers.put(key, value);
-        return this;
-    }
-
-    public AssistantModelInput withAttribute(Attribute key, String value) {
-        this.attributes.put(key, value);
-        return this;
-    }
-
     public static AssistantModelInput create(AIProviderId baseProviderId, AIProviderId providerId, String model) {
         return new AssistantModelInput(baseProviderId, providerId, model);
     }

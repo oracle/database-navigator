@@ -222,9 +222,14 @@
                     <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-4FDC2F94-36CD-41C3-AC1A-84F67B161DB2</url>
                 </urls>
                 <models>
-                    <model id="GEMINI_1_5_FLASH" default="true"/>
-                    <model id="GEMINI_1_5_PRO"/>
-                    <model id="GEMINI_1_0_PRO"/>
+                    <model id="GEMINI_1_5_FLASH" discontinued="true"/>
+                    <model id="GEMINI_1_5_PRO" discontinued="true"/>
+                    <model id="GEMINI_1_0_PRO" discontinued="true"/>
+                    <model id="GEMINI_2_0_FLASH_LITE"/>
+                    <model id="GEMINI_2_0_FLASH" default="true" />
+                    <model id="GEMINI_2_5_FLASH_LITE"/>
+                    <model id="GEMINI_2_5_FLASH"/>
+                    <model id="GEMINI_2_5_PRO"/>
                 </models>
             </provider>
             <provider id="ANTHROPIC" api-name="ANTHROPIC" host="api.anthropic.com">
@@ -262,11 +267,14 @@
                     <model id="META_LLAMA_3_3_70B_INSTRUCT"/>
                     <model id="META_LLAMA_4_MAVERICK_17B_128E_INSTRUCT_FP8"/>
                     <model id="META_LLAMA_4_SCOUT_17B_16E_INSTRUCT"/>
+<!--
+                    TODO none of the cohere models understand tool specifications
                     <model id="COHERE_COMMAND_R_08_2024"/>
                     <model id="COHERE_COMMAND_R_PLUS_08_2024"/>
                     <model id="COHERE_COMMAND_A_03_2025"/>
                     <model id="COHERE_COMMAND_LATEST"/>
                     <model id="COHERE_COMMAND_PLUS_LATEST"/>
+-->
                     <model id="XAI_GROK_3"/>
                     <model id="XAI_GROK_3_FAST"/>
                     <model id="XAI_GROK_3_MINI"/>
@@ -283,15 +291,15 @@
                     <model id="GPT_4_1" default="true"/>
                     <model id="GPT_4_1_MINI"/>
                     <model id="GPT_4_1_NANO"/>
-                    <model id="GPT_5"/>
-                    <model id="GPT_5_MINI"/>
-                    <model id="GPT_5_NANO"/>
-                    <model id="O1"/>
-                    <model id="O1_MINI"/>
-                    <model id="O1_PRO"/>
-                    <model id="O3"/>
-                    <model id="O3_MINI"/>
-                    <model id="O4_MINI"/>
+                    <model id="GPT_5" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="GPT_5_MINI" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="GPT_5_NANO" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="O1" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <!--<model id="O1_MINI" features="MEMORY" />-->
+                    <!--<model id="O1_PRO"/> TODO ERR This model is only supported in v1/responses and not in v1/chat/completions.-->
+                    <model id="O3" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="O3_MINI" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="O4_MINI" features="MEMORY, TOOLS, INSTRUCTIONS"/>
                 </models>
             </provider>
             <provider id="GOOGLE">
@@ -299,6 +307,9 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
+                    <model id="GEMINI_1_5_FLASH" discontinued="true"/>
+                    <model id="GEMINI_1_5_PRO" discontinued="true"/>
+                    <model id="GEMINI_1_0_PRO" discontinued="true"/>
                     <model id="GEMINI_2_0_FLASH_LITE"/>
                     <model id="GEMINI_2_0_FLASH"/>
                     <model id="GEMINI_2_5_FLASH_LITE"/>

@@ -63,4 +63,8 @@ public interface ChatContext extends PersistentStateElement {
     boolean isProfileSwitch(ChatContext that);
 
     boolean isActionSwitch(ChatContext that);
+
+    String getProviderName();
+
+    String getModelName();
 }

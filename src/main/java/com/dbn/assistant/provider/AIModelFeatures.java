@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,12 @@
 
 package com.dbn.assistant.provider;
 
-import com.dbn.common.property.Property;
-import lombok.Getter;
+import com.dbn.common.property.PropertyHolderBase;
 
-@Getter
-public enum AIModelProperty implements Property.ShortBase {
-    DEFAULT,
-    DEPRECATED,   // no longer maintained / not recommended
-    DISCONTINUED, // no longer available
-    EXPERIMENTAL;
-
-    public static final AIModelProperty[] VALUES = values();
-
-    private final ShortMasks masks = new ShortMasks(this);
+class AIModelFeatures extends PropertyHolderBase.ShortStore<AIModelFeature> {
 
     @Override
-    public ShortMasks masks() {
-        return masks;
+    protected AIModelFeature[] properties() {
+        return AIModelFeature.VALUES;
     }
 }

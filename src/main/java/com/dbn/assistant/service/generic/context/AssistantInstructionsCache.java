@@ -36,17 +36,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.dbn.common.action.UserDataKeys.ASSISTANT_CONTEXT_PROVIDER;
+import static com.dbn.common.action.UserDataKeys.ASSISTANT_INSTRUCTIONS_CACHE;
 
-public class AssistantContextCache extends AssistantStateExtension implements Function<Object, String> {
+public class AssistantInstructionsCache extends AssistantStateExtension implements Function<Object, String> {
     private final Map<AssistantMemoryId, String> entries = new ConcurrentHashMap<>();
 
-    private AssistantContextCache(@NotNull AssistantState assistantState) {
+    private AssistantInstructionsCache(@NotNull AssistantState assistantState) {
         super(assistantState);
     }
 
-    public static AssistantContextCache get(AssistantState assistantState) {
-        return UserDataKeys.getUserDataSync(assistantState, ASSISTANT_CONTEXT_PROVIDER, () -> new AssistantContextCache(assistantState));
+    public static AssistantInstructionsCache get(AssistantState assistantState) {
+        return UserDataKeys.getUserDataSync(assistantState, ASSISTANT_INSTRUCTIONS_CACHE, () -> new AssistantInstructionsCache(assistantState));
     }
 
     @Override

@@ -16,8 +16,10 @@
 
 package com.dbn.assistant.provider;
 
+import com.dbn.common.filter.Filter;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Lists;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -55,6 +57,10 @@ public final class AIProvider implements Presentable {
     AIProvider(AIProviderId id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public List<AIModel> getModels(Filter<AIModel> filter) {
+        return Lists.filter(models, filter);
     }
 
     public AIModel getModel(String id) {
