@@ -233,7 +233,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
     @Override
     public String buildChatContextTitle(ChatContext context) {
         return context.getProfileId() + " / " +
-                context.getModel().getName() + " / " +
+                context.getModelName() + " / " +
                 PromptAction.get(context.getActionId()).getName();
     }
 

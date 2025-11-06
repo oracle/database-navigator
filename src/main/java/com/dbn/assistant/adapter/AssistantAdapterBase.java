@@ -58,7 +58,7 @@ public abstract class AssistantAdapterBase implements AssistantAdapter {
 
     @Override
     public String buildChatContextTitle(ChatContext context) {
-        return context.getProvider() + " / " + context.getModel();
+        return context.getProviderName() + " / " + context.getModelName();
     }
 
     @Override

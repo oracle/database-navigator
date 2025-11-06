@@ -28,6 +28,6 @@ public interface AssistantProfile extends Presentable {
     String getDefaultModelId();
     String getCredentialId();
     double getTemperature();
-
+    String getInstructions();
     AIProvider getProvider();
 }

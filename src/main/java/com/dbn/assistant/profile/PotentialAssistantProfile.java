@@ -65,4 +65,9 @@ public class PotentialAssistantProfile implements AssistantProfile{
     public double getTemperature() {
         return BALANCED.getValue();
     }
+
+    @Override
+    public String getInstructions() {
+        return "";
+    }
 }

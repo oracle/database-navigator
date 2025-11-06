@@ -41,7 +41,7 @@ public class OllamaModelFactory extends AbstractModelFactory {
     public ChatModel createChatModel(AssistantModelInput input) {
         return OllamaChatModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .temperature(input.getTemperature())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())
@@ -53,7 +53,7 @@ public class OllamaModelFactory extends AbstractModelFactory {
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return OllamaStreamingChatModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .temperature(input.getTemperature())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())
@@ -65,7 +65,7 @@ public class OllamaModelFactory extends AbstractModelFactory {
     public LanguageModel createLanguageModel(AssistantModelInput input) {
         return OllamaLanguageModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .temperature(input.getTemperature())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())
@@ -77,7 +77,7 @@ public class OllamaModelFactory extends AbstractModelFactory {
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return OllamaEmbeddingModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();

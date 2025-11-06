@@ -299,4 +299,29 @@ public class Lists {
     public static <T> List<T> nullToEmpty(List<T> list) {
         return list == null ? emptyList() : list;
     }
+
+    public static int indexOfIdentity(List<?> list, Object obj) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i) == obj) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public static <T> T getNextElement(List<T> list, T element) {
+        int index = indexOfIdentity(list, element);   // ref equals
+        if (index < 0) index = list.indexOf(element); // equals
+        if (index < 0) return null;
+
+        return getElementAt(list, index + 1);
+    }
+
+    public static <T> T getPreviousElement(List<T> list, T element) {
+        int index = indexOfIdentity(list, element);
+        if (index < 0) index = list.indexOf(element);
+        if (index < 0) return null;
+
+        return getElementAt(list, index - 1);
+    }
 }

@@ -100,7 +100,7 @@ public class Csvs {
                     if (isNullCandidate && string.equals(Data.NULL)) {
                         strings.add(null);
                     } else {
-                        strings.add(string);
+                        strings.add(string.trim());
                     }
                     builder.setLength(0);
                     isNullCandidate = true;
@@ -114,7 +114,7 @@ public class Csvs {
         if (isNullCandidate && field.equals(Data.NULL)) {
             strings.add(null);
         } else {
-            strings.add(field);
+            strings.add(field.trim());
         }
 
 

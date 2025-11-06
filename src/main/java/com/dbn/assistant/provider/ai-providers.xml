@@ -16,7 +16,7 @@
 
 <language-model-provider version="1.0">
     <provider-types>
-        <provider id="OPEN_AI" name="Open AI" host="api.openai.com" base-url="https://api.openai.com/v1/">
+        <provider id="OPEN_AI" name="Open AI" host="api.openai.com">
             <urls>
                 <url type="OFFICIAL">https://openai.com</url>
                 <url type="DOCS">https://platform.openai.com/docs</url>
@@ -83,16 +83,16 @@
                 <model id="COHERE_COMMAND_A_03_2025"                       api-name="cohere.command-a-03-2025"                    short-name="command-a-03"              base-provider-id="COHERE"/>
                 <model id="COHERE_COMMAND_LATEST"                          api-name="cohere.command-latest"                       short-name="command-latest"            base-provider-id="COHERE"/>
                 <model id="COHERE_COMMAND_PLUS_LATEST"                     api-name="cohere.command-plus-latest"                  short-name="command-plus-latest"       base-provider-id="COHERE"/>
-                <model id="XAI_GROK_3"                                     api-name="xai.grok-3"                                  short-name="grok-3"                    base-provider-id="XAI"/>
-                <model id="XAI_GROK_3_FAST"                                api-name="xai.grok-3-fast"                             short-name="grok-3-fast"               base-provider-id="XAI"/>
-                <model id="XAI_GROK_3_MINI"                                api-name="xai.grok-3-mini"                             short-name="grok-3-mini"               base-provider-id="XAI"/>
-                <model id="XAI_GROK_3_MINI_FAST"                           api-name="xai.grok-3-mini-fast"                        short-name="grok-3-mini-fast"          base-provider-id="XAI"/>
-                <model id="XAI_GROK_4"                                     api-name="xai.grok-4"                                  short-name="grok-4"                    base-provider-id="XAI"/>
-                <model id="XAI_GROK_CODE_FAST_1"                           api-name="xai.grok-code-fast-1"                        short-name="grok-code-fast-1"          base-provider-id="XAI"/>
+                <model id="XAI_GROK_3"                                     api-name="xai.grok-3"                                  short-name="grok-3"                    base-provider-id="X_AI"/>
+                <model id="XAI_GROK_3_FAST"                                api-name="xai.grok-3-fast"                             short-name="grok-3-fast"               base-provider-id="X_AI"/>
+                <model id="XAI_GROK_3_MINI"                                api-name="xai.grok-3-mini"                             short-name="grok-3-mini"               base-provider-id="X_AI"/>
+                <model id="XAI_GROK_3_MINI_FAST"                           api-name="xai.grok-3-mini-fast"                        short-name="grok-3-mini-fast"          base-provider-id="X_AI"/>
+                <model id="XAI_GROK_4"                                     api-name="xai.grok-4"                                  short-name="grok-4"                    base-provider-id="X_AI"/>
+                <model id="XAI_GROK_CODE_FAST_1"                           api-name="xai.grok-code-fast-1"                        short-name="grok-code-fast-1"          base-provider-id="X_AI"/>
             </models>
         </provider>
 
-        <provider id="GOOGLE" name="Google" host="generativelanguage.googleapis.com" base-url="https://generativelanguage.googleapis.com/v1beta/">
+        <provider id="GOOGLE" name="Google" host="generativelanguage.googleapis.com">
             <urls>
                 <url type="OFFICIAL">https://deepmind.google/technologies/gemini</url>
                 <url type="DOCS">https://ai.google.dev</url>
@@ -112,7 +112,7 @@
             </models>
         </provider>
 
-        <provider id="ANTHROPIC" name="Anthropic" host="api.anthropic.com" base-url="https://api.anthropic.com/v1/">
+        <provider id="ANTHROPIC" name="Anthropic" host="api.anthropic.com">
             <urls>
                 <url type="OFFICIAL">https://www.anthropic.com</url>
                 <url type="DOCS">https://docs.anthropic.com</url>
@@ -137,7 +137,8 @@
         <provider id="HUGGING_FACE" name="Hugging Face" host="api-inference.huggingface.co">
             <urls>
                 <url type="OFFICIAL">https://huggingface.co/</url>
-                <url type="API">https://huggingface.co/settings/tokens</url>
+                <url type="KEYS">https://huggingface.co/settings/tokens</url>
+                <url type="API">https://router.huggingface.co/v1/</url>
             </urls>
             <models>
                 <model id="MIXTRAL_8X7B_INSTRUCT_V0_1" api-name="mistralai/Mixtral-8x7B-Instruct-v0.1"/>
@@ -146,7 +147,7 @@
             </models>
         </provider>
 
-        <provider id="MISTRAL_AI" name="Mistral AI" host="api.mistral.ai" base-url="https://api.mistral.ai/v1/">
+        <provider id="MISTRAL_AI" name="Mistral AI" host="api.mistral.ai">
             <urls>
                 <url type="OFFICIAL">https://mistral.ai</url>
                 <url type="DOCS">https://docs.mistral.ai</url>
@@ -167,6 +168,22 @@
 
         <provider id="VERTEX_AI" name="Vertex AI">
             <url type="OFFICIAL">https://cloud.google.com/vertex-ai</url>
+        </provider>
+
+        <provider id="X_AI" name="X AI">
+            <urls>
+                <url type="OFFICIAL">https://x.ai</url>
+                <url type="DOCS">https://docs.x.ai/docs</url>
+                <url type="KEYS">https://console.x.ai</url>
+                <url type="API">https://api.x.ai/v1/</url>
+            </urls>
+            <models>
+                <model id="GROK_CODE_FAST_1"          api-name="grok-code-fast-1"           short-name="grok-code-fast"/>
+                <model id="GROK_4_FAST_REASONING"     api-name="grok-4-fast-reasoning"/>
+                <model id="GROK_4_FAST_NON_REASONING" api-name="grok-4-fast-non-reasoning"/>
+                <model id="GROK_4_0709"               api-name="grok-4-0709"                short-name="grok-4"/>
+                <model id="GROK_3_MINI"               api-name="grok-3-mini"                short-name="grok-3-mini"/>
+            </models>
         </provider>
     </provider-types>
 
@@ -228,9 +245,14 @@
                     <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-4FDC2F94-36CD-41C3-AC1A-84F67B161DB2</url>
                 </urls>
                 <models>
-                    <model id="GEMINI_1_5_FLASH" default="true"/>
-                    <model id="GEMINI_1_5_PRO"/>
-                    <model id="GEMINI_1_0_PRO"/>
+                    <model id="GEMINI_1_5_FLASH" discontinued="true"/>
+                    <model id="GEMINI_1_5_PRO" discontinued="true"/>
+                    <model id="GEMINI_1_0_PRO" discontinued="true"/>
+                    <model id="GEMINI_2_0_FLASH_LITE"/>
+                    <model id="GEMINI_2_0_FLASH" default="true" />
+                    <model id="GEMINI_2_5_FLASH_LITE"/>
+                    <model id="GEMINI_2_5_FLASH"/>
+                    <model id="GEMINI_2_5_PRO"/>
                 </models>
             </provider>
             <provider id="ANTHROPIC" api-name="ANTHROPIC" host="api.anthropic.com">
@@ -278,11 +300,14 @@
                     <model id="META_LLAMA_3_3_70B_INSTRUCT"/>
                     <model id="META_LLAMA_4_MAVERICK_17B_128E_INSTRUCT_FP8"/>
                     <model id="META_LLAMA_4_SCOUT_17B_16E_INSTRUCT"/>
+<!--
+                    TODO none of the cohere models understand tool specifications
                     <model id="COHERE_COMMAND_R_08_2024"/>
                     <model id="COHERE_COMMAND_R_PLUS_08_2024"/>
                     <model id="COHERE_COMMAND_A_03_2025"/>
                     <model id="COHERE_COMMAND_LATEST"/>
                     <model id="COHERE_COMMAND_PLUS_LATEST"/>
+-->
                     <model id="XAI_GROK_3"/>
                     <model id="XAI_GROK_3_FAST"/>
                     <model id="XAI_GROK_3_MINI"/>
@@ -299,15 +324,15 @@
                     <model id="GPT_4_1" default="true"/>
                     <model id="GPT_4_1_MINI"/>
                     <model id="GPT_4_1_NANO"/>
-                    <model id="GPT_5"/>
-                    <model id="GPT_5_MINI"/>
-                    <model id="GPT_5_NANO"/>
-                    <model id="O1"/>
-                    <model id="O1_MINI"/>
-                    <model id="O1_PRO"/>
-                    <model id="O3"/>
-                    <model id="O3_MINI"/>
-                    <model id="O4_MINI"/>
+                    <model id="GPT_5" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="GPT_5_MINI" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="GPT_5_NANO" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="O1" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <!--<model id="O1_MINI" features="MEMORY" />-->
+                    <!--<model id="O1_PRO"/> TODO ERR This model is only supported in v1/responses and not in v1/chat/completions.-->
+                    <model id="O3" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="O3_MINI" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="O4_MINI" features="MEMORY, TOOLS, INSTRUCTIONS"/>
                 </models>
             </provider>
             <provider id="GOOGLE">
@@ -315,6 +340,9 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
+                    <model id="GEMINI_1_5_FLASH" discontinued="true"/>
+                    <model id="GEMINI_1_5_PRO" discontinued="true"/>
+                    <model id="GEMINI_1_0_PRO" discontinued="true"/>
                     <model id="GEMINI_2_0_FLASH_LITE"/>
                     <model id="GEMINI_2_0_FLASH"/>
                     <model id="GEMINI_2_5_FLASH_LITE"/>
@@ -349,6 +377,18 @@
                     <model id="MISTRAL_SMALL_2506"/>
                     <model id="VOXTRAL_SMALL_2507"/>
                     <model id="VOXTRAL_MINI_2507"/>
+                </models>
+            </provider>
+            <provider id="X_AI">
+                <auth>
+                    <field id="API_KEY" required="true"/>
+                </auth>
+                <models>
+                    <model id="GROK_CODE_FAST_1"/>
+                    <model id="GROK_4_FAST_REASONING"/>
+                    <model id="GROK_4_FAST_NON_REASONING"/>
+                    <model id="GROK_4_0709"/>
+                    <model id="GROK_3_MINI"/>
                 </models>
             </provider>
         </assistant>

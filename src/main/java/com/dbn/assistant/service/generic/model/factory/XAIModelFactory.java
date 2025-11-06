@@ -14,26 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.provider;
+package com.dbn.assistant.service.generic.model.factory;
 
-import com.dbn.common.constant.Constant;
-import com.dbn.common.constant.Constants;
+import static com.dbn.assistant.provider.AIProviderId.X_AI;
 
-public enum AIProviderId implements Constant<AIProviderId> {
-    ANTHROPIC,
-    BEDROCK,
-    COHERE,
-    GOOGLE,
-    HUGGING_FACE,
-    META,
-    MISTRAL_AI,
-    OCI_GEN_AI,
-    OLLAMA,
-    OPEN_AI,
-    X_AI,
-    ;
-
-    public static AIProviderId get(String id) {
-        return Constants.get(values(), id);
+public class XAIModelFactory extends OpenAiModelFactory {
+    public XAIModelFactory() {
+        super(X_AI);
     }
 }

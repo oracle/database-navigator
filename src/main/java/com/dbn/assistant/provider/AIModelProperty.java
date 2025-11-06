@@ -22,7 +22,8 @@ import lombok.Getter;
 @Getter
 public enum AIModelProperty implements Property.ShortBase {
     DEFAULT,
-    DEPRECATED,
+    DEPRECATED,   // no longer maintained / not recommended
+    DISCONTINUED, // no longer available
     EXPERIMENTAL;
 
     public static final AIModelProperty[] VALUES = values();

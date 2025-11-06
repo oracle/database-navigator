@@ -18,12 +18,14 @@ package com.dbn.assistant.provider;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIAuthentication.Field;
+import com.dbn.common.util.Csvs;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Safe;
 import com.dbn.common.util.XmlContents;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -34,6 +36,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static com.dbn.assistant.provider.AIAuthentication.Field.API_KEY;
+import static com.dbn.assistant.provider.AIModelProperty.DEFAULT;
+import static com.dbn.assistant.provider.AIModelProperty.DEPRECATED;
+import static com.dbn.assistant.provider.AIModelProperty.DISCONTINUED;
+import static com.dbn.assistant.provider.AIModelProperty.EXPERIMENTAL;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -120,13 +126,11 @@ public class AIProvidersDefinition {
         AIProviderId id = enumAttribute(element, "id", AIProviderId.class);
         String name = fallback(stringAttribute(element, "name"), providerTemplate, t -> t.getName());
         String host = fallback(stringAttribute(element, "host"), providerTemplate, t -> t.getHost());
-        String baseUrl = fallback(stringAttribute(element, "base-url"), providerTemplate, t -> t.getBaseUrl());
         String apiName = fallback(stringAttribute(element, "api-name"), providerTemplate, t -> t.getApiName());
 
         AIProvider provider = new AIProvider(id, name);
         provider.setHost(host);
         provider.setApiName(apiName);
-        provider.setBaseUrl(baseUrl);
 
         initModels(element, provider, providerTemplate);
         initUrls(element, provider, providerTemplate);
@@ -147,6 +151,7 @@ public class AIProvidersDefinition {
         boolean templateDefault = modelTemplate != null && modelTemplate.isDefault();
         boolean templateExperimental = modelTemplate != null && modelTemplate.isExperimental();
         boolean templateDeprecated = modelTemplate != null && modelTemplate.isDeprecated();
+        boolean templateDiscontinued = modelTemplate != null && modelTemplate.isDiscontinued();
         AIProviderId templateBaseProviderId = modelTemplate != null ? modelTemplate.getBaseProviderId() : null;
 
         AIProviderId baseProviderId = coalesce(
@@ -159,9 +164,21 @@ public class AIProvidersDefinition {
         String modelShortName = fallback(stringAttribute(element, "short-name"), modelTemplate, t -> t.getShortName());
         AIModel model = new AIModel(modelId, modelApiName, modelShortName, provider, baseProviderId);
 
-        model.set(AIModelProperty.DEFAULT, booleanAttribute(element, "default", templateDefault));
-        model.set(AIModelProperty.DEPRECATED, booleanAttribute(element, "deprecated", templateDeprecated));
-        model.set(AIModelProperty.EXPERIMENTAL, booleanAttribute(element, "experimental", templateExperimental));
+        // status
+        model.set(DEFAULT, booleanAttribute(element, "default", templateDefault));
+        model.set(DEPRECATED, booleanAttribute(element, "deprecated", templateDeprecated));
+        model.set(DISCONTINUED, booleanAttribute(element, "discontinued", templateDiscontinued));
+        model.set(EXPERIMENTAL, booleanAttribute(element, "experimental", templateExperimental));
+
+        // features
+        @NonNls
+        List<AIModelFeature> features = Csvs.csvToValues(stringAttribute(element, "features"), s -> AIModelFeature.get(s));
+        AIModelFeatures modelFeatures = model.getFeatures();
+        if (features.isEmpty()) {
+            modelFeatures.set(AIModelFeature.VALUES, true);
+        } else {
+            modelFeatures.set(features, true);
+        }
 
         return model;
     }

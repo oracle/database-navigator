@@ -34,6 +34,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Commons.nvl;
 
 public class AssistantSelectionState implements PersistentStateElement {
     private final Map<AssistantType, Map<AIProviderId, AIModel>> modelSelections = new ConcurrentHashMap<>();
@@ -66,6 +67,8 @@ public class AssistantSelectionState implements PersistentStateElement {
 
                 AIProvider provider = getProvider(assistantType, providerId);
                 AIModel model = provider.getModel(modelId);
+                model = nvl(model, () -> provider.getDefaultModel());
+
                 modelSelections.put(providerId, model);
             }
         }

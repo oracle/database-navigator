@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2024 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,26 @@ package com.dbn.assistant.provider;
 
 import com.dbn.common.constant.Constant;
 import com.dbn.common.constant.Constants;
+import com.dbn.common.property.Property;
+import lombok.Getter;
 
-public enum AIProviderId implements Constant<AIProviderId> {
-    ANTHROPIC,
-    BEDROCK,
-    COHERE,
-    GOOGLE,
-    HUGGING_FACE,
-    META,
-    MISTRAL_AI,
-    OCI_GEN_AI,
-    OLLAMA,
-    OPEN_AI,
-    X_AI,
-    ;
+@Getter
+public enum AIModelFeature implements Property.ShortBase, Constant<AIModelFeature> {
+    TOOLS,
+    MEMORY,
+    TEMPERATURE,
+    INSTRUCTIONS;
 
-    public static AIProviderId get(String id) {
-        return Constants.get(values(), id);
+    public static final AIModelFeature[] VALUES = values();
+
+    private final ShortMasks masks = new ShortMasks(this);
+
+    public static AIModelFeature get(String id) {
+        return Constants.get(VALUES, id);
+    }
+
+    @Override
+    public ShortMasks masks() {
+        return masks;
     }
 }

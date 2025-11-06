@@ -85,7 +85,6 @@ dependencies {
     implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.7.1")
     implementation("dev.langchain4j:langchain4j-anthropic:1.7.1")
     implementation("dev.langchain4j:langchain4j-cohere:1.7.1-beta14")
-    implementation("dev.langchain4j:langchain4j-hugging-face:1.7.1-beta14")
     implementation("dev.langchain4j:langchain4j-ollama:1.7.1")
     implementation("dev.langchain4j:langchain4j-bedrock:1.7.1")
     implementation("dev.langchain4j:langchain4j-mistral-ai:1.7.1")

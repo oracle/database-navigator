@@ -16,24 +16,12 @@
 
 package com.dbn.assistant.provider;
 
-import com.dbn.common.constant.Constant;
-import com.dbn.common.constant.Constants;
+import com.dbn.common.property.PropertyHolderBase;
 
-public enum AIProviderId implements Constant<AIProviderId> {
-    ANTHROPIC,
-    BEDROCK,
-    COHERE,
-    GOOGLE,
-    HUGGING_FACE,
-    META,
-    MISTRAL_AI,
-    OCI_GEN_AI,
-    OLLAMA,
-    OPEN_AI,
-    X_AI,
-    ;
+class AIModelFeatures extends PropertyHolderBase.ShortStore<AIModelFeature> {
 
-    public static AIProviderId get(String id) {
-        return Constants.get(values(), id);
+    @Override
+    protected AIModelFeature[] properties() {
+        return AIModelFeature.VALUES;
     }
 }
