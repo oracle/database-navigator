@@ -317,16 +317,17 @@
     <statement-execution-processor id="insert-vector-embeddings" timeout="120000">
         <statement>
             BEGIN
-                INSERT INTO {0} (id, text, embedding, metadata)
+                INSERT INTO {0}.{1} (id, {2}, {3}, {4})
                 SELECT
                     SYS_GUID(),
                     JSON_VALUE(t.COLUMN_VALUE, '$.embed_data' RETURNING CLOB),
-                    TO_VECTOR(JSON_VALUE(t.COLUMN_VALUE, '$.embed_vector' RETURNING CLOB)), null
-                FROM {1} src,
+                    TO_VECTOR(JSON_VALUE(t.COLUMN_VALUE, '$.embed_vector' RETURNING CLOB)),
+                    null
+                FROM {5}.{6} src,
                     TABLE(
                         DBMS_VECTOR_CHAIN.UTL_TO_EMBEDDINGS(
-                                DBMS_VECTOR_CHAIN.UTL_TO_CHUNKS(src.{2}, json({#3})),
-                                json({#4})
+                                DBMS_VECTOR_CHAIN.UTL_TO_CHUNKS(src.{7}, json({#8})),
+                                json({#9})
                     )
                 ) t;
             END;
@@ -337,9 +338,9 @@
             DECLARE
                 v_doc BLOB;
             BEGIN
-                SELECT b_lob INTO v_doc FROM {2} WHERE id = {#3};
+                SELECT b_lob INTO v_doc FROM {5} WHERE id = {#6};
 
-                INSERT INTO {0}.{1} (id, {4}, {5}, {6})
+                INSERT INTO {0}.{1} (id, {2}, {3}, {4})
                     SELECT
                         SYS_GUID(),
                         jt.embed_data,

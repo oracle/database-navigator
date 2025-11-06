@@ -89,32 +89,36 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public void embed(DBNConnection conn, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException {
+  public void embedDataContent(DBNConnection conn, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException {
     executeUpdate(conn,
             "insert-vector-embeddings",
-            storeConfig.getTableName(),         // {0} -> target table
-            sourceConfig.getTableName(),        // {1} -> source table
-            sourceConfig.getDataColumnName(),   // {2} -> source column
-            chunkConfig,                        // {3} -> chunk config JSON
-            embedConfig                         // {4} -> embed config JSON
+            storeConfig.getSchemaName(),
+            storeConfig.getTableName(),
+            storeConfig.getTextColumnName(),
+            storeConfig.getEmbeddingColumnName(),
+            storeConfig.getMetadataColumnName(),
+            sourceConfig.getSchemaName(),
+            sourceConfig.getTableName(),
+            sourceConfig.getDataColumnName(),
+            chunkConfig,
+            embedConfig
     );
   }
 
   @Override
-  public void embed(DBNConnection conn, String  blobId, String blob_table, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException {
+  public void embedFileContent(DBNConnection conn, String  blobId, String blobTable, String chunkConfig, String embedConfig, StoreConfig storeConfig, String metadata) throws SQLException {
       executeUpdate(conn,
               "insert-vector-embeddings-from-filesystem",
               storeConfig.getSchemaName(),
               storeConfig.getTableName(),
-              blob_table,
-              blobId,
               storeConfig.getTextColumnName(),
               storeConfig.getEmbeddingColumnName(),
               storeConfig.getMetadataColumnName(),
+              blobTable,
+              blobId,
               chunkConfig,
               embedConfig,
-              storeConfig.getMetadata()
-      );
+              metadata);
   }
 
   @Override

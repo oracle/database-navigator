@@ -21,7 +21,6 @@ public class StoreConfig extends VectorEmbeddingConfig {
   private String textColumnName = "TEXT";
   private String embeddingColumnName = "EMBEDDING";
   private String metadataColumnName = "METADATA";
-  private transient String metadata;
 
   @Override
   public void readState(Element element) {

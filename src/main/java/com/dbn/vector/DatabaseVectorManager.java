@@ -168,7 +168,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                                     String embedConfigJson = embedConfig.getConfigJson();
 
                                     if (sourceType == SourceType.DATABASE_TABLE) {
-                                        dataDefinition.embed(conn, sourceConfig.getTableSourceConfig(), chunkConfigJson, embedConfigJson, storeConfig);
+                                        dataDefinition.embedDataContent(conn, sourceConfig.getTableSourceConfig(), chunkConfigJson, embedConfigJson, storeConfig);
                                         System.out.println("Embedding data created");
                                         //todo keep if else open to sother source config
                                     } else if (sourceType == SourceType.FILE_SYSTEM){
@@ -195,8 +195,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                                             fileMetadataMap.put("embed_config", embedConfig.getConfigMap());
                                             fileMetadataMap.put("chunk_config", chunkConfig.getConfigMap());
                                             String rowMetadata = Json.writeAsFormattedString(fileMetadataMap);
-                                            storeConfig.setMetadata(rowMetadata);
-                                            dataDefinition.embed(conn, id, FILES_TABLE, chunkConfigJson, embedConfigJson, storeConfig); // add this overload
+                                            dataDefinition.embedFileContent(conn, id, FILES_TABLE, chunkConfigJson, embedConfigJson, storeConfig, rowMetadata); // add this overload
                                           } catch (Exception e) {
                                             callbackError.accept(e);
                                           } finally { if (in != null) try { in.close(); } catch (Throwable ignored) {} }
