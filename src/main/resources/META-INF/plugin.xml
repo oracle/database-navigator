@@ -310,15 +310,15 @@
         <assistantModelInvoker implementation="com.dbn.assistant.service.generic.model.invoker.StreamingChatModelInvoker"/>
 
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.UserPromptsTool$Factory" />
-        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.DatabaseMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ConnectionInfoTool$Factory" />
-        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ConsoleEditorTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.DatabaseMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SchemaMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.TableMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ViewMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ViewSourceCodeTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ProgramMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ProgramSourceCodeTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ConsoleEditorTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SourceCodeEditorTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.DatasetEditorTool$Factory" />
     </extensions>
