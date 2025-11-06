@@ -30,14 +30,15 @@
     <idea-version since-build="201.6668.113" until-build="253.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
-            <b>Database development, maintenance and navigation tool</b><br>
-            This software solution enhances the functionality of the IntelliJ IDEA development environment and
-            its related products by offering a comprehensive suite of tools for database development and management.<br>
-            It features a highly capable SQL and PL/SQL editor that aligns with the standards of the IDE,
-            as well as advanced capabilities for managing database connections, executing scripts, browsing and editing database objects, and modifying data and code.
-            The solution further supports database compiler operations, method execution and debugging, and the creation of database objects.<br>
-            Moreover, it includes extensive navigation features that are seamlessly integrated across all components,
-            delivering a robust and efficient toolset for database development and administration.<br><br>
+            <b>Database Development and Management Tool</b><br></br>
+            This software solution extends the capabilities of IntelliJ IDEA and related products
+            by providing a set of practical tools for database development and management.
+            It includes a user-friendly SQL and PL/SQL editor that matches the IDE's standards,
+            along with features for managing database connections, running scripts,
+            viewing and editing database objects, and updating data and code.
+            The tool also supports database compiler tasks, method execution, debugging, and the creation of database objects.
+            Additionally, it offers integrated navigation features across all components,
+            making it a reliable and efficient choice for database development and administration.<br><br>
 
             This product is developed and maintained by <a href="https://www.oracle.com/">Oracle</a><br><br>
 
@@ -52,6 +53,21 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.7.0</b>
+            <ul>
+                <li>DB assistant (an AI-powered assistant with database and workspace integration)
+                <li>Vector toolbox (a tool for vector chain embedding using Oracle DBMS_VECTOR_CHAIN)<ul>
+                    <li>Support for embedding data and file content sources
+                    <li>"Chunk-Lab" feature for experimenting with content chunking settings
+                </ul>
+                <li>Support for data-change notifications (using Oracle "Continuous Query Notification" framework)
+                <li>Oracle OJVM module enhancements<ul>
+                    <li>Support for debugging Java programs running in the database
+                    <li>Support for arrays in Java program execution
+                </ul>
+                <li>Connection support for Azure authentication
+                <li>Minor bug fixes and performance improvements
+            </ul>
             <li><b>3.6.2</b>
             <ul>
                 <li>Resolved credential storage issues
