@@ -27,6 +27,6 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class NavigateToDefinitionAction extends NavigationAction{
     public NavigateToDefinitionAction(@Nullable DBObject parentObject, @NotNull BasePsiElement navigationElement, @NotNull DBObjectType objectType) {
-        super(txt("app.codeEditor.action.GoToDefinition", objectType.getCapitalizedName()), Icons.NAVIGATION_GO_TO_BODY, parentObject, navigationElement);
+        super(txt("app.codeEditor.action.GoToDefinition", objectType.getTitleCasedName()), Icons.NAVIGATION_GO_TO_BODY, parentObject, navigationElement);
     }
 }

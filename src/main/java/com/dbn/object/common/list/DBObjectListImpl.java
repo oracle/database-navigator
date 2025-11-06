@@ -38,7 +38,6 @@ import com.dbn.common.search.Search;
 import com.dbn.common.search.SearchAdapter;
 import com.dbn.common.string.StringDeBuilder;
 import com.dbn.common.ui.tree.TreeEventType;
-import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
@@ -92,6 +91,7 @@ import static com.dbn.common.list.FilteredList.unwrap;
 import static com.dbn.common.search.Search.binarySearch;
 import static com.dbn.common.search.Search.comboSearch;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Titles.titleCased;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static java.util.Collections.emptyList;
 
@@ -333,8 +333,8 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
     }
 
     @Override
-    public String getCapitalizedName() {
-        return Naming.capitalizeWords(getName());
+    public String getTitleCasedName() {
+        return titleCased(getName());
     }
 
     @Override

@@ -139,7 +139,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         ProgressIndicator progress = ProgressMonitor.ensureProgressIndicator();
 
         DatabaseInterfaceInvoker.execute(MEDIUM,
-                "Creating " + input.getObjectType().getCapitalizedName(),
+                "Creating " + input.getObjectType().getTitleCasedName(),
                 "Creating " + input.getObjectDescription(),
                 schema.getProject(),
                 connectionId,
@@ -230,7 +230,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         SchemaId schemaId = schema.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Creating " + input.getObjectType().getCapitalizedName(),
+                "Creating " + input.getObjectType().getTitleCasedName(),
                 "Creating " + input.getObjectDescription(),
                 schema.getProject(),
                 connectionId,
@@ -271,7 +271,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         SchemaId schemaId = schema.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Creating " + input.getObjectType().getCapitalizedName(),
+                "Creating " + input.getObjectType().getTitleCasedName(),
                 "Creating " + input.getObjectDescription(),
                 schema.getProject(),
                 connectionId,

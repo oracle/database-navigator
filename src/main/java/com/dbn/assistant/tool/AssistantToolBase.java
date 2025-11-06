@@ -76,7 +76,7 @@ public abstract class AssistantToolBase extends ConnectionComponent implements A
     }
 
     protected static <T extends DBObject> void verify(T object, DBObjectType objectType, String objectName) {
-        if (object == null) throw new IllegalArgumentException(objectType.getCapitalizedName() + " not found: " + objectName);
+        if (object == null) throw new IllegalArgumentException(objectType.getTitleCasedName() + " not found: " + objectName);
     }
 
     protected static <T extends DBObject> T undisposed(T object) {

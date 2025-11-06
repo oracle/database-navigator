@@ -48,7 +48,7 @@ public class DBObjectPresentableProperty extends PresentableProperty{
 
     @Override
     public String getName() {
-        return name == null ? objectRef.getObjectType().getCapitalizedName() : name;
+        return name == null ? objectRef.getObjectType().getTitleCasedName() : name;
     }
 
     @Override

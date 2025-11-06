@@ -163,22 +163,6 @@ public class Naming {
         return name;
     }
 
-    public static String capitalize(String string) {
-        string = toLowerCase(string);
-        string = Characters.toUpperCase(string.charAt(0)) + string.substring(1);
-        return string;
-    }
-
-    public static String capitalizeWords(String string) {
-        StringBuilder result = new StringBuilder(toLowerCase(string));
-        for (int i=0; i<result.length(); i++) {
-            if (i == 0 || !Character.isLetter(result.charAt(i-1))) {
-                result.setCharAt(i, Characters.toUpperCase(result.charAt(i)));
-            }
-        }
-        return result.toString();
-    }
-
 
     /**
      * Converts a given string into a lowercase format, with modifications to introduce

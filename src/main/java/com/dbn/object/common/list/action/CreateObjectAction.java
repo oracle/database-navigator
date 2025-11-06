@@ -29,17 +29,17 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.type.DBObjectType.AI_MODEL;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 import static com.dbn.object.type.DBObjectType.PROCEDURE;
-import static com.dbn.object.type.DBObjectType.AI_MODEL;
 
 public class CreateObjectAction extends BasicAction {
 
     private final WeakRef<DBObjectList> objectList;
 
     CreateObjectAction(DBObjectList objectList) {
-        super(txt("app.objects.action.NewObject", objectList.getObjectType().getCapitalizedName()));
+        super(txt("app.objects.action.NewObject", objectList.getObjectType().getTitleCasedName()));
         this.objectList = WeakRef.of(objectList);
     }
 

@@ -21,7 +21,6 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Characters;
 import com.dbn.common.util.Lists;
-import com.dbn.common.util.Naming;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.DatabaseObjectTypeId;
@@ -47,6 +46,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Titles.titleCased;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -240,12 +240,12 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         return nvl(disabledIcon, icon);
     }
 
-    public String getCapitalizedName() {
-        return Naming.capitalizeWords(name);
+    public String getTitleCasedName() {
+        return titleCased(name);
     }
 
-    public String getCapitalizedListName() {
-        return Naming.capitalizeWords(listName);
+    public String getTitleCasedListName() {
+        return titleCased(listName);
     }
 
     public boolean isLeaf() {
