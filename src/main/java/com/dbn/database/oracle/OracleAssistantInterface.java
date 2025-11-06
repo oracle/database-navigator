@@ -104,6 +104,7 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   public void embed(DBNConnection conn, String  blobId, String blob_table, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException {
       executeUpdate(conn,
               "insert-vector-embeddings-from-filesystem",
+              storeConfig.getSchemaName(),
               storeConfig.getTableName(),
               blob_table,
               blobId,

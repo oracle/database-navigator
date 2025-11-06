@@ -135,7 +135,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
                 getProject(),
                 handler.getSchema(), true,
                 "Embedding Data",
-                "Creating store table" + storeConfig.getTableName(),
+                "Embedding data into \"" + storeConfig.getSchemaName() + "\".\"" + storeConfig.getTableName() + "\"",
                  p -> {
 //                    try {
                      ConnectionId connectionId = handler.getConnectionId();

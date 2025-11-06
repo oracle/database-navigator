@@ -337,15 +337,15 @@
             DECLARE
                 v_doc BLOB;
             BEGIN
-                SELECT b_lob INTO v_doc FROM {1} WHERE id = {#2};
+                SELECT b_lob INTO v_doc FROM {2} WHERE id = {#3};
 
-                INSERT INTO {0} (id, {3}, {4}, {5})
+                INSERT INTO {0}.{1} (id, {4}, {5}, {6})
                     SELECT
                         SYS_GUID(),
                         jt.embed_data,
                         TO_VECTOR(jt.embed_vector),
                         JSON_MERGEPATCH(
-                            {#8},
+                            {#9},
                             JSON_OBJECT(
                                 KEY 'chunk_id'
                                 VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50))
@@ -355,9 +355,9 @@
                         DBMS_VECTOR_CHAIN.UTL_TO_EMBEDDINGS(
                             DBMS_VECTOR_CHAIN.UTL_TO_CHUNKS(
                                 DBMS_VECTOR_CHAIN.UTL_TO_TEXT(v_doc, json(json_object('plaintext' VALUE true))),
-                                json({#6})
+                                json({#7})
                             ),
-                            json({#7})
+                            json({#8})
                         )
                     ) t,
                     JSON_TABLE(

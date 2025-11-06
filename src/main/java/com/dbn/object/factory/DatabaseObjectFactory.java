@@ -136,6 +136,8 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         ConnectionId connectionId = schema.getConnectionId();
         SchemaId schemaId = schema.getSchemaId();
 
+        ProgressIndicator progress = ProgressMonitor.ensureProgressIndicator();
+
         DatabaseInterfaceInvoker.execute(MEDIUM,
                 "Creating " + input.getObjectType().getCapitalizedName(),
                 "Creating " + input.getObjectDescription(),
@@ -148,7 +150,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                         dataDefinition.loadOnnxModelFromOci(input, conn);
 
                     } else if (modelSourceType == ModelSourceType.MODEL_FILE){
-                        Blob modelBlob = prepareOnnxModel(conn,input.getSourceLocation());
+                        Blob modelBlob = uploadOnnxModel(conn,input, progress);
                         dataDefinition.loadOnnxModelThroughJdbc(input.getModelName(),modelBlob, conn);
 
                     } else {
@@ -159,18 +161,18 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         ObjectChangeEvent.notify(CREATE, AI_MODEL, connectionId, schemaId);
     }
 
-    private Blob prepareOnnxModel(
+    private Blob uploadOnnxModel(
             DBNConnection conn,
-            String modelLocation
+            ModelFactoryInput input,
+            ProgressIndicator progress
     ) throws SQLException {
-        File modelFile = new File(modelLocation);
+        File modelFile = new File(input.getSourceLocation());
         long fileSize      = modelFile.length();
         double totalMB     = fileSize / (1024.0 * 1024.0);
 
         // Tell the ProgressIndicator what we're doing
-        ProgressIndicator progress = ProgressMonitor.ensureProgressIndicator();
         progress.setIndeterminate(false);
-        progress.setText("Uploading ONNX model");
+        progress.setText("Uploading ONNX model \"" + modelFile.getName() + "\" as " + input.getSchema().getName(true) + ".\"" + input.getModelName() + "\"");
         progress.setFraction(0.0);
 
         Blob modelBlob = conn.createBlob();
