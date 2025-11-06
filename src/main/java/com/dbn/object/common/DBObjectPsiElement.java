@@ -16,7 +16,6 @@
 
 package com.dbn.object.common;
 
-import com.dbn.common.dispose.Checks;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.context.DatabaseContextBase;
@@ -38,6 +37,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+
+import static com.dbn.common.dispose.Checks.isNotValid;
 
 public class DBObjectPsiElement implements PsiNamedElement, ReadonlyPsiElementStub, NavigationItem, DatabaseContextBase {
     private final DBObjectRef<?> object;
@@ -88,7 +89,15 @@ public class DBObjectPsiElement implements PsiNamedElement, ReadonlyPsiElementSt
     @Override
     public boolean isValid() {
         DBObject object = getObject();
-        return Checks.isValid(object) && Checks.isValid(object.getParentObject());
+        if (isNotValid(object)) return false;
+
+        DBObjectType objectType = object.getObjectType();
+        if (objectType.isRootObject()) return true;
+
+        DBObject parentObject = object.getParentObject();
+        if (isNotValid(parentObject)) return false;
+
+        return true;
     }
 
     @NotNull
