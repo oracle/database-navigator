@@ -25,7 +25,8 @@ import javax.swing.JList;
 class VirtualFileListCellRenderer extends ColoredListCellRenderer<VirtualFile> {
     @Override
     protected void customize(@NotNull JList<? extends VirtualFile> list, VirtualFile value, int index, boolean selected, boolean hasFocus) {
-        append(value.getPath());
+        append(value.getName());
         setIcon(value.getFileType().getIcon());
+        setToolTipText(value.getPath());
     }
 }
