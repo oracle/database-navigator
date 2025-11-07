@@ -285,7 +285,7 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
 
 
         }
-        return new TitledMessage(MessageType.INFO,
+        return new TitledMessage(MessageType.PROCESSING,
                 description + " - Verifying requirements...",
                 "Verifying requirements for performing the operation \"" + description + "\"\n");
     }
