@@ -25,6 +25,14 @@ public interface PrerequisiteDefinitionProvider  extends DumbAware {
 
     PrerequisiteType getType();
 
+    /**
+     * Provides an alternative privilege type, which can be utilized as a fallback
+     * when checking or evaluating prerequisite requirements (typically a
+     * much higher privilege that implies the default one).
+     *
+     * @return the alternative {@link PrerequisiteType}, or null if no
+     * alternative privilege is defined.
+     */
     PrerequisiteType getAlternativeType();
 
     PrerequisiteDefinition getDefinition();

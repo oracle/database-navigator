@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.prerequisite.model;
+package com.dbn.vector.prerequisite;
 
-/**
- * Generic classification of prerequisites
- */
-public enum PrerequisiteCategory {
-    GRANT,   // user access grant
-    CONFIG,  // environment configuration
-    FEATURE, // feature availability
-    VERSION, // minimum database version
-    ;
+import com.dbn.prerequisite.definition.impl.DatabaseVersionPrerequisite;
+import com.dbn.prerequisite.shared.PrerequisiteTypes;
+
+public class DatabaseVersion_VECTOR_SUPPORT extends DatabaseVersionPrerequisite {
+
+    public DatabaseVersion_VECTOR_SUPPORT() {
+        super(PrerequisiteTypes.DATABASE_VERSION_23_1, 23, 1);
+    }
 }

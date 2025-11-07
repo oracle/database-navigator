@@ -55,6 +55,10 @@ public enum DatabaseOperation implements Constant<DatabaseOperation> {
             txt("app.shared.const.Operation_ENABLE_CHANGE_NOTIFICATIONS"),
             txt("msg.prerequisites.warning.MissingPrerequisites_ENABLE_CHANGE_NOTIFICATIONS")),
 
+    CREATE_VECTOR_EMBEDDINGS(
+            txt("app.shared.const.Operation_CREATE_VECTOR_EMBEDDINGS"),
+            txt("msg.prerequisites.warning.MissingPrerequisites_CREATE_VECTOR_EMBEDDINGS")),
+
     ;
 
     private final String name;

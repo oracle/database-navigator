@@ -290,6 +290,10 @@
         <prerequisiteDefinitionProvider implementation="com.dbn.event.prerequisite.SystemPrivilege_CHANGE_NOTIFICATION"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.event.prerequisite.ObjectPrivilege_EXECUTE_DBMS_CHANGE_NOTIFICATION"/>
 
+        <prerequisiteRequirementEvaluator implementation="com.dbn.vector.prerequisite.VectorEmbeddingsPrerequisitesEvaluator"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.ObjectPrivilege_EXECUTE_DBMS_VECTOR_CHAIN"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.DatabaseVersion_VECTOR_SUPPORT"/>
+
         <!--database assistant extensions-->
         <assistantAdapter implementation="com.dbn.assistant.service.selectai.SelectAiAssistantAdapter"/>
         <assistantAdapter implementation="com.dbn.assistant.service.generic.GenericAssistantAdapter"/>

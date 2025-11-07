@@ -40,4 +40,8 @@ public class PrerequisiteTypes {
     // change notification prerequisites
     public static final PrerequisiteType EXECUTE_DBMS_CHANGE_NOTIFICATION = PrerequisiteType.get("EXECUTE_DBMS_CHANGE_NOTIFICATION");
     public static final PrerequisiteType CHANGE_NOTIFICATION = PrerequisiteType.get("CHANGE_NOTIFICATION");
+
+    // vector embedding prerequisites
+    public static final PrerequisiteType EXECUTE_DBMS_VECTOR_CHAIN = PrerequisiteType.get("EXECUTE_DBMS_VECTOR_CHAIN");
+    public static final PrerequisiteType DATABASE_VERSION_23_1 = PrerequisiteType.get("DATABASE_VERSION_23_1");
 }

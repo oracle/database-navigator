@@ -52,6 +52,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.Priority.MEDIUM;
+import static com.dbn.common.operation.DatabaseOperation.CREATE_VECTOR_EMBEDDINGS;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -103,7 +104,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
     }
 
     public void openVectorToolbox(ConnectionHandler connection) {
-        Dialogs.show(() -> new VectorAiDialog(connection));
+        CREATE_VECTOR_EMBEDDINGS.start(connection, () -> Dialogs.show(() -> new VectorAiDialog(connection)));
     }
 
     public ResultSet chunkTextContent(ConnectionHandler connection, ChunkConfig config, String text) throws SQLException {

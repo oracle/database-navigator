@@ -19,9 +19,12 @@ package com.dbn.assistant.profile;
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderId;
+import com.intellij.icons.AllIcons;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+
+import javax.swing.Icon;
 
 import static com.dbn.assistant.profile.AssistantTemperaturePreset.BALANCED;
 
@@ -69,5 +72,10 @@ public class PotentialAssistantProfile implements AssistantProfile{
     @Override
     public String getInstructions() {
         return "";
+    }
+
+    @Override
+    public Icon getIcon() {
+        return AllIcons.General.InlineAdd;
     }
 }

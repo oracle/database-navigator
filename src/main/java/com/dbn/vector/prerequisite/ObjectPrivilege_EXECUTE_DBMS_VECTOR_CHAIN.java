@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.dbn.prerequisite.model;
+package com.dbn.vector.prerequisite;
 
-/**
- * Generic classification of prerequisites
- */
-public enum PrerequisiteCategory {
-    GRANT,   // user access grant
-    CONFIG,  // environment configuration
-    FEATURE, // feature availability
-    VERSION, // minimum database version
-    ;
+import com.dbn.prerequisite.definition.impl.ObjectPrivilegePrerequisite;
+
+import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_VECTOR_CHAIN;
+
+public class ObjectPrivilege_EXECUTE_DBMS_VECTOR_CHAIN extends ObjectPrivilegePrerequisite {
+
+    public ObjectPrivilege_EXECUTE_DBMS_VECTOR_CHAIN() {
+        super(EXECUTE_DBMS_VECTOR_CHAIN, "EXECUTE", "CTXSYS", "DBMS_VECTOR_CHAIN");
+    }
 }
