@@ -2757,7 +2757,15 @@
                 OWNER = {#0} and
                 NAME = {#1} and
                 TYPE = {#2} and
-                ORIGIN_CON_ID = SYS_CONTEXT('USERENV', 'CON_ID')
+                ORIGIN_CON_ID = (
+                    select coalesce(
+                            max(decode(ORIGIN_CON_ID, SYS_CONTEXT('USERENV', 'CON_ID'), ORIGIN_CON_ID, null)),
+                            max(ORIGIN_CON_ID))
+                    from [PREFIX]_SOURCE
+                    where OWNER = {#0} and
+                          NAME = {#1} and
+                          TYPE = {#2}
+                )
             order by LINE asc
         </statement>
         <statement prefixes="DBA, ALL">
