@@ -55,10 +55,7 @@ public enum DatabaseFeature {
     VECTOR_EMBEDDING("Vector embedding"),
 
     // OJVM
-    JAVA_VIRTUAL_MACHINE("Embedded JVM"),
-    JAVA_COMPILER("Embedded JVM compiler"),
-    JAVA_EXECUTION("Embedded JVM execution"),
-    JAVA_DEBUGGING("Embedded JVM debugging"),
+    JAVA_VIRTUAL_MACHINE("Embedded java virtual machine"),
 
     @Deprecated // temporary disabled feature because of performance issues with empty schema evaluations
     EMPTY_SCHEMA_EVALUATION("Empty schema evaluation"),

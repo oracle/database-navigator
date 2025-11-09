@@ -17,6 +17,7 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.connection.ConnectionExceptionInfo;
 import com.dbn.connection.ConnectorProperties;
 import com.dbn.connection.DatabaseAttachmentHandler;
@@ -47,6 +48,8 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     boolean supportsFeature(DatabaseFeature feature);
 
     boolean supportsFeature(DatabaseFeature feature, DatabaseObjectTypeId objectTypeId);
+
+    boolean supportsOperation(DatabaseOperation operation);
 
     QuoteDefinition getIdentifierQuotes();
 
