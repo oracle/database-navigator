@@ -43,9 +43,6 @@ public class ConnectionLoadStatusBarWidget extends ProjectComponentBase implemen
 
     @Override
     public void dispose() {
-        if (isDisposed()) return;
-        setDisposed(true);
-
-        disposeInner();
+        super.dispose();
     }
 }
