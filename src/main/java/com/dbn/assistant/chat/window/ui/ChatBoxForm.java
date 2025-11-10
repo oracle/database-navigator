@@ -186,7 +186,7 @@ public class ChatBoxForm extends DBNFormBase {
 
     private void selectConnection(ConnectionId connectionId) {
         DatabaseAssistantManager assistantManager = getManager();
-        assistantManager.switchToConnection(connectionId);
+        assistantManager.switchContext(connectionId);
     }
 
     private boolean hasUserEngaged() {
@@ -593,7 +593,7 @@ public class ChatBoxForm extends DBNFormBase {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseAssistantManager assistantManager = getManager();
-            assistantManager.switchToAssistant(getConnectionId(), assistantType);
+            assistantManager.switchContext(getConnectionId(), assistantType);
         }
     }
 

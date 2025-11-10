@@ -54,6 +54,7 @@ public enum ClientProperty {
     VERTICAL_SCROLL_POLICY,
     VALIDATION_INFO,
     FIELD_ALIGNER_DATA,
+    FORM,
 
     // addons
     COLUMN_DRAG_SCROLL_ADDON,

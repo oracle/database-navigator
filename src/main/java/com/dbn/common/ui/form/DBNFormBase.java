@@ -61,6 +61,7 @@ import java.awt.event.ActionEvent;
 import java.util.Arrays;
 import java.util.Set;
 
+import static com.dbn.common.ui.form.DBNFormBinding.bindForm;
 import static com.dbn.common.ui.util.Accessibility.initComponentGroupsAccessibility;
 import static com.dbn.common.ui.util.Accessibility.initCustomComponentAccessibility;
 import static com.dbn.common.ui.util.UserInterface.findTopLeftmostFocusComponent;
@@ -164,6 +165,8 @@ public abstract class DBNFormBase
         initEventListeners();
 
         JComponent mainComponent = getMainComponent();
+        bindForm(mainComponent, this);
+
         DataProviders.register(mainComponent, this);
         UserInterface.updateScrollPanes(mainComponent);
         UserInterface.updateTitledBorders(mainComponent);

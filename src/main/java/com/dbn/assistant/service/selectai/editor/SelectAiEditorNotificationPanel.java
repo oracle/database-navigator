@@ -58,7 +58,7 @@ public class SelectAiEditorNotificationPanel extends EditorNotificationPanel {
         DatabaseAssistantManager assistantManager = getAssistantManager();
         AssistantState assistantState = assistantManager.getAssistantState(connectionId, SELECT_AI);
         assistantState.setAcknowledgement(FeatureAcknowledgement.NOTICED);
-        assistantManager.showToolWindow(connectionId);
+        assistantManager.showToolWindow(connectionId, SELECT_AI);
     }
 
     private void dismiss() {
