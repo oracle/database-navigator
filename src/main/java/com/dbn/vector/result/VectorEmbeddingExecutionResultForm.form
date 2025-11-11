@@ -151,93 +151,103 @@
           </grid>
         </children>
       </grid>
-      <splitpane id="133f0">
+      <grid id="61452" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="200" height="200"/>
-          </grid>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties>
-          <dividerLocation value="242"/>
-        </properties>
+        <properties/>
         <border type="none"/>
         <children>
-          <grid id="62c1c" binding="sourceDataPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+          <splitpane id="133f0">
             <constraints>
-              <splitpane position="right"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="200" height="200"/>
+              </grid>
             </constraints>
-            <properties/>
+            <properties>
+              <dividerLocation value="242"/>
+            </properties>
             <border type="none"/>
             <children>
-              <scrollpane id="ca46e" class="com.dbn.common.ui.misc.DBNScrollPane" binding="DBNScrollPane1" default-binding="true">
-                <constraints border-constraint="Center"/>
-                <properties/>
-                <border type="none"/>
-                <children>
-                  <grid id="72b2e" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints/>
-                    <properties/>
-                    <border type="none"/>
-                    <children>
-                      <grid id="7c4e5" binding="pipelinePanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                        <margin top="0" left="0" bottom="0" right="0"/>
-                        <constraints>
-                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties/>
-                        <border type="none"/>
-                        <children/>
-                      </grid>
-                      <vspacer id="9d367">
-                        <constraints>
-                          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                      </vspacer>
-                      <component id="3df12" class="javax.swing.JLabel">
-                        <constraints>
-                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text value="Embedding pipeline executed for: {fileName}"/>
-                        </properties>
-                      </component>
-                    </children>
-                  </grid>
-                </children>
-              </scrollpane>
-            </children>
-          </grid>
-          <grid id="fe802" binding="embeddingDetailsPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="0" left="0" bottom="0" right="0"/>
-            <constraints>
-              <splitpane position="left"/>
-            </constraints>
-            <properties/>
-            <border type="none">
-              <color system-color="scrollbar"/>
-            </border>
-            <children>
-              <scrollpane id="167f3" class="com.dbn.common.ui.misc.DBNScrollPane" binding="sourceDataScrollPane">
+              <grid id="62c1c" binding="sourceDataPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <splitpane position="right"/>
                 </constraints>
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="e2e37" class="javax.swing.JTable" binding="sourceDataTable">
-                    <constraints/>
-                    <properties>
-                      <fillsViewportHeight value="true"/>
-                      <rowHeight value="28"/>
-                    </properties>
-                  </component>
+                  <scrollpane id="ca46e" class="com.dbn.common.ui.misc.DBNScrollPane" binding="DBNScrollPane1" default-binding="true">
+                    <constraints border-constraint="Center"/>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <grid id="72b2e" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
+                        <constraints/>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <grid id="7c4e5" binding="pipelinePanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                            <margin top="0" left="0" bottom="0" right="0"/>
+                            <constraints>
+                              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                            <border type="none"/>
+                            <children/>
+                          </grid>
+                          <vspacer id="9d367">
+                            <constraints>
+                              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                          </vspacer>
+                          <component id="3df12" class="javax.swing.JLabel">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text value="Embedding pipeline executed for: {fileName}"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                    </children>
+                  </scrollpane>
                 </children>
-              </scrollpane>
+              </grid>
+              <grid id="fe802" binding="embeddingDetailsPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <splitpane position="left"/>
+                </constraints>
+                <properties/>
+                <border type="none">
+                  <color system-color="scrollbar"/>
+                </border>
+                <children>
+                  <scrollpane id="167f3" class="com.dbn.common.ui.misc.DBNScrollPane" binding="sourceDataScrollPane">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="e2e37" class="javax.swing.JTable" binding="sourceDataTable">
+                        <constraints/>
+                        <properties>
+                          <fillsViewportHeight value="true"/>
+                          <rowHeight value="28"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </scrollpane>
+                </children>
+              </grid>
             </children>
-          </grid>
+          </splitpane>
         </children>
-      </splitpane>
+      </grid>
     </children>
   </grid>
 </form>

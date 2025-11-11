@@ -27,6 +27,7 @@ public class PipelineStepForm extends DBNFormBase  {
 
   public PipelineStepForm(@Nullable VectorEmbeddingExecutionResultForm parent, StepResult stepResult) {
     super(parent);
+    System.out.println("jkhkhk");
     this.stepResult = stepResult;
     Color greyContent = Colors.faded(UIUtil.getLabelForeground());
     Font largerFont = Fonts.regular(1);
