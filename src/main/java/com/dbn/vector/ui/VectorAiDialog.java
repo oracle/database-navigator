@@ -8,7 +8,6 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import javax.swing.Action;
 
@@ -40,7 +39,8 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
             getCancelAction());
   }
 
-  private @NonNull Action getResetAction() {
+  @NotNull
+  private Action getResetAction() {
     return createAction("Reset", () -> getForm().reset());
   }
 

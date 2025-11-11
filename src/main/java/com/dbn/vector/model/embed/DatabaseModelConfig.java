@@ -5,7 +5,7 @@ import com.dbn.common.util.Json;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -23,7 +23,7 @@ public class DatabaseModelConfig implements PersistentStateElement {
     return Json.writeAsString(params);
   }
 
-  @NonNull
+  @NotNull
   public Map<String, ?> getConfigMap() {
       return Map.of(
               "provider","database",

@@ -34,7 +34,6 @@ import com.dbn.prerequisite.resolution.PrerequisiteResolver;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -83,7 +82,7 @@ public abstract class DatabaseVersionPrerequisite extends PrerequisiteDefinition
         };
     }
 
-    private @NonNull Boolean evaluateDatabaseVersion(DBNConnection c) throws SQLException {
+    private @NotNull Boolean evaluateDatabaseVersion(DBNConnection c) throws SQLException {
         DatabaseMetaData metaData = c.getMetaData();
         int databaseMajorVersion = metaData.getDatabaseMajorVersion();
         int databaseMinorVersion = metaData.getDatabaseMinorVersion();

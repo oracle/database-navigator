@@ -8,7 +8,7 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -41,7 +41,7 @@ public class ChunkConfig extends VectorEmbeddingConfig implements Cloneable<Chun
         return Json.writeAsString(getConfigMap());
     }
 
-    @NonNull
+    @NotNull
     public Map<String, ?> getConfigMap() {
         return Map.of(
                 "chunkBy", chunkBy,

@@ -20,6 +20,8 @@ import javax.swing.JSpinner;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.vector.model.chunk.ChunkConfigValidator.validateMaxSize;
+import static com.dbn.vector.model.chunk.ChunkConfigValidator.validateOverlap;
 
 public class ChunkConfigForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
@@ -55,6 +57,16 @@ public class ChunkConfigForm extends VectorToolboxFormBase implements DBNCollaps
     return (Integer) overlapSpinner.getValue();
   }
 
+  @Nullable
+  private String getChunkBy() {
+    return getSelection(chunkByComboBox);
+  }
+
+  @Nullable
+  private String getSplitBy() {
+    return getSelection(splitByComboBox);
+  }
+
   @Override
   protected void initFieldAlignment() {
     FieldAlignerData alignerData = getFieldAlignerData();
@@ -64,27 +76,8 @@ public class ChunkConfigForm extends VectorToolboxFormBase implements DBNCollaps
 
   @Override
   protected void initValidation() {
-    addValidation(maxSizeSpinner, n-> {
-              int max = (Integer) n.getValue();
-              int overlap = getOverlap();
-              String by = (String) chunkByComboBox.getSelectedItem();
-              switch (by) {
-                case "CHARACTERS":
-                  return max > 50 && max < 4000;
-                case "WORDS":
-                  return max > 10 && max < 1000;
-              }
-              return false;
-            }
-            ,"Please enter a valid max");
-
-
-    addValidation(overlapSpinner, o->{
-              int max = getMaxSize();
-              int overlap = (Integer) o.getValue();
-              return overlap == 0 || (overlap>max*5/100 && overlap<max*20/100);
-            }
-            ,"Please enter a valid overlap: 5% to 20% of MAX");
+    addValidation(maxSizeSpinner, n -> validateMaxSize(getChunkBy(), getMaxSize()));
+    addValidation(overlapSpinner, o-> validateOverlap(getMaxSize(), getOverlap()));
   }
 
   @Override
@@ -107,10 +100,10 @@ public class ChunkConfigForm extends VectorToolboxFormBase implements DBNCollaps
   }
 
   private void applyFormChanges(ChunkConfig config) {
-    config.setChunkBy(getSelection(chunkByComboBox));
-    config.setSplitBy(getSelection(splitByComboBox));
-    config.setMaxSize((Integer) maxSizeSpinner.getValue());
-    config.setOverlap((Integer) overlapSpinner.getValue());
+    config.setChunkBy(getChunkBy());
+    config.setSplitBy(getSplitBy());
+    config.setMaxSize(getMaxSize());
+    config.setOverlap(getOverlap());
   }
 
   public ChunkConfig getConfig() {
@@ -129,6 +122,6 @@ public class ChunkConfigForm extends VectorToolboxFormBase implements DBNCollaps
 
   @Override
   public String getFormTitleDetail() {
-    return getSelection(chunkByComboBox) + " / " + getSelection(splitByComboBox) + " / " + maxSizeSpinner.getValue() + " / " + overlapSpinner.getValue();
+    return getChunkBy() + " / " + getSplitBy() + " / " + maxSizeSpinner.getValue() + " / " + overlapSpinner.getValue();
   }
 }

@@ -18,7 +18,14 @@ import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.object.event.ObjectChangeEvent;
-import com.dbn.vector.model.*;
+import com.dbn.vector.model.FileResult;
+import com.dbn.vector.model.PipelineStep;
+import com.dbn.vector.model.SourceResult;
+import com.dbn.vector.model.SourceStatus;
+import com.dbn.vector.model.StepResult;
+import com.dbn.vector.model.TableResult;
+import com.dbn.vector.model.VectorEmbeddingRequest;
+import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.chunk.ChunkConfig;
 import com.dbn.vector.model.embed.EmbedConfig;
 import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
@@ -38,14 +45,19 @@ import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.CRC32;
 
@@ -94,7 +106,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
     }
     // so we have one request per connectionId
   //
-    @NonNull
+    @NotNull
     private static VectorEmbeddingRequest createEmbeddingRequest(ConnectionId connectionId) {
         VectorEmbeddingRequest embeddingRequest = new VectorEmbeddingRequest();
         ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
