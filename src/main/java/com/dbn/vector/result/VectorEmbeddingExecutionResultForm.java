@@ -5,11 +5,9 @@ import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.vector.model.SourceResult;
 import com.dbn.vector.model.SourceStatus;
 import com.dbn.vector.model.VectorEmbeddingResult;
-import com.dbn.vector.ui.VectorEmbeddingResultForm;
 import com.intellij.icons.AllIcons;
 
 import com.dbn.vector.model.StepResult;
-import com.dbn.vector.model.sourceconfig.SourceType;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
@@ -21,6 +19,8 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.util.List;
+
+import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 
 public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<VectorEmbeddingExecutionResult> {
   private final VectorEmbeddingResult result;
@@ -41,14 +41,16 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
   private JLabel filesValue;
   private JLabel successRateLabel;
   private JLabel successRateValue;
-  private JPanel pipelineContainer;
   private JPanel pipelinePanel;
   private JTable sourceDataTable;
+  private DBNScrollPane DBNScrollPane1;
 
   public VectorEmbeddingExecutionResultForm(@NotNull VectorEmbeddingExecutionResult executionResult) {
     super(executionResult);
     this.result = getExecutionResult().getVectorEmbeddingResult();
+    verticalBoxLayout(pipelinePanel);
     initializeComponents();
+
   }
 
   private void initializeComponents() {
@@ -139,28 +141,28 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     pipelinePanel.removeAll();
 
     List<StepResult> steps = sr.getSteps();
-    if (steps != null) {
+//    if (steps != null) {
       buildPipelineSteps(steps);
-    } else {
-      // Fallback: show textual summary if steps are missing
-      JPanel content = new JPanel(new BorderLayout());
-      JTextArea ta = new JTextArea();
-      ta.setEditable(false);
-      ta.setLineWrap(true);
-      ta.setWrapStyleWord(true);
-
-      StringBuilder sb = new StringBuilder();
-      sb.append("Source: ").append(sr.getDisplayName()).append("\n");
-      sb.append("Status: ").append(sr.getStatus()).append("\n");
-      sb.append("Rows: ").append(sr.getRowsInserted()).append("\n\n");
-
-      sb.append("Details:\n");
-      sb.append(sr.toString());
-
-      ta.setText(sb.toString());
-      content.add(new JScrollPane(ta), BorderLayout.CENTER);
-      pipelinePanel.add(content);
-    }
+//    } else {
+//      // Fallback: show textual summary if steps are missing
+//      JPanel content = new JPanel(new BorderLayout());
+//      JTextArea ta = new JTextArea();
+//      ta.setEditable(false);
+//      ta.setLineWrap(true);
+//      ta.setWrapStyleWord(true);
+//
+//      StringBuilder sb = new StringBuilder();
+//      sb.append("Source: ").append(sr.getDisplayName()).append("\n");
+//      sb.append("Status: ").append(sr.getStatus()).append("\n");
+//      sb.append("Rows: ").append(sr.getRowsInserted()).append("\n\n");
+//
+//      sb.append("Details:\n");
+//      sb.append(sr.toString());
+//
+//      ta.setText(sb.toString());
+//      content.add(new JScrollPane(ta), BorderLayout.CENTER);
+//      pipelinePanel.add(content);
+//    }
 
     pipelinePanel.revalidate();
     pipelinePanel.repaint();
@@ -169,7 +171,9 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
   private void buildPipelineSteps(List<StepResult> steps) {
     pipelinePanel.removeAll();
     steps.forEach(step -> {
-      addPipelineStep(step.getStep().getDisplayName(), null, step.getStatus());
+//      addPipelineStep(step.getStep().getDisplayName(), null, step.getStatus());
+
+      pipelinePanel.add(new PipelineStepForm(this,step).getComponent());
     });
 
     pipelinePanel.revalidate();
