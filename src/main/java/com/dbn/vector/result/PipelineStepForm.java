@@ -7,13 +7,17 @@ import com.dbn.common.ui.text.HiddenCaret;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.vector.model.StepResult;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.Disposable;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
+import java.awt.Color;
+import java.awt.Font;
 
 public class PipelineStepForm extends DBNFormBase  {
   private JPanel mainPanel;
@@ -46,6 +50,7 @@ public class PipelineStepForm extends DBNFormBase  {
       reasonTextArea.setForeground(greyContent);
       reasonTextArea.setCaret(new HiddenCaret());
     }
+    reasonTextArea.setVisible(!stepResult.isOk());
     updateStepStatus();
 
 
