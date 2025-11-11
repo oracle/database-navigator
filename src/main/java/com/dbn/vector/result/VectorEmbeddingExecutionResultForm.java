@@ -4,20 +4,29 @@ import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.vector.model.SourceResult;
 import com.dbn.vector.model.SourceStatus;
+import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.intellij.icons.AllIcons;
-
-import com.dbn.vector.model.StepResult;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
-
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.util.List;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
@@ -50,7 +59,6 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     this.result = getExecutionResult().getVectorEmbeddingResult();
     verticalBoxLayout(pipelinePanel);
     initializeComponents();
-
   }
 
   private void initializeComponents() {

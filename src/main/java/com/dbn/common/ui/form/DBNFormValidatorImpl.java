@@ -21,6 +21,7 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.list.CheckBoxList;
 import com.dbn.common.ui.table.Tables;
 import com.dbn.common.ui.util.Lists;
+import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
+import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 import java.awt.Component;
@@ -140,6 +142,9 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
             JComboBox comboBox = (JComboBox) component;
             addValidationListeners(comboBox);
 
+        } else if (component instanceof JSpinner) {
+            JSpinner spinner = (JSpinner) component;
+            addValidationListeners(spinner);
         }
         // ...
     }
@@ -166,6 +171,11 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         addListener(checkBoxList, l -> l.addActionListener(e -> validateInput(l)));
     }
 
+    private void addValidationListeners(JSpinner spinner) {
+        // add item listener to perform validation on selection change
+        addListener(spinner, c -> onTextChange(c, e -> validateInput(c)));
+    }
+
     private <T extends JComponent> void addListener(T component, Consumer<T> listener) {
         if (HAS_VALIDATION_LISTENERS.is(component)) return;
         HAS_VALIDATION_LISTENERS.set(component, true);
@@ -178,7 +188,14 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
     }
 
     private void addFocusValidationListeners(JComponent component) {
-        component.addFocusListener(new FocusAdapter() {
+        JComponent focusComponent = component;
+        if (component instanceof JSpinner) {
+            JSpinner spinner = (JSpinner) component;
+            focusComponent = TextFields.getTextField(spinner);
+            if (focusComponent == null) focusComponent = spinner;
+        }
+
+        focusComponent.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
                 // ignore temporary focus loss events (e.g. JCheckBox losing focus in favor of the popup)
