@@ -49,7 +49,7 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
     VectorAIForm form = getForm();
     form.applyFormChanges();
     VectorEmbeddingRequest request = form.getEmbeddingRequest();
-
+    super.doOKAction();
     Runnable callbackInfo = () -> {
       request.resetSoft(); // softly reset the request after successful execution
       form.resetFormChanges();

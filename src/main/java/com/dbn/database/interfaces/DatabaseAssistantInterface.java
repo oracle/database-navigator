@@ -22,7 +22,6 @@ import com.dbn.object.factory.ModelFactoryInput;
 import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 
-import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -116,11 +115,13 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
 
   void createEmbeddingTable(DBNConnection connection, String ownerName, String tableName, String keyColumnName, String textColumnName, String embeddingColumnName, String metadataColumnName) throws SQLException;
 
-  void embedFileContent(DBNConnection conn, String blobId, String blobTable, String chunkConfig, String embedConfig, StoreConfig storeConfig, String metadata) throws SQLException;
+  void embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig,Blob blobData,String metadata) throws SQLException;
 
   void ensureDocumentsTable(DBNConnection conn, String filesTable) throws SQLException;
 
-  void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata) throws SQLException;
+  void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata, long crcFile) throws SQLException;
 
-  void streamContentToBlob(DBNConnection conn, String filesTable, String id, InputStream in) throws SQLException;
+  ResultSet selectEmptyBlob(DBNConnection conn, String filesTable, String id) throws SQLException;
+
+  boolean fileAlreadyUploadedByCRC(DBNConnection conn,String filesTable ,long crcFile) throws SQLException;
 }

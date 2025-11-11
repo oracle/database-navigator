@@ -106,7 +106,7 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public void embedFileContent(DBNConnection conn, String  blobId, String blobTable, String chunkConfig, String embedConfig, StoreConfig storeConfig, String metadata) throws SQLException {
+  public void embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, Blob blobData, String metadata) throws SQLException {
       executeUpdate(conn,
               "insert-vector-embeddings-from-filesystem",
               storeConfig.getSchemaName(),
@@ -114,8 +114,7 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
               storeConfig.getTextColumnName(),
               storeConfig.getEmbeddingColumnName(),
               storeConfig.getMetadataColumnName(),
-              blobTable,
-              blobId,
+              blobData,
               chunkConfig,
               embedConfig,
               metadata);
@@ -127,13 +126,17 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata) throws SQLException {
-    executeUpdate(conn,"insert-empty-document-row", filesTable, id, fileMetadata);
+  public void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata, long crcFile) throws SQLException {
+    executeUpdate(conn,"insert-empty-document-row", filesTable, id, fileMetadata, crcFile);
+  }
+
+  public ResultSet selectEmptyBlob(DBNConnection conn, String filesTable, String id) throws SQLException {
+    return executeQuery(conn,"select-empty-blob-file",filesTable,id);
   }
 
   @Override
-  public void streamContentToBlob(DBNConnection conn, String filesTable, String id, InputStream in) throws SQLException {
-    executeUpdate(conn,"stream-file-content-to-blob",filesTable,in,id);
+  public boolean fileAlreadyUploadedByCRC(DBNConnection conn,String filesTable ,long crcFile) throws SQLException {
+    return getBooleanValue(conn,"check-file-exists",filesTable,crcFile);
   }
 
   @Override

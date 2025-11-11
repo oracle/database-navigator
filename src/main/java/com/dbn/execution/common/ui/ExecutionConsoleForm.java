@@ -57,6 +57,7 @@ import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.execution.statement.result.StatementExecutionResult;
 import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.vector.result.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
@@ -332,7 +333,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
     public void addResult(MethodExecutionResult executionResult) {
         showResultTab(executionResult);
     }
-
+    //todo add one foe vector embeddings
     public void addResult(JavaExecutionResult executionResult) {
         showResultTab(executionResult);
     }
@@ -351,6 +352,13 @@ public class ExecutionConsoleForm extends DBNFormBase {
             return isValid(executionResultForm) ? executionResultForm.getExecutionResult() : null;
         }
         return null;
+    }
+
+    /*********************************************************
+     *                       Vector Embeddings               *
+     *********************************************************/
+    public void addResult(VectorEmbeddingExecutionResult executionResult) {
+        showResultTab( executionResult);
     }
 
     /*********************************************************

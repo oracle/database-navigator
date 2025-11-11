@@ -293,8 +293,10 @@
                     CREATE TABLE IF NOT EXISTS {0} (
                         id       varchar(50) not null,
                         b_lob    blob ,
-                        metadata JSON
-                    ) LOB(b_lob) STORE AS SECUREFILE (NOCACHE FILESYSTEM_LIKE_LOGGING)
+                        metadata JSON ,
+                        file_hash NUMBER
+
+            ) LOB(b_lob) STORE AS SECUREFILE (NOCACHE FILESYSTEM_LIKE_LOGGING)
                 ';
             END;
         </statement>
@@ -302,8 +304,26 @@
     <statement-execution-processor id="insert-empty-document-row">
         <statement>
             INSERT INTO {0}
-            (id, b_lob, metadata)
-            VALUES ({#1}, EMPTY_BLOB(), {#2})
+            (id, b_lob, metadata,file_hash)
+            VALUES ({#1}, EMPTY_BLOB(), {#2},{#3})
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="select-empty-blob-file">
+        <statement>
+            SELECT b_lob FROM {0} WHERE id = {#1} FOR UPDATE;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="check-file-exists">
+        <statement>
+            select
+                case
+                    when exists (select 1 from {0} where file_hash = {#1})
+                    then 'Y'
+                    else 'N'
+                end as value
+            from DUAL
         </statement>
     </statement-execution-processor>
 
@@ -335,10 +355,6 @@
     </statement-execution-processor>
         <statement-execution-processor id="insert-vector-embeddings-from-filesystem" timeout="120000">
         <statement>
-            DECLARE
-                v_doc BLOB;
-            BEGIN
-                SELECT b_lob INTO v_doc FROM {5} WHERE id = {#6};
 
                 INSERT INTO {0}.{1} (id, {2}, {3}, {4})
                     SELECT
@@ -346,7 +362,7 @@
                         jt.embed_data,
                         TO_VECTOR(jt.embed_vector),
                         JSON_MERGEPATCH(
-                            {#9},
+                            {#8},
                             JSON_OBJECT(
                                 KEY 'chunk_id'
                                 VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50))
@@ -355,10 +371,10 @@
                     FROM TABLE(
                         DBMS_VECTOR_CHAIN.UTL_TO_EMBEDDINGS(
                             DBMS_VECTOR_CHAIN.UTL_TO_CHUNKS(
-                                DBMS_VECTOR_CHAIN.UTL_TO_TEXT(v_doc, json(json_object('plaintext' VALUE true))),
-                                json({#7})
+                                DBMS_VECTOR_CHAIN.UTL_TO_TEXT({#5}, json(json_object('plaintext' VALUE true))),
+                                json({#6})
                             ),
-                            json({#8})
+                            json({#7})
                         )
                     ) t,
                     JSON_TABLE(
@@ -368,7 +384,6 @@
                                 embed_vector CLOB PATH '$.embed_vector'
                             )
                     ) jt;
-            END;
         </statement>
     </statement-execution-processor>
 
