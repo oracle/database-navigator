@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.function.Function;
 
@@ -57,6 +58,10 @@ public class ChatMessageTextSectionForm extends ChatMessageSectionForm {
     public void setContent(TextContent content) {
         this.content = content;
         applyContent();
+    }
+
+    public void setForeground(Color foreground) {
+        messageTextPane.setForeground(foreground);
     }
 
     private void applyContent() {
