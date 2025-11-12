@@ -399,10 +399,7 @@
         <group id="DBNavigator.ActionGroup.GenericAssistantContextActions" text="Assistant Chat-Box Profiles">
             <action class="com.dbn.assistant.service.generic.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectAssistantProfile"/>
             <action class="com.dbn.assistant.service.generic.action.ModelSelectDropdownAction" text="Select Model" id="DBNavigator.Actions.Assistant.SelectAssistantModel"/>
-            <group id="DBNavigator.Actions.Assistant.OpenSettings" text="Options" icon="AllIcons.General.GearPlain" popup="true">
-                <action class="com.dbn.assistant.service.generic.action.AssistantSettingsAction" text="Assistant Settings..." id="DBNavigator.Actions.Assistant.Settings"/>
-                <action class="com.dbn.assistant.service.generic.action.ToolSettingsAction" text="Tool Settings..." id="DBNavigator.Actions.Assistant.ToolSettings"/>
-            </group>
+            <action class="com.dbn.assistant.service.generic.action.AssistantSettingsAction" text="Assistant Settings..." icon="AllIcons.General.GearPlain" id="DBNavigator.Actions.Assistant.Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantChatActions" text="Assistant Chat Actions">
             <action class="com.dbn.assistant.chat.window.action.ChatExpandAllAction" text="Expand All" id="DBNavigator.Actions.Assistant.ExpandAll" icon="AllIcons.Actions.Expandall"/>
@@ -421,6 +418,9 @@
             <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$ExplainSQL" id="DBNavigator.Actions.Assistant.TypeExplain"/>
             <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Narrate" id="DBNavigator.Actions.Assistant.TypeNarrate"/>
             <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Chat" id="DBNavigator.Actions.Assistant.TypeChat"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.AssistantPromptActions" text="Assistant Prompt Actions">
+            <action class="com.dbn.assistant.service.generic.action.ToolSelectionAction" id="DBNavigator.Actions.Assistant.ToolSelection" text="Tools"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantPromptSubmitActions" text="Assistant Chat-Box Prompt">
             <action class="com.dbn.assistant.chat.window.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Assistant.SubmitPrompt" icon="AllIcons.Actions.Execute">

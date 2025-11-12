@@ -25,11 +25,14 @@ import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class ToolSettingsAction extends AbstractChatBoxAction {
+@Setter
+public class ToolApprovalsAction extends AbstractChatBoxAction {
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);

@@ -52,6 +52,14 @@ public class AssistantToolApprovals implements PersistentStateElement {
         return false;
     }
 
+    public int countBlockedTools(List<AssistantToolType> types) {
+        int count = 0;
+        for (AssistantToolType type : types) {
+            if (isBlocked(type)) count++;
+        }
+        return count;
+    }
+
     private void updateSignature() {
         signature.incrementAndGet();
     }
