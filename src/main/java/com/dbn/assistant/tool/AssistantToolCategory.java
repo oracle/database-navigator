@@ -22,13 +22,13 @@ import org.jetbrains.annotations.NonNls;
 @NonNls
 @Getter
 public enum AssistantToolCategory {
-    USER_INTERACTION("User interaction", "Interactive decision hooks and action confirmation interfaces"),
-    CONFIG_INFO_PROVIDER("Config information provider", "Information about the database configuration (connection information, authentication type, etc.)"),
-    METADATA_PROVIDER("Metadata provider", "Information about the database (schemas, tables, columns, programs, etc.)"),
-    SOURCE_CODE_PROVIDER("Source-code provider", "Source code for database objects (views, functions, procedures, etc.)"),
-    DATA_PROVIDER("Data provider", "Data contents, such as records, rows, or query results."),
-    ACTION_INVOKER("Action invoker", "Operations or tasks, such as running queries, applying updates, or triggering external actions."),
-    IDE_ACTION_INVOKER("IDE action invoker", "IDE operations, such as opening database program editors, opening table editors, etc."),
+    USER_INTERACTION("User interaction", "Interactive tools for quick user input"),
+    CONFIG_INFO_PROVIDER("Config information provider", "Database configuration details"),
+    METADATA_PROVIDER("Metadata provider", "Database structure insights"),
+    SOURCE_CODE_PROVIDER("Source-code provider", "Source code for database objects"),
+    DATA_PROVIDER("Data provider", "Actual data records and query results"),
+    ACTION_INVOKER("Action invoker", "Database operations and external action invocations"),
+    IDE_ACTION_INVOKER("IDE action invoker", "IDE action invocations, such as opening database object editors, executing queries, etc."),
     ;
 
     private final String description;

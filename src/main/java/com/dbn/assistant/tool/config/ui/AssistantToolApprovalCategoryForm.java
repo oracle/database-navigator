@@ -39,9 +39,12 @@ import javax.swing.JTextPane;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.assistant.tool.AssistantToolCategory.USER_INTERACTION;
 import static com.dbn.assistant.tool.AssistantToolData.getToolTypes;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
+import static com.dbn.common.constant.Constant.array;
 import static com.dbn.common.ui.misc.DBNToggleButton.getDefaultForeground;
 import static com.dbn.common.ui.misc.DBNToggleButton.getErrorForeground;
 import static com.dbn.common.ui.misc.DBNToggleButton.getSuccessForeground;
@@ -78,8 +81,11 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
                 default: return null;
             }
         });
+        AssistantToolApprovalStatus[] approvalStatuses = category == USER_INTERACTION ?
+                array(PROMPTED, BLOCKED) : // interactive tools are always prompted; cannot be pre-approved
+                AssistantToolApprovalStatus.values();
 
-        statusToggle.setValues(AssistantToolApprovalStatus.values());
+        statusToggle.setValues(approvalStatuses);
         statusToggle.setSelectedValue(getApprovalStatus());
         statusToggle.addListener((os, ns) -> setApprovalStatus(ns));
     }
@@ -135,7 +141,6 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
 
     public void refreshState() {
         AssistantToolApprovalStatus categoryStatus = getApprovalStatus();
-        getToolApprovals().setStatus(category, categoryStatus);
         statusToggle.setSelectedValue(categoryStatus);
 
         boolean enabled = categoryStatus.isOneOf(PROMPTED, APPROVED);
@@ -151,5 +156,10 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
         for (AssistantToolApprovalTypeForm toolTypeForm : toolTypeForms.values()) {
             toolTypeForm.refreshState();
         }
+    }
+
+    public void resetState() {
+        AssistantToolApprovalStatus categoryStatus = getApprovalStatus();
+        statusToggle.setSelectedValueSilently(categoryStatus);
     }
 }

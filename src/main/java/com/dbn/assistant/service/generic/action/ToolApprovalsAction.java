@@ -22,6 +22,7 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.assistant.tool.config.ui.AssistantToolApprovalDialog;
 import com.dbn.common.util.Dialogs;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -49,5 +50,6 @@ public class ToolApprovalsAction extends AbstractChatBoxAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.assistant.action.ToolSettings"));
+        presentation.setIcon(AllIcons.General.GearPlain);
     }
 }

@@ -134,4 +134,9 @@ public class AssistantToolData {
         AssistantToolFactory factory = typeMappings.get(toolType);
         return factory.getToolCategory();
     }
+
+    public static boolean isInteractive(AssistantToolType toolType) {
+        AssistantToolFactory factory = typeMappings.get(toolType);
+        return factory.isInteractive();
+    }
 }

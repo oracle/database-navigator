@@ -130,6 +130,12 @@ public class DBNToggleButton<T extends Presentable> extends JLabel {
         updateComponent();
     }
 
+    public void setSelectedValueSilently(T value) {
+        if (selectedValue == value) return;
+        selectedValue = value;
+        updateComponent();
+    }
+
     private void updateComponent() {
         setBorder(createBorder());
         setForeground(getTextColor());
