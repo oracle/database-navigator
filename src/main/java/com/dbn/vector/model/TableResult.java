@@ -46,4 +46,9 @@ public class TableResult extends SourceResult {
   public String getSize() {
     return ""; // TODO display "x rows" (select count(1) from table)
   }
+
+  @Override
+  public String getIdentifier() {
+    return table.getQualifiedName();
+  }
 }

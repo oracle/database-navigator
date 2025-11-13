@@ -28,6 +28,7 @@ import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.chunk.ChunkConfig;
 import com.dbn.vector.model.embed.EmbedConfig;
+import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
 import com.dbn.vector.model.sourceconfig.SourceConfig;
 import com.dbn.vector.model.sourceconfig.SourceType;
@@ -108,7 +109,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
   //
     @NotNull
     private static VectorEmbeddingRequest createEmbeddingRequest(ConnectionId connectionId) {
-        VectorEmbeddingRequest embeddingRequest = new VectorEmbeddingRequest();
+        VectorEmbeddingRequest embeddingRequest = new VectorEmbeddingRequest(connectionId);
         ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
         embeddingRequest.initialize(connection.getUserSchema());
         return embeddingRequest;
@@ -166,16 +167,18 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
   private void createEmbeddings(VectorEmbeddingRequest request,ConnectionHandler handler, Runnable callbackInfo, Consumer<Exception> callbackError, ProgressIndicator p, DBNConnection conn, StoreConfig storeConfig, ConnectionId connectionId, SourceConfig sourceConfig, ChunkConfig chunkConfig, EmbedConfig embedConfig) throws SQLException {
 
     DatabaseAssistantInterface dataDefinition = handler.getAssistantInterface();
-    VectorEmbeddingResult result = new VectorEmbeddingResult(conn.getConnectionHandler());
+    VectorEmbeddingResult result = new VectorEmbeddingResult(request);
 //    request.setResult(result);
     result.setSourceType(sourceConfig.getSourceType());
 
     SourceResult src = null;
     if (SourceType.DATABASE_TABLE.equals( sourceConfig.getSourceType())){
-      src = new TableResult(
+        DBTableSourceConfig tableSource = sourceConfig.getTableSourceConfig();
+        src = new TableResult(
               handler.getConnectionId(),
-              storeConfig.getSchemaName(),
-              storeConfig.getTableName());
+              tableSource.getSchemaName(),
+              tableSource.getTableName());
+        result.addSourceResult(src);
     }else if(SourceType.FILE_SYSTEM.equals(sourceConfig.getSourceType())){
       src = new FileResult();
     }
@@ -236,7 +239,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
         SourceResult sourceResult = null;
         sourceResult = createSourceResultFilledWithsuccededSteps(ensureDestStep,ensureDocumentStep);
         prepareAndEmbedFile(result, (FileResult) sourceResult,callbackError, p, conn, files, i, dataDefinition, embedConfigJson, chunkConfigJson, storeConfig);
-        result.getSourceResults().add(sourceResult);
+        result.addSourceResult(sourceResult);
       }
 
     }
@@ -435,7 +438,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
         List<Element> requestElements = childrenOf(requestsElement, "embedding-request");
         for (Element requestElement : requestElements) {
             ConnectionId connectionId = constantAttribute(requestElement, "connection-id", ConnectionId.class);
-            VectorEmbeddingRequest embeddingRequest = new VectorEmbeddingRequest();
+            VectorEmbeddingRequest embeddingRequest = new VectorEmbeddingRequest(connectionId);
             embeddingRequests.put(connectionId, embeddingRequest);
             embeddingRequest.readState(requestElement);
         }

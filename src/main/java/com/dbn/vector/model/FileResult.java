@@ -14,16 +14,18 @@ import javax.swing.Icon;
 @Getter
 @Setter
 public class FileResult extends SourceResult{
-  private VirtualFile file;
-  private String size;
+  private VirtualFile file; // todo make final
+  private String size;      // todo make final
   private String docId;
   private boolean isExisted = false;
 
+  @Deprecated // TODO initialize file result with the file using below constructor
   public FileResult() {
     super(SourceType.FILE_SYSTEM);
   }
 
-  public void setFile(VirtualFile file) {
+  public FileResult(VirtualFile file) {
+    super(SourceType.FILE_SYSTEM);
     this.file = file;
     this.size = VirtualFiles.getPresentableFileSize(file);
   }
@@ -38,5 +40,10 @@ public class FileResult extends SourceResult{
   @Override
   public Icon getIcon() {
     return file.getFileType().getIcon();
+  }
+
+  @Override
+  public String getIdentifier() {
+    return file.getPath();
   }
 }

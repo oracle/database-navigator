@@ -19,6 +19,7 @@ public abstract class SourceResult implements Presentable {
  }
 
  public abstract String getSize();
+ public abstract String getIdentifier();
 
  public StepResult startStep(PipelineStep step) {
    StepResult sr = new StepResult(step);

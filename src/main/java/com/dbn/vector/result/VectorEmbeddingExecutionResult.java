@@ -10,7 +10,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 @Getter
 public class VectorEmbeddingExecutionResult extends ExecutionResultBase<VectorEmbeddingExecutionResultForm> {
   VectorEmbeddingResult vectorEmbeddingResult;
@@ -37,17 +37,17 @@ public class VectorEmbeddingExecutionResult extends ExecutionResultBase<VectorEm
 
   @Override
   public @NotNull Project getProject() {
-    return vectorEmbeddingResult.getConnectionHandler().getProject();
+    return getConnection().getProject();
   }
 
   @Override
   public ConnectionId getConnectionId() {
-    return vectorEmbeddingResult.getConnectionHandler().getConnectionId();
+    return getConnection().getConnectionId();
   }
 
   @Override
   public @NotNull ConnectionHandler getConnection() {
-    return vectorEmbeddingResult.getConnectionHandler();
+    return vectorEmbeddingResult.getConnection();
   }
 
   @Override

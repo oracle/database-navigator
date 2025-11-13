@@ -17,6 +17,8 @@
 package com.dbn.vector.model;
 
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.vector.model.chunk.ChunkConfig;
 import com.dbn.vector.model.embed.EmbedConfig;
@@ -26,16 +28,28 @@ import com.dbn.vector.model.store.StoreConfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 
 @Getter
 @Setter
 public class VectorEmbeddingRequest implements PersistentStateElement {
+    private final ConnectionId connectionId;
+
     private SourceConfig sourceConfig = new SourceConfig();
     private ChunkConfig chunkConfig = new ChunkConfig();
     private EmbedConfig embedConfig = new EmbedConfig();
     private StoreConfig storeConfig = new StoreConfig();
+
+    public VectorEmbeddingRequest(ConnectionId connectionId) {
+        this.connectionId = connectionId;
+    }
+
+    @NotNull
+    public final ConnectionHandler getConnection() {
+        return ConnectionHandler.ensure(connectionId);
+    }
 
     public void initialize(SchemaId userSchema) {
         if (userSchema == null) return;
