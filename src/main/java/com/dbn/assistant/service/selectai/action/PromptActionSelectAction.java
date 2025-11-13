@@ -47,7 +47,7 @@ public class PromptActionSelectAction extends ToggleAction implements AssistantA
         this.action = action;
         getTemplatePresentation().setIcon(null);
 
-        // TODO only supported in 2024.x or higer
+        // TODO only supported in 2024.x or higher
         //getTemplatePresentation().putClientProperty(SHOW_TEXT_IN_TOOLBAR, true);
     }
 

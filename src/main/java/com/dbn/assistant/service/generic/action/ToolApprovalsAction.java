@@ -22,14 +22,18 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.assistant.tool.config.ui.AssistantToolApprovalDialog;
 import com.dbn.common.util.Dialogs;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class ToolSettingsAction extends AbstractChatBoxAction {
+@Setter
+public class ToolApprovalsAction extends AbstractChatBoxAction {
+
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
@@ -46,5 +50,6 @@ public class ToolSettingsAction extends AbstractChatBoxAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.assistant.action.ToolSettings"));
+        presentation.setIcon(AllIcons.General.GearPlain);
     }
 }

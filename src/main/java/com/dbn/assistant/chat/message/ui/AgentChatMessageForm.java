@@ -22,6 +22,7 @@ import com.dbn.assistant.chat.message.ChatMessageSectionType;
 import com.dbn.assistant.chat.message.ChatMessageToolSection;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.util.Commons;
@@ -208,6 +209,11 @@ public class AgentChatMessageForm extends ChatMessageForm {
     @Override
     public void hideProcessingIndicators() {
         sectionForms.forEach(f -> f.hideProcessingIndicator());
+    }
+
+    @Override
+    protected Color getForeground() {
+        return Colors.getLabelForeground();
     }
 
     @Override

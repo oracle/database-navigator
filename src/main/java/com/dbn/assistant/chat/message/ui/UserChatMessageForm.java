@@ -21,6 +21,7 @@ import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.AskAgainAction;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
 import com.dbn.assistant.chat.message.action.ToggleFoldingAction;
+import com.dbn.common.color.Colors;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -113,6 +114,11 @@ public class UserChatMessageForm extends ChatMessageForm {
     @Override
     protected JPanel getContentPanel() {
         return contentPanel;
+    }
+
+    @Override
+    protected Color getForeground() {
+        return Colors.getLabelForeground();
     }
 
     @Override

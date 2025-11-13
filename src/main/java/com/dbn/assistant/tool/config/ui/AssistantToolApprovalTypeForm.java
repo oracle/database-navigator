@@ -18,6 +18,7 @@ package com.dbn.assistant.tool.config.ui;
 
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCache;
+import com.dbn.assistant.tool.AssistantToolData;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.common.color.Colors;
@@ -31,7 +32,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
+import static com.dbn.common.constant.Constant.array;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.misc.DBNToggleButton.getDefaultForeground;
 import static com.dbn.common.ui.misc.DBNToggleButton.getErrorForeground;
@@ -67,7 +70,10 @@ public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm
             }
         });
 
-        statusToggle.setValues(AssistantToolApprovalStatus.values());
+        AssistantToolApprovalStatus[] approvalStatuses = AssistantToolData.isInteractive(type) ?
+                array(PROMPTED, BLOCKED) : // interactive tools are always prompted; cannot be pre-approved
+                AssistantToolApprovalStatus.values();
+        statusToggle.setValues(approvalStatuses);
         statusToggle.setSelectedValue(getApprovalStatus());
         statusToggle.addListener((os, ns) -> setApprovalStatus(ns));
     }
@@ -114,6 +120,8 @@ public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm
     public void setApprovalStatus(AssistantToolApprovalStatus status) {
         getToolApprovals().setStatus(type, status);
         refreshState();
+        AssistantToolApprovalCategoryForm toolCategoryForm = getCategoryForm();
+        toolCategoryForm.resetState();
     }
 
     public void refreshState() {
