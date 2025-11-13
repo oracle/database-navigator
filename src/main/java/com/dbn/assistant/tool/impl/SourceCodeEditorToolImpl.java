@@ -27,7 +27,20 @@ import com.dbn.object.DBType;
 import com.dbn.object.DBView;
 import com.dbn.object.type.DBObjectType;
 
+import java.sql.SQLException;
+
 public class SourceCodeEditorToolImpl extends AssistantToolBase implements SourceCodeEditorTool {
+
+    @Override
+    public void openProgramCodeEditor(String schemaName, String programName, String programType) throws SQLException {
+        switch (programType.toUpperCase()) {
+            case "FUNCTION": openFunctionCodeEditor(schemaName, programName); return;
+            case "PROCEDURE": openProcedureCodeEditor(schemaName, programName); return;
+            case "PACKAGE": openPackageEditor(schemaName, programName); return;
+            case "TYPE": openTypeCodeEditor(schemaName, programName);
+            default: throw new IllegalArgumentException("Invalid program type \"" + programType + "\". Expected one of the following values: FUNCTION, PROCEDURE, PACKAGE or TYPE");
+        }
+    }
 
     @Override
     public void openTypeCodeEditor(String schemaName, String typeName) {
