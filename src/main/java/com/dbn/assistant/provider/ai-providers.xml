@@ -321,7 +321,9 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
-                    <model id="GPT_4_1" default="true"/>
+                    <model id="GPT_4_O" default="true"/>
+                    <model id="GPT_4_O_MINI"/>
+                    <model id="GPT_4_1"/>
                     <model id="GPT_4_1_MINI"/>
                     <model id="GPT_4_1_NANO"/>
                     <model id="GPT_5" features="MEMORY, TOOLS, INSTRUCTIONS"/>
