@@ -231,10 +231,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
       for (int i = 0; i < files.size(); i++) {
         // here per each file we need a new SourceResult object
         SourceResult sourceResult = null;
-        if (result.getSourceResults().isEmpty())
-          sourceResult= createSourceResultFilledWithsuccededSteps(ensureDestStep,ensureDocumentStep);
-        else
-          sourceResult = src;
+        sourceResult = createSourceResultFilledWithsuccededSteps(ensureDestStep,ensureDocumentStep);
         prepareAndEmbedFile(result, (FileResult) sourceResult,callbackError, p, conn, files, i, dataDefinition, embedConfigJson, chunkConfigJson, storeConfig);
         result.getSourceResults().add(sourceResult);
       }
@@ -266,7 +263,7 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
       src.setDocId(id);
 
 
-      p.setText2("Loading (" + (i + 1) + "/" + files.size() + "): " + vf.getName());
+      p.setText2("Uploading (" + (i + 1) + "/" + files.size() + "): " + vf.getName());
 
       long crcFile = checkIfFileExistsUsingCRC(result,src,conn, dataDefinition, vf);
 

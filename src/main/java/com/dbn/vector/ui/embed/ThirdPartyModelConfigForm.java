@@ -3,6 +3,7 @@ package com.dbn.vector.ui.embed;
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.service.selectai.credential.ui.CredentialEditDialog;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -27,6 +28,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
@@ -75,10 +77,7 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
     addCredentialButton.setText(null);
 
     addCredentialButton.addActionListener(e -> Dialogs.show(() ->
-            new ObjectFactoryInputDialog(
-                    ensureProject(),
-                    getSelectedSchema(),
-                    DBObjectType.CREDENTIAL)));
+            new CredentialEditDialog(getConnection(), null, Set.of())));
 
     ObjectChangeEvent.subscribe(this,
             getConnection(),

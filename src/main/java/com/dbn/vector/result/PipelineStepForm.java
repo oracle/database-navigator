@@ -34,6 +34,7 @@ public class PipelineStepForm extends DBNFormBase  {
     System.out.println("jkhkhk");
     this.stepResult = stepResult;
     Color greyContent = Colors.faded(UIUtil.getLabelForeground());
+    Color redContent = UIUtil.getErrorForeground();
     Font largerFont = Fonts.regular(1);
 
     titleLabel.setText(stepResult.getStep().getDisplayName());
@@ -47,7 +48,7 @@ public class PipelineStepForm extends DBNFormBase  {
     if (!stepResult.isOk()){
       reasonTextArea.setText(stepResult.getErrorCode()+stepResult.getErrorMessage());
       reasonTextArea.setFont(JBUI.Fonts.label());
-      reasonTextArea.setForeground(greyContent);
+      reasonTextArea.setForeground(redContent);
       reasonTextArea.setCaret(new HiddenCaret());
     }
     reasonTextArea.setVisible(!stepResult.isOk());
