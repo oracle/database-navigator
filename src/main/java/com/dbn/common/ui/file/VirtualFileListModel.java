@@ -52,9 +52,15 @@ public class VirtualFileListModel implements ListModel<VirtualFile> {
 
     public void addAll(Collection<VirtualFile> files) {
         int index = this.files.size();
-        this.files.addAll(files);
+        int count = 0;
+        for (VirtualFile file : files) {
+            if (!this.files.contains(file)) {
+                this.files.add(file);
+                count++;
+            }
+        }
 
-        ListDataEvent event = new ListDataEvent(this, CONTENTS_CHANGED, index, files.size());
+        ListDataEvent event = new ListDataEvent(this, CONTENTS_CHANGED, index, index + count);
         this.listeners.notify(l -> l.contentsChanged(event));
     }
 
