@@ -223,6 +223,13 @@ public final class VirtualFiles {
         return Lists.convert(files, f -> f.getPath());
     }
 
+    public static String getPresentableFileSize(VirtualFile file) {
+        long size = file.getLength();
+        if (size < 1024) return size + " B";
+        if (size < 1024 * 1024) return String.format("%.2f KB", size / 1024.0);
+        if (size < 1024 * 1024 * 1024) return String.format("%.2f MB", size / (1024.0 * 1024));
 
+        return String.format("%.2f GB", size / (1024.0 * 1024 * 1024));
+    }
 }
 

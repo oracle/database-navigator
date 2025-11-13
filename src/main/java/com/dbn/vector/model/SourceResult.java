@@ -1,30 +1,24 @@
 package com.dbn.vector.model;
 
+import com.dbn.common.ui.Presentable;
 import com.dbn.vector.model.sourceconfig.SourceType;
 import lombok.Getter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 @Getter
-public abstract class SourceResult  {
- protected final SourceType sourceType;
- protected SourceStatus status = SourceStatus.PENDING;
- protected final List<StepResult> steps = new ArrayList<>();
-  protected long rowsInserted = 0L;
+public abstract class SourceResult implements Presentable {
+  private final SourceType sourceType;
+  private SourceStatus status = SourceStatus.PENDING;
+  private final List<StepResult> steps = new ArrayList<>();
+  private long rowsInserted = 0L;
 //  protected long durationMs = 0L;
- protected  String displayName; // nice label for UI (filename or table name)
 
  protected SourceResult(SourceType sourceType) {
    this.sourceType = sourceType;
  }
 
- public SourceType getSourceType() { return sourceType; }
- public SourceStatus getStatus() { return status; }
- public List<StepResult> getSteps() { return steps; }
-//  public long getRowsInserted() { return rowsInserted; }
-//  public long getDurationMs() { return durationMs; }
-//  public String getDisplayName() { return displayName; }
+ public abstract String getSize();
 
  public StepResult startStep(PipelineStep step) {
    StepResult sr = new StepResult(step);
@@ -39,9 +33,6 @@ public abstract class SourceResult  {
       //todo clean up??
     }
 
-    public void setDisplayName(String displayName) {
-      this.displayName = displayName;
-    }
     public String getErrorMessage() {
         return steps.stream()
                 .filter(s -> s.getStatus() == StepResult.STEP_STATUS.FAILED)

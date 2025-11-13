@@ -96,18 +96,19 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
     }
 
     @NonNls
-    protected boolean executeStatement(@NotNull DBNConnection connection, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
+    protected int executeStatement(@NotNull DBNConnection connection, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
         StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
-        boolean result = executionProcessor.executeStatement(connection, arguments);
+        int updateCount = executionProcessor.executeStatement(connection, arguments);
         checkDisposed(connection);
-        return result;
+        return updateCount;
     }
 
     @NonNls
-    protected void executeUpdate(@NotNull DBNConnection connection, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
+    protected int executeUpdate(@NotNull DBNConnection connection, @NonNls String statementId, @Nullable Object... arguments) throws SQLException {
         StatementExecutionProcessor executionProcessor = getExecutionProcessor(statementId);
-        executionProcessor.executeUpdate(connection, arguments);
+        int updateCount = executionProcessor.executeUpdate(connection, arguments);
         checkDisposed(connection);
+        return updateCount;
     }
 
     @NonNls

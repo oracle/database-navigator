@@ -28,7 +28,6 @@ import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -89,8 +88,8 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public void embedDataContent(DBNConnection conn, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException {
-    executeUpdate(conn,
+  public int embedDataContent(DBNConnection conn, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException {
+    return executeUpdate(conn,
             "insert-vector-embeddings",
             storeConfig.getSchemaName(),
             storeConfig.getTableName(),
@@ -106,8 +105,8 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public void embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, Blob blobData, String metadata) throws SQLException {
-      executeUpdate(conn,
+  public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, Blob blobData, String metadata) throws SQLException {
+      return executeUpdate(conn,
               "insert-vector-embeddings-from-filesystem",
               storeConfig.getSchemaName(),
               storeConfig.getTableName(),

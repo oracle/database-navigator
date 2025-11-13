@@ -111,11 +111,11 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
 
   ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException;
 
-  void embedDataContent(DBNConnection connection, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException;
-
   void createEmbeddingTable(DBNConnection connection, String ownerName, String tableName, String keyColumnName, String textColumnName, String embeddingColumnName, String metadataColumnName) throws SQLException;
 
-  void embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig,Blob blobData,String metadata) throws SQLException;
+  int embedDataContent(DBNConnection connection, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException;
+
+  int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, Blob blobData, String metadata) throws SQLException;
 
   void ensureDocumentsTable(DBNConnection conn, String filesTable) throws SQLException;
 

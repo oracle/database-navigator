@@ -3,7 +3,6 @@ package com.dbn.vector.result;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.vector.model.SourceResult;
-import com.dbn.vector.model.SourceStatus;
 import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.intellij.icons.AllIcons;
@@ -16,20 +15,14 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import java.awt.BorderLayout;
+import javax.swing.JSplitPane;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.List;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 
 public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<VectorEmbeddingExecutionResult> {
   private final VectorEmbeddingResult result;
@@ -51,14 +44,15 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
   private JLabel successRateLabel;
   private JLabel successRateValue;
   private JPanel pipelinePanel;
-  private JTable sourceDataTable;
-  private DBNScrollPane DBNScrollPane1;
+  private JSplitPane contentSplitPane;
+  private VectorEmbeddingSourcesTable sourceDataTable;
 
   public VectorEmbeddingExecutionResultForm(@NotNull VectorEmbeddingExecutionResult executionResult) {
     super(executionResult);
     this.result = getExecutionResult().getVectorEmbeddingResult();
     verticalBoxLayout(pipelinePanel);
     initializeComponents();
+    setSplitPaneProportion(contentSplitPane, 0.4);
   }
 
   private void initializeComponents() {
@@ -66,14 +60,10 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
   }
 
   private void initializeTable() {
-    sourceDataTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    sourceDataTable.setShowGrid(true);
 
-    sourceDataTable.setModel(new SourceDataModel (result.getSourceResults()));
-
-    // Custom renderer for status column
-      sourceDataTable.getColumnModel().getColumn(0).setCellRenderer(new StatusCellRenderer());
-
+    VectorEmbeddingSourcesTableModel sourceDataModel = new VectorEmbeddingSourcesTableModel(result.getSourceResults());
+    sourceDataTable = new VectorEmbeddingSourcesTable(this, sourceDataModel);
+    sourceDataScrollPane.setViewportView(sourceDataTable);
 
     // Add selection listener to handle row selection and show pipeline/details
     sourceDataTable.getSelectionModel().addListSelectionListener(e -> {
@@ -82,66 +72,12 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
         if (viewRow < 0) return;
 
         int modelRow = sourceDataTable.convertRowIndexToModel(viewRow);
-        SourceDataModel model = (SourceDataModel) sourceDataTable.getModel();
-        SourceResult sr = model.sourceResults.get(modelRow);
+        VectorEmbeddingSourcesTableModel model = sourceDataTable.getModel();
+        SourceResult sr = model.getSourceResults().get(modelRow);
 
         showPipelineDetails(sr);
       }
     });
-  }
-
-  private static class SourceDataModel extends AbstractTableModel {
-    List<SourceResult> sourceResults;
-    private static final String[] COLS = {
-            "Source Name", "Rows Embedded"
-    };
-
-    public SourceDataModel(List<SourceResult> sourceResults) {
-      this.sourceResults = sourceResults;
-    }
-
-    @Override public int getRowCount() { return sourceResults.size(); }
-    @Override public int getColumnCount() { return COLS.length; }
-    @Override public String getColumnName(int column) { return COLS[column]; }
-    @Override public Object getValueAt(int row, int col) {
-      switch (col){
-        case 0:
-          return sourceResults.get(row).getDisplayName();
-        case 1:
-          return sourceResults.get(row).getRowsInserted();
-      }
-      return sourceResults.get(row);
-    }
-    @Override public boolean isCellEditable(int row, int col) { return false; }
-  }
-
-  private static class StatusCellRenderer extends DefaultTableCellRenderer {
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-                                                   boolean isSelected, boolean hasFocus, int row, int col) {
-      Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-//      if (value instanceof SourceStatus) {
-//        SourceStatus status = (SourceStatus) value;
-      int modelRow = table.convertRowIndexToModel(row);
-      SourceDataModel model = (SourceDataModel) table.getModel();
-      SourceResult sr = model.sourceResults.get(modelRow);
-
-      SourceStatus status = sr.getStatus();
-      setText(sr.getDisplayName());
-
-        setIcon(getStatusIcon(status));
-//      }
-      return c;
-    }
-
-    private Icon getStatusIcon(SourceStatus status) {
-      switch (status) {
-        case SUCCESS: return AllIcons.Actions.Checked;
-        case FAILED: return AllIcons.Ide.FatalError;
-        case RUNNING: return AllIcons.Process.Step_1;
-        default: return AllIcons.General.Gear;
-      }
-    }
   }
 
   private void showPipelineDetails(SourceResult sr) {

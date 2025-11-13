@@ -250,13 +250,12 @@ public class StatementExecutionProcessor {
         outputReader.read(statement);
     }
 
-    public void executeUpdate(DBNConnection connection, Object... arguments) throws SQLException {
+    public int executeUpdate(DBNConnection connection, Object... arguments) throws SQLException {
         StatementExecutorContext context = createContext(connection);
         SQLException exception = NO_STATEMENT_DEFINITION_EXCEPTION;
         for (StatementDefinition statementDefinition : statementDefinitions) {
             try {
-                executeUpdate(statementDefinition, context, arguments);
-                return;
+                return executeUpdate(statementDefinition, context, arguments);
             } catch (SQLException e){
                 conditionallyLog(e);
                 exception = e;
@@ -265,11 +264,11 @@ public class StatementExecutionProcessor {
         throw exception;
     }
 
-    private void executeUpdate(
+    private int executeUpdate(
             @NotNull StatementDefinition definition,
             @NotNull StatementExecutorContext context,
             Object... arguments) throws SQLException {
-        StatementExecutor.execute(context,
+        return StatementExecutor.execute(context,
                 () -> {
                     DBNConnection connection = context.getConnection();
                     String statementText = definition.prepareStatementText(arguments);
@@ -282,16 +281,17 @@ public class StatementExecutionProcessor {
 
                         statement.setQueryTimeout(timeout);
                         statement.executeUpdate();
+                        return statement.getUpdateCount();
                     } catch (SQLException e) {
                         handleException(e, statementText);
                     } finally {
                         Resources.close(statement);
                     }
-                    return null;
+                    return 0;
                 });
     }
 
-    public boolean executeStatement(@NotNull DBNConnection connection, Object... arguments) throws SQLException {
+    public int executeStatement(@NotNull DBNConnection connection, Object... arguments) throws SQLException {
         StatementExecutorContext context = createContext(connection);
         SQLException exception = NO_STATEMENT_DEFINITION_EXCEPTION;
         for (StatementDefinition statementDefinition : statementDefinitions) {
@@ -305,7 +305,7 @@ public class StatementExecutionProcessor {
         throw exception;
     }
 
-    private boolean executeStatement(
+    private int executeStatement(
             @NotNull StatementDefinition definition,
             @NotNull StatementExecutorContext context,
             Object... arguments) throws SQLException {
@@ -319,20 +319,22 @@ public class StatementExecutionProcessor {
                     context.setStatement(statement);
                     try {
                         statement.setQueryTimeout(timeout);
-                        return statement.execute(statementText);
+                        statement.execute(statementText);
+                        return statement.getUpdateCount();
                     } catch (SQLException e) {
-                        return handleException(e, statementText);
+                        handleException(e, statementText);
+                        return 0;
                     } finally {
                         Resources.close(statement);
                     }
                 });
     }
 
-    private boolean handleException(SQLException e, String statementText) throws SQLException {
+    private void handleException(SQLException e, String statementText) throws SQLException {
         conditionallyLog(e);
         if (isSuccessException(e)) {
             log.warn("[DBN] Success exception received while executing statement \"{}\"\nDetails: {}", statementText, e.getMessage());
-            return true;
+            return;
         }
 
         if (isDatabaseAccessDebug()) {

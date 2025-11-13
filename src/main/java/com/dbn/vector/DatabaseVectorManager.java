@@ -172,7 +172,10 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
 
     SourceResult src = null;
     if (SourceType.DATABASE_TABLE.equals( sourceConfig.getSourceType())){
-      src = new TableResult(storeConfig.getTableName());
+      src = new TableResult(
+              handler.getConnectionId(),
+              storeConfig.getSchemaName(),
+              storeConfig.getTableName());
     }else if(SourceType.FILE_SYSTEM.equals(sourceConfig.getSourceType())){
       src = new FileResult();
     }
@@ -204,9 +207,9 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
     if (sourceType == SourceType.DATABASE_TABLE) {
       StepResult embedStep = src.startStep(PipelineStep.EMBED);
       try{
-        createEmbeddingsFromTable(conn, storeConfig, sourceConfig, dataDefinition, chunkConfigJson, embedConfigJson);
+        int embeddings = createEmbeddingsFromTable(conn, storeConfig, sourceConfig, dataDefinition, chunkConfigJson, embedConfigJson);
         embedStep.markSuccess();
-        src.finishSuccess(200);
+        src.finishSuccess(embeddings);
       }catch (SQLException e){
         embedStep.markFailed("EMBED_ERROR", e.getMessage());
         src.finishFailed("EMBED_ERROR", e.getMessage());
@@ -250,8 +253,8 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
 
   }
 
-  private static void createEmbeddingsFromTable(DBNConnection conn, StoreConfig storeConfig, SourceConfig sourceConfig, DatabaseAssistantInterface dataDefinition, String chunkConfigJson, String embedConfigJson) throws SQLException {
-    dataDefinition.embedDataContent(conn, sourceConfig.getTableSourceConfig(), chunkConfigJson, embedConfigJson, storeConfig);
+  private static int createEmbeddingsFromTable(DBNConnection conn, StoreConfig storeConfig, SourceConfig sourceConfig, DatabaseAssistantInterface dataDefinition, String chunkConfigJson, String embedConfigJson) throws SQLException {
+    return dataDefinition.embedDataContent(conn, sourceConfig.getTableSourceConfig(), chunkConfigJson, embedConfigJson, storeConfig);
   }
 
   @SneakyThrows
@@ -259,11 +262,11 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
     String id = generateDocumentId();
 
     VirtualFile vf = files.get(i);
-      src.setFilename(vf.getName());
+      src.setFile(vf);
       src.setDocId(id);
 
 
-      p.setText2("Uploading (" + (i + 1) + "/" + files.size() + "): " + vf.getName());
+      p.setText2("Uploading file \"" + vf.getName() + "\" (" + (i + 1) + "/" + files.size() + ")");
 
       long crcFile = checkIfFileExistsUsingCRC(result,src,conn, dataDefinition, vf);
 
@@ -286,15 +289,15 @@ public  class DatabaseVectorManager extends ProjectComponentBase implements Pers
 
       String rowMetadataJson = buildRowMetadata(embedConfigJson, chunkConfigJson, fileMetadataMap, id);
 //      storeConfig.setMetadata(rowMetadataJson);
-      p.setText2("Embedding (" + (i + 1) + "/" + files.size() + "): " + vf.getName());
+      p.setText2("Embedding file \"" + vf.getName() + "\" (" + (i + 1) + "/" + files.size() + ")");
       if (!src.getStatus().equals(SourceStatus.RUNNING)){
         return;
       }
       StepResult embedStep = src.startStep(PipelineStep.EMBED);
       try{
-        dataDefinition.embedFileContent(conn, chunkConfigJson, embedConfigJson, storeConfig,blobData,rowMetadataJson);
+        int embeddings = dataDefinition.embedFileContent(conn, chunkConfigJson, embedConfigJson, storeConfig, blobData, rowMetadataJson);
         embedStep.markSuccess();
-        src.finishSuccess(100);
+        src.finishSuccess(embeddings);
       }catch (SQLException e){
         embedStep.markFailed("EMBED_ERROR", e.getMessage());
         src.finishFailed("EMBED_ERROR", e.getMessage());
