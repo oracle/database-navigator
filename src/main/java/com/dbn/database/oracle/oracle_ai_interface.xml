@@ -336,57 +336,54 @@
     </statement-execution-processor>
     <statement-execution-processor id="insert-vector-embeddings" timeout="120000">
         <statement>
-            BEGIN
-                INSERT INTO {0}.{1} (id, {2}, {3}, {4})
-                SELECT
-                    SYS_GUID(),
-                    JSON_VALUE(t.COLUMN_VALUE, '$.embed_data' RETURNING CLOB),
-                    TO_VECTOR(JSON_VALUE(t.COLUMN_VALUE, '$.embed_vector' RETURNING CLOB)),
-                    null
-                FROM {5}.{6} src,
-                    TABLE(
-                        DBMS_VECTOR.UTL_TO_EMBEDDINGS(
-                                data   => DBMS_VECTOR.UTL_TO_CHUNKS(
-                                                data   => src.{7},
-                                                params => json({#8})),
-                                params => json({#9})
-                    )
-                ) t;
-            END;
+            INSERT INTO {0}.{1} (id, {2}, {3}, {4})
+            SELECT
+                SYS_GUID(),
+                JSON_VALUE(t.COLUMN_VALUE, '$.embed_data' RETURNING CLOB),
+                TO_VECTOR(JSON_VALUE(t.COLUMN_VALUE, '$.embed_vector' RETURNING CLOB)),
+                null
+            FROM {5}.{6} src,
+                TABLE(
+                    DBMS_VECTOR.UTL_TO_EMBEDDINGS(
+                            data   => DBMS_VECTOR.UTL_TO_CHUNKS(
+                                            data   => src.{7},
+                                            params => json({#8})),
+                            params => json({#9})
+                )
+            ) t;
         </statement>
     </statement-execution-processor>
         <statement-execution-processor id="insert-vector-embeddings-from-filesystem" timeout="120000">
         <statement>
-
-                INSERT INTO {0}.{1} (id, {2}, {3}, {4})
-                    SELECT
-                        SYS_GUID(),
-                        jt.embed_data,
-                        TO_VECTOR(jt.embed_vector),
-                        JSON_MERGEPATCH(
-                            {#8},
-                            JSON_OBJECT(
-                                KEY 'chunk_id'
-                                VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50))
-                            ) RETURNING CLOB
+            INSERT INTO {0}.{1} (id, {2}, {3}, {4})
+                SELECT
+                    SYS_GUID(),
+                    jt.embed_data,
+                    TO_VECTOR(jt.embed_vector),
+                    JSON_MERGEPATCH(
+                        {#8},
+                        JSON_OBJECT(
+                            KEY 'chunk_id'
+                            VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50))
+                        ) RETURNING CLOB
+                    )
+                FROM TABLE(
+                    DBMS_VECTOR.UTL_TO_EMBEDDINGS(
+                        data   => DBMS_VECTOR.UTL_TO_CHUNKS(
+                                        data   => DBMS_VECTOR_CHAIN.UTL_TO_TEXT(
+                                                        data   => {#5},
+                                                        params => json(json_object('plaintext' VALUE true))),
+                                        params => json({#6})),
+                        params => json({#7})
+                    )
+                ) t,
+                JSON_TABLE(
+                    t.COLUMN_VALUE, '$'
+                        COLUMNS (
+                            embed_data   CLOB PATH '$.embed_data',
+                            embed_vector CLOB PATH '$.embed_vector'
                         )
-                    FROM TABLE(
-                        DBMS_VECTOR.UTL_TO_EMBEDDINGS(
-                            data   => DBMS_VECTOR.UTL_TO_CHUNKS(
-                                            data   => DBMS_VECTOR_CHAIN.UTL_TO_TEXT(
-                                                            data   => {#5},
-                                                            params => json(json_object('plaintext' VALUE true))),
-                                            params => json({#6})),
-                            params => json({#7})
-                        )
-                    ) t,
-                    JSON_TABLE(
-                        t.COLUMN_VALUE, '$'
-                            COLUMNS (
-                                embed_data   CLOB PATH '$.embed_data',
-                                embed_vector CLOB PATH '$.embed_vector'
-                            )
-                    ) jt;
+                ) jt;
         </statement>
     </statement-execution-processor>
 
