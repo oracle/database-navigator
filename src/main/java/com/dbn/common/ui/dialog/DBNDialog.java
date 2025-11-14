@@ -33,6 +33,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.wm.IdeFrame;
 import com.intellij.ui.AppIcon;
 import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
@@ -296,6 +297,10 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
      */
     protected void dispatch(Runnable runnable) {
         Dispatch.execute(getComponent(), runnable);
+    }
+
+    protected boolean isRootDialog() {
+        return getOwner() instanceof IdeFrame;
     }
 
     @Getter
