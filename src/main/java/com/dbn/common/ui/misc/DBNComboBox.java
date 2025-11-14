@@ -262,7 +262,6 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         if (model.isEmpty()) return;
 
         Predicate<T> valuePreselector = this.valuePreselector;
-        this.valuePreselector = null; // one-time selection
 
         if (valuePreselector == null) {
             if (model.getSize() == 1) {
@@ -272,7 +271,11 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
             }
         } else {
             T selectedValue = first(model.getItems(), valuePreselector);
-            selectValue(selectedValue);
+            if (selectedValue != null) {
+                this.valuePreselector = null; // one-time selection
+                selectValue(selectedValue);
+            }
+
         }
     }
 
