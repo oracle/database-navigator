@@ -30,6 +30,11 @@ public class FileResult extends SourceResult{
     this.size = VirtualFiles.getPresentableFileSize(file);
   }
 
+  public void setFile(VirtualFile file) {
+    this.file = file;
+    this.size = VirtualFiles.getPresentableFileSize(file);
+  }
+
   @NotNull
   @Override
   public String getName() {
