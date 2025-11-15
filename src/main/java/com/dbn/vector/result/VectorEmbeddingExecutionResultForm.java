@@ -1,5 +1,6 @@
 package com.dbn.vector.result;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.vector.model.SourceResult;
@@ -44,6 +45,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
   private JLabel successRateLabel;
   private JLabel successRateValue;
   private JPanel pipelinePanel;
+  private JPanel pipelineHeaderPanel;
   private JSplitPane contentSplitPane;
   private VectorEmbeddingSourcesTable sourceDataTable;
 
@@ -57,6 +59,27 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
 
   private void initializeComponents() {
     initializeTable();
+    initializeHeader();
+  }
+
+  private void initializeHeader() {
+    switch (result.getStatus()){
+      case SUCCESS:
+        statusBadge.setIcon(Icons.COMMON_STATUS_SUCCESS);
+//        this.statusBadge.setText(result.getStatus());
+        break;
+        case FAILED:
+          statusBadge.setIcon(Icons.COMMON_STATUS_ERROR);
+          break;
+      case PARTIAL:
+        statusBadge.setIcon(Icons.COMMON_WARNING);
+    }
+    statusBadge.setText("");
+
+    this.durationValue.setText(result.getDuration() / 1000 +"s");
+    this.totalRowsValue.setText(String.valueOf(result.getTotalInsertedRows()));
+    this.filesValue.setText(String.valueOf(result.getSourceResults().size()));
+    this.successRateValue.setText(result.getSuccessRate()+"%");
   }
 
   private void initializeTable() {

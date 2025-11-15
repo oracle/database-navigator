@@ -123,5 +123,7 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
 
   ResultSet selectEmptyBlob(DBNConnection conn, String filesTable, String id) throws SQLException;
 
+  ResultSet selectBlobByCRC(DBNConnection conn, String filesTable, long crc) throws SQLException;
+
   boolean fileAlreadyUploadedByCRC(DBNConnection conn,String filesTable ,long crcFile) throws SQLException;
 }

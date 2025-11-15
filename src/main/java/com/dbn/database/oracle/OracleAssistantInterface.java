@@ -134,6 +134,11 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
+  public ResultSet selectBlobByCRC(DBNConnection conn, String filesTable, long crc) throws SQLException {
+    return executeQuery(conn,"select-blob-by-crc",filesTable,crc);
+  }
+
+  @Override
   public boolean fileAlreadyUploadedByCRC(DBNConnection conn,String filesTable ,long crcFile) throws SQLException {
     return getBooleanValue(conn,"check-file-exists",filesTable,crcFile);
   }

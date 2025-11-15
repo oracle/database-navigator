@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
-// FileResult now extends SourceResult
 @Getter
 @Setter
 public class FileResult extends SourceResult{
@@ -18,6 +17,7 @@ public class FileResult extends SourceResult{
   private String size;      // todo make final
   private String docId;
   private boolean isExisted = false;
+  private transient java.sql.Blob cachedBlob; // Store blob when retrieved during CRC check
 
   @Deprecated // TODO initialize file result with the file using below constructor
   public FileResult() {

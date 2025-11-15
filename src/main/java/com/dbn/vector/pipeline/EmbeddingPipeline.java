@@ -1,0 +1,158 @@
+package com.dbn.vector.pipeline;
+
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseAssistantInterface;
+import com.dbn.object.event.ObjectChangeEvent;
+import com.dbn.vector.model.*;
+import com.dbn.vector.model.chunk.ChunkConfig;
+import com.dbn.vector.model.embed.EmbedConfig;
+import com.dbn.vector.model.store.DestinationType;
+import com.dbn.vector.model.store.StoreConfig;
+import com.intellij.openapi.progress.ProgressIndicator;
+import org.jetbrains.annotations.NotNull;
+
+import java.sql.SQLException;
+
+import static com.dbn.object.event.ObjectChangeAction.CREATE;
+import static com.dbn.object.type.DBObjectType.TABLE;
+
+
+public abstract class EmbeddingPipeline {
+
+    protected static final String FILES_TABLE = "document_files";
+
+    /**
+     * Execute the complete embedding pipeline.
+     */
+    public void execute(
+            @NotNull VectorEmbeddingRequest request,
+            @NotNull ConnectionHandler handler,
+            @NotNull DBNConnection connection,
+            @NotNull ProgressIndicator progressIndicator,
+            @NotNull VectorEmbeddingResult result) throws Exception {
+
+        DatabaseAssistantInterface assistantInterface = handler.getAssistantInterface();
+
+        // Step 1: Ensure destination table (shared across all sources)
+        StepResult ensureDestStep = ensureDestinationTableStep(request, connection, assistantInterface);
+        result.addSharedStep(ensureDestStep);
+
+        if (ensureDestStep.getStatus() == StepResult.STEP_STATUS.FAILED && ensureDestStep.isCritical()) {
+            return;
+        }
+
+        // Step 2: Source-specific preparation and embedding
+        executeSourceSpecificPipeline(
+                request,
+                handler,
+                connection,
+                assistantInterface,
+                progressIndicator,
+                result,
+                ensureDestStep
+        );
+    }
+
+    /**
+     * Execute source-specific embedding logic.
+     */
+    protected abstract void executeSourceSpecificPipeline(
+            @NotNull VectorEmbeddingRequest request,
+            @NotNull ConnectionHandler handler,
+            @NotNull DBNConnection connection,
+            @NotNull DatabaseAssistantInterface assistantInterface,
+            @NotNull ProgressIndicator progressIndicator,
+            @NotNull VectorEmbeddingResult result,
+            @NotNull StepResult ensureDestStep
+    ) throws Exception;
+
+    // ========== Common Steps ==========
+
+    /**
+     * Ensure the destination embedding table exists.
+     * This is a shared step that applies to all sources.
+     */
+    protected StepResult ensureDestinationTableStep(
+            @NotNull VectorEmbeddingRequest request,
+            @NotNull DBNConnection connection,
+            @NotNull DatabaseAssistantInterface assistantInterface) {
+
+        StepResult step = new StepResult(PipelineStep.ENSURE_DESTINATION);
+        step.startAt();
+
+        try {
+            StoreConfig storeConfig = request.getStoreConfig();
+
+            if (storeConfig.getDestinationType() == DestinationType.NEW_TABLE) {
+                assistantInterface.createEmbeddingTable(
+                        connection,
+                        storeConfig.getSchemaName(),
+                        storeConfig.getTableName(),
+                        storeConfig.getKeyColumnName(),
+                        storeConfig.getTextColumnName(),
+                        storeConfig.getEmbeddingColumnName(),
+                        storeConfig.getMetadataColumnName()
+                );
+
+                // Notify browser to refresh
+                notifyTableCreated(request, storeConfig);
+            }
+
+            step.markSuccess();
+
+        } catch (SQLException e) {
+            step.markFailed("ENSURE_DEST_ERROR", e.getMessage());
+        }
+
+        return step;
+    }
+
+    /**
+     * Ensure the documents metadata table exists (for file sources).
+     * This is also a shared step for all file-based sources.
+     */
+    protected StepResult ensureDocumentsTableStep(
+            @NotNull DBNConnection connection,
+            @NotNull DatabaseAssistantInterface assistantInterface) {
+
+        StepResult step = new StepResult(PipelineStep.ENSURE_DOCUMENT_TABLE);
+        step.startAt();
+
+        try {
+            assistantInterface.ensureDocumentsTable(connection, FILES_TABLE);
+            step.markSuccess();
+
+        } catch (SQLException e) {
+            step.markFailed("DOCUMENTS_TABLE_ERROR", e.getMessage());
+        }
+
+        return step;
+    }
+
+    /**
+     * Notify the object browser that a new table was created.
+     */
+    private void notifyTableCreated(@NotNull VectorEmbeddingRequest request, @NotNull StoreConfig storeConfig) {
+        SchemaId schemaId = SchemaId.get(storeConfig.getSchemaName());
+        ObjectChangeEvent.notify(
+                CREATE,
+                TABLE,
+                request.getConnectionId(),
+                schemaId
+        );
+    }
+
+    /**
+     * Get configuration as JSON string.
+     */
+    protected String getConfigJson(@NotNull Object config) {
+        if (config instanceof ChunkConfig) {
+            return ((ChunkConfig) config).getConfigJson();
+        } else if (config instanceof EmbedConfig) {
+            return ((EmbedConfig) config).getConfigJson();
+        }
+        return "{}";
+    }
+}

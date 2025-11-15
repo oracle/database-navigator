@@ -26,6 +26,7 @@ public class PipelineStepForm extends DBNFormBase  {
   private JTextPane reasonTextArea;
   private JPanel statusPanel;
   private JLabel statusLabel;
+  private JLabel durationValueLabel;
 
   private final StepResult stepResult;
 
@@ -44,7 +45,8 @@ public class PipelineStepForm extends DBNFormBase  {
 
     descriptionTextArea.setText(stepResult.getStep().getDescription());
     descriptionTextArea.setCaret(new HiddenCaret());
-
+    durationValueLabel.setForeground(greyContent);
+    durationValueLabel.setText(stepResult.getDuration()/1000+"s");
     if (!stepResult.isOk()){
       reasonTextArea.setText(stepResult.getErrorCode()+stepResult.getErrorMessage());
       reasonTextArea.setFont(JBUI.Fonts.label());

@@ -315,6 +315,12 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="select-blob-by-crc">
+        <statement>
+            SELECT id, b_lob as file_content FROM {0} WHERE file_hash = {#1}
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="check-file-exists">
         <statement>
             select

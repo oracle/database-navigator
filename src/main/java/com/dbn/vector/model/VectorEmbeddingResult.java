@@ -23,10 +23,12 @@ public class VectorEmbeddingResult {
         return request.getConnection();
     }
 
-  private enum Status { RUNNING, SUCCESS, PARTIAL, FAILED }
+  public  enum Status { RUNNING, SUCCESS, PARTIAL, FAILED }
   private Status status;
   private SourceType sourceType;
   private Map<String, SourceResult> sourceResults = new LinkedHashMap<>();
+  protected final List<StepResult> sharedSteps = new ArrayList<>();
+
 
   public VectorEmbeddingResult(VectorEmbeddingRequest request) {
     this.request = request;
@@ -40,10 +42,21 @@ public class VectorEmbeddingResult {
   public void finish() {
     boolean anySuccess = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.SUCCESS);
     boolean anyFailed = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.FAILED);
+    boolean anySkipped = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.SKIPPED);
+    
     if (anySuccess && anyFailed) status = Status.PARTIAL;
     else if (anySuccess) status = Status.SUCCESS;
     else if (anyFailed) status = Status.FAILED;
+    else if (anySkipped) status = Status.SUCCESS; // All skipped means already processed = success
     else status = Status.SUCCESS;
+  }
+
+  public long  getDuration(){
+    return sourceResults.values().stream().mapToLong(SourceResult::getDurationMs).sum();
+  }
+
+  public long getTotalInsertedRows(){
+    return sourceResults.values().stream().mapToLong(SourceResult::getRowsInserted).sum();
   }
 
   public TableResult ensureSourceResult(String schemaName, String tableName) {
@@ -62,9 +75,24 @@ public class VectorEmbeddingResult {
     return new ArrayList<>(sourceResults.values());
   }
 
+  public long getResourcesCount(){
+    return sourceResults.size();
+  }
+
+  public double getSuccessRate(){
+    long successedSr = sourceResults.values().stream()
+            .filter(f -> f.getStatus() == SourceStatus.SUCCESS || f.getStatus() == SourceStatus.SKIPPED)
+            .count();
+    return getResourcesCount() > 0 ? (double) successedSr / getResourcesCount() * 100 : 0;
+  }
+
   @Deprecated // TODO use lazy result initialization utilities (support multiple table sources)
   public void addSourceResult(SourceResult sourceResult) {
     sourceResults.put(sourceResult.getIdentifier(), sourceResult);
+  }
+
+  public void addSharedStep(StepResult stepResult) {
+    sharedSteps.add(stepResult);
   }
 
 }
