@@ -23,7 +23,7 @@ import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.common.color.Colors;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.Layouts;
-import com.dbn.common.ui.misc.DBNInfoLabel;
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.ui.util.Fonts;
 import com.intellij.icons.AllIcons;

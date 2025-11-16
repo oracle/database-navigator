@@ -14,29 +14,30 @@
  * limitations under the License.
  */
 
-package com.dbn.common.ui.misc;
+package com.dbn.common.ui.info;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.Disposable;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 
 public class DBNInfoForm extends DBNFormBase {
     private JPanel mainPanel;
     private JTextPane infoTextPane;
-    private JTextArea infoTextArea;
 
     public DBNInfoForm(@Nullable Disposable parent, TextContent content) {
         super(parent);
-        content.initFonts();
+        content.setTooltip(true);
+        content.rebuild();
         infoTextPane.setContentType(content.getTypeId());
         infoTextPane.setText(content.getText());
+        infoTextPane.setForeground(UIUtil.getToolTipForeground());
         whenShown( () -> {
             infoTextPane.revalidate();
             Dialogs.resizeToFitContent(mainPanel);

@@ -41,7 +41,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.form.DBNForm;
-import com.dbn.common.ui.misc.DBNInfoLabel;
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Fonts;
