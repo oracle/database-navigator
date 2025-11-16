@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.common.ui.misc;
+package com.dbn.common.ui.info;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.DBNTooltip;

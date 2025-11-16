@@ -41,6 +41,7 @@ public class TextContent {
     private final MimeType type;
     private Map<String, String> fields = new HashMap<>();
     private List<Function<String, String>> adjusters = new ArrayList<>();
+    private boolean tooltip = false;
 
     public TextContent(String text, MimeType type) {
         this.template = text;
@@ -80,7 +81,10 @@ public class TextContent {
         Font font = UIUtil.getLabelFont();
         String fontName = font.getFontName();
         int fontSize = font.getSize();
-        Color color = UIUtil.getLabelForeground();
+
+        Color color = tooltip ?
+                UIUtil.getToolTipForeground() :
+                UIUtil.getLabelForeground();
         String colorHex = toHex(color);
 
         replaceFields("REGULAR_FONT_STYLE",
