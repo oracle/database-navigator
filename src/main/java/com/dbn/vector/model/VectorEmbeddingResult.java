@@ -59,16 +59,28 @@ public class VectorEmbeddingResult {
     return sourceResults.values().stream().mapToLong(SourceResult::getRowsInserted).sum();
   }
 
-  public TableResult ensureSourceResult(String schemaName, String tableName) {
+  public TableResult initTableResult(String schemaName, String tableName) {
     ConnectionId connectionId = getConnection().getConnectionId();
     String key = schemaName + "." + tableName;
     return cast(sourceResults.computeIfAbsent(key, k ->
-            new TableResult(connectionId, schemaName, tableName)));
+            createTableResult(schemaName, tableName, connectionId)));
   }
 
-  public FileResult ensureFileResult(VirtualFile file) {
+  public FileResult initFileResult(VirtualFile file) {
     String key = file.getPath();
-    return cast(sourceResults.computeIfAbsent(key, k -> new FileResult(file)));
+    return cast(sourceResults.computeIfAbsent(key, k -> createFileResult(file)));
+  }
+
+  private TableResult createTableResult(String schemaName, String tableName, ConnectionId connectionId) {
+    TableResult tableResult = new TableResult(connectionId, schemaName, tableName);
+    tableResult.getSteps().addAll(sharedSteps);
+    return tableResult;
+  }
+
+  private FileResult createFileResult(VirtualFile file) {
+    FileResult fileResult = new FileResult(file);
+    fileResult.getSteps().addAll(sharedSteps);
+    return fileResult;
   }
 
   public List<SourceResult> getSourceResults() {

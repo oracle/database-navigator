@@ -3,7 +3,11 @@ package com.dbn.vector.pipeline;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
-import com.dbn.vector.model.*;
+import com.dbn.vector.model.PipelineStep;
+import com.dbn.vector.model.StepResult;
+import com.dbn.vector.model.TableResult;
+import com.dbn.vector.model.VectorEmbeddingRequest;
+import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.jetbrains.annotations.NotNull;
@@ -20,18 +24,14 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
             @NotNull DBNConnection connection,
             @NotNull DatabaseAssistantInterface assistantInterface,
             @NotNull ProgressIndicator progressIndicator,
-            @NotNull VectorEmbeddingResult result,
-            @NotNull StepResult ensureDestStep) throws Exception {
+            @NotNull VectorEmbeddingResult result) throws Exception {
 
         DBTableSourceConfig tableConfig = request.getSourceConfig().getTableSourceConfig();
         
-        TableResult tableResult = result.ensureSourceResult(
+        TableResult tableResult = result.initTableResult(
                 tableConfig.getSchemaName(),
                 tableConfig.getTableName()
         );
-
-        // Add the shared destination step to this table result
-        tableResult.getSteps().add(ensureDestStep);
 
         progressIndicator.setText2("Embedding table data from " + tableResult.getName());
 
@@ -56,14 +56,11 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
         StepResult embedStep = tableResult.startStep(PipelineStep.EMBED);
 
         try {
-            String chunkConfigJson = getConfigJson(request.getChunkConfig());
-            String embedConfigJson = getConfigJson(request.getEmbedConfig());
-
             int embeddedRows = assistantInterface.embedDataContent(
                     connection,
                     request.getSourceConfig().getTableSourceConfig(),
-                    chunkConfigJson,
-                    embedConfigJson,
+                    request.getChunkConfig().getConfigJson(),
+                    request.getEmbedConfig().getConfigJson(),
                     request.getStoreConfig()
             );
 

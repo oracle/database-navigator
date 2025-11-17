@@ -9,13 +9,11 @@ import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.text.HiddenCaret;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.vector.model.StepResult;
-import com.dbn.vfs.DatabaseFileSystem;
-import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +36,6 @@ public class PipelineStepForm extends DBNFormBase  {
   private JLabel durationValueLabel;
   private DBNInfoLabel infoLabel;
   private DBNHyperlinkLabel linkLabel;
-  private JPanel linkIcon;
 
   private final StepResult stepResult;
 
@@ -55,7 +52,7 @@ public class PipelineStepForm extends DBNFormBase  {
     initInfoLabel();
 //    linkLabel.setFont(JBUI.Fonts.label());
     linkLabel.setHyperlinkText(stepResult.getLink());
-    linkIcon.add(new JLabel(stepResult.getIcon()));
+    linkLabel.setIcon(stepResult.getIcon());
 
     linkLabel.addHyperlinkListener(e->{
       ConnectionHandler connection = parent.getResult().getConnection();
@@ -64,12 +61,8 @@ public class PipelineStepForm extends DBNFormBase  {
 
       DBSchema schema = connection.getSchema(connection.getSchemaId(schemaName));
       DBTable table = schema.getTable(tableName);
-
-      DatabaseFileSystem fileSystem = DatabaseFileSystem.getInstance();
-      DBEditableObjectVirtualFile databaseFile = fileSystem.findOrCreateDatabaseFile(table);
-
-      FileEditorManager fileEditorManager = FileEditorManager.getInstance(getProject());
-      fileEditorManager.openFile(databaseFile, true);
+      DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(connection.getProject());
+      editorManager.connectAndOpenEditor(table, null, true, true);
     });
 
 

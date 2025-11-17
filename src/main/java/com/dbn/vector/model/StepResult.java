@@ -1,11 +1,12 @@
 package com.dbn.vector.model;
 
 import lombok.Getter;
+import lombok.Setter;
 
-import javax.swing.*;
-import java.util.Date;
+import javax.swing.Icon;
 
 @Getter
+@Setter
 public class StepResult {
   private String link ="";
 
@@ -52,13 +53,5 @@ public class StepResult {
 
   public long getDuration() {
     return endTime - startTime;
-  }
-
-  public void setLink(String link) {
-    this.link = link;
-  }
-
-  public void setIcon(Icon icon) {
-    this.icon = icon;
   }
 }

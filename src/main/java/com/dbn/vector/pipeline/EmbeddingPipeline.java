@@ -6,15 +6,15 @@ import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.event.ObjectChangeEvent;
-import com.dbn.vector.model.*;
-import com.dbn.vector.model.chunk.ChunkConfig;
-import com.dbn.vector.model.embed.EmbedConfig;
+import com.dbn.vector.model.PipelineStep;
+import com.dbn.vector.model.StepResult;
+import com.dbn.vector.model.VectorEmbeddingRequest;
+import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.store.DestinationType;
 import com.dbn.vector.model.store.StoreConfig;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.sql.SQLException;
 
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
@@ -52,8 +52,7 @@ public abstract class EmbeddingPipeline {
                 connection,
                 assistantInterface,
                 progressIndicator,
-                result,
-                ensureDestStep
+                result
         );
     }
 
@@ -66,8 +65,7 @@ public abstract class EmbeddingPipeline {
             @NotNull DBNConnection connection,
             @NotNull DatabaseAssistantInterface assistantInterface,
             @NotNull ProgressIndicator progressIndicator,
-            @NotNull VectorEmbeddingResult result,
-            @NotNull StepResult ensureDestStep
+            @NotNull VectorEmbeddingResult result
     ) throws Exception;
 
     // ========== Common Steps ==========
@@ -148,17 +146,5 @@ public abstract class EmbeddingPipeline {
                 request.getConnectionId(),
                 schemaId
         );
-    }
-
-    /**
-     * Get configuration as JSON string.
-     */
-    protected String getConfigJson(@NotNull Object config) {
-        if (config instanceof ChunkConfig) {
-            return ((ChunkConfig) config).getConfigJson();
-        } else if (config instanceof EmbedConfig) {
-            return ((EmbedConfig) config).getConfigJson();
-        }
-        return "{}";
     }
 }

@@ -4,7 +4,11 @@ import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
-import com.dbn.vector.model.*;
+import com.dbn.vector.model.FileResult;
+import com.dbn.vector.model.SourceStatus;
+import com.dbn.vector.model.StepResult;
+import com.dbn.vector.model.VectorEmbeddingRequest;
+import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
 import com.dbn.vector.service.FileProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -25,14 +29,13 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
             @NotNull DBNConnection connection,
             @NotNull DatabaseAssistantInterface assistantInterface,
             @NotNull ProgressIndicator progressIndicator,
-            @NotNull VectorEmbeddingResult result,
-            @NotNull StepResult ensureDestStep) throws Exception {
+            @NotNull VectorEmbeddingResult result) throws Exception {
 
         // ensure documents table exists (shared step for all files)
-        StepResult ensureDocumentStep = ensureDocumentsTableStep(connection, assistantInterface);
-        result.addSharedStep(ensureDocumentStep);
+        StepResult documentStep = ensureDocumentsTableStep(connection, assistantInterface);
+        result.addSharedStep(documentStep);
 
-        if (ensureDocumentStep.getStatus() == StepResult.STEP_STATUS.FAILED && ensureDocumentStep.isCritical()) {
+        if (documentStep.getStatus() == StepResult.STEP_STATUS.FAILED && documentStep.isCritical()) {
             return;
         }
 
@@ -47,11 +50,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                     String.format("Processing file \"%s\" (%d/%d)", file.getName(), i + 1, files.size())
             );
 
-            FileResult fileResult = result.ensureFileResult(file);
-
-            // Add shared steps to this file result
-            fileResult.getSteps().add(ensureDestStep);
-            fileResult.getSteps().add(ensureDocumentStep);
+            FileResult fileResult = result.initFileResult(file);
 
             // Process the file
             processFile(request, connection, assistantInterface, progressIndicator, file, i, files.size(), fileResult);
