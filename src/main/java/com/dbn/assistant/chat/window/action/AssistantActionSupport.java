@@ -33,7 +33,6 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
 
@@ -99,7 +98,7 @@ public interface AssistantActionSupport {
     }
 
     @Nullable
-    default AssistantToolApprovals getToolApprovals(@NonNull AnActionEvent e) {
+    default AssistantToolApprovals getToolApprovals(@NotNull AnActionEvent e) {
         AssistantToolSettings toolSettings = getToolSettings(e);
         if (toolSettings == null) return null;
 
@@ -107,7 +106,7 @@ public interface AssistantActionSupport {
     }
 
     @Nullable
-    default AssistantToolSettings getToolSettings(@NonNull AnActionEvent e) {
+    default AssistantToolSettings getToolSettings(@NotNull AnActionEvent e) {
         AssistantState assistantState = getAssistantState(e);
         if (assistantState == null) return null;
 

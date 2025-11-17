@@ -1,6 +1,5 @@
 package com.dbn.vector.result;
 
-import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
@@ -10,33 +9,24 @@ import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.text.HiddenCaret;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.SchemaId;
-import com.dbn.editor.DatabaseFileEditorManager;
-import com.dbn.editor.EditorProviderId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
-import com.dbn.object.action.ObjectNavigationListActionGroup;
-import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.model.StepResult;
 import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
-import com.intellij.diagnostic.hprof.navigator.ObjectNavigator;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.Nullable;
-import software.amazon.awssdk.protocols.json.internal.unmarshall.JsonUnmarshallerRegistry;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
-import java.awt.*;
-
-import static com.intellij.codeInspection.ui.actions.InspectionViewActionBase.getView;
+import java.awt.Color;
+import java.awt.Font;
 
 public class PipelineStepForm extends DBNFormBase  {
   private JPanel mainPanel;
