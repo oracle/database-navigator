@@ -1,5 +1,6 @@
 package com.dbn.vector.pipeline;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -13,6 +14,7 @@ import com.dbn.vector.model.store.StoreConfig;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.sql.SQLException;
 
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
@@ -84,7 +86,8 @@ public abstract class EmbeddingPipeline {
 
         try {
             StoreConfig storeConfig = request.getStoreConfig();
-
+            step.setLink(storeConfig.getSchemaName()+"."+storeConfig.getTableName());
+            step.setIcon(Icons.DBO_TABLE);
             if (storeConfig.getDestinationType() == DestinationType.NEW_TABLE) {
                 assistantInterface.createEmbeddingTable(
                         connection,
@@ -95,6 +98,7 @@ public abstract class EmbeddingPipeline {
                         storeConfig.getEmbeddingColumnName(),
                         storeConfig.getMetadataColumnName()
                 );
+
 
                 // Notify browser to refresh
                 notifyTableCreated(request, storeConfig);
@@ -123,6 +127,8 @@ public abstract class EmbeddingPipeline {
         try {
             assistantInterface.ensureDocumentsTable(connection, FILES_TABLE);
             step.markSuccess();
+            step.setLink("AYOUB."+FILES_TABLE.toUpperCase());
+            step.setIcon(Icons.DBO_TABLE);
 
         } catch (SQLException e) {
             step.markFailed("DOCUMENTS_TABLE_ERROR", e.getMessage());

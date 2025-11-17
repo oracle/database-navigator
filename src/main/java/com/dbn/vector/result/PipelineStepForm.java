@@ -1,52 +1,91 @@
 package com.dbn.vector.result;
 
+import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.info.DBNInfoLabel;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.text.HiddenCaret;
 import com.dbn.common.ui.util.Fonts;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
+import com.dbn.editor.DatabaseFileEditorManager;
+import com.dbn.editor.EditorProviderId;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBTable;
+import com.dbn.object.action.ObjectNavigationListActionGroup;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.model.StepResult;
+import com.dbn.vfs.DatabaseFileSystem;
+import com.dbn.vfs.file.DBEditableObjectVirtualFile;
+import com.intellij.diagnostic.hprof.navigator.ObjectNavigator;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.Nullable;
+import software.amazon.awssdk.protocols.json.internal.unmarshall.JsonUnmarshallerRegistry;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.*;
+
+import static com.intellij.codeInspection.ui.actions.InspectionViewActionBase.getView;
 
 public class PipelineStepForm extends DBNFormBase  {
   private JPanel mainPanel;
   private JLabel titleLabel;
-  private JTextPane descriptionTextArea;
+//  private JTextPane descriptionTextArea;
   private JTextPane reasonTextArea;
   private JPanel statusPanel;
   private JLabel statusLabel;
   private JLabel durationValueLabel;
+  private DBNInfoLabel infoLabel;
+  private DBNHyperlinkLabel linkLabel;
+  private JPanel linkIcon;
 
   private final StepResult stepResult;
 
   public PipelineStepForm(@Nullable VectorEmbeddingExecutionResultForm parent, StepResult stepResult) {
     super(parent);
-    System.out.println("jkhkhk");
     this.stepResult = stepResult;
     Color greyContent = Colors.faded(UIUtil.getLabelForeground());
     Color redContent = UIUtil.getErrorForeground();
     Font largerFont = Fonts.regular(1);
-
+    System.out.println("fhjfhg");
     titleLabel.setText(stepResult.getStep().getDisplayName());
     titleLabel.setFont(largerFont);
     statusLabel.setForeground(greyContent);
-    descriptionTextArea.setFont(JBUI.Fonts.label());
+    initInfoLabel();
+//    linkLabel.setFont(JBUI.Fonts.label());
+    linkLabel.setHyperlinkText(stepResult.getLink());
+    linkIcon.add(new JLabel(stepResult.getIcon()));
 
-    descriptionTextArea.setText(stepResult.getStep().getDescription());
-    descriptionTextArea.setCaret(new HiddenCaret());
+    linkLabel.addHyperlinkListener(e->{
+      ConnectionHandler connection = parent.getResult().getConnection();
+      String schemaName = stepResult.getLink().split("\\.")[0];
+      String tableName = stepResult.getLink().split("\\.")[1];
+
+      DBSchema schema = connection.getSchema(connection.getSchemaId(schemaName));
+      DBTable table = schema.getTable(tableName);
+
+      DatabaseFileSystem fileSystem = DatabaseFileSystem.getInstance();
+      DBEditableObjectVirtualFile databaseFile = fileSystem.findOrCreateDatabaseFile(table);
+
+      FileEditorManager fileEditorManager = FileEditorManager.getInstance(getProject());
+      fileEditorManager.openFile(databaseFile, true);
+    });
+
+
+
     durationValueLabel.setForeground(greyContent);
-    durationValueLabel.setText(stepResult.getDuration()/1000+"s");
+    durationValueLabel.setText((double)stepResult.getDuration()/1000+"s");
     if (!stepResult.isOk()){
       reasonTextArea.setText(stepResult.getErrorCode()+stepResult.getErrorMessage());
       reasonTextArea.setFont(JBUI.Fonts.label());
@@ -57,6 +96,10 @@ public class PipelineStepForm extends DBNFormBase  {
     updateStepStatus();
 
 
+  }
+
+  private void initInfoLabel() {
+    infoLabel.setContent(TextContent.plain(stepResult.getStep().getDescription()));
   }
 
   private void updateStepStatus() {

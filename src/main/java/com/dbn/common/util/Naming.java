@@ -187,6 +187,44 @@ public class Naming {
 
     }
 
+    /**
+     * Shortens a filename to fit within a maximum length while preserving
+     * the file extension and showing the beginning and end of the name.
+     *
+     * Example: "very_long_document_name_with_details.pdf" (max 30)
+     *       -> "very_long_do...details.pdf"
+     *
+     * @param fileName the filename to shorten
+     * @param maxLength maximum length of the result
+     * @return shortened filename
+     */
+    public static String shortenFileName(String fileName, int maxLength) {
+        if (fileName == null || fileName.length() <= maxLength) {
+            return fileName;
+        }
+
+
+        int lastDot = fileName.lastIndexOf('.');
+        String name = lastDot > 0 ? fileName.substring(0, lastDot) : fileName;
+        String ext = lastDot > 0 ? fileName.substring(lastDot) : "";
+
+        int availableLength = maxLength - ext.length() - 3;
+
+        if (availableLength <= 0) {
+            return fileName.substring(0, Math.max(1, maxLength - 3)) + "...";
+        }
+
+        int prefixLength = (availableLength * 2) / 3; // 2/3 for prefix
+        int suffixLength = availableLength - prefixLength;
+
+        String prefix = name.substring(0, Math.min(prefixLength, name.length()));
+        String suffix = suffixLength > 0 && name.length() > prefixLength
+                ? name.substring(name.length() - suffixLength)
+                : "";
+
+        return prefix + "..." + suffix + ext;
+    }
+
     public static String singleQuoted(String string) {
         return quoted(string, '\'');
     }

@@ -2,12 +2,15 @@ package com.dbn.vector.result;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.misc.DBNScrollPane;
+import com.dbn.common.util.Naming;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.vector.model.SourceResult;
+import com.dbn.vector.model.SourceStatus;
 import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.JBColor;
+import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
@@ -36,21 +39,17 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
   private JLabel titleLabel;
   private JLabel statusBadge;
   private JPanel metricsPanel;
-  private JLabel durationLabel;
-  private JLabel durationValue;
-  private JLabel totalRowsLabel;
-  private JLabel totalRowsValue;
-  private JLabel filesLabel;
-  private JLabel filesValue;
-  private JLabel successRateLabel;
-  private JLabel successRateValue;
+  private com.intellij.ui.SimpleColoredComponent metricsLabel;
   private JPanel pipelinePanel;
   private JPanel pipelineHeaderPanel;
   private JSplitPane contentSplitPane;
+  private JLabel sourceName;
+  private JPanel sourceStatusPanel;
   private VectorEmbeddingSourcesTable sourceDataTable;
 
   public VectorEmbeddingExecutionResultForm(@NotNull VectorEmbeddingExecutionResult executionResult) {
     super(executionResult);
+    System.out.println("ff");
     this.result = getExecutionResult().getVectorEmbeddingResult();
     verticalBoxLayout(pipelinePanel);
     initializeComponents();
@@ -58,6 +57,8 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
   }
 
   private void initializeComponents() {
+    pipelineHeaderPanel.setVisible(false);
+
     initializeTable();
     initializeHeader();
   }
@@ -76,10 +77,21 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     }
     statusBadge.setText("");
 
-    this.durationValue.setText(result.getDuration() / 1000 +"s");
-    this.totalRowsValue.setText(String.valueOf(result.getTotalInsertedRows()));
-    this.filesValue.setText(String.valueOf(result.getSourceResults().size()));
-    this.successRateValue.setText(result.getSuccessRate()+"%");
+    metricsLabel.append("Duration: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+    metricsLabel.append((double)result.getDuration() / 1000 +"s", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+    metricsLabel.append(" • ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
+    metricsLabel.append("Total Rows: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+    metricsLabel.append(String.valueOf(result.getTotalInsertedRows()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+    metricsLabel.append(" • ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
+    metricsLabel.append("Sources: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+    metricsLabel.append(String.valueOf(result.getSourceResults().size()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+    metricsLabel.append(" • ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
+    metricsLabel.append("Success Rate: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+    metricsLabel.append(result.getSuccessRate()+"%", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+//    this.durationValue.setText((double)result.getDuration() / 1000 +"s");
+//    this.totalRowsValue.setText(String.valueOf(result.getTotalInsertedRows()));
+//    this.filesValue.setText(String.valueOf(result.getSourceResults().size()));
+//    this.successRateValue.setText(result.getSuccessRate()+"%");
   }
 
   private void initializeTable() {
@@ -91,16 +103,33 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     // Add selection listener to handle row selection and show pipeline/details
     sourceDataTable.getSelectionModel().addListSelectionListener(e -> {
       if (!e.getValueIsAdjusting()) {
+        pipelineHeaderPanel.setVisible(true);
         int viewRow = sourceDataTable.getSelectedRow();
         if (viewRow < 0) return;
 
         int modelRow = sourceDataTable.convertRowIndexToModel(viewRow);
         VectorEmbeddingSourcesTableModel model = sourceDataTable.getModel();
         SourceResult sr = model.getSourceResults().get(modelRow);
-
+        String sourceN  = Naming.shortenFileName(sr.getName(),50);
+        sourceName.setText(sourceN+"  ");
+        updateStepStatus(sr);
         showPipelineDetails(sr);
       }
     });
+  }
+
+  private void updateStepStatus(SourceResult sr) {
+    SourceStatus status = sr.getStatus();
+    Icon icon = null;
+    if (status == SourceStatus.FAILED) {
+      icon = Icons.COMMON_STATUS_ERROR;
+    }else if (status == SourceStatus.SUCCESS){
+      icon = Icons.COMMON_STATUS_SUCCESS;
+    }else if (status ==SourceStatus.RUNNING){
+      icon = AllIcons.Process.Step_passive;
+    }
+    sourceStatusPanel.removeAll();
+    sourceStatusPanel.add(new JLabel(icon));
   }
 
   private void showPipelineDetails(SourceResult sr) {
@@ -141,7 +170,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
 //      addPipelineStep(step.getStep().getDisplayName(), null, step.getStatus());
 
       pipelinePanel.add(new PipelineStepForm(this,step).getComponent());
-    });
+     });
 
     pipelinePanel.revalidate();
     pipelinePanel.repaint();
@@ -207,5 +236,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     return mainPanel;
   }
 
-
+  public VectorEmbeddingResult getResult() {
+    return result;
+  }
 }

@@ -16,6 +16,7 @@
 
 package com.dbn.vector.result;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
@@ -23,6 +24,7 @@ import com.dbn.common.ui.table.DBNTableGutter;
 import com.dbn.common.ui.table.DBNTableTransferHandler;
 import com.dbn.common.ui.table.DBNTableWithGutter;
 import com.dbn.vector.model.SourceResult;
+import com.dbn.vector.model.SourceStatus;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,6 +64,14 @@ public class VectorEmbeddingSourcesTable extends DBNTableWithGutter<VectorEmbedd
             String columnValue = getModel().getPresentableValue(entry, column);
             append(columnValue == null ? "" : columnValue, SimpleTextAttributes.REGULAR_ATTRIBUTES);
             if (column == 0) setIcon(entry.getIcon());
+            if (column == 3) {
+                if(SourceStatus.FAILED.equals(entry.getStatus())){
+                    if (!selected){
+                        setForeground(Colors.getLabelErrorForeground());
+                    }
+                }
+
+            }
         }
     }
 }

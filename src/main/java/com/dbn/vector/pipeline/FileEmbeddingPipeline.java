@@ -1,5 +1,6 @@
 package com.dbn.vector.pipeline;
 
+import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
@@ -69,6 +70,8 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
             int currentIndex,
             int totalFiles,
             @NotNull FileResult fileResult) {
+        String shortenFileName = Naming.shortenFileName(file.getName(), 40);
+
 
         try {
             String documentId = fileService.generateDocumentId();
@@ -76,7 +79,8 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
             // Step 1: Check CRC
             progressIndicator.setText2(
-                    String.format("Checking file \"%s\" (%d/%d)", file.getName(), currentIndex + 1, totalFiles)
+                    String.format("Checking file \"%s\" (%d/%d)", shortenFileName
+                            , currentIndex + 1, totalFiles)
             );
 
             long crc = fileService.checkFileExists(connection, assistantInterface, file, fileResult);
@@ -86,13 +90,12 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
             }
 
             java.sql.Blob blobData = null;
-
             // Step 2: Upload file (only if it doesn't already exist)
             if (fileResult.isExisted()) {
                 // File already exists, use cached blob from CRC check
                 progressIndicator.setText2(
-                        String.format("File already uploaded, using existing \"%s\" (%d/%d)", 
-                                file.getName(), currentIndex + 1, totalFiles)
+                        String.format("File already uploaded, using existing \"%s\" (%d/%d)",
+                                shortenFileName, currentIndex + 1, totalFiles)
                 );
                 
                 blobData = fileService.getExistingBlob(fileResult);
@@ -100,7 +103,8 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
             } else {
                 // File doesn't exist, upload it
                 progressIndicator.setText2(
-                        String.format("Uploading file \"%s\" (%d/%d)", file.getName(), currentIndex + 1, totalFiles)
+                        String.format("Uploading file \"%s\" (%d/%d)", shortenFileName
+                                , currentIndex + 1, totalFiles)
                 );
 
                 blobData = fileService.uploadFile(
@@ -119,7 +123,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
             // Step 3: Embed file (always execute, whether file was uploaded or already existed)
             progressIndicator.setText2(
-                    String.format("Embedding file \"%s\" (%d/%d)", file.getName(), currentIndex + 1, totalFiles)
+                    String.format("Embedding file \"%s\" (%d/%d)", shortenFileName, currentIndex + 1, totalFiles)
             );
 
             fileService.embedFile(

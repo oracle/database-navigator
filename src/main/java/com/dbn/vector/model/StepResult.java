@@ -2,10 +2,13 @@ package com.dbn.vector.model;
 
 import lombok.Getter;
 
+import javax.swing.*;
 import java.util.Date;
 
 @Getter
 public class StepResult {
+  private String link ="";
+
   public enum STEP_STATUS {
     NOT_STARTED,
     RUNNING,
@@ -19,6 +22,7 @@ public class StepResult {
   private String errorMessage;
   private long startTime;
   private long endTime;
+  private Icon icon ;
 
   public StepResult(PipelineStep step) {
     this.step = step;
@@ -48,5 +52,13 @@ public class StepResult {
 
   public long getDuration() {
     return endTime - startTime;
+  }
+
+  public void setLink(String link) {
+    this.link = link;
+  }
+
+  public void setIcon(Icon icon) {
+    this.icon = icon;
   }
 }
