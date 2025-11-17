@@ -39,4 +39,12 @@ public class SourceConfig extends VectorEmbeddingConfig {
         tableSourceConfig.writeState(tableSourceElement);
         fileSourceConfig.writeState(fileSourceElement);
     }
+
+    public int getRecordCount() {
+        switch (sourceType) {
+            case DATABASE_TABLE: return 1; // TODO multiple table support
+            case FILE_SYSTEM: return fileSourceConfig.getFileCount();
+            default: return 0;
+        }
+    }
 }

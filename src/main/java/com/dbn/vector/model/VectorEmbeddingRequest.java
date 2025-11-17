@@ -62,6 +62,10 @@ public class VectorEmbeddingRequest implements PersistentStateElement {
         storeConfig.setSchemaName(schemaName);
     }
 
+    public int getRecordCount() {
+        return sourceConfig.getRecordCount();
+    }
+
     /**
      * Soft reset, to be used after a request has been executed.
      * <li>clear source files</li>

@@ -53,7 +53,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
             FileResult fileResult = result.initFileResult(file);
 
             // Process the file
-            processFile(request, connection, assistantInterface, progressIndicator, file, i, files.size(), fileResult);
+            processFile(request, connection, assistantInterface, progressIndicator, file, i, fileResult);
         }
     }
 
@@ -67,8 +67,9 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
             @NotNull ProgressIndicator progressIndicator,
             @NotNull VirtualFile file,
             int currentIndex,
-            int totalFiles,
             @NotNull FileResult fileResult) {
+
+        int totalFiles = request.getRecordCount();
         String shortenFileName = Naming.shortenFileName(file.getName(), 40);
 
 

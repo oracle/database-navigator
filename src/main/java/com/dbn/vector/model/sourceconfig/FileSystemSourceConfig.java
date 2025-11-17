@@ -61,4 +61,8 @@ public class FileSystemSourceConfig implements PersistentStateElement {
         }
         setBooleanAttribute(element, "store", store);
     }
+
+    public int getFileCount() {
+        return filePaths.size();
+    }
 }
