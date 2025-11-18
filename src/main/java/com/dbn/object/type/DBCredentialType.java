@@ -17,16 +17,35 @@
 package com.dbn.object.type;
 
 
+import com.dbn.common.constant.Constant;
+
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * This enum is for listing the possible ways of creating a new credential
  *
  * @author Ayoub Aarrasse (Oracle)
  */
-public enum DBCredentialType {
-  /**
-   * We can create either using username/password aka the provider key, or we can use OCI information
-   */
-  PASSWORD,
-  OCI;
+public enum DBCredentialType implements Constant<DBCredentialType> {
+    PASSWORD,
+    TOKEN,
+    OCI;
 
+    public static final Set<DBCredentialType> VECTOR_AI_TYPES = Set.of(TOKEN);
+    public static final Set<DBCredentialType> SELECT_AI_TYPES = new LinkedHashSet<>(Set.of(PASSWORD, OCI));
+    public static final Set<DBCredentialType> ALL_TYPES = new LinkedHashSet<>(List.of(PASSWORD, TOKEN, OCI));
+
+    public static Set<DBCredentialType> getVectorAITypes() {
+        return VECTOR_AI_TYPES;
+    }
+
+    public static Set<DBCredentialType> getSelectAITypes() {
+        return SELECT_AI_TYPES;
+    }
+
+    public static Set<DBCredentialType> getAllTypes() {
+        return ALL_TYPES;
+    }
 }

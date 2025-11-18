@@ -15,7 +15,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
-import com.dbn.object.factory.ui.common.ObjectFactoryInputDialog;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.model.embed.ThirdPartyModelConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
@@ -37,6 +36,8 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.util.Lists.filter;
+import static com.dbn.object.type.DBCredentialType.getVectorAITypes;
 import static java.util.Collections.emptyList;
 
 public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
@@ -77,7 +78,7 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
     addCredentialButton.setText(null);
 
     addCredentialButton.addActionListener(e -> Dialogs.show(() ->
-            new CredentialEditDialog(getConnection(), null, Set.of())));
+            new CredentialEditDialog(getConnection(), null, getVectorAITypes(), Set.of())));
 
     ObjectChangeEvent.subscribe(this,
             getConnection(),
@@ -146,7 +147,8 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
     DBSchema schema = getSelectedSchema();
     if (schema == null) return emptyList();
 
-    return schema.getCredentials();
+    List<DBCredential> credentials = schema.getCredentials();
+    return filter(credentials, c -> getVectorAITypes().contains(c.getType()));
   }
 
   @Override

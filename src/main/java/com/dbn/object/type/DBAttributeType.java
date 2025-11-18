@@ -29,6 +29,7 @@ public enum DBAttributeType implements Constant<DBAttributeType> {
     TENANCY_OCID("tenancy_ocid"),
     PRIVATE_KEY("private_key"),
     FINGERPRINT("fingerprint"),
+    ACCESS_TOKEN("access_token"),
 
     // Profile attributes
     MODEL("model"),

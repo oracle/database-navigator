@@ -232,7 +232,11 @@
         <statement prefixes="DBA, ALL">
             select
                 CREDENTIAL_NAME,
-                case when USERNAME like 'ocid1.user.oc1.%' THEN 'OCI' ELSE 'PASSWORD' end as CREDENTIAL_TYPE,
+                case
+                    when USERNAME like 'ocid1.user.oc1.%' then 'OCI'
+                    when LOWER(USERNAME) = 'access_token' then 'TOKEN'
+                    else 'PASSWORD'
+                end as CREDENTIAL_TYPE,
                 USERNAME as USER_NAME,
                 JSON_VALUE(comments, '$.comments') as COMMENTS,
                 DECODE(ENABLED, 'TRUE', 'Y', 'N') as IS_ENABLED

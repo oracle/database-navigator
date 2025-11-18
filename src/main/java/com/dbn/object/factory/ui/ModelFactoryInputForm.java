@@ -4,7 +4,6 @@ import com.dbn.assistant.service.selectai.credential.ui.CredentialEditDialog;
 import com.dbn.common.color.Colors;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Background;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -42,9 +41,10 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
-import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.toUpperCase;
+import static com.dbn.object.type.DBCredentialType.getVectorAITypes;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.vector.common.ModelSourceType.MODEL_FILE;
 import static com.dbn.vector.common.ModelSourceType.OBJECT_STORAGE;
@@ -66,7 +66,7 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
   private JTextField objectUrlTextField;
   private JLabel fileLabel;
   private JLabel objectUrlLabel;
-  private JButton addCredentialButton;
+  private JButton credentialAddButton;
   private JLabel credentialLabel;
 
   private final DBObjectRef<DBSchema> schema;
@@ -94,34 +94,34 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
 
     DBNHeaderForm headerForm = createHeaderForm(schema,objectType);
     onTextChange(modelNameTextField, e -> headerForm.setTitle(schema.getName() + "." + toUpperCase(getObjectName()))); // TODO support quoted names
-    whenFirstShown(mainPanel, () -> populateCredentials());
 
     updatePathControls();
-    initCredentialAddButton();
+    initCredentialFields();
     setListeners();
   }
 
   @Override
   protected void initValidation() {
-    String objectTypeName = getObjectType().getName();
     addTextValidation(modelNameTextField, n -> isNotEmptyOrSpaces(n), "Please enter a name for the new model");
     addTextValidation(modelFileTextField.getTextField(), n -> isNotEmptyOrSpaces(n), "Please select a model file");
     addTextValidation(objectUrlTextField, n -> isNotEmptyOrSpaces(n), "Please provide an object URL");
-//    addSelectionValidation(credentialComboBox, "Please select or create a credential");
+    addSelectionValidation(credentialComboBox, "Please select or create a credential");
   }
 
-  private void initCredentialAddButton() {
-    addCredentialButton.setIcon(Icons.ACTION_ADD);
-    addCredentialButton.setText(null);
+  private void initCredentialFields() {
+    credentialComboBox.set(HIDE_DESCRIPTION, true);
+    credentialComboBox.init(() -> loadCredentials(), null);
+    credentialAddButton.setIcon(Icons.ACTION_ADD);
+    credentialAddButton.setText(null);
 
     ConnectionHandler connection = getConnection();
-    addCredentialButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(connection, null, Set.of())));
+    credentialAddButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(connection, null, getVectorAITypes(), Set.of())));
 
     Project project = connection.getProject();
     ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, e -> {
       if (!e.matches(connection)) return;
       if (!e.matches(CREDENTIAL)) return;
-      populateCredentials();
+      credentialComboBox.reloadValues();
     });
   }
 
@@ -129,11 +129,9 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
     return DBObjectRef.ensure(schema);
   }
 
-  private void populateCredentials() {
-    Background.run(() -> {
-      List<DBCredential> credentials = getSchema().getCredentials();
-      initComboBox(credentialComboBox, credentials);
-    });
+  private List<DBCredential> loadCredentials() {
+    List<DBCredential> credentials = getSchema().getCredentials();
+    return filter(credentials, c -> getVectorAITypes().contains(c.getType()));
   }
 
   private DBNHeaderForm createHeaderForm(DBSchema schema,DBObjectType objectType) {
@@ -168,7 +166,7 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
     objectUrlLabel.setVisible(storage);
     objectUrlTextField.setVisible(storage);
     credentialComboBox.setVisible(storage);
-    addCredentialButton.setVisible(storage);
+    credentialAddButton.setVisible(storage);
     credentialLabel.setVisible(storage);
   }
 

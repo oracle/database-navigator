@@ -145,7 +145,7 @@
             </constraints>
             <properties/>
           </component>
-          <component id="87676" class="javax.swing.JButton" binding="addCredentialButton">
+          <component id="87676" class="javax.swing.JButton" binding="credentialAddButton">
             <constraints>
               <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>

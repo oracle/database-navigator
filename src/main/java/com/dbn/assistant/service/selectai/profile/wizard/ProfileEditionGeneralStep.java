@@ -61,6 +61,7 @@ import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.type.DBCredentialType.getSelectAITypes;
 
 /**
  * Profile edition general step for edition wizard.
@@ -114,7 +115,10 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
         addCredentialButton.setText(null);
 
         ConnectionHandler connection = getConnection();
-        addCredentialButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(connection, null, Set.of())));
+        addCredentialButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(
+                connection, null,
+                getSelectAITypes(),
+                Set.of())));
 
         Project project = connection.getProject();
         ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, e -> {

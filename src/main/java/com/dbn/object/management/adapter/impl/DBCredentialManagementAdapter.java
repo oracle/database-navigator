@@ -48,7 +48,7 @@ public class DBCredentialManagementAdapter extends ObjectManagementAdapterFactor
         String credentialName = object.getName(true);
         DBCredentialType credentialType = object.getType();
 
-        if (credentialType == DBCredentialType.PASSWORD) {
+        if (credentialType.isOneOf(DBCredentialType.PASSWORD, DBCredentialType.TOKEN)) {
             databaseInterface.createPwdCredential(conn,
                     credentialName,
                     object.getAttribute(USER_NAME),

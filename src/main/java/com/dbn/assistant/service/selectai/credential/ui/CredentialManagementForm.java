@@ -62,8 +62,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
+import static com.dbn.object.type.DBCredentialType.getSelectAITypes;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
@@ -168,12 +170,15 @@ public class CredentialManagementForm extends DBNFormBase {
   public void promptCredentialCreation() {
     Dialogs.show(() -> new CredentialEditDialog(
             getConnection(), null,
+            getSelectAITypes(),
             credentialUsage.keySet()));
   }
 
   public void promptCredentialEdition(@NotNull DBCredential credential) {
     Dialogs.show(() -> new CredentialEditDialog(
-            getConnection(), credential,
+            getConnection(),
+            credential,
+            getSelectAITypes(),
             Collections.emptySet()));  // not relevant when editing an existing credential
   }
 
@@ -237,6 +242,7 @@ public class CredentialManagementForm extends DBNFormBase {
       if (force) refreshUserObjects(getConnectionId(), CREDENTIAL);
       DBSchema schema = getUserSchema();
       List<DBCredential> credentials =  schema == null ? Collections.emptyList() : schema.getCredentials();
+      credentials = filter(credentials, c -> getSelectAITypes().contains(c.getType()));
       applyCredentials(credentials);
 
     } catch (Throwable e){
