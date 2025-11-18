@@ -40,6 +40,7 @@ import static com.dbn.assistant.provider.AIModelProperty.DEFAULT;
 import static com.dbn.assistant.provider.AIModelProperty.DEPRECATED;
 import static com.dbn.assistant.provider.AIModelProperty.DISCONTINUED;
 import static com.dbn.assistant.provider.AIModelProperty.EXPERIMENTAL;
+import static com.dbn.assistant.provider.AIModelProperty.RECOMMENDED;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -149,9 +150,11 @@ public class AIProvidersDefinition {
         String modelId = stringAttribute(element, "id");
         AIModel modelTemplate = providerTemplate == null ? null : providerTemplate.getModel(modelId);
         boolean templateDefault = modelTemplate != null && modelTemplate.isDefault();
+        boolean templateRecommended = modelTemplate != null && modelTemplate.isRecommended();
         boolean templateExperimental = modelTemplate != null && modelTemplate.isExperimental();
         boolean templateDeprecated = modelTemplate != null && modelTemplate.isDeprecated();
         boolean templateDiscontinued = modelTemplate != null && modelTemplate.isDiscontinued();
+
         AIProviderId templateBaseProviderId = modelTemplate != null ? modelTemplate.getBaseProviderId() : null;
 
         AIProviderId baseProviderId = coalesce(
@@ -166,9 +169,10 @@ public class AIProvidersDefinition {
 
         // status
         model.set(DEFAULT, booleanAttribute(element, "default", templateDefault));
+        model.set(RECOMMENDED, booleanAttribute(element, "recommended", templateRecommended));
+        model.set(EXPERIMENTAL, booleanAttribute(element, "experimental", templateExperimental));
         model.set(DEPRECATED, booleanAttribute(element, "deprecated", templateDeprecated));
         model.set(DISCONTINUED, booleanAttribute(element, "discontinued", templateDiscontinued));
-        model.set(EXPERIMENTAL, booleanAttribute(element, "experimental", templateExperimental));
 
         // features
         @NonNls

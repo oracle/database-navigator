@@ -24,8 +24,9 @@ public enum AIModelProperty implements Property.ShortBase {
     DEFAULT,
     DEPRECATED,   // no longer maintained / not recommended
     DISCONTINUED, // no longer available
-    EXPERIMENTAL;
-
+    RECOMMENDED,  // recommended for coding and database assistance
+    EXPERIMENTAL,
+    ;
     public static final AIModelProperty[] VALUES = values();
 
     private final ShortMasks masks = new ShortMasks(this);

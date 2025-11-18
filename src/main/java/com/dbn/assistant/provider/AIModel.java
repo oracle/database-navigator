@@ -80,6 +80,10 @@ public final class AIModel extends ShortStore<AIModelProperty> implements Presen
         return is(AIModelProperty.DISCONTINUED);
     }
 
+    public boolean isRecommended() {
+        return is(AIModelProperty.RECOMMENDED);
+    }
+
     public boolean isFeatureSupported(AIModelFeature feature){
         return features.is(feature);
     }

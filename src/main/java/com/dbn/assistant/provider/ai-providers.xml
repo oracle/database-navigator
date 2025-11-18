@@ -338,18 +338,18 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
-                    <model id="GPT_5_1" features="MEMORY, TOOLS, INSTRUCTIONS"/>
-                    <model id="GPT_5" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="GPT_5_1" features="MEMORY, TOOLS, INSTRUCTIONS" recommended="true"/>
+                    <model id="GPT_5" features="MEMORY, TOOLS, INSTRUCTIONS" recommended="true"/>
                     <model id="GPT_5_MINI" features="MEMORY, TOOLS, INSTRUCTIONS"/>
                     <model id="GPT_5_NANO" features="MEMORY, TOOLS, INSTRUCTIONS"/>
-                    <model id="GPT_4_1"/>
+                    <model id="GPT_4_1" recommended="true"/>
                     <model id="GPT_4_1_MINI"/>
                     <model id="GPT_4_1_NANO"/>
                     <model id="O4_MINI" features="MEMORY, TOOLS, INSTRUCTIONS"/>
-                    <model id="O3" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="O3" features="MEMORY, TOOLS, INSTRUCTIONS" recommended="true"/>
                     <model id="O3_MINI" features="MEMORY, TOOLS, INSTRUCTIONS"/>
                     <model id="O1" features="MEMORY, TOOLS, INSTRUCTIONS"/>
-                    <model id="GPT_4_O" default="true"/>
+                    <model id="GPT_4_O" default="true" recommended="true"/>
                     <model id="GPT_4_O_MINI"/>
                 </models>
             </provider>
@@ -358,12 +358,12 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
-                    <model id="GEMINI_2_5_PRO"/>
-                    <model id="GEMINI_2_5_FLASH"/>
+                    <model id="GEMINI_2_5_PRO" recommended="true"/>
+                    <model id="GEMINI_2_5_FLASH" recommended="true"/>
                     <model id="GEMINI_2_5_FLASH_LITE"/>
                     <model id="GEMINI_FLASH_LATEST"/>
                     <model id="GEMINI_2_0_FLASH_LITE"/>
-                    <model id="GEMINI_2_0_FLASH"/>
+                    <model id="GEMINI_2_0_FLASH" recommended="true"/>
                     <model id="GEMINI_1_5_FLASH" discontinued="true"/>
                     <model id="GEMINI_1_5_PRO" discontinued="true"/>
                     <model id="GEMINI_1_0_PRO" discontinued="true"/>
@@ -374,10 +374,10 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
-                    <model id="CLAUDE_OPUS_4_1_20250805"/>
-                    <model id="CLAUDE_OPUS_4_20250514"/>
-                    <model id="CLAUDE_SONNET_4_20250514"/>
-                    <model id="CLAUDE_3_7_SONNET_20250219"/>
+                    <model id="CLAUDE_OPUS_4_1_20250805" recommended="true"/>
+                    <model id="CLAUDE_OPUS_4_20250514" recommended="true"/>
+                    <model id="CLAUDE_SONNET_4_20250514" recommended="true"/>
+                    <model id="CLAUDE_3_7_SONNET_20250219" recommended="true"/>
                     <model id="CLAUDE_3_5_HAIKU_20241022"/>
                     <model id="CLAUDE_3_HAIKU_20240307"/>
                 </models>
@@ -387,9 +387,9 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
-                    <model id="CODESTRAL_2508"/>
-                    <model id="MISTRAL_MEDIUM_2508"/>
-                    <model id="MAGISTRAL_MEDIUM_2507"/>
+                    <model id="CODESTRAL_2508" recommended="true"/>
+                    <model id="MISTRAL_MEDIUM_2508" recommended="true"/>
+                    <model id="MAGISTRAL_MEDIUM_2507" recommended="true"/>
                     <model id="MAGISTRAL_SMALL_2507"/>
                     <model id="VOXTRAL_SMALL_2507"/>
                     <model id="VOXTRAL_MINI_2507"/>
@@ -402,8 +402,8 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
-                    <model id="GROK_CODE_FAST_1"/>
-                    <model id="GROK_4_FAST_REASONING"/>
+                    <model id="GROK_CODE_FAST_1" recommended="true"/>
+                    <model id="GROK_4_FAST_REASONING" recommended="true"/>
                     <model id="GROK_4_FAST_NON_REASONING"/>
                     <model id="GROK_4_0709"/>
                     <model id="GROK_3_MINI"/>
