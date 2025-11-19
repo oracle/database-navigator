@@ -5,10 +5,19 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBAIModel;
 import com.dbn.object.management.ObjectManagementAdapterFactoryBase;
+import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 
-public class DBAiModelManagementAdapter extends ObjectManagementAdapterFactoryBase<DBAIModel> {
+import static com.dbn.common.constant.Constant.array;
+import static com.dbn.object.type.DBObjectType.AI_MODEL;
+
+public class DBAIModelManagementAdapter extends ObjectManagementAdapterFactoryBase<DBAIModel> {
+    @Override
+    public DBObjectType[] getObjectTypes() {
+        return array(AI_MODEL);
+    }
+
     @Override
     protected void createObject(ConnectionHandler connection, DBNConnection conn, DBAIModel object) throws SQLException {
 //        DatabaseVectorInterface databaseInterface = connection.getAssistantInterface();

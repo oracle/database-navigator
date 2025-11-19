@@ -65,15 +65,17 @@
                 <url type="OFFICIAL">https://cohere.com</url>
                 <url type="API">https://dashboard.cohere.com/welcome/login?redirect_uri=%2Fapi-keys</url>
             </urls>
-            <model id="COMMAND_R_PLUS_08_2024"  api-name="command-r-plus-08-2024"  short-name="command-r-plus-08"  description="Complex coding logic, SQL analysis"/>
-            <model id="COMMAND_R_08_2024"       api-name="command-r-08-2024"       short-name="command-r-08"       description="Efficient coding, practical SQL tasks"/>
-            <model id="COMMAND_R_PLUS"          api-name="command-r-plus"          short-name="command-r-plus"     description="Advanced reasoning, strong SQL handling"/>
-            <model id="COMMAND_R"               api-name="command-r"               short-name="command"            description="General coding workflows, routine SQL"/>
+            <models>
+                <model id="COMMAND_R_PLUS_08_2024"  api-name="command-r-plus-08-2024"  short-name="command-r-plus-08"  description="Complex coding logic, SQL analysis"/>
+                <model id="COMMAND_R_08_2024"       api-name="command-r-08-2024"       short-name="command-r-08"       description="Efficient coding, practical SQL tasks"/>
+                <model id="COMMAND_R_PLUS"          api-name="command-r-plus"          short-name="command-r-plus"     description="Advanced reasoning, strong SQL handling"/>
+                <model id="COMMAND_R"               api-name="command-r"               short-name="command"            description="General coding workflows, routine SQL"/>
 
-            <model id="COMMAND_LIGHT_NIGHTLY"   api-name="command-light-nightly"   short-name="command-light-nightly"  description="Fast iteration, light coding"/>
-            <model id="COMMAND_LIGHT"           api-name="command-light"           short-name="command-light"          description="Lightweight code support, quick SQL edits"/>
-            <model id="COMMAND_NIGHTLY"         api-name="command-nightly"         short-name="command-nightly"        description="Experimental coding, updated logic"/>
-            <model id="COMMAND"                 api-name="command"                 short-name="command"                description="Simple coding tasks, base SQL"/>
+                <model id="COMMAND_LIGHT_NIGHTLY"   api-name="command-light-nightly"   short-name="command-light-nightly"  description="Fast iteration, light coding"/>
+                <model id="COMMAND_LIGHT"           api-name="command-light"           short-name="command-light"          description="Lightweight code support, quick SQL edits"/>
+                <model id="COMMAND_NIGHTLY"         api-name="command-nightly"         short-name="command-nightly"        description="Experimental coding, updated logic"/>
+                <model id="COMMAND"                 api-name="command"                 short-name="command"                description="Simple coding tasks, base SQL"/>
+            </models>
         </provider>
 
         <provider id="OCI_GEN_AI" name="OCI Generative AI" host="api.oci.com">
