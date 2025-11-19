@@ -199,6 +199,9 @@
             </urls>
             <models>
                 <!-- 2025 -->
+                <model id="GROK_4_1"                  api-name="grok-4.1"                   short-name="grok-4.1"                  description="Strong coding capability, clear SQL reasoning"/>
+                <model id="GROK_4_1_THINKING"         api-name="grok-4.1-thinking"          short-name="grok-4.1-thinking"         description="Enhanced reasoning, multi-step code and database logic"/>
+                <model id="GROK_4_1_NON_THINKING"     api-name="grok-4.1-non-thinking"      short-name="grok-4.1-non-thinking"     description="Fast deterministic coding, direct SQL outputs"/>
                 <model id="GROK_CODE_FAST_1"          api-name="grok-code-fast-1"           short-name="grok-code-fast"            description="Extremely fast code generation, rapid SQL edits"/>
                 <model id="GROK_4_FAST_REASONING"     api-name="grok-4-fast-reasoning"      short-name="grok-4-fast-reasoning"     description="High-speed reasoning-heavy coding"/>
                 <model id="GROK_4_FAST_NON_REASONING" api-name="grok-4-fast-non-reasoning"  short-name="grok-4-fast-non-reasoning" description="Ultra-fast straightforward code output"/>
@@ -406,6 +409,9 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
+                    <model id="GROK_4_1" recommended="true"/>
+                    <model id="GROK_4_1_THINKING" recommended="true"/>
+                    <model id="GROK_4_1_NON_THINKING"/>
                     <model id="GROK_CODE_FAST_1" recommended="true"/>
                     <model id="GROK_4_FAST_REASONING" recommended="true"/>
                     <model id="GROK_4_FAST_NON_REASONING"/>
