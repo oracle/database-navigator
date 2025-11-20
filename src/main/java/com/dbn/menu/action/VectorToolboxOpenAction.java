@@ -22,7 +22,6 @@ import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.action.AbstractConnectionAction;
-import com.dbn.database.DatabaseFeature;
 import com.dbn.vector.DatabaseVectorManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -35,6 +34,7 @@ import java.util.List;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
+import static com.dbn.database.DatabaseFeature.VECTOR_EMBEDDING;
 import static com.dbn.nls.NlsResources.txt;
 
 public class VectorToolboxOpenAction extends ProjectAction {
@@ -49,16 +49,14 @@ public class VectorToolboxOpenAction extends ProjectAction {
     }
 
     private boolean isVisible(@NotNull Project project) {
-        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-        ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
-        return connectionBundle.hasConnections(DatabaseFeature.VECTOR_EMBEDDING);
+        return VECTOR_EMBEDDING.isSupported(project);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
         ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
-        List<ConnectionHandler> connections = connectionBundle.getConnections(DatabaseFeature.VECTOR_EMBEDDING);
+        List<ConnectionHandler> connections = connectionBundle.getConnections(VECTOR_EMBEDDING);
 
         if (connections.size() == 1) {
             openVectorToolbox(connections.get(0));

@@ -27,7 +27,9 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigListener;
+import com.dbn.event.notification.ui.EventNotificationsForm;
 import com.dbn.event.registration.EventRegistrationListener;
+import com.dbn.object.DBTable;
 import com.dbn.object.event.ObjectChangeAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.SimpleTextAttributes;
@@ -105,6 +107,15 @@ public class EventMonitorForm extends DBNFormBase {
         connectionsList.setSelectedValue(connection, true);
         EventMonitorDetailsForm detailsForm = ensureDetailsForm(connectionId);
         detailsForm.selectTab(index);
+    }
+
+    public void showTableNotifications(DBTable table) {
+        ConnectionId connectionId = table.getConnectionId();
+        selectContent(connectionId, 1);
+
+        EventMonitorDetailsForm detailsForm = ensureDetailsForm(connectionId);
+        EventNotificationsForm notificationsForm = detailsForm.getNotificationsForm();
+        notificationsForm.applyTableFilter(table);
     }
 
     private void rebuildModel() {

@@ -33,7 +33,6 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
-import com.dbn.database.DatabaseFeature;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.data.DatasetEditorError;
 import com.dbn.editor.data.filter.DatasetFilter;
@@ -48,6 +47,7 @@ import com.dbn.object.DBDataset;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -65,6 +65,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.connection.ConnectionProperty.RS_TYPE_FORWARD_ONLY;
 import static com.dbn.connection.ConnectionProperty.RS_TYPE_SCROLL_INSENSITIVE;
+import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.DBContentType.DATA;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
@@ -74,15 +75,17 @@ import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 import static com.dbn.editor.data.model.RecordStatus.UPDATING;
 
 @Slf4j
+@Getter
 public class DatasetEditorModel
         extends ResultSetDataModel<DatasetEditorModelRow, DatasetEditorModelCell>
         implements ListSelectionListener {
 
-    private final boolean isResultSetUpdatable;
+    private final boolean resultSetUpdatable;
     private final WeakRef<DatasetEditor> datasetEditor;
     private final DBObjectRef<DBDataset> dataset;
     private final DataEditorSettings settings;
 
+    private long loadTimestamp;
     private CancellableDatabaseCall<Object> loaderCall;
     private ResultSetAdapter resultSetAdapter;
 
@@ -97,7 +100,7 @@ public class DatasetEditorModel
         this.dataset = DBObjectRef.of(dataset);
         this.settings =  DataEditorSettings.getInstance(project);
         setHeader(new DatasetEditorModelHeader(datasetEditor, null));
-        this.isResultSetUpdatable = DatabaseFeature.UPDATABLE_RESULT_SETS.isSupported(getConnection());
+        this.resultSetUpdatable = UPDATABLE_RESULT_SETS.isSupported(this);
     }
 
     public void load(final boolean useCurrentFilter, final boolean keepChanges) throws SQLException {
@@ -159,7 +162,7 @@ public class DatasetEditorModel
 
         ConnectionHandler connection = getConnection();
         resultSetAdapter = Disposer.replace(resultSetAdapter,
-                DatabaseFeature.UPDATABLE_RESULT_SETS.isSupported(connection) ?
+                UPDATABLE_RESULT_SETS.isSupported(connection) ?
                     new EditableResultSetAdapter(this, resultSet) :
                     new ReadonlyResultSetAdapter(this, resultSet));
 
@@ -238,7 +241,10 @@ public class DatasetEditorModel
         statementRef.set(statement);
         checkDisposed();
 
-        statement.setFetchSize(getSettings().getGeneralSettings().getFetchBlockSize().value());
+        Integer fetchSize = getSettings().getGeneralSettings().getFetchBlockSize().value();
+        statement.setFetchSize(fetchSize);
+
+        loadTimestamp = System.currentTimeMillis();
         return statement.executeQuery(selectStatement);
     }
 
@@ -551,10 +557,6 @@ public class DatasetEditorModel
             row.revertChanges();
         }
         setModified(false);
-    }
-
-    public boolean isResultSetUpdatable() {
-        return isResultSetUpdatable;
     }
 
     /*********************************************************
