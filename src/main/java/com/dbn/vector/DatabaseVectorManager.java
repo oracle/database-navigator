@@ -11,8 +11,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
@@ -108,8 +108,8 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
-                    return assistantInterface.chunkTextContent(text,
+                    DatabaseVectorInterface vectorInterface = connection.getVectorInterface();
+                    return vectorInterface.chunkTextContent(text,
                             config.getChunkBy(),
                             config.getSplitBy(),
                             config.getMaxSize(),

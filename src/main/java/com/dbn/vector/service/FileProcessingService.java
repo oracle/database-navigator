@@ -2,7 +2,7 @@ package com.dbn.vector.service;
 
 import com.dbn.common.util.Json;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.interfaces.DatabaseAssistantInterface;
+import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.vector.model.FileResult;
 import com.dbn.vector.model.PipelineStep;
 import com.dbn.vector.model.StepResult;
@@ -32,7 +32,7 @@ public class FileProcessingService {
 
     public DuplicateInfo checkFileExists(
             @NotNull DBNConnection connection,
-            @NotNull DatabaseAssistantInterface assistantInterface,
+            @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull FileContent fileContent,
             @NotNull FileResult fileResult) {
 
@@ -43,7 +43,7 @@ public class FileProcessingService {
             long fileSize = fileContent.getFileSize();
 
             // Query database: does file with this hash and size exist?
-            ResultSet rs = assistantInterface.selectDocumentIdByHashIfExists(
+            ResultSet rs = vectorInterface.selectDocumentIdByHashIfExists(
                     connection,
                     FILES_TABLE,
                     fileHash,
@@ -69,7 +69,7 @@ public class FileProcessingService {
 
     public String uploadFile(
             @NotNull DBNConnection connection,
-            @NotNull DatabaseAssistantInterface assistantInterface,
+            @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull FileContent fileContent,
             @NotNull String documentId,
             @NotNull FileResult fileResult) {
@@ -82,7 +82,7 @@ public class FileProcessingService {
             String metadataJson = Json.writeAsString(metadata);
 
             // Step 1: Insert row with metadata and hash
-            assistantInterface.insertEmptyDocumentRow(
+            vectorInterface.insertEmptyDocumentRow(
                     connection,
                     FILES_TABLE,
                     documentId,
@@ -93,7 +93,7 @@ public class FileProcessingService {
 
             // Step 2: Write file bytes to BLOB column
             // NOTE: Pass bytes directly, not JDBC Blob
-            assistantInterface.writeBlobContent(
+            vectorInterface.writeBlobContent(
                     connection,
                     FILES_TABLE,
                     documentId,
@@ -120,7 +120,7 @@ public class FileProcessingService {
     public void embedFile(
             @NotNull VectorEmbeddingRequest request,
             @NotNull DBNConnection connection,
-            @NotNull DatabaseAssistantInterface assistantInterface,
+            @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull String documentId,  // ID only, not bytes!
             FileContent fileContent, @NotNull FileResult fileResult) {
 
@@ -133,7 +133,7 @@ public class FileProcessingService {
 
             // Call embedFileContent with documentId
             // It will SELECT the BLOB from database and process it
-            int embeddedRows = assistantInterface.embedFileContent(
+            int embeddedRows = vectorInterface.embedFileContent(
                     connection,
                     chunkConfigJson,
                     embedConfigJson,

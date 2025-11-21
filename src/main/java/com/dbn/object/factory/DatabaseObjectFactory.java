@@ -28,9 +28,9 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.security.DatabaseIdentifierCache;
-import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.object.DBJavaClass;
@@ -145,7 +145,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 connectionId,
                 schemaId,
                 conn -> {
-                    DatabaseAssistantInterface dataDefinition = schema.getAssistantInterface();
+                    DatabaseVectorInterface dataDefinition = schema.getVectorInterface();
                     if (modelSourceType == ModelSourceType.OBJECT_STORAGE) {
                         dataDefinition.loadOnnxModelFromOci(input, conn);
 

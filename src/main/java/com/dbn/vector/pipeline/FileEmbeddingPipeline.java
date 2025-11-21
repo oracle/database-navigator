@@ -3,7 +3,7 @@ package com.dbn.vector.pipeline;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.interfaces.DatabaseAssistantInterface;
+import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.vector.model.FileResult;
 import com.dbn.vector.model.PipelineStep;
 import com.dbn.vector.model.SourceStatus;
@@ -32,13 +32,13 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
             @NotNull VectorEmbeddingRequest request,
             @NotNull ConnectionHandler handler,
             @NotNull DBNConnection connection,
-            @NotNull DatabaseAssistantInterface assistantInterface,
+            @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull ProgressIndicator progressIndicator,
             @NotNull VectorEmbeddingResult result) throws Exception {
 
         // ensure documents table exists (shared step for all files)
         StepResult step = result.getstep(PipelineStep.ENSURE_DOCUMENT_TABLE);
-        ensureDocumentsTableStep(connection, assistantInterface, step, handler.getUserName());
+        ensureDocumentsTableStep(connection, vectorInterface, step, handler.getUserName());
 //        result.addSharedStep(step);
 
         if (step.getStatus() == StepResult.STEP_STATUS.FAILED && step.isCritical()) {
@@ -59,7 +59,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
             FileResult fileResult = result.initFileResult(file);
 
             // Process the file
-            processFile(request, connection, assistantInterface, progressIndicator, file, i, fileResult);
+            processFile(request, connection, vectorInterface, progressIndicator, file, i, fileResult);
         }
     }
 
@@ -69,7 +69,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
     private void processFile(
             @NotNull VectorEmbeddingRequest request,
             @NotNull DBNConnection connection,
-            @NotNull DatabaseAssistantInterface assistantInterface,
+            @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull ProgressIndicator progressIndicator,
             @NotNull VirtualFile file,
             int currentIndex,
@@ -101,7 +101,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
             DuplicateInfo dupInfo = fileService.checkFileExists(
                     connection,
-                    assistantInterface,
+                    vectorInterface,
                     fileContent,
                     fileResult
             );
@@ -134,7 +134,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
                 documentId = fileService.uploadFile(
                         connection,
-                        assistantInterface,
+                        vectorInterface,
                         fileContent,
                         documentId,
                         fileResult
@@ -153,7 +153,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
             fileService.embedFile(
                     request,
                     connection,
-                    assistantInterface,
+                    vectorInterface,
                     documentId,  // ← Pass ID only, no bytes!
                     fileContent,
                     fileResult
