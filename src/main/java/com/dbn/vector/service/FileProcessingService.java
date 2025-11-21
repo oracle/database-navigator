@@ -174,8 +174,8 @@ public class FileProcessingService {
     private String buildRowMetadata(@NotNull VectorEmbeddingRequest request, @NotNull String documentId, @NotNull DBNConnection connection, FileContent file) throws IOException, SQLException {
         Map<String, Object> metadata = extractFileMetadata(connection, file);
         metadata.put("doc_id", documentId);
-        metadata.put("embed_config", request.getEmbedConfig().getConfigJson());
-        metadata.put("chunk_config", request.getChunkConfig().getConfigJson());
+        metadata.put("embed_config", request.getEmbedConfig().getConfigMap());
+        metadata.put("chunk_config", request.getChunkConfig().getConfigMap());
         return Json.writeAsString(metadata);
     }
 }
