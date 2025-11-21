@@ -7,6 +7,7 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
@@ -41,8 +42,11 @@ public class VectorAIForm extends VectorToolboxFormBase {
   private EmbedConfigForm embedConfigForm;
   private SaveVectorsForm saveVectorsForm;
 
-  public VectorAIForm(Disposable parent, ConnectionHandler connection) {
+  private final VectorEmbeddingRequest request;
+
+  public VectorAIForm(Disposable parent, ConnectionHandler connection, VectorEmbeddingRequest request) {
     super(parent, connection);
+    this.request = request;
 
     initHeaderPanel();
     initHintPanel();
@@ -55,7 +59,6 @@ public class VectorAIForm extends VectorToolboxFormBase {
 
   private void initForms() {
     ConnectionHandler connection = getConnection();
-    VectorEmbeddingRequest request = getEmbeddingRequest();
 
     SourceConfig sourceConfig = request.getSourceConfig();
     sourceDataForm = new SourceDataForm(this, connection);
@@ -123,8 +126,7 @@ public class VectorAIForm extends VectorToolboxFormBase {
 //  }
 
   public VectorEmbeddingRequest getEmbeddingRequest() {
-    DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
-    return vectorManager.getEmbeddingRequest(getConnectionId());
+    return request;
   }
 
   @Override
@@ -143,9 +145,19 @@ public class VectorAIForm extends VectorToolboxFormBase {
     saveVectorsForm.applyFormChanges();
   }
 
+  public void saveRequestTemplate(boolean reset) {
+    VectorEmbeddingRequest requestTemplate = request.clone();
+    if (reset) requestTemplate.resetSoft();
+
+    ConnectionId connectionId = getConnectionId();
+    DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
+    vectorManager.setRequestTemplate(connectionId, requestTemplate);
+  }
+
   protected void reset() {
     SchemaId userSchema = getConnection().getUserSchema();
-    getEmbeddingRequest().resetHard(userSchema);
+    request.resetHard(userSchema);
+    saveRequestTemplate(false);
     resetFormChanges();
   }
 

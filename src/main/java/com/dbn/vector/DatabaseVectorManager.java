@@ -55,8 +55,7 @@ import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 )
 public class DatabaseVectorManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseVectorManager";
-    private final Map<ConnectionId, VectorEmbeddingRequest> embeddingRequests = new ConcurrentHashMap<>();
-    static final String FILES_TABLE = "document_files";
+    private final Map<ConnectionId, VectorEmbeddingRequest> requestTemplates = new ConcurrentHashMap<>();
 
     public DatabaseVectorManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -69,7 +68,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
             @Override
             public void connectionRemoved(ConnectionId connectionId) {
                 // remove embedding requests when connection configs are deleted
-                embeddingRequests.remove(connectionId);
+                requestTemplates.remove(connectionId);
             }
         };
     }
@@ -77,11 +76,14 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         return Components.projectService(project, DatabaseVectorManager.class);
     }
 
-    public VectorEmbeddingRequest getEmbeddingRequest(ConnectionId connectionId) {
-        return embeddingRequests.computeIfAbsent(connectionId, c -> createEmbeddingRequest(c));
+    public VectorEmbeddingRequest getRequestTemplate(ConnectionId connectionId) {
+        return requestTemplates.computeIfAbsent(connectionId, c -> createEmbeddingRequest(c));
     }
-    // so we have one request per connectionId
-  //
+
+    public void setRequestTemplate(ConnectionId connectionId, VectorEmbeddingRequest request) {
+        requestTemplates.put(connectionId, request);
+    }
+
     @NotNull
     private static VectorEmbeddingRequest createEmbeddingRequest(ConnectionId connectionId) {
         VectorEmbeddingRequest embeddingRequest = new VectorEmbeddingRequest(connectionId);
@@ -91,7 +93,13 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     }
 
     public void openVectorToolbox(ConnectionHandler connection) {
-        CREATE_VECTOR_EMBEDDINGS.start(connection, () -> Dialogs.show(() -> new VectorAiDialog(connection)));
+        VectorEmbeddingRequest requestTemplate = getRequestTemplate(connection.getConnectionId());
+        VectorEmbeddingRequest request = requestTemplate.clone();
+        openVectorToolbox(connection, request);
+    }
+
+    private static void openVectorToolbox(ConnectionHandler connection, VectorEmbeddingRequest request) {
+        CREATE_VECTOR_EMBEDDINGS.start(connection, () -> Dialogs.show(() -> new VectorAiDialog(connection, request)));
     }
 
     public ResultSet chunkTextContent(ConnectionHandler connection, ChunkConfig config, String text) throws SQLException {
@@ -191,11 +199,11 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     public Element getComponentState() {
         Element element = newStateElement();
         Element requestsElement = newElement(element, "embedding-requests");
-        for (ConnectionId connectionId : embeddingRequests.keySet()) {
+        for (ConnectionId connectionId : requestTemplates.keySet()) {
             Element requestElement = newElement(requestsElement, "embedding-request");
 
             setConstantAttribute(requestElement, "connection-id", connectionId);
-            VectorEmbeddingRequest embeddingRequest = embeddingRequests.get(connectionId);
+            VectorEmbeddingRequest embeddingRequest = requestTemplates.get(connectionId);
             embeddingRequest.writeState(requestElement);
         }
         return element;
@@ -208,7 +216,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         for (Element requestElement : requestElements) {
             ConnectionId connectionId = constantAttribute(requestElement, "connection-id", ConnectionId.class);
             VectorEmbeddingRequest embeddingRequest = new VectorEmbeddingRequest(connectionId);
-            embeddingRequests.put(connectionId, embeddingRequest);
+            requestTemplates.put(connectionId, embeddingRequest);
             embeddingRequest.readState(requestElement);
         }
     }
