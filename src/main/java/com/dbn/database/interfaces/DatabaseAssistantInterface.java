@@ -21,6 +21,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.object.factory.ModelFactoryInput;
 import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.Blob;
 import java.sql.ResultSet;
@@ -73,7 +74,7 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
    */
   boolean isAssistantFeatureSupported(DBNConnection connection) throws SQLException;
 
-  void createPwdCredential(DBNConnection connection, String credentialName, String userName, String password) throws SQLException;
+  void createPwdCredential(DBNConnection connection, String credentialName, String password) throws SQLException;
 
   void createOciCredential(DBNConnection connection, String credentialName, String userOcid, String tenancyOcid, String privateKey, String fingerprint) throws SQLException;
 
@@ -115,15 +116,13 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
 
   int embedDataContent(DBNConnection connection, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException;
 
-  int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, Blob blobData, String metadata) throws SQLException;
+  int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, String documentId, String metadata) throws SQLException;
 
   void ensureDocumentsTable(DBNConnection conn, String filesTable) throws SQLException;
 
-  void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata, long crcFile) throws SQLException;
+  void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata, String fileHash, long fileSize) throws SQLException;
 
-  ResultSet selectEmptyBlob(DBNConnection conn, String filesTable, String id) throws SQLException;
+  ResultSet selectDocumentIdByHashIfExists(DBNConnection conn, String filesTable, String crc, long filesize) throws SQLException;
 
-  ResultSet selectBlobByCRC(DBNConnection conn, String filesTable, long crc) throws SQLException;
-
-  boolean fileAlreadyUploadedByCRC(DBNConnection conn,String filesTable ,long crcFile) throws SQLException;
+  void writeBlobContent(@NotNull DBNConnection connection, String filesTable, @NotNull String documentId, byte[] bytes) throws SQLException;
 }

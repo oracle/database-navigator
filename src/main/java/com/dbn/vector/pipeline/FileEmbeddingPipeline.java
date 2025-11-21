@@ -4,17 +4,17 @@ import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
-import com.dbn.vector.model.FileResult;
-import com.dbn.vector.model.SourceStatus;
-import com.dbn.vector.model.StepResult;
-import com.dbn.vector.model.VectorEmbeddingRequest;
-import com.dbn.vector.model.VectorEmbeddingResult;
+import com.dbn.vector.model.*;
+import com.dbn.vector.model.common.DuplicateInfo;
+import com.dbn.vector.model.common.FileContent;
 import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
 import com.dbn.vector.service.FileProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 
@@ -32,10 +32,11 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
             @NotNull VectorEmbeddingResult result) throws Exception {
 
         // ensure documents table exists (shared step for all files)
-        StepResult documentStep = ensureDocumentsTableStep(connection, assistantInterface);
-        result.addSharedStep(documentStep);
+        StepResult step = result.getstep(PipelineStep.ENSURE_DOCUMENT_TABLE);
+        ensureDocumentsTableStep(connection, assistantInterface,step);
+//        result.addSharedStep(step);
 
-        if (documentStep.getStatus() == StepResult.STEP_STATUS.FAILED && documentStep.isCritical()) {
+        if (step.getStatus() == StepResult.STEP_STATUS.FAILED && step.isCritical()) {
             return;
         }
 
@@ -74,45 +75,63 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
 
         try {
-            String documentId = fileService.generateDocumentId();
-            fileResult.setDocId(documentId);
-
-            // Step 1: Check CRC
+            // ========== PHASE 1: Read File Once ==========
             progressIndicator.setText2(
-                    String.format("Checking file \"%s\" (%d/%d)", shortenFileName
-                            , currentIndex + 1, totalFiles)
+                    String.format("Reading file \"%s\" (%d/%d)",
+                            shortenFileName, currentIndex + 1, totalFiles)
             );
 
-            long crc = fileService.checkFileExists(connection, assistantInterface, file, fileResult);
-
-            if (!fileResult.getStatus().equals(SourceStatus.RUNNING)) {
-                return; // CRC check failed
+            FileContent fileContent;
+            try {
+                fileContent = new FileContent(file);  // ← READ FILE ONCE HERE
+            } catch (IOException | NoSuchAlgorithmException e) {
+                fileResult.finishFailed("FILE_READ_ERROR", e.getMessage());
+                return;
             }
 
-            java.sql.Blob blobData = null;
-            // Step 2: Upload file (only if it doesn't already exist)
-            if (fileResult.isExisted()) {
-                // File already exists, use cached blob from CRC check
+            progressIndicator.setText2(
+                    String.format("Checking file \"%s\" (%d/%d)",
+                            shortenFileName, currentIndex + 1, totalFiles)
+            );
+
+            DuplicateInfo dupInfo = fileService.checkFileExists(
+                    connection,
+                    assistantInterface,
+                    fileContent,
+                    fileResult
+            );
+
+            if (!fileResult.getStatus().equals(SourceStatus.RUNNING)) {
+                return;  // Check failed
+            }
+
+            String documentId;
+            if (dupInfo.exists) {
+                // File already exists - use existing ID
                 progressIndicator.setText2(
                         String.format("File already uploaded, using existing \"%s\" (%d/%d)",
                                 shortenFileName, currentIndex + 1, totalFiles)
                 );
-                
-                blobData = fileService.getExistingBlob(fileResult);
-                
+
+                documentId = dupInfo.existingDocId;
+                fileResult.setDocId(documentId);
+                fileResult.deleteStep(PipelineStep.UPLOADING_FILE);  // Skip upload
+
             } else {
-                // File doesn't exist, upload it
+                // New file - upload it
                 progressIndicator.setText2(
-                        String.format("Uploading file \"%s\" (%d/%d)", shortenFileName
-                                , currentIndex + 1, totalFiles)
+                        String.format("Uploading file \"%s\" (%d/%d)",
+                                shortenFileName, currentIndex + 1, totalFiles)
                 );
 
-                blobData = fileService.uploadFile(
+                documentId = fileService.generateDocumentId();
+                fileResult.setDocId(documentId);
+
+                documentId = fileService.uploadFile(
                         connection,
                         assistantInterface,
-                        file,
+                        fileContent,
                         documentId,
-                        crc,
                         fileResult
                 );
             }
@@ -130,9 +149,8 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                     request,
                     connection,
                     assistantInterface,
-                    file,
-                    documentId,
-                    blobData,
+                    documentId,  // ← Pass ID only, no bytes!
+                    fileContent,
                     fileResult
             );
 

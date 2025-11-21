@@ -619,6 +619,10 @@
             <separator/>
             <action id="DBNavigator.Actions.MethodExecutionResult.Settings" class="com.dbn.execution.method.result.action.ExecutionEngineSettingsAction" text="Method Execution Result - Open Execution Dialog" icon="AllIcons.General.GearPlain"/>
         </group>
+        <group id="DBNavigator.ActionGroup.VectorEmbeddingExecutionResult">
+            <action id="DBNavigator.Actions.VectorEmbeddingExecutionResult.Close" class="com.dbn.vector.action.ExecutionResultCloseAction" text="Vector Embedding Execution Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBNavigator.Actions.VectorEmbeddingExecutionResult.OpenExecutionDialog" class="com.dbn.vector.action.EmbeddingExecutionPromptAction" text="Vector Embedding Execution Result - Open Execution Dialog" icon="com.dbn.common.icon.Icons.VECTOR_TOOLBOX"/>
+        </group>
         <group id="DBNavigator.ActionGroup.MethodExecutionCursorResult">
             <action id="DBNavigator.Actions.MethodExecutionCursorResult.Find" class="com.dbn.execution.method.result.action.CursorResultFindAction" text="Method Execution Cursor Result - Find Data" icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>

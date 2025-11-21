@@ -23,6 +23,8 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+
+
 import java.awt.Color;
 import java.awt.Font;
 
@@ -39,18 +41,17 @@ public class PipelineStepForm extends DBNFormBase  {
 
   private final StepResult stepResult;
 
-  public PipelineStepForm(@Nullable VectorEmbeddingExecutionResultForm parent, StepResult stepResult) {
+  public PipelineStepForm(@Nullable VectorEmbeddingExecutionResultForm parent, StepResult stepResult, int order) {
     super(parent);
     this.stepResult = stepResult;
     Color greyContent = Colors.faded(UIUtil.getLabelForeground());
     Color redContent = UIUtil.getErrorForeground();
     Font largerFont = Fonts.regular(1);
-    System.out.println("fhjfhg");
     titleLabel.setText(stepResult.getStep().getDisplayName());
     titleLabel.setFont(largerFont);
     statusLabel.setForeground(greyContent);
     initInfoLabel();
-//    linkLabel.setFont(JBUI.Fonts.label());
+
     linkLabel.setHyperlinkText(stepResult.getLink());
     linkLabel.setIcon(stepResult.getIcon());
 
@@ -68,14 +69,16 @@ public class PipelineStepForm extends DBNFormBase  {
 
 
     durationValueLabel.setForeground(greyContent);
-    durationValueLabel.setText((double)stepResult.getDuration()/1000+"s");
-    if (!stepResult.isOk()){
+    durationValueLabel.setText(String.format("%.1f",(double)stepResult.getDuration()/1000)+"s");
+    if (!stepResult.isOk() && stepResult.getErrorCode() != null){
+
       reasonTextArea.setText(stepResult.getErrorCode()+stepResult.getErrorMessage());
       reasonTextArea.setFont(JBUI.Fonts.label());
       reasonTextArea.setForeground(redContent);
       reasonTextArea.setCaret(new HiddenCaret());
     }
     reasonTextArea.setVisible(!stepResult.isOk());
+    linkLabel.setVisible(!stepResult.getLink().isEmpty());
     updateStepStatus();
 
 
@@ -91,15 +94,17 @@ public class PipelineStepForm extends DBNFormBase  {
     if (status == StepResult.STEP_STATUS.FAILED) {
       statusLabel.setText("Not OK");
       icon = Icons.COMMON_STATUS_ERROR;
+      statusLabel.setIcon(icon);
     }else if (status == StepResult.STEP_STATUS.SUCCEEDED){
       statusLabel.setText("OK");
       icon = Icons.COMMON_STATUS_SUCCESS;
+      statusLabel.setIcon(icon);
     }else if (status == StepResult.STEP_STATUS.NOT_STARTED){
       statusLabel.setText("Not Started");
       icon = AllIcons.Process.Step_passive;
+      statusLabel.setIcon(icon);
     }
 
-    statusPanel.add(new JLabel(icon));
   }
 
 

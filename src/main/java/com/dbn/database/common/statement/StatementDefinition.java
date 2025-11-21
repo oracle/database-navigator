@@ -88,9 +88,8 @@ public class StatementDefinition {
             Integer argumentIndex = parameterIndices.get(i);
             Object argumentValue = arguments[argumentIndex];
             //todo this is just a workaround . i need to recheck it again .
-            if (argumentValue instanceof InputStream) {
-                InputStream inputStream = (InputStream) argumentValue;
-                preparedStatement.setBinaryStream(i + 1, inputStream);
+            if (argumentValue instanceof byte[]) {
+                preparedStatement.setBytes(i + 1, (byte[]) argumentValue);
             } else {
                 preparedStatement.setObject(i + 1, argumentValue);
             }

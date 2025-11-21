@@ -2,6 +2,9 @@ package com.dbn.vector.model;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
+import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
+import com.dbn.vector.model.sourceconfig.SourceConfig;
 import com.dbn.vector.model.sourceconfig.SourceType;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
@@ -11,6 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 
 import static com.dbn.common.util.Unsafe.cast;
 
@@ -23,15 +27,50 @@ public class VectorEmbeddingResult {
         return request.getConnection();
     }
 
+
   public  enum Status { RUNNING, SUCCESS, PARTIAL, FAILED }
   private Status status;
   private SourceType sourceType;
   private Map<String, SourceResult> sourceResults = new LinkedHashMap<>();
-  protected final List<StepResult> sharedSteps = new ArrayList<>();
+  protected final List<StepResult> sharedSteps = new ArrayList<>(Arrays.asList(
+          new StepResult(PipelineStep.ENSURE_DESTINATION),
+          new StepResult(PipelineStep.ENSURE_DOCUMENT_TABLE)
+  ));
 
+
+
+  public StepResult getstep(PipelineStep step) {
+    for (StepResult stepResult : sharedSteps) {
+      if (stepResult.getStep().equals(step)) {
+        return stepResult;
+      }
+    }
+    return null;
+  }
 
   public VectorEmbeddingResult(VectorEmbeddingRequest request) {
     this.request = request;
+    initSourceResults();
+  }
+
+  private void initSourceResults() {
+    SourceConfig sourceConfig = request.getSourceConfig();
+
+    switch (sourceConfig.getSourceType()) {
+      case FILE_SYSTEM:
+        FileSystemSourceConfig fileConfig = sourceConfig.getFileSourceConfig();
+        List<VirtualFile> files = fileConfig.getFiles();
+        for (int i = 0; i < files.size(); i++) {
+          initFileResult(files.get(i));
+        }
+        break;
+      case DATABASE_TABLE:
+        DBTableSourceConfig tableConfig = sourceConfig.getTableSourceConfig();
+        String tableName = tableConfig.getTableName();
+        String schemaName = tableConfig.getSchemaName();
+        initTableResult(schemaName,tableName);
+        break;
+    }
   }
 
   public int size() {
@@ -40,6 +79,9 @@ public class VectorEmbeddingResult {
 
   /** Mark the job finished and compute aggregated status. */
   public void finish() {
+    // i guess we need to init the result set before trying to iterate them
+    // then get each one by ket and update the state .
+    // this is because sometimes the pipeline will fail before even instantiate the resource
     boolean anySuccess = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.SUCCESS);
     boolean anyFailed = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.FAILED);
     boolean anySkipped = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.SKIPPED);
@@ -51,6 +93,9 @@ public class VectorEmbeddingResult {
     else status = Status.SUCCESS;
   }
 
+  public long getSourceSucceedCount(){
+    return sourceResults.values().stream().filter(f -> f.getStatus() == SourceStatus.SUCCESS).count();
+  }
   public long  getDuration(){
     return sourceResults.values().stream().mapToLong(SourceResult::getDurationMs).sum();
   }
@@ -73,13 +118,11 @@ public class VectorEmbeddingResult {
 
   private TableResult createTableResult(String schemaName, String tableName, ConnectionId connectionId) {
     TableResult tableResult = new TableResult(connectionId, schemaName, tableName);
-    tableResult.getSteps().addAll(sharedSteps);
     return tableResult;
   }
 
   private FileResult createFileResult(VirtualFile file) {
     FileResult fileResult = new FileResult(file);
-    fileResult.getSteps().addAll(sharedSteps);
     return fileResult;
   }
 

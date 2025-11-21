@@ -9,8 +9,8 @@ import java.util.List;
 @Getter
 public abstract class SourceResult implements Presentable {
  protected final SourceType sourceType;
- protected SourceStatus status = SourceStatus.PENDING;
- protected final List<StepResult> steps = new ArrayList<>();
+ protected SourceStatus status = SourceStatus.FAILED;
+ protected  List<StepResult> steps ;
   protected long rowsInserted = 0L;
   protected long durationMs = 0L;
  protected  String displayName;
@@ -22,15 +22,32 @@ public abstract class SourceResult implements Presentable {
  public abstract String getSize();
  public abstract String getIdentifier();
 
- public StepResult startStep(PipelineStep step) {
-   StepResult sr = new StepResult(step);
-   sr.startAt();
-   steps.add(sr);
+ public StepResult startStep(PipelineStep stepType) {
+   StepResult step = getStep(stepType);
+   step.startAt();
    this.status = SourceStatus.RUNNING;
-   return sr;
+   return step;
  }
 
-    public void finishFailed(String errorCode, String errorMessage) {
+  public StepResult getStep(PipelineStep step) {
+    for (StepResult stepResult : steps) {
+      if (stepResult.getStep().equals(step) ){
+        return stepResult;
+      }
+    }
+    return null;
+  }
+
+  public StepResult deleteStep(PipelineStep step) {
+    for (int i = 0; i < steps.size() ; i++) {
+      StepResult stepResult = steps.get(i);
+      if (stepResult.getStep().equals(step)) {
+        return steps.remove(i);
+      }
+    }
+    return null;
+  }
+  public void finishFailed(String errorCode, String errorMessage) {
       this.durationMs = steps.stream().mapToLong(StepResult::getDuration).sum();
       this.status = SourceStatus.FAILED;
       //todo clean up??

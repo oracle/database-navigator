@@ -9,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 @Getter
 @Setter
@@ -22,12 +24,23 @@ public class FileResult extends SourceResult{
   @Deprecated // TODO initialize file result with the file using below constructor
   public FileResult() {
     super(SourceType.FILE_SYSTEM);
+    initSteps();
   }
+
+  private void initSteps() {
+    steps = new ArrayList<>(Arrays.asList(
+            new StepResult(PipelineStep.CHECK_CRC),
+            new StepResult(PipelineStep.UPLOADING_FILE),
+            new StepResult(PipelineStep.EMBED)
+    ));
+  }
+
 
   public FileResult(VirtualFile file) {
     super(SourceType.FILE_SYSTEM);
     this.file = file;
     this.size = VirtualFiles.getPresentableFileSize(file);
+    initSteps();
   }
 
   public void setFile(VirtualFile file) {

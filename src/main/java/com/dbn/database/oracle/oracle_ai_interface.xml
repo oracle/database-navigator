@@ -291,12 +291,14 @@
             BEGIN
                 EXECUTE IMMEDIATE '
                     CREATE TABLE IF NOT EXISTS {0} (
-                        id       varchar(50) not null,
-                        b_lob    blob ,
+                        id       varchar(50) not null primary key,
+                        file_content    blob ,
                         metadata JSON ,
-                        file_hash NUMBER
+                        file_hash varchar2(32) not null,
+                        file_size number(19) not null,
+                        CONSTRAINT uk_file_identity unique (file_hash,file_size)
 
-            ) LOB(b_lob) STORE AS SECUREFILE (NOCACHE FILESYSTEM_LIKE_LOGGING)
+                    ) LOB(file_content) STORE AS SECUREFILE (NOCACHE FILESYSTEM_LIKE_LOGGING)
                 ';
             END;
         </statement>
@@ -304,39 +306,29 @@
     <statement-execution-processor id="insert-empty-document-row">
         <statement>
             INSERT INTO {0}
-            (id, b_lob, metadata,file_hash)
-            VALUES ({#1}, EMPTY_BLOB(), {#2},{#3})
+            (id, file_content, metadata,file_hash,file_size)
+            VALUES ({#1}, EMPTY_BLOB(), {#2},{#3},{#4})
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="select-empty-blob-file">
         <statement>
-            SELECT b_lob FROM {0} WHERE id = {#1} FOR UPDATE;
+            SELECT file_content FROM {0} WHERE id = {#1} FOR UPDATE;
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="select-blob-by-crc">
+    <statement-execution-processor id="select-document-id-by-hash">
         <statement>
-            SELECT id, b_lob as file_content FROM {0} WHERE file_hash = {#1}
+            SELECT id FROM {0} WHERE file_hash = {#1} and file_size = {#2} and rownum = 1
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="check-file-exists">
-        <statement>
-            select
-                case
-                    when exists (select 1 from {0} where file_hash = {#1})
-                    then 'Y'
-                    else 'N'
-                end as value
-            from DUAL
-        </statement>
-    </statement-execution-processor>
+
 
     <statement-execution-processor id="stream-file-content-to-blob" timeout="120000">
         <statement>
             UPDATE {0}
-            SET b_lob = {#1}
+            SET file_content = {#1}
             WHERE id = {#2}
         </statement>
     </statement-execution-processor>
@@ -367,7 +359,7 @@
                     jt.embed_data,
                     TO_VECTOR(jt.embed_vector),
                     JSON_MERGEPATCH(
-                        {#8},
+                        {#9},
                         JSON_OBJECT(
                             KEY 'chunk_id'
                             VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50))
@@ -377,10 +369,10 @@
                     DBMS_VECTOR.UTL_TO_EMBEDDINGS(
                         data   => DBMS_VECTOR.UTL_TO_CHUNKS(
                                         data   => DBMS_VECTOR_CHAIN.UTL_TO_TEXT(
-                                                        data   => {#5},
+                                                        data   => (select file_content from {5} where id = {#6} ),
                                                         params => json(json_object('plaintext' VALUE true))),
-                                        params => json({#6})),
-                        params => json({#7})
+                                        params => json({#7})),
+                        params => json({#8})
                     )
                 ) t,
                 JSON_TABLE(

@@ -38,8 +38,8 @@ public abstract class EmbeddingPipeline {
         DatabaseAssistantInterface assistantInterface = handler.getAssistantInterface();
 
         // Step 1: Ensure destination table (shared across all sources)
-        StepResult ensureDestStep = ensureDestinationTableStep(request, connection, assistantInterface);
-        result.addSharedStep(ensureDestStep);
+        StepResult ensureDestStep = result.getstep(PipelineStep.ENSURE_DESTINATION);
+        ensureDestinationTableStep(request, connection, assistantInterface,ensureDestStep);
 
         if (ensureDestStep.getStatus() == StepResult.STEP_STATUS.FAILED && ensureDestStep.isCritical()) {
             return;
@@ -77,9 +77,8 @@ public abstract class EmbeddingPipeline {
     protected StepResult ensureDestinationTableStep(
             @NotNull VectorEmbeddingRequest request,
             @NotNull DBNConnection connection,
-            @NotNull DatabaseAssistantInterface assistantInterface) {
+            @NotNull DatabaseAssistantInterface assistantInterface, StepResult step) {
 
-        StepResult step = new StepResult(PipelineStep.ENSURE_DESTINATION);
         step.startAt();
 
         try {
@@ -117,9 +116,8 @@ public abstract class EmbeddingPipeline {
      */
     protected StepResult ensureDocumentsTableStep(
             @NotNull DBNConnection connection,
-            @NotNull DatabaseAssistantInterface assistantInterface) {
+            @NotNull DatabaseAssistantInterface assistantInterface, StepResult step) {
 
-        StepResult step = new StepResult(PipelineStep.ENSURE_DOCUMENT_TABLE);
         step.startAt();
 
         try {

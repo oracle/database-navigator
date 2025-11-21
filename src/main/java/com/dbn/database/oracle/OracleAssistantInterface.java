@@ -27,10 +27,13 @@ import com.dbn.object.factory.ModelFactoryInput;
 import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import static com.dbn.vector.service.FileProcessingService.FILES_TABLE;
 
 
 /**
@@ -105,7 +108,7 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, Blob blobData, String metadata) throws SQLException {
+  public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, String documentId, String metadata) throws SQLException {
       return executeUpdate(conn,
               "insert-vector-embeddings-from-filesystem",
               storeConfig.getSchemaName(),
@@ -113,10 +116,16 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
               storeConfig.getTextColumnName(),
               storeConfig.getEmbeddingColumnName(),
               storeConfig.getMetadataColumnName(),
-              blobData,
+              FILES_TABLE,
+              documentId, // id of the blob
               chunkConfig,
               embedConfig,
               metadata);
+  }
+
+  @Override
+  public void writeBlobContent(@NotNull DBNConnection conn, String filesTable, @NotNull String documentId, byte[] bytes) throws SQLException {
+    executeUpdate(conn,"stream-file-content-to-blob",filesTable,bytes,documentId);
   }
 
   @Override
@@ -125,23 +134,15 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata, long crcFile) throws SQLException {
-    executeUpdate(conn,"insert-empty-document-row", filesTable, id, fileMetadata, crcFile);
-  }
-
-  public ResultSet selectEmptyBlob(DBNConnection conn, String filesTable, String id) throws SQLException {
-    return executeQuery(conn,"select-empty-blob-file",filesTable,id);
+  public void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata, String fileHash, long fileSize) throws SQLException {
+    executeUpdate(conn,"insert-empty-document-row", filesTable, id, fileMetadata, fileHash,fileSize);
   }
 
   @Override
-  public ResultSet selectBlobByCRC(DBNConnection conn, String filesTable, long crc) throws SQLException {
-    return executeQuery(conn,"select-blob-by-crc",filesTable,crc);
+  public ResultSet selectDocumentIdByHashIfExists(DBNConnection conn, String filesTable, String hash, long filesize) throws SQLException {
+    return executeQuery(conn,"select-document-id-by-hash",filesTable,hash,filesize);
   }
 
-  @Override
-  public boolean fileAlreadyUploadedByCRC(DBNConnection conn,String filesTable ,long crcFile) throws SQLException {
-    return getBooleanValue(conn,"check-file-exists",filesTable,crcFile);
-  }
 
   @Override
   public void createEmbeddingTable(DBNConnection conn, String ownerName, String tableName, String keyColumnName, String textColumnName, String embeddingColumnName, String metadataColumnName) throws SQLException {
@@ -154,8 +155,8 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public void createPwdCredential(DBNConnection connection, String credentialName, String userName, String password) throws SQLException {
-    executeUpdate(connection, "create-password-credential", credentialName, userName, password);
+  public void createPwdCredential(DBNConnection connection, String credentialName, String password) throws SQLException {
+    executeUpdate(connection, "create-password-credential", credentialName, password);
   }
 
   @Override

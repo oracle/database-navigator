@@ -8,7 +8,7 @@ import javax.swing.Icon;
 @Getter
 @Setter
 public class StepResult {
-  private String link ="";
+
 
   public enum STEP_STATUS {
     NOT_STARTED,
@@ -24,6 +24,7 @@ public class StepResult {
   private long startTime;
   private long endTime;
   private Icon icon ;
+  private String link ="";
 
   public StepResult(PipelineStep step) {
     this.step = step;
