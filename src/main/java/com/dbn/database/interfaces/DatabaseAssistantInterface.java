@@ -74,7 +74,7 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
    */
   boolean isAssistantFeatureSupported(DBNConnection connection) throws SQLException;
 
-  void createPwdCredential(DBNConnection connection, String credentialName, String password) throws SQLException;
+  void createPwdCredential(DBNConnection connection, String credentialName, String userName, String password) throws SQLException;
 
   void createOciCredential(DBNConnection connection, String credentialName, String userOcid, String tenancyOcid, String privateKey, String fingerprint) throws SQLException;
 
@@ -118,7 +118,7 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
 
   int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, String documentId, String metadata) throws SQLException;
 
-  void ensureDocumentsTable(DBNConnection conn, String filesTable) throws SQLException;
+  void ensureDocumentsTable(DBNConnection conn, String schemaName, String tableName) throws SQLException;
 
   void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata, String fileHash, long fileSize) throws SQLException;
 

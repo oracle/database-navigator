@@ -5,7 +5,6 @@ import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
@@ -98,7 +97,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         openVectorToolbox(connection, request);
     }
 
-    private static void openVectorToolbox(ConnectionHandler connection, VectorEmbeddingRequest request) {
+    public void openVectorToolbox(ConnectionHandler connection, VectorEmbeddingRequest request) {
         CREATE_VECTOR_EMBEDDINGS.start(connection, () -> Dialogs.show(() -> new VectorAiDialog(connection, request)));
     }
 
@@ -119,7 +118,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     }
 
     @SneakyThrows
-    public void createEmbeddings(VectorEmbeddingRequest request, ConnectionHandler handler, Runnable callbackInfo, Consumer<Exception> callbackError)  {
+    public void createEmbeddings(VectorEmbeddingRequest request, ConnectionHandler handler)  {
         StoreConfig storeConfig = request.getStoreConfig();
 
         Progress.prompt(

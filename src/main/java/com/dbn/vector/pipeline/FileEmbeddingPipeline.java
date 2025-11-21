@@ -4,7 +4,12 @@ import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
-import com.dbn.vector.model.*;
+import com.dbn.vector.model.FileResult;
+import com.dbn.vector.model.PipelineStep;
+import com.dbn.vector.model.SourceStatus;
+import com.dbn.vector.model.StepResult;
+import com.dbn.vector.model.VectorEmbeddingRequest;
+import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.common.DuplicateInfo;
 import com.dbn.vector.model.common.FileContent;
 import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
@@ -33,7 +38,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
         // ensure documents table exists (shared step for all files)
         StepResult step = result.getstep(PipelineStep.ENSURE_DOCUMENT_TABLE);
-        ensureDocumentsTableStep(connection, assistantInterface,step);
+        ensureDocumentsTableStep(connection, assistantInterface, step, handler.getSchemaName());
 //        result.addSharedStep(step);
 
         if (step.getStatus() == StepResult.STEP_STATUS.FAILED && step.isCritical()) {

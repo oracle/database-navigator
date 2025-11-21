@@ -70,7 +70,7 @@ public class CredentialEditForm extends DBNFormBase {
 
     private JTextField passwordCredentialUserField;
     private JPasswordField passwordCredentialPasswordField;
-    private JPasswordField jPasswordField;
+    private JPasswordField tokenCredentialPasswordField;
 
     private JBTextField ociCredentialUserOcidField;
     private JBTextField ociCredentialTenancyOcidField;
@@ -121,7 +121,7 @@ public class CredentialEditForm extends DBNFormBase {
 
         addTextValidation(passwordCredentialUserField, c -> !isPassword() || isNotEmpty(c), txt("cfg.assistant.error.UserNameEmpty"));
         addTextValidation(passwordCredentialPasswordField, c -> !isPassword() || isNotEmpty(c), txt("cfg.assistant.error.PasswordEmpty"));
-        addTextValidation(jPasswordField, c -> !isToken() || isNotEmpty(c), txt("cfg.assistant.error.TokenEmpty"));
+        addTextValidation(tokenCredentialPasswordField, c -> !isToken() || isNotEmpty(c), txt("cfg.assistant.error.TokenEmpty"));
 
         addTextValidation(ociCredentialUserOcidField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.UserOcidEmpty"));
         addTextValidation(ociCredentialUserOcidField, c -> !isOci() || startsWith(c, "ocid1.user.oc1."), txt("cfg.assistant.error.UserOcidInvalid"));
@@ -236,7 +236,7 @@ public class CredentialEditForm extends DBNFormBase {
         } else if (credentialType == DBCredentialType.TOKEN) {
             // special case of credentials created for the vector framework
             credential.setAttribute(USER_NAME, "access_token");
-            credential.setAttribute(PASSWORD, getText(jPasswordField));
+            credential.setAttribute(PASSWORD, getText(tokenCredentialPasswordField));
 
         } else if (credentialType == DBCredentialType.OCI) {
             credential.setAttribute(USER_OCID, getText(ociCredentialUserOcidField));

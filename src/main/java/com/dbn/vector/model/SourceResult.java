@@ -4,7 +4,6 @@ import com.dbn.common.ui.Presentable;
 import com.dbn.vector.model.sourceconfig.SourceType;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 @Getter
 public abstract class SourceResult implements Presentable {
@@ -24,7 +23,7 @@ public abstract class SourceResult implements Presentable {
 
  public StepResult startStep(PipelineStep stepType) {
    StepResult step = getStep(stepType);
-   step.startAt();
+   step.start();
    this.status = SourceStatus.RUNNING;
    return step;
  }

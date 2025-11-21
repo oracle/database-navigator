@@ -60,6 +60,7 @@ import static com.dbn.common.ui.util.UserInterface.updateTitledBorders;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.convert;
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.type.DBCredentialType.getSelectAITypes;
 
@@ -206,6 +207,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
             if (schema == null) return;
 
             List<DBCredential> credentials = schema.getCredentials();
+            credentials = filter(credentials, c -> getSelectAITypes().contains(c.getType()));
             credentialTypes.clear();
             credentials.forEach(c -> credentialTypes.put(c.getName(), c.getType()));
 

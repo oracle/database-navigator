@@ -79,7 +79,7 @@ public abstract class EmbeddingPipeline {
             @NotNull DBNConnection connection,
             @NotNull DatabaseAssistantInterface assistantInterface, StepResult step) {
 
-        step.startAt();
+        step.start();
 
         try {
             StoreConfig storeConfig = request.getStoreConfig();
@@ -116,12 +116,12 @@ public abstract class EmbeddingPipeline {
      */
     protected StepResult ensureDocumentsTableStep(
             @NotNull DBNConnection connection,
-            @NotNull DatabaseAssistantInterface assistantInterface, StepResult step) {
+            @NotNull DatabaseAssistantInterface assistantInterface, StepResult step, String schemaName) {
 
-        step.startAt();
+        step.start();
 
         try {
-            assistantInterface.ensureDocumentsTable(connection, FILES_TABLE);
+            assistantInterface.ensureDocumentsTable(connection, schemaName, FILES_TABLE);
             step.markSuccess();
             step.setLink("AYOUB."+FILES_TABLE.toUpperCase());
             step.setIcon(Icons.DBO_TABLE);

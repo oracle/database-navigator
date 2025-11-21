@@ -18,7 +18,6 @@ public class StepResult {
   }
   private STEP_STATUS status = STEP_STATUS.NOT_STARTED;
   private PipelineStep step;
-  private boolean ok = false;
   private String errorCode;
   private String errorMessage;
   private long startTime;
@@ -31,12 +30,11 @@ public class StepResult {
   }
 
   public void markSuccess() {
-    this.ok = true;
     this.status = STEP_STATUS.SUCCEEDED;
     this.endTime = System.currentTimeMillis();
   }
 
-  public void startAt() {
+  public void start() {
     this.status = STEP_STATUS.RUNNING;
     startTime = System.currentTimeMillis();
   }
@@ -46,6 +44,10 @@ public class StepResult {
     this.errorCode = ensureDestError;
     this.errorMessage = message;
     this.endTime = System.currentTimeMillis();
+  }
+
+  public boolean isOk() {
+    return errorCode == null;
   }
 
   public boolean isCritical() {

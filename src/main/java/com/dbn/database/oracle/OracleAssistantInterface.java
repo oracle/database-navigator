@@ -129,8 +129,8 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public void ensureDocumentsTable(DBNConnection conn, String filesTable) throws SQLException {
-    executeUpdate(conn,"ensure-documents-table",filesTable);
+  public void ensureDocumentsTable(DBNConnection conn, String schemaName, String tableName) throws SQLException {
+    executeUpdate(conn,"ensure-documents-table", schemaName, tableName);
   }
 
   @Override
@@ -155,8 +155,8 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public void createPwdCredential(DBNConnection connection, String credentialName, String password) throws SQLException {
-    executeUpdate(connection, "create-password-credential", credentialName, password);
+  public void createPwdCredential(DBNConnection connection, String credentialName, String userName, String password) throws SQLException {
+    executeUpdate(connection, "create-password-credential", credentialName, userName, password);
   }
 
   @Override
