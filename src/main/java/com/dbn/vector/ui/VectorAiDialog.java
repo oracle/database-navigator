@@ -13,9 +13,13 @@ import javax.swing.Action;
 
 public class VectorAiDialog extends DBNDialog<VectorAIForm> {
   private final ConnectionRef connection;
-  public VectorAiDialog(ConnectionHandler connection) {
+  private final VectorEmbeddingRequest request;
+
+  public VectorAiDialog(ConnectionHandler connection, VectorEmbeddingRequest request) {
     super(connection.getProject(), "Vector Toolbox", true);
     this.connection = connection.ref();
+    this.request = request;
+
     setDefaultSize(600, 1000);
     renameAction(getOKAction(), "Create Embeddings");
     renameAction(getCancelAction(), "Close");
@@ -28,7 +32,7 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
 
   @Override
   protected @NotNull VectorAIForm createForm() {
-    return new VectorAIForm(this,getConnection());
+    return new VectorAIForm(this, getConnection(), request);
   }
 
   @Override
@@ -48,17 +52,17 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
   protected void doOKAction() {
     VectorAIForm form = getForm();
     form.applyFormChanges();
-    VectorEmbeddingRequest request = form.getEmbeddingRequest();
+
     super.doOKAction();
     Runnable callbackInfo = () -> {
-      request.resetSoft(); // softly reset the request after successful execution
+      form.saveRequestTemplate(true);
       form.resetFormChanges();
       Messages.showInfoDialog(getProject(), "Embedding Succeeded ","Your data has been embedded successfully!");
     };
     Consumer<Exception> callbackError = (ex) -> Messages.showErrorDialog(getProject(), "Embedding Failed", ex.getMessage(), ex);
+
     DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
     vectorManager.createEmbeddings(request, getConnection(), callbackInfo, callbackError);
-
   }
 
   @Override
@@ -66,6 +70,7 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
     // capture the input even if not applied
     VectorAIForm form = getForm();
     form.applyFormChanges();
+    form.saveRequestTemplate(false);
 
     super.doCancelAction();
   }

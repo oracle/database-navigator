@@ -17,6 +17,7 @@
 package com.dbn.vector.model;
 
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
@@ -31,10 +32,11 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.state.PersistentStateElement.cloneElement;
 
 @Getter
 @Setter
-public class VectorEmbeddingRequest implements PersistentStateElement {
+public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable<VectorEmbeddingRequest> {
     private final ConnectionId connectionId;
 
     private SourceConfig sourceConfig = new SourceConfig();
@@ -119,6 +121,11 @@ public class VectorEmbeddingRequest implements PersistentStateElement {
         chunkConfig.writeState(chunkConfigElement);
         embedConfig.writeState(embedConfigElement);
         storeConfig.writeState(storeConfigElement);
+    }
+
+    @Override
+    public VectorEmbeddingRequest clone() {
+        return cloneElement(this, new VectorEmbeddingRequest(connectionId));
     }
 }
 
