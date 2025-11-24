@@ -27,7 +27,7 @@ import java.awt.BorderLayout;
 
 import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 
-public class VectorAIForm extends VectorToolboxFormBase {
+public class VectorToolboxForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private JPanel dataPanel;
   private JPanel chunkConfigPanel;
@@ -44,7 +44,7 @@ public class VectorAIForm extends VectorToolboxFormBase {
 
   private final VectorEmbeddingRequest request;
 
-  public VectorAIForm(Disposable parent, ConnectionHandler connection, VectorEmbeddingRequest request) {
+  public VectorToolboxForm(Disposable parent, ConnectionHandler connection, VectorEmbeddingRequest request) {
     super(parent, connection);
     this.request = request;
 

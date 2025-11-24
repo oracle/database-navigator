@@ -24,7 +24,7 @@ import com.dbn.vector.pipeline.EmbeddingPipeline;
 import com.dbn.vector.pipeline.FileEmbeddingPipeline;
 import com.dbn.vector.pipeline.TableEmbeddingPipeline;
 import com.dbn.vector.result.VectorEmbeddingExecutionResult;
-import com.dbn.vector.ui.VectorAiDialog;
+import com.dbn.vector.ui.VectorToolboxDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -96,11 +96,12 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     public void openVectorToolbox(ConnectionHandler connection) {
         VectorEmbeddingRequest requestTemplate = getRequestTemplate(connection.getConnectionId());
         VectorEmbeddingRequest request = requestTemplate.clone();
+        request.setTemplate(true);
         openVectorToolbox(connection, request);
     }
 
     public void openVectorToolbox(ConnectionHandler connection, VectorEmbeddingRequest request) {
-        CREATE_VECTOR_EMBEDDINGS.start(connection, () -> Dialogs.show(() -> new VectorAiDialog(connection, request)));
+        CREATE_VECTOR_EMBEDDINGS.start(connection, () -> Dialogs.show(() -> new VectorToolboxDialog(connection, request)));
     }
 
     public ResultSet chunkTextContent(ConnectionHandler connection, ChunkConfig config, String text) throws SQLException {
@@ -121,8 +122,9 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
 
     @SneakyThrows
     public void createEmbeddings(VectorEmbeddingRequest request, ConnectionHandler handler)  {
-        StoreConfig storeConfig = request.getStoreConfig();
+        request.setTemplate(false); // no longer a template after used for embedding
 
+        StoreConfig storeConfig = request.getStoreConfig();
         Progress.prompt(
                 getProject(),
                 handler.getSchema(), true,

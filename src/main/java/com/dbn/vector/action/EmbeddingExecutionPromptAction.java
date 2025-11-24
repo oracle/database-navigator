@@ -1,5 +1,6 @@
 package com.dbn.vector.action;
 
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
@@ -15,7 +16,9 @@ public class EmbeddingExecutionPromptAction extends AbstractEmbeddingExecutionRe
   protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull VectorEmbeddingExecutionResult executionResult) {
     VectorEmbeddingResult embeddingResult = executionResult.getVectorEmbeddingResult();
     VectorEmbeddingRequest embeddingRequest = embeddingResult.getRequest();
-    DatabaseVectorManager executionManager = DatabaseVectorManager.getInstance(project);
-    executionManager.openVectorToolbox(executionResult.getConnection(), embeddingRequest);
+    ConnectionHandler connection = executionResult.getConnection();
+
+    DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(project);
+    vectorManager.openVectorToolbox(connection, embeddingRequest);
   }
 }

@@ -38,6 +38,7 @@ import static com.dbn.common.state.PersistentStateElement.cloneElement;
 @Setter
 public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable<VectorEmbeddingRequest> {
     private final ConnectionId connectionId;
+    private transient boolean template;
 
     private SourceConfig sourceConfig = new SourceConfig();
     private ChunkConfig chunkConfig = new ChunkConfig();

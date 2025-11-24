@@ -9,11 +9,11 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
-public class VectorAiDialog extends DBNDialog<VectorAIForm> {
+public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
   private final ConnectionRef connection;
   private final VectorEmbeddingRequest request;
 
-  public VectorAiDialog(ConnectionHandler connection, VectorEmbeddingRequest request) {
+  public VectorToolboxDialog(ConnectionHandler connection, VectorEmbeddingRequest request) {
     super(connection.getProject(), "Vector Toolbox", true);
     this.connection = connection.ref();
     this.request = request;
@@ -21,6 +21,7 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
     setDefaultSize(600, 1000);
     renameAction(getOKAction(), "Create Embeddings");
     renameAction(getCancelAction(), "Close");
+
     init();
   }
 
@@ -29,16 +30,20 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
   }
 
   @Override
-  protected @NotNull VectorAIForm createForm() {
-    return new VectorAIForm(this, getConnection(), request);
+  protected @NotNull VectorToolboxForm createForm() {
+    return new VectorToolboxForm(this, getConnection(), request);
   }
 
   @Override
   protected Action[] createActions() {
-    return createActions(
-            getOKAction(),
-            getResetAction(),
-            getCancelAction());
+
+    return request.isTemplate() ?
+            createActions(
+              getOKAction(),
+              getResetAction(),
+              getCancelAction()) :
+            createActions(
+                    getCancelAction());
   }
 
   @NotNull
@@ -48,9 +53,12 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
 
   @Override
   protected void doOKAction() {
-    VectorAIForm form = getForm();
+    VectorToolboxForm form = getForm();
     form.applyFormChanges();
-    form.saveRequestTemplate(true);
+    if (request.isTemplate()) {
+      form.saveRequestTemplate(true);
+    }
+
 
     super.doOKAction();
     DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
@@ -60,9 +68,12 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
   @Override
   public void doCancelAction() {
     // capture the input even if not applied
-    VectorAIForm form = getForm();
+    VectorToolboxForm form = getForm();
     form.applyFormChanges();
-    form.saveRequestTemplate(false);
+
+    if (request.isTemplate()) {
+      form.saveRequestTemplate(false);
+    }
 
     super.doCancelAction();
   }

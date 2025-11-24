@@ -51,7 +51,7 @@ public abstract class VectorToolboxFormBase extends DBNFormBase {
     }
 
     protected VectorEmbeddingRequest getEmbeddingRequest() {
-        VectorAIForm rootForm = ensureParentFrom(VectorAIForm.class);
+        VectorToolboxForm rootForm = ensureParentFrom(VectorToolboxForm.class);
         return rootForm.getEmbeddingRequest();
     }
 
