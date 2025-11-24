@@ -332,23 +332,29 @@
             WHERE id = {#2}
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="insert-vector-embeddings" timeout="120000">
+    <statement-execution-processor id="insert-vector-embeddings-from-table" timeout="120000">
         <statement>
             INSERT INTO {0}.{1} (id, {2}, {3}, {4})
-            SELECT
-                SYS_GUID(),
-                JSON_VALUE(t.COLUMN_VALUE, '$.embed_data' RETURNING CLOB),
-                TO_VECTOR(JSON_VALUE(t.COLUMN_VALUE, '$.embed_vector' RETURNING CLOB)),
-                null
-            FROM {5}.{6} src,
-                TABLE(
-                    DBMS_VECTOR.UTL_TO_EMBEDDINGS(
-                            data   => DBMS_VECTOR.UTL_TO_CHUNKS(
-                                            data   => src.{7},
-                                            params => json({#8})),
-                            params => json({#9})
-                )
-            ) t;
+                SELECT
+                    SYS_GUID(),
+                    JSON_VALUE(t.COLUMN_VALUE, '$.embed_data' RETURNING CLOB),
+                    TO_VECTOR(JSON_VALUE(t.COLUMN_VALUE, '$.embed_vector' RETURNING CLOB)),
+                    JSON_MERGEPATCH(
+                        {#10},
+                        JSON_OBJECT(
+                                    KEY 'embed_id' VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50)),
+                                    KEY 'source_row_id' VALUE src.{11}
+                                ) RETURNING CLOB
+                    )
+                FROM {5}.{6} src,
+                    TABLE(
+                            DBMS_VECTOR.UTL_TO_EMBEDDINGS(
+                                    data   => DBMS_VECTOR.UTL_TO_CHUNKS(
+                                    data   => src.{7},
+                                    params => json({#8})),
+                                    params => json({#9})
+                        )
+                    ) t;
         </statement>
     </statement-execution-processor>
         <statement-execution-processor id="insert-vector-embeddings-from-filesystem" timeout="120000">

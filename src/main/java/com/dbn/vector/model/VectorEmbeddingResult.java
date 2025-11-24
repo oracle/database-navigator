@@ -28,6 +28,8 @@ public class VectorEmbeddingResult {
     }
 
 
+
+
   public  enum Status { RUNNING, SUCCESS, PARTIAL, FAILED }
   private Status status;
   private SourceType sourceType;
@@ -146,6 +148,9 @@ public class VectorEmbeddingResult {
     sourceResults.put(sourceResult.getIdentifier(), sourceResult);
   }
 
+  public void deleteStepFfromShared(PipelineStep pipelineStep) {
+    sharedSteps.removeIf((step) -> step.getStep().equals(pipelineStep));
+  }
   public void addSharedStep(StepResult stepResult) {
     sharedSteps.add(stepResult);
   }

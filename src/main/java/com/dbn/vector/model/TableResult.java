@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 // TableResult for table-based jobs
 @Getter
@@ -28,6 +30,13 @@ public class TableResult extends SourceResult {
     super(SourceType.DATABASE_TABLE);
     DBObjectRef<DBSchema> schema = new DBObjectRef<>(connectionId, DBObjectType.SCHEMA, schemaName);
     table = new DBObjectRef<>(schema, DBObjectType.TABLE, tableName);
+    initSteps();
+  }
+
+  private void initSteps() {
+    steps = new ArrayList<>(Arrays.asList(
+            new StepResult(PipelineStep.EMBED)
+    ));
   }
 
   @NotNull

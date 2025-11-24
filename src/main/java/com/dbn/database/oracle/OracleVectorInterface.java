@@ -55,9 +55,9 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
   }
 
   @Override
-  public int embedDataContent(DBNConnection conn, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException {
+  public int embedDataContent(DBNConnection conn, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig, @NotNull String metadata) throws SQLException {
     return executeUpdate(conn,
-            "insert-vector-embeddings",
+            "insert-vector-embeddings-from-table",
             storeConfig.getSchemaName(),
             storeConfig.getTableName(),
             storeConfig.getTextColumnName(),
@@ -67,7 +67,9 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
             sourceConfig.getTableName(),
             sourceConfig.getDataColumnName(),
             chunkConfig,
-            embedConfig
+            embedConfig,
+            metadata,
+            sourceConfig.getKeyColumnName()
     );
   }
 
