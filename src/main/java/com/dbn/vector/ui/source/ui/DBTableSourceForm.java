@@ -134,10 +134,10 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
   public void applyFormChanges() {
     DBTableSourceConfig config = getConfig();
     config.setAutoSync(autoSyncCheckBox.isSelected());
-    config.setSchemaName(getSelectedObjectName(schemaComboBox));
-    config.setTableName(getSelectedObjectName(tableComboBox));
-    config.setKeyColumnName(getSelectedObjectName(keyColumnComboBox));
-    config.setDataColumnName(getSelectedObjectName(dataColumnComboBox));
+    config.setSchemaName(getSelectedObjectName(schemaComboBox, config.getSchemaName()));
+    config.setTableName(getSelectedObjectName(tableComboBox, config.getTableName()));
+    config.setKeyColumnName(getSelectedObjectName(keyColumnComboBox, config.getKeyColumnName()));
+    config.setDataColumnName(getSelectedObjectName(dataColumnComboBox, config.getDataColumnName()));
   }
 
   @Nullable

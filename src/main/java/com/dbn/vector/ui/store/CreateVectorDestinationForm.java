@@ -90,7 +90,7 @@ public class CreateVectorDestinationForm extends VectorToolboxFormBase {
   @Override
   public void applyFormChanges() {
     StoreConfig config = getConfig();
-    config.setSchemaName(getSelectedObjectName(schemaComboBox));
+    config.setSchemaName(getSelectedObjectName(schemaComboBox, config.getSchemaName()));
     config.setTableName(getText(tableNameTextField));
     config.setEmbeddingColumnName(getText(vectorColumnTextField));
     config.setTextColumnName(getText(textColumnTextField));

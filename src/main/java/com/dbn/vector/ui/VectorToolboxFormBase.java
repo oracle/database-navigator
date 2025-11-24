@@ -55,9 +55,10 @@ public abstract class VectorToolboxFormBase extends DBNFormBase {
         return rootForm.getEmbeddingRequest();
     }
 
-    protected static String getSelectedObjectName(DBNComboBox<? extends DBObject> comboBox) {
+    protected static String getSelectedObjectName(DBNComboBox<? extends DBObject> comboBox, String defaultName) {
         DBObject selection = ComboBoxes.getSelection(comboBox);
-        return getObjectName(selection);
+        String objectName = getObjectName(selection);
+        return objectName == null ? defaultName : objectName;
     }
 
     protected static @Nullable String getObjectName(@Nullable DBObject object) {

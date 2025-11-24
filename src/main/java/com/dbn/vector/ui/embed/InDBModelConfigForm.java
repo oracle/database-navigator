@@ -122,8 +122,8 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
   @Override
   public void applyFormChanges() {
     DatabaseModelConfig config = getConfig();
-    config.setSchemaName(getSelectedObjectName(schemaComboBox));
-    config.setModelName(getSelectedObjectName(modelComboBox));
+    config.setSchemaName(getSelectedObjectName(schemaComboBox, config.getSchemaName()));
+    config.setModelName(getSelectedObjectName(modelComboBox, config.getModelName()));
   }
 
   private void populateModels() {

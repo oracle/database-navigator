@@ -171,8 +171,8 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
     config.setProvider(getProviderApiName());
     config.setModelName(getText(modelTextField));
     config.setEndpointUrl(getText(urlTextField));
-    config.setCredentialSchemaName(getSelectedObjectName(credentialSchemaComboBox));
-    config.setCredentialName(getSelectedObjectName(credentialComboBox));
+    config.setCredentialSchemaName(getSelectedObjectName(credentialSchemaComboBox, config.getCredentialSchemaName()));
+    config.setCredentialName(getSelectedObjectName(credentialComboBox, config.getCredentialName()));
   }
 
   @Override
