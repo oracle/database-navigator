@@ -101,7 +101,16 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     }
 
     public void openVectorToolbox(ConnectionHandler connection, VectorEmbeddingRequest request) {
-        CREATE_VECTOR_EMBEDDINGS.start(connection, () -> Dialogs.show(() -> new VectorToolboxDialog(connection, request)));
+        if (request.isTemplate()) {
+            CREATE_VECTOR_EMBEDDINGS.start(connection, () -> doOpenVectorToolbox(connection, request));
+        } else {
+            // no prerequisite check when opening from execution results
+            doOpenVectorToolbox(connection, request);
+        }
+    }
+
+    private static void doOpenVectorToolbox(ConnectionHandler connection, VectorEmbeddingRequest request) {
+        Dialogs.show(() -> new VectorToolboxDialog(connection, request));
     }
 
     public ResultSet chunkTextContent(ConnectionHandler connection, ChunkConfig config, String text) throws SQLException {
