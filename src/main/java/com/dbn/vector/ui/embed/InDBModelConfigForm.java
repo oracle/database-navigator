@@ -101,9 +101,6 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
     modelComboBox.set(HIDE_DESCRIPTION, true);
     schemaComboBox.set(HIDE_DESCRIPTION, true);
 
-    schemaComboBox.init(() -> loadSchemas(), null);
-    modelComboBox.init(() -> loadModels(), null);
-
     updateFieldAvailability();
   }
 

@@ -52,7 +52,7 @@ public class CreateVectorDestinationForm extends VectorToolboxFormBase {
   }
 
   private void initComboBoxes() {
-    schemaComboBox.init(() -> loadSchemas(), null);
+
   }
 
   @Override

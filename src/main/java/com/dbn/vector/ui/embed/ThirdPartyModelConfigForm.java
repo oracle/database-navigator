@@ -67,9 +67,6 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
     credentialComboBox.set(HIDE_DESCRIPTION, true);
     credentialSchemaComboBox.set(HIDE_DESCRIPTION, true);
 
-    credentialSchemaComboBox.init(() -> loadSchemas(), null);
-    credentialComboBox.init(() -> loadCredentials(), null);
-
     updateFieldAvailability();
   }
 

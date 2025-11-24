@@ -437,8 +437,11 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     }
 
     public void setValues(List<T> values) {
+        T selectedValue = getSelectedValue();
         DBNComboBoxModel<T> model = new DBNComboBoxModel<>(values);
         setModel(model);
+
+        selectValue(selectedValue);
         VISITED.set(this, false); // reset visited flag on model changes
     }
 
@@ -469,7 +472,9 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
 
         super.setSelectedItem(anObject);
         T newValue = getSelectedValue();
-        listeners.notify(l -> l.selectionChanged(oldValue, newValue));
+        if (!Commons.match(oldValue, newValue)) {
+            listeners.notify(l -> l.selectionChanged(oldValue, newValue));
+        }
     }
 
     private void selectValue(T value) {

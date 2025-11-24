@@ -69,11 +69,6 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
     dataColumnComboBox.set(HIDE_DESCRIPTION, true);
     keyColumnComboBox.set(HIDE_DESCRIPTION, true);
 
-    schemaComboBox.init(() -> loadSchemas(), null);
-    tableComboBox.init(() -> loadTables(), null);
-    keyColumnComboBox.init(() -> loadKeyColumns(), null);
-    dataColumnComboBox.init(() -> loadDataColumns(), null);
-
     updateFieldAvailability();
   }
 

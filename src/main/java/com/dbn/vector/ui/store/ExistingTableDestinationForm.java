@@ -52,12 +52,6 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
     embeddingColumnComboBox.set(HIDE_DESCRIPTION, true);
     metadataColumnComboBox.set(HIDE_DESCRIPTION, true);
 
-    schemaComboBox.init(() -> loadSchemas(), null);
-    tableComboBox.init(() -> loadTables(), null);
-    dataColumnComboBox.init(() -> loadDataColumns(), null);
-    embeddingColumnComboBox.init(() -> loadEmbeddingColumns(), null);
-    metadataColumnComboBox.init(() -> loadMetadataColumns(), null);
-
     updateFieldAvailability();
   }
 
