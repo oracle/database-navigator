@@ -8,6 +8,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
@@ -38,6 +39,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.Priority.MEDIUM;
@@ -186,7 +188,9 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
 
   private void showResultDialog(VectorEmbeddingResult result) {
     ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
-    VectorEmbeddingExecutionResult executionResult = new VectorEmbeddingExecutionResult(result);
+    Set<String> names = executionManager.getExecutionResultNames(VectorEmbeddingExecutionResult.class);
+    String name = Naming.nextNumberedIdentifier("Embedding Result",true,()->names);
+    VectorEmbeddingExecutionResult executionResult = new VectorEmbeddingExecutionResult(result,name);
     executionManager.addExecutionResult(executionResult);
   }
 

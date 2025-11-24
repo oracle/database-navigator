@@ -52,6 +52,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
@@ -252,6 +253,11 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
         if (!executionConsoleForm.loaded()) return null;
         return Dispatch.call(true, () ->
                 getExecutionConsoleForm().getSelectedExecutionResult());
+    }
+
+    public Set<String> getExecutionResultNames(Class<? extends ExecutionResult<?>> resultType) {
+        ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
+        return executionConsoleForm.getExecutionResultNames(resultType);
     }
 
     /*********************************************

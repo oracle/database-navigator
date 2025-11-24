@@ -52,6 +52,8 @@ public class PipelineStepForm extends DBNFormBase  {
     statusLabel.setForeground(greyContent);
     initInfoLabel();
 
+
+
     linkLabel.setHyperlinkText(stepResult.getLink());
     linkLabel.setIcon(stepResult.getIcon());
 
@@ -62,6 +64,7 @@ public class PipelineStepForm extends DBNFormBase  {
 
       DBSchema schema = connection.getSchema(connection.getSchemaId(schemaName));
       DBTable table = schema.getTable(tableName);
+      // documentId
       DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(connection.getProject());
       editorManager.connectAndOpenEditor(table, null, true, true);
     });

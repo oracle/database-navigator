@@ -76,11 +76,8 @@ import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
@@ -585,5 +582,15 @@ public class ExecutionConsoleForm extends DBNFormBase {
     @Nullable
     public <T extends ExecutionResultForm> T getExecutionResultForm(ExecutionResult<?> executionResult) {
         return cast(executionResultForms.get(executionResult));
+    }
+
+    public Set<String> getExecutionResultNames(Class<? extends ExecutionResult<?>> resultType) {
+        return executionResultForms
+                .values()
+                .stream()
+                .map(ExecutionResultForm::getExecutionResult)
+                .filter(result->resultType.isAssignableFrom(result.getClass()))
+                .map(ExecutionResult::getName)
+                .collect(Collectors.toSet());
     }
 }

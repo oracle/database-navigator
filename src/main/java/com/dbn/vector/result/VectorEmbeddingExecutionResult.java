@@ -13,11 +13,12 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 @Getter
 public class VectorEmbeddingExecutionResult extends ExecutionResultBase<VectorEmbeddingExecutionResultForm> {
+  private  String name;
   VectorEmbeddingResult vectorEmbeddingResult;
 
-  public VectorEmbeddingExecutionResult(VectorEmbeddingResult vectorEmbeddingResult) {
+  public VectorEmbeddingExecutionResult(VectorEmbeddingResult vectorEmbeddingResult,String name) {
     this.vectorEmbeddingResult = vectorEmbeddingResult;
-
+    this.name = name;
   }
 
   @Override
@@ -27,7 +28,7 @@ public class VectorEmbeddingExecutionResult extends ExecutionResultBase<VectorEm
 
   @Override
   public @NotNull String getName() {
-    return "Embedding Result";
+    return name;
   }
 
   @Override
@@ -53,5 +54,15 @@ public class VectorEmbeddingExecutionResult extends ExecutionResultBase<VectorEm
   @Override
   public DBLanguagePsiFile createPreviewFile() {
     return null;
+  }
+
+  @Override
+  public boolean isRenameable() {
+    //todo does not support sticky naming
+    return true;
+  }
+  @Override
+  public void setName(@NotNull String name, boolean sticky) {
+    this.name = name;
   }
 }
