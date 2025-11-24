@@ -59,6 +59,7 @@ public class DBCredentialManagementAdapter extends ObjectManagementAdapterFactor
         if (credentialType.isOneOf(DBCredentialType.PASSWORD, DBCredentialType.TOKEN)) {
             databaseInterface.createPwdCredential(conn,
                     credentialName,
+                    object.getAttribute(USER_NAME),
                     object.getAttribute(PASSWORD));
 
         } else if (credentialType == DBCredentialType.OCI) {

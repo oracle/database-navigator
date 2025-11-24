@@ -2,7 +2,7 @@ package com.dbn.vector.pipeline;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.interfaces.DatabaseAssistantInterface;
+import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.vector.model.PipelineStep;
 import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.TableResult;
@@ -22,7 +22,7 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
             @NotNull VectorEmbeddingRequest request,
             @NotNull ConnectionHandler handler,
             @NotNull DBNConnection connection,
-            @NotNull DatabaseAssistantInterface assistantInterface,
+            @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull ProgressIndicator progressIndicator,
             @NotNull VectorEmbeddingResult result) throws Exception {
 
@@ -39,7 +39,7 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
         embedTableData(
                 request,
                 connection,
-                assistantInterface,
+                vectorInterface,
                 tableResult
         );
     }
@@ -50,13 +50,13 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
     private void embedTableData(
             @NotNull VectorEmbeddingRequest request,
             @NotNull DBNConnection connection,
-            @NotNull DatabaseAssistantInterface assistantInterface,
+            @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull TableResult tableResult) {
 
         StepResult embedStep = tableResult.startStep(PipelineStep.EMBED);
 
         try {
-            int embeddedRows = assistantInterface.embedDataContent(
+            int embeddedRows = vectorInterface.embedDataContent(
                     connection,
                     request.getSourceConfig().getTableSourceConfig(),
                     request.getChunkConfig().getConfigJson(),

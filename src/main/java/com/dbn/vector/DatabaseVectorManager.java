@@ -5,7 +5,6 @@ import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Naming;
@@ -13,8 +12,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
@@ -100,7 +99,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         openVectorToolbox(connection, request);
     }
 
-    private static void openVectorToolbox(ConnectionHandler connection, VectorEmbeddingRequest request) {
+    public void openVectorToolbox(ConnectionHandler connection, VectorEmbeddingRequest request) {
         CREATE_VECTOR_EMBEDDINGS.start(connection, () -> Dialogs.show(() -> new VectorAiDialog(connection, request)));
     }
 
@@ -111,8 +110,8 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
-                    return assistantInterface.chunkTextContent(text,
+                    DatabaseVectorInterface vectorInterface = connection.getVectorInterface();
+                    return vectorInterface.chunkTextContent(text,
                             config.getChunkBy(),
                             config.getSplitBy(),
                             config.getMaxSize(),
@@ -121,7 +120,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     }
 
     @SneakyThrows
-    public void createEmbeddings(VectorEmbeddingRequest request, ConnectionHandler handler, Runnable callbackInfo, Consumer<Exception> callbackError)  {
+    public void createEmbeddings(VectorEmbeddingRequest request, ConnectionHandler handler)  {
         StoreConfig storeConfig = request.getStoreConfig();
 
         Progress.prompt(

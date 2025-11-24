@@ -18,13 +18,7 @@ package com.dbn.database.interfaces;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.object.factory.ModelFactoryInput;
-import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
-import com.dbn.vector.model.store.StoreConfig;
-import org.jetbrains.annotations.NotNull;
 
-import java.sql.Blob;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -74,7 +68,7 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
    */
   boolean isAssistantFeatureSupported(DBNConnection connection) throws SQLException;
 
-  void createPwdCredential(DBNConnection connection, String credentialName, String password) throws SQLException;
+  void createPwdCredential(DBNConnection connection, String credentialName, String userName, String password) throws SQLException;
 
   void createOciCredential(DBNConnection connection, String credentialName, String userOcid, String tenancyOcid, String privateKey, String fingerprint) throws SQLException;
 
@@ -105,24 +99,4 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
   default AssistantType getAssistantType(DBNConnection connection) throws SQLException {
     return AssistantType.PUBLIC;
   }
-
-  void loadOnnxModelFromOci(ModelFactoryInput input, DBNConnection conn) throws SQLException;
-  void deleteAIModel(DBNConnection conn,String modelName) throws SQLException;
-  void loadOnnxModelThroughJdbc(String modelName, Blob modelBlob, DBNConnection conn) throws SQLException;
-
-  ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException;
-
-  void createEmbeddingTable(DBNConnection connection, String ownerName, String tableName, String keyColumnName, String textColumnName, String embeddingColumnName, String metadataColumnName) throws SQLException;
-
-  int embedDataContent(DBNConnection connection, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException;
-
-  int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, String documentId, String metadata) throws SQLException;
-
-  void ensureDocumentsTable(DBNConnection conn, String filesTable) throws SQLException;
-
-  void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata, String fileHash, long fileSize) throws SQLException;
-
-  ResultSet selectDocumentIdByHashIfExists(DBNConnection conn, String filesTable, String crc, long filesize) throws SQLException;
-
-  void writeBlobContent(@NotNull DBNConnection connection, String filesTable, @NotNull String documentId, byte[] bytes) throws SQLException;
 }

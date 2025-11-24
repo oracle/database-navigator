@@ -1,8 +1,6 @@
 package com.dbn.vector.ui;
 
-import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.vector.DatabaseVectorManager;
@@ -52,17 +50,11 @@ public class VectorAiDialog extends DBNDialog<VectorAIForm> {
   protected void doOKAction() {
     VectorAIForm form = getForm();
     form.applyFormChanges();
+    form.saveRequestTemplate(true);
 
     super.doOKAction();
-    Runnable callbackInfo = () -> {
-      form.saveRequestTemplate(true);
-      form.resetFormChanges();
-      Messages.showInfoDialog(getProject(), "Embedding Succeeded ","Your data has been embedded successfully!");
-    };
-    Consumer<Exception> callbackError = (ex) -> Messages.showErrorDialog(getProject(), "Embedding Failed", ex.getMessage(), ex);
-
     DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
-    vectorManager.createEmbeddings(request, getConnection(), callbackInfo, callbackError);
+    vectorManager.createEmbeddings(request, getConnection());
   }
 
   @Override

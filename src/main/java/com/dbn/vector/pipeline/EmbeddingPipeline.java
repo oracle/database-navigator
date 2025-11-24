@@ -4,7 +4,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.interfaces.DatabaseAssistantInterface;
+import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.vector.model.PipelineStep;
 import com.dbn.vector.model.StepResult;
@@ -35,11 +35,11 @@ public abstract class EmbeddingPipeline {
             @NotNull ProgressIndicator progressIndicator,
             @NotNull VectorEmbeddingResult result) throws Exception {
 
-        DatabaseAssistantInterface assistantInterface = handler.getAssistantInterface();
+        DatabaseVectorInterface vectorInterface = handler.getVectorInterface();
 
         // Step 1: Ensure destination table (shared across all sources)
         StepResult ensureDestStep = result.getstep(PipelineStep.ENSURE_DESTINATION);
-        ensureDestinationTableStep(request, connection, assistantInterface,ensureDestStep);
+        ensureDestinationTableStep(request, connection, vectorInterface,ensureDestStep);
 
         if (ensureDestStep.getStatus() == StepResult.STEP_STATUS.FAILED && ensureDestStep.isCritical()) {
             return;
@@ -50,7 +50,7 @@ public abstract class EmbeddingPipeline {
                 request,
                 handler,
                 connection,
-                assistantInterface,
+                vectorInterface,
                 progressIndicator,
                 result
         );
@@ -63,7 +63,7 @@ public abstract class EmbeddingPipeline {
             @NotNull VectorEmbeddingRequest request,
             @NotNull ConnectionHandler handler,
             @NotNull DBNConnection connection,
-            @NotNull DatabaseAssistantInterface assistantInterface,
+            @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull ProgressIndicator progressIndicator,
             @NotNull VectorEmbeddingResult result
     ) throws Exception;
@@ -77,16 +77,16 @@ public abstract class EmbeddingPipeline {
     protected StepResult ensureDestinationTableStep(
             @NotNull VectorEmbeddingRequest request,
             @NotNull DBNConnection connection,
-            @NotNull DatabaseAssistantInterface assistantInterface, StepResult step) {
+            @NotNull DatabaseVectorInterface vectorInterface, StepResult step) {
 
-        step.startAt();
+        step.start();
 
         try {
             StoreConfig storeConfig = request.getStoreConfig();
             step.setLink(storeConfig.getSchemaName()+"."+storeConfig.getTableName());
             step.setIcon(Icons.DBO_TABLE);
             if (storeConfig.getDestinationType() == DestinationType.NEW_TABLE) {
-                assistantInterface.createEmbeddingTable(
+                vectorInterface.createEmbeddingTable(
                         connection,
                         storeConfig.getSchemaName(),
                         storeConfig.getTableName(),
@@ -116,12 +116,12 @@ public abstract class EmbeddingPipeline {
      */
     protected StepResult ensureDocumentsTableStep(
             @NotNull DBNConnection connection,
-            @NotNull DatabaseAssistantInterface assistantInterface, StepResult step) {
+            @NotNull DatabaseVectorInterface vectorInterface, StepResult step, String schemaName) {
 
-        step.startAt();
+        step.start();
 
         try {
-            assistantInterface.ensureDocumentsTable(connection, FILES_TABLE);
+            vectorInterface.ensureDocumentsTable(connection, schemaName, FILES_TABLE);
             step.markSuccess();
             step.setLink("AYOUB."+FILES_TABLE.toUpperCase());
             step.setIcon(Icons.DBO_TABLE);

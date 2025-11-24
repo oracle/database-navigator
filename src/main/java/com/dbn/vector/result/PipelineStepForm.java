@@ -23,8 +23,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
-
-
 import java.awt.Color;
 import java.awt.Font;
 
@@ -73,8 +71,7 @@ public class PipelineStepForm extends DBNFormBase  {
 
     durationValueLabel.setForeground(greyContent);
     durationValueLabel.setText(String.format("%.1f",(double)stepResult.getDuration()/1000)+"s");
-    if (!stepResult.isOk() && stepResult.getErrorCode() != null){
-
+    if (!stepResult.isOk()){
       reasonTextArea.setText(stepResult.getErrorCode()+stepResult.getErrorMessage());
       reasonTextArea.setFont(JBUI.Fonts.label());
       reasonTextArea.setForeground(redContent);

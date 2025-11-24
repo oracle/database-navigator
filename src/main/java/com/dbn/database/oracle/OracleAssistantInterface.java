@@ -23,17 +23,9 @@ import com.dbn.database.common.statement.output.ClobOutput;
 import com.dbn.database.common.util.BooleanResultSetConsumer;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
-import com.dbn.object.factory.ModelFactoryInput;
-import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
-import com.dbn.vector.model.store.StoreConfig;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 
-import java.sql.Blob;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import static com.dbn.vector.service.FileProcessingService.FILES_TABLE;
 
 
 /**
@@ -76,87 +68,8 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public void loadOnnxModelFromOci(ModelFactoryInput input, DBNConnection conn) throws SQLException {
-    executeUpdate(conn,"load-onnx-model-from-object-storage",input.getModelName(), input.getCredentialName(), input.getSourceLocation());
-  }
-
-  @Override
-  public void deleteAIModel(DBNConnection conn,String modelName) throws SQLException {
-    executeUpdate(conn,"drop-embed-model",modelName);
-  }
-
-  @Override
-  public ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException {
-    return executeQuery(conn,"chunk-text-from-chunk-lab", text, chunkBy, max, overlap, splitBy);
-  }
-
-  @Override
-  public int embedDataContent(DBNConnection conn, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig) throws SQLException {
-    return executeUpdate(conn,
-            "insert-vector-embeddings",
-            storeConfig.getSchemaName(),
-            storeConfig.getTableName(),
-            storeConfig.getTextColumnName(),
-            storeConfig.getEmbeddingColumnName(),
-            storeConfig.getMetadataColumnName(),
-            sourceConfig.getSchemaName(),
-            sourceConfig.getTableName(),
-            sourceConfig.getDataColumnName(),
-            chunkConfig,
-            embedConfig
-    );
-  }
-
-  @Override
-  public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, String documentId, String metadata) throws SQLException {
-      return executeUpdate(conn,
-              "insert-vector-embeddings-from-filesystem",
-              storeConfig.getSchemaName(),
-              storeConfig.getTableName(),
-              storeConfig.getTextColumnName(),
-              storeConfig.getEmbeddingColumnName(),
-              storeConfig.getMetadataColumnName(),
-              FILES_TABLE,
-              documentId, // id of the blob
-              chunkConfig,
-              embedConfig,
-              metadata);
-  }
-
-  @Override
-  public void writeBlobContent(@NotNull DBNConnection conn, String filesTable, @NotNull String documentId, byte[] bytes) throws SQLException {
-    executeUpdate(conn,"stream-file-content-to-blob",filesTable,bytes,documentId);
-  }
-
-  @Override
-  public void ensureDocumentsTable(DBNConnection conn, String filesTable) throws SQLException {
-    executeUpdate(conn,"ensure-documents-table",filesTable);
-  }
-
-  @Override
-  public void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata, String fileHash, long fileSize) throws SQLException {
-    executeUpdate(conn,"insert-empty-document-row", filesTable, id, fileMetadata, fileHash,fileSize);
-  }
-
-  @Override
-  public ResultSet selectDocumentIdByHashIfExists(DBNConnection conn, String filesTable, String hash, long filesize) throws SQLException {
-    return executeQuery(conn,"select-document-id-by-hash",filesTable,hash,filesize);
-  }
-
-
-  @Override
-  public void createEmbeddingTable(DBNConnection conn, String ownerName, String tableName, String keyColumnName, String textColumnName, String embeddingColumnName, String metadataColumnName) throws SQLException {
-    executeUpdate(conn, "create-embedding-table", ownerName, tableName, keyColumnName, textColumnName, embeddingColumnName, metadataColumnName);
-  }
-
-  @Override
-  public void loadOnnxModelThroughJdbc(String modelName, Blob modelBlob, DBNConnection conn) throws SQLException {
-    executeCall(conn,null,"load-onnx-model-through-jdbc",modelName, modelBlob);
-  }
-
-  @Override
-  public void createPwdCredential(DBNConnection connection, String credentialName, String password) throws SQLException {
-    executeUpdate(connection, "create-password-credential", credentialName, password);
+  public void createPwdCredential(DBNConnection connection, String credentialName, String userName, String password) throws SQLException {
+    executeUpdate(connection, "create-password-credential", credentialName, userName, password);
   }
 
   @Override
