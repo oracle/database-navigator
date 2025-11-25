@@ -122,7 +122,11 @@ public class UserInterface {
      * @param runnable the @{@link Runnable} to be invoked when the component is shown
      */
     public static void whenFirstShown(JComponent component, Runnable runnable) {
-        whenShown(component, runnable, true);
+        if (component.isShowing()) {
+            runnable.run();
+        } else {
+            whenShown(component, runnable, true);
+        }
     }
 
 
