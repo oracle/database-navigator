@@ -2,13 +2,17 @@ package com.dbn.vector.model.common;
 
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+
 @Getter
+@Setter
 public class FileContent {
   private static final int BUFFER_SIZE = 64 * 1024;
 
@@ -17,6 +21,7 @@ public class FileContent {
   private final String md5Hash;
   private final long fileSize;
   private final long computedAt;
+  private Map<String, Object> metadata;
 
   public FileContent(@NotNull VirtualFile file) throws IOException, NoSuchAlgorithmException {
     this.file = file;

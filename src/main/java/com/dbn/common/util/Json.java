@@ -17,6 +17,7 @@
 package com.dbn.common.util;
 
 import com.dbn.common.exception.Exceptions;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -59,6 +60,11 @@ public class Json {
     @SneakyThrows
     public static String writeAsString(Object value) {
         return OBJECT_MAPPER.writeValueAsString(value);
+    }
+
+    @SneakyThrows
+    public static Map<String, Object> readAsMap(String json) {
+        return OBJECT_MAPPER.readValue(json, new TypeReference<Map<String, Object>>(){});
     }
 
     @SneakyThrows

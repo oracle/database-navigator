@@ -15,15 +15,15 @@ import java.util.Arrays;
 @Getter
 @Setter
 public class FileResult extends SourceResult{
-  private VirtualFile file; // todo make final
-  private String size;      // todo make final
+  private final VirtualFile file;
+  private final String size;
   private String docId;
   private boolean isExisted = false;
-  private transient java.sql.Blob cachedBlob; // Store blob when retrieved during CRC check
 
-  @Deprecated // TODO initialize file result with the file using below constructor
-  public FileResult() {
+  public FileResult(VirtualFile file) {
     super(SourceType.FILE_SYSTEM);
+    this.file = file;
+    this.size = VirtualFiles.getPresentableFileSize(file);
     initSteps();
   }
 
@@ -33,19 +33,6 @@ public class FileResult extends SourceResult{
             new StepResult(PipelineStep.UPLOADING_FILE),
             new StepResult(PipelineStep.EMBED)
     ));
-  }
-
-
-  public FileResult(VirtualFile file) {
-    super(SourceType.FILE_SYSTEM);
-    this.file = file;
-    this.size = VirtualFiles.getPresentableFileSize(file);
-    initSteps();
-  }
-
-  public void setFile(VirtualFile file) {
-    this.file = file;
-    this.size = VirtualFiles.getPresentableFileSize(file);
   }
 
   @NotNull

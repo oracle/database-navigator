@@ -7,30 +7,24 @@ import com.dbn.vector.model.FileResult;
 import com.dbn.vector.model.PipelineStep;
 import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
-import com.dbn.vector.model.common.DuplicateInfo;
 import com.dbn.vector.model.common.FileContent;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
+
+import static com.dbn.vector.model.sourceconfig.SourceType.FILE_SYSTEM;
 
 @Slf4j
 public class FileProcessingService {
     public static final String FILES_TABLE = "document_files";
 
-    public String generateDocumentId() {
-        return UUID.randomUUID().toString().replace("-", "");
-    }
-
-    public DuplicateInfo checkFileExists(
+    public String checkFileExists(
             @NotNull DBNConnection connection,
             @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull FileContent fileContent,
@@ -52,22 +46,23 @@ public class FileProcessingService {
 
             if (rs.next()) {
                 String existingDocId = rs.getString("id");
+                String metadata = rs.getString("metadata");
+                fileContent.setMetadata(Json.readAsMap(metadata));
                 step.markSuccess();
-                return DuplicateInfo.found(existingDocId);
+                return existingDocId;
             }
 
             step.markSuccess();
-            return DuplicateInfo.notFound();
 
         } catch (Exception e) {
             step.markFailed("CRC_ERROR", e.getMessage());
             fileResult.finishFailed("CRC_ERROR", e.getMessage());
-            return DuplicateInfo.notFound();
         }
+        return null;
     }
 
 
-    public String uploadFile(
+    public void uploadFile(
             @NotNull DBNConnection connection,
             @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull FileContent fileContent,
@@ -78,8 +73,7 @@ public class FileProcessingService {
 
         try {
             // Extract metadata from FileContent and connection
-            Map<String, Object> metadata = extractFileMetadata(connection, fileContent);
-            String metadataJson = Json.writeAsString(metadata);
+            String metadataJson = buildFileMetadata(connection, fileContent);
 
             // Step 1: Insert row with metadata and hash
             vectorInterface.insertEmptyDocumentRow(
@@ -101,20 +95,10 @@ public class FileProcessingService {
             );
 
             step.markSuccess();
-            return documentId;  // Return ID only, not bytes!
-
         } catch (Exception e) {
             step.markFailed("UPLOAD_ERROR", e.getMessage());
             fileResult.finishFailed("UPLOAD_ERROR", e.getMessage());
-            return null;
         }
-    }
-
-    /**
-     * Get the existing blob that was retrieved during CRC check.
-     */
-    public Blob getExistingBlob(@NotNull FileResult fileResult) {
-        return fileResult.getCachedBlob();
     }
 
     public void embedFile(
@@ -127,7 +111,7 @@ public class FileProcessingService {
         StepResult step = fileResult.startStep(PipelineStep.EMBED);
 
         try {
-            String rowMetadata = buildRowMetadata(request, documentId, connection, fileContent);
+            String rowMetadata = buildRowMetadata(request, fileContent.getMetadata());
             String chunkConfigJson = request.getChunkConfig().getConfigJson();
             String embedConfigJson = request.getEmbedConfig().getConfigJson();
 
@@ -152,30 +136,34 @@ public class FileProcessingService {
     }
 
 
-    private Map<String, Object> extractFileMetadata(
+    private String buildFileMetadata(
             @NotNull DBNConnection connection,
             @NotNull FileContent fileContent) throws SQLException {
 
-        Map<String, Object> metadata = new HashMap<>();
         VirtualFile file = fileContent.getFile();
 
-        metadata.put("filename", file.getName());
-        metadata.put("path", file.getPath());
-        metadata.put("size_bytes", fileContent.getFileSize());  // From cache
-        metadata.put("uploaded_by",
-                connection.getSchema() != null ? connection.getSchema() : "unknown");
-        metadata.put("uploaded_at", Instant.now().toString());
+        @NonNls
+        Map<String, Object> metadata = new LinkedHashMap<>();
 
-        return metadata;
+        metadata.put("file_name", file.getName());
+        metadata.put("file_path", file.getPath());
+        metadata.put("file_size", fileContent.getFileSize());
+        metadata.put("upload_timestamp", System.currentTimeMillis());
+        metadata.put("uploaded_by", connection.getSchema() != null ? connection.getSchema() : "unknown");
+
+        fileContent.setMetadata(metadata);
+        return Json.writeAsString(metadata);
     }
 
+    private String buildRowMetadata(@NotNull VectorEmbeddingRequest request, Map<String, Object> fileMetadata){
+        Map<String, Object> sourceMetadata = new LinkedHashMap<>();
+        sourceMetadata.put("source_type", FILE_SYSTEM);
+        sourceMetadata.putAll(fileMetadata);
 
-
-    private String buildRowMetadata(@NotNull VectorEmbeddingRequest request, @NotNull String documentId, @NotNull DBNConnection connection, FileContent file) throws IOException, SQLException {
-        Map<String, Object> metadata = extractFileMetadata(connection, file);
-        metadata.put("doc_id", documentId);
-        metadata.put("embed_config", request.getEmbedConfig().getConfigMap());
-        metadata.put("chunk_config", request.getChunkConfig().getConfigMap());
+        Map<String, Object> metadata = new LinkedHashMap<>();
+        metadata.put("embedding_source", sourceMetadata);
+        metadata.put("embedding_config", request.getEmbedConfig().getConfigMap());
+        metadata.put("chunking_config", request.getChunkConfig().getConfigMap());
         return Json.writeAsString(metadata);
     }
 }

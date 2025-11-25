@@ -172,7 +172,7 @@
 
     <statement-execution-processor id="select-document-id-by-hash">
         <statement>
-            SELECT id FROM {0} WHERE file_hash = {#1} and file_size = {#2} and rownum = 1
+            SELECT id, metadata FROM {0} WHERE file_hash = {#1} and file_size = {#2} and rownum = 1
         </statement>
     </statement-execution-processor>
 
@@ -193,19 +193,19 @@
                     JSON_VALUE(t.COLUMN_VALUE, '$.embed_data' RETURNING CLOB),
                     TO_VECTOR(JSON_VALUE(t.COLUMN_VALUE, '$.embed_vector' RETURNING CLOB)),
                     JSON_MERGEPATCH(
-                        {#10},
+                        {#11},
                         JSON_OBJECT(
-                                    KEY 'embed_id' VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50)),
-                                    KEY 'source_row_id' VALUE src.{11}
-                                ) RETURNING CLOB
+                            KEY 'embedding_id' VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50)),
+                            KEY 'embedding_source' VALUE JSON_OBJECT('primary_key' VALUE src.{7})
+                        ) RETURNING VARCHAR2
                     )
                 FROM {5}.{6} src,
                     TABLE(
                             DBMS_VECTOR.UTL_TO_EMBEDDINGS(
                                     data   => DBMS_VECTOR.UTL_TO_CHUNKS(
-                                    data   => src.{7},
-                                    params => json({#8})),
-                                    params => json({#9})
+                                    data   => src.{8},
+                                    params => json({#9})),
+                                    params => json({#10})
                         )
                     ) t;
         </statement>
@@ -220,9 +220,8 @@
                     JSON_MERGEPATCH(
                         {#9},
                         JSON_OBJECT(
-                            KEY 'chunk_id'
-                            VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50))
-                        ) RETURNING CLOB
+                            KEY 'embedding_id' VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50))
+                        ) RETURNING VARCHAR2
                     )
                 FROM TABLE(
                     DBMS_VECTOR.UTL_TO_EMBEDDINGS(

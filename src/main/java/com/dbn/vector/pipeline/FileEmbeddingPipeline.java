@@ -1,6 +1,7 @@
 package com.dbn.vector.pipeline;
 
 import com.dbn.common.util.Naming;
+import com.dbn.common.util.UUIDs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
@@ -10,7 +11,6 @@ import com.dbn.vector.model.SourceStatus;
 import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
-import com.dbn.vector.model.common.DuplicateInfo;
 import com.dbn.vector.model.common.FileContent;
 import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
 import com.dbn.vector.service.FileProcessingService;
@@ -99,7 +99,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                             shortenFileName, currentIndex + 1, totalFiles)
             );
 
-            DuplicateInfo dupInfo = fileService.checkFileExists(
+            String documentId = fileService.checkFileExists(
                     connection,
                     vectorInterface,
                     fileContent,
@@ -110,15 +110,13 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                 return;  // Check failed
             }
 
-            String documentId;
-            if (dupInfo.exists) {
+            if (documentId != null) {
                 // File already exists - use existing ID
                 progressIndicator.setText2(
                         String.format("File already uploaded, using existing \"%s\" (%d/%d)",
                                 shortenFileName, currentIndex + 1, totalFiles)
                 );
 
-                documentId = dupInfo.existingDocId;
                 fileResult.setDocId(documentId);
                 fileResult.deleteStep(PipelineStep.UPLOADING_FILE);  // Skip upload
 
@@ -129,10 +127,10 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                                 shortenFileName, currentIndex + 1, totalFiles)
                 );
 
-                documentId = fileService.generateDocumentId();
+                documentId = UUIDs.compact();
                 fileResult.setDocId(documentId);
 
-                documentId = fileService.uploadFile(
+                fileService.uploadFile(
                         connection,
                         vectorInterface,
                         fileContent,

@@ -65,11 +65,11 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
             storeConfig.getMetadataColumnName(),
             sourceConfig.getSchemaName(),
             sourceConfig.getTableName(),
+            sourceConfig.getKeyColumnName(),
             sourceConfig.getDataColumnName(),
             chunkConfig,
             embedConfig,
-            metadata,
-            sourceConfig.getKeyColumnName()
+            metadata
     );
   }
 
