@@ -123,11 +123,12 @@ public abstract class EmbeddingPipeline {
 
         step.start();
         boolean tableWasCreated = false;
+        String tableIdentifier = schemaName + "." + FILES_TABLE.toUpperCase();
 
         try {
             vectorInterface.ensureDocumentsTable(connection, schemaName, FILES_TABLE);
             step.markSuccess();
-            step.setLink("AYOUB."+FILES_TABLE.toUpperCase());
+            step.setLink(tableIdentifier);
             step.setIcon(Icons.DBO_TABLE);
 
         } catch (SQLException e) {
@@ -137,14 +138,15 @@ public abstract class EmbeddingPipeline {
                 // success
                 tableWasCreated = true;
                 step.markSuccess();
-                step.setLink("AYOUB."+FILES_TABLE.toUpperCase());
+
+                step.setLink(tableIdentifier);
                 step.setIcon(Icons.DBO_TABLE);
 
             } else if (errorCode == 20002) {
                 //success
                 tableWasCreated = false;
                 step.markSuccess();
-                step.setLink("AYOUB."+FILES_TABLE.toUpperCase());
+                step.setLink(tableIdentifier);
                 step.setIcon(Icons.DBO_TABLE);
 
             } else {

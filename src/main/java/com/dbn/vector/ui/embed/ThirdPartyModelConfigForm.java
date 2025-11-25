@@ -64,10 +64,10 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
   private void initDocumentationLinkPanel() {
     HyperLinkForm hyperLinkForm = HyperLinkForm.create(
             "",
-            "Supported Third-Party Provider",
+            "Supported Third-Party Providers",
             "https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/supported-third-party-provider-operations-and-endpoints.html");
 
-    hyperLinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
+    hyperLinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.WEST);
   }
   private void initComboBoxes() {
     List<AIProvider> providers = AIProviderData.getProviders(AssistantType.VECTOR_AI);

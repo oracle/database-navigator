@@ -170,7 +170,7 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
 
     TextContent hintText = TextContent.plain(
             "Vector Chain Embeddings Configuration\n\n" +
-                    "Use this interface to generate dense vector representations of your data using Oracle DBMS_VECTOR_CHAIN. " +
+                    "Use this interface to generate dense vector representations of your data using the Oracle DBMS_VECTOR and DBMS_VECTOR_CHAIN utilities. " +
                     "Choose data from existing tables or upload file contents, customize chunking parameters, " +
                     "select from a range of pre-trained embedding models hosted in the database or configure third-party alternatives, " +
                     "and decide whether to store generated embeddings in an existing table or create a new one.\n\n" +
