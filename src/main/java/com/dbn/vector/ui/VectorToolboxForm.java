@@ -187,7 +187,6 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
             "Oracle AI Vector Search",
             "https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/overview-ai-vector-search.html");
 
-    hyperLinkForm.setTooltipText("https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/overview-ai-vector-search.html");
     hyperlinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
   }
 

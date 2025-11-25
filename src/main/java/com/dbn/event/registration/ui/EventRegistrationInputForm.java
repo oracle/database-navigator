@@ -86,8 +86,6 @@ public class EventRegistrationInputForm extends DBNFormBase {
                 "Powered by",
                 "Oracle Continuous Query Notification",
                 "https://docs.oracle.com/en/database/oracle/oracle-database/26/jjdbc/continuos-query-notification.html");
-
-        hyperLinkForm.setTooltipText("https://docs.oracle.com/en/database/oracle/oracle-database/26/jjdbc/continuos-query-notification.html");
         hyperlinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
     }
 

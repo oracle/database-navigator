@@ -16,7 +16,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
-import com.dbn.object.type.DBCredentialType;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.model.embed.ThirdPartyModelConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
@@ -28,7 +27,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Set;
 
@@ -39,9 +38,6 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
-import static com.dbn.common.util.Lists.filter;
-import static com.dbn.object.type.DBCredentialType.PASSWORD;
-import static com.dbn.object.type.DBCredentialType.TOKEN;
 import static java.util.Collections.emptyList;
 
 public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
@@ -71,7 +67,6 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
             "Supported Third-Party Provider",
             "https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/supported-third-party-provider-operations-and-endpoints.html");
 
-    hyperLinkForm.setTooltipText("https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/supported-third-party-provider-operations-and-endpoints.html");
     hyperLinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
   }
   private void initComboBoxes() {
@@ -88,9 +83,8 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
     addCredentialButton.setIcon(Icons.ACTION_ADD);
     addCredentialButton.setText(null);
 
-    List<DBCredentialType> credentialTypes = List.of(TOKEN, PASSWORD);
     addCredentialButton.addActionListener(e -> Dialogs.show(() ->
-            new CredentialEditDialog(getConnection(), null, credentialTypes, Set.of())));
+            new CredentialEditDialog(getConnection(), null, null, Set.of())));
 
     ObjectChangeEvent.subscribe(this,
             getConnection(),
@@ -159,8 +153,7 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
     DBSchema schema = getSelectedSchema();
     if (schema == null) return emptyList();
 
-    List<DBCredential> credentials = schema.getCredentials();
-    return filter(credentials, c -> c.getType().isOneOf(TOKEN, PASSWORD));
+    return schema.getCredentials();
   }
 
   @Override
