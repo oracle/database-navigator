@@ -286,20 +286,28 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="ensure-documents-table" timeout="120000" >
+    <statement-execution-processor id="ensure-documents-table" timeout="120000">
         <statement>
+            DECLARE
+            table_already_exists EXCEPTION;
+            PRAGMA EXCEPTION_INIT(table_already_exists, -955);
             BEGIN
                 EXECUTE IMMEDIATE '
-                    CREATE TABLE IF NOT EXISTS {0}.{1} (
-                        id       varchar(50) not null primary key,
-                        file_content    blob ,
-                        metadata JSON ,
-                        file_hash varchar2(32) not null,
-                        file_size number(19) not null,
-                        CONSTRAINT uk_file_identity unique (file_hash,file_size)
+                        CREATE TABLE {0}.{1} (
+                        id VARCHAR2(50) NOT NULL PRIMARY KEY,
+                        file_content BLOB,
+                        metadata JSON,
+                        file_hash VARCHAR2(32) NOT NULL,
+                        file_size NUMBER(19) NOT NULL,
+                        CONSTRAINT uk_file_identity UNIQUE (file_hash, file_size)
+                        ) LOB(file_content) STORE AS SECUREFILE (NOCACHE FILESYSTEM_LIKE_LOGGING)
+                        ';
 
-                    ) LOB(file_content) STORE AS SECUREFILE (NOCACHE FILESYSTEM_LIKE_LOGGING)
-                ';
+                RAISE_APPLICATION_ERROR(-20001, 'TABLE_CREATED');
+
+                EXCEPTION
+                WHEN table_already_exists THEN
+                    RAISE_APPLICATION_ERROR(-20002, 'TABLE_EXISTS');
             END;
         </statement>
     </statement-execution-processor>

@@ -4,11 +4,12 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Naming;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
-import com.dbn.vector.model.SourceResult;
-import com.dbn.vector.model.SourceStatus;
-import com.dbn.vector.model.StepResult;
-import com.dbn.vector.model.VectorEmbeddingResult;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBTable;
+import com.dbn.vector.model.*;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.SimpleTextAttributes;
@@ -19,6 +20,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.event.HyperlinkListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +43,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
   private JPanel pipelinePanel;
   private JPanel pipelineHeaderPanel;
   private JSplitPane contentSplitPane;
-  private JLabel sourceName;
+  private com.dbn.common.ui.link.DBNHyperlinkLabel sourceName;
   private JPanel sourceStatusPanel;
   private JPanel actionsPanel;
   private VectorEmbeddingSourcesTable sourceDataTable;
@@ -118,12 +120,56 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
         int modelRow = sourceDataTable.convertRowIndexToModel(viewRow);
         VectorEmbeddingSourcesTableModel model = sourceDataTable.getModel();
         SourceResult sr = model.getSourceResults().get(modelRow);
-        String sourceN  = Naming.shortenFileName(sr.getName(),50);
-        sourceName.setText(sourceN+"  ");
+        String sourceN = Naming.shortenFileName(sr.getName(), 50);
+
+        // Update source name and icon
+        sourceName.setText(sourceN + "  ");
+        sourceName.setIcon(sr.getIcon());
+
+
+        // Only make it a hyperlink if it's a TableResult
+        if (sr instanceof TableResult) {
+          sourceName.setHyperlinkText(sourceN + "  ");
+          sourceName.addHyperlinkListener((event) -> {
+            openTableInEditor(sr);
+          });
+        } else {
+          // For FileResult, just show as plain text (not clickable)
+          sourceName.setText(sourceN + "  ");
+        }
+
         updateStepStatus(sr);
         showPipelineDetails(sr);
       }
     });
+  }
+
+  private void openTableInEditor(SourceResult sourceResult) {
+    ConnectionHandler connection = getResult().getConnection();
+    String[] parts = sourceResult.getIdentifier().split("\\.");
+
+    if (parts.length != 2) {
+      // Handle error - invalid identifier format
+      return;
+    }
+
+    String schemaName = parts[0];
+    String tableName = parts[1];
+
+    DBSchema schema = connection.getSchema(connection.getSchemaId(schemaName));
+    if (schema == null) {
+      // Schema not found
+      return;
+    }
+
+    DBTable table = schema.getTable(tableName);
+    if (table == null) {
+      // Table not found
+      return;
+    }
+
+    DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(connection.getProject());
+    editorManager.connectAndOpenEditor(table, null, true, true);
   }
 
   private void updateStepStatus(SourceResult sr) {

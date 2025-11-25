@@ -2,6 +2,7 @@ package com.dbn.vector.pipeline;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
@@ -98,7 +99,7 @@ public abstract class EmbeddingPipeline {
 
 
                 // Notify browser to refresh
-                notifyTableCreated(request, storeConfig);
+                notifyTableCreated(request.getConnectionId(), storeConfig.getSchemaName());
             }
 
             step.markSuccess();
@@ -116,9 +117,12 @@ public abstract class EmbeddingPipeline {
      */
     protected StepResult ensureDocumentsTableStep(
             @NotNull DBNConnection connection,
-            @NotNull DatabaseVectorInterface vectorInterface, StepResult step, String schemaName) {
+            @NotNull DatabaseVectorInterface vectorInterface,
+            StepResult step,
+            String schemaName) {
 
         step.start();
+        boolean tableWasCreated = false;
 
         try {
             vectorInterface.ensureDocumentsTable(connection, schemaName, FILES_TABLE);
@@ -127,22 +131,57 @@ public abstract class EmbeddingPipeline {
             step.setIcon(Icons.DBO_TABLE);
 
         } catch (SQLException e) {
-            step.markFailed("DOCUMENTS_TABLE_ERROR", e.getMessage());
+            int errorCode = e.getErrorCode();
+
+            if (errorCode == 20001) {
+                // success
+                tableWasCreated = true;
+                step.markSuccess();
+                step.setLink("AYOUB."+FILES_TABLE.toUpperCase());
+                step.setIcon(Icons.DBO_TABLE);
+
+            } else if (errorCode == 20002) {
+                //success
+                tableWasCreated = false;
+                step.markSuccess();
+                step.setLink("AYOUB."+FILES_TABLE.toUpperCase());
+                step.setIcon(Icons.DBO_TABLE);
+
+            } else {
+                // Failed
+                step.markFailed("DOCUMENTS_TABLE_ERROR", e.getMessage());
+                return step;
+            }
         }
 
-        return step;
+        if (tableWasCreated) {
+            notifyTableCreated(connection.getConnectionId(),schemaName);
+        }
+
+
+            return step;
+    }
+
+    private void notifyTableCreated(ConnectionId connectionId, String schemaName) {
+        SchemaId schemaId = SchemaId.get(schemaName);
+        ObjectChangeEvent.notify(
+                CREATE,
+                TABLE,
+                connectionId,
+                schemaId
+        );
     }
 
     /**
      * Notify the object browser that a new table was created.
      */
-    private void notifyTableCreated(@NotNull VectorEmbeddingRequest request, @NotNull StoreConfig storeConfig) {
-        SchemaId schemaId = SchemaId.get(storeConfig.getSchemaName());
-        ObjectChangeEvent.notify(
-                CREATE,
-                TABLE,
-                request.getConnectionId(),
-                schemaId
-        );
-    }
+//    private void notifyTableCreated(@NotNull VectorEmbeddingRequest request, @NotNull StoreConfig storeConfig) {
+//        SchemaId schemaId = SchemaId.get(storeConfig.getSchemaName());
+//        ObjectChangeEvent.notify(
+//                CREATE,
+//                TABLE,
+//                request.getConnectionId(),
+//                schemaId
+//        );
+//    }
 }

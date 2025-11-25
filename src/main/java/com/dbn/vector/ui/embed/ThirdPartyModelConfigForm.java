@@ -7,6 +7,7 @@ import com.dbn.assistant.service.selectai.credential.ui.CredentialEditDialog;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Dialogs;
@@ -26,6 +27,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.awt.*;
 import java.util.List;
 import java.util.Set;
 
@@ -53,13 +55,23 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
   private DBNComboBox<DBCredential> credentialComboBox;
   private DBNComboBox<AIProvider> providerComboBox;
   private JButton addCredentialButton;
+  private JPanel hyperLinkPanel;
 
   public ThirdPartyModelConfigForm(@Nullable Disposable parent, ConnectionHandler connection) {
     super(parent, connection);
     initComboBoxes();
     initCredentialAddButton();
+    initDocumentationLinkPanel();
   }
+  private void initDocumentationLinkPanel() {
+    HyperLinkForm hyperLinkForm = HyperLinkForm.create(
+            "",
+            "Supported Third-Party Provider",
+            "https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/supported-third-party-provider-operations-and-endpoints.html");
 
+    hyperLinkForm.setTooltipText("https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/supported-third-party-provider-operations-and-endpoints.html");
+    hyperLinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
+  }
   private void initComboBoxes() {
     List<AIProvider> providers = AIProviderData.getProviders(AssistantType.VECTOR_AI);
     ComboBoxes.initComboBox(providerComboBox, providers);

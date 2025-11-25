@@ -6,6 +6,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.FileChoosers;
@@ -31,7 +32,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.Set;
@@ -68,12 +69,12 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
   private JLabel objectUrlLabel;
   private JButton credentialAddButton;
   private JLabel credentialLabel;
+  private JPanel hyperLinkPanel;
 
   private final DBObjectRef<DBSchema> schema;
 
   public ModelFactoryInputForm(DBNComponent parent, DBSchema schema,DBObjectType objectType, int index) {
     super(parent,schema.getConnection(),DBObjectType.AI_MODEL,index);
-
     this.schema = DBObjectRef.of(schema);
     modelFileTextField.addBrowseFolderListener(getProject(), FILE_CHOOSER_DESCRIPTOR);
 
@@ -94,10 +95,20 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
 
     DBNHeaderForm headerForm = createHeaderForm(schema,objectType);
     onTextChange(modelNameTextField, e -> headerForm.setTitle(schema.getName() + "." + toUpperCase(getObjectName()))); // TODO support quoted names
-
+    initDocumentationLinkPanel();
     updatePathControls();
     initCredentialFields();
     setListeners();
+  }
+
+  private void initDocumentationLinkPanel() {
+    HyperLinkForm hyperLinkForm = HyperLinkForm.create(
+            "Documentation:",
+            "ONNX ML Model Import into DB ",
+            "https://blogs.oracle.com/machinelearning/use-our-prebuilt-onnx-model-now-available-for-embedding-generation-in-oracle-database-23ai#:~:text=https%3A//adwc4pm.objectstorage.us%2Dashburn%2D1.oci.customer%2Doci.com/p/eLddQappgBJ7jNi6Guz9m9LOtYe2u8LWY19GfgU8flFK4N9YgP4kTlrE9Px3pE12/n/adwc4pm/b/OML%2DResources/o/");
+
+    hyperLinkForm.setTooltipText("https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/overview-ai-vector-search.html");
+    hyperLinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
   }
 
   @Override
@@ -105,7 +116,7 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
     addTextValidation(modelNameTextField, n -> isNotEmptyOrSpaces(n), "Please enter a name for the new model");
     addTextValidation(modelFileTextField.getTextField(), n -> isNotEmptyOrSpaces(n), "Please select a model file");
     addTextValidation(objectUrlTextField, n -> isNotEmptyOrSpaces(n), "Please provide an object URL");
-    addSelectionValidation(credentialComboBox, "Please select or create a credential");
+//    addSelectionValidation(credentialComboBox, "Please select or create a credential");
   }
 
   private void initCredentialFields() {

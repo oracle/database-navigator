@@ -150,12 +150,12 @@
                                   <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                                 </constraints>
                               </hspacer>
-                              <component id="9d446" class="javax.swing.JLabel" binding="sourceName">
+                              <component id="ed03b" class="com.dbn.common.ui.link.DBNHyperlinkLabel" binding="sourceName">
                                 <constraints>
                                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                                 </constraints>
                                 <properties>
-                                  <text value="Label"/>
+                                  <text value=""/>
                                 </properties>
                               </component>
                               <grid id="5ac3c" binding="sourceStatusPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
