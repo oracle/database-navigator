@@ -19,6 +19,7 @@ import com.dbn.object.factory.ModelFactoryInput;
 import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBCredentialType;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.common.ModelSourceType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
@@ -45,7 +46,8 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.toUpperCase;
-import static com.dbn.object.type.DBCredentialType.getVectorAITypes;
+import static com.dbn.object.type.DBCredentialType.PASSWORD;
+import static com.dbn.object.type.DBCredentialType.TOKEN;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.vector.common.ModelSourceType.MODEL_FILE;
 import static com.dbn.vector.common.ModelSourceType.OBJECT_STORAGE;
@@ -126,7 +128,8 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
     credentialAddButton.setText(null);
 
     ConnectionHandler connection = getConnection();
-    credentialAddButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(connection, null, getVectorAITypes(), Set.of())));
+    List<DBCredentialType> credentialTypes = List.of(TOKEN, PASSWORD);
+    credentialAddButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(connection, null, credentialTypes, Set.of())));
 
     Project project = connection.getProject();
     ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, e -> {
@@ -142,7 +145,7 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
 
   private List<DBCredential> loadCredentials() {
     List<DBCredential> credentials = getSchema().getCredentials();
-    return filter(credentials, c -> getVectorAITypes().contains(c.getType()));
+    return filter(credentials, c -> c.getType().isOneOf(TOKEN, PASSWORD));
   }
 
   private DBNHeaderForm createHeaderForm(DBSchema schema,DBObjectType objectType) {

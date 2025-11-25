@@ -599,7 +599,7 @@
             <action id="DBNavigator.Actions.ExecutionResult.ViewStatement" class="com.dbn.execution.statement.result.action.ExecutionResultViewStatementAction" text="Execution Result - View Statement" icon="AllIcons.Actions.Preview"/>
             <action id="DBNavigator.Actions.ExecutionResult.ViewRecord" class="com.dbn.execution.statement.result.action.ExecutionResultViewRecordAction" text="Execution Result - View Record" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_RECORD"/>
             <separator/>
-            <action id="DBNavigator.Actions.ExecutionResult.OpenVariablesDialog" class="com.dbn.execution.statement.result.action.ExecutionResultVariablesDialogAction" text="Execution Result - Open Variables Dialog" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPEN_EXEC_DIALOG"/>
+            <action id="DBNavigator.Actions.ExecutionResult.OpenVariablesDialog" class="com.dbn.execution.statement.result.action.ExecutionResultVariablesDialogAction" text="Execution Result - Open Variables Dialog" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM_RERUN"/>
             <action id="DBNavigator.Actions.ExecutionResult.FetchNextRecords" class="com.dbn.execution.statement.result.action.ExecutionResultResumeAction" text="Execution Result - Fetch Next Records" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RESUME"/>
             <action id="DBNavigator.Actions.ExecutionResult.RerunStatement" class="com.dbn.execution.statement.result.action.ExecutionResultRerunAction" text="Execution Result - Rerun Statement" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RERUN"/>
             <separator/>
@@ -619,9 +619,9 @@
             <separator/>
             <action id="DBNavigator.Actions.MethodExecutionResult.Settings" class="com.dbn.execution.method.result.action.ExecutionEngineSettingsAction" text="Method Execution Result - Open Execution Dialog" icon="AllIcons.General.GearPlain"/>
         </group>
-        <group id="DBNavigator.ActionGroup.VectorEmbeddingExecutionResult">
-            <action id="DBNavigator.Actions.VectorEmbeddingExecutionResult.Close" class="com.dbn.vector.action.ExecutionResultCloseAction" text="Vector Embedding Execution Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
-            <action id="DBNavigator.Actions.VectorEmbeddingExecutionResult.OpenExecutionDialog" class="com.dbn.vector.action.EmbeddingExecutionPromptAction" text="Vector Embedding Execution Result - Open Execution Dialog" icon="com.dbn.common.icon.Icons.VECTOR_TOOLBOX"/>
+        <group id="DBNavigator.ActionGroup.VectorEmbeddingResult">
+            <action id="DBNavigator.Actions.VectorEmbeddingResult.Close" class="com.dbn.vector.action.VectorEmbeddingCloseAction" text="Vector Embedding Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBNavigator.Actions.VectorEmbeddingResult.Toolbox" class="com.dbn.vector.action.VectorEmbeddingToolboxAction" text="Vector Embedding Result - Open Vector Toolbox" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
         </group>
         <group id="DBNavigator.ActionGroup.MethodExecutionCursorResult">
             <action id="DBNavigator.Actions.MethodExecutionCursorResult.Find" class="com.dbn.execution.method.result.action.CursorResultFindAction" text="Method Execution Cursor Result - Find Data" icon="AllIcons.Actions.Find">

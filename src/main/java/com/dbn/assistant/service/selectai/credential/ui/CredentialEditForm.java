@@ -37,6 +37,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.ui.CardLayouts.showCard;
@@ -84,7 +85,7 @@ public class CredentialEditForm extends DBNFormBase {
     private DBCredential credential;
     private final ConnectionRef connection;
     private final Set<String> usedCredentialNames;
-    private final Set<DBCredentialType> credentialTypes;
+    private final List<DBCredentialType> credentialTypes;
 
     /**
      * Constructs a CredentialEditForm
@@ -93,11 +94,11 @@ public class CredentialEditForm extends DBNFormBase {
      * @param credential          the credential to be edited, can be null in case of credential creation
      * @param usedCredentialNames the names of credentials which are already defined and name can no longer be used
      */
-    public CredentialEditForm(CredentialEditDialog dialog, @Nullable DBCredential credential, Set<DBCredentialType> credentialTypes, Set<String> usedCredentialNames) {
+    public CredentialEditForm(CredentialEditDialog dialog, @Nullable DBCredential credential, List<DBCredentialType> credentialTypes, Set<String> usedCredentialNames) {
         super(dialog);
         this.connection = dialog.getConnection().ref();
         this.credential = credential;
-        this.credentialTypes = credentialTypes == null ? DBCredentialType.getAllTypes() : credentialTypes;
+        this.credentialTypes = credentialTypes == null ? List.of(DBCredentialType.values()) : credentialTypes;
         this.usedCredentialNames = usedCredentialNames;
 
         initCredentialTypeComboBox();

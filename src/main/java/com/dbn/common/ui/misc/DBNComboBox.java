@@ -69,6 +69,8 @@ import java.util.function.Predicate;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_ICON;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
 import static com.dbn.common.ui.util.ClientProperty.LOADING;
 import static com.dbn.common.ui.util.ClientProperty.VISITED;
 import static com.dbn.common.ui.util.ComboBoxes.getEmptyOptionsText;
@@ -84,7 +86,6 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     private @Setter ValueFactory<T> valueFactory;
     private @Setter Loader<List<T>> valueLoader;
     private @Setter Predicate<T> valuePreselector;
-    private transient boolean enabled = true;
     private transient ActionListener[] actionListeners;
 
     private final AtomicInteger loadSignature = new AtomicInteger(0);
@@ -223,7 +224,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
 
             // block the control
             LOADING.set(this, true);
-            super.setEnabled(false);
+            disableFormField(this, "TEMPORARY_LOAD");
             muteActionListeners();
 
             // reset values and selection
@@ -246,7 +247,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
                 } finally {
                     if (matchesLoadSignature(signature)) {
                         LOADING.set(this, false);
-                        super.setEnabled(enabled);
+                        enableFormField(this, "TEMPORARY_LOAD");
                         unmuteActionListeners();
                     }
                 }
@@ -303,14 +304,6 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         for (ActionListener actionListener : actionListeners) {
             addActionListener(actionListener);
         }
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        // retain the "enabled" status set by the user
-        // (it is relevant when the valueLoader briefly disables component)
-        super.setEnabled(enabled);
-        this.enabled = enabled;
     }
 
     private boolean matchesLoadSignature(int signature) {

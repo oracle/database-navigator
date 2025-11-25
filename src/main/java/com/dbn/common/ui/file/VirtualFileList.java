@@ -27,6 +27,7 @@ public class VirtualFileList extends JList<VirtualFile> {
     public VirtualFileList(List<VirtualFile> files) {
         super(new VirtualFileListModel(files));
         setCellRenderer(new VirtualFileListCellRenderer());
+        setVisibleRowCount(5);
     }
 
     public void insertRows() {

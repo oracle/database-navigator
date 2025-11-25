@@ -1,5 +1,6 @@
 package com.dbn.vector.result;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.execution.ExecutionResultBase;
@@ -33,7 +34,7 @@ public class VectorEmbeddingExecutionResult extends ExecutionResultBase<VectorEm
 
   @Override
   public Icon getIcon() {
-    return null;
+    return Icons.VECTOR_TOOLBOX;
   }
 
   @Override

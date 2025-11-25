@@ -19,11 +19,6 @@ package com.dbn.object.type;
 
 import com.dbn.common.constant.Constant;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 /**
  * This enum is for listing the possible ways of creating a new credential
  *
@@ -33,24 +28,4 @@ public enum DBCredentialType implements Constant<DBCredentialType> {
     PASSWORD,
     TOKEN,
     OCI;
-
-    public static final Set<DBCredentialType> VECTOR_AI_TYPES = linkedSet(TOKEN);
-    public static final Set<DBCredentialType> SELECT_AI_TYPES = linkedSet(PASSWORD, OCI);
-    public static final Set<DBCredentialType> ALL_TYPES = linkedSet(PASSWORD, TOKEN, OCI);
-
-    public static Set<DBCredentialType> getVectorAITypes() {
-        return VECTOR_AI_TYPES;
-    }
-
-    public static Set<DBCredentialType> getSelectAITypes() {
-        return SELECT_AI_TYPES;
-    }
-
-    public static Set<DBCredentialType> getAllTypes() {
-        return ALL_TYPES;
-    }
-
-    private static Set<DBCredentialType> linkedSet(DBCredentialType ... types) {
-        return Collections.unmodifiableSet(new LinkedHashSet<>(List.of(types)));
-    }
 }
