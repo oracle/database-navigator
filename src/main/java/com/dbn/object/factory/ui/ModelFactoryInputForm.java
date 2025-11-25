@@ -109,7 +109,7 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
             "ONNX ML Model Import into DB ",
             "https://blogs.oracle.com/machinelearning/use-our-prebuilt-onnx-model-now-available-for-embedding-generation-in-oracle-database-23ai#:~:text=https%3A//adwc4pm.objectstorage.us%2Dashburn%2D1.oci.customer%2Doci.com/p/eLddQappgBJ7jNi6Guz9m9LOtYe2u8LWY19GfgU8flFK4N9YgP4kTlrE9Px3pE12/n/adwc4pm/b/OML%2DResources/o/");
 
-    hyperLinkForm.setTooltipText("https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/overview-ai-vector-search.html");
+    hyperLinkForm.setTooltipText("https://blogs.oracle.com/machinelearning/use-our-prebuilt-onnx-model-now-available-for-embedding");
     hyperLinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
   }
 
