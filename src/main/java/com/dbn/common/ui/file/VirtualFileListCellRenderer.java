@@ -18,6 +18,7 @@ package com.dbn.common.ui.file;
 
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JList;
@@ -25,7 +26,9 @@ import javax.swing.JList;
 class VirtualFileListCellRenderer extends ColoredListCellRenderer<VirtualFile> {
     @Override
     protected void customize(@NotNull JList<? extends VirtualFile> list, VirtualFile value, int index, boolean selected, boolean hasFocus) {
-        append(value.getName());
+        append(value.getName(), list.isEnabled() ?
+                SimpleTextAttributes.REGULAR_ATTRIBUTES:
+                SimpleTextAttributes.GRAY_ATTRIBUTES);
         setIcon(value.getFileType().getIcon());
         setToolTipText(value.getPath());
     }

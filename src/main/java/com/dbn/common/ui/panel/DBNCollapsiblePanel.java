@@ -32,6 +32,7 @@ import java.awt.event.InputEvent;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
 
 public class DBNCollapsiblePanel extends DBNFormBase {
 
@@ -58,6 +59,8 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         this.expanded = expanded;
         this.contentPanel.add(contentForm.getComponent());
         this.toggleDetailLabel.setForeground(UIUtil.getLabelDisabledForeground());
+        NON_DISABLEABLE.set(toggleLabel, true);
+        NON_DISABLEABLE.set(toggleDetailLabel, true);
 
         togglePanel.setActionConsumer(e -> toggleVisibility(e));
         updateComponents();

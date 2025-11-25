@@ -54,6 +54,8 @@ public enum ClientProperty {
     VERTICAL_SCROLL_POLICY,
     VALIDATION_INFO,
     FIELD_ALIGNER_DATA,
+    FIELD_DISABLED_REASONS,
+    NON_DISABLEABLE,
     FORM,
 
     // addons

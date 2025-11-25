@@ -36,6 +36,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
 import static com.dbn.common.ui.util.ClientProperty.AVAILABILITY_CONDITION;
 import static com.dbn.common.ui.util.ClientProperty.VISIBILITY_CONDITION;
 import static com.dbn.common.ui.util.TextFields.getText;
@@ -115,7 +117,9 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
             if (condition == null) continue;
 
             boolean accessible = condition.check();
-            component.setEnabled(accessible);
+            if (accessible)
+                enableFormField(component, "CONDITIONAL_AVAILABILITY"); else
+                disableFormField(component, "CONDITIONAL_AVAILABILITY");
         }
     }
 

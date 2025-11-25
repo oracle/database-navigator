@@ -66,8 +66,14 @@ public final class Dispatch {
     }
 
     public static void run(Component component, Runnable runnable) {
-        ModalityState modalityState = ModalityState.stateForComponent(component);
-        run(modalityState, runnable);
+        if (component.isShowing()) {
+            ModalityState modalityState = ModalityState.stateForComponent(component);
+            run(modalityState, runnable);
+        } else if (component instanceof JComponent){
+            whenFirstShown((JComponent) component, () -> run(component, runnable));
+        } else {
+            run(ModalityState.defaultModalityState(), runnable);
+        }
     }
 
     // fire and forget

@@ -22,6 +22,11 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
     renameAction(getOKAction(), "Create Embeddings");
     renameAction(getCancelAction(), "Close");
 
+    if (!request.isTemplate()) {
+      VectorToolboxForm toolboxForm = getForm();
+      toolboxForm.freezeForm();
+    }
+
     init();
   }
 
