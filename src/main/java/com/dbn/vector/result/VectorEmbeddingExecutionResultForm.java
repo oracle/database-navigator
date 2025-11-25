@@ -63,7 +63,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
   }
 
   private void createActionsPanel() {
-    ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.VectorEmbeddingExecutionResult");
+    ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.VectorEmbeddingResult");
     setAccessibleName(actionToolbar, txt("app.execution.aria.VectorEmbeddingExecutionResultActions"));
     actionsPanel.add(actionToolbar.getComponent());
   }

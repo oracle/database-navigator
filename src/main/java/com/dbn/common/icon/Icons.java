@@ -155,7 +155,7 @@ public class Icons {
     public static final Icon METHOD_EXECUTION_DEBUG   = ACTION_DEBUG;
     public static final Icon METHOD_EXECUTION_RERUN   = ACTION_RERUN;
     public static final Icon METHOD_EXECUTION_STOP    = ACTION_STOP;
-    public static final Icon METHOD_EXECUTION_DIALOG  = load("/img/ExecuteMethodDialog.png");
+    public static final Icon METHOD_EXECUTION_DIALOG  = load("/img/action/InputFormRerun.png");
     public static final Icon METHOD_EXECUTION_HISTORY = load("/img/MethodExecutionHistory.png");
     public static final Icon METHOD_CALL              = load("/img/MethodCall.png", "METHOD_CALL");
     public static final Icon SQL_STATEMENT            = load("/img/SQLStatement.png", "SQL_STATEMENT");
@@ -184,7 +184,8 @@ public class Icons {
     public static final Icon STMT_EXEC_RESULTSET_RERUN  = load("/img/ExecutionResultSetRerun.png");
     public static final Icon STMT_EXEC_RESULTSET_ORPHAN = load("/img/ExecutionResultSetOrphan.png");
 
-    public static final Icon EXEC_RESULT_OPEN_EXEC_DIALOG   = load("/img/ExecuteMethodDialog.png");
+    public static final Icon EXEC_RESULT_INPUT_FORM         = load("/img/action/InputForm.svg");
+    public static final Icon EXEC_RESULT_INPUT_FORM_RERUN   = load("/img/action/InputFormRerun.png");
     public static final Icon EXEC_RESULT_RERUN              = ACTION_RERUN;
     public static final Icon EXEC_RESULT_RESUME             = ACTION_RESUME;
     public static final Icon EXEC_RESULT_STOP               = ACTION_STOP;
