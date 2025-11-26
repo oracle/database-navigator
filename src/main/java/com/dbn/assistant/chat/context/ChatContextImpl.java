@@ -76,6 +76,18 @@ public final class ChatContextImpl implements ChatContext{
     }
 
     @Override
+    public String getProviderName() {
+        AIProvider provider = getProvider();
+        return provider == null ? Objects.toString(providerId) : provider.getName();
+    }
+
+    @Override
+    public String getModelName() {
+        AIModel model = getModel();
+        return model == null ? modelId : model.getName();
+    }
+
+    @Override
     public boolean isModelSwitch(ChatContext that) {
         return !Objects.equals(this.modelId, that.getModelId());
     }

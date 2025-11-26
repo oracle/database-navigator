@@ -23,11 +23,15 @@ import com.dbn.common.state.PersistentStateElement;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.dbn.assistant.tool.AssistantToolData.getToolCategory;
+import static com.dbn.assistant.tool.AssistantToolData.getToolTypes;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
@@ -50,6 +54,14 @@ public class AssistantToolApprovals implements PersistentStateElement {
         if (isApproved(tool.getType())) return true;
 
         return false;
+    }
+
+    public int countBlockedTools(List<AssistantToolType> types) {
+        int count = 0;
+        for (AssistantToolType type : types) {
+            if (isBlocked(type)) count++;
+        }
+        return count;
     }
 
     private void updateSignature() {
@@ -95,7 +107,28 @@ public class AssistantToolApprovals implements PersistentStateElement {
 
     public void setStatus(AssistantToolType type, AssistantToolApprovalStatus status) {
         types.put(type, status);
+
+        updateCategoryStatus(type);
         updateSignature();
+    }
+
+    private void updateCategoryStatus(AssistantToolType type) {
+        Set<AssistantToolApprovalStatus> approvalStatuses = new HashSet<>();
+
+        AssistantToolCategory category = getToolCategory(type);
+        List<AssistantToolType> toolTypes = getToolTypes(category);
+        for (AssistantToolType toolType : toolTypes) {
+            AssistantToolApprovalStatus approvalStatus = getStatus(toolType);
+            approvalStatuses.add(approvalStatus);
+        }
+
+        // if all types share the same status, update the category status as well
+        if (approvalStatuses.size() == 1) {
+            AssistantToolApprovalStatus sharedStatus = approvalStatuses.iterator().next();
+            if (sharedStatus.isOneOf(PROMPTED, APPROVED)) {
+                setStatus(category, sharedStatus);
+            }
+        }
     }
 
     @Override

@@ -33,6 +33,11 @@ public interface DatabaseInterfacesProvider {
     default DatabaseAssistantInterface getAssistantInterface() {
         return getInterfaces().getAssistantInterface();
     }
+
+    default DatabaseVectorInterface getVectorInterface() {
+        return getInterfaces().getVectorInterface();
+    }
+
     default DatabaseMessageParserInterface getMessageParserInterface() {
         return getInterfaces().getMessageParserInterface();
     }

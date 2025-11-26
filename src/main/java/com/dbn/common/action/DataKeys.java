@@ -47,6 +47,7 @@ import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.prerequisite.ui.PrerequisitesForm;
+import com.dbn.vector.result.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataKey;
 
@@ -59,6 +60,7 @@ public interface DataKeys {
     DataKey<StatementExecutionCursorResult> STATEMENT_EXECUTION_CURSOR_RESULT = DataKey.create("DBNavigator.StatementExecutionCursorResult");
     DataKey<MethodExecutionResult> METHOD_EXECUTION_RESULT = DataKey.create("DBNavigator.MethodExecutionResult");
     DataKey<JavaExecutionResult> JAVA_EXECUTION_RESULT = DataKey.create("DBNavigator.JavaExecutionResult");
+    DataKey<VectorEmbeddingExecutionResult> EMBEDDING_EXECUTION_RESULT = DataKey.create("DBNavigator.VectorEmbeddingExecutionResult");
     DataKey<MethodExecutionCursorResultForm> METHOD_EXECUTION_CURSOR_RESULT_FORM = DataKey.create("DBNavigator.MethodExecutionCursorResult");
     DataKey<JavaExecutionCursorResultForm> JAVA_EXECUTION_CURSOR_RESULT_FORM = DataKey.create("DBNavigator.JavaExecutionCursorResult");
     DataKey<DBArgument> METHOD_EXECUTION_ARGUMENT = DataKey.create("DBNavigator.MethodExecutionArgument");

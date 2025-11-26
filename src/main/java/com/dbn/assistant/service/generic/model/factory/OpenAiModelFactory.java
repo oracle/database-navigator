@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.service.generic.model.factory;
 
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.service.generic.model.AssistantModelInput;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
@@ -35,12 +36,16 @@ public class OpenAiModelFactory extends AbstractModelFactory {
         super(OPEN_AI);
     }
 
+    protected OpenAiModelFactory(AIProviderId providerId) {
+        super(providerId);
+    }
+
     @Nullable
     @Override
     public ChatModel createChatModel(AssistantModelInput input) {
         return OpenAiChatModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .user(input.getUser())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
@@ -54,7 +59,7 @@ public class OpenAiModelFactory extends AbstractModelFactory {
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return OpenAiStreamingChatModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .user(input.getUser())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
@@ -68,7 +73,7 @@ public class OpenAiModelFactory extends AbstractModelFactory {
     public LanguageModel createLanguageModel(AssistantModelInput input) {
         return OpenAiLanguageModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .customHeaders(input.getHeaders())
@@ -81,7 +86,7 @@ public class OpenAiModelFactory extends AbstractModelFactory {
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return OpenAiEmbeddingModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .user(input.getUser())
                 .apiKey(input.getTokenString())
                 .customHeaders(input.getHeaders())

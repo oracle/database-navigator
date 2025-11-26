@@ -19,13 +19,11 @@
         <!ELEMENT statement-execution-processor (statement)*>
         <!ATTLIST statement-execution-processor
                 id CDATA #REQUIRED
-                is-query CDATA #IMPLIED
-                is-prepared-statement CDATA #IMPLIED
                 timeout CDATA #IMPLIED>
         <!ELEMENT statement (#PCDATA)>
         ]>
 <data-dictionary>
-    <statement-execution-processor id="schemas" is-query="true">
+    <statement-execution-processor id="schemas">
         <statement>
             select * from PRAGMA_DATABASE_LIST where FILE is not null and length(FILE) > 0
         </statement>
@@ -34,12 +32,12 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="users" is-query="true">
+    <statement-execution-processor id="users">
         <statement>
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="tables" is-query="true">
+    <statement-execution-processor id="tables">
         <statement>
             select
                 NAME as TABLE_NAME,
@@ -51,7 +49,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="views" is-query="true">
+    <statement-execution-processor id="views">
         <statement>
             select
                 NAME as VIEW_NAME,
@@ -65,7 +63,7 @@
             order by VIEW_NAME asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="dataset-names" is-query="true">
+    <statement-execution-processor id="dataset-names">
         <statement>
             select
                 NAME as DATASET_NAME
@@ -77,37 +75,37 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="dataset-columns" is-query="true">
+    <statement-execution-processor id="dataset-columns">
         <statement>
             PRAGMA "{0}".TABLE_INFO("{1}")
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="constraints" is-query="true">
+    <statement-execution-processor id="constraints">
         <statement>
             PRAGMA "{0}".INDEX_LIST("{1}")
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="foreign-key-constraints" is-query="true">
+    <statement-execution-processor id="foreign-key-constraints">
         <statement>
             PRAGMA "{0}".FOREIGN_KEY_LIST("{1}")
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="indexes" is-query="true">
+    <statement-execution-processor id="indexes">
         <statement>
             PRAGMA "{0}".INDEX_LIST("{1}")
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="index-info" is-query="true">
+    <statement-execution-processor id="index-info">
         <statement>
             PRAGMA "{0}".INDEX_XINFO("{1}")
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="dataset-triggers" is-query="true">
+    <statement-execution-processor id="dataset-triggers">
         <statement>
             select NAME as TRIGGER_NAME,
                    TBL_NAME as DATASET_NAME,
@@ -125,7 +123,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-dataset-triggers" is-query="true">
+    <statement-execution-processor id="all-dataset-triggers">
         <statement>
             select NAME as TRIGGER_NAME,
                    TBL_NAME as DATASET_NAME,
@@ -142,7 +140,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="view-source-code" is-query="true">
+    <statement-execution-processor id="view-source-code">
         <statement>
             select SQL as SOURCE_CODE
               from "{0}".SQLITE_MASTER
@@ -150,7 +148,7 @@
                and NAME = '{1}'
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="dataset-trigger-source-code" is-query="true">
+    <statement-execution-processor id="dataset-trigger-source-code">
         <statement>
             select SQL as SOURCE_CODE
               from "{0}".SQLITE_MASTER
@@ -164,7 +162,7 @@
         <statement>drop {0} if exists {1}.{2}</statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="load-distinct-values" is-query="true">
+    <statement-execution-processor id="load-distinct-values">
         <statement>
             select distinct {2} from {0}.{1} where {2} is not null order by {2}
         </statement>

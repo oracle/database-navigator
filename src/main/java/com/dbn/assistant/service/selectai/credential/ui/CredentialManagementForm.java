@@ -167,13 +167,14 @@ public class CredentialManagementForm extends DBNFormBase {
 
   public void promptCredentialCreation() {
     Dialogs.show(() -> new CredentialEditDialog(
-            getConnection(), null,
+            getConnection(), null, null,
             credentialUsage.keySet()));
   }
 
   public void promptCredentialEdition(@NotNull DBCredential credential) {
     Dialogs.show(() -> new CredentialEditDialog(
-            getConnection(), credential,
+            getConnection(),
+            credential, null,
             Collections.emptySet()));  // not relevant when editing an existing credential
   }
 

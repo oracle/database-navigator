@@ -87,7 +87,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         AIProvider provider = profile.getProvider();
         if (provider == null) return emptyList();
 
-        return provider.getModels();
+        return provider.getModels(m -> !m.isDiscontinued());
     }
 
     @Override

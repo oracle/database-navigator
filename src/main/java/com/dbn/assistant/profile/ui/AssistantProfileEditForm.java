@@ -33,8 +33,8 @@ import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.ui.misc.DBNInfoLabel;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
@@ -229,7 +229,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
     private AIProviderId getSelectedProviderId() {
         AIProvider provider = getSelectedProvider();
-        return provider == null ? null : provider.getId();
+        return provider == null ? profile.getProviderId() : provider.getId();
     }
 
     private @Nullable AIProvider getSelectedProvider() {
@@ -255,6 +255,7 @@ public class AssistantProfileEditForm extends DBNFormBase {
         profile.setCredentialId(getSelectedCredentialId());
         profile.setTemperaturePreset(getSelectedTemperature());
         profile.setTemperature(isCustomTemperature() ? temperatureSlider.getValue() / 100.0 : getSelectedTemperature().getValue());
+        profile.setInstructions(getText(instructionsTextArea));
     }
 
     private AssistantTemperaturePreset getSelectedTemperature() {
@@ -276,6 +277,8 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
         setSelection(temperatureComboBox, profile.getTemperaturePreset());
         temperatureSlider.setValue((int) (profile.getTemperature() * 100));
+
+        instructionsTextArea.setText(profile.getInstructions());
     }
 
     private boolean isNotUsed(String name) {

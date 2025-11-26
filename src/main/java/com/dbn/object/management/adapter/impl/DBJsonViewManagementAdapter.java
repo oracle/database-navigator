@@ -16,6 +16,7 @@
 
 package com.dbn.object.management.adapter.impl;
 
+import com.dbn.common.constant.Constant;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -23,14 +24,22 @@ import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.object.DBJsonView;
 import com.dbn.object.management.ObjectManagementAdapterFactory;
 import com.dbn.object.management.ObjectManagementAdapterFactoryBase;
+import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
+
+import static com.dbn.object.type.DBObjectType.JSON_VIEW;
 
 /**
  * Implementation of {@link ObjectManagementAdapterFactory} for objects of type {@link DBJsonView}
  * @author Dan Cioca (Oracle)
  */
 public class DBJsonViewManagementAdapter extends ObjectManagementAdapterFactoryBase<DBJsonView> {
+    @Override
+    public DBObjectType[] getObjectTypes() {
+        return Constant.array(JSON_VIEW);
+    }
+
     @Override
     protected void createObject(ConnectionHandler connection, DBNConnection conn, DBJsonView object) throws SQLException {
         throw new UnsupportedOperationException(); // TODO

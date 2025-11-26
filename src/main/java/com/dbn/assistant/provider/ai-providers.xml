@@ -16,7 +16,7 @@
 
 <language-model-provider version="1.0">
     <provider-types>
-        <provider id="OPEN_AI" name="Open AI" host="api.openai.com" base-url="https://api.openai.com/v1/">
+        <provider id="OPEN_AI" name="Open AI" host="api.openai.com">
             <urls>
                 <url type="OFFICIAL">https://openai.com</url>
                 <url type="DOCS">https://platform.openai.com/docs</url>
@@ -24,28 +24,39 @@
                 <url type="API">https://api.openai.com/v1/</url>
             </urls>
             <models>
-                <model id="GPT_4_O"                api-name="gpt-4o"/>
-                <model id="GPT_4_O_MINI"           api-name="gpt-4o-mini"/>
-                <model id="GPT_4_1"                api-name="gpt-4.1"/>
-                <model id="GPT_4_1_MINI"           api-name="gpt-4.1-mini"/>
-                <model id="GPT_4_1_NANO"           api-name="gpt-4.1-nano"/>
-                <model id="GPT_5"                  api-name="gpt-5"/>
-                <model id="GPT_5_MINI"             api-name="gpt-5-mini"/>
-                <model id="GPT_5_NANO"             api-name="gpt-5-nano"/>
-                <model id="GPT_4"                  api-name="gpt-4"/>
-                <model id="GPT_4_0613"             api-name="gpt-4-0613"/>
-                <model id="GPT_4_32K"              api-name="gpt-4-32k"/>
-                <model id="GPT_4_32K_0613"         api-name="gpt-4-32k-0613"/>
-                <model id="GPT_3_5_TURBO"          api-name="gpt-3.5-turbo"/>
-                <model id="GPT_3_5_TURBO_0613"     api-name="gpt-3.5-turbo-0613"/>
-                <model id="GPT_3_5_TURBO_16K"      api-name="gpt-3.5-turbo-16k"/>
-                <model id="GPT_3_5_TURBO_16K_0613" api-name="gpt-3.5-turbo-16k-0613"/>
-                <model id="O1"                     api-name="o1"/>
-                <model id="O1_MINI"                api-name="o1-mini"/>
-                <model id="O1_PRO"                 api-name="o1-pro"/>
-                <model id="O3"                     api-name="o3"/>
-                <model id="O3_MINI"                api-name="o3-mini"/>
-                <model id="O4_MINI"                api-name="o4-mini"/>
+                <!-- 2025 -->
+                <model id="GPT_5_1"                api-name="gpt-5.1"                description="Complex reasoning, large codebases, advanced SQL"/>
+                <model id="GPT_5"                  api-name="gpt-5"                  description="Deep coding logic, multi-step database tasks"/>
+                <model id="GPT_5_MINI"             api-name="gpt-5-mini"             description="Fast coding, lightweight SQL queries"/>
+                <model id="GPT_5_NANO"             api-name="gpt-5-nano"             description="Very quick code hints, simple SQL edits"/>
+
+                <model id="GPT_4_1"                api-name="gpt-4.1"                description="Reliable coding, solid database reasoning"/>
+                <model id="GPT_4_1_MINI"           api-name="gpt-4.1-mini"           description="Speedy code help, short SQL tasks"/>
+                <model id="GPT_4_1_NANO"           api-name="gpt-4.1-nano"           description="Basic coding, quick SQL suggestions"/>
+
+                <model id="O3_PRO"                 api-name="o3-pro"                 description="Strong logic, structured coding workflows"/>
+                <model id="O3"                     api-name="o3"                     description="General coding, consistent SQL support"/>
+                <model id="O3_MINI"                api-name="o3-mini"                description="Fast response, small coding tasks"/>
+                <model id="O4_MINI"                api-name="o4-mini"                description="Compact coding, minimal SQL tasks"/>
+
+                <!-- 2024 -->
+                <model id="O1_PRO"                 api-name="o1-pro"                 description="Structured code generation, schema analysis"/>
+                <model id="O1"                     api-name="o1"                     description="Stable coding, typical SQL workflows"/>
+                <model id="O1_MINI"                api-name="o1-mini"                description="Quick fixes, light database queries"/>
+
+                <model id="GPT_4_O_MINI"           api-name="gpt-4o-mini"            description="Fast general coding, simple SQL use"/>
+                <model id="GPT_4_O"                api-name="gpt-4o"                 description="Multi-modal coding, broad SQL support"/>
+
+                <!-- 2023 -->
+                <model id="GPT_4_32K_0613"         api-name="gpt-4-32k-0613"         description="Long context coding, extended SQL workloads"/>
+                <model id="GPT_4_32K"              api-name="gpt-4-32k"              description="Large files, long SQL reasoning"/>
+                <model id="GPT_4_0613"             api-name="gpt-4-0613"             description="Classic coding, stable SQL logic"/>
+                <model id="GPT_4"                  api-name="gpt-4"                  description="Well-rounded coding, general SQL use"/>
+
+                <model id="GPT_3_5_TURBO_16K_0613" api-name="gpt-3.5-turbo-16k-0613" description="Budget coding, moderate context SQL"/>
+                <model id="GPT_3_5_TURBO_16K"      api-name="gpt-3.5-turbo-16k"      description="Longer inputs, simple coding tasks"/>
+                <model id="GPT_3_5_TURBO_0613"     api-name="gpt-3.5-turbo-0613"     description="Quick coding tips, basic SQL queries"/>
+                <model id="GPT_3_5_TURBO"          api-name="gpt-3.5-turbo"          description="Cheap coding help, small database tasks"/>
             </models>
         </provider>
 
@@ -55,14 +66,15 @@
                 <url type="API">https://dashboard.cohere.com/welcome/login?redirect_uri=%2Fapi-keys</url>
             </urls>
             <models>
-                <model id="COMMAND"                 api-name="command"                short-name="command"/>
-                <model id="COMMAND_NIGHTLY"         api-name="command-nightly"        short-name="command-nightly"/>
-                <model id="COMMAND_LIGHT"           api-name="command-light"          short-name="command-light"/>
-                <model id="COMMAND_LIGHT_NIGHTLY"   api-name="command-light-nightly"  short-name="command-light-nightly"/>
-                <model id="COMMAND_R"               api-name="command-r"              short-name="command-r"/>
-                <model id="COMMAND_R_08_2024"       api-name="command-r-08-2024"      short-name="command-r-08"/>
-                <model id="COMMAND_R_PLUS"          api-name="command-r-plus"         short-name="command-r-plus"/>
-                <model id="COMMAND_R_PLUS_08_2024"  api-name="command-r-plus-08-2024" short-name="command-r-plus-08"/>
+                <model id="COMMAND_R_PLUS_08_2024"  api-name="command-r-plus-08-2024"  short-name="command-r-plus-08"  description="Complex coding logic, SQL analysis"/>
+                <model id="COMMAND_R_08_2024"       api-name="command-r-08-2024"       short-name="command-r-08"       description="Efficient coding, practical SQL tasks"/>
+                <model id="COMMAND_R_PLUS"          api-name="command-r-plus"          short-name="command-r-plus"     description="Advanced reasoning, strong SQL handling"/>
+                <model id="COMMAND_R"               api-name="command-r"               short-name="command"            description="General coding workflows, routine SQL"/>
+
+                <model id="COMMAND_LIGHT_NIGHTLY"   api-name="command-light-nightly"   short-name="command-light-nightly"  description="Fast iteration, light coding"/>
+                <model id="COMMAND_LIGHT"           api-name="command-light"           short-name="command-light"          description="Lightweight code support, quick SQL edits"/>
+                <model id="COMMAND_NIGHTLY"         api-name="command-nightly"         short-name="command-nightly"        description="Experimental coding, updated logic"/>
+                <model id="COMMAND"                 api-name="command"                 short-name="command"                description="Simple coding tasks, base SQL"/>
             </models>
         </provider>
 
@@ -71,28 +83,30 @@
                 <url type="KEYS">https://cloud.oracle.com/identity/domains/my-profile</url>
             </urls>
             <models>
-                <model id="META_LLAMA_3_1_70B_INSTRUCT"                    api-name="meta.llama-3.1-70b-instruct"                 short-name="llama-3.1-instruct"        base-provider-id="META"/>
-                <model id="META_LLAMA_3_1_405B_INSTRUCT"                   api-name="meta.llama-3.1-405b-instruct"                short-name="llama-3.1-instruct"        base-provider-id="META"/>
-                <model id="META_LLAMA_3_2_11B_VISION_INSTRUCT"             api-name="meta.llama-3.2-11b-vision-instruct"          short-name="llama-3.2-vision-instr"    base-provider-id="META"/>
-                <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"             api-name="meta.llama-3.2-90b-vision-instruct"          short-name="llama-3.2-vision-instr"    base-provider-id="META"/>
-                <model id="META_LLAMA_3_3_70B_INSTRUCT"                    api-name="meta.llama-3.3-70b-instruct"                 short-name="llama-3.3-instruct"        base-provider-id="META"/>
-                <model id="META_LLAMA_4_MAVERICK_17B_128E_INSTRUCT_FP8"    api-name="meta.llama-4-maverick-17b-128e-instruct-fp8" short-name="llama-4-maverick-instr"    base-provider-id="META"/>
-                <model id="META_LLAMA_4_SCOUT_17B_16E_INSTRUCT"            api-name="meta.llama-4-scout-17b-16e-instruct"         short-name="llama-4-scout-instr"       base-provider-id="META"/>
-                <model id="COHERE_COMMAND_R_08_2024"                       api-name="cohere.command-r-08-2024"                    short-name="command-r-08"              base-provider-id="COHERE"/>
-                <model id="COHERE_COMMAND_R_PLUS_08_2024"                  api-name="cohere.command-r-plus-08-2024"               short-name="command-r-plus.08"         base-provider-id="COHERE"/>
-                <model id="COHERE_COMMAND_A_03_2025"                       api-name="cohere.command-a-03-2025"                    short-name="command-a-03"              base-provider-id="COHERE"/>
-                <model id="COHERE_COMMAND_LATEST"                          api-name="cohere.command-latest"                       short-name="command-latest"            base-provider-id="COHERE"/>
-                <model id="COHERE_COMMAND_PLUS_LATEST"                     api-name="cohere.command-plus-latest"                  short-name="command-plus-latest"       base-provider-id="COHERE"/>
-                <model id="XAI_GROK_3"                                     api-name="xai.grok-3"                                  short-name="grok-3"                    base-provider-id="XAI"/>
-                <model id="XAI_GROK_3_FAST"                                api-name="xai.grok-3-fast"                             short-name="grok-3-fast"               base-provider-id="XAI"/>
-                <model id="XAI_GROK_3_MINI"                                api-name="xai.grok-3-mini"                             short-name="grok-3-mini"               base-provider-id="XAI"/>
-                <model id="XAI_GROK_3_MINI_FAST"                           api-name="xai.grok-3-mini-fast"                        short-name="grok-3-mini-fast"          base-provider-id="XAI"/>
-                <model id="XAI_GROK_4"                                     api-name="xai.grok-4"                                  short-name="grok-4"                    base-provider-id="XAI"/>
-                <model id="XAI_GROK_CODE_FAST_1"                           api-name="xai.grok-code-fast-1"                        short-name="grok-code-fast-1"          base-provider-id="XAI"/>
+                <model id="META_LLAMA_3_1_70B_INSTRUCT"                    api-name="meta.llama-3.1-70b-instruct"                 short-name="llama-3.1-instruct"        base-provider-id="META"   description="High-end coding, deep SQL reasoning"/>
+                <model id="META_LLAMA_3_1_405B_INSTRUCT"                   api-name="meta.llama-3.1-405b-instruct"                short-name="llama-3.1-instruct"        base-provider-id="META"   description="Very deep reasoning, heavy codebases"/>
+                <model id="META_LLAMA_3_2_11B_VISION_INSTRUCT"             api-name="meta.llama-3.2-11b-vision-instruct"          short-name="llama-3.2-vision-instr"    base-provider-id="META"   description="Vision + code, schema diagrams"/>
+                <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"             api-name="meta.llama-3.2-90b-vision-instruct"          short-name="llama-3.2-vision-instr"    base-provider-id="META"   description="Large vision models, complex coding"/>
+                <model id="META_LLAMA_3_3_70B_INSTRUCT"                    api-name="meta.llama-3.3-70b-instruct"                 short-name="llama-3.3-instruct"        base-provider-id="META"   description="Strong logic, structured programming"/>
+                <model id="META_LLAMA_4_MAVERICK_17B_128E_INSTRUCT_FP8"    api-name="meta.llama-4-maverick-17b-128e-instruct-fp8" short-name="llama-4-maverick-instr"    base-provider-id="META"   description="Optimized coding, good SQL throughput"/>
+                <model id="META_LLAMA_4_SCOUT_17B_16E_INSTRUCT"            api-name="meta.llama-4-scout-17b-16e-instruct"         short-name="llama-4-scout-instr"       base-provider-id="META"   description="Fast, accurate coding assistance"/>
+
+                <model id="COHERE_COMMAND_R_08_2024"                       api-name="cohere.command-r-08-2024"                    short-name="command-r-08"              base-provider-id="COHERE" description="Mid-range coding, SQL logic"/>
+                <model id="COHERE_COMMAND_R_PLUS_08_2024"                  api-name="cohere.command-r-plus-08-2024"               short-name="command-r-plus.08"         base-provider-id="COHERE" description="Complex code tasks, schema reasoning"/>
+                <model id="COHERE_COMMAND_A_03_2025"                       api-name="cohere.command-a-03-2025"                    short-name="command-a-03"              base-provider-id="COHERE" description="Efficient structured code generation"/>
+                <model id="COHERE_COMMAND_LATEST"                          api-name="cohere.command-latest"                       short-name="command-latest"            base-provider-id="COHERE" description="Modern coding support, stable SQL"/>
+                <model id="COHERE_COMMAND_PLUS_LATEST"                     api-name="cohere.command-plus-latest"                  short-name="command-plus-latest"       base-provider-id="COHERE" description="High capability coding, strong SQL support"/>
+
+                <model id="XAI_GROK_3"                                     api-name="xai.grok-3"                                  short-name="grok-3"                    base-provider-id="X_AI"    description="Fast coding, clear SQL suggestions"/>
+                <model id="XAI_GROK_3_FAST"                                api-name="xai.grok-3-fast"                             short-name="grok-3-fast"               base-provider-id="X_AI"    description="Very fast code outputs"/>
+                <model id="XAI_GROK_3_MINI"                                api-name="xai.grok-3-mini"                             short-name="grok-3-mini"               base-provider-id="X_AI"    description="Light code tasks, tiny SQL edits"/>
+                <model id="XAI_GROK_3_MINI_FAST"                           api-name="xai.grok-3-mini-fast"                        short-name="grok-3-mini-fast"          base-provider-id="X_AI"    description="Instant code responses"/>
+                <model id="XAI_GROK_4"                                     api-name="xai.grok-4"                                  short-name="grok-4"                    base-provider-id="X_AI"    description="Strong reasoning, good coding depth"/>
+                <model id="XAI_GROK_CODE_FAST_1"                           api-name="xai.grok-code-fast-1"                        short-name="grok-code-fast-1"          base-provider-id="X_AI"    description="High-speed coding, rapid SQL edits"/>
             </models>
         </provider>
 
-        <provider id="GOOGLE" name="Google" host="generativelanguage.googleapis.com" base-url="https://generativelanguage.googleapis.com/v1beta/">
+        <provider id="GOOGLE" name="Google" host="generativelanguage.googleapis.com">
             <urls>
                 <url type="OFFICIAL">https://deepmind.google/technologies/gemini</url>
                 <url type="DOCS">https://ai.google.dev</url>
@@ -100,19 +114,19 @@
                 <url type="API">https://generativelanguage.googleapis.com/v1beta/</url>
             </urls>
             <models>
-                <model id="GEMINI_1_5_FLASH"      api-name="gemini-1.5-flash"/>
-                <model id="GEMINI_1_5_PRO"        api-name="gemini-1.5-pro"/>
-                <model id="GEMINI_1_0_PRO"        api-name="gemini-1.0-pro"/>
-                <model id="GEMINI_2_0_FLASH_LITE" api-name="gemini-2.0-flash-lite"/>
-                <model id="GEMINI_2_0_FLASH"      api-name="gemini-2.0-flash"/>
-                <model id="GEMINI_2_5_FLASH_LITE" api-name="gemini-2.5-flash-lite"/>
-                <model id="GEMINI_2_5_FLASH"      api-name="gemini-2.5-flash"/>
-                <model id="GEMINI_2_5_PRO"        api-name="gemini-2.5-pro"/>
-                <model id="GEMINI_FLASH_LATEST"   api-name="gemini-flash-latest"/>
+                <model id="GEMINI_2_5_FLASH_LITE"   api-name="gemini-2.5-flash-lite"   description="Quick coding, light SQL"/>
+                <model id="GEMINI_2_5_FLASH"        api-name="gemini-2.5-flash"        description="Responsive coding, routine SQL"/>
+                <model id="GEMINI_2_5_PRO"          api-name="gemini-2.5-pro"          description="Advanced reasoning, code analysis"/>
+                <model id="GEMINI_FLASH_LATEST"     api-name="gemini-flash-latest"     description="Updated coding behavior, flexible SQL"/>
+                <model id="GEMINI_2_0_FLASH_LITE"   api-name="gemini-2.0-flash-lite"   description="Lightweight coding and SQL"/>
+                <model id="GEMINI_2_0_FLASH"        api-name="gemini-2.0-flash"        description="Fast general coding, efficient SQL"/>
+                <model id="GEMINI_1_5_FLASH"        api-name="gemini-1.5-flash"        description="Quick development tasks"/>
+                <model id="GEMINI_1_5_PRO"          api-name="gemini-1.5-pro"          description="Strong coding, solid database logic"/>
+                <model id="GEMINI_1_0_PRO"          api-name="gemini-1.0-pro"          description="Stable, well-rounded coding"/>
             </models>
         </provider>
 
-        <provider id="ANTHROPIC" name="Anthropic" host="api.anthropic.com" base-url="https://api.anthropic.com/v1/">
+        <provider id="ANTHROPIC" name="Anthropic" host="api.anthropic.com">
             <urls>
                 <url type="OFFICIAL">https://www.anthropic.com</url>
                 <url type="DOCS">https://docs.anthropic.com</url>
@@ -120,46 +134,79 @@
                 <url type="API">https://api.anthropic.com/v1/</url>
             </urls>
             <models>
-                <model id="CLAUDE_OPUS_4_1_20250805"   api-name="claude-opus-4-1-20250805"   short-name="claude-opus-4-1"/>
-                <model id="CLAUDE_OPUS_4_20250514"     api-name="claude-opus-4-20250514"     short-name="claude-opus-4"/> />
-                <model id="CLAUDE_SONNET_4_20250514"   api-name="claude-sonnet-4-20250514"   short-name="claude-sonnet-4"/>
-                <model id="CLAUDE_3_7_SONNET_20250219" api-name="claude-3-7-sonnet-20250219" short-name="claude-3-7-sonnet"/>
-                <model id="CLAUDE_3_5_HAIKU_20241022"  api-name="claude-3-5-haiku-20241022"  short-name="claude-3-5-haiku"/>
+                <!-- 2025 -->
+                <model id="CLAUDE_OPUS_4_1_20250805"   api-name="claude-opus-4-1-20250805"   short-name="claude-opus-4-1"   description="Deep reasoning, complex code flows"/>
+                <model id="CLAUDE_OPUS_4_20250514"     api-name="claude-opus-4-20250514"     short-name="claude-opus-4"     description="High-precision coding, SQL depth"/>
+                <model id="CLAUDE_SONNET_4_20250514"   api-name="claude-sonnet-4-20250514"   short-name="claude-sonnet-4"   description="Structured coding, organized logic"/>
+                <model id="CLAUDE_3_7_SONNET_20250219" api-name="claude-3-7-sonnet-20250219" short-name="claude-3-7-sonnet" description="Reliable coding, balanced SQL"/>
 
-                <model id="CLAUDE_3_5_SONNET_20240620" api-name="claude-3-5-sonnet-20240620" short-name="claude-3-5-sonnet"/>
-                <model id="CLAUDE_3_OPUS_20240229"     api-name="claude-3-opus-20240229"     short-name="claude-3-opus"/>
-                <model id="CLAUDE_3_SONNET_20240229"   api-name="claude-3-sonnet-20240229"   short-name="claude-3-sonnet"/>
-                <model id="CLAUDE_3_HAIKU_20240307"    api-name="claude-3-haiku-20240307"    short-name="claude-3-haiku"/>
-                <!--<model id="CLAUDE_SONNET_4_20250514"   api-name="claude-sonnet-4-20250514"/>-->
+                <!-- 2024 -->
+                <model id="CLAUDE_3_5_HAIKU_20241022"  api-name="claude-3-5-haiku-20241022"  short-name="claude-3-5-haiku"  description="Very fast coding, quick SQL edits"/>
+                <model id="CLAUDE_3_5_SONNET_20240620" api-name="claude-3-5-sonnet-20240620" short-name="claude-3-5-sonnet" description="Consistent coding help, typical SQL tasks"/>
+                <model id="CLAUDE_3_HAIKU_20240307"    api-name="claude-3-haiku-20240307"    short-name="claude-3-haiku"    description="Light coding, short SQL prompts"/>
+                <model id="CLAUDE_3_OPUS_20240229"     api-name="claude-3-opus-20240229"     short-name="claude-3-opus"     description="High-end reasoning, complex databases"/>
+                <model id="CLAUDE_3_SONNET_20240229"   api-name="claude-3-sonnet-20240229"   short-name="claude-3-sonnet"   description="Solid engineering help, dependable SQL"/>
             </models>
         </provider>
+
         <provider id="HUGGING_FACE" name="Hugging Face" host="api-inference.huggingface.co">
             <urls>
                 <url type="OFFICIAL">https://huggingface.co/</url>
-                <url type="API">https://huggingface.co/settings/tokens</url>
+                <url type="KEYS">https://huggingface.co/settings/tokens</url>
+                <url type="API">https://router.huggingface.co/v1/</url>
             </urls>
             <models>
-                <model id="MIXTRAL_8X7B_INSTRUCT_V0_1" api-name="mistralai/Mixtral-8x7B-Instruct-v0.1"/>
-                <model id="META_LLAMA_3_70B_INSTRUCT"  api-name="meta-llama/Meta-Llama-3-70B-Instruct"/>
-                <model id="QWEN_1_5_1_8B"              api-name="Qwen/Qwen1.5-1.8B"/>
+                <model id="MIXTRAL_8X7B_INSTRUCT_V0_1" api-name="mistralai/Mixtral-8x7B-Instruct-v0.1" description="Efficient coding, affordable SQL"/>
+                <model id="META_LLAMA_3_70B_INSTRUCT"  api-name="meta-llama/Meta-Llama-3-70B-Instruct" description="Strong reasoning, large codebases"/>
+                <model id="QWEN_1_5_1_8B"              api-name="Qwen/Qwen1.5-1.8B"                    description="Lightweight coding, simple SQL tasks"/>
             </models>
         </provider>
-        <provider id="MISTRAL_AI" name="Mistral AI" host="api.mistral.ai" base-url="https://api.mistral.ai/v1/">
+
+        <provider id="MISTRAL_AI" name="Mistral AI" host="api.mistral.ai">
             <urls>
-                <url type="OFFICIAL">https://mistral.ai//</url>
+                <url type="OFFICIAL">https://mistral.ai</url>
                 <url type="DOCS">https://docs.mistral.ai</url>
                 <url type="KEYS">https://console.mistral.ai/api-keys</url>
                 <url type="API">https://api.mistral.ai/v1/</url>
             </urls>
             <models>
-                <model id="CODESTRAL_2508" api-name="codestral-2508"/>
-                <model id="MISTRAL_MEDIUM_2508"   api-name="mistral-medium-2508"   short-name="mistral-medium"/>
-                <model id="MAGISTRAL_MEDIUM_2507" api-name="magistral-medium-2507" short-name="magistral-medium"/>
-                <model id="MAGISTRAL_SMALL_2507"  api-name="magistral-small-2507"  short-name="magistral-small"/>
-                <model id="MAGISTRAL_SMALL_2506"  api-name="magistral-small-2506"  short-name="magistral-small"/>
-                <model id="MISTRAL_SMALL_2506"    api-name="mistral-small-2506"    short-name="mistral-small"/>
-                <model id="VOXTRAL_SMALL_2507"    api-name="voxtral-small-2507"    short-name="voxtral-small"/>
-                <model id="VOXTRAL_MINI_2507"     api-name="voxtral-mini-2507"     short-name="voxtral-mini"/>
+                <!-- 2025-08 -->
+                <model id="CODESTRAL_2508"           api-name="codestral-2508"          short-name="codestral"           description="Code-centric model, good SQL handling"/>
+                <model id="MISTRAL_MEDIUM_2508"      api-name="mistral-medium-2508"     short-name="mistral-medium"      description="General coding, moderate SQL work"/>
+
+                <!-- 2025-07 -->
+                <model id="MAGISTRAL_MEDIUM_2507"    api-name="magistral-medium-2507"   short-name="magistral-medium"    description="Structured programming, schema logic"/>
+                <model id="MAGISTRAL_SMALL_2507"     api-name="magistral-small-2507"    short-name="magistral-small"     description="Efficient lightweight coding"/>
+                <model id="VOXTRAL_SMALL_2507"       api-name="voxtral-small-2507"      short-name="voxtral-small"       description="Voice coding, simple SQL tasks"/>
+                <model id="VOXTRAL_MINI_2507"        api-name="voxtral-mini-2507"       short-name="voxtral-mini"        description="Tiny voice coding tasks"/>
+
+                <!-- 2025-06 -->
+                <model id="MAGISTRAL_SMALL_2506"     api-name="magistral-small-2506"    short-name="magistral-small"     description="Small coding tasks, SQL snippets"/>
+                <model id="MISTRAL_SMALL_2506"       api-name="mistral-small-2506"      short-name="mistral-small"       description="Quick, efficient coding"/>
+            </models>
+        </provider>
+
+        <provider id="VERTEX_AI" name="Vertex AI">
+            <url type="OFFICIAL">https://cloud.google.com/vertex-ai</url>
+        </provider>
+
+        <provider id="X_AI" name="X AI">
+            <urls>
+                <url type="OFFICIAL">https://x.ai</url>
+                <url type="DOCS">https://docs.x.ai/docs</url>
+                <url type="KEYS">https://console.x.ai</url>
+                <url type="API">https://api.x.ai/v1/</url>
+            </urls>
+            <models>
+                <!-- 2025 -->
+                <model id="GROK_4_1"                  api-name="grok-4.1"                   short-name="grok-4.1"                  description="Strong coding capability, clear SQL reasoning"/>
+                <model id="GROK_4_1_THINKING"         api-name="grok-4.1-thinking"          short-name="grok-4.1-thinking"         description="Enhanced reasoning, multi-step code and database logic"/>
+                <model id="GROK_4_1_NON_THINKING"     api-name="grok-4.1-non-thinking"      short-name="grok-4.1-non-thinking"     description="Fast deterministic coding, direct SQL outputs"/>
+                <model id="GROK_CODE_FAST_1"          api-name="grok-code-fast-1"           short-name="grok-code-fast"            description="Extremely fast code generation, rapid SQL edits"/>
+                <model id="GROK_4_FAST_REASONING"     api-name="grok-4-fast-reasoning"      short-name="grok-4-fast-reasoning"     description="High-speed reasoning-heavy coding"/>
+                <model id="GROK_4_FAST_NON_REASONING" api-name="grok-4-fast-non-reasoning"  short-name="grok-4-fast-non-reasoning" description="Ultra-fast straightforward code output"/>
+                <model id="GROK_4_0709"               api-name="grok-4-0709"                short-name="grok-4"                    description="Humorous but accurate coding and SQL help"/>
+                <model id="GROK_3_MINI"               api-name="grok-3-mini"                short-name="grok-3-mini"               description="Quick lightweight coding fixes and SQL snippets"/>
             </models>
         </provider>
     </provider-types>
@@ -194,12 +241,12 @@
                     <model id="GPT_4_O_MINI"/>
                     <model id="GPT_4"/>
                     <model id="GPT_4_0613"/>
-                    <model id="GPT_4_32K"/>
                     <model id="GPT_4_32K_0613"/>
-                    <model id="GPT_3_5_TURBO"/>
-                    <model id="GPT_3_5_TURBO_0613"/>
-                    <model id="GPT_3_5_TURBO_16K"/>
+                    <model id="GPT_4_32K"/>
                     <model id="GPT_3_5_TURBO_16K_0613"/>
+                    <model id="GPT_3_5_TURBO_16K"/>
+                    <model id="GPT_3_5_TURBO_0613"/>
+                    <model id="GPT_3_5_TURBO"/>
                 </models>
             </provider>
             <provider id="COHERE" api-name="COHERE" host="api.cohere.ai">
@@ -207,14 +254,14 @@
                     <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-3AA3B2FB-1EEC-481E-940F-832B97187564</url>
                 </urls>
                 <models>
-                    <model id="COMMAND" default="true"/>
-                    <model id="COMMAND_NIGHTLY" experimental="true"/>
-                    <model id="COMMAND_LIGHT" experimental="true"/>
-                    <model id="COMMAND_LIGHT_NIGHTLY"/>
-                    <model id="COMMAND_R"/>
+                    <model id="COMMAND_R_PLUS_08_2024"/>
                     <model id="COMMAND_R_08_2024"/>
                     <model id="COMMAND_R_PLUS"/>
-                    <model id="COMMAND_R_PLUS_08_2024"/>
+                    <model id="COMMAND_R"/>
+                    <model id="COMMAND_LIGHT_NIGHTLY"/>
+                    <model id="COMMAND_NIGHTLY" experimental="true"/>
+                    <model id="COMMAND_LIGHT" experimental="true"/>
+                    <model id="COMMAND" default="true"/>
                 </models>
             </provider>
             <provider id="GOOGLE" api-name="GOOGLE" host="generativelanguage.googleapis.com">
@@ -222,9 +269,14 @@
                     <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-4FDC2F94-36CD-41C3-AC1A-84F67B161DB2</url>
                 </urls>
                 <models>
-                    <model id="GEMINI_1_5_FLASH" default="true"/>
-                    <model id="GEMINI_1_5_PRO"/>
-                    <model id="GEMINI_1_0_PRO"/>
+                    <model id="GEMINI_2_5_PRO"/>
+                    <model id="GEMINI_2_5_FLASH"/>
+                    <model id="GEMINI_2_5_FLASH_LITE"/>
+                    <model id="GEMINI_2_0_FLASH_LITE"/>
+                    <model id="GEMINI_2_0_FLASH" default="true"/>
+                    <model id="GEMINI_1_5_FLASH" discontinued="true"/>
+                    <model id="GEMINI_1_5_PRO" discontinued="true"/>
+                    <model id="GEMINI_1_0_PRO" discontinued="true"/>
                 </models>
             </provider>
             <provider id="ANTHROPIC" api-name="ANTHROPIC" host="api.anthropic.com">
@@ -233,9 +285,9 @@
                 </urls>
                 <models>
                     <model id="CLAUDE_3_5_SONNET_20240620" default="true"/>
+                    <model id="CLAUDE_3_HAIKU_20240307"/>
                     <model id="CLAUDE_3_OPUS_20240229"/>
                     <model id="CLAUDE_3_SONNET_20240229"/>
-                    <model id="CLAUDE_3_HAIKU_20240307"/>
                 </models>
             </provider>
             <provider id="HUGGING_FACE" api-name="HUGGINGFACE" host="api-inference.huggingface.co">
@@ -248,6 +300,16 @@
                     <model id="QWEN_1_5_1_8B"/>
                 </models>
             </provider>
+        </assistant>
+        <assistant type="VECTOR_AI">
+            <provider id="OCI_GEN_AI" api-name="ocigenai"/>
+            <provider id="OPEN_AI" api-name="openai"/>
+            <provider id="COHERE" api-name="cohere"/>
+            <provider id="GOOGLE" api-name="googleai"/>
+            <provider id="ANTHROPIC" api-name="anthropicai"/>
+            <provider id="HUGGING_FACE" api-name="huggingface"/>
+            <provider id="MISTRAL_AI" api-name="mistralai"/>
+            <provider id="VERTEX_AI" api-name="vertexai"/>
         </assistant>
         <assistant type="PUBLIC">
             <provider id="OCI_GEN_AI">
@@ -262,11 +324,14 @@
                     <model id="META_LLAMA_3_3_70B_INSTRUCT"/>
                     <model id="META_LLAMA_4_MAVERICK_17B_128E_INSTRUCT_FP8"/>
                     <model id="META_LLAMA_4_SCOUT_17B_16E_INSTRUCT"/>
+<!--
+                    TODO none of the cohere models understand tool specifications
                     <model id="COHERE_COMMAND_R_08_2024"/>
                     <model id="COHERE_COMMAND_R_PLUS_08_2024"/>
                     <model id="COHERE_COMMAND_A_03_2025"/>
                     <model id="COHERE_COMMAND_LATEST"/>
                     <model id="COHERE_COMMAND_PLUS_LATEST"/>
+-->
                     <model id="XAI_GROK_3"/>
                     <model id="XAI_GROK_3_FAST"/>
                     <model id="XAI_GROK_3_MINI"/>
@@ -280,18 +345,19 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
-                    <model id="GPT_4_1" default="true"/>
+                    <model id="GPT_5_1" features="MEMORY, TOOLS, INSTRUCTIONS" recommended="true"/>
+                    <model id="GPT_5" features="MEMORY, TOOLS, INSTRUCTIONS" recommended="true"/>
+                    <model id="GPT_5_MINI" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="GPT_5_NANO" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="GPT_4_1" recommended="true"/>
                     <model id="GPT_4_1_MINI"/>
                     <model id="GPT_4_1_NANO"/>
-                    <model id="GPT_5"/>
-                    <model id="GPT_5_MINI"/>
-                    <model id="GPT_5_NANO"/>
-                    <model id="O1"/>
-                    <model id="O1_MINI"/>
-                    <model id="O1_PRO"/>
-                    <model id="O3"/>
-                    <model id="O3_MINI"/>
-                    <model id="O4_MINI"/>
+                    <model id="O4_MINI" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="O3" features="MEMORY, TOOLS, INSTRUCTIONS" recommended="true"/>
+                    <model id="O3_MINI" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="O1" features="MEMORY, TOOLS, INSTRUCTIONS"/>
+                    <model id="GPT_4_O" default="true" recommended="true"/>
+                    <model id="GPT_4_O_MINI"/>
                 </models>
             </provider>
             <provider id="GOOGLE">
@@ -299,12 +365,15 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
-                    <model id="GEMINI_2_0_FLASH_LITE"/>
-                    <model id="GEMINI_2_0_FLASH"/>
+                    <model id="GEMINI_2_5_PRO" recommended="true"/>
+                    <model id="GEMINI_2_5_FLASH" recommended="true"/>
                     <model id="GEMINI_2_5_FLASH_LITE"/>
-                    <model id="GEMINI_2_5_FLASH"/>
-                    <model id="GEMINI_2_5_PRO"/>
                     <model id="GEMINI_FLASH_LATEST"/>
+                    <model id="GEMINI_2_0_FLASH_LITE"/>
+                    <model id="GEMINI_2_0_FLASH" recommended="true"/>
+                    <model id="GEMINI_1_5_FLASH" discontinued="true"/>
+                    <model id="GEMINI_1_5_PRO" discontinued="true"/>
+                    <model id="GEMINI_1_0_PRO" discontinued="true"/>
                 </models>
             </provider>
             <provider id="ANTHROPIC">
@@ -312,10 +381,10 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
-                    <model id="CLAUDE_OPUS_4_1_20250805"/>
-                    <model id="CLAUDE_OPUS_4_20250514"/>
-                    <model id="CLAUDE_SONNET_4_20250514"/>
-                    <model id="CLAUDE_3_7_SONNET_20250219"/>
+                    <model id="CLAUDE_OPUS_4_1_20250805" recommended="true"/>
+                    <model id="CLAUDE_OPUS_4_20250514" recommended="true"/>
+                    <model id="CLAUDE_SONNET_4_20250514" recommended="true"/>
+                    <model id="CLAUDE_3_7_SONNET_20250219" recommended="true"/>
                     <model id="CLAUDE_3_5_HAIKU_20241022"/>
                     <model id="CLAUDE_3_HAIKU_20240307"/>
                 </models>
@@ -325,14 +394,29 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
-                    <model id="CODESTRAL_2508"/>
-                    <model id="MISTRAL_MEDIUM_2508"/>
-                    <model id="MAGISTRAL_MEDIUM_2507"/>
+                    <model id="CODESTRAL_2508" recommended="true"/>
+                    <model id="MISTRAL_MEDIUM_2508" recommended="true"/>
+                    <model id="MAGISTRAL_MEDIUM_2507" recommended="true"/>
                     <model id="MAGISTRAL_SMALL_2507"/>
-                    <model id="MAGISTRAL_SMALL_2506"/>
-                    <model id="MISTRAL_SMALL_2506"/>
                     <model id="VOXTRAL_SMALL_2507"/>
                     <model id="VOXTRAL_MINI_2507"/>
+                    <model id="MAGISTRAL_SMALL_2506"/>
+                    <model id="MISTRAL_SMALL_2506"/>
+                </models>
+            </provider>
+            <provider id="X_AI">
+                <auth>
+                    <field id="API_KEY" required="true"/>
+                </auth>
+                <models>
+                    <model id="GROK_4_1" recommended="true"/>
+                    <model id="GROK_4_1_THINKING" recommended="true"/>
+                    <model id="GROK_4_1_NON_THINKING"/>
+                    <model id="GROK_CODE_FAST_1" recommended="true"/>
+                    <model id="GROK_4_FAST_REASONING" recommended="true"/>
+                    <model id="GROK_4_FAST_NON_REASONING"/>
+                    <model id="GROK_4_0709"/>
+                    <model id="GROK_3_MINI"/>
                 </models>
             </provider>
         </assistant>

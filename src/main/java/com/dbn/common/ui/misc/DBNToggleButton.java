@@ -62,10 +62,10 @@ public class DBNToggleButton<T extends Presentable> extends JLabel {
     private final Listeners<ValueSelectorListener<T>> listeners = Listeners.create();
 
     public DBNToggleButton() {
-        Mouse.onMouseClick(this, MouseEvent.BUTTON1, e -> selectNextValue(e.getClickCount()));
+        Mouse.onMousePress(this, MouseEvent.BUTTON1, e -> selectNextValue());
         addMouseListener(createMouseListener());
         addFocusListener(createFocusListener());
-        Keyboard.onKeyPress(this, KeyEvent.VK_SPACE, e -> selectNextValue(1));
+        Keyboard.onKeyPress(this, KeyEvent.VK_SPACE, e -> selectNextValue());
         setHorizontalAlignment(SwingConstants.CENTER);
         setFocusable(true);
     }
@@ -114,11 +114,11 @@ public class DBNToggleButton<T extends Presentable> extends JLabel {
         setSelectedValue(values[0]);
     }
 
-    private void selectNextValue(int count) {
+    private void selectNextValue() {
         if (!isEnabled()) return;
 
         int valueIndex = ArrayUtil.indexOf(values, selectedValue);
-        setSelectedValue(values[(valueIndex + count) % values.length]);
+        setSelectedValue(values[(valueIndex + 1) % values.length]);
     }
 
     public void setSelectedValue(T value) {
@@ -127,6 +127,12 @@ public class DBNToggleButton<T extends Presentable> extends JLabel {
 
         selectedValue = value;
         listeners.notify(l -> l.selectionChanged(oldValue, value));
+        updateComponent();
+    }
+
+    public void setSelectedValueSilently(T value) {
+        if (selectedValue == value) return;
+        selectedValue = value;
         updateComponent();
     }
 

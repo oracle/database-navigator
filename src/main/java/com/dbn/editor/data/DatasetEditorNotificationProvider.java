@@ -21,6 +21,7 @@ import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Strings;
+import com.dbn.editor.data.ui.DatasetChangesNotificationPanel;
 import com.dbn.editor.data.ui.DatasetEditorLoadErrorNotificationPanel;
 import com.dbn.editor.data.ui.DatasetEditorNotificationPanel;
 import com.dbn.editor.data.ui.DatasetEditorReadonlyNotificationPanel;
@@ -92,19 +93,26 @@ public class DatasetEditorNotificationProvider extends EditorNotificationProvide
         if (!(file instanceof DBEditableObjectVirtualFile)) return null;
         if (!(fileEditor instanceof DatasetEditor)) return null;
 
-        DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) file;
         DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
-
-        DBSchemaObject editableObject = editableObjectFile.getObject();
         if (!datasetEditor.isLoaded()) return null;
 
-        String sourceLoadError = datasetEditor.getDataLoadError();
-        if (Strings.isNotEmpty(sourceLoadError)) {
-            return new DatasetEditorLoadErrorNotificationPanel(editableObject, fileEditor, sourceLoadError);
+        DBEditableObjectVirtualFile datasetFile = (DBEditableObjectVirtualFile) file;
+        DBSchemaObject dataset = datasetFile.getObject();
+
+        String dataLoadError = datasetEditor.getDataLoadError();
+        if (Strings.isNotEmpty(dataLoadError)) {
+            return new DatasetEditorLoadErrorNotificationPanel(dataset, fileEditor, dataLoadError);
         }
 
-        if (editableObject instanceof DBTable && editableObjectFile.getEnvironmentType().isReadonlyData()) {
-            return new DatasetEditorReadonlyNotificationPanel(editableObject, fileEditor);
+        if (dataset instanceof DBTable) {
+            DBTable table = (DBTable) dataset;
+            if (datasetEditor.isOutdateResult()) {
+                return new DatasetChangesNotificationPanel(table, datasetEditor);
+            }
+
+            if (datasetFile.getEnvironmentType().isReadonlyData()) {
+                return new DatasetEditorReadonlyNotificationPanel(table, datasetEditor);
+            }
         }
 
         return null;

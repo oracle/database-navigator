@@ -88,4 +88,9 @@ public class ImplicitAssistantProfile implements AssistantProfile {
     public double getTemperature() {
         return BALANCED.getValue();
     }
+
+    @Override
+    public String getInstructions() {
+        return "";
+    }
 }

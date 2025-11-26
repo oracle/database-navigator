@@ -18,8 +18,8 @@ package com.dbn.data.grid.ui.table.resultSet.record;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.model.ColumnInfo;
@@ -32,7 +32,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -42,7 +41,7 @@ import java.text.ParseException;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.getText;
 
-public class ResultSetRecordViewerColumnForm extends DBNFormBase implements ComponentAligner.Form {
+public class ResultSetRecordViewerColumnForm extends DBNFormBase {
     private JLabel columnLabel;
     private JPanel valueFieldPanel;
     private JLabel dataTypeLabel;
@@ -113,9 +112,9 @@ public class ResultSetRecordViewerColumnForm extends DBNFormBase implements Comp
         return cell;
     }
 
-    @Override
-    public Component[] getAlignableComponents() {
-        return new Component[] {columnLabel, dataTypeLabel};
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerFieldGroup(columnLabel, dataTypeLabel);
     }
 
     public Object getEditorValue() throws ParseException {

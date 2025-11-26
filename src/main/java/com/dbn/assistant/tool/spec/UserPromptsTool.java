@@ -33,7 +33,7 @@ import static com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
         type = "USER_PROMPTS",
         name = "User prompts",
         interactive = true,
-        description = "Interactive tools for soliciting and processing human input.")
+        description = "Interactive tools for user input via yes/no or multiple-choice prompts")
 public interface UserPromptsTool extends AssistantTool {
 
     @FactorySpec(
@@ -50,10 +50,10 @@ public interface UserPromptsTool extends AssistantTool {
             name = "Request user confirmation",
             description = "Prompts the user with a yes/no question and returns their response.")
     boolean requestUserConfirmation(
-            @P("Brief description of the topic") String title,
-            @P("Confirmation message") String question,
-            @P("Label for the affirmative option") @ParamSpec("true") String yesOption,
-            @P("Label for negative option") @ParamSpec("false") String noOption);
+            @P("Brief topic description") String title,
+            @P("Question") String question,
+            @P("Affirmative option label") @ParamSpec("true") String yesOption,
+            @P("Negative option label") @ParamSpec("false") String noOption);
 
 
     @Tool(name = "REQUEST_USER_DECISION")
@@ -61,7 +61,7 @@ public interface UserPromptsTool extends AssistantTool {
             name = "Request user decision",
             description = "Presents the user with a multiple-choice question and returns their selected option.")
     String requestUserDecision(
-            @P("Brief description of the topic") String title,
+            @P("Brief topic description") String title,
             @P("Question") String question,
             @P("Options the user can choose from") String[] options);
 

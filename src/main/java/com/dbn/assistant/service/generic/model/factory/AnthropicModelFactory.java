@@ -39,7 +39,7 @@ public class AnthropicModelFactory extends AbstractModelFactory {
     protected ChatModel createChatModel(AssistantModelInput input) {
         return AnthropicChatModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .httpClientBuilder(createHttpClientBuilder())
@@ -51,7 +51,7 @@ public class AnthropicModelFactory extends AbstractModelFactory {
     protected StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return AnthropicStreamingChatModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .httpClientBuilder(createHttpClientBuilder())

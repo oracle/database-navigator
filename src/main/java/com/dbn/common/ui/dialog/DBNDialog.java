@@ -33,6 +33,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.wm.IdeFrame;
 import com.intellij.ui.AppIcon;
 import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
@@ -49,6 +50,7 @@ import javax.swing.JComponent;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
@@ -60,6 +62,8 @@ import static com.dbn.common.data.Data.asBooleanPrimitive;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.registerDialog;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.releaseDialog;
+import static com.dbn.common.ui.util.UserInterface.findTopLeftmostFocusComponent;
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.firstElement;
@@ -74,6 +78,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     private final ProjectRef project;
 
     private boolean rememberSelection;
+    private boolean initialized;
     private boolean autoSize;
     private Dimension defaultSize;
     private final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
@@ -87,6 +92,9 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     @Override
     protected void init() {
+        if (initialized) return;
+        initialized = true;
+
         if (defaultSize != null) {
             setSize(
                 (int) defaultSize.getWidth(),
@@ -94,7 +102,19 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         }
         super.init();
         initActions();
+        initFocusComponent();
         validateInput(null);
+    }
+
+    private void initFocusComponent() {
+        JComponent focusComponent = form.getPreferredFocusedComponent();
+        if (focusComponent != null) return; // explicitly defined focus component
+
+        JComponent container = getComponent();
+        whenFirstShown(container, () -> {
+            JComponent component = findTopLeftmostFocusComponent(container);
+            if (component != null) component.requestFocusInWindow(FocusEvent.Cause.ACTIVATION);
+        });
     }
 
     private void initActions() {
@@ -296,6 +316,10 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
      */
     protected void dispatch(Runnable runnable) {
         Dispatch.execute(getComponent(), runnable);
+    }
+
+    protected boolean isRootDialog() {
+        return getOwner() instanceof IdeFrame;
     }
 
     @Getter

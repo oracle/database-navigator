@@ -18,10 +18,10 @@ package com.dbn.execution.java.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
@@ -41,7 +41,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.util.List;
 
@@ -55,7 +54,7 @@ import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static java.util.Collections.emptyList;
 
 
-public class JavaExecutionInputParameterForm extends DBNFormBase implements ComponentAligner.Form {
+public class JavaExecutionInputParameterForm extends DBNFormBase {
 	private JPanel mainPanel;
 	private JLabel parameterLabel;
 	private JLabel parameterTypeLabel;
@@ -82,6 +81,13 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		} else {
 			initClassField();
 		}
+	}
+
+	@Override
+	protected void initFieldAlignment() {
+		FieldAlignerData alignerData = getFieldAlignerData();
+		alignerData.registerForms(fieldForms);
+		alignerData.registerFieldGroup(parameterLabel, inputFieldPanel, parameterTypeLabel);
 	}
 
 	private void initPlainField() {
@@ -206,20 +212,6 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 	JavaExecutionInput getExecutionInput() {
 		JavaExecutionInputForm executionInputForm = getParentFrom(JavaExecutionInputForm.class);
 		return nd(executionInputForm).getExecutionInput();
-	}
-
-	/*********************************************************************
-	 *                      {@link ComponentAligner}                     *
-	 *********************************************************************/
-
-	@Override
-	public Component[] getAlignableComponents() {
-		return new Component[] {parameterLabel, inputFieldPanel, parameterTypeLabel};
-	}
-
-	@Override
-	public List<? extends ComponentAligner.Form> getAlignableForms() {
-		return fieldForms;
 	}
 
 	public int countFields() {

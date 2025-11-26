@@ -60,7 +60,7 @@ public interface ProgramMetadataTool extends AssistantTool {
             name = "List declared type names",
             description = "Lists the names of declared data-types in a given schema",
             summary = "schema %s",
-            discontinued = true) // token optimization
+            discontinued = true) // token optimization (replaced by generic LIST_PROGRAM_NAMES)
     List<String> listTypeNames(@P("Schema name") String schemaName);
 
 
@@ -69,7 +69,7 @@ public interface ProgramMetadataTool extends AssistantTool {
             name = "List function names",
             description = "Lists the names of functions in a given schema",
             summary = "schema %s",
-            discontinued = true) // token optimization
+            discontinued = true) // token optimization (replaced by generic LIST_PROGRAM_NAMES)
     List<String> listFunctionNames(@P("Schema name") String schemaName);
 
 
@@ -78,7 +78,7 @@ public interface ProgramMetadataTool extends AssistantTool {
             name = "List procedure names",
             description = "Lists the names of stored procedures in a given schema",
             summary = "schema %s",
-            discontinued = true) // token optimization
+            discontinued = true) // token optimization (replaced by generic LIST_PROGRAM_NAMES)
     List<String> listProcedureNames(@P("Schema name") String schemaName);
 
 
@@ -87,7 +87,7 @@ public interface ProgramMetadataTool extends AssistantTool {
             name = "List package names",
             description = "Lists the names of packages in a given schema",
             summary = "schema %s",
-            discontinued = true) // token optimization
+            discontinued = true) // token optimization (replaced by generic LIST_PROGRAM_NAMES)
     List<String> listPackageNames(@P("Schema name") String schemaName);
 
 }

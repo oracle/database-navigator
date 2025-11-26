@@ -18,12 +18,14 @@ package com.dbn.assistant.provider;
 
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIAuthentication.Field;
+import com.dbn.common.util.Csvs;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Safe;
 import com.dbn.common.util.XmlContents;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -34,6 +36,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static com.dbn.assistant.provider.AIAuthentication.Field.API_KEY;
+import static com.dbn.assistant.provider.AIModelProperty.DEFAULT;
+import static com.dbn.assistant.provider.AIModelProperty.DEPRECATED;
+import static com.dbn.assistant.provider.AIModelProperty.DISCONTINUED;
+import static com.dbn.assistant.provider.AIModelProperty.EXPERIMENTAL;
+import static com.dbn.assistant.provider.AIModelProperty.RECOMMENDED;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -120,13 +127,11 @@ public class AIProvidersDefinition {
         AIProviderId id = enumAttribute(element, "id", AIProviderId.class);
         String name = fallback(stringAttribute(element, "name"), providerTemplate, t -> t.getName());
         String host = fallback(stringAttribute(element, "host"), providerTemplate, t -> t.getHost());
-        String baseUrl = fallback(stringAttribute(element, "base-url"), providerTemplate, t -> t.getBaseUrl());
         String apiName = fallback(stringAttribute(element, "api-name"), providerTemplate, t -> t.getApiName());
 
         AIProvider provider = new AIProvider(id, name);
         provider.setHost(host);
         provider.setApiName(apiName);
-        provider.setBaseUrl(baseUrl);
 
         initModels(element, provider, providerTemplate);
         initUrls(element, provider, providerTemplate);
@@ -136,7 +141,7 @@ public class AIProvidersDefinition {
     }
 
     private static void initModels(Element element, AIProvider provider, AIProvider providerTemplate) {
-        List<Element> modelElements = element.getChild("models").getChildren();
+        List<Element> modelElements = childrenOf(element.getChild("models"));
         List<AIModel> models = convert(modelElements, e -> createModel(e, provider, providerTemplate));
         provider.setModels(unmodifiableList(models));
     }
@@ -145,8 +150,11 @@ public class AIProvidersDefinition {
         String modelId = stringAttribute(element, "id");
         AIModel modelTemplate = providerTemplate == null ? null : providerTemplate.getModel(modelId);
         boolean templateDefault = modelTemplate != null && modelTemplate.isDefault();
+        boolean templateRecommended = modelTemplate != null && modelTemplate.isRecommended();
         boolean templateExperimental = modelTemplate != null && modelTemplate.isExperimental();
         boolean templateDeprecated = modelTemplate != null && modelTemplate.isDeprecated();
+        boolean templateDiscontinued = modelTemplate != null && modelTemplate.isDiscontinued();
+
         AIProviderId templateBaseProviderId = modelTemplate != null ? modelTemplate.getBaseProviderId() : null;
 
         AIProviderId baseProviderId = coalesce(
@@ -157,11 +165,25 @@ public class AIProvidersDefinition {
 
         String modelApiName = fallback(stringAttribute(element, "api-name"), modelTemplate, t -> t.getApiName());
         String modelShortName = fallback(stringAttribute(element, "short-name"), modelTemplate, t -> t.getShortName());
-        AIModel model = new AIModel(modelId, modelApiName, modelShortName, provider, baseProviderId);
+        String modelDescription = fallback(stringAttribute(element, "description"), modelTemplate, t -> t.getDescription());
+        AIModel model = new AIModel(modelId, modelApiName, modelShortName, modelDescription, provider, baseProviderId);
 
-        model.set(AIModelProperty.DEFAULT, booleanAttribute(element, "default", templateDefault));
-        model.set(AIModelProperty.DEPRECATED, booleanAttribute(element, "deprecated", templateDeprecated));
-        model.set(AIModelProperty.EXPERIMENTAL, booleanAttribute(element, "experimental", templateExperimental));
+        // status
+        model.set(DEFAULT, booleanAttribute(element, "default", templateDefault));
+        model.set(RECOMMENDED, booleanAttribute(element, "recommended", templateRecommended));
+        model.set(EXPERIMENTAL, booleanAttribute(element, "experimental", templateExperimental));
+        model.set(DEPRECATED, booleanAttribute(element, "deprecated", templateDeprecated));
+        model.set(DISCONTINUED, booleanAttribute(element, "discontinued", templateDiscontinued));
+
+        // features
+        @NonNls
+        List<AIModelFeature> features = Csvs.csvToValues(stringAttribute(element, "features"), s -> AIModelFeature.get(s));
+        AIModelFeatures modelFeatures = model.getFeatures();
+        if (features.isEmpty()) {
+            modelFeatures.set(AIModelFeature.VALUES, true);
+        } else {
+            modelFeatures.set(features, true);
+        }
 
         return model;
     }

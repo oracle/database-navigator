@@ -187,7 +187,7 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Boolean) return (Boolean) object;
         if (object.equals(NULL)) return null;
-        if (object instanceof String) return Strings.isOneOfIgnoreCase((String) object, "Y", "YES", "TRUE", "1");
+        if (object instanceof String) return Strings.isOneOfIgnoreCase((String) object, "Y", "YES", "T", "TRUE", "1");
         if (object instanceof Number) return ((Number) object).intValue() != 0;
         return null;
     }

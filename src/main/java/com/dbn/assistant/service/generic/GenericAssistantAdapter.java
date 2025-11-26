@@ -56,6 +56,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.dbn.assistant.credential.AssistantCredentialLookup.getCredential;
 import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
 import static com.dbn.assistant.profile.AssistantProfileUtil.verifyAssistantProfile;
+import static com.dbn.assistant.provider.AIModelFeature.TEMPERATURE;
 import static com.dbn.nls.NlsResources.txt;
 
 public class GenericAssistantAdapter extends AssistantAdapterBase {
@@ -218,10 +219,14 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
 
         AIProviderId baseProviderId = model.getBaseProviderId();
         AIProviderId providerId = provider.getId();
-        return AssistantModelInput.create(baseProviderId, providerId, modelName)
-                .withCredential(credential)
-                .withTemperature(profile.getTemperature());
+        AssistantModelInput input = AssistantModelInput.create(baseProviderId, providerId, modelName);
+        input.setCredential(credential);
 
+        if (model.isFeatureSupported(TEMPERATURE)) {
+            double temperature = profile.getTemperature();
+            input.setTemperature(temperature);
+        }
+        return input;
     }
 
     private static Object resolveModel(ChatContext context, AssistantModelInput input) {

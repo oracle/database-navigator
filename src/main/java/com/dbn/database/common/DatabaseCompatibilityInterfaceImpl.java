@@ -17,6 +17,7 @@
 package com.dbn.database.common;
 
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.common.util.Chars;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionHandler;
@@ -81,6 +82,11 @@ public abstract class DatabaseCompatibilityInterfaceImpl implements DatabaseComp
         if (!supportsObjectType(objectTypeId)) return false;
 
         return true;
+    }
+
+    @Override
+    public boolean supportsOperation(DatabaseOperation operation) {
+        return supportsFeature(operation.getFeature());
     }
 
     @Override

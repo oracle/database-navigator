@@ -58,8 +58,7 @@ public abstract class ChatMessageForm extends DBNFormBase {
     protected interface Backgrounds {
         Color USER_PROMPT = new JBColor(new Color(218, 234, 255), new Color(68, 95, 128));
         Color AGENT_RESPONSE = Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 3));
-        Color SYSTEM_INFO = Colors.delegate(() -> Colors.lafBrighter(Colors.getPanelBackground(), 2));
-        Color SYSTEM_ERROR = new JBColor(new Color(255, 213, 204), new Color(69, 48, 43));
+        Color SYSTEM_RESPONSE = Colors.delegate(() -> Colors.lafBrighter(Colors.getPanelBackground(), 2));
     }
     private final ChatMessage message;
 
@@ -104,6 +103,8 @@ public abstract class ChatMessageForm extends DBNFormBase {
 
         return messagesForm.getNextMessageForm(this);
     }
+
+    protected abstract Color getForeground();
 
     protected abstract Color getBackground();
 

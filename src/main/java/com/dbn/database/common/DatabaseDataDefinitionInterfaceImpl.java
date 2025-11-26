@@ -51,10 +51,10 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
     public boolean includesTypeAndNameInSourceContent(DatabaseObjectTypeId objectTypeId) {
         return
                 objectTypeId == DatabaseObjectTypeId.FUNCTION ||
-                objectTypeId == DatabaseObjectTypeId.PROCEDURE ||
-                objectTypeId == DatabaseObjectTypeId.PACKAGE ||
-                objectTypeId == DatabaseObjectTypeId.TRIGGER ||
-                objectTypeId == DatabaseObjectTypeId.TYPE;
+                        objectTypeId == DatabaseObjectTypeId.PROCEDURE ||
+                        objectTypeId == DatabaseObjectTypeId.PACKAGE ||
+                        objectTypeId == DatabaseObjectTypeId.TRIGGER ||
+                        objectTypeId == DatabaseObjectTypeId.TYPE;
 
     }
 
@@ -85,26 +85,30 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
     }
 
     /*********************************************************
-    *                   DROP statements                     *
-    *********************************************************/
-   @Override
-   public void dropObject(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException {
-       executeUpdate(connection, "drop-object", objectType, ownerName, objectName);
-   }
+     *                   DROP statements                     *
+     *********************************************************/
+    @Override
+    public void dropObject(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "drop-object", objectType, ownerName, objectName);
+    }
+
+    public void dropObjectIfExists(String objectType, String objectOwner, String objectName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "drop-object-if-exists", objectType, objectOwner, objectName);
+    }
 
     @Override
     public void dropConstraint(String ownerName, String tableName, String constraintName, DBConstraintType constraintType, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "drop-constraint", ownerName, tableName, constraintName);
     }
 
-   @Override
-   public void dropObjectBody(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException {
-       executeUpdate(connection, "drop-object-body", objectType, ownerName, objectName);
-   }
+    @Override
+    public void dropObjectBody(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "drop-object-body", objectType, ownerName, objectName);
+    }
 
     @Override
     public void dropJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-       // TODO move to OracleDataDefinitionInterface (too specific for this level)
+        // TODO move to OracleDataDefinitionInterface (too specific for this level)
         executeUpdate(connection, "drop-java-object", ownerName, objectName);
     }
 
@@ -147,19 +151,19 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
             content.getOffsets().addGuardedBlock(0, gbEndOffset);
             sourceCode =
                     sourceCode.substring(0, gbEndOffset) +
-                    sourceCode.substring(gbEndOffset + GuardedBlockMarker.END_OFFSET_IDENTIFIER.length());
+                            sourceCode.substring(gbEndOffset + GuardedBlockMarker.END_OFFSET_IDENTIFIER.length());
             content.setText(sourceCode);
         }
     }
 
     @Override
     public void compileObject(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException {
-        executeStatement(connection, "compile-object", ownerName, objectName, objectType, debug ? "DEBUG" : "");
+        executeUpdate(connection, "compile-object", ownerName, objectName, objectType, debug ? "DEBUG" : "");
     }
 
     @Override
     public void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException {
-        executeStatement(connection, "compile-object-body", ownerName, objectName, objectType, debug ? "DEBUG" : "");
+        executeUpdate(connection, "compile-object-body", ownerName, objectName, objectType, debug ? "DEBUG" : "");
     }
 
     @Override

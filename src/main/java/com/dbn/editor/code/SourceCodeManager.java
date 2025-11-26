@@ -42,8 +42,6 @@ import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.common.statement.ByteArray;
-import com.dbn.database.common.statement.ClobText;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
@@ -400,8 +398,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         try {
             String schemaName = object.getSchemaName();
             String objectName = object.getName();
-            ByteArray byteArray = metadata.loadJavaBinaryCode(schemaName, objectName, conn);
-            byte[] bytes = byteArray.getValue();
+            byte[] bytes = metadata.loadJavaBinaryCode(schemaName, objectName, conn);
 
             tempFile = FileUtil.createTempFile(objectName, ".class");
             Files.write(tempFile.toPath(), bytes);
@@ -424,13 +421,9 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     private static String loadJavaResourceCode(@NotNull DBSchemaObject object, DBNConnection conn, DatabaseMetadataInterface metadata) throws SQLException {
         try {
-            String schemaName = object.getSchemaName();
-            String objectName = object.getName();
-            ClobText code = metadata.loadJavaResourceSourceCode(schemaName, objectName, conn);
-            List<String> lines = code.getValue();
-
-            return String.join("\n", lines);
-
+            return metadata.loadJavaResourceSourceCode(
+                    object.getSchemaName(),
+                    object.getName(), conn);
         } catch (Exception e) {
             throw Exceptions.toSqlException(e);
         }

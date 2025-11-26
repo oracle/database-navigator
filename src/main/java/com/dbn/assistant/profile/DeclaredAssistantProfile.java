@@ -33,10 +33,13 @@ import static com.dbn.assistant.profile.AssistantTemperaturePreset.BALANCED;
 import static com.dbn.assistant.profile.AssistantTemperaturePreset.CUSTOM;
 import static com.dbn.common.options.setting.Settings.doubleAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.readCdata;
 import static com.dbn.common.options.setting.Settings.setDoubleAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.options.setting.Settings.writeCdata;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
@@ -48,6 +51,7 @@ public class DeclaredAssistantProfile implements AssistantProfile, PersistentCon
     private String name;
     private AIProviderId providerId;
     private String credentialId;
+    private String instructions;
     private double temperature;
     private AssistantTemperaturePreset temperaturePreset = BALANCED;
 
@@ -74,6 +78,9 @@ public class DeclaredAssistantProfile implements AssistantProfile, PersistentCon
         credentialId = stringAttribute(element, "credential-id");
         temperaturePreset = enumAttribute(element, "temperature-preset", temperaturePreset);
         temperature = doubleAttribute(element, "temperature", 0);
+
+        Element instructionsElement = element.getChild("instructions");
+        instructions = readCdata(instructionsElement);
     }
 
     @Override
@@ -85,6 +92,9 @@ public class DeclaredAssistantProfile implements AssistantProfile, PersistentCon
         setStringAttribute(element, "credential-id", credentialId);
         setEnumAttribute(element, "temperature-preset", temperaturePreset);
         setDoubleAttribute(element, "temperature", temperature);
+
+        Element instructionsElement = newElement(element, "instructions");
+        writeCdata(instructionsElement, instructions);
     }
 
     @Override

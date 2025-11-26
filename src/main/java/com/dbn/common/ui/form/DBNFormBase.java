@@ -24,10 +24,12 @@ import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.component.DBNComponentBase;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.intellij.ide.DataManager;
@@ -37,7 +39,6 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.containers.ContainerUtil;
 import lombok.Getter;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.ApiStatus;
@@ -48,20 +49,25 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.text.JTextComponent;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
-import java.util.Set;
 
+import static com.dbn.common.ui.form.DBNFormBinding.bindForm;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
 import static com.dbn.common.ui.util.Accessibility.initComponentGroupsAccessibility;
 import static com.dbn.common.ui.util.Accessibility.initCustomComponentAccessibility;
-import static com.dbn.common.ui.util.UserInterface.findTopLeftmostFocusComponent;
+import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
 import static com.dbn.common.ui.util.UserInterface.hasChildComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Unsafe.cast;
@@ -74,7 +80,6 @@ public abstract class DBNFormBase
     @Getter
     private boolean initialized;
 
-    private final Set<JComponent> enabled = ContainerUtil.createWeakSet();
     private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
     private final Latent<Boolean> hasScrollBars = Latent.basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));
 
@@ -103,13 +108,6 @@ public abstract class DBNFormBase
         return dialog == null ?
                 DBNFormValidator.SURROGATE :
                 dialog.getFormValidator();
-    }
-
-    @Nullable
-    @Override
-    public JComponent getPreferredFocusedComponent() {
-        return findTopLeftmostFocusComponent(getMainComponent());
-        //return findChildComponent(getMainComponent(), c -> isFocusableComponent(c));
     }
 
     public void focusPreferredComponent() {
@@ -158,8 +156,12 @@ public abstract class DBNFormBase
         initStatePersistence();
         initFormAccessibility();
         initFieldAvailability();
+        initFieldAlignment();
+        initEventListeners();
 
         JComponent mainComponent = getMainComponent();
+        bindForm(mainComponent, this);
+
         DataProviders.register(mainComponent, this);
         UserInterface.updateScrollPanes(mainComponent);
         UserInterface.updateTitledBorders(mainComponent);
@@ -211,13 +213,30 @@ public abstract class DBNFormBase
     @ApiStatus.OverrideOnly
     protected void initAccessibility() {}
 
+    @ApiStatus.OverrideOnly
     protected void initFieldAvailability() {}
+
+    @ApiStatus.OverrideOnly
+    protected void initEventListeners() {}
 
     protected void updateFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
         fieldAdapter.updateFieldsVisibility();
         fieldAdapter.updateFieldsAvailability();
-        validateInput();
+    }
+
+    protected void validateFormFields() {
+        DBNDialog parentDialog = getParentDialog();
+        if (parentDialog == null) return;
+
+        parentDialog.validateInput(null);
+    }
+
+
+    protected void initFieldAlignment() {}
+
+    protected FieldAlignerData getFieldAlignerData() {
+        return ClientProperty.FIELD_ALIGNER_DATA.get(getComponent(), () -> new FieldAlignerData());
     }
 
     /**
@@ -338,23 +357,28 @@ public abstract class DBNFormBase
     }
 
     private void disable(JComponent c) {
+        if (NON_DISABLEABLE.is(c)) return;
+
+        if (c instanceof JTextComponent) {
+            JTextComponent textComponent = (JTextComponent) c;
+            if (textComponent instanceof JEditorPane || textComponent instanceof JTextArea) {
+                if (!textComponent.isEditable()) return;
+            }
+        }
+
         if (c instanceof AbstractButton ||
                 c instanceof JTextComponent ||
+                c instanceof JComboBox ||
                 c instanceof ActionToolbar ||
                 c instanceof JList ||
                 c instanceof JTable ||
                 c instanceof JLabel) {
 
-            if (c.isEnabled()) {
-                enabled.add(c);
-                c.setEnabled(false);
-            }
+            disableFormField(c, "READONLY_FORM");
         }
     }
 
     private void enable(JComponent c) {
-        if (enabled.remove(c)) {
-            c.setEnabled(true);
-        }
+        enableFormField(c, "READONLY_FORM");
     }
 }

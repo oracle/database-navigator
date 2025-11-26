@@ -16,15 +16,23 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
-import com.dbn.assistant.service.generic.context.AssistantContextCache;
+import com.dbn.assistant.chat.context.ChatContext;
+import com.dbn.assistant.provider.AIModel;
+import com.dbn.assistant.provider.AIModelFeature;
+import com.dbn.assistant.service.generic.context.AssistantInstructionsCache;
 import com.dbn.assistant.service.generic.context.AssistantMemoryCache;
 import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
 import com.dbn.assistant.service.generic.model.AssistantModelType;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantToolCache;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
+import dev.langchain4j.service.AiServices;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.dbn.assistant.provider.AIModelFeature.INSTRUCTIONS;
+import static com.dbn.assistant.provider.AIModelFeature.TOOLS;
 
 @Slf4j
 @Getter
@@ -35,15 +43,44 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
         this.modelType = modelType;
     }
 
-    protected AssistantToolCache prepareTools(AssistantState assistantState) {
-        return AssistantToolCache.get(assistantState);
+    protected void initToolProvider(AiServices<?> builder, AssistantState state, boolean stateless) {
+        if (stateless) return;
+        if (!isFeatureSupported(state, TOOLS)) return;
+
+        var tools = AssistantToolCache.get(state);
+        builder.toolProvider(tools);
+    }
+
+    protected void initSystemMessage(AiServices<?> builder, AssistantState state) {
+        if (!isFeatureSupported(state, INSTRUCTIONS)) return;
+
+        var instructions = AssistantInstructionsCache.get(state);
+        builder.systemMessageProvider(instructions);
+    }
+
+    protected void initChatMemory(AiServices<?> builder, AssistantState state, boolean stateless) {
+        var memory = stateless ?
+                prepareEmptyMemory() :
+                prepareMemory(state);
+        builder.chatMemoryProvider(memory);
+    }
+
+    private static ChatMemoryProvider prepareEmptyMemory() {
+        return memoryId -> MessageWindowChatMemory
+                .builder()
+                .id(memoryId)
+                .maxMessages(5)
+                .build();
     }
 
     protected ChatMemoryProvider prepareMemory(AssistantState assistantState) {
         return AssistantMemoryCache.get(assistantState);
     }
 
-    protected AssistantContextCache prepareContext(AssistantState assistantState) {
-        return AssistantContextCache.get(assistantState);
+    private boolean isFeatureSupported(AssistantState state, AIModelFeature feature) {
+        ChatContext context = state.getCurrentContext();
+        AIModel model = context.getModel();
+        if (model == null) return false;
+        return model.isFeatureSupported(feature);
     }
 }

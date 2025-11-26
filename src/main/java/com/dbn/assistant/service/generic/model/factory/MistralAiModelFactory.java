@@ -39,7 +39,7 @@ public class MistralAiModelFactory extends AbstractModelFactory {
     public ChatModel createChatModel(AssistantModelInput input) {
         return MistralAiChatModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .httpClientBuilder(createHttpClientBuilder())
@@ -51,7 +51,7 @@ public class MistralAiModelFactory extends AbstractModelFactory {
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return MistralAiStreamingChatModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .httpClientBuilder(createHttpClientBuilder())
@@ -69,7 +69,7 @@ public class MistralAiModelFactory extends AbstractModelFactory {
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return MistralAiEmbeddingModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .apiKey(input.getTokenString())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();

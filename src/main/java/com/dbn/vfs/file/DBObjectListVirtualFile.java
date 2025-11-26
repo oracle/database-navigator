@@ -18,7 +18,6 @@ package com.dbn.vfs.file;
 
 import com.dbn.common.dispose.Checks;
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseEntity;
@@ -45,7 +44,7 @@ public class DBObjectListVirtualFile<T extends DBObjectList> extends DBVirtualFi
     private final transient WeakRef<T> objectList;
 
     public DBObjectListVirtualFile(T objectList) {
-        super(objectList.getProject(), Naming.capitalize(objectList.getName()));
+        super(objectList.getProject(), objectList.getTitleCasedName());
         this.objectList = WeakRef.of(objectList);
     }
 

@@ -75,7 +75,7 @@ public class SelectAiInitializationForm extends DBNFormBase implements Assistant
     }
 
     private FeatureAvailability getCurrentAvailability() {
-        ChatBoxForm chatBox = ensureParentComponent();
+        ChatBoxForm chatBox = ensureParentFrom(ChatBoxForm.class);
         AssistantState assistantState = chatBox.getAssistantState();
         return assistantState.getAvailability();
     }

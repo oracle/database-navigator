@@ -24,6 +24,8 @@ import com.dbn.assistant.tool.impl.SourceCodeEditorToolImpl;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 
+import java.sql.SQLException;
+
 import static com.dbn.assistant.tool.AssistantToolCategory.IDE_ACTION_INVOKER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
 
@@ -43,11 +45,23 @@ public interface SourceCodeEditorTool extends AssistantTool {
      *                 TOOLS                     *
      *********************************************/
 
+    @Tool(name = "OPEN_PROGRAM_CODE_EDITOR")
+    @UtilitySpec(
+            name = "Open program code editor",
+            description = "Opens the code editor of a given program in the IDE",
+            summary = "%s.%s - %s")
+    void openProgramCodeEditor(
+            @P("Schema name") String schemaName,
+            @P("Program name") String programName,
+            @P("Program type (FUNCTION, PROCEDURE, PACKAGE or TYPE)") String programType) throws SQLException;
+
+
     @Tool(name = "OPEN_TYPE_CODE_EDITOR")
     @UtilitySpec(
             name = "Open type code editor",
             description = "Opens the code editor of the specified user-defined type in the IDE",
-            summary = "%s.%s")
+            summary = "%s.%s",
+            discontinued = true) // token optimization (replaced by generic OPEN_PROGRAM_CODE_EDITOR)
     void openTypeCodeEditor(
             @P("Schema name") String schemaName,
             @P("Type name") String typeName);
@@ -57,7 +71,8 @@ public interface SourceCodeEditorTool extends AssistantTool {
     @UtilitySpec(
             name = "Open package code editor",
             description = "Opens the code editor of the specified package in the IDE",
-            summary = "%s.%s")
+            summary = "%s.%s",
+            discontinued = true) // token optimization (replaced by generic OPEN_PROGRAM_CODE_EDITOR)
     void openPackageEditor(
             @P("Schema name") String schemaName,
             @P("Package name") String packageName);
@@ -67,7 +82,8 @@ public interface SourceCodeEditorTool extends AssistantTool {
     @UtilitySpec(
             name = "Open function code editor",
             description = "Opens the editor of the specified function in the IDE",
-            summary = "%s.%s")
+            summary = "%s.%s",
+            discontinued = true) // token optimization (replaced by generic OPEN_PROGRAM_CODE_EDITOR)
     void openFunctionCodeEditor(
             @P("Schema name") String schemaName,
             @P("Function name") String functionName);
@@ -77,7 +93,8 @@ public interface SourceCodeEditorTool extends AssistantTool {
     @UtilitySpec(
             name = "Open procedure code editor",
             description = "Opens the editor of the specified procedure in the IDE",
-            summary = "%s.%s")
+            summary = "%s.%s",
+            discontinued = true) // token optimization (replaced by generic OPEN_PROGRAM_CODE_EDITOR)
     void openProcedureCodeEditor(
             @P("Schema name") String schemaName,
             @P("Procedure name") String procedureName);

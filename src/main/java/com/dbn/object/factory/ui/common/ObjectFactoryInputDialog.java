@@ -19,6 +19,7 @@ package com.dbn.object.factory.ui.common;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.message.InteractiveMessage;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.thread.ProgressRunnable;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Conditional;
 import com.dbn.common.util.Dialogs;
@@ -29,6 +30,7 @@ import com.dbn.object.factory.DatabaseObjectFactory;
 import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ui.FunctionFactoryInputForm;
 import com.dbn.object.factory.ui.JavaFactoryInputForm;
+import com.dbn.object.factory.ui.ModelFactoryInputForm;
 import com.dbn.object.factory.ui.ProcedureFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -53,7 +55,7 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
         this.schema = DBObjectRef.of(schema);
         this.objectType = objectType;
         this.initialInput = initialInput;
-        setModal(false);
+//        setModal(false);
         setResizable(true);
         init();
     }
@@ -66,7 +68,8 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
                 objectType == DBObjectType.FUNCTION ? new FunctionFactoryInputForm(this, schema, objectType, 0) :
                 objectType == DBObjectType.PROCEDURE ? new ProcedureFactoryInputForm(this, schema, objectType, 0) :
                 objectType == DBObjectType.JAVA_CLASS ? new JavaFactoryInputForm(this, schema, 0) :
-                                Failsafe.nn(null);
+                objectType == DBObjectType.AI_MODEL ? new ModelFactoryInputForm(this,schema, objectType,0):
+                        Failsafe.nn(null);
 
         if (initialInput != null) {
             inputForm.restoreUserInput(initialInput);
@@ -94,12 +97,16 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
         ObjectFactoryInput input = form.createFactoryInput();
         super.doOKAction();
 
-        Progress.prompt(
-                getProject(),
-                getSchema(), true,
-                "Creating " + input.getObjectTypeName(),
-                "Creating " + input.getObjectDescription(),
-                p -> invokeObjectFactory(project, schema, objectType, input));
+        String title = "Creating " + input.getObjectTypeName();
+        String text = "Creating " + input.getObjectDescription();
+        ProgressRunnable invoker = p -> invokeObjectFactory(project, schema, objectType, input);
+
+        if (isRootDialog()) {
+            // allow operation to be sent to the background
+            Progress.prompt(project, schema, true, title, text, invoker);
+        } else {
+            Progress.modal(project, schema, true, title, text, invoker);
+        }
     }
 
     private void invokeObjectFactory(Project project, DBSchema schema, DBObjectType objectType, ObjectFactoryInput input) {

@@ -30,7 +30,7 @@ public enum AIProviderId implements Constant<AIProviderId> {
     OCI_GEN_AI,
     OLLAMA,
     OPEN_AI,
-    XAI,
+    X_AI,
     ;
 
     public static AIProviderId get(String id) {

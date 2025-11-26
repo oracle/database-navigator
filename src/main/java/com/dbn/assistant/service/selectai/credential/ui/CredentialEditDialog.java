@@ -23,23 +23,27 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBCredential;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBCredentialType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
+import java.util.List;
 import java.util.Set;
 
 public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
 
   private final ConnectionRef connection;
   private final DBObjectRef<DBCredential> credential;
+  private final List<DBCredentialType> credentialTypes;
   private final Set<String> usedCredentialNames;
 
 
-  public CredentialEditDialog(ConnectionHandler connection, @Nullable DBCredential credential, @NotNull Set<String> usedCredentialNames) {
+  public CredentialEditDialog(ConnectionHandler connection, @Nullable DBCredential credential, @Nullable List<DBCredentialType> credentialTypes, @NotNull Set<String> usedCredentialNames) {
     super(connection.getProject(), getDialogTitle(credential), true);
     this.connection = ConnectionRef.of(connection);
     this.credential = DBObjectRef.of(credential);
+    this.credentialTypes = credentialTypes;
     this.usedCredentialNames = usedCredentialNames;
     setDefaultSize(600, 420);
     init();
@@ -80,7 +84,7 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
   }
   @Override
   protected @NotNull CredentialEditForm createForm() {
-    return new CredentialEditForm(this, DBObjectRef.get(credential), usedCredentialNames);
+    return new CredentialEditForm(this, DBObjectRef.get(credential), credentialTypes, usedCredentialNames);
   }
 
 

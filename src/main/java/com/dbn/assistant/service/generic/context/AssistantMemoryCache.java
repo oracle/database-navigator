@@ -40,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.assistant.chat.message.AuthorType.USER;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_MEMORY_CACHE;
+import static com.dbn.common.util.Lists.getPreviousElement;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static dev.langchain4j.data.message.ToolExecutionResultMessage.toolExecutionResultMessage;
 import static java.util.Collections.singletonList;
@@ -58,15 +59,23 @@ public class AssistantMemoryCache extends AssistantStateExtension implements Cha
                     cleanupChatMemory(v));
     }
 
-    private static boolean isValidMessage(ChatMessage message) {
+    private static boolean isValidMessage(ChatMessage message, List<ChatMessage> messages) {
+        // empty ai messages
         if (message instanceof AiMessage) {
-
             AiMessage aiMessage = (AiMessage) message;
-            List<ToolExecutionRequest> toolExecutionRequests = aiMessage.toolExecutionRequests();
-            boolean hasTools = toolExecutionRequests != null && !toolExecutionRequests.isEmpty();
+            boolean hasToolRequests = aiMessage.hasToolExecutionRequests();
             boolean hasContent = isNotEmpty(aiMessage.text());
 
-            return hasTools || hasContent;
+            return hasToolRequests || hasContent;
+        }
+
+        // retried user messages
+        if (message instanceof UserMessage) {
+            ChatMessage previousMessage = getPreviousElement(messages, message);
+            if (previousMessage instanceof UserMessage) {
+                UserMessage previousUserMessage = (UserMessage) previousMessage;
+                if (previousUserMessage.equals(message)) return false;
+            }
         }
         return true;
     }
@@ -85,13 +94,13 @@ public class AssistantMemoryCache extends AssistantStateExtension implements Cha
 
     private ChatMemory cleanupChatMemory(ChatMemory memory) {
         var messages = memory.messages();
-        boolean hasEmptyMessages = messages.stream().anyMatch(m -> !isValidMessage(m));
-        if (hasEmptyMessages) {
-            ChatMemory cleanMemory = createMemory(memory.id());
-            messages.stream().filter(m -> isValidMessage(m)).forEach(m -> cleanMemory.add(m));
-            return cleanMemory;
+        ChatMemory cleanMemory = createMemory(memory.id());
+        for (ChatMessage message : messages) {
+            if (isValidMessage(message, messages)) {
+                cleanMemory.add(message);
+            }
         }
-        return memory;
+        return cleanMemory;
     }
 
     private static ChatMemory createMemory(Object memoryId) {
@@ -115,6 +124,7 @@ public class AssistantMemoryCache extends AssistantStateExtension implements Cha
 
         for (var message : messages) {
             if (chat.isRecentPrompt(message)) return; // skip the last prompt from memory restore (will be added by the framework)
+            if (chat.isFollowedByError(message)) continue;
 
             AuthorType author = message.getAuthor();
             String content = message.getContent();

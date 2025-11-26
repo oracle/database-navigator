@@ -30,8 +30,13 @@ import static com.dbn.common.util.Unsafe.cast;
 
 public class AssistantToolData {
     private static final List<AssistantToolFactory> factories = AssistantToolFactories.list();
-    private static final Map<String, AssistantToolFactory<?>> factoryCache = new ConcurrentHashMap<>();
+    private static final Map<String, AssistantToolFactory<?>> utilityMappings = new ConcurrentHashMap<>();
+    private static final Map<AssistantToolType, AssistantToolFactory> typeMappings = factories();
 
+
+    private static Map<AssistantToolType, AssistantToolFactory> factories() {
+        return factories.stream().collect(Collectors.toMap(AssistantToolFactory::getToolType, f -> f));
+    }
 
     public static AssistantToolCategory[] getToolCategories() {
         return factories
@@ -41,10 +46,10 @@ public class AssistantToolData {
                 .toArray(AssistantToolCategory[]::new);
     }
 
-    public static List<AssistantToolType> getToolTypes(AssistantToolCategory category) {
+    public static List<AssistantToolType> getToolTypes(@Nullable AssistantToolCategory category) {
         return factories
                 .stream()
-                .filter(t -> t.getToolCategory() == category)
+                .filter(t -> category == null || t.getToolCategory() == category)
                 .map(t -> t.getToolType())
                 .collect(Collectors.toList());
     }
@@ -62,7 +67,7 @@ public class AssistantToolData {
     }
 
     private static <T extends AssistantTool> AssistantToolFactory<T> getToolFactory(String utilityName) {
-        return cast(factoryCache.computeIfAbsent(utilityName, n -> findToolFactory(n)));
+        return cast(utilityMappings.computeIfAbsent(utilityName, n -> findToolFactory(n)));
     }
 
     private static <T extends AssistantTool> AssistantToolFactory<T> findToolFactory(String utilityName) {
@@ -113,5 +118,25 @@ public class AssistantToolData {
         if (method == null) return null;
 
         return method.getAnnotation(UtilitySpec.class);
+    }
+
+    public static String getToolName(AssistantToolType toolType) {
+        AssistantToolFactory factory = typeMappings.get(toolType);
+        return factory.getToolName();
+    }
+
+    public static String getToolDescription(AssistantToolType toolType) {
+        AssistantToolFactory factory = typeMappings.get(toolType);
+        return factory.getToolDescription();
+    }
+
+    public static AssistantToolCategory getToolCategory(AssistantToolType toolType) {
+        AssistantToolFactory factory = typeMappings.get(toolType);
+        return factory.getToolCategory();
+    }
+
+    public static boolean isInteractive(AssistantToolType toolType) {
+        AssistantToolFactory factory = typeMappings.get(toolType);
+        return factory.isInteractive();
     }
 }

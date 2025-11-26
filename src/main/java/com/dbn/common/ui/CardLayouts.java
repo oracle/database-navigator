@@ -25,7 +25,10 @@ import javax.swing.JPanel;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class CardLayouts {
@@ -52,6 +55,22 @@ public class CardLayouts {
         addCard(container, component.getComponent(), identifier);
     }
 
+    public static Component removeCard(JPanel container, Object identifier) {
+        CardLayout cardLayout = (CardLayout) container.getLayout();
+        String name = Objects.toString(identifier);
+
+        Component[] components = container.getComponents();
+        for (Component component : components) {
+            if (Objects.equals(component.getName(), name)) {
+                cardLayout.removeLayoutComponent(component);
+                container.remove(component);
+                return component;
+            }
+        }
+        return null;
+    }
+
+
     public static void showCard(JPanel container, @Nullable Object identifier) {
         CardLayout cardLayout = (CardLayout) container.getLayout();
         cardLayout.show(container, Objects.toString(identifier));
@@ -76,6 +95,10 @@ public class CardLayouts {
             if (component.isVisible()) return component.getName();
         }
         return null;
+    }
+
+    public static List<String> cardIds(JPanel container) {
+        return Arrays.stream(container.getComponents()).map(c -> c.getName()).collect(Collectors.toList());
     }
 
     public static boolean isBlankCard(String identifier) {

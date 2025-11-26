@@ -55,7 +55,7 @@ public class CohereModelFactory extends AbstractModelFactory {
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return CohereEmbeddingModel.builder()
                 .modelName(input.getModelName())
-                .baseUrl(input.getUrl())
+                .baseUrl(input.getBaseUrl())
                 .apiKey(input.getTokenString())
                 //.httpClientBuilder(createHttpClientBuilder())
                 .build();
