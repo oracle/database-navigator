@@ -44,6 +44,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.FileChoosers.extensionFilter;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.toUpperCase;
@@ -57,7 +58,7 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
   public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFile().
           withTitle("Select ONNX Model File").
           withDescription("Select a valid ONNX file").
-          withExtensionFilter("onnx");
+          withFileFilter(extensionFilter("onnx"));
 
   private JPanel mainPanel;
   private JPanel headerPanel;
