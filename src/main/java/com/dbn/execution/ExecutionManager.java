@@ -22,6 +22,7 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.navigation.NavigationInstructions;
+import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
@@ -185,14 +186,11 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
     public void addExecutionResult(MethodExecutionResult executionResult) {
         showExecutionConsole(c -> c.addResult(executionResult));
     }
-    // todo add it here vector
+
     public void addExecutionResult(VectorEmbeddingExecutionResult executionResult) {
-        Dispatch.run(() -> {
-            showExecutionConsole();
-            ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
-            executionConsoleForm.addResult(executionResult);
-        });
+        showExecutionConsole(c -> c.addResult(executionResult));
     }
+
     public void addExecutionResult(JavaExecutionResult executionResult) {
         showExecutionConsole(c -> c.addResult(executionResult));
     }
