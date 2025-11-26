@@ -38,6 +38,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.FocusEvent.Cause;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -198,8 +199,12 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         focusComponent.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                // ignore temporary focus loss events (e.g. JCheckBox losing focus in favor of the popup)
+                // ignore temporary focus loss events (e.g. JComboBox losing focus in favor of the popup)
                 if (e.isTemporary()) return;
+
+                Cause focusCause = e.getCause();
+                if (focusCause == Cause.UNKNOWN) return;
+                if (focusCause == Cause.ACTIVATION) return;
 
                 Component oppositeComponent = e.getOppositeComponent();
                 if (oppositeComponent instanceof JButton) {
@@ -207,7 +212,7 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
                     JButton button = (JButton) oppositeComponent;
 
                     DBNDialog dialog = getDialog();
-                    if (dialog.isCancelButton(button)) return;
+                    if (dialog.isCancelButton(button) && focusCause == Cause.MOUSE_EVENT) return;
                 }
 
                 VISITED.set(component, true);

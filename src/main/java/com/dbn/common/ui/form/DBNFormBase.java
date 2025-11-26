@@ -68,7 +68,6 @@ import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
 import static com.dbn.common.ui.util.Accessibility.initComponentGroupsAccessibility;
 import static com.dbn.common.ui.util.Accessibility.initCustomComponentAccessibility;
 import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
-import static com.dbn.common.ui.util.UserInterface.findTopLeftmostFocusComponent;
 import static com.dbn.common.ui.util.UserInterface.hasChildComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Unsafe.cast;
@@ -109,13 +108,6 @@ public abstract class DBNFormBase
         return dialog == null ?
                 DBNFormValidator.SURROGATE :
                 dialog.getFormValidator();
-    }
-
-    @Nullable
-    @Override
-    public JComponent getPreferredFocusedComponent() {
-        return findTopLeftmostFocusComponent(getMainComponent());
-        //return findChildComponent(getMainComponent(), c -> isFocusableComponent(c));
     }
 
     public void focusPreferredComponent() {

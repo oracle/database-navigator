@@ -511,9 +511,8 @@ public class UserInterface {
         private void update(Component component) {
             if (component instanceof JComponent) {
                 Point location = SwingUtilities.convertPoint(component, ZERO_POINT, rootContainer);
-                if ((location.x < x && location.y < y) ||
-                        (location.y == y && location.x < x) ||
-                        (location.x == x && location.y < y)) {
+                if (location.y < y || (location.y == y && location.x < x)) {
+                    // further to the top / same level but further to the left
                     x = location.x;
                     y = location.y;
                     this.component = (JComponent) component;
