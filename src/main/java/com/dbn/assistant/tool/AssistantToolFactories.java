@@ -18,7 +18,9 @@ package com.dbn.assistant.tool;
 
 import com.dbn.common.extension.ExtensionPointCache;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AssistantToolFactories extends ExtensionPointCache<AssistantToolType, AssistantToolFactory> {
     private static final AssistantToolFactories INSTANCE = new AssistantToolFactories();
@@ -31,6 +33,10 @@ public class AssistantToolFactories extends ExtensionPointCache<AssistantToolTyp
     }
 
     public static List<AssistantToolFactory> list() {
-        return INSTANCE.all();
+        return INSTANCE
+                .all()
+                .stream()
+                .sorted(Comparator.comparingInt(c -> c.getToolCategory().ordinal()))
+                .collect(Collectors.toList());
     }
 }

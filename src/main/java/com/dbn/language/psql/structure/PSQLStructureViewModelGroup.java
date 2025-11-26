@@ -56,7 +56,7 @@ public class PSQLStructureViewModelGroup implements Group {
     private final ItemPresentation itemPresentation = new ItemPresentation(){
         @Override
         public String getPresentableText() {
-            return objectType.getCapitalizedListName();
+            return objectType.getTitleCasedListName();
         }
 
         @Override

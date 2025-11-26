@@ -114,7 +114,10 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
         addCredentialButton.setText(null);
 
         ConnectionHandler connection = getConnection();
-        addCredentialButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(connection, null, Set.of())));
+        addCredentialButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(
+                connection, null,
+                null,
+                Set.of())));
 
         Project project = connection.getProject();
         ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, e -> {

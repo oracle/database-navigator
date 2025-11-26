@@ -72,6 +72,6 @@ public class ExecutionResultVariablesDialogAction extends AbstractExecutionResul
         }
         presentation.setVisible(visible);
         presentation.setText(txt("app.execution.action.OpenVariablesDialog"));
-        presentation.setIcon(Icons.EXEC_RESULT_OPEN_EXEC_DIALOG);
+        presentation.setIcon(Icons.EXEC_RESULT_INPUT_FORM_RERUN);
     }
 }

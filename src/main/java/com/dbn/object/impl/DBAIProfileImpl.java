@@ -89,21 +89,23 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
             double temperature,
             boolean interactive,
             boolean enabled) throws SQLException {
-        super(parent, new DBProfileMetadata.Record(
-                name,
-                credentialName,
-                region,
-                ociCompartmentId,
-                ociEndpointId,
-                ociRuntimeType,
-                ociApiFormat,
-                provider.getApiName(),
-                model.getApiName(),
-                description,
-                objectList,
-                temperature,
-                enabled,
-                interactive));
+        super(parent, DBProfileMetadata.Record
+                .builder()
+                .profileName(name)
+                .credentialName(credentialName)
+                .region(region)
+                .ociCompartmentId(ociCompartmentId)
+                .ociEndpointId(ociEndpointId)
+                .ociRuntimeType(ociRuntimeType)
+                .ociApiFormat(ociApiFormat)
+                .provider(provider.getApiName())
+                .model(model.getApiName())
+                .description(description)
+                .objectList(objectList)
+                .temperature(temperature)
+                .enabled(enabled)
+                .interactive(interactive)
+                .build());
     }
 
     DBAIProfileImpl(DBSchema parent, DBProfileMetadata metadata) throws SQLException {

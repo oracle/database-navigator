@@ -79,7 +79,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
 
     private void initHeaderPanel() {
         DBNHeaderForm headerForm = new DBNHeaderForm(this, batch.getContextObject());
-        headerPanel.add(headerForm.getMainComponent());
+        headerPanel.add(headerForm.getComponent());
     }
 
     private void initProgressBar() {

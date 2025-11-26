@@ -18,18 +18,25 @@ package com.dbn.event.notification.model;
 
 import com.dbn.common.data.Data;
 import com.dbn.common.list.FilteredList;
+import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.table.DBNMutableTableModel;
 import com.dbn.common.ui.table.DBNTableGutterModel;
 import com.dbn.common.ui.table.DBNTableWithGutterModel;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionRef;
+import com.dbn.event.notification.EventNotificationData;
+import com.dbn.event.notification.EventNotificationManager;
 import com.dbn.event.notification.filter.EventNotificationFilter;
 import com.dbn.event.notification.filter.EventNotificationFilterType;
-import com.dbn.event.service.EventHistoryService;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.ListModel;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +49,7 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
     private List<DataChangeNotification> notifications = FilteredList.stateful(filter);
 
     private final ListModel gutterModel = new DBNTableGutterModel<>(this);
-    private final ConnectionId connectionId;
+    private final ConnectionRef connection;
 
     private final String COLUMN_TABLE = "Table Name";
     private final String COLUMN_OPERATION = "Operation";
@@ -56,16 +63,37 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
             COLUMN_ROWID,
             COLUMN_REG_ID};
 
-    public DataChangeNotificationBundle(ConnectionId connectionId) {
-        this.connectionId = connectionId;
+    public DataChangeNotificationBundle(ConnectionHandler connection) {
+        this.connection = ConnectionRef.of(connection);
+    }
+
+    public ConnectionId getConnectionId() {
+        return connection.getConnectionId();
+    }
+
+    @NotNull
+    public ConnectionHandler getConnection() {
+        return ConnectionRef.ensure(connection);
+    }
+
+    @NotNull
+    private Project getProject() {
+        return getConnection().getProject();
     }
 
     public void load() {
-        EventHistoryService eventHistoryService = EventHistoryService.getInstance();
-        List<DataChangeNotification> events = eventHistoryService.getAllEventsForConnection(connectionId);
+        ConnectionId connectionId = getConnectionId();
+        EventNotificationData notificationData = getNotificationData();
+        List<DataChangeNotification> events = notificationData.getNotifications(connectionId);
         this.notifications = FilteredList.stateful(filter, events);
 
         notifyRowChanges();
+    }
+
+    private EventNotificationData getNotificationData() {
+        Project project = getProject();
+        EventNotificationManager notificationManager = EventNotificationManager.getInstance(project);
+        return notificationManager.getNotificationData();
     }
 
     @Override
@@ -90,7 +118,7 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
     public Object getValue(DataChangeNotification row, int column) {
         if (row == null) return null;
         switch (column) {
-            case 0: return row.getTableName();
+            case 0: return row.getTableIdentifier();
             case 1: return row.getOperation();
             case 2: return row.getTimestamp();
             case 3: return row.getRowId();
@@ -102,6 +130,11 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
 
     @Override
     public String getPresentableValue(DataChangeNotification row, int column) {
+        if (column == 2) {
+            Formatter formatter = Formatter.getInstance(getProject());
+            Date date = new Date(row.getTimestamp());
+            return formatter.formatDateTime(date);
+        }
         return Data.asString(getValue(row, column));
     }
 
@@ -115,11 +148,11 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
         return DataChangeNotification.class;
     }
 
-    private List<String> getTableNames() {
+    private List<String> getTableIdentifiers() {
         return FilteredList
                 .unwrap(notifications)
                 .stream()
-                .map(l -> l.getTableName())
+                .map(l -> l.getTableIdentifier())
                 .distinct()
                 .sorted()
                 .collect(Collectors.toList());
@@ -128,7 +161,7 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
     public List<String> getDistinctValues(EventNotificationFilterType filterType) {
         switch (filterType) {
             case TABLE:
-                return getTableNames();
+                return getTableIdentifiers();
             case OPERATION:
                 return List.of("INSERT", "UPDATE", "DELETE");
         }

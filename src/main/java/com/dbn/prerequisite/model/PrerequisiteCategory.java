@@ -20,7 +20,9 @@ package com.dbn.prerequisite.model;
  * Generic classification of prerequisites
  */
 public enum PrerequisiteCategory {
-    GRANT,  // user access grant
-    CONFIG, // environment configuration
-    FEATURE // feature availability
+    GRANT,   // user access grant
+    CONFIG,  // environment configuration
+    FEATURE, // feature availability
+    VERSION, // minimum database version
+    ;
 }

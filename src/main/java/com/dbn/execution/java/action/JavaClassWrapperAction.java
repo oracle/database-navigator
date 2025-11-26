@@ -38,7 +38,7 @@ import java.util.List;
 
 import static com.dbn.common.operation.DatabaseOperation.CREATE_JAVA_WRAPPER;
 import static com.dbn.common.util.Messages.showWarningDialog;
-import static com.dbn.common.util.Naming.capitalizeWords;
+import static com.dbn.common.util.Titles.titleCased;
 import static com.dbn.nls.NlsResources.txt;
 
 public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
@@ -63,7 +63,7 @@ public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
     private void createExecutionWrappers(@NotNull AnActionEvent e, DBJavaClass javaClass) {
         Project project = javaClass.getProject();
         String listName = "executable elements";
-        String title = txt("msg.objects.title.LoadingObjects", capitalizeWords(listName));
+        String title = txt("msg.objects.title.LoadingObjects", titleCased(listName));
         ConnectionAction.invoke(title, true, javaClass,
                 action -> Progress.prompt(project, javaClass, true,
                         txt("prc.objects.title.LoadingObjects"),

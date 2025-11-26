@@ -118,6 +118,10 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         this.objectName = objectName.intern();
     }
 
+    public static String getObjectName(@Nullable DBObjectRef<?> object) {
+        return object == null ? null : object.getObjectName();
+    }
+
     public String getObjectName(boolean quoted) {
         if (!quoted) return objectName;
 
@@ -581,34 +585,15 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     }
 
     private static boolean deepEqual(DBObjectRef local, DBObjectRef remote) {
-        if (local == null && remote == null) {
-            return true;
-        }
+        if (local == null && remote == null) return true;
+        if (local == null || remote == null) return false;
+        if (local == remote) return true;
 
-        if (local == null || remote == null) {
-            return false;
-        }
+        if (local.getConnectionId() != remote.getConnectionId()) return false;
+        if (local.getObjectType() != remote.getObjectType()) return false;
+        if (local.getOverload() != remote.getOverload()) return false;
 
-        if (local == remote) {
-            return true;
-        }
-
-        if (local.getObjectType() != remote.getObjectType()) {
-            return false;
-        }
-
-        if (local.getOverload() != remote.getOverload()) {
-            return false;
-        }
-
-        if (local.getConnectionId() != remote.getConnectionId()) {
-            return false;
-        }
-
-        if (!Objects.equals(local.getObjectName(), remote.getObjectName())) {
-            return false;
-        }
-
+        if (!Objects.equals(local.getObjectName(), remote.getObjectName())) return false;
         return deepEqual(local.getParentRef(), remote.getParentRef());
     }
 

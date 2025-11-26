@@ -20,11 +20,11 @@ import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
-import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Viewers;
@@ -58,10 +58,11 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
-public class StatementExecutionInputForm extends DBNFormBase implements ComponentAligner.Container {
+public class StatementExecutionInputForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel variablesPanel;
     private JPanel executionOptionsPanel;
@@ -130,7 +131,7 @@ public class StatementExecutionInputForm extends DBNFormBase implements Componen
             preferredSize.setSize(preferredSize.getWidth() + 20, preferredSize.getHeight());
             variablesScrollPane.setPreferredSize(preferredSize);
 
-            ComponentAligner.alignFormComponents(this);
+            alignFormFields(this);
         }
 
         executionOptionsForm = new ExecutionOptionsForm(this, executionInput, debuggerType);
@@ -155,8 +156,9 @@ public class StatementExecutionInputForm extends DBNFormBase implements Componen
     }
 
     @Override
-    public List<StatementExecutionVariableValueForm> getAlignableForms() {
-        return variableValueForms;
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerForms(variableValueForms);
     }
 
     @NotNull

@@ -23,14 +23,24 @@ import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.object.DBTrigger;
 import com.dbn.object.management.ObjectManagementAdapterFactory;
 import com.dbn.object.management.ObjectManagementAdapterFactoryBase;
+import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
+
+import static com.dbn.common.constant.Constant.array;
+import static com.dbn.object.type.DBObjectType.DATABASE_TRIGGER;
+import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
 
 /**
  * Implementation of {@link ObjectManagementAdapterFactory} for objects of type {@link DBTrigger}
  * @author Dan Cioca (Oracle)
  */
 public class DBTriggerManagementAdapter extends ObjectManagementAdapterFactoryBase<DBTrigger> {
+    @Override
+    public DBObjectType[] getObjectTypes() {
+        return array(DATASET_TRIGGER, DATABASE_TRIGGER);
+    }
+
     @Override
     protected void createObject(ConnectionHandler connection, DBNConnection conn, DBTrigger object) throws SQLException {
         throw new UnsupportedOperationException(); // TODO

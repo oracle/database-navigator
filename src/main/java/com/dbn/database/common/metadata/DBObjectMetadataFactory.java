@@ -19,6 +19,7 @@ package com.dbn.database.common.metadata;
 import com.dbn.common.content.DynamicContentType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.metadata.impl.DBArgumentMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBAIModelMetaDataImpl;
 import com.dbn.database.common.metadata.impl.DBCharsetMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBClusterMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBColumnMetadataImpl;
@@ -97,6 +98,7 @@ public class DBObjectMetadataFactory {
             case CLUSTER:             return new DBClusterMetadataImpl(resultSet);
             case CREDENTIAL:          return new DBCredentialMetadataImpl(resultSet);
             case AI_PROFILE:          return new DBProfileMetadataImpl(resultSet);
+            case AI_MODEL:            return new DBAIModelMetaDataImpl(resultSet);
             case OBJECT_PRIVILEGE:    return new DBPrivilegeMetadataImpl(resultSet);
             case SYSTEM_PRIVILEGE:    return new DBPrivilegeMetadataImpl(resultSet);
             case PROCEDURE:           return new DBProcedureMetadataImpl(resultSet);

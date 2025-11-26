@@ -68,7 +68,19 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
 
         addProfileActions(actionGroup, declaredProfiles);
         addProfileActions(actionGroup, implicitProfiles);
-        addProfileActions(actionGroup, potentialProfiles);
+
+        boolean emptyStup = declaredProfiles.isEmpty() && implicitProfiles.isEmpty();
+
+        if (emptyStup) {
+            addProfileActions(actionGroup, potentialProfiles);
+        } else {
+            // group new profiles
+            actionGroup.addSeparator();
+            DefaultActionGroup newProvidersGroup = new DefaultActionGroup("New", true);
+            actionGroup.add(newProvidersGroup);
+            addProfileActions(newProvidersGroup, potentialProfiles);
+        }
+
 
         return actionGroup;
     }
@@ -88,7 +100,6 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements Assis
         if (profiles.isEmpty()) return;
 
         profiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
-        actionGroup.addSeparator();
     }
 
     @Override

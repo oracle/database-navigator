@@ -62,7 +62,7 @@ public final class DBNSelector extends JPanel implements UIResource {
     }
 
     public void bindComponent(JComponent component) {
-        Mouse.onMouseClick(component, BUTTON1, 1, e ->  displayPopup(component));
+        Mouse.onMousePress(component, BUTTON1, e ->  displayPopup(component));
     }
 
     private void initAction(String tooltip, Runnable runnable) {

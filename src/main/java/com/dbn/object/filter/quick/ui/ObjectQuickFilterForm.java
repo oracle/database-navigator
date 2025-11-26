@@ -28,7 +28,6 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.object.DBSchema;
@@ -108,7 +107,7 @@ public class ObjectQuickFilterForm extends DBNFormBase {
         DatabaseEntity parentElement = objectList.getParentEntity();
         String headerText = "[" + connection.getName() + "] " +
                 (parentElement instanceof DBSchema ? (parentElement.getName() + " - ") : "") +
-                Naming.capitalizeWords(objectList.getObjectType().getName()) + " filters";
+                objectList.getObjectType().getTitleCasedName() + " filters";
         Color headerBackground = connection.getEnvironmentType().getColor();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, headerText, headerIcon, headerBackground);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);

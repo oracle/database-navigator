@@ -192,6 +192,7 @@
         <projectService serviceImplementation="com.dbn.diagnostics.DiagnosticsManager"/>
         <projectService serviceImplementation="com.dbn.diagnostics.ParserDiagnosticsManager"/>
         <projectService serviceImplementation="com.dbn.batch.DatabaseBatchManager"/>
+        <projectService serviceImplementation="com.dbn.operation.DatabaseOperationManager"/>
         <projectService serviceImplementation="com.dbn.browser.DatabaseBrowserManager"/>
         <projectService serviceImplementation="com.dbn.common.environment.EnvironmentManager"/>
         <projectService serviceImplementation="com.dbn.common.expression.ExpressionEvaluationManager"/>
@@ -222,6 +223,7 @@
         <projectService serviceImplementation="com.dbn.event.notification.EventNotificationManager"/>
         <projectService serviceImplementation="com.dbn.event.registration.EventRegistrationManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
+        <projectService serviceImplementation="com.dbn.vector.DatabaseVectorManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.SourceCodeManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.diff.SourceCodeDiffManager"/>
         <projectService serviceImplementation="com.dbn.editor.data.DatasetEditorManager"/>
@@ -251,6 +253,8 @@
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
     </extensions>
     <extensionPoints>
+        <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterFactory" dynamic="true"/>
+
         <extensionPoint name="assistantAdapter" qualifiedName="com.dbn.assistantAdapter" interface="com.dbn.assistant.adapter.AssistantAdapter" dynamic="true"/>
         <extensionPoint name="assistantModelFactory" qualifiedName="com.dbn.assistantModelFactory" interface="com.dbn.assistant.service.generic.model.AssistantModelFactory" dynamic="true"/>
         <extensionPoint name="assistantModelInvoker" qualifiedName="com.dbn.assistantModelInvoker" interface="com.dbn.assistant.service.generic.model.AssistantModelInvoker" dynamic="true"/>
@@ -260,6 +264,14 @@
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
     </extensionPoints>
     <extensions defaultExtensionNs="com.dbn">
+        <!--object management adapters-->
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBCredentialManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIProfileManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIModelManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBTriggerManagementAdapter"/>
+        <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBJsonViewManagementAdapter"/>
+
         <!--shared prerequisites-->
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TABLE"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_PROCEDURE"/>
@@ -287,6 +299,11 @@
         <prerequisiteRequirementEvaluator implementation="com.dbn.event.prerequisite.ChangeNotificationPrerequisitesEvaluator"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.event.prerequisite.SystemPrivilege_CHANGE_NOTIFICATION"/>
         <prerequisiteDefinitionProvider implementation="com.dbn.event.prerequisite.ObjectPrivilege_EXECUTE_DBMS_CHANGE_NOTIFICATION"/>
+
+        <prerequisiteRequirementEvaluator implementation="com.dbn.vector.prerequisite.VectorEmbeddingsPrerequisitesEvaluator"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.ObjectPrivilege_EXECUTE_DBMS_VECTOR"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.ObjectPrivilege_EXECUTE_DBMS_VECTOR_CHAIN"/>
+        <prerequisiteDefinitionProvider implementation="com.dbn.vector.prerequisite.DatabaseVersion_VECTOR_SUPPORT"/>
 
         <!--database assistant extensions-->
         <assistantAdapter implementation="com.dbn.assistant.service.selectai.SelectAiAssistantAdapter"/>
@@ -392,10 +409,7 @@
         <group id="DBNavigator.ActionGroup.GenericAssistantContextActions" text="Assistant Chat-Box Profiles">
             <action class="com.dbn.assistant.service.generic.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectAssistantProfile"/>
             <action class="com.dbn.assistant.service.generic.action.ModelSelectDropdownAction" text="Select Model" id="DBNavigator.Actions.Assistant.SelectAssistantModel"/>
-            <group id="DBNavigator.Actions.Assistant.OpenSettings" text="Options" icon="AllIcons.General.GearPlain" popup="true">
-                <action class="com.dbn.assistant.service.generic.action.AssistantSettingsAction" text="Assistant Settings..." id="DBNavigator.Actions.Assistant.Settings"/>
-                <action class="com.dbn.assistant.service.generic.action.ToolSettingsAction" text="Tool Settings..." id="DBNavigator.Actions.Assistant.ToolSettings"/>
-            </group>
+            <action class="com.dbn.assistant.service.generic.action.AssistantSettingsAction" text="Assistant Settings..." icon="AllIcons.General.GearPlain" id="DBNavigator.Actions.Assistant.Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantChatActions" text="Assistant Chat Actions">
             <action class="com.dbn.assistant.chat.window.action.ChatExpandAllAction" text="Expand All" id="DBNavigator.Actions.Assistant.ExpandAll" icon="AllIcons.Actions.Expandall"/>
@@ -414,6 +428,9 @@
             <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$ExplainSQL" id="DBNavigator.Actions.Assistant.TypeExplain"/>
             <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Narrate" id="DBNavigator.Actions.Assistant.TypeNarrate"/>
             <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Chat" id="DBNavigator.Actions.Assistant.TypeChat"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.AssistantPromptActions" text="Assistant Prompt Actions">
+            <action class="com.dbn.assistant.service.generic.action.ToolSelectionAction" id="DBNavigator.Actions.Assistant.ToolSelection" text="Tools"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantPromptSubmitActions" text="Assistant Chat-Box Prompt">
             <action class="com.dbn.assistant.chat.window.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Assistant.SubmitPrompt" icon="AllIcons.Actions.Execute">
@@ -452,6 +469,7 @@
             <action class="com.dbn.menu.action.SessionBrowserOpenAction" text="Open Session Browser..." id="DBNavigator.Actions.MainMenu.OpenSessionBrowser" icon="com.dbn.common.icon.Icons.SESSION_BROWSER">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift S"/>
             </action>
+            <action class="com.dbn.menu.action.VectorToolboxOpenAction" text="Open Vector Toolbox..." id="DBNavigator.Actions.MainMenu.OpenVectorToolbox" icon="com.dbn.common.icon.Icons.VECTOR_TOOLBOX"/>
             <separator/>
             <action class="com.dbn.menu.action.MethodExecutionHistoryAction" text="Method Execution History" id="DBNavigator.Actions.MainMenu.MethodExecutionHistory">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>
@@ -461,7 +479,7 @@
             </action>
             <action class="com.dbn.menu.action.FileConnectionMappingsOpenAction" text="File Connection Mappings" id="DBNavigator.Actions.MainMenu.FileConnectionMappings"/>
             <action class="com.dbn.menu.action.ResourceMonitorOpenAction" text="Resource Monitor" id="DBNavigator.Actions.MainMenu.ResourceMonitor"/>
-            <action id="DBNavigator.Actions.MainMenu.MonitorEventsOpenAction" class="com.dbn.menu.action.MonitorDataChangeOpenAction" text="Events Monitor"/>
+            <action id="DBNavigator.Actions.MainMenu.MonitorEventsOpenAction" class="com.dbn.menu.action.MonitorDataChangeOpenAction" text="Data Events Monitor"/>
             <!--<action class="com.dbn.action.menu.PendingTransactionsOpenAction" text="Open Transactions" id="DBNavigator.Actions.MainMenu.PendingTransactions"/>-->
             <group class="com.dbn.prerequisite.action.PrerequisiteVerificationAction" popup="true" text="Prerequisite Verification" id="DBNavigator.Actions.MainMenu.PrerequisiteVerification"/> />
             <separator/>
@@ -581,7 +599,7 @@
             <action id="DBNavigator.Actions.ExecutionResult.ViewStatement" class="com.dbn.execution.statement.result.action.ExecutionResultViewStatementAction" text="Execution Result - View Statement" icon="AllIcons.Actions.Preview"/>
             <action id="DBNavigator.Actions.ExecutionResult.ViewRecord" class="com.dbn.execution.statement.result.action.ExecutionResultViewRecordAction" text="Execution Result - View Record" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_RECORD"/>
             <separator/>
-            <action id="DBNavigator.Actions.ExecutionResult.OpenVariablesDialog" class="com.dbn.execution.statement.result.action.ExecutionResultVariablesDialogAction" text="Execution Result - Open Variables Dialog" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPEN_EXEC_DIALOG"/>
+            <action id="DBNavigator.Actions.ExecutionResult.OpenVariablesDialog" class="com.dbn.execution.statement.result.action.ExecutionResultVariablesDialogAction" text="Execution Result - Open Variables Dialog" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM_RERUN"/>
             <action id="DBNavigator.Actions.ExecutionResult.FetchNextRecords" class="com.dbn.execution.statement.result.action.ExecutionResultResumeAction" text="Execution Result - Fetch Next Records" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RESUME"/>
             <action id="DBNavigator.Actions.ExecutionResult.RerunStatement" class="com.dbn.execution.statement.result.action.ExecutionResultRerunAction" text="Execution Result - Rerun Statement" icon="com.dbn.common.icon.Icons.EXEC_RESULT_RERUN"/>
             <separator/>
@@ -600,6 +618,10 @@
             <action id="DBNavigator.Actions.MethodExecutionResult.StopExecution" class="com.dbn.execution.method.result.action.MethodExecutionStopAction" text="Method Execution Result - Stop Execution" icon="AllIcons.Actions.Suspend"/>
             <separator/>
             <action id="DBNavigator.Actions.MethodExecutionResult.Settings" class="com.dbn.execution.method.result.action.ExecutionEngineSettingsAction" text="Method Execution Result - Open Execution Dialog" icon="AllIcons.General.GearPlain"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.VectorEmbeddingResult">
+            <action id="DBNavigator.Actions.VectorEmbeddingResult.Close" class="com.dbn.vector.action.VectorEmbeddingCloseAction" text="Vector Embedding Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
+            <action id="DBNavigator.Actions.VectorEmbeddingResult.Toolbox" class="com.dbn.vector.action.VectorEmbeddingToolboxAction" text="Vector Embedding Result - Open Vector Toolbox" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
         </group>
         <group id="DBNavigator.ActionGroup.MethodExecutionCursorResult">
             <action id="DBNavigator.Actions.MethodExecutionCursorResult.Find" class="com.dbn.execution.method.result.action.CursorResultFindAction" text="Method Execution Cursor Result - Find Data" icon="AllIcons.Actions.Find">
@@ -800,8 +822,6 @@
         <toolWindow id="DB Execution Console" anchor="bottom" factoryClass="com.dbn.execution.ExecutionConsoleToolWindowFactory" />
         <toolWindow id="DB Assistant" anchor="right" factoryClass="com.dbn.assistant.DatabaseAssistantToolWindowFactory"/>
         <toolWindow id="DB Events" anchor="bottom" factoryClass="com.dbn.event.EventMonitorToolWindowFactory" canCloseContents="true"/>
-
-        <!--        new tool window-->
 
         <fileType name="DBN-SQL" language="DBN-SQL" implementationClass="com.dbn.language.sql.SQLFileType" fieldName="INSTANCE" extensions="sql;ddl;vw"/>
         <fileType name="DBN-PSQL" language="DBN-PSQL" implementationClass="com.dbn.language.psql.PSQLFileType" fieldName="INSTANCE" extensions="psql;plsql;trg;prc;fnc;pkg;pks;pkb;tpe;tps;tpb"/>

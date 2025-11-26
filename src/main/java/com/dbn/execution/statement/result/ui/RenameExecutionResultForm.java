@@ -22,7 +22,7 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Strings;
 import com.dbn.execution.ExecutionManager;
-import com.dbn.execution.statement.result.StatementExecutionResult;
+import com.dbn.execution.ExecutionResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +42,7 @@ public class RenameExecutionResultForm extends DBNFormBase {
     private JTextField resultNameTextField;
     private JCheckBox stickyCheckBox;
 
-    RenameExecutionResultForm(RenameExecutionResultDialog parent, @NotNull StatementExecutionResult executionResult) {
+    RenameExecutionResultForm(RenameExecutionResultDialog parent, @NotNull ExecutionResult executionResult) {
         super(parent);
 
         DBNHeaderForm headerForm = new DBNHeaderForm(this,

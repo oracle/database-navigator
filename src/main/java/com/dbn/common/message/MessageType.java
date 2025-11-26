@@ -27,6 +27,7 @@ public enum MessageType {
     ERROR,
     SYSTEM,
     QUESTION,
+    PROCESSING,
     NEUTRAL;
 
 

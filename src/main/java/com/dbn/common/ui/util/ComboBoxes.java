@@ -81,7 +81,7 @@ public class ComboBoxes {
         DBNComboBoxModel<T> model = new DBNComboBoxModel<>(options);
         comboBox.setModel(model);
         initComboBoxRenderer(comboBox);
-        if (options.contains(selection)) {
+        if (selection != null && options.contains(selection)) {
             setSelection(comboBox, selection);
         }
         VISITED.set(comboBox, false); // reset validation "visited" marker

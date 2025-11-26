@@ -72,6 +72,10 @@ public class FileChoosers {
         return new FileChooserDescriptor(true, true, false, false, false, false).withShowHiddenFiles(true);
     }
 
+    public static FileChooserDescriptor multipleFiles() {
+        return new FileChooserDescriptor(true, true, false, false, false, true).withShowHiddenFiles(true);
+    }
+
     public static Condition<? super VirtualFile> extensionFilter(String extension) {
         return (Condition<VirtualFile>) file -> Strings.equalsIgnoreCase(file.getExtension(), extension);
     }

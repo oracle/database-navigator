@@ -47,7 +47,6 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.PooledConnection;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.common.assistant.AssistantQueryResponse;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.project.Project;
@@ -288,10 +287,10 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         DBNConnection conn = connection.getConnection(SessionId.ASSISTANT);
         DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
 
-        AssistantQueryResponse response = assistantInterface.generate(conn, action, profile, attributes, prompt);
+        String response = assistantInterface.generate(conn, action, profile, attributes, prompt);
         ProgressMonitor.checkCancelled();
 
-        return response.read();
+        return response;
     }
 
     @Override
@@ -318,8 +317,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         // use pool connection to avoid interfering with the current conversation
         return PooledConnection.call(connection.createConnectionContext(), c -> {
             DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
-            AssistantQueryResponse response = assistantInterface.generate(c, action, profile, attributes, titlePrompt);
-            return response.read();
+            return assistantInterface.generate(c, action, profile, attributes, titlePrompt);
         });
     }
 }

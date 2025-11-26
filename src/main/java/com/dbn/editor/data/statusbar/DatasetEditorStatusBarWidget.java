@@ -24,7 +24,6 @@ import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Alarms;
 import com.dbn.common.util.MathResult;
-import com.dbn.common.util.Safe;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -111,20 +110,26 @@ public class DatasetEditorStatusBarWidget extends ProjectComponentBase implement
     public void update() {
         Alarms.alarmRequest(updateAlarm, 100, true, () -> {
             DatasetEditorTable editorTable = getEditorTable();
-            MathResult mathResult = Safe.call(editorTable, table -> table.getSelectionMath());
+            if (editorTable == null) return;
 
-            if (mathResult == null) {
-                textLabel.setText("");
-                textLabel.setIcon(null);
-            } else {
-                textLabel.setText(" " +
-                        "Sum " +  mathResult.getSum() + "   " +
-                        "Count " + mathResult.getCount() + "   " +
-                        "Average " + mathResult.getAverage());
-                textLabel.setIcon(Icons.COMMON_DATA_GRID);
-            }
-            UserInterface.repaint(getComponent());
+            update(editorTable);
         });
+    }
+
+    private void update(DatasetEditorTable editorTable) {
+        MathResult mathResult = editorTable.getSelectionMath();
+
+        if (mathResult == null) {
+            textLabel.setText("");
+            textLabel.setIcon(null);
+        } else {
+            textLabel.setText(" " +
+                    "Sum " +  mathResult.getSum() + "   " +
+                    "Count " + mathResult.getCount() + "   " +
+                    "Average " + mathResult.getAverage());
+            textLabel.setIcon(Icons.COMMON_DATA_GRID);
+        }
+        UserInterface.repaint(component);
     }
 
     @Override
@@ -139,9 +144,6 @@ public class DatasetEditorStatusBarWidget extends ProjectComponentBase implement
 
     @Override
     public void dispose() {
-        if (isDisposed()) return;
-        setDisposed(true);
-
-        disposeInner();
+        super.dispose();
     }
 }

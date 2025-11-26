@@ -26,6 +26,9 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComponent;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
@@ -51,6 +54,22 @@ public class TextFields {
                 consumer.accept(e);
             }
         });
+    }
+
+    public static void onTextChange(JSpinner spinner, Consumer<DocumentEvent> consumer) {
+        JTextField textField = getTextField(spinner);
+        onTextChange(textField, consumer);
+    }
+
+    @Nullable
+    public static JTextField getTextField(JSpinner spinner) {
+        JComponent editor = spinner.getEditor();
+
+        if (editor instanceof JSpinner.DefaultEditor) {
+            JSpinner.DefaultEditor defaultEditor = (JSpinner.DefaultEditor) editor;
+            return defaultEditor.getTextField();
+        }
+        return null;
     }
 
     public static void addDocumentListener(JTextComponent textField, DocumentListener documentListener) {

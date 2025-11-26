@@ -18,6 +18,7 @@ package com.dbn.common.file.util;
 
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.thread.Write;
+import com.dbn.common.util.Lists;
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.DBVirtualFileBase;
@@ -216,6 +217,19 @@ public final class VirtualFiles {
             return databaseFile.getPresentablePath();
         }
         return file.getPath();
+    }
+
+    public static List<String> toFilePaths(List<VirtualFile> files) {
+        return Lists.convert(files, f -> f.getPath());
+    }
+
+    public static String getPresentableFileSize(VirtualFile file) {
+        long size = file.getLength();
+        if (size < 1024) return size + " B";
+        if (size < 1024 * 1024) return String.format("%.2f KB", size / 1024.0);
+        if (size < 1024 * 1024 * 1024) return String.format("%.2f MB", size / (1024.0 * 1024));
+
+        return String.format("%.2f GB", size / (1024.0 * 1024 * 1024));
     }
 }
 

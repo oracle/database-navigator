@@ -18,7 +18,7 @@ package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
 import com.dbn.database.common.security.ObjectIdentifier;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.sql.SQLException;
@@ -56,7 +56,7 @@ public interface DBProfileMetadata extends DBObjectMetadata {
     boolean isInteractive() throws SQLException;
 
     @Data
-    @AllArgsConstructor
+    @Builder
     class Record implements DBProfileMetadata {
         private final String profileName;
         private final String credentialName;

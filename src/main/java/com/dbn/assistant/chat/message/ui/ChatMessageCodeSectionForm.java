@@ -213,7 +213,7 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm {
     }
 
     @Override
-    public void dispose() {
+    public void disposeInner() {
         Editors.releaseEditor(codeViewer);
     }
 }

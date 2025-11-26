@@ -23,6 +23,8 @@ import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.tool.approval.AssistantToolApprovals;
+import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.action.DataKeys;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -95,6 +97,21 @@ public interface AssistantActionSupport {
         return getCurrentChatContext(e.getDataContext());
     }
 
+    @Nullable
+    default AssistantToolApprovals getToolApprovals(@NotNull AnActionEvent e) {
+        AssistantToolSettings toolSettings = getToolSettings(e);
+        if (toolSettings == null) return null;
+
+        return toolSettings.getApprovals();
+    }
+
+    @Nullable
+    default AssistantToolSettings getToolSettings(@NotNull AnActionEvent e) {
+        AssistantState assistantState = getAssistantState(e);
+        if (assistantState == null) return null;
+
+        return AssistantToolSettings.get(assistantState);
+    }
 
     @Nullable
     default AssistantProfile getSelectedProfile(@NotNull AnActionEvent e) {

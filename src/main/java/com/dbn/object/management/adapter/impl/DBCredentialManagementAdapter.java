@@ -25,16 +25,19 @@ import com.dbn.object.management.ObjectManagementAdapterFactory;
 import com.dbn.object.management.ObjectManagementAdapterFactoryBase;
 import com.dbn.object.type.DBAttributeType;
 import com.dbn.object.type.DBCredentialType;
+import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 import java.util.Map;
 
+import static com.dbn.common.constant.Constant.array;
 import static com.dbn.object.type.DBAttributeType.FINGERPRINT;
 import static com.dbn.object.type.DBAttributeType.PASSWORD;
 import static com.dbn.object.type.DBAttributeType.PRIVATE_KEY;
 import static com.dbn.object.type.DBAttributeType.TENANCY_OCID;
 import static com.dbn.object.type.DBAttributeType.USER_NAME;
 import static com.dbn.object.type.DBAttributeType.USER_OCID;
+import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
 /**
  * Implementation of {@link ObjectManagementAdapterFactory} for objects of type {@link DBCredential}
@@ -43,12 +46,17 @@ import static com.dbn.object.type.DBAttributeType.USER_OCID;
 public class DBCredentialManagementAdapter extends ObjectManagementAdapterFactoryBase<DBCredential> {
 
     @Override
+    public DBObjectType[] getObjectTypes() {
+        return array(CREDENTIAL);
+    }
+
+    @Override
     protected void createObject(ConnectionHandler connection, DBNConnection conn, DBCredential object) throws SQLException {
         DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
         String credentialName = object.getName(true);
         DBCredentialType credentialType = object.getType();
 
-        if (credentialType == DBCredentialType.PASSWORD) {
+        if (credentialType.isOneOf(DBCredentialType.PASSWORD, DBCredentialType.TOKEN)) {
             databaseInterface.createPwdCredential(conn,
                     credentialName,
                     object.getAttribute(USER_NAME),

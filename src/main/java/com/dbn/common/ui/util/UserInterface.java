@@ -122,26 +122,26 @@ public class UserInterface {
      * @param runnable the @{@link Runnable} to be invoked when the component is shown
      */
     public static void whenFirstShown(JComponent component, Runnable runnable) {
-        whenShown(component, runnable, true);
+        if (component.isShowing()) {
+            runnable.run();
+        } else {
+            whenShown(component, runnable, true);
+        }
     }
 
 
     public static void whenShown(JComponent component, Runnable runnable, boolean first) {
-        // one time invocation of the runnable when component is shown
+        // invocation of the runnable when the component is shown
         AtomicReference<AncestorListener> listenerRef = new AtomicReference<>();
         AncestorListener listener = new AncestorListenerAdapter() {
             @Override
             public void ancestorAdded(AncestorEvent event) {
-                try {
-                    runnable.run();
-                } finally {
-                    if (first) {
-                        // remove the listener if only first shown time is to be considered
-                        AncestorListener listener = listenerRef.get();
-                        component.removeAncestorListener(listener);
-                    }
+                if (first) {
+                    // remove the listener if only the first time is to be considered
+                    AncestorListener listener = listenerRef.get();
+                    component.removeAncestorListener(listener);
                 }
-
+                runnable.run();
             }
         };
         listenerRef.set(listener);
@@ -487,6 +487,9 @@ public class UserInterface {
             }
 
             if (component instanceof Container) {
+                // do not step into subcomponents of "container" text components (e.g. browse buttons aso.)
+                if (component instanceof JTextComponent) continue;
+
                 findTopLeftmostFocusComponent((Container) component, topLeftmost);
             }
         }
@@ -495,6 +498,7 @@ public class UserInterface {
     @Getter
     @Setter
     private class TopLeftmost {
+        private static final Point ZERO_POINT = new Point(0, 0);
         private final Container rootContainer;
         private JComponent component;
         private int x = Integer.MAX_VALUE;
@@ -506,10 +510,9 @@ public class UserInterface {
 
         private void update(Component component) {
             if (component instanceof JComponent) {
-                Point location = SwingUtilities.convertPoint(component, component.getLocation(), rootContainer);
-                if ((location.x < x && location.y < y) ||
-                        (location.y == y && location.x < x) ||
-                        (location.x == x && location.y < y)) {
+                Point location = SwingUtilities.convertPoint(component, ZERO_POINT, rootContainer);
+                if (location.y < y || (location.y == y && location.x < x)) {
+                    // further to the top / same level but further to the left
                     x = location.x;
                     y = location.y;
                     this.component = (JComponent) component;

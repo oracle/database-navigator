@@ -23,6 +23,7 @@ import com.dbn.common.latent.Loader;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.ValueSelectorListener;
@@ -68,9 +69,13 @@ import java.util.function.Predicate;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_ICON;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
 import static com.dbn.common.ui.util.ClientProperty.LOADING;
+import static com.dbn.common.ui.util.ClientProperty.VISITED;
 import static com.dbn.common.ui.util.ComboBoxes.getEmptyOptionsText;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBoxRenderer;
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.first;
 
@@ -81,7 +86,6 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     private @Setter ValueFactory<T> valueFactory;
     private @Setter Loader<List<T>> valueLoader;
     private @Setter Predicate<T> valuePreselector;
-    private transient boolean enabled = true;
     private transient ActionListener[] actionListeners;
 
     private final AtomicInteger loadSignature = new AtomicInteger(0);
@@ -220,7 +224,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
 
             // block the control
             LOADING.set(this, true);
-            super.setEnabled(false);
+            disableFormField(this, "TEMPORARY_LOAD");
             muteActionListeners();
 
             // reset values and selection
@@ -234,14 +238,16 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
                     List<T> values = valueLoader.load();
 
                     if (matchesLoadSignature(signature)) {
-                        setValues(values);
-                        preselectValue();
+                        Dispatch.run(this, () -> {
+                            setValues(values);
+                            preselectValue();
+                        });
                     }
 
                 } finally {
                     if (matchesLoadSignature(signature)) {
                         LOADING.set(this, false);
-                        super.setEnabled(enabled);
+                        enableFormField(this, "TEMPORARY_LOAD");
                         unmuteActionListeners();
                     }
                 }
@@ -253,18 +259,35 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     }
 
     private void preselectValue() {
-        Predicate<T> valuePreselector = this.valuePreselector;
-        this.valuePreselector = null; // one-time selection
+        DBNComboBoxModel<T> model = getModel();
+        if (model.isEmpty()) return;
 
-        if (valuePreselector == null) return;
-        T selectedValue = first(getModel().getItems(), valuePreselector);
-        selectValue(selectedValue);
+        Predicate<T> valuePreselector = this.valuePreselector;
+
+        if (valuePreselector == null) {
+            if (model.getSize() == 1) {
+                // preselect if only one option available
+                T firstElement = model.getElementAt(0);
+                selectValue(firstElement);
+            }
+        } else {
+            T selectedValue = first(model.getItems(), valuePreselector);
+            if (selectedValue != null) {
+                this.valuePreselector = null; // one-time selection
+                selectValue(selectedValue);
+            }
+
+        }
     }
 
     public void init(Loader<List<T>> valueLoader, Predicate<T> valuePreselector){
         this.valueLoader = valueLoader;
         this.valuePreselector = valuePreselector;
-        loadValues();
+        if (isShowing()) {
+            loadValues();
+        } else {
+            whenFirstShown(this, () -> loadValues());
+        }
     }
 
     private void muteActionListeners() {
@@ -281,14 +304,6 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         for (ActionListener actionListener : actionListeners) {
             addActionListener(actionListener);
         }
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        // retain the "enabled" status set by the user
-        // (it is relevant when the valueLoader briefly disables component)
-        super.setEnabled(enabled);
-        this.enabled = enabled;
     }
 
     private boolean matchesLoadSignature(int signature) {
@@ -415,8 +430,12 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     }
 
     public void setValues(List<T> values) {
+        T selectedValue = getSelectedValue();
         DBNComboBoxModel<T> model = new DBNComboBoxModel<>(values);
         setModel(model);
+
+        selectValue(selectedValue);
+        VISITED.set(this, false); // reset visited flag on model changes
     }
 
     private void addValue(T value) {
@@ -446,7 +465,9 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
 
         super.setSelectedItem(anObject);
         T newValue = getSelectedValue();
-        listeners.notify(l -> l.selectionChanged(oldValue, newValue));
+        if (!Commons.match(oldValue, newValue)) {
+            listeners.notify(l -> l.selectionChanged(oldValue, newValue));
+        }
     }
 
     private void selectValue(T value) {
@@ -455,7 +476,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         if (value != null) {
             value = model.containsItem(value) ? value : model.isEmpty() ? null : model.getElementAt(0);
         }
-        if (!Commons.match(oldValue, value) || (model.isEmpty() && value == null)) {
+        if (!Commons.match(oldValue, value)) {
             setSelectedItem(value);
         }
     }

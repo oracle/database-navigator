@@ -30,6 +30,7 @@ import java.awt.event.MouseEvent;
 public class DBNTooltip extends IdeTooltip {
     private Boolean dismissOnTimeout;
     private Integer dismissDelay;
+    private Runnable whenHidden;
 
     public DBNTooltip(Component component, Point point, JComponent tipComponent, Object... identity) {
         super(component, point, tipComponent, identity);
@@ -56,4 +57,17 @@ public class DBNTooltip extends IdeTooltip {
 
         return true;
     }
+
+    public void whenHidden(Runnable whenHidden) {
+        this.whenHidden = whenHidden;
+    }
+
+    @Override
+    protected void onHidden() {
+        if (whenHidden != null) {
+            whenHidden.run();
+        }
+    }
+
+
 }

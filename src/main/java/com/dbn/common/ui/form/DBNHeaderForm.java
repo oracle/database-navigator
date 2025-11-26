@@ -41,14 +41,14 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.LineBorder;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ContainerAdapter;
 import java.awt.event.ContainerEvent;
 
+import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
+
 public class DBNHeaderForm extends DBNFormBase {
-    public static final LineBorder BORDER = new LineBorder(Colors.getOutlineColor());
     private JLabel objectLabel;
     private JPanel mainPanel;
     private JPanel buttonsPanel;
@@ -57,7 +57,7 @@ public class DBNHeaderForm extends DBNFormBase {
 
     public DBNHeaderForm(DBNForm parent) {
         super(parent);
-        //mainPanel.setBorder(BORDER);
+        NON_DISABLEABLE.set(objectLabel, true);
         objectLabel.setForeground(Colors.getLabelForeground());
     }
 
@@ -206,11 +206,6 @@ public class DBNHeaderForm extends DBNFormBase {
             }
         });
         actionsPanel.add(toolbarComponent);
-    }
-
-    public DBNHeaderForm withEmptyBorder() {
-        //mainPanel.setBorder(null);
-        return this;
     }
 
     public Color getBackground() {

@@ -27,6 +27,7 @@ import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,6 +57,22 @@ public class PrerequisiteVerificationAction extends ActionGroup {
         SelectOperationAction(DatabaseOperation operation) {
             super(operation.getName());
             this.operation = operation;
+        }
+
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            boolean visible = isVisible(e);
+            Presentation presentation = e.getPresentation();
+            presentation.setVisible(visible);
+        }
+
+        boolean isVisible(AnActionEvent e) {
+            Project project = e.getProject();
+            if (project == null) return false;
+
+            ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+            List<ConnectionHandler> connections = connectionManager.getConnections();
+            return connections.stream().anyMatch(c -> operation.isSupported(c));
         }
 
         @Override

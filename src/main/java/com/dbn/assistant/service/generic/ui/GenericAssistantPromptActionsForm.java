@@ -19,10 +19,14 @@ package com.dbn.assistant.service.generic.ui;
 import com.dbn.assistant.adapter.ui.AssistantDetailFormBase;
 import com.dbn.assistant.adapter.ui.AssistantPromptActionsForm;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.common.util.Actions;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 public class GenericAssistantPromptActionsForm extends AssistantDetailFormBase implements AssistantPromptActionsForm {
     private JPanel mainPanel;
@@ -40,10 +44,8 @@ public class GenericAssistantPromptActionsForm extends AssistantDetailFormBase i
     }
 
     private void createActionPanel() {
-/*
-        ActionToolbar typeActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantChatTypes");
-        setAccessibleName(typeActions, txt("app.assistant.aria.ChatTypeActions"));
+        ActionToolbar typeActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.AssistantPromptActions");
+        setAccessibleName(typeActions, txt("app.assistant.aria.PromptActions"));
         this.actionsPanel.add(typeActions.getComponent());
-*/
     }
 }

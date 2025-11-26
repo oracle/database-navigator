@@ -18,8 +18,10 @@ package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.AssistantHelpAction;
-import com.dbn.common.message.MessageType;
+import com.dbn.common.util.TextWrapper;
+import com.dbn.common.util.Unsafe;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -46,7 +48,9 @@ public class SystemChatMessageForm extends ChatMessageForm {
 
     private void initMessagePanel() {
         String content = getMessage().getContent();
-        ChatMessageTextSectionForm messageSectionForm = new ChatMessageTextSectionForm(this, content);
+        String wrappedContent = Unsafe.logged(content, () -> TextWrapper.wrapText(content, 50));
+        ChatMessageTextSectionForm messageSectionForm = new ChatMessageTextSectionForm(this, wrappedContent);
+        messageSectionForm.setForeground(getForeground());
         messagePanel.add(messageSectionForm.getComponent());
     }
 
@@ -80,10 +84,12 @@ public class SystemChatMessageForm extends ChatMessageForm {
     }
 
     @Override
+    protected Color getForeground() {
+        return UIUtil.getErrorForeground();
+    }
+
+    @Override
     protected Color getBackground() {
-        MessageType messageType = getMessage().getType();
-        return messageType == MessageType.ERROR ?
-                Backgrounds.SYSTEM_ERROR :
-                Backgrounds.SYSTEM_INFO;
+        return Backgrounds.SYSTEM_RESPONSE;
     }
 }

@@ -22,7 +22,6 @@ import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
-
 public class DebuggerSessionInfo implements CallableStatementOutput {
     private String sessionId;
 
