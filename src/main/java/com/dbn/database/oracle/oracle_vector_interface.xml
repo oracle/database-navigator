@@ -118,16 +118,12 @@
 
     <statement-execution-processor id="create-embedding-table" timeout="120" >
         <statement>
-            BEGIN
-                EXECUTE IMMEDIATE '
-                    CREATE TABLE IF NOT EXISTS {0}.{1} (
-                        {2} VARCHAR(4000) PRIMARY KEY,
-                        {3} CLOB,
-                        {4} VECTOR(*, FLOAT32) NOT NULL,
-                        {5} JSON
-                    )
-                ';
-            END;
+            CREATE TABLE IF NOT EXISTS {0}.{1} (
+                {2} VARCHAR(4000) PRIMARY KEY,
+                {3} CLOB,
+                {4} VECTOR(*, FLOAT32) NOT NULL,
+                {5} JSON
+            )
         </statement>
     </statement-execution-processor>
 
