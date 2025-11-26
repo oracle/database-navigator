@@ -80,7 +80,7 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
   public ModelFactoryInputForm(DBNComponent parent, DBSchema schema,DBObjectType objectType, int index) {
     super(parent,schema.getConnection(),DBObjectType.AI_MODEL,index);
     this.schema = DBObjectRef.of(schema);
-    modelFileTextField.addBrowseFolderListener(getProject(), FILE_CHOOSER_DESCRIPTOR);
+    modelFileTextField.addBrowseFolderListener(null, null, getProject(), FILE_CHOOSER_DESCRIPTOR);
 
     ConnectionHandler connection = getConnection();
     connectionComboBox.setValues(connection);
