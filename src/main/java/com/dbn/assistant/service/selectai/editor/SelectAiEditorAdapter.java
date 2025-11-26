@@ -1,0 +1,95 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.assistant.service.selectai.editor;
+
+import com.dbn.assistant.DatabaseAssistantManager;
+import com.dbn.assistant.chat.context.ChatContextImpl;
+import com.dbn.assistant.chat.message.ChatMessage;
+import com.dbn.assistant.service.selectai.PromptAction;
+import com.dbn.assistant.service.selectai.SelectAiContextUtil;
+import com.dbn.common.thread.Command;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.util.Documents;
+import com.dbn.connection.ConnectionId;
+import com.dbn.language.common.element.util.ElementTypeAttribute;
+import com.dbn.language.common.psi.BasePsiElement;
+import com.dbn.language.common.psi.PsiUtil;
+import com.dbn.language.sql.SQLLanguage;
+import com.dbn.object.DBAIProfile;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import lombok.experimental.UtilityClass;
+
+import static com.dbn.assistant.AssistantType.SELECT_AI;
+import static com.intellij.util.ObjectUtils.coalesce;
+
+/**
+ * This is the class that handles processing the prompt from the console and displaying the results to it.
+ *
+ * @author Ayoub Aarrasse (Oracle)
+ */
+@UtilityClass
+public class SelectAiEditorAdapter {
+
+    public static void submitQuery(Project project, Editor editor, ConnectionId connectionId, String prompt, PromptAction action) {
+        DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
+
+        DBAIProfile profile = SelectAiContextUtil.getDefaultProfile(connectionId);
+
+        if (profile == null) {
+            manager.initializeAssistant(connectionId, SELECT_AI);
+            return;
+        }
+
+        ChatContextImpl context = new ChatContextImpl(
+                SELECT_AI,
+                profile.getName(),
+                profile.getProviderId(),
+                profile.getModelId(),
+                action.getId(),
+                false);
+        SelectAiEditorPromptUtil.generate(connectionId, prompt, context, message -> Dispatch.run(editor.getComponent(), () -> appendMessage(project, editor, message)));
+    }
+
+    private static void appendMessage(Project project, Editor editor, ChatMessage message) {
+        Dispatch.run(editor.getComponent(), () ->
+                Command.run(project, "Database Assistant Response", () -> {
+                    PsiFile psiFile = Documents.getPsiFile(editor);
+                    if (psiFile == null) return;
+
+                    PsiElement psiElement = psiFile.findElementAt(editor.getCaretModel().getOffset());
+                    if (psiElement == null) psiElement = psiFile.getLastChild();
+                    if (psiElement == null) return;
+
+                    BasePsiElement<?> basePsiElement = PsiUtil.getBasePsiElement(psiElement);
+                    if (basePsiElement != null) {
+                        BasePsiElement<?> scopeElement = basePsiElement.findEnclosingElement(ElementTypeAttribute.SCOPE_DEMARCATION);
+                        psiElement = coalesce(scopeElement, basePsiElement, psiElement);
+                    }
+
+                    int offset = psiElement.getTextRange().getEndOffset();
+                    String prefix = psiElement.getText().endsWith("\n") ? "" : "\n";
+                    String content = message.outputForLanguage(SQLLanguage.INSTANCE);
+
+                    Document document = editor.getDocument();
+                    document.insertString(offset, prefix + content + "\n");
+                }));
+    }
+}

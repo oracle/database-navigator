@@ -53,6 +53,24 @@ public final class Lists {
 
     public static void onSelectionChange(JList list, Consumer<ListSelectionEvent> eventConsumer) {
         list.addListSelectionListener(e -> eventConsumer.accept(e));
+    }
 
+    public static void onModelChange(JList list, Consumer<ListDataEvent> eventConsumer) {
+        list.getModel().addListDataListener(new ListDataListener() {
+            @Override
+            public void intervalAdded(ListDataEvent e) {
+                eventConsumer.accept(e);
+            }
+
+            @Override
+            public void intervalRemoved(ListDataEvent e) {
+                eventConsumer.accept(e);
+            }
+
+            @Override
+            public void contentsChanged(ListDataEvent e) {
+                eventConsumer.accept(e);
+            }
+        });
     }
 }

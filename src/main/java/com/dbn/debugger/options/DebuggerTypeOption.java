@@ -17,6 +17,9 @@
 package com.dbn.debugger.options;
 
 import com.dbn.common.option.InteractiveOption;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.config.ConnectionDebuggerSettings;
+import com.dbn.connection.context.DatabaseContext;
 import com.dbn.debugger.DBDebuggerType;
 import lombok.Getter;
 
@@ -50,5 +53,15 @@ public enum DebuggerTypeOption implements InteractiveOption {
     @Override
     public boolean isAsk() {
         return this == ASK;
+    }
+
+    public static DebuggerTypeOption of(DatabaseContext context) {
+        if (context == null) return DebuggerTypeOption.CANCEL;
+
+        ConnectionHandler connection = context.getConnection();
+        if (connection == null) return DebuggerTypeOption.CANCEL;
+
+        ConnectionDebuggerSettings debuggerSettings = connection.getSettings().getDebuggerSettings();
+        return debuggerSettings.getDebuggerType().getSelectedOption();
     }
 }

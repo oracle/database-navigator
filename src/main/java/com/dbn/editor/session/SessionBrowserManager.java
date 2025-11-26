@@ -69,7 +69,7 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.notification.NotificationCategory.SESSION_BROWSER;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.util.Commons.list;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -208,7 +208,7 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
             if (disconnect != null) {
                 String subject = sessionIds.size() > 1 ? "selected sessions" : "session with id \"" + sessionIds.iterator().next().toString() + "\"";
                 disconnect.resolve(getProject(),
-                        list(subject, connection.getName()),
+                        array(subject, connection.getName()),
                         option -> {
                             if (option != SessionInterruptionOption.CANCEL && option != SessionInterruptionOption.ASK) {
                                 doInterruptSessions(sessionBrowser, sessionIds, type, option);
@@ -275,7 +275,7 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
         if (sessionCount == 1) {
             SessionIdentifier identifier = idenrifiers.get(0);
             Object sessionId = identifier.getSessionId();
-            if (errors.size() == 0) {
+            if (errors.isEmpty()) {
                 Messages.showInfoDialog(project, "Info", "Session " + sessionId + " " + disconnectedAction + ".");
             } else {
                 SQLException exception = errors.get(identifier);

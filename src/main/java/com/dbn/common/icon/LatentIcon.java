@@ -29,7 +29,7 @@ import java.awt.Graphics;
 @Getter
 abstract class LatentIcon implements ScalableIcon {
     private final String path;
-    private final Latent<Icon> delegate = Latent.basic(() -> load());
+    private final transient Latent<Icon> delegate = Latent.basic(() -> load());
 
     public LatentIcon(String path) {
         this.path = path;

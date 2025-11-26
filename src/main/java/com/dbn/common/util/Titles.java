@@ -16,7 +16,6 @@
 
 package com.dbn.common.util;
 
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.connection.session.DatabaseSession;
@@ -24,10 +23,15 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static com.dbn.common.util.Unsafe.silent;
 
 @UtilityClass
 public final class Titles {
+    private static final Set<String> ACRONYMS = Set.of("AI", "DB", "API", "HTTP", "IT", "CPU", "RAM", "GPU", "OS", "SQL", "JSON", "XML", "URL", "HTML", "CSS", "SDK", "IDE", "VPN");
 
     @NonNls
     public static final String PRODUCT_NAME = "DB Navigator";
@@ -59,5 +63,45 @@ public final class Titles {
         if (connection == null) return title;
 
         return connection.getName()  + " - " + title;
+    }
+
+    public static String titleCased(String string) {
+        if (Strings.isEmpty(string)) return string;
+
+        Pattern delimiterPattern = Pattern.compile("([^a-zA-Z]+)");
+        Matcher matcher = delimiterPattern.matcher(string);
+        StringBuilder result = new StringBuilder();
+        int lastEnd = 0;
+
+        while (matcher.find()) {
+            if (lastEnd < matcher.start()) {
+                String word = string.substring(lastEnd, matcher.start());
+                result.append(titleCasedWord(word));
+            }
+            result.append(matcher.group());
+            lastEnd = matcher.end();
+        }
+
+        if (lastEnd < string.length()) {
+            String word = string.substring(lastEnd);
+            result.append(titleCasedWord(word));
+        }
+
+        return result.toString();
+    }
+
+    private static String titleCasedWord(String word) {
+        if (word == null || word.isEmpty()) {
+            return word;
+        }
+        if (ACRONYMS.contains(word.toUpperCase())) {
+            return word.toUpperCase(); // Keep acronym as uppercase
+        }
+
+        StringBuilder titleCased = new StringBuilder(word.toLowerCase());
+        if (titleCased.length() > 0) {
+            titleCased.setCharAt(0, Character.toUpperCase(titleCased.charAt(0)));
+        }
+        return titleCased.toString();
     }
 }

@@ -46,7 +46,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 @Getter
 @Setter
 public class DBObjectFilterExpressionFile extends DBVirtualFileBase implements DBParseableVirtualFile {
-    private ObjectFilter<?> filter;
+    private transient ObjectFilter<?> filter;
     private CharSequence content;
 
     public DBObjectFilterExpressionFile(ObjectFilter<?> filter) {

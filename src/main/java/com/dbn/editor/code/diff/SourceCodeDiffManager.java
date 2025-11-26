@@ -28,7 +28,7 @@ import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.vfs.file.DBLooseContentVirtualFile;
+import com.dbn.vfs.file.DBObjectContentVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.diff.DiffManager;
 import com.intellij.diff.DiffRequestFactory;
@@ -150,7 +150,7 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
     public void openDiffWindow(@NotNull DBSourceCodeVirtualFile sourceCodeFile, String referenceText, String referenceTitle, String windowTitle) {
         DBSchemaObject object = sourceCodeFile.getObject();
         FileType fileType = sourceCodeFile.getFileType();
-        DBLooseContentVirtualFile counterContent = new DBLooseContentVirtualFile(object, referenceText, fileType);
+        DBObjectContentVirtualFile counterContent = new DBObjectContentVirtualFile(object, referenceText, fileType);
         Project project = getProject();
         DiffContent originalContent = new SourceCodeFileContent(project, sourceCodeFile);
         DiffContent changedContent = new SourceCodeFileContent(project, counterContent);

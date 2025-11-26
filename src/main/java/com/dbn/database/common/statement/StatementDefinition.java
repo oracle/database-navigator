@@ -23,55 +23,56 @@ import com.dbn.connection.jdbc.DBNPreparedStatement;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
-
-import static com.dbn.common.util.Commons.nvl;
+import java.util.regex.Pattern;
 
 @NonNls
 @Getter
 public class StatementDefinition {
-    private static final String DBN_PARAM_PLACEHOLDER = "DBN_PARAM_PLACEHOLDER";
+    private static final Pattern parameterPattern = Pattern.compile("\\{#(\\d+)}");
+    private static final Pattern placeholderPattern = Pattern.compile("\\{(\\d+)}");
+
     private final String statementText;
     private final double sinceVersion;
-    private final Integer[] placeholderIndexes;
+
+    private final List<Integer> parameterIndices;
+    private final List<Integer> placeholderIndices;
 
     private final TransientId id = TransientId.create();
-    private final boolean prepared;
 
-    StatementDefinition(String statementText, String prefix, double sinceVersion, boolean prepared) {
+    StatementDefinition(String statementText, String prefix, double sinceVersion) {
         this.sinceVersion = sinceVersion;
-        this.prepared = prepared;
-        statementText = statementText.replaceAll("\\s+", " ").trim();
+        this.parameterIndices = getDynamicContentIndices(statementText, parameterPattern);
+        this.placeholderIndices = getDynamicContentIndices(statementText, placeholderPattern);
+
+        statementText = statementText.trim();
+        statementText = statementText.replaceAll("\\t", "    ");
+        statementText = statementText.replaceAll("(?m)^ {12}", "");
         if (prefix != null) {
             statementText = statementText.replaceAll("\\[PREFIX]", prefix);
         }
 
-        StringBuilder buffer = new StringBuilder();
-        List<Integer> placeholders = new ArrayList<>();
-        int startIndex = statementText.indexOf('{');
-        if (startIndex == -1) {
-            buffer.append(statementText);
-        } else {
-            int endIndex = 0;
-            while (startIndex > -1) {
-                String segment = statementText.substring(endIndex, startIndex);
-                buffer.append(segment).append(prepared ? "?" : DBN_PARAM_PLACEHOLDER);
-                endIndex = statementText.indexOf('}', startIndex);
-                String placeholder = statementText.substring(startIndex + 1, endIndex);
 
-                placeholders.add(Integer.valueOf(placeholder));
-                startIndex = statementText.indexOf('{', endIndex);
-                endIndex = endIndex + 1;
-            }
-            if (endIndex < statementText.length()) {
-                buffer.append(statementText.substring(endIndex));
-            }
+        for (Integer parameterIndex : parameterIndices) {
+            statementText = statementText.replaceAll("\\{#" + parameterIndex + "}", "?");
         }
-        this.statementText = buffer.toString();
-        this.placeholderIndexes = placeholders.toArray(new Integer[0]);
+
+        this.statementText = statementText;
+    }
+
+    private List<Integer> getDynamicContentIndices(String statementText, Pattern pattern) {
+        ArrayList<Integer> indices = new ArrayList<>();
+        Matcher matcher = pattern.matcher(statementText);
+        while (matcher.find()) {
+            String indexString = matcher.group(1);
+            indices.add(Integer.parseInt(indexString));
+        }
+        return indices;
     }
 
     public boolean supports(double databaseVersion) {
@@ -80,30 +81,41 @@ public class StatementDefinition {
 
 
     DBNPreparedStatement<?> prepareStatement(DBNConnection connection, Object[] arguments) throws SQLException {
+        String statementText = prepareStatementText(arguments);
+
         DBNPreparedStatement<?> preparedStatement = connection.prepareStatementCached(statementText);
-        for (int i = 0; i < placeholderIndexes.length; i++) {
-            Integer argumentIndex = placeholderIndexes[i];
+        for (int i = 0; i < parameterIndices.size(); i++) {
+            Integer argumentIndex = parameterIndices.get(i);
             Object argumentValue = arguments[argumentIndex];
+            //todo this is just a workaround . i need to recheck it again .
+            if (argumentValue instanceof byte[]) {
+                preparedStatement.setBytes(i + 1, (byte[]) argumentValue);
+            } else {
                 preparedStatement.setObject(i + 1, argumentValue);
+            }
         }
         return preparedStatement;
     }
 
     DBNCallableStatement prepareCall(DBNConnection connection, Object[] arguments) throws SQLException {
+        String statementText = prepareStatementText(arguments);
+
         DBNCallableStatement callableStatement = connection.prepareCallCached(statementText);
-        for (int i = 0; i < placeholderIndexes.length; i++) {
-            Integer argumentIndex = placeholderIndexes[i];
+        for (int i = 0; i < parameterIndices.size(); i++) {
+            Integer argumentIndex = parameterIndices.get(i);
             Object argumentValue = arguments[argumentIndex];
-                callableStatement.setObject(i + 1, argumentValue);
+            callableStatement.setObject(i + 1, argumentValue);
         }
         return callableStatement;
     }
 
     String prepareStatementText(Object... arguments) {
         String statementText = this.statementText;
-        for (Integer argumentIndex : placeholderIndexes) {
-            String argumentValue = Matcher.quoteReplacement(nvl(arguments[argumentIndex], "").toString());
-            statementText = statementText.replaceFirst(prepared ? "\\?" : DBN_PARAM_PLACEHOLDER, argumentValue);
+        for (Integer placeholderIndex : placeholderIndices) {
+            String placeholderValue = Objects.toString(arguments[placeholderIndex]);
+            placeholderValue = Matcher.quoteReplacement(placeholderValue);
+
+            statementText = statementText.replaceAll("\\{" + placeholderIndex + "}", placeholderValue);
         }
         return statementText;
     }
@@ -112,5 +124,13 @@ public class StatementDefinition {
     @Override
     public String toString() {
         return statementText;
+    }
+
+    public int getParameterCount() {
+        return parameterIndices.size();
+    }
+
+    public int getPlaceholderCount() {
+        return placeholderIndices.size();
     }
 }

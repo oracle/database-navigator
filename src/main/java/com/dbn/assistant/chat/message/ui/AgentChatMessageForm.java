@@ -18,18 +18,31 @@ package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.ChatMessageSection;
+import com.dbn.assistant.chat.message.ChatMessageSectionType;
+import com.dbn.assistant.chat.message.ChatMessageToolSection;
+import com.dbn.assistant.chat.message.action.CopyContentAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.common.dispose.Disposer;
+import com.dbn.common.color.Colors;
+import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.ui.Layouts;
+import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
-import com.intellij.util.ui.JBUI;
+import com.intellij.openapi.actionSystem.AnAction;
 
-import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import java.awt.BorderLayout;
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.dbn.assistant.chat.message.ChatMessageParser.convertMarkdownToHtml;
+import static com.dbn.assistant.chat.message.ChatMessageSectionType.CODE;
+import static com.dbn.assistant.chat.message.ChatMessageSectionType.TEXT;
+import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
+import static com.dbn.common.util.Commons.array;
+import static com.dbn.common.util.Lists.filter;
+import static com.dbn.common.util.Unsafe.cast;
 
 /**
  * Message for implementation for AI agent responses.
@@ -40,13 +53,14 @@ import java.awt.Color;
 public class AgentChatMessageForm extends ChatMessageForm {
 
     private JPanel mainPanel;
-    private JPanel contentPanel;
+    private JPanel sectionsPanel;
     private JLabel titleLabel;
     private JPanel actionPanel;
+    private JPanel contentPanel;
 
-    private boolean hasCodeContents = false;
+    private final List<ChatMessageSectionForm> sectionForms = DisposableContainers.list(this);
 
-    public AgentChatMessageForm(ChatBoxForm parent, ChatMessage message) {
+    public AgentChatMessageForm(ChatMessagesForm parent, ChatMessage message) {
         super(parent, message);
 
         initTitlePanel();
@@ -55,7 +69,7 @@ public class AgentChatMessageForm extends ChatMessageForm {
     }
 
     private void createUIComponents() {
-        mainPanel = createMainPanel();
+        contentPanel = createContentPanel();
     }
 
     @Override
@@ -73,53 +87,133 @@ public class AgentChatMessageForm extends ChatMessageForm {
         return actionPanel;
     }
 
+    @Override
+    protected JPanel getContentPanel() {
+        return contentPanel;
+    }
+
     private void initMessagePanels() {
         ChatMessage message = getMessage();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        Layouts.verticalBoxLayout(sectionsPanel);
         for (ChatMessageSection section : message.getSections()) {
-            if (section.getLanguage() == null)
-                createTextPane(section); else
-                createCodePane(section);
+            int toolOffset = section.getContentStartOffset();
+            createToolSectionForms(toolOffset);
+            createSectionForm(section);
         }
+
+        int toolOffset = message.getContent().length();
+        createToolSectionForms(toolOffset);
     }
 
-    protected void createTextPane(ChatMessageSection section) {
-        JTextPane textPane = new JTextPane();
-        textPane.setOpaque(false);
-        textPane.setEditable(false);
-        textPane.setEditable(false);
-        textPane.setMargin(JBUI.insets(8));
-        textPane.setText(section.getContent());
-        contentPanel.add(textPane);
+    private void createSectionForm(ChatMessageSection section) {
+        if (section.getLanguage() == null)
+            createTextSectionForm(section); else
+            createCodeSectionForm(section);
     }
 
-    private void createCodePane(ChatMessageSection section) {
-        ChatBoxForm parent = ensureParentComponent();
-        ConnectionHandler connection = parent.getConnection();
+    protected void createTextSectionForm(ChatMessageSection section) {
+        ChatMessageTextSectionForm messageSectionForm = new ChatMessageTextSectionForm(this,
+                section.getContent(),
+                c -> convertMarkdownToHtml(c));
 
-        ChatMessageCodeViewer codePanel = ChatMessageCodeViewer.create(connection, section);
-        if (codePanel == null) {
+        sectionForms.add(messageSectionForm);
+        sectionsPanel.add(messageSectionForm.getComponent());
+    }
+
+    private void createCodeSectionForm(ChatMessageSection section) {
+        ChatMessagesForm parent = ensureParentComponent();
+        ChatBoxForm chatBoxForm = parent.ensureParentComponent();
+        ConnectionHandler connection = chatBoxForm.getConnection();
+
+        ChatMessageCodeSectionForm messageSectionForm = ChatMessageCodeSectionForm.create(parent, connection, section);
+        if (messageSectionForm == null) {
             // fallback to regular text pane if code panel creation was unsuccessful
-            createTextPane(section);
+            createTextSectionForm(section);
             return;
         }
-        Disposer.register(this, codePanel);
 
-        JPanel actionsPanel = new JPanel(new BorderLayout());
-        actionsPanel.setBackground(codePanel.getViewer().getBackgroundColor());
+        sectionForms.add(messageSectionForm);
+        sectionsPanel.add(messageSectionForm.getComponent());
+    }
 
-        contentPanel.add(actionsPanel);
-        contentPanel.add(codePanel);
-        hasCodeContents = true; // mark as having code contents if successfully created one
+    private boolean hasCodeSections() {
+        return sectionForms.stream().anyMatch(f -> f instanceof ChatMessageCodeSectionForm);
+    }
+
+    private boolean hasToolSections() {
+        return sectionForms.stream().anyMatch(f -> f instanceof ChatMessageToolSectionForm);
+    }
+
+    private void createToolSectionForms(int offset) {
+        List<ChatMessageToolSection> toolSections = getMessage().getToolSections();
+        for (ChatMessageToolSection toolSection : toolSections) {
+            if (toolSection.getOffset() == offset) {
+                createToolSectionForm(toolSection);
+            }
+        }
+    }
+
+    private void createToolSectionForm(ChatMessageToolSection toolSection) {
+        ChatMessagesForm parent = ensureParentComponent();
+        ChatBoxForm chatBoxForm = parent.ensureParentComponent();
+        ConnectionHandler connection = chatBoxForm.getConnection();
+
+        ChatMessageToolSectionForm toolSectionForm = new ChatMessageToolSectionForm(parent, connection, toolSection);
+        sectionForms.add(toolSectionForm);
+        sectionsPanel.add(toolSectionForm.getComponent());
     }
 
     @Override
-    protected void initActionToolbar() {
-        if (hasCodeContents) {
-            actionPanel.setVisible(false);
-        } else {
-            super.initActionToolbar();
+    public void refreshMessageContent() {
+        ChatMessage message = getMessage();
+        List<ChatMessageSection> sections = new ArrayList<>(message.getSections());
+        List<ChatMessageSectionForm> sectionForms = getSectionForms(CODE, TEXT);
+        for (int i = 0; i < sections.size(); i++) {
+            ChatMessageSection section = sections.get(i);
+            if (i < sectionForms.size()) {
+                ChatMessageSectionForm sectionForm = sectionForms.get(i);
+                sectionForm.updateContent(section);
+            } else {
+                createSectionForm(section);
+            }
         }
+    }
+
+    @Override
+    public void refreshToolContent() {
+        ChatMessage message = getMessage();
+        List<ChatMessageToolSection> sections = new ArrayList<>(message.getToolSections());
+        List<ChatMessageToolSectionForm> sectionForms = getSectionForms(TOOL);
+        for (int i = 0; i < sections.size(); i++) {
+            ChatMessageToolSection section = sections.get(i);
+            if (i < sectionForms.size()) {
+                ChatMessageToolSectionForm sectionForm = sectionForms.get(i);
+                sectionForm.updateToolContent(section);
+            } else {
+                createToolSectionForm(section);
+            }
+        }
+    }
+
+    @Override
+    protected AnAction[] createActions() {
+        return array(new CopyContentAction(
+                () -> getMessage().getContent(),
+                () -> !hasCodeSections() && !hasToolSections()));
+    }
+
+    private <T extends ChatMessageSectionForm> List<T> getSectionForms(ChatMessageSectionType ... types) {
+        return cast(filter(this.sectionForms, f -> Commons.isOneOf(f.getSectionType(), types)));
+    }
+
+    @Override
+    public void hideProcessingIndicators() {
+        sectionForms.forEach(f -> f.hideProcessingIndicator());
+    }
+
+    @Override
+    protected Color getForeground() {
+        return Colors.getLabelForeground();
     }
 
     @Override

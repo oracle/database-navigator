@@ -16,7 +16,13 @@
 
 package com.dbn.database.interfaces;
 
+import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.operation.DatabaseOperation;
+import com.dbn.connection.ConnectionExceptionInfo;
+import com.dbn.connection.ConnectorProperties;
 import com.dbn.connection.DatabaseAttachmentHandler;
+import com.dbn.connection.SessionId;
+import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.data.sorting.SortDirection;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
@@ -27,6 +33,7 @@ import com.dbn.language.common.QuotePair;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +48,8 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     boolean supportsFeature(DatabaseFeature feature);
 
     boolean supportsFeature(DatabaseFeature feature, DatabaseObjectTypeId objectTypeId);
+
+    boolean supportsOperation(DatabaseOperation operation);
 
     QuoteDefinition getIdentifierQuotes();
 
@@ -79,4 +88,29 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     default Map<String, String> getImplicitConnectionProperties() {
         return Map.of();
     }
+
+    /**
+     * Does database-specific handling of a connection error
+     * @param info
+     * @return true if throwable was handled, false if it was ignored by the specific database compatibility
+     * implementation.
+     */
+    default boolean handleConnectionException(final ConnectionExceptionInfo info) {
+        return false;
+    }
+
+
+    ConnectorProperties createConnectorProperties();
+
+    void initConnectorAuthentication(ConnectorProperties properties, AuthenticationInfo authenticationInfo);
+
+    void initConnectorSession(ConnectorProperties properties, ConnectionSettings settings, SessionId sessionId);
+
+    void initConnectorDebugger(ConnectorProperties properties, ConnectionSettings settings);
+
+    void initConnectorSslConnection(ConnectorProperties properties, ConnectionSettings settings);
+
+    void initConnectorFileAttachments(ConnectionSettings settings, Connection connection);
+
+    boolean resetConnectorAndRetry(Throwable e, ConnectionSettings settings);
 }

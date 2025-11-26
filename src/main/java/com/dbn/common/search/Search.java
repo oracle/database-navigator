@@ -16,6 +16,7 @@
 
 package com.dbn.common.search;
 
+import com.dbn.common.range.Range;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,6 +29,10 @@ public final class Search {
         if (list == null || list.isEmpty()) return null;
 
         return binarySearch(list, 0, list.size() - 1, adapter);
+    }
+
+    public static <T> T binarySearch(@Nullable List<T> list, Range range, SearchAdapter<T> adapter) {
+        return binarySearch(list, range.getLeft(), range.getRight(), adapter);
     }
 
     public static <T> T binarySearch(@Nullable List<T> list, int left, int right, SearchAdapter<T> adapter) {

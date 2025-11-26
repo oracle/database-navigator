@@ -19,7 +19,6 @@ package com.dbn.debugger;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.dispose.Checks;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.routine.Consumer;
@@ -31,20 +30,18 @@ import com.dbn.database.common.debug.DebuggerVersionInfo;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.debugger.common.breakpoint.DBBreakpointUpdaterFileEditorListener;
-import com.dbn.debugger.common.process.DBProgramRunner;
 import com.dbn.debugger.jdbc.process.DBMethodJdbcRunner;
 import com.dbn.debugger.jdbc.process.DBStatementJdbcRunner;
+import com.dbn.debugger.jdwp.process.DBJavaJdwpRunner;
 import com.dbn.debugger.jdwp.process.DBMethodJdwpRunner;
 import com.dbn.debugger.jdwp.process.DBStatementJdwpRunner;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
-import com.dbn.object.DBSystemPrivilege;
-import com.dbn.object.DBUser;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.common.status.DBObjectStatus;
@@ -77,9 +74,10 @@ import java.util.Set;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.common.notification.NotificationCategory.DEBUGGER;
-import static com.dbn.common.util.Commons.list;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -138,83 +136,95 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
         return false;
     }
 
-    public static void checkJdwpConfiguration() throws RuntimeConfigurationError {
-        if (!DBDebuggerType.JDWP.isSupported()) {
-            ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
-            throw new RuntimeConfigurationError("JDWP debugging is not supported in \"" + applicationInfo.getVersionName() + " " + applicationInfo.getFullVersion()+ "\". Please use Classic debugger over JDBC instead.");
-        }
+    public static void verifyJdwpSupport(boolean jdbcFallback) throws RuntimeConfigurationError {
+        if (DBDebuggerType.JDWP.isSupported()) return;
+
+        ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
+        String versionName = applicationInfo.getVersionName();
+        String fullVersion = applicationInfo.getFullVersion();
+
+        String message = "JDWP debugging is not supported in \"" + versionName + " " + fullVersion + "\".";
+        String messageFallbackHint = jdbcFallback ? "" : " Please use Classic debugger over JDBC instead.";
+        throw new RuntimeConfigurationError(message + messageFallbackHint);
     }
 
     public void startMethodDebugger(@NotNull DBMethod method) {
         startDebugger(method.getConnection(), (debuggerType) -> {
-            Project project = getProject();
-            ExecutionConfigManager configManager = ExecutionConfigManager.getInstance(project);
+            ExecutionConfigManager configManager = getConfigManager();
             RunnerAndConfigurationSettings settings = configManager.createConfiguration(method, debuggerType);
 
             String runnerId =
                     debuggerType == DBDebuggerType.JDBC ? DBMethodJdbcRunner.RUNNER_ID :
                     debuggerType == DBDebuggerType.JDWP ? DBMethodJdwpRunner.RUNNER_ID : null;
 
-            if (runnerId == null) return;
-
-            ProgramRunner programRunner = ProgramRunner.findRunnerById(runnerId);
-            if (programRunner == null) return;
-
             try {
-                Executor executorInstance = DefaultDebugExecutor.getDebugExecutorInstance();
-                if (executorInstance == null) {
-                    throw new ExecutionException("Could not resolve debug executor");
-                }
-
-                ExecutionEnvironment executionEnvironment = new ExecutionEnvironment(executorInstance, programRunner, settings, project);
-                programRunner.execute(executionEnvironment);
+                startDebugger(runnerId, settings);
             } catch (ExecutionException e) {
                 conditionallyLog(e);
-                Messages.showErrorDialog(
-                        project, "Could not start debugger for " + method.getQualifiedName() + ". \n" +
-                                "Cause: " + e.getMessage());
+                Messages.showErrorDialog(getProject(), "Could not start debugger for " + method.getQualifiedName() + ".", e);
             }
         });
     }
 
     public void startStatementDebugger(@NotNull StatementExecutionProcessor executionProcessor) {
         ConnectionHandler connection = executionProcessor.getConnection();
-        if (Checks.isNotValid(connection)) return;
+        if (isNotValid(connection)) return;
 
         startDebugger(connection, debuggerType -> {
-            Project project = getProject();
-            ExecutionConfigManager configManager = ExecutionConfigManager.getInstance(project);
+            ExecutionConfigManager configManager = getConfigManager();
             RunnerAndConfigurationSettings settings = configManager.createConfiguration(executionProcessor, debuggerType);
 
             String runnerId =
                     debuggerType == DBDebuggerType.JDBC ? DBStatementJdbcRunner.RUNNER_ID :
                     debuggerType == DBDebuggerType.JDWP ? DBStatementJdwpRunner.RUNNER_ID :
-                                    DBProgramRunner.INVALID_RUNNER_ID;
-
-            ProgramRunner programRunner = ProgramRunner.findRunnerById(runnerId);
-            if (programRunner == null) return;
+                                    null;
 
             try {
-                Executor executorInstance = DefaultDebugExecutor.getDebugExecutorInstance();
-                if (executorInstance == null) {
-                    throw new ExecutionException("Could not resolve debug executor");
-                }
-
-                ExecutionEnvironment executionEnvironment = new ExecutionEnvironment(executorInstance, programRunner, settings, project);
-                programRunner.execute(executionEnvironment);
+                startDebugger(runnerId, settings);
             } catch (ExecutionException e) {
                 conditionallyLog(e);
-                Messages.showErrorDialog(
-                        project, "Could not start statement debugger. \n" +
-                                "Cause: " + e.getMessage());
+                Messages.showErrorDialog(getProject(), "Could not start statement debugger",  e);
             }
         });
+    }
+
+    public void startJavaDebugger(@NotNull DBJavaMethod method) {
+        ConnectionHandler connection = method.getConnection();
+        if (isNotValid(connection)) return;
+
+        startJdwpDebugger(() -> {
+            ExecutionConfigManager configManager = getConfigManager();
+            RunnerAndConfigurationSettings settings = configManager.createConfiguration(method, DBDebuggerType.JDWP);
+
+            try {
+                startDebugger(DBJavaJdwpRunner.RUNNER_ID, settings);
+            } catch (ExecutionException e) {
+                conditionallyLog(e);
+                Messages.showErrorDialog(getProject(), "Could not start debugger for " + method.getQualifiedName() + ").", e);
+            }
+        });
+    }
+
+    private void startDebugger(String runnerId, RunnerAndConfigurationSettings settings) throws ExecutionException {
+        if (runnerId == null) return;
+
+        ProgramRunner programRunner = ProgramRunner.findRunnerById(runnerId);
+        if (programRunner == null) return;
+
+        Executor executorInstance = DefaultDebugExecutor.getDebugExecutorInstance();
+        if (executorInstance == null) {
+            throw new ExecutionException("Could not resolve debug executor");
+        }
+
+        Project project = getProject();
+        ExecutionEnvironment executionEnvironment = new ExecutionEnvironment(executorInstance, programRunner, settings, project);
+        programRunner.execute(executionEnvironment);
     }
 
     private void startDebugger(@NotNull ConnectionHandler connection, @NotNull Consumer<DBDebuggerType> debuggerStarter) {
         var debuggerTypeOption = connection.getSettings().getDebuggerSettings().getDebuggerType();
         Project project = getProject();
-        debuggerTypeOption.resolve(project, list(), option -> {
+        debuggerTypeOption.resolve(project, array(), option -> {
             DBDebuggerType debuggerType = option.getDebuggerType();
             if (debuggerType == null) return;
 
@@ -225,7 +235,7 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
                 Messages.showErrorDialog(
                         project,
                         txt("msg.debugger.title.UnsupportedDebugger"),
-                        txt("msg.debugger.error.UnsupportedDebugger",
+                        txt("msg.debugger.error.UnsupportedDebuggerUseAlternative",
                                 debuggerType.getName(),
                                 applicationInfo.getVersionName(),
                                 applicationInfo.getFullVersion()),
@@ -235,6 +245,25 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
                         o -> when(o == 0, () -> debuggerStarter.accept(DBDebuggerType.JDBC)));
             }
         });
+    }
+
+    private void startJdwpDebugger(@NotNull Runnable debuggerStarter) {
+        DBDebuggerType debuggerType = DBDebuggerType.JDWP;
+        if (debuggerType.isSupported()) {
+            debuggerStarter.run();
+        } else {
+            ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
+            Messages.showErrorDialog(
+                    getProject(),
+                    txt("msg.debugger.title.UnsupportedDebugger"),
+                    txt("msg.debugger.error.UnsupportedDebugger",
+                            debuggerType.getName(),
+                            applicationInfo.getVersionName(),
+                            applicationInfo.getFullVersion()),
+                    new String[]{txt("msg.shared.button.Close")}, 0,
+                    o -> {});
+
+        }
     }
 
     public List<DBSchemaObject> loadCompileDependencies(List<DBMethod> methods) {
@@ -280,26 +309,6 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
         return false;
     }
 
-    public List<String> getMissingDebugPrivileges(@NotNull ConnectionHandler connection) {
-        List<String> missingPrivileges = new ArrayList<>();
-        String userName = connection.getUserName();
-        DBObjectBundle objectBundle = connection.getObjectBundle();
-        DBUser user = objectBundle.getUser(userName);
-
-        if (user != null) {
-            String[] privilegeNames = connection.getDebuggerInterface().getRequiredPrivilegeNames();
-
-            for (String privilegeName : privilegeNames) {
-                DBSystemPrivilege systemPrivilege = objectBundle.getSystemPrivilege(privilegeName);
-                if (systemPrivilege == null || !user.hasPrivilege(systemPrivilege))  {
-                    missingPrivileges.add(privilegeName);
-                }
-            }
-        }
-        return missingPrivileges;
-
-    }
-
     private static final Comparator<DBSchemaObject> DEPENDENCY_COMPARATOR = (schemaObject1, schemaObject2) -> {
         if (schemaObject1.getReferencedObjects().contains(schemaObject2)) return 1;
         if (schemaObject2.getReferencedObjects().contains(schemaObject1)) return -1;
@@ -330,6 +339,10 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
 
             return txt("app.shared.label.Unknown");
         }
+    }
+
+    private ExecutionConfigManager getConfigManager() {
+        return ExecutionConfigManager.getInstance(getProject());
     }
 
     /*********************************************

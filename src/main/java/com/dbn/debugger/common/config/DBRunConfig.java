@@ -19,8 +19,10 @@ package com.dbn.debugger.common.config;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.debugger.DBDebuggerType;
+import com.dbn.debugger.options.DebuggerTypeOption;
 import com.dbn.execution.ExecutionInput;
 import com.dbn.object.DBMethod;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.execution.ExecutionTarget;
 import com.intellij.execution.configurations.LocatableConfiguration;
 import com.intellij.execution.configurations.RunConfigurationBase;
@@ -57,6 +59,11 @@ public abstract class DBRunConfig<I extends ExecutionInput> extends RunConfigura
         this.debuggerType = factory == null ? this.debuggerType : factory.getDebuggerType();
     }
 
+    protected DebuggerTypeOption getDebuggerTypeOption() {
+        ConnectionHandler connection = getConnection();
+        return DebuggerTypeOption.of(connection);
+    }
+
     public boolean canRun() {
         return category == DBRunConfigCategory.CUSTOM;
     }
@@ -86,7 +93,11 @@ public abstract class DBRunConfig<I extends ExecutionInput> extends RunConfigura
         debuggerType = getEnum(element, "debugger-type", debuggerType);
     }
 
-    public abstract List<DBMethod> getMethods();
+    public List<DBMethod> getMethods() {
+        return DBObjectRef.get(getMethodRefs());
+    }
+
+    public abstract List<DBObjectRef<DBMethod>> getMethodRefs();
 
     @Nullable
     public abstract DatabaseContext getDatabaseContext();

@@ -19,9 +19,8 @@ package com.dbn.data.editor.ui.array;
 import com.dbn.common.icon.Icons;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
+import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -38,6 +37,7 @@ class ArrayEditorDeleteAction extends ArrayEditorAction {
 
         TextFieldWithPopup editorComponent = form.getEditorComponent();
         editorComponent.getUserValueHolder().updateUserValue(new ArrayList<String>(), false);
+        editorComponent.getTextField().setText("");
         form.hidePopup();
     }
 }

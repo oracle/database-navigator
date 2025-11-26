@@ -43,7 +43,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 @Getter
 @Setter
-public abstract class DBNTableGutter<T extends DBNTableWithGutter> extends JList implements StatefulDisposable, EditorColorsListener {
+public class DBNTableGutter<T extends DBNTableWithGutter> extends JList implements StatefulDisposable, EditorColorsListener {
     private boolean disposed;
     private final WeakRef<T> table;
 
@@ -100,7 +100,9 @@ public abstract class DBNTableGutter<T extends DBNTableWithGutter> extends JList
         return null;
     }
 
-    protected abstract ListCellRenderer createCellRenderer();
+    protected ListCellRenderer createCellRenderer() {
+        return new DBNTableGutterRenderer();
+    }
 
     @Override
     public void globalSchemeChange(@Nullable EditorColorsScheme scheme) {

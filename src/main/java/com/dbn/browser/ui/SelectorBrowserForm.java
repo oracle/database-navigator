@@ -25,20 +25,15 @@ import com.dbn.common.environment.options.EnvironmentVisibilitySettings;
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ui.CardLayouts;
-import com.dbn.common.ui.util.Cursors;
-import com.dbn.common.ui.util.Mouse;
-import com.dbn.common.ui.util.Popups;
+import com.dbn.common.ui.misc.DBNSelector;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionHandlerStatusListener;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
-import com.dbn.connection.action.AbstractConnectionAction;
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.actionSystem.Presentation;
+import com.dbn.connection.action.SelectConnectionAction;
+import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ListPopup;
 import org.jetbrains.annotations.NotNull;
@@ -47,11 +42,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.ui.util.UserInterface.setBackgroundRecursive;
 
 public class SelectorBrowserForm extends DatabaseBrowserForm {
@@ -59,7 +51,7 @@ public class SelectorBrowserForm extends DatabaseBrowserForm {
     private JPanel headerPanel;
     private JPanel browserFormsPanel;
     private JLabel connectionLabel;
-    private JLabel connectionSelectLabel;
+    private JPanel connectionSelectActions;
 
     private ConnectionId selectedConnectionId;
     private final Map<ConnectionId, SimpleBrowserForm> browserForms = DisposableContainers.map(this);
@@ -69,18 +61,22 @@ public class SelectorBrowserForm extends DatabaseBrowserForm {
         super(parent);
 
         initBrowserForms();
-        connectionLabel.setCursor(Cursors.handCursor());
-        connectionSelectLabel.setCursor(Cursors.handCursor());
-        connectionSelectLabel.setText("");
-        connectionSelectLabel.setIcon(AllIcons.General.ArrowDown);
-
-        Mouse.Listener mouseListener = Mouse.listener().onClick(mouseEvent -> displayPopup());
-        connectionLabel.addMouseListener(mouseListener);
-        connectionSelectLabel.addMouseListener(mouseListener);
+        initConnectionSelector();
 
         Project project = ensureProject();
         ProjectEvents.subscribe(project, this, ConnectionHandlerStatusListener.TOPIC, connectionHandlerStatusListener());
         ProjectEvents.subscribe(project, this, EnvironmentManagerListener.TOPIC, environmentManagerListener());
+    }
+
+    private void initConnectionSelector() {
+        ActionGroup connectionActions = createConnectionActions();
+        DBNSelector selector = new DBNSelector("Select Connection", connectionActions);
+        selector.bindComponent(connectionLabel);
+        connectionSelectActions.add(selector);
+    }
+
+    private @NotNull ActionGroup createConnectionActions() {
+        return SelectConnectionAction.createActions(ensureProject(), (connectionId) -> selectConnection(connectionId));
     }
 
     @NotNull
@@ -151,31 +147,6 @@ public class SelectorBrowserForm extends DatabaseBrowserForm {
         return ConnectionHandler.get(selectedConnectionId);
     }
 
-    private void displayPopup() {
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
-        Project project = ensureProject();
-        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-        List<ConnectionHandler> connections = connectionManager.getConnections();
-        for (ConnectionHandler connection : connections) {
-            actionGroup.add(new SelectConnectionAction(connection));
-        }
-
-        popup = popupBuilder(actionGroup, this).
-                withTitle("Connections").
-                withTitleVisible(false).
-                withDisposeCallback(() -> popup = null).
-                withMaxRowCount(20).
-                withPreselectCondition(a -> {
-                    if (a instanceof SelectConnectionAction) {
-                        SelectConnectionAction connectionAction = (SelectConnectionAction) a;
-                        return Objects.equals(connectionAction.getConnectionId(), selectedConnectionId);
-                    }
-                    return false;
-                }).build();
-
-        Popups.showUnderneathOf(popup, connectionLabel, 8, 200);
-    }
-
     public ConnectionId getSelectedConnection() {
         return selectedConnectionId;
     }
@@ -222,27 +193,5 @@ public class SelectorBrowserForm extends DatabaseBrowserForm {
         }
 
         selectConnection(selectedConnectionId);
-    }
-
-    private class SelectConnectionAction extends AbstractConnectionAction {
-
-        SelectConnectionAction(ConnectionHandler connection) {
-            super(connection);
-        }
-
-        @Override
-        protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {
-            ConnectionHandler connection = getConnection();
-            if (connection == null) return;
-
-            presentation.setText(connection.getName(), false);
-            presentation.setIcon(connection.getIcon());
-
-        }
-
-        @Override
-        protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionHandler connection) {
-            selectConnection(connection.getConnectionId());
-        }
     }
 }

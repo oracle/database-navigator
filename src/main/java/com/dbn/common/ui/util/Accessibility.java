@@ -17,6 +17,7 @@
 package com.dbn.common.ui.util;
 
 import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -223,7 +224,16 @@ public class Accessibility {
     }
 
     public static void attachSelectionAnnouncer(DBNComboBox<?> comboBox, String name) {
-        ComboBoxes.onSelectionChange(comboBox, selectedItem -> announceEvent(comboBox, name + " selection changed to " + (selectedItem == null ? "empty" : selectedItem.getAccessibleName())));
+        ComboBoxes.onSelectionChange(comboBox, selectedItem -> announceEvent(comboBox, name + " selection changed to " + getAccessibleName(selectedItem)));
+    }
+
+    private static String getAccessibleName(Object value) {
+        if (value == null) return "empty";
+        if (value instanceof Presentable) {
+            Presentable presentable = (Presentable) value;
+            return presentable.getAccessibleName();
+        }
+        return value.toString();
     }
 
     public static void attachStateAnnouncer(JToggleButton toggle, String name) {

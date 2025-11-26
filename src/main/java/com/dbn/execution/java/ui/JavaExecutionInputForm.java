@@ -18,13 +18,13 @@ package com.dbn.execution.java.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
-import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.common.ui.ExecutionOptionsForm;
@@ -48,10 +48,10 @@ import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.util.List;
 
-import static com.dbn.common.ui.util.ComponentAligner.alignFormComponents;
+import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static java.util.Collections.emptyList;
 
-public class JavaExecutionInputForm extends DBNFormBase implements ComponentAligner.Container {
+public class JavaExecutionInputForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel argumentsPanel;
     private JPanel headerPanel;
@@ -86,6 +86,12 @@ public class JavaExecutionInputForm extends DBNFormBase implements ComponentAlig
         initOptionsPanel();
         initHeaderPanel(showHeader);
         initArgumentsPanel();
+    }
+
+    @Override
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerForms(parameterForms);
     }
 
     private void initDebuggerPanel() {
@@ -160,7 +166,7 @@ public class JavaExecutionInputForm extends DBNFormBase implements ComponentAlig
         parameterForms.forEach(c -> c.addDocumentListener(documentListener));
         argumentsScrollPane.setPreferredSize(argumentsPanel.getPreferredSize());
 
-        alignFormComponents(this);
+        alignFormFields(this);
 
     }
 
@@ -208,11 +214,8 @@ public class JavaExecutionInputForm extends DBNFormBase implements ComponentAlig
         changeListeners.notify(l -> l.stateChanged(changeEvent));
     }
 
-    /*********************************************************************
-     *                      {@link ComponentAligner}                     *
-     *********************************************************************/
-    @Override
-    public List<? extends ComponentAligner.Form> getAlignableForms() {
-        return parameterForms;
+    @Deprecated
+    public void touch() {
+        executionOptionsForm.touch();
     }
 }

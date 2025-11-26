@@ -16,8 +16,18 @@
 
 package com.dbn.database.common;
 
+import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.operation.DatabaseOperation;
+import com.dbn.common.util.Chars;
+import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionType;
+import com.dbn.connection.ConnectorProperties;
 import com.dbn.connection.DatabaseAttachmentHandler;
+import com.dbn.connection.SessionId;
+import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.ConnectionSslSettings;
+import com.dbn.connection.ssl.SslConnectionManager;
 import com.dbn.data.sorting.SortDirection;
 import com.dbn.database.DatabaseCompatibility;
 import com.dbn.database.DatabaseFeature;
@@ -26,17 +36,33 @@ import com.dbn.database.JdbcProperty;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.language.common.QuotePair;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import static com.dbn.common.util.Classes.simpleClassName;
+import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.connection.AuthenticationType.USER;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
 public abstract class DatabaseCompatibilityInterfaceImpl implements DatabaseCompatibilityInterface {
+    @NonNls
+    private interface Property {
+        String USER = "user";
+        String PASSWORD = "password";
+
+        String APPLICATION_NAME = "ApplicationName";
+    }
+
     private final Set<DatabaseObjectTypeId> supportedObjectTypes = new HashSet<>(getSupportedObjectTypes());
     private final Set<DatabaseFeature> supportedFeatures = new HashSet<>(getSupportedFeatures());
 
@@ -56,6 +82,11 @@ public abstract class DatabaseCompatibilityInterfaceImpl implements DatabaseComp
         if (!supportsObjectType(objectTypeId)) return false;
 
         return true;
+    }
+
+    @Override
+    public boolean supportsOperation(DatabaseOperation operation) {
+        return supportsFeature(operation.getFeature());
     }
 
     @Override
@@ -103,5 +134,75 @@ public abstract class DatabaseCompatibilityInterfaceImpl implements DatabaseComp
             compatibility.markUnsupported(feature);
         }
         return null;
+    }
+
+    @Override
+    public ConnectorProperties createConnectorProperties() {
+        Map<String, String> implicitProperties = getImplicitConnectionProperties();
+        ConnectorProperties connectorProperties = new ConnectorProperties();
+        connectorProperties.addAll(implicitProperties);
+        return connectorProperties;
+    }
+
+
+    @Override
+    public void initConnectorSslConnection(ConnectorProperties properties, ConnectionSettings settings) {
+        ConnectionSslSettings sslSettings = settings.getSslSettings();
+        if (!sslSettings.isActive()) return;
+
+        SslConnectionManager connectionManager = SslConnectionManager.getInstance();
+        connectionManager.ensureSslConnection(settings);
+    }
+
+    @Override
+    public void initConnectorDebugger(ConnectorProperties properties, ConnectionSettings settings) {}
+
+    @Override
+    public void initConnectorFileAttachments(ConnectionSettings settings, Connection connection) {}
+
+    @Override
+    public void initConnectorAuthentication(ConnectorProperties properties, @Nullable AuthenticationInfo authenticationInfo) {
+        if (authenticationInfo == null) return;
+
+        AuthenticationType authenticationType = authenticationInfo.getType();
+        if (authenticationType == null) return;
+
+        if (authenticationType.isOneOf(USER, USER_PASSWORD)) {
+            String user = authenticationInfo.getUser();
+            if (isNotEmpty(user)) {
+                properties.add(Property.USER, user);
+            }
+        }
+
+        if (authenticationType == USER_PASSWORD) {
+            char[] password = authenticationInfo.getPassword();
+            if (Chars.isNotEmpty(password)) {
+                properties.add(Property.PASSWORD, Chars.toString(password));
+            }
+        }
+    }
+
+
+    @Override
+    public void initConnectorSession(ConnectorProperties properties, ConnectionSettings settings, SessionId sessionId) {
+        if (!settings.isSigned()) return;
+
+        ConnectionType connectionType = sessionId.getConnectionType();
+        String appName = "DB Navigator - " + connectionType.getName();
+        properties.add(Property.APPLICATION_NAME, appName);
+
+    }
+
+    @Override
+    public boolean resetConnectorAndRetry(Throwable e, ConnectionSettings settings) {
+        if (!settings.isSigned()) return false;
+
+        // DBN-524 strongly asserted property names
+        String message = nvl(e.getMessage(), simpleClassName(e));
+        if (message.contains(Property.APPLICATION_NAME)) {
+            settings.setSigned(false);
+            return true;
+        }
+        return false;
     }
 }

@@ -22,6 +22,7 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.navigation.NavigationInstructions;
+import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
@@ -36,6 +37,7 @@ import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
 import com.dbn.execution.statement.result.StatementExecutionResult;
+import com.dbn.vector.result.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -51,6 +53,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.dbn.common.component.Components.projectService;
@@ -184,6 +187,10 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
         showExecutionConsole(c -> c.addResult(executionResult));
     }
 
+    public void addExecutionResult(VectorEmbeddingExecutionResult executionResult) {
+        showExecutionConsole(c -> c.addResult(executionResult));
+    }
+
     public void addExecutionResult(JavaExecutionResult executionResult) {
         showExecutionConsole(c -> c.addResult(executionResult));
     }
@@ -220,6 +227,11 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
         if (!executionConsoleForm.loaded()) return null;
         return Dispatch.call(true, () ->
                 getExecutionConsoleForm().getSelectedExecutionResult());
+    }
+
+    public Set<String> getExecutionResultNames(Class<? extends ExecutionResult<?>> resultType) {
+        ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
+        return executionConsoleForm.getExecutionResultNames(resultType);
     }
 
     /*********************************************

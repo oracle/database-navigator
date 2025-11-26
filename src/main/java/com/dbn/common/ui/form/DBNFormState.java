@@ -16,42 +16,57 @@
 
 package com.dbn.common.ui.form;
 
-import com.dbn.common.state.StateHolder;
+import com.dbn.common.data.Data;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.Presentable;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 
+import javax.swing.AbstractButton;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
+import static com.dbn.common.ui.util.CheckBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
 import static com.dbn.common.ui.util.ComboBoxes.selectElement;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.nvl;
 
 @UtilityClass
 public class DBNFormState {
 
-    public static <T extends Presentable> void initPersistence(JComboBox<T> comboBox, StateHolder stateHolder, @NonNls String stateAttribute) {
-        initSelectionListener(comboBox, s -> stateHolder.setAttribute(stateAttribute, s == null ? null : s.getName()));
+    public static <T extends Presentable> void initPersistence(JComboBox<T> comboBox, StateAttributes stateAttributes, @NonNls String stateAttribute) {
+        initSelectionListener(comboBox, s -> stateAttributes.setAttribute(stateAttribute, s == null ? null : s.getName()));
 
         comboBox.addPropertyChangeListener(e -> {
             if ("model".equals(e.getPropertyName())) {
-                selectElement(comboBox, stateHolder.getAttribute(stateAttribute));
+                selectElement(comboBox, stateAttributes.getAttribute(stateAttribute));
                 if (comboBox.getSelectedItem() == null && comboBox.getItemCount() > 0) {
                     comboBox.setSelectedIndex(0);
                 }
             }
         });
 
-        String attribute = stateHolder.getAttribute(stateAttribute);
+        String attribute = stateAttributes.getAttribute(stateAttribute);
         selectElement(comboBox, attribute);
     }
 
-    public static void initPersistence(JTextField textField, StateHolder stateHolder, @NonNls String stateAttribute) {
-        String attribute = stateHolder.getAttribute(stateAttribute);
+    public static void initPersistence(JTextField textField, StateAttributes stateAttributes, @NonNls String stateAttribute) {
+        String attribute = stateAttributes.getAttribute(stateAttribute);
 
         textField.setText(nvl(attribute, ""));
-        onTextChange(textField, e -> stateHolder.setAttribute(stateAttribute, textField.getText().trim()));
+        onTextChange(textField, e -> stateAttributes.setAttribute(stateAttribute, getText(textField)));
+    }
+
+    public static void initPersistence(AbstractButton button, StateAttributes stateAttributes, @NonNls String stateAttribute) {
+        String attribute = stateAttributes.getAttribute(stateAttribute);
+        if (attribute != null) {
+            // only change if attribute us present
+            boolean selected = Data.asBooleanPrimitive(attribute);
+            button.setSelected(selected);
+        }
+
+        onSelectionChange(button, e -> stateAttributes.setAttribute(stateAttribute, Data.asString(button.isSelected())));
     }
 }

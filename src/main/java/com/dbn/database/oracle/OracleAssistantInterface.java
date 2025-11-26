@@ -16,16 +16,17 @@
 
 package com.dbn.database.oracle;
 
-import com.dbn.assistant.DatabaseAssistantType;
+import com.dbn.assistant.AssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
-import com.dbn.database.common.assistant.AssistantQueryResponse;
+import com.dbn.database.common.statement.output.ClobOutput;
 import com.dbn.database.common.util.BooleanResultSetConsumer;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
+
 
 /**
  * Oracle specialized database interface responsible for interactions related to AI-Assistance
@@ -40,8 +41,8 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
     super("oracle_ai_interface.xml", provider);
   }
 
-  public AssistantQueryResponse generate(DBNConnection connection, String action, String profile, String attributes, String prompt) throws SQLException {
-    return executeCall(connection, new AssistantQueryResponse(), "ai-generate", profile, action, attributes, prompt);
+  public String generate(DBNConnection connection, String action, String profile, String attributes, String prompt) throws SQLException {
+    return executeCall(connection, new ClobOutput(), "ai-generate", profile, action, attributes, prompt).getValue();
   }
 
   @Override
@@ -60,12 +61,11 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
-  public DatabaseAssistantType getAssistantType(DBNConnection connection) throws SQLException {
+  public AssistantType getAssistantType(DBNConnection connection) throws SQLException {
     return isAssistantFeatureSupported(connection) ?
-            DatabaseAssistantType.SELECT_AI :
-            DatabaseAssistantType.GENERIC;
+            AssistantType.SELECT_AI :
+            AssistantType.PUBLIC;
   }
-
 
   @Override
   public void createPwdCredential(DBNConnection connection, String credentialName, String userName, String password) throws SQLException {
@@ -127,5 +127,14 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   public void setCurrentProfile(DBNConnection connection, String profileName) throws SQLException {
     executeUpdate(connection, "set-current-profile", profileName);
   }
-}
 
+    @Override
+    public void enableDataAccess(DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "enable-data-access");
+    }
+
+    @Override
+    public void disableDataAccess(DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "disable-data-access");
+    }
+}

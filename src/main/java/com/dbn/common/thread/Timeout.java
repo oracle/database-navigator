@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.dbn.common.exception.Exceptions.timeoutException;
 import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -148,6 +149,11 @@ public final class Timeout {
         } catch (TimeoutException | InterruptedException e) {
             conditionallyLog(e);
             future.cancel(true);
+
+            if (e.getMessage() == null) {
+                throw timeoutException(time, timeUnit);
+            }
+
             throw e;
         }
     }

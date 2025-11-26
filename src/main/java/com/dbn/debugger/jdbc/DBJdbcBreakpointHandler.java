@@ -36,6 +36,7 @@ import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.psql.PSQLFile;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.editor.Document;
@@ -140,16 +141,18 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
     }
 
     @Override
-    public void registerDefaultBreakpoint(DBMethod method) {
+    public void registerDefaultBreakpoint(DBObjectRef<DBMethod> method) {
         DBEditableObjectVirtualFile mainDatabaseFile = DBDebugUtil.getMainDatabaseFile(method);
 
         if (mainDatabaseFile == null) return;
 
         DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) mainDatabaseFile.getMainContentFile();
+        if (sourceCodeFile == null) return;
+
         PSQLFile psqlFile = (PSQLFile) sourceCodeFile.getPsiFile();
         if (psqlFile == null) return;
 
-        BasePsiElement basePsiElement = psqlFile.lookupObjectDeclaration(method.getObjectType().getGenericType(), method.getName());
+        BasePsiElement basePsiElement = psqlFile.lookupObjectDeclaration(method.getObjectType().getGenericType(), method.getObjectName());
         if (basePsiElement == null) return;
 
         BasePsiElement subject = basePsiElement.findFirstPsiElement(ElementTypeAttribute.SUBJECT);
@@ -158,19 +161,24 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
         if (document == null) return;
 
         int line = document.getLineNumber(offset);
-        DBSchemaObject schemaObject = DBDebugUtil.getMainDatabaseObject(method);
+        DBObjectRef<DBSchemaObject> schemaObject = DBDebugUtil.getMainDatabaseObject(method);
         if (schemaObject == null) return;
 
         try {
             defaultBreakpointInfo = getDebuggerInterface().addProgramBreakpoint(
-                    method.getSchema().getName(),
-                    schemaObject.getName(),
+                    method.getSchemaName(),
+                    schemaObject.getObjectName(),
                     cachedUpperCase(schemaObject.getObjectType().getName()),
                     line,
                     getDebugConnection());
         } catch (SQLException e) {
             conditionallyLog(e);
         }
+    }
+
+    @Override
+    public void registerWrapperBreakpoint(DBObjectRef<DBMethod> wrapperMethod) {
+        // only for java wrappers - not supported in JDBC debug
     }
 
     @Override
@@ -193,14 +201,14 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
         ConnectionHandler connection = getConnection();
         DatabaseDebuggerInterface debuggerInterface = connection.getDebuggerInterface();
         DBNConnection debugConnection = getDebugConnection();
-        DBSchemaObject object = DBBreakpointUtil.getDatabaseObject(breakpoint);
+        DBObjectRef object = DBBreakpointUtil.getDatabaseObject(breakpoint);
         return object == null ?
                 debuggerInterface.addSourceBreakpoint(
                         breakpoint.getLine(),
                         debugConnection) :
                 debuggerInterface.addProgramBreakpoint(
-                        object.getSchema().getName(),
-                        object.getName(),
+                        object.getSchemaName(),
+                        object.getObjectName(),
                         cachedUpperCase(object.getObjectType().getName()),
                         breakpoint.getLine(),
                         debugConnection);

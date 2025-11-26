@@ -191,7 +191,12 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         }
 
         ConnectionSettingsForm currentForm = cachedForms.get(currentPanelId);
-        String selectedTabName = currentForm == null ? null : currentForm.getSelectedTabName();
+        // inform the current form that its tab is
+        // being replaced with a different selection
+        String selectedTabName = null;
+        if (currentForm != null) {
+            selectedTabName = currentForm.getSelectedTabName();
+        }
 
         currentPanelId = connectionSettings.getConnectionId().id();
         if (!cachedForms.containsKey(currentPanelId)) {
@@ -253,6 +258,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         DatabaseInfo databaseInfo = connectionConfig.getDatabaseInfo();
         String dbUrl = getUrl(ociConnectionData);
         databaseInfo.setUrl(dbUrl);
+        // TODO: Azure token values?
         connectionConfig.getAuthenticationInfo().setTokenConfigFile(ociConnectionData.getConfigFile());
         connectionConfig.getAuthenticationInfo().setTokenProfile(ociConnectionData.getConfigProfile());
         databaseInfo.setUrlType(DatabaseUrlType.CUSTOM);
@@ -281,7 +287,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         ConnectionSettingsForm settingsEditor = connectionSettings.getSettingsEditor();
         if (settingsEditor == null) return;
 
-        getConfiguration().setModified(true);
+        mackConfigModified();
 
         try {
             ConnectionSettings duplicate = settingsEditor.getTemporaryConfig();
@@ -306,7 +312,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
     }
 
     public void changeSelectionEnabledStatus(boolean enabled) {
-        getConfiguration().setModified(true);
+        mackConfigModified();
         List<ConnectionSettings> selectedSettings = connectionsList.getSelectedValuesList();
         for (ConnectionSettings connectionSettings : selectedSettings) {
             connectionSettings.setActive(enabled);
@@ -330,7 +336,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
     }
 
     public void removeSelectedConnections() {
-        getConfiguration().setModified(true);
+        mackConfigModified();
         List<ConnectionSettings> connectionSettings = ListUtil.removeSelectedItems(connectionsList);
         for (ConnectionSettings connectionSetting : connectionSettings) {
             connectionSetting.disposeUIResources();
@@ -339,12 +345,12 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
     }
 
     public void moveSelectedConnectionsUp() {
-        getConfiguration().setModified(true);
+        mackConfigModified();
         ListUtil.moveSelectedItemsUp(connectionsList);
     }
 
     public void moveSelectedConnectionsDown() {
-        getConfiguration().setModified(true);
+        mackConfigModified();
         ListUtil.moveSelectedItemsDown(connectionsList);
     }
 
@@ -450,6 +456,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
                 ociConnectionData.setConnectionId(databaseSettings.getConnectionId());
                 databaseSettings.getAuthenticationInfo().setTokenConfigFile(ociConnectionData.getConfigFile());
                 databaseSettings.getAuthenticationInfo().setTokenProfile(ociConnectionData.getConfigProfile());
+                // TODO handle AZURE token cases
             }else {
                 name = tnsProfile.getProfile();
             }

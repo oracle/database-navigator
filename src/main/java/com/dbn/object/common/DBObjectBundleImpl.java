@@ -46,7 +46,6 @@ import com.dbn.database.DatabaseObjectIdentifier;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManagerListener;
 import com.dbn.execution.compiler.CompileManagerListener;
-import com.dbn.execution.statement.DataDefinitionChangeListener;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.DBCharset;
 import com.dbn.object.DBConsole;
@@ -148,7 +147,6 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
                 () -> loadPublicSchemas());
 
         Project project = connection.getProject();
-        ProjectEvents.subscribe(project, this, DataDefinitionChangeListener.TOPIC, dataDefinitionChangeListener());
         ProjectEvents.subscribe(project, this, SourceCodeManagerListener.TOPIC, sourceCodeManagerListener());
         ProjectEvents.subscribe(project, this, CompileManagerListener.TOPIC, compileManagerListener());
         ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, objectChangeListener());
@@ -163,15 +161,6 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     private PsiFile createFakePsiFile() {
         PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(getProject());
         return Read.call(psiFileFactory, f -> f.createFileFromText("object", SQLLanguage.INSTANCE, ""));
-    }
-
-    @NotNull
-    private DataDefinitionChangeListener dataDefinitionChangeListener() {
-        return schemaObject -> {
-            if (schemaObject.getConnectionId() == getConnectionId()) {
-                schemaObject.refresh();
-            }
-        };
     }
 
     @NotNull
@@ -292,6 +281,14 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     @Nullable
     public DBSchema getSchema(String name) {
         return nn(schemas).getObject(name);
+    }
+
+    @Override
+    public @Nullable DBSchema getSchema(SchemaId schemaId) {
+        if (schemaId == null) return null;
+
+        String name = schemaId.id();
+        return getSchema(name);
     }
 
     @Override

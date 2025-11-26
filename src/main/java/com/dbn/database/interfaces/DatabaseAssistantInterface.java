@@ -16,9 +16,8 @@
 
 package com.dbn.database.interfaces;
 
-import com.dbn.assistant.DatabaseAssistantType;
+import com.dbn.assistant.AssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.common.assistant.AssistantQueryResponse;
 
 import java.sql.SQLException;
 
@@ -42,7 +41,7 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
    * @return The result of the AI query execution.
    * @throws SQLException If there is an error in executing the AI query.
    */
-  AssistantQueryResponse generate(DBNConnection connection, String action, String profile, String attributes, String prompt) throws SQLException;
+  String generate(DBNConnection connection, String action, String profile, String attributes, String prompt) throws SQLException;
 
   /**
    * Grant a user the necessary privileges to access needed packages (DBMS_CLOUD, DBMS_CLOUD_AI)
@@ -93,8 +92,11 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
 
   void disableProfile(DBNConnection connection, String ownerName, String profileName) throws SQLException;
 
+  void enableDataAccess(DBNConnection connection) throws SQLException;
 
-  default DatabaseAssistantType getAssistantType(DBNConnection connection) throws SQLException {
-    return DatabaseAssistantType.GENERIC;
+  void disableDataAccess(DBNConnection connection) throws SQLException;
+
+  default AssistantType getAssistantType(DBNConnection connection) throws SQLException {
+    return AssistantType.PUBLIC;
   }
 }

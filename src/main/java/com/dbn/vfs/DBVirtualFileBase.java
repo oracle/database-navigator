@@ -49,8 +49,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class DBVirtualFileBase extends VirtualFile implements DBVirtualFile, Presentable, VirtualFilePathWrapper {
     private static final AtomicInteger ID_STORE = new AtomicInteger(1000);
     private final int id;
-    private final ProjectRef project;
-    private final WeakRef<DatabaseFileSystem> fileSystem;
+    private final transient ProjectRef project;
+    private final transient WeakRef<DatabaseFileSystem> fileSystem;
 
     protected String path;
     protected String url;

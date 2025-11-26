@@ -29,23 +29,30 @@ import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 public class OracleMessageParserInterface implements DatabaseMessageParserInterface {
+    private static final Set<Integer> successExceptionCodes = Set.of(
+                   31, // https://docs.oracle.com/error-help/db/ora-00031
+                24344  // https://docs.oracle.com/error-help/db/ora-24344
+                       // ...
+                    );
+
     @Override
     @Nullable
     public DatabaseObjectIdentifier identifyObject(SQLException exception) {
         @NonNls String message = exception.getMessage();
-        if (message != null) {
-            if (message.startsWith("ORA-01400")) return identifyColumn(message);
-            if (message.startsWith("ORA-01401")) return identifyColumn(message);
-            if (message.startsWith("ORA-01407")) return identifyColumn(message);
-            if (message.startsWith("ORA-12899")) return identifyColumn(message);
-            if (message.startsWith("ORA-00001")) return identifyConstraint(message);
-            if (message.startsWith("ORA-02291")) return identifyConstraint(message);
-            if (message.startsWith("ORA-02290")) return identifyConstraint(message);
-            if (message.startsWith("ORA-04098")) return identifyTrigger(message);
-        }
+        if (message == null) return null;
+
+        if (message.startsWith("ORA-01400")) return identifyColumn(message);
+        if (message.startsWith("ORA-01401")) return identifyColumn(message);
+        if (message.startsWith("ORA-01407")) return identifyColumn(message);
+        if (message.startsWith("ORA-12899")) return identifyColumn(message);
+        if (message.startsWith("ORA-00001")) return identifyConstraint(message);
+        if (message.startsWith("ORA-02291")) return identifyConstraint(message);
+        if (message.startsWith("ORA-02290")) return identifyConstraint(message);
+        if (message.startsWith("ORA-04098")) return identifyTrigger(message);
         return null;
     }
 
@@ -67,7 +74,8 @@ public class OracleMessageParserInterface implements DatabaseMessageParserInterf
 
     @Override
     public boolean isSuccessException(SQLException exception) {
-        return exception.getErrorCode() == 31;
+        int errorCode = exception.getErrorCode();
+        return successExceptionCodes.contains(errorCode);
     }
 
     private DatabaseObjectIdentifier identifyColumn(String message) {

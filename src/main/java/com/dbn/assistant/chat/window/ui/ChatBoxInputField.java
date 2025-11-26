@@ -30,7 +30,6 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionStatusListener;
 import com.dbn.connection.SessionId;
 import com.dbn.object.event.ObjectChangeListener;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -52,6 +51,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
+import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 
 /**
  * Input field used for the chat-box user prompt
@@ -67,6 +67,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         this.chatBox = WeakRef.of(chatBox);
         this.editor = createEditor();
         add(editor.getComponent(), BorderLayout.CENTER);
+        setBorder(Borders.insetBorder(0, 8, 8, 8));
         Disposer.register(chatBox, this);
 
         ProjectEvents.subscribe(getProject(), this, AssistantStateListener.TOPIC, createStateListener());
@@ -86,9 +87,10 @@ public class ChatBoxInputField extends JPanel implements Disposable {
     }
 
     private ObjectChangeListener createObjectChangeListener() {
-        return (connectionId, o, t, a) -> {
-            if (connectionId != getConnectionId()) return;
-            if (t != DBObjectType.AI_PROFILE) return;
+        return e -> {
+            if (!e.matches(getConnectionId())) return;
+            if (!e.matches(AI_PROFILE)) return;
+
             refreshComponentState();
         };
     }

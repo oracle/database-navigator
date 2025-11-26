@@ -17,11 +17,53 @@
         // OCI API Key token authentication
         String tokenConfigFile = #if (${TOKEN_CONFIG_FILE})"${TOKEN_CONFIG_FILE}";#else null; // TODO please specify the OCI Token Config File#end
         String tokenProfile = #if (${TOKEN_PROFILE})"${TOKEN_PROFILE}";#else null; // TODO please specify OCI Token Profile#end
+        String ociCompartment = #if (${OCI_COMPARTMENT})"${OCI_COMPARTMENT}";#else null; // TODO you may need to set this value#end
+        String ociDatabase = #if (${OCI_DATABASE})"${OCI_DATABASE}";#else null; // TODO if this value is set then compartment must be set#end
         properties.put(PROP_TOKEN_AUTH, "OCI_API_KEY");
         properties.put(PROP_OCI_CONFIG_FILE, tokenConfigFile);
         properties.put(PROP_OCI_PROFILE, tokenProfile);
-    #elseif (${AUTH_TOKEN_TYPE} == 'OCI_INTERACTIVE')
+        #if (${OCI_COMPARTMENT})
+        properties.put(PROP_OCI_COMPARTMENT, ociCompartment);
+        #else
+        //properties.put(PROP_OCI_COMPARTMENT, ociCompartment);
+        #end
+        #if (${OCI_DATABASE})
+        properties.put(PROP_OCI_DATABASE, ociDatabase);
+        #else
+        //properties.put(PROP_OCI_DATABASE, ociDatabase);
+        #end
+   #elseif (${AUTH_TOKEN_TYPE} == 'OCI_INTERACTIVE')
         // OCI Interactive token authentication
+        String ociCompartment = #if (${OCI_COMPARTMENT})"${OCI_COMPARTMENT}";#else null; // TODO you may need to set this value#end
+        String ociDatabase = #if (${OCI_DATABASE})"${OCI_DATABASE}";#else null; // TODO if this value is set then compartment must be set#end
         properties.put(PROP_TOKEN_AUTH, "OCI_INTERACTIVE");
+        #if (${OCI_COMPARTMENT})
+        properties.put(PROP_OCI_COMPARTMENT, ociCompartment);
+        #else
+        //properties.put(PROP_OCI_COMPARTMENT, ociCompartment);
+        #end
+        #if (${OCI_DATABASE})
+        properties.put(PROP_OCI_DATABASE, ociDatabase);
+        #else
+        //properties.put(PROP_OCI_DATABASE, ociDatabase);
+        #end
+    #elseif (${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_CERT' || ${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_SECRET')
+        properties.put(PROP_TOKEN_AUTH, "AZURE_SERVICE_PRINCIPAL");
+        properties.put(PROP_AZURE_TOKEN_CLIENT_ID, "${AZURE_TOKEN_CLIENT_ID}");
+        properties.put(PROP_AZURE_TOKEN_TENANT_ID, "${AZURE_TOKEN_TENANT_ID}");
+        properties.put(PROP_AZURE_TOKEN_DATABASE_ID_URI, "${AZURE_TOKEN_DATABASE_ID_URI}");
+        #if (${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_CERT')
+        properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_FILE, "${AZURE_TOKEN_CLIENT_SECRET_FILE}");
+           #if (${AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD})
+              String certificatePassword = System.getProperty(PROP_AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD);
+              properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_FILE_PASSWORD, certificatePassword);
+           #end
+        #elseif (${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_SECRET')
+             String secretToken = System.getProperty(PROP_AZURE_TOKEN_CLIENT_SECRET_TOKEN);
+             properties.put(PROP_AZURE_TOKEN_CLIENT_SECRET_TOKEN, secretToken);
+        #end
+    #elseif (${AUTH_TOKEN_TYPE} == 'AZURE_INTERACTIVE')
+        properties.put(PROP_TOKEN_AUTH, "AZURE_INTERACTIVE");
+        properties.put(PROP_AZURE_TOKEN_DATABASE_ID_URI, "${AZURE_TOKEN_DATABASE_ID_URI}");
     #end
 #end

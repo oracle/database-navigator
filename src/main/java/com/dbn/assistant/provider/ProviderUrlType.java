@@ -24,6 +24,8 @@ package com.dbn.assistant.provider;
  */
 public enum ProviderUrlType {
     API,      // provider api documentation
-    GUIDE,    // oracle guide for setting up provider profiles
+    KEYS,     // provider api keys setup
+    DOCS,     // provider documentation
+    GUIDE,    // guide for setting up provider profiles (oracle select-ai)
     OFFICIAL, // official provider site
 }

@@ -23,6 +23,7 @@ import com.dbn.common.text.MimeType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.LookAndFeel;
+import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.RoundedLineBorder;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -40,7 +41,6 @@ import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
-import static com.dbn.common.text.HtmlContents.initFonts;
 import static com.dbn.common.ui.util.ClientProperty.RESIZING;
 import static com.dbn.common.ui.util.UserInterface.adjustDimension;
 
@@ -93,6 +93,8 @@ public class DBNHintForm extends DBNFormBase {
                 updateHintContent();
             }
         });
+
+        hintTextPane.addHyperlinkListener(new BrowserHyperlinkListener());
 
         mainPanel.addComponentListener(new ComponentAdapter() {
             @Override
@@ -187,16 +189,26 @@ public class DBNHintForm extends DBNFormBase {
     }
 
     private void initPlainContent() {
-        hintTextPane.setContentType(content.getTypeId());
-        hintTextPane.setText(content.getText());
+        setContent();
+
+        whenSettingsChange(() -> resetContent());
     }
 
     private void initHtmlContent() {
-        String htmlContent = content.getText();
-        htmlContent = initFonts(htmlContent); // TODO use velocity template engine
+        content.initFonts();
+        setContent();
 
+        whenSettingsChange(() -> resetContent());
+    }
+
+    private void resetContent() {
+        content.rebuild();
+        setContent();
+    }
+
+    private void setContent() {
         hintTextPane.setContentType(content.getTypeId());
-        hintTextPane.setText(htmlContent);
+        hintTextPane.setText(content.getText());
     }
 
     private void initEmptyContent() {

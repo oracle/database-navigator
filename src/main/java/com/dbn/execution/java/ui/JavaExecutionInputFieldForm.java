@@ -19,21 +19,16 @@ package com.dbn.execution.java.ui;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.string.StringDeBuilder;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.UserValueHolderImpl;
-import com.dbn.execution.common.input.ExecutionVariable;
-import com.dbn.execution.common.input.ExecutionVariableHistory;
 import com.dbn.execution.java.JavaExecutionInput;
-import com.dbn.execution.java.JavaExecutionManager;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.lookup.DBObjectRef;
@@ -46,21 +41,21 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.execution.java.ui.JavaExecutionInputUtil.setupSingleDimArrayEditor;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static java.util.Collections.emptyList;
 
-public class JavaExecutionInputFieldForm extends DBNFormBase implements ComponentAligner.Form{
+public class JavaExecutionInputFieldForm extends DBNFormBase {
 	private JPanel mainPanel;
 	private JLabel fieldLabel;
 	private JLabel fieldTypeLabel;
@@ -88,6 +83,13 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		} else {
 			initClassField();
 		}
+	}
+
+	@Override
+	protected void initFieldAlignment() {
+		FieldAlignerData alignerData = getFieldAlignerData();
+		alignerData.registerForms(fieldForms);
+		alignerData.registerFieldGroup(fieldLabel, inputFieldPanel, fieldTypeLabel);
 	}
 
 	private int computeIndent() {
@@ -147,13 +149,15 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
 
-
-		inputField.createValuesListPopup(createValuesProvider(), field, true);
 		inputTextField = inputField.getTextField();
 		inputTextField.setText(value);
-		inputFieldPanel.add(inputField, BorderLayout.CENTER);
-
+		inputFieldPanel.add(inputField);
 		inputTextField.setDisabledTextColor(inputTextField.getForeground());
+
+        if (field.getArrayDepth() == 1) {
+            setupSingleDimArrayEditor(inputField, field);
+        }
+        inputField.createValuesListPopup(createValuesProvider(), field, true);
 	}
 
 	private void initClassField() {
@@ -196,23 +200,6 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
                 JavaExecutionInput executionInput = getExecutionInput();
                 return executionInput.getInputValueHistory(fieldPath);
             }
-
-			@Override
-			public List<String> getSecondaryValues() {
-				DBJavaField field = getField();
-                if (field == null) return emptyList();
-
-                ConnectionHandler connection = field.getConnection();
-                ConnectionId connectionId = connection.getConnectionId();
-				JavaExecutionManager executionManager = JavaExecutionManager.getInstance(field.getProject());
-                ExecutionVariableHistory valuesHistory = executionManager.getInputValuesHistory();
-				ExecutionVariable argumentValue = valuesHistory.getExecutionVariable(connectionId, field.getName(), false);
-                if (argumentValue == null) return emptyList();
-
-                List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
-                cachedValues.removeAll(getValues());
-                return cachedValues;
-            }
 		};
 	}
 
@@ -247,7 +234,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 				String value = userValueHolder.getUserValue();
 				executionInput.setInputValue(fieldPath, value);
 			} else {
-				String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
+				String value = Commons.nullIfEmpty(getText(inputTextField));
 				executionInput.setInputValue(fieldPath, value);
 			}
 		} else {
@@ -263,19 +250,6 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 	JavaExecutionInput getExecutionInput() {
 		JavaExecutionInputForm executionInputForm = getParentFrom(JavaExecutionInputForm.class);
 		return nd(executionInputForm).getExecutionInput();
-	}
-
-	/*********************************************************************
-	 *                      {@link ComponentAligner}
-	 *********************************************************************/
-	@Override
-	public Component[] getAlignableComponents() {
-		return new Component[] {fieldLabel, inputFieldPanel, fieldTypeLabel};
-	}
-
-	@Override
-	public List<? extends ComponentAligner.Form> getAlignableForms() {
-		return fieldForms;
 	}
 
 	public int countFields() {

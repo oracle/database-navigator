@@ -23,12 +23,13 @@ import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.common.process.DBDebugProcess;
 import com.dbn.object.DBMethod;
-import com.dbn.object.common.DBObject;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.List;
 import static com.dbn.debugger.common.breakpoint.DBBreakpointUtil.getBreakpointDesc;
 import static com.dbn.debugger.common.process.DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED;
 
+@Getter
 public abstract class DBBreakpointHandler<T extends DBDebugProcess> extends XBreakpointHandler<XLineBreakpoint<XBreakpointProperties>> implements NotificationSupport {
     private final XDebugSession session;
     private final T debugProcess;
@@ -46,14 +48,7 @@ public abstract class DBBreakpointHandler<T extends DBDebugProcess> extends XBre
         this.debugProcess = debugProcess;
     }
 
-    public XDebugSession getSession() {
-        return session;
-    }
-
-    public T getDebugProcess() {
-        return debugProcess;
-    }
-
+    @NotNull
     @Override
     public Project getProject() {
         return session.getProject();
@@ -91,7 +86,7 @@ public abstract class DBBreakpointHandler<T extends DBDebugProcess> extends XBre
 
     protected abstract void unregisterDatabaseBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint, boolean temporary);
 
-    public void registerBreakpoints(@NotNull List<XLineBreakpoint<XBreakpointProperties>> breakpoints, List<? extends DBObject> objects) {
+    public void registerBreakpoints(@NotNull List<XLineBreakpoint<XBreakpointProperties>> breakpoints, List<DBObjectRef<DBMethod>> objects) {
         for (XLineBreakpoint<XBreakpointProperties> breakpoint : breakpoints) {
             registerBreakpoint(breakpoint);
         }
@@ -119,7 +114,9 @@ public abstract class DBBreakpointHandler<T extends DBDebugProcess> extends XBre
         return getConnection().getDebuggerInterface();
     }
 
-    public abstract void registerDefaultBreakpoint(DBMethod method);
+    public abstract void registerDefaultBreakpoint(DBObjectRef<DBMethod> method);
+
+    public abstract void registerWrapperBreakpoint(DBObjectRef<DBMethod> wrapperMethod);
 
     public abstract void unregisterDefaultBreakpoint();
 }

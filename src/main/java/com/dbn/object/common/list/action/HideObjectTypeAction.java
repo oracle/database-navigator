@@ -42,7 +42,7 @@ public class HideObjectTypeAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Hide " + objectList.getObjectType().getCapitalizedListName());
+        presentation.setText("Hide " + objectList.getObjectType().getTitleCasedListName());
 
         boolean visible = isVisible();
         presentation.setVisible(visible);
@@ -54,7 +54,7 @@ public class HideObjectTypeAction extends ProjectAction {
         ObjectTypeFilterSettings settings = getTypeFilterSettings();
 
         DBObjectType objectType = objectList.getObjectType();
-        String listName = objectType.getCapitalizedListName();
+        String listName = objectType.getTitleCasedListName();
 
         String title = "Hide " + listName;
         String message = "Are you sure you want to hide the " + listName + " for the \"" + connection.getName() + "\" connection? " +

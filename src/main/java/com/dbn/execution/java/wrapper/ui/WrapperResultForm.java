@@ -20,7 +20,8 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
-import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.WrapperModel;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.ui.DBObjectRefListCellRenderer;
 import com.dbn.object.common.ui.DBObjectRefListModel;
 import com.dbn.object.lookup.DBObjectRef;
@@ -37,29 +38,30 @@ public class WrapperResultForm extends DBNFormBase {
     private JPanel objectsPanel;
     private JBList<DBObjectRef> objectsList;
 
-    public WrapperResultForm(WrapperResultDialog dialog, Wrapper wrapper) {
+    public WrapperResultForm(WrapperResultDialog dialog, WrapperModel model) {
         super(dialog);
 
-        initHeaderPanel(wrapper);
-        initHintPanel(wrapper);
-        initObjectList(wrapper);
+        initHeaderPanel(model);
+        initHintPanel(model);
+        initObjectList(model);
     }
 
-    private void initHeaderPanel(Wrapper wrapper) {
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, wrapper.getSourceObjectRef());
-        this.headerPanel.add(headerForm.getMainComponent());
+    private void initHeaderPanel(WrapperModel model) {
+        DBObject sourceObject = model.getSourceObject();
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, sourceObject);
+        this.headerPanel.add(headerForm.getComponent());
     }
 
-    private void initHintPanel(Wrapper wrapper) {
-        DBObjectType objectType = wrapper.getSourceObjectRef().getObjectType();
+    private void initHintPanel(WrapperModel model) {
+        DBObjectType objectType = model.getSourceObject().getObjectType();
         TextContent hintText = TextContent.plain("The following execution wrapper objects were created in the database for the given " + objectType.getName());
         DBNHintForm hintForm = new DBNHintForm(this, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }
 
 
-    private void initObjectList(Wrapper wrapper) {
-        objectsList.setModel(new DBObjectRefListModel<>(this, wrapper.getWrapperObjects()));
+    private void initObjectList(WrapperModel model) {
+        objectsList.setModel(new DBObjectRefListModel<>(this, model.getWrapperObjects()));
         objectsList.setCellRenderer(new DBObjectRefListCellRenderer<>());
     }
 

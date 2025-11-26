@@ -31,25 +31,27 @@ import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.DatabaseFeature;
 import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.interfaces.DatabaseExecutionInterface;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.ExecutionStatus;
-import com.dbn.execution.common.input.ExecutionVariable;
-import com.dbn.execution.common.input.ExecutionVariableHistory;
 import com.dbn.execution.java.browser.JavaBrowserSettings;
+import com.dbn.execution.java.browser.ui.JavaExecutionBrowserDialog;
 import com.dbn.execution.java.history.ui.JavaExecutionHistoryDialog;
 import com.dbn.execution.java.ui.JavaExecutionHistory;
 import com.dbn.execution.java.ui.JavaExecutionInputDialog;
 import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBSchema;
+import com.dbn.object.common.ui.ObjectTreeModel;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import lombok.Getter;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,7 +75,6 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 
 	private final JavaBrowserSettings browserSettings = new JavaBrowserSettings();
 	private final JavaExecutionHistory executionHistory = new JavaExecutionHistory(getProject());
-	private final ExecutionVariableHistory inputValuesHistory = new ExecutionVariableHistory();
 
 	private JavaExecutionManager(Project project) {
 		super(project, COMPONENT_NAME);
@@ -87,7 +88,6 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 			public void connectionRemoved(ConnectionId connectionId) {
 				browserSettings.connectionRemoved(connectionId);
 				executionHistory.connectionRemoved(connectionId);
-				inputValuesHistory.connectionRemoved(connectionId);
 			}
 		};
 	}
@@ -106,11 +106,11 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 	}
 
 	public void startMethodExecution(@NotNull JavaExecutionInput executionInput, @NotNull DBDebuggerType debuggerType) {
-		promptExecutionDialog(executionInput, debuggerType, () -> JavaExecutionManager.this.execute(executionInput));
+		promptExecutionDialog(executionInput, debuggerType, () -> execute(executionInput));
 	}
 
 	public void startMethodExecution(@NotNull DBJavaMethod method, @NotNull DBDebuggerType debuggerType) {
-		promptExecutionDialog(method, debuggerType, () -> JavaExecutionManager.this.execute(method));
+        promptExecutionDialog(method, debuggerType, () -> execute(method));
 	}
 
 	private void promptExecutionDialog(@NotNull DBJavaMethod method, @NotNull DBDebuggerType debuggerType, Runnable callback) {
@@ -122,7 +122,7 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 		Project project = executionInput.getProject();
 		DBObjectRef<DBJavaMethod> methodRef = executionInput.getMethodRef();
 
-		ConnectionAction.invoke("the method execution", false, executionInput,
+		ConnectionAction.invoke("The Method Execution", false, executionInput,
 				action -> Progress.prompt(project, action, true,
 						"Loading method details",
 						"Loading details of " + methodRef.getQualifiedNameWithType(),
@@ -197,7 +197,6 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 	}
 
 	public void execute(JavaExecutionInput input) {
-		cacheArgumentValues(input);
 		executionHistory.setSelection(input.getMethodRef());
 		DBJavaMethod method = input.getMethod();
 		JavaExecutionContext context = input.getExecutionContext();
@@ -230,7 +229,7 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 							context.set(ExecutionStatus.EXECUTING, false);
 							if (context.isNot(ExecutionStatus.CANCELLED)) {
 								Messages.showErrorDialog(project,
-										"Method execution error",
+                                        "Method Execution Error",
 										"Error executing " + method.getQualifiedNameWithType() + ".\n" + e.getMessage().trim(),
 										new String[]{"Try Again", "Cancel"}, 0,
 										option -> when(option == 0, () ->
@@ -241,79 +240,63 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 		}
 	}
 
-	private void cacheArgumentValues(JavaExecutionInput input) {
-		ConnectionHandler connection = input.getExecutionContext().getTargetConnection();
-		if (connection == null) return;
+	public void debugExecute (
+			@NotNull JavaExecutionInput input,
+			@NotNull DBNConnection conn,
+			DBDebuggerType debuggerType) throws SQLException {
 
-		for (val entry : input.getExecutionVariables().entrySet()) {
-			ExecutionVariable argumentValue = entry.getValue();
+		DBJavaMethod method = input.getMethod();
+		if (method == null) return;
 
-			inputValuesHistory.cacheVariable(
-					connection.getConnectionId(),
-					argumentValue.getPath(),
-					argumentValue.getValue());
+		ConnectionHandler connection = method.getConnection();
+		DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
+		JavaExecutionProcessor executionProcessor = executionInterface.createDebugExecutionProcessor(method);
+
+		executionProcessor.execute(input, conn, debuggerType);
+		JavaExecutionContext context = input.getExecutionContext();
+		if (context.isNot(ExecutionStatus.CANCELLED)) {
+			ExecutionManager executionManager = ExecutionManager.getInstance(method.getProject());
+			executionManager.addExecutionResult(input.getExecutionResult());
 		}
+		context.set(ExecutionStatus.CANCELLED, false);
 	}
 
-//	public void debugExecute(
-//			@NotNull JavaExecutionInput input,
-//			@NotNull DBNConnection conn,
-//			DBDebuggerType debuggerType) throws SQLException {
-//
-//		DBJavaMethod method = input.getMethod();
-//		if (method == null) return;
-//
-//		ConnectionHandler connection = method.getConnection();
-//		DatabaseExecutionInterface executionInterface = connection.getInterfaces().getExecutionInterface();
-//		JavaExecutionProcessor executionProcessor = debuggerType == DBDebuggerType.JDWP ?
-//				executionInterface.createExecutionProcessor(method) :
-//				null;//executionInterface.createDebugExecutionProcessor(method);
-//
-//		executionProcessor.execute(input, conn, debuggerType);
-//		JavaExecutionContext context = input.getExecutionContext();
-//		if (context.isNot(ExecutionStatus.CANCELLED)) {
-//			ExecutionManager executionManager = ExecutionManager.getInstance(method.getProject());
-//			executionManager.addExecutionResult(input.getExecutionResult());
-//		}
-//		context.set(ExecutionStatus.CANCELLED, false);
-//	}
-//
-//	public void promptMethodBrowserDialog(
-//			@Nullable JavaExecutionInput executionInput, boolean debug,
-//			@Nullable Consumer<JavaExecutionInput> callback) {
-//
-//		Progress.prompt(getProject(), executionInput, true,
-//				"Loading data dictionary",
-//				"Loading executable elements",
-//				progress -> {
-//					Project project = getProject();
-//					JavaExecutionManager executionManager = JavaExecutionManager.getInstance(project);
-//					JavaBrowserSettings settings = executionManager.getBrowserSettings();
-//					DBJavaMethod currentMethod = executionInput == null ? null : executionInput.getMethod();
-//					if (currentMethod != null) {
-//						currentMethod.getParameters();
-//						settings.setSelectedConnection(currentMethod.getConnection());
-//						settings.setSelectedSchema(currentMethod.getSchema());
-//						settings.setSelectedMethod(currentMethod);
-//					}
-//
-//					DBSchema schema = settings.getSelectedSchema();
-//					ObjectTreeModel objectTreeModel = !debug || DatabaseFeature.DEBUGGING.isSupported(schema) ?
-//							new ObjectTreeModel(schema, settings.getVisibleObjectTypes(), settings.getSelectedMethod()) :
-//							new ObjectTreeModel(null, settings.getVisibleObjectTypes(), null);
-//
-//
-//					Dialogs.show(() -> new JavaExecutionBrowserDialog(project, objectTreeModel, true), (dialog, exitCode) -> {
-//						if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
-//
-//						DBJavaMethod method = dialog.getSelectedMethod();
-//						JavaExecutionInput methodExecutionInput = executionManager.getExecutionInput(method);
-//						if (callback != null && methodExecutionInput != null) {
-//							callback.accept(methodExecutionInput);
-//						}
-//					});
-//				});
-//	}
+	public void promptMethodBrowserDialog(
+			@Nullable JavaExecutionInput executionInput, boolean debug,
+			@Nullable Consumer<JavaExecutionInput> callback) {
+
+		Progress.prompt(getProject(), executionInput, true,
+				"Loading data dictionary",
+				"Loading executable elements",
+				progress -> {
+					Project project = getProject();
+					JavaExecutionManager executionManager = JavaExecutionManager.getInstance(project);
+					JavaBrowserSettings settings = executionManager.getBrowserSettings();
+					DBJavaMethod currentMethod = executionInput == null ? null : executionInput.getMethod();
+					if (currentMethod != null) {
+						currentMethod.getParameters();
+						settings.setSelectedConnection(currentMethod.getConnection());
+						settings.setSelectedSchema(currentMethod.getSchema());
+						settings.setSelectedMethod(currentMethod);
+					}
+
+					DBSchema schema = settings.getSelectedSchema();
+					ObjectTreeModel objectTreeModel = !debug || DatabaseFeature.DEBUGGING.isSupported(schema) ?
+							new ObjectTreeModel(schema, settings.getVisibleObjectTypes(), settings.getSelectedMethod()) :
+							new ObjectTreeModel(null, settings.getVisibleObjectTypes(), null);
+
+
+					Dialogs.show(() -> new JavaExecutionBrowserDialog(project, objectTreeModel, true), (dialog, exitCode) -> {
+						if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
+
+						DBJavaMethod method = dialog.getSelectedMethod();
+						JavaExecutionInput methodExecutionInput = executionManager.getExecutionInput(method);
+						if (callback != null && methodExecutionInput != null) {
+							callback.accept(methodExecutionInput);
+						}
+					});
+				});
+	}
 
 
 	public void setExecutionInputs(List<JavaExecutionInput> executionInputs) {
@@ -335,7 +318,6 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 		browserSettings.writeConfiguration(browserSettingsElement);
 
 		executionHistory.writeState(element);
-		inputValuesHistory.writeState(element);
 		return element;
 	}
 
@@ -347,7 +329,6 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 		}
 
 		executionHistory.readState(element);
-		inputValuesHistory.readState(element);
 	}
 
 

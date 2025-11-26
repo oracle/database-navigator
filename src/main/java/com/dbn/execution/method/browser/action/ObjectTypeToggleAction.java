@@ -29,7 +29,7 @@ public class ObjectTypeToggleAction extends ToggleAction {
     private final DBObjectType objectType;
 
     public ObjectTypeToggleAction(MethodExecutionBrowserForm browserComponent, DBObjectType objectType) {
-        super(txt("app.execution.action.ShowObjects", objectType.getCapitalizedListName()), null, objectType.getIcon());
+        super(txt("app.execution.action.ShowObjects", objectType.getTitleCasedListName()), null, objectType.getIcon());
         this.objectType = objectType;
         this.browserComponent = browserComponent;
     }

@@ -50,5 +50,11 @@ public interface DatabaseInterfaces {
     default DatabaseAssistantInterface getAssistantInterface() {
         return null;
     }
+
+    default DatabaseVectorInterface getVectorInterface() {
+        return null;
+    }
+
+
     void reset();
 }

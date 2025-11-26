@@ -16,7 +16,9 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.compatibility.Workaround;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
@@ -24,6 +26,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
 import lombok.experimental.UtilityClass;
@@ -32,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 import java.awt.event.InputEvent;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,12 +46,26 @@ import static com.intellij.openapi.actionSystem.ActionPlaces.TOOLBAR;
 @UtilityClass
 public class Actions {
     public static final AnAction SEPARATOR = Separator.getInstance();
+    public static final AnAction[] LOADING_SURROGATE = {
+            new BasicAction() {
+                @Override
+                public void actionPerformed(@NotNull AnActionEvent e) {
+                }
+
+                @Override
+                public void update(@NotNull AnActionEvent e) {
+                    Presentation presentation = e.getPresentation();
+                    presentation.setText("Loading...");
+                }
+            }};
 
     public static ActionToolbar createActionToolbar(@NotNull JComponent component, boolean horizontal, String name){
         ActionManager actionManager = ActionManager.getInstance();
         ActionGroup actionGroup = (ActionGroup) actionManager.getAction(name);
         ActionToolbar toolbar = actionManager.createActionToolbar(TOOLBAR, actionGroup, horizontal);
+
         linkActionToolbar(component, toolbar);
+        markImportantToolbar(toolbar);
         return toolbar;
     }
 
@@ -55,6 +73,7 @@ public class Actions {
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar toolbar = actionManager.createActionToolbar(TOOLBAR, actionGroup, horizontal);
         linkActionToolbar(component, toolbar);
+        markImportantToolbar(toolbar);
         return toolbar;
     }
 
@@ -69,6 +88,7 @@ public class Actions {
 
         ActionToolbar toolbar = actionManager.createActionToolbar(TOOLBAR, actionGroup, horizontal);
         linkActionToolbar(component, toolbar);
+        markImportantToolbar(toolbar);
         return toolbar;
     }
 
@@ -76,6 +96,14 @@ public class Actions {
         ACTION_TOOLBAR.set(component, toolbar, true);
         toolbar.setTargetComponent(component);
     }
+
+    @Workaround
+    private static void markImportantToolbar(ActionToolbar toolbar) {
+        // ToolWindowImpl decides to recursively remove all toolbars under certain circumstances (this seems to solve the issue)
+        // TODO only happening for the new "DB Events" tool window. investigate why
+        toolbar.getComponent().putClientProperty("ActionToolbarImpl.importantToolbar", Boolean.TRUE);
+    }
+
 
     public static ActionPopupMenu createActionPopupMenu(@NotNull JComponent component, ActionGroup actionGroup){
         ActionManager actionManager = ActionManager.getInstance();
@@ -122,5 +150,9 @@ public class Actions {
 
     public static boolean isSeparator(AnAction action) {
         return action instanceof Separator;
+    }
+
+    public static AnAction[] toActionArray(Collection<AnAction> actions) {
+        return actions.toArray(new AnAction[0]);
     }
 }

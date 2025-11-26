@@ -19,8 +19,9 @@ package com.dbn.object.factory;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.state.GenericStateHolder;
-import com.dbn.common.state.StateHolder;
+import com.dbn.common.state.StateAttributes;
+import com.dbn.common.state.StateCategory;
+import com.dbn.common.state.StateContainer;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -29,14 +30,8 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.enumAttribute;
-import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
-import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.object.factory.ObjectFactoryManager.COMPONENT_NAME;
 
 @State(
@@ -46,7 +41,7 @@ import static com.dbn.object.factory.ObjectFactoryManager.COMPONENT_NAME;
 public class ObjectFactoryManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.ObjectFactoryManager";
 
-    private final Map<DBObjectType, GenericStateHolder> states = new ConcurrentHashMap<>();
+    private final StateContainer states = new StateContainer();
 
     private ObjectFactoryManager(Project project) {
         super(project, COMPONENT_NAME);
@@ -57,8 +52,9 @@ public class ObjectFactoryManager extends ProjectComponentBase implements Persis
     }
 
     @NotNull
-    public StateHolder getState(DBObjectType category) {
-        return states.computeIfAbsent(category, k -> new GenericStateHolder());
+    public StateAttributes getState(DBObjectType objectType) {
+        StateCategory stateCategory = StateCategory.cast(objectType);
+        return states.ensureAttributes(stateCategory);
     }
 
     /****************************************
@@ -68,27 +64,12 @@ public class ObjectFactoryManager extends ProjectComponentBase implements Persis
     @Override
     public Element getComponentState() {
         Element element = newStateElement();
-        Element statesElement = newElement(element, "factory-states");
-        for (DBObjectType category : states.keySet()) {
-            Element stateElement = newElement(statesElement, "factory-state");
-            setEnumAttribute(stateElement, "object-type", category);
-
-            GenericStateHolder state = states.get(category);
-            state.writeState(stateElement);
-        }
+        states.writeState(element, "factory-states");
         return element;
     }
 
     @Override
     public void loadComponentState(@NotNull Element element) {
-        Element statesElement = element.getChild("factory-states");
-        if (statesElement != null) {
-            for (Element stateElement : statesElement.getChildren("factory-state")) {
-                DBObjectType category = enumAttribute(stateElement, "object-type", DBObjectType.class);
-                GenericStateHolder state = new GenericStateHolder();
-                state.readState(stateElement);
-                states.put(category, state);
-            }
-        }
+        states.readState(element, "factory-states");
     }
 }

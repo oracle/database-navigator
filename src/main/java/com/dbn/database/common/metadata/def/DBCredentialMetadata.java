@@ -18,7 +18,7 @@ package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
 import com.dbn.database.common.security.ObjectIdentifier;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.sql.SQLException;
@@ -38,7 +38,7 @@ public interface DBCredentialMetadata extends DBObjectMetadata {
     boolean isEnabled() throws SQLException;
 
     @Getter
-    @AllArgsConstructor
+    @Builder
     class Record implements DBCredentialMetadata {
         private final String credentialName;
         private final String credentialType;

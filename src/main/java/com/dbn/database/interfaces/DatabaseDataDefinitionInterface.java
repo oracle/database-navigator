@@ -54,11 +54,9 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     void updateJsonView(String ownerName, String viewName, String code, boolean editionable, DBNConnection connection) throws SQLException;
 
-    void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException;
+    void updateTrigger(String ownerName, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException;
 
-    @Deprecated // TODO add objectOwner / decommission schema connection context
-    void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException;
-
+    void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException;
 
     default void updateJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException{};
 

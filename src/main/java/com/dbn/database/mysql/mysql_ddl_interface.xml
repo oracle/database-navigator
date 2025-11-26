@@ -18,8 +18,7 @@
         <!ELEMENT data-dictionary (statement-execution-processor)*>
         <!ELEMENT statement-execution-processor (statement)*>
         <!ATTLIST statement-execution-processor
-                id CDATA #REQUIRED
-                is-query CDATA #IMPLIED>
+                id CDATA #REQUIRED>
         <!ELEMENT statement (#PCDATA)>
         <!ATTLIST statement
                 comment CDATA #IMPLIED
@@ -62,7 +61,7 @@
     </statement-execution-processor>
 
 
-    <statement-execution-processor id="get-session-sql-mode" is-query="true">
+    <statement-execution-processor id="get-session-sql-mode">
         <statement>SELECT @@session.sql_mode</statement>
     </statement-execution-processor>
 

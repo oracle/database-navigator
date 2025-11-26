@@ -22,10 +22,10 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
-import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Strings;
@@ -53,11 +53,12 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
-import static com.dbn.common.ui.util.ComponentAligner.alignFormComponents;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
-public class ResultSetRecordViewerForm extends DBNFormBase implements ComponentAligner.Container {
+public class ResultSetRecordViewerForm extends DBNFormBase {
     private JPanel actionsPanel;
     private JPanel columnsPanel;
     private JPanel mainPanel;
@@ -112,7 +113,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase implements ComponentA
         }
         ColumnSortingType columnSortingType = DatasetEditorManager.getInstance(project).getRecordViewColumnSortingType();
         sortColumns(columnSortingType);
-        alignFormComponents(this);
+        alignFormFields(this);
 
         filterTextField.getEmptyText().setText("Filter");
         onTextChange(filterTextField, e -> filterColumForms());
@@ -128,12 +129,13 @@ public class ResultSetRecordViewerForm extends DBNFormBase implements ComponentA
     }
 
     @Override
-    public List<ResultSetRecordViewerColumnForm> getAlignableForms() {
-        return columnForms;
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerForms(columnForms);
     }
 
     private void filterColumForms() {
-        String text = filterTextField.getText();
+        String text = getText(filterTextField);
         for (ResultSetRecordViewerColumnForm columnForm : columnForms) {
             String columnName = columnForm.getColumnName();
             boolean visible = Strings.indexOfIgnoreCase(columnName, text, 0) > -1;

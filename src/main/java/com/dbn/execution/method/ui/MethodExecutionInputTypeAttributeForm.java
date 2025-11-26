@@ -50,6 +50,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.common.ui.util.TextFields.getText;
 
 public class MethodExecutionInputTypeAttributeForm extends DBNFormBase {
     private JLabel attributeTypeLabel;
@@ -192,7 +193,7 @@ public class MethodExecutionInputTypeAttributeForm extends DBNFormBase {
                 String value = Commons.nullIfEmpty(userValueHolder.getUserValue());
                 executionInput.setInputValue(argument, typeAttribute, value);
             } else {
-                String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
+                String value = Commons.nullIfEmpty(getText(inputTextField));
                 executionInput.setInputValue(argument, typeAttribute, value);
             }
         }

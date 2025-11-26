@@ -17,8 +17,8 @@
 package com.dbn.connection.config.tns;
 
 import com.dbn.common.text.TextContent;
+import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.Presentable;
-import com.dbn.common.util.Commons;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -39,7 +39,7 @@ public enum TnsImportType implements Presentable {
     @NotNull
     @SneakyThrows
     private static TextContent loadInfo(String fileName) {
-        String content = Commons.readInputStream(TnsImportType.class.getResourceAsStream(fileName));
+        String content = TextResources.get(TnsImportType.class, fileName);
         return TextContent.html(content);
     }
 }

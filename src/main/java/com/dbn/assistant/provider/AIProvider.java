@@ -16,13 +16,21 @@
 
 package com.dbn.assistant.provider;
 
+import com.dbn.common.filter.Filter;
 import com.dbn.common.ui.Presentable;
+import com.dbn.common.util.Commons;
 import com.dbn.common.util.Lists;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
+
+import static com.dbn.common.util.Lists.first;
+import static com.dbn.common.util.Lists.firstElement;
 
 /**
  * This enum is for listing the possible credential providers we have
@@ -33,47 +41,52 @@ import java.util.Map;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(of = "id")
 public final class AIProvider implements Presentable {
 
-  private final String id;
-  private final String name;
-  private final String host;
-  private final boolean main;
-  private final boolean experimental;
+    private final AIProviderId id;
+    private final String name;
+    private String host;
+    private String apiName;
 
-  private List<AIModel> models;
-  private Map<ProviderUrlType, String> urls;
+    private List<AIModel> models;
+    private AIAuthentication authentication;
+    private Map<ProviderUrlType, String> urls;
 
-  AIProvider(String id, String name, String host, boolean main, boolean experimental) {
-    this.id = id;
-    this.name = name;
-    this.host = host;
-    this.main = main;
-    this.experimental = experimental;
-  }
+    AIProvider(AIProviderId id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
-  public static List<AIProvider> values() {
-    return LanguageModelDefinition.providers();
-  }
+    public List<AIModel> getModels(Filter<AIModel> filter) {
+        return Lists.filter(models, filter);
+    }
 
-  public static AIProvider forId(String id) {
-      return Lists.first(values(),  p -> p.getId().equals(id));
-  }
+    public AIModel getModel(String id) {
+        return first(models, m -> m.getId().equals(id));
+    }
 
-  public AIModel getModel(String name) {
-    return Lists.first(models, p -> p.getName().equals(name));
-  }
+    @Nullable
+    public AIModel getModel(Predicate<AIModel> predicate) {
+        return first(models, predicate);
+    }
 
-  public AIModel getDefaultModel() {
-    return Lists.firstElement(models);
-  }
+    public AIModel getDefaultModel() {
+        return Commons.coalesce(
+                () -> first(models, m -> m.isDefault()),
+                () -> firstElement(models));
+    }
 
-  public String getUrl(ProviderUrlType type) {
-    return urls.get(type);
-  }
+    public String getDefaultModelId() {
+        return getDefaultModel().getId();
+    }
 
-  @Override
-  public String toString() {
-    return getName();
-  }
+    public String getUrl(ProviderUrlType type) {
+        return urls.get(type);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

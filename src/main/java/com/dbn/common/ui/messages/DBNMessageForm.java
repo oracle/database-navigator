@@ -16,8 +16,12 @@
 
 package com.dbn.common.ui.messages;
 
+import com.dbn.common.dispose.Disposer;
+import com.dbn.common.message.MessageType;
+import com.dbn.common.message.TitledMessage;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.text.HiddenCaret;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Fonts;
@@ -25,6 +29,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.ui.MouseDragHelper;
+import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,25 +41,34 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
 
+import static com.dbn.common.message.MessageType.PROCESSING;
 import static com.intellij.util.ui.JBUI.emptyInsets;
 
 public class DBNMessageForm extends DBNFormBase {
     private JPanel mainPanel;
     private JLabel titleLabel;
     private JTextPane messageTextPane;
-    private JLabel iconLabel;
     private JPanel rememberOptionPanel;
+    private JPanel iconPanel;
 
-    private final Icon icon;
-    private final String title;
-    private final String message;
+    private Icon icon;
+    private AsyncProcessIcon processIcon;
+    private String title;
+    private String message;
 
+    public DBNMessageForm(@NotNull DBNComponent parent, TitledMessage message) {
+        this(parent,
+                message.getDialogIcon(),
+                message.getTitle(),
+                message.getText());
+    }
     public DBNMessageForm(@NotNull DBNComponent parent, Icon icon, @DialogTitle String title, @DialogMessage String message) {
         super(parent);
         this.icon = icon;
@@ -67,12 +81,55 @@ public class DBNMessageForm extends DBNFormBase {
         initDragging();
     }
 
-    private void initIcon() {
-        if (icon == null) {
-            iconLabel.setVisible(false);
+    public void setMessage(TitledMessage message) {
+        MessageType messageType = message.getType();
+        if (messageType == PROCESSING) {
+            initProgressIcon();
         } else {
+            icon = message.getDialogIcon();
+            initIcon();
+        }
+
+        setTitle(message.getTitle());
+        setMessage(message.getText());
+    }
+
+    public void setIcon(Icon icon) {
+        this.icon = icon;
+        initIcon();
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+        initTitle();
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+        initMessage();
+    }
+
+    private void initProgressIcon() {
+        Disposer.dispose(processIcon);
+        processIcon = new AsyncProcessIcon.Big("Processing");
+        iconPanel.removeAll();
+        iconPanel.add(processIcon);
+        iconPanel.setVisible(true);
+    }
+
+    private void initIcon() {
+        Disposer.dispose(processIcon);
+        if (icon == null) {
+            iconPanel.setVisible(false);
+        } else {
+            iconPanel.removeAll();
+            iconPanel.setVisible(true);
+
+            JLabel iconLabel = new JLabel();
             iconLabel.setIcon(icon);
             iconLabel.setText("");
+            iconLabel.setPreferredSize(new Dimension(32, 32));
+            iconPanel.add(iconLabel);
         }
     }
 
@@ -82,6 +139,7 @@ public class DBNMessageForm extends DBNFormBase {
     }
 
     private void initMessage() {
+        messageTextPane.setCaret(new HiddenCaret());
         messageTextPane.setText(message);
         messageTextPane.addFocusListener(new FocusAdapter() {
             @Override

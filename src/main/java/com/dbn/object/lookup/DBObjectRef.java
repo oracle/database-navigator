@@ -49,6 +49,7 @@ import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -79,7 +80,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     private DBObjectType objectType;
     private short overload;
 
-    private WeakRef<T> reference;
+    private transient WeakRef<T> reference;
     private int hashCode = -1;
 
     public DBObjectRef(ConnectionId connectionId, String identifier) {
@@ -117,6 +118,10 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         this.objectName = objectName.intern();
     }
 
+    public static String getObjectName(@Nullable DBObjectRef<?> object) {
+        return object == null ? null : object.getObjectName();
+    }
+
     public String getObjectName(boolean quoted) {
         if (!quoted) return objectName;
 
@@ -124,6 +129,10 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         if (connection == null) return objectName;
 
         return connection.getIdentifierCache().getQuotedIdentifier(objectName);
+    }
+
+    public String getObjectTypeName() {
+        return objectType.getName();
     }
 
     public void setParent(Object parent) {
@@ -183,6 +192,20 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         return null;
     }
 
+    @Nullable
+    public <P extends DBObject> DBObjectRef<P> getParentRef(Predicate<DBObjectRef> predicate) {
+        DBObjectRef<?> element = this;
+        while (element != null) {
+            if (predicate.test(element)) {
+                return cast(element);
+            }
+
+            element = element.getParentRef();
+        }
+        return null;
+    }
+
+
     public DBObjectRef<?> getParentRef() {
         return parent instanceof DBObjectRef ? (DBObjectRef) parent : null;
     }
@@ -238,14 +261,15 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
                         objectType = DBObjectType.forListName(token, objectRef == null ? null : objectRef.objectType);
                     }
                 } else {
+                    String objectName = deserializeName(objectType, token);
                     if (i < tokenCount - 2) {
                         objectRef = objectRef == null ?
-                                new DBObjectRef<>(connectionId, objectType, token) :
-                                new DBObjectRef<>(objectRef, objectType, token);
+                                new DBObjectRef<>(connectionId, objectType, objectName) :
+                                new DBObjectRef<>(objectRef, objectType, objectName);
                     } else {
                         this.parent = objectRef == null ? connectionId :  objectRef;
                         this.objectType = objectType;
-                        this.objectName = token.intern();
+                        this.objectName = objectName.intern();
                     }
                     objectType = null;
                 }
@@ -262,33 +286,22 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         Matcher matcher = PATH_TOKENIZER.matcher(objectIdentifier);
         while (matcher.find()) {
             String token = matcher.group(0);
-            if (token.startsWith(QUOTE)) {
-                token = token.substring(1, token.length() - 1);
-            }
             tokens.add(token);
         }
         return tokens;
     }
-
-    private static String quotePathElement(String pathElement) {
-        if (pathElement.contains(PSS)) {
-            return QUOTE + pathElement + QUOTE;
-        }
-        return pathElement;
-    }
-
 
     @NotNull
     public String serialize() {
         StringDeBuilder builder = new StringDeBuilder();
         builder.append(objectType.getPathListName());
         builder.append(PS);
-        builder.append(quotePathElement(objectName));
+        builder.append(serializeName());
 
         DBObjectRef<?> parent = getParentRef();
         while (parent != null) {
             builder.prepend(PS);
-            builder.prepend(quotePathElement(parent.objectName));
+            builder.prepend(parent.serializeName());
             builder.prepend(PS);
             builder.prepend(parent.objectType.getPathListName());
             parent = parent.getParentRef();
@@ -572,34 +585,15 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     }
 
     private static boolean deepEqual(DBObjectRef local, DBObjectRef remote) {
-        if (local == null && remote == null) {
-            return true;
-        }
+        if (local == null && remote == null) return true;
+        if (local == null || remote == null) return false;
+        if (local == remote) return true;
 
-        if (local == null || remote == null) {
-            return false;
-        }
+        if (local.getConnectionId() != remote.getConnectionId()) return false;
+        if (local.getObjectType() != remote.getObjectType()) return false;
+        if (local.getOverload() != remote.getOverload()) return false;
 
-        if (local == remote) {
-            return true;
-        }
-
-        if (local.getObjectType() != remote.getObjectType()) {
-            return false;
-        }
-
-        if (local.getOverload() != remote.getOverload()) {
-            return false;
-        }
-
-        if (local.getConnectionId() != remote.getConnectionId()) {
-            return false;
-        }
-
-        if (!Objects.equals(local.getObjectName(), remote.getObjectName())) {
-            return false;
-        }
-
+        if (!Objects.equals(local.getObjectName(), remote.getObjectName())) return false;
         return deepEqual(local.getParentRef(), remote.getParentRef());
     }
 
@@ -669,5 +663,32 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     @Override
     public @Nullable Icon getIcon(boolean unused) {
         return getObjectType().getIcon();
+    }
+
+    public boolean isSchemaObject() {
+        DBObjectRef<?> parentRef = getParentRef();
+        return parentRef != null && parentRef.getObjectType() == SCHEMA;
+    }
+
+    private String serializeName() {
+        if (objectType == JAVA_CLASS) {
+            return objectName.replace(PSS, ".");
+        }
+        if (objectName.contains(PSS)) {
+            return QUOTE + objectName + QUOTE;
+        }
+        return objectName;
+    }
+
+    private static String deserializeName(DBObjectType objectType, String objectName) {
+        if (objectType == JAVA_CLASS) {
+            return objectName.replace(".", PSS);
+        }
+
+        if (objectName.startsWith(QUOTE) && objectName.endsWith(QUOTE)) {
+            objectName = objectName.substring(1, objectName.length() - 1);
+        }
+
+        return objectName;
     }
 }

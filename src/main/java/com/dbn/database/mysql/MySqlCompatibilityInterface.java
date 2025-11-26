@@ -17,6 +17,9 @@
 package com.dbn.database.mysql;
 
 import com.dbn.common.util.Strings;
+import com.dbn.connection.ConnectorProperties;
+import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.ConnectionSslSettings;
 import com.dbn.data.sorting.SortDirection;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
@@ -121,5 +124,15 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterfaceI
         // though fails with syntax error when a statement with such quoted identifiers is executed
         // TODO see if we are missing something here
         return true;
+    }
+
+    @Override
+    public void initConnectorSslConnection(ConnectorProperties properties, ConnectionSettings settings) {
+        ConnectionSslSettings sslSettings = settings.getSslSettings();
+        if (!sslSettings.isActive()) return;
+
+        super.initConnectorSslConnection(properties, settings);
+        properties.add("useSSL", "true");
+        properties.add("requireSSL", "true");
     }
 }

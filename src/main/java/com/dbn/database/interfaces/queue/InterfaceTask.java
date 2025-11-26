@@ -30,9 +30,9 @@ import org.jetbrains.annotations.NonNls;
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.LockSupport;
 
+import static com.dbn.common.exception.Exceptions.timeoutException;
 import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
 import static com.dbn.common.thread.ThreadMonitor.isModalProcess;
 import static com.dbn.common.thread.ThreadMonitor.isProgressProcess;
@@ -76,7 +76,7 @@ class InterfaceTask<R> implements TimeAware {
             this.response = executor.call();
         } catch (Throwable e) {
             conditionallyLog(e);
-            this.exception = e;
+            this.exception = Exceptions.unwrap(e);
         } finally {
             status.change(FINISHED);
             LockSupport.unpark(source.getThread());
@@ -97,7 +97,7 @@ class InterfaceTask<R> implements TimeAware {
             if (!validCallingThread) break;
 
             if (isOlderThan(5, TimeUnit.MINUTES)) {
-                exception = new TimeoutException();
+                exception = timeoutException(5, TimeUnit.MINUTES);
                 break;
             }
         }
