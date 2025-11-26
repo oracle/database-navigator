@@ -20,6 +20,7 @@ import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.thread.Background;
 import com.dbn.common.util.Chars;
+import com.dbn.common.util.Strings;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.credentialStore.OneTimeString;
@@ -34,7 +35,6 @@ import java.util.Arrays;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.util.Commons.match;
-import static com.dbn.common.util.Commons.nullIfEmpty;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.credentials.Secret.EMPTY;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -148,17 +148,17 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
     protected static CredentialAttributes createAttributes(SecretType secretType, Object ownerId, String user) {
         String serviceTypeName = secretType.getName();
         String ownerName = SecretsOwnerRegistry.getOwnerName(ownerId);
-        // JDBC-4636: a secret with no user will come in empty when saving and null when 
-        // loading.  Make sure both scenarios have a consistent user name and resulting 
+        // JDBC-4636: a secret with no user will come in empty when saving and null when
+        // loading.  Make sure both scenarios have a consistent user name and resulting
         // serviceName
-        String userName = nvl(nullIfEmpty(user), "default");
+        String userName = Strings.isEmptyOrSpaces(user) ? "default" : user;
 
         String serviceName = String.format(
                 "DB Navigator - %s: %s@%s",
                 serviceTypeName,
                 userName,
                 ownerName);
-        
+
         return new CredentialAttributes(serviceName, user, DatabaseCredentialManager.class, false);
     }
 

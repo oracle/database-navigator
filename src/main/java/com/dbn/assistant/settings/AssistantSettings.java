@@ -16,7 +16,8 @@
 
 package com.dbn.assistant.settings;
 
-import com.dbn.assistant.credential.local.LocalCredentialSettings;
+import com.dbn.assistant.credential.AssistantCredentialSettings;
+import com.dbn.assistant.profile.AssistantProfileSettings;
 import com.dbn.assistant.settings.ui.AssistantSettingsForm;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
@@ -28,16 +29,21 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.util.Commons.array;
+
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class AssistantSettings
     extends CompositeProjectConfiguration<ProjectSettings, AssistantSettingsForm>
     implements TopLevelConfig {
 
-  private final LocalCredentialSettings credentialSettings = new LocalCredentialSettings(this);
+  private final AssistantCredentialSettings credentialSettings;
+  private final AssistantProfileSettings profileSettings;
 
   public AssistantSettings(ProjectSettings parent) {
     super(parent);
+    this.credentialSettings = new AssistantCredentialSettings(this);
+    this.profileSettings = new AssistantProfileSettings(this);
   }
 
   @NotNull
@@ -83,8 +89,9 @@ public class AssistantSettings
 
   @Override
   protected Configuration[] createConfigurations() {
-    return new Configuration[]{
-            credentialSettings};
+    return array(
+            credentialSettings,
+            profileSettings);
   }
 
   @Override

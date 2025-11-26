@@ -18,7 +18,7 @@ package com.dbn.data.grid.ui.table.basic;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.table.DBNTableHeaderRendererBase;
+import com.dbn.common.ui.table.DBNTableHeaderRenderer;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
 
@@ -34,7 +34,7 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.util.List;
 
-public class BasicTableHeaderRenderer extends DBNTableHeaderRendererBase {
+public class BasicTableHeaderRenderer extends DBNTableHeaderRenderer {
     private JPanel mainPanel;
     private JLabel nameLabel;
     private JLabel sortingLabel;

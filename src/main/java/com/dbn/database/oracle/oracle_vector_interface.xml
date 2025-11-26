@@ -1,0 +1,265 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE data-dictionary [
+        <!ELEMENT data-dictionary (statement-execution-processor)*>
+        <!ELEMENT statement-execution-processor (statement)*>
+        <!ATTLIST statement-execution-processor
+                id CDATA #REQUIRED
+                timeout CDATA #IMPLIED>
+        <!ELEMENT statement (#PCDATA)>
+        <!ATTLIST statement
+                comment CDATA #IMPLIED
+                prefixes CDATA #IMPLIED>
+        ]>
+<data-dictionary>
+    <statement-execution-processor id="ai-generate-rag-example" timeout="60">
+        <statement>
+            DECLARE
+                v_prompt   CLOB;
+                v_response CLOB;
+            BEGIN
+            WITH ranked AS (
+                SELECT CONTENT
+                    FROM REPORTS_NO_WEEK rnw
+                    ORDER BY vector_distance(
+                                rnw.EMBEDDING_TITLE,
+                                vector_embedding(doc_model
+                                        USING {#0} AS data)
+                    ) ASC
+                FETCH FIRST 5 ROWS ONLY
+            ), prompt_text AS (
+                    SELECT LISTAGG(CONTENT, CHR(10))
+                    WITHIN GROUP (ORDER BY NULL) AS prompt
+                    FROM ranked
+                    )
+            SELECT prompt
+                    INTO v_prompt
+                    FROM prompt_text;
+
+            v_response := DBMS_VECTOR.UTL_TO_GENERATE_TEXT(
+            v_prompt,
+                JSON({#1})
+            );
+
+            ? := v_response;
+            END;
+        </statement>
+    </statement-execution-processor>
+
+<!--    <statement-execution-processor id="ai-generate-rag" timeout="60">-->
+<!--        <statement>-->
+<!--            DECLARE-->
+<!--            v_prompt   CLOB;-->
+<!--            v_response CLOB;-->
+<!--            BEGIN-->
+<!--            SELECT LISTAGG(CONTENT, CHR(10)) WITHIN GROUP (ORDER BY NULL)-->
+<!--                INTO v_prompt-->
+<!--                FROM (-->
+<!--                    SELECT {2}-->
+<!--                    FROM {1} rnw-->
+<!--                    ORDER BY vector_distance(-->
+<!--                        rnw.{3},-->
+<!--                        vector_embedding(-->
+<!--                            {4}-->
+<!--                            USING {0} AS data-->
+<!--                            )-->
+<!--                        ) ASC-->
+<!--                FETCH FIRST 5 ROWS ONLY-->
+<!--            );-->
+
+<!--            v_response := DBMS_VECTOR.UTL_TO_GENERATE_TEXT(-->
+<!--                v_prompt,-->
+<!--                JSON('{-->
+<!--                        "provider":        "cohere",-->
+<!--                        "credential_name": "NJHUH",-->
+<!--                        "url":             "https://api.cohere.ai/v1/chat",-->
+<!--                        "model":           "command-r"-->
+<!--                        }')-->
+<!--            );-->
+
+<!--            ? := v_response;-->
+<!--            END;-->
+<!--        </statement>-->
+<!--    </statement-execution-processor>-->
+
+    <statement-execution-processor id="load-onnx-model-from-object-storage" timeout="120">
+        <statement>
+            BEGIN
+                DBMS_VECTOR.LOAD_ONNX_MODEL_CLOUD(
+                    model_name => {#0},
+                    credential => {#1},
+                    uri        => {#2});
+            END;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="drop-embed-model" timeout="120">
+        <statement>
+            begin
+                DBMS_VECTOR.DROP_ONNX_MODEL(
+                        model_name => {#0});
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="create-embedding-table" timeout="120" >
+        <statement>
+            CREATE TABLE IF NOT EXISTS {0}.{1} (
+                {2} VARCHAR(4000) PRIMARY KEY,
+                {3} CLOB,
+                {4} VECTOR(*, FLOAT32) NOT NULL,
+                {5} JSON
+            )
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="ensure-documents-table" timeout="120000">
+        <statement>
+            DECLARE
+            table_already_exists EXCEPTION;
+            PRAGMA EXCEPTION_INIT(table_already_exists, -955);
+            BEGIN
+                EXECUTE IMMEDIATE '
+                        CREATE TABLE {0}.{1} (
+                        id VARCHAR2(50) NOT NULL PRIMARY KEY,
+                        file_content BLOB,
+                        metadata JSON,
+                        file_hash VARCHAR2(32) NOT NULL,
+                        file_size NUMBER(19) NOT NULL,
+                        CONSTRAINT uk_file_identity UNIQUE (file_hash, file_size)
+                        ) LOB(file_content) STORE AS SECUREFILE (NOCACHE FILESYSTEM_LIKE_LOGGING)
+                        ';
+
+                RAISE_APPLICATION_ERROR(-20001, 'TABLE_CREATED');
+
+                EXCEPTION
+                WHEN table_already_exists THEN
+                    RAISE_APPLICATION_ERROR(-20002, 'TABLE_EXISTS');
+            END;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="insert-empty-document-row">
+        <statement>
+            INSERT INTO {0}
+            (id, file_content, metadata,file_hash,file_size)
+            VALUES ({#1}, EMPTY_BLOB(), {#2},{#3},{#4})
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="select-empty-blob-file">
+        <statement>
+            SELECT file_content FROM {0} WHERE id = {#1} FOR UPDATE;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="select-document-id-by-hash">
+        <statement>
+            SELECT id, metadata FROM {0} WHERE file_hash = {#1} and file_size = {#2} and rownum = 1
+        </statement>
+    </statement-execution-processor>
+
+
+
+    <statement-execution-processor id="stream-file-content-to-blob" timeout="120000">
+        <statement>
+            UPDATE {0}
+            SET file_content = {#1}
+            WHERE id = {#2}
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="insert-vector-embeddings-from-table" timeout="120000">
+        <statement>
+            INSERT INTO {0}.{1} (id, {2}, {3}, {4})
+                SELECT
+                    SYS_GUID(),
+                    JSON_VALUE(t.COLUMN_VALUE, '$.embed_data' RETURNING CLOB),
+                    TO_VECTOR(JSON_VALUE(t.COLUMN_VALUE, '$.embed_vector' RETURNING CLOB)),
+                    JSON_MERGEPATCH(
+                        {#11},
+                        JSON_OBJECT(
+                            KEY 'embedding_id' VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50)),
+                            KEY 'embedding_source' VALUE JSON_OBJECT('primary_key' VALUE src.{7})
+                        ) RETURNING VARCHAR2
+                    )
+                FROM {5}.{6} src,
+                    TABLE(
+                            DBMS_VECTOR.UTL_TO_EMBEDDINGS(
+                                    data   => DBMS_VECTOR.UTL_TO_CHUNKS(
+                                    data   => src.{8},
+                                    params => json({#9})),
+                                    params => json({#10})
+                        )
+                    ) t;
+        </statement>
+    </statement-execution-processor>
+        <statement-execution-processor id="insert-vector-embeddings-from-filesystem" timeout="120000">
+        <statement>
+            INSERT INTO {0}.{1} (id, {2}, {3}, {4})
+                SELECT
+                    SYS_GUID(),
+                    jt.embed_data,
+                    TO_VECTOR(jt.embed_vector),
+                    JSON_MERGEPATCH(
+                        {#9},
+                        JSON_OBJECT(
+                            KEY 'embedding_id' VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50))
+                        ) RETURNING VARCHAR2
+                    )
+                FROM TABLE(
+                    DBMS_VECTOR.UTL_TO_EMBEDDINGS(
+                        data   => DBMS_VECTOR.UTL_TO_CHUNKS(
+                                        data   => DBMS_VECTOR_CHAIN.UTL_TO_TEXT(
+                                                        data   => (select file_content from {5} where id = {#6} ),
+                                                        params => json(json_object('plaintext' VALUE true))),
+                                        params => json({#7})),
+                        params => json({#8})
+                    )
+                ) t,
+                JSON_TABLE(
+                    t.COLUMN_VALUE, '$'
+                        COLUMNS (
+                            embed_data   CLOB PATH '$.embed_data',
+                            embed_vector CLOB PATH '$.embed_vector'
+                        )
+                ) jt;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="load-onnx-model-through-jdbc" timeout="12000">
+        <statement>
+            BEGIN
+                DBMS_VECTOR.LOAD_ONNX_MODEL({#0}, {#1});
+            END;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="chunk-text-from-chunk-lab" timeout="120">
+        <statement>
+            select
+                CHUNK_OFFSET as "Chunk offset",
+                CHUNK_LENGTH as "Chunk length",
+                CHUNK_TEXT as "Chunk text"
+            from VECTOR_CHUNKS(
+                {#0}
+                BY {1}
+                MAX {2}
+                OVERLAP {3}
+                SPLIT BY {4})
+
+        </statement>
+    </statement-execution-processor>
+</data-dictionary>

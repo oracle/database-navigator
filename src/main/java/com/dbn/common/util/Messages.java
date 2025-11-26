@@ -52,6 +52,7 @@ import java.util.Objects;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.thread.Dispatch.getCurrentModalityState;
 import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDialogs;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -126,7 +127,7 @@ public class Messages {
         }
     }
 
-    public static void showErrorDialog(@Nullable Project project, @DialogMessage String message, Exception exception) {
+    public static void showErrorDialog(@Nullable Project project, @DialogMessage String message, Throwable exception) {
         showErrorDialog(project, null, message, exception);
     }
 
@@ -138,7 +139,7 @@ public class Messages {
         showErrorDialog(project, null, message, null);
     }
 
-    public static void showErrorDialog(@Nullable Project project, @Nullable @DialogTitle String title, @DialogMessage String message, @Nullable Exception exception) {
+    public static void showErrorDialog(@Nullable Project project, @Nullable @DialogTitle String title, @DialogMessage String message, @Nullable Throwable exception) {
         if (project != null && project.isDisposed()) {
             return; // project is disposed
         }
@@ -246,7 +247,7 @@ public class Messages {
     }
 
     public static @Button String[] options(String ... options) {
-        return Commons.list(options);
+        return array(options);
     }
 
     /**

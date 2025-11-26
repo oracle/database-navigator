@@ -16,10 +16,9 @@
 
 package com.dbn.execution.java.wrapper.model;
 
-import com.dbn.common.util.Naming;
+import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
-import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -42,21 +41,22 @@ public class MethodWrapper extends EntityWrapper {
     private List<ParameterWrapper> parameters = new ArrayList<>();
     private ParameterWrapper returnParameter;
 
-    public MethodWrapper(DBJavaMethod javaMethod) {
+    public MethodWrapper(WrapperModel model, DBJavaMethod javaMethod) {
+        super(model);
         this.javaMethod = DBObjectRef.of(javaMethod);
         this.sqlMethod = initSqlMethod(javaMethod);
         surrogateJavaMethodName = javaMethod.getName().replace("#", "_");
     }
 
     private DBObjectRef<DBMethod> initSqlMethod(DBJavaMethod javaMethod) {
-        String sqlMethodName = Naming.toUpperSnakeCase(javaMethod.getSimpleName());
+        String sqlMethodName = getNamingProvider().getSqlMethodName(javaMethod);
         DBObjectType sqlMethodType = javaMethod.isReturningVoid() ?
                 DBObjectType.PROCEDURE :
                 DBObjectType.FUNCTION;
 
-        // TODO resolve the actual parent of the method (can be a procedure in case of wrapping an entire class)
-        DBObjectRef<DBSchema> schema = nd(javaMethod.getSchema()).ref();
-        return new DBObjectRef<>(schema, sqlMethodType, sqlMethodName);
+        DBObjectRef<?> sqlPackage = getModel().getSqlWrapperPackage();
+        DBObjectRef<?> sqlMethodParent = sqlPackage == null ? nd(javaMethod.getSchema()).ref() : sqlPackage;
+        return new DBObjectRef<>(sqlMethodParent, sqlMethodType, sqlMethodName);
     }
 
     public String getJavaMethodName() {

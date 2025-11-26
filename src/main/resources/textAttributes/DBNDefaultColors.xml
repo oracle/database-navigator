@@ -16,105 +16,105 @@
   -->
 
 <list>
-    <option name="DBNavigator.DefaultTextAttributes.DataEditor.PlainData">
+    <option name="DBN.DefaultAttributes.DataEditor.PlainData">
         <value>
             <option name="BACKGROUND" value="FFFFFF"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.DataEditor.CaretRow">
+    <option name="DBN.DefaultAttributes.DataEditor.CaretRow">
         <value>
             <option name="BACKGROUND" value="FFFAE3"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.DataEditor.AuditData">
+    <option name="DBN.DefaultAttributes.DataEditor.AuditData">
         <value>
             <option name="BACKGROUND" value="FFFFFF"/>
             <option name="FOREGROUND" value="C4C4C4"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.DataEditor.ModifiedData">
+    <option name="DBN.DefaultAttributes.DataEditor.ModifiedData">
         <value>
             <option name="FONT_TYPE" value="1"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.DataEditor.DeletedData">
+    <option name="DBN.DefaultAttributes.DataEditor.DeletedData">
         <value>
             <option name="FOREGROUND" value="7F7F7F"/>
             <option name="BACKGROUND" value="F4F4F4"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.DataEditor.ErrorData">
+    <option name="DBN.DefaultAttributes.DataEditor.ErrorData">
         <value>
             <option name="FOREGROUND" value="000000"/>
             <option name="BACKGROUND" value="FFCCCC"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.DataEditor.ReadonlyData">
+    <option name="DBN.DefaultAttributes.DataEditor.ReadonlyData">
         <value>
             <option name="FOREGROUND" value="7F7F7F"/>
             <option name="BACKGROUND" value="F4F4F4"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.DataEditor.LoadingData">
+    <option name="DBN.DefaultAttributes.DataEditor.LoadingData">
         <value>
             <option name="FOREGROUND" value="7F7F7F"/>
             <option name="BACKGROUND" value="F4F4F4"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.DataEditor.UpdatingData">
+    <option name="DBN.DefaultAttributes.DataEditor.UpdatingData">
         <value>
             <option name="FOREGROUND" value="7F7F7F"/>
             <option name="FONT_TYPE" value="2"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.DataEditor.PrimaryKey">
+    <option name="DBN.DefaultAttributes.DataEditor.PrimaryKey">
         <value>
             <option name="FOREGROUND" value="4569A7"/>
             <option name="BACKGROUND" value="F7F7FF"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.DataEditor.ForeignKey">
+    <option name="DBN.DefaultAttributes.DataEditor.ForeignKey">
         <value>
             <option name="FOREGROUND" value="3F6B3F"/>
             <option name="BACKGROUND" value="F7FFF7"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.DataEditor.Selection">
+    <option name="DBN.DefaultAttributes.DataEditor.Selection">
         <value>
             <option name="FOREGROUND" value="FFFFFF"/>
             <option name="BACKGROUND" value="526DA5"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.ActiveSession">
+    <option name="DBN.DefaultAttributes.SessionBrowser.ActiveSession">
         <value>
             <option name="BACKGROUND" value="FFFFFF"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.InactiveSession">
+    <option name="DBN.DefaultAttributes.SessionBrowser.InactiveSession">
         <value>
             <option name="FOREGROUND" value="7F7F7F"/>
             <option name="BACKGROUND" value="FFFFFF"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.CachedSession">
+    <option name="DBN.DefaultAttributes.SessionBrowser.CachedSession">
         <value>
             <option name="FOREGROUND" value="3F6B3F"/>
             <option name="BACKGROUND" value="FFFFFF"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.SnipedSession">
+    <option name="DBN.DefaultAttributes.SessionBrowser.SnipedSession">
         <value>
             <option name="FOREGROUND" value="4569A7"/>
             <option name="BACKGROUND" value="FFFFFF"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.KilledSession">
+    <option name="DBN.DefaultAttributes.SessionBrowser.KilledSession">
         <value>
             <option name="FOREGROUND" value="A96458"/>
             <option name="BACKGROUND" value="FFFFFF"/>
         </value>
     </option>
-    <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.Selection">
+    <option name="DBN.DefaultAttributes.SessionBrowser.Selection">
         <value>
             <option name="FOREGROUND" value="FFFFFF"/>
             <option name="BACKGROUND" value="526DA5"/>

@@ -19,10 +19,10 @@ package com.dbn.execution.statement.variables.ui;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.locale.Formatter;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.listener.ComboBoxSelectionKeyListener;
 import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.util.Strings;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldPopupType;
@@ -45,7 +45,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,10 +56,11 @@ import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
 
-public class StatementExecutionVariableValueForm extends DBNFormBase implements ComponentAligner.Form {
+public class StatementExecutionVariableValueForm extends DBNFormBase {
     private JPanel mainPanel;
     private JLabel variableNameLabel;
     private JPanel valueFieldPanel;
@@ -117,7 +117,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
         variable.setPreviewValueProvider(new VariableValueProvider() {
             @Override
             public String getValue() {
-                return textField.getText().trim();
+                return getText(textField);
             }
 
             @Override
@@ -144,9 +144,15 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
         addTextValidation(editorComponent.getTextField(), f -> validateDataType());
     }
 
+    @Override
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerFieldGroup(variableNameLabel, valueFieldPanel);
+    }
+
     private String validateDataType() {
         Formatter formatter = Formatter.getInstance(ensureProject());
-        String value = editorComponent.getTextField().getText().trim();
+        String value = getText(editorComponent.getTextField());
         if (Strings.isEmpty(value)) return null;
 
         GenericDataType dataType = dataTypeComboBox.getSelectedValue();
@@ -211,18 +217,13 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
     }
 
     void saveValue() {
-        String trim = editorComponent.getTextField().getText().trim();
+        String trim = getText(editorComponent.getTextField());
         variable.setValue(trim);
         variable.setDataType(dataTypeComboBox.getSelectedValue());
         StatementExecutionProcessor executionProcessor = getParentForm().getExecutionProcessor();
         Project project = executionProcessor.getProject();
         StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
         executionManager.cacheVariable(executionProcessor.getVirtualFile(), variable);
-    }
-
-    @Override
-    public Component[] getAlignableComponents() {
-        return new Component[]{variableNameLabel, valueFieldPanel};
     }
 
     @NotNull

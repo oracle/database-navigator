@@ -16,6 +16,8 @@
 
 package com.dbn.assistant.chat;
 
+import com.dbn.assistant.chat.context.ChatContext;
+import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.state.AssistantState;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,10 +35,12 @@ public final class ChatContextEvent {
     private final String targetChatId;
     private boolean newChatRequest;
 
-    public ChatContextEvent(@NotNull ChatContext currentContext,
-                            @NotNull ChatContext targetContext,
-                            @Nullable String targetChatId,
-                            boolean newChatRequest) {
+    public ChatContextEvent(
+            @NotNull ChatContext currentContext,
+            @NotNull ChatContext targetContext,
+            @Nullable String targetChatId,
+            boolean newChatRequest) {
+
         this.currentContext = currentContext;
         this.targetContext = targetContext;
         this.targetChatId = targetChatId;
@@ -54,8 +58,9 @@ public final class ChatContextEvent {
         // if current is a previously interactive persistent chat, signal no interruption
         if (currentChat.isInteractive() && currentChat.isPersisted()) return null;
 
-        // if the current chat is empty, signal no interruption
+        // if the current chat is empty or has no agent messages, signal no interruption
         if (currentChat.isEmpty()) return null;
+        if (currentChat.countMessages(AuthorType.AGENT) == 0) return null;
 
         if (newChatRequest) return ChatInterruptionReason.NEW_CHAT_REQUEST;
         if (targetChatId != null) return ChatInterruptionReason.HISTORY_CHAT_SELECTION;
@@ -64,8 +69,9 @@ public final class ChatContextEvent {
         if (!currentContext.isInteractive() && !targetContext.isInteractive()) return null;
 
         if (currentContext.isProfileSwitch(targetContext)) return ChatInterruptionReason.PROFILE_SELECTION_CHANGE;
+        if (currentContext.isProviderSwitch(targetContext)) return ChatInterruptionReason.PROVIDER_SELECTION_CHANGE;
         if (currentContext.isModelSwitch(targetContext)) return ChatInterruptionReason.MODEL_SELECTION_CHANGE;
-        if (currentContext.isInterruptingActionSwitch(targetContext)) return ChatInterruptionReason.ACTION_SELECTION_CHANGE;
+        if (currentContext.isActionSwitch(targetContext)) return ChatInterruptionReason.ACTION_SELECTION_CHANGE;
 
         // No interruption detected
         return null;

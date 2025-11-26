@@ -36,6 +36,7 @@ import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
 import com.dbn.execution.statement.result.StatementExecutionResult;
+import com.dbn.vector.result.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -52,6 +53,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.Set;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
@@ -183,7 +185,14 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
     public void addExecutionResult(MethodExecutionResult executionResult) {
         showExecutionConsole(c -> c.addResult(executionResult));
     }
-
+    // todo add it here vector
+    public void addExecutionResult(VectorEmbeddingExecutionResult executionResult) {
+        Dispatch.run(() -> {
+            showExecutionConsole();
+            ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
+            executionConsoleForm.addResult(executionResult);
+        });
+    }
     public void addExecutionResult(JavaExecutionResult executionResult) {
         showExecutionConsole(c -> c.addResult(executionResult));
     }
@@ -220,6 +229,11 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
         if (!executionConsoleForm.loaded()) return null;
         return Dispatch.call(true, () ->
                 getExecutionConsoleForm().getSelectedExecutionResult());
+    }
+
+    public Set<String> getExecutionResultNames(Class<? extends ExecutionResult<?>> resultType) {
+        ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
+        return executionConsoleForm.getExecutionResultNames(resultType);
     }
 
     /*********************************************

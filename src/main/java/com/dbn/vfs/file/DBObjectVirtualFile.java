@@ -22,7 +22,6 @@ import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.icon.DBObjectIcon;
 import com.dbn.common.ref.WeakRefCache;
-import com.dbn.common.util.SlowOps;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
@@ -54,7 +53,7 @@ import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
     private static final WeakRefCache<DBObjectRef, DBObjectVirtualFile> virtualFileCache = WeakRefCache.weakKey();
     protected final DBObjectRef<T> object;
-    private final Icon icon;
+    private final transient Icon icon;
 
     public DBObjectVirtualFile(@NotNull Project project, @NotNull DBObjectRef<T> object) {
         super(project, object.getFileName());
@@ -114,7 +113,9 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
 
     @Override
     public boolean isValid() {
-        return SlowOps.isValid(object);
+        return object.getConnection() != null;
+        // TODO invalidate files on dynamic content load
+        //return SlowOps.isValid(object);
     }
 
     @NotNull

@@ -28,10 +28,17 @@ public class DBTableMetadataImpl extends DBObjectMetadataBase implements DBTable
         super(resultSet);
     }
 
+    @Override
     public String getTableName() throws SQLException {
         return getString("TABLE_NAME");
     }
 
+    @Override
+    public String getComments() throws SQLException {
+        return getString("COMMENTS");
+    }
+
+    @Override
     public boolean isTemporary() throws SQLException {
         return isYesFlag("IS_TEMPORARY");
     }

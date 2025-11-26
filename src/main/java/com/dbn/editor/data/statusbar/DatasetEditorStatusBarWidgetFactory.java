@@ -16,7 +16,6 @@
 
 package com.dbn.editor.data.statusbar;
 
-import com.dbn.common.dispose.Disposer;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
@@ -53,7 +52,9 @@ public class DatasetEditorStatusBarWidgetFactory implements StatusBarWidgetFacto
 
     @Override
     public void disposeWidget(@NotNull StatusBarWidget widget) {
-        Disposer.dispose(widget);
+        // TODO toggling the widget on and off disposes the widget
+        //  (capture "refresh" listener as service and allow disposal on toggle)
+        //Disposer.dispose(widget);
     }
 
     @Override

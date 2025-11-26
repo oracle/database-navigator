@@ -65,6 +65,13 @@ public interface DatabaseContextBase extends DatabaseContext {
     }
 
     @Nullable
+    @Override
+    default String getUserName() {
+        ConnectionHandler connection = getConnection();
+        return connection == null ? null : connection.getUserName();
+    }
+
+    @Nullable
     default DBSchema getSchema() {
         SchemaId schemaId = getSchemaId();
         if (schemaId == null) return null;

@@ -16,16 +16,18 @@
 
 package com.dbn.assistant.chat.message.ui;
 
-import com.dbn.assistant.chat.ChatContext;
+import com.dbn.assistant.adapter.AssistantAdapter;
+import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
+import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.ui.JBColor;
@@ -37,13 +39,13 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
 import static com.dbn.common.ui.util.Fonts.regularBold;
+import static com.dbn.common.util.Commons.array;
 
 /**
  * Stub implementation for chat message forms
@@ -55,19 +57,37 @@ import static com.dbn.common.ui.util.Fonts.regularBold;
 public abstract class ChatMessageForm extends DBNFormBase {
     protected interface Backgrounds {
         Color USER_PROMPT = new JBColor(new Color(218, 234, 255), new Color(68, 95, 128));
-        Color AGENT_RESPONSE = Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 2));
-        Color SYSTEM_INFO = Colors.delegate(() -> Colors.lafBrighter(Colors.getPanelBackground(), 2));
-        Color SYSTEM_ERROR = new JBColor(new Color(255, 213, 204), new Color(69, 48, 43));
+        Color AGENT_RESPONSE = Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 3));
+        Color SYSTEM_RESPONSE = Colors.delegate(() -> Colors.lafBrighter(Colors.getPanelBackground(), 2));
     }
     private final ChatMessage message;
 
-    public ChatMessageForm(@Nullable Disposable parent, ChatMessage message) {
+    public ChatMessageForm(@Nullable ChatMessagesForm parent, ChatMessage message) {
         super(parent);
         this.message = message;
     }
 
+    protected void initContentFolding(JPanel contentPanel) {
+        contentPanel.setVisible(!message.isFolded());
+    }
+
+    public final void toggleContentFolding() {
+        boolean folded = message.isFolded();
+        changeContentFolding(!folded);
+    }
+
+    protected void changeContentFolding(boolean folded) {
+        message.setFolded(folded);
+        getContentPanel().setVisible(!folded);
+    }
+
+    public void refreshMessageContent() {}
+
+    public void refreshToolContent() {}
+
+
     @NotNull
-    public static ChatMessageForm create(ChatBoxForm parent, ChatMessage message) {
+    public static ChatMessageForm create(ChatMessagesForm parent, ChatMessage message) {
         AuthorType author = message.getAuthor();
         switch (author) {
             case USER: return new UserChatMessageForm(parent, message);
@@ -77,6 +97,15 @@ public abstract class ChatMessageForm extends DBNFormBase {
         }
     }
 
+    protected ChatMessageForm getNextMessageForm() {
+        ChatMessagesForm messagesForm = getParentComponent();
+        if (messagesForm == null) return null;
+
+        return messagesForm.getNextMessageForm(this);
+    }
+
+    protected abstract Color getForeground();
+
     protected abstract Color getBackground();
 
     protected void initTitlePanel() {
@@ -85,14 +114,18 @@ public abstract class ChatMessageForm extends DBNFormBase {
 
         ChatMessage message = getMessage();
         ChatContext context = message.getContext();
-        String title =
-                context.getProfileName() + " / " +
-                        context.getModelName() + "  -  " +
-                        context.getAction().getName();
+
+        AssistantAdapter assistantAdapter = getAssistantAdapter();
+        String title = assistantAdapter.buildChatContextTitle(context);
 
         titleLabel.setFont(regularBold(-2));
         titleLabel.setForeground(Colors.delegate(Colors::getLabelForeground));
         titleLabel.setText(title);
+    }
+
+    private AssistantAdapter getAssistantAdapter() {
+        ChatBoxForm parentFrom = Failsafe.nd(getParentFrom(ChatBoxForm.class));
+        return parentFrom.getAssistantAdapter();
     }
 
     protected void initActionToolbar() {
@@ -102,12 +135,12 @@ public abstract class ChatMessageForm extends DBNFormBase {
         JComponent component = actionToolbar.getComponent();
         component.setOpaque(false);
         component.setBorder(Borders.EMPTY_BORDER);
-        actionPanel.add(component, BorderLayout.NORTH);
+        actionPanel.add(component);
         actionPanel.setBorder(JBUI.Borders.empty(4));
     }
 
     protected AnAction[] createActions() {
-        return new AnAction[]{new CopyContentAction(message.getContent())};
+        return array(new CopyContentAction(() -> getMessage().getContent()));
     }
 
     @Nullable
@@ -116,12 +149,16 @@ public abstract class ChatMessageForm extends DBNFormBase {
     }
     protected abstract JPanel getActionPanel();
 
+    protected abstract JPanel getContentPanel();
+
+    public void hideProcessingIndicators() {}
+
     /**
      * Custom painted JPanel to be used as rounded-corner container for chatbox messages
      * This utility is to be used for all chat message form implementations
      * for the creation of the main component (called "mainPanel" in all DBNForm components)
      */
-    JPanel createMainPanel()  {
+    JPanel createContentPanel()  {
         JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -135,6 +172,12 @@ public abstract class ChatMessageForm extends DBNFormBase {
         };
         panel.setOpaque(false);
         panel.setBackground(getBackground());
+        initContentFolding(panel);
         return panel;
+    }
+
+    public Object getData(@NotNull String dataId) {
+        if (DataKeys.CHAT_MESSAGE_FORM.is(dataId)) return this;
+        return null;
     }
 }

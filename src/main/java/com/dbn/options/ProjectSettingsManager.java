@@ -17,7 +17,7 @@
 package com.dbn.options;
 
 import com.dbn.DatabaseNavigator;
-import com.dbn.assistant.credential.local.LocalCredentialSettings;
+import com.dbn.assistant.credential.AssistantCredentialSettings;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.browser.options.DatabaseBrowserSettings;
 import com.dbn.code.common.completion.options.CodeCompletionSettings;
@@ -38,6 +38,7 @@ import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
+import com.dbn.connection.config.ReverseSshTunnelConfiguration;
 import com.dbn.connection.config.tns.TnsImportData;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.data.grid.options.DataGridSettings;
@@ -186,11 +187,15 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
             // SSH TUNNEL PASSWORDS
             ConnectionSshTunnelSettings sshTunnelSettings = connection.getSshTunnelSettings();
             sshTunnelSettings.initSecrets();
+
+            // DEBUGGER REVERSE SSH TUNNEL PASSWORDS
+            ReverseSshTunnelConfiguration reverseTunnelSettings = connection.getDebuggerSettings().getReverseSshTunnelConfig();
+            reverseTunnelSettings.initSecrets();
         }
 
         // LOCAL CREDENTIALS
         AssistantSettings assistantSettings = getAssistantSettings();
-        LocalCredentialSettings credentialSettings = assistantSettings.getCredentialSettings();
+        AssistantCredentialSettings credentialSettings = assistantSettings.getCredentialSettings();
         credentialSettings.getCredentials().initSecrets();
     }
 

@@ -29,7 +29,7 @@ import com.dbn.common.latent.Loader;
  */
 final class RecursiveLatent<T> extends LatentBase<T> implements Latent<T> {
     private static final Object LOCK = new Object();
-    private final ThreadLocal<Object> loading = new ThreadLocal<>();
+    private final transient ThreadLocal<Object> loading = new ThreadLocal<>();
 
     RecursiveLatent(Loader<T> loader) {
         super(loader);

@@ -16,7 +16,7 @@
 
 package com.dbn.common.util;
 
-import com.dbn.common.routine.ParametricCallable;
+import com.dbn.common.routine.ThrowableCallable;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -25,16 +25,22 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @UtilityClass
 public class Classes {
+    public static <R, E extends Throwable> R withClassLoader(Object source, ThrowableCallable<R, E> callable) throws E {
+        return withClassLoader(source.getClass(), callable);
+    }
 
-    public static <P, R, E extends Throwable> R withClassLoader(P param, ParametricCallable<P, R, E> callable) throws E{
+    public static <R, E extends Throwable> R withClassLoader(Class<?> source, ThrowableCallable<R, E> callable) throws E {
+        return withClassLoader(source.getClassLoader(), callable);
+    }
+
+    public static <R, E extends Throwable> R withClassLoader(ClassLoader classLoader, ThrowableCallable<R, E> callable) throws E{
         Thread thread = Thread.currentThread();
-        ClassLoader currentClassLoader = thread.getContextClassLoader();
+        ClassLoader contextClassLoader = thread.getContextClassLoader();
         try {
-            ClassLoader paramClassLoader = param.getClass().getClassLoader();
-            thread.setContextClassLoader(paramClassLoader);
-            return callable.call(param);
+            thread.setContextClassLoader(classLoader);
+            return callable.call();
         } finally {
-            thread.setContextClassLoader(currentClassLoader);
+            thread.setContextClassLoader(contextClassLoader);
         }
     }
 

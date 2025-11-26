@@ -26,10 +26,13 @@ import com.dbn.object.management.adapter.DBObjectDeleteAdapter;
 import com.dbn.object.management.adapter.DBObjectDisableAdapter;
 import com.dbn.object.management.adapter.DBObjectEnableAdapter;
 import com.dbn.object.management.adapter.DBObjectUpdateAdapter;
+import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 
 public abstract class ObjectManagementAdapterFactoryBase<T extends DBSchemaObject> implements ObjectManagementAdapterFactory<T> {
+    public abstract DBObjectType[] getObjectTypes();
+
     @Override
     public final ObjectManagementAdapter<T> createAdapter(T object, ObjectChangeAction action) {
         switch (action) {

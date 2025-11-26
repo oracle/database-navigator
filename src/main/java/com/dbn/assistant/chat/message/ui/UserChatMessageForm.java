@@ -16,31 +16,48 @@
 
 package com.dbn.assistant.chat.message.ui;
 
+import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.AskAgainAction;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
-import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.chat.message.action.ToggleFoldingAction;
+import com.dbn.common.color.Colors;
+import com.dbn.common.ui.util.Borders;
+import com.dbn.common.util.Actions;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.util.ui.JBUI;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JTextPane;
 import java.awt.Color;
 
 public class UserChatMessageForm extends ChatMessageForm {
     private JPanel mainPanel;
     private JProgressBar progressBar;
     private JPanel actionPanel;
-    private JTextPane messageTextPane;
+    private JPanel messagePanel;
+    private JPanel contentPanel;
+    private JPanel foldingActionPanel;
 
-    public UserChatMessageForm(ChatBoxForm parent, ChatMessage message) {
+    public UserChatMessageForm(ChatMessagesForm parent, ChatMessage message) {
         super(parent, message);
-        messageTextPane.setText(message.getContent());
 
+        initFoldingActionToolbar();
         initActionToolbar();
         initProgressBar();
+        initMessagePanel();
+    }
+
+    private void initFoldingActionToolbar() {
+        ActionToolbar actionToolbar = Actions.createActionToolbar(foldingActionPanel, true, new ToggleFoldingAction());
+        JComponent component = actionToolbar.getComponent();
+        component.setOpaque(false);
+        component.setBorder(Borders.EMPTY_BORDER);
+        foldingActionPanel.add(component);
+        foldingActionPanel.setBorder(JBUI.Borders.empty(4, 4, 4, 0));
+
     }
 
     private void initProgressBar() {
@@ -50,14 +67,38 @@ public class UserChatMessageForm extends ChatMessageForm {
         progressBar.setBorder(JBUI.Borders.empty(0, 8, 8, 8));
     }
 
+    private void initMessagePanel() {
+        String content = getMessage().getContent();
+        ChatMessageTextSectionForm messageSectionForm = new ChatMessageTextSectionForm(this, content);
+
+        messagePanel.add(messageSectionForm.getComponent());
+    }
+
+    @Override
+    protected void initContentFolding(JPanel contentPanel) {
+        // do not fold user messages
+    }
+
+    @Override
+    protected void changeContentFolding(boolean folded) {
+        getMessage().setFolded(folded);
+        ChatMessageForm nextForm = getNextMessageForm();
+        while (nextForm != null && nextForm.getMessage().getAuthor() != AuthorType.USER) {
+            // only fold agent or system messages
+            nextForm.changeContentFolding(folded);
+            nextForm = nextForm.getNextMessageForm();
+        }
+    }
+
     @Override
     protected AnAction[] createActions() {
-        String content = getMessage().getContent();
-        return new AnAction[]{new AskAgainAction(content), new CopyContentAction(content)};
+        return new AnAction[]{
+                new AskAgainAction(),
+                new CopyContentAction(() -> getMessage().getContent())};
     }
 
     private void createUIComponents() {
-        mainPanel = createMainPanel();
+        contentPanel = createContentPanel();
     }
 
     @Override
@@ -71,7 +112,22 @@ public class UserChatMessageForm extends ChatMessageForm {
     }
 
     @Override
+    protected JPanel getContentPanel() {
+        return contentPanel;
+    }
+
+    @Override
+    protected Color getForeground() {
+        return Colors.getLabelForeground();
+    }
+
+    @Override
     protected Color getBackground() {
         return Backgrounds.USER_PROMPT;
+    }
+
+    @Override
+    public void hideProcessingIndicators() {
+        progressBar.setVisible(false);
     }
 }

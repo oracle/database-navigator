@@ -16,22 +16,35 @@
 
 package com.dbn.assistant.chat;
 
-import com.dbn.assistant.chat.message.PersistentChatMessage;
+import com.dbn.assistant.AssistantType;
+import com.dbn.assistant.chat.context.ChatContext;
+import com.dbn.assistant.chat.message.AuthorType;
+import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.util.Lists;
+import com.dbn.common.util.TimeUtil;
 import com.dbn.common.util.UUIDs;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
+import static com.dbn.assistant.chat.message.AuthorType.SYSTEM;
+import static com.dbn.assistant.chat.message.AuthorType.USER;
+import static com.dbn.common.message.MessageType.ERROR;
 import static com.dbn.common.options.setting.Settings.longAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setLongAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Lists.getNextElement;
+import static com.dbn.common.util.Lists.isLast;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
 @Getter
@@ -40,14 +53,10 @@ public class Chat implements PersistentStateElement {
     private String id = UUIDs.compact();
     private String title;
     private ChatContext context;
-    private List<PersistentChatMessage> messages = new ArrayList<>();
+    private List<ChatMessage> messages = new CopyOnWriteArrayList<>();
     private long timestamp = System.currentTimeMillis();
 
     private String sessionSignature;
-
-    public Chat() {
-        this(new ChatContext());
-    }
 
     public Chat(ChatContext context) {
         this.context = context;
@@ -77,13 +86,19 @@ public class Chat implements PersistentStateElement {
         messages.clear();
     }
 
-    public void addMessage(PersistentChatMessage message) {
+    public void addMessage(ChatMessage message) {
+        if (messages.isEmpty()) {
+            // reset the timestamp to reflect the real start of the chat
+            timestamp = System.currentTimeMillis();
+        }
         messages.add(message);
     }
 
-    public void addMessages(List<PersistentChatMessage> messages) {
-        this.messages.addAll(messages);
+    @Nullable
+    public ChatMessage getLastMessage() {
+        return Lists.lastElement(messages);
     }
+
 
     public void removeProgress() {
         messages.forEach(message -> {
@@ -91,6 +106,36 @@ public class Chat implements PersistentStateElement {
         });
     }
 
+    public List<String> getUserPrompts() {
+        return messages.
+                stream().
+                filter(m -> m.getAuthor() == USER).
+                map(m -> m.getContent()).
+                collect(Collectors.toList());
+    }
+
+    public boolean isOlderThan(long duration, TimeUnit unit) {
+        return TimeUtil.isOlderThan(timestamp, duration, unit);
+    }
+
+    public boolean isRecentPrompt(ChatMessage message) {
+        if (message.getAuthor() != USER) return false;
+        if (messages.isEmpty()) return false;
+        if (!isLast(messages, message)) return false;
+        if (message.isOlderThan(10, TimeUnit.SECONDS)) return false;
+
+        return true;
+
+    }
+
+    public boolean isFollowedByError(ChatMessage message) {
+        if (message.getAuthor() != USER) return false;
+
+        ChatMessage subsequentMessage = getNextElement(messages, message);
+        return subsequentMessage != null &&
+                subsequentMessage.getAuthor() == SYSTEM &&
+                subsequentMessage.getType() == ERROR;
+    }
 
     @Override
     public void readState(Element element) {
@@ -98,9 +143,11 @@ public class Chat implements PersistentStateElement {
         title = stringAttribute(element, "title");
         sessionSignature = stringAttribute(element, "session-signature");
         timestamp = longAttribute(element, "timestamp", 0L);
+
+        AssistantType assistantType = getContext().getAssistantType();
         List<Element> messagesElements = element.getChild("messages").getChildren();
         for(Element msgElement : messagesElements){
-            PersistentChatMessage chatMessage = new PersistentChatMessage();
+            ChatMessage chatMessage = new ChatMessage(assistantType);
             chatMessage.readState(msgElement);
             messages.add(chatMessage);
         }
@@ -116,13 +163,17 @@ public class Chat implements PersistentStateElement {
         setLongAttribute(element, "timestamp", timestamp);
         Element messagesElement = newElement("messages");
         element.addContent(messagesElement);
-        for(PersistentChatMessage msg : messages){
-            Element msgElement = newElement("message");
-            messagesElement.addContent(msgElement);
-            msg.writeState(msgElement);
+        for (ChatMessage message : messages) {
+            Element messageElement = newElement("message");
+            messagesElement.addContent(messageElement);
+            message.writeState(messageElement);
         }
 
         Element contextElement = newElement(element,"context");
         context.writeState(contextElement);
+    }
+
+    public long countMessages(AuthorType authorType) {
+        return messages.stream().filter(m -> m.getAuthor() == authorType).count();
     }
 }

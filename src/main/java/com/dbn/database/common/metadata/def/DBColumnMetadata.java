@@ -29,6 +29,8 @@ public interface DBColumnMetadata extends DBObjectMetadata {
     @ObjectIdentifier
     String getDatasetName() throws SQLException;
 
+    String getComments() throws SQLException;
+
     boolean isPrimaryKey() throws SQLException;
 
     boolean isForeignKey() throws SQLException;

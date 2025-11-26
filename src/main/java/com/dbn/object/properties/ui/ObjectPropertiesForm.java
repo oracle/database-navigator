@@ -32,7 +32,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.common.util.Naming;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -151,7 +150,7 @@ public class ObjectPropertiesForm extends DBNFormBase {
                 } else {
                     objectLabel.setText(object.getName());
                     objectLabel.setIcon(object.getIcon());
-                    objectTypeLabel.setText(Naming.capitalize(object.getTypeName()) + ":");
+                    objectTypeLabel.setText(object.getObjectType().getTitleCasedName() + ":");
                     UserInterface.setBackgroundRecursive(headerPanel, object.getEnvironmentType().getColor());
                 }
 

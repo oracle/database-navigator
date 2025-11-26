@@ -37,6 +37,7 @@ import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBDatasetFilterVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBLooseContentVirtualFile;
+import com.dbn.vfs.file.DBObjectContentVirtualFile;
 import com.dbn.vfs.file.DBObjectFilterExpressionFile;
 import com.dbn.vfs.file.DBObjectListVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
@@ -82,6 +83,21 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
     public static final String PSS = "" + '/';
     private static final String PROTOCOL = "db";
     private static final String PROTOCOL_PREFIX = PROTOCOL + "://";
+
+    public static boolean isDatabaseFile(String fileUrl) {
+        return fileUrl.startsWith(PROTOCOL_PREFIX);
+    }
+
+    @Nullable
+    public static ConnectionId getConnectionId(String fileUrl) {
+        if (!fileUrl.startsWith(PROTOCOL_PREFIX)) return null;
+        String path = fileUrl.substring(PROTOCOL_PREFIX.length());
+
+        int index = path.indexOf(PS);
+        if (index < 0) return null;
+
+        return ConnectionId.get(path.substring(0, index));
+    }
 
     public enum FilePathType {
         OBJECTS("objects", "objects"),
@@ -271,9 +287,13 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
     }
 
     @Nullable
-    public DBEditableObjectVirtualFile findDatabaseFile(DBSchemaObject object) {
-        DBObjectRef<?> objectRef = object.ref();
-        return filesCache.get(objectRef);
+    public DBEditableObjectVirtualFile findDatabaseFile(DBObject object) {
+        return findDatabaseFile(object.ref());
+    }
+
+    @Nullable
+    public DBEditableObjectVirtualFile findDatabaseFile(DBObjectRef object) {
+        return filesCache.get(object);
     }
 
     @Nullable
@@ -290,7 +310,8 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
         if (isNotValid(object) && isTimeSensitiveThread()) {
             DBObjectBundle objectBundle = connection.getObjectBundle();
             objectBundle.getObjectInitializer().initObject(ref);
-            return null;
+            // TODO invalidate file in cache on content load
+            //return null;
         }
         return filesCache.computeIfAbsent(ref, r -> new DBEditableObjectVirtualFile(project, r));
     }
@@ -375,12 +396,17 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
 
             if (virtualFile instanceof DBObjectFilterExpressionFile) {
                 DBObjectFilterExpressionFile file = (DBObjectFilterExpressionFile) virtualFile;
-                return connectionId + PSS + FILTER_EXPRESSIONS + PSS + file.getName();
+                return connectionId + PSS + FILTER_EXPRESSIONS + file.getName();
+            }
+
+            if (virtualFile instanceof DBObjectContentVirtualFile) {
+                DBObjectContentVirtualFile file = (DBObjectContentVirtualFile) virtualFile;
+                return connectionId + PSS + LOOSE_CONTENTS + DBObjectRef.serialised(file.getObject());
             }
 
             if (virtualFile instanceof DBLooseContentVirtualFile) {
                 DBLooseContentVirtualFile file = (DBLooseContentVirtualFile) virtualFile;
-                return connectionId + PSS + LOOSE_CONTENTS + PSS + DBObjectRef.serialised(file.getObject());
+                return connectionId + PSS + LOOSE_CONTENTS + file.getName();
             }
 
             throw new IllegalArgumentException("File of type " + virtualFile.getClass() + " is not supported");

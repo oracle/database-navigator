@@ -40,6 +40,8 @@ public class ChatHistoryTable extends DBNTable<ChatHistoryTableModel> {
         super(parent, new ChatHistoryTableModel(parent.ensureProject(), chats), true);
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         setDefaultRenderer(Chat.class, new CellRenderer());
+        setTableHeader(null);
+        setShowGrid(false);
         initTableSorter();
 
         addMouseListener(new MouseAdapter() {
@@ -55,7 +57,7 @@ public class ChatHistoryTable extends DBNTable<ChatHistoryTableModel> {
         });
 
         setAccessibleName(this, "Chat History");
-        setProportionalColumnWidths(50, 20, 30);
+        setProportionalColumnWidths(65, 35);
     }
 
     @Override

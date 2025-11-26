@@ -19,6 +19,7 @@ package com.dbn.data.type.ui;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
+import com.dbn.common.ui.util.TextFields;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.editor.ui.BasicListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
@@ -49,7 +50,7 @@ public class DataTypeEditor extends TextFieldWithPopup {
 
 
     public String getDataTypeRepresentation() {
-        return getTextField().getText();
+        return TextFields.getText(getTextField());
     }
 
     @Override

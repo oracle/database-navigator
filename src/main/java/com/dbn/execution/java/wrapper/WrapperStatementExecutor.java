@@ -17,107 +17,141 @@
 package com.dbn.execution.java.wrapper;
 
 import com.dbn.common.Priority;
-import com.dbn.common.event.ProjectEvents;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
-import com.dbn.connection.jdbc.DBNPreparedStatement;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
-import com.dbn.object.common.DBObject;
-import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.event.ObjectChangeListener;
-import com.dbn.object.type.DBObjectType;
+import com.dbn.object.DBMethod;
+import com.dbn.object.event.ObjectChangeEvent;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
-import lombok.Getter;
+import lombok.experimental.UtilityClass;
 
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
+import static com.dbn.object.type.DBObjectType.FUNCTION;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
+import static com.dbn.object.type.DBObjectType.PACKAGE;
+import static com.dbn.object.type.DBObjectType.PROCEDURE;
+import static com.dbn.object.type.DBObjectType.TYPE;
 
-@Getter
+@UtilityClass
 public class WrapperStatementExecutor {
-    private Wrapper wrapper;
-
-    public Wrapper createExecutionWrappers(DBJavaMethod method, boolean useFriendlyNames) throws SQLException {
-        Project project = method.getProject();
-
-        WrapperBuilder wrapperBuilder = WrapperBuilder.getInstance();
-        wrapper = wrapperBuilder.build(method, useFriendlyNames);
-
-        WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
-        String creationStatement = statementBuilder.buildWrapperCreationStatement(wrapper);
-
-        ConnectionId connectionId = method.getConnectionId();
-        DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Creating execution wrappers",
-                "Creating java execution wrappers for method \"" + method.getPresentableText() + "\"",
-                project,
-                connectionId, c -> {
-                    DBNPreparedStatement statement = c.prepareStatement(creationStatement);
-                    statement.execute();
-                });
-
-        if (useFriendlyNames) {
-            notifyObjectChanges(method, DBObjectType.JAVA_CLASS, CREATE);
-            notifyObjectChanges(method, DBObjectType.FUNCTION, CREATE);
-            notifyObjectChanges(method, DBObjectType.PROCEDURE, CREATE);
-            notifyObjectChanges(method, DBObjectType.TYPE, CREATE);
+    public static void createExecutionWrappers(WrapperModel model) throws SQLException {
+        if (model.getInput().isClassLevel()) {
+            createClassExecutionWrappers(model);
+        } else {
+            createMethodExecutionWrappers(model);
         }
-
-        return wrapper;
     }
 
-    public Wrapper createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames) throws SQLException {
-        if (methods.isEmpty()) return null;
+    private static void createMethodExecutionWrappers(WrapperModel model) throws SQLException {
+        WrapperModelInput input = model.getInput();
+
+        Project project = model.getProject();
+        WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
+        String creationStatement = statementBuilder.buildWrapperCreationStatement(model);
+
+        DBJavaMethod javaMethod = model.getSourceObject();
+        ConnectionId connectionId = javaMethod.getConnectionId();
+        SchemaId schemaId = javaMethod.getOwnerClass().getSchemaId();
+        DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                txt("prc.java.title.CreatingExecutionWrappers"),
+                txt("prc.java.text.CreatingExecutionWrappers",
+                        javaMethod.getTypeName(),
+                        javaMethod.getPresentableName()),
+                project,
+                connectionId, c -> {
+                    c.executeStatement(creationStatement);
+                    if (input.isCompileInDebugMode()) {
+                        compileObjectInDebugMode(c, model);
+                    }
+                });
+
+        if (input.isUseFriendlyNames()) {
+            ObjectChangeEvent.notify(CREATE, JAVA_CLASS, connectionId, schemaId);
+            ObjectChangeEvent.notify(CREATE, FUNCTION, connectionId, schemaId);
+            ObjectChangeEvent.notify(CREATE, PROCEDURE, connectionId, schemaId);
+            ObjectChangeEvent.notify(CREATE, TYPE, connectionId, schemaId);
+        }
+    }
+
+    private static void createClassExecutionWrappers(WrapperModel model) throws SQLException {
+        WrapperModelInput input = model.getInput();
+
+        List<DBJavaMethod> methods = input.getJavaMethods();
+        if (methods.isEmpty()) return;
+
+        DBJavaClass javaClass = model.getSourceObject();
 
         Project project = javaClass.getProject();
-        WrapperBuilder wrapperBuilder = WrapperBuilder.getInstance();
-        Wrapper wrapper = wrapperBuilder.build(javaClass, methods, useFriendlyNames);
-
         WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
-        String creationStatement = statementBuilder.buildWrapperCreationStatement(wrapper);
+        String creationStatement = statementBuilder.buildWrapperCreationStatement(model);
 
         ConnectionId connectionId = javaClass.getConnectionId();
+        SchemaId schemaId = javaClass.getSchemaId();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Creating execution wrappers",
-                "Creating java execution wrappers for java class \"" + javaClass.getCanonicalName() + "\"",
+                txt("prc.java.title.CreatingExecutionWrappers"),
+                txt("prc.java.text.CreatingExecutionWrappers",
+                        javaClass.getTypeName(),
+                        javaClass.getPresentableName()),
                 project,
                 connectionId, c -> {
-                    DBNPreparedStatement statement = c.prepareStatement(creationStatement);
-                    statement.execute();
+                    c.executeStatement(creationStatement);
+                    if (input.isCompileInDebugMode()) {
+                        compileObjectInDebugMode(c, model);
+                    }
                 });
 
-        if (useFriendlyNames) {
-            notifyObjectChanges(javaClass, DBObjectType.JAVA_CLASS, CREATE);
-            notifyObjectChanges(javaClass, DBObjectType.PACKAGE, CREATE);
-            notifyObjectChanges(javaClass, DBObjectType.TYPE, CREATE);
+        if (input.isUseFriendlyNames()) {
+            ObjectChangeEvent.notify(CREATE, JAVA_CLASS, connectionId, schemaId);
+            ObjectChangeEvent.notify(CREATE, PACKAGE, connectionId, schemaId);
+            ObjectChangeEvent.notify(CREATE, TYPE, connectionId, schemaId);
+        }
+    }
+
+    public static void discardExecutionWrappers(WrapperModel model) throws SQLException {
+        if (model == null) return;
+
+        // temporary wrappers - source object is expected to be a method
+        DBJavaMethod javaMethod = model.getSourceObject();
+
+        Project project = javaMethod.getProject();
+        WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
+        String removalStatement = statementBuilder.buildWrapperRemovalStatement(model);
+
+        ConnectionId connectionId = javaMethod.getConnectionId();
+        DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                txt("prc.java.title.RemovingExecutionWrappers"),
+                txt("prc.java.text.RemovingExecutionWrappers",
+                        javaMethod.getTypeName(),
+                        javaMethod.getPresentableName()),
+                project,
+                connectionId, c -> c.executeStatement(removalStatement));
+    }
+
+    private static void compileObjectInDebugMode(DBNConnection connection, WrapperModel model) throws SQLException {
+        String schemaName = model.getSchemaName();
+        DatabaseDataDefinitionInterface dataDefinitionInterface = model.getDataDefinitionInterface();
+
+        // compile wrapper types
+        for (String typeName : model.getSqlTypeNames()) {
+            dataDefinitionInterface.compileObject(schemaName, typeName, TYPE.getName(), true, connection);
         }
 
-        return wrapper;
-    }
+        // compile wrapper method
+        DBObjectRef<DBMethod> method = model.getSqlWrapperMethod();
+        String methodName = method.getObjectName();
+        String methodType = method.getObjectTypeName();
+        dataDefinitionInterface.compileObject(schemaName, methodName, methodType, true, connection);
 
-    public void discardExecutionWrappers(DBJavaMethod method) throws SQLException {
-        Project project = method.getProject();
-        WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
-        String removalStatement = statementBuilder.buildWrapperRemovalStatement(wrapper);
-
-        ConnectionId connectionId = method.getConnectionId();
-        DatabaseInterfaceInvoker.execute(Priority.HIGH,
-                "Removing execution wrappers",
-                "Removing java execution wrappers for " + method.getPresentableText(),
-                project,
-                connectionId, c -> {
-                    DBNPreparedStatement statement = c.prepareStatement(removalStatement);
-                    statement.execute();
-                });
-    }
-
-    public void notifyObjectChanges(DBObject sourceObject, DBObjectType objectType, ObjectChangeAction action) {
-        Project project = sourceObject.getProject();
-        ConnectionId connectionId = sourceObject.getConnectionId();
-        SchemaId schemaId = sourceObject.getSchemaId();
-        ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(connectionId, schemaId, objectType, action));
+        // compile java wrapper
+        dataDefinitionInterface.compileJavaClass(schemaName, model.getJavaWrapperName(), connection);
     }
 }

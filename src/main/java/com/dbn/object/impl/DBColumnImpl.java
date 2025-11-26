@@ -42,6 +42,7 @@ import com.dbn.object.properties.DBObjectPresentableProperty;
 import com.dbn.object.properties.PresentableProperty;
 import com.dbn.object.properties.SimplePresentableProperty;
 import com.dbn.object.type.DBObjectType;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,9 +66,11 @@ import static com.dbn.object.type.DBObjectType.CONSTRAINT;
 import static com.dbn.object.type.DBObjectType.INDEX;
 import static com.dbn.object.type.DBObjectType.TYPE_ATTRIBUTE;
 
+@Getter
 class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
     private DBDataType dataType;
     private short position;
+    private String comments;
 
     DBColumnImpl(@NotNull DBDataset dataset, DBColumnMetadata metadata) throws SQLException {
         super(dataset, metadata);
@@ -83,6 +86,7 @@ class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
         set(NULLABLE, metadata.isNullable());
         set(HIDDEN, metadata.isHidden());
         position = metadata.getPosition();
+        comments = metadata.getComments();
 
         dataType = DBDataType.get(connection, metadata.getDataType());
         return name;
@@ -113,16 +117,6 @@ class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
     @Override
     public DBObjectType getObjectType() {
         return COLUMN;
-    }
-
-    @Override
-    public DBDataType getDataType() {
-        return dataType;
-    }
-
-    @Override
-    public short getPosition() {
-        return position;
     }
 
     @Override

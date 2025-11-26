@@ -17,10 +17,10 @@
 package com.dbn.plugin.ui;
 
 import com.dbn.common.text.TextContent;
+import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Alarms;
-import com.dbn.common.util.Commons;
 import com.dbn.plugin.PluginConflictResolution;
 import com.intellij.util.Alarm;
 import lombok.SneakyThrows;
@@ -49,7 +49,7 @@ public class PluginConflictResolutionForm extends DBNFormBase {
     @SneakyThrows
     public PluginConflictResolutionForm(@NotNull PluginConflictResolutionDialog dialog) {
         super(dialog);
-        String content = Commons.readInputStream(getClass().getResourceAsStream("plugin_conflict_resolution.html.ft"));
+        String content = TextResources.get(this, "plugin_conflict_resolution.html.ft");
         TextContent hintText = html(content);
         DBNHintForm disclaimerForm = new DBNHintForm(this, hintText, null, true);
         disclaimerForm.setHighlighted(true);

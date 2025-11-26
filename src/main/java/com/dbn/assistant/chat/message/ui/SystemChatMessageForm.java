@@ -17,36 +17,45 @@
 package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessage;
-import com.dbn.assistant.chat.message.action.HelpAction;
-import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.common.message.MessageType;
+import com.dbn.assistant.chat.message.action.AssistantHelpAction;
+import com.dbn.common.util.TextWrapper;
+import com.dbn.common.util.Unsafe;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
 import java.awt.Color;
 
 public class SystemChatMessageForm extends ChatMessageForm {
 
     private JPanel mainPanel;
     private JPanel actionPanel;
-    private JTextPane messageTextPane;
     private JLabel titleLabel;
     private JPanel titlePanel;
+    private JPanel contentPanel;
+    private JPanel messagePanel;
 
-    public SystemChatMessageForm(ChatBoxForm parent, ChatMessage message) {
+    public SystemChatMessageForm(ChatMessagesForm parent, ChatMessage message) {
         super(parent, message);
-        messageTextPane.setText(message.getContent());
 
         initTitlePanel();
         initActionToolbar();
+        initMessagePanel();
+    }
+
+    private void initMessagePanel() {
+        String content = getMessage().getContent();
+        String wrappedContent = Unsafe.logged(content, () -> TextWrapper.wrapText(content, 50));
+        ChatMessageTextSectionForm messageSectionForm = new ChatMessageTextSectionForm(this, wrappedContent);
+        messageSectionForm.setForeground(getForeground());
+        messagePanel.add(messageSectionForm.getComponent());
     }
 
     private void createUIComponents() {
-        mainPanel = createMainPanel();
+        contentPanel = createContentPanel();
     }
 
     @Override
@@ -61,7 +70,7 @@ public class SystemChatMessageForm extends ChatMessageForm {
 
     @Override
     protected AnAction[] createActions() {
-        return new AnAction[]{new HelpAction()};
+        return new AnAction[]{new AssistantHelpAction()};
     }
 
     @Override
@@ -70,10 +79,17 @@ public class SystemChatMessageForm extends ChatMessageForm {
     }
 
     @Override
+    protected JPanel getContentPanel() {
+        return contentPanel;
+    }
+
+    @Override
+    protected Color getForeground() {
+        return UIUtil.getErrorForeground();
+    }
+
+    @Override
     protected Color getBackground() {
-        MessageType messageType = getMessage().getType();
-        return messageType == MessageType.ERROR ?
-                Backgrounds.SYSTEM_ERROR :
-                Backgrounds.SYSTEM_INFO;
+        return Backgrounds.SYSTEM_RESPONSE;
     }
 }

@@ -32,6 +32,7 @@ import java.awt.BorderLayout;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
 public class CreateRenameSessionForm extends DBNFormBase {
@@ -86,7 +87,7 @@ public class CreateRenameSessionForm extends DBNFormBase {
     }
 
     public String getSessionName() {
-        return sessionNameTextField.getText();
+        return getText(sessionNameTextField);
     }
 
     public ConnectionHandler getConnection() {

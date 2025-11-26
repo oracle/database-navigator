@@ -16,7 +16,7 @@
 
 package com.dbn.database.common;
 
-import com.dbn.database.interfaces.DatabaseDebuggerInterface;
+import com.dbn.database.interfaces.DatabaseInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
@@ -45,9 +45,14 @@ public abstract class DatabaseInterfacesBase implements DatabaseInterfaces {
 
     @Override
     public void reset() {
-        getMetadataInterface().reset();
-        getDataDefinitionInterface().reset();
-        DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
-        if (debuggerInterface != null) debuggerInterface.reset();
+        reset(getMetadataInterface());
+        reset(getDataDefinitionInterface());
+        reset(getAssistantInterface());
+        reset(getVectorInterface());
+        reset(getDebuggerInterface());
+    }
+
+    private static void reset(DatabaseInterface databaseInterface) {
+        if (databaseInterface != null) databaseInterface.reset();
     }
 }

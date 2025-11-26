@@ -17,8 +17,6 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.common.statement.ByteArray;
-import com.dbn.database.common.statement.ClobText;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -401,6 +399,9 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadAiProfiles(String ownerName, DBNConnection connection) throws SQLException;
 
+    ResultSet loadAiModels(String ownerName, DBNConnection connection) throws SQLException;
+
+
     /**
      * Loads the functions of the given owner<br>
      * Column names of the returned ResultSet
@@ -511,8 +512,6 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     ResultSet loadAllJavaParameters(String ownerName, DBNConnection connection) throws SQLException;
 
     ResultSet loadJavaClassDependencies(String ownerName, String objectName, DBNConnection connection) throws SQLException;
-
-    ResultSet loadAllJavaClassDependencies(String ownerName, DBNConnection connection) throws SQLException;
 
     /*********************************************************
 	 *                        TYPES                          *
@@ -686,9 +685,9 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
 
     ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, short overload, DBNConnection connection) throws SQLException;
 
-    ClobText loadJavaResourceSourceCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+    String loadJavaResourceSourceCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
-    ByteArray loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+    byte[] loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     /**
      * Loads a actions of invalid object names for the given owner.
@@ -725,6 +724,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
 
     void disableConstraint(String ownerName, String tableName, String constraintName, DBNConnection connection) throws SQLException;
 
+    ResultSet loadDataEventRegistrations(DBNConnection connection) throws SQLException;
+
     ResultSet loadSessions(DBNConnection connection) throws SQLException;
 
     ResultSet loadSessionCurrentSql(Object sessionId, DBNConnection connection) throws SQLException;
@@ -748,4 +749,14 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     String createDateString(Date date);
 
     boolean hasPendingTransactions(@NotNull DBNConnection connection);
+
+    boolean hasSystemPrivilege(String privilegeName, DBNConnection connection) throws SQLException;
+
+    boolean hasObjectPrivilege(String privilegeName, String ownerName, String objectName, DBNConnection connection) throws SQLException;
+
+    boolean hasTablespaceQuota(DBNConnection connection) throws SQLException;
+
+    boolean hasNetworkPrivilege(String userName, String hostName, String privilegeName, DBNConnection connection) throws SQLException;
+
+    void grantNetworkPrivilege(String userName, String hostName, String privilegeName, DBNConnection connection) throws SQLException;
 }

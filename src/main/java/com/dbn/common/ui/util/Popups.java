@@ -18,6 +18,7 @@ package com.dbn.common.ui.util;
 
 import com.dbn.common.ui.Presentable;
 import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.ui.popup.IPopupChooserBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -103,6 +104,12 @@ public class Popups {
     }
 
     public static ActionPopupBuilder popupBuilder(ActionGroup actionGroup, Object context) {
+        return ActionPopupBuilder.create(actionGroup, context);
+    }
+
+    public static ActionPopupBuilder popupBuilder(String actionGroupName, Object context) {
+        ActionManager actionManager = ActionManager.getInstance();
+        ActionGroup actionGroup = (ActionGroup) actionManager.getAction(actionGroupName);
         return ActionPopupBuilder.create(actionGroup, context);
     }
 }

@@ -93,4 +93,9 @@ public class DBNFormValidatorSurrogate implements DBNFormValidator{
     private static void notSupported() {
         log.error("Failed to initialize validator", new IllegalStateException("Form validator not bound to dialog. Validation not supported."));
     }
+
+    @Override
+    public boolean isVisitedField(JComponent component) {
+        return false;
+    }
 }

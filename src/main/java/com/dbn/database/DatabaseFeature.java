@@ -16,12 +16,15 @@
 
 package com.dbn.database;
 
+import com.dbn.connection.ConnectionBundle;
+import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.DatabaseInterfacesBundle;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.object.common.DBObject;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +54,11 @@ public enum DatabaseFeature {
     CONSTRAINT_MANIPULATION("Constraint manipulation"),
     READONLY_CONNECTIVITY("Readonly connectivity"),
     AI_ASSISTANT("AI assistant"),
-    EMBEDDED_JVM("Embedded java virtual machine"),
+    DATA_CHANGE_NOTIFICATION("Data change notification"),
+    VECTOR_EMBEDDING("Vector embedding"),
+
+    // OJVM
+    JAVA_VIRTUAL_MACHINE("Embedded java virtual machine"),
 
     @Deprecated // temporary disabled feature because of performance issues with empty schema evaluations
     EMPTY_SCHEMA_EVALUATION("Empty schema evaluation"),
@@ -85,5 +92,11 @@ public enum DatabaseFeature {
         DatabaseInterfaces databaseInterfaces = DatabaseInterfacesBundle.get(databaseType);
         DatabaseCompatibilityInterface compatibility = databaseInterfaces.getCompatibilityInterface();
         return compatibility != null && compatibility.supportsFeature(this);
+    }
+
+    public boolean isSupported(Project project) {
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
+        return connectionBundle.hasConnections(this);
     }
 }

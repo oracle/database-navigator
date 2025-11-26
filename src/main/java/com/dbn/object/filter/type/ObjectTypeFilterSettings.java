@@ -79,7 +79,8 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
             new ObjectTypeFilterSetting(this, DBObjectType.CLUSTER),
             new ObjectTypeFilterSetting(this, DBObjectType.DBLINK),
             new ObjectTypeFilterSetting(this, DBObjectType.CREDENTIAL),
-            new ObjectTypeFilterSetting(this, DBObjectType.AI_PROFILE));
+            new ObjectTypeFilterSetting(this, DBObjectType.AI_PROFILE),
+            new ObjectTypeFilterSetting(this,DBObjectType.AI_MODEL));
 
     private Map<DBObjectType, ObjectTypeFilterSetting> cache = new ConcurrentHashMap<>(settings.size());
 

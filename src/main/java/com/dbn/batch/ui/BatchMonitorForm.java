@@ -29,6 +29,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.messages.DBNMessageForm;
 import com.dbn.common.ui.progress.ProgressForm;
+import com.dbn.common.ui.util.ScrollPanes;
 import com.dbn.common.ui.util.UserInterface;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.util.containers.ContainerUtil;
@@ -38,13 +39,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import java.util.Map;
 
-import static com.dbn.common.icon.Icons.DIALOG_ERROR;
-import static com.dbn.common.icon.Icons.DIALOG_SUCCESS;
-import static com.dbn.common.icon.Icons.DIALOG_WARNING;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.util.Actions.createActionToolbar;
 
@@ -82,7 +79,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
 
     private void initHeaderPanel() {
         DBNHeaderForm headerForm = new DBNHeaderForm(this, batch.getContextObject());
-        headerPanel.add(headerForm.getMainComponent());
+        headerPanel.add(headerForm.getComponent());
     }
 
     private void initProgressBar() {
@@ -110,9 +107,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
         String message = messenger.getProgressMessage(batch, null);
 
         MessageType messageType = messenger.getProgressMessageType(batch);
-        Icon icon = messageType == MessageType.SUCCESS ? DIALOG_SUCCESS :
-                    messageType == MessageType.WARNING ? DIALOG_WARNING :
-                    messageType == MessageType.ERROR ?  DIALOG_ERROR : null;
+        Icon icon = messageType.getDialogIcon();
 
         DBNMessageForm messageForm = new DBNMessageForm(this, icon, title, message);
         messagePanel.add(messageForm.getComponent());
@@ -204,7 +199,6 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
     }
 
     private void onTaskStart(BatchTask task) {
-
         BatchMonitorTaskForm taskForm = new BatchMonitorTaskForm(this, task);
         taskForms.put(task.getIdentifier(), taskForm);
         tasksPanel.add(taskForm.getComponent());
@@ -214,9 +208,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
         progressForm.setText2(progressDetail);
 
         taskForm.initialize();
-        JScrollBar scrollBar = tasksScrollPanel.getVerticalScrollBar();
-        scrollBar.revalidate();
-        scrollBar.setValue(scrollBar.getMaximum());
+        ScrollPanes.scrollDown(tasksScrollPanel, true);
     }
 
     private void onTaskCompletion(BatchTask task) {

@@ -40,6 +40,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 
 import static com.dbn.common.ui.util.Mouse.isMainSingleClick;
+import static com.dbn.common.ui.util.TextFields.getText;
 
 public class FileBrowserTableCellEditor extends AbstractCellEditor implements TableCellEditor{
     private final JPanel mainPanel = new JPanel();
@@ -66,7 +67,7 @@ public class FileBrowserTableCellEditor extends AbstractCellEditor implements Ta
         if (!isMainSingleClick(e)) return;
 
         FileChooserDialog fileChooser = FileChooserFactory.getInstance().createFileChooser(fileChooserDescriptor, null, null);
-        VirtualFile file = LocalFileSystem.getInstance().findFileByIoFile(new File(textField.getText()));
+        VirtualFile file = LocalFileSystem.getInstance().findFileByIoFile(new File(getText(textField)));
         VirtualFile[] virtualFiles = fileChooser.choose(null, file);
         if (virtualFiles.length > 0) {
             textField.setText(new File(virtualFiles[0].getPath()).getPath());
@@ -85,6 +86,6 @@ public class FileBrowserTableCellEditor extends AbstractCellEditor implements Ta
 
     @Override
     public Object getCellEditorValue() {
-        return textField.getText();
+        return getText(textField);
     }
 }

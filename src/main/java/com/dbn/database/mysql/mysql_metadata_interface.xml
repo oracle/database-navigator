@@ -19,13 +19,11 @@
         <!ELEMENT statement-execution-processor (statement)*>
         <!ATTLIST statement-execution-processor
                 id CDATA #REQUIRED
-                is-query CDATA #IMPLIED
-                is-prepared-statement CDATA #IMPLIED
                 timeout CDATA #IMPLIED>
         <!ELEMENT statement (#PCDATA)>
         ]>
 <data-dictionary>
-    <statement-execution-processor id="schemas" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="schemas">
         <statement>
             select
                 SCHEMA_NAME,
@@ -36,7 +34,7 @@
             order by SCHEMA_NAME asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="users" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="users">
         <statement>
             select distinct
                 GRANTEE as USER_NAME,
@@ -46,14 +44,14 @@
             order by GRANTEE asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="system-privileges" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="system-privileges">
         <statement>
             select distinct PRIVILEGE_TYPE as PRIVILEGE_NAME
             from information_schema.USER_PRIVILEGES
             order by PRIVILEGE_TYPE asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="all-user-privileges" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-user-privileges">
         <statement>
             select
                 GRANTEE as USER_NAME,
@@ -63,7 +61,7 @@
             order by GRANTEE, PRIVILEGE_TYPE asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="charsets" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="charsets">
         <statement>
             select
                 CHARACTER_SET_NAME as CHARSET_NAME,
@@ -75,36 +73,38 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="tables" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="tables">
         <statement>
             select
                 TABLE_NAME,
+                TABLE_COMMENT as COMMENTS,
                 'N' as IS_TEMPORARY
             from  information_schema.TABLES
             where
-                TABLE_SCHEMA = {0} and
+                TABLE_SCHEMA = {#0} and
                 TABLE_TYPE = 'BASE TABLE'
             order by TABLE_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="views" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="views">
         <statement>
             select
                 TABLE_NAME as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
+                TABLE_COMMENT as COMMENTS,
                 if (TABLE_TYPE = 'VIEW', 'N', 'Y') as IS_SYSTEM_VIEW,
                 'N' as IS_EDITIONABLE
             from information_schema.TABLES
             where
-                TABLE_SCHEMA = {0} and
+                TABLE_SCHEMA = {#0} and
                 TABLE_TYPE in ('VIEW', 'SYSTEM VIEW')
             order by TABLE_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="dataset-columns" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="dataset-columns">
         <!--<statement>
             select
                 col.COLUMN_NAME,
@@ -138,14 +138,15 @@
                                     con.TABLE_NAME = col.TABLE_NAME and
                                     con.COLUMN_NAME = col.COLUMN_NAME
             where
-                col.TABLE_SCHEMA = {0} and
-                col.TABLE_NAME = {1}
+                col.TABLE_SCHEMA = {#0} and
+                col.TABLE_NAME = {#1}
             order by col.COLUMN_NAME asc
         </statement>-->
         <statement>
             select
                 col.COLUMN_NAME,
                 col.ORDINAL_POSITION as `POSITION`,
+                col.COLUMN_COMMENT as COMMENTS,
                 col.DATA_TYPE as DATA_TYPE_NAME,
                 null as DECL_TYPE_OWNER,
                 null as DECL_TYPE_PROGRAM,
@@ -172,13 +173,13 @@
                         kcu.TABLE_NAME = col.TABLE_NAME and
                         kcu.COLUMN_NAME = col.COLUMN_NAME
             where
-                col.TABLE_SCHEMA = {0} and
-                col.TABLE_NAME = {1}
+                col.TABLE_SCHEMA = {#0} and
+                col.TABLE_NAME = {#1}
             order by col.COLUMN_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-dataset-columns" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-dataset-columns">
        <!-- <statement>
             select
                 col.COLUMN_NAME,
@@ -213,7 +214,7 @@
                                     con.TABLE_NAME = col.TABLE_NAME and
                                     con.COLUMN_NAME = col.COLUMN_NAME
             where
-                col.TABLE_SCHEMA = {0}
+                col.TABLE_SCHEMA = {#0}
             order by
                 col.TABLE_NAME,
                 col.COLUMN_NAME asc
@@ -223,6 +224,7 @@
                 col.COLUMN_NAME,
                 col.TABLE_NAME as DATASET_NAME,
                 col.ORDINAL_POSITION as `POSITION`,
+                col.COLUMN_COMMENT as COMMENTS,
                 col.DATA_TYPE as DATA_TYPE_NAME,
                 null as DECL_TYPE_OWNER,
                 null as DECL_TYPE_PROGRAM,
@@ -249,14 +251,14 @@
                         kcu.TABLE_NAME = col.TABLE_NAME and
                         kcu.COLUMN_NAME = col.COLUMN_NAME
             where
-                col.TABLE_SCHEMA = {0}
+                col.TABLE_SCHEMA = {#0}
             order by
                 col.TABLE_NAME,
                 col.COLUMN_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-constraints" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-constraints">
         <statement>
             select
                 tc.TABLE_NAME as DATASET_NAME,
@@ -281,7 +283,7 @@
                     rc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME and
                     rc.TABLE_NAME = tc.TABLE_NAME
             where
-                tc.TABLE_SCHEMA = {0}
+                tc.TABLE_SCHEMA = {#0}
             order by
                 tc.TABLE_NAME,
                 tc.CONSTRAINT_NAME asc
@@ -302,14 +304,14 @@
             from
                 information_schema.TABLE_CONSTRAINTS tc
             where
-                tc.TABLE_SCHEMA = {0}
+                tc.TABLE_SCHEMA = {#0}
             order by
                 tc.TABLE_NAME,
                 tc.CONSTRAINT_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="constraints" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="constraints">
         <statement>
             select
                 tc.TABLE_NAME as DATASET_NAME,
@@ -334,8 +336,8 @@
                     rc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME and
                     rc.TABLE_NAME = tc.TABLE_NAME
             where
-                tc.TABLE_SCHEMA = {0} and
-                tc.TABLE_NAME = {1}
+                tc.TABLE_SCHEMA = {#0} and
+                tc.TABLE_NAME = {#1}
             order by
                 tc.TABLE_NAME,
                 tc.CONSTRAINT_NAME asc
@@ -356,15 +358,15 @@
             from
                 information_schema.TABLE_CONSTRAINTS tc
             where
-                tc.TABLE_SCHEMA = {0} and
-                tc.TABLE_NAME = {1}
+                tc.TABLE_SCHEMA = {#0} and
+                tc.TABLE_NAME = {#1}
             order by
                 tc.TABLE_NAME,
                 tc.CONSTRAINT_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="column-constraint-relations" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="column-constraint-relations">
         <statement>
             select
                 COLUMN_NAME,
@@ -376,13 +378,13 @@
                 ORDINAL_POSITION as POSITION
             from information_schema.KEY_COLUMN_USAGE
             where
-                TABLE_SCHEMA = {0} and
-                TABLE_NAME = {1}
+                TABLE_SCHEMA = {#0} and
+                TABLE_NAME = {#1}
             order by COLUMN_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-column-constraint-relations" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-column-constraint-relations">
         <statement>
             select
                TABLE_NAME as DATASET_NAME,
@@ -394,12 +396,12 @@
                end as CONSTRAINT_NAME,
                ORDINAL_POSITION as POSITION
             from information_schema.KEY_COLUMN_USAGE
-            where TABLE_SCHEMA = {0}
+            where TABLE_SCHEMA = {#0}
             order by TABLE_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="indexes" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="indexes">
         <statement>
             select distinct
                 INDEX_NAME,
@@ -407,13 +409,13 @@
                 'Y' as IS_VALID
             from information_schema.STATISTICS
             where
-                TABLE_SCHEMA = {0} and
-                TABLE_NAME = {1}
+                TABLE_SCHEMA = {#0} and
+                TABLE_NAME = {#1}
             order by INDEX_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-indexes" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-indexes">
         <statement>
             select distinct
                 INDEX_NAME,
@@ -421,39 +423,39 @@
                 if (NON_UNIQUE = 'YES', 'N', 'Y') as IS_UNIQUE,
                 'Y' as IS_VALID
             from information_schema.STATISTICS
-            where TABLE_SCHEMA = {0}
+            where TABLE_SCHEMA = {#0}
             order by
                 TABLE_NAME,
                 INDEX_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="column-index-relations" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="column-index-relations">
         <statement>
             select
                 COLUMN_NAME,
                 INDEX_NAME
             from information_schema.STATISTICS
             where
-                TABLE_SCHEMA = {0} and
-                TABLE_NAME = {1}
+                TABLE_SCHEMA = {#0} and
+                TABLE_NAME = {#1}
             order by COLUMN_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-column-index-relations" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-column-index-relations">
         <statement>
             select
                 TABLE_NAME,
                 COLUMN_NAME,
                 INDEX_NAME
             from information_schema.STATISTICS
-            where TABLE_SCHEMA = {0}
+            where TABLE_SCHEMA = {#0}
             order by TABLE_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="dataset-triggers" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="dataset-triggers">
         <statement>
             select
                 EVENT_OBJECT_TABLE as DATASET_NAME,
@@ -466,13 +468,13 @@
                 'Y' as IS_FOR_EACH_ROW
             from information_schema.TRIGGERS
             where
-                EVENT_OBJECT_SCHEMA = {0} and
-                EVENT_OBJECT_TABLE = {1}
+                EVENT_OBJECT_SCHEMA = {#0} and
+                EVENT_OBJECT_TABLE = {#1}
             order by TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-dataset-triggers" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-dataset-triggers">
         <statement>
             select
                 EVENT_OBJECT_TABLE as DATASET_NAME,
@@ -484,14 +486,14 @@
                 'N' as IS_DEBUG,
                 'Y' as IS_FOR_EACH_ROW
             from information_schema.TRIGGERS
-            where EVENT_OBJECT_SCHEMA = {0}
+            where EVENT_OBJECT_SCHEMA = {#0}
             order by
                 EVENT_OBJECT_TABLE,
                 TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="functions" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="functions">
         <statement>
             select
                 ROUTINE_NAME as FUNCTION_NAME,
@@ -503,13 +505,13 @@
                 'PSQL' as LANGUAGE
             from information_schema.ROUTINES
             where
-                ROUTINE_SCHEMA = {0} and
+                ROUTINE_SCHEMA = {#0} and
                 ROUTINE_TYPE = 'FUNCTION'
             order by ROUTINE_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="procedures" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="procedures">
         <statement>
             select
                 ROUTINE_NAME as PROCEDURE_NAME,
@@ -521,13 +523,13 @@
                 'PSQL' as LANGUAGE
             from information_schema.ROUTINES
             where
-                ROUTINE_SCHEMA = {0} and
+                ROUTINE_SCHEMA = {#0} and
                 ROUTINE_TYPE = 'PROCEDURE'
             order by ROUTINE_NAME asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="method-arguments" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="method-arguments">
         <statement>
             select
                 PARAMETER_NAME as ARGUMENT_NAME,
@@ -548,15 +550,15 @@
                 'N' as IS_SET
             from information_schema.PARAMETERS
             where
-                SPECIFIC_SCHEMA = {0} and
-                SPECIFIC_NAME = {1} and
-                ROUTINE_TYPE = {2}
+                SPECIFIC_SCHEMA = {#0} and
+                SPECIFIC_NAME = {#1} and
+                ROUTINE_TYPE = {#2}
             order by
                 SPECIFIC_NAME,
                 ORDINAL_POSITION asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="alternative-method-arguments" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="alternative-method-arguments">
         <statement>
             select
                 case when TYPE = 'FUNCTION' then concat('OUT return ', RETURNS, ', ', PARAM_LIST) else PARAM_LIST end as ARGUMENTS,
@@ -564,14 +566,14 @@
                 TYPE as METHOD_TYPE
             from mysql.proc
             where
-                DB = {0} and
-                NAME = {1} and
-                TYPE = {2}
+                DB = {#0} and
+                NAME = {#1} and
+                TYPE = {#2}
         </statement>
     </statement-execution-processor>
 
 
-    <statement-execution-processor id="all-method-arguments" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="all-method-arguments">
         <statement>
             select
                 PARAMETER_NAME as ARGUMENT_NAME,
@@ -592,35 +594,35 @@
                 'N' as IS_SET
             from information_schema.PARAMETERS
             where
-                SPECIFIC_SCHEMA = {0}
+                SPECIFIC_SCHEMA = {#0}
             order by
                 SPECIFIC_NAME,
                 ORDINAL_POSITION asc
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="alternative-all-method-arguments" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="alternative-all-method-arguments">
         <statement>
             select
                 case when TYPE = 'FUNCTION' then concat('OUT return ', RETURNS, ', ', PARAM_LIST) else PARAM_LIST end as ARGUMENTS,
                 NAME as METHOD_NAME,
                 TYPE as METHOD_TYPE
             from mysql.proc
-            where DB = {0}
+            where DB = {#0}
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="view-source-code" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="view-source-code">
         <statement>
             select VIEW_DEFINITION as SOURCE_CODE
             from information_schema.VIEWS
             where
-                TABLE_SCHEMA = {0} and
-                TABLE_NAME = {1}
+                TABLE_SCHEMA = {#0} and
+                TABLE_NAME = {#1}
         </statement>
     </statement-execution-processor>    
 
-    <statement-execution-processor id="dataset-trigger-source-code" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="dataset-trigger-source-code">
         <statement>
             select concat(
                 'trigger ',
@@ -633,17 +635,52 @@
                 '\n', ACTION_STATEMENT) as SOURCE_CODE
             from information_schema.TRIGGERS
             where
-                TRIGGER_SCHEMA = {2} and
-                TRIGGER_NAME = {3}
+                TRIGGER_SCHEMA = {#2} and
+                TRIGGER_NAME = {#3}
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="object-source-code" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="object-source-code">
+        <statement>
+            SELECT CONCAT(
+                LOWER(ROUTINE_TYPE), ' ', ROUTINE_NAME,
+                '$$DBN_GUARDED_BLOCK_END_OFFSET$$(',
+                (
+                    SELECT GROUP_CONCAT(
+                        CASE WHEN {#2}='FUNCTION'
+                            THEN CONCAT(parameter_name, ' ', dtd_identifier)
+                            ELSE CONCAT(parameter_mode, ' ', parameter_name, ' ', dtd_identifier)
+                        END
+                        ORDER BY ordinal_position
+                        SEPARATOR ', ')
+                    FROM information_schema.parameters
+                    WHERE specific_schema = r.ROUTINE_SCHEMA
+                    AND specific_name = r.ROUTINE_NAME
+                    AND parameter_name IS NOT NULL
+                ),
+                ')',
+                IF({#2}='FUNCTION', '\nRETURNS ', ''), ifnull(DATA_TYPE, ''),
+                '\nLANGUAGE ', EXTERNAL_LANGUAGE,
+                IF(IS_DETERMINISTIC = 'YES', '\nDETERMINISTIC', ''),
+                CASE WHEN SQL_DATA_ACCESS IN (
+                                    'READS SQL DATA',
+                                    'READS_SQL_DATA',
+                                    'CONTAINS SQL',
+                                    'CONTAINS_SQL') THEN '\nREADS SQL DATA' ELSE '' END,
+                '\nSQL SECURITY ', SECURITY_TYPE,
+                '\n', ROUTINE_DEFINITION
+                ) AS SOURCE_CODE
+            FROM information_schema.routines r
+            WHERE
+            ROUTINE_SCHEMA = {#0} AND
+            ROUTINE_NAME = {#1} AND
+            ROUTINE_TYPE = {#2}
+        </statement>
         <statement>
             select concat(
                 lower(TYPE), ' ', NAME,
                 '$$DBN_GUARDED_BLOCK_END_OFFSET$$(', PARAM_LIST, ')',
-                if({2}='FUNCTION', '\nRETURNS ', ''), RETURNS,
+                if({#2}='FUNCTION', '\nRETURNS ', ''), RETURNS,
                 '\nLANGUAGE ', LANGUAGE,
                 if(IS_DETERMINISTIC = 'YES', '\nDETERMINISTIC', ''),
                 case when SQL_DATA_ACCESS = 'READS_SQL_DATA' then '\nREADS SQL DATA'
@@ -652,32 +689,32 @@
                 '\n', BODY) as SOURCE_CODE
             from mysql.proc
             where
-                DB = {0} and
-                NAME = {1} and
-                TYPE = {2}
+                DB = {#0} and
+                NAME = {#1} and
+                TYPE = {#2}
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="object-change-timestamp" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="object-change-timestamp">
         <statement>
             select unix_timestamp(MODIFIED) * 1000 as MODIFIED
             from mysql.proc
             where
-                DB = {0} and
-                NAME = {1} and
-                TYPE = {2}
+                DB = {#0} and
+                NAME = {#1} and
+                TYPE = {#2}
         </statement>
         <statement>
             select unix_timestamp(TIMESTAMP) * 1000 as MODIFIED
             from mysql.procs_priv
             where
-                DB = {0} and
-                ROUTINE_NAME = {1} and
-                ROUTINE_TYPE = {2}
+                DB = {#0} and
+                ROUTINE_NAME = {#1} and
+                ROUTINE_TYPE = {#2}
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="load-distinct-values" is-query="true">
+    <statement-execution-processor id="load-distinct-values">
         <statement>
             select distinct {2} from {0}.{1} where {2} is not null order by {2}
         </statement>
@@ -689,31 +726,31 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="validate-connection" timeout="5" is-prepared-statement="true">
+    <statement-execution-processor id="validate-connection" timeout="5">
         <statement>
             select 1
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="session-user" is-prepared-statement="true" is-query="true" timeout="20">
+    <statement-execution-processor id="session-user" timeout="20">
         <statement>
             select USER()
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="sessions" is-prepared-statement="true">
+    <statement-execution-processor id="sessions">
         <statement>
             show processlist
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="kill-session" is-prepared-statement="true">
+    <statement-execution-processor id="kill-session">
         <statement>
             kill {0}
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="count-pending-transactions" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="count-pending-transactions">
         <statement>
             select count(1) as COUNT
               from INFORMATION_SCHEMA.INNODB_TRX

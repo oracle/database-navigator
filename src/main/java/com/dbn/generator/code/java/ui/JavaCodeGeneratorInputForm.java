@@ -18,7 +18,7 @@ package com.dbn.generator.code.java.ui;
 
 import com.dbn.common.file.VirtualFilePresentable;
 import com.dbn.common.project.ModulePresentable;
-import com.dbn.common.state.StateHolder;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.context.DatabaseContext;
@@ -49,6 +49,7 @@ import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Java.isValidClassName;
 import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -92,7 +93,7 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
         CodeGeneratorCategory generatorCategory = getGeneratorCategory();
         CodeGeneratorManager codeGeneratorManager = CodeGeneratorManager.getInstance(project);
 
-        StateHolder state = codeGeneratorManager.getState(generatorCategory);
+        StateAttributes state = codeGeneratorManager.getState(generatorCategory);
 
         initPersistence(moduleComboBox, state, "module-selection");
         initPersistence(contentRootComboBox, state, "content-root-selection");
@@ -154,11 +155,11 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
 
     @NotNull
     private String getPackageName() {
-        return packageTextField.getText().trim();
+        return getText(packageTextField);
     }
 
     private String getClassName() {
-        return classNameTextField.getText().trim();
+        return getText(classNameTextField);
     }
 
     private CodeGeneratorCategory getGeneratorCategory() {

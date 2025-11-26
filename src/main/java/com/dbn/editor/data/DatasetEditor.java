@@ -48,6 +48,8 @@ import com.dbn.editor.data.state.column.DatasetColumnState;
 import com.dbn.editor.data.structure.DatasetEditorStructureViewModel;
 import com.dbn.editor.data.ui.DatasetEditorForm;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
+import com.dbn.event.notification.EventNotificationData;
+import com.dbn.event.notification.EventNotificationManager;
 import com.dbn.object.DBDataset;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.ide.structureView.StructureViewBuilder;
@@ -73,6 +75,7 @@ import java.sql.SQLRecoverableException;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.database.DatabaseFeature.DATA_CHANGE_NOTIFICATION;
 import static com.dbn.editor.DBContentType.DATA;
 import static com.dbn.editor.data.DataEditorStatus.CONNECTED;
 import static com.dbn.editor.data.DataEditorStatus.LOADED;
@@ -119,6 +122,18 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
     @NotNull
     public DatasetEditorModel getTableModel() {
         return getEditorTable().getModel();
+    }
+
+    public boolean isOutdateResult() {
+        if (!DATA_CHANGE_NOTIFICATION.isSupported(this)) return false;
+
+        Project project = getProject();
+        EventNotificationManager notificationManager = EventNotificationManager.getInstance(project);
+        EventNotificationData notificationData = notificationManager.getNotificationData();
+
+        long loadTimestamp = getTableModel().getLoadTimestamp();
+        int count = notificationData.countEventsSince(getDataset(), loadTimestamp);
+        return count > 0;
     }
 
     @Override

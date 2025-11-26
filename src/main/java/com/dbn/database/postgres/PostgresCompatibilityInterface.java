@@ -17,6 +17,9 @@
 package com.dbn.database.postgres;
 
 import com.dbn.common.util.Strings;
+import com.dbn.connection.ConnectorProperties;
+import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.ConnectionSslSettings;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseCompatibilityInterfaceImpl;
@@ -95,5 +98,14 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
     @Override
     public String getExplainPlanStatementPrefix() {
         return "explain analyze verbose ";
+    }
+
+    @Override
+    public void initConnectorSslConnection(ConnectorProperties properties, ConnectionSettings settings) {
+        ConnectionSslSettings sslSettings = settings.getSslSettings();
+        if (!sslSettings.isActive()) return;
+
+        super.initConnectorSslConnection(properties, settings);
+        properties.add("ssl", "true");
     }
 }

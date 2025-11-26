@@ -43,24 +43,20 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
         return mainPanel;
     }
 
-    public String getUser() {
-        return fieldsForm.getUser();
-    }
-
-    public String getTokenConfigFile() {
-        return fieldsForm.getTokenConfigFile();
-    }
-
-    public String getTokenProfile() {
-        return fieldsForm.getTokenProfile();
+    public boolean settingsChanged() {
+        AuthenticationInfo authenticationInfo = getAuthenticationInfo();
+        return fieldsForm.settingsChanged(authenticationInfo);
     }
 
     public void resetFormChanges() {
+        AuthenticationInfo authenticationInfo = getAuthenticationInfo();
+        fieldsForm.resetFormChanges(authenticationInfo);
+    }
+
+    private AuthenticationInfo getAuthenticationInfo() {
         ConnectionDatabaseSettingsForm parent = ensureParentComponent();
         ConnectionDatabaseSettings configuration = parent.getConfiguration();
-        AuthenticationInfo authenticationInfo = configuration.getAuthenticationInfo();
-
-        fieldsForm.resetFormChanges(authenticationInfo);
+        return configuration.getAuthenticationInfo();
     }
 
     public void applyFormChanges(AuthenticationInfo authenticationInfo) {

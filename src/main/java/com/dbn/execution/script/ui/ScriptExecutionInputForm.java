@@ -18,7 +18,7 @@ package com.dbn.execution.script.ui;
 
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.text.TextContent;
-import com.dbn.common.ui.PresentableFactory;
+import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -93,7 +93,7 @@ public class ScriptExecutionInputForm extends DBNFormBase {
         schemaComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
 
         cmdLineExecutableComboBox.set(ValueSelectorOption.HIDE_ICON, true);
-        cmdLineExecutableComboBox.setValueFactory(new PresentableFactory<>("New Cmd-Line Interface...") {
+        cmdLineExecutableComboBox.setValueFactory(new ValueFactory<>("New Cmd-Line Interface...") {
             @Override
             public void create(Consumer<CmdLineInterface> consumer) {
                 ConnectionHandler connection = connectionComboBox.getSelectedValue();

@@ -145,6 +145,6 @@ public class Java {
 
     public static boolean isDbSupportAvailable(Project project) {
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-        return connectionManager.hasConnectionsSupportingFeature(DatabaseFeature.EMBEDDED_JVM);
+        return connectionManager.hasConnectionsSupportingFeature(DatabaseFeature.JAVA_VIRTUAL_MACHINE);
     }
 }

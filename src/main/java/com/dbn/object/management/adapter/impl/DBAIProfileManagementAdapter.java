@@ -23,8 +23,12 @@ import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.management.ObjectManagementAdapterFactory;
 import com.dbn.object.management.ObjectManagementAdapterFactoryBase;
+import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
+
+import static com.dbn.common.constant.Constant.array;
+import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 
 /**
  * Implementation of {@link ObjectManagementAdapterFactory} for objects of type {@link DBAIProfile}
@@ -32,6 +36,11 @@ import java.sql.SQLException;
  * @author Dan Cioca (Oracle)
  */
 public class DBAIProfileManagementAdapter extends ObjectManagementAdapterFactoryBase<DBAIProfile> {
+
+    @Override
+    public DBObjectType[] getObjectTypes() {
+        return array(AI_PROFILE);
+    }
 
     @Override
     protected void createObject(ConnectionHandler connection, DBNConnection conn, DBAIProfile object) throws SQLException {

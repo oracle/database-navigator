@@ -16,7 +16,6 @@
 
 package com.dbn.assistant.chat.message.action;
 
-import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -25,14 +24,21 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.util.function.Supplier;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class CopyContentAction extends BasicAction {
-    private final String content;
+public class CopyContentAction extends ChatMessageAction {
+    private final Supplier<String> content;
+    private final Supplier<Boolean> visible;
 
-    public CopyContentAction(String content) {
+    public CopyContentAction(Supplier<String> content) {
+        this(content, () -> true);
+    }
+
+    public CopyContentAction(Supplier<String> content, Supplier<Boolean> visible) {
         this.content = content;
+        this.visible = visible;
     }
 
     @Override
@@ -41,18 +47,20 @@ public class CopyContentAction extends BasicAction {
         presentation.setText(txt("app.assistant.action.CopyContent"));
         presentation.setDescription(txt("app.assistant.action.CopyContentDesc"));
         presentation.setIcon(Icons.ACTION_COPY);
+
+        presentation.setVisible(visible.get());
     }
 
     @Override
-    public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         copyTextToClipboard();
     }
 
     private void copyTextToClipboard() {
+        String content = this.content.get();
         StringSelection selection = new StringSelection(content);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(selection, null);
     }
-
 
 }

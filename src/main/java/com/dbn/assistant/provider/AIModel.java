@@ -16,15 +16,12 @@
 
 package com.dbn.assistant.provider;
 
+import com.dbn.common.property.PropertyHolderBase.ShortStore;
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-import static com.dbn.common.util.Lists.first;
+import static com.dbn.common.util.Commons.nvl;
 
 /**
  * AI models
@@ -32,54 +29,70 @@ import static com.dbn.common.util.Lists.first;
  * @author Emmanuel Jannetti (Oracle)
  */
 @Getter
-public final class AIModel implements Presentable {
-    private final AIProvider provider;
-    private final String name;
-
-    //How this is named in profile API
+public final class AIModel extends ShortStore<AIModelProperty> implements Presentable {
+    private final String id;
     private final String apiName;
+    private final String shortName;
+    private final String description;
+    private final AIProvider provider;
+    private final AIProviderId baseProviderId;
+    private final AIModelFeatures features = new AIModelFeatures();
 
-    AIModel(AIProvider provider, String name, String apiName) {
-        this.provider = provider;
-        this.name = name;
+    AIModel(String id, String apiName, String shortName, String description, AIProvider provider, AIProviderId baseProviderId) {
+        this.id = id;
         this.apiName = apiName;
+        this.shortName = shortName;
+        this.description = description;
+        this.provider = provider;
+        this.baseProviderId = baseProviderId;
     }
 
     @Override
-    public @NotNull String getName() {
-        return name; // TODO presentable profile names
+    protected AIModelProperty[] properties() {
+        return AIModelProperty.VALUES;
     }
 
-    @Nullable
-    public static AIModel forName(String name) {
-        List<AIProvider> providers = AIProvider.values();
-        for (AIProvider provider : providers) {
-            AIModel model = provider.getModel(name);
-            if (model != null) return model;
-        }
-
-        return null;
+    @NotNull
+    @Override
+    public String getName() {
+        return apiName;
     }
 
-    @Contract("null -> null; !null -> !null")
-    public static String getName(@Nullable AIModel model) {
-        return model == null ? null : model.getName();
+    public String getShortName() {
+        return nvl(shortName, apiName);
     }
 
-    @Nullable
-    public static AIModel forApiName(String apiName) {
-        List<AIProvider> providers = AIProvider.values();
-        for (AIProvider provider : providers) {
-            List<AIModel> models = provider.getModels();
-            AIModel model = first(models, m -> m.getApiName().equals(apiName));
-            if (model != null) return model;
-        }
+    public AIProviderId getProviderId() {
+        return provider.getId();
+    }
 
-        return null;
+    public boolean isDefault() {
+        return is(AIModelProperty.DEFAULT);
+    }
+
+    public boolean isExperimental() {
+        return is(AIModelProperty.EXPERIMENTAL);
+    }
+
+    public boolean isDeprecated() {
+        return is(AIModelProperty.DEPRECATED);
+    }
+
+    public boolean isDiscontinued() {
+        return is(AIModelProperty.DISCONTINUED);
+    }
+
+    public boolean isRecommended() {
+        return is(AIModelProperty.RECOMMENDED);
+    }
+
+    public boolean isFeatureSupported(AIModelFeature feature){
+        return features.is(feature);
     }
 
     @Override
     public String toString() {
         return getName();
     }
+
 }

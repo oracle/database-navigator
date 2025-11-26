@@ -73,12 +73,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.object.common.property.DBObjectProperty.DISPOSED;
 import static com.dbn.object.common.property.DBObjectProperty.LISTS_LOADED;
+import static com.dbn.object.common.property.DBObjectProperty.REFRESHING;
+import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
 
@@ -158,6 +161,17 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
         return DBObjectRef.get(getParentObjectRef());
     }
 
+    @Override
+    @Nullable
+    public <T extends DBObject> T getParentObject(Predicate<DBObject> predicate) {
+        DBObject object = this;
+        while (object != null) {
+            object = object.getParentObject();
+            if (predicate.test(object) ) return cast(object);
+        }
+        return null;
+    }
+
     public <T extends DBObject> DBObjectRef<T> getParentObjectRef() {
         Object parent = ref.getParent();
         if (parent instanceof DBObjectRef) return cast(parent);
@@ -168,6 +182,11 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     @Nullable
     public DBObject getDefaultNavigationObject() {
         return null;
+    }
+
+    @Override
+    public boolean isSchemaObject() {
+        return is(SCHEMA_OBJECT);
     }
 
     @Override
@@ -274,6 +293,10 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
         }
     }
 
+    @Override
+    public String getComments() {
+        return null;
+    }
 
     @Override
     public String getToolTip() {
@@ -410,10 +433,10 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     @Override
     @NotNull
-    public List<DBObject> collectChildObjects(DBObjectType objectType) {
+    public <T extends DBObject> List<T> collectChildObjects(DBObjectType objectType) {
         ListCollector<DBObject> collector = ListCollector.basic();
         collectChildObjects(objectType, collector);
-        return collector.elements();
+        return cast(collector.elements());
     }
 
     @Override
@@ -446,7 +469,11 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
         }
     }
 
-
+    @Override
+    public DBObjectList<?>[] getChildObjectLists() {
+        DBObjectListContainer objects = getChildObjects();
+        return objects == null ? DBObjectList.EMPTY_ARRAY : objects.getObjects();
+    }
 
     @Nullable
     @Override
@@ -500,11 +527,17 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public final void refresh() {
-        DBObjectListContainer childObjects = getChildObjects();
-        if (childObjects == null) return;
+    public synchronized final void refresh() {
+        if (is(REFRESHING)) return;
+        try {
+            set(REFRESHING, true);
+            DBObjectListContainer childObjects = getChildObjects();
+            if (childObjects == null) return;
 
-        childObjects.refreshObjects();
+            childObjects.refreshObjects();
+        } finally {
+            set(REFRESHING, false);
+        }
     }
 
     public final void refresh(@NotNull DBObjectType childObjectType) {
@@ -537,7 +570,12 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public String getPresentableText() {
+    public final String getPresentableText() {
+        return getPresentableName();
+    }
+
+    @Override
+    public String getPresentableName() {
         return getName();
     }
 

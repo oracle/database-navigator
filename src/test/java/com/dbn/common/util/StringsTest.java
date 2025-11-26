@@ -18,6 +18,8 @@ package com.dbn.common.util;
 
 import junit.framework.TestCase;
 
+import java.util.List;
+
 public class StringsTest extends TestCase {
 
     public void testTrim1() {
@@ -55,4 +57,31 @@ public class StringsTest extends TestCase {
         assertEquals("test", builder.toString());
     }
 
+    public void testSlice1() {
+        String input = "This is a test string. Sentence 1. Sentence 2. Sentence 3.";
+        List<String> slices = Strings.slice(input, new int[]{23, 35, 47, 58});
+        List<String> expected = List.of("This is a test string. ", "Sentence 1. ", "Sentence 2. ", "Sentence 3.");
+        assertEquals(expected, slices);
+    }
+
+    public void testSlice2() {
+        String input = "This is a test string. Sentence 1. Sentence 2. Sentence 3.";
+        List<String> slices = Strings.slice(input, new int[]{0, 23, 35, 47, 58, 66});
+        List<String> expected = List.of("This is a test string. ", "Sentence 1. ", "Sentence 2. ", "Sentence 3.");
+        assertEquals(expected, slices);
+    }
+
+    public void testSlice3() {
+        String input = "This is a test string. Sentence 1. Sentence 2. Sentence 3.";
+        List<String> slices = Strings.slice(input, new int[]{23, 35, 47});
+        List<String> expected = List.of("This is a test string. ", "Sentence 1. ", "Sentence 2. ", "Sentence 3.");
+        assertEquals(expected, slices);
+    }
+
+    public void testSlice4() {
+        String input = "This is a test string. Sentence 1. Sentence 2. Sentence 3.";
+        List<String> slices = Strings.slice(input, new int[0]);
+        List<String> expected = List.of(input);
+        assertEquals(expected, slices);
+    }
 }

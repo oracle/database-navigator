@@ -20,8 +20,8 @@ import com.dbn.common.latent.Latent;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.logging.ExecutionLogOutput;
-import com.dbn.database.common.statement.ByteArray;
-import com.dbn.database.common.statement.ClobText;
+import com.dbn.database.common.statement.output.BlobOutput;
+import com.dbn.database.common.statement.output.ClobOutput;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
 
     @Override
     public void setCurrentSchema(String schemaName, DBNConnection connection) throws SQLException {
-        executeQuery(connection, "set-current-schema", schemaName);
+        executeUpdate(connection, "set-current-schema", schemaName);
     }
 
     @Override
@@ -324,10 +324,6 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         return executeQuery(connection, "java-class-dependencies", ownerName, objectName);
     }
 
-    public ResultSet loadAllJavaClassDependencies(String ownerName, DBNConnection connection) throws SQLException {
-        return executeQuery(connection, "all-java-class-dependencies", ownerName);
-    }
-
     /*********************************************************
      *                        TYPES                          *
      *********************************************************/
@@ -431,6 +427,15 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         return executeQuery(connection, "ai-profiles", ownerName);
     }
 
+
+    /*********************************************************
+     *                     AI Models                       *
+     *********************************************************/
+    @Override
+    public ResultSet loadAiModels(final String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "ai-models", ownerName);
+    }
+
     /*********************************************************
      *                      REFERENCES                       *
      *********************************************************/
@@ -483,13 +488,13 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public ClobText loadJavaResourceSourceCode(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        return executeCall(connection, new ClobText(), "java-resource-source-code", ownerName, objectName);
+    public String loadJavaResourceSourceCode(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeCall(connection, new ClobOutput(), "java-resource-source-code", ownerName, objectName).getValue();
     }
 
     @Override
-    public ByteArray loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        return executeCall(connection, new ByteArray(), "java-binary-code", ownerName, objectName);
+    public byte[] loadJavaBinaryCode(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeCall(connection, new BlobOutput(), "java-binary-code", ownerName, objectName).getValue();
     }
 
     /*********************************************************
@@ -518,27 +523,31 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
 
     @Override
     public void enableTrigger(String ownerName, String triggerName, DBNConnection connection) throws SQLException {
-        executeQuery(connection, "enable-trigger", ownerName, triggerName);
+        executeUpdate(connection, "enable-trigger", ownerName, triggerName);
     }
 
     @Override
     public void disableTrigger(String ownerName, String triggerName, DBNConnection connection) throws SQLException {
-        executeQuery(connection, "disable-trigger", ownerName, triggerName);
+        executeUpdate(connection, "disable-trigger", ownerName, triggerName);
     }
 
     @Override
     public void enableConstraint(String ownerName, String tableName, String constraintName, DBNConnection connection) throws SQLException {
-        executeQuery(connection, "enable-constraint", ownerName, tableName, constraintName);
+        executeUpdate(connection, "enable-constraint", ownerName, tableName, constraintName);
     }
 
     @Override
     public void disableConstraint(String ownerName, String tableName, String constraintName, DBNConnection connection) throws SQLException {
-        executeQuery(connection, "disable-constraint", ownerName, tableName, constraintName);
+        executeUpdate(connection, "disable-constraint", ownerName, tableName, constraintName);
     }
 
     @Override
     public ResultSet loadSessions(DBNConnection connection) throws SQLException {
         return executeQuery(connection, "sessions");
+    }
+    @Override
+    public ResultSet loadDataEventRegistrations(DBNConnection connection) throws SQLException {
+      return executeQuery(connection, "data-change-event-registrations");
     }
 
     @Override
@@ -548,16 +557,16 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
 
     @Override
     public void terminateSession(Object sessionId, Object serialNumber, boolean immediate, DBNConnection connection) throws SQLException {
-        String loaderId = immediate ? "kill-session-immediate" : "kill-session";
-        executeStatement(connection, loaderId, sessionId, serialNumber);
+        String statementId = immediate ? "kill-session-immediate" : "kill-session";
+        executeUpdate(connection, statementId, sessionId, serialNumber);
     }
 
     @Override
     public void disconnectSession(Object sessionId, Object serialNumber, boolean postTransaction, boolean immediate, DBNConnection connection) throws SQLException {
-        String loaderId =
+        String statementId =
                 postTransaction ? "disconnect-session-post-transaction" :
                 immediate ? "disconnect-session-immediate" : "disconnect-session";
-        executeStatement(connection, loaderId, sessionId, serialNumber);
+        executeUpdate(connection, statementId, sessionId, serialNumber);
     }
 
     @Override
@@ -628,5 +637,30 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         } finally {
             Resources.close(resultSet);
         }
+    }
+
+    @Override
+    public boolean hasSystemPrivilege(String privilegeName, DBNConnection connection) throws SQLException {
+        return getBooleanValue(connection, "has-system-privilege", privilegeName);
+    }
+
+    @Override
+    public boolean hasObjectPrivilege(String privilegeName, String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return getBooleanValue(connection, "has-object-privilege", privilegeName, ownerName, objectName);
+    }
+
+    @Override
+    public boolean hasTablespaceQuota(DBNConnection connection) throws SQLException {
+        return getBooleanValue(connection, "has-quota-on-tablespace");
+    }
+
+    @Override
+    public boolean hasNetworkPrivilege(String userName, String hostName, String privilegeName, DBNConnection connection) throws SQLException {
+        return getBooleanValue(connection, "has-network-privilege", userName, hostName, privilegeName);
+    }
+
+    @Override
+    public void grantNetworkPrivilege(String userName, String hostName, String privilegeName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "grant-network-privilege", userName, hostName, privilegeName);
     }
 }

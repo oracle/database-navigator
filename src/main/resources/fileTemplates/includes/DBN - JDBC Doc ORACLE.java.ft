@@ -52,19 +52,73 @@
  * </ul>
 #elseif (${AUTH_TYPE} == 'TOKEN')
  * The connection uses "${AUTH_TOKEN_TYPE_NAME} ${AUTH_TYPE_NAME}" authentication (${AUTH_TOKEN_TYPE})
-    #if (${AUTH_TOKEN_TYPE} == 'OCI_API_KEY')
-     * Authentication type, OCI Config File and OCI Profile are passed as properties to the driver
-     * <ul>
-     *   <li>Property "oracle.jdbc.tokenAuthentication=OCI_API_KEY": the type of token authentication</li>
-     *   <li>Property "oracle.jdbc.ociConfigFile": the path to the OCI configuration file</li>
-     *   <li>Property "oracle.jdbc.ociProfile": the profile from the OCI configuration file to be used</li>
-     * </ul>
-    #elseif (${AUTH_TOKEN_TYPE} == 'OCI_INTERACTIVE')
-     * Authentication type (OCI_INTERACTIVE) is passed as property to the driver
-     * <ul>
-     *   <li>Property "oracle.jdbc.tokenAuthentication=OCI_INTERACTIVE": the type of token authentication</li>
-     * </ul>
-    #end
+ #if (${AUTH_TOKEN_TYPE} == 'OCI_API_KEY')
+ * Authentication type, OCI Config File and OCI Profile are passed as properties to the driver
+ * <ul>
+ *   <li>Property "oracle.jdbc.tokenAuthentication=OCI_API_KEY": the type of token authentication</li>
+ *   <li>Property "oracle.jdbc.ociConfigFile": the path to the OCI configuration file</li>
+ *   <li>Property "oracle.jdbc.ociProfile": the profile from the OCI configuration file to be used</li>
+ *   <li>Property "oracle.jdbc.ociCompartment": the ocid of the compartment that contains the ADB instance</li>
+ *   <li>Property "oracle.jdbc.ociDatabase": the ocid of the ADB instance.</li>
+ * </ul>
+ * <p>oracle.jdbc.ociCompartment and oracle.jdbc.ociDatabase are used to scope the oAuth token to the specific database
+ *    instance. It is a good security practice to limit the driver's access to only what it needs.  These fields
+ *    may or may not be optional depending on how the calling OCI user is configured in OCI Policies</p>
+#elseif (${AUTH_TOKEN_TYPE} == 'OCI_INTERACTIVE')
+ * Authentication type (OCI_INTERACTIVE) is passed as property to the driver
+ * <ul>
+ *   <li>Property "oracle.jdbc.tokenAuthentication=OCI_INTERACTIVE": the type of token authentication</li>
+ *   <li>Property "oracle.jdbc.ociCompartment": the ocid of the compartment that contains the ADB instance</li>
+ *   <li>Property "oracle.jdbc.ociDatabase": the ocid of the ADB instance.</li>
+ * </ul>
+ * <p>oracle.jdbc.ociCompartment and oracle.jdbc.ociDatabase are used to scope the oAuth token to the specific database
+ *    instance. It is a good security practice to limit the driver's access to only what it needs.  These fields
+ *    may or may not be optional depending on how the calling OCI user is configured in OCI Policies</p>
+#elseif (${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_CERT'
+            || ${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_SECRET')
+ * Authentication type, Azure OAuth parameters are passed as properties to the driver
+ * <ul>
+ *   <li>Property "oracle.jdbc.tokenAuthentication=${AUTH_TOKEN_TYPE}": the type of token authentication</li>
+ *   <li>Property "oracle.jdbc.clientId": the client (app) id of the OAuth client app</li>
+ *   <li>Property "oracle.jdbc.tenantId": the tenant id of the OAuth client app</li>
+ *   <li>Property "oracle.jdbc.azureDatabaseApplicationIdUri": the ID URI of the resource app</li>
+   #if (${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_CERT')
+   *   <li>Property "oracle.jdbc.clientCertificate": the client authentication file</li>
+   *   <li>Property "oracle.jdbc.clientCertificatePassword": the (optional) password for the certificate file</li>
+   #elseif (${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_PRINCIPAL_SECRET')
+   *   <li>Property "oracle.jdbc.clientSecret": the secret token used to authenticate with the resource</li>
+   #end
+ * </ul>
+ * <p>To run this code, add the following to your pom.xml:</p>
+ *    <p><dependencies>
+ *          <!-- Service Provider which requests tokens from OCI -->
+ *          <dependency>
+ *              <groupId>com.oracle.database.jdbc</groupId>
+ *              <artifactId>ojdbc-provider-oci</artifactId>
+ *              <version>1.0.6</version>
+ *          </dependency>
+ *
+ *          <!-- Service Provider which requests tokens from Azure -->
+ *          <dependency>
+ *              <groupId>com.oracle.database.jdbc</groupId>
+ *              <artifactId>ojdbc-provider-azure</artifactId>
+ *              <version>1.0.6</version>
+ *          </dependency>
+ *
+ *          <!-- Providers will remain compatible with ojdbc 23.4 or newer -->
+ *          <dependency>
+ *              <groupId>com.oracle.database.jdbc</groupId>
+ *              <artifactId>ojdbc11</artifactId>
+ *              <version>23.8.0.25.04</version>
+ *          </dependency>
+ *     </dependencies>
+ *     </p>
+#elseif (${AUTH_TOKEN_TYPE} == 'AZURE_SERVICE_INTERACTIVE')
+ * Authentication type, Azure OAuth Interactive are passed as properties to the driver
+ * <ul>
+ *   <li>Property "oracle.jdbc.tokenAuthentication=${AUTH_TOKEN_TYPE}": the type of token authentication</li>
+ *   <li>Property "oracle.jdbc.azureDatabaseApplicationIdUri": the ID URI of the resource app</li>
+ #end
 #else
  * The connection uses "${AUTH_TYPE_NAME}" authentication
 #end

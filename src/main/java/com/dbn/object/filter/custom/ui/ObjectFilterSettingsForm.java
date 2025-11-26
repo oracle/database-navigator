@@ -23,7 +23,7 @@ import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.ValueSelector;
 import com.dbn.common.ui.ValueSelectorOption;
-import com.dbn.common.ui.util.ComponentAligner;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionId;
@@ -45,12 +45,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.dbn.common.ui.util.ComponentAligner.alignFormComponents;
+import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Strings.toUpperCase;
 
-public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilterSettings> implements ComponentAligner.Container {
+public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilterSettings> {
     private JPanel mainPanel;
     private JPanel filtersPanel;
     private JPanel actionsPanel;
@@ -67,16 +67,17 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
         actionsPanel.add(new ObjectTypeSelector(), BorderLayout.WEST);
 
         configuration.getFilters().forEach(f -> createFilterPanel(f));
-        alignFormComponents(this);
+        alignFormFields(this);
     }
 
     @Override
-    public List<ObjectFilterExpressionForm> getAlignableForms() {
-        return filterForms;
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerForms(filterForms);
     }
 
     public boolean markModified(ObjectFilter<?> filter) {
-        getConfiguration().setModified(true);
+        mackConfigModified();
         return modifiedFilters.add(filter.getObjectType());
     }
 
@@ -88,7 +89,7 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
         ObjectFilterExpressionForm expressionForm = new ObjectFilterExpressionForm(this, filter);
         filtersPanel.add(expressionForm.getComponent());
         filterForms.add(expressionForm);
-        alignFormComponents(this);
+        alignFormFields(this);
     }
 
     public void removeFilterPanel(ObjectFilter<?> filter) {
@@ -101,7 +102,7 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
             }
         }
 
-        alignFormComponents(this);
+        alignFormFields(this);
         UserInterface.repaint(mainPanel);
     }
 

@@ -18,44 +18,57 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.ComponentDisposer;
+import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.component.DBNComponentBase;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.ui.LafManagerListener;
+import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.containers.ContainerUtil;
 import lombok.Getter;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.text.JTextComponent;
 import java.awt.Dimension;
-import java.util.Set;
+import java.awt.event.ActionEvent;
+import java.util.Arrays;
 
+import static com.dbn.common.ui.form.DBNFormBinding.bindForm;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
 import static com.dbn.common.ui.util.Accessibility.initComponentGroupsAccessibility;
 import static com.dbn.common.ui.util.Accessibility.initCustomComponentAccessibility;
-import static com.dbn.common.ui.util.UserInterface.findChildComponent;
+import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
 import static com.dbn.common.ui.util.UserInterface.hasChildComponent;
-import static com.dbn.common.ui.util.UserInterface.isFocusableComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.intellij.util.ui.UIUtil.getScrollBarWidth;
@@ -67,7 +80,6 @@ public abstract class DBNFormBase
     @Getter
     private boolean initialized;
 
-    private final Set<JComponent> enabled = ContainerUtil.createWeakSet();
     private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
     private final Latent<Boolean> hasScrollBars = Latent.basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));
 
@@ -98,12 +110,6 @@ public abstract class DBNFormBase
                 dialog.getFormValidator();
     }
 
-    @Nullable
-    @Override
-    public JComponent getPreferredFocusedComponent() {
-        return findChildComponent(getMainComponent(), c -> isFocusableComponent(c));
-    }
-
     public void focusPreferredComponent() {
         JComponent preferredFocusedComponent = getPreferredFocusedComponent();
         if (preferredFocusedComponent != null) {
@@ -112,11 +118,16 @@ public abstract class DBNFormBase
     }
 
     /**
-     * Passes on the runnable to the dispatch thread (Application.invokeAndWait) under full awareness of the component modality state
+     * Passes on the runnable to the dispatch thread (Application.invokeLater) under full awareness of the component modality state
      * @param runnable the runnable to be sent to dispatch thread
      */
     protected void dispatch(Runnable runnable) {
-        Dispatch.execute(getMainComponent(), runnable);
+        JComponent mainComponent = getMainComponent();
+        if (initialized) {
+            Dispatch.run(mainComponent, runnable);
+        } else {
+            whenFirstShown(mainComponent, () -> Dispatch.run(mainComponent, runnable));
+        }
     }
 
     /**
@@ -130,6 +141,11 @@ public abstract class DBNFormBase
         whenFirstShown(getMainComponent(), runnable);
     }
 
+    protected final void whenSettingsChange(Runnable runnable) {
+        UISettingsListener uiSettingsListener = s -> runnable.run();
+        ApplicationEvents.subscribe(this, UISettingsListener.TOPIC, uiSettingsListener);
+    }
+
     private void initialize() {
         if (isDisposed()) return;
         if (initialized) return;
@@ -139,15 +155,22 @@ public abstract class DBNFormBase
         initValidation();
         initStatePersistence();
         initFormAccessibility();
+        initFieldAvailability();
+        initFieldAlignment();
+        initEventListeners();
 
         JComponent mainComponent = getMainComponent();
+        bindForm(mainComponent, this);
+
         DataProviders.register(mainComponent, this);
         UserInterface.updateScrollPanes(mainComponent);
         UserInterface.updateTitledBorders(mainComponent);
         UserInterface.updateSplitPanes(mainComponent);
+        UserInterface.updateTextPanes(mainComponent);
         adjustFormSize(mainComponent);
 
         ApplicationEvents.subscribe(this, LafManagerListener.TOPIC, source -> lookAndFeelChanged());
+        updateFieldAvailability();
     }
 
     /**
@@ -158,11 +181,9 @@ public abstract class DBNFormBase
      * @param mainComponent the main component of the form whose size needs to be adjusted
      */
     private void adjustFormSize(JComponent mainComponent) {
-        mainComponent.doLayout();
-        mainComponent.validate();
-
         Disposable parentComponent = getParentComponent();
         if (parentComponent instanceof DBNDialog) {
+            mainComponent.validate();
 
             boolean hasScrollBars = this.hasScrollBars.get();
             if (!hasScrollBars) return;
@@ -192,6 +213,32 @@ public abstract class DBNFormBase
     @ApiStatus.OverrideOnly
     protected void initAccessibility() {}
 
+    @ApiStatus.OverrideOnly
+    protected void initFieldAvailability() {}
+
+    @ApiStatus.OverrideOnly
+    protected void initEventListeners() {}
+
+    protected void updateFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.updateFieldsVisibility();
+        fieldAdapter.updateFieldsAvailability();
+    }
+
+    protected void validateFormFields() {
+        DBNDialog parentDialog = getParentDialog();
+        if (parentDialog == null) return;
+
+        parentDialog.validateInput(null);
+    }
+
+
+    protected void initFieldAlignment() {}
+
+    protected FieldAlignerData getFieldAlignerData() {
+        return ClientProperty.FIELD_ALIGNER_DATA.get(getComponent(), () -> new FieldAlignerData());
+    }
+
     /**
      * Initializes the persistence mechanisms for the state of the form or component.
      * This method is intended to be overridden by subclasses to define custom state
@@ -205,6 +252,10 @@ public abstract class DBNFormBase
 
     @ApiStatus.OverrideOnly
     protected void lookAndFeelChanged() {}
+
+    public void applyFormChanges() throws ConfigurationException {}
+
+    public void resetFormChanges() {}
 
     protected void updateActionToolbars() {
         dispatch(() -> UserInterface.updateActionToolbars(getMainComponent()));
@@ -241,6 +292,7 @@ public abstract class DBNFormBase
         return null;
     }
 
+    @Nullable
     @Override
     public final <F extends DBNForm> F getParentFrom(Class<F> formClass) {
         DBNComponent parent = getParentComponent();
@@ -254,6 +306,39 @@ public abstract class DBNFormBase
         return null;
     }
 
+
+    @NotNull
+    public final <F extends DBNForm> F ensureParentFrom(Class<F> formClass) {
+        return Failsafe.nd(getParentFrom(formClass));
+    }
+
+    protected static Action createAction(
+            @NotNull @Nls String name,
+            @NotNull Runnable runnable) {
+        return createAction(name, null, runnable);
+    }
+
+    protected static Action createAction(
+            @NotNull @Nls String name,
+            @Nullable String description,
+            @NotNull Runnable runnable) {
+        return new AbstractAction(name) {
+            {
+                putValue(Action.SHORT_DESCRIPTION, description);
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                runnable.run();
+            }
+        };
+    }
+
+    protected static Action[] createActions(Action ... actions) {
+        return Arrays.stream(actions)
+                .filter(value -> value != null)
+                .toArray(l -> new Action[l]);
+
+    }
 
     @Override
     public void disposeInner() {
@@ -272,23 +357,28 @@ public abstract class DBNFormBase
     }
 
     private void disable(JComponent c) {
+        if (NON_DISABLEABLE.is(c)) return;
+
+        if (c instanceof JTextComponent) {
+            JTextComponent textComponent = (JTextComponent) c;
+            if (textComponent instanceof JEditorPane || textComponent instanceof JTextArea) {
+                if (!textComponent.isEditable()) return;
+            }
+        }
+
         if (c instanceof AbstractButton ||
                 c instanceof JTextComponent ||
+                c instanceof JComboBox ||
                 c instanceof ActionToolbar ||
                 c instanceof JList ||
                 c instanceof JTable ||
                 c instanceof JLabel) {
 
-            if (c.isEnabled()) {
-                enabled.add(c);
-                c.setEnabled(false);
-            }
+            disableFormField(c, "READONLY_FORM");
         }
     }
 
     private void enable(JComponent c) {
-        if (enabled.remove(c)) {
-            c.setEnabled(true);
-        }
+        enableFormField(c, "READONLY_FORM");
     }
 }

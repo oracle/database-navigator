@@ -108,4 +108,6 @@ public interface DBNFormValidator {
     }
 
     void validateInput(@Nullable JComponent component);
+
+    boolean isVisitedField(JComponent component);
 }

@@ -48,6 +48,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static com.dbn.common.util.Commons.nvl;
 
@@ -65,8 +66,12 @@ public interface DBObject extends
     @Override
     String getName();
 
+    String getPresentableName();
+
     @NotNull
     String getName(boolean quoted);
+
+    String getComments();
 
     @NotNull
     @Override
@@ -74,6 +79,8 @@ public interface DBObject extends
 
     @NotNull
     DBObjectType getObjectType();
+
+    boolean isSchemaObject();
 
     boolean isOfType(DBObjectType objectType);
 
@@ -94,6 +101,9 @@ public interface DBObject extends
 
     <T extends DBObject> T getParentObject();
 
+    @Nullable
+    <T extends DBObject> T getParentObject(Predicate<DBObject> predicate);
+
     <T extends DBObject> DBObjectRef<T> getParentObjectRef();
 
     @Nullable
@@ -108,9 +118,11 @@ public interface DBObject extends
     <T extends DBObject> T getChildObject(DBObjectType objectType, String name, short overload);
 
     @NotNull
-    List<DBObject> collectChildObjects(DBObjectType objectType);
+    <T extends DBObject>List<T> collectChildObjects(DBObjectType objectType);
 
     void collectChildObjects(DBObjectType objectType, Consumer<? super DBObject> consumer);
+
+    DBObjectList<?>[] getChildObjectLists();
 
     @Nullable
     <T extends DBObject> DBObjectList<T> getChildObjectList(DBObjectType objectType);
