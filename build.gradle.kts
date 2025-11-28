@@ -36,7 +36,7 @@ val bundledJdbcSqlite: Configuration by configurations.creating
 val extFolder = "idea-sandbox/plugins/${project.name}/lib/ext"
 
 group = "com.dbn"
-version = "3.6.1.0"
+version = "3.7.0.0"
 
 repositories {
   mavenCentral()
