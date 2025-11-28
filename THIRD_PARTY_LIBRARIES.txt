@@ -20,6 +20,7 @@ jersey-common-2.35.jar
 jersey-hk2-2.35.jar
 jersey-media-json-jackson-2.35.jar
 jfreechart-1.5.5.jar
+kotlin-stdlib-2.2.20.jar
 langchain4j-1.8.0.jar
 langchain4j-anthropic-1.8.0.jar
 langchain4j-bedrock-1.8.0.jar
