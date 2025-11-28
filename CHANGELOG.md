@@ -1,3 +1,15 @@
+**3.7.0 - December 2025**
+- DB assistant (an AI-powered assistant with database and workspace integration)
+- Vector toolbox (a tool for vector chain embedding using Oracle DBMS_VECTOR_CHAIN)
+  - Support for embedding data and file content sources
+  - "Chunk-Lab" feature for experimenting with content chunking settings
+- Support for data-change notifications (using Oracle "Continuous Query Notification" framework)
+- Oracle OJVM module enhancements
+  - Support for debugging Java programs running in the database
+  - Support for arrays in Java program execution
+- Connection support for Azure authentication
+- Minor bug fixes and performance improvements
+
 **3.6.0 - June 2025**
 - JDBC driver download feature
 - Oracle "Select-AI" support
