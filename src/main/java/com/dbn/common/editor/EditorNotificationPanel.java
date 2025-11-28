@@ -60,7 +60,7 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
     private final JPanel contentPanel;
 
     public EditorNotificationPanel(Project project, VirtualFile file, FileEditor fileEditor, MessageType messageType) {
-        super(getBackground(messageType));
+        super(fileEditor, getBackground(messageType), getBackgroundKey(messageType));
         this.file = VirtualFileRef.of(file);
         this.fileEditor = WeakRef.of(fileEditor);
         this.project = ProjectRef.of(project);

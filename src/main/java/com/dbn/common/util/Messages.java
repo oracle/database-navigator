@@ -36,7 +36,6 @@ import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DoNotAskOption;
 import com.intellij.openapi.ui.DialogWrapper.DoNotAskOption;
 import com.intellij.openapi.util.NlsContexts.Button;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;

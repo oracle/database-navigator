@@ -619,8 +619,7 @@ public class Editors {
 
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
         for (VirtualFile file : files) {
-            //fileEditorManager.updateFilePresentation(virtualFile);
-            Reflection.invokeMethod(fileEditorManager, "updateFilePresentation", file);
+            fileEditorManager.updateFilePresentation(file);
         }
     }
 

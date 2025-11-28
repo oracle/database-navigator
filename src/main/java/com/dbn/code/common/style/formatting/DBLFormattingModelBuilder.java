@@ -23,6 +23,7 @@ import com.dbn.common.util.Documents;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.formatting.Block;
+import com.intellij.formatting.FormattingContext;
 import com.intellij.formatting.FormattingModel;
 import com.intellij.formatting.FormattingModelBuilder;
 import com.intellij.formatting.FormattingModelProvider;
@@ -42,7 +43,10 @@ public class DBLFormattingModelBuilder implements FormattingModelBuilder {
 
     @NotNull
     @Override
-    public FormattingModel createModel(final PsiElement element, final CodeStyleSettings codeStyleSettings) {
+    public FormattingModel createModel(@NotNull FormattingContext formattingContext) {
+        PsiElement element = formattingContext.getPsiElement();
+
+        CodeStyleSettings codeStyleSettings = formattingContext.getCodeStyleSettings();
         DBLanguage language = (DBLanguage) PsiUtil.getLanguage(element);
 
         PsiFile psiFile = element.getContainingFile();

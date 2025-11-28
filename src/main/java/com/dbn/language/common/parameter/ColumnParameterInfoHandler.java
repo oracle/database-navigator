@@ -28,9 +28,7 @@ import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.object.DBColumn;
 import com.dbn.object.common.DBObject;
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.lang.parameterInfo.CreateParameterInfoContext;
-import com.intellij.lang.parameterInfo.ParameterInfoContext;
 import com.intellij.lang.parameterInfo.ParameterInfoHandler;
 import com.intellij.lang.parameterInfo.ParameterInfoUIContext;
 import com.intellij.lang.parameterInfo.UpdateParameterInfoContext;
@@ -41,16 +39,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiElement, BasePsiElement> {
-    @Override
-    public boolean couldShowInLookup() {
-        return true;
-    }
-
-    @Nullable
-    @Override
-    public Object[] getParametersForLookup(LookupElement item, ParameterInfoContext context) {
-        return null;
-    }
 
     @Nullable
     @Override

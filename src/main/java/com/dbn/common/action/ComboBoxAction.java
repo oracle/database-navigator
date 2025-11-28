@@ -17,6 +17,7 @@
 package com.dbn.common.action;
 
 import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -54,4 +55,11 @@ public abstract class ComboBoxAction
         panel.setFocusable(false);
         return panel;
     }
+
+    @NotNull
+    @Override
+    public ActionUpdateThread getActionUpdateThread() {
+        return resolveActionUpdateThread();
+    }
+
 }

@@ -29,5 +29,4 @@ public abstract class ContextActionGroup<T> extends DefaultActionGroup implement
     protected ContextActionGroup() {}
 
     protected abstract T getContext(@NotNull AnActionEvent e);
-
 }

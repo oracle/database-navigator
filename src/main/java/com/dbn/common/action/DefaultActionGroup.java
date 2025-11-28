@@ -17,8 +17,10 @@
 package com.dbn.common.action;
 
 import com.dbn.common.compatibility.Compatibility;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.util.NlsActions;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -35,5 +37,12 @@ public class DefaultActionGroup extends com.intellij.openapi.actionSystem.Defaul
 
     public DefaultActionGroup(@Nullable @NlsActions.ActionText String shortName, boolean popup) {
         super(shortName, popup);
+    }
+
+    //...
+    @NotNull
+    @Override
+    public ActionUpdateThread getActionUpdateThread() {
+        return resolveActionUpdateThread();
     }
 }

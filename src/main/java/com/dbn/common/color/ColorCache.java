@@ -26,8 +26,7 @@ import java.awt.Color;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import static com.intellij.util.containers.ContainerUtil.createConcurrentIntObjectMap;
-
+import static com.intellij.concurrency.ConcurrentCollectionFactory.createConcurrentIntObjectMap;
 
 public class ColorCache {
     private static final Latent<ColorCache> cache = Latent.basic(() -> new ColorCache());

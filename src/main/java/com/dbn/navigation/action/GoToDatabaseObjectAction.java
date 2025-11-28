@@ -135,7 +135,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
             Presentation presentation = getTemplatePresentation();
             presentation.setText(connection.getName(), false);
             presentation.setIcon(connection.getIcon());
-            //presentation.setPerformGroup(true);
+            presentation.setPerformGroup(true);
             setPopup(true);
         }
 

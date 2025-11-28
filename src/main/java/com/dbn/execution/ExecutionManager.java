@@ -54,7 +54,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.navigation.NavigationInstruction.FOCUS;

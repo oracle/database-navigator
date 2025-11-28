@@ -18,10 +18,12 @@ package com.dbn.common.action;
 
 //import com.intellij.openapi.actionSystem.ActionUpdateThread;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.util.NlsActions.ActionDescription;
 import com.intellij.openapi.util.NlsActions.ActionText;
 import com.intellij.ui.AnActionButton;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
@@ -37,5 +39,11 @@ public abstract class BasicActionButton extends AnActionButton implements Backgr
 
     public BasicActionButton(@Nullable @ActionText String text, @Nullable @ActionDescription String description, @Nullable Icon icon) {
         super(text, description, icon);
+    }
+
+    @NotNull
+    @Override
+    public ActionUpdateThread getActionUpdateThread() {
+        return resolveActionUpdateThread();
     }
 }

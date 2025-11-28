@@ -35,7 +35,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts.ProgressText;
 import com.intellij.openapi.util.NlsContexts.ProgressTitle;
 import lombok.SneakyThrows;
-import com.intellij.openapi.wm.ex.ProgressIndicatorEx;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -155,45 +154,36 @@ public final class Progress {
         if (indicator == null) return;
         indicator.checkCanceled();
 
-        if (indicator instanceof ProgressIndicatorEx) {
-            Thread curentThread = Thread.currentThread();
-            new ProgressIndicatorListener() {
-                @Override
-                public void cancelled() {
-                    Unsafe.warned(() -> curentThread.interrupt());
-                }
+        Thread curentThread = Thread.currentThread();
+        new ProgressIndicatorListener() {
+            @Override
+            public void cancelled() {
+                Unsafe.warned(() -> curentThread.interrupt());
+            }
 
-                @Override
-                public void stopped() {
+        }.installToProgressIfPossible(indicator);
 
-                }
-
-            }.installToProgress((ProgressIndicatorEx) indicator);
-        }
     }
 
     public static void installProgressListener(@Nullable ProgressIndicator indicator, Consumer<ProgressIndicator> listener) {
         if (indicator == null) return;
         indicator.checkCanceled();
 
-        if (indicator instanceof ProgressIndicatorEx) {
-            new ProgressIndicatorListener() {
-                @Override
-                public void cancelled() {
-                    listener.accept(indicator);
-                }
+        new ProgressIndicatorListener() {
+            @Override
+            public void cancelled() {
+                listener.accept(indicator);
+            }
 
-                @Override
-                public void stopped() {
-                    listener.accept(indicator);
-                }
+            @Override
+            public void stopped() {
+                listener.accept(indicator);
+            }
 
-                //@Override
-                public void onFractionChanged(double fraction) {
-                    listener.accept(indicator);
-                }
-            }.installToProgress((ProgressIndicatorEx) indicator);
-        }
-
+            @Override
+            public void onFractionChanged(double fraction) {
+                listener.accept(indicator);
+            }
+        }.installToProgressIfPossible(indicator);
     }
 }

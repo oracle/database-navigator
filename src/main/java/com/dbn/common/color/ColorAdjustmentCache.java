@@ -23,7 +23,7 @@ import java.awt.Color;
 import java.util.EnumMap;
 import java.util.Map;
 
-import static com.intellij.util.containers.ContainerUtil.createConcurrentIntObjectMap;
+import static com.intellij.concurrency.ConcurrentCollectionFactory.createConcurrentIntObjectMap;
 
 final class ColorAdjustmentCache {
     private ColorAdjustmentCache() {}
