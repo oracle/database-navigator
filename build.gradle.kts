@@ -241,13 +241,13 @@ tasks.prepareSandbox {
 tasks {
     // Set the JVM compatibility versions
     withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
     }
 
     /* no kotlin code yet
     withType<KotlinCompile> {
-      kotlinOptions.jvmTarget = "11"
+      kotlinOptions.jvmTarget = "17"
     }
     */
 
