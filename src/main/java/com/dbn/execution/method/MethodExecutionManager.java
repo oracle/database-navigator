@@ -54,7 +54,6 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import lombok.Getter;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -253,7 +252,7 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
         ConnectionHandler connection = input.getExecutionContext().getTargetConnection();
         if (connection == null) return;
 
-        for (val entry : input.getArgumentValueHistory().entrySet()) {
+        for (var entry : input.getArgumentValueHistory().entrySet()) {
             ExecutionVariable argumentValue = entry.getValue();
 
             argumentValuesHistory.cacheVariable(

@@ -24,7 +24,6 @@ import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,7 +63,7 @@ public class JavaBrowserSettings implements PersistentConfiguration, ConnectionC
     public Set<DBObjectType> getVisibleObjectTypes() {
         Set<DBObjectType> objectTypes = EnumSet.noneOf(DBObjectType.class);
 
-        for (val entry : objectVisibility.entrySet()) {
+        for (var entry : objectVisibility.entrySet()) {
             DBObjectType objectType = entry.getKey();
             Boolean visible = entry.getValue();
 

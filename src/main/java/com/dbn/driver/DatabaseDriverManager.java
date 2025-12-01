@@ -26,7 +26,6 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -156,7 +155,7 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
     public Element getComponentState() {
         Element element = newStateElement();
         Element driverClassesElement = newElement(element, "known-driver-classes");
-        for (val entry : driverMetadata.entrySet()) {
+        for (var entry : driverMetadata.entrySet()) {
             File file = entry.getKey();
             if (!file.exists()) continue;
 
