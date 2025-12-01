@@ -122,7 +122,7 @@ public class FileProcessingService {
                     chunkConfigJson,
                     embedConfigJson,
                     request.getStoreConfig(),
-                    documentId,              // ← ID instead of Blob!
+                    documentId,
                     rowMetadata
             );
 
@@ -148,6 +148,7 @@ public class FileProcessingService {
         metadata.put("file_name", file.getName());
         metadata.put("file_path", file.getPath());
         metadata.put("file_size", fileContent.getFileSize());
+        metadata.put("primary_key", fileContent.getId());
         metadata.put("upload_timestamp", System.currentTimeMillis());
         metadata.put("uploaded_by", connection.getSchema() != null ? connection.getSchema() : "unknown");
 

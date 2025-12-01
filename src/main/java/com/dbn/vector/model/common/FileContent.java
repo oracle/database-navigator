@@ -22,6 +22,7 @@ public class FileContent {
   private final long fileSize;
   private final long computedAt;
   private Map<String, Object> metadata;
+  private String id;
 
   public FileContent(@NotNull VirtualFile file) throws IOException, NoSuchAlgorithmException {
     this.file = file;
@@ -88,4 +89,6 @@ public class FileContent {
   public byte[] getBytes() {
     return fileBytes;
   }
+
+
 }

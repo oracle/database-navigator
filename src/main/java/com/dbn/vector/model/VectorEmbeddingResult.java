@@ -81,9 +81,7 @@ public class VectorEmbeddingResult {
 
   /** Mark the job finished and compute aggregated status. */
   public void finish() {
-    // i guess we need to init the result set before trying to iterate them
-    // then get each one by ket and update the state .
-    // this is because sometimes the pipeline will fail before even instantiate the resource
+
     boolean anySuccess = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.SUCCESS);
     boolean anyFailed = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.FAILED);
     boolean anySkipped = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.SKIPPED);

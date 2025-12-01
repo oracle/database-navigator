@@ -88,7 +88,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
             FileContent fileContent;
             try {
-                fileContent = new FileContent(file);  // ← READ FILE ONCE HERE
+                fileContent = new FileContent(file);
             } catch (IOException | NoSuchAlgorithmException e) {
                 fileResult.finishFailed("FILE_READ_ERROR", e.getMessage());
                 return;
@@ -118,7 +118,9 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                 );
 
                 fileResult.setDocId(documentId);
-                fileResult.deleteStep(PipelineStep.UPLOADING_FILE);  // Skip upload
+                fileContent.setId(documentId);
+
+              fileResult.deleteStep(PipelineStep.UPLOADING_FILE);  // Skip upload
 
             } else {
                 // New file - upload it
@@ -129,7 +131,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
                 documentId = UUIDs.compact();
                 fileResult.setDocId(documentId);
-
+                fileContent.setId(documentId);
                 fileService.uploadFile(
                         connection,
                         vectorInterface,

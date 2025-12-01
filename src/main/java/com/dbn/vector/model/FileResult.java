@@ -18,6 +18,7 @@ public class FileResult extends SourceResult{
   private final VirtualFile file;
   private final String size;
   private String docId;
+  private String hash ;
   private boolean isExisted = false;
 
   public FileResult(VirtualFile file) {

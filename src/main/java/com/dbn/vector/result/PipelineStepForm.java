@@ -10,9 +10,15 @@ import com.dbn.common.ui.text.HiddenCaret;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.editor.DatabaseFileEditorManager;
+import com.dbn.editor.data.DatasetEditorManager;
+import com.dbn.editor.data.filter.*;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.vector.model.StepResult;
+import com.dbn.vector.model.SourceResult;
+import com.dbn.vector.model.PipelineStep;
+import com.dbn.vector.model.TableResult;
+import com.dbn.vector.model.FileResult;
 import com.intellij.icons.AllIcons;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
@@ -45,7 +51,7 @@ public class PipelineStepForm extends DBNFormBase  {
     Color greyContent = Colors.faded(UIUtil.getLabelForeground());
     Color redContent = UIUtil.getErrorForeground();
     Font largerFont = Fonts.regular(1);
-    titleLabel.setText(stepResult.getStep().getDisplayName());
+    titleLabel.setText(order+" "+stepResult.getStep().getDisplayName());
     titleLabel.setFont(largerFont);
     statusLabel.setForeground(greyContent);
     initInfoLabel();
@@ -55,17 +61,43 @@ public class PipelineStepForm extends DBNFormBase  {
     linkLabel.setHyperlinkText(stepResult.getLink());
     linkLabel.setIcon(stepResult.getIcon());
 
-    linkLabel.addHyperlinkListener(e->{
-      ConnectionHandler connection = parent.getResult().getConnection();
-      String schemaName = stepResult.getLink().split("\\.")[0];
-      String tableName = stepResult.getLink().split("\\.")[1];
+    linkLabel.addHyperlinkListener(e -> {
+      VectorEmbeddingExecutionResultForm parentForm = getParentComponent();
+      if (parentForm == null) return;
+
+      ConnectionHandler connection = parentForm.getResult().getConnection();
+      String[] parts = stepResult.getLink().split("\\.");
+      if (parts.length != 2) return;
+
+      String schemaName = parts[0];
+      String tableName = parts[1];
 
       DBSchema schema = connection.getSchema(connection.getSchemaId(schemaName));
+      if (schema == null) return;
+
       DBTable table = schema.getTable(tableName);
-      // documentId
+      if (table == null) return;
+
+      // Get the currently selected source
+      SourceResult selectedSource = parentForm.getSelectedSource();
       DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(connection.getProject());
+      boolean editorAlreadyOpen = editorManager.isFileOpen(table);
+
+      // Only apply filter for the embedding destination table (ENSURE_DESTINATION step)
+      if (stepResult.getStep() == PipelineStep.ENSURE_DESTINATION && selectedSource != null) {
+        createAndApplyFilter(connection, table, selectedSource);
+      }
+
       editorManager.connectAndOpenEditor(table, null, true, true);
+
+      if (editorAlreadyOpen) {
+        DatasetEditorManager datasetEditorManager = DatasetEditorManager.getInstance(connection.getProject());
+        datasetEditorManager.reloadEditorData(table);
+      }
     });
+
+
+
 
 
 
@@ -82,6 +114,48 @@ public class PipelineStepForm extends DBNFormBase  {
     updateStepStatus();
 
 
+  }
+
+  private void createAndApplyFilter(ConnectionHandler connection, DBTable table, SourceResult sourceResult) {
+    DatasetFilterManager filterManager = DatasetFilterManager.getInstance(connection.getProject());
+    DatasetFilterGroup filterGroup = filterManager.getFilterGroup(table);
+
+    // Create temporary custom filter
+    DatasetCustomFilter embeddingFilter = new DatasetCustomFilter(
+            filterGroup,
+            "New Embeddings - " + sourceResult.getName()
+    );
+    embeddingFilter.setTemporary(true);
+
+    String whereClause;
+
+    if (sourceResult instanceof TableResult) {
+      TableResult tableResult = (TableResult) sourceResult;
+
+      String[] parts = tableResult.getIdentifier().split("\\.");
+
+      if (parts.length != 2) return;
+
+      String tableName = parts[1];
+
+      whereClause = String.format(
+              "JSON_VALUE(metadata, '$.embedding_source.table_name') = '%s'",
+              tableName.replace("'", "''")
+      );
+    } else if (sourceResult instanceof FileResult) {
+      FileResult fileResult = (FileResult) sourceResult;
+      String fileId = fileResult.getDocId();
+
+      whereClause = String.format(
+              "JSON_VALUE(metadata, '$.embedding_source.primary_key') = '%s'",
+              fileId.replace("'", "''")
+      );
+    } else {
+      return;
+    }
+
+    embeddingFilter.setCondition(whereClause);
+    filterManager.setActiveFilter(table, embeddingFilter);
   }
 
   private void initInfoLabel() {
