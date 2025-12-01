@@ -41,10 +41,9 @@ public class SourceConfig extends VectorEmbeddingConfig {
     }
 
     public int getRecordCount() {
-        switch (sourceType) {
-            case DATABASE_TABLE: return 1; // TODO multiple table support
-            case FILE_SYSTEM: return fileSourceConfig.getFileCount();
-            default: return 0;
-        }
+        return switch (sourceType) {
+            case DATABASE_TABLE -> 1; // TODO multiple table support
+            case FILE_SYSTEM -> fileSourceConfig.getFileCount();
+        };
     }
 }

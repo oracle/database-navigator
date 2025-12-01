@@ -52,26 +52,26 @@ public class JavaFactoryInput extends SchemaObjectFactoryInput{
     }
 
     public String getTypeIdentifier() {
-        switch (classType) {
-            case INTERFACE: return "interface";
-            case ANNOTATION: return "@interface";
-//            case RECORD: return "record";
-            case ENUM: return "enum";
-            default: return "class";
-        }
+        return switch (classType) {
+            case INTERFACE -> "interface";
+            case ANNOTATION -> "@interface";
+//            case RECORD -> "record";
+            case ENUM -> "enum";
+            default -> "class";
+        };
     }
 
     @Override
     public String getObjectDescription() {
         String objectName = "\"" + getObjectPath() + "\"";
-        switch (classType) {
-            case INTERFACE: return "java interface " + objectName;
-            case ANNOTATION: return "java annotation " + objectName;
-            case EXCEPTION: return "java exception " + objectName;
-//            case RECORD: return "java record " + objectName;
-            case ENUM: return "java enumeration " + objectName;
-            default: return "java class " + objectName;
-        }
+        return switch (classType) {
+            case INTERFACE -> "java interface " + objectName;
+            case ANNOTATION -> "java annotation " + objectName;
+            case EXCEPTION -> "java exception " + objectName;
+//            case RECORD -> "java record " + objectName;
+            case ENUM -> "java enumeration " + objectName;
+            default -> "java class " + objectName;
+        };
     }
 
     @Override

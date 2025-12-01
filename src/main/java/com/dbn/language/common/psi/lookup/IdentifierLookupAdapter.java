@@ -102,12 +102,12 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
         if (identifierCategory == null) return true;
         IdentifierElementType elementType = identifierPsiElement.elementType;
         IdentifierCategory category = elementType.getIdentifierCategory();
-        switch (identifierCategory) {
-            case ALL: return true;
-            case DEFINITION: return category == IdentifierCategory.DEFINITION || identifierPsiElement.isReferenceable();
-            case REFERENCE: return category == IdentifierCategory.REFERENCE;
-        }
-        return false;
+        return switch (identifierCategory) {
+            case ALL -> true;
+            case DEFINITION -> category == IdentifierCategory.DEFINITION || identifierPsiElement.isReferenceable();
+            case REFERENCE -> category == IdentifierCategory.REFERENCE;
+            default -> false;
+        };
     }
 
     private boolean matchesAttribute(IdentifierPsiElement identifierPsiElement) {

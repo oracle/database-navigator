@@ -137,14 +137,14 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
             return cast(objectList.getObject(name, overload));
         }
 
-        switch (direction) {
-            case UP:   return findInheritedObject(objectType, name, overload);
-            case DOWN: return findInheritingObject(objectType, name, overload);
-            case ANY:  return Commons.coalesce(
-                        () -> findInheritedObject(objectType, name, overload),
-                        () -> findInheritingObject(objectType, name, overload));
-        }
-        return null;
+        return switch (direction) {
+            case UP -> findInheritedObject(objectType, name, overload);
+            case DOWN -> findInheritingObject(objectType, name, overload);
+            case ANY -> Commons.coalesce(
+                    () -> findInheritedObject(objectType, name, overload),
+                    () -> findInheritingObject(objectType, name, overload));
+            default -> null;
+        };
     }
 
     @Nullable
@@ -152,14 +152,14 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
         DBObjectList<T> objectList = getObjectList(objectType);
         if (isValid(objectList)) return objectList;
 
-        switch (direction) {
-            case UP:   return findInheritedObjectList(objectType);
-            case DOWN: return findInheritingObjectList(objectType);
-            case ANY:  return Commons.coalesce(
+        return switch (direction) {
+            case UP -> findInheritedObjectList(objectType);
+            case DOWN -> findInheritingObjectList(objectType);
+            case ANY -> Commons.coalesce(
                     () -> findInheritedObjectList(objectType),
                     () -> findInheritingObjectList(objectType));
-        }
-        return null;
+            default -> null;
+        };
     }
 
     @Nullable

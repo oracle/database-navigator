@@ -49,13 +49,12 @@ public class ExecutionEngineSettings extends CompositeProjectConfiguration<Proje
 
     @NotNull
     public ExecutionTimeoutSettings getExecutionTimeoutSettings(@NotNull ExecutionTarget executionTarget) {
-        switch (executionTarget) {
-            case STATEMENT: return getStatementExecutionSettings();
-            case SCRIPT: return getScriptExecutionSettings();
-            case METHOD: return getMethodExecutionSettings();
-            case JAVA: return getJavaExecutionSettings();
-        }
-        throw new IllegalArgumentException("Invalid execution type " + executionTarget);
+        return switch (executionTarget) {
+            case STATEMENT -> getStatementExecutionSettings();
+            case SCRIPT -> getScriptExecutionSettings();
+            case METHOD -> getMethodExecutionSettings();
+            case JAVA -> getJavaExecutionSettings();
+        };
     }
 
     @NotNull

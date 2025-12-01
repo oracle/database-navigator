@@ -55,12 +55,13 @@ public class PSQLStructureViewModelGrouper implements Grouper {
                                 BasePsiElement subjectPsiElement = basePsiElement.findFirstPsiElement(ElementTypeAttribute.SUBJECT);
                                 if (subjectPsiElement instanceof IdentifierPsiElement identifierPsiElement) {
                                     DBObjectType objectType = identifierPsiElement.getObjectType();
-                                    switch (objectType) {
-                                        case PACKAGE_PROCEDURE: objectType = DBObjectType.PROCEDURE; break;
-                                        case PACKAGE_FUNCTION: objectType = DBObjectType.FUNCTION; break;
-                                        case TYPE_PROCEDURE: objectType = DBObjectType.PROCEDURE; break;
-                                        case TYPE_FUNCTION: objectType = DBObjectType.FUNCTION; break;
-                                    }
+                                    objectType = switch (objectType) {
+                                        case PACKAGE_PROCEDURE -> DBObjectType.PROCEDURE;
+                                        case PACKAGE_FUNCTION -> DBObjectType.FUNCTION;
+                                        case TYPE_PROCEDURE -> DBObjectType.PROCEDURE;
+                                        case TYPE_FUNCTION -> DBObjectType.FUNCTION;
+                                        default -> objectType;
+                                    };
 
                                     if (groups == null) groups = new EnumMap<>(DBObjectType.class);
                                     PSQLStructureViewModelGroup group = (PSQLStructureViewModelGroup) groups.get(objectType);

@@ -119,14 +119,14 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
     private String resolveName() {
         BasePsiElement psiElement = getRelevantPsiElement();
         DBObjectType objectType = getObjectType();
-        switch (objectType) {
-            case DATASET: return resolveDatasetName(psiElement);
-            case COLUMN: return resolveColumnName(psiElement);
-            case CURSOR:
-            case TYPE:
-            case TYPE_ATTRIBUTE: return resolveObjectName(psiElement);
-        }
-        return "";
+        return switch (objectType) {
+            case DATASET -> resolveDatasetName(psiElement);
+            case COLUMN -> resolveColumnName(psiElement);
+            case CURSOR,
+                 TYPE,
+                 TYPE_ATTRIBUTE -> resolveObjectName(psiElement);
+            default -> "";
+        };
     }
 
     private String resolveObjectName(@NotNull BasePsiElement psiElement) {

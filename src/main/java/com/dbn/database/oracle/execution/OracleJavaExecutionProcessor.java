@@ -87,6 +87,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		String wrapperName = wrapperModel.getSqlWrapperName();
 		List<DBJavaParameter> arguments = getArguments();
 
+		@NonNls
 		StringBuilder buffer = new StringBuilder();
 		StringBuilder methodCallPrepare = new StringBuilder();
 
@@ -152,6 +153,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 				statement.setObject(parameterIndex, structObj);
 
 			} else {
+				@NonNls
 				String clazz = parameter.getJavaClassRef().getObjectName();
 				String value = executionInput.getInputValue(parameterName);
 				if (value == null) statement.setObject(parameterIndex, null);
@@ -295,33 +297,34 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
             if (!Java.isPrimitive(className)) return null;
         }
 
+		@NonNls
 		String className = getCanonicalName(javaClass);
-		switch (className) {
-			// primitives
-			case "boolean": return asBooleanPrimitive(fieldValue);
-			case "byte":    return asBytePrimitive(fieldValue);
-			case "char":    return asCharacterPrimitive(fieldValue);
-			case "double":  return asDoublePrimitive(fieldValue);
-			case "float":   return asFloatPrimitive(fieldValue);
-			case "int":     return asIntegerPrimitive(fieldValue);
-			case "long":    return asLongPrimitive(fieldValue);
-			case "short":   return asShortPrimitive(fieldValue);
+        return switch (className) {
+            // primitives
+            case "boolean" -> asBooleanPrimitive(fieldValue);
+            case "byte" -> asBytePrimitive(fieldValue);
+            case "char" -> asCharacterPrimitive(fieldValue);
+            case "double" -> asDoublePrimitive(fieldValue);
+            case "float" -> asFloatPrimitive(fieldValue);
+            case "int" -> asIntegerPrimitive(fieldValue);
+            case "long" -> asLongPrimitive(fieldValue);
+            case "short" -> asShortPrimitive(fieldValue);
 
-			// pseudo-primitives (prevent expensive class-details load from SYS schema)
-			case "java.lang.Boolean":   return asBoolean(fieldValue);
-			case "java.lang.Byte":      return asByte(fieldValue);
-			case "java.lang.Character": return asCharacter(fieldValue);
-			case "java.lang.Double":    return asDouble(fieldValue);
-			case "java.lang.Float":     return asFloat(fieldValue);
-			case "java.lang.Integer":   return asInteger(fieldValue);
-			case "java.lang.Long":      return asLong(fieldValue);
-			case "java.lang.Short":     return asShort(fieldValue);
-			case "java.lang.String":    return fieldValue;
-			case "java.math.BigDecimal":return asBigDecimal(fieldValue);
-			case "java.math.BigInteger":return asBigInteger(fieldValue);
-			//...
-			default: return null;
-		}
+            // pseudo-primitives (prevent expensive class-details load from SYS schema)
+            case "java.lang.Boolean" -> asBoolean(fieldValue);
+            case "java.lang.Byte" -> asByte(fieldValue);
+            case "java.lang.Character" -> asCharacter(fieldValue);
+            case "java.lang.Double" -> asDouble(fieldValue);
+            case "java.lang.Float" -> asFloat(fieldValue);
+            case "java.lang.Integer" -> asInteger(fieldValue);
+            case "java.lang.Long" -> asLong(fieldValue);
+            case "java.lang.Short" -> asShort(fieldValue);
+            case "java.lang.String" -> fieldValue;
+            case "java.math.BigDecimal" -> asBigDecimal(fieldValue);
+            case "java.math.BigInteger" -> asBigInteger(fieldValue);
+            //...
+            default -> null;
+        };
 	}
 
 
@@ -337,42 +340,42 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	}
 
 	private int getSQLTypes(@NonNls String javaType) {
-		switch (javaType) {
-			case "int" : return Types.INTEGER;
-			case "float" : return Types.FLOAT;
-			case "double": return Types.DOUBLE;
-			case "boolean": return Types.BIT;
-			case "byte": return Types.TINYINT;
-			case "short": return Types.SMALLINT;
-			case "long": return Types.BIGINT;
-			case "char": return Types.CHAR;
-			case "java.lang.String": return Types.VARCHAR;
-			case "java.lang.Character": return Types.CHAR;
-			case "java.math.BigDecimal": return Types.NUMERIC;
-			case "java.math.BigInteger": return Types.NUMERIC;
-			case "java.lang.Integer": return Types.NUMERIC;
-			case "java.lang.Long": return Types.NUMERIC;
-			case "java.lang.Double": return Types.NUMERIC;
-			case "java.lang.Short": return Types.NUMERIC;
-			case "java.lang.Float": return Types.NUMERIC;
-			case "java.lang.Byte": return Types.NUMERIC;
-			default: return Types.STRUCT;
-		}
+        return switch (javaType) {
+            case "int" -> Types.INTEGER;
+            case "float" -> Types.FLOAT;
+            case "double" -> Types.DOUBLE;
+            case "boolean" -> Types.BIT;
+            case "byte" -> Types.TINYINT;
+            case "short" -> Types.SMALLINT;
+            case "long" -> Types.BIGINT;
+            case "char" -> Types.CHAR;
+            case "java.lang.String" -> Types.VARCHAR;
+            case "java.lang.Character" -> Types.CHAR;
+            case "java.math.BigDecimal" -> Types.NUMERIC;
+            case "java.math.BigInteger" -> Types.NUMERIC;
+            case "java.lang.Integer" -> Types.NUMERIC;
+            case "java.lang.Long" -> Types.NUMERIC;
+            case "java.lang.Double" -> Types.NUMERIC;
+            case "java.lang.Short" -> Types.NUMERIC;
+            case "java.lang.Float" -> Types.NUMERIC;
+            case "java.lang.Byte" -> Types.NUMERIC;
+            default -> Types.STRUCT;
+        };
 	}
 
 	private Object getResult(CallableStatement callableStatement, int outputIndex) throws SQLException {
-		switch (sqlType) {
-			case Types.INTEGER: return callableStatement.getInt(outputIndex);
-			case Types.FLOAT: return callableStatement.getFloat(outputIndex);
-			case Types.DOUBLE: return callableStatement.getDouble(outputIndex);
-			case Types.BIT: return callableStatement.getBoolean(outputIndex);
-			case Types.TINYINT: return callableStatement.getByte(outputIndex);
-			case Types.SMALLINT: return callableStatement.getShort(outputIndex);
-			case Types.BIGINT: return callableStatement.getLong(outputIndex);
-			case Types.CHAR: return callableStatement.getString(outputIndex);
-			case Types.VARCHAR: return callableStatement.getString(outputIndex);
-			case Types.DECIMAL: return callableStatement.getBigDecimal(outputIndex);
-			default: return callableStatement.getObject(outputIndex);
-		}
+        return switch (sqlType) {
+            case Types.INTEGER -> callableStatement.getInt(outputIndex);
+            case Types.FLOAT -> callableStatement.getFloat(outputIndex);
+            case Types.DOUBLE -> callableStatement.getDouble(outputIndex);
+            case Types.BIT -> callableStatement.getBoolean(outputIndex);
+            case Types.TINYINT -> callableStatement.getByte(outputIndex);
+            case Types.SMALLINT -> callableStatement.getShort(outputIndex);
+            case Types.BIGINT -> callableStatement.getLong(outputIndex);
+            case Types.CHAR -> callableStatement.getString(outputIndex);
+            case Types.VARCHAR -> callableStatement.getString(outputIndex);
+            case Types.DECIMAL -> callableStatement.getBigDecimal(outputIndex);
+            default -> callableStatement.getObject(outputIndex);
+        };
 	}
 }

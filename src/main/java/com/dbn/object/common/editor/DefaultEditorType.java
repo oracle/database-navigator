@@ -21,6 +21,7 @@ import com.dbn.object.type.DBObjectType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
@@ -37,12 +38,12 @@ public enum DefaultEditorType implements Presentable{
     private final String name;
 
     public static DefaultEditorType[] getEditorTypes(DBObjectType objectType) {
-        switch (objectType){
-            case VIEW: return new DefaultEditorType[]{CODE, DATA, SELECTION};
-            case PACKAGE: return new DefaultEditorType[]{SPEC, BODY, SELECTION};
-            case TYPE: return new DefaultEditorType[]{SPEC, BODY, SELECTION};
-        }
-        return EMPTY_ARRAY;
+        return switch (objectType) {
+            case VIEW -> array(CODE, DATA, SELECTION);
+            case PACKAGE -> array(SPEC, BODY, SELECTION);
+            case TYPE -> array(SPEC, BODY, SELECTION);
+            default -> EMPTY_ARRAY;
+        };
     }
 
     @Override

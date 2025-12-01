@@ -166,17 +166,15 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
         DatabaseBrowserSettings browserSettings = ProjectSettings.get(getProject()).getBrowserSettings();
         DatabaseBrowserEditorSettings editorSettings = browserSettings.getEditorSettings();
         DefaultEditorOption option = editorSettings.getOption(objectType);
-        if (option != null) {
-            switch (option.getEditorType()) {
-                case SPEC: return EditorProviderId.CODE_SPEC;
-                case BODY: return EditorProviderId.CODE_BODY;
-                case CODE: return EditorProviderId.CODE;
-                case DATA: return EditorProviderId.DATA;
-                case SELECTION: return lastUsedEditorProviders.get(objectType);
-            }
-        }
+        if (option == null) return null;
 
-        return null;
+        return switch (option.getEditorType()) {
+            case SPEC -> EditorProviderId.CODE_SPEC;
+            case BODY -> EditorProviderId.CODE_BODY;
+            case CODE -> EditorProviderId.CODE;
+            case DATA -> EditorProviderId.DATA;
+            case SELECTION -> lastUsedEditorProviders.get(objectType);
+        };
     }
 
     /****************************************

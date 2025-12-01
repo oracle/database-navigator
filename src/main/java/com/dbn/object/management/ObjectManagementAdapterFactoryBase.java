@@ -35,14 +35,14 @@ public abstract class ObjectManagementAdapterFactoryBase<T extends DBSchemaObjec
 
     @Override
     public final ObjectManagementAdapter<T> createAdapter(T object, ObjectChangeAction action) {
-        switch (action) {
-            case CREATE: return new DBObjectCreateAdapter<>(object, (d, c, o) -> createObject(d, c, o));
-            case UPDATE: return new DBObjectUpdateAdapter<>(object, (d, c, o) -> updateObject(d, c, o));
-            case DELETE: return new DBObjectDeleteAdapter<>(object, (d, c, o) -> deleteObject(d, c, o));
-            case ENABLE: return new DBObjectEnableAdapter<>(object, (d, c, o) -> enableObject(d, c, o));
-            case DISABLE: return new DBObjectDisableAdapter<>(object, (d, c, o) -> disableObject(d, c, o));
-            default: return Exceptions.unsupported(action);
-        }
+        return switch (action) {
+            case CREATE -> new DBObjectCreateAdapter<>(object, (d, c, o) -> createObject(d, c, o));
+            case UPDATE -> new DBObjectUpdateAdapter<>(object, (d, c, o) -> updateObject(d, c, o));
+            case DELETE -> new DBObjectDeleteAdapter<>(object, (d, c, o) -> deleteObject(d, c, o));
+            case ENABLE -> new DBObjectEnableAdapter<>(object, (d, c, o) -> enableObject(d, c, o));
+            case DISABLE -> new DBObjectDisableAdapter<>(object, (d, c, o) -> disableObject(d, c, o));
+            default -> Exceptions.unsupported(action);
+        };
     }
 
     protected abstract void createObject(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException;

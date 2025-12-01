@@ -115,13 +115,13 @@ public class SelectAiEditorPromptUtil {
 
     private static String getPromptText(String actionName, String prompt) {
         PromptAction action = PromptAction.get(actionName);
-        switch (action) {
-            case SHOW_SQL: return txt("prc.assistant.text.PromptAction_SHOW_SQL", prompt);
-            case EXPLAIN_SQL: return txt("prc.assistant.text.PromptAction_EXPLAIN_SQL", prompt);
-            case EXECUTE_SQL: return txt("prc.assistant.text.PromptAction_EXECUTE_SQL", prompt);
-            case NARRATE: return txt("prc.assistant.text.PromptAction_NARRATE", prompt);
-            case CHAT: return txt("prc.assistant.text.PromptAction_CHAT", prompt);
-            default: return txt("prc.assistant.text.PromptAction_ANY", prompt);
-        }
+        return switch (action) {
+            case SHOW_SQL -> txt("prc.assistant.text.PromptAction_SHOW_SQL", prompt);
+            case EXPLAIN_SQL -> txt("prc.assistant.text.PromptAction_EXPLAIN_SQL", prompt);
+            case EXECUTE_SQL -> txt("prc.assistant.text.PromptAction_EXECUTE_SQL", prompt);
+            case NARRATE -> txt("prc.assistant.text.PromptAction_NARRATE", prompt);
+            case CHAT -> txt("prc.assistant.text.PromptAction_CHAT", prompt);
+            default -> txt("prc.assistant.text.PromptAction_ANY", prompt);
+        };
     }
 }

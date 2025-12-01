@@ -71,12 +71,12 @@ public class MessageBundleItemForm extends DBNFormBase {
     }
 
     private Icon getMessageIcon() {
-        switch (message.getType()) {
-            case INFO: return Icons.COMMON_INFO;
-            case WARNING: return Icons.COMMON_WARNING;
-            case ERROR: return Icons.COMMON_ERROR;
-            default: return null;
-        }
+        return switch (message.getType()) {
+            case INFO -> Icons.COMMON_INFO;
+            case WARNING -> Icons.COMMON_WARNING;
+            case ERROR -> Icons.COMMON_ERROR;
+            default -> null;
+        };
     }
 
     @Nullable

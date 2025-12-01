@@ -185,20 +185,20 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
 
     @Override
     protected String getTitle(OutcomeType outcomeType) {
-        switch (outcomeType) {
-            case SUCCESS: return txt("msg.shared.title.Success");
-            case FAILURE: return txt("msg.shared.title.Failure");
-        }
-        return "";
+        return switch (outcomeType) {
+            case SUCCESS -> txt("msg.shared.title.Success");
+            case FAILURE -> txt("msg.shared.title.Failure");
+            default -> "";
+        };
     }
 
     @Override
     protected String getMessage(OutcomeType outcomeType) {
-        switch (outcomeType) {
-            case SUCCESS: return "Successfully created Jdbc Connector";
-            case FAILURE: return "Failed to create Jdbc Connector";
-        }
-        return "";
+        return switch (outcomeType) {
+            case SUCCESS -> "Successfully created Jdbc Connector";
+            case FAILURE -> "Failed to create Jdbc Connector";
+            default -> "";
+        };
     }
 
     @Override

@@ -115,14 +115,14 @@ public class Messages {
 
 
     private static Icon getDialogIcon(MessageType messageType) {
-        switch (messageType) {
-            case INFO: return Icons.DIALOG_INFORMATION;
-            case ERROR: return Icons.DIALOG_ERROR;
-            case WARNING: return Icons.DIALOG_WARNING;
-            case QUESTION: return Icons.DIALOG_QUESTION;
-            case SUCCESS: return Icons.DIALOG_SUCCESS;
-            default: return null;
-        }
+        return switch (messageType) {
+            case INFO -> Icons.DIALOG_INFORMATION;
+            case ERROR -> Icons.DIALOG_ERROR;
+            case WARNING -> Icons.DIALOG_WARNING;
+            case QUESTION -> Icons.DIALOG_QUESTION;
+            case SUCCESS -> Icons.DIALOG_SUCCESS;
+            default -> null;
+        };
     }
 
     public static void showErrorDialog(@Nullable Project project, @DialogMessage String message, Throwable exception) {

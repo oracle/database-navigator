@@ -128,12 +128,12 @@ public abstract class BatchBase<
 
             BatchEventType type = event.getType();
             switch (type) {
-                case STARTED:
-                case RESUMED: status = RUNNING; break;
-                case PAUSED: status = PAUSED; break;
-                case FINISHED: status = FINISHED; break;
-                case CANCELLED: status = CANCELLED; break;
-                default:
+                case STARTED,
+                     RESUMED -> status = RUNNING;
+                case PAUSED -> status = PAUSED;
+                case FINISHED -> status = FINISHED;
+                case CANCELLED -> status = CANCELLED;
+                default -> {}
             }
         };
     }

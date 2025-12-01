@@ -322,11 +322,12 @@ public class MessagesTree extends DBNTree implements Disposable {
             EditorProviderId editorProviderId = compilerAction.getEditorProviderId();
             if (editorProviderId == null) {
                 DBContentType contentType = compilerMessage.getContentType();
-                switch (contentType) {
-                    case CODE: editorProviderId = EditorProviderId.CODE; break;
-                    case CODE_SPEC: editorProviderId = EditorProviderId.CODE_SPEC;  break;
-                    case CODE_BODY: editorProviderId = EditorProviderId.CODE_BODY; break;
-                }
+                editorProviderId = switch (contentType) {
+                    case CODE -> EditorProviderId.CODE;
+                    case CODE_SPEC -> EditorProviderId.CODE_SPEC;
+                    case CODE_BODY -> EditorProviderId.CODE_BODY;
+                    default -> editorProviderId;
+                };
             }
             Project project = ensureProject();
             objectFileEditor = Editors.selectEditor(project, objectFileEditor, databaseFile, editorProviderId, instructions);

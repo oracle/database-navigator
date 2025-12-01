@@ -209,29 +209,29 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
 
     @Override
     public String getRuntimeEventReason(int code) {
-        switch (code) {
-            case 0: return "None";
-            case 2: return "Interpreter starting";
-            case 3: return  "Stopped at a breakpoint";
-            case 6: return  "Stopped at procedure entry";
-            case 7: return  "Procedure return";
-            case 8: return  "Procedure is finished";
-            case 9: return  "Reached a new line";
-            case 10: return  "An interrupt occurred";
-            case 11: return  "An exception was raised";
-            case 15: return  "Interpreter is exiting";
-            case 16: return  "Start exception-handler";
-            case 17: return  "A timeout occurred";
-            case 20: return  "Instantiation block";
-            case 21: return  "Interpreter is aborting";
-            case 25: return  "Interpreter is exiting";
-            case 4: return   "Executing SQL";
-            case 14: return  "Watched value changed";
-            case 18: return  "An RPC started";
-            case 19: return  "Unhandled exception";
-        }
+        return switch (code) {
+            case 0 -> "None";
+            case 2 -> "Interpreter starting";
+            case 3 -> "Stopped at a breakpoint";
+            case 6 -> "Stopped at procedure entry";
+            case 7 -> "Procedure return";
+            case 8 -> "Procedure is finished";
+            case 9 -> "Reached a new line";
+            case 10 -> "An interrupt occurred";
+            case 11 -> "An exception was raised";
+            case 15 -> "Interpreter is exiting";
+            case 16 -> "Start exception-handler";
+            case 17 -> "A timeout occurred";
+            case 20 -> "Instantiation block";
+            case 21 -> "Interpreter is aborting";
+            case 25 -> "Interpreter is exiting";
+            case 4 -> "Executing SQL";
+            case 14 -> "Watched value changed";
+            case 18 -> "An RPC started";
+            case 19 -> "Unhandled exception";
+            default -> null;
+        };
 
-        return null;
     }
 
     @NonNls
