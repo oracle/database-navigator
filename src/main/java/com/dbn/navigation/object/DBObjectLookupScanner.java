@@ -31,7 +31,6 @@ import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 class DBObjectLookupScanner extends StatefulDisposableBase implements DBObjectListVisitor {
     private final DBObjectLookupModel model;
@@ -56,8 +55,7 @@ class DBObjectLookupScanner extends StatefulDisposableBase implements DBObjectLi
         boolean sync = objectList.isLoaded();
         if (!sync) {
             BrowserTreeNode parent = objectList.getParent();
-            if (parent instanceof DBObject) {
-                DBObject object = (DBObject) parent;
+            if (parent instanceof DBObject object) {
                 if (object.getParentObject() instanceof DBSchema) {
                     sync = true;
                 }

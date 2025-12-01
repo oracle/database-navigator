@@ -128,8 +128,7 @@ public abstract class MethodExecutionHistoryTreeModel extends DBNTreeModel imple
             String programName = programRef.getObjectName();
             if (!isLeaf())
                 for (TreeNode node : getChildren()) {
-                    if (node instanceof ProgramTreeNode) {
-                        ProgramTreeNode programNode = (ProgramTreeNode) node;
+                    if (node instanceof ProgramTreeNode programNode) {
                         if (Strings.equalsIgnoreCase(programNode.getName(), programName)) {
                             return programNode;
                         }
@@ -141,8 +140,7 @@ public abstract class MethodExecutionHistoryTreeModel extends DBNTreeModel imple
         MethodTreeNode getMethodNode(MethodExecutionInput executionInput) {
             if (!isLeaf())
                 for (TreeNode node : getChildren()) {
-                    if (node instanceof MethodTreeNode) {
-                        MethodTreeNode methodNode = (MethodTreeNode) node;
+                    if (node instanceof MethodTreeNode methodNode) {
                         if (methodNode.getExecutionInput() == executionInput) {
                             return methodNode;
                         }

@@ -129,8 +129,7 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
     }
 
     public static boolean isDebugConsole(VirtualFile virtualFile) {
-        if (virtualFile instanceof DBConsoleVirtualFile) {
-            DBConsoleVirtualFile consoleVirtualFile = (DBConsoleVirtualFile) virtualFile;
+        if (virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile) {
             return consoleVirtualFile.getType() == DBConsoleType.DEBUG;
         }
         return false;
@@ -278,9 +277,8 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
             addToCompileList(compileList, executable);
 
             for (DBObject object : executable.getReferencedObjects()) {
-                if (object instanceof DBSchemaObject && object != executable) {
+                if (object instanceof DBSchemaObject schemaObject && object != executable) {
                     if (!ProgressMonitor.isProgressCancelled()) {
-                        DBSchemaObject schemaObject = (DBSchemaObject) object;
                         boolean added = addToCompileList(compileList, schemaObject);
                         if (added) {
                             String objectName = schemaObject.getQualifiedNameWithType();

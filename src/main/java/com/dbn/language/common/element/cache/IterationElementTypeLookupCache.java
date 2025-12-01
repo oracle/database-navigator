@@ -44,8 +44,7 @@ public class IterationElementTypeLookupCache extends ElementTypeLookupCache<Iter
             return true;
         }
 
-        if (leafElementType instanceof TokenElementType) {
-            TokenElementType tokenElementType = (TokenElementType) leafElementType;
+        if (leafElementType instanceof TokenElementType tokenElementType) {
             if (elementType.isSeparator(tokenElementType)) {
                 return true;
             }

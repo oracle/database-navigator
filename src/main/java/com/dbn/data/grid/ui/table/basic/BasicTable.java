@@ -76,14 +76,12 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
 
         addPropertyChangeListener(e -> {
             Object newProperty = e.getNewValue();
-            if (newProperty instanceof Font) {
-                Font font = (Font) newProperty;
+            if (newProperty instanceof Font font) {
                 adjustRowHeight();
                 JTableHeader tableHeader = getTableHeader();
                 if (tableHeader != null) {
                     TableCellRenderer defaultRenderer = tableHeader.getDefaultRenderer();
-                    if (defaultRenderer instanceof DBNTableHeaderRenderer) {
-                        DBNTableHeaderRenderer renderer = (DBNTableHeaderRenderer) defaultRenderer;
+                    if (defaultRenderer instanceof DBNTableHeaderRenderer renderer) {
                         renderer.setFont(font);
                     }
                 }

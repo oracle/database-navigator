@@ -90,13 +90,10 @@ public class DatasetEditorNotificationProvider extends EditorNotificationProvide
     @Nullable
     @Override
     public DatasetEditorNotificationPanel createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
-        if (!(file instanceof DBEditableObjectVirtualFile)) return null;
-        if (!(fileEditor instanceof DatasetEditor)) return null;
-
-        DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
+        if (!(file instanceof DBEditableObjectVirtualFile datasetFile)) return null;
+        if (!(fileEditor instanceof DatasetEditor datasetEditor)) return null;
         if (!datasetEditor.isLoaded()) return null;
 
-        DBEditableObjectVirtualFile datasetFile = (DBEditableObjectVirtualFile) file;
         DBSchemaObject dataset = datasetFile.getObject();
 
         String dataLoadError = datasetEditor.getDataLoadError();
@@ -104,8 +101,7 @@ public class DatasetEditorNotificationProvider extends EditorNotificationProvide
             return new DatasetEditorLoadErrorNotificationPanel(dataset, fileEditor, dataLoadError);
         }
 
-        if (dataset instanceof DBTable) {
-            DBTable table = (DBTable) dataset;
+        if (dataset instanceof DBTable table) {
             if (datasetEditor.isOutdateResult()) {
                 return new DatasetChangesNotificationPanel(table, datasetEditor);
             }

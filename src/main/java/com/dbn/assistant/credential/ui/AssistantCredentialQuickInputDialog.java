@@ -131,8 +131,7 @@ public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCred
             credential.updateSecrets( null);
 
             AssistantProfile targetProfile;
-            if (profile instanceof DeclaredAssistantProfile) {
-                DeclaredAssistantProfile declaredProfile = (DeclaredAssistantProfile) profile;
+            if (profile instanceof DeclaredAssistantProfile declaredProfile) {
                 declaredProfile.setCredentialId(credential.getId());
                 targetProfile = declaredProfile;
             } else {

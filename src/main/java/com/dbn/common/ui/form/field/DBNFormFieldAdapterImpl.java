@@ -162,20 +162,16 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
     }
 
     private static @Nullable Object getFieldValue(JComponent component) {
-        if (component instanceof TextFieldWithBrowseButton) {
-            TextFieldWithBrowseButton textComponent = (TextFieldWithBrowseButton) component;
+        if (component instanceof TextFieldWithBrowseButton textComponent) {
             return textComponent.getText();
 
-        } else if (component instanceof JTextComponent) {
-            JTextComponent textComponent = (JTextComponent) component;
+        } else if (component instanceof JTextComponent textComponent) {
             return getText(textComponent);
 
-        } else if (component instanceof JComboBox) {
-            JComboBox comboBox = (JComboBox) component;
+        } else if (component instanceof JComboBox comboBox) {
             return comboBox.getSelectedItem();
 
-        } else  if (component instanceof JCheckBox) {
-            JCheckBox checkBox = (JCheckBox) component;
+        } else  if (component instanceof JCheckBox checkBox) {
             return checkBox.isSelected();
 
         }
@@ -184,22 +180,18 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
     }
 
     private static void setFieldValue(JComponent component, Object value) {
-        if (component instanceof TextFieldWithBrowseButton) {
-            TextFieldWithBrowseButton textComponent = (TextFieldWithBrowseButton) component;
+        if (component instanceof TextFieldWithBrowseButton textComponent) {
             String stringValue = value == null ? "" : value.toString();
             textComponent.setText(stringValue);
 
-        } else if (component instanceof JTextComponent) {
-            JTextComponent textComponent = (JTextComponent) component;
+        } else if (component instanceof JTextComponent textComponent) {
             String stringValue = value == null ? "" : value.toString();
             textComponent.setText(stringValue);
 
-        } else if (component instanceof JComboBox) {
-            JComboBox comboBox = (JComboBox) component;
+        } else if (component instanceof JComboBox comboBox) {
             comboBox.setSelectedItem(value);
 
-        } else if (component instanceof JCheckBox) {
-            JCheckBox checkBox = (JCheckBox) component;
+        } else if (component instanceof JCheckBox checkBox) {
             boolean booleanValue = value  != null && (Boolean) value;
             checkBox.setSelected(booleanValue);
         }

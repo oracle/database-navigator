@@ -99,9 +99,8 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
         return new DBNFileEditorManagerListener() {
             @Override
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                if (file instanceof DBSessionBrowserVirtualFile) {
+                if (file instanceof DBSessionBrowserVirtualFile sessionBrowserFile) {
                     boolean schedule = openFiles.isEmpty();
-                    DBSessionBrowserVirtualFile sessionBrowserFile = (DBSessionBrowserVirtualFile) file;
                     openFiles.add(sessionBrowserFile);
 
                     if (schedule) {
@@ -113,8 +112,7 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
 
             @Override
             public void whenFileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                if (file instanceof DBSessionBrowserVirtualFile) {
-                    DBSessionBrowserVirtualFile sessionBrowserFile = (DBSessionBrowserVirtualFile) file;
+                if (file instanceof DBSessionBrowserVirtualFile sessionBrowserFile) {
                     openFiles.remove(sessionBrowserFile);
 
                     if (openFiles.isEmpty() && timestampUpdater != null) {

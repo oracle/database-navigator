@@ -356,8 +356,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     private @Nullable Icon getOptionIcon(T value) {
         if (value == null) return null;
         if (options.is(HIDE_ICON)) return null;
-        if (value instanceof Presentable) {
-            Presentable presentable = (Presentable) value;
+        if (value instanceof Presentable presentable) {
             return presentable.getIcon();
         }
         return null;
@@ -391,8 +390,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         String name;
         String description = null;
 
-        if (value instanceof Presentable) {
-            Presentable presentable = (Presentable) value;
+        if (value instanceof Presentable presentable) {
             name = presentable.getName();
             description = presentable.getDescription();
         } else {

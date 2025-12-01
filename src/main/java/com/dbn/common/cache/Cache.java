@@ -56,8 +56,7 @@ public class Cache {
             Map<String, ?> cache = cast(data);
             for (String key : cache.keySet()) {
                 Object value = cache.get(key);
-                if (value instanceof CacheValue) {
-                    CacheValue cacheValue = (CacheValue) value;
+                if (value instanceof CacheValue cacheValue) {
                     if (!isValid(cacheValue)) {
                         cache.remove(key);
                     }

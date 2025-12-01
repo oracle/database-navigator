@@ -65,12 +65,10 @@ public class SelectStatementGenerator extends StatementGenerator {
         Set<DBColumn> columns = new TreeSet<>(COLUMN_COMPARATOR);
 
         for (DBObject object : DBObjectRef.get(objects)) {
-            if (object instanceof DBColumn) {
-                DBColumn column = (DBColumn) object;
+            if (object instanceof DBColumn column) {
                 columns.add(column);
                 datasets.add(column.getDataset());
-            } else if (object instanceof DBDataset) {
-                DBDataset dataset = (DBDataset) object;
+            } else if (object instanceof DBDataset dataset) {
                 datasets.add(dataset);
                 columns.addAll(dataset.getColumns());
             } else {

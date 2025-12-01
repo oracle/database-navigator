@@ -36,8 +36,7 @@ public abstract class DBRunConfigFactory<T extends DBRunConfigType, C extends DB
     @Override
     public RunConfiguration createConfiguration(String name, @NotNull RunConfiguration template) {
         RunConfiguration configuration = super.createConfiguration(name, template);
-        if (template instanceof DBRunConfig) {
-            DBRunConfig templateConfig = (DBRunConfig) template;
+        if (template instanceof DBRunConfig templateConfig) {
             DBRunConfigCategory category = templateConfig.getCategory();
             if (category == DBRunConfigCategory.TEMPLATE) {
                 ((DBRunConfig)configuration).setCategory(DBRunConfigCategory.CUSTOM);

@@ -69,8 +69,7 @@ public class ScriptExecutionInputForm extends DBNFormBase {
         VirtualFile sourceFile = executionInput.getSourceFile();
         String headerTitle = sourceFile.isInLocalFileSystem() ? sourceFile.getPath() : sourceFile.getName();
         Icon headerIcon = sourceFile.getFileType().getIcon();
-        if (sourceFile instanceof DBVirtualFile) {
-            DBVirtualFile databaseVirtualFile = (DBVirtualFile) sourceFile;
+        if (sourceFile instanceof DBVirtualFile databaseVirtualFile) {
             headerIcon = databaseVirtualFile.getIcon();
         }
 

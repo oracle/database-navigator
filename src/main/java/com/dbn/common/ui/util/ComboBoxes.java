@@ -114,8 +114,7 @@ public class ComboBoxes {
         List<T> elements = getElements(comboBox);
         for (T element : elements) {
             String elementName = element.toString();
-            if (element instanceof Presentable) {
-                Presentable presentable = (Presentable) element;
+            if (element instanceof Presentable presentable) {
                 elementName = presentable.getName();
             }
 

@@ -285,8 +285,7 @@ public abstract class DBNFormBase
     public <D extends DBNDialog> D getParentDialog() {
         Disposable parent = getParentComponent();
         if (parent instanceof DBNDialog) return cast(parent);
-        if (parent instanceof DBNForm) {
-            DBNForm form = (DBNForm) parent;
+        if (parent instanceof DBNForm form) {
             return form.getParentDialog();
         }
         return null;
@@ -299,8 +298,7 @@ public abstract class DBNFormBase
         if (parent == null) return null;
         if (formClass.isAssignableFrom(parent.getClass())) return cast(parent);
 
-        if (parent instanceof DBNForm) {
-            DBNForm parentForm = (DBNForm) parent;
+        if (parent instanceof DBNForm parentForm) {
             return parentForm.getParentFrom(formClass);
         }
         return null;
@@ -359,8 +357,7 @@ public abstract class DBNFormBase
     private void disable(JComponent c) {
         if (NON_DISABLEABLE.is(c)) return;
 
-        if (c instanceof JTextComponent) {
-            JTextComponent textComponent = (JTextComponent) c;
+        if (c instanceof JTextComponent textComponent) {
             if (textComponent instanceof JEditorPane || textComponent instanceof JTextArea) {
                 if (!textComponent.isEditable()) return;
             }

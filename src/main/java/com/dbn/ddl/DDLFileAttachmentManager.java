@@ -581,8 +581,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
     }
 
     public void warmUpAttachedDDLFiles(VirtualFile file) {
-        if (file instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile objectFile = (DBEditableObjectVirtualFile) file;
+        if (file instanceof DBEditableObjectVirtualFile objectFile) {
             if (isFileOpened(objectFile.getObject())) return;
 
             List<VirtualFile> files = getAttachedDDLFiles(objectFile.getObjectRef());

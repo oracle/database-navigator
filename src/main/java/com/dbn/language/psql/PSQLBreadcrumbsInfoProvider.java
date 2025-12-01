@@ -67,8 +67,7 @@ public class PSQLBreadcrumbsInfoProvider implements BreadcrumbsProvider {
     @Nullable
     @Override
     public String getElementTooltip(@NotNull PsiElement element) {
-        if (element instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) element;
+        if (element instanceof BasePsiElement basePsiElement) {
             return basePsiElement.elementType.getDescription();
         }
         return null;
@@ -78,8 +77,7 @@ public class PSQLBreadcrumbsInfoProvider implements BreadcrumbsProvider {
     @Override
     public PsiElement getParent(@NotNull PsiElement element) {
         PsiElement parent = element.getParent();
-        if (parent instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) parent;
+        if (parent instanceof BasePsiElement basePsiElement) {
             return basePsiElement.getEnclosingScopeElement();
         }
         return null;
@@ -93,8 +91,7 @@ public class PSQLBreadcrumbsInfoProvider implements BreadcrumbsProvider {
 
     @Nullable
     private IdentifierPsiElement getBreadcrumbIdentifier(@NotNull PsiElement psiElement) {
-        if (psiElement instanceof NamedPsiElement) {
-            NamedPsiElement namedPsiElement = (NamedPsiElement) psiElement;
+        if (psiElement instanceof NamedPsiElement namedPsiElement) {
             boolean isObject =
                     namedPsiElement.is(ElementTypeAttribute.OBJECT_DEFINITION) ||
                     namedPsiElement.is(ElementTypeAttribute.OBJECT_DECLARATION) ||
@@ -102,8 +99,7 @@ public class PSQLBreadcrumbsInfoProvider implements BreadcrumbsProvider {
 
             if (isObject) {
                 BasePsiElement subject = namedPsiElement.findFirstPsiElement(ElementTypeAttribute.SUBJECT);
-                if (subject instanceof IdentifierPsiElement) {
-                    IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) subject;
+                if (subject instanceof IdentifierPsiElement identifierPsiElement) {
                     DBObjectType objectType = identifierPsiElement.getObjectType();
                     if (objectType.matchesOneOf(
                             DBObjectType.METHOD,

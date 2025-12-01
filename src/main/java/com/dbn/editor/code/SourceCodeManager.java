@@ -174,8 +174,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         return new EnvironmentManagerListener() {
             @Override
             public void editModeChanged(Project project, DBContentVirtualFile databaseContentFile) {
-                if (databaseContentFile instanceof DBSourceCodeVirtualFile) {
-                    DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) databaseContentFile;
+                if (databaseContentFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
                     if (sourceCodeFile.isModified()) {
                         loadSourceCode(sourceCodeFile, true);
                     }
@@ -190,8 +189,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             @Override
             public void whenSelectionChanged(@NotNull FileEditorManagerEvent event) {
                 FileEditor newEditor = event.getNewEditor();
-                if (newEditor instanceof SourceCodeEditor) {
-                    SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) newEditor;
+                if (newEditor instanceof SourceCodeEditor sourceCodeEditor) {
                     DBEditableObjectVirtualFile databaseFile = sourceCodeEditor.getVirtualFile().getMainDatabaseFile();
                     for (DBSourceCodeVirtualFile sourceCodeFile : databaseFile.getSourceCodeFiles()) {
                         if (!sourceCodeFile.isLoaded()) {
@@ -689,8 +687,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         DBEditableObjectVirtualFile editableObjectFile = parentObject.getEditableVirtualFile();
         DBLanguagePsiFile psiFile = basePsiElement.getFile();
         VirtualFile elementVirtualFile = psiFile.getVirtualFile();
-        if (elementVirtualFile instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) elementVirtualFile;
+        if (elementVirtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             BasicTextEditor textEditor = Editors.getTextEditor(sourceCodeFile);
             if (textEditor != null) {
                 Project project = getProject();
@@ -707,8 +704,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         VirtualFile[] openFiles = getOpenFiles(project);
 
         for (VirtualFile openFile : openFiles) {
-            if (openFile instanceof DBEditableObjectVirtualFile) {
-                DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) openFile;
+            if (openFile instanceof DBEditableObjectVirtualFile databaseFile) {
                 if (!databaseFile.isModified()) continue;
                 if (databaseFile.isSaving()) continue;
 

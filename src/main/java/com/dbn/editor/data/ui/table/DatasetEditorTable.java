@@ -298,8 +298,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         Component component = super.prepareEditor(editor, rowIndex, columnIndex);
         selectCell(rowIndex, columnIndex);
 
-        if (editor instanceof DatasetTableCellEditor) {
-            DatasetTableCellEditor cellEditor = (DatasetTableCellEditor) editor;
+        if (editor instanceof DatasetTableCellEditor cellEditor) {
             int modelRowIndex = convertRowIndexToModel(rowIndex);
             int modelColumnIndex = convertColumnIndexToModel(columnIndex);
             DatasetEditorModelCell cell = (DatasetEditorModelCell) getCellAtPosition(modelRowIndex, modelColumnIndex);
@@ -356,9 +355,8 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
     @Override
     public String getToolTipText(@NotNull MouseEvent e) {
         DataModelCell cell = getCellAtLocation(e.getPoint());
-        if (cell instanceof DatasetEditorModelCell) {
-            DatasetEditorModelCell editorTableCell = (DatasetEditorModelCell) cell;
-/*            if (event.isControlDown() && isNavigableCellAtMousePosition()) {
+        if (cell instanceof DatasetEditorModelCell editorTableCell) {
+            /*            if (event.isControlDown() && isNavigableCellAtMousePosition()) {
                 DBColumn column = editorTableCell.getColumnInfo().getColumn();
                 DBColumn foreignKeyColumn = column.getForeignKeyColumn();
                 if (foreignKeyColumn != null) {
@@ -394,8 +392,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                 Object userValue = editorTableCell.getUserValue();
                 if (userValue instanceof ArrayValue) {
                     return "ARRAY value has changed";
-                } else  if (userValue instanceof LargeObjectValue) {
-                    LargeObjectValue largeObjectValue = (LargeObjectValue) userValue;
+                } else  if (userValue instanceof LargeObjectValue largeObjectValue) {
                     return largeObjectValue.getGenericDataType() + " content has changed";
                 } else {
                     return "<html>Original value: <b>" + editorTableCell.getOriginalUserValue() + "</b></html>";

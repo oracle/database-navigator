@@ -57,15 +57,13 @@ public class CodeCompletionLookupConsumer implements CancellableConsumer<Object>
             checkCancelled();
             LookupItemBuilder lookupItemBuilder = null;
             DBLanguage language = context.getLanguage();
-            if (object instanceof DBObject) {
-                DBObject dbObject = (DBObject) object;
+            if (object instanceof DBObject dbObject) {
                 lookupItemBuilder = dbObject.getLookupItemBuilder(language);
-            } else if (object instanceof DBObjectPsiElement) {
-                DBObjectPsiElement objectPsiElement = (DBObjectPsiElement) object;
+
+            } else if (object instanceof DBObjectPsiElement objectPsiElement) {
                 lookupItemBuilder = objectPsiElement.ensureObject().getLookupItemBuilder(language);
 
-            } else if (object instanceof TokenElementType) {
-                TokenElementType tokenElementType = (TokenElementType) object;
+            } else if (object instanceof TokenElementType tokenElementType) {
                 String text = tokenElementType.getText();
                 if (Strings.isNotEmpty(text)) {
                     lookupItemBuilder = tokenElementType.getLookupItemBuilder(language);
@@ -85,8 +83,7 @@ public class CodeCompletionLookupConsumer implements CancellableConsumer<Object>
                         lookupItemBuilder = tokenElementType.getLookupItemBuilder(language);
                     }
                 }
-            } else if (object instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) object;
+            } else if (object instanceof IdentifierPsiElement identifierPsiElement) {
                 if (identifierPsiElement.isValid()) {
                     CharSequence chars = identifierPsiElement.getChars();
                     IdentifierType identifierType = identifierPsiElement.getIdentifierType();

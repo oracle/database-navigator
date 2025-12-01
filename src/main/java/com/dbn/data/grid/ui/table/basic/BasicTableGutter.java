@@ -41,13 +41,11 @@ public class BasicTableGutter<T extends BasicTable> extends DBNTableGutter<T> {
         table.getSelectionModel().addListSelectionListener(tableSelectionListener);
         table.addPropertyChangeListener(e -> {
             Object newProperty = e.getNewValue();
-            if (newProperty instanceof Font) {
-                Font font = (Font) newProperty;
+            if (newProperty instanceof Font font) {
                 setFont(font);
                 setFixedCellHeight(table.getRowHeight());
                 ListCellRenderer cellRenderer = getCellRenderer();
-                if (cellRenderer instanceof Component) {
-                    Component component = (Component) cellRenderer;
+                if (cellRenderer instanceof Component component) {
                     component.setFont(font);
                 }
             } else if (Objects.equals(e.getPropertyName(), "rowHeight")) {

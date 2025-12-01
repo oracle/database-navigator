@@ -144,8 +144,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
             Object userValue = userValueHolder.getUserValue();
             if (userValue instanceof String) {
                 text = (String) userValue;
-            } else if (userValue instanceof LargeObjectValue) {
-                LargeObjectValue largeObjectValue = (LargeObjectValue) userValue;
+            } else if (userValue instanceof LargeObjectValue largeObjectValue) {
                 try {
                     text = Commons.nvl(largeObjectValue.read(), "");
                 } catch (SQLException e) {

@@ -188,10 +188,9 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 	@Override
 	public void loadValues(JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
-		if (preparedStatement instanceof CallableStatement) {
+		if (preparedStatement instanceof CallableStatement callableStatement) {
 			int outputIndex = getArgumentsCount() + 1;
-			CallableStatement callableStatement = (CallableStatement) preparedStatement;
-			Object result = getResult(callableStatement, outputIndex);
+            Object result = getResult(callableStatement, outputIndex);
 			executionResult.addArgumentValue("return", result);
 		}
 	}

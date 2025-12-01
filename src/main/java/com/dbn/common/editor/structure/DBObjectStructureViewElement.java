@@ -100,8 +100,7 @@ public abstract class DBObjectStructureViewElement<T extends DBObject> implement
 
     @Override
     public int compareTo(@NotNull Object o) {
-        if (o instanceof DBObject) {
-            DBObject remote = (DBObject) o;
+        if (o instanceof DBObject remote) {
             return object.compareTo(remote);
         }
         return 0;

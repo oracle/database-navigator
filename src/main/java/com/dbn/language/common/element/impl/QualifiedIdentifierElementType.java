@@ -47,8 +47,7 @@ public final class QualifiedIdentifierElementType extends ElementTypeBase {
             List<LeafElementType[]> childVariants = createVariants(child);
             for (LeafElementType[] childVariant : childVariants) {
                 for (LeafElementType leafElementType : childVariant) {
-                    if (leafElementType instanceof IdentifierElementType) {
-                        IdentifierElementType identifierElementType = (IdentifierElementType) leafElementType;
+                    if (leafElementType instanceof IdentifierElementType identifierElementType) {
                         objectTypeCache.add(identifierElementType.getObjectType());
                     }
                 }

@@ -48,8 +48,7 @@ public class NamedPsiElement extends SequencePsiElement<NamedElementType> {
     public boolean hasErrors() {
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof BasePsiElement && !(child instanceof NamedPsiElement)) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            if (child instanceof BasePsiElement basePsiElement && !(child instanceof NamedPsiElement)) {
                 if (basePsiElement.hasErrors()) {
                     return true;
                 }
@@ -78,8 +77,7 @@ public class NamedPsiElement extends SequencePsiElement<NamedElementType> {
     @Override
     public String getPresentableText() {
         BasePsiElement subject = findFirstPsiElement(ElementTypeAttribute.SUBJECT);
-        if (subject instanceof IdentifierPsiElement && subject.getParent() == this) {
-            IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) subject;
+        if (subject instanceof IdentifierPsiElement identifierPsiElement && subject.getParent() == this) {
             if (identifierPsiElement.isObject()) {
                 return identifierPsiElement.getText();
             }
@@ -113,14 +111,12 @@ public class NamedPsiElement extends SequencePsiElement<NamedElementType> {
         if (subject == null) return null;
         if (subject.getParent() != this) return null;
 
-        if (subject instanceof IdentifierPsiElement) {
-            IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) subject;
+        if (subject instanceof IdentifierPsiElement identifierPsiElement) {
             if (!identifierPsiElement.isObject()) return null;
             if (!identifierPsiElement.isValid()) return null;
 
             VirtualFile file = PsiUtil.getVirtualFileForElement(identifierPsiElement);
-            if (file instanceof DBSourceCodeVirtualFile) {
-                DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) file;
+            if (file instanceof DBSourceCodeVirtualFile sourceCodeFile) {
                 return identifierPsiElement.getObjectType().getIcon(sourceCodeFile.getContentType());
             }
             return identifierPsiElement.getObjectType().getIcon();

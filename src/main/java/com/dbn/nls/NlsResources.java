@@ -83,19 +83,15 @@ public class NlsResources extends DynamicBundle{
     private static void adjustParams(Object ... params) {
         if (params == null || params.length == 0) return;
         for (int i = 0; i < params.length; i++) {
-            if (params[i] instanceof Exception) {
-                Exception exception = (Exception) params[i];
+            if (params[i] instanceof Exception exception) {
                 params[i] = nvl(
                         exception.getLocalizedMessage(),
                         exception.getClass().getSimpleName());
-            } else if (params[i] instanceof Named) {
-                Named named = (Named) params[i];
+            } else if (params[i] instanceof Named named) {
                 params[i] = named.getName();
-            } else if (params[i] instanceof File) {
-                File file = (File) params[i];
+            } else if (params[i] instanceof File file) {
                 params[i] = file.getPath();
-            } else if (params[i] instanceof VirtualFile) {
-                VirtualFile file = (VirtualFile) params[i];
+            } else if (params[i] instanceof VirtualFile file) {
                 params[i] = file.getPath();
             }
         }

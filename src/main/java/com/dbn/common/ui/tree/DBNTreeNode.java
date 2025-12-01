@@ -32,8 +32,7 @@ public class DBNTreeNode extends DefaultMutableTreeNode {
         if (children.isEmpty()) return;
 
         for (TreeNode child : children) {
-            if (child instanceof DBNTreeNode) {
-                DBNTreeNode treeNode = (DBNTreeNode) child;
+            if (child instanceof DBNTreeNode treeNode) {
                 treeNode.detach();
             }
         }

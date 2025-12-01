@@ -152,8 +152,7 @@ public class FileConnectionContextRegistry extends StatefulDisposableBase implem
     private <T> T resolveMappingProvider(@NotNull VirtualFile file, Function<DBVirtualFile, T> handler) {
         if (!isDatabaseFileSystem(file)) return null;
 
-        if (file instanceof DBVirtualFile) {
-            DBVirtualFile databaseFile = (DBVirtualFile) file;
+        if (file instanceof DBVirtualFile databaseFile) {
             return handler.apply(databaseFile);
         }
         return null;
@@ -195,8 +194,7 @@ public class FileConnectionContextRegistry extends StatefulDisposableBase implem
     private FileConnectionContext getFileConnectionContext(VirtualFile file, boolean ensure) {
         file = VirtualFiles.getUnderlyingFile(file);
 
-        if (file instanceof FileConnectionContextProvider) {
-            FileConnectionContextProvider mappingProvider = (FileConnectionContextProvider) file;
+        if (file instanceof FileConnectionContextProvider mappingProvider) {
             return mappingProvider.getConnectionContext();
         }
 

@@ -81,13 +81,11 @@ public class MessageBundleItemForm extends DBNFormBase {
 
     @Nullable
     private String getMessageTitle() {
-        if (message instanceof Titled) {
-            Titled titled = (Titled) message;
+        if (message instanceof Titled titled) {
             return titled.getTitle();
         }
 
-        if (message instanceof TaggedMessage) {
-            TaggedMessage taggedMessage = (TaggedMessage) message;
+        if (message instanceof TaggedMessage taggedMessage) {
             Object subject = taggedMessage.getSubject();
             return presentableName(subject);
         }

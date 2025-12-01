@@ -50,7 +50,7 @@ import static com.dbn.common.util.Strings.cachedUpperCase;
 public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<DatabaseBrowserSortingSettings> {
     private JPanel mainPanel;
     private JBScrollPane sortingTypesScrollPanel;
-    private JTable sortingTypeTable;
+    private final JTable sortingTypeTable;
 
     public DatabaseBrowserSortingSettingsForm(DatabaseBrowserSortingSettings settings) {
         super(settings);
@@ -185,8 +185,7 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
         @Override
         public void setValueAt(Object value, int rowIndex, int columnIndex) {
             if (columnIndex != 1) return;
-            if (value instanceof SortingType) {
-                SortingType sortingType = (SortingType) value;
+            if (value instanceof SortingType sortingType) {
                 DBObjectComparator comparator = comparators.remove(rowIndex);
                 comparators.add(rowIndex, DBObjectComparators.predefined(comparator.getObjectType(), sortingType));
             }

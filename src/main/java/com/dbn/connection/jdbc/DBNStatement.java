@@ -143,8 +143,7 @@ public class DBNStatement<T extends Statement> extends DBNResource<T> implements
     }
 
     protected Object wrap(Object object) {
-        if (object instanceof ResultSet) {
-            ResultSet resultSet = (ResultSet) object;
+        if (object instanceof ResultSet resultSet) {
             return new DBNResultSet(resultSet, ensureConnection());
         }
         return object;

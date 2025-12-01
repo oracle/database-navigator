@@ -56,8 +56,7 @@ public abstract class DBNResource<T> extends ResourceStatusHolder implements Res
         this.resourceType = type;
         this.connectionId = connectionId;
 
-        if (this instanceof CloseableResource) {
-            CloseableResource closeable = (CloseableResource) this;
+        if (this instanceof CloseableResource closeable) {
             closed = new ResourceStatusAdapterImpl<>(closeable,
                     ResourceStatus.CLOSED,
                     ResourceStatus.CHANGING_CLOSED,
@@ -78,8 +77,7 @@ public abstract class DBNResource<T> extends ResourceStatusHolder implements Res
             };
         }
 
-        if (this instanceof CancellableResource) {
-            CancellableResource cancellable = (CancellableResource) this;
+        if (this instanceof CancellableResource cancellable) {
             cancelled = new ResourceStatusAdapterImpl<>(cancellable,
                     ResourceStatus.CANCELLED,
                     ResourceStatus.CHANGING_CANCELLED,
@@ -119,7 +117,7 @@ public abstract class DBNResource<T> extends ResourceStatusHolder implements Res
         // Changes here have to ensure obscurity of the contents of this resource.
         String string = resourceType + " (" + resourceId + ")";
         String suffix = super.toString();
-        return Strings.isEmpty(suffix) ? string : string + " - " + suffix + "";
+        return Strings.isEmpty(suffix) ? string : string + " - " + suffix;
     }
 
     @Override

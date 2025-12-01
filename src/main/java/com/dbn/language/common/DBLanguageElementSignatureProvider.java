@@ -35,8 +35,7 @@ public class DBLanguageElementSignatureProvider implements ElementSignatureProvi
         if (psiElement.getContainingFile() instanceof DBLanguagePsiFile) {
             TextRange textRange = psiElement.getTextRange();
             String offsets = textRange.getStartOffset() + "#" + textRange.getEndOffset();
-            if (psiElement instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+            if (psiElement instanceof BasePsiElement basePsiElement) {
                 return basePsiElement.elementType.getId() + "#" + offsets;
             }
 
@@ -78,8 +77,7 @@ public class DBLanguageElementSignatureProvider implements ElementSignatureProvi
                     if (elementStartOffset < startOffset || elementEndOffset > endOffset) {
                         break;
                     }
-                    if (psiElement instanceof BasePsiElement) {
-                        BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+                    if (psiElement instanceof BasePsiElement basePsiElement) {
                         if (Objects.equals(basePsiElement.elementType.getId(), id) &&
                                 elementStartOffset == startOffset &&
                                 elementEndOffset == endOffset) {

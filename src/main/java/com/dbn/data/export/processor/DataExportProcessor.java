@@ -129,16 +129,13 @@ public abstract class DataExportProcessor {
 
     protected static String formatValue(Formatter formatter, Object value) throws DataExportException {
         if (value != null) {
-            if (value instanceof Number) {
-                Number number = (Number) value;
+            if (value instanceof Number number) {
                 return formatter.formatNumber(number);
-            } else if (value instanceof Date) {
-                Date date = (Date) value;
+            } else if (value instanceof Date date) {
                 return hasTimeComponent(date) ?
                         formatter.formatDateTime(date) :
                         formatter.formatDate(date);
-            } else if (value instanceof ValueAdapter){
-                ValueAdapter valueAdapter = (ValueAdapter) value;
+            } else if (value instanceof ValueAdapter valueAdapter){
                 try {
                     return Commons.nvl(valueAdapter.export(), "");
                 } catch (SQLException e) {

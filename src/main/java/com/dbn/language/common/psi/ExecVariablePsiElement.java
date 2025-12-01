@@ -96,8 +96,7 @@ public class ExecVariablePsiElement extends LeafPsiElement<ExecVariableElementTy
 
     @Override
     public boolean matches(BasePsiElement basePsiElement, MatchType matchType) {
-        if (basePsiElement instanceof ExecVariablePsiElement) {
-            ExecVariablePsiElement execVariablePsiElement = (ExecVariablePsiElement) basePsiElement;
+        if (basePsiElement instanceof ExecVariablePsiElement execVariablePsiElement) {
             return matchType == MatchType.SOFT || Strings.equalsIgnoreCase(execVariablePsiElement.getChars(), getChars());
         }
         return false;

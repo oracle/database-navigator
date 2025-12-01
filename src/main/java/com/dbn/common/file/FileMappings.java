@@ -82,18 +82,15 @@ public class FileMappings<T> implements Disposable {
         if (!isLocalFileSystem(file)) return;
 
         T target = null;
-        if (event instanceof VFileDeleteEvent) {
-            VFileDeleteEvent deleteEvent = (VFileDeleteEvent) event;
+        if (event instanceof VFileDeleteEvent deleteEvent) {
             target = remove(deleteEvent.getFile().getUrl());
 
-        } else if (event instanceof VFileMoveEvent) {
-            VFileMoveEvent moveEvent = (VFileMoveEvent) event;
+        } else if (event instanceof VFileMoveEvent moveEvent) {
             target = updateMapping(file,
                     moveEvent.getOldPath(),
                     moveEvent.getNewPath());
 
-        } else if (event instanceof VFilePropertyChangeEvent) {
-            VFilePropertyChangeEvent propertyChangeEvent = (VFilePropertyChangeEvent) event;
+        } else if (event instanceof VFilePropertyChangeEvent propertyChangeEvent) {
             target = updateMapping(file,
                     propertyChangeEvent.getOldPath(),
                     propertyChangeEvent.getNewPath());

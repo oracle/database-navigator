@@ -127,8 +127,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
     private boolean ignoreFirstMatch() {
         ElementTypeRef firstChild = elementType.children[0];
         ElementType elementType = firstChild.elementType;
-        if (elementType instanceof IdentifierElementType) {
-            IdentifierElementType identifierElementType = (IdentifierElementType) elementType;
+        if (elementType instanceof IdentifierElementType identifierElementType) {
             return !identifierElementType.isDefinition();
         }
         return false;
@@ -178,13 +177,11 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
             ParserNode parseNode = node;
             while (parseNode != null) {
                 ElementType elementType = parseNode.element;
-                if (elementType instanceof SequenceElementType) {
-                    SequenceElementType sequenceElementType = (SequenceElementType) elementType;
+                if (elementType instanceof SequenceElementType sequenceElementType) {
                     if ( sequenceElementType.containsLandmarkTokenFromIndex(tokenType, parseNode.cursorPosition + 1)) {
                         return -1;
                     }
-                } else  if (elementType instanceof IterationElementType) {
-                    IterationElementType iterationElementType = (IterationElementType) elementType;
+                } else  if (elementType instanceof IterationElementType iterationElementType) {
                     if (iterationElementType.isSeparator(tokenType)) {
                         return -1;
                     }

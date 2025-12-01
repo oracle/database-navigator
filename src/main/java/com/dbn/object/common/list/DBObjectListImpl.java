@@ -191,8 +191,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
         while(parent != null) {
             builder.prepend('.');
             builder.prepend(parent.getName());
-            if (parent instanceof DBObject) {
-                DBObject object = (DBObject) parent;
+            if (parent instanceof DBObject object) {
                 parent = object.getParent();
             } else {
                 parent = parent.getParentEntity();
@@ -347,8 +346,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
     @Override
     public @Nullable SchemaId getSchemaId() {
         BrowserTreeNode parent = getParent();
-        if (parent instanceof DBObject) {
-            DBObject object = (DBObject) parent;
+        if (parent instanceof DBObject object) {
             return object.getSchemaId();
         }
 
@@ -358,8 +356,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
     @Override
     public @Nullable DBSchema getSchema() {
         BrowserTreeNode parent = getParent();
-        if (parent instanceof DBObject) {
-            DBObject object = (DBObject) parent;
+        if (parent instanceof DBObject object) {
             return object.getSchema();
         }
         return null;
@@ -401,8 +398,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
         String contentName = getName();
         String connectionName = getConnection().getName();
 
-        if (parent instanceof DBObject) {
-            DBObject object = (DBObject) parent;
+        if (parent instanceof DBObject object) {
             return txt("app.object.label.SubContentDescription",
                     contentName, object.getQualifiedNameWithType(),
                     connectionName);

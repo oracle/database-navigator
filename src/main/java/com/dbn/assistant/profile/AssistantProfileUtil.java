@@ -34,15 +34,13 @@ public class AssistantProfileUtil {
             return;
         }
 
-        if (profile instanceof ImplicitAssistantProfile) {
-            ImplicitAssistantProfile implicitProfile = (ImplicitAssistantProfile) profile;
+        if (profile instanceof ImplicitAssistantProfile implicitProfile) {
             AssistantCredential credential = implicitProfile.getCredential();
             verifyAssistantCredential(project, profile, credential, callback);
             return;
         }
 
-        if (profile instanceof DeclaredAssistantProfile) {
-            DeclaredAssistantProfile declaredProfile = (DeclaredAssistantProfile) profile;
+        if (profile instanceof DeclaredAssistantProfile declaredProfile) {
             String credentialId = declaredProfile.getCredentialId();
             AssistantCredential credential = getCredential(project, credentialId);
 

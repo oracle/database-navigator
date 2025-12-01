@@ -128,8 +128,7 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
         Project project = getProject();
         Background.run(() ->
                 entities.forEach(n -> {
-                    if (n instanceof BrowserTreeNode) {
-                        BrowserTreeNode node = (BrowserTreeNode) n;
+                    if (n instanceof BrowserTreeNode node) {
                         ProjectEvents.notify(project, BrowserTreeEventListener.TOPIC,
                                 listener -> listener.nodeChanged(node, TreeEventType.NODES_CHANGED));
                     }

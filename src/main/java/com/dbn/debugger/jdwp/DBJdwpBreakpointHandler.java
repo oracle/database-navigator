@@ -202,8 +202,7 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
     private void registerLineBreakpoints(@NotNull List<XLineBreakpoint<XBreakpointProperties>> breakpoints) {
         for (var breakpoint : breakpoints) {
             XBreakpointProperties properties = breakpoint.getProperties();
-            if (properties instanceof DBBreakpointProperties) {
-                DBBreakpointProperties breakpointProperties = (DBBreakpointProperties) properties;
+            if (properties instanceof DBBreakpointProperties breakpointProperties) {
                 if (breakpointProperties.getConnection() == getConnection()) {
                     prepareObjectClasses(breakpoint);
                 }

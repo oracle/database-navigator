@@ -50,8 +50,7 @@ public final class DBObjectDelegate extends DBObjectDelegateBase implements Stat
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof DBObjectDelegate) {
-            DBObjectDelegate that = (DBObjectDelegate) o;
+        if (o instanceof DBObjectDelegate that) {
 
             if (this.isDisposed()) return false;
             if (that.isDisposed()) return false;

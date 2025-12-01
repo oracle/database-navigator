@@ -84,8 +84,7 @@ public class SessionBrowserModel extends ResultSetDataModel<SessionBrowserModelR
     @Override
     public void setState(DataModelState state) {
         super.setState(state);
-        if (state instanceof SessionBrowserState) {
-            SessionBrowserState sessionBrowserState = (SessionBrowserState) state;
+        if (state instanceof SessionBrowserState sessionBrowserState) {
             setFilter(sessionBrowserState.getFilterState());
         }
         sort();

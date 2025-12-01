@@ -62,9 +62,8 @@ public class DBJdwpNodeRenderer extends NodeRendererImpl {
 
     @Override
     public void buildChildren(Value value, ChildrenBuilder builder, EvaluationContext evaluationContext) {
-        if (value instanceof ObjectReference) {
+        if (value instanceof ObjectReference objectReference) {
             List<DebuggerTreeNode> nodes = new ArrayList<>();
-            ObjectReference objectReference = (ObjectReference) value;
 
             List<Field> fields = getFields(value);
             for (Field field : fields) {
@@ -79,8 +78,7 @@ public class DBJdwpNodeRenderer extends NodeRendererImpl {
     @NotNull
     private List<Field> getFields(Value value) {
         Type type = value.type();
-        if (type instanceof ReferenceType) {
-            ReferenceType referenceType = (ReferenceType) type;
+        if (type instanceof ReferenceType referenceType) {
             return referenceType.fields();
         }
         return Collections.emptyList();
@@ -149,8 +147,7 @@ public class DBJdwpNodeRenderer extends NodeRendererImpl {
     @Override
     public Icon calcValueIcon(ValueDescriptor descriptor, EvaluationContext evaluationContext, DescriptorLabelListener listener) throws EvaluateException {
         boolean isArgument = false;
-        if (descriptor instanceof LocalVariableDescriptorImpl) {
-            LocalVariableDescriptorImpl localVariableDescriptor = (LocalVariableDescriptorImpl) descriptor;
+        if (descriptor instanceof LocalVariableDescriptorImpl localVariableDescriptor) {
 
             try {
                 if (localVariableDescriptor.getLocalVariable().getType().name().endsWith("REFCURSOR")) {
@@ -195,8 +192,7 @@ public class DBJdwpNodeRenderer extends NodeRendererImpl {
     public String calcIdLabel(ValueDescriptor descriptor, DebugProcess process, DescriptorLabelListener labelListener) {
         String label = null; // super.calcIdLabel(descriptor, process, labelListener);
         Value value = descriptor.getValue();
-        if (value instanceof ObjectReference && isShowType()) {
-            ObjectReference objectReference = (ObjectReference) value;
+        if (value instanceof ObjectReference objectReference && isShowType()) {
             label = ValueDescriptorImpl.getIdLabel(objectReference);
         }
 

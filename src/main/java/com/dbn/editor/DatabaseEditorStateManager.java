@@ -109,27 +109,23 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
 
 
                 FileEditor oldEditor = event.getOldEditor();
-                if (oldEditor instanceof SourceCodeEditor) {
-                    SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) oldEditor;
+                if (oldEditor instanceof SourceCodeEditor sourceCodeEditor) {
                     oldObject = sourceCodeEditor.getObject();
-                } else if (oldEditor instanceof DatasetEditor) {
-                    DatasetEditor datasetEditor = (DatasetEditor) oldEditor;
+                } else if (oldEditor instanceof DatasetEditor datasetEditor) {
                     oldObject = datasetEditor.getDataset();
                 }
 
                 FileEditor newEditor = event.getNewEditor();
 
-                if (newEditor instanceof SourceCodeEditor) {
-                    SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) newEditor;
+                if (newEditor instanceof SourceCodeEditor sourceCodeEditor) {
                     editorProviderId = sourceCodeEditor.getEditorProviderId();
                     newObject = sourceCodeEditor.getObject();
-                } else if (newEditor instanceof DatasetEditor) {
-                    DatasetEditor datasetEditor = (DatasetEditor) newEditor;
+                } else if (newEditor instanceof DatasetEditor datasetEditor) {
                     newObject = datasetEditor.getDataset();
                     editorProviderId = EditorProviderId.DATA;
                 }
 
-                if (editorProviderId != null && oldObject != null && newObject != null && newObject.equals(oldObject)) {
+                if (editorProviderId != null && newObject != null && newObject.equals(oldObject)) {
                     DBObjectType objectType = newObject.getObjectType();
                     lastUsedEditorProviders.put(objectType, editorProviderId);
                 }
@@ -145,8 +141,7 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
                 VirtualFile[] openFiles = getOpenFiles(project);
                 for (VirtualFile virtualFile : openFiles) {
-                    if (virtualFile instanceof DBEditableObjectVirtualFile) {
-                        DBEditableObjectVirtualFile editableDatabaseFile = (DBEditableObjectVirtualFile) virtualFile;
+                    if (virtualFile instanceof DBEditableObjectVirtualFile editableDatabaseFile) {
                         if (editableDatabaseFile.isContentLoaded()) {
                             List<DBContentVirtualFile> contentFiles = editableDatabaseFile.getContentFiles();
                             for (DBContentVirtualFile contentFile : contentFiles) {

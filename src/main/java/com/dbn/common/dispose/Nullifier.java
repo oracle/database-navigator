@@ -121,11 +121,9 @@ public final class Nullifier {
         if (fieldValue instanceof Collection<?>) {
             Collection collection = (Collection) fieldValue;
             clearCollection(collection);
-        } else if (fieldValue instanceof Map) {
-            Map map = (Map) fieldValue;
+        } else if (fieldValue instanceof Map map) {
             clearMap(map);
-        } else if (fieldValue instanceof Latent){
-            Latent latent = (Latent) fieldValue;
+        } else if (fieldValue instanceof Latent latent){
             latent.reset();
             nullify(latent);
         } else {

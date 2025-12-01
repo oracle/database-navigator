@@ -58,8 +58,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
     public boolean supports(DatabaseContext context) {
         if (!super.supports(context)) return false;
 
-        if (context instanceof ConnectionHandler) {
-            ConnectionHandler connection = (ConnectionHandler) context;
+        if (context instanceof ConnectionHandler connection) {
             return !connection.isVirtual();
         }
         return false;

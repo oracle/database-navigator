@@ -175,8 +175,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
         FileTypeManager fileTypeManager = FileTypeManager.getInstance();
         List<FileNameMatcher> associations = fileTypeManager.getAssociations(fileType);
         for (FileNameMatcher association : associations) {
-            if (association instanceof ExtensionFileNameMatcher) {
-                ExtensionFileNameMatcher matcher = (ExtensionFileNameMatcher) association;
+            if (association instanceof ExtensionFileNameMatcher matcher) {
                 bucket.add(matcher.getExtension());
             }
         }

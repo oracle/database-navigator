@@ -112,8 +112,7 @@ public class JavaExecutionBrowserForm extends DBNFormBase {
 
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
         Object userObject = node.getUserObject();
-        if (userObject instanceof DBObjectRef) {
-            DBObjectRef<?> objectRef = (DBObjectRef<?>) userObject;
+        if (userObject instanceof DBObjectRef<?> objectRef) {
             DBObject object = DBObjectRef.get(objectRef);
             if (object instanceof DBJavaMethod) {
                 return (DBJavaMethod) object;

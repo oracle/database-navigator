@@ -98,8 +98,7 @@ public class MessagesTree extends DBNTree implements Disposable {
             TreePath treePath = getPathForRow(i);
             if (!isRowSelected(i)) {
                 Object lastPathComponent = treePath.getLastPathComponent();
-                if (lastPathComponent instanceof MessagesTreeLeafNode) {
-                    MessagesTreeLeafNode node = (MessagesTreeLeafNode) lastPathComponent;
+                if (lastPathComponent instanceof MessagesTreeLeafNode node) {
                     if (!node.isDisposed() && node.getMessage().isNew()) {
                         Rectangle r = getRowBounds(i);
                         g.setColor(MessagesTreeCellRenderer.HIGHLIGHT_BACKGROUND);
@@ -129,12 +128,10 @@ public class MessagesTree extends DBNTree implements Disposable {
     public String getToolTipText(MouseEvent event) {
         Object object = getTreeNode(event);
         if (object == null) return null;
-        if (!(object instanceof MessagesTreeLeafNode)) return null;
+        if (!(object instanceof MessagesTreeLeafNode node)) return null;
 
-        MessagesTreeLeafNode node = (MessagesTreeLeafNode) object;
         ConsoleMessage message = node.getMessage();
-        if (message instanceof StatementExecutionMessage) {
-            StatementExecutionMessage statementExecutionMessage = (StatementExecutionMessage) message;
+        if (message instanceof StatementExecutionMessage statementExecutionMessage) {
             DatabaseMessage databaseMessage = statementExecutionMessage.getDatabaseMessage();
             if (databaseMessage == null) return null;
             return databaseMessage.getTooltip();
@@ -224,8 +221,7 @@ public class MessagesTree extends DBNTree implements Disposable {
 */
 
     private void navigateToCode(Object object, NavigationInstructions instructions) {
-        if (object instanceof StatementExecutionMessageNode) {
-            StatementExecutionMessageNode execMessageNode = (StatementExecutionMessageNode) object;
+        if (object instanceof StatementExecutionMessageNode execMessageNode) {
             StatementExecutionMessage executionMessage = execMessageNode.getMessage();
             if (!executionMessage.isOrphan()) {
                 StatementExecutionResult executionResult = executionMessage.getExecutionResult();
@@ -244,8 +240,7 @@ public class MessagesTree extends DBNTree implements Disposable {
                 cachedExecutable.navigateInEditor(fileEditor, instructions);
             }
         }
-        else if (object instanceof CompilerMessageNode) {
-            CompilerMessageNode compilerMessageNode = (CompilerMessageNode) object;
+        else if (object instanceof CompilerMessageNode compilerMessageNode) {
             CompilerMessage compilerMessage = compilerMessageNode.getMessage();
 
             CompilerAction compilerAction = compilerMessage.getCompilerResult().getCompilerAction();
@@ -256,8 +251,7 @@ public class MessagesTree extends DBNTree implements Disposable {
                 navigateInObjectEditor(compilerMessage, instructions);
             } else if (compilerAction.isDDL()) {
                 VirtualFile virtualFile = compilerAction.getVirtualFile();
-                if (virtualFile instanceof DBConsoleVirtualFile) {
-                    DBConsoleVirtualFile consoleVirtualFile = (DBConsoleVirtualFile) virtualFile;
+                if (virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile) {
                     navigateInConsoleEditor(compilerMessage, consoleVirtualFile, instructions);
                 } else if (virtualFile != null) {
                     navigateInScriptEditor(compilerMessage, virtualFile, instructions);
@@ -337,8 +331,7 @@ public class MessagesTree extends DBNTree implements Disposable {
             Project project = ensureProject();
             objectFileEditor = Editors.selectEditor(project, objectFileEditor, databaseFile, editorProviderId, instructions);
 
-            if (objectFileEditor instanceof SourceCodeEditor) {
-                SourceCodeEditor codeEditor = (SourceCodeEditor) objectFileEditor;
+            if (objectFileEditor instanceof SourceCodeEditor codeEditor) {
                 Editor editor = Editors.getEditor(codeEditor);
                 if (editor != null) {
                     if (instructions.isScroll()) {

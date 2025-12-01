@@ -202,8 +202,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
         editorComponent.setUserValueHolder(cell);
 
         Formatter formatter = cell.getFormatter();
-        if (cell.getUserValue() instanceof String) {
-            String userValue = (String) cell.getUserValue();
+        if (cell.getUserValue() instanceof String userValue) {
             if (userValue.indexOf('\n') > -1) {
                 userValue = userValue.replace('\n', ' ');
                 editorComponent.setEditable(false);

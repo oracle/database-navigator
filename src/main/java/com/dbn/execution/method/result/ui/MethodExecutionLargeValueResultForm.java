@@ -68,8 +68,7 @@ public class MethodExecutionLargeValueResultForm extends DBNFormBase {
         String text = "";
         Project project = getProject();
         Object value = argumentValue.getValue();
-        if (value instanceof LargeObjectValue) {
-            LargeObjectValue largeObjectValue = (LargeObjectValue) value;
+        if (value instanceof LargeObjectValue largeObjectValue) {
             try {
                 text = largeObjectValue.read();
             } catch (SQLException e) {

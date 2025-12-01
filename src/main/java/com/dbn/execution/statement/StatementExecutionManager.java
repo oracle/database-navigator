@@ -210,8 +210,7 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
 
         PsiElement child = psiFile.getFirstChild();
         while (child != null) {
-            if (child instanceof RootPsiElement) {
-                RootPsiElement root = (RootPsiElement) child;
+            if (child instanceof RootPsiElement root) {
                 for (ExecutablePsiElement executable: root.getExecutablePsiElements()) {
                     if (matchType == MatchType.CACHED) {
                         StatementExecutionProcessor executionProcessor = executable.getExecutionProcessor();
@@ -484,16 +483,14 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
             if (file != null) {
                 PsiElement child = file.getFirstChild();
                 while (child != null) {
-                    if (child instanceof ChameleonPsiElement) {
-                        ChameleonPsiElement chameleonPsiElement = (ChameleonPsiElement) child;
+                    if (child instanceof ChameleonPsiElement chameleonPsiElement) {
                         for (ExecutablePsiElement executable : chameleonPsiElement.getExecutablePsiElements()) {
                             StatementExecutionProcessor executionProcessor = getExecutionProcessor(fileEditor, executable, true);
                             executionProcessors.add(executionProcessor);
                         }
 
                     }
-                    if (child instanceof RootPsiElement) {
-                        RootPsiElement root = (RootPsiElement) child;
+                    if (child instanceof RootPsiElement root) {
 
                         for (ExecutablePsiElement executable: root.getExecutablePsiElements()) {
                             if (executable.getTextOffset() > offset) {

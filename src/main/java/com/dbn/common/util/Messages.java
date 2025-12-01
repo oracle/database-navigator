@@ -87,8 +87,7 @@ public class Messages {
 
     public static void showMessageDialog(@Nullable Project project, Message message) {
         String title = null;
-        if (message instanceof InteractiveMessage) {
-            InteractiveMessage interactiveMessage = (InteractiveMessage) message;
+        if (message instanceof InteractiveMessage interactiveMessage) {
 
             showDialog(project,
                     interactiveMessage.getText(),
@@ -102,8 +101,7 @@ public class Messages {
 
         }
 
-        if (message instanceof TitledMessage) {
-            TitledMessage titledMessage = (TitledMessage) message;
+        if (message instanceof TitledMessage titledMessage) {
             title = titledMessage.getTitle();
         }
 

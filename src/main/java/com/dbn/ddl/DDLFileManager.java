@@ -143,8 +143,7 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
                 List<FileNameMatcher> associations = fileTypeService.getAssociations(fileType);
                 List<String> registeredExtension = new ArrayList<>();
                 for (FileNameMatcher association : associations) {
-                    if (association instanceof ExtensionFileNameMatcher) {
-                        ExtensionFileNameMatcher extensionMatcher = (ExtensionFileNameMatcher) association;
+                    if (association instanceof ExtensionFileNameMatcher extensionMatcher) {
                         registeredExtension.add(extensionMatcher.getExtension());
                     }
                 }

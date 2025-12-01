@@ -83,9 +83,8 @@ public class WrapperModel implements DatabaseContextBase {
 		String sqlWrapperName = namingProvider.getSqlWrapperName(sourceObject);
 		if (sourceObject instanceof DBJavaClass) {
 			sqlWrapperPackage = new DBObjectRef<>(schemaRef, DBObjectType.PACKAGE, sqlWrapperName);
-		} else if (sourceObject instanceof DBJavaMethod) {
-			DBJavaMethod javaMethod = (DBJavaMethod) sourceObject;
-			DBObjectType methodType = javaMethod.isReturningVoid() ?
+		} else if (sourceObject instanceof DBJavaMethod javaMethod) {
+            DBObjectType methodType = javaMethod.isReturningVoid() ?
 					DBObjectType.PROCEDURE :
 					DBObjectType.FUNCTION;
 

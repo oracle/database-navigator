@@ -68,8 +68,7 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
 
     @Override
     public boolean matches(BasePsiElement basePsiElement) {
-        if (basePsiElement instanceof IdentifierPsiElement && basePsiElement != lookupIssuer) {
-            IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) basePsiElement;
+        if (basePsiElement instanceof IdentifierPsiElement identifierPsiElement && basePsiElement != lookupIssuer) {
             return
                 matchesResolveState(identifierPsiElement) &&
                 matchesType(identifierPsiElement) &&
@@ -118,8 +117,7 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
     @Override
     public boolean accepts(BasePsiElement element) {
         ElementType elementType = element.elementType;
-        if (elementType instanceof TokenElementType) {
-            TokenElementType tokenElementType = (TokenElementType) elementType;
+        if (elementType instanceof TokenElementType tokenElementType) {
             return tokenElementType.isIdentifier();
         }
         return true;

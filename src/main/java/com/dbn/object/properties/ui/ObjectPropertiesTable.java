@@ -100,8 +100,7 @@ public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Bo
 
     private boolean isNavigableCellAtMousePosition() {
         Object value = getValueAtMouseLocation();
-        if (value instanceof PresentableProperty) {
-            PresentableProperty property = (PresentableProperty) value;
+        if (value instanceof PresentableProperty property) {
             return property.getNavigatable() != null;
         }
         return false;

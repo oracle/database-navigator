@@ -108,22 +108,18 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
             return;
         }
 
-        if (factoryInput instanceof MethodFactoryInput) {
-            MethodFactoryInput methodFactoryInput = (MethodFactoryInput) factoryInput;
+        if (factoryInput instanceof MethodFactoryInput methodFactoryInput) {
             createMethod(methodFactoryInput);
             return;
         }
 
-        if (factoryInput instanceof JavaFactoryInput) {
-            JavaFactoryInput javaFactoryInput = (JavaFactoryInput) factoryInput;
+        if (factoryInput instanceof JavaFactoryInput javaFactoryInput) {
             createJavaObject(javaFactoryInput);
             return;
         }
 
-        if (factoryInput instanceof ModelFactoryInput) {
-            ModelFactoryInput modelFactoryInput = (ModelFactoryInput) factoryInput;
+        if (factoryInput instanceof ModelFactoryInput modelFactoryInput) {
             createModel(modelFactoryInput);
-            return ;
         }
         // TODO other factory inputs
 
@@ -191,7 +187,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 // allow user to cancel
                 progress.checkCanceled();
 
-                int toRead = (int)Math.min(chunk.length, mappedFile.remaining());
+                int toRead = Math.min(chunk.length, mappedFile.remaining());
                 mappedFile.get(chunk, 0, toRead);
                 dbOutput.write(chunk, 0, toRead);
 

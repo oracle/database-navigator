@@ -233,8 +233,7 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
     public void documentChanged(DocumentEvent event) {
         Document document = event.getDocument();
         content.setText(document.getCharsSequence());
-        if (document instanceof DocumentEx) {
-            DocumentEx documentEx = (DocumentEx) document;
+        if (document instanceof DocumentEx documentEx) {
             List<RangeMarker> blocks = documentEx.getGuardedBlocks();
             if (!blocks.isEmpty()) {
                 content.getOffsets().setGuardedBlocks(blocks);

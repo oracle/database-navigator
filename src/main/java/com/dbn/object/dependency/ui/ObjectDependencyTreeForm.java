@@ -63,8 +63,7 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
             @Override
             public void setModel(TreeModel model) {
                 super.setModel(model);
-                if (headerForm != null && model instanceof ObjectDependencyTreeModel) {
-                    ObjectDependencyTreeModel dependencyTreeModel = (ObjectDependencyTreeModel) model;
+                if (headerForm != null && model instanceof ObjectDependencyTreeModel dependencyTreeModel) {
                     ObjectDependencyTreeNode rootNode = dependencyTreeModel.getRoot();
                     DBObject object = rootNode.getObject();
                     if (object != null) {

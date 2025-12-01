@@ -86,8 +86,7 @@ public class ExplainPlanTreeTableModel implements TreeTableModel, Disposable {
 
     @Override
     public Object getValueAt(Object node, int column) {
-        if (node instanceof ExplainPlanEntry) {
-            ExplainPlanEntry entry = (ExplainPlanEntry) node;
+        if (node instanceof ExplainPlanEntry entry) {
             return COLUMNS[column].getValue(entry);
         }
         return null;
@@ -110,8 +109,7 @@ public class ExplainPlanTreeTableModel implements TreeTableModel, Disposable {
 
     @Override
     public Object getChild(Object parent, int index) {
-        if (parent instanceof ExplainPlanEntry) {
-            ExplainPlanEntry entry = (ExplainPlanEntry) parent;
+        if (parent instanceof ExplainPlanEntry entry) {
             return entry.getChildren().get(index);
         }
         return null;
@@ -119,8 +117,7 @@ public class ExplainPlanTreeTableModel implements TreeTableModel, Disposable {
 
     @Override
     public int getChildCount(Object parent) {
-        if (parent instanceof ExplainPlanEntry) {
-            ExplainPlanEntry entry = (ExplainPlanEntry) parent;
+        if (parent instanceof ExplainPlanEntry entry) {
             List<ExplainPlanEntry> children = entry.getChildren();
             return children == null ? 0 : children.size();
         }
@@ -137,9 +134,7 @@ public class ExplainPlanTreeTableModel implements TreeTableModel, Disposable {
 
     @Override
     public int getIndexOfChild(Object parent, Object child) {
-        if (parent instanceof ExplainPlanEntry && child instanceof ExplainPlanEntry) {
-            ExplainPlanEntry parentEntry = (ExplainPlanEntry) parent;
-            ExplainPlanEntry childEntry = (ExplainPlanEntry) child;
+        if (parent instanceof ExplainPlanEntry parentEntry && child instanceof ExplainPlanEntry childEntry) {
             return parentEntry.getChildren().indexOf(childEntry);
         }
         return -1;
