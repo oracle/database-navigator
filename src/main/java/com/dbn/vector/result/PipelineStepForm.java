@@ -33,9 +33,13 @@ import java.awt.Color;
 import java.awt.Font;
 
 public class PipelineStepForm extends DBNFormBase  {
+  private static final String TABLE_NAME_SEPARATOR = "\\.";
+  private static final String FILTER_NAME_PREFIX = "New Embeddings - ";
+  private static final String SQL_QUOTE = "'";
+  private static final String SQL_ESCAPED_QUOTE = "''";// for validating sql condition
+
   private JPanel mainPanel;
   private JLabel titleLabel;
-//  private JTextPane descriptionTextArea;
   private JTextPane reasonTextArea;
   private JPanel statusPanel;
   private JLabel statusLabel;
@@ -61,40 +65,7 @@ public class PipelineStepForm extends DBNFormBase  {
     linkLabel.setHyperlinkText(stepResult.getLink());
     linkLabel.setIcon(stepResult.getIcon());
 
-    linkLabel.addHyperlinkListener(e -> {
-      VectorEmbeddingExecutionResultForm parentForm = getParentComponent();
-      if (parentForm == null) return;
-
-      ConnectionHandler connection = parentForm.getResult().getConnection();
-      String[] parts = stepResult.getLink().split("\\.");
-      if (parts.length != 2) return;
-
-      String schemaName = parts[0];
-      String tableName = parts[1];
-
-      DBSchema schema = connection.getSchema(connection.getSchemaId(schemaName));
-      if (schema == null) return;
-
-      DBTable table = schema.getTable(tableName);
-      if (table == null) return;
-
-      // Get the currently selected source
-      SourceResult selectedSource = parentForm.getSelectedSource();
-      DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(connection.getProject());
-      boolean editorAlreadyOpen = editorManager.isFileOpen(table);
-
-      // Only apply filter for the embedding destination table (ENSURE_DESTINATION step)
-      if (stepResult.getStep() == PipelineStep.ENSURE_DESTINATION && selectedSource != null) {
-        createAndApplyFilter(connection, table, selectedSource);
-      }
-
-      editorManager.connectAndOpenEditor(table, null, true, true);
-
-      if (editorAlreadyOpen) {
-        DatasetEditorManager datasetEditorManager = DatasetEditorManager.getInstance(connection.getProject());
-        datasetEditorManager.reloadEditorData(table);
-      }
-    });
+    linkLabel.addHyperlinkListener(e -> {handleTableLinkClick();});
 
 
 
@@ -116,46 +87,115 @@ public class PipelineStepForm extends DBNFormBase  {
 
   }
 
+  private void handleTableLinkClick() {
+    VectorEmbeddingExecutionResultForm parentForm = getParentComponent();
+    if (parentForm == null) return;
+
+    ConnectionHandler connection = parentForm.getResult().getConnection();
+    DBTable table = findTable(connection, stepResult.getLink());
+    if (table == null) return;
+
+    SourceResult selectedSource = parentForm.getSelectedSource();
+    boolean shouldFilter = stepResult.getStep() == PipelineStep.ENSURE_DESTINATION
+            && selectedSource != null;
+
+    openTableEditor(connection, table, selectedSource, shouldFilter);
+  }
+
+  @Nullable
+  private DBTable findTable(ConnectionHandler connection, String fullTableName) {
+    String[] parts = fullTableName.split(TABLE_NAME_SEPARATOR);
+    if (parts.length != 2) return null;
+
+    String schemaName = parts[0];
+    String tableName = parts[1];
+
+    DBSchema schema = connection.getSchema(connection.getSchemaId(schemaName));
+    if (schema == null) return null;
+
+    return schema.getTable(tableName);
+  }
+
+  private void openTableEditor(ConnectionHandler connection, DBTable table,
+                               @Nullable SourceResult selectedSource, boolean applyFilter) {
+    DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(connection.getProject());
+    boolean editorAlreadyOpen = editorManager.isFileOpen(table);
+
+    if (applyFilter && selectedSource != null) {
+      createAndApplyFilter(connection, table, selectedSource);
+    }
+
+    editorManager.connectAndOpenEditor(table, null, true, true);
+
+    if (editorAlreadyOpen) {
+      reloadEditorData(connection, table);
+    }
+  }
+
+  private void reloadEditorData(ConnectionHandler connection, DBTable table) {
+    DatasetEditorManager datasetEditorManager = DatasetEditorManager.getInstance(connection.getProject());
+    datasetEditorManager.reloadEditorData(table);
+  }
+
   private void createAndApplyFilter(ConnectionHandler connection, DBTable table, SourceResult sourceResult) {
     DatasetFilterManager filterManager = DatasetFilterManager.getInstance(connection.getProject());
     DatasetFilterGroup filterGroup = filterManager.getFilterGroup(table);
 
-    // Create temporary custom filter
-    DatasetCustomFilter embeddingFilter = new DatasetCustomFilter(
+    DatasetCustomFilter filter = createTemporaryFilter(filterGroup, sourceResult);
+    String whereClause = buildWhereClause(sourceResult);
+
+    if (whereClause == null) return;
+
+    filter.setCondition(whereClause);
+    filterManager.setActiveFilter(table, filter);
+  }
+
+  private DatasetCustomFilter createTemporaryFilter(DatasetFilterGroup filterGroup, SourceResult sourceResult) {
+    DatasetCustomFilter filter = new DatasetCustomFilter(
             filterGroup,
-            "New Embeddings - " + sourceResult.getName()
+            FILTER_NAME_PREFIX + sourceResult.getName()
     );
-    embeddingFilter.setTemporary(true);
+    filter.setTemporary(true);
+    return filter;
+  }
 
-    String whereClause;
-
+  @Nullable
+  private String buildWhereClause(SourceResult sourceResult) {
     if (sourceResult instanceof TableResult) {
-      TableResult tableResult = (TableResult) sourceResult;
-
-      String[] parts = tableResult.getIdentifier().split("\\.");
-
-      if (parts.length != 2) return;
-
-      String tableName = parts[1];
-
-      whereClause = String.format(
-              "JSON_VALUE(metadata, '$.embedding_source.table_name') = '%s'",
-              tableName.replace("'", "''")
-      );
+      return buildTableWhereClause((TableResult) sourceResult);
     } else if (sourceResult instanceof FileResult) {
-      FileResult fileResult = (FileResult) sourceResult;
-      String fileId = fileResult.getDocId();
-
-      whereClause = String.format(
-              "JSON_VALUE(metadata, '$.embedding_source.primary_key') = '%s'",
-              fileId.replace("'", "''")
-      );
-    } else {
-      return;
+      return buildFileWhereClause((FileResult) sourceResult);
     }
+    return null;
+  }
 
-    embeddingFilter.setCondition(whereClause);
-    filterManager.setActiveFilter(table, embeddingFilter);
+  @Nullable
+  private String buildTableWhereClause(TableResult tableResult) {
+    String tableName = extractTableName(tableResult.getIdentifier());
+    if (tableName == null) return null;
+
+    return String.format(
+            "JSON_VALUE(metadata, '$.embedding_source.table_name') = '%s'",
+            escapeSql(tableName)
+    );
+  }
+
+  private String buildFileWhereClause(FileResult fileResult) {
+    String fileId = fileResult.getDocId();
+    return String.format(
+            "JSON_VALUE(metadata, '$.embedding_source.primary_key') = '%s'",
+            escapeSql(fileId)
+    );
+  }
+
+  @Nullable
+  private String extractTableName(String identifier) {
+    String[] parts = identifier.split(TABLE_NAME_SEPARATOR);
+    return parts.length == 2 ? parts[1] : null;
+  }
+
+  private String escapeSql(String value) {
+    return value.replace(SQL_QUOTE, SQL_ESCAPED_QUOTE);
   }
 
   private void initInfoLabel() {
