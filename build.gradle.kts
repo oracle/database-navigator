@@ -33,13 +33,16 @@ val bundledJdbcOracle: Configuration by configurations.creating
 val bundledJdbcMysql: Configuration by configurations.creating
 val bundledJdbcPostgres: Configuration by configurations.creating
 val bundledJdbcSqlite: Configuration by configurations.creating
-val extFolder = "idea-sandbox/plugins/${project.name}/lib/ext"
+
 
 group = "com.dbn"
 version = "3.7.0.0"
 
 repositories {
   mavenCentral()
+  maven {
+    url = uri("https://artifacthub-phx.oci.oraclecorp.com/oscs-oci-oracledist/")
+  }
   flatDir {
     dirs("libs")
   }
@@ -201,28 +204,28 @@ tasks.register("copyBundledJdbcLibs") {
         copy {
             from(bundledJdbcOracle)
             include("*.jar")
-            into(layout.buildDirectory.dir("$extFolder/bundled-jdbc-oracle").get().asFile)
+            into(layout.buildDirectory.dir("libs/ext/bundled-jdbc-oracle").get().asFile)
         }
 
         // Copy for MySQL JDBC
         copy {
             from(bundledJdbcMysql)
             include("*.jar")
-            into(layout.buildDirectory.dir("$extFolder/bundled-jdbc-mysql").get().asFile)
+            into(layout.buildDirectory.dir("libs/ext/bundled-jdbc-mysql").get().asFile)
         }
 
         // Copy for PostgreSQL JDBC
         copy {
             from(bundledJdbcPostgres)
             include("*.jar")
-            into(layout.buildDirectory.dir("$extFolder/bundled-jdbc-postgres").get().asFile)
+            into(layout.buildDirectory.dir("libs/ext/bundled-jdbc-postgres").get().asFile)
         }
 
         // Copy for SQLite JDBC
         copy {
             from(bundledJdbcSqlite)
             include("*.jar")
-            into(layout.buildDirectory.dir("$extFolder/bundled-jdbc-sqlite").get().asFile)
+            into(layout.buildDirectory.dir("libs/ext/bundled-jdbc-sqlite").get().asFile)
         }
     }
 }
@@ -233,8 +236,9 @@ tasks.build {
 
 tasks.prepareSandbox {
     dependsOn("copyBundledJdbcLibs")
-    from(layout.buildDirectory.dir(extFolder)) {
-        into("lib/ext")
+
+    from(layout.buildDirectory.dir("libs/ext")) {
+        into(layout.buildDirectory.dir("/${project.name}/lib/ext").get().asFile)
     }
 }
 
