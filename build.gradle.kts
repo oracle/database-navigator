@@ -39,6 +39,7 @@ group = "com.dbn"
 version = "3.7.0.0"
 
 repositories {
+  maven(url = "https://artifacthub-phx.oci.oraclecorp.com/jdbc-dev-local/com/oracle/dbn/lib/")
   mavenCentral()
   flatDir {
     dirs("libs")
@@ -75,23 +76,24 @@ dependencies {
     implementation("org.apache.maven:maven-resolver-provider:3.9.9")
 
     // db assistant
-    implementation("dev.langchain4j:langchain4j:1.8.0")
-    implementation("dev.langchain4j:langchain4j-core:1.8.0")
-    implementation("dev.langchain4j:langchain4j-http-client:1.8.0")
-    implementation("dev.langchain4j:langchain4j-mcp:1.8.0-beta15")
+    implementation("dev.langchain4j:langchain4j:1.9.1")
+    implementation("dev.langchain4j:langchain4j-core:1.9.1")
+    implementation("dev.langchain4j:langchain4j-http-client:1.9.1")
+    implementation("dev.langchain4j:langchain4j-mcp:1.9.1-beta17")
 
-    implementation("dev.langchain4j:langchain4j-community-oci-genai:1.8.0-beta15")
-    implementation("dev.langchain4j:langchain4j-open-ai:1.8.0")
-    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.8.0")
-    implementation("dev.langchain4j:langchain4j-anthropic:1.8.0")
-    implementation("dev.langchain4j:langchain4j-cohere:1.8.0-beta15")
-    implementation("dev.langchain4j:langchain4j-ollama:1.8.0")
-    implementation("dev.langchain4j:langchain4j-bedrock:1.8.0")
-    implementation("dev.langchain4j:langchain4j-mistral-ai:1.8.0")
+    implementation("dev.langchain4j:langchain4j-community-oci-genai:1.9.1-beta17")
+    implementation("dev.langchain4j:langchain4j-open-ai:1.9.1")
+    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.9.1")
+    implementation("dev.langchain4j:langchain4j-anthropic:1.9.1")
+    implementation("dev.langchain4j:langchain4j-ollama:1.9.1")
+    implementation("dev.langchain4j:langchain4j-mistral-ai:1.9.1")
 
-    implementation("com.oracle.oci.sdk:oci-java-sdk-common:3.74.0")
-    implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.74.0")
-    implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.74.0")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-common:3.76.1")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.76.1")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-generativeaiinference:3.76.1")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.76.1")
+    implementation("com.oracle.oci.sdk:oci-java-sdk-aianomalydetection:3.71.0")
 
     implementation("com.fasterxml.jackson.core:jackson-core:2.20.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.20.0")
