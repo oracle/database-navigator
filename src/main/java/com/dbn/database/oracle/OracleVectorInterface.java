@@ -26,6 +26,7 @@ import com.dbn.vector.model.store.StoreConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -90,8 +91,8 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
   }
 
   @Override
-  public void writeBlobContent(@NotNull DBNConnection conn, String filesTable, @NotNull String documentId, byte[] bytes) throws SQLException {
-    executeUpdate(conn,"stream-file-content-to-blob",filesTable,bytes,documentId);
+  public void writeBlobContent(@NotNull DBNConnection conn, String filesTable, @NotNull String documentId, InputStream inputStream) throws SQLException {
+    executeUpdate(conn,"stream-file-content-to-blob",filesTable, inputStream,documentId);
   }
 
   @Override

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
@@ -75,6 +76,7 @@ public class FileProcessingService {
             // Extract metadata from FileContent and connection
             String metadataJson = buildFileMetadata(connection, fileContent);
 
+
             // Step 1: Insert row with metadata and hash
             vectorInterface.insertEmptyDocumentRow(
                     connection,
@@ -87,12 +89,15 @@ public class FileProcessingService {
 
             // Step 2: Write file bytes to BLOB column
             // NOTE: Pass bytes directly, not JDBC Blob
+          try (InputStream inputStream = fileContent.getInputStream()) {
             vectorInterface.writeBlobContent(
                     connection,
                     FILES_TABLE,
                     documentId,
-                    fileContent.getBytes()  // Cached bytes from FileContent
+                    inputStream  // Cached bytes from FileContent
             );
+          }
+
 
             step.markSuccess();
         } catch (Exception e) {

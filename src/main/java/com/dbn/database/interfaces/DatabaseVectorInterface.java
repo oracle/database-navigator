@@ -22,6 +22,7 @@ import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -48,5 +49,5 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
 
   ResultSet selectDocumentIdByHashIfExists(DBNConnection conn, String filesTable, String crc, long filesize) throws SQLException;
 
-  void writeBlobContent(@NotNull DBNConnection connection, String filesTable, @NotNull String documentId, byte[] bytes) throws SQLException;
+  void writeBlobContent(@NotNull DBNConnection connection, String filesTable, @NotNull String documentId, InputStream inputStream) throws SQLException;
 }
