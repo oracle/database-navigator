@@ -3,24 +3,23 @@ package com.dbn.mcp;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionManager;
+import com.dbn.connection.DatabaseType;
 import com.dbn.mcp.models.ToolDefinitionModel;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
-public class McpServerInputForm  extends DBNFormBase {
+
+public class McpServerInputForm extends DBNFormBase {
 
   private JPanel mainPanel;
-  private JTextField urlTextField;
-  private JTextField usernameTextField;
-  private JTextField passwordTextField;
+  private DBNComboBox<ConnectionHandler> connectionComboBox;
   private JPanel hintPanel;
   private JPanel toolDefinitionPanel;
   private ToolDefinitionListForm toolDefinitionListForm;
@@ -28,11 +27,25 @@ public class McpServerInputForm  extends DBNFormBase {
   public McpServerInputForm(@Nullable Disposable parent) {
     super(parent);
     initHintPanel();
+    initConnectionComboBox();
   }
 
   @Override
   protected JComponent getMainComponent() {
     return mainPanel;
+  }
+
+  private void initConnectionComboBox() {
+    Project project = getProject();
+    if (project == null) return;
+    
+    ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+    List<ConnectionHandler> oracleConnections = connectionManager.getConnections(DatabaseType.ORACLE);
+    
+    connectionComboBox.setValues(oracleConnections);
+    if (!oracleConnections.isEmpty()) {
+      connectionComboBox.setSelectedValue(oracleConnections.get(0));
+    }
   }
 
   private void initHintPanel() {
@@ -77,16 +90,15 @@ public class McpServerInputForm  extends DBNFormBase {
 
 
 
-  public String getJdbcUrl() {
-    return urlTextField != null ? urlTextField.getText().trim() : "";
-  }
-
-  public String getUsername() {
-    return usernameTextField != null ? usernameTextField.getText().trim() : "";
-  }
-
-  public char[] getPassword() {
-    return passwordTextField != null ? passwordTextField.getText().toCharArray() : new char[0];
+  /**
+   * Returns the selected connection from the combo box.
+   * Callers should extract whatever information they need from the ConnectionHandler.
+   * 
+   * @return the selected ConnectionHandler, or null if none selected
+   */
+  @Nullable
+  public ConnectionHandler getSelectedConnection() {
+    return connectionComboBox != null ? connectionComboBox.getSelectedValue() : null;
   }
 
 //  public String getToolName() {

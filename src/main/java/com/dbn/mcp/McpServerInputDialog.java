@@ -2,6 +2,7 @@ package com.dbn.mcp;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.thread.Progress;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.mcp.models.ToolDefinitionModel;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -47,6 +48,15 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
     try {
       McpServerInputForm form = getForm();
       List<ToolDefinitionModel> toolDefinitionModel = form.getTools();
+      
+      ConnectionHandler connection = form.getSelectedConnection();
+      if (connection == null) {
+        Messages.showErrorDialog(project, "Please select a connection", "No Connection Selected");
+        return;
+      }
+      String jdbcUrl = connection.getConnectionInfo().getUrl();
+      String username = connection.getUserName();
+      String password = getPasswordFromConnection(connection);
 
 
       String basePath = project != null ? project.getBasePath() : null;
@@ -55,9 +65,9 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
 
       // Build properties
       Properties props = new Properties();
-      props.setProperty("mcp.url", form.getJdbcUrl() != null ? form.getJdbcUrl() : "");
-      props.setProperty("mcp.user", form.getUsername() != null ? form.getUsername() : "");
-      props.setProperty("mcp.password", form.getPassword() != null ? new String(form.getPassword()) : "");
+      props.setProperty("mcp.url", jdbcUrl != null ? jdbcUrl : "");
+      props.setProperty("mcp.user", username != null ? username : "");
+      props.setProperty("mcp.password", password != null ? password : "");
       props.setProperty("mcp.serverName",   props.getProperty("mcp.serverName", "mcp-server"));
       props.setProperty("mcp.serverVersion", props.getProperty("mcp.serverVersion", "1.0.0"));
 
@@ -275,6 +285,17 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
       );
     }
   }
+
+  private String getPasswordFromConnection(ConnectionHandler connection) {
+    if (connection == null) return "";
+    
+    var authInfo = connection.getAuthenticationInfo();
+    if (authInfo == null) return "";
+    
+    char[] pwd = authInfo.getPassword();
+    return pwd != null ? new String(pwd) : "";
+  }
+
   // --- Claude config dialog ---
   private static final class ClaudeConfigDialog extends com.intellij.openapi.ui.DialogWrapper {
       private final Project project;
