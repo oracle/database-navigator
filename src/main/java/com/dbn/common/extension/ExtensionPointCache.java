@@ -49,4 +49,8 @@ public abstract class ExtensionPointCache<K, E> {
 
         throw new UnsupportedOperationException("No extension of type \"" + extensionPointName + "\" registered for key \"" + key + "\"");
     }
+
+    protected List<E> all() {
+        return extensionPointName.getExtensionList();
+    }
 }

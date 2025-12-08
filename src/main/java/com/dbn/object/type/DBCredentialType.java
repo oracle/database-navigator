@@ -17,16 +17,15 @@
 package com.dbn.object.type;
 
 
+import com.dbn.common.constant.Constant;
+
 /**
  * This enum is for listing the possible ways of creating a new credential
  *
  * @author Ayoub Aarrasse (Oracle)
  */
-public enum DBCredentialType {
-  /**
-   * We can create either using username/password aka the provider key, or we can use OCI information
-   */
-  PASSWORD,
-  OCI;
-
+public enum DBCredentialType implements Constant<DBCredentialType> {
+    PASSWORD,
+    TOKEN,
+    OCI;
 }

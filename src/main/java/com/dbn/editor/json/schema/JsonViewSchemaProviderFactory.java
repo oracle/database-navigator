@@ -28,7 +28,7 @@ public class JsonViewSchemaProviderFactory implements JsonSchemaProviderFactory,
     private final List<JsonSchemaFileProvider> providers = List.of(new JsonViewSchemaProvider());
 
     public JsonViewSchemaProviderFactory() {
-        System.out.println();
+
     }
 
     @Override

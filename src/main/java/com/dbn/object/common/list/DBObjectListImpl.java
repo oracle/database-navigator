@@ -38,7 +38,6 @@ import com.dbn.common.search.Search;
 import com.dbn.common.search.SearchAdapter;
 import com.dbn.common.string.StringDeBuilder;
 import com.dbn.common.ui.tree.TreeEventType;
-import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
@@ -65,7 +64,6 @@ import com.intellij.psi.PsiDirectory;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -93,6 +91,7 @@ import static com.dbn.common.list.FilteredList.unwrap;
 import static com.dbn.common.search.Search.binarySearch;
 import static com.dbn.common.search.Search.comboSearch;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Titles.titleCased;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static java.util.Collections.emptyList;
 
@@ -334,8 +333,8 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
     }
 
     @Override
-    public String getCapitalizedName() {
-        return Naming.capitalizeWords(getName());
+    public String getTitleCasedName() {
+        return titleCased(getName());
     }
 
     @Override
@@ -647,9 +646,8 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
         }
 
         public List<T> getChildElements(DatabaseEntity entity) {
-            // "touch" elements first for ranges to become available (fragile...)
-            List<T> elements = getAllElements();
-            val ranges = this.ranges;
+            List<T> elements = getAllElements();  // ensure loaded
+            var ranges = this.ranges;
             if (ranges == null) return emptyList();
             if (!entity.isObject()) return emptyList();
 
@@ -671,9 +669,22 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
         }
 
         @Override
+        public T getChildElement(DatabaseEntity entity, String name) {
+            getElements(); // ensure loaded
+            var ranges = this.ranges;
+            if (ranges == null) return null;
+
+            DBObject object = (DBObject) entity;
+            Range range = ranges.get(object.ref());
+            if (range == null) return null;
+
+            SearchAdapter<T> adapter = DBObjectSearchAdapters.binary(name);
+            return binarySearch(elements, range, adapter);
+        }
+
+        @Override
         public T getElement(String name, short overload) {
-            // "touch" elements first for ranges to become available (fragile...)
-            getElements();
+            getElements(); // ensure loaded
             if (ranges == null) return null;
 
             SearchAdapter<T> adapter = getObjectType().isOverloadable() ?
@@ -681,7 +692,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
                     DBObjectSearchAdapters.binary(name);
             Collection<Range> ranges = this.ranges.values();
             for (Range range : ranges) {
-                T element = binarySearch(elements, range.getLeft(), range.getRight(), adapter);
+                T element = binarySearch(elements, range, adapter);
                 if (element != null) {
                     return element;
                 }

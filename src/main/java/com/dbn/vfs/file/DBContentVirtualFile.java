@@ -48,15 +48,14 @@ import static com.dbn.vfs.file.status.DBFileStatus.MODIFIED;
 
 @Getter
 public abstract class DBContentVirtualFile extends DBVirtualFileBase implements PropertyHolder<DBFileStatus>  {
-    private final WeakRef<DBEditableObjectVirtualFile> mainDatabaseFile;
+    private final transient WeakRef<DBEditableObjectVirtualFile> mainDatabaseFile;
+    private final transient DBFileStatusHolder status = new DBFileStatusHolder(this);
+
     private final FileType fileType;
-
-    private final DBFileStatusHolder status = new DBFileStatusHolder(this);
-
     protected DBContentType contentType;
 
     public DBContentVirtualFile(@NotNull DBEditableObjectVirtualFile mainDatabaseFile, DBContentType contentType) {
-        super(mainDatabaseFile.getProject(), mainDatabaseFile.getObjectRef().getObjectName());
+        super(mainDatabaseFile.getProject(), mainDatabaseFile.getObjectRef().getFileName());
         this.mainDatabaseFile = WeakRef.of(mainDatabaseFile);
         this.contentType = contentType;
 

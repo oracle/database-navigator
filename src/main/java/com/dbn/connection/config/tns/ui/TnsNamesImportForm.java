@@ -35,6 +35,7 @@ import javax.swing.JTextField;
 import java.io.File;
 import java.util.List;
 
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -77,7 +78,7 @@ public class TnsNamesImportForm extends DBNFormBase {
 
     private void filterTnsNamesTable() {
         TnsNamesTableModel model = tnsNamesTable.getModel();
-        model.filter(filterTextField.getText());
+        model.filter(getText(filterTextField));
     }
 
     private void updateSelections() {
@@ -98,7 +99,7 @@ public class TnsNamesImportForm extends DBNFormBase {
 
     private void updateTnsNamesTable() {
         try {
-            String fileName = tnsNamesFileTextField.getTextField().getText();
+            String fileName = getText(tnsNamesFileTextField);
             if (Strings.isNotEmpty(fileName)) {
                 fileName = Files.normalizePath(fileName);
                 tnsNames = TnsNamesParser.get(new File(fileName)); // this is the parser that pasrses the tnsnames

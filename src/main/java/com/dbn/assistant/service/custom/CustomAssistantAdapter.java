@@ -100,7 +100,17 @@ public class CustomAssistantAdapter extends AssistantAdapterBase {
     }
 
     @Override
+    public void checkContext(ConnectionId connectionId, ChatContext chatContext, Runnable onSuccess) {
+        onSuccess.run();
+    }
+
+    @Override
     public void generate(String prompt, String chatId, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
 
+    }
+
+    @Override
+    public String generateTitle(String chatId, ConnectionId connectionId, ChatContext context) throws Exception {
+        return "";
     }
 }

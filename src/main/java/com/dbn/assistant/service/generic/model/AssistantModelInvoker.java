@@ -17,15 +17,15 @@
 package com.dbn.assistant.service.generic.model;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import com.dbn.assistant.service.generic.context.AssistantMemoryId;
+import com.dbn.assistant.state.AssistantState;
 import com.intellij.openapi.extensions.ExtensionPointName;
-import dev.langchain4j.memory.ChatMemory;
-import org.jetbrains.annotations.Nullable;
 
 public interface AssistantModelInvoker<T> {
     ExtensionPointName<AssistantModelInvoker> EP = ExtensionPointName.create("com.dbn.assistantModelInvoker");
 
-    Class<T> getModelType();
+    AssistantModelType getModelType();
 
-    void invokeModel(T model, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer);
+    void invokeModel(T model, AssistantState state, AssistantMemoryId memoryId, String prompt, AssistantResponseConsumer consumer);
 
 }

@@ -18,6 +18,7 @@ package com.dbn.common.ui.util;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
@@ -25,11 +26,17 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComponent;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 
 import static com.dbn.common.ui.util.ClientProperty.FIELD_ERROR;
 
@@ -49,17 +56,44 @@ public class TextFields {
         });
     }
 
+    public static void onTextChange(JSpinner spinner, Consumer<DocumentEvent> consumer) {
+        JTextField textField = getTextField(spinner);
+        onTextChange(textField, consumer);
+    }
+
+    @Nullable
+    public static JTextField getTextField(JSpinner spinner) {
+        JComponent editor = spinner.getEditor();
+
+        if (editor instanceof JSpinner.DefaultEditor) {
+            JSpinner.DefaultEditor defaultEditor = (JSpinner.DefaultEditor) editor;
+            return defaultEditor.getTextField();
+        }
+        return null;
+    }
+
     public static void addDocumentListener(JTextComponent textField, DocumentListener documentListener) {
         if (textField == null) return;
         textField.getDocument().addDocumentListener(documentListener);
     }
 
-    public static String getText(JTextComponent textComponent) {
-        return textComponent.getText().trim();
+    public static String getText(@Nullable TextFieldWithBrowseButton textComponent) {
+        if (textComponent == null) return "";
+        return getText(textComponent.getTextField());
+
+    }
+    public static String getText(@Nullable JTextComponent textComponent) {
+        if (textComponent == null) return "";
+        String text = textComponent.getText();
+        return text == null ? "" : text.trim();
     }
 
+
     public static boolean isEmptyText(JTextComponent textComponent) {
-        return textComponent.getText().trim().isEmpty();
+        if (textComponent == null) return true;
+
+        String text = textComponent.getText();
+        return Strings.isNotEmptyOrSpaces(text);
     }
 
     public static void limitTextLength(JTextComponent textComponent, int maxLength) {
@@ -76,6 +110,33 @@ public class TextFields {
                 }
             }
         });
+    }
+
+    public static void setText(JTextComponent textComponent, String text) {
+        textComponent.setText(text == null ? "" : text.trim());
+    }
+
+    public static void setText(TextFieldWithBrowseButton textComponent, String text) {
+        setText(textComponent.getTextField(), text);
+    }
+
+    public static void setTextSilently(JTextComponent textComponent, String text) {
+        Document document = textComponent.getDocument();
+        if (document instanceof AbstractDocument) {
+            AbstractDocument abstractDocument = (AbstractDocument) document;
+            DocumentListener[] documentListeners = abstractDocument.getDocumentListeners();
+            try {
+                Arrays.stream(documentListeners).forEach(document::removeDocumentListener);
+                textComponent.setText(text);
+                textComponent.revalidate();
+                textComponent.repaint();
+            } finally {
+                Arrays.stream(documentListeners).forEach(document::addDocumentListener);
+            }
+        } else {
+            textComponent.setText(text);
+        }
+
     }
 
     public static void updateFieldError(JTextComponent textComponent, @Nullable String error) {

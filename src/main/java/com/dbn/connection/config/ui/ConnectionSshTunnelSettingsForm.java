@@ -39,6 +39,7 @@ import java.awt.event.ActionListener;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 
 public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<ConnectionSshTunnelSettings> {
@@ -80,7 +81,7 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
     @Override
     protected ActionListener createActionListener() {
         return e -> {
-            getConfiguration().setModified(true);
+            mackConfigModified();
             Object source = e.getSource();
 
             if (source == activeCheckBox) {
@@ -129,8 +130,8 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
         configuration.setActive(enabled);
         configuration.setHost(ConfigurationEditors.validateStringValue(hostTextField, txt("cfg.connection.field.Host"), enabled));
         ConfigurationEditors.validateIntegerValue(portTextField, txt("cfg.connection.field.Port"), enabled, 0, 999999, null);
-        configuration.setPort(portTextField.getText());
-        configuration.setUser(userTextField.getText());
+        configuration.setPort(getText(portTextField));
+        configuration.setUser(getText(userTextField));
         SshAuthType authType = getSelection(authTypeComboBox);
 
         boolean isKeyPair = authType == SshAuthType.KEY_PAIR;
@@ -139,7 +140,7 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
 
         configuration.setAuthType(authType);
         configuration.setPassword(passwordField.getPassword());
-        configuration.setKeyFile(keyFileField.getText());
+        configuration.setKeyFile(getText(keyFileField));
         configuration.setKeyPassphrase(keyPassphraseField.getPassword());
 
         if (!ConfigMonitor.isCloning()) {

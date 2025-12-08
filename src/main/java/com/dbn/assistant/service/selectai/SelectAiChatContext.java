@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.service.selectai;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.provider.AIModel;
@@ -54,10 +55,10 @@ public final class SelectAiChatContext implements ChatContext {
     }
 
     public SelectAiChatContext(@Nullable DBAIProfile profile) {
-        this.delegate = new ChatContextImpl();
+        this.delegate = new ChatContextImpl(AssistantType.SELECT_AI);
         if (profile == null) return;
 
-        setProfileName(profile.getName());
+        this.setProfileId(profile.getName());
         this.setProviderId(profile.getProviderId());
         this.setModelId(profile.getModelId());
         setInteractive(profile.isInteractive());

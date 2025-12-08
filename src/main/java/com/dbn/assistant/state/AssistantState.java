@@ -23,6 +23,7 @@ import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
+import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.property.PropertyHolderBase;
@@ -87,7 +88,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     private String currentChatId;
     private String currentSessionSignature; // the resourceId of the com.dbn.connection.jdbc.Resource
     private String defaultProfileName;
-    private ChatContext lastContext = new ChatContextImpl();
+    private ChatContext lastContext;
 
     @Delegate
     private final UserDataHolder userData = new UserDataHolderBase();
@@ -95,6 +96,13 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     public AssistantState(ConnectionId connectionId, AssistantType assistantType) {
         this.connectionId = connectionId;
         this.assistantType = assistantType;
+    }
+
+    public synchronized ChatContext getLastContext() {
+        if (lastContext == null) {
+            lastContext = new ChatContextImpl(assistantType);
+        }
+        return lastContext;
     }
 
     @Override
@@ -169,7 +177,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     public synchronized Chat getCurrentChat() {
         Chat currentChat = chats.get(currentChatId);
         if (currentChat == null) {
-            currentChat = new Chat(lastContext);
+            currentChat = new Chat(getLastContext());
             currentChat.setSessionSignature(currentSessionSignature);
             currentChatId = currentChat.getId();
             chats.put(currentChatId, currentChat);
@@ -269,11 +277,15 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         List<Element> chatElements = childrenOf(chatsElement);
 
         for (Element chatElement : chatElements) {
-            ChatContext chatContext = new ChatContextImpl();
+            ChatContext chatContext = new ChatContextImpl(assistantType);
             Chat chat = new Chat(chatContext);
             chat.readState(chatElement);
             chats.put(chat.getId(), chat);
         }
+
+        AssistantToolSettings toolSettings = AssistantToolSettings.get(this);
+        Element toolsElement = element.getChild("tools");
+        toolSettings.readState(toolsElement);
     }
 
     @Override
@@ -294,6 +306,11 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
                 chat.writeState(chatElement);
             }
         }
+
+        Element toolsElement = newElement(element, "tools");
+        AssistantToolSettings toolSettings = AssistantToolSettings.get(this);
+        toolSettings.writeState(toolsElement);
+
     }
 
 }

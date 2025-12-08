@@ -29,9 +29,9 @@ import org.jetbrains.annotations.NonNls;
 @Setter
 public final class StatementExecutorContext {
     private final DiagnosticBundle<String> diagnostics;
+    private final DBNConnection connection;
     private final String identifier;
     private final int timeout;
-    private final DBNConnection connection;
 
     private DBNStatement statement;
 

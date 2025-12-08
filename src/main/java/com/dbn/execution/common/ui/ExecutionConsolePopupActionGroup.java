@@ -22,6 +22,8 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.common.util.Dialogs;
+import com.dbn.execution.ExecutionResult;
+import com.dbn.execution.common.result.ui.ExecutionResultForm;
 import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.execution.statement.result.ui.RenameExecutionResultDialog;
 import com.dbn.execution.statement.result.ui.StatementExecutionResultForm;
@@ -66,7 +68,10 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
                 boolean visible = false;
                 if (component != null) {
                     Object object = TAB_CONTENT.get(component);
-                    visible = object instanceof StatementExecutionResultForm;
+                    if (object instanceof ExecutionResultForm) {
+                        ExecutionResultForm<?> resultForm = (ExecutionResultForm<?>) object;
+                        visible = resultForm.getExecutionResult().isRenameable();
+                    }
                 }
                 e.getPresentation().setVisible(visible);
             }
@@ -77,10 +82,11 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
                 if (component == null) return;
 
                 Object object = TAB_CONTENT.get(component);
-                if (!(object instanceof StatementExecutionResultForm)) return;
+                if (!(object instanceof ExecutionResultForm)) return;
+                ExecutionResultForm<?> resultForm = (ExecutionResultForm<?>) object;
+                if (!resultForm.getExecutionResult().isRenameable()) return;
 
-                StatementExecutionResultForm resultForm = (StatementExecutionResultForm) object;
-                StatementExecutionCursorResult executionResult = resultForm.getExecutionResult();
+                ExecutionResult executionResult = resultForm.getExecutionResult();
                 Dialogs.show(() -> new RenameExecutionResultDialog(executionResult), (dialog, exitCode) -> {
                     DBNTabbedPane<DBNForm> tabs = getExecutionConsoleForm().getResultTabs();
                     tabs.setTabTitle(component, executionResult.getName());

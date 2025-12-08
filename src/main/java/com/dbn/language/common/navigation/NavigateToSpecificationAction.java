@@ -26,6 +26,6 @@ import static com.dbn.nls.NlsResources.txt;
 
 public class NavigateToSpecificationAction extends NavigationAction{
     public NavigateToSpecificationAction(DBObject parentObject, @NotNull BasePsiElement navigationElement, @NotNull DBObjectType objectType) {
-        super(txt("app.codeEditor.action.GoToSpecification",  objectType.getCapitalizedName()), Icons.NAVIGATION_GO_TO_SPEC, parentObject, navigationElement);
+        super(txt("app.codeEditor.action.GoToSpecification",  objectType.getTitleCasedName()), Icons.NAVIGATION_GO_TO_SPEC, parentObject, navigationElement);
     }
 }

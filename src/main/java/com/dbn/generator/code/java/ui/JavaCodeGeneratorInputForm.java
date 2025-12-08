@@ -49,6 +49,7 @@ import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Java.isValidClassName;
 import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -154,11 +155,11 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
 
     @NotNull
     private String getPackageName() {
-        return packageTextField.getText().trim();
+        return getText(packageTextField);
     }
 
     private String getClassName() {
-        return classNameTextField.getText().trim();
+        return getText(classNameTextField);
     }
 
     private CodeGeneratorCategory getGeneratorCategory() {

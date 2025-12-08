@@ -22,15 +22,15 @@ import com.dbn.editor.DBContentType;
 import com.dbn.event.action.ChangeNotificationsToggleAction;
 import com.dbn.execution.compiler.action.CompileActionGroup;
 import com.dbn.execution.java.action.JavaClassDebugAction;
+import com.dbn.execution.java.action.JavaClassExecuteAction;
 import com.dbn.execution.java.action.JavaClassWrapperAction;
 import com.dbn.execution.java.action.JavaMethodDebugAction;
+import com.dbn.execution.java.action.JavaMethodExecuteAction;
 import com.dbn.execution.java.action.JavaMethodWrapperAction;
-import com.dbn.execution.java.action.JavaObjectRunAction;
-import com.dbn.execution.java.action.JavaRunAction;
 import com.dbn.execution.method.action.MethodDebugAction;
-import com.dbn.execution.method.action.MethodRunAction;
+import com.dbn.execution.method.action.MethodExecuteAction;
 import com.dbn.execution.method.action.ProgramMethodDebugAction;
-import com.dbn.execution.method.action.ProgramMethodRunAction;
+import com.dbn.execution.method.action.ProgramMethodExecuteAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
@@ -142,7 +142,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         if (object instanceof DBMethod) {
             addSeparator();
             DBMethod method = (DBMethod) object;
-            add(new MethodRunAction(method, false));
+            add(new MethodExecuteAction(method, false));
             if (DEBUGGING.isSupported(object)) {
                 add(new MethodDebugAction(method, false));
             }
@@ -152,7 +152,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     private void addProgramActions(DBObject object) {
         if (object instanceof DBProgram && object.is(SCHEMA_OBJECT)) {
             addSeparator();
-            add(new ProgramMethodRunAction((DBProgram) object));
+            add(new ProgramMethodExecuteAction((DBProgram) object));
             if (DEBUGGING.isSupported(object)) {
                 add(new ProgramMethodDebugAction((DBProgram) object));
             }
@@ -163,7 +163,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         if(object instanceof DBJavaMethod){
             DBJavaMethod method = (DBJavaMethod) object;
             if (method.isExecutable()) {
-                add(new JavaRunAction(method, false));
+                add(new JavaMethodExecuteAction(method, false));
                 add(new JavaMethodDebugAction(method, false));
                 add(new JavaMethodWrapperAction(method));
             }
@@ -172,13 +172,13 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         if (object instanceof DBJavaClass) {
             add(new JavaObjectDownloadAction(object));
             addSeparator();
-            add(new JavaObjectRunAction((DBJavaClass) object));
+            add(new JavaClassExecuteAction((DBJavaClass) object));
             add(new JavaClassDebugAction((DBJavaClass) object));
             add(new JavaClassWrapperAction((DBJavaClass) object));
         }
 
         if (object instanceof DBJavaResource) {
-            add(new JavaResourceDownloadAction(object, null));
+            add(new JavaResourceDownloadAction(object));
         }
     }
 

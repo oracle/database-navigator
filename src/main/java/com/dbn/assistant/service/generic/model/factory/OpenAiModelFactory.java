@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.service.generic.model.factory;
 
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.service.generic.model.AssistantModelInput;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
@@ -27,22 +28,26 @@ import dev.langchain4j.model.openai.OpenAiLanguageModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.OPENAI;
+import static com.dbn.assistant.provider.AIProviderId.OPEN_AI;
 
 public class OpenAiModelFactory extends AbstractModelFactory {
 
     public OpenAiModelFactory() {
-        super(OPENAI);
+        super(OPEN_AI);
+    }
+
+    protected OpenAiModelFactory(AIProviderId providerId) {
+        super(providerId);
     }
 
     @Nullable
     @Override
     public ChatModel createChatModel(AssistantModelInput input) {
         return OpenAiChatModel.builder()
-                .modelName(input.getModel())
-                .baseUrl(input.getUrl())
+                .modelName(input.getModelName())
+                .baseUrl(input.getBaseUrl())
                 .user(input.getUser())
-                .apiKey(input.getToken())
+                .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())
@@ -53,10 +58,10 @@ public class OpenAiModelFactory extends AbstractModelFactory {
     @Override
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
         return OpenAiStreamingChatModel.builder()
-                .modelName(input.getModel())
-                .baseUrl(input.getUrl())
+                .modelName(input.getModelName())
+                .baseUrl(input.getBaseUrl())
                 .user(input.getUser())
-                .apiKey(input.getToken())
+                .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())
@@ -67,9 +72,9 @@ public class OpenAiModelFactory extends AbstractModelFactory {
     @Override
     public LanguageModel createLanguageModel(AssistantModelInput input) {
         return OpenAiLanguageModel.builder()
-                .modelName(input.getModel())
-                .baseUrl(input.getUrl())
-                .apiKey(input.getToken())
+                .modelName(input.getModelName())
+                .baseUrl(input.getBaseUrl())
+                .apiKey(input.getTokenString())
                 .temperature(input.getTemperature())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())
@@ -80,10 +85,10 @@ public class OpenAiModelFactory extends AbstractModelFactory {
     @Override
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
         return OpenAiEmbeddingModel.builder()
-                .modelName(input.getModel())
-                .baseUrl(input.getUrl())
+                .modelName(input.getModelName())
+                .baseUrl(input.getBaseUrl())
                 .user(input.getUser())
-                .apiKey(input.getToken())
+                .apiKey(input.getTokenString())
                 .customHeaders(input.getHeaders())
                 .httpClientBuilder(createHttpClientBuilder())
                 .build();

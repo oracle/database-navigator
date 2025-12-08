@@ -62,6 +62,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.connection.DatabaseType.GENERIC;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -298,7 +299,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     }
 
     public String getDriverLibrary() {
-        return driverLibraryTextField.getTextField().getText();
+        return getText(driverLibraryTextField);
     }
 
     public DatabaseType getDatabaseType() {

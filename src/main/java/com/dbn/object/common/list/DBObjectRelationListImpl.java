@@ -33,7 +33,6 @@ import com.dbn.object.type.DBObjectRelationType;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -196,7 +195,7 @@ class DBObjectRelationListImpl<T extends DBObjectRelation> extends DynamicConten
 
         public List<T> getChildElements(DatabaseEntity entity) {
             List<T> elements = getAllElements();
-            val ranges = this.ranges;
+            var ranges = this.ranges;
             if (ranges == null) return emptyList();
             if(!entity.isObject()) return emptyList();
 
@@ -219,19 +218,14 @@ class DBObjectRelationListImpl<T extends DBObjectRelation> extends DynamicConten
         }
 
         @Override
-        public T getElement(String name, short overload) {
-    /*        if (parentNameRanges != null) {
-                for (Range range : parentNameRanges.values()) {
-                    SearchAdapter<T> binary = getObjectType().isOverloadable() ?
-                            binary(name, overload) :
-                            binary(name);
+        public T getChildElement(DatabaseEntity entity, String name) {
+            // entity pair - no lookup by name
+            return null;
+        }
 
-                    T element = Search.binarySearch(elements, range.getLeft(), range.getRight(), binary);
-                    if (element != null) {
-                        return element;
-                    }
-                }
-            }*/
+        @Override
+        public T getElement(String name, short overload) {
+            // entity pair - no lookup by name
             return null;
         }
     }

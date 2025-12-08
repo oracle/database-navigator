@@ -16,55 +16,11 @@
 
 package com.dbn.assistant.service.generic.model.factory;
 
-import com.dbn.assistant.service.generic.model.AssistantModelInput;
-import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.chat.StreamingChatModel;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.huggingface.HuggingFaceChatModel;
-import dev.langchain4j.model.huggingface.HuggingFaceEmbeddingModel;
-import dev.langchain4j.model.language.LanguageModel;
-import org.jetbrains.annotations.Nullable;
+import static com.dbn.assistant.provider.AIProviderId.HUGGING_FACE;
 
-import static com.dbn.assistant.provider.AIProviders.HUGGINGFACE;
-
-public class HuggingFaceModelFactory extends AbstractModelFactory {
+public class HuggingFaceModelFactory extends OpenAiModelFactory {
 
     public HuggingFaceModelFactory() {
-        super(HUGGINGFACE);
-    }
-
-    @Override
-    @Nullable
-    public ChatModel createChatModel(AssistantModelInput input) {
-        return HuggingFaceChatModel.builder()
-                .modelId(input.getModel())
-                .baseUrl(input.getUrl())
-                .accessToken(input.getToken())
-                .temperature(input.getTemperature())
-                //.httpClientBuilder(createHttpClientBuilder())
-                .build();
-    }
-
-    @Override
-    @Nullable
-    public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
-        return null;
-    }
-
-    @Override
-    @Nullable
-    public LanguageModel createLanguageModel(AssistantModelInput input) {
-        return null;
-    }
-
-    @Override
-    @Nullable
-    public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
-        return HuggingFaceEmbeddingModel.builder()
-                .modelId(input.getModel())
-                .baseUrl(input.getUrl())
-                .accessToken(input.getToken())
-                //.httpClientBuilder(createHttpClientBuilder())
-                .build();
+        super(HUGGING_FACE);
     }
 }

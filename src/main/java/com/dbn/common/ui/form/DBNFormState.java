@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 import static com.dbn.common.ui.util.CheckBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
 import static com.dbn.common.ui.util.ComboBoxes.selectElement;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.nvl;
 
@@ -55,7 +56,7 @@ public class DBNFormState {
         String attribute = stateAttributes.getAttribute(stateAttribute);
 
         textField.setText(nvl(attribute, ""));
-        onTextChange(textField, e -> stateAttributes.setAttribute(stateAttribute, textField.getText().trim()));
+        onTextChange(textField, e -> stateAttributes.setAttribute(stateAttribute, getText(textField)));
     }
 
     public static void initPersistence(AbstractButton button, StateAttributes stateAttributes, @NonNls String stateAttribute) {

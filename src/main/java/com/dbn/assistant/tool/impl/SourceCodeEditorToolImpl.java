@@ -1,0 +1,93 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.assistant.tool.impl;
+
+import com.dbn.assistant.tool.AssistantToolBase;
+import com.dbn.assistant.tool.spec.SourceCodeEditorTool;
+import com.dbn.common.util.Commons;
+import com.dbn.object.DBFunction;
+import com.dbn.object.DBPackage;
+import com.dbn.object.DBProcedure;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBType;
+import com.dbn.object.DBView;
+import com.dbn.object.type.DBObjectType;
+
+import java.sql.SQLException;
+
+public class SourceCodeEditorToolImpl extends AssistantToolBase implements SourceCodeEditorTool {
+
+    @Override
+    public void openProgramCodeEditor(String schemaName, String programName, String programType) throws SQLException {
+        switch (programType.toUpperCase()) {
+            case "FUNCTION": openFunctionCodeEditor(schemaName, programName); return;
+            case "PROCEDURE": openProcedureCodeEditor(schemaName, programName); return;
+            case "PACKAGE": openPackageEditor(schemaName, programName); return;
+            case "TYPE": openTypeCodeEditor(schemaName, programName);
+            default: throw new IllegalArgumentException("Invalid program type \"" + programType + "\". Expected one of the following values: FUNCTION, PROCEDURE, PACKAGE or TYPE");
+        }
+    }
+
+    @Override
+    public void openTypeCodeEditor(String schemaName, String typeName) {
+        DBSchema schema = getSchema(schemaName);
+        DBType type = schema.getType(typeName);
+
+        verify(type, DBObjectType.TYPE, typeName);
+        openEditor(type);
+
+    }
+
+    @Override
+    public void openPackageEditor(String schemaName, String packageName) {
+        DBSchema schema = getSchema(schemaName);
+        DBPackage packagee = schema.getPackage(packageName);
+
+        verify(packagee, DBObjectType.PACKAGE, packageName);
+        openEditor(packagee);
+    }
+
+    @Override
+    public void openFunctionCodeEditor(String schemaName, String functionName) {
+        DBSchema schema = getSchema(schemaName);
+        DBFunction function = schema.getFunction(functionName, (short) 0); // todo overloads
+
+        verify(function, DBObjectType.FUNCTION, functionName);
+        openEditor(function);
+    }
+
+    @Override
+    public void openProcedureCodeEditor(String schemaName, String procedureName) {
+        DBSchema schema = getSchema(schemaName);
+        DBProcedure procedure = schema.getProcedure(procedureName, (short) 0); // todo overloads
+
+        verify(procedure, DBObjectType.PROCEDURE, procedureName);
+        openEditor(procedure);
+    }
+
+    @Override
+    public void openViewCodeEditor(String schemaName, String viewName) {
+        DBSchema schema = getSchema(schemaName);
+        DBView view = Commons.coalesce(
+                () -> schema.getView(viewName),
+                () -> schema.getMaterializedView(viewName),
+                () -> schema.getJsonView(viewName));
+
+        verify(view, DBObjectType.VIEW, viewName);
+        openEditor(view);
+    }
+}

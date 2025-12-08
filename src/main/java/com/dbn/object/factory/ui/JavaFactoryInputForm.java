@@ -44,6 +44,7 @@ import java.awt.Color;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Java.isValidClassName;
 import static com.dbn.common.util.Java.isValidPackageName;
@@ -97,7 +98,7 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
 
     @NotNull
     private String getHeaderTitle() {
-        String packageName = packageTextField.getText().trim();
+        String packageName = getPackageName();
         String className = getObjectName();
         if (isEmpty(className)) className = "[unnamed]";
 
@@ -107,7 +108,7 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
 
     @Override
     public String getObjectName() {
-        return classNameTextField.getText().trim();
+        return getText(classNameTextField);
     }
 
     private DBNHeaderForm createHeaderForm(DBSchema schema) {
@@ -135,15 +136,15 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
 
     @NonNls
     private String getPackageName() {
-        return packageTextField.getText().trim();
+        return getText(packageTextField);
     }
 
     @Override
     public JavaFactoryInput createFactoryInput(ObjectFactoryInput parent) {
         return new JavaFactoryInput(
                 getSchema(),
-                packageTextField.getText(),
-                classNameTextField.getText(),
+                getPackageName(),
+                getObjectName(),
                 classTypeComboBox.getSelectedValue());
     }
 

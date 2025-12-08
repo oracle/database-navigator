@@ -27,7 +27,6 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.EasyConnectParameters;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.diagnostics.Diagnostics;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.java.JavaCodeGenerator;
 import com.intellij.ide.fileTemplates.FileTemplate;
@@ -99,11 +98,6 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         Properties properties = new Properties();
         addInputProperties(input, properties);
         addConnectionProperties(context, properties);
-        if (Diagnostics.isDeveloperMode()) {
-            properties.forEach((key, value) -> {
-                System.out.printf("%s=%s\n", key,value);
-            });
-        }
         return properties;
     }
 
@@ -161,6 +155,8 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         //addProperty(properties, "PASSWORD", authenticationInfo.getPassword());
         addProperty(properties, "TOKEN_CONFIG_FILE", authenticationInfo.getTokenConfigFile());
         addProperty(properties, "TOKEN_PROFILE", authenticationInfo.getTokenProfile());
+        addProperty(properties, "OCI_COMPARTMENT", authenticationInfo.getCompartmentOcid());
+        addProperty(properties, "OCI_DATABASE", authenticationInfo.getDatabaseOcid());
 
         // add AZURE token properties
         addProperty(properties, "AZURE_TOKEN_CLIENT_ID", authenticationInfo.getAzureClientId());

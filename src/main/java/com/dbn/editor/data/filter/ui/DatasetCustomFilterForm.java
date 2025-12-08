@@ -45,6 +45,7 @@ import java.util.Objects;
 
 import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.ClientProperty.NO_INDENT;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.editor.code.content.GuardedBlockType.READONLY_DOCUMENT_SECTION;
 
 public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCustomFilter> {
@@ -144,7 +145,7 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
     }
 
     public String getFilterName() {
-        return nameTextField.getText();
+        return getText(nameTextField);
     }
 
    /*************************************************
@@ -164,7 +165,7 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         if (Objects.equals(condition, COMMENT))
             filter.setCondition(""); else
             filter.setCondition(condition);
-        filter.setName(nameTextField.getText());
+        filter.setName(getText(nameTextField));
     }
 
     @Override

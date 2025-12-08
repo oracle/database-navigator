@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.dbn.common.exception.Exceptions.unsupported;
+import static com.dbn.common.util.Naming.toUpperSnakeCase;
 
 public class TransientWrapperNamingProvider implements WrapperNamingProvider {
     public static final String NAME_PREFIX = "DBN_OJVM_";
@@ -66,6 +67,6 @@ public class TransientWrapperNamingProvider implements WrapperNamingProvider {
 
     @Override
     public String getSqlMethodName(DBJavaMethod javaMethod) {
-        return unsupported(); // transient wrappers are expected to use getSqlWrapperName(javaMethod)
+        return toUpperSnakeCase(javaMethod.getSimpleName());
     }
 }

@@ -58,6 +58,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implements TableModelListener {
@@ -152,7 +153,7 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
     private Date getDateForPopup() {
         UserValueHolder<?> userValueHolder = getEditorComponent().getUserValueHolder();
         if (userValueHolder == null) {
-            String dateString = getEditorComponent().getTextField().getText();
+            String dateString = getText(getEditorComponent().getTextField());
             try {
                 return getFormatter().parseDateTime(dateString);
             } catch (ParseException e) {
@@ -222,7 +223,7 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
         Date date = model.getTimestamp(
                 daysTable.getSelectedRow(),
                 daysTable.getSelectedColumn(),
-                timeTextField.getText(),
+                getText(timeTextField),
                 getFormatter());
         TextFieldWithPopup editorComponent = getEditorComponent();
         editorComponent.setText(getFormatter().formatDateTime(date));

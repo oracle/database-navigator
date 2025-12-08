@@ -93,7 +93,7 @@ public class ObjectFilterManager extends ProjectComponentBase implements Persist
 		Project project = getProject();
 		ConnectionId connectionId = filterSettings.getConnectionId();
 		DBObjectType objectType = filter.getObjectType();
-		String listName = objectType.getCapitalizedListName();
+		String listName = objectType.getTitleCasedListName();
 
 
 		if (!filter.isActive()) {

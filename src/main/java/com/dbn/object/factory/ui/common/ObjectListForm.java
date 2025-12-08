@@ -20,7 +20,7 @@ import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.Presentable;
-import com.dbn.common.ui.PresentableFactory;
+import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.ValueSelector;
 import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.component.DBNComponent;
@@ -79,7 +79,7 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
             super(PlatformIcons.ADD_ICON, "Add " + getObjectType().getName(), null, ValueSelectorOption.HIDE_DESCRIPTION);
             addListener((oldValue, newValue) -> createObjectPanel(newValue));
 
-            setEmptyValueFactory(new PresentableFactory<>("(custom type)") {
+            setEmptyValueFactory(new ValueFactory<>("(custom type)") {
                 @Override
                 public void create(Consumer<ObjectDetail> consumer) {
                     createObjectPanel(null);

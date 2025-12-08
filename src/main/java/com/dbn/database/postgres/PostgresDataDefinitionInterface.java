@@ -54,7 +54,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
 
     public void setSessionSqlMode(String sqlMode, DBNConnection connection) throws SQLException {
         if (sqlMode != null) {
-            executeQuery(connection, true, "set-session-sql-mode", sqlMode);
+            executeUpdate(connection, "set-session-sql-mode", sqlMode);
         }
     }
 
@@ -63,8 +63,8 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
      *********************************************************/
 
     @Override
-    public void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "drop-trigger", tableOwner, tableName, triggerName);
+    public void updateTrigger(String ownerName, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "drop-trigger", ownerName, tableName, triggerName);
         try {
             createObject(newCode, connection);
         } catch (SQLException e) {
@@ -75,7 +75,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
     }
 
     @Override
-    public void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+    public void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "update-object", newCode);
     }
 

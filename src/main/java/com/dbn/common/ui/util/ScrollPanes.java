@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.util;
 
+import com.intellij.util.ui.ScrollUtil;
 import lombok.experimental.UtilityClass;
 
 import javax.swing.JScrollBar;
@@ -25,12 +26,18 @@ import java.awt.event.ActionEvent;
 
 @UtilityClass
 public class ScrollPanes {
-    public static void scrollDown(JScrollPane scrollPane) {
+    public static void scrollDown(JScrollPane scrollPane, boolean animate) {
         scrollPane.revalidate();
         JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
-
-        Timer timer = new Timer(20, e -> scrollDown(e, scrollBar, 50));
-        timer.start();
+        if (animate) {
+            Timer timer = new Timer(20, e -> scrollDown(e, scrollBar, 50));
+            timer.start();
+        } else {
+            int value = scrollBar.getMaximum() - scrollBar.getVisibleAmount();
+            if (value > scrollBar.getValue()) {
+                ScrollUtil.scrollVertically(scrollBar, value);
+            }
+        }
     }
 
     private static void scrollDown(ActionEvent e, JScrollBar scrollBar, int step) {

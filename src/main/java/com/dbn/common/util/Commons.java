@@ -134,7 +134,7 @@ public final class Commons {
     }
 
     @NotNull
-    public static <T> T[] list(T... values) {
+    public static <T> T[] array(T... values) {
         return values;
     }
 

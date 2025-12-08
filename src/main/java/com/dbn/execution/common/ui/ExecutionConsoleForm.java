@@ -57,6 +57,7 @@ import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.execution.statement.result.StatementExecutionResult;
 import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.vector.result.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
@@ -75,11 +76,8 @@ import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
@@ -332,7 +330,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
     public void addResult(MethodExecutionResult executionResult) {
         showResultTab(executionResult);
     }
-
+    //todo add one foe vector embeddings
     public void addResult(JavaExecutionResult executionResult) {
         showResultTab(executionResult);
     }
@@ -351,6 +349,13 @@ public class ExecutionConsoleForm extends DBNFormBase {
             return isValid(executionResultForm) ? executionResultForm.getExecutionResult() : null;
         }
         return null;
+    }
+
+    /*********************************************************
+     *                       Vector Embeddings               *
+     *********************************************************/
+    public void addResult(VectorEmbeddingExecutionResult executionResult) {
+        showResultTab( executionResult);
     }
 
     /*********************************************************
@@ -577,5 +582,15 @@ public class ExecutionConsoleForm extends DBNFormBase {
     @Nullable
     public <T extends ExecutionResultForm> T getExecutionResultForm(ExecutionResult<?> executionResult) {
         return cast(executionResultForms.get(executionResult));
+    }
+
+    public Set<String> getExecutionResultNames(Class<? extends ExecutionResult<?>> resultType) {
+        return executionResultForms
+                .values()
+                .stream()
+                .map(ExecutionResultForm::getExecutionResult)
+                .filter(result->resultType.isAssignableFrom(result.getClass()))
+                .map(ExecutionResult::getName)
+                .collect(Collectors.toSet());
     }
 }

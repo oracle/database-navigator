@@ -16,17 +16,14 @@
 
 package com.dbn.assistant.service.selectai.editor;
 
-import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.chat.context.ChatContext;
-import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.service.selectai.PromptAction;
 import com.dbn.assistant.service.selectai.SelectAiResponseConsumer;
 import com.dbn.assistant.service.selectai.ui.SelectAiHelpDialog;
 import com.dbn.common.exception.Exceptions;
-import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ThreadBlocker;
 import com.dbn.common.util.Dialogs;
@@ -38,6 +35,9 @@ import com.intellij.openapi.project.Project;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static com.dbn.assistant.AssistantType.SELECT_AI;
+import static com.dbn.assistant.chat.message.AuthorType.AGENT;
+import static com.dbn.common.message.MessageType.NEUTRAL;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -50,7 +50,7 @@ public class SelectAiEditorPromptUtil {
         ThreadBlocker blocker = new ThreadBlocker();
 
         String processMessage = getPromptText(context.getActionId(), text);
-        String processTitle = AssistantType.SELECT_AI.getName();
+        String processTitle = SELECT_AI.getName();
         Progress.modal(project, connection, true,
                 processTitle,
                 processMessage, p -> {
@@ -60,10 +60,10 @@ public class SelectAiEditorPromptUtil {
                     // TODO is there any interactive use-case possible
                     //  (e.g. popup dialog with suggestion to improve the output)
 
-                    assistantManager.query(text, chatId, connectionId, AssistantType.SELECT_AI, context, new SelectAiResponseConsumer() {
+                    assistantManager.query(text, chatId, connectionId, SELECT_AI, context, new SelectAiResponseConsumer() {
                         @Override
                         public void acceptMessage(String message) {
-                            ChatMessage chatMessage = new ChatMessage(MessageType.NEUTRAL, message, AuthorType.AGENT, context);
+                            ChatMessage chatMessage = new ChatMessage(SELECT_AI, NEUTRAL, message, AGENT, context);
                             consumer.accept(chatMessage);
                         }
 
@@ -84,7 +84,7 @@ public class SelectAiEditorPromptUtil {
     }
 
     private static void handleGenerateException(Project project, ConnectionId connectionId, AIProvider provider, Throwable e) {
-        String title = AssistantType.SELECT_AI.getName() + " Error";
+        String title = SELECT_AI.getName() + " Error";
 
         String message = getPresentableMessage(provider, e);
 
@@ -95,7 +95,7 @@ public class SelectAiEditorPromptUtil {
 
     public static String getPresentableMessage(AIProvider provider, Throwable e) {
         e = Exceptions.rootCauseOf(e);
-        String assistantName = AssistantType.SELECT_AI.getName() ;
+        String assistantName = SELECT_AI.getName() ;
         String errorMessage = e.getMessage();
         boolean networkAccessDenied = errorMessage != null && errorMessage.contains("ORA-24247");
 

@@ -66,8 +66,12 @@ public interface DBObject extends
     @Override
     String getName();
 
+    String getPresentableName();
+
     @NotNull
     String getName(boolean quoted);
+
+    String getComments();
 
     @NotNull
     @Override
@@ -114,9 +118,11 @@ public interface DBObject extends
     <T extends DBObject> T getChildObject(DBObjectType objectType, String name, short overload);
 
     @NotNull
-    List<DBObject> collectChildObjects(DBObjectType objectType);
+    <T extends DBObject>List<T> collectChildObjects(DBObjectType objectType);
 
     void collectChildObjects(DBObjectType objectType, Consumer<? super DBObject> consumer);
+
+    DBObjectList<?>[] getChildObjectLists();
 
     @Nullable
     <T extends DBObject> DBObjectList<T> getChildObjectList(DBObjectType objectType);

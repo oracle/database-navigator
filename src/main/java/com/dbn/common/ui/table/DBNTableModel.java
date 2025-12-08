@@ -46,4 +46,8 @@ public interface DBNTableModel<R> extends TableModel, StatefulDisposable, NlsSup
     default boolean isPresentableLargeValue(int columnIndex) {
         return false;
     }
+
+    default boolean isEmpty() {
+        return getRowCount() == 0;
+    }
 }

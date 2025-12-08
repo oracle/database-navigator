@@ -41,6 +41,7 @@ import java.util.List;
 import static com.dbn.common.ui.list.ListProperty.EDITABLE;
 import static com.dbn.common.ui.list.ListProperty.INDEXED;
 import static com.dbn.common.ui.list.ListProperty.SORTED;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static java.util.Collections.emptyList;
 
 @Getter
@@ -77,6 +78,8 @@ public class EditableStringList extends DBNEditableTable<EditableStringListModel
 
     @Override
     public Component prepareEditor(TableCellEditor editor, int rowIndex, int columnIndex) {
+        if (!isEditable()) return null;
+
         JTextField component = (JTextField) super.prepareEditor(editor, rowIndex, columnIndex);
         component.addFocusListener(new FocusAdapter() {
             @Override
@@ -155,7 +158,7 @@ public class EditableStringList extends DBNEditableTable<EditableStringListModel
             Object source = e.getSource();
             return source instanceof EditableStringList ?
                     (String) getModel().getValueAt(getSelectedRow(), 0) :
-                    ((JTextField) source).getText();
+                    getText(((JTextField) source));
         }
 
         private void updateValue(KeyEvent e) {

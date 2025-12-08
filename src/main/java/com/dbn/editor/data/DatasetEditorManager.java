@@ -141,7 +141,7 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
             }
         }
     }
-
+    // todo use this for filter opening
     public void openDataEditor(DatasetFilterInput filterInput) {
         DBDataset dataset = filterInput.getDataset();
         Project project = dataset.getProject();

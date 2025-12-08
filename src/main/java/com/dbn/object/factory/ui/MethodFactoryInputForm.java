@@ -44,6 +44,7 @@ import java.awt.Color;
 import java.util.List;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
@@ -132,7 +133,7 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
 
     @Override
     public MethodFactoryInput createFactoryInput(ObjectFactoryInput parent) {
-        MethodFactoryInput input = new MethodFactoryInput(getSchema(), nameTextField.getText(), getObjectType());
+        MethodFactoryInput input = new MethodFactoryInput(getSchema(), getText(nameTextField), getObjectType());
         input.setArguments(argumentListPanel.createFactoryInputs(input));
 
         if (hasReturnArgument()) {
@@ -174,7 +175,7 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
 
     @Override
     public String getObjectName() {
-        return nameTextField.getText().trim();
+        return getText(nameTextField);
     }
 
     public abstract boolean hasReturnArgument();

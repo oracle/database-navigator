@@ -292,7 +292,7 @@ class SqliteMetadataInterface extends DatabaseMetadataInterfaceImpl {
 
     @Override
     public void terminateSession(Object sessionId, Object serialNumber, boolean immediate, DBNConnection connection) throws SQLException {
-        executeStatement(connection, "kill-session", sessionId);
+        executeUpdate(connection, "kill-session", sessionId);
     }
 
     @Override
