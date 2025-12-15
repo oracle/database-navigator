@@ -17,8 +17,6 @@
 package com.dbn.assistant.service.generic.model.factory;
 
 import com.dbn.assistant.service.generic.model.AssistantModelInput;
-import dev.langchain4j.model.bedrock.BedrockChatModel;
-import dev.langchain4j.model.bedrock.BedrockStreamingChatModel;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
@@ -36,13 +34,13 @@ public class BedrockModelFactory extends AbstractModelFactory {
     @Nullable
     @Override
     public ChatModel createChatModel(AssistantModelInput input) {
-        return BedrockChatModel.builder().build(); // TODO
+        return null; // TODO
     }
 
     @Nullable
     @Override
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
-        return BedrockStreamingChatModel.builder().build(); // TODO
+        return null; // TODO
     }
 
     @Nullable
