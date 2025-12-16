@@ -23,29 +23,46 @@ import com.intellij.openapi.fileTypes.UnknownFileType;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import static com.dbn.common.util.Commons.coalesce;
 
 @UtilityClass
 public class FileTypes {
 
+    public static @NonNull PlainTextFileType getTextFileType() {
+        return PlainTextFileType.INSTANCE;
+    }
+
     public static FileType getJavaFileType() {
         return coalesce(
                 () -> resolveFileType("java"),
-                () -> PlainTextFileType.INSTANCE);
+                () -> getTextFileType());
     }
 
     public static FileType getClassFileType() {
         return coalesce(
                 () -> resolveFileType("class"),
-                () -> PlainTextFileType.INSTANCE);
+                () -> getTextFileType());
+    }
+
+    public static FileType getXmlFileType() {
+        return coalesce(
+                () -> resolveFileType("xml"),
+                () -> getTextFileType());
+    }
+
+    public static FileType getDtdFileType() {
+        return coalesce(
+                () -> resolveFileType("dtd"),
+                () -> getTextFileType());
     }
 
     public static FileType getJsonFileType() {
         return coalesce(
                 () -> resolveFileType("json"),
                 () -> resolveFileType("js"),
-                () -> PlainTextFileType.INSTANCE);
+                () -> getTextFileType());
     }
 
     /**

@@ -132,11 +132,7 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
 
   @Override
   public boolean checkEmbeddingsExistForDocument(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String documentId) throws SQLException {
-    ResultSet rs = executeQuery(conn, "check-embeddings-exist-for-document", schemaName, tableName, metadataColumnName, documentId);
-    if (rs.next()) {
-      return rs.getInt("cnt") > 0;
-    }
-    return false;
+    return getBooleanValue(conn,"check-embeddings-exist-for-document", schemaName, tableName, metadataColumnName, documentId);
   }
 
 

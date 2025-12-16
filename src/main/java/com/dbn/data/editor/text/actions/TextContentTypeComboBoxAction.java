@@ -18,8 +18,9 @@ package com.dbn.data.editor.text.actions;
 
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.Lookups;
+import com.dbn.common.ref.WeakRef;
 import com.dbn.data.editor.text.TextContentType;
-import com.dbn.data.editor.text.ui.TextEditorForm;
+import com.dbn.data.editor.text.TextContentTypeOwner;
 import com.dbn.editor.data.options.DataEditorQualifiedEditorSettings;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -32,14 +33,18 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 
 public class TextContentTypeComboBoxAction extends ComboBoxAction {
-    private TextEditorForm editorForm;
+    private final WeakRef<TextContentTypeOwner> owner;
 
-    public TextContentTypeComboBoxAction(TextEditorForm editorForm) {
-        this.editorForm = editorForm;
+    public TextContentTypeComboBoxAction(TextContentTypeOwner owner) {
+        this.owner = WeakRef.of(owner);
         Presentation presentation = getTemplatePresentation();
-        TextContentType contentType = editorForm.getContentType();
+        TextContentType contentType = owner.getContentType();
         presentation.setText(contentType.getName());
         presentation.setIcon(contentType.getIcon());
+    }
+
+    public TextContentTypeOwner getOwner() {
+        return WeakRef.ensure(owner);
     }
 
     @Override
@@ -49,10 +54,15 @@ public class TextContentTypeComboBoxAction extends ComboBoxAction {
         DataEditorQualifiedEditorSettings qualifiedEditorSettings = DataEditorSettings.getInstance(project).getQualifiedEditorSettings();
         
         DefaultActionGroup actionGroup = new DefaultActionGroup();
+        TextContentTypeOwner contentTypeOwner = getOwner();
+
         for (TextContentType contentType : qualifiedEditorSettings.getContentTypes()) {
-            if (contentType.isSelected()) {
-                actionGroup.add(new TextContentTypeSelectAction(editorForm, contentType));
-            }
+            if (!contentType.isSelected()) continue;
+
+            var filter = contentTypeOwner.getContentTypeFilter();
+            if (!filter.test(contentType)) continue;
+
+            actionGroup.add(new TextContentTypeSelectAction(contentTypeOwner, contentType));
 
         }
         return actionGroup;
@@ -60,9 +70,14 @@ public class TextContentTypeComboBoxAction extends ComboBoxAction {
 
     @Override
     public void update(AnActionEvent e) {
+        TextContentType contentType = getContentType();
+
         Presentation presentation = e.getPresentation();
-        TextContentType contentType = editorForm.getContentType();
         presentation.setText(contentType.getName());
         presentation.setIcon(contentType.getIcon());
+    }
+
+    private TextContentType getContentType() {
+        return getOwner().getContentType();
     }
 }

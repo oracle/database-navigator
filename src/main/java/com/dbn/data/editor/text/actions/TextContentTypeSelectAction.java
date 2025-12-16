@@ -17,26 +17,34 @@
 package com.dbn.data.editor.text.actions;
 
 import com.dbn.common.action.BasicAction;
+import com.dbn.common.ref.WeakRef;
 import com.dbn.data.editor.text.TextContentType;
-import com.dbn.data.editor.text.ui.TextEditorForm;
+import com.dbn.data.editor.text.TextContentTypeOwner;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class TextContentTypeSelectAction extends BasicAction {
-    private final TextEditorForm editorForm;
+    private final WeakRef<TextContentTypeOwner> owner;
     private final TextContentType contentType;
 
-    public TextContentTypeSelectAction(TextEditorForm editorForm, TextContentType contentType) {
+    public TextContentTypeSelectAction(TextContentTypeOwner holder, TextContentType contentType) {
         super(contentType.getName(), null, contentType.getIcon());
         this.contentType = contentType;
-        this.editorForm = editorForm;
+        this.owner = WeakRef.of(holder);
+    }
+
+    private TextContentTypeOwner getOwner() {
+        return WeakRef.ensure(owner);
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        editorForm.setContentType(contentType);
+        TextContentTypeOwner contentTypeOwner = getOwner();
+        TextContentType contentType = contentTypeOwner.getContentType();
+        if (contentType == this.contentType) return;
 
+        contentTypeOwner.setContentType(this.contentType);
     }
 }

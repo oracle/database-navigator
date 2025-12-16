@@ -182,13 +182,16 @@
 
     <statement-execution-processor id="check-embeddings-exist-for-document">
         <statement>
-            SELECT COUNT(*) as cnt FROM {0}.{1}
-            WHERE JSON_VALUE({2}, '$.embedding_source.primary_key') = {#3}
-            AND ROWNUM = 1
+            select case
+                when exists (
+                    select 1
+                    from {0}.{1}
+                    where json_value({2}, '$.embedding_source.primary_key') = {#3})
+                then 'Y'
+                else 'N'
+            end as value
         </statement>
     </statement-execution-processor>
-
-
 
     <statement-execution-processor id="stream-file-content-to-blob" timeout="120000">
         <statement>
@@ -283,7 +286,7 @@
                             embed_data   CLOB PATH '$.embed_data',
                             embed_vector CLOB PATH '$.embed_vector'
                         )
-                ) jt;
+                ) jt
         </statement>
     </statement-execution-processor>
 

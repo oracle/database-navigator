@@ -131,12 +131,12 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
         nd(connection.getProject());
     }
 
-    protected final boolean getBooleanValue(DBNConnection connection, String statementId, Object... arguments) throws SQLException {
+    protected final boolean getBooleanValue(DBNConnection connection, @NonNls String statementId, Object... arguments) throws SQLException {
         return Data.asBooleanPrimitive(getSingleValue(connection, statementId, arguments));
     }
 
 
-    protected final String getSingleValue(DBNConnection connection, String statementId, Object... arguments) throws SQLException {
+    protected final String getSingleValue(DBNConnection connection, @NonNls String statementId, Object... arguments) throws SQLException {
         ResultSet resultSet = null;
         try {
             resultSet = executeQuery(connection, statementId, arguments);

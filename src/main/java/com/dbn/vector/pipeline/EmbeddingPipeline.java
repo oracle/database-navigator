@@ -20,11 +20,10 @@ import java.sql.SQLException;
 
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.TABLE;
+import static com.dbn.vector.service.FileProcessingService.FILES_TABLE;
 
 
 public abstract class EmbeddingPipeline {
-
-    protected static final String FILES_TABLE = "document_files";
 
     /**
      * Execute the complete embedding pipeline.
