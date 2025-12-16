@@ -97,6 +97,13 @@ public abstract class EmbeddingPipeline {
                         storeConfig.getMetadataColumnName()
                 );
 
+                // Create index for efficient deduplication lookups
+                vectorInterface.createEmbeddingSourceIndex(
+                        connection,
+                        storeConfig.getSchemaName(),
+                        storeConfig.getTableName(),
+                        storeConfig.getMetadataColumnName()
+                );
 
                 // Notify browser to refresh
                 notifyTableCreated(request.getConnectionId(), storeConfig.getSchemaName());

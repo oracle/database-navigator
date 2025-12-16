@@ -127,6 +127,14 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="create-embedding-source-index" timeout="120">
+        <statement>
+            CREATE INDEX {0}.idx_{1}_source_pk ON {0}.{1}(
+                JSON_VALUE({2}, '$.embedding_source.primary_key')
+            )
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="ensure-documents-table" timeout="120000">
         <statement>
             DECLARE
@@ -172,6 +180,14 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="check-embeddings-exist-for-document">
+        <statement>
+            SELECT COUNT(*) as cnt FROM {0}.{1}
+            WHERE JSON_VALUE({2}, '$.embedding_source.primary_key') = {#3}
+            AND ROWNUM = 1
+        </statement>
+    </statement-execution-processor>
+
 
 
     <statement-execution-processor id="stream-file-content-to-blob" timeout="120000">
@@ -204,6 +220,38 @@
                                     params => json({#10})
                         )
                     ) t;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="insert-vector-embeddings-from-table-batch" timeout="120000">
+        <statement>
+            INSERT INTO {0}.{1} (id, {2}, {3}, {4})
+                SELECT
+                    SYS_GUID(),
+                    JSON_VALUE(t.COLUMN_VALUE, '$.embed_data' RETURNING CLOB),
+                    TO_VECTOR(JSON_VALUE(t.COLUMN_VALUE, '$.embed_vector' RETURNING CLOB)),
+                    JSON_MERGEPATCH(
+                        {#11},
+                        JSON_OBJECT(
+                            KEY 'embedding_id' VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50)),
+                            KEY 'embedding_source' VALUE JSON_OBJECT('primary_key' VALUE src.{7})
+                        ) RETURNING VARCHAR2
+                    )
+                FROM (
+                    SELECT * FROM {5}.{6}
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM {0}.{1} tgt
+                        WHERE JSON_VALUE(tgt.{4}, '$.embedding_source.primary_key') = TO_CHAR({7})
+                    )
+                    FETCH FIRST {12} ROWS ONLY
+                ) src,
+                TABLE(
+                        DBMS_VECTOR.UTL_TO_EMBEDDINGS(
+                                data   => DBMS_VECTOR.UTL_TO_CHUNKS(
+                                data   => src.{8},
+                                params => json({#9})),
+                                params => json({#10})
+                    )
+                ) t
         </statement>
     </statement-execution-processor>
         <statement-execution-processor id="insert-vector-embeddings-from-filesystem" timeout="120000">

@@ -39,7 +39,11 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
 
   void createEmbeddingTable(DBNConnection connection, String ownerName, String tableName, String keyColumnName, String textColumnName, String embeddingColumnName, String metadataColumnName) throws SQLException;
 
+  void createEmbeddingSourceIndex(DBNConnection connection, String schemaName, String tableName, String metadataColumnName) throws SQLException;
+
   int embedDataContent(DBNConnection connection, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig, @NotNull String metadata) throws SQLException;
+
+  int embedDataContentBatch(DBNConnection connection, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig, @NotNull String metadata, int batchSize) throws SQLException;
 
   int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, String documentId, String metadata) throws SQLException;
 
@@ -48,6 +52,8 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
   void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata, String fileHash, long fileSize) throws SQLException;
 
   ResultSet selectDocumentIdByHashIfExists(DBNConnection conn, String filesTable, String crc, long filesize) throws SQLException;
+
+  boolean checkEmbeddingsExistForDocument(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String documentId) throws SQLException;
 
   void writeBlobContent(@NotNull DBNConnection connection, String filesTable, @NotNull String documentId, InputStream inputStream) throws SQLException;
 }

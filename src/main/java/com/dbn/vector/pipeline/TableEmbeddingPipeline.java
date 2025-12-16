@@ -19,7 +19,10 @@ import static com.dbn.vector.model.PipelineStep.ENSURE_DOCUMENT_TABLE;
 
 
 public class TableEmbeddingPipeline extends EmbeddingPipeline {
+    private static final int DEFAULT_BATCH_SIZE = 100;
+    
     private final TableProcessingService tableProcessingService = new TableProcessingService();
+    
     @Override
     protected void executeSourceSpecificPipeline(
             @NotNull VectorEmbeddingRequest request,
@@ -38,47 +41,80 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
                 tableConfig.getTableName()
         );
 
-        String metadata =  tableProcessingService.buildRowMetadata(request,tableConfig);
+        String metadata = tableProcessingService.buildRowMetadata(request, tableConfig);
         progressIndicator.setText2("Embedding table data from " + tableResult.getName());
 
-        // Execute the embedding
-        embedTableData(
+        // Execute the embedding with batching
+        embedTableDataInBatches(
                 request,
                 connection,
                 vectorInterface,
                 tableResult,
-                metadata
+                metadata,
+                progressIndicator
         );
     }
 
     /**
-     * Embed data from the source table.
+     * Embed data from the source table using batching for failure recovery.
+     * Each batch is committed separately, so progress is preserved on failure.
      */
-    private void embedTableData(
+    private void embedTableDataInBatches(
             @NotNull VectorEmbeddingRequest request,
             @NotNull DBNConnection connection,
             @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull TableResult tableResult,
-            @NotNull String metadata) throws SQLException {
+            @NotNull String metadata,
+            @NotNull ProgressIndicator progressIndicator) throws SQLException {
 
         StepResult embedStep = tableResult.startStep(PipelineStep.EMBED);
 
         try {
-            int embeddedRows = vectorInterface.embedDataContent(
-                    connection,
-                    request.getSourceConfig().getTableSourceConfig(),
-                    request.getChunkConfig().getConfigJson(),
-                    request.getEmbedConfig().getConfigJson(),
-                    request.getStoreConfig(),
-                    metadata
-            );
+            int totalProcessed = 0;
+            int batchCount;
+            int batchNumber = 0;
+            connection.setAutoCommit(false);
+            do {
+                // Check for cancellation
+                if (progressIndicator.isCanceled()) {
+                    break;
+                }
 
-            embedStep.markSuccess();
-            tableResult.finishSuccess(embeddedRows);
+                batchNumber++;
+                progressIndicator.setText2("Processing batch " + batchNumber + " (total rows: " + totalProcessed + ")");
+
+                // Process one batch
+                batchCount = vectorInterface.embedDataContentBatch(
+                        connection,
+                        request.getSourceConfig().getTableSourceConfig(),
+                        request.getChunkConfig().getConfigJson(),
+                        request.getEmbedConfig().getConfigJson(),
+                        request.getStoreConfig(),
+                        metadata,
+                        DEFAULT_BATCH_SIZE
+                );
+
+                // Commit after each batch - this is the recovery point
+                connection.commit();
+
+                totalProcessed += batchCount;
+
+            } while (batchCount > 0);
+
+            if (progressIndicator.isCanceled()) {
+                embedStep.markSuccess();
+                tableResult.finishSuccess(totalProcessed);
+            } else {
+                embedStep.markSuccess();
+                tableResult.finishSuccess(totalProcessed);
+            }
 
         } catch (SQLException e) {
+            // Rollback only the current failed batch
+            connection.rollback();
             embedStep.markFailed("EMBED_ERROR", e.getMessage());
             tableResult.finishFailed("EMBED_ERROR", e.getMessage());
+            throw e;
         }
     }
 }

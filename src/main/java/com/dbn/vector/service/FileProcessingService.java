@@ -116,6 +116,22 @@ public class FileProcessingService {
         StepResult step = fileResult.startStep(PipelineStep.EMBED);
 
         try {
+            // Check if embeddings already exist for this document
+            boolean alreadyEmbedded = vectorInterface.checkEmbeddingsExistForDocument(
+                    connection,
+                    request.getStoreConfig().getSchemaName(),
+                    request.getStoreConfig().getTableName(),
+                    request.getStoreConfig().getMetadataColumnName(),
+                    documentId
+            );
+
+            if (alreadyEmbedded) {
+                step.markSuccess();
+                fileResult.setExisted(true);
+                fileResult.finishSuccess(0);  // 0 new rows - already existed
+                return;
+            }
+
             String rowMetadata = buildRowMetadata(request, fileContent.getMetadata());
             String chunkConfigJson = request.getChunkConfig().getConfigJson();
             String embedConfigJson = request.getEmbedConfig().getConfigJson();

@@ -75,6 +75,26 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
   }
 
   @Override
+  public int embedDataContentBatch(DBNConnection conn, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig, @NotNull String metadata, int batchSize) throws SQLException {
+    return executeUpdate(conn,
+            "insert-vector-embeddings-from-table-batch",
+            storeConfig.getSchemaName(),
+            storeConfig.getTableName(),
+            storeConfig.getTextColumnName(),
+            storeConfig.getEmbeddingColumnName(),
+            storeConfig.getMetadataColumnName(),
+            sourceConfig.getSchemaName(),
+            sourceConfig.getTableName(),
+            sourceConfig.getKeyColumnName(),
+            sourceConfig.getDataColumnName(),
+            chunkConfig,
+            embedConfig,
+            metadata,
+            batchSize
+    );
+  }
+
+  @Override
   public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, String documentId, String metadata) throws SQLException {
       return executeUpdate(conn,
               "insert-vector-embeddings-from-filesystem",
@@ -110,10 +130,24 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     return executeQuery(conn,"select-document-id-by-hash",filesTable,hash,filesize);
   }
 
+  @Override
+  public boolean checkEmbeddingsExistForDocument(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String documentId) throws SQLException {
+    ResultSet rs = executeQuery(conn, "check-embeddings-exist-for-document", schemaName, tableName, metadataColumnName, documentId);
+    if (rs.next()) {
+      return rs.getInt("cnt") > 0;
+    }
+    return false;
+  }
+
 
   @Override
   public void createEmbeddingTable(DBNConnection conn, String ownerName, String tableName, String keyColumnName, String textColumnName, String embeddingColumnName, String metadataColumnName) throws SQLException {
     executeUpdate(conn, "create-embedding-table", ownerName, tableName, keyColumnName, textColumnName, embeddingColumnName, metadataColumnName);
+  }
+
+  @Override
+  public void createEmbeddingSourceIndex(DBNConnection conn, String schemaName, String tableName, String metadataColumnName) throws SQLException {
+    executeUpdate(conn, "create-embedding-source-index", schemaName, tableName, metadataColumnName);
   }
 
   @Override
