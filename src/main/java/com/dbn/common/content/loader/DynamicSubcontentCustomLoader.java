@@ -30,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class DynamicSubcontentCustomLoader<
                 T extends DynamicContentElement,
@@ -56,7 +55,7 @@ public abstract class DynamicSubcontentCustomLoader<
             if (sourceContent instanceof GroupedDynamicContent groupedContent) {
                 DatabaseEntity parentEntity = content.ensureParentEntity();
                 List<DynamicContentElement> childElements = groupedContent.getChildElements(parentEntity);
-                list = childElements.stream().map(e -> resolveElement(content, e)).filter(e -> e != null).collect(Collectors.toList());
+                list = childElements.stream().map(e -> resolveElement(content, e)).filter(e -> e != null).toList();
             } else {
                 List elements = sourceContent.getAllElements();
                 for (Object object : elements) {

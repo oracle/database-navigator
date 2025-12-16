@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -133,11 +132,10 @@ public final class Nullifier {
 
     private static List<Field> nullifiableFields(Class clazz) {
         return NULLIFIABLE_FIELDS.computeIfAbsent(clazz, c ->
-                ReflectionUtil.
-                        collectFields(c).
-                        stream().
-                        filter(field -> isNullifiable(field)).
-                        collect(Collectors.toList()));
+                ReflectionUtil.collectFields(c)
+                        .stream()
+                        .filter(field -> isNullifiable(field))
+                        .toList());
     }
 
     private static boolean isNullifiable(Field field) {
