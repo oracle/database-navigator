@@ -21,16 +21,16 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.UnknownFileType;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import static com.dbn.common.util.Commons.coalesce;
 
 @UtilityClass
 public class FileTypes {
 
-    public static @NonNull PlainTextFileType getTextFileType() {
+    public static PlainTextFileType getTextFileType() {
         return PlainTextFileType.INSTANCE;
     }
 
@@ -70,7 +70,7 @@ public class FileTypes {
      * (avoid internal fallback to {@link UnknownFileType})
      */
     @Nullable
-    private static FileType resolveFileType(String extension) {
+    private static FileType resolveFileType(@NonNls String extension) {
         FileType fileType = getFileType(extension);
         if (fileType instanceof UnknownFileType) return null;
         return fileType;

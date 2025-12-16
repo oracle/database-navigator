@@ -21,6 +21,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
+import com.dbn.common.util.Json;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -202,6 +203,10 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
             Object userValue = userValueHolder.getUserValue();
             if (userValue instanceof String) {
                 return (String) userValue;
+            } else if (userValue instanceof JsonValue) {
+                JsonValue jsonValue = (JsonValue) userValue;
+                return Json.formatJsonContent(jsonValue.getData());
+
             } else if (userValue instanceof LargeObjectValue) {
                 LargeObjectValue largeObjectValue = (LargeObjectValue) userValue;
                 dataType = largeObjectValue.getGenericDataType();
