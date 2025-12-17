@@ -1,4 +1,4 @@
-package com.dbn.vector.model.sourceconfig;
+package com.dbn.vector.model.source;
 
 import com.dbn.vector.model.VectorEmbeddingConfig;
 import lombok.Getter;

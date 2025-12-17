@@ -18,7 +18,7 @@ package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.object.factory.ModelFactoryInput;
-import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
+import com.dbn.vector.model.source.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import org.jetbrains.annotations.NotNull;
 

@@ -12,7 +12,7 @@ import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.common.FileContent;
-import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
+import com.dbn.vector.model.source.FileSystemSourceConfig;
 import com.dbn.vector.service.FileProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vfs.VirtualFile;

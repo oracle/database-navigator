@@ -2,19 +2,19 @@ package com.dbn.vector.model;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
-import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
-import com.dbn.vector.model.sourceconfig.SourceConfig;
-import com.dbn.vector.model.sourceconfig.SourceType;
+import com.dbn.vector.model.source.DBTableSourceConfig;
+import com.dbn.vector.model.source.FileSystemSourceConfig;
+import com.dbn.vector.model.source.SourceConfig;
+import com.dbn.vector.model.source.SourceType;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Arrays;
 
 import static com.dbn.common.util.Unsafe.cast;
 

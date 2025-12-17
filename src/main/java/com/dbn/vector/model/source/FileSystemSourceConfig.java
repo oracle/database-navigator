@@ -1,7 +1,6 @@
-package com.dbn.vector.model.sourceconfig;
+package com.dbn.vector.model.source;
 
 import com.dbn.common.state.PersistentStateElement;
-import com.dbn.vector.model.common.CreateTableConfig;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import lombok.Getter;
@@ -13,10 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static java.util.Collections.emptyList;
@@ -25,10 +22,6 @@ import static java.util.Collections.emptyList;
 @Getter
 public class FileSystemSourceConfig implements PersistentStateElement {
     private List<String> filePaths = new ArrayList<>();
-
-    private boolean store;
-    // if it's to be stored
-    private CreateTableConfig tableConfig;
 
     public List<VirtualFile> getFiles() {
         if (filePaths == null) return emptyList();
@@ -48,8 +41,6 @@ public class FileSystemSourceConfig implements PersistentStateElement {
             String path = stringAttribute(fileElement, "path");
             filePaths.add(path);
         }
-
-        store = booleanAttribute(element, "store", store);
     }
 
     @Override
@@ -59,7 +50,6 @@ public class FileSystemSourceConfig implements PersistentStateElement {
             Element fileElement = newElement(filesElement, "file");
             setStringAttribute(fileElement, "path", filePath);
         }
-        setBooleanAttribute(element, "store", store);
     }
 
     public int getFileCount() {

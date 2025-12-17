@@ -51,8 +51,12 @@ public abstract class VectorToolboxFormBase extends DBNFormBase {
     }
 
     protected VectorEmbeddingRequest getEmbeddingRequest() {
-        VectorToolboxForm rootForm = ensureParentFrom(VectorToolboxForm.class);
+        VectorToolboxForm rootForm = getToolboxForm();
         return rootForm.getEmbeddingRequest();
+    }
+
+    protected VectorToolboxForm getToolboxForm() {
+        return ensureParentFrom(VectorToolboxForm.class);
     }
 
     protected static String getSelectedObjectName(DBNComboBox<? extends DBObject> comboBox, String defaultName) {

@@ -1,4 +1,20 @@
-package com.dbn.vector.ui.source.ui;
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.vector.ui.source;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
@@ -6,8 +22,9 @@ import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
-import com.dbn.vector.model.sourceconfig.SourceConfig;
-import com.dbn.vector.model.sourceconfig.SourceType;
+import com.dbn.vector.model.source.SourceConfig;
+import com.dbn.vector.model.source.SourceType;
+import com.dbn.vector.ui.VectorToolboxForm;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
@@ -20,15 +37,15 @@ import javax.swing.JPanel;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 
-public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
+public class EmbeddingSourceForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
   private JPanel mainPanel;
   private JPanel dataPanel;
   private JComboBox<SourceType> sourceComboBox;
   private JLabel sourceLabel;
-  private FileSystemSourceForm fileSourceForm;
-  private DBTableSourceForm tableSourceForm;
+  private EmbeddingSourceFilesForm fileSystemForm;
+  private EmbeddingSourceTableForm tableForm;
 
-  public SourceDataForm(@Nullable Disposable parent,ConnectionHandler connection) {
+  public EmbeddingSourceForm(@Nullable Disposable parent, ConnectionHandler connection) {
     super(parent, connection);
     initComboBox();
     initDataPanel();
@@ -36,8 +53,8 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
 
   private void initDataPanel() {
     ConnectionHandler connection = getConnection();
-    fileSourceForm = new FileSystemSourceForm(this, connection);
-    tableSourceForm = new DBTableSourceForm(this, connection);
+    fileSystemForm = new EmbeddingSourceFilesForm(this, connection);
+    tableForm = new EmbeddingSourceTableForm(this, connection);
     updateSourceForm();
   }
 
@@ -55,20 +72,23 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
   protected void initFieldAlignment() {
     FieldAlignerData alignerData = getFieldAlignerData();
     alignerData.registerFieldGroup(sourceLabel, sourceComboBox);
-    alignerData.registerForms(tableSourceForm);
+    alignerData.registerForms(tableForm);
   }
 
   private void updateSourceForm() {
     SourceType sourceType = getSelectedSourceType();
     dataPanel.removeAll();
     if (sourceType == SourceType.FILE_SYSTEM) {
-      dataPanel.add(fileSourceForm.getComponent());
+      dataPanel.add(fileSystemForm.getComponent());
     } else if (sourceType == SourceType.DATABASE_TABLE) {
-      dataPanel.add(tableSourceForm.getComponent());
+      dataPanel.add(tableForm.getComponent());
     }
     dataPanel.revalidate();
     dataPanel.repaint();
     validateFormFields();
+
+    VectorToolboxForm toolboxForm = getToolboxForm();
+    toolboxForm.setStagingConfigVisible(sourceType == SourceType.FILE_SYSTEM);
   }
 
   @Override
@@ -76,8 +96,8 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
     SourceConfig config = getConfig();
 
     setSelection(sourceComboBox, config.getSourceType());
-    tableSourceForm.resetFormChanges();
-    fileSourceForm.resetFormChanges();
+    tableForm.resetFormChanges();
+    fileSystemForm.resetFormChanges();
   }
 
   @Override
@@ -85,8 +105,8 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
     SourceConfig config = getConfig();
 
     config.setSourceType(getSelectedSourceType());
-    tableSourceForm.applyFormChanges();
-    fileSourceForm.applyFormChanges();
+    tableForm.applyFormChanges();
+    fileSystemForm.applyFormChanges();
   }
 
   public SourceConfig getConfig() {
@@ -109,12 +129,12 @@ public class SourceDataForm extends VectorToolboxFormBase implements DBNCollapsi
     String sourceTypeName = sourceType == null ? "" : sourceType.getName();
 
     if (sourceType == SourceType.FILE_SYSTEM) {
-      return sourceTypeName + " - " + fileSourceForm.getSelectedFileCount() + " files";
+      return sourceTypeName + " - " + fileSystemForm.getSelectedFileCount() + " files";
     }
 
     if (sourceType == SourceType.DATABASE_TABLE) {
-      DBSchema schema = tableSourceForm.getSelectedSchema();
-      DBTable table = tableSourceForm.getSelectedTable();
+      DBSchema schema = tableForm.getSelectedSchema();
+      DBTable table = tableForm.getSelectedTable();
 
       if (schema != null && table != null) {
         return sourceTypeName + " - " + schema.getName() + "." + table.getName();

@@ -1,0 +1,44 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="en">
+<head>
+    <title>Staging table</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body>
+    <h3>Staging Table</h3>
+    File contents are uploaded in a staging table before their contents are cunked and embedded.
+    You can specify whether to use an already existing table or create a new one.<br><br>
+    The staging table has the following structure:
+    <ul>
+        <li><code>ID</code> - the unique identifier of the file content</li>
+        <li><code>FILE_CONTENT (blob)</code> - the content of the file</li>
+        <li><code>FILE_SIZE</code> - the file size in bytes</li>
+        <li><code>FILE_HASH</code> - unique signature of the content </li>
+        <li><code>METADATA (json)</code> - meta information about the upload in json format</li>
+    </ul>
+</body>
+</html>
+
+

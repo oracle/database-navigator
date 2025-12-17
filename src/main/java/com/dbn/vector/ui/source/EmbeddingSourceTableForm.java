@@ -1,4 +1,20 @@
-package com.dbn.vector.ui.source.ui;
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.vector.ui.source;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -9,7 +25,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
-import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
+import com.dbn.vector.model.source.DBTableSourceConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +42,7 @@ import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 
-public class DBTableSourceForm extends VectorToolboxFormBase {
+public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private DBNComboBox<DBSchema> schemaComboBox;
   private DBNComboBox<DBTable> tableComboBox;
@@ -39,7 +55,7 @@ public class DBTableSourceForm extends VectorToolboxFormBase {
   private JLabel keyColumnLabel;
   private JLabel dataColumnLabel;
 
-  public DBTableSourceForm(@Nullable Disposable parent, ConnectionHandler connection) {
+  public EmbeddingSourceTableForm(@Nullable Disposable parent, ConnectionHandler connection) {
     super(parent, connection);
 
     initComboBoxes();

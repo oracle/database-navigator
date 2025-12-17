@@ -1,7 +1,7 @@
 package com.dbn.vector.model;
 
 import com.dbn.common.file.util.VirtualFiles;
-import com.dbn.vector.model.sourceconfig.SourceType;
+import com.dbn.vector.model.source.SourceType;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;

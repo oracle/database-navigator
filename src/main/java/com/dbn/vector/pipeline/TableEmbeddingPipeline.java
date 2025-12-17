@@ -8,7 +8,7 @@ import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.TableResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
-import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
+import com.dbn.vector.model.source.DBTableSourceConfig;
 import com.dbn.vector.service.TableProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.jetbrains.annotations.NotNull;

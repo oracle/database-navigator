@@ -18,7 +18,7 @@ import com.dbn.execution.ExecutionManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.chunk.ChunkConfig;
-import com.dbn.vector.model.sourceconfig.SourceType;
+import com.dbn.vector.model.source.SourceType;
 import com.dbn.vector.model.store.StoreConfig;
 import com.dbn.vector.pipeline.EmbeddingPipeline;
 import com.dbn.vector.pipeline.FileEmbeddingPipeline;

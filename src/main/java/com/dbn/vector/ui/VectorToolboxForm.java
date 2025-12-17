@@ -13,11 +13,13 @@ import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.chunk.ChunkConfig;
 import com.dbn.vector.model.embed.EmbedConfig;
-import com.dbn.vector.model.sourceconfig.SourceConfig;
+import com.dbn.vector.model.source.SourceConfig;
+import com.dbn.vector.model.staging.StagingConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import com.dbn.vector.ui.chunk.ChunkConfigForm;
 import com.dbn.vector.ui.embed.EmbedConfigForm;
-import com.dbn.vector.ui.source.ui.SourceDataForm;
+import com.dbn.vector.ui.source.EmbeddingSourceForm;
+import com.dbn.vector.ui.staging.EmbeddingStagingConfigForm;
 import com.dbn.vector.ui.store.SaveVectorsForm;
 import com.intellij.openapi.Disposable;
 
@@ -29,15 +31,17 @@ import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 
 public class VectorToolboxForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
-  private JPanel dataPanel;
+  private JPanel sourcePanel;
   private JPanel chunkConfigPanel;
   private JPanel embedConfigPanel;
   private JPanel saveDataPanel;
   private JPanel hintPanel;
   private JPanel headerPanel;
   private JPanel hyperlinkPanel;
+  private JPanel stagingConfigPanel;
 
-  private SourceDataForm sourceDataForm;
+  private EmbeddingSourceForm embeddingSourceForm;
+  private EmbeddingStagingConfigForm stagingConfigForm;
   private ChunkConfigForm chunkConfigForm;
   private EmbedConfigForm embedConfigForm;
   private SaveVectorsForm saveVectorsForm;
@@ -61,10 +65,16 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
     ConnectionHandler connection = getConnection();
 
     SourceConfig sourceConfig = request.getSourceConfig();
-    sourceDataForm = new SourceDataForm(this, connection);
-    DBNCollapsiblePanel sourceCollapsiblePanel = new DBNCollapsiblePanel(this, sourceDataForm, true /*TODO async sourceConfig.isExpanded()*/);
+    embeddingSourceForm = new EmbeddingSourceForm(this, connection);
+    DBNCollapsiblePanel sourceCollapsiblePanel = new DBNCollapsiblePanel(this, embeddingSourceForm, true /*TODO async sourceConfig.isExpanded()*/);
     sourceCollapsiblePanel.addToggleListener(expanded -> sourceConfig.setExpanded(expanded));
-    dataPanel.add(sourceCollapsiblePanel.getComponent());
+    sourcePanel.add(sourceCollapsiblePanel.getComponent());
+
+    StagingConfig stagingConfig = request.getStagingConfig();
+    stagingConfigForm = new EmbeddingStagingConfigForm(this, connection);
+    DBNCollapsiblePanel stagingCollapsiblePanel = new DBNCollapsiblePanel(this, stagingConfigForm, true /*TODO async stagingConfig.isExpanded()*/);
+    stagingCollapsiblePanel.addToggleListener(expanded -> stagingConfig.setExpanded(expanded));
+    stagingConfigPanel.add(stagingCollapsiblePanel.getComponent());
 
     ChunkConfig chunkConfig = request.getChunkConfig();
     chunkConfigForm = new ChunkConfigForm(this, connection);
@@ -89,10 +99,15 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
   protected void initFieldAlignment() {
     FieldAlignerData alignerData = getFieldAlignerData();
     alignerData.registerForms(
-            sourceDataForm,
+            embeddingSourceForm,
+            stagingConfigForm,
             chunkConfigForm,
             embedConfigForm,
             saveVectorsForm);
+  }
+
+  public void setStagingConfigVisible(boolean visible) {
+    stagingConfigPanel.setVisible(visible);
   }
 
   //  private void initButtonListners() {
@@ -131,7 +146,8 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
 
   @Override
   public void resetFormChanges() {
-    sourceDataForm.resetFormChanges();
+    embeddingSourceForm.resetFormChanges();
+    stagingConfigForm.resetFormChanges();
     chunkConfigForm.resetFormChanges();
     embedConfigForm.resetFormChanges();
     saveVectorsForm.resetFormChanges();
@@ -139,7 +155,8 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
 
   @Override
   public void applyFormChanges() {
-    sourceDataForm.applyFormChanges();
+    embeddingSourceForm.applyFormChanges();
+    stagingConfigForm.applyFormChanges();
     chunkConfigForm.applyFormChanges();
     embedConfigForm.applyFormChanges();
     saveVectorsForm.applyFormChanges();

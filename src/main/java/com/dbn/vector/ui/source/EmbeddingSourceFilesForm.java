@@ -1,22 +1,36 @@
-package com.dbn.vector.ui.source.ui;
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.vector.ui.source;
 
 import com.dbn.common.ui.file.VirtualFileListForm;
 import com.dbn.common.util.FileChoosers;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
+import com.dbn.vector.model.source.FileSystemSourceConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-public class FileSystemSourceForm extends VectorToolboxFormBase {
+public class EmbeddingSourceFilesForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private JPanel fileListPanel;
-  private JCheckBox storetableCheckbox;
   private VirtualFileListForm fileListForm;
 
 //  private FileSystemSourceConfig fileSystemSourceConfig;
@@ -24,7 +38,7 @@ public class FileSystemSourceForm extends VectorToolboxFormBase {
           withTitle("Select Text Files to Embed").
           withDescription("Select valid text files to embed");
 
-  public FileSystemSourceForm(@Nullable Disposable parent, ConnectionHandler connection) {
+  public EmbeddingSourceFilesForm(@Nullable Disposable parent, ConnectionHandler connection) {
     super(parent, connection);
     fileListForm = new VirtualFileListForm(this, "Source files");
     fileListPanel.add(fileListForm.getComponent());
@@ -39,14 +53,12 @@ public class FileSystemSourceForm extends VectorToolboxFormBase {
   public void resetFormChanges() {
     FileSystemSourceConfig config = getConfig();
     fileListForm.setFiles(config.getFiles());
-    storetableCheckbox.setSelected(config.isStore());
   }
 
   @Override
   public void applyFormChanges() {
     FileSystemSourceConfig config = getConfig();
     config.setFilePaths(fileListForm.getFilePaths());
-    config.setStore(storetableCheckbox.isSelected());
   }
 
   private FileSystemSourceConfig getConfig() {

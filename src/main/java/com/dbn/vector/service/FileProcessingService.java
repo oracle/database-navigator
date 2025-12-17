@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.dbn.vector.DatabaseVectorManager.ENGINE_VERSION;
-import static com.dbn.vector.model.sourceconfig.SourceType.FILE_SYSTEM;
+import static com.dbn.vector.model.source.SourceType.FILE_SYSTEM;
 
 @Slf4j
 public class FileProcessingService {

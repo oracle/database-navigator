@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.vector.model.sourceconfig;
+package com.dbn.vector.model.source;
 
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;

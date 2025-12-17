@@ -21,7 +21,7 @@ import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.object.factory.ModelFactoryInput;
-import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
+import com.dbn.vector.model.source.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;

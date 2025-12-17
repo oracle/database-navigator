@@ -2,7 +2,7 @@ package com.dbn.vector.service;
 
 import com.dbn.common.util.Json;
 import com.dbn.vector.model.VectorEmbeddingRequest;
-import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
+import com.dbn.vector.model.source.DBTableSourceConfig;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.dbn.vector.DatabaseVectorManager.ENGINE_VERSION;
-import static com.dbn.vector.model.sourceconfig.SourceType.DATABASE_TABLE;
+import static com.dbn.vector.model.source.SourceType.DATABASE_TABLE;
 
 public class TableProcessingService {
 
