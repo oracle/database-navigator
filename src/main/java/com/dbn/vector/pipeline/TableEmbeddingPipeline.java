@@ -84,7 +84,7 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
                 progressIndicator.setText2("Processing batch " + batchNumber + " (total rows: " + totalProcessed + ")");
 
                 // Process one batch
-                batchCount = vectorInterface.embedDataContentBatch(
+                batchCount = vectorInterface.embedDataContent(
                         connection,
                         request.getSourceConfig().getTableSourceConfig(),
                         request.getChunkConfig().getConfigJson(),

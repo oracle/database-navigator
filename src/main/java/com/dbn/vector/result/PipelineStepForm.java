@@ -11,14 +11,16 @@ import com.dbn.common.ui.util.Fonts;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.data.DatasetEditorManager;
-import com.dbn.editor.data.filter.*;
+import com.dbn.editor.data.filter.DatasetCustomFilter;
+import com.dbn.editor.data.filter.DatasetFilterGroup;
+import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
-import com.dbn.vector.model.StepResult;
-import com.dbn.vector.model.SourceResult;
-import com.dbn.vector.model.PipelineStep;
-import com.dbn.vector.model.TableResult;
 import com.dbn.vector.model.FileResult;
+import com.dbn.vector.model.PipelineStep;
+import com.dbn.vector.model.SourceResult;
+import com.dbn.vector.model.StepResult;
+import com.dbn.vector.model.TableResult;
 import com.intellij.icons.AllIcons;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
@@ -181,10 +183,10 @@ public class PipelineStepForm extends DBNFormBase  {
   }
 
   private String buildFileWhereClause(FileResult fileResult) {
-    String fileId = fileResult.getDocId();
+    String fileStoreId = fileResult.getFileStoreId();
     return String.format(
-            "JSON_VALUE(metadata, '$.embedding_source.primary_key') = '%s'",
-            escapeSql(fileId)
+            "JSON_VALUE(metadata, '$.embedding_source.source_id') = '%s'",
+            escapeSql(fileStoreId)
     );
   }
 

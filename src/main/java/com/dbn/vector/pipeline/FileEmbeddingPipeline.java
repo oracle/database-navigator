@@ -18,8 +18,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 
@@ -89,7 +87,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
             FileContent fileContent;
             try {
                 fileContent = new FileContent(file);
-            } catch (IOException | NoSuchAlgorithmException e) {
+            } catch (Exception e) {
                 fileResult.finishFailed("FILE_READ_ERROR", e.getMessage());
                 return;
             }
@@ -99,7 +97,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                             shortenFileName, currentIndex + 1, totalFiles)
             );
 
-            String documentId = fileService.checkFileExists(
+            String fileStoreId = fileService.resolveFileStoreId(
                     connection,
                     vectorInterface,
                     fileContent,
@@ -110,15 +108,15 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                 return;  // Check failed
             }
 
-            if (documentId != null) {
+            if (fileStoreId != null) {
                 // File already exists - use existing ID
                 progressIndicator.setText2(
                         String.format("File already uploaded, using existing \"%s\" (%d/%d)",
                                 shortenFileName, currentIndex + 1, totalFiles)
                 );
 
-                fileResult.setDocId(documentId);
-                fileContent.setId(documentId);
+                fileResult.setFileStoreId(fileStoreId);
+                fileContent.setFileStoreId(fileStoreId);
 
               fileResult.deleteStep(PipelineStep.UPLOADING_FILE);  // Skip upload
 
@@ -129,14 +127,14 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                                 shortenFileName, currentIndex + 1, totalFiles)
                 );
 
-                documentId = UUIDs.compact();
-                fileResult.setDocId(documentId);
-                fileContent.setId(documentId);
+                fileStoreId = UUIDs.compact();
+                fileResult.setFileStoreId(fileStoreId);
+                fileContent.setFileStoreId(fileStoreId);
                 fileService.uploadFile(
                         connection,
                         vectorInterface,
                         fileContent,
-                        documentId,
+                        fileStoreId,
                         fileResult
                 );
             }
@@ -154,7 +152,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                     request,
                     connection,
                     vectorInterface,
-                    documentId,  // ← Pass ID only, no bytes!
+                    fileStoreId,  // ← Pass ID only, no bytes!
                     fileContent,
                     fileResult
             );

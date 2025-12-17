@@ -17,8 +17,8 @@ import java.util.Arrays;
 public class FileResult extends SourceResult{
   private final VirtualFile file;
   private final String size;
-  private String docId;
-  private String hash ;
+  private String fileStoreId;
+  private String fileHash;
   private boolean isExisted = false;
 
   public FileResult(VirtualFile file) {

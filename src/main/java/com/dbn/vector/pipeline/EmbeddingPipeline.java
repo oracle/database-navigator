@@ -93,16 +93,7 @@ public abstract class EmbeddingPipeline {
                         storeConfig.getKeyColumnName(),
                         storeConfig.getTextColumnName(),
                         storeConfig.getEmbeddingColumnName(),
-                        storeConfig.getMetadataColumnName()
-                );
-
-                // Create index for efficient deduplication lookups
-                vectorInterface.createEmbeddingSourceIndex(
-                        connection,
-                        storeConfig.getSchemaName(),
-                        storeConfig.getTableName(),
-                        storeConfig.getMetadataColumnName()
-                );
+                        storeConfig.getMetadataColumnName());
 
                 // Notify browser to refresh
                 notifyTableCreated(request.getConnectionId(), storeConfig.getSchemaName());
@@ -132,7 +123,7 @@ public abstract class EmbeddingPipeline {
         String tableIdentifier = schemaName + "." + FILES_TABLE.toUpperCase();
 
         try {
-            vectorInterface.ensureDocumentsTable(connection, schemaName, FILES_TABLE);
+            vectorInterface.ensureFileStoreTable(connection, schemaName, FILES_TABLE);
             step.markSuccess();
             step.setLink(tableIdentifier);
             step.setIcon(Icons.DBO_TABLE);
