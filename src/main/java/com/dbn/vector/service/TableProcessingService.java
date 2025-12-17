@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.dbn.vector.DatabaseVectorManager.ENGINE_VERSION;
 import static com.dbn.vector.model.sourceconfig.SourceType.DATABASE_TABLE;
 
 public class TableProcessingService {
@@ -23,6 +24,7 @@ public class TableProcessingService {
 
     @NonNls
     Map<String, Object> metadata = new LinkedHashMap<>();
+    metadata.put("engine_version", ENGINE_VERSION);
     metadata.put("embedding_source", sourceMetadata);
     metadata.put("embedding_config", request.getEmbedConfig().getConfigMap());
     metadata.put("chunking_config", request.getChunkConfig().getConfigMap());

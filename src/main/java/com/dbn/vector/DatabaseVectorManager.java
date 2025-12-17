@@ -56,6 +56,8 @@ import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 )
 public class DatabaseVectorManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseVectorManager";
+    public static final String ENGINE_VERSION = "1.0.0";
+
     private final Map<ConnectionId, VectorEmbeddingRequest> requestTemplates = new ConcurrentHashMap<>();
 
     public DatabaseVectorManager(@NotNull Project project) {

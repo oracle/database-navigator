@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.dbn.vector.DatabaseVectorManager.ENGINE_VERSION;
 import static com.dbn.vector.model.sourceconfig.SourceType.FILE_SYSTEM;
 
 @Slf4j
@@ -182,6 +183,7 @@ public class FileProcessingService {
         sourceMetadata.putAll(fileMetadata);
 
         Map<String, Object> metadata = new LinkedHashMap<>();
+        metadata.put("engine_version", ENGINE_VERSION);
         metadata.put("embedding_source", sourceMetadata);
         metadata.put("embedding_config", request.getEmbedConfig().getConfigMap());
         metadata.put("chunking_config", request.getChunkConfig().getConfigMap());
