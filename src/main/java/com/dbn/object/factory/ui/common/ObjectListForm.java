@@ -81,7 +81,7 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
 
             setEmptyValueFactory(new ValueFactory<>("(custom type)") {
                 @Override
-                public void create(Consumer<ObjectDetail> consumer) {
+                public void createValue(Consumer<ObjectDetail> consumer) {
                     createObjectPanel(null);
                 }
             });

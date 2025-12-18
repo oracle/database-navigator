@@ -123,9 +123,9 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
 
   private void initCredentialFields() {
     credentialComboBox.set(HIDE_DESCRIPTION, true);
-    credentialComboBox.init(() -> loadCredentials(), null);
     credentialAddButton.setIcon(Icons.ACTION_ADD);
     credentialAddButton.setText(null);
+    credentialComboBox.initialize(() -> loadCredentials());
 
     ConnectionHandler connection = getConnection();
     List<DBCredentialType> credentialTypes = List.of(TOKEN, PASSWORD);

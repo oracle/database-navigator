@@ -150,11 +150,11 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
   @Override
   public void resetFormChanges() {
     StoreConfig config = getConfig();
-    schemaComboBox.init(() -> loadSchemas(), o -> matchesObjectName(o, config.getSchemaName()));
-    tableComboBox.init(() -> loadTables(), o -> matchesObjectName(o, config.getTableName()));
-    dataColumnComboBox.init(() -> loadDataColumns(), o -> matchesObjectName(o, config.getTextColumnName()));
-    embeddingColumnComboBox.init(() -> loadEmbeddingColumns(), o -> matchesObjectName(o, config.getEmbeddingColumnName()));
-    metadataColumnComboBox.init(() -> loadMetadataColumns(), o -> matchesObjectName(o, config.getMetadataColumnName()));
+    schemaComboBox.initialize(() -> loadSchemas(), o -> matchesObjectName(o, config.getSchemaName()));
+    tableComboBox.initialize(() -> loadTables(), o -> matchesObjectName(o, config.getTableName()));
+    dataColumnComboBox.initialize(() -> loadDataColumns(), o -> matchesObjectName(o, config.getTextColumnName()));
+    embeddingColumnComboBox.initialize(() -> loadEmbeddingColumns(), o -> matchesObjectName(o, config.getEmbeddingColumnName()));
+    metadataColumnComboBox.initialize(() -> loadMetadataColumns(), o -> matchesObjectName(o, config.getMetadataColumnName()));
   }
 
   @Override

@@ -27,16 +27,19 @@
     </style>
 </head>
 <body>
-    <h3>Staging Table</h3>
-    File contents are uploaded in a staging table before their contents are cunked and embedded.
-    You can specify whether to use an already existing table or create a new one.<br><br>
-    The staging table has the following structure:
+    <h3>Staging Location</h3>
+    <p>
+        File contents are uploaded into a staging table before their contents are chunked and embedded.
+        You can specify whether to use an already existing table or create a new one.
+    </p>
+    <br>
+    <p>The staging table has the following structure:</p>
     <ul>
-        <li><code>ID</code> - the unique identifier of the file content</li>
-        <li><code>FILE_CONTENT (blob)</code> - the content of the file</li>
-        <li><code>FILE_SIZE</code> - the file size in bytes</li>
-        <li><code>FILE_HASH</code> - unique signature of the content </li>
-        <li><code>METADATA (json)</code> - meta information about the upload in json format</li>
+        <li><code>ID</code> – The unique identifier of the file content</li>
+        <li><code>FILE_CONTENT (BLOB)</code> – The content of the file</li>
+        <li><code>FILE_SIZE</code> – The file size in bytes</li>
+        <li><code>FILE_HASH</code> – Unique signature of the content</li>
+        <li><code>METADATA (JSON)</code> – Meta information about the upload in JSON format</li>
     </ul>
 </body>
 </html>

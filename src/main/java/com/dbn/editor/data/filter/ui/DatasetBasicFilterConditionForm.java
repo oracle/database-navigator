@@ -85,8 +85,8 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         GenericDataType dataType = column == null ? null : column.getDataType().getGenericDataType();
 
         columnSelector.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
-        columnSelector.init(() -> loadColumns(), v -> v == column);
-        operatorSelector.init(() -> loadOperators(), v -> v == condition.getOperator());
+        columnSelector.initialize(() -> loadColumns(), v -> v == column);
+        operatorSelector.initialize(() -> loadOperators(), v -> v == condition.getOperator());
 
 
         editorComponent = new TextFieldWithPopup<>(dataset.getProject());

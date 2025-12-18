@@ -18,13 +18,14 @@ package com.dbn.vector.ui.source;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
-import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
+import com.dbn.object.common.ui.DBObjectSelector;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.model.source.DBTableSourceConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
@@ -38,27 +39,24 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isValid;
-import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 
 public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
-  private DBNComboBox<DBSchema> schemaComboBox;
-  private DBNComboBox<DBTable> tableComboBox;
-
-  private DBNComboBox<DBColumn> keyColumnComboBox;
-  private DBNComboBox<DBColumn> dataColumnComboBox;
   private JCheckBox autoSyncCheckBox;
   private JLabel schemaLabel;
   private JLabel tableLabel;
   private JLabel keyColumnLabel;
   private JLabel dataColumnLabel;
 
+  private DBObjectSelector<DBSchema> schemaComboBox;
+  private DBObjectSelector<DBTable> tableComboBox;
+  private DBObjectSelector<DBColumn> keyColumnComboBox;
+  private DBObjectSelector<DBColumn> dataColumnComboBox;
+
   public EmbeddingSourceTableForm(@Nullable Disposable parent, ConnectionHandler connection) {
     super(parent, connection);
-
-    initComboBoxes();
   }
 
   @Override
@@ -80,10 +78,13 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
   }
 
   private void initComboBoxes() {
-    schemaComboBox.set(HIDE_DESCRIPTION, true);
-    tableComboBox.set(HIDE_DESCRIPTION, true);
-    dataColumnComboBox.set(HIDE_DESCRIPTION, true);
-    keyColumnComboBox.set(HIDE_DESCRIPTION, true);
+    ConnectionHandler connection = getConnection();
+    DBTableSourceConfig config = getConfig();
+
+    schemaComboBox.initialize(this, connection, DBObjectType.SCHEMA, () -> loadSchemas(), () -> config.getSchemaName());
+    tableComboBox.initialize(this, connection, DBObjectType.TABLE, () -> loadTables(), () -> config.getTableName());
+    keyColumnComboBox.initialize(this, connection, DBObjectType.COLUMN, () -> loadKeyColumns(), () -> config.getKeyColumnName());
+    dataColumnComboBox.initialize(this, connection, DBObjectType.COLUMN, () -> loadDataColumns(), () -> config.getDataColumnName());
 
     updateFieldAvailability();
   }
@@ -101,7 +102,7 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
             Collections.emptyList() :
             table.getColumns();
 
-    return Lists.filter(columns, c -> c.getDataType().isLiteral());
+    return Lists.filter(columns, c -> c.getDataType().isLiteral() && !c.isPrimaryKey());
   }
 
   protected void initEventListeners() {
@@ -135,10 +136,7 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
     DBTableSourceConfig config = getConfig();
     autoSyncCheckBox.setSelected(config.isAutoSync());
 
-    schemaComboBox.init(() -> loadSchemas(), s -> matchesObjectName(s, config.getSchemaName()));
-    tableComboBox.init(() -> loadTables(), t -> matchesObjectName(t, config.getTableName()));
-    keyColumnComboBox.init(() -> loadKeyColumns(), c -> matchesObjectName(c, config.getKeyColumnName()));
-    dataColumnComboBox.init(() -> loadDataColumns(), c -> matchesObjectName(c, config.getDataColumnName()));
+    initComboBoxes();
   }
 
   @Override

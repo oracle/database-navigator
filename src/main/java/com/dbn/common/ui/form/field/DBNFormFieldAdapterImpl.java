@@ -21,8 +21,7 @@ import com.dbn.common.lookup.Condition;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.util.ClientProperty;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.util.containers.ContainerUtil;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.util.containers.WeakList;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractButton;
@@ -32,9 +31,8 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.text.JTextComponent;
 import java.lang.reflect.Field;
-import java.util.Set;
+import java.util.Collection;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
@@ -51,7 +49,8 @@ import static com.dbn.common.util.Unsafe.warned;
  * @author Dan Cioca (Oracle)
  */
 class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
-    private final Set<JComponent> fields = ContainerUtil.createWeakSet();
+    // weak container with field definition order preservation (Non-streamable)
+    private final Collection<JComponent> fields = new WeakList<>();
 
     DBNFormFieldAdapterImpl(DBNForm form) {
         Class formClass = form.getClass();
@@ -64,39 +63,47 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
         }
     }
 
+    private void forEachField(Filter<JComponent> filter, Consumer<? super JComponent> action) {
+        for (JComponent field : fields) {
+            if (filter.accepts(field)) {
+                action.accept(field);
+            }
+        }
+    }
+
     @Override
     public void classifyFields(JComponentCategory category, Filter<JComponent> filter) {
-        fields(filter).forEach(c -> category.classify(c));
+        forEachField(filter, c -> category.classify(c));
     }
 
     @Override
     public void captureFieldValues(Filter<JComponent> filter) {
-        fields(filter).forEach(c -> captureFieldValue(c));
+        forEachField(filter, c -> captureFieldValue(c));
     }
 
     @Override
     public void resetFieldValues(Filter<JComponent> filter) {
-        fields(filter).forEach(c -> setFieldValue(c, null));
+        forEachField(filter, c -> setFieldValue(c, null));
     }
 
     @Override
     public void restoreFieldValues(Filter<JComponent> filter) {
-        fields(filter).forEach(c -> restoreFieldValue(c));
+        forEachField(filter, c -> restoreFieldValue(c));
     }
 
     @Override
     public void updateFields(Filter<JComponent> filter, Consumer<JComponent> consumer) {
-        fields(filter).forEach(consumer);
+        forEachField(filter, consumer);
     }
 
     @Override
     public void initFieldsVisibility(Condition condition, Filter<JComponent> filter) {
-        fields(filter).forEach(c -> VISIBILITY_CONDITION.set(c, condition));
+        forEachField(filter, c -> VISIBILITY_CONDITION.set(c, condition));
     }
 
     @Override
     public void initFieldsAvailability(Condition condition, Filter<JComponent> filter) {
-        fields(filter).forEach(c -> AVAILABILITY_CONDITION.set(c, condition));
+        forEachField(filter, c -> AVAILABILITY_CONDITION.set(c, condition));
     }
 
     @Override
@@ -122,11 +129,6 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
                 disableFormField(component, "CONDITIONAL_AVAILABILITY");
         }
     }
-
-    private @NotNull Stream<JComponent> fields(Filter<JComponent> filter) {
-        return this.fields.stream().filter(c -> filter.accepts(c));
-    }
-
 
     @Nullable
     private JComponent unwrapComponent(Field field, DBNForm form) {

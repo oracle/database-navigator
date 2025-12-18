@@ -84,8 +84,8 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     private final Listeners<ValueSelectorListener<T>> listeners = Listeners.create();
     private ListPopup popup;
     private @Setter ValueFactory<T> valueFactory;
-    private @Setter Loader<List<T>> valueLoader;
-    private @Setter Predicate<T> valuePreselector;
+    private Loader<List<T>> valueLoader;
+    private Predicate<T> valuePreselector;
     private transient ActionListener[] actionListeners;
 
     private final AtomicInteger loadSignature = new AtomicInteger(0);
@@ -163,17 +163,23 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     private ActionGroup createActionGroup() {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         List<T> values = getModel().getItems();
+
+        boolean valueFactoryFirst = values.size() > 5;
+        if (valueFactoryFirst && valueFactory != null) {
+            actionGroup.add(new AddValueAction());
+            actionGroup.add(Actions.SEPARATOR);
+        }
+
         for (T value : values) {
             actionGroup.add(new SelectValueAction(value));
         }
 
-        if (valueFactory != null) {
+        if (!valueFactoryFirst && valueFactory != null) {
             actionGroup.add(Actions.SEPARATOR);
             actionGroup.add(new AddValueAction());
-            return actionGroup;
         }
 
-        if (values.isEmpty()) {
+        if (values.isEmpty() && valueFactory == null) {
             String emptyOptionsText = getEmptyOptionsText(this);
             if (emptyOptionsText == null) return actionGroup;
 
@@ -280,7 +286,11 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         }
     }
 
-    public void init(Loader<List<T>> valueLoader, Predicate<T> valuePreselector){
+    public void initialize(Loader<List<T>> valueLoader){
+        initialize(valueLoader, null);
+    }
+
+    public void initialize(Loader<List<T>> valueLoader, Predicate<T> valuePreselector){
         this.valueLoader = valueLoader;
         this.valuePreselector = valuePreselector;
         if (isShowing()) {
@@ -308,6 +318,11 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
 
     private boolean matchesLoadSignature(int signature) {
         return signature == loadSignature.get();
+    }
+
+    public void reloadValues(Predicate<T> valuePreselector) {
+        this.valuePreselector = valuePreselector;
+        reloadValues();
     }
 
     public void reloadValues() {
@@ -370,11 +385,11 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            valueFactory.create(inputValue -> {
-                if (inputValue != null) {
-                    addValue(inputValue);
-                    selectValue(inputValue);
-                }
+            valueFactory.createValue(inputValue -> {
+                if (inputValue == null) return;
+
+                addValue(inputValue);
+                selectValue(inputValue);
             });
         }
 

@@ -84,7 +84,7 @@ public class CreateVectorDestinationForm extends VectorToolboxFormBase {
     vectorColumnTextField.setText(config.getEmbeddingColumnName());
     metadataColumnTextField.setText(config.getMetadataColumnName());
 
-    schemaComboBox.init(() -> loadSchemas(), o -> matchesObjectName(o, config.getSchemaName()));
+    schemaComboBox.initialize(() -> loadSchemas(), o -> matchesObjectName(o, config.getSchemaName()));
   }
 
   @Override

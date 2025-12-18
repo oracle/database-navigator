@@ -32,6 +32,7 @@ import com.dbn.object.factory.ui.FunctionFactoryInputForm;
 import com.dbn.object.factory.ui.JavaFactoryInputForm;
 import com.dbn.object.factory.ui.ModelFactoryInputForm;
 import com.dbn.object.factory.ui.ProcedureFactoryInputForm;
+import com.dbn.object.factory.ui.TableFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
@@ -65,6 +66,7 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
     protected ObjectFactoryInputForm<?> createForm() {
         DBSchema schema = getSchema();
         ObjectFactoryInputForm inputForm =
+                objectType == DBObjectType.TABLE ? new TableFactoryInputForm(this, schema, objectType, 0) :
                 objectType == DBObjectType.FUNCTION ? new FunctionFactoryInputForm(this, schema, objectType, 0) :
                 objectType == DBObjectType.PROCEDURE ? new ProcedureFactoryInputForm(this, schema, objectType, 0) :
                 objectType == DBObjectType.JAVA_CLASS ? new JavaFactoryInputForm(this, schema, 0) :
@@ -79,6 +81,10 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
 
     private DBSchema getSchema() {
         return this.schema.ensure();
+    }
+
+    public String getObjectName() {
+        return getForm().getObjectName();
     }
 
     @Override

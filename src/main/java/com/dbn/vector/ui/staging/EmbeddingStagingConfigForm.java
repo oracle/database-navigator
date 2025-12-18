@@ -22,12 +22,11 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNInfoLabel;
-import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
+import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.vector.model.staging.StagingConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
@@ -36,26 +35,23 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.util.Collections;
-import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isValid;
-import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
+import static com.dbn.object.type.DBObjectType.TABLE;
 
 public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
     private JPanel mainPanel;
-    private DBNComboBox<DBSchema> schemaComboBox;
-    private DBNComboBox<DBTable> tableComboBox;
-    private DBNInfoLabel tableInfoLabel;
     private JLabel schemaLabel;
     private JLabel tableLabel;
+    private DBNInfoLabel tableInfoLabel;
+    private DBObjectSelector<DBSchema> schemaComboBox;
+    private DBObjectSelector<DBTable> tableComboBox;
 
     public EmbeddingStagingConfigForm(@Nullable Disposable parent, ConnectionHandler connection) {
         super(parent, connection);
-
-        initComboBoxes();
         initInfoLabel();
     }
 
@@ -79,17 +75,14 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
     }
 
     private void initComboBoxes() {
-        schemaComboBox.set(HIDE_DESCRIPTION, true);
-        tableComboBox.set(HIDE_DESCRIPTION, true);
+        StagingConfig config = getConfig();
+        ConnectionHandler connection = getConnection();
+
+        schemaComboBox.initialize(this, connection, SCHEMA, () -> loadSchemas(), () -> config.getSchemaName());
+        tableComboBox.initialize(this, connection, TABLE, () -> loadTables(), () -> config.getTableName());
+        tableComboBox.initValueFactory("New Table...", () -> getSelectedSchema());
 
         updateFieldAvailability();
-    }
-
-    private List<DBColumn> loadKeyColumns() {
-        DBTable table = ComboBoxes.getSelection(tableComboBox);
-        return table == null ?
-                Collections.emptyList() :
-                table.getPrimaryKeyColumns();
     }
 
     protected void initEventListeners() {
@@ -109,10 +102,7 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
     @Override
     public void resetFormChanges() {
-        StagingConfig config = getConfig();
-
-        schemaComboBox.init(() -> loadSchemas(), s -> matchesObjectName(s, config.getSchemaName()));
-        tableComboBox.init(() -> loadTables(), t -> matchesObjectName(t, config.getTableName()));
+        initComboBoxes();
     }
 
     @Override
@@ -143,11 +133,18 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
     @Override
     public String getFormTitle() {
-        return "Staging Configuration";
+        return "Staging Location";
     }
 
     @Override
     public String getFormTitleDetail() {
-        return "";
+        DBSchema schema = getSelectedSchema();
+        DBTable table = getSelectedTable();
+
+        if (schema != null && table != null) {
+            return schema.getName() + "." + table.getName();
+        }
+
+        return null;
     }
 }

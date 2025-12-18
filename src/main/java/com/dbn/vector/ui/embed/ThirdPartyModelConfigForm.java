@@ -162,8 +162,8 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
     setSelection(providerComboBox, getProvider(config.getProvider()));
     modelTextField.setText(config.getModelName());
     urlTextField.setText(config.getEndpointUrl());
-    credentialSchemaComboBox.init(() -> loadSchemas(), s -> matchesObjectName(s, config.getCredentialSchemaName()));
-    credentialComboBox.init(() -> loadCredentials(), m -> matchesObjectName(m, config.getCredentialName()));
+    credentialSchemaComboBox.initialize(() -> loadSchemas(), s -> matchesObjectName(s, config.getCredentialSchemaName()));
+    credentialComboBox.initialize(() -> loadCredentials(), m -> matchesObjectName(m, config.getCredentialName()));
   }
 
   private static @Nullable AIProvider getProvider(String apiName) {

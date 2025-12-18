@@ -19,6 +19,7 @@ package com.dbn.object.factory;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.load.ProgressMonitor;
+import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
@@ -47,7 +48,9 @@ import com.dbn.vector.common.ModelSourceType;
 import com.dbn.vfs.DatabaseFileManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,6 +76,7 @@ import static com.dbn.object.type.DBObjectType.AI_MODEL;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 import static com.dbn.object.type.DBObjectType.PROCEDURE;
+import static com.dbn.object.type.DBObjectType.TABLE;
 
 public class DatabaseObjectFactory extends ProjectComponentBase {
 
@@ -86,10 +90,19 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         return Components.projectService(project, DatabaseObjectFactory.class);
     }
 
+    public void openFactoryInputDialog(DBSchema schema, DBObjectType objectType, Consumer<String> objectNameConsumer) {
+        openFactoryInputDialog(schema, objectType, (d, c) ->
+                when(c == DialogWrapper.OK_EXIT_CODE, () -> objectNameConsumer.accept(d.getObjectName())));
+    }
+
     public void openFactoryInputDialog(DBSchema schema, DBObjectType objectType) {
+        openFactoryInputDialog(schema, objectType, (d, c) -> {});
+    }
+
+    public void openFactoryInputDialog(DBSchema schema, DBObjectType objectType, @Nullable Dialogs.DialogCallback<ObjectFactoryInputDialog> callback) {
         Project project = getProject();
-        if (objectType.isOneOf(FUNCTION, PROCEDURE, JAVA_CLASS, AI_MODEL)) {
-            Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType));
+        if (objectType.isOneOf(TABLE, FUNCTION, PROCEDURE, JAVA_CLASS, AI_MODEL)) {
+            Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType), callback);
         } else {
             Messages.showErrorDialog(project,
                     txt("msg.objects.title.OperationNotSupported"),

@@ -13,15 +13,8 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <labelFor value="6c58"/>
           <text value="&amp;Schema"/>
         </properties>
-      </component>
-      <component id="6c58" class="com.dbn.common.ui.misc.DBNComboBox" binding="schemaComboBox">
-        <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
       </component>
       <hspacer id="16a6f">
         <constraints>
@@ -33,45 +26,24 @@
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <labelFor value="c65e6"/>
           <text value="&amp;Table"/>
         </properties>
-      </component>
-      <component id="c65e6" class="com.dbn.common.ui.misc.DBNComboBox" binding="tableComboBox">
-        <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
       </component>
       <component id="f6489" class="javax.swing.JLabel" binding="keyColumnLabel">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <labelFor value="a1fca"/>
           <text value="&amp;ID column"/>
         </properties>
-      </component>
-      <component id="a1fca" class="com.dbn.common.ui.misc.DBNComboBox" binding="keyColumnComboBox">
-        <constraints>
-          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
       </component>
       <component id="83ee8" class="javax.swing.JLabel" binding="dataColumnLabel">
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <labelFor value="4dbf3"/>
           <text value="&amp;Data column"/>
         </properties>
-      </component>
-      <component id="4dbf3" class="com.dbn.common.ui.misc.DBNComboBox" binding="dataColumnComboBox">
-        <constraints>
-          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
       </component>
       <component id="50445" class="javax.swing.JLabel">
         <constraints>
@@ -90,6 +62,30 @@
           <text value=""/>
           <visible value="false"/>
         </properties>
+      </component>
+      <component id="bcb62" class="com.dbn.object.common.ui.DBObjectSelector" binding="schemaComboBox">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="80bcb" class="com.dbn.object.common.ui.DBObjectSelector" binding="tableComboBox">
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="b9b37" class="com.dbn.object.common.ui.DBObjectSelector" binding="keyColumnComboBox">
+        <constraints>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="b0adb" class="com.dbn.object.common.ui.DBObjectSelector" binding="dataColumnComboBox">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
       </component>
     </children>
   </grid>
