@@ -38,7 +38,7 @@ import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
-public class TableFactoryInputForm extends ObjectFactoryInputForm<DBTableFactoryInput> {
+public class DBTableFactoryInputForm extends ObjectFactoryInputForm<DBTableFactoryInput> {
     private JPanel mainPanel;
     private JTextField nameTextField;
     private JPanel columnListPanel;
@@ -47,13 +47,13 @@ public class TableFactoryInputForm extends ObjectFactoryInputForm<DBTableFactory
     private DBNComboBox<ConnectionHandler> connectionComboBox;
     private DBNComboBox<SchemaId> schemaComboBox;
 
-    private ColumnFactoryInputListForm columnListForm;
+    private DBColumnFactoryInputListForm columnListForm;
 
-    public TableFactoryInputForm(DBNComponent parent, DBSchema schema) {
+    public DBTableFactoryInputForm(DBNComponent parent, DBSchema schema) {
         this(parent, new DBTableFactoryInput(schema));
     }
 
-    public TableFactoryInputForm(DBNComponent parent, DBTableFactoryInput input) {
+    public DBTableFactoryInputForm(DBNComponent parent, DBTableFactoryInput input) {
         super(parent, input);
 
         ConnectionHandler connection = getConnection();
@@ -105,7 +105,7 @@ public class TableFactoryInputForm extends ObjectFactoryInputForm<DBTableFactory
     }
 
     private void createUIComponents() {
-        columnListForm = new ColumnFactoryInputListForm(this);
+        columnListForm = new DBColumnFactoryInputListForm(this);
         columnListPanel = (JPanel) columnListForm.getComponent();
     }
 

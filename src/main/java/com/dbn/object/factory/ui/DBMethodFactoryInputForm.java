@@ -43,7 +43,7 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
-public class MethodFactoryInputForm extends ObjectFactoryInputForm<DBMethodFactoryInput> {
+public class DBMethodFactoryInputForm extends ObjectFactoryInputForm<DBMethodFactoryInput> {
     private JPanel mainPanel;
     private JTextField nameTextField;
     private JPanel returnDataTypeEditor;
@@ -56,13 +56,13 @@ public class MethodFactoryInputForm extends ObjectFactoryInputForm<DBMethodFacto
     private DBNComboBox<SchemaId> schemaComboBox;
 
 
-    private ArgumentFactoryInputListForm argumentListForm;
+    private DBArgumentFactoryInputListForm argumentListForm;
 
-    public MethodFactoryInputForm(DBNComponent parent, DBSchema schema, DBObjectType methodType) {
+    public DBMethodFactoryInputForm(DBNComponent parent, DBSchema schema, DBObjectType methodType) {
         this(parent, new DBMethodFactoryInput(schema, methodType));
     }
 
-    public MethodFactoryInputForm(DBNComponent parent, DBMethodFactoryInput input) {
+    public DBMethodFactoryInputForm(DBNComponent parent, DBMethodFactoryInput input) {
         super(parent, input);
         DBSchema schema = input.getSchema();
 
@@ -154,7 +154,7 @@ public class MethodFactoryInputForm extends ObjectFactoryInputForm<DBMethodFacto
     }
 
     private void createUIComponents() {
-        argumentListForm = new ArgumentFactoryInputListForm(this);
+        argumentListForm = new DBArgumentFactoryInputListForm(this);
         argumentListComponent = (JPanel) argumentListForm.getComponent();
         returnDataTypeEditor = new DataTypeEditor(getConnection());
     }

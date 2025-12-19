@@ -47,7 +47,7 @@ import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
-public class JavaFactoryInputForm extends ObjectFactoryInputForm<DBJavaClassFactoryInput> {
+public class DBJavaClassFactoryInputForm extends ObjectFactoryInputForm<DBJavaClassFactoryInput> {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JTextField nameTextField;
@@ -56,11 +56,11 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<DBJavaClassFact
     private DBNComboBox<SchemaId> schemaComboBox;
     private DBNComboBox<DBJavaClassType> classTypeComboBox;
 
-    public JavaFactoryInputForm(DBNComponent parent, DBSchema schema) {
+    public DBJavaClassFactoryInputForm(DBNComponent parent, DBSchema schema) {
         this(parent, new DBJavaClassFactoryInput(schema));
     }
 
-    public JavaFactoryInputForm(DBNComponent parent, DBJavaClassFactoryInput input) {
+    public DBJavaClassFactoryInputForm(DBNComponent parent, DBJavaClassFactoryInput input) {
         super(parent, input);
         DBSchema schema = input.getSchema();
 

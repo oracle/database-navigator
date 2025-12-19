@@ -22,9 +22,9 @@ import com.dbn.code.psql.style.PSQLCodeStyle;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Lists;
 import com.dbn.data.type.DataTypeDefinition;
-import com.dbn.object.factory.model.DBArgumentFactoryInput;
-import com.dbn.object.factory.model.DBMethodFactoryInput;
+import com.dbn.object.factory.model.DBColumnFactoryInput;
 import com.dbn.object.factory.model.DBObjectFactoryInputList;
+import com.dbn.object.factory.model.DBTableFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputListForm;
 import com.dbn.object.type.DBObjectType;
@@ -33,45 +33,44 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ArgumentFactoryInputListForm extends ObjectFactoryInputListForm<DBArgumentFactoryInput> {
-
+public class DBColumnFactoryInputListForm extends ObjectFactoryInputListForm<DBColumnFactoryInput> {
     @Getter(lazy = true)
     private final List<Presentable> objectDetailOptions = initObjectDetailOptions();
 
-    public ArgumentFactoryInputListForm(MethodFactoryInputForm parentForm) {
+    public DBColumnFactoryInputListForm(DBTableFactoryInputForm parentForm) {
         super(parentForm);
     }
 
     @Override
-    protected DBObjectFactoryInputList<DBArgumentFactoryInput> getChildInputs() {
-        return getMethodInput().getArguments();
+    protected DBObjectFactoryInputList<DBColumnFactoryInput> getChildInputs() {
+        return getTableInput().getColumns();
     }
 
     @Override
-    protected DBArgumentFactoryInput createChildInput(Presentable detail) {
-        DBMethodFactoryInput methodInput = getMethodInput();
+    protected DBColumnFactoryInput createChildInput(Presentable detail) {
+        DBTableFactoryInput tableInput = getTableInput();
 
-        int index = methodInput.getArguments().size();
-        DBArgumentFactoryInput argumentInput = new DBArgumentFactoryInput(methodInput, index);
+        int index = tableInput.getColumns().size();
+        DBColumnFactoryInput columnInput = new DBColumnFactoryInput(tableInput, index);
 
         String dataType = detail == null ? "" : detail.getName();
-        argumentInput.setDataType(dataType);
-        return argumentInput;
+        columnInput.setDataType(dataType);
+        return columnInput;
     }
 
-    private DBMethodFactoryInput getMethodInput() {
-        MethodFactoryInputForm methodInputForm = ensureParentComponent();
-        return methodInputForm.getFactoryInput();
+    private DBTableFactoryInput getTableInput() {
+        DBTableFactoryInputForm tableInputForm = ensureParentComponent();
+        return tableInputForm.getFactoryInput();
     }
 
     @Override
-    public ObjectFactoryInputForm<DBArgumentFactoryInput> createChildInputForm(DBArgumentFactoryInput input) {
-        return new ArgumentFactoryInputForm(this, input);
+    public ObjectFactoryInputForm<DBColumnFactoryInput> createChildInputForm(DBColumnFactoryInput input) {
+        return new DBColumnFactoryInputForm(this, input);
     }
 
     @Override
     public DBObjectType getObjectType() {
-        return DBObjectType.ARGUMENT;
+        return DBObjectType.COLUMN;
     }
 
     private @NotNull List<Presentable> initObjectDetailOptions() {

@@ -28,10 +28,10 @@ import com.dbn.diagnostics.Diagnostics;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.DatabaseObjectFactory;
 import com.dbn.object.factory.model.DBObjectFactoryInput;
-import com.dbn.object.factory.ui.JavaFactoryInputForm;
-import com.dbn.object.factory.ui.MethodFactoryInputForm;
-import com.dbn.object.factory.ui.ModelFactoryInputForm;
-import com.dbn.object.factory.ui.TableFactoryInputForm;
+import com.dbn.object.factory.ui.DBAIModelFactoryInputForm;
+import com.dbn.object.factory.ui.DBJavaClassFactoryInputForm;
+import com.dbn.object.factory.ui.DBMethodFactoryInputForm;
+import com.dbn.object.factory.ui.DBTableFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
@@ -68,11 +68,11 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
     protected ObjectFactoryInputForm<?> createForm() {
         DBSchema schema = getSchema();
         ObjectFactoryInputForm inputForm =
-                objectType == DBObjectType.TABLE ? new TableFactoryInputForm(this, schema) :
-                objectType == DBObjectType.FUNCTION ? new MethodFactoryInputForm(this, schema, DBObjectType.FUNCTION) :
-                objectType == DBObjectType.PROCEDURE ? new MethodFactoryInputForm(this, schema, DBObjectType.PROCEDURE) :
-                objectType == DBObjectType.JAVA_CLASS ? new JavaFactoryInputForm(this, schema) :
-                objectType == DBObjectType.AI_MODEL ? new ModelFactoryInputForm(this, schema):
+                objectType == DBObjectType.TABLE ? new DBTableFactoryInputForm(this, schema) :
+                objectType == DBObjectType.FUNCTION ? new DBMethodFactoryInputForm(this, schema, DBObjectType.FUNCTION) :
+                objectType == DBObjectType.PROCEDURE ? new DBMethodFactoryInputForm(this, schema, DBObjectType.PROCEDURE) :
+                objectType == DBObjectType.JAVA_CLASS ? new DBJavaClassFactoryInputForm(this, schema) :
+                objectType == DBObjectType.AI_MODEL ? new DBAIModelFactoryInputForm(this, schema):
                         Failsafe.nn(null);
 
         if (initialInput != null) {
