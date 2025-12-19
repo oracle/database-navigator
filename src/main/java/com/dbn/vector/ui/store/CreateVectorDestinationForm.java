@@ -1,10 +1,10 @@
 package com.dbn.vector.ui.store;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
-import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.vector.model.store.StoreConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
 
 public class CreateVectorDestinationForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
@@ -33,7 +34,7 @@ public class CreateVectorDestinationForm extends VectorToolboxFormBase {
   private JLabel metadataColumnLabel;
   private JTextField metadataColumnTextField;
   private JLabel schemaLabel;
-  private DBNComboBox<DBSchema> schemaComboBox;
+  private DBObjectSelector<DBSchema> schemaComboBox;
   // Oracle unquoted identifier rules (safe baseline)
   private static final int ORACLE_ID_MAX_LEN = 30;
   private static final Pattern ORACLE_UNQUOTED_ID =
@@ -84,7 +85,12 @@ public class CreateVectorDestinationForm extends VectorToolboxFormBase {
     vectorColumnTextField.setText(config.getEmbeddingColumnName());
     metadataColumnTextField.setText(config.getMetadataColumnName());
 
-    schemaComboBox.initialize(() -> loadSchemas(), o -> matchesObjectName(o, config.getSchemaName()));
+    schemaComboBox
+            .initialize(this, SCHEMA)
+            .withConnectionContext(() -> getConnection())
+            .withValueLoader(() -> loadSchemas())
+            .withValuePreselector(() -> config.getSchemaName())
+            .triggerLoad();
   }
 
   @Override

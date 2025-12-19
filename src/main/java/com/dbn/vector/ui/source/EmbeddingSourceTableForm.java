@@ -25,7 +25,6 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.ui.DBObjectSelector;
-import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.model.source.DBTableSourceConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
@@ -41,6 +40,9 @@ import java.util.List;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.object.type.DBObjectType.COLUMN;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
+import static com.dbn.object.type.DBObjectType.TABLE;
 
 public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
@@ -78,13 +80,36 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
   }
 
   private void initComboBoxes() {
-    ConnectionHandler connection = getConnection();
     DBTableSourceConfig config = getConfig();
 
-    schemaComboBox.initialize(this, connection, DBObjectType.SCHEMA, () -> loadSchemas(), () -> config.getSchemaName());
-    tableComboBox.initialize(this, connection, DBObjectType.TABLE, () -> loadTables(), () -> config.getTableName());
-    keyColumnComboBox.initialize(this, connection, DBObjectType.COLUMN, () -> loadKeyColumns(), () -> config.getKeyColumnName());
-    dataColumnComboBox.initialize(this, connection, DBObjectType.COLUMN, () -> loadDataColumns(), () -> config.getDataColumnName());
+    schemaComboBox
+            .initialize(this, SCHEMA)
+            .withConnectionContext(() -> getConnection())
+            .withValueLoader(() -> loadSchemas())
+            .withValuePreselector(() -> config.getSchemaName())
+            .triggerLoad();
+
+    tableComboBox
+            .initialize(this, TABLE)
+            .withConnectionContext(() -> getConnection())
+            .withSchemaContext(() -> getSelectedSchema())
+            .withValueLoader(() -> loadTables())
+            .withValuePreselector(() -> config.getTableName())
+            .triggerLoad();
+
+    keyColumnComboBox
+            .initialize(this, COLUMN)
+            .withConnectionContext(() -> getConnection())
+            .withValueLoader(() -> loadKeyColumns())
+            .withValuePreselector(() -> config.getKeyColumnName())
+            .triggerLoad();
+
+    dataColumnComboBox
+            .initialize(this, COLUMN)
+            .withConnectionContext(() -> getConnection())
+            .withValueLoader(() -> loadDataColumns())
+            .withValuePreselector(() -> config.getDataColumnName())
+            .triggerLoad();
 
     updateFieldAvailability();
   }

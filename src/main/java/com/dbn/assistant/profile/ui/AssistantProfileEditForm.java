@@ -116,13 +116,17 @@ public class AssistantProfileEditForm extends DBNFormBase {
 
     private void initCredentialFields() {
         initComboBox(credentialComboBox, getFilteredCredentials());
-        credentialComboBox.setValueFactory(new ValueFactory<>("New Credential") {
+        credentialComboBox.withValueFactory(createCredentialFactory());
+    }
+
+    private ValueFactory<AssistantCredential> createCredentialFactory() {
+        return new ValueFactory<>("New Credential...") {
             @Override
             public void createValue(Consumer<AssistantCredential> consumer) {
                 AssistantCredentialEditRequest request = createNewCredentialRequest(consumer);
                 Dialogs.show(() -> new AssistantCredentialEditDialog(getProject(), request));
             }
-        });
+        };
     }
 
     private AssistantCredentialEditRequest createNewCredentialRequest(Consumer<AssistantCredential> consumer) {

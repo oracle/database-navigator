@@ -37,7 +37,7 @@ public class DBAIModelFactoryInput extends DBSchemaObjectFactoryInput {
   }
 
   public String getCredentialName() {
-    return DBObjectRef.getObjectName(credential);
+    return DBObjectRef.getQualifiedObjectName(credential);
   }
 
   @Override

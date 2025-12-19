@@ -55,4 +55,8 @@ abstract class DBSchemaObjectFactoryInput extends DBObjectFactoryInput {
     public SchemaId getSchemaId() {
         return schema.getSchemaId();
     }
+
+    public String getSchemaName() {
+        return schema.getObjectName();
+    }
 }

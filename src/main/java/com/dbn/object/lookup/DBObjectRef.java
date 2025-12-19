@@ -118,8 +118,14 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         this.objectName = objectName.intern();
     }
 
+    @Contract(value = "null -> null", pure = true)
     public static String getObjectName(@Nullable DBObjectRef<?> object) {
         return object == null ? null : object.getObjectName();
+    }
+
+    @Contract(value = "null -> null", pure = true)
+    public static String getQualifiedObjectName(@Nullable DBObjectRef<?> object) {
+        return object == null ? null : object.getQualifiedObjectName();
     }
 
     public String getObjectName(boolean quoted) {

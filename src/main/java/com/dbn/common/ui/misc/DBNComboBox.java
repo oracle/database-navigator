@@ -19,7 +19,6 @@ package com.dbn.common.ui.misc;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.latent.Loader;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.thread.Background;
@@ -41,7 +40,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.ui.popup.ListPopup;
-import lombok.Setter;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +64,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_ICON;
@@ -83,8 +82,8 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
 
     private final Listeners<ValueSelectorListener<T>> listeners = Listeners.create();
     private ListPopup popup;
-    private @Setter ValueFactory<T> valueFactory;
-    private Loader<List<T>> valueLoader;
+    private ValueFactory<T> valueFactory;
+    private Supplier<List<T>> valueLoader;
     private Predicate<T> valuePreselector;
     private transient ActionListener[] actionListeners;
 
@@ -241,7 +240,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
             Background.run(() -> {
                 if (!matchesLoadSignature(signature)) return;
                 try {
-                    List<T> values = valueLoader.load();
+                    List<T> values = valueLoader.get();
 
                     if (matchesLoadSignature(signature)) {
                         Dispatch.run(this, () -> {
@@ -282,17 +281,25 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
                 this.valuePreselector = null; // one-time selection
                 selectValue(selectedValue);
             }
-
         }
     }
 
-    public void initialize(Loader<List<T>> valueLoader){
-        initialize(valueLoader, null);
+    public DBNComboBox<T> withValueLoader(Supplier<List<T>> valueLoader) {
+        this.valueLoader = valueLoader;
+        return this;
     }
 
-    public void initialize(Loader<List<T>> valueLoader, Predicate<T> valuePreselector){
-        this.valueLoader = valueLoader;
+    public DBNComboBox<T> withValuePreselector(Predicate<T> valuePreselector) {
         this.valuePreselector = valuePreselector;
+        return this;
+    }
+
+    public DBNComboBox<T> withValueFactory(ValueFactory<T> valueFactory) {
+        this.valueFactory = valueFactory;
+        return this;
+    }
+
+    public void triggerLoad(){
         if (isShowing()) {
             loadValues();
         } else {

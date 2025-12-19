@@ -78,11 +78,22 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
     private void initComboBoxes() {
         StagingConfig config = getConfig();
-        ConnectionHandler connection = getConnection();
 
-        schemaComboBox.initialize(this, connection, SCHEMA, () -> loadSchemas(), () -> config.getSchemaName());
-        tableComboBox.initialize(this, connection, TABLE, () -> loadTables(), () -> config.getTableName());
-        tableComboBox.initValueFactory("New Table...", () -> getSelectedSchema(), () -> createTableFactoryInput());
+        schemaComboBox
+                .initialize(this, SCHEMA)
+                .withConnectionContext(() -> getConnection())
+                .withValueLoader(() -> loadSchemas())
+                .withValuePreselector(() -> config.getSchemaName())
+                .triggerLoad();
+
+        tableComboBox.initialize(this, TABLE)
+                .withConnectionContext(() -> getConnection())
+                .withSchemaContext(() -> getSelectedSchema())
+                .withValueLoader(() -> loadTables())
+                .withValuePreselector(() -> config.getTableName())
+                .withObjectValueFactory("New Table...")
+                .withValueFactoryInput(() -> createTableFactoryInput())
+                .triggerLoad();
 
         updateFieldAvailability();
     }

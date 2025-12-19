@@ -93,16 +93,7 @@ public class ScriptExecutionInputForm extends DBNFormBase {
         schemaComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
 
         cmdLineExecutableComboBox.set(ValueSelectorOption.HIDE_ICON, true);
-        cmdLineExecutableComboBox.setValueFactory(new ValueFactory<>("New Cmd-Line Interface...") {
-            @Override
-            public void createValue(Consumer<CmdLineInterface> consumer) {
-                ConnectionHandler connection = connectionComboBox.getSelectedValue();
-                if (connection != null) {
-                    ScriptExecutionManager scriptExecutionManager = ScriptExecutionManager.getInstance(project);
-                    scriptExecutionManager.createCmdLineInterface(connection.getDatabaseType(), null, consumer);
-                }
-            }
-        });
+        cmdLineExecutableComboBox.withValueFactory(createCmdLineFactory(project));
 
         clearOutputCheckBox.setSelected(executionInput.isClearOutput());
         executionTimeoutForm = new ExecutionTimeoutForm(this, executionInput, DBDebuggerType.NONE) {
@@ -133,6 +124,19 @@ public class ScriptExecutionInputForm extends DBNFormBase {
             executionInput.setCmdLineInterface(newValue);
             updateButtons();
         });
+    }
+
+    private ValueFactory<CmdLineInterface> createCmdLineFactory(Project project) {
+        return new ValueFactory<>("New Cmd-Line Interface...") {
+            @Override
+            public void createValue(Consumer<CmdLineInterface> consumer) {
+                ConnectionHandler connection = connectionComboBox.getSelectedValue();
+                if (connection != null) {
+                    ScriptExecutionManager scriptExecutionManager = ScriptExecutionManager.getInstance(project);
+                    scriptExecutionManager.createCmdLineInterface(connection.getDatabaseType(), null, consumer);
+                }
+            }
+        };
     }
 
     @Nullable

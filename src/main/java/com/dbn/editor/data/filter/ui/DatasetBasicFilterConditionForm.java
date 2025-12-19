@@ -20,7 +20,6 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.ValueSelectorListener;
-import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.listener.ComboBoxSelectionKeyListener;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -37,6 +36,7 @@ import com.dbn.editor.data.filter.action.DeleteBasicFilterConditionAction;
 import com.dbn.editor.data.filter.action.EnableDisableBasicFilterConditionAction;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
+import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.options.ConfigurationException;
@@ -66,8 +66,8 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     private JPanel valueFieldPanel;
     private boolean active = true;
 
-    private DBNComboBox<DBColumn> columnSelector;
     private DBNComboBox<ConditionOperator> operatorSelector;
+    private DBObjectSelector<DBColumn> columnSelector;
 
     private TextFieldWithPopup<?> editorComponent;
     private DatasetBasicFilterForm filterForm;
@@ -84,9 +84,15 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         DBColumn column = getConditionColumn(dataset, condition);
         GenericDataType dataType = column == null ? null : column.getDataType().getGenericDataType();
 
-        columnSelector.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
-        columnSelector.initialize(() -> loadColumns(), v -> v == column);
-        operatorSelector.initialize(() -> loadOperators(), v -> v == condition.getOperator());
+        columnSelector
+                .withValueLoader(() -> loadColumns())
+                .withValuePreselector(v -> v.equals(column))
+                .triggerLoad();
+
+        operatorSelector
+                .withValueLoader(() -> loadOperators())
+                .withValuePreselector(v -> v == condition.getOperator())
+                .triggerLoad();
 
 
         editorComponent = new TextFieldWithPopup<>(dataset.getProject());

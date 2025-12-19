@@ -75,9 +75,20 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
         DatabaseModelConfig config = getConfig();
         ConnectionHandler connection = getConnection();
 
-        schemaComboBox.initialize(this, connection, SCHEMA, () -> loadSchemas(), () -> config.getSchemaName());
-        modelComboBox.initialize(this, connection, AI_MODEL, () -> loadModels(), () -> config.getModelName());
-        modelComboBox.initValueFactory("New AI Model...", () -> getSelectedSchema());
+        schemaComboBox
+                .initialize(this, SCHEMA)
+                .withConnectionContext(() -> getConnection())
+                .withValueLoader(() -> loadSchemas())
+                .withValuePreselector(() -> config.getSchemaName())
+                .triggerLoad();
+
+        modelComboBox.initialize(this, AI_MODEL)
+                .withConnectionContext(() -> getConnection())
+                .withSchemaContext(() -> getSelectedSchema())
+                .withValueLoader(() -> loadModels())
+                .withValuePreselector(() -> config.getModelName())
+                .withObjectValueFactory("New AI Model...")
+                .triggerLoad();
 
         updateFieldAvailability();
     }

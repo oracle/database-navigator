@@ -29,7 +29,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import javax.swing.Icon;
 import javax.swing.JPanel;
@@ -65,7 +64,7 @@ public abstract class ObjectFactoryInputForm<T extends DBObjectFactoryInput> ext
     @Override
     public abstract JPanel getMainComponent();
 
-    @NonNull
+    @NotNull
     protected DBNHeaderForm createHeaderForm() {
         DBObjectType objectType = getObjectType();
         ConnectionHandler connection = getConnection();
