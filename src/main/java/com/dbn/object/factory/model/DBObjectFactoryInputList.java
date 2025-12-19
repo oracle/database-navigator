@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.object.factory;
+package com.dbn.object.factory.model;
 
 import com.dbn.connection.ConnectionHandler;
 import lombok.Getter;
@@ -24,11 +24,11 @@ import java.util.ArrayList;
 
 @Getter
 @Setter
-public class ObjectFactoryInputList<T extends ObjectFactoryInput> extends ArrayList<T> {
-    private final ObjectFactoryInput parent;
+public class DBObjectFactoryInputList<T extends DBObjectFactoryInput> extends ArrayList<T> {
+    private final DBObjectFactoryInput parent;
     private boolean readonly;
 
-    public ObjectFactoryInputList(ObjectFactoryInput parent) {
+    public DBObjectFactoryInputList(DBObjectFactoryInput parent) {
         this.parent = parent;
     }
 

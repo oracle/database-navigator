@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.object.factory;
+package com.dbn.object.factory.model;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -28,8 +28,8 @@ import java.util.List;
 
 @Getter
 @Setter
-public abstract class ObjectFactoryInput {
-    private ObjectFactoryInput parent;
+public abstract class DBObjectFactoryInput {
+    private DBObjectFactoryInput parent;
     private ConnectionId connectionId;
     private DBObjectType objectType;
 
@@ -38,14 +38,14 @@ public abstract class ObjectFactoryInput {
     private int index;
     private boolean readonly;
 
-    protected ObjectFactoryInput(@NotNull ConnectionId connectionId, String objectName, DBObjectType objectType, int index) {
+    protected DBObjectFactoryInput(@NotNull ConnectionId connectionId, String objectName, DBObjectType objectType, int index) {
         this.connectionId = connectionId;
         this.objectName = objectName == null ? "" : objectName.trim();
         this.objectType = objectType;
         this.index = index;
     }
 
-    protected ObjectFactoryInput(@NotNull ObjectFactoryInput parent, String objectName, DBObjectType objectType, int index) {
+    protected DBObjectFactoryInput(@NotNull DBObjectFactoryInput parent, String objectName, DBObjectType objectType, int index) {
         this(parent.connectionId, objectName, objectType, index);
         this.parent = parent;
     }

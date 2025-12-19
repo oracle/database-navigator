@@ -20,7 +20,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
-import com.dbn.object.factory.ModelFactoryInput;
+import com.dbn.object.factory.model.DBAIModelFactoryInput;
 import com.dbn.vector.model.source.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public void loadOnnxModelFromOci(ModelFactoryInput input, DBNConnection conn) throws SQLException {
+    public void loadOnnxModelFromOci(DBAIModelFactoryInput input, DBNConnection conn) throws SQLException {
         executeUpdate(conn, "load-onnx-model-from-object-storage", input.getObjectName(), input.getCredentialName(), input.getSourceLocation());
     }
 

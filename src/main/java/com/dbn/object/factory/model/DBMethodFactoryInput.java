@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.object.factory;
+package com.dbn.object.factory.model;
 
 import com.dbn.common.util.Strings;
 import com.dbn.object.DBSchema;
@@ -28,18 +28,18 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class MethodFactoryInput extends SchemaObjectFactoryInput{
-    private ObjectFactoryInputList<ArgumentFactoryInput> arguments = new ObjectFactoryInputList<>(this);
-    private ArgumentFactoryInput returnArgument;
+public class DBMethodFactoryInput extends DBSchemaObjectFactoryInput {
+    private DBObjectFactoryInputList<DBArgumentFactoryInput> arguments = new DBObjectFactoryInputList<>(this);
+    private DBArgumentFactoryInput returnArgument;
 
-    public MethodFactoryInput(DBSchema schema, DBObjectType methodType) {
+    public DBMethodFactoryInput(DBSchema schema, DBObjectType methodType) {
         super(schema, methodType);
         if (methodType == DBObjectType.FUNCTION) {
-            returnArgument = new ArgumentFactoryInput(this, 0, "return", null, false, true);
+            returnArgument = new DBArgumentFactoryInput(this, 0, "return", null, false, true);
         }
 
         // add first empty argument
-        arguments.add(new ArgumentFactoryInput(this, 0));
+        arguments.add(new DBArgumentFactoryInput(this, 0));
     }
 
     public boolean isFunction() {
@@ -64,7 +64,7 @@ public class MethodFactoryInput extends SchemaObjectFactoryInput{
         }
 
         Set<String> argumentNames = new HashSet<>();
-        for (ArgumentFactoryInput argument : getArguments()) {
+        for (DBArgumentFactoryInput argument : getArguments()) {
             argument.validate(errors);
             String argumentName = argument.getObjectName();
             if (Strings.isEmptyOrSpaces(argumentName)) continue; // already covered by field validator

@@ -20,7 +20,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.data.type.ui.DataTypeEditor;
-import com.dbn.object.factory.ArgumentFactoryInput;
+import com.dbn.object.factory.model.DBArgumentFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.ui.components.JBTextField;
@@ -41,7 +41,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
-public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFactoryInput> {
+public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<DBArgumentFactoryInput> {
     private JPanel mainPanel;
     private JLabel iconLabel;
     private JBTextField nameTextField;
@@ -51,7 +51,7 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
 
     private final DataTypeEditor dataTypeEditor;
 
-    ArgumentFactoryInputForm(ArgumentFactoryInputListForm parent, ArgumentFactoryInput input) {
+    ArgumentFactoryInputForm(ArgumentFactoryInputListForm parent, DBArgumentFactoryInput input) {
         super(parent, input);
         iconLabel.setText(null);
         iconLabel.setIcon(enforceInArgument() ? Icons.DBO_ARGUMENT_IN : DBObjectType.ARGUMENT.getIcon());

@@ -13,7 +13,7 @@ import com.dbn.connection.SchemaId;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
-import com.dbn.object.factory.ModelFactoryInput;
+import com.dbn.object.factory.model.DBAIModelFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBCredentialType;
@@ -46,7 +46,7 @@ import static com.dbn.object.type.DBCredentialType.TOKEN;
 import static com.dbn.vector.common.ModelSourceType.MODEL_FILE;
 import static com.dbn.vector.common.ModelSourceType.OBJECT_STORAGE;
 
-public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryInput> {
+public class ModelFactoryInputForm extends ObjectFactoryInputForm<DBAIModelFactoryInput> {
     public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFile().
             withTitle("Select ONNX Model File").
             withDescription("Select a valid ONNX file").
@@ -68,10 +68,10 @@ public class ModelFactoryInputForm extends ObjectFactoryInputForm<ModelFactoryIn
     private JPanel hyperLinkPanel;
 
     public ModelFactoryInputForm(DBNComponent parent, DBSchema schema) {
-        this(parent, new ModelFactoryInput(schema));
+        this(parent, new DBAIModelFactoryInput(schema));
     }
 
-    public ModelFactoryInputForm(DBNComponent parent, ModelFactoryInput input) {
+    public ModelFactoryInputForm(DBNComponent parent, DBAIModelFactoryInput input) {
         super(parent, input);
         DBSchema schema = input.getSchema();
 

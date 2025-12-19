@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.object.factory;
+package com.dbn.object.factory.model;
 
 import com.dbn.common.util.Strings;
 import com.dbn.object.DBSchema;
@@ -29,15 +29,15 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class TableFactoryInput extends SchemaObjectFactoryInput{
-    private ObjectFactoryInputList<ColumnFactoryInput> columns = new ObjectFactoryInputList<>(this);
+public class DBTableFactoryInput extends DBSchemaObjectFactoryInput {
+    private DBObjectFactoryInputList<DBColumnFactoryInput> columns = new DBObjectFactoryInputList<>(this);
 
-    public TableFactoryInput(DBSchema schema) {
+    public DBTableFactoryInput(DBSchema schema) {
         super(schema, DBObjectType.TABLE);
     }
 
     public void addColumn(@NonNls String objectName, @NonNls String dataType, boolean notNull, boolean primaryKey) {
-        ColumnFactoryInput column = new ColumnFactoryInput(this, columns.size(), objectName, dataType, notNull, primaryKey);
+        DBColumnFactoryInput column = new DBColumnFactoryInput(this, columns.size(), objectName, dataType, notNull, primaryKey);
         columns.add(column);
     }
 
@@ -56,7 +56,7 @@ public class TableFactoryInput extends SchemaObjectFactoryInput{
 
 
         Set<String> columnNames = new HashSet<>();
-        for (ColumnFactoryInput column : columns) {
+        for (DBColumnFactoryInput column : columns) {
             column.validate(errors);
             String columnName = column.getObjectName();
             if (Strings.isEmptyOrSpaces(columnName)) continue; // already covered by field validator

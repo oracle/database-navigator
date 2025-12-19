@@ -23,8 +23,8 @@ import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
-import com.dbn.object.factory.JavaFactoryInput;
 import com.dbn.object.factory.ObjectFactoryManager;
+import com.dbn.object.factory.model.DBJavaClassFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 import com.dbn.object.type.DBJavaClassType;
 import com.intellij.openapi.project.Project;
@@ -47,7 +47,7 @@ import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
-public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInput> {
+public class JavaFactoryInputForm extends ObjectFactoryInputForm<DBJavaClassFactoryInput> {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JTextField nameTextField;
@@ -57,10 +57,10 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
     private DBNComboBox<DBJavaClassType> classTypeComboBox;
 
     public JavaFactoryInputForm(DBNComponent parent, DBSchema schema) {
-        this(parent, new JavaFactoryInput(schema));
+        this(parent, new DBJavaClassFactoryInput(schema));
     }
 
-    public JavaFactoryInputForm(DBNComponent parent, JavaFactoryInput input) {
+    public JavaFactoryInputForm(DBNComponent parent, DBJavaClassFactoryInput input) {
         super(parent, input);
         DBSchema schema = input.getSchema();
 

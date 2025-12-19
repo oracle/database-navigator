@@ -30,8 +30,8 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.common.QuotePair;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.ArgumentFactoryInput;
-import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.factory.model.DBArgumentFactoryInput;
+import com.dbn.object.factory.model.DBMethodFactoryInput;
 import com.dbn.object.type.DBConstraintType;
 import com.intellij.openapi.project.Project;
 
@@ -180,7 +180,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(MethodFactoryInput method, DBNConnection connection) throws SQLException {
+    public void createMethod(DBMethodFactoryInput method, DBNConnection connection) throws SQLException {
         Project project = method.getSchema().getProject();
         CodeStyleCaseSettings caseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption keywordCaseOption = caseSettings.getKeywordCaseOption();
@@ -195,7 +195,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
 
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        for (ArgumentFactoryInput argument : method.getArguments()) {
+        for (DBArgumentFactoryInput argument : method.getArguments()) {
             maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
             maxArgDirectionLength = Math.max(maxArgDirectionLength,
                     argument.isInput() && argument.isOutput() ? 5 :
@@ -204,7 +204,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
         }
 
 
-        for (ArgumentFactoryInput argument : method.getArguments()) {
+        for (DBArgumentFactoryInput argument : method.getArguments()) {
             buffer.append("\n    ");
             
             if (!method.isFunction()) {

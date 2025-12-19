@@ -17,7 +17,7 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.object.factory.ModelFactoryInput;
+import com.dbn.object.factory.model.DBAIModelFactoryInput;
 import com.dbn.vector.model.source.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +29,7 @@ import java.sql.SQLException;
 
 public interface DatabaseVectorInterface extends DatabaseInterface {
 
-  void loadOnnxModelFromOci(ModelFactoryInput input, DBNConnection conn) throws SQLException;
+  void loadOnnxModelFromOci(DBAIModelFactoryInput input, DBNConnection conn) throws SQLException;
 
   void deleteAIModel(DBNConnection conn,String modelName) throws SQLException;
 

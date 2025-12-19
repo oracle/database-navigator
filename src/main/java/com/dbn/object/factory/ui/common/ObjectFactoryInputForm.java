@@ -23,7 +23,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.factory.ObjectFactoryInput;
+import com.dbn.object.factory.model.DBObjectFactoryInput;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,7 +37,7 @@ import java.awt.Color;
 
 @Getter
 @Setter
-public abstract class ObjectFactoryInputForm<T extends ObjectFactoryInput> extends DBNFormBase {
+public abstract class ObjectFactoryInputForm<T extends DBObjectFactoryInput> extends DBNFormBase {
     protected T factoryInput;
 
     protected ObjectFactoryInputForm(@NotNull DBNComponent parent, T factoryInput) {

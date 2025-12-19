@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.object.factory;
+package com.dbn.object.factory.model;
 
 import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
@@ -24,16 +24,16 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an abstract input definition for creating schema-based objects.
- * This class extends {@link ObjectFactoryInput} and encapsulates the schema
+ * This class extends {@link DBObjectFactoryInput} and encapsulates the schema
  * information referenced by {@link DBSchema}, along with specific object type
  * and name details required for object creation.
  *
  * @author Dan Cioca (Oracle)
  */
-abstract class SchemaObjectFactoryInput extends ObjectFactoryInput{
+abstract class DBSchemaObjectFactoryInput extends DBObjectFactoryInput {
     private final DBObjectRef<DBSchema> schema;
 
-    protected SchemaObjectFactoryInput(DBSchema schema, DBObjectType objectType) {
+    protected DBSchemaObjectFactoryInput(DBSchema schema, DBObjectType objectType) {
         super(schema.getConnectionId(), null, objectType, 0);
         this.schema = DBObjectRef.of(schema);
     }

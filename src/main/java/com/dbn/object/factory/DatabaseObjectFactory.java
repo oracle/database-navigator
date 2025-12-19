@@ -41,6 +41,10 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.event.ObjectChangeEvent;
+import com.dbn.object.factory.model.DBAIModelFactoryInput;
+import com.dbn.object.factory.model.DBJavaClassFactoryInput;
+import com.dbn.object.factory.model.DBMethodFactoryInput;
+import com.dbn.object.factory.model.DBObjectFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputDialog;
 import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBObjectType;
@@ -99,14 +103,14 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
     public void openFactoryInputDialog(
             @NotNull DBSchema schema,
             @NotNull DBObjectType objectType,
-            @Nullable ObjectFactoryInput initialInput) {
+            @Nullable DBObjectFactoryInput initialInput) {
         openFactoryInputDialog(schema, objectType, initialInput, (d, c) -> {});
     }
 
     public void openFactoryInputDialog(
             @NotNull DBSchema schema,
             @NotNull DBObjectType objectType,
-            @Nullable ObjectFactoryInput initialInput,
+            @Nullable DBObjectFactoryInput initialInput,
             @Nullable Consumer<String> objectNameConsumer) {
         openFactoryInputDialog(schema, objectType, initialInput,
                 (d, c) -> when(
@@ -117,7 +121,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
     private void openFactoryInputDialog(
             @NotNull DBSchema schema,
             @NotNull DBObjectType objectType,
-            @Nullable ObjectFactoryInput initialInput,
+            @Nullable DBObjectFactoryInput initialInput,
             @Nullable Dialogs.DialogCallback<ObjectFactoryInputDialog> callback) {
 
         Project project = getProject();
@@ -130,7 +134,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         }
     }
 
-    public void createObject(ObjectFactoryInput factoryInput) throws SQLException {
+    public void createObject(DBObjectFactoryInput factoryInput) throws SQLException {
         Project project = getProject();
         List<String> errors = new ArrayList<>();
         factoryInput.validate(errors);
@@ -141,20 +145,20 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
             return;
         }
 
-        if (factoryInput instanceof MethodFactoryInput) {
-            MethodFactoryInput methodFactoryInput = (MethodFactoryInput) factoryInput;
+        if (factoryInput instanceof DBMethodFactoryInput) {
+            DBMethodFactoryInput methodFactoryInput = (DBMethodFactoryInput) factoryInput;
             createMethod(methodFactoryInput);
             return;
         }
 
-        if (factoryInput instanceof JavaFactoryInput) {
-            JavaFactoryInput javaFactoryInput = (JavaFactoryInput) factoryInput;
+        if (factoryInput instanceof DBJavaClassFactoryInput) {
+            DBJavaClassFactoryInput javaFactoryInput = (DBJavaClassFactoryInput) factoryInput;
             createJavaObject(javaFactoryInput);
             return;
         }
 
-        if (factoryInput instanceof ModelFactoryInput) {
-            ModelFactoryInput modelFactoryInput = (ModelFactoryInput) factoryInput;
+        if (factoryInput instanceof DBAIModelFactoryInput) {
+            DBAIModelFactoryInput modelFactoryInput = (DBAIModelFactoryInput) factoryInput;
             createModel(modelFactoryInput);
             return ;
         }
@@ -162,7 +166,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     }
 
-    private void createModel(ModelFactoryInput input) throws SQLException {
+    private void createModel(DBAIModelFactoryInput input) throws SQLException {
         ModelSourceType modelSourceType = input.getSourceType();
         DBSchema schema = input.getSchema();
 
@@ -196,7 +200,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     private Blob uploadOnnxModel(
             DBNConnection conn,
-            ModelFactoryInput input,
+            DBAIModelFactoryInput input,
             ProgressIndicator progress
     ) throws SQLException {
         File modelFile = new File(input.getSourceLocation());
@@ -254,7 +258,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
 
 
-    private void createMethod(MethodFactoryInput input) throws SQLException {
+    private void createMethod(DBMethodFactoryInput input) throws SQLException {
         DBObjectType objectType = input.isFunction() ? FUNCTION : PROCEDURE;
         String objectName = input.getObjectName();
         DBSchema schema = input.getSchema();
@@ -282,7 +286,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         editorManager.connectAndOpenEditor(method, null, false, true);
     }
 
-    private void createJavaObject(JavaFactoryInput input) throws SQLException {
+    private void createJavaObject(DBJavaClassFactoryInput input) throws SQLException {
         String className = input.getClassName();
         String packageName = input.getPackageName();
         String classType = input.getTypeIdentifier();

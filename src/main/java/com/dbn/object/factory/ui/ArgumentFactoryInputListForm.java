@@ -22,9 +22,9 @@ import com.dbn.code.psql.style.PSQLCodeStyle;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Lists;
 import com.dbn.data.type.DataTypeDefinition;
-import com.dbn.object.factory.ArgumentFactoryInput;
-import com.dbn.object.factory.MethodFactoryInput;
-import com.dbn.object.factory.ObjectFactoryInputList;
+import com.dbn.object.factory.model.DBArgumentFactoryInput;
+import com.dbn.object.factory.model.DBMethodFactoryInput;
+import com.dbn.object.factory.model.DBObjectFactoryInputList;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputListForm;
 import com.dbn.object.type.DBObjectType;
@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ArgumentFactoryInputListForm extends ObjectFactoryInputListForm<ArgumentFactoryInput> {
+public class ArgumentFactoryInputListForm extends ObjectFactoryInputListForm<DBArgumentFactoryInput> {
 
     @Getter(lazy = true)
     private final List<Presentable> objectDetailOptions = initObjectDetailOptions();
@@ -43,29 +43,29 @@ public class ArgumentFactoryInputListForm extends ObjectFactoryInputListForm<Arg
     }
 
     @Override
-    protected ObjectFactoryInputList<ArgumentFactoryInput> getChildInputs() {
+    protected DBObjectFactoryInputList<DBArgumentFactoryInput> getChildInputs() {
         return getMethodInput().getArguments();
     }
 
     @Override
-    protected ArgumentFactoryInput createChildInput(Presentable detail) {
-        MethodFactoryInput methodInput = getMethodInput();
+    protected DBArgumentFactoryInput createChildInput(Presentable detail) {
+        DBMethodFactoryInput methodInput = getMethodInput();
 
         int index = methodInput.getArguments().size();
-        ArgumentFactoryInput argumentInput = new ArgumentFactoryInput(methodInput, index);
+        DBArgumentFactoryInput argumentInput = new DBArgumentFactoryInput(methodInput, index);
 
         String dataType = detail == null ? "" : detail.getName();
         argumentInput.setDataType(dataType);
         return argumentInput;
     }
 
-    private MethodFactoryInput getMethodInput() {
+    private DBMethodFactoryInput getMethodInput() {
         MethodFactoryInputForm methodInputForm = ensureParentComponent();
         return methodInputForm.getFactoryInput();
     }
 
     @Override
-    public ObjectFactoryInputForm<ArgumentFactoryInput> createChildInputForm(ArgumentFactoryInput input) {
+    public ObjectFactoryInputForm<DBArgumentFactoryInput> createChildInputForm(DBArgumentFactoryInput input) {
         return new ArgumentFactoryInputForm(this, input);
     }
 

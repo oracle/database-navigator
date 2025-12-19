@@ -22,9 +22,9 @@ import com.dbn.code.psql.style.PSQLCodeStyle;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Lists;
 import com.dbn.data.type.DataTypeDefinition;
-import com.dbn.object.factory.ColumnFactoryInput;
-import com.dbn.object.factory.ObjectFactoryInputList;
-import com.dbn.object.factory.TableFactoryInput;
+import com.dbn.object.factory.model.DBColumnFactoryInput;
+import com.dbn.object.factory.model.DBObjectFactoryInputList;
+import com.dbn.object.factory.model.DBTableFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputListForm;
 import com.dbn.object.type.DBObjectType;
@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ColumnFactoryInputListForm extends ObjectFactoryInputListForm<ColumnFactoryInput> {
+public class ColumnFactoryInputListForm extends ObjectFactoryInputListForm<DBColumnFactoryInput> {
     @Getter(lazy = true)
     private final List<Presentable> objectDetailOptions = initObjectDetailOptions();
 
@@ -42,29 +42,29 @@ public class ColumnFactoryInputListForm extends ObjectFactoryInputListForm<Colum
     }
 
     @Override
-    protected ObjectFactoryInputList<ColumnFactoryInput> getChildInputs() {
+    protected DBObjectFactoryInputList<DBColumnFactoryInput> getChildInputs() {
         return getTableInput().getColumns();
     }
 
     @Override
-    protected ColumnFactoryInput createChildInput(Presentable detail) {
-        TableFactoryInput tableInput = getTableInput();
+    protected DBColumnFactoryInput createChildInput(Presentable detail) {
+        DBTableFactoryInput tableInput = getTableInput();
 
         int index = tableInput.getColumns().size();
-        ColumnFactoryInput columnInput = new ColumnFactoryInput(tableInput, index);
+        DBColumnFactoryInput columnInput = new DBColumnFactoryInput(tableInput, index);
 
         String dataType = detail == null ? "" : detail.getName();
         columnInput.setDataType(dataType);
         return columnInput;
     }
 
-    private TableFactoryInput getTableInput() {
+    private DBTableFactoryInput getTableInput() {
         TableFactoryInputForm tableInputForm = ensureParentComponent();
         return tableInputForm.getFactoryInput();
     }
 
     @Override
-    public ObjectFactoryInputForm<ColumnFactoryInput> createChildInputForm(ColumnFactoryInput input) {
+    public ObjectFactoryInputForm<DBColumnFactoryInput> createChildInputForm(DBColumnFactoryInput input) {
         return new ColumnFactoryInputForm(this, input);
     }
 

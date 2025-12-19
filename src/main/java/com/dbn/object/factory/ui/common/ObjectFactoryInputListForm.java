@@ -28,8 +28,8 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.factory.ObjectFactoryInput;
-import com.dbn.object.factory.ObjectFactoryInputList;
+import com.dbn.object.factory.model.DBObjectFactoryInput;
+import com.dbn.object.factory.model.DBObjectFactoryInputList;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.util.PlatformIcons;
@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class ObjectFactoryInputListForm<T extends ObjectFactoryInput> extends DBNFormBase {
+public abstract class ObjectFactoryInputListForm<T extends DBObjectFactoryInput> extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel listPanel;
     private JPanel actionPanel;
@@ -62,7 +62,7 @@ public abstract class ObjectFactoryInputListForm<T extends ObjectFactoryInput> e
         return mainPanel;
     }
 
-    protected abstract ObjectFactoryInputList<T> getChildInputs();
+    protected abstract DBObjectFactoryInputList<T> getChildInputs();
 
     public ConnectionHandler getConnection() {
         return getChildInputs().getConnection();

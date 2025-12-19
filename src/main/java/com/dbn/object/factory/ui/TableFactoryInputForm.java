@@ -22,7 +22,7 @@ import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
-import com.dbn.object.factory.TableFactoryInput;
+import com.dbn.object.factory.model.DBTableFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +38,7 @@ import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
-public class TableFactoryInputForm extends ObjectFactoryInputForm<TableFactoryInput> {
+public class TableFactoryInputForm extends ObjectFactoryInputForm<DBTableFactoryInput> {
     private JPanel mainPanel;
     private JTextField nameTextField;
     private JPanel columnListPanel;
@@ -50,10 +50,10 @@ public class TableFactoryInputForm extends ObjectFactoryInputForm<TableFactoryIn
     private ColumnFactoryInputListForm columnListForm;
 
     public TableFactoryInputForm(DBNComponent parent, DBSchema schema) {
-        this(parent, new TableFactoryInput(schema));
+        this(parent, new DBTableFactoryInput(schema));
     }
 
-    public TableFactoryInputForm(DBNComponent parent, TableFactoryInput input) {
+    public TableFactoryInputForm(DBNComponent parent, DBTableFactoryInput input) {
         super(parent, input);
 
         ConnectionHandler connection = getConnection();

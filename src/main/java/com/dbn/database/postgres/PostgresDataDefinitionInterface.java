@@ -25,8 +25,8 @@ import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.DBContentType;
-import com.dbn.object.factory.ArgumentFactoryInput;
-import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.factory.model.DBArgumentFactoryInput;
+import com.dbn.object.factory.model.DBMethodFactoryInput;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
@@ -90,7 +90,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(MethodFactoryInput method, DBNConnection connection) throws SQLException {
+    public void createMethod(DBMethodFactoryInput method, DBNConnection connection) throws SQLException {
         // TODO SQL-Injection
         Project project = method.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
@@ -106,7 +106,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
 
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        for (ArgumentFactoryInput argument : method.getArguments()) {
+        for (DBArgumentFactoryInput argument : method.getArguments()) {
             maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
             maxArgDirectionLength = Math.max(maxArgDirectionLength,
                     argument.isInput() && argument.isOutput() ? 5 :
@@ -115,7 +115,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         }
 
 
-        for (ArgumentFactoryInput argument : method.getArguments()) {
+        for (DBArgumentFactoryInput argument : method.getArguments()) {
             buffer.append("\n    ");
             
             if (!method.isFunction()) {

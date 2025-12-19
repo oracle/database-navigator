@@ -26,7 +26,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.DatabaseObjectFactory;
-import com.dbn.object.factory.ObjectFactoryInput;
+import com.dbn.object.factory.model.DBObjectFactoryInput;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
@@ -40,7 +40,7 @@ import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
     private ConnectionRef connection;
     private DBObjectType objectType;
-    private Supplier<ObjectFactoryInput> initialFactoryInput;
+    private Supplier<DBObjectFactoryInput> initialFactoryInput;
 
     public DBObjectSelector() {
         set(HIDE_DESCRIPTION, true);
@@ -75,7 +75,7 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
         initValueFactory(actionName, schema, () -> null);
     }
 
-    public void initValueFactory(String actionName, Supplier<DBSchema> schema, Supplier<ObjectFactoryInput> initialInput) {
+    public void initValueFactory(String actionName, Supplier<DBSchema> schema, Supplier<DBObjectFactoryInput> initialInput) {
         this.initialFactoryInput = initialInput;
         var valueFactory = ValueFactory.create(actionName, () -> openObjectFactory(schema.get()));
         setValueFactory(valueFactory);
@@ -83,7 +83,7 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
 
     private T openObjectFactory(DBSchema schema) {
         Project project = getProject();
-        ObjectFactoryInput initialInput = initialFactoryInput.get();
+        DBObjectFactoryInput initialInput = initialFactoryInput.get();
 
         DatabaseObjectFactory factoryManager = DatabaseObjectFactory.getInstance(project);
         factoryManager.openFactoryInputDialog(

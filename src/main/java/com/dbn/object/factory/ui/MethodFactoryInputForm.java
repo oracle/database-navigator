@@ -26,8 +26,8 @@ import com.dbn.connection.SchemaId;
 import com.dbn.data.type.ui.DataTypeEditor;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.object.DBSchema;
-import com.dbn.object.factory.ArgumentFactoryInput;
-import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.factory.model.DBArgumentFactoryInput;
+import com.dbn.object.factory.model.DBMethodFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
@@ -43,7 +43,7 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
-public class MethodFactoryInputForm extends ObjectFactoryInputForm<MethodFactoryInput> {
+public class MethodFactoryInputForm extends ObjectFactoryInputForm<DBMethodFactoryInput> {
     private JPanel mainPanel;
     private JTextField nameTextField;
     private JPanel returnDataTypeEditor;
@@ -59,10 +59,10 @@ public class MethodFactoryInputForm extends ObjectFactoryInputForm<MethodFactory
     private ArgumentFactoryInputListForm argumentListForm;
 
     public MethodFactoryInputForm(DBNComponent parent, DBSchema schema, DBObjectType methodType) {
-        this(parent, new MethodFactoryInput(schema, methodType));
+        this(parent, new DBMethodFactoryInput(schema, methodType));
     }
 
-    public MethodFactoryInputForm(DBNComponent parent, MethodFactoryInput input) {
+    public MethodFactoryInputForm(DBNComponent parent, DBMethodFactoryInput input) {
         super(parent, input);
         DBSchema schema = input.getSchema();
 
@@ -117,7 +117,7 @@ public class MethodFactoryInputForm extends ObjectFactoryInputForm<MethodFactory
         factoryInput.setObjectName(getText(nameTextField));
         argumentListForm.applyFormChanges();
 
-        ArgumentFactoryInput returnArgument = factoryInput.getReturnArgument();
+        DBArgumentFactoryInput returnArgument = factoryInput.getReturnArgument();
         if (returnArgument != null) {
             String dataType = getReturnDataTypeEditor().getDataTypeRepresentation();
             returnArgument.setDataType(dataType);
@@ -129,7 +129,7 @@ public class MethodFactoryInputForm extends ObjectFactoryInputForm<MethodFactory
         nameTextField.setText(factoryInput.getObjectName());
         argumentListForm.resetFormChanges();
 
-        ArgumentFactoryInput returnArgument = factoryInput.getReturnArgument();
+        DBArgumentFactoryInput returnArgument = factoryInput.getReturnArgument();
         if (returnArgument != null) {
             getReturnDataTypeEditor().setText(returnArgument.getDataType());
         }

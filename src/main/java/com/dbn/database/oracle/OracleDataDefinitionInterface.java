@@ -29,8 +29,8 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.ArgumentFactoryInput;
-import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.factory.model.DBArgumentFactoryInput;
+import com.dbn.object.factory.model.DBMethodFactoryInput;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
@@ -189,7 +189,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(MethodFactoryInput method, DBNConnection connection) throws SQLException {
+    public void createMethod(DBMethodFactoryInput method, DBNConnection connection) throws SQLException {
         // TODO SQL-Injection
         Project project = method.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
@@ -205,7 +205,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        for (ArgumentFactoryInput argument : method.getArguments()) {
+        for (DBArgumentFactoryInput argument : method.getArguments()) {
             maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
             maxArgDirectionLength = Math.max(maxArgDirectionLength,
                     argument.isInput() && argument.isOutput() ? 6 :
@@ -214,7 +214,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         }
 
 
-        for (ArgumentFactoryInput argument : method.getArguments()) {
+        for (DBArgumentFactoryInput argument : method.getArguments()) {
             buffer.append("\n    ");
             buffer.append(oco.format(argument.getObjectName()));
             buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));

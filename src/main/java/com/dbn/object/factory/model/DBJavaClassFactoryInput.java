@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.object.factory;
+package com.dbn.object.factory.model;
 
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBJavaClassType;
@@ -30,13 +30,13 @@ import static com.dbn.object.type.DBJavaClassType.EXCEPTION;
 
 @Getter
 @Setter
-public class JavaFactoryInput extends SchemaObjectFactoryInput{
+public class DBJavaClassFactoryInput extends DBSchemaObjectFactoryInput {
     private String packageName;
     private String className;
     private DBJavaClassType classType;
     private String extendsSuffix = " ";
 
-    public JavaFactoryInput(DBSchema schema) {
+    public DBJavaClassFactoryInput(DBSchema schema) {
         super(schema, DBObjectType.JAVA_CLASS);
     }
 
