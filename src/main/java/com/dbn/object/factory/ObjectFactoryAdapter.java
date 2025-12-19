@@ -34,13 +34,17 @@ public interface ObjectFactoryAdapter<I extends DBObjectFactoryInput, F extends 
 
     DBObjectType[] getObjectTypes();
 
-    I createInput(DBSchema schema);
+    I createInput(DBSchema schema, DBObjectType objectType);
 
     F createInputForm(DBNComponent parent, I input);
 
     static <A extends ObjectFactoryAdapter> A find(DBObjectType objectType) {
         List<ObjectFactoryAdapter> extensionList = ObjectFactoryAdapter.EP.getExtensionList();
-        return cast(Lists.first(extensionList, e -> objectType.isOneOf(e.getObjectTypes())));
+        ObjectFactoryAdapter adapter = Lists.first(extensionList, e -> objectType.isOneOf(e.getObjectTypes()));
+        if (adapter == null) {
+            throw new UnsupportedOperationException("Factory not implemented for object type " + objectType);
+        }
+        return cast(adapter);
     }
 
     void createObject(I input) throws SQLException;

@@ -23,23 +23,16 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
-import com.dbn.connection.security.DatabaseIdentifierCache;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
-import com.dbn.editor.DatabaseFileEditorManager;
-import com.dbn.object.DBJavaClass;
-import com.dbn.object.DBMethod;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.event.ObjectChangeEvent;
-import com.dbn.object.factory.model.DBJavaClassFactoryInput;
-import com.dbn.object.factory.model.DBMethodFactoryInput;
 import com.dbn.object.factory.model.DBObjectFactoryInput;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputDialog;
 import com.dbn.object.management.ObjectManagementService;
@@ -57,10 +50,8 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Conditional.when;
-import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
 import static com.dbn.object.type.DBObjectType.AI_MODEL;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
@@ -124,106 +115,16 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         Project project = getProject();
         List<String> errors = new ArrayList<>();
         factoryInput.validate(errors);
+        DBObjectType objectType = factoryInput.getObjectType();
         if (!errors.isEmpty()) {
-            String objectType = factoryInput.getObjectType().getName();
+            String objectTypeName = objectType.getName();
             String objectErrors = errors.stream().map(error -> " - " + error + "\n").collect(Collectors.joining());
-            Messages.showErrorDialog(project, txt("msg.objects.error.ObjectCreationError", objectType, objectErrors));
+            Messages.showErrorDialog(project, txt("msg.objects.error.ObjectCreationError", objectTypeName, objectErrors));
             return;
         }
 
-        ObjectFactoryAdapter<DBObjectFactoryInput, ?> factoryAdapter = ObjectFactoryAdapter.find(factoryInput.getObjectType());
-        if (factoryAdapter != null) {
-            factoryAdapter.createObject(factoryInput);
-            return;
-        }
-
-        if (factoryInput instanceof DBMethodFactoryInput) {
-            DBMethodFactoryInput methodFactoryInput = (DBMethodFactoryInput) factoryInput;
-            createMethod(methodFactoryInput);
-            return;
-        }
-
-        if (factoryInput instanceof DBJavaClassFactoryInput) {
-            DBJavaClassFactoryInput javaFactoryInput = (DBJavaClassFactoryInput) factoryInput;
-            createJavaObject(javaFactoryInput);
-            return;
-        }
-
-        throw new UnsupportedOperationException("Unsupported object type: " + factoryInput.getObjectType());
-
-        // TODO other factory inputs
-
-    }
-
-    private void createMethod(DBMethodFactoryInput input) throws SQLException {
-        DBObjectType objectType = input.isFunction() ? FUNCTION : PROCEDURE;
-        String objectName = input.getObjectName();
-        DBSchema schema = input.getSchema();
-
-        ConnectionId connectionId = schema.getConnectionId();
-        SchemaId schemaId = schema.getSchemaId();
-
-        DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Creating " + input.getObjectType().getTitleCasedName(),
-                "Creating " + input.getObjectDescription(),
-                schema.getProject(),
-                connectionId,
-                schemaId,
-                conn -> {
-                    DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
-                    dataDefinition.createMethod(input, conn);
-                });
-
-        ObjectChangeEvent.notify(CREATE, objectType, connectionId, schemaId);
-
-        DBMethod method = schema.getChildObject(objectType, objectName, false);
-        if (method == null) return;
-
-        DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
-        editorManager.connectAndOpenEditor(method, null, false, true);
-    }
-
-    private void createJavaObject(DBJavaClassFactoryInput input) throws SQLException {
-        String className = input.getClassName();
-        String packageName = input.getPackageName();
-        String classType = input.getTypeIdentifier();
-        String extendsSuffix = input.getExtendsSuffix();
-        DBSchema schema = input.getSchema();
-
-        StringBuilder javaCode = new StringBuilder();
-        if(isNotEmpty(packageName)) {
-            javaCode.append("package ").append(packageName).append(";").append("\n");
-        }
-
-        javaCode.append("public ").append(classType).append(" ").append(className).append(extendsSuffix)
-                .append("{")
-                .append("\n")
-                .append("}");
-
-        String objectName = input.getDatabaseObjectName();
-        ConnectionId connectionId = schema.getConnectionId();
-        SchemaId schemaId = schema.getSchemaId();
-
-        DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Creating " + input.getObjectType().getTitleCasedName(),
-                "Creating " + input.getObjectDescription(),
-                schema.getProject(),
-                connectionId,
-                conn -> {
-                    ConnectionHandler connection = schema.getConnection();
-                    DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-                    DatabaseIdentifierCache identifierCache = connection.getIdentifierCache();
-                    String quotedObjectName = identifierCache.getQuotedIdentifier(objectName);
-                    dataDefinition.createJavaSource(schema.getName(), quotedObjectName, javaCode.toString().getBytes(), conn);
-                });
-
-        ObjectChangeEvent.notify(CREATE, JAVA_CLASS, connectionId, schemaId);
-
-        DBJavaClass javaClass = schema.getChildObject(JAVA_CLASS, objectName, false);
-        if (javaClass == null) return;
-
-        DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
-        editorManager.connectAndOpenEditor(javaClass, null, false, true);
+        ObjectFactoryAdapter<DBObjectFactoryInput, ?> factoryAdapter = ObjectFactoryAdapter.find(objectType);
+        factoryAdapter.createObject(factoryInput);
     }
 
     public void dropObject(DBSchemaObject object) {

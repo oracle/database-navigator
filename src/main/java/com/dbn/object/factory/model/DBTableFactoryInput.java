@@ -31,14 +31,21 @@ import java.util.Set;
 @Setter
 public class DBTableFactoryInput extends DBSchemaObjectFactoryInput {
     private DBObjectFactoryInputList<DBColumnFactoryInput> columns = new DBObjectFactoryInputList<>(this);
+    private DBObjectFactoryInputList<DBConstraintFactoryInput> constraints = new DBObjectFactoryInputList<>(this);
+    private String appendix;
 
     public DBTableFactoryInput(DBSchema schema) {
         super(schema, DBObjectType.TABLE);
     }
 
-    public void addColumn(@NonNls String objectName, @NonNls String dataType, boolean notNull, boolean primaryKey) {
-        DBColumnFactoryInput column = new DBColumnFactoryInput(this, columns.size(), objectName, dataType, notNull, primaryKey);
+    public void addColumn(@NonNls String columnName, @NonNls String dataType, boolean notNull, boolean primaryKey) {
+        DBColumnFactoryInput column = new DBColumnFactoryInput(this, columns.size(), columnName, dataType, notNull, primaryKey);
         columns.add(column);
+    }
+
+    public void addConstraint(@NonNls String constraintType, @NonNls String constraintName, List<String> columnNames) {
+        DBConstraintFactoryInput constraint = new DBConstraintFactoryInput(this, constraints.size(), constraintType, constraintName, columnNames);
+        constraints.add(constraint);
     }
 
     @Override

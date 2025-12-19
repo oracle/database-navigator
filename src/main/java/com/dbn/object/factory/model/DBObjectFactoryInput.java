@@ -18,7 +18,9 @@ package com.dbn.object.factory.model;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.language.common.QuotePair;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
@@ -46,12 +48,16 @@ public abstract class DBObjectFactoryInput {
     }
 
     protected DBObjectFactoryInput(@NotNull DBObjectFactoryInput parent, String objectName, DBObjectType objectType, int index) {
-        this(parent.connectionId, objectName, objectType, index);
+        this(parent.getConnectionId(), objectName, objectType, index);
         this.parent = parent;
     }
 
     public ConnectionHandler getConnection() {
         return ConnectionHandler.ensure(connectionId);
+    }
+
+    public Project getProject() {
+        return getConnection().getProject();
     }
 
     public String getObjectPath() {
@@ -71,5 +77,12 @@ public abstract class DBObjectFactoryInput {
     @Override
     public String toString() {
         return objectType.getName() + " " + objectName;
+    }
+
+    public String getObjectName(boolean quoted) {
+        if (!quoted) return objectName;
+
+        QuotePair quotes = getConnection().getCompatibilityInterface().getDefaultIdentifierQuotes();
+        return quotes.quote(objectName);
     }
 }

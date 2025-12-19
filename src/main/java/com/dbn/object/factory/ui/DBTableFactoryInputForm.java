@@ -85,13 +85,13 @@ public class DBTableFactoryInputForm extends DBObjectFactoryInputForm<DBTableFac
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
-        setText(nameTextField, factoryInput.getObjectName());
+        factoryInput.setObjectName(getText(nameTextField));
         columnListForm.applyFormChanges();
     }
 
     @Override
     public void resetFormChanges() {
-        nameTextField.setText(factoryInput.getObjectName());
+        setText(nameTextField, factoryInput.getObjectName());
         columnListForm.resetFormChanges();
     }
 

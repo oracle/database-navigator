@@ -18,6 +18,7 @@ package com.dbn.object.common.ui;
 
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.ValueFactory;
+import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -28,8 +29,8 @@ import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.DatabaseObjectFactory;
 import com.dbn.object.factory.model.DBObjectFactoryInput;
 import com.dbn.object.type.DBObjectType;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,6 +40,7 @@ import java.util.function.Supplier;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.util.Unsafe.cast;
 
+@Getter
 public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
     private DBObjectType objectType;
     private Supplier<DBObjectFactoryInput> valueFactoryInput;
@@ -51,16 +53,18 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
     }
 
     public DBObjectSelector<T> initialize(
-            Disposable parentDisposable,
-            DBObjectType objectType){
+            @NotNull DBNForm parentForm,
+            @NotNull DBObjectType objectType){
 
         this.objectType = objectType;
 
         if (objectType.isSchemaObject()) {
-            ObjectChangeEvent.subscribe(parentDisposable,
+            ObjectChangeEvent.subscribe(
+                    parentForm.getProject(),
+                    parentForm,
                     () -> getConnectionId(),
                     () -> getSchemaId(),
-                    objectType,
+                    () -> getObjectType(),
                     () -> reloadValues());
         }
 

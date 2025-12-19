@@ -108,15 +108,18 @@ public class ObjectChangeEvent {
         ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(this));
     }
 
-    public static void subscribe(Disposable parentDisposable, Supplier<ConnectionId> connectionId, Supplier<SchemaId> ownerId, DBObjectType objectType, Runnable runnable) {
-        ConnectionHandler connection = ConnectionHandler.get(connectionId.get());
-        if (connection == null) return;
+    public static void subscribe(
+            Project project,
+            Disposable parentDisposable,
+            Supplier<ConnectionId> connectionId,
+            Supplier<SchemaId> ownerId,
+            Supplier<DBObjectType> objectType, Runnable runnable) {
+        if (project == null) return;
 
-        Project project = connection.getProject();
         ProjectEvents.subscribe(project, parentDisposable, ObjectChangeListener.TOPIC, e -> {
             if (!e.matches(connectionId.get())) return;
             if (!e.matches(ownerId.get())) return;
-            if (!e.matches(objectType)) return;
+            if (!e.matches(objectType.get())) return;
             runnable.run();
         });
     }

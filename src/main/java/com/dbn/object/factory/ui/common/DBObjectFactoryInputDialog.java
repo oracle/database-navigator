@@ -16,7 +16,6 @@
 
 package com.dbn.object.factory.ui.common;
 
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.message.InteractiveMessage;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ProgressRunnable;
@@ -29,10 +28,6 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.factory.DatabaseObjectFactory;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.model.DBObjectFactoryInput;
-import com.dbn.object.factory.ui.DBAIModelFactoryInputForm;
-import com.dbn.object.factory.ui.DBJavaClassFactoryInputForm;
-import com.dbn.object.factory.ui.DBMethodFactoryInputForm;
-import com.dbn.object.factory.ui.DBTableFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
@@ -42,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
@@ -66,27 +62,12 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
 
     @NotNull
     @Override
-    protected DBObjectFactoryInputForm<?> createForm() {
-        DBSchema schema = getSchema();
-
+    protected DBObjectFactoryInputForm createForm() {
         ObjectFactoryAdapter factoryAdapter = ObjectFactoryAdapter.find(objectType);
-        if (factoryAdapter != null) {
-            DBObjectFactoryInput input = factoryAdapter.createInput(schema);
-            return factoryAdapter.createInputForm(this, input);
-        }
 
-        DBObjectFactoryInputForm inputForm =
-                objectType == DBObjectType.TABLE ? new DBTableFactoryInputForm(this, schema) :
-                objectType == DBObjectType.FUNCTION ? new DBMethodFactoryInputForm(this, schema, DBObjectType.FUNCTION) :
-                objectType == DBObjectType.PROCEDURE ? new DBMethodFactoryInputForm(this, schema, DBObjectType.PROCEDURE) :
-                objectType == DBObjectType.JAVA_CLASS ? new DBJavaClassFactoryInputForm(this, schema) :
-                objectType == DBObjectType.AI_MODEL ? new DBAIModelFactoryInputForm(this, schema):
-                        Failsafe.nn(null);
-
-        if (initialInput != null) {
-            inputForm.restoreUserInput(initialInput);
-        }
-        return inputForm;
+        DBSchema schema = getSchema();
+        DBObjectFactoryInput input = nvl(initialInput, () -> factoryAdapter.createInput(schema, objectType));
+        return factoryAdapter.createInputForm(this, input);
     }
 
     private DBSchema getSchema() {

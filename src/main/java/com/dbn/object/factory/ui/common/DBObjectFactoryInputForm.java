@@ -28,7 +28,6 @@ import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.JPanel;
@@ -99,13 +98,6 @@ public abstract class DBObjectFactoryInputForm<T extends DBObjectFactoryInput> e
     @NotNull
     public ConnectionHandler getConnection() {
         return factoryInput.getConnection();
-    }
-
-    public final void restoreUserInput(@Nullable T input) {
-        setFactoryInput(input);
-        resetFormChanges();
-        updateFieldAvailability();
-        updateFieldAlignment();
     }
 
     public abstract void focus();

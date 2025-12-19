@@ -32,6 +32,7 @@ import com.dbn.language.common.QuotePair;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.factory.model.DBArgumentFactoryInput;
 import com.dbn.object.factory.model.DBMethodFactoryInput;
+import com.dbn.object.factory.model.DBTableFactoryInput;
 import com.dbn.object.type.DBConstraintType;
 import com.intellij.openapi.project.Project;
 
@@ -242,7 +243,10 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
         } finally {
             setSessionSqlMode(sqlMode, connection);
         }
-
     }
 
+    @Override
+    public void createTable(DBTableFactoryInput tableFactoryInput, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

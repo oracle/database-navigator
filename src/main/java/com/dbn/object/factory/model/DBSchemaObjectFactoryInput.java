@@ -43,10 +43,6 @@ abstract class DBSchemaObjectFactoryInput extends DBObjectFactoryInput {
         return DBObjectRef.ensure(schema);
     }
 
-    public final DBObjectRef<DBSchema> getSchemaRef() {
-        return schema;
-    }
-
     @Override
     public String getObjectPath() {
         return schema.getObjectName() + "." + super.getObjectPath();
@@ -57,6 +53,10 @@ abstract class DBSchemaObjectFactoryInput extends DBObjectFactoryInput {
     }
 
     public String getSchemaName() {
-        return schema.getObjectName();
+        return schema.getSchemaName();
+    }
+
+    public String getSchemaName(boolean quoted) {
+        return schema.getObjectName(quoted);
     }
 }

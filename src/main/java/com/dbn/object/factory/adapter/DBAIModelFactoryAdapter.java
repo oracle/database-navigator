@@ -16,7 +16,6 @@
 
 package com.dbn.object.factory.adapter;
 
-import com.dbn.common.constant.Constant;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.ui.component.DBNComponent;
@@ -45,11 +44,12 @@ import java.sql.Blob;
 import java.sql.SQLException;
 
 import static com.dbn.common.Priority.MEDIUM;
+import static com.dbn.common.constant.Constant.array;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.AI_MODEL;
 
 public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelFactoryInput, DBAIModelFactoryInputForm>, NlsSupport {
-    private static final DBObjectType[] OBJECT_TYPES = Constant.array(DBObjectType.AI_MODEL);
+    private static final DBObjectType[] OBJECT_TYPES = array(AI_MODEL);
 
     @Override
     public DBObjectType[] getObjectTypes() {
@@ -57,7 +57,7 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelFa
     }
 
     @Override
-    public DBAIModelFactoryInput createInput(DBSchema schema) {
+    public DBAIModelFactoryInput createInput(DBSchema schema, DBObjectType objectType) {
         return new DBAIModelFactoryInput(schema);
     }
 
@@ -85,16 +85,16 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelFa
                     DatabaseVectorInterface dataDefinition = schema.getVectorInterface();
                     if (modelSourceType == ModelSourceType.OBJECT_STORAGE) {
                         dataDefinition.createModelFromStorage(conn,
-                                input.getSchemaName(),
-                                input.getObjectName(),
+                                input.getSchemaName(true),
+                                input.getObjectName(true),
                                 input.getSourceLocation(),
                                 input.getCredentialName());
 
                     } else if (modelSourceType == ModelSourceType.MODEL_FILE) {
                         Blob modelBlob = uploadOnnxModel(conn, input, progress);
                         dataDefinition.createModelFromFile(conn,
-                                input.getSchemaName(),
-                                input.getObjectName(),
+                                input.getSchemaName(true),
+                                input.getObjectName(true),
                                 modelBlob);
 
                     } else {

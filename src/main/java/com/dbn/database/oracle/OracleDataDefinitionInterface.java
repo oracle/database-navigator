@@ -30,11 +30,16 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.factory.model.DBArgumentFactoryInput;
+import com.dbn.object.factory.model.DBColumnFactoryInput;
+import com.dbn.object.factory.model.DBConstraintFactoryInput;
 import com.dbn.object.factory.model.DBMethodFactoryInput;
+import com.dbn.object.factory.model.DBTableFactoryInput;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Lists.toCsv;
 import static com.dbn.common.util.Naming.unquote;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.database.DatabaseObjectTypeId.DATABASE_TRIGGER;
@@ -240,5 +245,46 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         if (method.isFunction()) buffer.append(kco.format("    return null;\n\n"));
         buffer.append("end;");
         createObject(buffer.toString(), connection);
+    }
+
+    @Override
+    public void createTable(DBTableFactoryInput factoryInput, DBNConnection connection) throws SQLException {
+        StringBuilder builder = new StringBuilder();
+        builder.append("table ");
+        builder.append(factoryInput.getSchemaName(true));
+        builder.append(".");
+        builder.append(factoryInput.getObjectName(true));
+        builder.append(" (\n");
+
+        boolean first = true;
+        for (DBColumnFactoryInput column : factoryInput.getColumns()) {
+            if (first) {
+                first = false;
+            } else {
+                builder.append(",\n");
+            }
+            builder.append("    ");
+            builder.append(column.getObjectName(true));
+            builder.append(" ");
+            builder.append(column.getDataType());
+            builder.append(column.isNonNull() ? " not null" : "");
+            builder.append(column.isPrimaryKey() ? " primary key" : "");
+        }
+
+        for (DBConstraintFactoryInput constraint : factoryInput.getConstraints()) {
+            builder.append(",\n");
+            builder.append("    ");
+            builder.append(constraint.getConstraintType());
+            builder.append(" ");
+            builder.append(nvl(constraint.getObjectName(), ""));
+            builder.append("(");
+            builder.append(toCsv(constraint.getColumnNames(), s -> s));
+            builder.append(")");
+        }
+
+        builder.append(")\n");
+        builder.append(factoryInput.getAppendix());
+
+        createObject(builder.toString(), connection);
     }
 }

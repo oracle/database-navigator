@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.util.Arrays;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
@@ -100,6 +101,7 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
     private DBObjectFactoryInput createTableFactoryInput() {
         DBTableFactoryInput factoryInput = new DBTableFactoryInput(getSelectedSchema());
+
         factoryInput.setObjectName("FILE_CONTENTS");
         factoryInput.addColumn("ID", "varchar2(50)", true, true);
         factoryInput.addColumn("FILE_SIZE", "number(19)", true, false);
@@ -107,6 +109,9 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
         factoryInput.addColumn("FILE_CONTENT", "blob", false, false);
         factoryInput.addColumn("METADATA", "json", false, false);
         factoryInput.getColumns().forEach(c -> c.setReadonly(true));
+
+        factoryInput.addConstraint("unique", null, Arrays.asList("FILE_SIZE", "FILE_HASH"));
+        factoryInput.setAppendix("lob(FILE_CONTENT) store as securefile (nocache filesystem_like_logging)");
 
         return factoryInput;
     }

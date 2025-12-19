@@ -27,6 +27,7 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.factory.model.DBArgumentFactoryInput;
 import com.dbn.object.factory.model.DBMethodFactoryInput;
+import com.dbn.object.factory.model.DBTableFactoryInput;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
@@ -156,4 +157,8 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
 
     }
 
+    @Override
+    public void createTable(DBTableFactoryInput tableFactoryInput, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }
