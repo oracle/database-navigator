@@ -16,7 +16,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.factory.model.DBAIModelFactoryInput;
-import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
+import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBCredentialType;
 import com.dbn.vector.common.ModelSourceType;
@@ -52,7 +52,7 @@ import static com.dbn.vector.common.ModelSourceType.MODEL_FILE;
 import static com.dbn.vector.common.ModelSourceType.OBJECT_STORAGE;
 import static java.util.Collections.emptyList;
 
-public class DBAIModelFactoryInputForm extends ObjectFactoryInputForm<DBAIModelFactoryInput> {
+public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIModelFactoryInput> {
     public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFile().
             withTitle("Select ONNX Model File").
             withDescription("Select a valid ONNX file").

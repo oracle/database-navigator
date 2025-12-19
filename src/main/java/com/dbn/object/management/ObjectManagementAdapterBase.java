@@ -30,7 +30,7 @@ import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 
-public abstract class ObjectManagementAdapterFactoryBase<T extends DBSchemaObject> implements ObjectManagementAdapterFactory<T> {
+public abstract class ObjectManagementAdapterBase<T extends DBSchemaObject> implements ObjectManagementAdapterExtension<T> {
     public abstract DBObjectType[] getObjectTypes();
 
     @Override

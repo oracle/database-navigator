@@ -23,7 +23,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.model.DBTableFactoryInput;
-import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
+import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +38,7 @@ import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
-public class DBTableFactoryInputForm extends ObjectFactoryInputForm<DBTableFactoryInput> {
+public class DBTableFactoryInputForm extends DBObjectFactoryInputForm<DBTableFactoryInput> {
     private JPanel mainPanel;
     private JTextField nameTextField;
     private JPanel columnListPanel;

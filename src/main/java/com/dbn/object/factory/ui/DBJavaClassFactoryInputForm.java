@@ -25,7 +25,7 @@ import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBJavaClassFactoryInput;
-import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
+import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.type.DBJavaClassType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
@@ -47,7 +47,7 @@ import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
-public class DBJavaClassFactoryInputForm extends ObjectFactoryInputForm<DBJavaClassFactoryInput> {
+public class DBJavaClassFactoryInputForm extends DBObjectFactoryInputForm<DBJavaClassFactoryInput> {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JTextField nameTextField;

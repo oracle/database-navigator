@@ -27,14 +27,14 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
-public class ObjectFactoryInputListItemForm extends DBNFormBase {
+public class DBObjectFactoryInputListItemForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel removeActionPanel;
     private JPanel objectDetailsComponent;
 
-    private final ObjectFactoryInputForm<?> inputForm;
+    private final DBObjectFactoryInputForm<?> inputForm;
 
-    ObjectFactoryInputListItemForm(@NotNull ObjectFactoryInputListForm<?> parent, ObjectFactoryInputForm<?> inputForm) {
+    DBObjectFactoryInputListItemForm(@NotNull DBObjectFactoryInputListForm<?> parent, DBObjectFactoryInputForm<?> inputForm) {
         super(parent);
         this.inputForm = inputForm;
         ActionToolbar actionToolbar = Actions.createActionToolbar(removeActionPanel, true, new RemoveObjectAction());
@@ -42,7 +42,7 @@ public class ObjectFactoryInputListItemForm extends DBNFormBase {
     }
 
     @NotNull
-    public ObjectFactoryInputListForm<?> getParentForm() {
+    public DBObjectFactoryInputListForm<?> getParentForm() {
         return ensureParentComponent();
     }
 
@@ -63,7 +63,7 @@ public class ObjectFactoryInputListItemForm extends DBNFormBase {
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            getParentForm().removeObjectPanel(ObjectFactoryInputListItemForm.this);
+            getParentForm().removeObjectPanel(DBObjectFactoryInputListItemForm.this);
         }
     }
 
@@ -71,7 +71,7 @@ public class ObjectFactoryInputListItemForm extends DBNFormBase {
         return getParentForm().getObjectType().getName();
     }
 
-    ObjectFactoryInputForm<?> getObjectDetailsPanel() {
+    DBObjectFactoryInputForm<?> getObjectDetailsPanel() {
         return inputForm;
     }
 }

@@ -25,15 +25,15 @@ import com.dbn.data.type.DataTypeDefinition;
 import com.dbn.object.factory.model.DBArgumentFactoryInput;
 import com.dbn.object.factory.model.DBMethodFactoryInput;
 import com.dbn.object.factory.model.DBObjectFactoryInputList;
-import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
-import com.dbn.object.factory.ui.common.ObjectFactoryInputListForm;
+import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
+import com.dbn.object.factory.ui.common.DBObjectFactoryInputListForm;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class DBArgumentFactoryInputListForm extends ObjectFactoryInputListForm<DBArgumentFactoryInput> {
+public class DBArgumentFactoryInputListForm extends DBObjectFactoryInputListForm<DBArgumentFactoryInput> {
 
     @Getter(lazy = true)
     private final List<Presentable> objectDetailOptions = initObjectDetailOptions();
@@ -65,7 +65,7 @@ public class DBArgumentFactoryInputListForm extends ObjectFactoryInputListForm<D
     }
 
     @Override
-    public ObjectFactoryInputForm<DBArgumentFactoryInput> createChildInputForm(DBArgumentFactoryInput input) {
+    public DBObjectFactoryInputForm<DBArgumentFactoryInput> createChildInputForm(DBArgumentFactoryInput input) {
         return new DBArgumentFactoryInputForm(this, input);
     }
 

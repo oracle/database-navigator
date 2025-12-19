@@ -36,10 +36,10 @@ import java.awt.Color;
 
 @Getter
 @Setter
-public abstract class ObjectFactoryInputForm<T extends DBObjectFactoryInput> extends DBNFormBase {
+public abstract class DBObjectFactoryInputForm<T extends DBObjectFactoryInput> extends DBNFormBase {
     protected T factoryInput;
 
-    protected ObjectFactoryInputForm(@NotNull DBNComponent parent, T factoryInput) {
+    protected DBObjectFactoryInputForm(@NotNull DBNComponent parent, T factoryInput) {
         super(parent);
         this.factoryInput = factoryInput;
     }

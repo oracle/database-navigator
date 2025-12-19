@@ -253,7 +253,8 @@
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
     </extensions>
     <extensionPoints>
-        <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterFactory" dynamic="true"/>
+        <extensionPoint name="objectFactoryAdapter" qualifiedName="com.dbn.objectFactoryAdapter" interface="com.dbn.object.factory.ObjectFactoryAdapter" dynamic="true"/>
+        <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterExtension" dynamic="true"/>
 
         <extensionPoint name="assistantAdapter" qualifiedName="com.dbn.assistantAdapter" interface="com.dbn.assistant.adapter.AssistantAdapter" dynamic="true"/>
         <extensionPoint name="assistantModelFactory" qualifiedName="com.dbn.assistantModelFactory" interface="com.dbn.assistant.service.generic.model.AssistantModelFactory" dynamic="true"/>
@@ -264,6 +265,9 @@
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
     </extensionPoints>
     <extensions defaultExtensionNs="com.dbn">
+        <!--onject factory adapters-->
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBAIModelFactoryAdapter"/>
+
         <!--object management adapters-->
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBCredentialManagementAdapter"/>

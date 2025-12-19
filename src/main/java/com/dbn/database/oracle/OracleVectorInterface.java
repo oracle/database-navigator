@@ -20,7 +20,6 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
-import com.dbn.object.factory.model.DBAIModelFactoryInput;
 import com.dbn.vector.model.source.DBTableSourceConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -41,13 +40,17 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public void loadOnnxModelFromOci(DBAIModelFactoryInput input, DBNConnection conn) throws SQLException {
-        executeUpdate(conn, "load-onnx-model-from-object-storage", input.getObjectName(), input.getCredentialName(), input.getSourceLocation());
+    public void createModelFromStorage(DBNConnection conn, String ownerName, String modelName, String modelLocation, String credentialName) throws SQLException {
+        executeUpdate(conn, "create-model-from-storage", ownerName + "." + modelName, credentialName, modelLocation);
+    }
+
+    public void createModelFromFile(DBNConnection conn, String ownerName, String modelName, Blob modelBlob) throws SQLException {
+        executeUpdate(conn, "create-model-from-file", ownerName + "." + modelName, modelBlob);
     }
 
     @Override
-    public void deleteAIModel(DBNConnection conn, String modelName) throws SQLException {
-        executeUpdate(conn, "drop-embed-model", modelName);
+    public void dropModel(DBNConnection conn, String ownerName, String modelName) throws SQLException {
+        executeUpdate(conn, "drop-model", ownerName + "." + modelName);
     }
 
     @Override
@@ -140,10 +143,4 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     public void createEmbeddingTable(DBNConnection conn, String ownerName, String tableName, String keyColumnName, String textColumnName, String embeddingColumnName, String metadataColumnName) throws SQLException {
         executeUpdate(conn, "create-embedding-table", ownerName, tableName, keyColumnName, textColumnName, embeddingColumnName, metadataColumnName);
     }
-
-    @Override
-    public void loadOnnxModelThroughJdbc(String modelName, Blob modelBlob, DBNConnection conn) throws SQLException {
-        executeCall(conn, null, "load-onnx-model-through-jdbc", modelName, modelBlob);
-    }
-
 }

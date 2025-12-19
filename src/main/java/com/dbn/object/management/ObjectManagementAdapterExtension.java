@@ -28,8 +28,8 @@ import com.intellij.openapi.extensions.ExtensionPointName;
  *
  * @author Dan Cioca (Oracle)
  */
-public interface ObjectManagementAdapterFactory<T extends DBObject> {
-    ExtensionPointName<ObjectManagementAdapterFactory> EP = ExtensionPointName.create("com.dbn.objectManagementAdapter");
+public interface ObjectManagementAdapterExtension<T extends DBObject> {
+    ExtensionPointName<ObjectManagementAdapterExtension> EP = ExtensionPointName.create("com.dbn.objectManagementAdapter");
 
     DBObjectType[] getObjectTypes();
 

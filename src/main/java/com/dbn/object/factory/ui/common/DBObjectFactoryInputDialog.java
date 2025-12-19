@@ -27,6 +27,7 @@ import com.dbn.common.util.Messages;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.DatabaseObjectFactory;
+import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.model.DBObjectFactoryInput;
 import com.dbn.object.factory.ui.DBAIModelFactoryInputForm;
 import com.dbn.object.factory.ui.DBJavaClassFactoryInputForm;
@@ -44,16 +45,16 @@ import java.sql.SQLException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
-public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?>> {
+public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputForm<?>> {
     private final DBObjectRef<DBSchema> schema;
     private final DBObjectType objectType;
     private final DBObjectFactoryInput initialInput;
 
-    public ObjectFactoryInputDialog(@NotNull Project project, DBSchema schema, DBObjectType objectType) {
+    public DBObjectFactoryInputDialog(@NotNull Project project, DBSchema schema, DBObjectType objectType) {
         this(project, schema, objectType, null);
     }
 
-    public ObjectFactoryInputDialog(@NotNull Project project, DBSchema schema, DBObjectType objectType, DBObjectFactoryInput initialInput) {
+    public DBObjectFactoryInputDialog(@NotNull Project project, DBSchema schema, DBObjectType objectType, DBObjectFactoryInput initialInput) {
         super(project, "Create " + objectType.getName(), true);
         this.schema = DBObjectRef.of(schema);
         this.objectType = objectType;
@@ -65,9 +66,16 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
 
     @NotNull
     @Override
-    protected ObjectFactoryInputForm<?> createForm() {
+    protected DBObjectFactoryInputForm<?> createForm() {
         DBSchema schema = getSchema();
-        ObjectFactoryInputForm inputForm =
+
+        ObjectFactoryAdapter factoryAdapter = ObjectFactoryAdapter.find(objectType);
+        if (factoryAdapter != null) {
+            DBObjectFactoryInput input = factoryAdapter.createInput(schema);
+            return factoryAdapter.createInputForm(this, input);
+        }
+
+        DBObjectFactoryInputForm inputForm =
                 objectType == DBObjectType.TABLE ? new DBTableFactoryInputForm(this, schema) :
                 objectType == DBObjectType.FUNCTION ? new DBMethodFactoryInputForm(this, schema, DBObjectType.FUNCTION) :
                 objectType == DBObjectType.PROCEDURE ? new DBMethodFactoryInputForm(this, schema, DBObjectType.PROCEDURE) :
@@ -101,7 +109,7 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
         DBSchema schema = getSchema();
         DBObjectType objectType = getObjectType();
 
-        ObjectFactoryInputForm form = getForm();
+        DBObjectFactoryInputForm form = getForm();
         try {
             form.applyFormChanges();
         } catch (ConfigurationException e) {
@@ -142,7 +150,7 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
     }
 
     private static void reopenInputDialog(Project project, DBSchema schema, DBObjectType objectType, DBObjectFactoryInput input) {
-        Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType, input));
+        Dialogs.show(() -> new DBObjectFactoryInputDialog(project, schema, objectType, input));
     }
 
     @Override

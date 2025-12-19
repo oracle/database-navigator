@@ -96,7 +96,7 @@
 <!--        </statement>-->
 <!--    </statement-execution-processor>-->
 
-    <statement-execution-processor id="load-onnx-model-from-object-storage" timeout="120">
+    <statement-execution-processor id="create-model-from-storage" timeout="120">
         <statement>
             begin
                 DBMS_VECTOR.LOAD_ONNX_MODEL_CLOUD(
@@ -107,7 +107,15 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="drop-embed-model" timeout="120">
+    <statement-execution-processor id="create-model-from-file" timeout="12000">
+        <statement>
+            begin
+                DBMS_VECTOR.LOAD_ONNX_MODEL({#0}, {#1});
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="drop-model" timeout="120">
         <statement>
             begin
                 DBMS_VECTOR.DROP_ONNX_MODEL(
@@ -299,14 +307,6 @@
                             embed_vector CLOB PATH '$.embed_vector'
                         )
                 ) jt
-        </statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="load-onnx-model-through-jdbc" timeout="12000">
-        <statement>
-            begin
-                DBMS_VECTOR.LOAD_ONNX_MODEL({#0}, {#1});
-            end;
         </statement>
     </statement-execution-processor>
 

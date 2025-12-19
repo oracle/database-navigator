@@ -21,7 +21,7 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.data.type.ui.DataTypeEditor;
 import com.dbn.object.factory.model.DBArgumentFactoryInput;
-import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
+import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +41,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
-public class DBArgumentFactoryInputForm extends ObjectFactoryInputForm<DBArgumentFactoryInput> {
+public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm<DBArgumentFactoryInput> {
     private JPanel mainPanel;
     private JLabel iconLabel;
     private JBTextField nameTextField;
