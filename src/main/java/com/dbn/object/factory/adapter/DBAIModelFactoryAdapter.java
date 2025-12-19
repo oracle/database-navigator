@@ -114,8 +114,8 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelFa
         double totalMB = fileSize / (1024.0 * 1024.0);
 
         // Tell the ProgressIndicator what we're doing
-        progress.setIndeterminate(false);
         progress.setText("Uploading ONNX model \"" + modelFile.getName() + "\" as " + input.getSchema().getName(true) + ".\"" + input.getObjectName() + "\"");
+        progress.setIndeterminate(false);
         progress.setFraction(0.0);
 
         Blob modelBlob = conn.createBlob();

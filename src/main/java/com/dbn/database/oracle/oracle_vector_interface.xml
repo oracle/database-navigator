@@ -110,7 +110,9 @@
     <statement-execution-processor id="create-model-from-file" timeout="12000">
         <statement>
             begin
-                DBMS_VECTOR.LOAD_ONNX_MODEL({#0}, {#1});
+                DBMS_VECTOR.LOAD_ONNX_MODEL(
+                    MODEL_NAME => {#0},
+                    MODEL_DATA => {#1});
             end;
         </statement>
     </statement-execution-processor>
