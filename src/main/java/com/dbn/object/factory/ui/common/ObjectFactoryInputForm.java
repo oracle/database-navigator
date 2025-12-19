@@ -16,51 +16,98 @@
 
 package com.dbn.object.factory.ui.common;
 
+import com.dbn.common.color.Colors;
+import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
+import javax.swing.Icon;
 import javax.swing.JPanel;
+import java.awt.Color;
 
 @Getter
 @Setter
 public abstract class ObjectFactoryInputForm<T extends ObjectFactoryInput> extends DBNFormBase {
-    private int index;
-    private final ConnectionRef connection;
-    private final DBObjectType objectType;
+    protected T factoryInput;
 
-    protected ObjectFactoryInputForm(@NotNull DBNComponent parent, @NotNull ConnectionHandler connection, DBObjectType objectType, int index) {
+    protected ObjectFactoryInputForm(@NotNull DBNComponent parent, T factoryInput) {
         super(parent);
-        this.connection = connection.ref();
-        this.objectType = objectType;
-        this.index = index;
+        this.factoryInput = factoryInput;
+    }
+
+    public int getIndex() {
+        return factoryInput.getIndex();
+    }
+
+    public void setIndex(int index) {
+        factoryInput.setIndex(index);
+    }
+
+    public DBObjectType getObjectType() {
+        return factoryInput.getObjectType();
+    }
+
+    public boolean isReadonly() {
+        return factoryInput.isReadonly();
     }
 
     @NotNull
     @Override
     public abstract JPanel getMainComponent();
 
-    public abstract String getObjectName();
+    @NonNull
+    protected DBNHeaderForm createHeaderForm() {
+        DBObjectType objectType = getObjectType();
+        ConnectionHandler connection = getConnection();
+        String headerTitle = buildHeaderTitle();
+        Icon headerIcon = objectType.getIcon();
+
+        Color headerBackground = Colors.getPanelBackground();
+        EnvironmentSettings environmentSettings = getEnvironmentSettings(connection.getProject());
+        if (environmentSettings.getVisibilitySettings().getDialogHeaders().value()) {
+            headerBackground = connection.getEnvironmentType().getColor();
+        }
+
+        return new DBNHeaderForm(
+                this,
+                headerTitle,
+                headerIcon,
+                headerBackground);
+    }
+
+    protected String buildHeaderTitle() {
+        String objectName = getObjectName();
+        if (Strings.isEmpty(objectName)) {
+            objectName = "[new]";
+        }
+        return getSchemaName() + "." + objectName;
+    }
+
+    protected abstract String getSchemaName();
+
+    protected abstract String getObjectName();
 
     @NotNull
     public ConnectionHandler getConnection() {
-        return connection.ensure();
+        return factoryInput.getConnection();
     }
 
-    public T createFactoryInput() {
-        return createFactoryInput(null);
+    public final void restoreUserInput(@Nullable T input) {
+        setFactoryInput(input);
+        resetFormChanges();
+        updateFieldAvailability();
+        updateFieldAlignment();
     }
-
-    public abstract T createFactoryInput(ObjectFactoryInput parent);
-
-    public abstract void restoreUserInput(@Nullable T input);
 
     public abstract void focus();
 }

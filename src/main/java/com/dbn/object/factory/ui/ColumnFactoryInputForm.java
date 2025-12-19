@@ -16,22 +16,22 @@
 
 package com.dbn.object.factory.ui;
 
-import com.dbn.connection.ConnectionHandler;
+import com.dbn.common.ui.alignment.FieldAlignerData;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.data.type.ui.DataTypeEditor;
 import com.dbn.object.factory.ColumnFactoryInput;
-import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
-import com.dbn.object.factory.ui.common.ObjectListForm;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.util.Set;
 
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
@@ -41,15 +41,32 @@ public class ColumnFactoryInputForm extends ObjectFactoryInputForm<ColumnFactory
     private JPanel mainPanel;
     private JLabel iconLabel;
     private JBTextField nameTextField;
-    private JPanel dataTypeEditor;
+    private JCheckBox notNullCheckBox;
+    private JCheckBox primaryKeyCheckBox;
+    private JPanel dataTypeEditorPanel;
 
-    ColumnFactoryInputForm(ColumnFactoryInputListForm parent, ConnectionHandler connection, int index, @Nullable ObjectListForm.ObjectDetail detail) {
-        super(parent, connection, DBObjectType.COLUMN, index);
+    private final DataTypeEditor dataTypeEditor;
+
+    ColumnFactoryInputForm(ColumnFactoryInputListForm parent, ColumnFactoryInput input) {
+        super(parent, input);
         iconLabel.setText(null);
         iconLabel.setIcon(DBObjectType.COLUMN.getIcon());
 
         nameTextField.getEmptyText().setText("Column name");
-        getDataTypeEditor().setText(detail == null ? "" : detail.getName());
+        dataTypeEditor = new DataTypeEditor(getConnection());
+        dataTypeEditorPanel.add(dataTypeEditor);
+
+        resetFormChanges();
+    }
+
+    @Override
+    protected void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.initFieldsAvailability(() -> !isReadonly(), array(
+                nameTextField,
+                dataTypeEditor,
+                notNullCheckBox,
+                primaryKeyCheckBox));
     }
 
     @Override
@@ -59,6 +76,12 @@ public class ColumnFactoryInputForm extends ObjectFactoryInputForm<ColumnFactory
         addTextValidation(nameTextField, n -> isNotUsed(n), "Please enter a unique column name");
 
         addTextValidation(getTypeTextField(), t -> isNotEmptyOrSpaces(t), "Please enter the column data type");
+    }
+
+    @Override
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerFieldGroup(nameTextField, dataTypeEditorPanel);
     }
 
     private boolean isNotUsed(String columnName) {
@@ -76,34 +99,33 @@ public class ColumnFactoryInputForm extends ObjectFactoryInputForm<ColumnFactory
     }
 
     private JBTextField getTypeTextField() {
-        return getDataTypeEditor().getTextField();
+        return dataTypeEditor.getTextField();
     }
 
     @Override
-    public String getObjectName() {
+    protected String getSchemaName() {
+        return null; // TODO only used for header panel (check if relevant here)
+    }
+
+    @Override
+    protected String getObjectName() {
         return getText(nameTextField);
     }
 
-
     @Override
-    public ColumnFactoryInput createFactoryInput(ObjectFactoryInput parent) {
-        return new ColumnFactoryInput(
-                parent,
-                getIndex(),
-                getText(nameTextField),
-                getDataTypeEditor().getDataTypeRepresentation());
+    public void applyFormChanges() {
+        factoryInput.setObjectName(getText(nameTextField));
+        factoryInput.setDataType(dataTypeEditor.getDataTypeRepresentation());
+        factoryInput.setNonNull(notNullCheckBox.isSelected());
+        factoryInput.setPrimaryKey(primaryKeyCheckBox.isSelected());
     }
 
     @Override
-    public void restoreUserInput(@Nullable ColumnFactoryInput input) {
-        if (input == null) return;
-
-        nameTextField.setText(input.getObjectName());
-        getDataTypeEditor().setText(input.getDataType());
-    }
-
-    private DataTypeEditor getDataTypeEditor() {
-        return (DataTypeEditor) dataTypeEditor;
+    public void resetFormChanges() {
+        nameTextField.setText(factoryInput.getObjectName());
+        dataTypeEditor.setText(factoryInput.getDataType());
+        notNullCheckBox.setSelected(factoryInput.isNonNull());
+        primaryKeyCheckBox.setSelected(factoryInput.isPrimaryKey());
     }
 
     @Override
@@ -115,10 +137,6 @@ public class ColumnFactoryInputForm extends ObjectFactoryInputForm<ColumnFactory
     @Override
     public JPanel getMainComponent() {
         return mainPanel;
-    }
-
-    private void createUIComponents() {
-        dataTypeEditor = new DataTypeEditor(getConnection());
     }
 
     @Override

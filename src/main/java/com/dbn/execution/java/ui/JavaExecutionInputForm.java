@@ -48,7 +48,6 @@ import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.util.List;
 
-import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static java.util.Collections.emptyList;
 
 public class JavaExecutionInputForm extends DBNFormBase {
@@ -91,7 +90,7 @@ public class JavaExecutionInputForm extends DBNFormBase {
     @Override
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
-        alignerData.registerForms(parameterForms);
+        alignerData.registerForms(() -> parameterForms);
     }
 
     private void initDebuggerPanel() {
@@ -166,8 +165,7 @@ public class JavaExecutionInputForm extends DBNFormBase {
         parameterForms.forEach(c -> c.addDocumentListener(documentListener));
         argumentsScrollPane.setPreferredSize(argumentsPanel.getPreferredSize());
 
-        alignFormFields(this);
-
+        updateFieldAlignment();
     }
 
 

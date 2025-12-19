@@ -45,7 +45,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Strings.toUpperCase;
@@ -67,13 +66,13 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
         actionsPanel.add(new ObjectTypeSelector(), BorderLayout.WEST);
 
         configuration.getFilters().forEach(f -> createFilterPanel(f));
-        alignFormFields(this);
+        updateFieldAlignment();
     }
 
     @Override
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
-        alignerData.registerForms(filterForms);
+        alignerData.registerForms(() -> filterForms);
     }
 
     public boolean markModified(ObjectFilter<?> filter) {
@@ -89,7 +88,7 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
         ObjectFilterExpressionForm expressionForm = new ObjectFilterExpressionForm(this, filter);
         filtersPanel.add(expressionForm.getComponent());
         filterForms.add(expressionForm);
-        alignFormFields(this);
+        updateFieldAlignment();
     }
 
     public void removeFilterPanel(ObjectFilter<?> filter) {
@@ -102,7 +101,7 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
             }
         }
 
-        alignFormFields(this);
+        updateFieldAlignment();
         UserInterface.repaint(mainPanel);
     }
 

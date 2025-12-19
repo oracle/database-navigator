@@ -23,17 +23,17 @@ import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.ValueSelector;
 import com.dbn.common.ui.ValueSelectorOption;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.object.factory.ObjectFactoryInput;
+import com.dbn.object.factory.ObjectFactoryInputList;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.util.PlatformIcons;
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -42,17 +42,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFormBase {
+public abstract class ObjectFactoryInputListForm<T extends ObjectFactoryInput> extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel listPanel;
     private JPanel actionPanel;
-    private final ConnectionRef connection;
 
     private final List<ObjectFactoryInputForm<T>> inputForms = DisposableContainers.list(this);
 
-    public ObjectListForm(DBNComponent parent, @NotNull ConnectionHandler connection) {
+    public ObjectFactoryInputListForm(DBNComponent parent) {
         super(parent);
-        this.connection = connection.ref();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
 
         actionPanel.add(new DetailSelector());
@@ -64,47 +62,82 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
         return mainPanel;
     }
 
+    protected abstract ObjectFactoryInputList<T> getChildInputs();
+
     public ConnectionHandler getConnection() {
-        return connection.ensure();
+        return getChildInputs().getConnection();
     }
 
-    protected abstract ObjectFactoryInputForm<T> createObjectDetailsPanel(int index, @Nullable ObjectDetail detail);
+    protected abstract ObjectFactoryInputForm<T> createChildInputForm(T input);
 
     public abstract DBObjectType getObjectType();
 
-    public abstract List<ObjectDetail> getObjectDetailOptions();
+    public abstract List<Presentable> getObjectDetailOptions();
 
-    private class DetailSelector extends ValueSelector<ObjectDetail> {
+    @Override
+    public void applyFormChanges() throws ConfigurationException {
+        for (ObjectFactoryInputForm<T> inputForm : inputForms) {
+            inputForm.applyFormChanges();
+        }
+    }
+
+    @Override
+    public void resetFormChanges() {
+        List<ObjectFactoryInputForm<T>> oldInputForms = new ArrayList<>(inputForms);
+        inputForms.clear();
+
+        for (T input : getChildInputs()) {
+            createChildInputPanel(input);
+        }
+
+        Disposer.dispose(oldInputForms);
+    }
+
+    @Override
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerForms(() -> inputForms);
+    }
+
+    private class DetailSelector extends ValueSelector<Presentable> {
         DetailSelector() {
             super(PlatformIcons.ADD_ICON, "Add " + getObjectType().getName(), null, ValueSelectorOption.HIDE_DESCRIPTION);
-            addListener((oldValue, newValue) -> createObjectPanel(newValue));
+            addListener((oldValue, newValue) -> createChildInputPanel(newValue));
 
             setEmptyValueFactory(new ValueFactory<>("(custom type)") {
                 @Override
-                public void createValue(Consumer<ObjectDetail> consumer) {
-                    createObjectPanel(null);
+                public void createValue(Consumer<Presentable> consumer) {
+                    createChildInputPanel((Presentable) null);
                 }
             });
         }
 
         @Override
-        public List<ObjectDetail> loadValues() {
+        public List<Presentable> loadValues() {
             return getObjectDetailOptions();
         }
     }
 
-    public ObjectFactoryInputForm createObjectPanel(ObjectDetail detail) {
-        ObjectFactoryInputForm<T> inputForm = createObjectDetailsPanel(inputForms.size(), detail);
-        ObjectListItemForm listItemForm = new ObjectListItemForm(this, inputForm);
+    protected abstract T createChildInput(Presentable detail);
+
+    private void createChildInputPanel(Presentable detail) {
+        T input = createChildInput(detail);
+        getChildInputs().add(input);
+        createChildInputPanel(input);
+    }
+
+    public void createChildInputPanel(T input) {
+        ObjectFactoryInputForm<T> inputForm = createChildInputForm(input);
+        ObjectFactoryInputListItemForm listItemForm = new ObjectFactoryInputListItemForm(this, inputForm);
 
         inputForms.add(inputForm);
         listPanel.add(listItemForm.getComponent());
 
+        updateFieldAlignment();
         if (isInitialized()) {
             UserInterface.repaint(mainPanel);
             inputForm.focus();
         }
-        return inputForm;
     }
 
     public void removeObjectPanel(int index) {
@@ -113,7 +146,7 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
         listPanel.remove(index);
     }
 
-    public void removeObjectPanel(ObjectListItemForm child) {
+    public void removeObjectPanel(ObjectFactoryInputListItemForm child) {
         inputForms.remove(child.getObjectDetailsPanel());
         listPanel.remove(child.getComponent());
 
@@ -124,24 +157,6 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
 
         UserInterface.repaint(mainPanel);
         validateInput();  // clear validation errors produced by this form
-    }
-
-    public List<T> createFactoryInputs(ObjectFactoryInput parent) {
-        List<T> objectFactoryInputs = new ArrayList<>();
-        for (ObjectFactoryInputForm<T> inputForm : this.inputForms) {
-            T objectFactoryInput = inputForm.createFactoryInput(parent);
-            objectFactoryInputs.add(objectFactoryInput);
-        }
-        return objectFactoryInputs;
-    }
-
-    @Getter
-    public static class ObjectDetail implements Presentable {
-        private final String name;
-
-        public ObjectDetail(String name) {
-            this.name = name;
-        }
     }
 
     public Set<String> getObjectNames(ObjectFactoryInputForm excludedForm) {

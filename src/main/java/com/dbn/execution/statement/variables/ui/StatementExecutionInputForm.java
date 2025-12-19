@@ -58,7 +58,6 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
@@ -131,7 +130,7 @@ public class StatementExecutionInputForm extends DBNFormBase {
             preferredSize.setSize(preferredSize.getWidth() + 20, preferredSize.getHeight());
             variablesScrollPane.setPreferredSize(preferredSize);
 
-            alignFormFields(this);
+            updateFieldAlignment();
         }
 
         executionOptionsForm = new ExecutionOptionsForm(this, executionInput, debuggerType);
@@ -158,7 +157,7 @@ public class StatementExecutionInputForm extends DBNFormBase {
     @Override
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
-        alignerData.registerForms(variableValueForms);
+        alignerData.registerForms(() -> variableValueForms);
     }
 
     @NotNull

@@ -62,6 +62,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
 
+import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.ui.form.DBNFormBinding.bindForm;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
@@ -223,6 +224,10 @@ public abstract class DBNFormBase
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
         fieldAdapter.updateFieldsVisibility();
         fieldAdapter.updateFieldsAvailability();
+    }
+
+    public void updateFieldAlignment() {
+        alignFormFields(this);
     }
 
     protected void validateFormFields() {

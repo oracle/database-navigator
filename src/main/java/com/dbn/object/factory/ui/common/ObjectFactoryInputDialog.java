@@ -28,18 +28,20 @@ import com.dbn.diagnostics.Diagnostics;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.DatabaseObjectFactory;
 import com.dbn.object.factory.ObjectFactoryInput;
-import com.dbn.object.factory.ui.FunctionFactoryInputForm;
 import com.dbn.object.factory.ui.JavaFactoryInputForm;
+import com.dbn.object.factory.ui.MethodFactoryInputForm;
 import com.dbn.object.factory.ui.ModelFactoryInputForm;
-import com.dbn.object.factory.ui.ProcedureFactoryInputForm;
 import com.dbn.object.factory.ui.TableFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
+
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
 public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?>> {
@@ -66,11 +68,11 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
     protected ObjectFactoryInputForm<?> createForm() {
         DBSchema schema = getSchema();
         ObjectFactoryInputForm inputForm =
-                objectType == DBObjectType.TABLE ? new TableFactoryInputForm(this, schema, objectType, 0) :
-                objectType == DBObjectType.FUNCTION ? new FunctionFactoryInputForm(this, schema, objectType, 0) :
-                objectType == DBObjectType.PROCEDURE ? new ProcedureFactoryInputForm(this, schema, objectType, 0) :
-                objectType == DBObjectType.JAVA_CLASS ? new JavaFactoryInputForm(this, schema, 0) :
-                objectType == DBObjectType.AI_MODEL ? new ModelFactoryInputForm(this,schema, objectType,0):
+                objectType == DBObjectType.TABLE ? new TableFactoryInputForm(this, schema) :
+                objectType == DBObjectType.FUNCTION ? new MethodFactoryInputForm(this, schema, DBObjectType.FUNCTION) :
+                objectType == DBObjectType.PROCEDURE ? new MethodFactoryInputForm(this, schema, DBObjectType.PROCEDURE) :
+                objectType == DBObjectType.JAVA_CLASS ? new JavaFactoryInputForm(this, schema) :
+                objectType == DBObjectType.AI_MODEL ? new ModelFactoryInputForm(this, schema):
                         Failsafe.nn(null);
 
         if (initialInput != null) {
@@ -100,7 +102,14 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
         DBObjectType objectType = getObjectType();
 
         ObjectFactoryInputForm form = getForm();
-        ObjectFactoryInput input = form.createFactoryInput();
+        try {
+            form.applyFormChanges();
+        } catch (ConfigurationException e) {
+            conditionallyLog(e);
+            Messages.showErrorDialog(getProject(), e.getMessage());
+            return;
+        }
+        ObjectFactoryInput input = form.getFactoryInput();
         super.doOKAction();
 
         String title = "Creating " + input.getObjectTypeName();

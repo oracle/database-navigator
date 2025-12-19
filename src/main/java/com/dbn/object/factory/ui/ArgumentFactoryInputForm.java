@@ -17,16 +17,14 @@
 package com.dbn.object.factory.ui;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.connection.ConnectionHandler;
+import com.dbn.common.ui.alignment.FieldAlignerData;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.data.type.ui.DataTypeEditor;
 import com.dbn.object.factory.ArgumentFactoryInput;
-import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
-import com.dbn.object.factory.ui.common.ObjectListForm;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
@@ -37,6 +35,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Set;
 
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
@@ -48,15 +47,15 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
     private JBTextField nameTextField;
     private JCheckBox inCheckBox;
     private JCheckBox outCheckBox;
-    private JPanel dataTypeEditor;
-    private final boolean enforceInArgument;
+    private JPanel dataTypeEditorPanel;
 
-    ArgumentFactoryInputForm(ArgumentFactoryInputListForm parent, ConnectionHandler connection, boolean enforceInArgument, int index, @Nullable ObjectListForm.ObjectDetail detail) {
-        super(parent, connection, DBObjectType.ARGUMENT, index);
-        this.enforceInArgument = enforceInArgument;
+    private final DataTypeEditor dataTypeEditor;
+
+    ArgumentFactoryInputForm(ArgumentFactoryInputListForm parent, ArgumentFactoryInput input) {
+        super(parent, input);
         iconLabel.setText(null);
-        iconLabel.setIcon(enforceInArgument ? Icons.DBO_ARGUMENT_IN : DBObjectType.ARGUMENT.getIcon());
-        if (enforceInArgument) {
+        iconLabel.setIcon(enforceInArgument() ? Icons.DBO_ARGUMENT_IN : DBObjectType.ARGUMENT.getIcon());
+        if (enforceInArgument()) {
             inCheckBox.setVisible(false);
             outCheckBox.setVisible(false);
         } else {
@@ -64,7 +63,27 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
             outCheckBox.addActionListener(actionListener);
         }
         nameTextField.getEmptyText().setText("Argument name");
-        getDataTypeEditor().setText(detail == null ? "" : detail.getName());
+
+        dataTypeEditor = new DataTypeEditor(getConnection());
+        dataTypeEditorPanel.add(dataTypeEditor);
+
+        resetFormChanges();
+    }
+
+    private boolean enforceInArgument() {
+        ArgumentFactoryInputListForm argumentListForm = ensureParentComponent();
+        MethodFactoryInputForm methodForm = argumentListForm.ensureParentComponent();
+        return methodForm.enforceInArguments();
+    }
+
+    @Override
+    protected void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.initFieldsAvailability(() -> !isReadonly(), array(
+                nameTextField,
+                dataTypeEditor,
+                inCheckBox,
+                outCheckBox));
     }
 
     @Override
@@ -92,12 +111,23 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
         setAccessibleName(outCheckBox, "Is output argument");
     }
 
+    @Override
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerFieldGroup(nameTextField, dataTypeEditorPanel);
+    }
+
     private JBTextField getTypeTextField() {
-        return getDataTypeEditor().getTextField();
+        return dataTypeEditor.getTextField();
     }
 
     @Override
-    public String getObjectName() {
+    protected String getSchemaName() {
+        return null; // TODO only used for header panel (check if relevant here)
+    }
+
+    @Override
+    protected String getObjectName() {
         return getText(nameTextField);
     }
 
@@ -116,28 +146,19 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
     };
 
     @Override
-    public ArgumentFactoryInput createFactoryInput(ObjectFactoryInput parent) {
-        return new ArgumentFactoryInput(
-                parent,
-                getIndex(),
-                getText(nameTextField),
-                getDataTypeEditor().getDataTypeRepresentation(),
-                enforceInArgument || inCheckBox.isSelected(),
-                outCheckBox.isSelected());
+    public void applyFormChanges() {
+        factoryInput.setObjectName(getText(nameTextField));
+        factoryInput.setDataType(dataTypeEditor.getDataTypeRepresentation());
+        factoryInput.setInput(enforceInArgument() || inCheckBox.isSelected());
+        factoryInput.setOutput(outCheckBox.isSelected());
     }
 
     @Override
-    public void restoreUserInput(@Nullable ArgumentFactoryInput input) {
-        if (input == null) return;
-
-        nameTextField.setText(input.getObjectName());
-        inCheckBox.setSelected(input.isInput());
-        outCheckBox.setSelected(input.isOutput());
-        getDataTypeEditor().setText(input.getDataType());
-    }
-
-    private DataTypeEditor getDataTypeEditor() {
-        return (DataTypeEditor) dataTypeEditor;
+    public void resetFormChanges() {
+        nameTextField.setText(factoryInput.getObjectName());
+        inCheckBox.setSelected(factoryInput.isInput());
+        outCheckBox.setSelected(factoryInput.isOutput());
+        dataTypeEditor.setText(factoryInput.getDataType());
     }
 
     @Override
@@ -149,10 +170,6 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm<ArgumentFac
     @Override
     public JPanel getMainComponent() {
         return mainPanel;
-    }
-
-    private void createUIComponents() {
-        dataTypeEditor = new DataTypeEditor(getConnection());
     }
 
     @Override

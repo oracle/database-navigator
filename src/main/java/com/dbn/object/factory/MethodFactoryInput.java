@@ -22,7 +22,6 @@ import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,11 +29,17 @@ import java.util.Set;
 @Getter
 @Setter
 public class MethodFactoryInput extends SchemaObjectFactoryInput{
-    private List<ArgumentFactoryInput> arguments = new ArrayList<>();
+    private ObjectFactoryInputList<ArgumentFactoryInput> arguments = new ObjectFactoryInputList<>(this);
     private ArgumentFactoryInput returnArgument;
 
-    public MethodFactoryInput(DBSchema schema, String objectName, DBObjectType methodType) {
-        super(schema, objectName, methodType);
+    public MethodFactoryInput(DBSchema schema, DBObjectType methodType) {
+        super(schema, methodType);
+        if (methodType == DBObjectType.FUNCTION) {
+            returnArgument = new ArgumentFactoryInput(this, 0, "return", null, false, true);
+        }
+
+        // add first empty argument
+        arguments.add(new ArgumentFactoryInput(this, 0));
     }
 
     public boolean isFunction() {
@@ -59,7 +64,7 @@ public class MethodFactoryInput extends SchemaObjectFactoryInput{
         }
 
         Set<String> argumentNames = new HashSet<>();
-        for (ArgumentFactoryInput argument : arguments) {
+        for (ArgumentFactoryInput argument : getArguments()) {
             argument.validate(errors);
             String argumentName = argument.getObjectName();
             if (Strings.isEmptyOrSpaces(argumentName)) continue; // already covered by field validator

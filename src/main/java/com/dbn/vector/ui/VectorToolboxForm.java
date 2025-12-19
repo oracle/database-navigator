@@ -27,8 +27,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
-import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
-
 public class VectorToolboxForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private JPanel sourcePanel;
@@ -58,7 +56,7 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
     initForms();
 //    initButtonListners();
     resetFormChanges();
-    alignFormFields(this);
+    updateFieldAlignment();
   }
 
   private void initForms() {

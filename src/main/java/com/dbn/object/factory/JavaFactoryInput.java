@@ -20,6 +20,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBJavaClassType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -28,21 +29,34 @@ import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.object.type.DBJavaClassType.EXCEPTION;
 
 @Getter
+@Setter
 public class JavaFactoryInput extends SchemaObjectFactoryInput{
-    private final String packageName;
-    private final String className;
-    private final DBJavaClassType classType;
+    private String packageName;
+    private String className;
+    private DBJavaClassType classType;
     private String extendsSuffix = " ";
 
-    public JavaFactoryInput(DBSchema schema, String packageName, String className, DBJavaClassType classType) {
-        super(schema, getQualifiedClassName(packageName, className), DBObjectType.JAVA_CLASS);
-        this.packageName = packageName;
-        this.className = className;
-        this.classType = classType;
+    public JavaFactoryInput(DBSchema schema) {
+        super(schema, DBObjectType.JAVA_CLASS);
+    }
 
-        if(classType == EXCEPTION){
-            this.extendsSuffix = " extends Exception ";
-        }
+    public void setClassType(DBJavaClassType classType) {
+        this.classType = classType;
+        this.extendsSuffix = classType == EXCEPTION ? " extends Exception " : "";
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+        updateObjectName();
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+        updateObjectName();
+    }
+
+    private void updateObjectName() {
+        setObjectName(getQualifiedClassName(packageName, className));
     }
 
     public String getDatabaseObjectName(){

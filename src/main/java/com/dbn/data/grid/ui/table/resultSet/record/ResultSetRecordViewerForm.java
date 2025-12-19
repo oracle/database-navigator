@@ -53,7 +53,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
-import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
@@ -113,7 +112,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
         }
         ColumnSortingType columnSortingType = DatasetEditorManager.getInstance(project).getRecordViewColumnSortingType();
         sortColumns(columnSortingType);
-        alignFormFields(this);
+        updateFieldAlignment();
 
         filterTextField.getEmptyText().setText("Filter");
         onTextChange(filterTextField, e -> filterColumForms());
@@ -131,7 +130,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
     @Override
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
-        alignerData.registerForms(columnForms);
+        alignerData.registerForms(() -> columnForms);
     }
 
     private void filterColumForms() {

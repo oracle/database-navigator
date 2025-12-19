@@ -6,21 +6,18 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.common.ModelSourceType;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 @Getter
+@Setter
 public class ModelFactoryInput extends SchemaObjectFactoryInput {
-  private final String modelName;
-  private final ModelSourceType sourceType;
-  private final String sourceLocation;
-  private final DBObjectRef<DBCredential> credential;
+  private ModelSourceType sourceType;
+  private String sourceLocation;
+  private DBObjectRef<DBCredential> credential;
 
-  public ModelFactoryInput(DBSchema schema, String modelName, ModelSourceType sourceType, String sourceLocation, DBCredential credential) {
-    super(schema, modelName, DBObjectType.AI_MODEL);
-    this.modelName = modelName;
-    this.sourceType = sourceType;
-    this.sourceLocation = sourceLocation;
-    this.credential = DBObjectRef.of(credential);
+  public ModelFactoryInput(DBSchema schema) {
+       super(schema, DBObjectType.AI_MODEL);
   }
 
   public String getCredentialName() {

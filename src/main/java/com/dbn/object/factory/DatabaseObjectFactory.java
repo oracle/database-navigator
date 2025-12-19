@@ -90,19 +90,39 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         return Components.projectService(project, DatabaseObjectFactory.class);
     }
 
-    public void openFactoryInputDialog(DBSchema schema, DBObjectType objectType, Consumer<String> objectNameConsumer) {
-        openFactoryInputDialog(schema, objectType, (d, c) ->
-                when(c == DialogWrapper.OK_EXIT_CODE, () -> objectNameConsumer.accept(d.getObjectName())));
+    public void openFactoryInputDialog(
+            @NotNull DBSchema schema,
+            @NotNull DBObjectType objectType) {
+        openFactoryInputDialog(schema, objectType, null);
     }
 
-    public void openFactoryInputDialog(DBSchema schema, DBObjectType objectType) {
-        openFactoryInputDialog(schema, objectType, (d, c) -> {});
+    public void openFactoryInputDialog(
+            @NotNull DBSchema schema,
+            @NotNull DBObjectType objectType,
+            @Nullable ObjectFactoryInput initialInput) {
+        openFactoryInputDialog(schema, objectType, initialInput, (d, c) -> {});
     }
 
-    public void openFactoryInputDialog(DBSchema schema, DBObjectType objectType, @Nullable Dialogs.DialogCallback<ObjectFactoryInputDialog> callback) {
+    public void openFactoryInputDialog(
+            @NotNull DBSchema schema,
+            @NotNull DBObjectType objectType,
+            @Nullable ObjectFactoryInput initialInput,
+            @Nullable Consumer<String> objectNameConsumer) {
+        openFactoryInputDialog(schema, objectType, initialInput,
+                (d, c) -> when(
+                        c == DialogWrapper.OK_EXIT_CODE,
+                        () -> objectNameConsumer.accept(d.getObjectName())));
+    }
+
+    private void openFactoryInputDialog(
+            @NotNull DBSchema schema,
+            @NotNull DBObjectType objectType,
+            @Nullable ObjectFactoryInput initialInput,
+            @Nullable Dialogs.DialogCallback<ObjectFactoryInputDialog> callback) {
+
         Project project = getProject();
         if (objectType.isOneOf(TABLE, FUNCTION, PROCEDURE, JAVA_CLASS, AI_MODEL)) {
-            Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType), callback);
+            Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType, initialInput), callback);
         } else {
             Messages.showErrorDialog(project,
                     txt("msg.objects.title.OperationNotSupported"),
@@ -164,7 +184,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
                     } else if (modelSourceType == ModelSourceType.MODEL_FILE){
                         Blob modelBlob = uploadOnnxModel(conn,input, progress);
-                        dataDefinition.loadOnnxModelThroughJdbc(input.getModelName(),modelBlob, conn);
+                        dataDefinition.loadOnnxModelThroughJdbc(input.getObjectName(),modelBlob, conn);
 
                     } else {
                         throw new IllegalArgumentException("Unsupported model source type: " + modelSourceType);
@@ -185,7 +205,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
         // Tell the ProgressIndicator what we're doing
         progress.setIndeterminate(false);
-        progress.setText("Uploading ONNX model \"" + modelFile.getName() + "\" as " + input.getSchema().getName(true) + ".\"" + input.getModelName() + "\"");
+        progress.setText("Uploading ONNX model \"" + modelFile.getName() + "\" as " + input.getSchema().getName(true) + ".\"" + input.getObjectName() + "\"");
         progress.setFraction(0.0);
 
         Blob modelBlob = conn.createBlob();

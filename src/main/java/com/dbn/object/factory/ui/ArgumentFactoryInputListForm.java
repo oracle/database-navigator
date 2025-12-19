@@ -19,34 +19,54 @@ package com.dbn.object.factory.ui;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
-import com.dbn.common.ui.component.DBNComponent;
+import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Lists;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.type.DataTypeDefinition;
 import com.dbn.object.factory.ArgumentFactoryInput;
+import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.factory.ObjectFactoryInputList;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
-import com.dbn.object.factory.ui.common.ObjectListForm;
+import com.dbn.object.factory.ui.common.ObjectFactoryInputListForm;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class ArgumentFactoryInputListForm extends ObjectListForm<ArgumentFactoryInput> {
-    private final boolean enforceInArguments;
+public class ArgumentFactoryInputListForm extends ObjectFactoryInputListForm<ArgumentFactoryInput> {
 
     @Getter(lazy = true)
-    private final List<ObjectDetail> objectDetailOptions = initObjectDetailOptions();
+    private final List<Presentable> objectDetailOptions = initObjectDetailOptions();
 
-    public ArgumentFactoryInputListForm(DBNComponent parent, ConnectionHandler connection, boolean enforceInArguments) {
-        super(parent, connection);
-        this.enforceInArguments = enforceInArguments;
+    public ArgumentFactoryInputListForm(MethodFactoryInputForm parentForm) {
+        super(parentForm);
     }
 
     @Override
-    public ObjectFactoryInputForm<ArgumentFactoryInput> createObjectDetailsPanel(int index, @Nullable ObjectDetail detail) {
-        return new ArgumentFactoryInputForm(this, getConnection(), enforceInArguments, index, detail);
+    protected ObjectFactoryInputList<ArgumentFactoryInput> getChildInputs() {
+        return getMethodInput().getArguments();
+    }
+
+    @Override
+    protected ArgumentFactoryInput createChildInput(Presentable detail) {
+        MethodFactoryInput methodInput = getMethodInput();
+
+        int index = methodInput.getArguments().size();
+        ArgumentFactoryInput argumentInput = new ArgumentFactoryInput(methodInput, index);
+
+        String dataType = detail == null ? "" : detail.getName();
+        argumentInput.setDataType(dataType);
+        return argumentInput;
+    }
+
+    private MethodFactoryInput getMethodInput() {
+        MethodFactoryInputForm methodInputForm = ensureParentComponent();
+        return methodInputForm.getFactoryInput();
+    }
+
+    @Override
+    public ObjectFactoryInputForm<ArgumentFactoryInput> createChildInputForm(ArgumentFactoryInput input) {
+        return new ArgumentFactoryInputForm(this, input);
     }
 
     @Override
@@ -54,12 +74,12 @@ public class ArgumentFactoryInputListForm extends ObjectListForm<ArgumentFactory
         return DBObjectType.ARGUMENT;
     }
 
-    private @NotNull List<ObjectDetail> initObjectDetailOptions() {
+    private @NotNull List<Presentable> initObjectDetailOptions() {
         List<DataTypeDefinition> nativeDataTypes = getConnection().getInterfaces().getNativeDataTypes().list();
 
         CodeStyleCaseSettings caseSettings = PSQLCodeStyle.caseSettings(getProject());
         CodeStyleCaseOption caseOption = caseSettings.getObjectCaseOption();
 
-        return Lists.convert(nativeDataTypes, d -> new ObjectDetail(caseOption.format(d.getName())));
+        return Lists.convert(nativeDataTypes, d -> Presentable.basic(caseOption.format(d.getName())));
     }
 }

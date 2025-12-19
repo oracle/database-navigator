@@ -21,8 +21,8 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,10 +30,15 @@ import java.util.Set;
 @Getter
 @Setter
 public class TableFactoryInput extends SchemaObjectFactoryInput{
-    private List<ColumnFactoryInput> columns = new ArrayList<>();
+    private ObjectFactoryInputList<ColumnFactoryInput> columns = new ObjectFactoryInputList<>(this);
 
-    public TableFactoryInput(DBSchema schema, String objectName) {
-        super(schema, objectName, DBObjectType.TABLE);
+    public TableFactoryInput(DBSchema schema) {
+        super(schema, DBObjectType.TABLE);
+    }
+
+    public void addColumn(@NonNls String objectName, @NonNls String dataType, boolean notNull, boolean primaryKey) {
+        ColumnFactoryInput column = new ColumnFactoryInput(this, columns.size(), objectName, dataType, notNull, primaryKey);
+        columns.add(column);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package com.dbn.object.factory.ui;
+package com.dbn.object.factory;
 
-import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.object.DBSchema;
-import com.dbn.object.type.DBObjectType;
-import org.jetbrains.annotations.NotNull;
+import com.dbn.connection.ConnectionHandler;
+import lombok.Getter;
+import lombok.Setter;
 
-public class FunctionFactoryInputForm extends MethodFactoryInputForm {
+import java.util.ArrayList;
 
-    public FunctionFactoryInputForm(@NotNull DBNComponent parent, DBSchema schema, DBObjectType objectType, int index) {
-        super(parent, schema, objectType, index);
+@Getter
+@Setter
+public class ObjectFactoryInputList<T extends ObjectFactoryInput> extends ArrayList<T> {
+    private final ObjectFactoryInput parent;
+    private boolean readonly;
+
+    public ObjectFactoryInputList(ObjectFactoryInput parent) {
+        this.parent = parent;
     }
 
-    @Override
-    public boolean hasReturnArgument() {
-        return true;
+    public ConnectionHandler getConnection() {
+        return parent.getConnection();
     }
 }

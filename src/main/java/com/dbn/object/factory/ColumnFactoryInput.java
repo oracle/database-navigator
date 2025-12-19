@@ -19,18 +19,28 @@ package com.dbn.object.factory;
 import com.dbn.common.util.Strings;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.List;
 
 
 @Getter
+@Setter
 public class ColumnFactoryInput extends ObjectFactoryInput{
-    private final String dataType;
+    private String dataType;
+    private boolean nonNull;
+    private boolean primaryKey;
 
-    public ColumnFactoryInput(ObjectFactoryInput parent, int index, @NonNls String objectName, @NonNls String dataType) {
-        super(objectName, DBObjectType.COLUMN, parent, index);
+    public ColumnFactoryInput(ObjectFactoryInput parent, int index) {
+        this(parent, index, null, null, false, false);
+    }
+
+    public ColumnFactoryInput(ObjectFactoryInput parent, int index, @NonNls String objectName, @NonNls String dataType, boolean nonNull, boolean primaryKey) {
+        super(parent, objectName, DBObjectType.COLUMN, index);
         this.dataType = dataType == null ? "" : dataType.trim();
+        this.nonNull = nonNull;
+        this.primaryKey = primaryKey;
     }
 
     @Override

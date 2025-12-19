@@ -46,7 +46,7 @@ public class DBNFormFieldDisabler {
     }
 
     private static void setEnabled(JComponent component, boolean enabled) {
-        Dispatch.run(component, () -> component.setEnabled(enabled));
+        Dispatch.run(component, true, () -> component.setEnabled(enabled));
     }
 
     private static Set<String> getDisabledReasons(JComponent component) {

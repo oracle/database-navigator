@@ -88,7 +88,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 	@Override
 	protected void initFieldAlignment() {
 		FieldAlignerData alignerData = getFieldAlignerData();
-		alignerData.registerForms(fieldForms);
+		alignerData.registerForms(() -> fieldForms);
 		alignerData.registerFieldGroup(fieldLabel, inputFieldPanel, fieldTypeLabel);
 	}
 

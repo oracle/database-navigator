@@ -19,19 +19,25 @@ package com.dbn.object.factory;
 import com.dbn.common.util.Strings;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.List;
 
 
 @Getter
+@Setter
 public class ArgumentFactoryInput extends ObjectFactoryInput{
-    private final String dataType;
-    private final boolean input;
-    private final boolean output;
+    private String dataType;
+    private boolean input;
+    private boolean output;
+
+    public ArgumentFactoryInput(ObjectFactoryInput parent, int index) {
+        this(parent, index, null, null,  true, false);
+    }
 
     public ArgumentFactoryInput(ObjectFactoryInput parent, int index, @NonNls String objectName, @NonNls String dataType, boolean input, boolean output) {
-        super(objectName, DBObjectType.ARGUMENT, parent, index);
+        super(parent, objectName, DBObjectType.ARGUMENT, index);
         this.dataType = dataType == null ? "" : dataType.trim();
         this.input = input;
         this.output = output;

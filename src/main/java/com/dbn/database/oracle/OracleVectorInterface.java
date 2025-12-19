@@ -42,7 +42,7 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
 
     @Override
     public void loadOnnxModelFromOci(ModelFactoryInput input, DBNConnection conn) throws SQLException {
-        executeUpdate(conn, "load-onnx-model-from-object-storage", input.getModelName(), input.getCredentialName(), input.getSourceLocation());
+        executeUpdate(conn, "load-onnx-model-from-object-storage", input.getObjectName(), input.getCredentialName(), input.getSourceLocation());
     }
 
     @Override

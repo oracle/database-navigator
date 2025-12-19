@@ -16,7 +16,6 @@
 
 package com.dbn.object.factory.ui;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -25,12 +24,9 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.JavaFactoryInput;
-import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
-import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaClassType;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -39,13 +35,13 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
-import java.awt.Color;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.DBNFormState.initPersistence;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Java.isValidClassName;
 import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isEmpty;
@@ -53,19 +49,20 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 
 public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInput> {
     private JPanel mainPanel;
-    protected JTextField classNameTextField;
     private JPanel headerPanel;
+    private JTextField nameTextField;
     private JTextField packageTextField;
     private DBNComboBox<ConnectionHandler> connectionComboBox;
     private DBNComboBox<SchemaId> schemaComboBox;
     private DBNComboBox<DBJavaClassType> classTypeComboBox;
 
-    private final DBObjectRef<DBSchema> schema;
+    public JavaFactoryInputForm(DBNComponent parent, DBSchema schema) {
+        this(parent, new JavaFactoryInput(schema));
+    }
 
-    public JavaFactoryInputForm(DBNComponent parent, DBSchema schema, int index) {
-        super(parent, schema.getConnection(), DBObjectType.JAVA_CLASS, index);
-        this.schema = DBObjectRef.of(schema);
-
+    public JavaFactoryInputForm(DBNComponent parent, JavaFactoryInput input) {
+        super(parent, input);
+        DBSchema schema = input.getSchema();
 
         ConnectionHandler connection = getConnection();
         connectionComboBox.setValues(connection);
@@ -83,11 +80,14 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
         classTypeComboBox.setSelectedValue(DBJavaClassType.CLASS);
 
 
-        DBNHeaderForm headerForm = createHeaderForm(schema);
+        DBNHeaderForm headerForm = createHeaderForm();
+        headerPanel.add(headerForm.getComponent());
 
-        onTextChange(packageTextField, e -> headerForm.setTitle(getHeaderTitle()));
-        onTextChange(classNameTextField, e -> headerForm.setTitle(getHeaderTitle()));
+        onTextChange(nameTextField, e -> headerForm.setTitle(buildHeaderTitle()));
+        onTextChange(packageTextField, e -> headerForm.setTitle(buildHeaderTitle()));
         classTypeComboBox.addListener((o,n) -> headerForm.setIcon(getHeaderIcon()));
+
+        resetFormChanges();
     }
 
     @Nullable
@@ -96,33 +96,30 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
         return selectedValue == null ? DBJavaClassType.CLASS.getIcon() : selectedValue.getIcon();
     }
 
-    @NotNull
-    private String getHeaderTitle() {
+    protected String buildHeaderTitle() {
         String packageName = getPackageName();
         String className = getObjectName();
-        if (isEmpty(className)) className = "[unnamed]";
+        if (isEmpty(className)) {
+            className = "[new]";
+        }
 
-        String schemaName = schema.getObjectName();
+        String schemaName = getSchemaName();
         return schemaName + (isEmpty(packageName) ? "" : "." + packageName) + "." + className;
     }
 
     @Override
-    public String getObjectName() {
-        return getText(classNameTextField);
+    protected String getSchemaName() {
+        return getFactoryInput().getSchema().getName();
     }
 
-    private DBNHeaderForm createHeaderForm(DBSchema schema) {
-        Color headerBackground = Colors.getPanelBackground();
-        if (getEnvironmentSettings(schema.getProject()).getVisibilitySettings().getDialogHeaders().value()) {
-            headerBackground = schema.getEnvironmentType().getColor();
-        }
-        DBNHeaderForm headerForm = new DBNHeaderForm(this,
-                getHeaderTitle(),
-                getHeaderIcon(),
-                headerBackground);
+    @Override
+    public String getObjectName() {
+        return getText(nameTextField);
+    }
 
-        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
-        return headerForm;
+    @NonNls
+    private String getPackageName() {
+        return getText(packageTextField);
     }
 
     protected void initStatePersistence() {
@@ -134,38 +131,25 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
         initPersistence(packageTextField, state, "package-selection");
     }
 
-    @NonNls
-    private String getPackageName() {
-        return getText(packageTextField);
+    @Override
+    public void applyFormChanges() {
+        factoryInput.setPackageName(getText(packageTextField));
+        factoryInput.setClassName(getText(nameTextField));
+        factoryInput.setClassType(getSelection(classTypeComboBox));
     }
 
     @Override
-    public JavaFactoryInput createFactoryInput(ObjectFactoryInput parent) {
-        return new JavaFactoryInput(
-                getSchema(),
-                getPackageName(),
-                getObjectName(),
-                classTypeComboBox.getSelectedValue());
-    }
-
-    @Override
-    public void restoreUserInput(@Nullable JavaFactoryInput input) {
-        if (input == null) return;
-
-        packageTextField.setText(input.getPackageName());
-        classNameTextField.setText(input.getClassName());
-        classTypeComboBox.setSelectedValue(input.getClassType());
+    public void resetFormChanges() {
+        setText(packageTextField, factoryInput.getPackageName());
+        setText(nameTextField, factoryInput.getClassName());
+        classTypeComboBox.setSelectedValue(factoryInput.getClassType());
     }
 
     @Override
     protected void initValidation() {
         addTextValidation(packageTextField, p -> isValidPackageName(p), "Please enter a valid package name");
-        addTextValidation(classNameTextField, p -> isNotEmpty(p), "Please enter a class name");
-        addTextValidation(classNameTextField, p -> isValidClassName(p), "Please enter a valid class name");
-    }
-
-    DBSchema getSchema() {
-        return DBObjectRef.get(schema);
+        addTextValidation(nameTextField, p -> isNotEmpty(p), "Please enter a class name");
+        addTextValidation(nameTextField, p -> isValidClassName(p), "Please enter a valid class name");
     }
 
     @Override

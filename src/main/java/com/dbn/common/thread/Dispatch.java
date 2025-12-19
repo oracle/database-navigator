@@ -65,6 +65,13 @@ public final class Dispatch {
         }
     }
 
+    public static void run(Component component, boolean conditional, Runnable runnable) {
+        if (conditional && isDispatchThread()) {
+            guarded(runnable, r -> r.run());
+        } else {
+            run(component, runnable);
+        }
+    }
     public static void run(Component component, Runnable runnable) {
         if (component.isShowing()) {
             ModalityState modalityState = ModalityState.stateForComponent(component);

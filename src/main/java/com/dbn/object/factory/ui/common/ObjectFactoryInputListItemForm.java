@@ -27,23 +27,22 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
-public class ObjectListItemForm extends DBNFormBase {
+public class ObjectFactoryInputListItemForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel removeActionPanel;
     private JPanel objectDetailsComponent;
 
     private final ObjectFactoryInputForm<?> inputForm;
 
-    ObjectListItemForm(@NotNull ObjectListForm<?> parent, ObjectFactoryInputForm<?> inputForm) {
+    ObjectFactoryInputListItemForm(@NotNull ObjectFactoryInputListForm<?> parent, ObjectFactoryInputForm<?> inputForm) {
         super(parent);
         this.inputForm = inputForm;
         ActionToolbar actionToolbar = Actions.createActionToolbar(removeActionPanel, true, new RemoveObjectAction());
         removeActionPanel.add(actionToolbar.getComponent(), BorderLayout.NORTH);
-
     }
 
     @NotNull
-    public ObjectListForm<?> getParentForm() {
+    public ObjectFactoryInputListForm<?> getParentForm() {
         return ensureParentComponent();
     }
 
@@ -64,7 +63,7 @@ public class ObjectListItemForm extends DBNFormBase {
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            getParentForm().removeObjectPanel(ObjectListItemForm.this);
+            getParentForm().removeObjectPanel(ObjectFactoryInputListItemForm.this);
         }
     }
 

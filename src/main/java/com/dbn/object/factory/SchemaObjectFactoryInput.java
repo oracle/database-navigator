@@ -16,6 +16,7 @@
 
 package com.dbn.object.factory;
 
+import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -32,8 +33,8 @@ import org.jetbrains.annotations.NotNull;
 abstract class SchemaObjectFactoryInput extends ObjectFactoryInput{
     private final DBObjectRef<DBSchema> schema;
 
-    protected SchemaObjectFactoryInput(DBSchema schema, String objectName, DBObjectType objectType) {
-        super(objectName, objectType, null, 0);
+    protected SchemaObjectFactoryInput(DBSchema schema, DBObjectType objectType) {
+        super(schema.getConnectionId(), null, objectType, 0);
         this.schema = DBObjectRef.of(schema);
     }
 
@@ -42,8 +43,16 @@ abstract class SchemaObjectFactoryInput extends ObjectFactoryInput{
         return DBObjectRef.ensure(schema);
     }
 
+    public final DBObjectRef<DBSchema> getSchemaRef() {
+        return schema;
+    }
+
     @Override
     public String getObjectPath() {
         return schema.getObjectName() + "." + super.getObjectPath();
+    }
+
+    public SchemaId getSchemaId() {
+        return schema.getSchemaId();
     }
 }

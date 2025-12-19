@@ -16,23 +16,42 @@
 
 package com.dbn.object.factory;
 
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
+import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 @Getter
+@Setter
 public abstract class ObjectFactoryInput {
-    private final String objectName;
-    private final DBObjectType objectType;
-    private final ObjectFactoryInput parent;
-    private final int index;
+    private ObjectFactoryInput parent;
+    private ConnectionId connectionId;
+    private DBObjectType objectType;
 
-    protected ObjectFactoryInput(String objectName, DBObjectType objectType, ObjectFactoryInput parent, int index) {
+    @NonNls
+    private String objectName;
+    private int index;
+    private boolean readonly;
+
+    protected ObjectFactoryInput(@NotNull ConnectionId connectionId, String objectName, DBObjectType objectType, int index) {
+        this.connectionId = connectionId;
         this.objectName = objectName == null ? "" : objectName.trim();
         this.objectType = objectType;
-        this.parent = parent;
         this.index = index;
+    }
+
+    protected ObjectFactoryInput(@NotNull ObjectFactoryInput parent, String objectName, DBObjectType objectType, int index) {
+        this(parent.connectionId, objectName, objectType, index);
+        this.parent = parent;
+    }
+
+    public ConnectionHandler getConnection() {
+        return ConnectionHandler.ensure(connectionId);
     }
 
     public String getObjectPath() {
@@ -48,4 +67,9 @@ public abstract class ObjectFactoryInput {
     }
 
     public abstract void validate(List<String> errors);
+
+    @Override
+    public String toString() {
+        return objectType.getName() + " " + objectName;
+    }
 }

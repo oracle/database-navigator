@@ -27,6 +27,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.ui.DBObjectSelector;
+import com.dbn.object.factory.ObjectFactoryInput;
+import com.dbn.object.factory.TableFactoryInput;
 import com.dbn.vector.model.staging.StagingConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
@@ -80,9 +82,22 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
         schemaComboBox.initialize(this, connection, SCHEMA, () -> loadSchemas(), () -> config.getSchemaName());
         tableComboBox.initialize(this, connection, TABLE, () -> loadTables(), () -> config.getTableName());
-        tableComboBox.initValueFactory("New Table...", () -> getSelectedSchema());
+        tableComboBox.initValueFactory("New Table...", () -> getSelectedSchema(), () -> createTableFactoryInput());
 
         updateFieldAvailability();
+    }
+
+    private ObjectFactoryInput createTableFactoryInput() {
+        TableFactoryInput factoryInput = new TableFactoryInput(getSelectedSchema());
+        factoryInput.setObjectName("FILE_CONTENTS");
+        factoryInput.addColumn("ID", "varchar2(50)", true, true);
+        factoryInput.addColumn("FILE_SIZE", "number(19)", true, false);
+        factoryInput.addColumn("FILE_HASH", "varchar2(64)", true, false);
+        factoryInput.addColumn("FILE_CONTENT", "blob", false, false);
+        factoryInput.addColumn("METADATA", "json", false, false);
+        factoryInput.getColumns().forEach(c -> c.setReadonly(true));
+
+        return factoryInput;
     }
 
     protected void initEventListeners() {
