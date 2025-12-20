@@ -119,11 +119,6 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public void ensureFileStoreTable(DBNConnection conn, String schemaName, String tableName) throws SQLException {
-        executeUpdate(conn, "ensure-file-store-table", schemaName, tableName);
-    }
-
-    @Override
     public void createFileStoreEntry(DBNConnection conn, String ownerName, String tableName, String fileStoreId, String fileMetadata, String fileHash, long fileSize) throws SQLException {
         executeUpdate(conn, "create-file-store-entry", ownerName, tableName, fileStoreId, fileMetadata, fileHash, fileSize);
     }

@@ -45,8 +45,6 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
 
   int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StagingConfig stagingConfig, StoreConfig storeConfig, String fileStoreId, String metadata) throws SQLException;
 
-  void ensureFileStoreTable(DBNConnection conn, String schemaName, String tableName) throws SQLException;
-
   void createFileStoreEntry(DBNConnection conn, String ownerName, String tableName, String fileStoreId, String fileMetadata, String fileHash, long fileSize) throws SQLException;
 
   ResultSet loadFileStoreMetadata(DBNConnection conn, String ownerName, String tableName, String fileHash, long fileSize) throws SQLException;
