@@ -228,18 +228,18 @@ public final class Data {
     public static Class<?> asPrimitiveClass(@NonNls String primitiveTypeName) {
         if (primitiveTypeName == null) return null;
 
-        switch (primitiveTypeName) {
-            case "boolean": return boolean.class;
-            case "byte":    return byte.class;
-            case "char":    return char.class;
-            case "short":   return short.class;
-            case "int":     return int.class;
-            case "long":    return long.class;
-            case "float":   return float.class;
-            case "double":  return double.class;
-            case "void":    return void.class;
-            default:        return null;
-        }
+        return switch (primitiveTypeName) {
+            case "boolean" -> boolean.class;
+            case "byte" -> byte.class;
+            case "char" -> char.class;
+            case "short" -> short.class;
+            case "int" -> int.class;
+            case "long" -> long.class;
+            case "float" -> float.class;
+            case "double" -> double.class;
+            case "void" -> void.class;
+            default -> null;
+        };
     }
 
 

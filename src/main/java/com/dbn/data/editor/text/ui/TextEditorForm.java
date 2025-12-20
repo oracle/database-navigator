@@ -118,14 +118,12 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
         Project project = ensureProject();
         VirtualFile virtualFile = null;
         FileType fileType = userValueHolder.getContentType().getFileType();
-        if (fileType instanceof LanguageFileType) {
-            LanguageFileType languageFileType = (LanguageFileType) fileType;
+        if (fileType instanceof LanguageFileType languageFileType) {
 
             virtualFile = new LightVirtualFile("text_editor_file." + fileType.getDefaultExtension(), fileType, text);
             virtualFile.putUserData(UserDataKeys.HAS_CONNECTIVITY_CONTEXT, false);
 
-            if (fileType instanceof DBLanguageFileType) {
-                DBLanguageFileType dbLanguageFileType = (DBLanguageFileType) fileType;
+            if (fileType instanceof DBLanguageFileType dbLanguageFileType) {
                 DBLanguage dbLanguage = cast(dbLanguageFileType.getLanguage());
 
                 ConnectionHandler connection = userValueHolder.getConnection();
@@ -146,8 +144,7 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
         editor.setEmbeddedIntoDialogWrapper(true);
         editor.getContentComponent().setFocusTraversalKeysEnabled(false);
 
-        if (fileType instanceof DBLanguageFileType) {
-            DBLanguageFileType dbFileType = (DBLanguageFileType) fileType;
+        if (fileType instanceof DBLanguageFileType dbFileType) {
             DBLanguage language = (DBLanguage) dbFileType.getLanguage();
             Editors.initEditorHighlighter(editor, language, (ConnectionHandler) null);
         }
@@ -207,8 +204,7 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
                 JsonValue jsonValue = (JsonValue) userValue;
                 return Json.formatJsonContent(jsonValue.getData());
 
-            } else if (userValue instanceof LargeObjectValue) {
-                LargeObjectValue largeObjectValue = (LargeObjectValue) userValue;
+            } else if (userValue instanceof LargeObjectValue largeObjectValue) {
                 dataType = largeObjectValue.getGenericDataType();
                 return largeObjectValue.read();
             }

@@ -245,8 +245,7 @@ public final class Settings {
         StringBuilder builder = new StringBuilder();
         for (int i=0; i<contentSize; i++) {
             Content content = element.getContent(i);
-            if (content instanceof Text) {
-                Text text = (Text) content;
+            if (content instanceof Text text) {
                 builder.append(text.getText());
             }
         }

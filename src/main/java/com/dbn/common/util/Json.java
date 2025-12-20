@@ -182,8 +182,7 @@ public class Json {
         if (isEmpty(json)) return "";
 
         JsonNode rootNode = OBJECT_MAPPER.readTree(json);
-        if (rootNode instanceof ObjectNode) {
-            ObjectNode objectNode = (ObjectNode) rootNode;
+        if (rootNode instanceof ObjectNode objectNode) {
             for (String attribute : attributes) {
                 objectNode.remove(attribute);
             }
@@ -204,9 +203,8 @@ public class Json {
         if (isEmpty(json)) return emptyMap();
 
         JsonNode rootNode = OBJECT_MAPPER.readTree(json);
-        if (rootNode instanceof ObjectNode) {
+        if (rootNode instanceof ObjectNode objectNode) {
             Map<String, Object> propertyValues = new HashMap<>();
-            ObjectNode objectNode = (ObjectNode) rootNode;
             for (String propertyName : attributeNames) {
                 Object propertyValue = getPropertyValue(objectNode, propertyName);
                 propertyValues.put(propertyName, propertyValue);

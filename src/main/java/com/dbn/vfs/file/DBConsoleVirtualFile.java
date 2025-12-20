@@ -116,11 +116,10 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
     @Nullable
     @Override
     public Icon getIcon() {
-        switch (getType()) {
-            case STANDARD: return Icons.FILE_SQL_CONSOLE;
-            case DEBUG: return Icons.FILE_SQL_DEBUG_CONSOLE;
-        }
-        return null;
+        return switch (getType()) {
+            case STANDARD -> Icons.FILE_SQL_CONSOLE;
+            case DEBUG -> Icons.FILE_SQL_DEBUG_CONSOLE;
+        };
     }
     public void setDatabaseSchema(SchemaId schemaId) {
         connectionContext.setSchemaId(schemaId);
@@ -233,8 +232,7 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
     public void documentChanged(DocumentEvent event) {
         Document document = event.getDocument();
         content.setText(document.getCharsSequence());
-        if (document instanceof DocumentEx) {
-            DocumentEx documentEx = (DocumentEx) document;
+        if (document instanceof DocumentEx documentEx) {
             List<RangeMarker> blocks = documentEx.getGuardedBlocks();
             if (!blocks.isEmpty()) {
                 content.getOffsets().setGuardedBlocks(blocks);

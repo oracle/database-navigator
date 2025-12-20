@@ -95,8 +95,7 @@ public class ResultSetRecordViewerColumnForm extends DBNFormBase {
     public void setCell(ResultSetDataModelCell<?, ?> cell) {
         this.cell = cell;
 
-        if (cell.getUserValue() instanceof String) {
-            String userValue = (String) cell.getUserValue();
+        if (cell.getUserValue() instanceof String userValue) {
             if (userValue.indexOf('\n') > -1) {
                 userValue = userValue.replace('\n', ' ');
             } else {

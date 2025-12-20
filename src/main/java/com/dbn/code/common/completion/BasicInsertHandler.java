@@ -42,8 +42,7 @@ public class BasicInsertHandler implements InsertHandler<CodeCompletionLookupIte
         int tailOffset = insertionContext.getTailOffset();
 
         Object lookupElementObject = lookupElement.getObject();
-        if (lookupElementObject instanceof TokenElementType) {
-            TokenElementType tokenElementType = (TokenElementType) lookupElementObject;
+        if (lookupElementObject instanceof TokenElementType tokenElementType) {
             TokenType tokenType = tokenElementType.tokenType;
             if (tokenType.isReservedWord()) {
                 /* TODO any considerations on completion char??
@@ -64,11 +63,9 @@ public class BasicInsertHandler implements InsertHandler<CodeCompletionLookupIte
                     shiftCaret(insertionContext, 1);
                 }
             }
-        } else if (lookupElementObject instanceof DBObject) {
-            DBObject object = (DBObject) lookupElementObject;
+        } else if (lookupElementObject instanceof DBObject object) {
             LeafPsiElement leafPsiElement = PsiUtil.lookupLeafBeforeOffset(file, tailOffset);
-            if (leafPsiElement instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) leafPsiElement;
+            if (leafPsiElement instanceof IdentifierPsiElement identifierPsiElement) {
                 identifierPsiElement.resolveAs(object);
 
                 if (identifierPsiElement.getObjectType().getGenericType() == DBObjectType.METHOD) {

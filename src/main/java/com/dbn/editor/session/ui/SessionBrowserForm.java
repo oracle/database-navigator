@@ -193,8 +193,7 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
     @Override
     public String getSelectedText() {
         TableCellEditor cellEditor = getBrowserTable().getCellEditor();
-        if (cellEditor instanceof DatasetTableCellEditor) {
-            DatasetTableCellEditor tableCellEditor = (DatasetTableCellEditor) cellEditor;
+        if (cellEditor instanceof DatasetTableCellEditor tableCellEditor) {
             return tableCellEditor.getTextField().getSelectedText();
         }
         return null;

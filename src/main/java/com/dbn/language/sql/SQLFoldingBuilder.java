@@ -44,12 +44,10 @@ public class SQLFoldingBuilder extends DBLanguageFoldingBuilder {
         PsiElement child = psiElement.getFirstChild();
         while (child != null) {
             FoldingContext context = new FoldingContext(descriptors, document, nestingIndex);
-            if (child instanceof PsiComment) {
-                PsiComment psiComment = (PsiComment) child;
+            if (child instanceof PsiComment psiComment) {
                 createCommentFolding(context, psiComment);
             }
-            else if (child instanceof ExecutablePsiElement) {
-                ExecutablePsiElement executablePsiElement = (ExecutablePsiElement) child;
+            else if (child instanceof ExecutablePsiElement executablePsiElement) {
                 TextRange textRange = executablePsiElement.getTextRange();
                 if (textRange.getLength() > 10) {
                     ASTNode childNode = executablePsiElement.getNode();
@@ -57,8 +55,7 @@ public class SQLFoldingBuilder extends DBLanguageFoldingBuilder {
                     context.addDescriptor(descriptor);
                     createFoldingDescriptors(executablePsiElement, document, descriptors, 1);
                 }
-            } else if (child instanceof ChameleonPsiElement) {
-                ChameleonPsiElement chameleonPsiElement = (ChameleonPsiElement) child;
+            } else if (child instanceof ChameleonPsiElement chameleonPsiElement) {
                 FoldingDescriptor descriptor = new FoldingDescriptor(
                         chameleonPsiElement.node,
                         chameleonPsiElement.getTextRange());
@@ -68,11 +65,9 @@ public class SQLFoldingBuilder extends DBLanguageFoldingBuilder {
                 FoldingDescriptor[] nestedDescriptors = foldingBuilder.buildFoldRegions(chameleonPsiElement.node, document);
                 descriptors.addAll(Arrays.asList(nestedDescriptors));
 
-            } else if (child instanceof TokenPsiElement) {
-                TokenPsiElement tokenPsiElement = (TokenPsiElement) child;
+            } else if (child instanceof TokenPsiElement tokenPsiElement) {
                 createLiteralFolding(context, tokenPsiElement);
-            } else if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            } else if (child instanceof BasePsiElement basePsiElement) {
                 createAttributeFolding(context, basePsiElement);
 
                 if (context.nestingIndex < 2) {
@@ -90,8 +85,7 @@ public class SQLFoldingBuilder extends DBLanguageFoldingBuilder {
         if (psiElement instanceof PsiComment) {
             return "/*...*/";
         }
-        if (psiElement instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+        if (psiElement instanceof BasePsiElement basePsiElement) {
             SetCollector<IdentifierPsiElement> subjects = SetCollector.linked();
 
             basePsiElement.collectSubjectPsiElements(subjects);

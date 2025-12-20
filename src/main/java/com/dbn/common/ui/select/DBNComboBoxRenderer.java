@@ -36,8 +36,7 @@ public class DBNComboBoxRenderer<T> extends ColoredListCellRenderer<T> {
     @Override
     protected void customize(@NotNull JList<? extends T> list, T value, int index, boolean selected, boolean hasFocus) {
         if (value != null) {
-            if (value instanceof Presentable) {
-                Presentable presentable = (Presentable) value;
+            if (value instanceof Presentable presentable) {
                 append(presentable.getName());
                 setIcon(presentable.getIcon());
             } else {

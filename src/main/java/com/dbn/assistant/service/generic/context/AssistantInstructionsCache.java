@@ -54,8 +54,7 @@ public class AssistantInstructionsCache extends AssistantStateExtension implemen
 
     @Override
     public String apply(Object memoryId) {
-        if (memoryId instanceof AssistantMemoryId) {
-            AssistantMemoryId memId = (AssistantMemoryId) memoryId;
+        if (memoryId instanceof AssistantMemoryId memId) {
             if (memId.isStateless()) return null;
 
             return entries.computeIfAbsent(memId, k -> createSystemMessage(k));

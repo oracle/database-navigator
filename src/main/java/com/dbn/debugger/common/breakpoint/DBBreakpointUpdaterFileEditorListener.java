@@ -37,8 +37,7 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 public class DBBreakpointUpdaterFileEditorListener extends DBNFileEditorManagerListener {
     @Override
     public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-        if (file instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) file;
+        if (file instanceof DBEditableObjectVirtualFile databaseFile) {
             guarded(() -> registerBreakpoints(source, databaseFile));
         }
     }
@@ -47,8 +46,7 @@ public class DBBreakpointUpdaterFileEditorListener extends DBNFileEditorManagerL
         XDebuggerManager debuggerManager = XDebuggerManager.getInstance(source.getProject());
         XBreakpointManagerImpl breakpointManager = (XBreakpointManagerImpl) debuggerManager.getBreakpointManager();
         for (XBreakpoint breakpoint : breakpointManager.getAllBreakpoints()) {
-            if (breakpoint instanceof XLineBreakpoint) {
-                XLineBreakpoint lineBreakpoint = (XLineBreakpoint) breakpoint;
+            if (breakpoint instanceof XLineBreakpoint lineBreakpoint) {
                 DBBreakpointUtil.setBreakpointId(lineBreakpoint, null);
                 VirtualFile virtualFile = DBBreakpointUtil.getVirtualFile(lineBreakpoint);
                 if (databaseFile.equals(virtualFile)) {

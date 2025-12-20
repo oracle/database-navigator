@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import static com.dbn.assistant.AssistantComponent.OBJECT_MAPPER;
 
@@ -126,7 +125,7 @@ public class AssistantToolRequestNormalizer {
         }
 
         if (!isValidArgumentMap(normalizedArgs)) {
-            List<String> invalidArguments = normalizedArgs.keySet().stream().filter(k -> !isValidArgument(k)).collect(Collectors.toList());
+            List<String> invalidArguments = normalizedArgs.keySet().stream().filter(k -> !isValidArgument(k)).toList();
             for (String invalidArgument : invalidArguments) {
                 Object value = normalizedArgs.remove(invalidArgument);
                 String argument = buildArgumentName(normalizedArgs.keySet());

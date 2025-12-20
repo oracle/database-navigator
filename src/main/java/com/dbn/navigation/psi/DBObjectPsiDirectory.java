@@ -80,8 +80,7 @@ public class DBObjectPsiDirectory implements ReadonlyPsiDirectoryStub{
         return guarded(null, this, e -> {
             DBObject object = e.getObject();
             DatabaseEntity parent = object.getParent();
-            if (parent instanceof DBObjectList) {
-                DBObjectList objectList = (DBObjectList) parent;
+            if (parent instanceof DBObjectList objectList) {
                 return objectList.getPsiDirectory();
             }
 

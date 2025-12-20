@@ -188,8 +188,7 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
     @Override
     public String getToolTipText(MouseEvent e) {
         Object object = getTreeNode(e);
-        if (object instanceof ToolTipProvider) {
-            ToolTipProvider toolTipProvider = (ToolTipProvider) object;
+        if (object instanceof ToolTipProvider toolTipProvider) {
             return toolTipProvider.getToolTip();
         }
         return null;
@@ -257,12 +256,10 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
         if (isNotValid(lastPathEntity)) return;
 
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
-        if (lastPathEntity instanceof DBObject) {
-            DBObject object = (DBObject) lastPathEntity;
+        if (lastPathEntity instanceof DBObject object) {
 
             Project project = ensureProject();
-            if (object instanceof DBConsole) {
-                DBConsole console = (DBConsole) object;
+            if (object instanceof DBConsole console) {
                 editorManager.openDatabaseConsole(console, false, deliberate);
                 event.consume();
             } else if (object.is(DBObjectProperty.EDITABLE)) {
@@ -286,8 +283,7 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
                             }
                         });
             }
-        } else if (lastPathEntity instanceof DBObjectBundle) {
-            DBObjectBundle objectBundle = (DBObjectBundle) lastPathEntity;
+        } else if (lastPathEntity instanceof DBObjectBundle objectBundle) {
             ConnectionHandler connection = objectBundle.getConnection();
             DBConsole defaultConsole = connection.getConsoleBundle().getDefaultConsole();
             editorManager.openDatabaseConsole(defaultConsole, false, deliberate);
@@ -344,14 +340,11 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
         BrowserTreeNode pathNode = (BrowserTreeNode) node;
         if (isNotValid(pathNode)) return null;
 
-        if (pathNode instanceof DBObjectList) {
-            DBObjectList<?> objectList = (DBObjectList<?>) pathNode;
+        if (pathNode instanceof DBObjectList<?> objectList) {
             return new ObjectListActionGroup(objectList);
-        } else if (pathNode instanceof DBObject) {
-            DBObject object = (DBObject) pathNode;
+        } else if (pathNode instanceof DBObject object) {
             return new ObjectActionGroup(object);
-        } else if (pathNode instanceof DBObjectBundle) {
-            DBObjectBundle objectsBundle = (DBObjectBundle) pathNode;
+        } else if (pathNode instanceof DBObjectBundle objectsBundle) {
             ConnectionHandler connection = objectsBundle.getConnection();
             return new ConnectionActionGroup(connection);
         }
@@ -361,15 +354,12 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
 
     @Override
     protected String getContextMenuNodeName(Object node) {
-        if (node instanceof DBObjectList) {
-            DBObjectList<?> objectList = (DBObjectList<?>) node;
+        if (node instanceof DBObjectList<?> objectList) {
             return "object list " + doubleQuoted(objectList.getObjectType().getListName());
-        } else if (node instanceof DBObject) {
-            DBObject object = (DBObject) node;
+        } else if (node instanceof DBObject object) {
             return object.getTypeName() + " " + doubleQuoted(object.getName());
 
-        } else if (node instanceof DBObjectBundle) {
-            DBObjectBundle objectsBundle = (DBObjectBundle) node;
+        } else if (node instanceof DBObjectBundle objectsBundle) {
             ConnectionHandler connection = objectsBundle.getConnection();
             return "connection " + doubleQuoted(connection.getName());
         }

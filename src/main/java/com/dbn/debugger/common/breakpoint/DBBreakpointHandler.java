@@ -63,8 +63,7 @@ public abstract class DBBreakpointHandler<T extends DBDebugProcess> extends XBre
         if (!canSetBreakpoints()) return;
 
         XBreakpointProperties properties = breakpoint.getProperties();
-        if (properties instanceof DBBreakpointProperties) {
-            DBBreakpointProperties breakpointProperties = (DBBreakpointProperties) properties;
+        if (properties instanceof DBBreakpointProperties breakpointProperties) {
             if (getConnection() == breakpointProperties.getConnection()) {
                 registerDatabaseBreakpoint(breakpoint);
             }
@@ -74,8 +73,7 @@ public abstract class DBBreakpointHandler<T extends DBDebugProcess> extends XBre
     @Override
     public final void unregisterBreakpoint(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint, boolean temporary) {
         XBreakpointProperties properties = breakpoint.getProperties();
-        if (properties instanceof DBBreakpointProperties) {
-            DBBreakpointProperties breakpointProperties = (DBBreakpointProperties) properties;
+        if (properties instanceof DBBreakpointProperties breakpointProperties) {
             if (getConnection() == breakpointProperties.getConnection()) {
                 unregisterDatabaseBreakpoint(breakpoint, temporary);
             }

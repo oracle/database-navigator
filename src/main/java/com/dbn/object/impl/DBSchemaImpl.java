@@ -592,8 +592,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
 
     @Override
     public boolean isParentOf(DBObject object) {
-        if (object instanceof DBSchemaObject) {
-            DBSchemaObject schemaObject = (DBSchemaObject) object;
+        if (object instanceof DBSchemaObject schemaObject) {
             return schemaObject.is(SCHEMA_OBJECT) && this.equals(schemaObject.getSchema());
 
         }
@@ -626,8 +625,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
             for (DBObject object : objects) {
                 ProgressMonitor.checkCancelled();
 
-                if (object instanceof DBSchemaObject) {
-                    DBSchemaObject schemaObject = (DBSchemaObject) object;
+                if (object instanceof DBSchemaObject schemaObject) {
                     DBObjectStatusHolder objectStatus = schemaObject.getStatus();
                     if (schemaObject.is(INVALIDABLE)) {
                         if (objectStatus.set(DBObjectStatus.VALID, true)) {

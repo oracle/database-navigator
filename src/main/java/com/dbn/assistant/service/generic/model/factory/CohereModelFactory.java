@@ -52,6 +52,6 @@ public class CohereModelFactory extends AbstractModelFactory {
     @Nullable
     @Override
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
-        return null;
+        return null; // TODO
     }
 }

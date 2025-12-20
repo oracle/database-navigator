@@ -29,7 +29,6 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PendingTransactionsTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel {
@@ -89,7 +88,7 @@ public class PendingTransactionsTableModel extends StatefulDisposableBase implem
 
     @Override
     public PendingTransaction getValueAt(int rowIndex, int columnIndex) {
-        return getRows().collect(Collectors.toList()).get(rowIndex);
+        return getRows().toList().get(rowIndex);
     }
 
     private Stream<PendingTransaction> getRows() {

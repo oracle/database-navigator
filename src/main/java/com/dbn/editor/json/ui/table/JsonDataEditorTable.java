@@ -200,8 +200,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
     @Override
     public String getToolTipText(@NotNull MouseEvent e) {
         DataModelCell cell = getCellAtLocation(e.getPoint());
-        if (cell instanceof JsonDataEditorModelCell) {
-            JsonDataEditorModelCell editorTableCell = (JsonDataEditorModelCell) cell;
+        if (cell instanceof JsonDataEditorModelCell editorTableCell) {
 
             if (editorTableCell.hasError()) {
                 StringBuilder text = new StringBuilder("<html>");
@@ -226,8 +225,7 @@ public class JsonDataEditorTable extends ResultSetTable<JsonDataEditorModel> {
                 Object userValue = editorTableCell.getUserValue();
                 if (userValue instanceof ArrayValue) {
                     return "ARRAY value has changed";
-                } else  if (userValue instanceof LargeObjectValue) {
-                    LargeObjectValue largeObjectValue = (LargeObjectValue) userValue;
+                } else  if (userValue instanceof LargeObjectValue largeObjectValue) {
                     return largeObjectValue.getGenericDataType() + " content has changed";
                 } else {
                     return "<html>Original value: <b>" + editorTableCell.getOriginalUserValue() + "</b></html>";

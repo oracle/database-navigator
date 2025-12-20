@@ -525,8 +525,7 @@ public class Icons {
     }
 
     public static Icon scaleToWidth(Icon icon, float newWidth) {
-        if (icon instanceof ScalableIcon) {
-            ScalableIcon scalableIcon = (ScalableIcon) icon;
+        if (icon instanceof ScalableIcon scalableIcon) {
 
             int iconWidth = scalableIcon.getIconWidth();
             if (newWidth != iconWidth) {

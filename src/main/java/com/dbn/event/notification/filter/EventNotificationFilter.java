@@ -49,11 +49,10 @@ public class EventNotificationFilter implements Filter<DataChangeNotification> {
 
     @Nullable
     public String getFilterValue(EventNotificationFilterType filterType) {
-        switch (filterType) {
-            case TABLE: return table;
-            case OPERATION: return operation;
-        }
-        return null;
+        return switch (filterType) {
+            case TABLE -> table;
+            case OPERATION -> operation;
+        };
     }
 
     public void clear() {

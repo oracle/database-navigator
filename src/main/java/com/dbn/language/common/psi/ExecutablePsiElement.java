@@ -63,8 +63,7 @@ public class ExecutablePsiElement extends NamedPsiElement implements Cloneable<E
         }
         BasePsiElement basePsiElement = (BasePsiElement) lastChild;
         String text = getText();
-        if (basePsiElement != null && basePsiElement.elementType instanceof NamedElementType) {
-            NamedElementType namedElementType = (NamedElementType) basePsiElement.elementType;
+        if (basePsiElement != null && basePsiElement.elementType instanceof NamedElementType namedElementType) {
             if (namedElementType.isTruncateOnExecution()) {
                 return text.substring(0, text.length() - basePsiElement.getTextLength());
             }
@@ -125,8 +124,7 @@ public class ExecutablePsiElement extends NamedPsiElement implements Cloneable<E
     public ExecutablePsiElement resolveSchemaChangeExecutable() {
         PsiElement psiElement = getPrevSibling();
         while (psiElement != null && psiElement != this) {
-            if (psiElement instanceof ExecutablePsiElement) {
-                ExecutablePsiElement executablePsiElement = (ExecutablePsiElement) psiElement;
+            if (psiElement instanceof ExecutablePsiElement executablePsiElement) {
                 if (executablePsiElement.isSchemaChange()) {
                     return executablePsiElement;
                 }

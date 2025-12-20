@@ -183,8 +183,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
     @Workaround // see assumption in BasicTabbedPaneUI.scrollableTabLayoutEnabled()
     public LayoutManager getLayout() {
         LayoutManager layout = super.getLayout();
-        if (layout instanceof Wrapper) {
-            Wrapper wrapped = (Wrapper) layout;
+        if (layout instanceof Wrapper wrapped) {
             return cast(wrapped.unwrap());
         }
         return layout;

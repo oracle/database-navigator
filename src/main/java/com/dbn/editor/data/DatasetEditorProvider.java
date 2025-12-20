@@ -49,8 +49,7 @@ public class DatasetEditorProvider implements FileEditorProvider, NamedComponent
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        if (virtualFile instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) virtualFile;
+        if (virtualFile instanceof DBEditableObjectVirtualFile databaseFile) {
             DBContentType contentType = databaseFile.getContentType();
             return contentType == DBContentType.DATA || contentType == DBContentType.CODE_AND_DATA;
 
@@ -76,8 +75,7 @@ public class DatasetEditorProvider implements FileEditorProvider, NamedComponent
     @Override
     @NotNull
     public FileEditorState readState(@NotNull Element sourceElement, @NotNull Project project, @NotNull VirtualFile virtualFile) {
-        if (virtualFile instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) virtualFile;
+        if (virtualFile instanceof DBEditableObjectVirtualFile editableObjectFile) {
             DBObjectType objectType = editableObjectFile.getObjectType();
             if (objectType.isInheriting(DBObjectType.DATASET)) {
                 DatasetEditorState editorState = new DatasetEditorState();
@@ -91,8 +89,7 @@ public class DatasetEditorProvider implements FileEditorProvider, NamedComponent
 
     @Override
     public void writeState(@NotNull FileEditorState state, @NotNull Project project, @NotNull Element targetElement) {
-        if (state instanceof DatasetEditorState) {
-            DatasetEditorState editorState = (DatasetEditorState) state;
+        if (state instanceof DatasetEditorState editorState) {
             editorState.writeState(targetElement);
         }
     }

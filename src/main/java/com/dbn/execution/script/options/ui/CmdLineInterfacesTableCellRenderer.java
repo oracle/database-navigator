@@ -25,12 +25,11 @@ import com.intellij.ui.SimpleTextAttributes;
 public class CmdLineInterfacesTableCellRenderer extends DBNColoredTableCellRenderer {
     @Override
     protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
-        if (value instanceof DatabaseType) {
-            DatabaseType databaseType = (DatabaseType) value;
+        if (value instanceof DatabaseType databaseType) {
             setIcon(databaseType.getIcon());
             append(databaseType.getName());
-        } if (value instanceof String) {
-            String stringValue = (String) value;
+        }
+        else if (value instanceof String stringValue) {
             if (Strings.isNotEmpty(stringValue)) {
                 append(stringValue, SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }

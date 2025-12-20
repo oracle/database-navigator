@@ -60,8 +60,7 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase implements Te
         String text = "";
         Project project = getProject();
         Object value = fieldValue.getValue();
-        if (value instanceof LargeObjectValue) {
-            LargeObjectValue largeObjectValue = (LargeObjectValue) value;
+        if (value instanceof LargeObjectValue largeObjectValue) {
             try {
                 text = largeObjectValue.read();
             } catch (SQLException e) {

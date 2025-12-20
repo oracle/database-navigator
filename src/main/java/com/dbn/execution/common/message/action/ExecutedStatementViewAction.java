@@ -46,9 +46,8 @@ public class ExecutedStatementViewAction extends AbstractExecutionMessagesAction
         if (selectionPath == null) return;
 
         Object lastPathComponent = selectionPath.getLastPathComponent();
-        if (lastPathComponent instanceof StatementExecutionMessageNode) {
+        if (lastPathComponent instanceof StatementExecutionMessageNode execMessageNode) {
 
-            StatementExecutionMessageNode execMessageNode = (StatementExecutionMessageNode) lastPathComponent;
             StatementExecutionResult executionResult = execMessageNode.getMessage().getExecutionResult();
             ExecutionStatementViewerPopup statementViewer = new ExecutionStatementViewerPopup(executionResult);
             statementViewer.show((Component) e.getInputEvent().getSource());

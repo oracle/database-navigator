@@ -148,8 +148,7 @@ public class DBNHeaderForm extends DBNFormBase {
     }
 
     private void updateBorderAndBackground(Presentable presentable) {
-        if (presentable instanceof DatabaseContext) {
-            DatabaseContext connectionProvider = (DatabaseContext) presentable;
+        if (presentable instanceof DatabaseContext connectionProvider) {
             updateBorderAndBackground(connectionProvider);
         }
         //mainPanel.setBorder(BORDER);
@@ -198,8 +197,7 @@ public class DBNHeaderForm extends DBNFormBase {
             @Override
             public void componentAdded(ContainerEvent e) {
                 Component child = e.getChild();
-                if (child instanceof JComponent) {
-                    JComponent component = (JComponent) child;
+                if (child instanceof JComponent component) {
                     UserInterface.visitRecursively(component, c -> c.setOpaque(false));
                     //component.setOpaque(false);
                 }

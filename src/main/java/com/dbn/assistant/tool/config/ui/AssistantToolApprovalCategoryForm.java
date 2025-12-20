@@ -73,14 +73,12 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
     }
 
     private void initStatusToggle() {
-        statusToggle.setTextColor(s -> {
-            switch (s) {
-                case PROMPTED: return getDefaultForeground();
-                case APPROVED: return getSuccessForeground();
-                case BLOCKED: return getErrorForeground();
-                default: return null;
-            }
-        });
+        statusToggle.setTextColor(s ->
+                switch (s) {
+                    case PROMPTED -> getDefaultForeground();
+                    case APPROVED -> getSuccessForeground();
+                    case BLOCKED -> getErrorForeground();
+                });
         AssistantToolApprovalStatus[] approvalStatuses = category == USER_INTERACTION ?
                 array(PROMPTED, BLOCKED) : // interactive tools are always prompted; cannot be pre-approved
                 AssistantToolApprovalStatus.values();
@@ -108,7 +106,7 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
     private void initToolTypesPanel() {
         Layouts.verticalBoxLayout(toolTypesPanel);
 
-        List<AssistantToolType> toolTypes =  getToolTypes(category);
+        List<AssistantToolType> toolTypes = getToolTypes(category);
         for (AssistantToolType toolType : toolTypes) {
             AssistantToolApprovalTypeForm toolTypeForm = new AssistantToolApprovalTypeForm(this, toolType);
             toolTypeForms.put(toolType, toolTypeForm);
@@ -150,7 +148,7 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
         infoLabel.setIcon(infoIcon);
 
         descriptionTextPane.setForeground(enabled ?
-                Colors.faded(UIUtil.getLabelForeground()):
+                Colors.faded(UIUtil.getLabelForeground()) :
                 UIUtil.getLabelDisabledForeground());
 
         for (AssistantToolApprovalTypeForm toolTypeForm : toolTypeForms.values()) {

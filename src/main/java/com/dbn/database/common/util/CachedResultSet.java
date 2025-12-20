@@ -67,8 +67,7 @@ public class CachedResultSet extends StatefulDisposableBase implements ResultSet
     private final Map<Columns, CachedResultSet> grouped = new ConcurrentHashMap<>();
 
     private CachedResultSet(@Nullable ResultSet source, @Nullable ResultSetCondition condition) throws SQLException {
-        if (source instanceof CachedResultSet) {
-            CachedResultSet cachedResultSet = (CachedResultSet) source;
+        if (source instanceof CachedResultSet cachedResultSet) {
             this.columnNames = new ArrayList<>(cachedResultSet.columnNames);
             source = cachedResultSet.open();
             load(source, condition);

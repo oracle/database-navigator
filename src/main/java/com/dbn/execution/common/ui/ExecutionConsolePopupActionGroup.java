@@ -24,9 +24,7 @@ import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.common.util.Dialogs;
 import com.dbn.execution.ExecutionResult;
 import com.dbn.execution.common.result.ui.ExecutionResultForm;
-import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.execution.statement.result.ui.RenameExecutionResultDialog;
-import com.dbn.execution.statement.result.ui.StatementExecutionResultForm;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
@@ -68,8 +66,7 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
                 boolean visible = false;
                 if (component != null) {
                     Object object = TAB_CONTENT.get(component);
-                    if (object instanceof ExecutionResultForm) {
-                        ExecutionResultForm<?> resultForm = (ExecutionResultForm<?>) object;
+                    if (object instanceof ExecutionResultForm<?> resultForm) {
                         visible = resultForm.getExecutionResult().isRenameable();
                     }
                 }
@@ -82,8 +79,7 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
                 if (component == null) return;
 
                 Object object = TAB_CONTENT.get(component);
-                if (!(object instanceof ExecutionResultForm)) return;
-                ExecutionResultForm<?> resultForm = (ExecutionResultForm<?>) object;
+                if (!(object instanceof ExecutionResultForm<?> resultForm)) return;
                 if (!resultForm.getExecutionResult().isRenameable()) return;
 
                 ExecutionResult executionResult = resultForm.getExecutionResult();

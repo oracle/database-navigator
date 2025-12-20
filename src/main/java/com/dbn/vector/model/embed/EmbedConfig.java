@@ -20,19 +20,17 @@ public class EmbedConfig extends VectorEmbeddingConfig {
     private ThirdPartyModelConfig thirdPartyModelConfig = new ThirdPartyModelConfig();
 
     public String getConfigJson() {
-        switch (modelLocation) {
-            case IN_DATABASE_MODEL: return databaseModelConfig.getConfigJson();
-            case THIRD_PARTY_MODEL: return thirdPartyModelConfig.getConfigJson();
-            default: throw new IllegalArgumentException("Unexpected value: " + modelLocation);
-        }
+        return switch (modelLocation) {
+            case IN_DATABASE_MODEL -> databaseModelConfig.getConfigJson();
+            case THIRD_PARTY_MODEL -> thirdPartyModelConfig.getConfigJson();
+        };
     }
 
     public Map<String, ?> getConfigMap() {
-        switch (modelLocation) {
-            case IN_DATABASE_MODEL: return databaseModelConfig.getConfigMap();
-            case THIRD_PARTY_MODEL: return thirdPartyModelConfig.getConfigMap();
-            default: throw new IllegalArgumentException("Unexpected value: " + modelLocation);
-        }
+        return switch (modelLocation) {
+            case IN_DATABASE_MODEL -> databaseModelConfig.getConfigMap();
+            case THIRD_PARTY_MODEL -> thirdPartyModelConfig.getConfigMap();
+        };
     }
 
     @Override

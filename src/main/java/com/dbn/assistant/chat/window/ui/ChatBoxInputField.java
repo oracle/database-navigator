@@ -120,17 +120,17 @@ public class ChatBoxInputField extends JPanel implements Disposable {
 
     @Nullable
     private String computeReadonlyHint(ChatAvailability availability) {
-        switch (availability) {
-            case AVAILABLE: return null;
-            case BUSY_QUERYING: return "Assistant is processing your request...";
-            case BUSY_INITIALIZING: return "Assistant is initializing...";
-            case INACTIVE_CHAT_SELECTED: return "This chat is no longer active";
-            case NO_PROFILE_AVAILABLE: return "No profiles available for this connection. Please setup profiles to continue";
-            case NO_PROFILE_SELECTED: return "No profile selected. Please select a profile to continue";
-            case DISABLED_PROFILE_SELECTED: return "The selected profile is disabled. Please select an active profile to continue";
-        }
+        return switch (availability) {
+            case AVAILABLE -> null;
+            case BUSY_QUERYING -> "Assistant is processing your request...";
+            case BUSY_INITIALIZING -> "Assistant is initializing...";
+            case INACTIVE_CHAT_SELECTED -> "This chat is no longer active";
+            case NO_PROFILE_AVAILABLE -> "No profiles available for this connection. Please setup profiles to continue";
+            case NO_PROFILE_SELECTED -> "No profile selected. Please select a profile to continue";
+            case DISABLED_PROFILE_SELECTED -> "The selected profile is disabled. Please select an active profile to continue";
+            default -> null;
+        };
 
-        return null;
     }
 
     private Project getProject() {

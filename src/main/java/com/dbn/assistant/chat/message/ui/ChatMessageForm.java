@@ -89,12 +89,11 @@ public abstract class ChatMessageForm extends DBNFormBase {
     @NotNull
     public static ChatMessageForm create(ChatMessagesForm parent, ChatMessage message) {
         AuthorType author = message.getAuthor();
-        switch (author) {
-            case USER: return new UserChatMessageForm(parent, message);
-            case AGENT: return new AgentChatMessageForm(parent, message);
-            case SYSTEM: return new SystemChatMessageForm(parent, message);
-            default: throw new IllegalArgumentException("Unknown author: " + author);
-        }
+        return switch (author) {
+            case USER -> new UserChatMessageForm(parent, message);
+            case AGENT -> new AgentChatMessageForm(parent, message);
+            case SYSTEM -> new SystemChatMessageForm(parent, message);
+        };
     }
 
     protected ChatMessageForm getNextMessageForm() {

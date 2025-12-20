@@ -112,8 +112,7 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
         Object[] arguments = values.subList(0, placeholderCount).toArray(new Object[0]);
         for (int i = 0; i < arguments.length; i++) {
             Object argument = arguments[i];
-            if (argument instanceof List) {
-                List<?> list = (List<?>) argument;
+            if (argument instanceof List<?> list) {
                 arguments[i] = Lists.toCsv(list, e -> Objects.toString(e));
             }
         }

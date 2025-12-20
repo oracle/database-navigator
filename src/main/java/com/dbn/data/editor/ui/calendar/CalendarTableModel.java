@@ -71,21 +71,21 @@ class CalendarTableModel implements TableModel {
     }
 
     String getMonthName(int month) {
-        switch (month) {
-            case Calendar.JANUARY: return "January";
-            case Calendar.FEBRUARY: return "February";
-            case Calendar.MARCH: return "March";
-            case Calendar.APRIL: return "April";
-            case Calendar.MAY: return "May";
-            case Calendar.JUNE: return "June";
-            case Calendar.JULY: return "July";
-            case Calendar.AUGUST: return "August";
-            case Calendar.SEPTEMBER: return "September";
-            case Calendar.OCTOBER: return "October";
-            case Calendar.NOVEMBER: return "November";
-            case Calendar.DECEMBER: return "December";
-        }
-        return null;
+        return switch (month) {
+            case Calendar.JANUARY -> "January";
+            case Calendar.FEBRUARY -> "February";
+            case Calendar.MARCH -> "March";
+            case Calendar.APRIL -> "April";
+            case Calendar.MAY -> "May";
+            case Calendar.JUNE -> "June";
+            case Calendar.JULY -> "July";
+            case Calendar.AUGUST -> "August";
+            case Calendar.SEPTEMBER -> "September";
+            case Calendar.OCTOBER -> "October";
+            case Calendar.NOVEMBER -> "November";
+            case Calendar.DECEMBER -> "December";
+            default -> null;
+        };
     }
 
     boolean isFromActiveMonth(int rowIndex, int columnIndex) {

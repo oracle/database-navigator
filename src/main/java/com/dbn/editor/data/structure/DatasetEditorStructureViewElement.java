@@ -35,8 +35,8 @@ import javax.swing.Icon;
 import java.util.List;
 
 public class DatasetEditorStructureViewElement implements StructureViewTreeElement, Comparable{
-    private BrowserTreeNode treeNode;
-    private DatasetEditor datasetEditor;
+    private final BrowserTreeNode treeNode;
+    private final DatasetEditor datasetEditor;
     private StructureViewTreeElement[] children;
 
     DatasetEditorStructureViewElement(BrowserTreeNode treeNode, DatasetEditor datasetEditor) {
@@ -61,8 +61,7 @@ public class DatasetEditorStructureViewElement implements StructureViewTreeEleme
             @Override
             @Nullable
             public String getLocationString() {
-                if (treeNode instanceof DBColumn) {
-                    DBColumn column  = (DBColumn) treeNode;
+                if (treeNode instanceof DBColumn column) {
                     return Strings.cachedLowerCase(column.getDataType().getName());
 
                 }
@@ -120,8 +119,7 @@ public class DatasetEditorStructureViewElement implements StructureViewTreeEleme
             DatasetEditorTable table = datasetEditor.getEditorTable();
             table.cancelEditing();
             DatasetEditorModel model = table.getModel();
-            if (treeNode instanceof DBColumn &&  model.getRowCount() > 0) {
-                DBColumn column = (DBColumn) treeNode;
+            if (treeNode instanceof DBColumn column &&  model.getRowCount() > 0) {
                 int modelColumnIndex = model.getHeader().indexOfColumn(column);
                 int tableColumnIndex = table.convertColumnIndexToView(modelColumnIndex);
                 int rowIndex = table.getSelectedRow();
@@ -148,9 +146,7 @@ public class DatasetEditorStructureViewElement implements StructureViewTreeEleme
     @Override
     public int compareTo(@NotNull Object o) {
         DatasetEditorStructureViewElement desve = (DatasetEditorStructureViewElement) o;
-        if (treeNode instanceof DBColumn && desve.treeNode instanceof DBColumn) {
-            DBColumn thisColumn = (DBColumn) treeNode;
-            DBColumn remoteColumn = (DBColumn) desve.treeNode;
+        if (treeNode instanceof DBColumn thisColumn && desve.treeNode instanceof DBColumn remoteColumn) {
             return thisColumn.compareTo(remoteColumn);
         }
         return 0;

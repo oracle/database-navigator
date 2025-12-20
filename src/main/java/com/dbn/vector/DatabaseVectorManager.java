@@ -187,14 +187,10 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
      * Factory method to create the appropriate pipeline based on source type.
      */
     private EmbeddingPipeline createPipeline(@NotNull SourceType sourceType) {
-        switch (sourceType) {
-            case DATABASE_TABLE:
-                return new TableEmbeddingPipeline();
-            case FILE_SYSTEM:
-                return new FileEmbeddingPipeline();
-            default:
-                throw new IllegalArgumentException("Unsupported source type: " + sourceType);
-        }
+        return switch (sourceType) {
+            case DATABASE_TABLE -> new TableEmbeddingPipeline();
+            case FILE_SYSTEM -> new FileEmbeddingPipeline();
+        };
     }
 
 

@@ -51,8 +51,7 @@ public class SQLLanguageAnnotator extends DBLanguageAnnotator {
             annotateIdentifier(cast(psiElement), holder);
         }
 
-        if (psiElement instanceof NamedPsiElement) {
-            NamedPsiElement namedPsiElement = (NamedPsiElement) psiElement;
+        if (psiElement instanceof NamedPsiElement namedPsiElement) {
             if (namedPsiElement.hasErrors()) {
                 String message = "Invalid " + namedPsiElement.elementType.getDescription();
                 createAnnotation(holder, namedPsiElement, ERROR, null, message);

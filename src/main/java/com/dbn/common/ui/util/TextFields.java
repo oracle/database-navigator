@@ -65,8 +65,7 @@ public class TextFields {
     public static JTextField getTextField(JSpinner spinner) {
         JComponent editor = spinner.getEditor();
 
-        if (editor instanceof JSpinner.DefaultEditor) {
-            JSpinner.DefaultEditor defaultEditor = (JSpinner.DefaultEditor) editor;
+        if (editor instanceof JSpinner.DefaultEditor defaultEditor) {
             return defaultEditor.getTextField();
         }
         return null;
@@ -122,8 +121,7 @@ public class TextFields {
 
     public static void setTextSilently(JTextComponent textComponent, String text) {
         Document document = textComponent.getDocument();
-        if (document instanceof AbstractDocument) {
-            AbstractDocument abstractDocument = (AbstractDocument) document;
+        if (document instanceof AbstractDocument abstractDocument) {
             DocumentListener[] documentListeners = abstractDocument.getDocumentListeners();
             try {
                 Arrays.stream(documentListeners).forEach(document::removeDocumentListener);

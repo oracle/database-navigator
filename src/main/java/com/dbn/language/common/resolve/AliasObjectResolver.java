@@ -49,16 +49,14 @@ public class AliasObjectResolver extends UnderlyingObjectResolver{
         if (aliasedObject.isVirtualObject()) {
             return aliasedObject.getUnderlyingObject();
 
-        } else if (aliasedObject instanceof IdentifierPsiElement) {
-            IdentifierPsiElement aliasedPsiElement = (IdentifierPsiElement) aliasedObject;
+        } else if (aliasedObject instanceof IdentifierPsiElement aliasedPsiElement) {
             PsiElement underlyingPsiElement = aliasedPsiElement.resolve();
-            if (underlyingPsiElement instanceof DBObjectPsiElement) {
-                DBObjectPsiElement objectPsiElement = (DBObjectPsiElement) underlyingPsiElement;
+            if (underlyingPsiElement instanceof DBObjectPsiElement objectPsiElement) {
                 return objectPsiElement.ensureObject();
             }
 
-            if (underlyingPsiElement instanceof IdentifierPsiElement && underlyingPsiElement != identifierPsiElement) {
-                IdentifierPsiElement underlyingIdentifierPsiElement = (IdentifierPsiElement) underlyingPsiElement;
+            if (underlyingPsiElement instanceof IdentifierPsiElement underlyingIdentifierPsiElement &&
+                    underlyingPsiElement != identifierPsiElement) {
                 if (underlyingIdentifierPsiElement.isAlias() && underlyingIdentifierPsiElement.isDefinition()) {
                     recursionCheck++;
                     return resolve(underlyingIdentifierPsiElement, recursionCheck);

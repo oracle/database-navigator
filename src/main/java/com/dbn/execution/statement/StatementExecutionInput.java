@@ -75,8 +75,7 @@ public class StatementExecutionInput extends LocalExecutionInput {
         if (isNotValid(previewFile)) return null;
 
         PsiElement firstChild = previewFile.getFirstChild();
-        if (firstChild instanceof ExecutableBundlePsiElement) {
-            ExecutableBundlePsiElement rootPsiElement = (ExecutableBundlePsiElement) firstChild;
+        if (firstChild instanceof ExecutableBundlePsiElement rootPsiElement) {
             List<ExecutablePsiElement> executablePsiElements = rootPsiElement.getExecutablePsiElements();
             return executablePsiElements.isEmpty() ? null : executablePsiElements.get(0);
         }

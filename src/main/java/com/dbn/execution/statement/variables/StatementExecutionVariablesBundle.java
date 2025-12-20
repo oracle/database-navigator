@@ -150,11 +150,9 @@ public class StatementExecutionVariablesBundle extends StatefulDisposableBase im
 
         ObjectLookupAdapter lookupAdapter = new ObjectLookupAdapter(variablePsiElement, IdentifierCategory.REFERENCE, DBObjectType.COLUMN);
         BasePsiElement basePsiElement = lookupAdapter.findInScope(conditionPsiElement);
-        if (basePsiElement instanceof IdentifierPsiElement) {
-            IdentifierPsiElement columnPsiElement = (IdentifierPsiElement) basePsiElement;
+        if (basePsiElement instanceof IdentifierPsiElement columnPsiElement) {
             DBObject object = columnPsiElement.getUnderlyingObject();
-            if (object instanceof DBColumn) {
-                DBColumn column = (DBColumn) object;
+            if (object instanceof DBColumn column) {
                 return column.getDataType();
             }
         }

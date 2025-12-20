@@ -10,7 +10,6 @@ import org.jdom.Element;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -30,7 +29,7 @@ public class FileSystemSourceConfig implements PersistentStateElement {
                 .stream()
                 .map(p -> fileManager.findFileByNioPath(Path.of(p)))
                 .filter(f -> f != null)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

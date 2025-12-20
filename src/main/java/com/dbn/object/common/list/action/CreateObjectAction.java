@@ -61,8 +61,7 @@ public class CreateObjectAction extends BasicAction {
         DBObjectList objectList = getObjectList();
         DatabaseEntity parentElement = objectList.getParentEntity();
 
-        if (parentElement instanceof DBSchema) {
-            DBSchema schema = (DBSchema) parentElement;
+        if (parentElement instanceof DBSchema schema) {
             if (schema.isSystemSchema()) return false;
 
             DBObjectType objectType = objectList.getObjectType();

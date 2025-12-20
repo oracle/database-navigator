@@ -119,14 +119,14 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
     private String resolveName() {
         BasePsiElement psiElement = getRelevantPsiElement();
         DBObjectType objectType = getObjectType();
-        switch (objectType) {
-            case DATASET: return resolveDatasetName(psiElement);
-            case COLUMN: return resolveColumnName(psiElement);
-            case CURSOR:
-            case TYPE:
-            case TYPE_ATTRIBUTE: return resolveObjectName(psiElement);
-        }
-        return "";
+        return switch (objectType) {
+            case DATASET -> resolveDatasetName(psiElement);
+            case COLUMN -> resolveColumnName(psiElement);
+            case CURSOR,
+                 TYPE,
+                 TYPE_ATTRIBUTE -> resolveObjectName(psiElement);
+            default -> "";
+        };
     }
 
     private String resolveObjectName(@NotNull BasePsiElement psiElement) {
@@ -139,8 +139,7 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
     }
 
     private String resolveDatasetName(@NotNull BasePsiElement psiElement) {
-        if (psiElement instanceof LeafPsiElement) {
-            LeafPsiElement leafPsiElement = (LeafPsiElement) psiElement;
+        if (psiElement instanceof LeafPsiElement leafPsiElement) {
             ObjectLookupAdapter lookupAdapter = new ObjectLookupAdapter(leafPsiElement, IdentifierCategory.REFERENCE, DATASET);
             BasePsiElement dataset = lookupAdapter.findInParentScopeOf(psiElement);
             if (dataset != null) {
@@ -154,8 +153,7 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
         List<String> tableNames = new ArrayList<>();
         ObjectLookupAdapter lookupAdapter = new ObjectLookupAdapter(null, IdentifierCategory.REFERENCE, DATASET);
         lookupAdapter.collectInElement(psiElement, basePsiElement -> {
-            if (basePsiElement instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) basePsiElement;
+            if (basePsiElement instanceof IdentifierPsiElement identifierPsiElement) {
                 String tableName = toUpperCase(identifierPsiElement.getText());
                 if (!tableNames.contains(tableName)) {
                     tableNames.add(tableName);
@@ -234,8 +232,7 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
         BasePsiElement relevantPsiElement = getRelevantPsiElement();
         if (!Strings.equalsIgnoreCase(getName(), relevantPsiElement.getText())) return false;
 
-        if (relevantPsiElement instanceof IdentifierPsiElement) {
-            IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) relevantPsiElement;
+        if (relevantPsiElement instanceof IdentifierPsiElement identifierPsiElement) {
             return identifierPsiElement.getObjectType() == objectType;
         }
         return true;
@@ -342,8 +339,7 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
 
             DBObject object = element.getUnderlyingObject();
             if (object != null && object != this && Strings.isNotEmpty(object.getName()) && object.getObjectType().isChildOf(objectType) && !objectList.contains(object)) {
-                if (object instanceof DBVirtualObject) {
-                    DBVirtualObject virtualObject = (DBVirtualObject) object;
+                if (object instanceof DBVirtualObject virtualObject) {
                     virtualObject.setParentObject(this);
                 }
                 objects.add(object);
@@ -357,8 +353,7 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
 
     private void loadAllColumns(LeafPsiElement starPsiElement, Collection<DBObject> objects) {
         PsiElement parent = starPsiElement.getParent();
-        if (parent instanceof QualifiedIdentifierPsiElement) {
-            QualifiedIdentifierPsiElement qualifiedIdentifierPsiElement = (QualifiedIdentifierPsiElement) parent;
+        if (parent instanceof QualifiedIdentifierPsiElement qualifiedIdentifierPsiElement) {
             int index = qualifiedIdentifierPsiElement.getIndexOf(starPsiElement);
             if (index <= 0) return;
 
@@ -395,8 +390,7 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
         int columnIndex = Integer.parseInt(text) -1 ; // switch from DB indexing to 0 based
         if (columnIndex < 0) return;
 
-        if (indexPsiElement.getParent() instanceof QualifiedIdentifierPsiElement) {
-            QualifiedIdentifierPsiElement qualifiedIdentifierPsiElement = (QualifiedIdentifierPsiElement) indexPsiElement.getParent();
+        if (indexPsiElement.getParent() instanceof QualifiedIdentifierPsiElement qualifiedIdentifierPsiElement) {
             int index = qualifiedIdentifierPsiElement.getIndexOf(indexPsiElement);
             if (index <= 0) return;
 

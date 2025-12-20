@@ -49,8 +49,7 @@ public class SourceCodeEditor extends BasicTextEditorImpl<DBSourceCodeVirtualFil
 
     public void navigateTo(DBObject object) {
         PsiFile file = PsiUtil.getPsiFile(getObject().getProject(), getVirtualFile());
-        if (file instanceof PSQLFile) {
-            PSQLFile psqlFile = (PSQLFile) file;
+        if (file instanceof PSQLFile psqlFile) {
             BasePsiElement navigable = psqlFile.lookupObjectDeclaration(object.getObjectType(), object.getName());
             if (navigable == null) navigable = psqlFile.lookupObjectSpecification(object.getObjectType(), object.getName());
             if (navigable != null) navigable.navigate(true);

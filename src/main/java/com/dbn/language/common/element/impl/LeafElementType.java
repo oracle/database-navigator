@@ -77,8 +77,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
         int position = 0;
         while (pathNode != null) {
             ElementType elementType = pathNode.element;
-            if (elementType instanceof SequenceElementType) {
-                SequenceElementType sequenceElementType = (SequenceElementType) elementType;
+            if (elementType instanceof SequenceElementType sequenceElementType) {
                 if (position > 0 ) {
                     return sequenceElementType.children[position-1].elementType;
                 }
@@ -95,9 +94,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
         while (pathNode != null) {
             ElementType elementType = pathNode.getElement();
 
-            if (elementType instanceof SequenceElementType) {
-                SequenceElementType sequenceElementType = (SequenceElementType) elementType;
-
+            if (elementType instanceof SequenceElementType sequenceElementType) {
                 int elementsCount = sequenceElementType.children.length;
 
                 if (position < elementsCount) {
@@ -115,21 +112,17 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                 } else if (elementType instanceof NamedElementType){
                     context.removeBranchMarkers((NamedElementType) elementType);
                 }
-            } else if (elementType instanceof IterationElementType) {
-                IterationElementType iterationElementType = (IterationElementType) elementType;
-
+            } else if (elementType instanceof IterationElementType iterationElementType) {
                 TokenElementType[] separatorTokens = iterationElementType.separatorTokens;
                 if (separatorTokens != null) possibleLeafs.addAll(Arrays.asList(separatorTokens));
 
                 ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElementType.cache;
                 lookupCache.captureFirstPossibleLeafs(context.reset(), possibleLeafs);
 
-            } else if (elementType instanceof QualifiedIdentifierElementType) {
-                QualifiedIdentifierElementType qualifiedIdentifierElementType = (QualifiedIdentifierElementType) elementType;
+            } else if (elementType instanceof QualifiedIdentifierElementType qualifiedIdentifierElementType) {
                 if (this == qualifiedIdentifierElementType.getSeparatorToken()) break;
 
-            } else if (elementType instanceof ChameleonElementType) {
-                ChameleonElementType chameleonElementType = (ChameleonElementType) elementType;
+            } else if (elementType instanceof ChameleonElementType chameleonElementType) {
                 ElementTypeBundle elementTypeBundle = chameleonElementType.getParentLanguage().getParserDefinition().getParser().getElementTypes();
                 ElementTypeLookupCache<?> lookupCache = elementTypeBundle.getRootElementType().cache;
                 possibleLeafs.addAll(lookupCache.getFirstPossibleLeafs());
@@ -158,8 +151,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
         while (pathNode != null) {
             ElementType elementType = pathNode.element;
 
-            if (elementType instanceof SequenceElementType) {
-                SequenceElementType sequenceElementType = (SequenceElementType) elementType;
+            if (elementType instanceof SequenceElementType sequenceElementType) {
 
                 int elementsCount = sequenceElementType.children.length;
                 if (position == -1) {
@@ -193,8 +185,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                         element = element.next;
                     }
                 }
-            } else if (elementType instanceof IterationElementType) {
-                IterationElementType iterationElementType = (IterationElementType) elementType;
+            } else if (elementType instanceof IterationElementType iterationElementType) {
                 TokenElementType[] separatorTokens = iterationElementType.separatorTokens;
                 if (separatorTokens == null) {
                     ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElementType.cache;
@@ -204,13 +195,11 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                         return true;
                     }
                 }
-            } else if (elementType instanceof QualifiedIdentifierElementType) {
-                QualifiedIdentifierElementType qualifiedIdentifierElementType = (QualifiedIdentifierElementType) elementType;
+            } else if (elementType instanceof QualifiedIdentifierElementType qualifiedIdentifierElementType) {
                 if (this == qualifiedIdentifierElementType.getSeparatorToken()) {
                     break;
                 }
-            } else if (elementType instanceof WrapperElementType) {
-                WrapperElementType wrapperElementType = (WrapperElementType) elementType;
+            } else if (elementType instanceof WrapperElementType wrapperElementType) {
                 return wrapperElementType.getEndTokenElement().tokenType == tokenType;
             }
 
@@ -226,8 +215,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
         while (pathNode != null) {
             ElementType elementType = pathNode.getElement();
 
-            if (elementType instanceof SequenceElementType) {
-                SequenceElementType sequenceElementType = (SequenceElementType) elementType;
+            if (elementType instanceof SequenceElementType sequenceElementType) {
 
                 ElementTypeRef element = sequenceElementType.children[position + 1];
                 while (element != null) {
@@ -239,8 +227,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                     }
                     element = element.next;
                 }
-            } else if (elementType instanceof IterationElementType) {
-                IterationElementType iteration = (IterationElementType) elementType;
+            } else if (elementType instanceof IterationElementType iteration) {
                 TokenElementType[] separatorTokens = iteration.separatorTokens;
                 Collections.addAll(requiredLeafs, separatorTokens);
             }

@@ -227,11 +227,11 @@ public class DBNHintForm extends DBNFormBase {
     }
 
     private static Icon getIcon(MessageType messageType) {
-        switch (messageType) {
-            case INFO: return Icons.COMMON_INFO;
-            case WARNING: return Icons.COMMON_WARNING;
-            case ERROR: return Icons.COMMON_ERROR;
-            default: return null;
-        }
+        return switch (messageType) {
+            case INFO -> Icons.COMMON_INFO;
+            case WARNING -> Icons.COMMON_WARNING;
+            case ERROR -> Icons.COMMON_ERROR;
+            default -> null;
+        };
     }
 }
