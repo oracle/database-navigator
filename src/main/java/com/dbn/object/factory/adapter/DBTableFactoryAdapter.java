@@ -17,39 +17,71 @@
 package com.dbn.object.factory.adapter;
 
 import com.dbn.common.ui.component.DBNComponent;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
+import com.dbn.object.factory.ObjectFactoryAdapters;
+import com.dbn.object.factory.model.DBColumnFactoryInput;
 import com.dbn.object.factory.model.DBTableFactoryInput;
 import com.dbn.object.factory.ui.DBTableFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.Priority.HIGHEST;
-import static com.dbn.common.constant.Constant.array;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
+import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.TABLE;
 
-public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBTableFactoryInput, DBTableFactoryInputForm>, NlsSupport {
-    private static final DBObjectType[] OBJECT_TYPES = array(TABLE);
+public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBTableFactoryInput, DBTableFactoryInputForm> {
 
     @Override
-    public DBObjectType[] getObjectTypes() {
-        return OBJECT_TYPES;
+    public DBObjectType getObjectType() {
+        return TABLE;
     }
 
-    public DBTableFactoryInput createInput(DBSchema schema, DBObjectType objectType) {
+    public DBTableFactoryInput createInput(DBSchema schema) {
         return new DBTableFactoryInput(schema);
     }
 
     public DBTableFactoryInputForm createInputForm(DBNComponent parent, DBTableFactoryInput input) {
         return new DBTableFactoryInputForm(parent, input);
+    }
+
+    @Override
+    public void validateInput(DBTableFactoryInput input, List<String> errors) {
+        String objectName = input.getObjectName();
+        DBObjectType objectType = input.getObjectType();
+
+        if (objectName.isEmpty()) {
+            String hint = input.getParent() == null ? "" : " at index " + input.getIndex();
+            errors.add(objectType.getName() + " name is not specified" + hint);
+
+        } else if (!Strings.isWord(objectName)) {
+            errors.add("invalid " + objectType.getName() + " name specified" + ": \"" + objectName + "\"");
+        }
+
+        DBColumnFactoryAdapter columnAdapter = ObjectFactoryAdapters.get(COLUMN);
+        Set<String> columnNames = new HashSet<>();
+        for (DBColumnFactoryInput column : input.getColumns()) {
+            columnAdapter.validateInput(column, errors);
+            String columnName = column.getObjectName();
+            if (Strings.isEmptyOrSpaces(columnName)) continue; // already covered by field validator
+
+            if (columnNames.contains(columnName)) {
+                String hint = input.getParent() == null ? "" : " for " + objectType.getName() + " \"" + objectName + "\"";
+                errors.add("duplicate column name \"" + columnName + "\"" + hint);
+            }
+            columnNames.add(columnName);
+        }
     }
 
     @Override

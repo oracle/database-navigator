@@ -22,8 +22,6 @@ import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 import static com.dbn.common.util.Java.getQualifiedClassName;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.object.type.DBJavaClassType.EXCEPTION;
@@ -86,10 +84,5 @@ public class DBJavaClassFactoryInput extends DBSchemaObjectFactoryInput {
             case ENUM: return "java enumeration " + objectName;
             default: return "java class " + objectName;
         }
-    }
-
-    @Override
-    public void validate(List<String> errors) {
-
     }
 }

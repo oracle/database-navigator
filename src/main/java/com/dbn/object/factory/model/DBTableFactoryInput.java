@@ -16,16 +16,13 @@
 
 package com.dbn.object.factory.model;
 
-import com.dbn.common.util.Strings;
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -46,33 +43,5 @@ public class DBTableFactoryInput extends DBSchemaObjectFactoryInput {
     public void addConstraint(@NonNls String constraintType, @NonNls String constraintName, List<String> columnNames) {
         DBConstraintFactoryInput constraint = new DBConstraintFactoryInput(this, constraints.size(), constraintType, constraintName, columnNames);
         constraints.add(constraint);
-    }
-
-    @Override
-    public void validate(List<String> errors) {
-        String objectName = getObjectName();
-        DBObjectType objectType = getObjectType();
-
-        if (objectName.isEmpty()) {
-            String hint = getParent() == null ? "" : " at index " + getIndex();
-            errors.add(objectType.getName() + " name is not specified" + hint);
-            
-        } else if (!Strings.isWord(objectName)) {
-            errors.add("invalid " + objectType.getName() + " name specified" + ": \"" + objectName + "\"");
-        }
-
-
-        Set<String> columnNames = new HashSet<>();
-        for (DBColumnFactoryInput column : columns) {
-            column.validate(errors);
-            String columnName = column.getObjectName();
-            if (Strings.isEmptyOrSpaces(columnName)) continue; // already covered by field validator
-
-            if (columnNames.contains(columnName)) {
-                String hint = getParent() == null ? "" : " for " + objectType.getName() + " \"" + objectName + "\"";
-                errors.add("duplicate column name \"" + columnName + "\"" + hint);
-            }
-            columnNames.add(columnName);
-        }
     }
 }

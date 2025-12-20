@@ -111,20 +111,23 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         }
     }
 
-    public void createObject(DBObjectFactoryInput factoryInput) throws SQLException {
+    public void createObject(DBObjectFactoryInput input) throws SQLException {
         Project project = getProject();
+
+        DBObjectType objectType = input.getObjectType();
+        ObjectFactoryAdapter<DBObjectFactoryInput, ?> factoryAdapter = ObjectFactoryAdapters.get(objectType);
+
         List<String> errors = new ArrayList<>();
-        factoryInput.validate(errors);
-        DBObjectType objectType = factoryInput.getObjectType();
-        if (!errors.isEmpty()) {
+        factoryAdapter.validateInput(input, errors);
+
+        if (errors.isEmpty()) {
+            factoryAdapter.createObject(input);
+        } else {
             String objectTypeName = objectType.getName();
             String objectErrors = errors.stream().map(error -> " - " + error + "\n").collect(Collectors.joining());
             Messages.showErrorDialog(project, txt("msg.objects.error.ObjectCreationError", objectTypeName, objectErrors));
-            return;
         }
 
-        ObjectFactoryAdapter<DBObjectFactoryInput, ?> factoryAdapter = ObjectFactoryAdapter.find(objectType);
-        factoryAdapter.createObject(factoryInput);
     }
 
     public void dropObject(DBSchemaObject object) {

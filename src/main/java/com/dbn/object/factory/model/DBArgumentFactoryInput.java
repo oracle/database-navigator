@@ -16,13 +16,10 @@
 
 package com.dbn.object.factory.model;
 
-import com.dbn.common.util.Strings;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
-
-import java.util.List;
 
 
 @Getter
@@ -41,24 +38,5 @@ public class DBArgumentFactoryInput extends DBObjectFactoryInput {
         this.dataType = dataType == null ? "" : dataType.trim();
         this.input = input;
         this.output = output;
-    }
-
-    @Override
-    public void validate(List<String> errors) {
-        String objectName = getObjectName();
-        if (objectName.isEmpty()) {
-            errors.add("argument name is not specified at index " + getIndex());
-
-        } else if (!Strings.isWord(objectName)) {
-            errors.add("invalid argument name specified at index " + getIndex() + ": \"" + objectName + "\"");
-        }
-
-        if (dataType.length() == 0){
-            if (objectName.length() > 0) {
-                errors.add("missing data type for argument \"" + objectName + "\"");
-            } else {
-                errors.add("missing data type for argument at index " + getIndex());
-            }
-        }
     }
 }

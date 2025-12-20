@@ -26,8 +26,6 @@ import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 @Getter
 @Setter
 public abstract class DBObjectFactoryInput {
@@ -71,8 +69,6 @@ public abstract class DBObjectFactoryInput {
     public String getObjectDescription() {
         return getObjectTypeName() + " \"" + getObjectPath() + "\"";
     }
-
-    public abstract void validate(List<String> errors);
 
     @Override
     public String toString() {

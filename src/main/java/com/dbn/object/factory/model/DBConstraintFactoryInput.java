@@ -35,9 +35,4 @@ public class DBConstraintFactoryInput extends DBObjectFactoryInput  {
         this.constraintType = constraintType;
         this.columnNames = columnNames;
     }
-
-    @Override
-    public void validate(List<String> errors) {
-
-    }
 }

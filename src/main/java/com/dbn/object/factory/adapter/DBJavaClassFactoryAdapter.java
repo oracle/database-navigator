@@ -24,7 +24,6 @@ import com.dbn.connection.security.DatabaseIdentifierCache;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DatabaseFileEditorManager;
-import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
@@ -35,27 +34,31 @@ import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
-import static com.dbn.common.constant.Constant.array;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 
-public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter<DBJavaClassFactoryInput, DBJavaClassFactoryInputForm>, NlsSupport {
-    private static final DBObjectType[] OBJECT_TYPES = array(JAVA_CLASS);
+public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter<DBJavaClassFactoryInput, DBJavaClassFactoryInputForm> {
 
     @Override
-    public DBObjectType[] getObjectTypes() {
-        return OBJECT_TYPES;
+    public DBObjectType getObjectType() {
+        return JAVA_CLASS;
     }
 
-    public DBJavaClassFactoryInput createInput(DBSchema schema, DBObjectType objectType) {
+    public DBJavaClassFactoryInput createInput(DBSchema schema) {
         return new DBJavaClassFactoryInput(schema);
     }
 
     public DBJavaClassFactoryInputForm createInputForm(DBNComponent parent, DBJavaClassFactoryInput input) {
         return new DBJavaClassFactoryInputForm(parent, input);
+    }
+
+    @Override
+    public void validateInput(DBJavaClassFactoryInput input, List<String> errors) {
+        // TODO
     }
 
     @Override

@@ -27,6 +27,7 @@ import com.dbn.diagnostics.Diagnostics;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.DatabaseObjectFactory;
 import com.dbn.object.factory.ObjectFactoryAdapter;
+import com.dbn.object.factory.ObjectFactoryAdapters;
 import com.dbn.object.factory.model.DBObjectFactoryInput;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -55,6 +56,7 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
         this.schema = DBObjectRef.of(schema);
         this.objectType = objectType;
         this.initialInput = initialInput;
+        renameAction(getOKAction(), "Create " + objectType.getTitleCasedName());
 //        setModal(false);
         setResizable(true);
         init();
@@ -63,10 +65,10 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
     @NotNull
     @Override
     protected DBObjectFactoryInputForm createForm() {
-        ObjectFactoryAdapter factoryAdapter = ObjectFactoryAdapter.find(objectType);
+        ObjectFactoryAdapter factoryAdapter = ObjectFactoryAdapters.get(objectType);
 
         DBSchema schema = getSchema();
-        DBObjectFactoryInput input = nvl(initialInput, () -> factoryAdapter.createInput(schema, objectType));
+        DBObjectFactoryInput input = nvl(initialInput, () -> factoryAdapter.createInput(schema));
         return factoryAdapter.createInputForm(this, input);
     }
 

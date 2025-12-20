@@ -17,42 +17,69 @@
 package com.dbn.object.factory.adapter;
 
 import com.dbn.common.ui.component.DBNComponent;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DatabaseFileEditorManager;
-import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
+import com.dbn.object.factory.ObjectFactoryAdapters;
+import com.dbn.object.factory.model.DBArgumentFactoryInput;
 import com.dbn.object.factory.model.DBMethodFactoryInput;
 import com.dbn.object.factory.ui.DBMethodFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.Priority.HIGHEST;
-import static com.dbn.common.constant.Constant.array;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
+import static com.dbn.object.type.DBObjectType.ARGUMENT;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.PROCEDURE;
 
-public class DBMethodFactoryAdapter implements ObjectFactoryAdapter<DBMethodFactoryInput, DBMethodFactoryInputForm>, NlsSupport {
-    private static final DBObjectType[] OBJECT_TYPES = array(FUNCTION, PROCEDURE);
-
-    @Override
-    public DBObjectType[] getObjectTypes() {
-        return OBJECT_TYPES;
-    }
-
-    public DBMethodFactoryInput createInput(DBSchema schema, DBObjectType objectType) {
-        return new DBMethodFactoryInput(schema, objectType);
-    }
+public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter<DBMethodFactoryInput, DBMethodFactoryInputForm> {
 
     public DBMethodFactoryInputForm createInputForm(DBNComponent parent, DBMethodFactoryInput input) {
         return new DBMethodFactoryInputForm(parent, input);
+    }
+
+    @Override
+    public void validateInput(DBMethodFactoryInput input, List<String> errors) {
+        String objectName = input.getObjectName();
+        if (objectName.isEmpty()) {
+            String hint = input.getParent() == null ? "" : " at index " + input.getIndex();
+            errors.add(input.getObjectType().getName() + " name is not specified" + hint);
+
+        } else if (!Strings.isWord(objectName)) {
+            errors.add("invalid " + input.getObjectType().getName() + " name specified" + ": \"" + objectName + "\"");
+        }
+
+
+        if (input.getReturnArgument() != null) {
+            if (input.getReturnArgument().getDataType().isEmpty())
+                errors.add("missing data type for return argument");
+        }
+
+        DBArgumentFactoryAdapter argumentAdapter = ObjectFactoryAdapters.get(ARGUMENT);
+        Set<String> argumentNames = new HashSet<>();
+        for (DBArgumentFactoryInput argumentInput : input.getArguments()) {
+            argumentAdapter.validateInput(argumentInput, errors);
+            String argumentName = argumentInput.getObjectName();
+            if (Strings.isEmptyOrSpaces(argumentName)) continue; // already covered by field validator
+
+            if (argumentNames.contains(argumentName)) {
+                String hint = input.getParent() == null ? "" : " for " + input.getObjectType().getName() + " \"" + objectName + "\"";
+                errors.add("duplicate argument name \"" + argumentName + "\"" + hint);
+            }
+            argumentNames.add(argumentName);
+        }
     }
 
     @Override

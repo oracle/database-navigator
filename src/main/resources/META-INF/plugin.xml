@@ -265,11 +265,14 @@
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
     </extensionPoints>
     <extensions defaultExtensionNs="com.dbn">
-        <!--onject factory adapters-->
+        <!--object factory adapters-->
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBAIModelFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBJavaClassFactoryAdapter"/>
-        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBMethodFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBFunctionFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBProcedureFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBArgumentFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBTableFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBColumnFactoryAdapter"/>
 
         <!--object management adapters-->
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>

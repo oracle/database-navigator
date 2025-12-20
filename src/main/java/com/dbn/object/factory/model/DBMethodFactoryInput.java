@@ -16,15 +16,10 @@
 
 package com.dbn.object.factory.model;
 
-import com.dbn.common.util.Strings;
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -44,36 +39,5 @@ public class DBMethodFactoryInput extends DBSchemaObjectFactoryInput {
 
     public boolean isFunction() {
         return returnArgument != null;
-    }
-
-    @Override
-    public void validate(List<String> errors) {
-        String objectName = getObjectName();
-        if (objectName.isEmpty()) {
-            String hint = getParent() == null ? "" : " at index " + getIndex();
-            errors.add(getObjectType().getName() + " name is not specified" + hint);
-            
-        } else if (!Strings.isWord(objectName)) {
-            errors.add("invalid " + getObjectType().getName() + " name specified" + ": \"" + objectName + "\"");
-        }
-
-
-        if (returnArgument != null) {
-            if (returnArgument.getDataType().isEmpty())
-                errors.add("missing data type for return argument");
-        }
-
-        Set<String> argumentNames = new HashSet<>();
-        for (DBArgumentFactoryInput argument : getArguments()) {
-            argument.validate(errors);
-            String argumentName = argument.getObjectName();
-            if (Strings.isEmptyOrSpaces(argumentName)) continue; // already covered by field validator
-
-            if (argumentNames.contains(argumentName)) {
-                String hint = getParent() == null ? "" : " for " + getObjectType().getName() + " \"" + objectName + "\"";
-                errors.add("duplicate argument name \"" + argumentName + "\"" + hint);
-            }
-            argumentNames.add(argumentName);
-        }
     }
 }

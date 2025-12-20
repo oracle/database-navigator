@@ -25,7 +25,6 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.diagnostics.Diagnostics;
-import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
@@ -42,22 +41,21 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.dbn.common.Priority.MEDIUM;
-import static com.dbn.common.constant.Constant.array;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.AI_MODEL;
 
-public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelFactoryInput, DBAIModelFactoryInputForm>, NlsSupport {
-    private static final DBObjectType[] OBJECT_TYPES = array(AI_MODEL);
+public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelFactoryInput, DBAIModelFactoryInputForm> {
 
     @Override
-    public DBObjectType[] getObjectTypes() {
-        return OBJECT_TYPES;
+    public DBObjectType getObjectType() {
+        return AI_MODEL;
     }
 
     @Override
-    public DBAIModelFactoryInput createInput(DBSchema schema, DBObjectType objectType) {
+    public DBAIModelFactoryInput createInput(DBSchema schema) {
         return new DBAIModelFactoryInput(schema);
     }
 
@@ -65,6 +63,10 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelFa
         return new DBAIModelFactoryInputForm(parent, input);
     }
 
+    @Override
+    public void validateInput(DBAIModelFactoryInput input, List<String> errors) {
+        // TODO
+    }
 
     @Override
     public void createObject(DBAIModelFactoryInput input) throws SQLException {

@@ -17,7 +17,7 @@
 package com.dbn.object.factory;
 
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.common.util.Lists;
+import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.model.DBObjectFactoryInput;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
@@ -27,25 +27,16 @@ import com.intellij.openapi.extensions.ExtensionPointName;
 import java.sql.SQLException;
 import java.util.List;
 
-import static com.dbn.common.util.Unsafe.cast;
-
-public interface ObjectFactoryAdapter<I extends DBObjectFactoryInput, F extends DBObjectFactoryInputForm<I>> {
+public interface ObjectFactoryAdapter<I extends DBObjectFactoryInput, F extends DBObjectFactoryInputForm<I>> extends NlsSupport {
     ExtensionPointName<ObjectFactoryAdapter> EP = ExtensionPointName.create("com.dbn.objectFactoryAdapter");
 
-    DBObjectType[] getObjectTypes();
+    DBObjectType getObjectType();
 
-    I createInput(DBSchema schema, DBObjectType objectType);
+    I createInput(DBSchema schema);
 
     F createInputForm(DBNComponent parent, I input);
 
-    static <A extends ObjectFactoryAdapter> A find(DBObjectType objectType) {
-        List<ObjectFactoryAdapter> extensionList = ObjectFactoryAdapter.EP.getExtensionList();
-        ObjectFactoryAdapter adapter = Lists.first(extensionList, e -> objectType.isOneOf(e.getObjectTypes()));
-        if (adapter == null) {
-            throw new UnsupportedOperationException("Factory not implemented for object type " + objectType);
-        }
-        return cast(adapter);
-    }
+    void validateInput(I input, List<String> errors);
 
     void createObject(I input) throws SQLException;
 }

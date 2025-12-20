@@ -18,6 +18,7 @@ package com.dbn.object.factory.ui;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.alignment.FieldAlignerData;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.data.type.ui.DataTypeEditor;
 import com.dbn.object.factory.model.DBArgumentFactoryInput;
@@ -51,7 +52,7 @@ public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm<DBArgum
 
     private final DataTypeEditor dataTypeEditor;
 
-    DBArgumentFactoryInputForm(DBArgumentFactoryInputListForm parent, DBArgumentFactoryInput input) {
+    public DBArgumentFactoryInputForm(DBNComponent parent, DBArgumentFactoryInput input) {
         super(parent, input);
         iconLabel.setText(null);
         iconLabel.setIcon(enforceInArgument() ? Icons.DBO_ARGUMENT_IN : DBObjectType.ARGUMENT.getIcon());
@@ -71,7 +72,7 @@ public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm<DBArgum
     }
 
     private boolean enforceInArgument() {
-        DBArgumentFactoryInputListForm argumentListForm = ensureParentComponent();
+        DBArgumentFactoryInputListForm argumentListForm = ensureParentFrom(DBArgumentFactoryInputListForm.class);
         DBMethodFactoryInputForm methodForm = argumentListForm.ensureParentComponent();
         return methodForm.enforceInArguments();
     }

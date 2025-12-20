@@ -14,28 +14,21 @@
  * limitations under the License.
  */
 
-package com.dbn.object.factory.model;
+package com.dbn.object.factory;
 
-import com.dbn.object.DBCredential;
-import com.dbn.object.DBSchema;
-import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.common.extension.ExtensionPointCache;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.vector.common.ModelSourceType;
-import lombok.Getter;
-import lombok.Setter;
-@Getter
-@Setter
-public class DBAIModelFactoryInput extends DBSchemaObjectFactoryInput {
-  private ModelSourceType sourceType;
-  private String sourceLocation;
-  private DBObjectRef<DBCredential> credential;
 
-  public DBAIModelFactoryInput(DBSchema schema) {
-       super(schema, DBObjectType.AI_MODEL);
-  }
+import static com.dbn.common.util.Unsafe.cast;
 
-  public String getCredentialName() {
-    return DBObjectRef.getQualifiedObjectName(credential);
-  }
+public class ObjectFactoryAdapters extends ExtensionPointCache<DBObjectType, ObjectFactoryAdapter> {
+    private static final ObjectFactoryAdapters INSTANCE = new ObjectFactoryAdapters();
 
+    private ObjectFactoryAdapters() {
+        super(ObjectFactoryAdapter.EP, a -> a.getObjectType());
+    }
+
+    public static <A extends ObjectFactoryAdapter> A get(DBObjectType assistantType) {
+        return cast(INSTANCE.find(assistantType));
+    }
 }

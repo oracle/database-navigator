@@ -17,6 +17,7 @@
 package com.dbn.object.factory.ui;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.data.type.ui.DataTypeEditor;
 import com.dbn.object.factory.model.DBColumnFactoryInput;
@@ -47,7 +48,7 @@ public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBColumnF
 
     private final DataTypeEditor dataTypeEditor;
 
-    DBColumnFactoryInputForm(DBColumnFactoryInputListForm parent, DBColumnFactoryInput input) {
+    public DBColumnFactoryInputForm(DBNComponent parent, DBColumnFactoryInput input) {
         super(parent, input);
         iconLabel.setText(null);
         iconLabel.setIcon(DBObjectType.COLUMN.getIcon());
@@ -85,7 +86,7 @@ public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBColumnF
     }
 
     private boolean isNotUsed(String columnName) {
-        DBColumnFactoryInputListForm parentComponent = ensureParentComponent();
+        DBColumnFactoryInputListForm parentComponent = ensureParentFrom(DBColumnFactoryInputListForm.class);
         Set<String> columnNames = parentComponent.getObjectNames(this);
         return !columnNames.contains(columnName);
     }
