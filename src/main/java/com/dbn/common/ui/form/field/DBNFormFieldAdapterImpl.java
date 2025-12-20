@@ -30,6 +30,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -146,6 +147,7 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
         if (component instanceof TextFieldWithBrowseButton) return component;
         if (component instanceof TextFieldWithButtons) return component;
         if (component instanceof AbstractButton) return component;
+        if (component instanceof JPanel) return component;
         // TODO....
 
         return null;
