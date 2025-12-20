@@ -25,7 +25,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 
 public class DBObjectFactoryInputListItemForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -37,8 +36,10 @@ public class DBObjectFactoryInputListItemForm extends DBNFormBase {
     DBObjectFactoryInputListItemForm(@NotNull DBObjectFactoryInputListForm<?> parent, DBObjectFactoryInputForm<?> inputForm) {
         super(parent);
         this.inputForm = inputForm;
-        ActionToolbar actionToolbar = Actions.createActionToolbar(removeActionPanel, true, new RemoveObjectAction());
-        removeActionPanel.add(actionToolbar.getComponent(), BorderLayout.NORTH);
+        if (!inputForm.isReadonly()) {
+            ActionToolbar actionToolbar = Actions.createActionToolbar(removeActionPanel, true, new RemoveObjectAction());
+            removeActionPanel.add(actionToolbar.getComponent());
+        }
     }
 
     @NotNull

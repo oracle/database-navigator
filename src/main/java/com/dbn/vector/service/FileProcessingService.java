@@ -8,6 +8,7 @@ import com.dbn.vector.model.PipelineStep;
 import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.common.FileContent;
+import com.dbn.vector.model.staging.StagingConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +26,10 @@ import static com.dbn.vector.model.source.SourceType.FILE_SYSTEM;
 
 @Slf4j
 public class FileProcessingService {
-    public static final String FILES_TABLE = "document_files";
 
     public String resolveFileStoreId(
             @NotNull DBNConnection connection,
+            @NotNull VectorEmbeddingRequest request,
             @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull FileContent fileContent,
             @NotNull FileResult fileResult) {
@@ -37,9 +38,11 @@ public class FileProcessingService {
 
         try {
             // Query database: does file with this hash and size exist?
+            StagingConfig stagingConfig = request.getStagingConfig();
             ResultSet rs = vectorInterface.loadFileStoreMetadata(
                     connection,
-                    FILES_TABLE,
+                    stagingConfig.getSchemaName(),
+                    stagingConfig.getTableName(),
                     fileContent.getFileHash(),
                     fileContent.getFileSize());
 
@@ -63,6 +66,7 @@ public class FileProcessingService {
 
     public void uploadFile(
             @NotNull DBNConnection connection,
+            @NotNull VectorEmbeddingRequest request,
             @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull FileContent fileContent,
             @NotNull String fileStoreId,
@@ -73,27 +77,27 @@ public class FileProcessingService {
         try {
             // Extract metadata from FileContent and connection
             String metadataJson = buildFileMetadata(connection, fileContent);
-
+            StagingConfig stagingConfig = request.getStagingConfig();
 
             // Step 1: Insert row with metadata and hash
             vectorInterface.createFileStoreEntry(
                     connection,
-                    FILES_TABLE,
+                    stagingConfig.getSchemaName(),
+                    stagingConfig.getTableName(),
                     fileStoreId,
-                    metadataJson,
-                    fileContent.getFileHash(),  // From FileContent (no re-computation)
-                    fileContent.getFileSize()   // From FileContent (no re-reading)
-            );
+                    metadataJson,   // From FileContent (no re-computation)
+                    fileContent.getFileHash(),   // From FileContent (no re-reading)
+                    fileContent.getFileSize());
 
             // Step 2: Write file bytes to BLOB column
             // NOTE: Pass bytes directly, not JDBC Blob
           try (InputStream inputStream = fileContent.getInputStream()) {
             vectorInterface.uploadFileStoreContent(
                     connection,
-                    FILES_TABLE,
-                    fileStoreId,
-                    inputStream  // Cached bytes from FileContent
-            );
+                    stagingConfig.getSchemaName(),
+                    stagingConfig.getTableName(),
+                    fileStoreId,   // Cached bytes from FileContent
+                    inputStream);
           }
 
 
@@ -142,10 +146,10 @@ public class FileProcessingService {
                     connection,
                     chunkConfigJson,
                     embedConfigJson,
+                    request.getStagingConfig(),
                     storeConfig,
                     documentId,
-                    rowMetadata
-            );
+                    rowMetadata);
 
             step.markSuccess();
             fileResult.finishSuccess(embeddedRows);

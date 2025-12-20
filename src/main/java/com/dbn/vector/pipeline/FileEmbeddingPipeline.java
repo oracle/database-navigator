@@ -36,7 +36,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
         // ensure documents table exists (shared step for all files)
         StepResult step = result.getstep(PipelineStep.ENSURE_DOCUMENT_TABLE);
-        ensureDocumentsTableStep(connection, vectorInterface, step, handler.getUserName());
+        ensureDocumentsTableStep(connection, request, vectorInterface, step);
 //        result.addSharedStep(step);
 
         if (step.getStatus() == StepResult.STEP_STATUS.FAILED && step.isCritical()) {
@@ -99,10 +99,10 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
             String fileStoreId = fileService.resolveFileStoreId(
                     connection,
+                    request,
                     vectorInterface,
                     fileContent,
-                    fileResult
-            );
+                    fileResult);
 
             if (!fileResult.getStatus().equals(SourceStatus.RUNNING)) {
                 return;  // Check failed
@@ -132,11 +132,11 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                 fileContent.setFileStoreId(fileStoreId);
                 fileService.uploadFile(
                         connection,
+                        request,
                         vectorInterface,
                         fileContent,
                         fileStoreId,
-                        fileResult
-                );
+                        fileResult);
             }
 
             if (!fileResult.getStatus().equals(SourceStatus.RUNNING)) {

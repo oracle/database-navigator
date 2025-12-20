@@ -174,18 +174,18 @@
     </statement-execution-processor>
     <statement-execution-processor id="create-file-store-entry">
         <statement>
-            insert into {0}(
+            insert into {0}.{1}(
                 ID,
                 FILE_CONTENT,
                 METADATA,
                 FILE_HASH,
                 FILE_SIZE)
             values (
-                {#1},
-                empty_blob(),
                 {#2},
+                empty_blob(),
                 {#3},
-                {#4})
+                {#4},
+                {#5})
         </statement>
     </statement-execution-processor>
 
@@ -197,7 +197,7 @@
 
     <statement-execution-processor id="load-file-store-metadata">
         <statement>
-            select ID, METADATA from {0} where FILE_HASH = {#1} and FILE_SIZE = {#2} and ROWNUM = 1
+            select ID, METADATA from {0}.{1} where FILE_HASH = {#2} and FILE_SIZE = {#3} and ROWNUM = 1
         </statement>
     </statement-execution-processor>
 
@@ -216,9 +216,9 @@
 
     <statement-execution-processor id="upload_file_store_content" timeout="120000">
         <statement>
-            UPDATE {0}
-            SET file_content = {#1}
-            WHERE id = {#2}
+            UPDATE {0}.{1}
+            SET file_content = {#2}
+            WHERE id = {#3}
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="insert-vector-embeddings-from-table" timeout="120000">
@@ -284,7 +284,7 @@
                     jt.EMBED_DATA,
                     to_vector(jt.EMBED_VECTOR),
                     json_mergepatch(
-                        {#9},
+                        {#10},
                         json_object(
                             key 'embedding_id' value json_value(t.COLUMN_VALUE, '$.embed_id' returning varchar2(50))
                         ) returning varchar2
@@ -293,13 +293,13 @@
                     DBMS_VECTOR.UTL_TO_EMBEDDINGS(
                         DATA   => DBMS_VECTOR.UTL_TO_CHUNKS(
                                         DATA   => DBMS_VECTOR_CHAIN.UTL_TO_TEXT(
-                                                        DATA   => (select FILE_CONTENT from {5} where ID = {#6}
+                                                        DATA   => (select FILE_CONTENT from {5}.{6} where ID = {#7}
                                                                    and not exists (
                                                                         select 1 from {0}.{1} tgt
-                                                                        where json_value(tgt.{4}, '$.embedding_source.source_id') = {#6})),
+                                                                        where json_value(tgt.{4}, '$.embedding_source.source_id') = {#7})),
                                                         PARAMS => json(json_object('plaintext' value true))),
-                                        PARAMS => json({#7})),
-                        PARAMS => json({#8})
+                                        PARAMS => json({#8})),
+                        PARAMS => json({#9})
                     )
                 ) t,
                 json_table(

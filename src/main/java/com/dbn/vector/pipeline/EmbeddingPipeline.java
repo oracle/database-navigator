@@ -11,6 +11,7 @@ import com.dbn.vector.model.PipelineStep;
 import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
+import com.dbn.vector.model.staging.StagingConfig;
 import com.dbn.vector.model.store.DestinationType;
 import com.dbn.vector.model.store.StoreConfig;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -20,7 +21,6 @@ import java.sql.SQLException;
 
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.TABLE;
-import static com.dbn.vector.service.FileProcessingService.FILES_TABLE;
 
 
 public abstract class EmbeddingPipeline {
@@ -112,16 +112,23 @@ public abstract class EmbeddingPipeline {
      * Ensure the documents metadata table exists (for file sources).
      * This is also a shared step for all file-based sources.
      */
-    protected StepResult ensureDocumentsTableStep(
+    protected void ensureDocumentsTableStep(
             @NotNull DBNConnection connection,
+            @NotNull VectorEmbeddingRequest request,
             @NotNull DatabaseVectorInterface vectorInterface,
-            StepResult step,
-            String schemaName) {
+            StepResult step) {
 
         step.start();
-        boolean tableWasCreated = false;
-        String tableIdentifier = schemaName + "." + FILES_TABLE.toUpperCase();
 
+        StagingConfig stagingConfig = request.getStagingConfig();
+        String tableIdentifier = stagingConfig.getSchemaName() + "." + stagingConfig.getTableName();
+        step.markSuccess();
+        step.setLink(tableIdentifier);
+        step.setIcon(Icons.DBO_TABLE);
+
+/*
+        // TODO cleanup - table is created as part of the toolbox input
+        boolean tableWasCreated = false;
         try {
             vectorInterface.ensureFileStoreTable(connection, schemaName, FILES_TABLE);
             step.markSuccess();
@@ -155,10 +162,7 @@ public abstract class EmbeddingPipeline {
 
         if (tableWasCreated) {
             notifyTableCreated(connection.getConnectionId(),schemaName);
-        }
-
-
-            return step;
+        }*/
     }
 
     private void notifyTableCreated(ConnectionId connectionId, String schemaName) {

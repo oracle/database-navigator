@@ -23,7 +23,9 @@ import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.util.ComboBoxes;
+import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.ui.DBObjectSelector;
@@ -38,6 +40,9 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
@@ -99,6 +104,24 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
         updateFieldAvailability();
     }
 
+    protected List<DBTable> loadTables() {
+        List<DBTable> tables = super.loadTables();
+        return Lists.filter(tables, t -> isStagingTable(t));
+    }
+
+    private boolean isStagingTable(DBTable table) {
+        // TODO create generic DBObjectFactoryInput.matchesObject();
+
+        List<DBColumn> columns = table.getColumns();
+        if (columns.size() < 5) return false; // no exact match expected (consider system columns)
+
+        Set<String> columnNames = columns.stream().map(c -> c.getName()).collect(Collectors.toSet());
+        Set<String> expectedColumnNames = Set.of("ID", "FILE_SIZE", "FILE_HASH", "FILE_CONTENT", "METADATA");
+        if (!columnNames.containsAll(expectedColumnNames)) return false;
+
+        return true;
+    }
+
     private DBObjectFactoryInput createTableFactoryInput() {
         DBTableFactoryInput factoryInput = new DBTableFactoryInput(getSelectedSchema());
 
@@ -108,7 +131,10 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
         factoryInput.addColumn("FILE_HASH", "varchar2(64)", true, false);
         factoryInput.addColumn("FILE_CONTENT", "blob", false, false);
         factoryInput.addColumn("METADATA", "json", false, false);
-        factoryInput.getColumns().forEach(c -> c.setReadonly(true));
+
+        var columns = factoryInput.getColumns();
+        columns.forEach(c -> c.setReadonly(true));
+        columns.setReadonly(true);
 
         factoryInput.addConstraint("unique", null, Arrays.asList("FILE_SIZE", "FILE_HASH"));
         factoryInput.setAppendix("lob(FILE_CONTENT) store as securefile (nocache filesystem_like_logging)");

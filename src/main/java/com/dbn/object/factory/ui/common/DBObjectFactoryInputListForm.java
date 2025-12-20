@@ -35,12 +35,13 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 
 public abstract class DBObjectFactoryInputListForm<T extends DBObjectFactoryInput> extends DBNFormBase {
     private JPanel mainPanel;
@@ -51,9 +52,15 @@ public abstract class DBObjectFactoryInputListForm<T extends DBObjectFactoryInpu
 
     public DBObjectFactoryInputListForm(DBNComponent parent) {
         super(parent);
-        listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
+        verticalBoxLayout(listPanel);
 
-        actionPanel.add(new DetailSelector());
+        if (!isReadonly()) {
+            actionPanel.add(new DetailSelector());
+        }
+    }
+
+    private boolean isReadonly() {
+        return getChildInputs().isReadonly();
     }
 
     @NotNull

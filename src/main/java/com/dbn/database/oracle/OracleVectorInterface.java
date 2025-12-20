@@ -21,6 +21,7 @@ import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.vector.model.source.DBTableSourceConfig;
+import com.dbn.vector.model.staging.StagingConfig;
 import com.dbn.vector.model.store.StoreConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -29,8 +30,6 @@ import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import static com.dbn.vector.service.FileProcessingService.FILES_TABLE;
 
 @Slf4j
 public class OracleVectorInterface extends DatabaseInterfaceBase implements DatabaseVectorInterface {
@@ -98,7 +97,7 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, String documentId, String metadata) throws SQLException {
+    public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StagingConfig stagingConfig, StoreConfig storeConfig, String fileStoreId, String metadata) throws SQLException {
         return executeUpdate(conn,
                 "insert-vector-embeddings-from-filesystem",
                 storeConfig.getSchemaName(),
@@ -106,16 +105,17 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
                 storeConfig.getTextColumnName(),
                 storeConfig.getEmbeddingColumnName(),
                 storeConfig.getMetadataColumnName(),
-                FILES_TABLE,
-                documentId, // id of the blob
+                stagingConfig.getSchemaName(),
+                stagingConfig.getTableName(),
+                fileStoreId, // id of the blob
                 chunkConfig,
                 embedConfig,
                 metadata);
     }
 
     @Override
-    public void uploadFileStoreContent(@NotNull DBNConnection conn, String filesTable, @NotNull String documentId, InputStream inputStream) throws SQLException {
-        executeUpdate(conn, "upload_file_store_content", filesTable, inputStream, documentId);
+    public void uploadFileStoreContent(@NotNull DBNConnection conn, String ownerName, String tableName, @NotNull String fileStoreId, InputStream inputStream) throws SQLException {
+        executeUpdate(conn, "upload_file_store_content", ownerName, tableName, inputStream, fileStoreId);
     }
 
     @Override
@@ -124,13 +124,13 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public void createFileStoreEntry(DBNConnection conn, String filesTable, String id, String fileMetadata, String fileHash, long fileSize) throws SQLException {
-        executeUpdate(conn, "create-file-store-entry", filesTable, id, fileMetadata, fileHash, fileSize);
+    public void createFileStoreEntry(DBNConnection conn, String ownerName, String tableName, String fileStoreId, String fileMetadata, String fileHash, long fileSize) throws SQLException {
+        executeUpdate(conn, "create-file-store-entry", ownerName, tableName, fileStoreId, fileMetadata, fileHash, fileSize);
     }
 
     @Override
-    public ResultSet loadFileStoreMetadata(DBNConnection conn, String filesTable, String fileHash, long filesize) throws SQLException {
-        return executeQuery(conn, "load-file-store-metadata", filesTable, fileHash, filesize);
+    public ResultSet loadFileStoreMetadata(DBNConnection conn, String ownerName, String tableName, String fileHash, long fileSize) throws SQLException {
+        return executeQuery(conn, "load-file-store-metadata", ownerName, tableName, fileHash, fileSize);
     }
 
     @Override
