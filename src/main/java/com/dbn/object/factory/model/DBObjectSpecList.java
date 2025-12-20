@@ -16,23 +16,23 @@
 
 package com.dbn.object.factory.model;
 
-import com.dbn.object.type.DBObjectType;
+import com.dbn.connection.ConnectionHandler;
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
-public class DBConstraintFactoryInput extends DBObjectFactoryInput  {
-    private String constraintType;
-    private List<String> columnNames = new ArrayList<>();
+public class DBObjectSpecList<T extends DBObjectSpec> extends ArrayList<T> {
+    private final DBObjectSpec parent;
+    private boolean readonly;
 
-    protected DBConstraintFactoryInput(@NotNull DBObjectFactoryInput parent, int index, String constraintType, String constraintName, List<String> columnNames) {
-        super(parent, constraintName, DBObjectType.CONSTRAINT, index);
-        this.constraintType = constraintType;
-        this.columnNames = columnNames;
+    public DBObjectSpecList(DBObjectSpec parent) {
+        this.parent = parent;
+    }
+
+    public ConnectionHandler getConnection() {
+        return parent.getConnection();
     }
 }

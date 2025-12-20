@@ -15,7 +15,7 @@ import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.ui.DBObjectSelector;
-import com.dbn.object.factory.model.DBAIModelFactoryInput;
+import com.dbn.object.factory.model.DBAIModelSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBCredentialType;
@@ -52,7 +52,7 @@ import static com.dbn.vector.common.ModelSourceType.MODEL_FILE;
 import static com.dbn.vector.common.ModelSourceType.OBJECT_STORAGE;
 import static java.util.Collections.emptyList;
 
-public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIModelFactoryInput> {
+public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIModelSpec> {
     public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFile().
             withTitle("Select ONNX Model File").
             withDescription("Select a valid ONNX file").
@@ -77,12 +77,7 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
     private DBObjectSelector<DBSchema> credentialSchemaComboBox;
     private DBObjectSelector<DBCredential> credentialComboBox;
 
-
-    public DBAIModelFactoryInputForm(DBNComponent parent, DBSchema schema) {
-        this(parent, new DBAIModelFactoryInput(schema));
-    }
-
-    public DBAIModelFactoryInputForm(DBNComponent parent, DBAIModelFactoryInput input) {
+    public DBAIModelFactoryInputForm(DBNComponent parent, DBAIModelSpec input) {
         super(parent, input);
 
         initHeaderForm();
@@ -103,7 +98,7 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
     }
 
     private void initComboBoxes() {
-        DBAIModelFactoryInput input = getFactoryInput();
+        DBAIModelSpec input = getInput();
         ConnectionHandler connection = input.getConnection();
         DBSchema schema = input.getSchema();
 
@@ -205,7 +200,7 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
     }
 
     private DBSchema getSchema() {
-        return getFactoryInput().getSchema();
+        return getInput().getSchema();
     }
 
     @Override
@@ -246,10 +241,10 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
 
     @Override
     public void applyFormChanges() {
-        factoryInput.setObjectName(getText(nameTextField));
-        factoryInput.setCredential(getCredential());
-        factoryInput.setSourceType(getModelSourceType());
-        factoryInput.setSourceLocation(getModelSourceLocation());
+        input.setObjectName(getText(nameTextField));
+        input.setCredential(getCredential());
+        input.setSourceType(getModelSourceType());
+        input.setSourceLocation(getModelSourceLocation());
     }
 
     private DBObjectRef<DBCredential> getCredential() {
@@ -258,8 +253,8 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
 
     @Override
     public void resetFormChanges() {
-        nameTextField.setText(factoryInput.getObjectName());
-        modelFileTextField.setText(factoryInput.getSourceLocation());
+        nameTextField.setText(input.getObjectName());
+        modelFileTextField.setText(input.getSourceLocation());
     }
 
     private ModelSourceType getModelSourceType() {

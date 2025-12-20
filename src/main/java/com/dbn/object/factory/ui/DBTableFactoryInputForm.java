@@ -21,8 +21,7 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
-import com.dbn.object.DBSchema;
-import com.dbn.object.factory.model.DBTableFactoryInput;
+import com.dbn.object.factory.model.DBTableSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +37,7 @@ import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
-public class DBTableFactoryInputForm extends DBObjectFactoryInputForm<DBTableFactoryInput> {
+public class DBTableFactoryInputForm extends DBObjectFactoryInputForm<DBTableSpec> {
     private JPanel mainPanel;
     private JTextField nameTextField;
     private JPanel columnListPanel;
@@ -49,11 +48,7 @@ public class DBTableFactoryInputForm extends DBObjectFactoryInputForm<DBTableFac
 
     private DBColumnFactoryInputListForm columnListForm;
 
-    public DBTableFactoryInputForm(DBNComponent parent, DBSchema schema) {
-        this(parent, new DBTableFactoryInput(schema));
-    }
-
-    public DBTableFactoryInputForm(DBNComponent parent, DBTableFactoryInput input) {
+    public DBTableFactoryInputForm(DBNComponent parent, DBTableSpec input) {
         super(parent, input);
 
         ConnectionHandler connection = getConnection();
@@ -85,18 +80,18 @@ public class DBTableFactoryInputForm extends DBObjectFactoryInputForm<DBTableFac
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
-        factoryInput.setObjectName(getText(nameTextField));
+        input.setObjectName(getText(nameTextField));
         columnListForm.applyFormChanges();
     }
 
     @Override
     public void resetFormChanges() {
-        setText(nameTextField, factoryInput.getObjectName());
+        setText(nameTextField, input.getObjectName());
         columnListForm.resetFormChanges();
     }
 
     protected String getSchemaName() {
-        return getFactoryInput().getSchema().getName();
+        return getInput().getSchema().getName();
     }
 
     @Override

@@ -24,17 +24,17 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an abstract input definition for creating schema-based objects.
- * This class extends {@link DBObjectFactoryInput} and encapsulates the schema
+ * This class extends {@link DBObjectSpec} and encapsulates the schema
  * information referenced by {@link DBSchema}, along with specific object type
  * and name details required for object creation.
  *
  * @author Dan Cioca (Oracle)
  */
-abstract class DBSchemaObjectFactoryInput extends DBObjectFactoryInput {
+abstract class DBSchemaObjectSpec extends DBObjectSpec {
     private final DBObjectRef<DBSchema> schema;
 
-    protected DBSchemaObjectFactoryInput(DBSchema schema, DBObjectType objectType) {
-        super(schema.getConnectionId(), null, objectType, 0);
+    protected DBSchemaObjectSpec(DBSchema schema, DBObjectType objectType) {
+        super(schema.getConnectionId(), objectType);
         this.schema = DBObjectRef.of(schema);
     }
 

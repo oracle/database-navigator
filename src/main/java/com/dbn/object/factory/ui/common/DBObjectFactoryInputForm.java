@@ -23,7 +23,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.factory.model.DBObjectFactoryInput;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,28 +35,28 @@ import java.awt.Color;
 
 @Getter
 @Setter
-public abstract class DBObjectFactoryInputForm<T extends DBObjectFactoryInput> extends DBNFormBase {
-    protected T factoryInput;
+public abstract class DBObjectFactoryInputForm<T extends DBObjectSpec> extends DBNFormBase {
+    protected T input;
 
-    protected DBObjectFactoryInputForm(@NotNull DBNComponent parent, T factoryInput) {
+    protected DBObjectFactoryInputForm(@NotNull DBNComponent parent, T input) {
         super(parent);
-        this.factoryInput = factoryInput;
+        this.input = input;
     }
 
     public int getIndex() {
-        return factoryInput.getIndex();
+        return input.getIndex();
     }
 
     public void setIndex(int index) {
-        factoryInput.setIndex(index);
+        input.setIndex(index);
     }
 
     public DBObjectType getObjectType() {
-        return factoryInput.getObjectType();
+        return input.getObjectType();
     }
 
     public boolean isReadonly() {
-        return factoryInput.isReadonly();
+        return input.isReadonly();
     }
 
     @NotNull
@@ -97,7 +97,7 @@ public abstract class DBObjectFactoryInputForm<T extends DBObjectFactoryInput> e
 
     @NotNull
     public ConnectionHandler getConnection() {
-        return factoryInput.getConnection();
+        return input.getConnection();
     }
 
     public abstract void focus();

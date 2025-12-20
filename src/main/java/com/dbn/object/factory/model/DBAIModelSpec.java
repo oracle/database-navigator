@@ -16,27 +16,27 @@
 
 package com.dbn.object.factory.model;
 
+import com.dbn.object.DBCredential;
+import com.dbn.object.DBSchema;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.vector.common.ModelSourceType;
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.NonNls;
-
 
 @Getter
 @Setter
-public class DBColumnFactoryInput extends DBObjectFactoryInput {
-    private String dataType;
-    private boolean nonNull;
-    private boolean primaryKey;
+public class DBAIModelSpec extends DBSchemaObjectSpec {
+  private ModelSourceType sourceType;
+  private String sourceLocation;
+  private DBObjectRef<DBCredential> credential;
 
-    public DBColumnFactoryInput(DBObjectFactoryInput parent, int index) {
-        this(parent, index, null, null, false, false);
-    }
+  public DBAIModelSpec(DBSchema schema) {
+       super(schema, DBObjectType.AI_MODEL);
+  }
 
-    public DBColumnFactoryInput(DBObjectFactoryInput parent, int index, @NonNls String objectName, @NonNls String dataType, boolean nonNull, boolean primaryKey) {
-        super(parent, objectName, DBObjectType.COLUMN, index);
-        this.dataType = dataType == null ? "" : dataType.trim();
-        this.nonNull = nonNull;
-        this.primaryKey = primaryKey;
-    }
+  public String getCredentialName() {
+    return DBObjectRef.getQualifiedObjectName(credential);
+  }
+
 }

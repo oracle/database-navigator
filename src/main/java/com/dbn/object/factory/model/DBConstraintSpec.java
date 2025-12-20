@@ -19,24 +19,17 @@ package com.dbn.object.factory.model;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.NonNls;
 
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
-public class DBArgumentFactoryInput extends DBObjectFactoryInput {
-    private String dataType;
-    private boolean input;
-    private boolean output;
+public class DBConstraintSpec extends DBObjectSpec {
+    private String constraintType;
+    private List<String> columnNames = new ArrayList<>();
 
-    public DBArgumentFactoryInput(DBObjectFactoryInput parent, int index) {
-        this(parent, index, null, null,  true, false);
-    }
-
-    public DBArgumentFactoryInput(DBObjectFactoryInput parent, int index, @NonNls String objectName, @NonNls String dataType, boolean input, boolean output) {
-        super(parent, objectName, DBObjectType.ARGUMENT, index);
-        this.dataType = dataType == null ? "" : dataType.trim();
-        this.input = input;
-        this.output = output;
+    protected DBConstraintSpec(DBObjectSpec parent) {
+        super(parent, DBObjectType.CONSTRAINT);
     }
 }

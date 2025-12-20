@@ -29,8 +29,8 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.ui.DBObjectSelector;
-import com.dbn.object.factory.model.DBObjectFactoryInput;
-import com.dbn.object.factory.model.DBTableFactoryInput;
+import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.factory.model.DBTableSpec;
 import com.dbn.vector.model.staging.StagingConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
@@ -122,8 +122,8 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
         return true;
     }
 
-    private DBObjectFactoryInput createTableFactoryInput() {
-        DBTableFactoryInput factoryInput = new DBTableFactoryInput(getSelectedSchema());
+    private DBObjectSpec createTableFactoryInput() {
+        DBTableSpec factoryInput = new DBTableSpec(getSelectedSchema());
 
         factoryInput.setObjectName("FILE_CONTENTS");
         factoryInput.addColumn("ID", "varchar2(50)", true, true);

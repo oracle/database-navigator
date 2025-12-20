@@ -29,11 +29,11 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.model.DBArgumentFactoryInput;
-import com.dbn.object.factory.model.DBColumnFactoryInput;
-import com.dbn.object.factory.model.DBConstraintFactoryInput;
-import com.dbn.object.factory.model.DBMethodFactoryInput;
-import com.dbn.object.factory.model.DBTableFactoryInput;
+import com.dbn.object.factory.model.DBArgumentSpec;
+import com.dbn.object.factory.model.DBColumnSpec;
+import com.dbn.object.factory.model.DBConstraintSpec;
+import com.dbn.object.factory.model.DBMethodSpec;
+import com.dbn.object.factory.model.DBTableSpec;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
@@ -194,7 +194,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(DBMethodFactoryInput method, DBNConnection connection) throws SQLException {
+    public void createMethod(DBMethodSpec method, DBNConnection connection) throws SQLException {
         // TODO SQL-Injection
         Project project = method.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
@@ -210,7 +210,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        for (DBArgumentFactoryInput argument : method.getArguments()) {
+        for (DBArgumentSpec argument : method.getArguments()) {
             maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
             maxArgDirectionLength = Math.max(maxArgDirectionLength,
                     argument.isInput() && argument.isOutput() ? 6 :
@@ -219,7 +219,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         }
 
 
-        for (DBArgumentFactoryInput argument : method.getArguments()) {
+        for (DBArgumentSpec argument : method.getArguments()) {
             buffer.append("\n    ");
             buffer.append(oco.format(argument.getObjectName()));
             buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
@@ -248,7 +248,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     }
 
     @Override
-    public void createTable(DBTableFactoryInput factoryInput, DBNConnection connection) throws SQLException {
+    public void createTable(DBTableSpec factoryInput, DBNConnection connection) throws SQLException {
         StringBuilder builder = new StringBuilder();
         builder.append("table ");
         builder.append(factoryInput.getSchemaName(true));
@@ -257,7 +257,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         builder.append(" (\n");
 
         boolean first = true;
-        for (DBColumnFactoryInput column : factoryInput.getColumns()) {
+        for (DBColumnSpec column : factoryInput.getColumns()) {
             if (first) {
                 first = false;
             } else {
@@ -271,7 +271,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             builder.append(column.isPrimaryKey() ? " primary key" : "");
         }
 
-        for (DBConstraintFactoryInput constraint : factoryInput.getConstraints()) {
+        for (DBConstraintSpec constraint : factoryInput.getConstraints()) {
             builder.append(",\n");
             builder.append("    ");
             builder.append(constraint.getConstraintType());

@@ -26,22 +26,33 @@ import java.util.List;
 
 @Getter
 @Setter
-public class DBTableFactoryInput extends DBSchemaObjectFactoryInput {
-    private DBObjectFactoryInputList<DBColumnFactoryInput> columns = new DBObjectFactoryInputList<>(this);
-    private DBObjectFactoryInputList<DBConstraintFactoryInput> constraints = new DBObjectFactoryInputList<>(this);
+public class DBTableSpec extends DBSchemaObjectSpec {
+    private DBObjectSpecList<DBColumnSpec> columns = new DBObjectSpecList<>(this);
+    private DBObjectSpecList<DBConstraintSpec> constraints = new DBObjectSpecList<>(this);
     private String appendix;
 
-    public DBTableFactoryInput(DBSchema schema) {
+    public DBTableSpec(DBSchema schema) {
         super(schema, DBObjectType.TABLE);
     }
 
     public void addColumn(@NonNls String columnName, @NonNls String dataType, boolean notNull, boolean primaryKey) {
-        DBColumnFactoryInput column = new DBColumnFactoryInput(this, columns.size(), columnName, dataType, notNull, primaryKey);
+        DBColumnSpec column = new DBColumnSpec(this);
+        column.setObjectName(columnName);
+        column.setDataType(dataType);
+        column.setNonNull(notNull);
+        column.setPrimaryKey(primaryKey);
+        column.setIndex(columns.size());
+
         columns.add(column);
     }
 
     public void addConstraint(@NonNls String constraintType, @NonNls String constraintName, List<String> columnNames) {
-        DBConstraintFactoryInput constraint = new DBConstraintFactoryInput(this, constraints.size(), constraintType, constraintName, columnNames);
+        DBConstraintSpec constraint = new DBConstraintSpec(this);
+        constraint.setObjectName(constraintName);
+        constraint.setConstraintType(constraintType);
+        constraint.setColumnNames(columnNames);
+        constraint.setIndex(constraints.size());
+
         constraints.add(constraint);
     }
 }

@@ -16,28 +16,19 @@
 
 package com.dbn.object.factory.model;
 
-import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 
+
 @Getter
 @Setter
-public class DBMethodFactoryInput extends DBSchemaObjectFactoryInput {
-    private DBObjectFactoryInputList<DBArgumentFactoryInput> arguments = new DBObjectFactoryInputList<>(this);
-    private DBArgumentFactoryInput returnArgument;
+public class DBColumnSpec extends DBObjectSpec {
+    private String dataType;
+    private boolean nonNull;
+    private boolean primaryKey;
 
-    public DBMethodFactoryInput(DBSchema schema, DBObjectType methodType) {
-        super(schema, methodType);
-        if (methodType == DBObjectType.FUNCTION) {
-            returnArgument = new DBArgumentFactoryInput(this, 0, "return", null, false, true);
-        }
-
-        // add first empty argument
-        arguments.add(new DBArgumentFactoryInput(this, 0));
-    }
-
-    public boolean isFunction() {
-        return returnArgument != null;
+    public DBColumnSpec(DBObjectSpec parent) {
+        super(parent, DBObjectType.COLUMN);
     }
 }

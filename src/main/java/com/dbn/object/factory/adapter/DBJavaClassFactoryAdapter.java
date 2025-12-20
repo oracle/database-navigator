@@ -28,7 +28,7 @@ import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
-import com.dbn.object.factory.model.DBJavaClassFactoryInput;
+import com.dbn.object.factory.model.DBJavaClassSpec;
 import com.dbn.object.factory.ui.DBJavaClassFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
@@ -41,28 +41,28 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 
-public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter<DBJavaClassFactoryInput, DBJavaClassFactoryInputForm> {
+public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter<DBJavaClassSpec, DBJavaClassFactoryInputForm> {
 
     @Override
     public DBObjectType getObjectType() {
         return JAVA_CLASS;
     }
 
-    public DBJavaClassFactoryInput createInput(DBSchema schema) {
-        return new DBJavaClassFactoryInput(schema);
+    public DBJavaClassSpec createInput(DBSchema schema) {
+        return new DBJavaClassSpec(schema);
     }
 
-    public DBJavaClassFactoryInputForm createInputForm(DBNComponent parent, DBJavaClassFactoryInput input) {
+    public DBJavaClassFactoryInputForm createInputForm(DBNComponent parent, DBJavaClassSpec input) {
         return new DBJavaClassFactoryInputForm(parent, input);
     }
 
     @Override
-    public void validateInput(DBJavaClassFactoryInput input, List<String> errors) {
+    public void validateInput(DBJavaClassSpec input, List<String> errors) {
         // TODO
     }
 
     @Override
-    public void createObject(DBJavaClassFactoryInput input) throws SQLException {
+    public void createObject(DBJavaClassSpec input) throws SQLException {
         String className = input.getClassName();
         String packageName = input.getPackageName();
         String classType = input.getTypeIdentifier();

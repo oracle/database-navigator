@@ -28,7 +28,7 @@ import com.dbn.diagnostics.Diagnostics;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
-import com.dbn.object.factory.model.DBAIModelFactoryInput;
+import com.dbn.object.factory.model.DBAIModelSpec;
 import com.dbn.object.factory.ui.DBAIModelFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.common.ModelSourceType;
@@ -47,7 +47,7 @@ import static com.dbn.common.Priority.MEDIUM;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.AI_MODEL;
 
-public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelFactoryInput, DBAIModelFactoryInputForm> {
+public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelSpec, DBAIModelFactoryInputForm> {
 
     @Override
     public DBObjectType getObjectType() {
@@ -55,21 +55,21 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelFa
     }
 
     @Override
-    public DBAIModelFactoryInput createInput(DBSchema schema) {
-        return new DBAIModelFactoryInput(schema);
+    public DBAIModelSpec createInput(DBSchema schema) {
+        return new DBAIModelSpec(schema);
     }
 
-    public DBAIModelFactoryInputForm createInputForm(DBNComponent parent, DBAIModelFactoryInput input) {
+    public DBAIModelFactoryInputForm createInputForm(DBNComponent parent, DBAIModelSpec input) {
         return new DBAIModelFactoryInputForm(parent, input);
     }
 
     @Override
-    public void validateInput(DBAIModelFactoryInput input, List<String> errors) {
+    public void validateInput(DBAIModelSpec input, List<String> errors) {
         // TODO
     }
 
     @Override
-    public void createObject(DBAIModelFactoryInput input) throws SQLException {
+    public void createObject(DBAIModelSpec input) throws SQLException {
         ModelSourceType modelSourceType = input.getSourceType();
         DBSchema schema = input.getSchema();
 
@@ -109,7 +109,7 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelFa
 
     private Blob uploadOnnxModel(
             DBNConnection conn,
-            DBAIModelFactoryInput input,
+            DBAIModelSpec input,
             ProgressIndicator progress) throws SQLException {
         File modelFile = new File(input.getSourceLocation());
         long fileSize = modelFile.length();

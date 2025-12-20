@@ -28,13 +28,13 @@ import static com.dbn.object.type.DBJavaClassType.EXCEPTION;
 
 @Getter
 @Setter
-public class DBJavaClassFactoryInput extends DBSchemaObjectFactoryInput {
+public class DBJavaClassSpec extends DBSchemaObjectSpec {
+    private DBJavaClassType classType;
     private String packageName;
     private String className;
-    private DBJavaClassType classType;
     private String extendsSuffix = " ";
 
-    public DBJavaClassFactoryInput(DBSchema schema) {
+    public DBJavaClassSpec(DBSchema schema) {
         super(schema, DBObjectType.JAVA_CLASS);
     }
 

@@ -28,8 +28,8 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.factory.model.DBObjectFactoryInput;
-import com.dbn.object.factory.model.DBObjectFactoryInputList;
+import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.factory.model.DBObjectSpecList;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.util.PlatformIcons;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 
-public abstract class DBObjectFactoryInputListForm<T extends DBObjectFactoryInput> extends DBNFormBase {
+public abstract class DBObjectFactoryInputListForm<T extends DBObjectSpec> extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel listPanel;
     private JPanel actionPanel;
@@ -69,7 +69,7 @@ public abstract class DBObjectFactoryInputListForm<T extends DBObjectFactoryInpu
         return mainPanel;
     }
 
-    protected abstract DBObjectFactoryInputList<T> getChildInputs();
+    protected abstract DBObjectSpecList<T> getChildInputs();
 
     public ConnectionHandler getConnection() {
         return getChildInputs().getConnection();
@@ -129,7 +129,9 @@ public abstract class DBObjectFactoryInputListForm<T extends DBObjectFactoryInpu
 
     private void createChildInputPanel(Presentable detail) {
         T input = createChildInput(detail);
-        getChildInputs().add(input);
+        DBObjectSpecList<T> inputs = getChildInputs();
+        input.setIndex(inputs.size());
+        inputs.add(input);
         createChildInputPanel(input);
     }
 
@@ -156,6 +158,10 @@ public abstract class DBObjectFactoryInputListForm<T extends DBObjectFactoryInpu
     public void removeObjectPanel(DBObjectFactoryInputListItemForm child) {
         inputForms.remove(child.getObjectDetailsPanel());
         listPanel.remove(child.getComponent());
+        Disposer.dispose(child);
+        DBObjectSpec input = child.getObjectDetailsPanel().getInput();
+        DBObjectSpecList<T> childInputs = getChildInputs();
+        childInputs.remove(input);
 
         // rebuild indexes
         for (int i=0; i< inputForms.size(); i++) {

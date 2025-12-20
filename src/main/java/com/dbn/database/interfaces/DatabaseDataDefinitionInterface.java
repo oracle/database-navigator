@@ -20,8 +20,8 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
-import com.dbn.object.factory.model.DBMethodFactoryInput;
-import com.dbn.object.factory.model.DBTableFactoryInput;
+import com.dbn.object.factory.model.DBMethodSpec;
+import com.dbn.object.factory.model.DBTableSpec;
 import com.dbn.object.type.DBConstraintType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
@@ -42,9 +42,9 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
      *********************************************************/
     void createView(String viewName, String code, DBNConnection connection) throws SQLException;
 
-    void createMethod(DBMethodFactoryInput methodFactoryInput, DBNConnection connection) throws SQLException;
+    void createMethod(DBMethodSpec spec, DBNConnection connection) throws SQLException;
 
-    void createTable(DBTableFactoryInput tableFactoryInput, DBNConnection connection) throws SQLException;
+    void createTable(DBTableSpec spec, DBNConnection connection) throws SQLException;
 
     void createObject(String code, DBNConnection connection) throws SQLException;
 

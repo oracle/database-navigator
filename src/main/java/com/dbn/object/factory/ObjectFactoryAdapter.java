@@ -19,7 +19,7 @@ package com.dbn.object.factory;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBSchema;
-import com.dbn.object.factory.model.DBObjectFactoryInput;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.extensions.ExtensionPointName;
@@ -27,7 +27,7 @@ import com.intellij.openapi.extensions.ExtensionPointName;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface ObjectFactoryAdapter<I extends DBObjectFactoryInput, F extends DBObjectFactoryInputForm<I>> extends NlsSupport {
+public interface ObjectFactoryAdapter<I extends DBObjectSpec, F extends DBObjectFactoryInputForm<I>> extends NlsSupport {
     ExtensionPointName<ObjectFactoryAdapter> EP = ExtensionPointName.create("com.dbn.objectFactoryAdapter");
 
     DBObjectType getObjectType();

@@ -26,8 +26,8 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.ObjectFactoryAdapters;
-import com.dbn.object.factory.model.DBColumnFactoryInput;
-import com.dbn.object.factory.model.DBTableFactoryInput;
+import com.dbn.object.factory.model.DBColumnSpec;
+import com.dbn.object.factory.model.DBTableSpec;
 import com.dbn.object.factory.ui.DBTableFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 
@@ -41,23 +41,23 @@ import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.TABLE;
 
-public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBTableFactoryInput, DBTableFactoryInputForm> {
+public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBTableSpec, DBTableFactoryInputForm> {
 
     @Override
     public DBObjectType getObjectType() {
         return TABLE;
     }
 
-    public DBTableFactoryInput createInput(DBSchema schema) {
-        return new DBTableFactoryInput(schema);
+    public DBTableSpec createInput(DBSchema schema) {
+        return new DBTableSpec(schema);
     }
 
-    public DBTableFactoryInputForm createInputForm(DBNComponent parent, DBTableFactoryInput input) {
+    public DBTableFactoryInputForm createInputForm(DBNComponent parent, DBTableSpec input) {
         return new DBTableFactoryInputForm(parent, input);
     }
 
     @Override
-    public void validateInput(DBTableFactoryInput input, List<String> errors) {
+    public void validateInput(DBTableSpec input, List<String> errors) {
         String objectName = input.getObjectName();
         DBObjectType objectType = input.getObjectType();
 
@@ -71,7 +71,7 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBTableFactor
 
         DBColumnFactoryAdapter columnAdapter = ObjectFactoryAdapters.get(COLUMN);
         Set<String> columnNames = new HashSet<>();
-        for (DBColumnFactoryInput column : input.getColumns()) {
+        for (DBColumnSpec column : input.getColumns()) {
             columnAdapter.validateInput(column, errors);
             String columnName = column.getObjectName();
             if (Strings.isEmptyOrSpaces(columnName)) continue; // already covered by field validator
@@ -85,7 +85,7 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBTableFactor
     }
 
     @Override
-    public void createObject(DBTableFactoryInput input) throws SQLException {
+    public void createObject(DBTableSpec input) throws SQLException {
         DBSchema schema = input.getSchema();
 
         ConnectionId connectionId = schema.getConnectionId();

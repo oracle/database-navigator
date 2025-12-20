@@ -21,7 +21,7 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.data.type.ui.DataTypeEditor;
-import com.dbn.object.factory.model.DBArgumentFactoryInput;
+import com.dbn.object.factory.model.DBArgumentSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.ui.components.JBTextField;
@@ -42,7 +42,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
-public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm<DBArgumentFactoryInput> {
+public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm<DBArgumentSpec> {
     private JPanel mainPanel;
     private JLabel iconLabel;
     private JBTextField nameTextField;
@@ -52,7 +52,7 @@ public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm<DBArgum
 
     private final DataTypeEditor dataTypeEditor;
 
-    public DBArgumentFactoryInputForm(DBNComponent parent, DBArgumentFactoryInput input) {
+    public DBArgumentFactoryInputForm(DBNComponent parent, DBArgumentSpec input) {
         super(parent, input);
         iconLabel.setText(null);
         iconLabel.setIcon(enforceInArgument() ? Icons.DBO_ARGUMENT_IN : DBObjectType.ARGUMENT.getIcon());
@@ -148,18 +148,18 @@ public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm<DBArgum
 
     @Override
     public void applyFormChanges() {
-        factoryInput.setObjectName(getText(nameTextField));
-        factoryInput.setDataType(dataTypeEditor.getDataTypeRepresentation());
-        factoryInput.setInput(enforceInArgument() || inCheckBox.isSelected());
-        factoryInput.setOutput(outCheckBox.isSelected());
+        input.setObjectName(getText(nameTextField));
+        input.setDataType(dataTypeEditor.getDataTypeRepresentation());
+        input.setInput(enforceInArgument() || inCheckBox.isSelected());
+        input.setOutput(outCheckBox.isSelected());
     }
 
     @Override
     public void resetFormChanges() {
-        nameTextField.setText(factoryInput.getObjectName());
-        inCheckBox.setSelected(factoryInput.isInput());
-        outCheckBox.setSelected(factoryInput.isOutput());
-        dataTypeEditor.setText(factoryInput.getDataType());
+        nameTextField.setText(input.getObjectName());
+        inCheckBox.setSelected(input.isInput());
+        outCheckBox.setSelected(input.isOutput());
+        dataTypeEditor.setText(input.getDataType());
     }
 
     @Override

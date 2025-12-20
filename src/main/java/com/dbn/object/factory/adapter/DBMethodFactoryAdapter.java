@@ -28,8 +28,8 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.ObjectFactoryAdapters;
-import com.dbn.object.factory.model.DBArgumentFactoryInput;
-import com.dbn.object.factory.model.DBMethodFactoryInput;
+import com.dbn.object.factory.model.DBArgumentSpec;
+import com.dbn.object.factory.model.DBMethodSpec;
 import com.dbn.object.factory.ui.DBMethodFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 
@@ -44,14 +44,14 @@ import static com.dbn.object.type.DBObjectType.ARGUMENT;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.PROCEDURE;
 
-public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter<DBMethodFactoryInput, DBMethodFactoryInputForm> {
+public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter<DBMethodSpec, DBMethodFactoryInputForm> {
 
-    public DBMethodFactoryInputForm createInputForm(DBNComponent parent, DBMethodFactoryInput input) {
+    public DBMethodFactoryInputForm createInputForm(DBNComponent parent, DBMethodSpec input) {
         return new DBMethodFactoryInputForm(parent, input);
     }
 
     @Override
-    public void validateInput(DBMethodFactoryInput input, List<String> errors) {
+    public void validateInput(DBMethodSpec input, List<String> errors) {
         String objectName = input.getObjectName();
         if (objectName.isEmpty()) {
             String hint = input.getParent() == null ? "" : " at index " + input.getIndex();
@@ -69,7 +69,7 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter<DBM
 
         DBArgumentFactoryAdapter argumentAdapter = ObjectFactoryAdapters.get(ARGUMENT);
         Set<String> argumentNames = new HashSet<>();
-        for (DBArgumentFactoryInput argumentInput : input.getArguments()) {
+        for (DBArgumentSpec argumentInput : input.getArguments()) {
             argumentAdapter.validateInput(argumentInput, errors);
             String argumentName = argumentInput.getObjectName();
             if (Strings.isEmptyOrSpaces(argumentName)) continue; // already covered by field validator
@@ -83,7 +83,7 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter<DBM
     }
 
     @Override
-    public void createObject(DBMethodFactoryInput input) throws SQLException {
+    public void createObject(DBMethodSpec input) throws SQLException {
         DBObjectType objectType = input.isFunction() ? FUNCTION : PROCEDURE;
         String objectName = input.getObjectName();
         DBSchema schema = input.getSchema();

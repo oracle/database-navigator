@@ -20,7 +20,7 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.data.type.ui.DataTypeEditor;
-import com.dbn.object.factory.model.DBColumnFactoryInput;
+import com.dbn.object.factory.model.DBColumnSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.ui.components.JBTextField;
@@ -38,7 +38,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
-public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBColumnFactoryInput> {
+public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBColumnSpec> {
     private JPanel mainPanel;
     private JLabel iconLabel;
     private JBTextField nameTextField;
@@ -48,7 +48,7 @@ public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBColumnF
 
     private final DataTypeEditor dataTypeEditor;
 
-    public DBColumnFactoryInputForm(DBNComponent parent, DBColumnFactoryInput input) {
+    public DBColumnFactoryInputForm(DBNComponent parent, DBColumnSpec input) {
         super(parent, input);
         iconLabel.setText(null);
         iconLabel.setIcon(DBObjectType.COLUMN.getIcon());
@@ -115,18 +115,18 @@ public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBColumnF
 
     @Override
     public void applyFormChanges() {
-        factoryInput.setObjectName(getText(nameTextField));
-        factoryInput.setDataType(dataTypeEditor.getDataTypeRepresentation());
-        factoryInput.setNonNull(notNullCheckBox.isSelected());
-        factoryInput.setPrimaryKey(primaryKeyCheckBox.isSelected());
+        input.setObjectName(getText(nameTextField));
+        input.setDataType(dataTypeEditor.getDataTypeRepresentation());
+        input.setNonNull(notNullCheckBox.isSelected());
+        input.setPrimaryKey(primaryKeyCheckBox.isSelected());
     }
 
     @Override
     public void resetFormChanges() {
-        nameTextField.setText(factoryInput.getObjectName());
-        dataTypeEditor.setText(factoryInput.getDataType());
-        notNullCheckBox.setSelected(factoryInput.isNonNull());
-        primaryKeyCheckBox.setSelected(factoryInput.isPrimaryKey());
+        nameTextField.setText(input.getObjectName());
+        dataTypeEditor.setText(input.getDataType());
+        notNullCheckBox.setSelected(input.isNonNull());
+        primaryKeyCheckBox.setSelected(input.isPrimaryKey());
     }
 
     @Override

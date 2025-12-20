@@ -27,7 +27,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.DatabaseObjectFactory;
-import com.dbn.object.factory.model.DBObjectFactoryInput;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -43,7 +43,7 @@ import static com.dbn.common.util.Unsafe.cast;
 @Getter
 public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
     private DBObjectType objectType;
-    private Supplier<DBObjectFactoryInput> valueFactoryInput;
+    private Supplier<DBObjectSpec> valueFactoryInput;
 
     private Supplier<ConnectionHandler> connectionContext;
     private Supplier<DBSchema> schemaContext;
@@ -93,7 +93,7 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
         return cast(super.withValueFactory(ValueFactory.create(actionName, () -> openObjectFactory(getSchema()))));
     }
 
-    public DBObjectSelector<T> withValueFactoryInput(Supplier<DBObjectFactoryInput> initialFactoryInput) {
+    public DBObjectSelector<T> withValueFactoryInput(Supplier<DBObjectSpec> initialFactoryInput) {
         this.valueFactoryInput = initialFactoryInput;
         return this;
     }
@@ -128,7 +128,7 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
         Project project = getProject();
         if (project == null) throw new IllegalStateException("Database context not initialized");
 
-        DBObjectFactoryInput initialInput = valueFactoryInput == null ? null : valueFactoryInput.get();
+        DBObjectSpec initialInput = valueFactoryInput == null ? null : valueFactoryInput.get();
 
         DatabaseObjectFactory factoryManager = DatabaseObjectFactory.getInstance(project);
         factoryManager.openFactoryInputDialog(

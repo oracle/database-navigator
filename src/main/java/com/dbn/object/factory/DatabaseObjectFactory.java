@@ -33,7 +33,7 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.event.ObjectChangeEvent;
-import com.dbn.object.factory.model.DBObjectFactoryInput;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputDialog;
 import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBObjectType;
@@ -80,14 +80,14 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
     public void openFactoryInputDialog(
             @NotNull DBSchema schema,
             @NotNull DBObjectType objectType,
-            @Nullable DBObjectFactoryInput initialInput) {
+            @Nullable DBObjectSpec initialInput) {
         openFactoryInputDialog(schema, objectType, initialInput, (d, c) -> {});
     }
 
     public void openFactoryInputDialog(
             @NotNull DBSchema schema,
             @NotNull DBObjectType objectType,
-            @Nullable DBObjectFactoryInput initialInput,
+            @Nullable DBObjectSpec initialInput,
             @Nullable Consumer<String> objectNameConsumer) {
         openFactoryInputDialog(schema, objectType, initialInput,
                 (d, c) -> when(
@@ -98,7 +98,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
     private void openFactoryInputDialog(
             @NotNull DBSchema schema,
             @NotNull DBObjectType objectType,
-            @Nullable DBObjectFactoryInput initialInput,
+            @Nullable DBObjectSpec initialInput,
             @Nullable Dialogs.DialogCallback<DBObjectFactoryInputDialog> callback) {
 
         Project project = getProject();
@@ -111,11 +111,11 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         }
     }
 
-    public void createObject(DBObjectFactoryInput input) throws SQLException {
+    public void createObject(DBObjectSpec input) throws SQLException {
         Project project = getProject();
 
         DBObjectType objectType = input.getObjectType();
-        ObjectFactoryAdapter<DBObjectFactoryInput, ?> factoryAdapter = ObjectFactoryAdapters.get(objectType);
+        ObjectFactoryAdapter<DBObjectSpec, ?> factoryAdapter = ObjectFactoryAdapters.get(objectType);
 
         List<String> errors = new ArrayList<>();
         factoryAdapter.validateInput(input, errors);

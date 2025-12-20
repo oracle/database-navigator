@@ -28,7 +28,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.factory.DatabaseObjectFactory;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.ObjectFactoryAdapters;
-import com.dbn.object.factory.model.DBObjectFactoryInput;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
@@ -45,13 +45,9 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputForm<?>> {
     private final DBObjectRef<DBSchema> schema;
     private final DBObjectType objectType;
-    private final DBObjectFactoryInput initialInput;
+    private final DBObjectSpec initialInput;
 
-    public DBObjectFactoryInputDialog(@NotNull Project project, DBSchema schema, DBObjectType objectType) {
-        this(project, schema, objectType, null);
-    }
-
-    public DBObjectFactoryInputDialog(@NotNull Project project, DBSchema schema, DBObjectType objectType, DBObjectFactoryInput initialInput) {
+    public DBObjectFactoryInputDialog(@NotNull Project project, DBSchema schema, DBObjectType objectType, DBObjectSpec initialInput) {
         super(project, "Create " + objectType.getName(), true);
         this.schema = DBObjectRef.of(schema);
         this.objectType = objectType;
@@ -68,7 +64,7 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
         ObjectFactoryAdapter factoryAdapter = ObjectFactoryAdapters.get(objectType);
 
         DBSchema schema = getSchema();
-        DBObjectFactoryInput input = nvl(initialInput, () -> factoryAdapter.createInput(schema));
+        DBObjectSpec input = nvl(initialInput, () -> factoryAdapter.createInput(schema));
         return factoryAdapter.createInputForm(this, input);
     }
 
@@ -100,7 +96,7 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
             Messages.showErrorDialog(getProject(), e.getMessage());
             return;
         }
-        DBObjectFactoryInput input = form.getFactoryInput();
+        DBObjectSpec input = form.getInput();
         super.doOKAction();
 
         String title = "Creating " + input.getObjectTypeName();
@@ -115,7 +111,7 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
         }
     }
 
-    private void invokeObjectFactory(Project project, DBSchema schema, DBObjectType objectType, DBObjectFactoryInput input) {
+    private void invokeObjectFactory(Project project, DBSchema schema, DBObjectType objectType, DBObjectSpec input) {
         DatabaseObjectFactory factory = DatabaseObjectFactory.getInstance(project);
         try {
             factory.createObject(input);
@@ -132,7 +128,7 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
 
     }
 
-    private static void reopenInputDialog(Project project, DBSchema schema, DBObjectType objectType, DBObjectFactoryInput input) {
+    private static void reopenInputDialog(Project project, DBSchema schema, DBObjectType objectType, DBObjectSpec input) {
         Dialogs.show(() -> new DBObjectFactoryInputDialog(project, schema, objectType, input));
     }
 

@@ -28,8 +28,8 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
-public abstract class DBObjectFactoryInput {
-    private DBObjectFactoryInput parent;
+public abstract class DBObjectSpec {
+    private DBObjectSpec parent;
     private ConnectionId connectionId;
     private DBObjectType objectType;
 
@@ -38,15 +38,13 @@ public abstract class DBObjectFactoryInput {
     private int index;
     private boolean readonly;
 
-    protected DBObjectFactoryInput(@NotNull ConnectionId connectionId, String objectName, DBObjectType objectType, int index) {
+    protected DBObjectSpec(@NotNull ConnectionId connectionId, DBObjectType objectType) {
         this.connectionId = connectionId;
-        this.objectName = objectName == null ? "" : objectName.trim();
         this.objectType = objectType;
-        this.index = index;
     }
 
-    protected DBObjectFactoryInput(@NotNull DBObjectFactoryInput parent, String objectName, DBObjectType objectType, int index) {
-        this(parent.getConnectionId(), objectName, objectType, index);
+    protected DBObjectSpec(@NotNull DBObjectSpec parent, DBObjectType objectType) {
+        this(parent.getConnectionId(), objectType);
         this.parent = parent;
     }
 

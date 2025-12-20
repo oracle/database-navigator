@@ -16,26 +16,30 @@
 
 package com.dbn.object.factory.model;
 
-import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
-import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.vector.common.ModelSourceType;
 import lombok.Getter;
 import lombok.Setter;
+
 @Getter
 @Setter
-public class DBAIModelFactoryInput extends DBSchemaObjectFactoryInput {
-  private ModelSourceType sourceType;
-  private String sourceLocation;
-  private DBObjectRef<DBCredential> credential;
+public class DBMethodSpec extends DBSchemaObjectSpec {
+    private DBObjectSpecList<DBArgumentSpec> arguments = new DBObjectSpecList<>(this);
+    private DBArgumentSpec returnArgument;
 
-  public DBAIModelFactoryInput(DBSchema schema) {
-       super(schema, DBObjectType.AI_MODEL);
-  }
+    public DBMethodSpec(DBSchema schema, DBObjectType methodType) {
+        super(schema, methodType);
+        if (methodType == DBObjectType.FUNCTION) {
+            returnArgument = new DBArgumentSpec(this);
+            returnArgument.setObjectName("return");
+            returnArgument.setOutput(true);
+        }
 
-  public String getCredentialName() {
-    return DBObjectRef.getQualifiedObjectName(credential);
-  }
+        // add first empty argument
+        arguments.add(new DBArgumentSpec(this));
+    }
 
+    public boolean isFunction() {
+        return returnArgument != null;
+    }
 }

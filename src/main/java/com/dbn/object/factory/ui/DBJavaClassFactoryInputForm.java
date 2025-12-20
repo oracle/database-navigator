@@ -24,7 +24,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.ObjectFactoryManager;
-import com.dbn.object.factory.model.DBJavaClassFactoryInput;
+import com.dbn.object.factory.model.DBJavaClassSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.type.DBJavaClassType;
 import com.intellij.openapi.project.Project;
@@ -47,7 +47,7 @@ import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
-public class DBJavaClassFactoryInputForm extends DBObjectFactoryInputForm<DBJavaClassFactoryInput> {
+public class DBJavaClassFactoryInputForm extends DBObjectFactoryInputForm<DBJavaClassSpec> {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JTextField nameTextField;
@@ -57,10 +57,10 @@ public class DBJavaClassFactoryInputForm extends DBObjectFactoryInputForm<DBJava
     private DBNComboBox<DBJavaClassType> classTypeComboBox;
 
     public DBJavaClassFactoryInputForm(DBNComponent parent, DBSchema schema) {
-        this(parent, new DBJavaClassFactoryInput(schema));
+        this(parent, new DBJavaClassSpec(schema));
     }
 
-    public DBJavaClassFactoryInputForm(DBNComponent parent, DBJavaClassFactoryInput input) {
+    public DBJavaClassFactoryInputForm(DBNComponent parent, DBJavaClassSpec input) {
         super(parent, input);
         DBSchema schema = input.getSchema();
 
@@ -109,7 +109,7 @@ public class DBJavaClassFactoryInputForm extends DBObjectFactoryInputForm<DBJava
 
     @Override
     protected String getSchemaName() {
-        return getFactoryInput().getSchema().getName();
+        return getInput().getSchema().getName();
     }
 
     @Override
@@ -133,16 +133,16 @@ public class DBJavaClassFactoryInputForm extends DBObjectFactoryInputForm<DBJava
 
     @Override
     public void applyFormChanges() {
-        factoryInput.setPackageName(getText(packageTextField));
-        factoryInput.setClassName(getText(nameTextField));
-        factoryInput.setClassType(getSelection(classTypeComboBox));
+        input.setPackageName(getText(packageTextField));
+        input.setClassName(getText(nameTextField));
+        input.setClassType(getSelection(classTypeComboBox));
     }
 
     @Override
     public void resetFormChanges() {
-        setText(packageTextField, factoryInput.getPackageName());
-        setText(nameTextField, factoryInput.getClassName());
-        classTypeComboBox.setSelectedValue(factoryInput.getClassType());
+        setText(packageTextField, input.getPackageName());
+        setText(nameTextField, input.getClassName());
+        classTypeComboBox.setSelectedValue(input.getClassType());
     }
 
     @Override

@@ -20,7 +20,7 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.util.Strings;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.ObjectFactoryAdapter;
-import com.dbn.object.factory.model.DBColumnFactoryInput;
+import com.dbn.object.factory.model.DBColumnSpec;
 import com.dbn.object.factory.ui.DBColumnFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 
@@ -29,24 +29,24 @@ import java.util.List;
 
 import static com.dbn.object.type.DBObjectType.COLUMN;
 
-public class DBColumnFactoryAdapter implements ObjectFactoryAdapter<DBColumnFactoryInput, DBColumnFactoryInputForm> {
+public class DBColumnFactoryAdapter implements ObjectFactoryAdapter<DBColumnSpec, DBColumnFactoryInputForm> {
 
     @Override
     public DBObjectType getObjectType() {
         return COLUMN;
     }
 
-    public DBColumnFactoryInput createInput(DBSchema schema) {
+    public DBColumnSpec createInput(DBSchema schema) {
         //return new DBColumnFactoryInput(schema);
         return null; // TODO
     }
 
-    public DBColumnFactoryInputForm createInputForm(DBNComponent parent, DBColumnFactoryInput input) {
+    public DBColumnFactoryInputForm createInputForm(DBNComponent parent, DBColumnSpec input) {
         return new DBColumnFactoryInputForm(parent, input);
     }
 
     @Override
-    public void validateInput(DBColumnFactoryInput input, List<String> errors) {
+    public void validateInput(DBColumnSpec input, List<String> errors) {
         String objectName = input.getObjectName();
         int inputIndex = input.getIndex();
         if (objectName.isEmpty()) {
@@ -66,7 +66,7 @@ public class DBColumnFactoryAdapter implements ObjectFactoryAdapter<DBColumnFact
     }
 
     @Override
-    public void createObject(DBColumnFactoryInput input) throws SQLException {
+    public void createObject(DBColumnSpec input) throws SQLException {
         // child object - created as part of the parent
     }
 }

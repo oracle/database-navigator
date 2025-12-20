@@ -16,23 +16,19 @@
 
 package com.dbn.object.factory.model;
 
-import com.dbn.connection.ConnectionHandler;
+import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 
 @Getter
 @Setter
-public class DBObjectFactoryInputList<T extends DBObjectFactoryInput> extends ArrayList<T> {
-    private final DBObjectFactoryInput parent;
-    private boolean readonly;
+public class DBArgumentSpec extends DBObjectSpec {
+    private String dataType;
+    private boolean input;
+    private boolean output;
 
-    public DBObjectFactoryInputList(DBObjectFactoryInput parent) {
-        this.parent = parent;
-    }
-
-    public ConnectionHandler getConnection() {
-        return parent.getConnection();
+    public DBArgumentSpec(DBObjectSpec parent) {
+        super(parent, DBObjectType.ARGUMENT);
     }
 }
