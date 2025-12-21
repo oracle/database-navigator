@@ -23,13 +23,14 @@ import com.dbn.connection.DatabaseEntity;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.factory.DatabaseObjectFactory;
-import com.dbn.object.factory.ObjectFactoryAdapters;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.object.factory.ObjectFactoryAdapters.isSupported;
+import static com.dbn.object.factory.ObjectFactoryAdapters.isSuppressed;
 
 public class CreateObjectAction extends BasicAction {
 
@@ -62,7 +63,7 @@ public class CreateObjectAction extends BasicAction {
             if (schema.isSystemSchema()) return false;
 
             DBObjectType objectType = objectList.getObjectType();
-            return ObjectFactoryAdapters.isSupported(objectType);
+            return isSupported(objectType) && !isSuppressed(objectType);
         }
         return false;
     }

@@ -89,7 +89,7 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
         return cast(super.withValuePreselector(o -> o.getName().equalsIgnoreCase(preselectName.get())));
     }
 
-    public DBObjectSelector<T> withObjectValueFactory(String actionName) {
+    public DBObjectSelector<T> withObjectFactory(String actionName) {
         return cast(super.withValueFactory(ValueFactory.create(actionName, () -> openObjectFactory(getSchema()))));
     }
 

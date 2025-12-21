@@ -3,15 +3,11 @@ package com.dbn.vector.ui.embed;
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
-import com.dbn.assistant.service.selectai.credential.ui.CredentialEditDialog;
-import com.dbn.common.routine.Consumer;
-import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
-import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBCredential;
@@ -28,7 +24,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.util.List;
-import java.util.Set;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
@@ -74,7 +69,6 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
         ComboBoxes.initComboBox(providerComboBox, providers);
 
         ThirdPartyModelConfig config = getConfig();
-        ConnectionHandler connection = getConnection();
 
         credentialSchemaComboBox
                 .initialize(this, SCHEMA)
@@ -89,19 +83,10 @@ public class ThirdPartyModelConfigForm extends VectorToolboxFormBase {
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadCredentials())
                 .withValuePreselector(() -> config.getCredentialName())
-                .withValueFactory(createCredentialFactory()) // TODO refactor non-standard credential factory
+                .withObjectFactory("New Credential...")
                 .triggerLoad();
 
         updateFieldAvailability();
-    }
-
-    private ValueFactory<DBCredential> createCredentialFactory() {
-        return new ValueFactory<>("New Credential...") {
-            @Override
-            public void createValue(Consumer<DBCredential> consumer) {
-                Dialogs.show(() -> new CredentialEditDialog(getConnection(), null, null, Set.of()));
-            }
-        };
     }
 
     @Override

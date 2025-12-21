@@ -132,7 +132,7 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
                 .withConnectionContext(() -> getConnection())
                 .withSchemaContext(() -> getCredentialSchema())
                 .withValueLoader(() -> loadCredentials())
-                //.withObjectValueFactory("New Credential...") // TODO refactor non-standard credential factory
+                .withObjectFactory("New Credential...")
                 .triggerLoad();
         updateFieldAvailability();
     }

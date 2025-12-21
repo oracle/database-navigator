@@ -33,10 +33,10 @@ public class ObjectFactoryAdapters extends ExtensionPointCache<DBObjectType, Obj
     }
 
     public static boolean isSupported(DBObjectType objectType) {
-        return INSTANCE.keys().contains(objectType) && !isSuppressed(objectType);
+        return INSTANCE.keys().contains(objectType);
     }
 
-    private static boolean isSuppressed(DBObjectType objectType) {
+    public static boolean isSuppressed(DBObjectType objectType) {
         // TODO table factory input still very rudimentary (only predefined specs for now)
         if (objectType == DBObjectType.TABLE) return true;
 
