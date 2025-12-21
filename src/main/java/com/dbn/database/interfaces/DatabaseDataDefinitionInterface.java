@@ -21,7 +21,7 @@ import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.object.factory.model.DBMethodSpec;
-import com.dbn.object.factory.model.DBTableSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBConstraintType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
@@ -44,7 +44,7 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     void createMethod(DBMethodSpec spec, DBNConnection connection) throws SQLException;
 
-    void createTable(DBTableSpec spec, DBNConnection connection) throws SQLException;
+    void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException;
 
     void createObject(String code, DBNConnection connection) throws SQLException;
 

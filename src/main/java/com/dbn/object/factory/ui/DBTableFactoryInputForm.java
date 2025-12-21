@@ -20,7 +20,7 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
-import com.dbn.object.factory.model.DBTableSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.intellij.openapi.options.ConfigurationException;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +32,7 @@ import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
 @Getter
-public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBTableSpec> {
+public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
     private JTextField nameTextField;
     private JPanel columnListPanel;
@@ -42,8 +42,8 @@ public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBTa
 
     private DBColumnFactoryInputListForm columnListForm;
 
-    public DBTableFactoryInputForm(DBNComponent parent, DBTableSpec input) {
-        super(parent, input);
+    public DBTableFactoryInputForm(DBNComponent parent, DBObjectSpec tableSpec) {
+        super(parent, tableSpec);
 
         initContextComponents();
         initHeaderForm();

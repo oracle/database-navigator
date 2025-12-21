@@ -30,7 +30,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.factory.model.DBObjectSpec;
-import com.dbn.object.factory.model.DBTableSpec;
+import com.dbn.object.factory.model.DBObjectSpecReader;
 import com.dbn.vector.model.staging.StagingConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
@@ -39,7 +39,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -123,23 +122,10 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
     }
 
     private DBObjectSpec createTableFactoryInput() {
-        DBTableSpec factoryInput = new DBTableSpec(getSelectedSchema());
-
-        factoryInput.setObjectName("FILE_CONTENTS");
-        factoryInput.addColumn("ID", "varchar2(50)", true, true);
-        factoryInput.addColumn("FILE_SIZE", "number(19)", true, false);
-        factoryInput.addColumn("FILE_HASH", "varchar2(64)", true, false);
-        factoryInput.addColumn("FILE_CONTENT", "blob", false, false);
-        factoryInput.addColumn("METADATA", "json", false, false);
-
-        var columns = factoryInput.getColumns();
-        columns.forEach(c -> c.setReadonly(true));
-        columns.setReadonly(true);
-
-        factoryInput.addConstraint("unique", null, Arrays.asList("FILE_SIZE", "FILE_HASH"));
-        factoryInput.setAppendix("lob(FILE_CONTENT) store as securefile (nocache filesystem_like_logging)");
-
-        return factoryInput;
+        DBObjectSpec tableSpec = DBObjectSpecReader.read(getClass(), "staging-table-definition.xml");
+        tableSpec.setConnectionId(getConnectionId());
+        tableSpec.setSchemaId(getSelectedSchemaId());
+        return tableSpec;
     }
 
     protected void initEventListeners() {

@@ -18,6 +18,7 @@ package com.dbn.common.options.setting;
 
 import com.dbn.common.constant.Constant;
 import com.dbn.common.constant.PseudoConstant;
+import com.dbn.common.data.Data;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
@@ -144,7 +145,7 @@ public final class Settings {
 
     public static boolean booleanAttribute(Element element, @NonNls String attributeName, boolean defaultValue) {
         String attributeValue = stringAttribute(element, attributeName);
-        return Strings.isEmptyOrSpaces(attributeValue) ? defaultValue : Boolean.parseBoolean(attributeValue);
+        return Strings.isEmptyOrSpaces(attributeValue) ? defaultValue : Data.asBooleanPrimitive(attributeValue);
     }
 
     public static double doubleAttribute(Element element, @NonNls String attributeName, double defaultValue) {

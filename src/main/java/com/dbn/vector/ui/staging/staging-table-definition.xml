@@ -14,43 +14,37 @@
   ~ limitations under the License.
   -->
 
-<definition type="TABLE">
+<definition type="TABLE" name="FILE_CONTENTS">
     <attributes>
-        <attr name="OBJECT_NAME" value="FILE_CONTENTS"/>
         <attr name="OBJECT_DETAIL" value="lob(FILE_CONTENT) store as securefile (nocache filesystem_like_logging)"/>
     </attributes>
     <children readonly="Y">
-        <definition type="COLUMN" readonly="Y">
+        <definition type="COLUMN" name="ID" readonly="Y">
             <attributes>
-                <attr name="OBJECT_NAME" value="ID"/>
                 <attr name="DATA_TYPE" value="varchar2(50)"/>
                 <attr name="IS_NOT_NULL" value="Y"/>
                 <attr name="IS_PRIMARY_KEY" value="Y"/>
             </attributes>
         </definition>
-        <definition type="COLUMN" readonly="Y">
+        <definition type="COLUMN" name="FILE_SIZE" readonly="Y">
             <attributes>
-                <attr name="OBJECT_NAME" value="FILE_SIZE"/>
                 <attr name="DATA_TYPE" value="number(19)"/>
                 <attr name="IS_NOT_NULL" value="Y"/>
             </attributes>
         </definition>
-        <definition type="COLUMN" readonly="Y">
+        <definition type="COLUMN" name="FILE_HASH" readonly="Y">
             <attributes>
-                <attr name="OBJECT_NAME" value="FILE_HASH"/>
                 <attr name="DATA_TYPE" value="varchar2(64)"/>
                 <attr name="IS_NOT_NULL" value="Y"/>
             </attributes>
         </definition>
-        <definition type="COLUMN" readonly="Y">
+        <definition type="COLUMN" name="FILE_CONTENT" readonly="Y">
             <attributes>
-                <attr name="OBJECT_NAME" value="FILE_CONTENT"/>
                 <attr name="DATA_TYPE" value="blob"/>
             </attributes>
         </definition>
-        <definition type="COLUMN" readonly="Y">
+        <definition type="COLUMN" name="METADATA" readonly="Y">
             <attributes>
-                <attr name="OBJECT_NAME" value="METADATA"/>
                 <attr name="DATA_TYPE" value="json"/>
             </attributes>
         </definition>

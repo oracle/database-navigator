@@ -32,7 +32,7 @@ import com.dbn.language.common.QuotePair;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.factory.model.DBArgumentSpec;
 import com.dbn.object.factory.model.DBMethodSpec;
-import com.dbn.object.factory.model.DBTableSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBConstraintType;
 import com.intellij.openapi.project.Project;
 
@@ -246,7 +246,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
     }
 
     @Override
-    public void createTable(DBTableSpec spec, DBNConnection connection) throws SQLException {
+    public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
 }
