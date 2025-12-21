@@ -30,6 +30,7 @@ public class DBConstraintSpec extends DBObjectSpec {
     private List<String> columnNames = new ArrayList<>();
 
     protected DBConstraintSpec(DBObjectSpec parent) {
-        super(parent, DBObjectType.CONSTRAINT);
+        super(DBObjectType.CONSTRAINT);
+        setParent(parent);
     }
 }

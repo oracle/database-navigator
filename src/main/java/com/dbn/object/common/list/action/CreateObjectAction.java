@@ -23,16 +23,13 @@ import com.dbn.connection.DatabaseEntity;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.factory.DatabaseObjectFactory;
+import com.dbn.object.factory.ObjectFactoryAdapters;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.type.DBObjectType.AI_MODEL;
-import static com.dbn.object.type.DBObjectType.FUNCTION;
-import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
-import static com.dbn.object.type.DBObjectType.PROCEDURE;
 
 public class CreateObjectAction extends BasicAction {
 
@@ -65,7 +62,7 @@ public class CreateObjectAction extends BasicAction {
             if (schema.isSystemSchema()) return false;
 
             DBObjectType objectType = objectList.getObjectType();
-            return objectType.isOneOf(FUNCTION, PROCEDURE, JAVA_CLASS,AI_MODEL);
+            return ObjectFactoryAdapters.isSupported(objectType);
         }
         return false;
     }

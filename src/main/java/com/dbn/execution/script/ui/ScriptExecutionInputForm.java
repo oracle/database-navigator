@@ -149,7 +149,7 @@ public class ScriptExecutionInputForm extends DBNFormBase {
         SchemaId schema = executionInput.getSchemaId();
         CmdLineInterface cmdLineInterface;
         if (isLiveConnection(connection)) {
-            schema = Commons.nvln(schema, connection.getDefaultSchema());
+            schema = Commons.nvln(schema, connection.getDefaultSchemaId());
             connectionComboBox.setSelectedValue(connection);
             schemaComboBox.setValues(connection.getSchemaIds());
             schemaComboBox.setSelectedValue(schema);

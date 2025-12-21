@@ -170,7 +170,7 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
   }
 
   protected void reset() {
-    SchemaId userSchema = getConnection().getUserSchema();
+    SchemaId userSchema = getConnection().getUserSchemaId();
     request.resetHard(userSchema);
     saveRequestTemplate(false);
     resetFormChanges();

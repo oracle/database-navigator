@@ -23,6 +23,7 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
@@ -53,11 +54,8 @@ import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
-import static com.dbn.object.type.DBObjectType.AI_MODEL;
-import static com.dbn.object.type.DBObjectType.FUNCTION;
+import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
-import static com.dbn.object.type.DBObjectType.PROCEDURE;
-import static com.dbn.object.type.DBObjectType.TABLE;
 
 public class DatabaseObjectFactory extends ProjectComponentBase {
 
@@ -100,15 +98,44 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
             @NotNull DBObjectType objectType,
             @Nullable DBObjectSpec initialInput,
             @Nullable Dialogs.DialogCallback<DBObjectFactoryInputDialog> callback) {
-
         Project project = getProject();
-        if (objectType.isOneOf(TABLE, FUNCTION, PROCEDURE, JAVA_CLASS, AI_MODEL)) {
+
+
+        if (ObjectFactoryAdapters.isSupported(objectType)) {
+            if (isOwnerRestricted(objectType) && !schema.isUserSchema()) {
+                String objectTypeName = objectType.getName();
+                ConnectionHandler connection = schema.getConnection();
+                DBSchema userSchema = connection.getUserSchema();
+
+                Messages.showQuestionDialog(project,
+                        "Owner Restriction",
+                        "The objects of type \"" + objectTypeName + "\" are owner restricted. " +
+                                "You can only create " + objectType.getListName() + " in your own schema.\n\n" +
+                                "Do you want to create the " + objectTypeName + " in your schema?",
+                        Messages.OPTIONS_YES_CANCEL, 0,
+                        option -> when(option == 0, () ->
+                                openFactoryInputDialog(
+                                        userSchema,
+                                        objectType,
+                                        initialInput,
+                                        callback)));
+                return;
+            }
+
+
             Dialogs.show(() -> new DBObjectFactoryInputDialog(project, schema, objectType, initialInput), callback);
         } else {
             Messages.showErrorDialog(project,
                     txt("msg.objects.title.OperationNotSupported"),
                     txt("msg.objects.error.ObjectCreationNotSupported", objectType.getListName()));
         }
+    }
+
+    private boolean isOwnerRestricted(DBObjectType objectType) {
+        if (objectType == CREDENTIAL) return true;
+        //...
+
+        return false;
     }
 
     public void createObject(DBObjectSpec input) throws SQLException {

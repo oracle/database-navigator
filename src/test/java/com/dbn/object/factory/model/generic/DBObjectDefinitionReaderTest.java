@@ -18,6 +18,8 @@ package com.dbn.object.factory.model.generic;
 
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.XmlContents;
+import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.factory.model.DBObjectSpecReader;
 import com.dbn.object.type.DBObjectType;
 import lombok.SneakyThrows;
 import org.jdom.Element;
@@ -35,10 +37,10 @@ public class DBObjectDefinitionReaderTest {
     @SneakyThrows
     public void read() {
         Element element = XmlContents.fileToElement(DBObjectDefinitionReaderTest.class, "staging-table-definition.xml");
-        DBObjectDefinition definition = DBObjectDefinitionReader.read(element);
+        DBObjectSpec definition = DBObjectSpecReader.read(element);
 
         assertEquals(DBObjectType.TABLE, definition.getObjectType());
-        List<DBObjectDefinition> children = definition.getChildren(DBObjectType.COLUMN);
+        List<DBObjectSpec> children = definition.getChildren(DBObjectType.COLUMN);
 
 
         assertEquals(5, children.size());
