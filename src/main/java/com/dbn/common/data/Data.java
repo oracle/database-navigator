@@ -73,6 +73,8 @@ public final class Data {
         if (type == BigInteger.class) return cast(asBigInteger(object));
         if (type == Object.class)     return cast(object);
 
+        if (type == String[].class) return cast(asStringArray(object));
+
         throw new UnsupportedOperationException("Cast from " + object.getClass() + " to " + type + " is not implemented");
         // TODO add more cast logic if required
     }
@@ -90,6 +92,14 @@ public final class Data {
 
     public static List<String> asStringList(@Nullable Object object) {
         return asList(object, o -> asString(o));
+    }
+
+    public static String[] asStringArray(@Nullable Object object) {
+        List<String> strings =
+                object instanceof String string ?
+                        csvToList(string, String.class) : // assumed csv
+                        asList(object, o -> asString(o));
+        return strings == null ? new String[0] : strings.toArray(new String[0]);
     }
 
     public static Character asCharacter(@Nullable Object object) {
