@@ -29,6 +29,7 @@ public class DBColumnSpec extends DBObjectSpec {
     private boolean primaryKey;
 
     public DBColumnSpec(DBObjectSpec parent) {
-        super(parent, DBObjectType.COLUMN);
+        super(DBObjectType.COLUMN);
+        setParent(parent);
     }
 }

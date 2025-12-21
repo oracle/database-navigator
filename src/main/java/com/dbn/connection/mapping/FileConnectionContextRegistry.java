@@ -104,7 +104,7 @@ public class FileConnectionContextRegistry extends StatefulDisposableBase implem
             SchemaId schemaId = context.getSchemaId();
             DBSchema schema = schemaId == null ? null : connection.getSchema(schemaId);
             if (schema == null) {
-                schemaId = connection.getDefaultSchema();
+                schemaId = connection.getDefaultSchemaId();
             }
             context.setSchemaId(schemaId);
         }

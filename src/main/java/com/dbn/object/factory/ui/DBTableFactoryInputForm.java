@@ -17,32 +17,26 @@
 package com.dbn.object.factory.ui;
 
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.object.factory.model.DBTableSpec;
-import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.intellij.openapi.options.ConfigurationException;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
-import static com.dbn.common.ui.util.TextFields.getText;
-import static com.dbn.common.ui.util.TextFields.onTextChange;
-import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
-public class DBTableFactoryInputForm extends DBObjectFactoryInputForm<DBTableSpec> {
+@Getter
+public class DBTableFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBTableSpec> {
     private JPanel mainPanel;
     private JTextField nameTextField;
     private JPanel columnListPanel;
     private JPanel headerPanel;
-    private JLabel nameLabel;
     private DBNComboBox<ConnectionHandler> connectionComboBox;
     private DBNComboBox<SchemaId> schemaComboBox;
 
@@ -51,23 +45,8 @@ public class DBTableFactoryInputForm extends DBObjectFactoryInputForm<DBTableSpe
     public DBTableFactoryInputForm(DBNComponent parent, DBTableSpec input) {
         super(parent, input);
 
-        ConnectionHandler connection = getConnection();
-        connectionComboBox.setValues(connection);
-        connectionComboBox.setSelectedValue(connection);
-        connectionComboBox.set(HIDE_DESCRIPTION, true);
-        connectionComboBox.setEnabled(false); // TODO support connection switch
-
-        SchemaId schemaId = input.getSchemaId();
-        schemaComboBox.setValues(schemaId);
-        schemaComboBox.setSelectedValue(schemaId);
-        schemaComboBox.set(HIDE_DESCRIPTION, true);
-        schemaComboBox.setEnabled(false); // TODO support connection switch
-
-        nameLabel.setText("Table name");
-
-        DBNHeaderForm headerForm = createHeaderForm();
-        headerPanel.add(headerForm.getComponent());
-        onTextChange(nameTextField, e -> headerForm.setTitle(buildHeaderTitle()));
+        initContextComponents();
+        initHeaderForm();
 
         resetFormChanges();
     }
@@ -80,33 +59,19 @@ public class DBTableFactoryInputForm extends DBObjectFactoryInputForm<DBTableSpe
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
-        input.setObjectName(getText(nameTextField));
+        super.applyFormChanges();
         columnListForm.applyFormChanges();
     }
 
     @Override
     public void resetFormChanges() {
-        setText(nameTextField, input.getObjectName());
+        super.resetFormChanges();
         columnListForm.resetFormChanges();
-    }
-
-    protected String getSchemaName() {
-        return getInput().getSchema().getName();
-    }
-
-    @Override
-    protected String getObjectName() {
-        return getText(nameTextField);
     }
 
     private void createUIComponents() {
         columnListForm = new DBColumnFactoryInputListForm(this);
         columnListPanel = (JPanel) columnListForm.getComponent();
-    }
-
-    @Override
-    public void focus() {
-        nameTextField.requestFocus();
     }
 
     @NotNull

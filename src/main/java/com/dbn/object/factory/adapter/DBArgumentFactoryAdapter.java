@@ -48,19 +48,19 @@ public class DBArgumentFactoryAdapter implements ObjectFactoryAdapter<DBArgument
     @Override
     public void validateInput(DBArgumentSpec input, List<String> errors) {
         String objectName = input.getObjectName();
-        int inputIndex = input.getIndex();
+        int position = input.getIndex();
         if (objectName.isEmpty()) {
-            errors.add("argument name is not specified at index " + inputIndex);
+            errors.add("argument name is not specified at index " + position);
 
         } else if (!Strings.isWord(objectName)) {
-            errors.add("invalid argument name specified at index " + inputIndex + ": \"" + objectName + "\"");
+            errors.add("invalid argument name specified at index " + position + ": \"" + objectName + "\"");
         }
 
         if (Strings.isEmptyOrSpaces(input.getDataType())){
             if (objectName.length() > 0) {
                 errors.add("missing data type for argument \"" + objectName + "\"");
             } else {
-                errors.add("missing data type for argument at index " + inputIndex);
+                errors.add("missing data type for argument at index " + position);
             }
         }
     }

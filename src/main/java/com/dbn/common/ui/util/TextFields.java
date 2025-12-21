@@ -18,6 +18,7 @@ package com.dbn.common.ui.util;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.DocumentAdapter;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import javax.swing.JPasswordField;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -113,6 +115,10 @@ public class TextFields {
 
     public static void setText(JTextComponent textComponent, String text) {
         textComponent.setText(text == null ? "" : text.trim());
+    }
+
+    public static void setPassword(JPasswordField textComponent, char[] password) {
+        textComponent.setText(Chars.toString(password));
     }
 
     public static void setText(TextFieldWithBrowseButton textComponent, String text) {

@@ -16,11 +16,8 @@
 
 package com.dbn.object.factory.model;
 
-import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
-import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an abstract input definition for creating schema-based objects.
@@ -30,33 +27,10 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Dan Cioca (Oracle)
  */
-abstract class DBSchemaObjectSpec extends DBObjectSpec {
-    private final DBObjectRef<DBSchema> schema;
-
-    protected DBSchemaObjectSpec(DBSchema schema, DBObjectType objectType) {
-        super(schema.getConnectionId(), objectType);
-        this.schema = DBObjectRef.of(schema);
-    }
-
-    @NotNull
-    public final DBSchema getSchema() {
-        return DBObjectRef.ensure(schema);
-    }
-
-    @Override
-    public String getObjectPath() {
-        return schema.getObjectName() + "." + super.getObjectPath();
-    }
-
-    public SchemaId getSchemaId() {
-        return schema.getSchemaId();
-    }
-
-    public String getSchemaName() {
-        return schema.getSchemaName();
-    }
-
-    public String getSchemaName(boolean quoted) {
-        return schema.getObjectName(quoted);
+public class DBSchemaObjectSpec extends DBObjectSpec {
+    public DBSchemaObjectSpec(DBSchema schema, DBObjectType objectType) {
+        super(objectType);
+        setConnectionId(schema.getConnectionId());
+        setSchemaId(schema.getSchemaId());
     }
 }

@@ -67,8 +67,7 @@ public class DBCredentialManagementAdapter extends ObjectManagementAdapterBase<D
                     credentialName,
                     object.getAttribute(USER_OCID),
                     object.getAttribute(TENANCY_OCID),
-                    object.getAttribute(PRIVATE_KEY),
-                    object.getAttribute(FINGERPRINT));
+                    object.getAttribute(PRIVATE_KEY), object.getAttribute(FINGERPRINT));
         }
         // update status
         if (object.isEnabled())

@@ -91,7 +91,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     private static VectorEmbeddingRequest createEmbeddingRequest(ConnectionId connectionId) {
         VectorEmbeddingRequest embeddingRequest = new VectorEmbeddingRequest(connectionId);
         ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
-        embeddingRequest.initialize(connection.getUserSchema());
+        embeddingRequest.initialize(connection.getUserSchemaId());
         return embeddingRequest;
     }
 

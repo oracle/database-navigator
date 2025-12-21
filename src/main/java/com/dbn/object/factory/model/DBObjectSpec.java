@@ -16,44 +16,64 @@
 
 package com.dbn.object.factory.model;
 
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
+import com.dbn.common.data.Data;
 import com.dbn.language.common.QuotePair;
 import com.dbn.object.type.DBObjectType;
-import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.dbn.common.util.Unsafe.cast;
+import static java.util.Collections.emptyList;
 
 @Getter
 @Setter
-public abstract class DBObjectSpec {
-    private DBObjectSpec parent;
-    private ConnectionId connectionId;
-    private DBObjectType objectType;
+public class DBObjectSpec extends DBObjectSpecBase{
+    private final DBObjectType objectType;
 
     @NonNls
     private String objectName;
     private int index;
     private boolean readonly;
 
-    protected DBObjectSpec(@NotNull ConnectionId connectionId, DBObjectType objectType) {
-        this.connectionId = connectionId;
+    private final Map<DBObjectType, List<DBObjectSpec>> children = new EnumMap<>(DBObjectType.class);
+    private final Map<DBObjectAttribute, Object> attributes = new HashMap<>();
+
+    public DBObjectSpec(DBObjectType objectType) {
         this.objectType = objectType;
     }
 
-    protected DBObjectSpec(@NotNull DBObjectSpec parent, DBObjectType objectType) {
-        this(parent.getConnectionId(), objectType);
-        this.parent = parent;
+    public <T> void setAttribute(DBObjectAttribute<T> attribute, @NonNls T value) {
+        attributes.put(attribute, value);
     }
 
-    public ConnectionHandler getConnection() {
-        return ConnectionHandler.ensure(connectionId);
+    @Nullable
+    public <T> String getStringAttribute(DBObjectAttribute<T> attribute) {
+        T value = getAttribute(attribute);
+        return Data.asString(value);
     }
 
-    public Project getProject() {
-        return getConnection().getProject();
+    public <T> T getAttribute(DBObjectAttribute<T> attribute) {
+        return cast(attributes.get(attribute));
+    }
+
+    public void addChild(DBObjectSpec child) {
+        DBObjectType objectType = child.getObjectType();
+        List<DBObjectSpec> children = this.children.computeIfAbsent(objectType, t -> new ArrayList<>());
+        child.setParent(this);
+        children.add(child);
+    }
+
+    public List<DBObjectSpec> getChildren(DBObjectType type) {
+        List<DBObjectSpec> children = this.children.get(type);
+        return children == null ? emptyList() : children;
     }
 
     public String getObjectPath() {
@@ -61,7 +81,15 @@ public abstract class DBObjectSpec {
     }
 
     public String getObjectTypeName() {
-        return objectType.getName();
+        return getObjectType().getName();
+    }
+
+    public String getObjectName(boolean quoted) {
+        String objectName = getObjectName();
+        if (!quoted) return objectName;
+
+        QuotePair quotes = getConnection().getCompatibilityInterface().getDefaultIdentifierQuotes();
+        return quotes.quote(objectName);
     }
 
     public String getObjectDescription() {
@@ -70,13 +98,6 @@ public abstract class DBObjectSpec {
 
     @Override
     public String toString() {
-        return objectType.getName() + " " + objectName;
-    }
-
-    public String getObjectName(boolean quoted) {
-        if (!quoted) return objectName;
-
-        QuotePair quotes = getConnection().getCompatibilityInterface().getDefaultIdentifierQuotes();
-        return quotes.quote(objectName);
+        return objectType.getName() + " " + getObjectName();
     }
 }

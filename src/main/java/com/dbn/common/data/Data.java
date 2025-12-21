@@ -16,6 +16,7 @@
 
 package com.dbn.common.data;
 
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Csvs;
 import com.dbn.common.util.Strings;
 import lombok.experimental.UtilityClass;
@@ -86,6 +87,7 @@ public final class Data {
     @Nullable
     public static String asString(@Nullable Object object) {
         if (object == null) return null;
+        if (object instanceof char[] chars) return Chars.toString(chars);
         return object.toString();
     }
 

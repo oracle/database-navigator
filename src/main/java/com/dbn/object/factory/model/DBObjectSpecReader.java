@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.object.factory.model.generic;
+package com.dbn.object.factory.model;
 
 import com.dbn.common.data.Data;
 import com.dbn.object.type.DBObjectType;
@@ -30,11 +30,11 @@ import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @UtilityClass
-public class DBObjectDefinitionReader {
+public class DBObjectSpecReader {
 
     @SneakyThrows
-    public static DBObjectDefinition read(Element element) {
-        DBObjectDefinition definition = readDefinition(element);
+    public static DBObjectSpec read(Element element) {
+        DBObjectSpec definition = readDefinition(element);
 
         readAttributes(element, definition);
         radChildren(element, definition);
@@ -42,39 +42,39 @@ public class DBObjectDefinitionReader {
         return definition;
     }
 
-    private static DBObjectDefinition readDefinition(Element element) {
+    private static DBObjectSpec readDefinition(Element element) {
         DBObjectType objectType = enumAttribute(element, "type", DBObjectType.class);
         String objectName = stringAttribute(element, "name");
         boolean readonly = booleanAttribute(element, "readonly", false);
 
-        DBObjectDefinition definition = new DBObjectDefinition(objectType);
+        DBObjectSpec definition = new DBObjectSpec(objectType);
         definition.setObjectName(objectName);
         definition.setReadonly(readonly);
         return definition;
     }
 
-    private static void radChildren(Element element, DBObjectDefinition definition) {
+    private static void radChildren(Element element, DBObjectSpec definition) {
         List<Element> childElements = childrenOf(element.getChild("children"));
         for (Element childElement : childElements) {
-            DBObjectDefinition childDefinition = readDefinition(childElement);
+            DBObjectSpec childDefinition = readDefinition(childElement);
             definition.addChild(childDefinition);
         }
     }
 
-    private static void readAttributes(Element element, DBObjectDefinition definition) {
+    private static void readAttributes(Element element, DBObjectSpec definition) {
         List<Element> attributeElements = childrenOf(element.getChild("attributes"));
         for (Element attributeElement : attributeElements) {
             readAttribute(attributeElement, definition);
         }
     }
 
-    private static void readAttribute(Element element, DBObjectDefinition definition) {
+    private static void readAttribute(Element element, DBObjectSpec definition) {
         String name = stringAttribute(element, "name");
         String stringValue = stringAttribute(element, "value");
         DBObjectAttribute<Object> attribute = DBObjectAttribute.get(name);
         Class<Object> type = attribute.getType();
 
         Object value = Data.asType(stringValue, type);
-        definition.addAttribute(attribute, value);
+        definition.setAttribute(attribute, value);
     }
 }

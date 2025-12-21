@@ -28,7 +28,18 @@ public class ObjectFactoryAdapters extends ExtensionPointCache<DBObjectType, Obj
         super(ObjectFactoryAdapter.EP, a -> a.getObjectType());
     }
 
-    public static <A extends ObjectFactoryAdapter> A get(DBObjectType assistantType) {
-        return cast(INSTANCE.find(assistantType));
+    public static <A extends ObjectFactoryAdapter> A get(DBObjectType objectType) {
+        return cast(INSTANCE.find(objectType));
+    }
+
+    public static boolean isSupported(DBObjectType objectType) {
+        return INSTANCE.keys().contains(objectType) && !isSuppressed(objectType);
+    }
+
+    private static boolean isSuppressed(DBObjectType objectType) {
+        // TODO table factory input still very rudimentary (only predefined specs for now)
+        if (objectType == DBObjectType.TABLE) return true;
+
+        return false;
     }
 }

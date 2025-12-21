@@ -31,6 +31,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.util.Lists.convert;
+import static com.dbn.common.util.Lists.filter;
+
 public abstract class DynamicSubcontentCustomLoader<
                 T extends DynamicContentElement,
                 M extends DBObjectMetadata>
@@ -55,7 +58,8 @@ public abstract class DynamicSubcontentCustomLoader<
             if (sourceContent instanceof GroupedDynamicContent groupedContent) {
                 DatabaseEntity parentEntity = content.ensureParentEntity();
                 List<DynamicContentElement> childElements = groupedContent.getChildElements(parentEntity);
-                list = childElements.stream().map(e -> resolveElement(content, e)).filter(e -> e != null).toList();
+                list = convert(childElements, e -> resolveElement(content, e));
+                list = filter(list, e -> e != null);
             } else {
                 List elements = sourceContent.getAllElements();
                 for (Object object : elements) {

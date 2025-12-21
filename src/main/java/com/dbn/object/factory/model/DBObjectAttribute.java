@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.object.factory.model.generic;
+package com.dbn.object.factory.model;
 
 import com.dbn.common.constant.PseudoConstant;
+import com.dbn.object.type.DBCredentialType;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 
@@ -41,6 +42,15 @@ public class DBObjectAttribute<T> extends PseudoConstant<DBObjectAttribute<T>> {
 
     public static final DBObjectAttribute<String> CONSTRAINT_TYPE = new DBObjectAttribute<>("CONSTRAINT_TYPE", String.class);
     public static final DBObjectAttribute<String[]> CONSTRAINT_COLUMNS = new DBObjectAttribute<>("CONSTRAINT_COLUMNS", String[].class);
+
+    public static final DBObjectAttribute<DBCredentialType> CREDENTIAL_TYPE = new DBObjectAttribute<>("CREDENTIAL_TYPE", DBCredentialType.class);
+    public static final DBObjectAttribute<String> USER_NAME = new DBObjectAttribute<>("USER_NAME", String.class);
+    public static final DBObjectAttribute<String> USER_OCID = new DBObjectAttribute<>("USER_OCID", String.class);
+    public static final DBObjectAttribute<String> TENANCY_OCID = new DBObjectAttribute<>("TENANCY_OCID", String.class);
+    public static final DBObjectAttribute<String> PRIVATE_KEY = new DBObjectAttribute<>("PRIVATE_KEY", String.class);
+    public static final DBObjectAttribute<String> FINGERPRINT = new DBObjectAttribute<>("FINGERPRINT", String.class);
+    public static final DBObjectAttribute<char[]> PASSWORD = new DBObjectAttribute<>("PASSWORD", char[].class);
+    public static final DBObjectAttribute<char[]> ACCESS_TOKEN = new DBObjectAttribute<>("ACCESS_TOKEN", char[].class);
 
     private final Class<T> type;
 
