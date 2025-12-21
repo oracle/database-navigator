@@ -87,7 +87,7 @@ public class InDBModelConfigForm extends VectorToolboxFormBase {
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadModels())
                 .withValuePreselector(() -> config.getModelName())
-                .withObjectValueFactory("New AI Model...")
+                .withObjectFactory("New AI Model...")
                 .triggerLoad();
 
         updateFieldAvailability();

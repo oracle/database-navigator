@@ -97,7 +97,7 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
                 .withSchemaContext(() -> getSelectedSchema())
                 .withValueLoader(() -> loadTables())
                 .withValuePreselector(() -> config.getTableName())
-                .withObjectValueFactory("New Table...")
+                .withObjectFactory("New Table...")
                 .withValueFactoryInput(() -> createTableFactoryInput())
                 .triggerLoad();
 
