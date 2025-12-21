@@ -22,6 +22,7 @@ import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
@@ -82,6 +83,11 @@ public abstract class VectorToolboxFormBase extends DBNFormBase {
 
     public DBSchema getSelectedSchema() {
         return null;
+    }
+
+    public SchemaId getSelectedSchemaId() {
+        DBSchema schema = getSelectedSchema();
+        return schema == null ? null : schema.getSchemaId();
     }
 
 /*

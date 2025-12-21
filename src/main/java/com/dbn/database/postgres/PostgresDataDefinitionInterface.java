@@ -27,7 +27,7 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.factory.model.DBArgumentSpec;
 import com.dbn.object.factory.model.DBMethodSpec;
-import com.dbn.object.factory.model.DBTableSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
@@ -158,7 +158,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
     }
 
     @Override
-    public void createTable(DBTableSpec spec, DBNConnection connection) throws SQLException {
+    public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
 }

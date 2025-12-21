@@ -30,13 +30,14 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.factory.model.DBArgumentSpec;
-import com.dbn.object.factory.model.DBColumnSpec;
-import com.dbn.object.factory.model.DBConstraintSpec;
 import com.dbn.object.factory.model.DBMethodSpec;
-import com.dbn.object.factory.model.DBTableSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.toCsv;
@@ -49,6 +50,12 @@ import static com.dbn.database.DatabaseObjectTypeId.JSON_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.TRIGGER;
 import static com.dbn.database.DatabaseObjectTypeId.VIEW;
+import static com.dbn.object.factory.model.DBObjectAttribute.CONSTRAINT_COLUMNS;
+import static com.dbn.object.factory.model.DBObjectAttribute.CONSTRAINT_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttribute.DATA_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttribute.IS_NOT_NULL;
+import static com.dbn.object.factory.model.DBObjectAttribute.IS_PRIMARY_KEY;
+import static com.dbn.object.factory.model.DBObjectAttribute.OBJECT_DETAIL;
 
 public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
     public OracleDataDefinitionInterface(DatabaseInterfaces provider) {
@@ -248,42 +255,42 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     }
 
     @Override
-    public void createTable(DBTableSpec factoryInput, DBNConnection connection) throws SQLException {
+    public void createTable(@UnknownNullability DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
         StringBuilder builder = new StringBuilder();
         builder.append("table ");
-        builder.append(factoryInput.getSchemaName(true));
+        builder.append(tableSpec.getSchemaName(true));
         builder.append(".");
-        builder.append(factoryInput.getObjectName(true));
+        builder.append(tableSpec.getObjectName(true));
         builder.append(" (\n");
 
         boolean first = true;
-        for (DBColumnSpec column : factoryInput.getColumns()) {
+        for (DBObjectSpec columnSpec : tableSpec.getChildren(DBObjectType.COLUMN)) {
             if (first) {
                 first = false;
             } else {
                 builder.append(",\n");
             }
             builder.append("    ");
-            builder.append(column.getObjectName(true));
+            builder.append(columnSpec.getObjectName(true));
             builder.append(" ");
-            builder.append(column.getDataType());
-            builder.append(column.isNonNull() ? " not null" : "");
-            builder.append(column.isPrimaryKey() ? " primary key" : "");
+            builder.append(columnSpec.getAttribute(DATA_TYPE));
+            builder.append(columnSpec.getBooleanAttribute(IS_NOT_NULL) ? " not null" : "");
+            builder.append(columnSpec.getBooleanAttribute(IS_PRIMARY_KEY) ? " primary key" : "");
         }
 
-        for (DBConstraintSpec constraint : factoryInput.getConstraints()) {
+        for (DBObjectSpec constraint : tableSpec.getChildren(DBObjectType.CONSTRAINT)) {
             builder.append(",\n");
             builder.append("    ");
-            builder.append(constraint.getConstraintType());
+            builder.append(constraint.getAttribute(CONSTRAINT_TYPE));
             builder.append(" ");
             builder.append(nvl(constraint.getObjectName(), ""));
             builder.append("(");
-            builder.append(toCsv(constraint.getColumnNames(), s -> s));
+            builder.append(toCsv(Arrays.asList(constraint.getAttribute(CONSTRAINT_COLUMNS)),s -> s));
             builder.append(")");
         }
 
         builder.append(")\n");
-        builder.append(factoryInput.getAppendix());
+        builder.append(tableSpec.getAttribute(OBJECT_DETAIL));
 
         createObject(builder.toString(), connection);
     }

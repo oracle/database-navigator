@@ -17,10 +17,12 @@
 package com.dbn.object.factory.model;
 
 import com.dbn.common.data.Data;
+import com.dbn.common.util.XmlContents;
 import com.dbn.object.type.DBObjectType;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.List;
 
@@ -33,13 +35,13 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 public class DBObjectSpecReader {
 
     @SneakyThrows
+    public static DBObjectSpec read(Class resourceClass, @NonNls String resourceName) {
+        Element element = XmlContents.fileToElement(resourceClass, resourceName);
+        return DBObjectSpecReader.read(element);
+    }
+
     public static DBObjectSpec read(Element element) {
-        DBObjectSpec definition = readDefinition(element);
-
-        readAttributes(element, definition);
-        radChildren(element, definition);
-
-        return definition;
+        return readDefinition(element);
     }
 
     private static DBObjectSpec readDefinition(Element element) {
@@ -50,6 +52,9 @@ public class DBObjectSpecReader {
         DBObjectSpec definition = new DBObjectSpec(objectType);
         definition.setObjectName(objectName);
         definition.setReadonly(readonly);
+
+        readAttributes(element, definition);
+        radChildren(element, definition);
         return definition;
     }
 

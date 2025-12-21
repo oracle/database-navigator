@@ -20,7 +20,8 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.util.Strings;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.ObjectFactoryAdapter;
-import com.dbn.object.factory.model.DBColumnSpec;
+import com.dbn.object.factory.model.DBObjectAttribute;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.DBColumnFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 
@@ -29,26 +30,26 @@ import java.util.List;
 
 import static com.dbn.object.type.DBObjectType.COLUMN;
 
-public class DBColumnFactoryAdapter implements ObjectFactoryAdapter<DBColumnSpec, DBColumnFactoryInputForm> {
+public class DBColumnFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec, DBColumnFactoryInputForm> {
 
     @Override
     public DBObjectType getObjectType() {
         return COLUMN;
     }
 
-    public DBColumnSpec createInput(DBSchema schema) {
+    public DBObjectSpec createInput(DBSchema schema) {
         //return new DBColumnFactoryInput(schema);
         return null; // TODO
     }
 
-    public DBColumnFactoryInputForm createInputForm(DBNComponent parent, DBColumnSpec input) {
-        return new DBColumnFactoryInputForm(parent, input);
+    public DBColumnFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec columnSpec) {
+        return new DBColumnFactoryInputForm(parent, columnSpec);
     }
 
     @Override
-    public void validateInput(DBColumnSpec input, List<String> errors) {
-        String objectName = input.getObjectName();
-        int inputIndex = input.getIndex();
+    public void validateInput(DBObjectSpec columnSpec, List<String> errors) {
+        String objectName = columnSpec.getObjectName();
+        int inputIndex = columnSpec.getIndex();
         if (objectName.isEmpty()) {
             errors.add("column name is not specified at index " + inputIndex);
 
@@ -56,7 +57,8 @@ public class DBColumnFactoryAdapter implements ObjectFactoryAdapter<DBColumnSpec
             errors.add("invalid column name specified at index " + inputIndex + ": \"" + objectName + "\"");
         }
 
-        if (Strings.isEmptyOrSpaces(input.getDataType())){
+        String dataType = columnSpec.getAttribute(DBObjectAttribute.DATA_TYPE);
+        if (Strings.isEmptyOrSpaces(dataType)){
             if (!objectName.isEmpty()) {
                 errors.add("missing data type for column \"" + objectName + "\"");
             } else {
@@ -66,7 +68,7 @@ public class DBColumnFactoryAdapter implements ObjectFactoryAdapter<DBColumnSpec
     }
 
     @Override
-    public void createObject(DBColumnSpec input) throws SQLException {
+    public void createObject(DBObjectSpec columnSpec) throws SQLException {
         // child object - created as part of the parent
     }
 }

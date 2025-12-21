@@ -24,14 +24,12 @@ import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.util.Unsafe.cast;
-import static java.util.Collections.emptyList;
 
 @Getter
 @Setter
@@ -43,7 +41,7 @@ public class DBObjectSpec extends DBObjectSpecBase{
     private int index;
     private boolean readonly;
 
-    private final Map<DBObjectType, List<DBObjectSpec>> children = new EnumMap<>(DBObjectType.class);
+    private final Map<DBObjectType, DBObjectSpecList<DBObjectSpec>> children = new EnumMap<>(DBObjectType.class);
     private final Map<DBObjectAttribute, Object> attributes = new HashMap<>();
 
     public DBObjectSpec(DBObjectType objectType) {
@@ -60,20 +58,25 @@ public class DBObjectSpec extends DBObjectSpecBase{
         return Data.asString(value);
     }
 
+    public boolean getBooleanAttribute(DBObjectAttribute<Boolean> attribute) {
+        Boolean value = getAttribute(attribute);
+        return value != null && value;
+    }
+
+
     public <T> T getAttribute(DBObjectAttribute<T> attribute) {
         return cast(attributes.get(attribute));
     }
 
     public void addChild(DBObjectSpec child) {
         DBObjectType objectType = child.getObjectType();
-        List<DBObjectSpec> children = this.children.computeIfAbsent(objectType, t -> new ArrayList<>());
+        List<DBObjectSpec> children = getChildren(objectType);
         child.setParent(this);
         children.add(child);
     }
 
-    public List<DBObjectSpec> getChildren(DBObjectType type) {
-        List<DBObjectSpec> children = this.children.get(type);
-        return children == null ? emptyList() : children;
+    public DBObjectSpecList<DBObjectSpec> getChildren(DBObjectType type) {
+        return this.children.computeIfAbsent(type, t -> new DBObjectSpecList<>(this));
     }
 
     public String getObjectPath() {

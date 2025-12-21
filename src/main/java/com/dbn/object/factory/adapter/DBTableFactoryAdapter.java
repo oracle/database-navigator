@@ -26,8 +26,8 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.ObjectFactoryAdapters;
-import com.dbn.object.factory.model.DBColumnSpec;
-import com.dbn.object.factory.model.DBTableSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.factory.model.DBSchemaObjectSpec;
 import com.dbn.object.factory.ui.DBTableFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 
@@ -41,28 +41,28 @@ import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.TABLE;
 
-public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBTableSpec, DBTableFactoryInputForm> {
+public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec, DBTableFactoryInputForm> {
 
     @Override
     public DBObjectType getObjectType() {
         return TABLE;
     }
 
-    public DBTableSpec createInput(DBSchema schema) {
-        return new DBTableSpec(schema);
+    public DBObjectSpec createInput(DBSchema schema) {
+        return new DBSchemaObjectSpec(schema, TABLE);
     }
 
-    public DBTableFactoryInputForm createInputForm(DBNComponent parent, DBTableSpec input) {
-        return new DBTableFactoryInputForm(parent, input);
+    public DBTableFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec tableSpec) {
+        return new DBTableFactoryInputForm(parent, tableSpec);
     }
 
     @Override
-    public void validateInput(DBTableSpec input, List<String> errors) {
-        String objectName = input.getObjectName();
-        DBObjectType objectType = input.getObjectType();
+    public void validateInput(DBObjectSpec tableSpec, List<String> errors) {
+        String objectName = tableSpec.getObjectName();
+        DBObjectType objectType = tableSpec.getObjectType();
 
         if (objectName.isEmpty()) {
-            String hint = input.getParent() == null ? "" : " at index " + input.getIndex();
+            String hint = tableSpec.getParent() == null ? "" : " at index " + tableSpec.getIndex();
             errors.add(objectType.getName() + " name is not specified" + hint);
 
         } else if (!Strings.isWord(objectName)) {
@@ -71,13 +71,13 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBTableSpec, 
 
         DBColumnFactoryAdapter columnAdapter = ObjectFactoryAdapters.get(COLUMN);
         Set<String> columnNames = new HashSet<>();
-        for (DBColumnSpec column : input.getColumns()) {
-            columnAdapter.validateInput(column, errors);
-            String columnName = column.getObjectName();
+        for (DBObjectSpec columnSpec : tableSpec.getChildren(DBObjectType.COLUMN)) {
+            columnAdapter.validateInput(columnSpec, errors);
+            String columnName = columnSpec.getObjectName();
             if (Strings.isEmptyOrSpaces(columnName)) continue; // already covered by field validator
 
             if (columnNames.contains(columnName)) {
-                String hint = input.getParent() == null ? "" : " for " + objectType.getName() + " \"" + objectName + "\"";
+                String hint = tableSpec.getParent() == null ? "" : " for " + objectType.getName() + " \"" + objectName + "\"";
                 errors.add("duplicate column name \"" + columnName + "\"" + hint);
             }
             columnNames.add(columnName);
@@ -85,21 +85,21 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBTableSpec, 
     }
 
     @Override
-    public void createObject(DBTableSpec input) throws SQLException {
-        DBSchema schema = input.getSchema();
+    public void createObject(DBObjectSpec tableSpec) throws SQLException {
+        DBSchema schema = tableSpec.getSchema();
 
         ConnectionId connectionId = schema.getConnectionId();
         SchemaId schemaId = schema.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGHEST,
-                "Creating " + input.getObjectType().getTitleCasedName(),
-                "Creating " + input.getObjectDescription(),
+                "Creating " + tableSpec.getObjectType().getTitleCasedName(),
+                "Creating " + tableSpec.getObjectDescription(),
                 schema.getProject(),
                 connectionId,
                 schemaId,
                 conn -> {
                     DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
-                    dataDefinition.createTable(input, conn);
+                    dataDefinition.createTable(tableSpec, conn);
                 });
 
         ObjectChangeEvent.notify(CREATE, TABLE, connectionId, schemaId);
