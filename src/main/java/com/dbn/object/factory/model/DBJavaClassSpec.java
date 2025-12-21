@@ -28,7 +28,7 @@ import static com.dbn.object.type.DBJavaClassType.EXCEPTION;
 
 @Getter
 @Setter
-public class DBJavaClassSpec extends DBSchemaObjectSpec {
+public class DBJavaClassSpec extends DBObjectSpec {
     private DBJavaClassType classType;
     private String packageName;
     private String className;
@@ -61,16 +61,6 @@ public class DBJavaClassSpec extends DBSchemaObjectSpec {
         if (isEmpty(packageName)) return className;
 
         return packageName.replace(".", "/") + "/" + className;
-    }
-
-    public String getTypeIdentifier() {
-        return switch (classType) {
-            case INTERFACE -> "interface";
-            case ANNOTATION -> "@interface";
-//            case RECORD -> "record";
-            case ENUM -> "enum";
-            default -> "class";
-        };
     }
 
     @Override

@@ -30,6 +30,7 @@ import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.model.DBJavaClassSpec;
 import com.dbn.object.factory.ui.DBJavaClassFactoryInputForm;
+import com.dbn.object.type.DBJavaClassType;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 
@@ -65,7 +66,7 @@ public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter<DBJavaCla
     public void createObject(DBJavaClassSpec input) throws SQLException {
         String className = input.getClassName();
         String packageName = input.getPackageName();
-        String classType = input.getTypeIdentifier();
+        String classType = getTypeIdentifier(input.getClassType());
         String extendsSuffix = input.getExtendsSuffix();
         DBSchema schema = input.getSchema();
 
@@ -104,5 +105,16 @@ public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter<DBJavaCla
         Project project = input.getProject();
         DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
         editorManager.connectAndOpenEditor(javaClass, null, false, true);
+    }
+
+
+    public String getTypeIdentifier(DBJavaClassType classType) {
+        return switch (classType) {
+            case INTERFACE -> "interface";
+            case ANNOTATION -> "@interface";
+//            case RECORD -> "record";
+            case ENUM -> "enum";
+            default -> "class";
+        };
     }
 }
