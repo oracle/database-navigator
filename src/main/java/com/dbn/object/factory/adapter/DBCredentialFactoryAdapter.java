@@ -26,7 +26,6 @@ import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.model.DBObjectAttribute;
 import com.dbn.object.factory.model.DBObjectSpec;
-import com.dbn.object.factory.model.DBSchemaObjectSpec;
 import com.dbn.object.factory.ui.DBCredentialFactoryInputForm;
 import com.dbn.object.type.DBCredentialType;
 import com.dbn.object.type.DBObjectType;
@@ -46,7 +45,7 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObject
     }
 
     public DBObjectSpec createInput(DBSchema schema) {
-        DBObjectSpec definition = new DBSchemaObjectSpec(schema, CREDENTIAL);
+        DBObjectSpec definition = new DBObjectSpec(schema, CREDENTIAL);
         definition.setAttribute(DBObjectAttribute.CREDENTIAL_TYPE, DBCredentialType.PASSWORD);
         return definition;
     }

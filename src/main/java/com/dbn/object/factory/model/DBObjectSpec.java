@@ -18,6 +18,7 @@ package com.dbn.object.factory.model;
 
 import com.dbn.common.data.Data;
 import com.dbn.language.common.QuotePair;
+import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,6 +47,12 @@ public class DBObjectSpec extends DBObjectSpecBase{
 
     public DBObjectSpec(DBObjectType objectType) {
         this.objectType = objectType;
+    }
+
+    public DBObjectSpec(DBSchema schema, DBObjectType objectType) {
+        this(objectType);
+        setConnectionId(schema.getConnectionId());
+        setSchemaId(schema.getSchemaId());
     }
 
     public <T> void setAttribute(DBObjectAttribute<T> attribute, @NonNls T value) {

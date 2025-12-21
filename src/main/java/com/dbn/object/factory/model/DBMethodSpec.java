@@ -23,7 +23,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DBMethodSpec extends DBSchemaObjectSpec {
+public class DBMethodSpec extends DBObjectSpec {
     private DBObjectSpecList<DBArgumentSpec> arguments = new DBObjectSpecList<>(this);
     private DBArgumentSpec returnArgument;
 

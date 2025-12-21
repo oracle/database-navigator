@@ -27,7 +27,6 @@ import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.ObjectFactoryAdapters;
 import com.dbn.object.factory.model.DBObjectSpec;
-import com.dbn.object.factory.model.DBSchemaObjectSpec;
 import com.dbn.object.factory.ui.DBTableFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 
@@ -49,7 +48,7 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec,
     }
 
     public DBObjectSpec createInput(DBSchema schema) {
-        return new DBSchemaObjectSpec(schema, TABLE);
+        return new DBObjectSpec(schema, TABLE);
     }
 
     public DBTableFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec tableSpec) {

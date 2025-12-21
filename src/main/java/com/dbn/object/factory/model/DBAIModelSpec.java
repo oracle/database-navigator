@@ -26,7 +26,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DBAIModelSpec extends DBSchemaObjectSpec {
+public class DBAIModelSpec extends DBObjectSpec {
   private ModelSourceType sourceType;
   private String sourceLocation;
   private DBObjectRef<DBCredential> credential;
