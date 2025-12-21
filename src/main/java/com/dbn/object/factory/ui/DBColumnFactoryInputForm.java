@@ -39,7 +39,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 
-public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm {
+public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBObjectSpec> {
     private JPanel mainPanel;
     private JLabel iconLabel;
     private JBTextField nameTextField;
