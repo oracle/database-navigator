@@ -106,7 +106,7 @@ public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataE
 
     @Override
     public void setEnabled(boolean enabled) {
-        textField.setEditable(enabled);
+        textField.setEnabled(enabled);
     }
 
     public void setEditable(boolean editable){

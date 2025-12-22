@@ -48,23 +48,20 @@ public class SQLStructureViewModelFilter implements Filter {
 
     @Override
     public boolean isVisible(TreeElement treeNode) {
-        if (treeNode instanceof SQLStructureViewElement) {
-            SQLStructureViewElement structureViewElement = (SQLStructureViewElement) treeNode;
+        if (treeNode instanceof SQLStructureViewElement structureViewElement) {
             PsiElement psiElement = structureViewElement.getPsiElement();
             if (psiElement.getLanguage()== PSQLLanguage.INSTANCE) {
                 if (psiElement instanceof ChameleonPsiElement) {
                     return true;
                 }
-                if (psiElement instanceof NamedPsiElement) {
-                    NamedPsiElement namedPsiElement = (NamedPsiElement) psiElement;
+                if (psiElement instanceof NamedPsiElement namedPsiElement) {
                     boolean isObject = namedPsiElement.is(ElementTypeAttribute.OBJECT_DEFINITION) ||
                             namedPsiElement.is(ElementTypeAttribute.OBJECT_DECLARATION) ||
                             namedPsiElement.is(ElementTypeAttribute.OBJECT_SPECIFICATION);
 
                     if (isObject) {
                         BasePsiElement subject = namedPsiElement.findFirstPsiElement(ElementTypeAttribute.SUBJECT);
-                        if (subject instanceof IdentifierPsiElement) {
-                            IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) subject;
+                        if (subject instanceof IdentifierPsiElement identifierPsiElement) {
                             DBObjectType objectType = identifierPsiElement.getObjectType();
                             if (objectType.matches(DBObjectType.METHOD) || objectType.matches(DBObjectType.PROGRAM)) {
                                 return true;

@@ -93,8 +93,7 @@ public class DBObjectPsiFile extends UserDataHolderBase implements PsiFile, Disp
     private @Nullable PsiDirectory resolveParent() {
         DBObject object = getObject();
         DatabaseEntity parent = object.getParent();
-        if (parent instanceof DBObjectList) {
-            DBObjectList<?> objectList = (DBObjectList<?>) parent;
+        if (parent instanceof DBObjectList<?> objectList) {
             return objectList.getPsiDirectory();
         }
         return null;

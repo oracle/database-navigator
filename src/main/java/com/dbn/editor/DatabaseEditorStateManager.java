@@ -44,7 +44,6 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -109,27 +108,23 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
 
 
                 FileEditor oldEditor = event.getOldEditor();
-                if (oldEditor instanceof SourceCodeEditor) {
-                    SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) oldEditor;
+                if (oldEditor instanceof SourceCodeEditor sourceCodeEditor) {
                     oldObject = sourceCodeEditor.getObject();
-                } else if (oldEditor instanceof DatasetEditor) {
-                    DatasetEditor datasetEditor = (DatasetEditor) oldEditor;
+                } else if (oldEditor instanceof DatasetEditor datasetEditor) {
                     oldObject = datasetEditor.getDataset();
                 }
 
                 FileEditor newEditor = event.getNewEditor();
 
-                if (newEditor instanceof SourceCodeEditor) {
-                    SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) newEditor;
+                if (newEditor instanceof SourceCodeEditor sourceCodeEditor) {
                     editorProviderId = sourceCodeEditor.getEditorProviderId();
                     newObject = sourceCodeEditor.getObject();
-                } else if (newEditor instanceof DatasetEditor) {
-                    DatasetEditor datasetEditor = (DatasetEditor) newEditor;
+                } else if (newEditor instanceof DatasetEditor datasetEditor) {
                     newObject = datasetEditor.getDataset();
                     editorProviderId = EditorProviderId.DATA;
                 }
 
-                if (editorProviderId != null && oldObject != null && newObject != null && newObject.equals(oldObject)) {
+                if (editorProviderId != null && newObject != null && newObject.equals(oldObject)) {
                     DBObjectType objectType = newObject.getObjectType();
                     lastUsedEditorProviders.put(objectType, editorProviderId);
                 }
@@ -145,8 +140,7 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
                 VirtualFile[] openFiles = getOpenFiles(project);
                 for (VirtualFile virtualFile : openFiles) {
-                    if (virtualFile instanceof DBEditableObjectVirtualFile) {
-                        DBEditableObjectVirtualFile editableDatabaseFile = (DBEditableObjectVirtualFile) virtualFile;
+                    if (virtualFile instanceof DBEditableObjectVirtualFile editableDatabaseFile) {
                         if (editableDatabaseFile.isContentLoaded()) {
                             List<DBContentVirtualFile> contentFiles = editableDatabaseFile.getContentFiles();
                             for (DBContentVirtualFile contentFile : contentFiles) {
@@ -172,17 +166,15 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
         DatabaseBrowserSettings browserSettings = ProjectSettings.get(getProject()).getBrowserSettings();
         DatabaseBrowserEditorSettings editorSettings = browserSettings.getEditorSettings();
         DefaultEditorOption option = editorSettings.getOption(objectType);
-        if (option != null) {
-            switch (option.getEditorType()) {
-                case SPEC: return EditorProviderId.CODE_SPEC;
-                case BODY: return EditorProviderId.CODE_BODY;
-                case CODE: return EditorProviderId.CODE;
-                case DATA: return EditorProviderId.DATA;
-                case SELECTION: return lastUsedEditorProviders.get(objectType);
-            }
-        }
+        if (option == null) return null;
 
-        return null;
+        return switch (option.getEditorType()) {
+            case SPEC -> EditorProviderId.CODE_SPEC;
+            case BODY -> EditorProviderId.CODE_BODY;
+            case CODE -> EditorProviderId.CODE;
+            case DATA -> EditorProviderId.DATA;
+            case SELECTION -> lastUsedEditorProviders.get(objectType);
+        };
     }
 
     /****************************************
@@ -193,7 +185,7 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
     public Element getComponentState() {
         Element element = newStateElement();
         Element editorProvidersElement = newElement(element, "last-used-providers");
-        for (val entry : lastUsedEditorProviders.entrySet()) {
+        for (var entry : lastUsedEditorProviders.entrySet()) {
             DBObjectType objectType = entry.getKey();
             EditorProviderId editorProviderId = entry.getValue();
 

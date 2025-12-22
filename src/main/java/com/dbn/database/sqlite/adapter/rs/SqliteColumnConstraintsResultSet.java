@@ -18,7 +18,6 @@ package com.dbn.database.sqlite.adapter.rs;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.sqlite.adapter.SqliteMetadataResultSetRow;
-import lombok.val;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -46,7 +45,7 @@ public abstract class SqliteColumnConstraintsResultSet extends SqliteConstraintI
     protected void init(String ownerName, String datasetName) throws SQLException {
         Map<String, List<SqliteConstraintsLoader.ConstraintColumnInfo>> constraints = loadConstraintInfo(ownerName, datasetName);
 
-        for (val entry : constraints.entrySet()) {
+        for (var entry : constraints.entrySet()) {
             String indexKey = entry.getKey();
             List<SqliteConstraintsLoader.ConstraintColumnInfo> constraintColumnInfos = entry.getValue();
 

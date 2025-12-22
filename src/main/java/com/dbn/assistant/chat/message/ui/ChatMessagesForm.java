@@ -99,9 +99,8 @@ public class ChatMessagesForm extends DBNFormBase {
         if (messagePanels.length == 0) return;
 
         Component panel = messagePanels[messagePanels.length - 1];
-        if (panel instanceof JComponent) {
+        if (panel instanceof JComponent component) {
             // identify the message panels that have progress indicators and hide them
-            JComponent component = (JComponent) panel;
             UserInterface.visitRecursively(component, JProgressBar.class, b -> b.setVisible(false));
         }
     }

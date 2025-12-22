@@ -18,6 +18,7 @@ package com.dbn.assistant.service.selectai.credential.ui;
 
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBCredential;
@@ -40,7 +41,7 @@ import javax.swing.JTextField;
 import java.util.List;
 import java.util.Set;
 
-import static com.dbn.common.ui.CardLayouts.showCard;
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -115,6 +116,14 @@ public class CredentialEditForm extends DBNFormBase {
     }
 
     @Override
+    protected void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.initFieldsVisibility(() -> getCredentialType() == DBCredentialType.TOKEN, array(tokenCredentialPanel));
+        fieldAdapter.initFieldsVisibility(() -> getCredentialType() == DBCredentialType.PASSWORD, array(passwordCredentialPanel));
+        fieldAdapter.initFieldsVisibility(() -> getCredentialType() == DBCredentialType.OCI, array(ociCredentialPanel));
+    }
+
+    @Override
     protected void initValidation() {
         addTextValidation(credentialNameField, c -> isNotEmpty(c), txt("cfg.assistant.error.CredentialNameEmpty"));
         addTextValidation(credentialNameField, c -> isNotUsed(c), txt("cfg.assistant.error.CredentialNameExists"));
@@ -154,9 +163,9 @@ public class CredentialEditForm extends DBNFormBase {
             DBCredentialType credentialType = credential == null ? credentialTypes.iterator().next() : credential.getType();
             credentialTypeComboBox.setSelectedItem(credentialType);
             credentialTypeComboBox.setEnabled(false);
-            showCard(attributesPane, credentialType);
+            updateFieldAvailability();
         } else {
-            credentialTypeComboBox.addActionListener((e) -> showCard(attributesPane, getCredentialType()));
+            credentialTypeComboBox.addActionListener((e) -> updateFieldAvailability());
         }
 
         ociCredentialUserOcidField.getEmptyText().setText("ocid1.user.oc1...");

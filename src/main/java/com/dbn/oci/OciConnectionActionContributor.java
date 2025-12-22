@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 public class OciConnectionActionContributor implements ContributeADBActions {
@@ -72,7 +71,7 @@ public class OciConnectionActionContributor implements ContributeADBActions {
     List<ConnectionSettings> connectionSettings =  connections.stream().filter((c)-> {
       c.getId();
       return Objects.equals(connectionData.getOcid(),c.getSourceId());
-    }).collect(Collectors.toList());
+    }).toList();
 
     for (ConnectionSettings connectionSetting : connectionSettings) {
       subActions.add(new OciConnectionOpenAction(connectionSetting,connectionSetting.getDatabaseSettings().getDisplayName()));

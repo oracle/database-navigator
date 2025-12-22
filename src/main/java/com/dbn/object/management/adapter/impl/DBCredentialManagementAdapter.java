@@ -21,8 +21,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBCredential;
-import com.dbn.object.management.ObjectManagementAdapterFactory;
-import com.dbn.object.management.ObjectManagementAdapterFactoryBase;
+import com.dbn.object.management.ObjectManagementAdapterBase;
+import com.dbn.object.management.ObjectManagementAdapterExtension;
 import com.dbn.object.type.DBAttributeType;
 import com.dbn.object.type.DBCredentialType;
 import com.dbn.object.type.DBObjectType;
@@ -40,10 +40,10 @@ import static com.dbn.object.type.DBAttributeType.USER_OCID;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
 /**
- * Implementation of {@link ObjectManagementAdapterFactory} for objects of type {@link DBCredential}
+ * Implementation of {@link ObjectManagementAdapterExtension} for objects of type {@link DBCredential}
  * @author Dan Cioca (Oracle)
  */
-public class DBCredentialManagementAdapter extends ObjectManagementAdapterFactoryBase<DBCredential> {
+public class DBCredentialManagementAdapter extends ObjectManagementAdapterBase<DBCredential> {
 
     @Override
     public DBObjectType[] getObjectTypes() {
@@ -67,8 +67,7 @@ public class DBCredentialManagementAdapter extends ObjectManagementAdapterFactor
                     credentialName,
                     object.getAttribute(USER_OCID),
                     object.getAttribute(TENANCY_OCID),
-                    object.getAttribute(PRIVATE_KEY),
-                    object.getAttribute(FINGERPRINT));
+                    object.getAttribute(PRIVATE_KEY), object.getAttribute(FINGERPRINT));
         }
         // update status
         if (object.isEnabled())

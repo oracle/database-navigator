@@ -639,8 +639,7 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     @Override
     public int compareTo(@NotNull Object o) {
-        if (o instanceof DBObject) {
-            DBObject object = (DBObject) o;
+        if (o instanceof DBObject object) {
             return ref.compareTo(object.ref());
         }
         return -1;

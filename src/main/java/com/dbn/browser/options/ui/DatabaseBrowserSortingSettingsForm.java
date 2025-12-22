@@ -50,7 +50,7 @@ import static com.dbn.common.util.Strings.cachedUpperCase;
 public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<DatabaseBrowserSortingSettings> {
     private JPanel mainPanel;
     private JBScrollPane sortingTypesScrollPanel;
-    private JTable sortingTypeTable;
+    private final JTable sortingTypeTable;
 
     public DatabaseBrowserSortingSettingsForm(DatabaseBrowserSortingSettings settings) {
         super(settings);
@@ -147,46 +147,45 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
 
         @Override
         public String getColumnName(int columnIndex) {
-            switch (columnIndex) {
-                case 0: return "Object Type";
-                case 1: return "Sorting Type";
-            }
-            return null;
+            return switch (columnIndex) {
+                case 0 -> "Object Type";
+                case 1 -> "Sorting Type";
+                default -> null;
+            };
         }
 
         @Override
         public Class<?> getColumnClass(int columnIndex) {
-            switch (columnIndex) {
-                case 0: return DBObjectType.class;
-                case 1: return SortingType.class;
-            }
-            return null;
+            return switch (columnIndex) {
+                case 0 -> DBObjectType.class;
+                case 1 -> SortingType.class;
+                default -> null;
+            };
         }
 
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {
-            switch (columnIndex) {
-                case 0: return false;
-                case 1: return true;
-            }
-            return false;
+            return switch (columnIndex) {
+                case 0 -> false;
+                case 1 -> true;
+                default -> false;
+            };
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             DBObjectComparator comparator = comparators.get(rowIndex);
-            switch (columnIndex) {
-                case 0: return comparator.getObjectType();
-                case 1: return comparator.getSortingType();
-            }
-            return null;
+            return switch (columnIndex) {
+                case 0 -> comparator.getObjectType();
+                case 1 -> comparator.getSortingType();
+                default -> null;
+            };
         }
 
         @Override
         public void setValueAt(Object value, int rowIndex, int columnIndex) {
             if (columnIndex != 1) return;
-            if (value instanceof SortingType) {
-                SortingType sortingType = (SortingType) value;
+            if (value instanceof SortingType sortingType) {
                 DBObjectComparator comparator = comparators.remove(rowIndex);
                 comparators.add(rowIndex, DBObjectComparators.predefined(comparator.getObjectType(), sortingType));
             }

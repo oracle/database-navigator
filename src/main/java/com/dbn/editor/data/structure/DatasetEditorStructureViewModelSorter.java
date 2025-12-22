@@ -72,11 +72,10 @@ public class DatasetEditorStructureViewModelSorter implements Sorter {
     private static final Comparator COMPARATOR = new Comparator() {
         @Override
         public int compare(Object object1, Object object2) {
-            if (object1 instanceof DatasetEditorStructureViewElement && object2 instanceof DatasetEditorStructureViewElement) {
-                DatasetEditorStructureViewElement structureViewElement1 = (DatasetEditorStructureViewElement) object1;
-                DatasetEditorStructureViewElement structureViewElement2 = (DatasetEditorStructureViewElement) object2;
-                BrowserTreeNode treeNode1 = structureViewElement1.getValue();
-                BrowserTreeNode treeNode2 = structureViewElement2.getValue();
+            if (object1 instanceof DatasetEditorStructureViewElement element1 &&
+                    object2 instanceof DatasetEditorStructureViewElement element2) {
+                BrowserTreeNode treeNode1 = element1.getValue();
+                BrowserTreeNode treeNode2 = element2.getValue();
                 return Safe.compare(
                         treeNode1.getName(),
                         treeNode2.getName());

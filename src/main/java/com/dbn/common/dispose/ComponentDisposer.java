@@ -75,8 +75,7 @@ public final class ComponentDisposer {
         Dispatch.run(true, () -> {
             UIUtil.dispose(component);
             removeListeners(component);
-            if (component instanceof Container) {
-                Container container = (Container) component;
+            if (component instanceof Container container) {
                 Component[] components = container.getComponents();
                 for (Component child : components) {
                     dispose(child);

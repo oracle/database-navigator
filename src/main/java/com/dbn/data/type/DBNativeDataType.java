@@ -143,9 +143,8 @@ public class DBNativeDataType extends StatefulDisposableBase implements DynamicC
         } else if (object instanceof Timestamp && Long.class.isAssignableFrom(expectedClass)) {
             // DBNE-432
             return ((Timestamp) object).getTime();
-        } else if (object instanceof Number && java.util.Date.class.isAssignableFrom(expectedClass)) {
+        } else if (object instanceof Number number && java.util.Date.class.isAssignableFrom(expectedClass)) {
             // fallback for dates stored as milliseconds (sqlite?)
-            Number number = (Number) object;
             long longValue = number.longValue();
             return expectedClass == Date.class ? new Date(longValue) :
                     expectedClass == Time.class ? new Time(longValue) :

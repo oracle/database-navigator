@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * 1000 threads initializing (or accessing) a set of 1000 constants, some statically initialized upfront
@@ -41,7 +40,7 @@ public class PseudoConstantTest {
     private static final List<String> PSEUDO_CONSTANT_IDS = Arrays
             .stream(new Object[COUNT])
             .map(obj -> "PSEUDO_CONSTANT_" + CURSOR.incrementAndGet())
-            .collect(Collectors.toList());
+            .toList();
 
     /**
      * Testing concurrency and single instantiation of PseudoConstant
@@ -112,7 +111,7 @@ public class PseudoConstantTest {
                         break;
                 }
             }
-            List<Integer> ordinals = threadCapture.values().stream().map(pseudoConstant -> pseudoConstant.ordinal()).distinct().collect(Collectors.toList());
+            List<Integer> ordinals = threadCapture.values().stream().map(pseudoConstant -> pseudoConstant.ordinal()).distinct().toList();
             Assert.assertEquals(ordinals.size(), PSEUDO_CONSTANT_IDS.size());
         }
 

@@ -140,8 +140,7 @@ public class ObjectProxies extends ObjectProxiesBase{
                     Object proxyResult = proxyMethod.invoke(proxyObject, proxyArgs);
                     if (proxyResult == null) return null;
 
-                    if (proxyResult instanceof ProxyObject) {
-                        ProxyObject proxyResultObject = (ProxyObject) proxyResult;
+                    if (proxyResult instanceof ProxyObject proxyResultObject) {
                         return proxyResultObject.getDelegate();
                     }
                     return proxyResult;
@@ -217,8 +216,7 @@ public class ObjectProxies extends ObjectProxiesBase{
 
 
     private static Object unwrapObject(ClassLoader classLoader, Object object) {
-        if (object instanceof ProxyObject) {
-            ProxyObject proxyObject = (ProxyObject) object;
+        if (object instanceof ProxyObject proxyObject) {
             return unwrap(classLoader, proxyObject);
         }
         return object;

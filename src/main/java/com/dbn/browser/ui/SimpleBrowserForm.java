@@ -91,8 +91,7 @@ public class SimpleBrowserForm extends DatabaseBrowserForm{
     @Nullable
     public ConnectionHandler getConnection(){
         DatabaseBrowserTree browserTree = getBrowserTree();
-        if (browserTree.getModel() instanceof ConnectionBrowserTreeModel) {
-            ConnectionBrowserTreeModel treeModel = (ConnectionBrowserTreeModel) browserTree.getModel();
+        if (browserTree.getModel() instanceof ConnectionBrowserTreeModel treeModel) {
             return treeModel.getConnection();
         }
         return null;

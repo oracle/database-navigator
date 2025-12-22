@@ -66,12 +66,10 @@ public abstract class ProgramMethodLaunchAction extends ProjectPopupAction {
         if (isNotValid(sourceCodeFile)) return AnAction.EMPTY_ARRAY;
 
         DBSchemaObject schemaObject = sourceCodeFile.getObject();
-        if (schemaObject instanceof DBProgram) {
-            DBProgram program = (DBProgram) schemaObject;
+        if (schemaObject instanceof DBProgram program) {
             return createProgramMethodActions(program);
 
-        } else if (schemaObject instanceof DBJavaClass) {
-            DBJavaClass javaClass = (DBJavaClass) schemaObject;
+        } else if (schemaObject instanceof DBJavaClass javaClass) {
             return createJavaMethodActions(javaClass);
         }
 

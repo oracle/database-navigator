@@ -151,8 +151,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
 
         try {
             handle.init();
-            if (object instanceof DBConsole) {
-                DBConsole console = (DBConsole) object;
+            if (object instanceof DBConsole console) {
                 Editors.openFileEditor(getProject(), console.getVirtualFile(), focusEditor);
 
             } else if (object.is(DBObjectProperty.SCHEMA_OBJECT)) {
@@ -236,8 +235,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
         DBObject object = handle.getObject();
         Project project = object.getProject();
         for (FileEditor fileEditor : fileEditors) {
-            if (fileEditor instanceof SourceCodeMainEditor) {
-                SourceCodeMainEditor sourceCodeEditor = (SourceCodeMainEditor) fileEditor;
+            if (fileEditor instanceof SourceCodeMainEditor sourceCodeEditor) {
                 NavigationInstructions instructions = NavigationInstructions.create().
                         with(SCROLL).
                         with(FOCUS, focusEditor);

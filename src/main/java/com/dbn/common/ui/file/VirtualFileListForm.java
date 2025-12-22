@@ -18,9 +18,9 @@ package com.dbn.common.ui.file;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.vector.model.sourceconfig.SourceType;
-import com.dbn.vector.ui.source.ui.FileSystemSourceForm;
-import com.dbn.vector.ui.source.ui.SourceDataForm;
+import com.dbn.vector.model.source.SourceType;
+import com.dbn.vector.ui.source.EmbeddingSourceFilesForm;
+import com.dbn.vector.ui.source.EmbeddingSourceForm;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ToolbarDecorator;
 import lombok.Getter;
@@ -57,7 +57,7 @@ public class VirtualFileListForm extends DBNFormBase {
     protected void initValidation() {
         addValidation(component,l-> {
             // get the sourceForm to get which source type is selected .
-            SourceDataForm parentForm = ((FileSystemSourceForm)getParentComponent()).getParentComponent();
+            EmbeddingSourceForm parentForm = ((EmbeddingSourceFilesForm)getParentComponent()).getParentComponent();
             if (SourceType.DATABASE_TABLE.equals(parentForm.getSelectedSourceType())){
                 return true;
             };

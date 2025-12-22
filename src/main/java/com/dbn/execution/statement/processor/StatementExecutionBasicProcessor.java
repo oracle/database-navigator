@@ -175,8 +175,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
     }
 
     private void initEditorProviderId(FileEditor fileEditor) {
-        if (fileEditor instanceof BasicTextEditor) {
-            BasicTextEditor<?> basicTextEditor = (BasicTextEditor<?>) fileEditor;
+        if (fileEditor instanceof BasicTextEditor<?> basicTextEditor) {
             editorProviderId = basicTextEditor.getEditorProviderId();
         }
     }
@@ -256,8 +255,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
                 if (contains(child, childElement, matchType)) {
                     return true;
                 }
-            } else if(child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            } else if(child instanceof BasePsiElement basePsiElement) {
                 if (basePsiElement.matches(childElement, matchType)) {
                     return true;
                 }
@@ -867,8 +865,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
             IdentifierPsiElement subjectPsiElement = getSubjectPsiElement();
             if (subjectPsiElement != null) {
                 PsiElement parent = subjectPsiElement.getParent();
-                if (parent instanceof QualifiedIdentifierPsiElement) {
-                    QualifiedIdentifierPsiElement qualifiedIdentifierPsiElement = (QualifiedIdentifierPsiElement) parent;
+                if (parent instanceof QualifiedIdentifierPsiElement qualifiedIdentifierPsiElement) {
                     DBObject parentObject = qualifiedIdentifierPsiElement.lookupParentObjectFor(subjectPsiElement.elementType);
                     if (parentObject instanceof DBSchema) {
                         return (DBSchema) parentObject;

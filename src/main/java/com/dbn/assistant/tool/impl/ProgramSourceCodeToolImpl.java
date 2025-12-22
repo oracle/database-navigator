@@ -35,13 +35,13 @@ public class ProgramSourceCodeToolImpl extends AssistantToolBase implements Prog
 
     @Override
     public ProgramSourceCode loadProgramSourceCode(String schemaName, String programName, String programType) throws SQLException {
-        switch (programType.toUpperCase()) {
-            case "FUNCTION": return loadFunctionSourceCode(schemaName, programName);
-            case "PROCEDURE": return loadProcedureSourceCode(schemaName, programName);
-            case "PACKAGE": return loadPackageSourceCode(schemaName, programName);
-            case "TYPE": return loadTypeSourceCode(schemaName, programName);
-            default: throw new IllegalArgumentException("Invalid program type \"" + programType + "\". Expected one of the following values: FUNCTION, PROCEDURE, PACKAGE or TYPE");
-        }
+        return switch (programType.toUpperCase()) {
+            case "FUNCTION" -> loadFunctionSourceCode(schemaName, programName);
+            case "PROCEDURE" -> loadProcedureSourceCode(schemaName, programName);
+            case "PACKAGE" -> loadPackageSourceCode(schemaName, programName);
+            case "TYPE" -> loadTypeSourceCode(schemaName, programName);
+            default -> throw new IllegalArgumentException("Invalid program type \"" + programType + "\". Expected one of the following values: FUNCTION, PROCEDURE, PACKAGE or TYPE");
+        };
     }
 
     @Override

@@ -19,7 +19,6 @@ package com.dbn.execution.statement.variables;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.ConnectionId;
 import com.dbn.data.type.GenericDataType;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +37,7 @@ public class StatementExecutionVariableTypes implements PersistentStateElement {
 
     @Nullable
     public GenericDataType getVariableDataType(ConnectionId connectionId, String variableName) {
-        val variableTypes = this.variableTypes.get(connectionId);
+        var variableTypes = this.variableTypes.get(connectionId);
         if (variableTypes == null) return null;
 
         variableName = adjust(variableName);
@@ -46,7 +45,7 @@ public class StatementExecutionVariableTypes implements PersistentStateElement {
     }
 
     public void setVariableDataType(ConnectionId connectionId, String variableName, GenericDataType dataType) {
-        val variableTypes = this.variableTypes.computeIfAbsent(connectionId, id -> new ConcurrentHashMap<>());
+        var variableTypes = this.variableTypes.computeIfAbsent(connectionId, id -> new ConcurrentHashMap<>());
 
         variableName = adjust(variableName);
         variableTypes.put(variableName, dataType);
@@ -69,10 +68,10 @@ public class StatementExecutionVariableTypes implements PersistentStateElement {
     @Override
     public void writeState(Element element) {
         Element root = newElement(element, "execution-variable-types");
-        for (val entry : variableTypes.entrySet()) {
+        for (var entry : variableTypes.entrySet()) {
             ConnectionId connectionId = entry.getKey();
             Map<String, GenericDataType> parameters = entry.getValue();
-            for (val paramEntry : parameters.entrySet()) {
+            for (var paramEntry : parameters.entrySet()) {
                 Element child = newElement(root, "variable");
                 String parameterName = paramEntry.getKey();
                 GenericDataType parameterType = paramEntry.getValue();

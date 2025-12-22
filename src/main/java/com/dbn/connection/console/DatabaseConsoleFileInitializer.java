@@ -31,9 +31,8 @@ import static com.dbn.common.util.GuardedBlocks.removeGuardedBlocks;
 public class DatabaseConsoleFileInitializer implements FileDocumentManagerListener {
     @Override
     public void fileContentLoaded(@NotNull VirtualFile file, @NotNull Document document) {
-        if (file instanceof DBConsoleVirtualFile) {
-            // restore guarded blocks after console file loaded
-            DBConsoleVirtualFile consoleFile = (DBConsoleVirtualFile) file;
+        if (file instanceof DBConsoleVirtualFile consoleFile) {
+            // restore guarded blocks after the console file is loaded
             GuardedBlockMarkers guardedBlocks = consoleFile.getContent().getOffsets().getGuardedBlocks();
             if (guardedBlocks.isEmpty()) return;
 

@@ -50,8 +50,7 @@ public class ExecutionValue<T> {
         T value = valueHolder.getValue();
         if (value == null) return false;
 
-        if (value instanceof String) {
-            String stringValue = (String) value;
+        if (value instanceof String stringValue) {
             return stringValue.length() > 200 || stringValue.contains("\n");
         }
         return false;

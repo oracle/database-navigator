@@ -18,7 +18,7 @@ import com.dbn.execution.ExecutionManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.chunk.ChunkConfig;
-import com.dbn.vector.model.sourceconfig.SourceType;
+import com.dbn.vector.model.source.SourceType;
 import com.dbn.vector.model.store.StoreConfig;
 import com.dbn.vector.pipeline.EmbeddingPipeline;
 import com.dbn.vector.pipeline.FileEmbeddingPipeline;
@@ -56,6 +56,8 @@ import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 )
 public class DatabaseVectorManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseVectorManager";
+    public static final String ENGINE_VERSION = "1.0.0";
+
     private final Map<ConnectionId, VectorEmbeddingRequest> requestTemplates = new ConcurrentHashMap<>();
 
     public DatabaseVectorManager(@NotNull Project project) {
@@ -89,7 +91,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     private static VectorEmbeddingRequest createEmbeddingRequest(ConnectionId connectionId) {
         VectorEmbeddingRequest embeddingRequest = new VectorEmbeddingRequest(connectionId);
         ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
-        embeddingRequest.initialize(connection.getUserSchema());
+        embeddingRequest.initialize(connection.getUserSchemaId());
         return embeddingRequest;
     }
 
@@ -185,14 +187,10 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
      * Factory method to create the appropriate pipeline based on source type.
      */
     private EmbeddingPipeline createPipeline(@NotNull SourceType sourceType) {
-        switch (sourceType) {
-            case DATABASE_TABLE:
-                return new TableEmbeddingPipeline();
-            case FILE_SYSTEM:
-                return new FileEmbeddingPipeline();
-            default:
-                throw new IllegalArgumentException("Unsupported source type: " + sourceType);
-        }
+        return switch (sourceType) {
+            case DATABASE_TABLE -> new TableEmbeddingPipeline();
+            case FILE_SYSTEM -> new FileEmbeddingPipeline();
+        };
     }
 
 

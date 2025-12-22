@@ -31,8 +31,7 @@ public class TokenTypeLookupAdapter extends PsiLookupAdapter{
 
     @Override
     public boolean matches(BasePsiElement element) {
-        if (element instanceof TokenPsiElement) {
-            TokenPsiElement tokenPsiElement = (TokenPsiElement) element;
+        if (element instanceof TokenPsiElement tokenPsiElement) {
             return tokenPsiElement.getTokenType() == tokenType.apply(element);
         }
         return false;

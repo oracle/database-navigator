@@ -38,13 +38,11 @@ public class ProgramMethodDebugAction extends ProgramMethodLaunchAction {
 
     @Override
     protected AnAction createExecutionAction(DBObject method) {
-        if (method instanceof DBMethod) {
-            DBMethod programMethod = (DBMethod) method;
+        if (method instanceof DBMethod programMethod) {
             return new DebugMethodAction(programMethod);
         }
 
-        if (method instanceof DBJavaMethod) {
-            DBJavaMethod javaMethod = (DBJavaMethod) method;
+        if (method instanceof DBJavaMethod javaMethod) {
             return new DebugJavaMethodAction(javaMethod);
         }
         return null;

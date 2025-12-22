@@ -16,9 +16,6 @@
 
 package com.dbn.execution.java.result.ui;
 
-import com.dbn.common.action.ComboBoxAction;
-import com.dbn.common.action.Lookups;
-import com.dbn.common.action.ProjectAction;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
@@ -26,25 +23,19 @@ import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.data.editor.text.TextContentType;
+import com.dbn.data.editor.text.TextContentTypeOwner;
+import com.dbn.data.editor.text.actions.TextContentTypeComboBoxAction;
 import com.dbn.data.value.LargeObjectValue;
-import com.dbn.editor.data.options.DataEditorQualifiedEditorSettings;
-import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
-import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
@@ -53,7 +44,7 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
-public class JavaExecutionLargeValueResultForm extends DBNFormBase {
+public class JavaExecutionLargeValueResultForm extends DBNFormBase implements TextContentTypeOwner {
     private JPanel actionsPanel;
     private JPanel mainPanel;
     private JPanel largeValuePanel;
@@ -69,8 +60,7 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
         String text = "";
         Project project = getProject();
         Object value = fieldValue.getValue();
-        if (value instanceof LargeObjectValue) {
-            LargeObjectValue largeObjectValue = (LargeObjectValue) value;
+        if (value instanceof LargeObjectValue largeObjectValue) {
             try {
                 text = largeObjectValue.read();
             } catch (SQLException e) {
@@ -94,7 +84,7 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
         largeValuePanel.add(editor.getComponent(), BorderLayout.CENTER);
         largeValuePanel.setBorder(IdeBorderFactory.createBorder());
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new ContentTypeComboBoxAction());
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new TextContentTypeComboBoxAction(this));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
 
 
@@ -110,7 +100,13 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
     }
 
     public void setContentType(TextContentType contentType) {
+        this.contentType = contentType;
         Editors.initEditorHighlighter(editor, contentType);
+    }
+
+    @Override
+    public TextContentType getContentType() {
+        return contentType;
     }
 
     public DBJavaParameter getParameter() {
@@ -121,62 +117,6 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
     @Override
     public JPanel getMainComponent() {
         return mainPanel;
-    }
-
-    public class ContentTypeComboBoxAction extends ComboBoxAction {
-
-        ContentTypeComboBoxAction() {
-            Presentation presentation = getTemplatePresentation();
-            presentation.setText(contentType.getName());
-            presentation.setIcon(contentType.getIcon());
-        }
-
-
-
-        @Override
-        @NotNull
-        protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent button, @NotNull DataContext dataContext) {
-            Project project = Lookups.getProject(button);
-            DataEditorQualifiedEditorSettings qualifiedEditorSettings = DataEditorSettings.getInstance(project).getQualifiedEditorSettings();
-
-            DefaultActionGroup actionGroup = new DefaultActionGroup();
-            for (TextContentType contentType : qualifiedEditorSettings.getContentTypes()) {
-                if (contentType.isSelected()) {
-                    actionGroup.add(new ContentTypeSelectAction(contentType));
-                }
-
-            }
-            return actionGroup;
-        }
-
-        @Override
-        public void update(@NotNull AnActionEvent e) {
-            Presentation presentation = e.getPresentation();
-            presentation.setText(contentType.getName());
-            presentation.setIcon(contentType.getIcon());
-        }
-    }
-
-    @Getter
-    public class ContentTypeSelectAction extends ProjectAction {
-        private final TextContentType contentType;
-
-        ContentTypeSelectAction(TextContentType contentType) {
-            this.contentType = contentType;
-        }
-
-        @Override
-        protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-            Presentation presentation = e.getPresentation();
-            presentation.setText(contentType.getName());
-            presentation.setIcon(contentType.getIcon());
-        }
-
-        @Override
-        protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-            Editors.initEditorHighlighter(editor, contentType);
-            JavaExecutionLargeValueResultForm.this.contentType = contentType;
-        }
     }
 
     @Override

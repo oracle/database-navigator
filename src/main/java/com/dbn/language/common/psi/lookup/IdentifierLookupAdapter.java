@@ -68,8 +68,7 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
 
     @Override
     public boolean matches(BasePsiElement basePsiElement) {
-        if (basePsiElement instanceof IdentifierPsiElement && basePsiElement != lookupIssuer) {
-            IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) basePsiElement;
+        if (basePsiElement instanceof IdentifierPsiElement identifierPsiElement && basePsiElement != lookupIssuer) {
             return
                 matchesResolveState(identifierPsiElement) &&
                 matchesType(identifierPsiElement) &&
@@ -103,12 +102,12 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
         if (identifierCategory == null) return true;
         IdentifierElementType elementType = identifierPsiElement.elementType;
         IdentifierCategory category = elementType.getIdentifierCategory();
-        switch (identifierCategory) {
-            case ALL: return true;
-            case DEFINITION: return category == IdentifierCategory.DEFINITION || identifierPsiElement.isReferenceable();
-            case REFERENCE: return category == IdentifierCategory.REFERENCE;
-        }
-        return false;
+        return switch (identifierCategory) {
+            case ALL -> true;
+            case DEFINITION -> category == IdentifierCategory.DEFINITION || identifierPsiElement.isReferenceable();
+            case REFERENCE -> category == IdentifierCategory.REFERENCE;
+            default -> false;
+        };
     }
 
     private boolean matchesAttribute(IdentifierPsiElement identifierPsiElement) {
@@ -118,8 +117,7 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
     @Override
     public boolean accepts(BasePsiElement element) {
         ElementType elementType = element.elementType;
-        if (elementType instanceof TokenElementType) {
-            TokenElementType tokenElementType = (TokenElementType) elementType;
+        if (elementType instanceof TokenElementType tokenElementType) {
             return tokenElementType.isIdentifier();
         }
         return true;

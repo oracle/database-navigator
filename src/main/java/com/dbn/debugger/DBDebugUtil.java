@@ -41,13 +41,11 @@ public class DBDebugUtil {
         if (sourcePosition == null) return null;
 
         VirtualFile virtualFile = sourcePosition.getFile();
-        if (virtualFile instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) virtualFile;
+        if (virtualFile instanceof DBEditableObjectVirtualFile databaseFile) {
             return databaseFile.getObject();
         }
 
-        if (virtualFile instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) virtualFile;
+        if (virtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             return sourceCodeFile.getObject();
         }
         return null;
@@ -100,16 +98,14 @@ public class DBDebugUtil {
     }
 
     public static void openEditor(VirtualFile virtualFile) {
-        if (virtualFile instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) virtualFile;
+        if (virtualFile instanceof DBEditableObjectVirtualFile databaseFile) {
             Project project = Failsafe.nn(databaseFile.getProject());
             SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
             sourceCodeManager.ensureSourcesLoaded(databaseFile.getObject(), false);
 
             DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
             editorManager.connectAndOpenEditor(databaseFile.getObject(), null, false, false);
-        } else if (virtualFile instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) virtualFile;
+        } else if (virtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             DBEditableObjectVirtualFile mainDatabaseFile = sourceCodeFile.getMainDatabaseFile();
             openEditor(mainDatabaseFile);
         }

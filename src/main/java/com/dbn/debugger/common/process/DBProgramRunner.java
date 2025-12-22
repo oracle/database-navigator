@@ -84,8 +84,7 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
         if (!Objects.equals(executorId, DefaultDebugExecutor.EXECUTOR_ID)) return false;
 
-        if (profile instanceof DBRunConfig) {
-            DBRunConfig<?> config = (DBRunConfig<?>) profile;
+        if (profile instanceof DBRunConfig<?> config) {
             DBDebuggerType configDebuggerType = config.getDebuggerType();
             if (debuggerType != configDebuggerType) return false;
 
@@ -224,8 +223,7 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
             if (!processHandler.isStartNotified()) processHandler.startNotify();
 
             ExecutionConsole executionConsole = descriptor.getExecutionConsole();
-            if (executionConsole instanceof ConsoleView) {
-                ConsoleView consoleView = (ConsoleView) executionConsole;
+            if (executionConsole instanceof ConsoleView consoleView) {
                 consoleView.attachToProcess(processHandler);
             }
 

@@ -80,13 +80,13 @@ public class VectorEmbeddingSourcesTableModel extends DBNMutableTableModel<Sourc
     @Override
     public Object getValue(SourceResult row, int column) {
         if (row == null) return null;
-        switch (column) {
-            case 0: return row.getName();
-            case 1: return row.getSize();
-            case 2: return row.getRowsInserted();
-            case 3: return row.getStatus();
-            default: return "";
-        }
+        return switch (column) {
+            case 0 -> row.getName();
+            case 1 -> row.getSize();
+            case 2 -> row.getRowsInserted();
+            case 3 -> row.getStatus();
+            default -> "";
+        };
     }
 
     @Override

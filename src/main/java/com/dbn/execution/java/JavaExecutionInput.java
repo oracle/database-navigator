@@ -217,8 +217,7 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         ExecutionValue<String> fieldValue = prepareInputValue(path) ;
 
         ValueHolder<?> valueStore = fieldValue.getValueHolder();
-        if (valueStore instanceof ExecutionVariable) {
-            ExecutionVariable executionVariable = (ExecutionVariable) valueStore;
+        if (valueStore instanceof ExecutionVariable executionVariable) {
             return executionVariable.getValueHistory();
         }
         return Collections.emptyList();

@@ -41,8 +41,7 @@ public class Compactables {
             boolean empty = size == 0;
             boolean single = size == 1;
 
-            if (elements instanceof FilteredList) {
-                FilteredList<?> filteredList = (FilteredList<?>) elements;
+            if (elements instanceof FilteredList<?> filteredList) {
                 filteredList.trimToSize();
 
             } else  if (elements instanceof List) {
@@ -50,8 +49,7 @@ public class Compactables {
                     return Unsafe.cast(Collections.emptyList());
                 } else if (single) {
                     return Unsafe.cast(Collections.singletonList(elements.stream().findFirst().orElse(null)));
-                } else if (elements instanceof ArrayList){
-                    ArrayList<?> arrayList = (ArrayList<?>) elements;
+                } else if (elements instanceof ArrayList<?> arrayList){
                     arrayList.trimToSize();
                     return Unsafe.cast(arrayList);
                 }

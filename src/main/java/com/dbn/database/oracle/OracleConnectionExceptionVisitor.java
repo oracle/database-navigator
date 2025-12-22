@@ -5,8 +5,11 @@ import com.dbn.diagnostics.Diagnostics;
 
 import java.net.BindException;
 import java.sql.SQLException;
-import java.util.*;
-import java.util.regex.*;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A visitor that assembles information about a connection exception
@@ -30,8 +33,7 @@ public class OracleConnectionExceptionVisitor implements Visitor<Throwable> {
      */
     @Override
     public void visit(Throwable element) {
-        if (element instanceof SQLException) {
-            SQLException sqlExcp = (SQLException) element;
+        if (element instanceof SQLException sqlExcp) {
             // try to pull the error code right out of the exception.
             addOraErrorCode(sqlExcp.getErrorCode());
             // try to derive the error code from the message

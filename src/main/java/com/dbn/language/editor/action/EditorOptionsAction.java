@@ -45,13 +45,12 @@ public class EditorOptionsAction extends BasicActionGroup {
     protected AnAction[] loadChildren(AnActionEvent e) {
         List<AnAction> actions = new ArrayList<>();
         VirtualFile virtualFile = Lookups.getVirtualFile(e);
-        if (virtualFile instanceof DBConsoleVirtualFile) {
+        if (virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile) {
             actions.add(new ConsoleRenameAction());
             actions.add(new ConsoleDeleteAction());
             actions.add(new ConsoleSaveToFileAction());
             actions.add(Separator.getInstance());
 
-            DBConsoleVirtualFile consoleVirtualFile = (DBConsoleVirtualFile) virtualFile;
             if (consoleVirtualFile.getType() != DBConsoleType.DEBUG) {
                 actions.add(new ConsoleCreateAction(DBConsoleType.STANDARD));
             }

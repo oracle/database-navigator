@@ -56,7 +56,7 @@ public class WrapperNamesEditorForm extends DBNFormBase {
     @Override
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
-        alignerData.registerForms(nameEditorForms);
+        alignerData.registerForms(() -> nameEditorForms);
     }
 
     private void initHeaderPanel() {

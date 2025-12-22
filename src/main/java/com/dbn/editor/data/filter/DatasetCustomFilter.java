@@ -40,7 +40,7 @@ import static com.dbn.common.options.setting.Settings.writeCdata;
 public class DatasetCustomFilter extends DatasetFilterImpl {
     private @NonNls String condition;
 
-    protected DatasetCustomFilter(DatasetFilterGroup parent, String name) {
+    public DatasetCustomFilter(DatasetFilterGroup parent, String name) {
         super(parent, name, DatasetFilterType.CUSTOM);
     }
 

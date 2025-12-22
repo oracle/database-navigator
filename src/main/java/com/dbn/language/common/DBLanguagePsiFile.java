@@ -114,8 +114,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
             throw new RuntimeException("PsiFileBase: language.getParserDefinition() returned null.");
         }
         VirtualFile virtualFile = viewProvider.getVirtualFile();
-        if (virtualFile instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) virtualFile;
+        if (virtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             this.underlyingObject = sourceCodeFile.getObjectRef();
         }
 
@@ -132,8 +131,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     @Override
     public Icon getIcon() {
         VirtualFile virtualFile = getVirtualFile();
-        if (virtualFile instanceof DBVirtualFile) {
-            DBVirtualFile databaseVirtualFile = (DBVirtualFile) virtualFile;
+        if (virtualFile instanceof DBVirtualFile databaseVirtualFile) {
             return databaseVirtualFile.getIcon();
         }
         return virtualFile.getFileType().getIcon();
@@ -152,13 +150,11 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     public DBObject getUnderlyingObject() {
         VirtualFile virtualFile = getVirtualFile();
         if (virtualFile != null) {
-            if (virtualFile instanceof DBObjectVirtualFile) {
-                DBObjectVirtualFile<?> databaseObjectFile = (DBObjectVirtualFile<?>) virtualFile;
+            if (virtualFile instanceof DBObjectVirtualFile<?> databaseObjectFile) {
                 return databaseObjectFile.getObject();
             }
 
-            if (virtualFile instanceof DBSourceCodeVirtualFile) {
-                DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) virtualFile;
+            if (virtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
                 return sourceCodeFile.getObject();
             }
 
@@ -209,13 +205,11 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     @Nullable
     public DBLanguageDialect getLanguageDialect() {
         VirtualFile virtualFile = getVirtualFile();
-        if (virtualFile instanceof DBContentVirtualFile) {
-            DBContentVirtualFile contentFile = (DBContentVirtualFile) virtualFile;
+        if (virtualFile instanceof DBContentVirtualFile contentFile) {
             return contentFile.getLanguageDialect();
         }
         
-        if (language instanceof DBLanguage) {
-            DBLanguage<?> dbLanguage = (DBLanguage<?>) language;
+        if (language instanceof DBLanguage<?> dbLanguage) {
             ConnectionHandler connection = getConnection();
             if (connection != null) {
 
@@ -399,8 +393,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
         virtualFile = getUnderlyingFile(virtualFile);
         String parseRootId = virtualFile.getUserData(PARSE_ROOT_ID_KEY);
 
-        if (parseRootId == null && virtualFile instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) virtualFile;
+        if (parseRootId == null && virtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             parseRootId = sourceCodeFile.getParseRootId();
             if (parseRootId != null) {
                 virtualFile.putUserData(PARSE_ROOT_ID_KEY, parseRootId);
@@ -419,8 +412,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     public static DBLanguagePsiFile createFromText(@NotNull Project project, @NonNls String fileName, @NotNull DBLanguageDialect languageDialect, String text, ConnectionHandler activeConnection, SchemaId currentSchema) {
         PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
         PsiFile rawPsiFile = Read.call(psiFileFactory, f -> f.createFileFromText(fileName, languageDialect, text));
-        if (rawPsiFile instanceof DBLanguagePsiFile) {
-            DBLanguagePsiFile psiFile = (DBLanguagePsiFile) rawPsiFile;
+        if (rawPsiFile instanceof DBLanguagePsiFile psiFile) {
             psiFile.setConnection(activeConnection);
             psiFile.setDatabaseSchema(currentSchema);
             return psiFile;
@@ -438,8 +430,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
             scope.collectPsiElements(lookupAdapter, 1, consumer);
 
             PsiElement parent = scope.getParent();
-            if (parent instanceof BasePsiElement) {
-                BasePsiElement<?> basePsiElement = (BasePsiElement<?>) parent;
+            if (parent instanceof BasePsiElement<?> basePsiElement) {
                 scope = basePsiElement.findEnclosingElement(ElementTypeAttribute.SCOPE_DEMARCATION);
                 if (scope == null) scope = basePsiElement.findEnclosingElement(ElementTypeAttribute.SCOPE_ISOLATION);
             } else {

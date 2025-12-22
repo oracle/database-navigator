@@ -103,8 +103,7 @@ public class DBJdwpDebugExecutionStack extends XExecutionStack {
 
                 List<DBJdwpDebugStackFrame> frames = new ArrayList<>();
                 for (XStackFrame underlyingFrame : stackFrames) {
-                    if (underlyingFrame instanceof JavaStackFrame) {
-                        JavaStackFrame javaStackFrame = (JavaStackFrame) underlyingFrame;
+                    if (underlyingFrame instanceof JavaStackFrame javaStackFrame) {
                         DBJdwpDebugStackFrame frame = getFrame(javaStackFrame);
                         XSourcePosition sourcePosition = frame.getSourcePosition();
                         //VirtualFile virtualFile = DBDebugUtil.getSourceCodeFile(sourcePosition);

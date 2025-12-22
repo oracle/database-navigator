@@ -114,8 +114,7 @@ public class DBNTree extends Tree implements DBNComponent {
 
     private void showContextMenu(InputEvent event) {
         TreePath path = null;
-        if (event instanceof MouseEvent) {
-            MouseEvent mouseEvent = (MouseEvent) event;
+        if (event instanceof MouseEvent mouseEvent) {
             path = Trees.getPathAtMousePosition(this, mouseEvent);
         } else if (event instanceof KeyEvent) {
             path = getSelectionPath();
@@ -166,8 +165,7 @@ public class DBNTree extends Tree implements DBNComponent {
             if (!isShowing()) return;
             DBNTree source = event.getSource() instanceof DBNTree ? (DBNTree) event.getSource() : this;
 
-            if (event instanceof MouseEvent) {
-                MouseEvent mouseEvent = (MouseEvent) event;
+            if (event instanceof MouseEvent mouseEvent) {
                 int x = mouseEvent.getX();
                 int y = mouseEvent.getY();
 

@@ -43,10 +43,9 @@ import static com.dbn.common.compatibility.CompatibilityUtil.isStructureViewAcce
 
 abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider implements DumbAware {
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        if (virtualFile instanceof DBSourceCodeVirtualFile) {
+        if (virtualFile instanceof DBSourceCodeVirtualFile sourceCodeVirtualFile) {
             // accept provider if invoked for a child file (ide invocations)
             //  => custom handling when createEditor(...) is invoked
-            DBSourceCodeVirtualFile sourceCodeVirtualFile = (DBSourceCodeVirtualFile) virtualFile;
             DBContentType contentType = sourceCodeVirtualFile.getContentType();
             return contentType == getContentType();
         }
@@ -60,8 +59,7 @@ abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider impl
         DBEditableObjectVirtualFile databaseFile;
         boolean temporary = false;
 
-        if (file instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) file;
+        if (file instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             databaseFile = sourceCodeFile.getMainDatabaseFile();
 
             temporary = isStructureViewAccess();
@@ -129,8 +127,7 @@ abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider impl
 
     @Override
     public VirtualFile getContentVirtualFile(VirtualFile virtualFile) {
-        if (virtualFile instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile objectVirtualFile = (DBEditableObjectVirtualFile) virtualFile;
+        if (virtualFile instanceof DBEditableObjectVirtualFile objectVirtualFile) {
             return objectVirtualFile.getContentFile(getContentType());
         }
         return super.getContentVirtualFile(virtualFile);

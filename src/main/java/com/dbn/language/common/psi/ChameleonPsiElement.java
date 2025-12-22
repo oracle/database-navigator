@@ -66,8 +66,7 @@ public class ChameleonPsiElement extends ASTDelegatePsiElement implements Execut
     private static void collectExecutablePsiElements(List<ExecutablePsiElement> bucket, PsiElement element) {
         PsiElement child = element.getFirstChild();
         while (child != null) {
-            if (child instanceof ExecutablePsiElement) {
-                ExecutablePsiElement executablePsiElement = (ExecutablePsiElement) child;
+            if (child instanceof ExecutablePsiElement executablePsiElement) {
                 bucket.add(executablePsiElement);
             } else {
                 collectExecutablePsiElements(bucket, child);

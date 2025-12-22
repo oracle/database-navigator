@@ -59,12 +59,12 @@ public class ChatHistoryTableModel extends StatefulDisposableBase implements DBN
     @NonNls
     @Override
     public String getColumnName(int columnIndex) {
-        switch (columnIndex) {
-            case 0: return "Title";
-            //case 1: return "Profile";
-            case 1: return "Date";
-            default: return "";
-        }
+        return switch (columnIndex) {
+            case 0 -> "Title";
+            //case 1 -> "Profile";
+            case 1 -> "Date";
+            default -> "";
+        };
     }
 
     @Override
@@ -79,23 +79,23 @@ public class ChatHistoryTableModel extends StatefulDisposableBase implements DBN
 
     @Override
     public Object getValue(Chat chat, int column) {
-        switch (column) {
-            case 0: return chat.getTitle();
-            //case 1: return chat.getContext().getProfileName();
-            case 1: return getPresentableDateFormat(chat.getTimestamp());
-            default: return "";
-        }
+        return switch (column) {
+            case 0 -> chat.getTitle();
+            //case 1 -> chat.getContext().getProfileName();
+            case 1 -> getPresentableDateFormat(chat.getTimestamp());
+            default -> "";
+        };
     }
 
     @Override
     public String getPresentableValue(Chat chat, int column) {
         if (chat == null) return "";
-        switch (column) {
-            case 0: return chat.getTitle();
-            //case 1: return chat.getContext().getProfileName();
-            case 1: return getPresentableDateFormat(chat.getTimestamp());
-            default: return "";
-        }
+        return switch (column) {
+            case 0 -> chat.getTitle();
+            //case 1 -> chat.getContext().getProfileName();
+            case 1 -> getPresentableDateFormat(chat.getTimestamp());
+            default -> "";
+        };
     }
 
     private String getPresentableDateFormat(long timestamp) {

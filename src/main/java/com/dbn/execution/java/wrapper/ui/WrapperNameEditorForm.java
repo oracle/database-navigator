@@ -31,7 +31,6 @@ import javax.swing.JTextField;
 import java.awt.Color;
 import java.util.Set;
 
-import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
@@ -95,7 +94,7 @@ public class WrapperNameEditorForm extends DBNFormBase {
             updateStatusLabel();
 
             WrapperNamesEditorForm providerForm = ensureParentComponent();
-            alignFormFields(providerForm);
+            providerForm.updateFieldAlignment();
         });
     }
 

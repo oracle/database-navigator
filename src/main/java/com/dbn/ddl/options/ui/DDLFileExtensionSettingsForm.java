@@ -26,7 +26,6 @@ import com.dbn.ddl.DDLFileTypeId;
 import com.dbn.ddl.options.DDLFileExtensionSettings;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
@@ -105,7 +104,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
 
     private void validateInputs() throws ConfigurationException {
         List<String> allExtensions = new ArrayList<>();
-        for (val entry : extensionTextFields.entrySet()) {
+        for (var entry : extensionTextFields.entrySet()) {
             String fieldName = entry.getKey();
             JTextField extensionTextField = entry.getValue();
 

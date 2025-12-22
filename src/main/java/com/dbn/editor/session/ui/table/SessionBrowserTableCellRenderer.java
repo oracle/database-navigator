@@ -59,13 +59,13 @@ public class SessionBrowserTableCellRenderer extends BasicTableCellRenderer {
                 if (isLoading || !isConnected) {
                     textAttributes = attributes.getLoadingData(isCaretRow);
                 } else {
-                    switch (row.getSessionStatus()) {
-                        case ACTIVE: textAttributes = attributes.getActiveSession(isCaretRow); break;
-                        case INACTIVE: textAttributes = attributes.getInactiveSession(isCaretRow); break;
-                        case CACHED: textAttributes = attributes.getCachedSession(isCaretRow); break;
-                        case SNIPED: textAttributes = attributes.getSnipedSession(isCaretRow); break;
-                        case KILLED: textAttributes = attributes.getKilledSession(isCaretRow); break;
-                    }
+                    textAttributes = switch (row.getSessionStatus()) {
+                        case ACTIVE -> attributes.getActiveSession(isCaretRow);
+                        case INACTIVE -> attributes.getInactiveSession(isCaretRow);
+                        case CACHED -> attributes.getCachedSession(isCaretRow);
+                        case SNIPED -> attributes.getSnipedSession(isCaretRow);
+                        case KILLED -> attributes.getKilledSession(isCaretRow);
+                    };
                 }
             }
 
