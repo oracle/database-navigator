@@ -24,7 +24,9 @@ import lombok.experimental.UtilityClass;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
@@ -59,11 +61,21 @@ public class DBObjectSpecReader {
     }
 
     private static void radChildren(Element element, DBObjectSpec definition) {
-        List<Element> childElements = childrenOf(element.getChild("children"));
+        Element childrenElement = element.getChild("children");
+        boolean readonly = booleanAttribute(childrenElement, "readonly", false);
+
+        Set<DBObjectType> objectTypes = new HashSet<>();
+        List<Element> childElements = childrenOf(childrenElement);
         for (Element childElement : childElements) {
             DBObjectSpec childDefinition = readDefinition(childElement);
             definition.addChild(childDefinition);
+
+            DBObjectType objectType = childDefinition.getObjectType();
+            objectTypes.add(objectType);
         }
+
+        // TODO child groups in xml definitions (allow individual "readonly" setting)
+        objectTypes.forEach(ot -> definition.setChildrenReadonly(ot, readonly));
     }
 
     private static void readAttributes(Element element, DBObjectSpec definition) {

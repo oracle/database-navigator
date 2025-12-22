@@ -82,6 +82,10 @@ public class DBObjectSpec extends DBObjectSpecBase{
         children.add(child);
     }
 
+    public void setChildrenReadonly(DBObjectType objectType, boolean readonly) {
+        getChildren(objectType).setReadonly(readonly);
+    }
+
     public DBObjectSpecList<DBObjectSpec> getChildren(DBObjectType type) {
         return this.children.computeIfAbsent(type, t -> new DBObjectSpecList<>(this));
     }
