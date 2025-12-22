@@ -34,7 +34,6 @@ import com.dbn.object.factory.model.DBMethodSpec;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.UnknownNullability;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -255,7 +254,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     }
 
     @Override
-    public void createTable(@UnknownNullability DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
+    public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
         StringBuilder builder = new StringBuilder();
         builder.append("table ");
         builder.append(tableSpec.getSchemaName(true));
