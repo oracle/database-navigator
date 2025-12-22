@@ -95,9 +95,8 @@ public class JavaExecutionHistoryTree extends DBNTree implements Disposable {
 	@Nullable
 	JavaExecutionInput getSelectedExecutionInput() {
 		Object selection = getLastSelectedPathComponent();
-		if (selection instanceof MethodTreeNode) {
-			MethodTreeNode methodNode = (MethodTreeNode) selection;
-			return methodNode.getExecutionInput();
+		if (selection instanceof MethodTreeNode methodNode) {
+            return methodNode.getExecutionInput();
 		}
 		return null;
 	}

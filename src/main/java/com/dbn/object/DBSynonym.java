@@ -32,8 +32,7 @@ public interface DBSynonym extends DBSchemaObject {
     static DBObject unwrap(@Nullable DBObject object) {
         if (object == null) return null;
 
-        if (object instanceof DBSynonym) {
-            DBSynonym synonym = (DBSynonym) object;
+        if (object instanceof DBSynonym synonym) {
 
             DBObject underlyingObject = synonym.getUnderlyingObject();
             if (underlyingObject == null) return object;

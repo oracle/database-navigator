@@ -58,8 +58,7 @@ public abstract class DBLanguageSyntaxHighlighter extends SyntaxHighlighterBase 
     @Override
     @NotNull
     public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
-        if (tokenType instanceof SimpleTokenType) {
-            SimpleTokenType simpleTokenType = (SimpleTokenType) tokenType;
+        if (tokenType instanceof SimpleTokenType simpleTokenType) {
             return simpleTokenType.getTokenHighlights(() -> pack(
                         getAttributeKeys(tokenType, backgrounds),
                         getAttributeKeys(tokenType, colors)));

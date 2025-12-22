@@ -112,32 +112,33 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
     }
 
     protected Icon getIcon(MessageType messageType) {
-        switch (messageType) {
-            case INFO: return Icons.COMMON_INFO;
-            case SUCCESS: return null;
-            case WARNING: return Icons.COMMON_WARNING;
-            case ERROR: return Icons.COMMON_ERROR;
-            default: return null;
-        }    }
+        return switch (messageType) {
+            case INFO -> Icons.COMMON_INFO;
+            case SUCCESS -> null;
+            case WARNING -> Icons.COMMON_WARNING;
+            case ERROR -> Icons.COMMON_ERROR;
+            default -> null;
+        };
+    }
 
     private static Color getBackground(MessageType messageType) {
-        switch (messageType) {
-            case INFO: return Banner.INFO_BACKGROUND;
-            case SUCCESS: return Banner.SUCCESS_BACKGROUND;
-            case WARNING: return Banner.WARNING_BACKGROUND;
-            case ERROR: return Banner.ERROR_BACKGROUND;
-            default: return Colors.getLightPanelBackground();
-        }
+        return switch (messageType) {
+            case INFO -> Banner.INFO_BACKGROUND;
+            case SUCCESS -> Banner.SUCCESS_BACKGROUND;
+            case WARNING -> Banner.WARNING_BACKGROUND;
+            case ERROR -> Banner.ERROR_BACKGROUND;
+            default -> Colors.getLightPanelBackground();
+        };
     }
 
     private static ColorKey getBackgroundKey(MessageType messageType) {
-        switch (messageType) {
-            case INFO: return ColorKey.createColorKey("Banner.infoBackground");
-            case SUCCESS: return ColorKey.createColorKey("Banner.successBackground");
-            case WARNING: return ColorKey.createColorKey("Banner.warningBackground");
-            case ERROR: return ColorKey.createColorKey("Banner.errorBackground");
-            default: return null;
-        }
+        return switch (messageType) {
+            case INFO -> ColorKey.createColorKey("Banner.infoBackground");
+            case SUCCESS -> ColorKey.createColorKey("Banner.successBackground");
+            case WARNING -> ColorKey.createColorKey("Banner.warningBackground");
+            case ERROR -> ColorKey.createColorKey("Banner.errorBackground");
+            default -> null;
+        };
     }
 
 

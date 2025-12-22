@@ -105,11 +105,9 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
                         withSpeedSearch().
                         withMaxRowCount(20).
                         withPreselectCondition(a -> {
-                            if (a instanceof SelectConnectionAction) {
-                                SelectConnectionAction selectConnectionAction = (SelectConnectionAction) a;
+                            if (a instanceof SelectConnectionAction selectConnectionAction) {
                                 return latestConnectionId == selectConnectionAction.getConnection().getConnectionId();
-                            } else if (a instanceof SelectSchemaAction) {
-                                SelectSchemaAction selectSchemaAction = (SelectSchemaAction) a;
+                            } else if (a instanceof SelectSchemaAction selectSchemaAction) {
                                 DBSchema object = selectSchemaAction.getTarget();
                                 return object != null && Objects.equals(latestSchemaName, object.getName());
                             }
@@ -251,8 +249,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
 
         @Override
         public void elementChosen(Object element) {
-            if (element instanceof DBObject) {
-                DBObject object = (DBObject) element;
+            if (element instanceof DBObject object) {
                 if (object.is(DBObjectProperty.EDITABLE)) {
                     Project project = object.getProject();
                     DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);

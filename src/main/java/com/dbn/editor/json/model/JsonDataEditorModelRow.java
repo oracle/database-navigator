@@ -169,8 +169,7 @@ public class JsonDataEditorModelRow extends ResultSetDataModelRow<JsonDataEditor
             Object userValue = cell.getUserValue();
             if (userValue == null) continue;
 
-            if (userValue instanceof String) {
-                String stringUserValue = (String) userValue;
+            if (userValue instanceof String stringUserValue) {
                 if (Strings.isNotEmpty(stringUserValue)) {
                     return false;
                 }

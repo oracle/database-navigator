@@ -45,8 +45,7 @@ public abstract class EditorIntentionAction extends EditorIntentionActionBase im
 
     @Nullable
     protected ConnectionHandler getConnection(PsiFile psiFile) {
-        if (psiFile instanceof DBLanguagePsiFile) {
-            DBLanguagePsiFile dbLanguagePsiFile = (DBLanguagePsiFile) psiFile;
+        if (psiFile instanceof DBLanguagePsiFile dbLanguagePsiFile) {
             return dbLanguagePsiFile.getConnection();
         }
         return null;
@@ -66,8 +65,7 @@ public abstract class EditorIntentionAction extends EditorIntentionActionBase im
 
     @Override
     public int compareTo(@NotNull Object o) {
-        if (o instanceof EditorIntentionAction) {
-            EditorIntentionAction a = (EditorIntentionAction) o;
+        if (o instanceof EditorIntentionAction a) {
             int groupLevel = getPriority().compareTo(a.getPriority());
 
             return groupLevel == 0 ? getType().ordinal() - a.getType().ordinal() : groupLevel;

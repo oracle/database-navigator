@@ -50,8 +50,7 @@ public class ObjectListActionGroup extends DefaultActionGroup {
         DBObjectType objectType = objectList.getObjectType();
         DatabaseEntity parentElement = objectList.getParentEntity();
 
-        if (parentElement instanceof DBSchema) {
-            DBSchema schema = (DBSchema) parentElement;
+        if (parentElement instanceof DBSchema schema) {
             addSeparator();
             if (objectType == DBObjectType.JAVA_CLASS) {
                 add(new JavaObjectDownloadAction(schema));

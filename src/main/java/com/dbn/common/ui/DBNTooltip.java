@@ -50,8 +50,7 @@ public class DBNTooltip extends IdeTooltip {
     protected boolean canAutohideOn(TooltipEvent event) {
         InputEvent inputEvent = event.getInputEvent();
         if (inputEvent == null) return false;
-        if (inputEvent instanceof MouseEvent) {
-            MouseEvent mouseEvent = (MouseEvent) inputEvent;
+        if (inputEvent instanceof MouseEvent mouseEvent) {
             return mouseEvent.getID() != MouseEvent.MOUSE_MOVED;
         }
 

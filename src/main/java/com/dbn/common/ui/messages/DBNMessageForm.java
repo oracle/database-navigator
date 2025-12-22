@@ -165,8 +165,7 @@ public class DBNMessageForm extends DBNFormBase {
 
     private void initDragging() {
         Disposable parentComponent = getParentComponent();
-        if (parentComponent instanceof DBNMessageDialog) {
-            DBNMessageDialog dialog = (DBNMessageDialog) parentComponent;
+        if (parentComponent instanceof DBNMessageDialog dialog) {
             DragHelper dragHelper = new DragHelper(dialog, this);
             dragHelper.start();
         }

@@ -87,8 +87,7 @@ public class Messages {
 
     public static void showMessageDialog(@Nullable Project project, Message message) {
         String title = null;
-        if (message instanceof InteractiveMessage) {
-            InteractiveMessage interactiveMessage = (InteractiveMessage) message;
+        if (message instanceof InteractiveMessage interactiveMessage) {
 
             showDialog(project,
                     interactiveMessage.getText(),
@@ -102,8 +101,7 @@ public class Messages {
 
         }
 
-        if (message instanceof TitledMessage) {
-            TitledMessage titledMessage = (TitledMessage) message;
+        if (message instanceof TitledMessage titledMessage) {
             title = titledMessage.getTitle();
         }
 
@@ -117,14 +115,14 @@ public class Messages {
 
 
     private static Icon getDialogIcon(MessageType messageType) {
-        switch (messageType) {
-            case INFO: return Icons.DIALOG_INFORMATION;
-            case ERROR: return Icons.DIALOG_ERROR;
-            case WARNING: return Icons.DIALOG_WARNING;
-            case QUESTION: return Icons.DIALOG_QUESTION;
-            case SUCCESS: return Icons.DIALOG_SUCCESS;
-            default: return null;
-        }
+        return switch (messageType) {
+            case INFO -> Icons.DIALOG_INFORMATION;
+            case ERROR -> Icons.DIALOG_ERROR;
+            case WARNING -> Icons.DIALOG_WARNING;
+            case QUESTION -> Icons.DIALOG_QUESTION;
+            case SUCCESS -> Icons.DIALOG_SUCCESS;
+            default -> null;
+        };
     }
 
     public static void showErrorDialog(@Nullable Project project, @DialogMessage String message, Throwable exception) {

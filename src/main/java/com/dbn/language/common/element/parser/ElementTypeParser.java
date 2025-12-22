@@ -110,8 +110,7 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
             }
 
             if (tokenType.isFunction() && builder.getNextToken() != leftParenthesis) {
-                if (elementType instanceof LeafElementType) {
-                    LeafElementType leafElementType = (LeafElementType) elementType;
+                if (elementType instanceof LeafElementType leafElementType) {
                     return !leafElementType.isNextRequiredToken(leftParenthesis, node, context);
                 }
             }

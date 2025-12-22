@@ -19,10 +19,10 @@ package com.dbn.vector.ui;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
@@ -51,8 +51,12 @@ public abstract class VectorToolboxFormBase extends DBNFormBase {
     }
 
     protected VectorEmbeddingRequest getEmbeddingRequest() {
-        VectorToolboxForm rootForm = ensureParentFrom(VectorToolboxForm.class);
+        VectorToolboxForm rootForm = getToolboxForm();
         return rootForm.getEmbeddingRequest();
+    }
+
+    protected VectorToolboxForm getToolboxForm() {
+        return ensureParentFrom(VectorToolboxForm.class);
     }
 
     protected static String getSelectedObjectName(DBNComboBox<? extends DBObject> comboBox, String defaultName) {
@@ -81,9 +85,14 @@ public abstract class VectorToolboxFormBase extends DBNFormBase {
         return null;
     }
 
+    public SchemaId getSelectedSchemaId() {
+        DBSchema schema = getSelectedSchema();
+        return schema == null ? null : schema.getSchemaId();
+    }
 
+/*
     protected static boolean matchesObjectName(@Nullable DBObject object, String name) {
         return object != null && Strings.equalsIgnoreCase(object.getName(), name);
-    }
+    }*/
 
 }

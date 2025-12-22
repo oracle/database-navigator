@@ -70,7 +70,7 @@ public class ConnectionContextActions {
             } else {
                 SchemaId schemaId = manager.getDatabaseSchema(file);
                 if (schemaId == null) {
-                    SchemaId defaultSchema = connection.getDefaultSchema();
+                    SchemaId defaultSchema = connection.getDefaultSchemaId();
                     manager.setDatabaseSchema(file, defaultSchema);
                 }
                 if (callback != null) {

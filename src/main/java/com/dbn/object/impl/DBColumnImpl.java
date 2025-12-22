@@ -365,8 +365,7 @@ class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
 
     @Override
     public int compareTo(@NotNull Object o) {
-        if (o instanceof DBColumn)  {
-            DBColumn column = (DBColumn) o;
+        if (o instanceof DBColumn column)  {
             if (Objects.equals(getDataset(), column.getDataset())) {
                 if (isPrimaryKey() && column.isPrimaryKey()) {
                     return super.compareTo(o);

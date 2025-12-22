@@ -205,11 +205,9 @@ public class SimpleTokenType<T extends SimpleTokenType<T>> extends IElementType 
     @NotNull
     private SharedTokenTypeBundle getSharedTokenTypes() {
         Language lang = getLanguage();
-        if (lang instanceof DBLanguageDialect) {
-            DBLanguageDialect languageDialect = (DBLanguageDialect) lang;
+        if (lang instanceof DBLanguageDialect languageDialect) {
             return languageDialect.getSharedTokenTypes();
-        } else if (lang instanceof DBLanguage) {
-            DBLanguage language = (DBLanguage) lang;
+        } else if (lang instanceof DBLanguage language) {
             return language.getSharedTokenTypes();
         }
         throw new IllegalArgumentException("Language element of type " + lang + "is not supported");

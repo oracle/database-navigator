@@ -120,11 +120,11 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
     public CompileType getCompileType(@Nullable DBSchemaObject object, DBContentType contentType) {
         OperationSettings operationSettings = OperationSettings.getInstance(getProject());
         CompileType compileType = operationSettings.getCompilerSettings().getCompileType();
-        switch (compileType) {
-            case KEEP: return object != null && object.getStatus().is(contentType, DBObjectStatus.DEBUG) ? CompileType.DEBUG : CompileType.NORMAL;
-            case DEBUG: return CompileType.DEBUG;
-        }
-        return CompileType.NORMAL;
+        return switch (compileType) {
+            case KEEP -> object != null && object.getStatus().is(contentType, DBObjectStatus.DEBUG) ? CompileType.DEBUG : CompileType.NORMAL;
+            case DEBUG -> CompileType.DEBUG;
+            default -> CompileType.NORMAL;
+        };
     }
 
     public void compileObject(DBSchemaObject object, CompileType compileType, CompilerAction compilerAction) {

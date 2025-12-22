@@ -35,8 +35,7 @@ public class PSQLFile extends DBLanguagePsiFile {
         PsiLookupAdapter lookupAdapter = new ObjectDefinitionLookupAdapter(null, objectType, objectName, ElementTypeAttribute.SUBJECT);
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            if (child instanceof BasePsiElement basePsiElement) {
                 BasePsiElement specObject = lookupAdapter.findInScope(basePsiElement);
                 if (specObject != null) {
                     return specObject.findEnclosingElement(ElementTypeAttribute.OBJECT_SPECIFICATION);
@@ -51,8 +50,7 @@ public class PSQLFile extends DBLanguagePsiFile {
         PsiLookupAdapter lookupAdapter = new ObjectDefinitionLookupAdapter(null, objectType, objectName, ElementTypeAttribute.SUBJECT);
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            if (child instanceof BasePsiElement basePsiElement) {
                 BasePsiElement specObject = lookupAdapter.findInScope(basePsiElement);
                 if (specObject != null) {
                     return specObject.findEnclosingElement(ElementTypeAttribute.OBJECT_DECLARATION);

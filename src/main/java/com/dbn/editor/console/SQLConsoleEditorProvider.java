@@ -48,8 +48,7 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements
 
     @Override
     public void writeState(@NotNull FileEditorState state, @NotNull Project project, @NotNull Element targetElement) {
-        if (state instanceof SQLConsoleEditorState) {
-            SQLConsoleEditorState editorState = (SQLConsoleEditorState) state;
+        if (state instanceof SQLConsoleEditorState editorState) {
             editorState.writeState(targetElement, project);
         }
     }

@@ -48,8 +48,7 @@ public final class Disposer {
             /*, ...*/);
 
     public static void register(@Nullable Disposable parent, @Nullable Object object) {
-        if (object instanceof Disposable) {
-            Disposable disposable = (Disposable) object;
+        if (object instanceof Disposable disposable) {
             register(parent, disposable);
         }
     }
@@ -107,8 +106,7 @@ public final class Disposer {
     public static void dispose(@Nullable Object object) {
         if (object == null) return;
 
-        if (object instanceof Disposable) {
-            Disposable disposable = (Disposable) object;
+        if (object instanceof Disposable disposable) {
             BackgroundDisposer.queue(() -> dispose(disposable));
 
         } else if (object instanceof Collection) {
@@ -120,8 +118,7 @@ public final class Disposer {
         } else if (object.getClass().isArray()) {
             BackgroundDisposer.queue(() -> disposeArray((Object[]) object));
 
-        } else if (object instanceof Reference) {
-            Reference reference = (Reference) object;
+        } else if (object instanceof Reference reference) {
             dispose(reference.get());
         }
     }
@@ -129,16 +126,14 @@ public final class Disposer {
     public static void disposeCollection(@Nullable Collection<?> collection) {
         if (collection == null) return;
 
-        if (collection instanceof FilteredList) {
-            FilteredList<?> filteredList = (FilteredList<?>) collection;
+        if (collection instanceof FilteredList<?> filteredList) {
             collection = filteredList.getBase();
         }
 
         if (collection.isEmpty()) return;
 
         for (Object object : collection) {
-            if (object instanceof Disposable) {
-                Disposable disposable = (Disposable) object;
+            if (object instanceof Disposable disposable) {
                 dispose(disposable);
             }
         }
@@ -150,8 +145,7 @@ public final class Disposer {
 
         for (int i = 0; i < array.length; i++) {
             Object object = array[i];
-            if (object instanceof Disposable) {
-                Disposable disposable = (Disposable) object;
+            if (object instanceof Disposable disposable) {
                 dispose(disposable);
             }
             array[i] = null;
@@ -164,12 +158,10 @@ public final class Disposer {
         for (Map.Entry entry : map.entrySet()) {
             Object key = entry.getKey();
             Object value = entry.getValue();
-            if (key instanceof Disposable) {
-                Disposable disposable = (Disposable) key;
+            if (key instanceof Disposable disposable) {
                 dispose(disposable);
             }
-            if (value instanceof Disposable) {
-                Disposable disposable = (Disposable) value;
+            if (value instanceof Disposable disposable) {
                 dispose(disposable);
             }
 

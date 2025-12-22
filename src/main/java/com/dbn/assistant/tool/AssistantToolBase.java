@@ -36,8 +36,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static java.util.stream.Collectors.toList;
-
 
 @Getter
 public abstract class AssistantToolBase extends ConnectionComponent implements AssistantTool{
@@ -65,7 +63,7 @@ public abstract class AssistantToolBase extends ConnectionComponent implements A
                 .stream()
                 .filter(filter)
                 .map(o -> qualified ? o.getQualifiedName() : o.getName())
-                .collect(toList());
+                .toList();
     }
 
     @NotNull

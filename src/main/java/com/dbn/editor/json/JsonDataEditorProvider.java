@@ -47,8 +47,7 @@ public class JsonDataEditorProvider implements FileEditorProvider, NamedComponen
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        if (virtualFile instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) virtualFile;
+        if (virtualFile instanceof DBEditableObjectVirtualFile databaseFile) {
             DBContentType contentType = databaseFile.getContentType();
             return contentType == DBContentType.JSON || contentType == DBContentType.CODE_AND_JSON;
 
@@ -74,8 +73,7 @@ public class JsonDataEditorProvider implements FileEditorProvider, NamedComponen
     @Override
     @NotNull
     public FileEditorState readState(@NotNull Element sourceElement, @NotNull Project project, @NotNull VirtualFile virtualFile) {
-        if (virtualFile instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) virtualFile;
+        if (virtualFile instanceof DBEditableObjectVirtualFile editableObjectFile) {
             DBObjectType objectType = editableObjectFile.getObjectType();
             if (objectType == DBObjectType.JSON_VIEW) {
                 JsonDataEditorState editorState = new JsonDataEditorState();
@@ -89,8 +87,7 @@ public class JsonDataEditorProvider implements FileEditorProvider, NamedComponen
 
     @Override
     public void writeState(@NotNull FileEditorState state, @NotNull Project project, @NotNull Element targetElement) {
-        if (state instanceof JsonDataEditorState) {
-            JsonDataEditorState editorState = (JsonDataEditorState) state;
+        if (state instanceof JsonDataEditorState editorState) {
             editorState.writeState(targetElement);
         }
     }

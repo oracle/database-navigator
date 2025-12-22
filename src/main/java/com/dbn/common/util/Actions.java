@@ -133,8 +133,7 @@ public class Actions {
         if (actionToolbar instanceof ActionToolbarImpl) {
             ActionToolbarImpl actionToolbarImpl = (ActionToolbarImpl) actionToolbar;
             ActionGroup actionGroup = actionToolbarImpl.getActionGroup();
-            if (actionGroup instanceof DefaultActionGroup) {
-                DefaultActionGroup defaultActionGroup = (DefaultActionGroup) actionGroup;
+            if (actionGroup instanceof DefaultActionGroup defaultActionGroup) {
                 AnAction[] actions = defaultActionGroup.getChildActionsOrStubs();
                 return Arrays
                         .stream(actions)

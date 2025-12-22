@@ -2,6 +2,7 @@ package com.dbn.vector.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.Icon;
 
@@ -39,7 +40,7 @@ public class StepResult {
     startTime = System.currentTimeMillis();
   }
 
-  public void markFailed(String ensureDestError, String message) {
+  public void markFailed(@NonNls String ensureDestError, String message) {
     this.status = STEP_STATUS.FAILED;
     this.errorCode = ensureDestError;
     this.errorMessage = message;

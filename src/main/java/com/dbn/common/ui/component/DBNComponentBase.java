@@ -51,8 +51,7 @@ public abstract class DBNComponentBase extends StatefulDisposableBase implements
     }
 
     private void registerDisposable(Disposable parent) {
-        if (parent instanceof DBNDialog) {
-            DBNDialog dialog = (DBNDialog) parent;
+        if (parent instanceof DBNDialog dialog) {
             Disposer.register(dialog.getDisposable(), this);
         } else {
             Disposer.register(parent, this);
@@ -75,8 +74,7 @@ public abstract class DBNComponentBase extends StatefulDisposableBase implements
         if (this.parent != null) {
             Disposable parent = this.parent.ensure();
 
-            if (parent instanceof ProjectSupplier) {
-                ProjectSupplier component = (ProjectSupplier) parent;
+            if (parent instanceof ProjectSupplier component) {
                 Project project = component.getProject();
                 if (project != null) {
                     return project;

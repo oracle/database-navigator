@@ -68,7 +68,6 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBList;
 import com.jgoodies.common.base.Strings;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -530,7 +529,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
 
         Element mappingsElement = newElement(element, "mappings");
         for (String fileUrl : mappings.fileUrls()) {
-            val objectRef = mappings.get(fileUrl);
+            var objectRef = mappings.get(fileUrl);
 
             Element mappingElement = newElement(mappingsElement, "mapping");
             setStringAttribute(mappingElement, "file-url", fileUrl);
@@ -581,8 +580,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
     }
 
     public void warmUpAttachedDDLFiles(VirtualFile file) {
-        if (file instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile objectFile = (DBEditableObjectVirtualFile) file;
+        if (file instanceof DBEditableObjectVirtualFile objectFile) {
             if (isFileOpened(objectFile.getObject())) return;
 
             List<VirtualFile> files = getAttachedDDLFiles(objectFile.getObjectRef());

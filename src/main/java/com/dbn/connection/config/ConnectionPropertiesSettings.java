@@ -23,7 +23,6 @@ import com.dbn.connection.config.ui.ConnectionPropertiesSettingsForm;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -85,7 +84,7 @@ public class ConnectionPropertiesSettings extends BasicProjectConfiguration<Conn
         if (properties.isEmpty()) return;
 
         Element propertiesElement = newElement(element, "properties");
-        for (val entry : properties.entrySet()) {
+        for (var entry : properties.entrySet()) {
             Element propertyElement = newElement(propertiesElement, "property");
             propertyElement.setAttribute("key", entry.getKey());
             propertyElement.setAttribute("value", Commons.nvl(entry.getValue(), ""));

@@ -228,13 +228,12 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
     }
 
     private static String getMarkupElement(MarkupElement element, String title) {
-        switch (element) {
-            case BOLD: return "*";
-            case ITALIC: return "_";
-            case TABLE: return "|";
-            case CODE: return title == null ? "{code}" : "{code:title=" + title + "}";
-            case PANEL: return title == null ? "{panel}" : "{panel:title=" + title + "}";
-        }
-        return "";
+        return switch (element) {
+            case BOLD -> "*";
+            case ITALIC -> "_";
+            case TABLE -> "|";
+            case CODE -> title == null ? "{code}" : "{code:title=" + title + "}";
+            case PANEL -> title == null ? "{panel}" : "{panel:title=" + title + "}";
+        };
     }
 }

@@ -104,9 +104,8 @@ public class ObjectDependencyTreeNode extends StatefulDisposableBase implements 
                 Background.run(() -> {
                     try {
                         DBObject object = getObject();
-                        if (object instanceof DBSchemaObject) {
+                        if (object instanceof DBSchemaObject schemaObject) {
                             List<ObjectDependencyTreeNode> newDependencies = new ArrayList<>();
-                            DBSchemaObject schemaObject = (DBSchemaObject) object;
                             List<DBObject> dependentObjects = loadDependencies(schemaObject);
 
                             if (dependentObjects != null) {

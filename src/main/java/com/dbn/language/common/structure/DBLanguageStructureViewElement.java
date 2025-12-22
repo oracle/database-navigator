@@ -53,8 +53,7 @@ public abstract class DBLanguageStructureViewElement<T> implements StructureView
         return new ItemPresentation() {
             @Override
             public String getPresentableText() {
-                if (psiElement instanceof DBLanguagePsiFile) {
-                    DBLanguagePsiFile file = (DBLanguagePsiFile) psiElement;
+                if (psiElement instanceof DBLanguagePsiFile file) {
                     return file.getName();
                 }
                 return psiElement.getText();
@@ -98,8 +97,7 @@ public abstract class DBLanguageStructureViewElement<T> implements StructureView
     }
 
     protected List<T> visitChild(PsiElement child, List<T> elements) {
-        if (child instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) child;
+        if (child instanceof BasePsiElement basePsiElement) {
             if (basePsiElement.is(ElementTypeAttribute.STRUCTURE)) {
                 if (elements == null) {
                     elements = new ArrayList<>();
@@ -116,8 +114,7 @@ public abstract class DBLanguageStructureViewElement<T> implements StructureView
 
     @Override
     public void navigate(boolean requestFocus) {
-        if (psiElement instanceof NavigationItem) {
-            NavigationItem navigationItem = (NavigationItem) psiElement;
+        if (psiElement instanceof NavigationItem navigationItem) {
             navigationItem.navigate(requestFocus);
         }
     }

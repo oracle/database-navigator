@@ -60,17 +60,17 @@ import static com.dbn.object.event.ObjectChangeAction.UPDATE;
 final class ObjectManagementServiceImpl extends ProjectComponentBase implements ObjectManagementService, PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.ObjectManagementService";
 
-    private final Map<DBObjectType, ObjectManagementAdapterFactory> managementAdapters = initAdapters();
+    private final Map<DBObjectType, ObjectManagementAdapterExtension> managementAdapters = initAdapters();
 
     public ObjectManagementServiceImpl(@NotNull Project project) {
         super(project, COMPONENT_NAME);
     }
 
-    private static Map<DBObjectType, ObjectManagementAdapterFactory> initAdapters() {
-        Map<DBObjectType, ObjectManagementAdapterFactory> adapters = new HashMap<>();
+    private static Map<DBObjectType, ObjectManagementAdapterExtension> initAdapters() {
+        Map<DBObjectType, ObjectManagementAdapterExtension> adapters = new HashMap<>();
 
-        List<ObjectManagementAdapterFactory> factories = ObjectManagementAdapterFactory.EP.getExtensionList();
-        for (ObjectManagementAdapterFactory factory : factories) {
+        List<ObjectManagementAdapterExtension> factories = ObjectManagementAdapterExtension.EP.getExtensionList();
+        for (ObjectManagementAdapterExtension factory : factories) {
             DBObjectType[] objectTypes = factory.getObjectTypes();
             for (DBObjectType objectType : objectTypes) {
                 adapters.put(objectType, factory);
@@ -119,7 +119,7 @@ final class ObjectManagementServiceImpl extends ProjectComponentBase implements 
 
     private <T extends DBObject> void  invokeModal(T object, ObjectChangeAction action, OutcomeHandler successHandler) {
         DBObjectType objectType = object.getObjectType();
-        ObjectManagementAdapterFactory<T> factory = cast(managementAdapters.get(objectType));
+        ObjectManagementAdapterExtension<T> factory = cast(managementAdapters.get(objectType));
         if (factory == null) throw new UnsupportedOperationException("Not supported for objects of type " + objectType);
 
         ObjectManagementAdapter<T> adapter = factory.createAdapter(object, action);

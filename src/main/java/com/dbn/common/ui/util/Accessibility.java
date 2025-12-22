@@ -83,9 +83,8 @@ public class Accessibility {
     private static void setAccessibleText(@Nullable Object target, @Nullable @Nls String text, boolean descriptor) {
         if (target == null) return;
         if (text == null) return;
-        if (target instanceof AccessibleContext) {
+        if (target instanceof AccessibleContext accessibleContext) {
             String friendlyText = friendlyText(text);
-            AccessibleContext accessibleContext = (AccessibleContext) target;
             if (descriptor) {
                 accessibleContext.setAccessibleDescription(friendlyText);
             } else {
@@ -94,9 +93,7 @@ public class Accessibility {
             return;
         }
 
-        if (target instanceof Component) {
-            Component component = (Component) target;
-
+        if (target instanceof Component component) {
             setAccessibleText(component.getAccessibleContext(), text, descriptor);
             if (descriptor) {
                 ACCESSIBLE_DESCRIPTION.set(component, getAccessibleName(component));
@@ -106,21 +103,18 @@ public class Accessibility {
             return;
         }
 
-        if (target instanceof ListPopup) {
-            ListPopup listPopup = (ListPopup) target;
+        if (target instanceof ListPopup listPopup) {
             JList actionList = UserInterface.findChildComponent(listPopup.getContent(), JList.class, c -> true);
             setAccessibleText(actionList, text, descriptor);
             return;
         }
 
-        if (target instanceof ActionToolbar) {
-            ActionToolbar toolbar = (ActionToolbar) target;
+        if (target instanceof ActionToolbar toolbar) {
             setAccessibleText(toolbar.getComponent(), text, descriptor);
             return;
         }
 
-        if (target instanceof ToolbarDecorator) {
-            ToolbarDecorator toolbarDecorator = (ToolbarDecorator) target;
+        if (target instanceof ToolbarDecorator toolbarDecorator) {
             setAccessibleText(toolbarDecorator.getActionsPanel(), text, descriptor);
             return;
         }
@@ -183,8 +177,7 @@ public class Accessibility {
     public static void initCustomComponentAccessibility(JComponent component) {
         visitRecursively(component, JLabel.class, l -> {
             Component targetComponent = l.getLabelFor();
-            if (targetComponent instanceof ComponentWithBrowseButton) {
-                ComponentWithBrowseButton customComponent = (ComponentWithBrowseButton) targetComponent;
+            if (targetComponent instanceof ComponentWithBrowseButton customComponent) {
                 l.setLabelFor(customComponent.getChildComponent());
             }
         });
@@ -208,8 +201,7 @@ public class Accessibility {
 
     private static String findAccessibilityTitle(JPanel panel) {
         Container parent = panel.getParent();
-        if (parent instanceof JPanel) {
-            JPanel parentPanel = (JPanel) parent;
+        if (parent instanceof JPanel parentPanel) {
             String accessibleName = parentPanel.getAccessibleContext().getAccessibleName();
             if (isNotEmpty(accessibleName)) return accessibleName;
             return findAccessibilityTitle(parentPanel);
@@ -229,8 +221,7 @@ public class Accessibility {
 
     private static String getAccessibleName(Object value) {
         if (value == null) return "empty";
-        if (value instanceof Presentable) {
-            Presentable presentable = (Presentable) value;
+        if (value instanceof Presentable presentable) {
             return presentable.getAccessibleName();
         }
         return value.toString();

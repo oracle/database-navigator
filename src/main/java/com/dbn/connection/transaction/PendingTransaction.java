@@ -68,8 +68,7 @@ public class PendingTransaction {
         VirtualFile file = getFile();
 
         if (file != null) {
-            if (file instanceof DBVirtualFile) {
-                DBVirtualFile databaseVirtual = (DBVirtualFile) file;
+            if (file instanceof DBVirtualFile databaseVirtual) {
                 return databaseVirtual.getIcon();
             } else {
                 return file.getFileType().getIcon();

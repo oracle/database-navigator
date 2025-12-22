@@ -21,8 +21,8 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.object.DBTrigger;
-import com.dbn.object.management.ObjectManagementAdapterFactory;
-import com.dbn.object.management.ObjectManagementAdapterFactoryBase;
+import com.dbn.object.management.ObjectManagementAdapterBase;
+import com.dbn.object.management.ObjectManagementAdapterExtension;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
@@ -32,10 +32,10 @@ import static com.dbn.object.type.DBObjectType.DATABASE_TRIGGER;
 import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
 
 /**
- * Implementation of {@link ObjectManagementAdapterFactory} for objects of type {@link DBTrigger}
+ * Implementation of {@link ObjectManagementAdapterExtension} for objects of type {@link DBTrigger}
  * @author Dan Cioca (Oracle)
  */
-public class DBTriggerManagementAdapter extends ObjectManagementAdapterFactoryBase<DBTrigger> {
+public class DBTriggerManagementAdapter extends ObjectManagementAdapterBase<DBTrigger> {
     @Override
     public DBObjectType[] getObjectTypes() {
         return array(DATASET_TRIGGER, DATABASE_TRIGGER);

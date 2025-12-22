@@ -55,9 +55,8 @@ public class DBNTableScrollPane extends DBNScrollPane{
         if (!e.isControlDown()) return false;
 
         Component view = getViewComponent();
-        if (!(view instanceof BasicTable)) return false;
+        if (!(view instanceof BasicTable resultTable)) return false;
 
-        BasicTable resultTable = (BasicTable) view;
         Project project = resultTable.getProject();
         DataGridSettings dataGridSettings = DataGridSettings.getInstance(project);
         DataGridGeneralSettings generalSettings = dataGridSettings.getGeneralSettings();

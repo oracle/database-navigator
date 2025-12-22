@@ -67,8 +67,7 @@ public class DynamicSubcontentLoader<T extends DynamicContentElement, M extends 
     @Override
     public void loadContent(DynamicContent<T> content) throws SQLException {
         ContentDependencyAdapter dependency = content.getDependencyAdapter();
-        if (dependency instanceof SubcontentDependencyAdapter) {
-            SubcontentDependencyAdapter subcontentDependency = (SubcontentDependencyAdapter) dependency;
+        if (dependency instanceof SubcontentDependencyAdapter subcontentDependency) {
             DynamicContent<T> sourceContent = subcontentDependency.getSourceContent();
             boolean useAlternativeLoader = useAlternativeLoader(subcontentDependency);
 
@@ -76,8 +75,7 @@ public class DynamicSubcontentLoader<T extends DynamicContentElement, M extends 
                 sourceContent.loadInBackground();
                 alternativeLoader.loadContent(content);
 
-            } else if (sourceContent instanceof GroupedDynamicContent) {
-                GroupedDynamicContent<T> groupedContent = (GroupedDynamicContent<T>) sourceContent;
+            } else if (sourceContent instanceof GroupedDynamicContent<T> groupedContent) {
                 DatabaseEntity parent = content.ensureParentEntity();
                 List<T> list = groupedContent.getChildElements(parent);
                 content.setElements(list);

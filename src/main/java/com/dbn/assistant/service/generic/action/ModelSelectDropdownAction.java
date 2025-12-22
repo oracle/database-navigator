@@ -63,8 +63,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
     @Override
     protected Condition<AnAction> getPreselectCondition() {
         return a -> {
-            if (a instanceof ModelSelectAction) {
-                ModelSelectAction modelAction = (ModelSelectAction) a;
+            if (a instanceof ModelSelectAction modelAction) {
                 return Objects.equals(modelAction.getModelId(), selectedModelId);
             }
             return false;

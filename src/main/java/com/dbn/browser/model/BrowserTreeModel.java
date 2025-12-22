@@ -110,8 +110,7 @@ public abstract class BrowserTreeModel extends StatefulDisposableBase implements
 
     @Override
     public int getChildCount(Object parent) {
-        if (parent instanceof BrowserTreeNode) {
-            BrowserTreeNode parentNode = (BrowserTreeNode) parent;
+        if (parent instanceof BrowserTreeNode parentNode) {
             if (parentNode.isLeaf()) return 0;
 
             return guarded(0, parentNode, p -> p.getChildCount());
@@ -121,8 +120,7 @@ public abstract class BrowserTreeModel extends StatefulDisposableBase implements
 
     @Override
     public boolean isLeaf(Object node) {
-        if (node instanceof BrowserTreeNode) {
-            BrowserTreeNode treeNode = (BrowserTreeNode) node;
+        if (node instanceof BrowserTreeNode treeNode) {
             return treeNode.isLeaf();
         }
         return true;
@@ -130,9 +128,7 @@ public abstract class BrowserTreeModel extends StatefulDisposableBase implements
 
     @Override
     public int getIndexOfChild(Object parent, Object child) {
-        if (parent instanceof BrowserTreeNode &&  child instanceof BrowserTreeNode) {
-            BrowserTreeNode parentNode = (BrowserTreeNode) parent;
-            BrowserTreeNode childNode = (BrowserTreeNode) child;
+        if (parent instanceof BrowserTreeNode parentNode && child instanceof BrowserTreeNode childNode) {
             return guarded(-1, Pair.of(parentNode, childNode), p -> p.first().getIndex(p.second()));
         }
         return -1;

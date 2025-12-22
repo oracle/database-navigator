@@ -37,8 +37,7 @@ public class GenerateStatementActionGroup extends DefaultActionGroup {
             add(new GenerateSelectStatementAction(selectedObjects));
         }
 
-        if (object instanceof DBTable) {
-            DBTable table = (DBTable) object;
+        if (object instanceof DBTable table) {
             add(new GenerateInsertStatementAction(table));
         }
 

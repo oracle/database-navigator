@@ -62,8 +62,7 @@ public class DatabaseConnectIntentionAction extends EditorIntentionAction {
         if (isDatabaseAssistantPrompt(editor, psiElement, COMMENT, SELECTION)) return false;
 
         PsiFile psiFile = psiElement.getContainingFile();
-        if (psiFile instanceof DBLanguagePsiFile) {
-            DBLanguagePsiFile dbLanguagePsiFile = (DBLanguagePsiFile) psiFile;
+        if (psiFile instanceof DBLanguagePsiFile dbLanguagePsiFile) {
             ConnectionHandler connection = dbLanguagePsiFile.getConnection();
             if (isLiveConnection(connection) && !connection.canConnect() && !connection.isConnected()) {
                 return true;
@@ -75,8 +74,7 @@ public class DatabaseConnectIntentionAction extends EditorIntentionAction {
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         PsiFile psiFile = psiElement.getContainingFile();
-        if (psiFile instanceof DBLanguagePsiFile) {
-            DBLanguagePsiFile dbLanguagePsiFile = (DBLanguagePsiFile) psiFile;
+        if (psiFile instanceof DBLanguagePsiFile dbLanguagePsiFile) {
             ConnectionHandler connection = dbLanguagePsiFile.getConnection();
             if (isLiveConnection(connection)) {
                 connection.getInstructions().setAllowAutoConnect(true);

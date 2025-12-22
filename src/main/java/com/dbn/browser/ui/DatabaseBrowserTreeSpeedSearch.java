@@ -80,8 +80,7 @@ public class DatabaseBrowserTreeSpeedSearch extends SpeedSearchBase<DatabaseBrow
     private static void loadElements(List<BrowserTreeNode> nodes, BrowserTreeNode browserTreeNode) {
         if (!browserTreeNode.isTreeStructureLoaded()) return;
 
-        if (browserTreeNode instanceof ConnectionBundle) {
-            ConnectionBundle connectionBundle = (ConnectionBundle) browserTreeNode;
+        if (browserTreeNode instanceof ConnectionBundle connectionBundle) {
             for (ConnectionHandler connection : connectionBundle.getConnections()){
                 DBObjectBundle objectBundle = connection.getObjectBundle();
                 loadElements(nodes, objectBundle);

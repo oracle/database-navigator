@@ -155,8 +155,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     public void sessionInitialized() {
         Project project = getProject();
         XDebugSession session = getSession();
-        if (session instanceof XDebugSessionImpl) {
-            XDebugSessionImpl sessionImpl = (XDebugSessionImpl) session;
+        if (session instanceof XDebugSessionImpl sessionImpl) {
             sessionImpl.getSessionData().setBreakpointsMuted(false);
         }
         Progress.background(project, getConnection(), true,
@@ -513,8 +512,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         DBSchemaObject schemaObject = getDatabaseObject(runtimeInfo);
         if (schemaObject != null) {
             DBObjectVirtualFile virtualFile = schemaObject.getVirtualFile();
-            if (virtualFile instanceof DBEditableObjectVirtualFile) {
-                DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) virtualFile;
+            if (virtualFile instanceof DBEditableObjectVirtualFile editableObjectFile) {
                 DBContentType contentType = schemaObject.getContentType();
                 if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
                     return editableObjectFile.getContentFile(DBContentType.CODE_BODY);

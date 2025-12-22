@@ -25,10 +25,10 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.SQLException;
 import java.sql.SQLNonTransientConnectionException;
 import java.sql.SQLTimeoutException;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -131,26 +131,22 @@ public class Exceptions {
     }
 
     public static Throwable unwrap(Throwable throwable) {
-        if (throwable instanceof UndeclaredThrowableException) {
-            UndeclaredThrowableException undeclaredThrowableException = (UndeclaredThrowableException) throwable;
+        if (throwable instanceof UndeclaredThrowableException undeclaredThrowableException) {
             Throwable undeclaredThrowable = undeclaredThrowableException.getUndeclaredThrowable();
             return undeclaredThrowable == throwable ? throwable : unwrap(undeclaredThrowable);
         }
 
-        if (throwable instanceof InvocationTargetException) {
-            InvocationTargetException invocationTargetException = (InvocationTargetException) throwable;
+        if (throwable instanceof InvocationTargetException invocationTargetException) {
             Throwable targetException = invocationTargetException.getTargetException();
             return targetException == throwable ? throwable : unwrap(targetException);
         }
 
-        if (throwable instanceof ExecutionException) {
-            ExecutionException executionException = (ExecutionException) throwable;
+        if (throwable instanceof ExecutionException executionException) {
             Throwable cause = causeOf(executionException);
             return cause == throwable ? throwable : unwrap(cause);
         }
 
-        if (throwable instanceof CompletionException) {
-            CompletionException completionException = (CompletionException) throwable;
+        if (throwable instanceof CompletionException completionException) {
             Throwable cause = causeOf(completionException);
             return cause == throwable ? throwable : unwrap(cause);
         }

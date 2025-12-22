@@ -84,8 +84,7 @@ public class SessionBrowserModel extends ResultSetDataModel<SessionBrowserModelR
     @Override
     public void setState(DataModelState state) {
         super.setState(state);
-        if (state instanceof SessionBrowserState) {
-            SessionBrowserState sessionBrowserState = (SessionBrowserState) state;
+        if (state instanceof SessionBrowserState sessionBrowserState) {
             setFilter(sessionBrowserState.getFilterState());
         }
         sort();
@@ -103,12 +102,11 @@ public class SessionBrowserModel extends ResultSetDataModel<SessionBrowserModelR
     }
 
     public List<String> getDistinctValues(SessionBrowserFilterType filterType, String selectedValue) {
-        switch (filterType) {
-            case USER: return getDistinctValues("USER", selectedValue);
-            case HOST: return getDistinctValues("HOST", selectedValue);
-            case STATUS: return getDistinctValues("STATUS", selectedValue);
-        }
-        return null;
+        return switch (filterType) {
+            case USER -> getDistinctValues("USER", selectedValue);
+            case HOST -> getDistinctValues("HOST", selectedValue);
+            case STATUS -> getDistinctValues("STATUS", selectedValue);
+        };
     }
 
     private List<String> getDistinctValues(String columnName, String selectedValue) {

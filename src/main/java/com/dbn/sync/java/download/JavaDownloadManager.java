@@ -127,19 +127,16 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
 		ResultSet resultSet = null;
 		try {
 			DatabaseMetadataInterface metadata = connection.getMetadataInterface();
-			if (sourceObject instanceof DBSchema) {
-				DBSchema schema = (DBSchema) sourceObject;
+			if (sourceObject instanceof DBSchema schema) {
                 DBObjectList<DBObject> childObjectList = schema.getChildObjectList(objectType);
                 if (childObjectList == null) return tasks;
 
                 for (Object object : childObjectList.getObjects()) {
                     JavaDownloadTask downloadElement = null;
-                    if (object instanceof DBJavaClass) {
-                        DBJavaClass javaClass = (DBJavaClass) object;
+                    if (object instanceof DBJavaClass javaClass) {
                         downloadElement = new JavaDownloadTask(javaClass);
 
-                    } else if (object instanceof DBJavaResource) {
-                        DBJavaResource javaResource = (DBJavaResource) object;
+                    } else if (object instanceof DBJavaResource javaResource) {
                         downloadElement = new JavaDownloadTask(javaResource);
                     }
                     if (downloadElement == null) continue;
@@ -151,9 +148,8 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
                 return tasks;
 			}
 
-            if (sourceObject instanceof DBJavaClass) {
-				DBJavaClass javaClass = (DBJavaClass) sourceObject;
-				JavaDownloadTask task = new JavaDownloadTask(javaClass);
+            if (sourceObject instanceof DBJavaClass javaClass) {
+                JavaDownloadTask task = new JavaDownloadTask(javaClass);
 				task.setEnabled(true);
 				task.setSelected(true);
 				tasks.add(task);
@@ -164,9 +160,8 @@ public class JavaDownloadManager extends ProjectComponentBase implements Persist
                 List<JavaDownloadTask> dependencyTasks = createDownloadDependencyTasks(connection, resultSet);
                 tasks.addAll(dependencyTasks);
 
-			} else if (sourceObject instanceof DBJavaResource) {
-				DBJavaResource javaResource = (DBJavaResource) sourceObject;
-				JavaDownloadTask task = new JavaDownloadTask(javaResource);
+			} else if (sourceObject instanceof DBJavaResource javaResource) {
+                JavaDownloadTask task = new JavaDownloadTask(javaResource);
 				task.setEnabled(true);
 				task.setSelected(true);
 				tasks.add(task);

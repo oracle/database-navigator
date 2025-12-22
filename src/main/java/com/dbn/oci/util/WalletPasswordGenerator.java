@@ -18,6 +18,7 @@ package com.dbn.oci.util;
 
 import lombok.experimental.UtilityClass;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 @UtilityClass
@@ -31,7 +32,7 @@ public class WalletPasswordGenerator {
     public static String generateRandomPassword() {
         // Define character pools
 
-        Random random = new Random();
+        Random random = new SecureRandom();
         StringBuilder password = new StringBuilder();
 
         // Add at least one letter

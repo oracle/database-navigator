@@ -41,8 +41,7 @@ public abstract class StatementAbstractPreset extends CodeStylePresetImpl {
             return SPACING_ONE_LINE;
         } else {
             PsiElement previousPsiElement = psiElement.getPrevSibling();
-            if (previousPsiElement instanceof TokenPsiElement) {
-                TokenPsiElement previousToken = (TokenPsiElement) previousPsiElement;
+            if (previousPsiElement instanceof TokenPsiElement previousToken) {
                 SharedTokenTypeBundle sharedTokenTypes = psiElement.getLanguage().getSharedTokenTypes();
                 TokenType tokenType = previousToken.getTokenType();
                 return tokenType ==  sharedTokenTypes.getChrLeftParenthesis() ?

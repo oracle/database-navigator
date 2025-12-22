@@ -431,42 +431,39 @@ public class GenericMetadataInterface extends DatabaseMetadataInterfaceImpl {
 
 
     private static CachedResultSet loadMethodsRaw(String ownerName, DBNConnection connection, String methodType) throws SQLException {
-        switch (methodType) {
-            case "FUNCTION":
-                return DatabaseInterfaceInvoker.cached(
-                        key("UNSCRAMBLED_FUNCTIONS", ownerName),
-                        () -> {
-                            CachedResultSet functionsRs = loadFunctionsRaw(ownerName, connection);
-                            functionsRs = functionsRs.filter(IS_FUNCTION);
+        return switch (methodType) {
+            case "FUNCTION" -> DatabaseInterfaceInvoker.cached(
+                    key("UNSCRAMBLED_FUNCTIONS", ownerName),
+                    () -> {
+                        CachedResultSet functionsRs = loadFunctionsRaw(ownerName, connection);
+                        functionsRs = functionsRs.filter(IS_FUNCTION);
 
-                            CachedResultSet proceduresRs = loadProceduresRaw(ownerName, connection);
-                            proceduresRs = proceduresRs.filter(IS_FUNCTION_P);
-                            proceduresRs = proceduresRs.filter(Condition.notIn(functionsRs, METHOD_QUALIFIED_IDENTIFIER));
+                        CachedResultSet proceduresRs = loadProceduresRaw(ownerName, connection);
+                        proceduresRs = proceduresRs.filter(IS_FUNCTION_P);
+                        proceduresRs = proceduresRs.filter(Condition.notIn(functionsRs, METHOD_QUALIFIED_IDENTIFIER));
 
-                            CachedResultSet methodsRs = functionsRs.unionAll(proceduresRs);
-                            methodsRs = methodsRs.enrich("METHOD_OVERLOAD", methodOverloadEnricher());
+                        CachedResultSet methodsRs = functionsRs.unionAll(proceduresRs);
+                        methodsRs = methodsRs.enrich("METHOD_OVERLOAD", methodOverloadEnricher());
 
-                            return methodsRs;
-                        });
+                        return methodsRs;
+                    });
+            case "PROCEDURE" -> DatabaseInterfaceInvoker.cached(
+                    key("UNSCRAMBLED_PROCEDURES", ownerName),
+                    () -> {
+                        CachedResultSet proceduresRs = loadProceduresRaw(ownerName, connection);
+                        proceduresRs = proceduresRs.filter(IS_PROCEDURE);
 
-            case "PROCEDURE":
-                return DatabaseInterfaceInvoker.cached(
-                        key("UNSCRAMBLED_PROCEDURES", ownerName),
-                        () -> {
-                            CachedResultSet proceduresRs = loadProceduresRaw(ownerName, connection);
-                            proceduresRs = proceduresRs.filter(IS_PROCEDURE);
+                        CachedResultSet functionsRs = loadFunctionsRaw(ownerName, connection);
+                        functionsRs = functionsRs.filter(IS_PROCEDURE_F);
+                        functionsRs = functionsRs.filter(Condition.notIn(proceduresRs, METHOD_QUALIFIED_IDENTIFIER));
 
-                            CachedResultSet functionsRs = loadFunctionsRaw(ownerName, connection);
-                            functionsRs = functionsRs.filter(IS_PROCEDURE_F);
-                            functionsRs = functionsRs.filter(Condition.notIn(proceduresRs, METHOD_QUALIFIED_IDENTIFIER));
+                        CachedResultSet methodsRs = proceduresRs.unionAll(functionsRs);
+                        methodsRs = methodsRs.enrich("METHOD_OVERLOAD", methodOverloadEnricher());
 
-                            CachedResultSet methodsRs = proceduresRs.unionAll(functionsRs);
-                            methodsRs = methodsRs.enrich("METHOD_OVERLOAD", methodOverloadEnricher());
-
-                            return methodsRs;
-                        });
-        }
-        throw new IllegalArgumentException("Method type " + methodType + " not supported");
+                        return methodsRs;
+                    });
+            default -> throw new IllegalArgumentException("Method type " + methodType + " not supported");
+        };
     }
 
     @NotNull

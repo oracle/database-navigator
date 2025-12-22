@@ -5,7 +5,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.vector.model.sourceconfig.SourceType;
+import com.dbn.vector.model.source.SourceType;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;

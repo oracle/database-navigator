@@ -51,7 +51,7 @@ public class AssistantToolData {
                 .stream()
                 .filter(t -> category == null || t.getToolCategory() == category)
                 .map(t -> t.getToolType())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static boolean isInteractiveTool(String utilityName) {
