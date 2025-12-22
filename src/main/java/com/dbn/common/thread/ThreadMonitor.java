@@ -127,6 +127,11 @@ public class ThreadMonitor {
         return ThreadInfo.current().is(ThreadProperty.DISPOSER);
     }
 
+    public static boolean isDispatcherThread() {
+        // TODO quick fix (any other way to identify EDT coroutines?)
+        return Thread.currentThread().getName().contains("DefaultDispatcher");
+    }
+
     public static boolean isDispatchThread() {
         Application application = ApplicationManager.getApplication();
         return application != null && application.isDispatchThread();

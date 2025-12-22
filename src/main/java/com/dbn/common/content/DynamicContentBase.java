@@ -416,6 +416,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
 
     private boolean allowSyncLoad() {
         if (ThreadMonitor.isDispatchThread()) return false;
+        if (ThreadMonitor.isDispatcherThread()) return false;
         if (ThreadMonitor.isWriteActionThread()) return false;
 
         if (canLoadFast()) return true;
