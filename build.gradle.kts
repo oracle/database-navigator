@@ -40,6 +40,7 @@ version = "3.7.0.0"
 repositories {
     // locally built 3rd party dependencies
     maven(url = uri("../dbn-libraries/_repository"))
+    maven(url = uri("lib"))
     mavenCentral()
     flatDir {
         dirs("libs")

@@ -99,7 +99,7 @@
         <mkdir dir="${compiler.output.dir}"/>
         <javac2 srcdir="${source.dir}/../modules/dbn-api/src/main/java"
                 destdir="${compiler.output.dir}"
-                source="11" target="11" debug="true">
+                source="17" target="17" debug="true">
             <patternset refid="compiler.ignored.files"/>
             <classpath refid="classpath.ide"/>
             <classpath refid="classpath.project"/>
@@ -108,7 +108,7 @@
 
         <javac2 srcdir="${source.dir}/../modules/dbn-spi/src/main/java"
                 destdir="${compiler.output.dir}"
-                source="11" target="11" debug="true">
+                source="17" target="17" debug="true">
             <patternset refid="compiler.ignored.files"/>
             <classpath refid="classpath.ide"/>
             <classpath refid="classpath.project"/>
@@ -118,7 +118,7 @@
 
         <javac2 srcdir="${source.dir}/main/java"
                 destdir="${compiler.output.dir}"
-                source="11" target="11" debug="true">
+                source="17" target="17" debug="true">
             <patternset refid="compiler.ignored.files"/>
             <classpath refid="classpath.ide"/>
             <classpath refid="classpath.project"/>
