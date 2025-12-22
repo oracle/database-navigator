@@ -4,7 +4,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.object.DBAIModel;
-import com.dbn.object.management.ObjectManagementAdapterFactoryBase;
+import com.dbn.object.management.ObjectManagementAdapterBase;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import static com.dbn.common.constant.Constant.array;
 import static com.dbn.object.type.DBObjectType.AI_MODEL;
 
-public class DBAIModelManagementAdapter extends ObjectManagementAdapterFactoryBase<DBAIModel> {
+public class DBAIModelManagementAdapter extends ObjectManagementAdapterBase<DBAIModel> {
     @Override
     public DBObjectType[] getObjectTypes() {
         return array(AI_MODEL);
@@ -56,7 +56,8 @@ public class DBAIModelManagementAdapter extends ObjectManagementAdapterFactoryBa
     @Override
     protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBAIModel object) throws SQLException {
         DatabaseVectorInterface vectorInterface = connection.getVectorInterface();
-        vectorInterface.deleteAIModel(conn,
+        vectorInterface.dropModel(conn,
+                object.getSchemaName(true),
                 object.getName(true));
     }
 

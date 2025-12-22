@@ -110,8 +110,7 @@ public abstract class BasicConfiguration<P extends Configuration, E extends Conf
         }
         modified = false;
 
-        if (this instanceof TopLevelConfig) {
-            TopLevelConfig topLevelConfig = (TopLevelConfig) this;
+        if (this instanceof TopLevelConfig topLevelConfig) {
             Configuration originalSettings = topLevelConfig.getOriginalSettings();
             if (originalSettings != this ) {
                 Element settingsElement = new Element("settings");

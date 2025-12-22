@@ -48,7 +48,6 @@ import java.awt.Color;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
@@ -100,7 +99,7 @@ public class RecordViewerForm extends DBNFormBase {
         }
         ColumnSortingType sortingType = getEditorManager().getRecordViewColumnSortingType();
         sortColumns(sortingType);
-        alignFormFields(this);
+        updateFieldAlignment();
 
         filterTextField.getEmptyText().setText("Filter");
         onTextChange(filterTextField, e -> filterColumForms());
@@ -117,7 +116,7 @@ public class RecordViewerForm extends DBNFormBase {
     @Override
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
-        alignerData.registerForms(columnForms);
+        alignerData.registerForms(() -> columnForms);
     }
 
     private DatasetEditorManager getEditorManager() {

@@ -254,8 +254,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
         }
 
         private boolean isModifiable() {
-            if (selectable instanceof Enableable) {
-                Enableable enableable = (Enableable) selectable;
+            if (selectable instanceof Enableable enableable) {
                 return enableable.isEnabled();
             }
             return true;

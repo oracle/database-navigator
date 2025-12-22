@@ -44,11 +44,9 @@ public class DBLSpellcheckingStrategy extends SpellcheckingStrategy implements S
                 return TEXT_TOKENIZER;
             }
 
-            if (element instanceof LeafPsiElement) {
-                LeafPsiElement leafPsiElement = (LeafPsiElement) element;
+            if (element instanceof LeafPsiElement leafPsiElement) {
                 PsiElement parent = leafPsiElement.getParent();
-                if (parent instanceof IdentifierPsiElement) {
-                    IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) parent;
+                if (parent instanceof IdentifierPsiElement identifierPsiElement) {
                     if (identifierPsiElement.isDefinition() || codeEditorGeneralSettings.isEnableReferenceSpellchecking()) {
                         return TEXT_TOKENIZER;
                     }

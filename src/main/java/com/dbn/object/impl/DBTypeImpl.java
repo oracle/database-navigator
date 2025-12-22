@@ -251,8 +251,7 @@ class DBTypeImpl
 
     @Override
     public int compareTo(@NotNull Object o) {
-        if (o instanceof DBType) {
-            DBType that = (DBType) o;
+        if (o instanceof DBType that) {
             if (Objects.equals(this.getParentObject(), that.getParentObject())) {
                 return this.isCollection() == that.isCollection() ?
                         super.compareTo(o) :

@@ -41,8 +41,7 @@ public class PSQLFoldingBuilder extends DBLanguageFoldingBuilder {
             if (child instanceof PsiComment) {
                 createCommentFolding(context, (PsiComment) child);
             }
-            else if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            else if (child instanceof BasePsiElement basePsiElement) {
                 createAttributeFolding(context, basePsiElement);
 
                 if (!context.folded && basePsiElement.is(ElementTypeAttribute.STATEMENT)) {
@@ -76,8 +75,7 @@ public class PSQLFoldingBuilder extends DBLanguageFoldingBuilder {
                     }
                 }
 
-                if (!context.folded && child instanceof TokenPsiElement) {
-                    TokenPsiElement tokenPsiElement = (TokenPsiElement) child;
+                if (!context.folded && child instanceof TokenPsiElement tokenPsiElement) {
                     createLiteralFolding(context, tokenPsiElement);
                 }
 
@@ -110,8 +108,7 @@ public class PSQLFoldingBuilder extends DBLanguageFoldingBuilder {
             return "...";
         }
 
-        if (psiElement instanceof ChameleonPsiElement) {
-            ChameleonPsiElement chameleonPsiElement = (ChameleonPsiElement) psiElement;
+        if (psiElement instanceof ChameleonPsiElement chameleonPsiElement) {
             return chameleonPsiElement.getLanguage().getDisplayName() + " block";
         }
         return "";

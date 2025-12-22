@@ -17,6 +17,7 @@
 package com.dbn.common.util;
 
 import com.dbn.common.filter.Filter;
+import com.dbn.common.routine.ThrowableConsumer;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +32,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -160,7 +160,7 @@ public class Lists {
         return count;
     }
 
-    public static <T> void forEach(@Nullable Collection<T> list, Consumer<? super T> consumer) {
+    public static <T, E extends Throwable> void forEach(@Nullable Collection<T> list, ThrowableConsumer<? super T, E> consumer) throws E {
         if (list == null) return;
         if (list.isEmpty()) return;
 

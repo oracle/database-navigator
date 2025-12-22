@@ -55,7 +55,7 @@ public class DriverPackageMetadataDownloader {
         List<DriverPackage> driverPackages = packageElements.parallelStream()
                 .map(e -> createDriverPackage(e, session))
                 .filter(p -> p != null)
-                .collect(Collectors.toList());
+                .toList();
         return driverPackages.stream().collect(Collectors.toMap(p -> p.getId(), p -> p));
     }
 

@@ -85,8 +85,7 @@ public class ObjectLookupItemBuilder extends LookupItemBuilder {
             DBObject parentObject = object.getParentObject();
 
             String typePrefix = "";
-            if (object instanceof DBSynonym) {
-                DBSynonym synonym = (DBSynonym) object;
+            if (object instanceof DBSynonym synonym) {
                 DBObjectType underlyingObjectType = synonym.getUnderlyingObjectType();
                 if (underlyingObjectType != null) {
                     typePrefix = underlyingObjectType.getName() + ' ';

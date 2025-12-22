@@ -25,7 +25,6 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.dbn.common.util.CollectionUtil.cloneElements;
 import static com.dbn.common.util.Commons.nvl;
@@ -71,7 +70,7 @@ public class AssistantCredentialBundle extends ProjectUnit {
                 .stream()
                 .filter(c -> c.getProviderId() != null)
                 .map(c -> new ImplicitAssistantProfile(project, c))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 

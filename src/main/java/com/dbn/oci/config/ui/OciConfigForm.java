@@ -156,7 +156,10 @@ public class OciConfigForm extends DBNFormBase {
         setText(configFileTextField, config.getConfigFile());
         setSelection(configProfileComboBox, configProfile);
 
-        configProfileComboBox.init(() -> loadOciConfigProfiles(), p -> Objects.equals(p, configProfile));
+        configProfileComboBox
+                .withValueLoader(() -> loadOciConfigProfiles())
+                .withValuePreselector(p -> Objects.equals(p, configProfile))
+                .triggerLoad();
     }
 
     private List<String> loadOciConfigProfiles() {

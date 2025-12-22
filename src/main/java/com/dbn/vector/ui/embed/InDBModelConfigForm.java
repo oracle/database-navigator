@@ -1,140 +1,127 @@
 package com.dbn.vector.ui.embed;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
-import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBAIModel;
 import com.dbn.object.DBSchema;
-import com.dbn.object.event.ObjectChangeEvent;
-import com.dbn.object.factory.ui.common.ObjectFactoryInputDialog;
-import com.dbn.object.type.DBObjectType;
+import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.vector.model.embed.DatabaseModelConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isValid;
-import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.object.type.DBObjectType.AI_MODEL;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
 
 public class InDBModelConfigForm extends VectorToolboxFormBase {
-  private JPanel mainPanel;
-  private DBNComboBox<DBAIModel> modelComboBox;
-  private DBNComboBox<DBSchema> schemaComboBox;
-  private JButton addModelButton;
-  private JLabel schemaLabel;
-  private JLabel modelLabel;
+    private JPanel mainPanel;
+    private JLabel schemaLabel;
+    private JLabel modelLabel;
+    private DBObjectSelector<DBAIModel> modelComboBox;
+    private DBObjectSelector<DBSchema> schemaComboBox;
 
-  public InDBModelConfigForm(@Nullable Disposable parent, ConnectionHandler connection) {
-    super(parent, connection);
-    modelComboBox.set(HIDE_DESCRIPTION, true);
-    schemaComboBox.set(HIDE_DESCRIPTION, true);
-    initModelAddButton();
-    initComboBoxes();
-  }
+    public InDBModelConfigForm(@Nullable Disposable parent, ConnectionHandler connection) {
+        super(parent, connection);
+    }
 
-  private void initModelAddButton() {
-    addModelButton.setIcon(Icons.ACTION_ADD);
-    addModelButton.setText(null);
-    addModelButton.addActionListener(e -> Dialogs.show(() ->
-            new ObjectFactoryInputDialog(
-                    ensureProject(),
-                    getSelectedSchema(),
-                    DBObjectType.AI_MODEL)));
+    @Override
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerFieldGroup(schemaLabel, schemaComboBox);
+        alignerData.registerFieldGroup(modelLabel, modelComboBox);
+    }
 
-    ObjectChangeEvent.subscribe(this,
-            getConnection(),
-            DBObjectType.AI_MODEL,
-            () -> modelComboBox.reloadValues());
-  }
+    @Override
+    protected void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedSchema()), array(modelComboBox));
+    }
 
-  @Override
-  protected void initFieldAlignment() {
-    FieldAlignerData alignerData = getFieldAlignerData();
-    alignerData.registerFieldGroup(schemaLabel, schemaComboBox);
-    alignerData.registerFieldGroup(modelLabel, modelComboBox);
-  }
+    @Override
+    protected void initValidation() {
+        addSelectionValidation(schemaComboBox, "Please select a schema");
+        addSelectionValidation(modelComboBox, "Please select or create a model");
+    }
 
-  @Override
-  protected void initFieldAvailability() {
-    DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
-    fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedSchema()), array(modelComboBox));
-    fieldAdapter.initFieldsVisibility(() -> isValid(getSelectedSchema()), array(addModelButton));
-  }
+    private List<DBAIModel> loadModels() {
+        DBSchema schema = getSelectedSchema();
+        if (schema == null) return emptyList();
 
-  @Override
-  protected void initValidation() {
-    addSelectionValidation(schemaComboBox, "Please select a schema");
-    addSelectionValidation(modelComboBox, "Please select or create a model");
-  }
+        return schema.getAIModels();
+    }
 
-  private List<DBAIModel> loadModels() {
-    DBSchema schema = getSelectedSchema();
-    if (schema == null) return emptyList();
+    @Nullable
+    public DBSchema getSelectedSchema() {
+        return getSelection(schemaComboBox);
+    }
 
-    return schema.getAIModels();
-  }
+    @Nullable
+    public DBAIModel getSelectedModel() {
+        return getSelection(modelComboBox);
+    }
 
-  @Nullable
-  public DBSchema getSelectedSchema() {
-    return getSelection(schemaComboBox);
-  }
+    private void initComboBoxes() {
+        DatabaseModelConfig config = getConfig();
+        ConnectionHandler connection = getConnection();
 
-  @Nullable
-  public DBAIModel getSelectedModel() {
-    return getSelection(modelComboBox);
-  }
+        schemaComboBox
+                .initialize(this, SCHEMA)
+                .withConnectionContext(() -> getConnection())
+                .withValueLoader(() -> loadSchemas())
+                .withValuePreselector(() -> config.getSchemaName())
+                .triggerLoad();
 
-  private void initComboBoxes() {
-    modelComboBox.set(HIDE_DESCRIPTION, true);
-    schemaComboBox.set(HIDE_DESCRIPTION, true);
+        modelComboBox.initialize(this, AI_MODEL)
+                .withConnectionContext(() -> getConnection())
+                .withSchemaContext(() -> getSelectedSchema())
+                .withValueLoader(() -> loadModels())
+                .withValuePreselector(() -> config.getModelName())
+                .withObjectFactory("New AI Model...")
+                .triggerLoad();
 
-    updateFieldAvailability();
-  }
+        updateFieldAvailability();
+    }
 
-  @Override
-  protected void initEventListeners() {
-    onSelectionChange(schemaComboBox, s -> populateModels());
-  }
+    @Override
+    protected void initEventListeners() {
+        onSelectionChange(schemaComboBox, s -> populateModels());
+    }
 
-  @Override
-  public void resetFormChanges() {
-    DatabaseModelConfig config = getConfig();
-    schemaComboBox.init(() -> loadSchemas(), s -> matchesObjectName(s, config.getSchemaName()));
-    modelComboBox.init(() -> loadModels(), m -> matchesObjectName(m, config.getModelName()));
-  }
+    @Override
+    public void resetFormChanges() {
+        initComboBoxes();
+    }
 
-  @Override
-  public void applyFormChanges() {
-    DatabaseModelConfig config = getConfig();
-    config.setSchemaName(getSelectedObjectName(schemaComboBox, config.getSchemaName()));
-    config.setModelName(getSelectedObjectName(modelComboBox, config.getModelName()));
-  }
+    @Override
+    public void applyFormChanges() {
+        DatabaseModelConfig config = getConfig();
+        config.setSchemaName(getSelectedObjectName(schemaComboBox, config.getSchemaName()));
+        config.setModelName(getSelectedObjectName(modelComboBox, config.getModelName()));
+    }
 
-  private void populateModels() {
-    updateFieldAvailability();
-    modelComboBox.reloadValues();
-  }
+    private void populateModels() {
+        updateFieldAvailability();
+        modelComboBox.reloadValues();
+    }
 
 
-  public DatabaseModelConfig getConfig() {
-    return getEmbeddingRequest().getEmbedConfig().getDatabaseModelConfig();
-  }
+    public DatabaseModelConfig getConfig() {
+        return getEmbeddingRequest().getEmbedConfig().getDatabaseModelConfig();
+    }
 
-  @Override
-  protected JComponent getMainComponent() {
-    return mainPanel;
-  }
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
+    }
 }

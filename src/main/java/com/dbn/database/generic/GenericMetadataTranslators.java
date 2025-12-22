@@ -63,7 +63,7 @@ import static java.sql.DatabaseMetaData.procedureNoResult;
 import static java.sql.DatabaseMetaData.procedureResultUnknown;
 import static java.sql.DatabaseMetaData.procedureReturnsResult;
 
-
+@NonNls
 public class GenericMetadataTranslators {
     private GenericMetadataTranslators() {}
 
@@ -98,13 +98,13 @@ public class GenericMetadataTranslators {
         @Override
         public String getString(String columnLabel) throws SQLException {
             String schemaName = resolveOwner(inner, "TABLE_CAT", "TABLE_SCHEM");
-            switch (columnLabel) {
-                case "SCHEMA_NAME": return schemaName;
-                case "IS_PUBLIC": return literalBoolean(false);
-                case "IS_SYSTEM": return literalBoolean("information_schema".equalsIgnoreCase(schemaName));
-                case "IS_EMPTY": return literalBoolean(isEmpty(schemaName));
-                default: return null;
-            }
+            return switch (columnLabel) {
+                case "SCHEMA_NAME" -> schemaName;
+                case "IS_PUBLIC" -> literalBoolean(false);
+                case "IS_SYSTEM" -> literalBoolean("information_schema".equalsIgnoreCase(schemaName));
+                case "IS_EMPTY" -> literalBoolean(isEmpty(schemaName));
+                default -> null;
+            };
         }
 
         protected abstract boolean isEmpty(String schemaName) throws SQLException;
@@ -122,7 +122,7 @@ public class GenericMetadataTranslators {
         }
 
         @Override
-        public String getString(String columnLabel) throws SQLException {
+        public String getString(@NonNls String columnLabel) throws SQLException {
             switch (columnLabel) {
                 case "TABLE_NAME": return inner.getString("TABLE_NAME"); // redundant (for clarity)
                 case "IS_TEMPORARY":
@@ -146,7 +146,7 @@ public class GenericMetadataTranslators {
         }
 
         @Override
-        public String getString(String columnLabel) throws SQLException {
+        public String getString(@NonNls String columnLabel) throws SQLException {
             switch (columnLabel) {
                 case "VIEW_NAME": return inner.getString("TABLE_NAME");
 
@@ -177,40 +177,37 @@ public class GenericMetadataTranslators {
         }
 
         @Override
-        public String getString(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "DATA_TYPE_NAME":
-                    return resolve(
-                            () -> {
-                                int dataType = inner.getInt("DATA_TYPE");
-                                return DATA_TYPE_NAMES.get().get(dataType);
-                            },
-                            () -> inner.getString("TYPE_NAME"));
-
-
-                case "DECL_TYPE_NAME":   return null;
-                case "DECL_TYPE_OWNER":   return null;
-                case "DECL_TYPE_PROGRAM": return null;
-                case "IS_SET":            return literalBoolean(false);
-                default: return null;
-            }
+        public String getString(@NonNls String columnLabel) throws SQLException {
+            return switch (columnLabel) {
+                case "DATA_TYPE_NAME" -> resolve(
+                        () -> {
+                            int dataType = inner.getInt("DATA_TYPE");
+                            return DATA_TYPE_NAMES.get().get(dataType);
+                        },
+                        () -> inner.getString("TYPE_NAME"));
+                case "DECL_TYPE_NAME" -> null;
+                case "DECL_TYPE_OWNER" -> null;
+                case "DECL_TYPE_PROGRAM" -> null;
+                case "IS_SET" -> literalBoolean(false);
+                default -> null;
+            };
         }
 
         @Override
-        public long getLong(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "DATA_LENGTH":    return resolve(() -> inner.getLong("COLUMN_SIZE"), () -> 0L);
-                default: return 0;
+        public long getLong(@NonNls String columnLabel) throws SQLException {
+            if (columnLabel.equals("DATA_LENGTH")) {
+                return resolve(() -> inner.getLong("COLUMN_SIZE"), () -> 0L);
             }
+            return 0;
         }
 
         @Override
-        public int getInt(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "DATA_PRECISION": return resolve(() -> inner.getInt("COLUMN_SIZE"), () -> 0);
-                case "DATA_SCALE":     return resolve(() -> inner.getInt("DECIMAL_DIGITS"),() -> 0);
-                default: return 0;
-            }
+        public int getInt(@NonNls String columnLabel) throws SQLException {
+            return switch (columnLabel) {
+                case "DATA_PRECISION" -> resolve(() -> inner.getInt("COLUMN_SIZE"), () -> 0);
+                case "DATA_SCALE" -> resolve(() -> inner.getInt("DECIMAL_DIGITS"), () -> 0);
+                default -> 0;
+            };
         }
     }
 
@@ -227,39 +224,33 @@ public class GenericMetadataTranslators {
         }
 
         @Override
-        public String getString(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "COLUMN_NAME": return inner.getString("COLUMN_NAME");
-                case "DATASET_NAME": return inner.getString("TABLE_NAME");
-                case "IS_PRIMARY_KEY":
-                    return literalBoolean(
-                            isPrimaryKey(
-                                    resolveOwner(inner, "TABLE_CAT", "TABLE_SCHEM"),
-                                    inner.getString("TABLE_NAME"),
-                                    inner.getString("COLUMN_NAME")));
-
-                case "IS_FOREIGN_KEY":
-                    return literalBoolean(
-                            isForeignKey(
-                                    resolveOwner(inner, "TABLE_CAT", "TABLE_SCHEM"),
-                                    inner.getString("TABLE_NAME"),
-                                    inner.getString("COLUMN_NAME")));
-
-                case "IS_UNIQUE_KEY":
-                    return literalBoolean(
-                            isUniqueKey(
-                                    resolveOwner(inner, "TABLE_CAT", "TABLE_SCHEM"),
-                                    inner.getString("TABLE_NAME"),
-                                    inner.getString("COLUMN_NAME")));
-
-                case "IS_NULLABLE": {
+        public String getString(@NonNls String columnLabel) throws SQLException {
+            return switch (columnLabel) {
+                case "COLUMN_NAME" -> inner.getString("COLUMN_NAME");
+                case "DATASET_NAME" -> inner.getString("TABLE_NAME");
+                case "IS_PRIMARY_KEY" -> literalBoolean(
+                        isPrimaryKey(
+                                resolveOwner(inner, "TABLE_CAT", "TABLE_SCHEM"),
+                                inner.getString("TABLE_NAME"),
+                                inner.getString("COLUMN_NAME")));
+                case "IS_FOREIGN_KEY" -> literalBoolean(
+                        isForeignKey(
+                                resolveOwner(inner, "TABLE_CAT", "TABLE_SCHEM"),
+                                inner.getString("TABLE_NAME"),
+                                inner.getString("COLUMN_NAME")));
+                case "IS_UNIQUE_KEY" -> literalBoolean(
+                        isUniqueKey(
+                                resolveOwner(inner, "TABLE_CAT", "TABLE_SCHEM"),
+                                inner.getString("TABLE_NAME"),
+                                inner.getString("COLUMN_NAME")));
+                case "IS_NULLABLE" -> {
                     boolean nullable = Objects.equals("YES", inner.getString("IS_NULLABLE"));
-                    return literalBoolean(nullable);
+                    yield literalBoolean(nullable);
                 }
-                case "IS_HIDDEN": return literalBoolean(false);
-                case "IS_IDENTITY": return literalBoolean(false);
-                default: return super.getString(columnLabel);
-            }
+                case "IS_HIDDEN" -> literalBoolean(false);
+                case "IS_IDENTITY" -> literalBoolean(false);
+                default -> super.getString(columnLabel);
+            };
         }
 
         protected abstract boolean isPrimaryKey(String ownerName, String datasetName, String columnName) throws SQLException;
@@ -280,25 +271,23 @@ public class GenericMetadataTranslators {
             super(inner);
         }
 
+        @NonNls
         @Override
-        public String getString(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "INDEX_NAME":
-                    return resolve(
-                            () -> inner.getString("INDEX_NAME"),
-                            () -> inner.getString("TABLE_NAME") + "_INDEX_STATISTIC");
-
-                case "TABLE_NAME": return inner.getString("TABLE_NAME");
-                case "IS_UNIQUE": {
+        public String getString(@NonNls String columnLabel) throws SQLException {
+            return switch (columnLabel) {
+                case "INDEX_NAME" -> resolve(
+                        () -> inner.getString("INDEX_NAME"),
+                        () -> inner.getString("TABLE_NAME") + "_INDEX_STATISTIC");
+                case "TABLE_NAME" -> inner.getString("TABLE_NAME");
+                case "IS_UNIQUE" -> {
                     boolean unique = !resolve(
                             () -> inner.getBoolean("NON_UNIQUE"),
                             () -> true);
-                    return literalBoolean(unique);
+                    yield literalBoolean(unique);
                 }
-
-                case "IS_VALID": return "Y";
-                default: return null;
-            }
+                case "IS_VALID" -> "Y";
+                default -> null;
+            };
         }
     }
 
@@ -313,18 +302,15 @@ public class GenericMetadataTranslators {
         }
 
         @Override
-        public String getString(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "INDEX_NAME":
-                    return resolve(
-                            () -> inner.getString("INDEX_NAME"),
-                            () -> inner.getString("TABLE_NAME") + "_INDEX_STATISTIC");
-
-                case "COLUMN_NAME": return inner.getString("COLUMN_NAME");
-                case "TABLE_NAME":  return inner.getString("TABLE_NAME");
-
-            }
-            return super.getString(columnLabel);
+        public String getString(@NonNls String columnLabel) throws SQLException {
+            return switch (columnLabel) {
+                case "INDEX_NAME" -> resolve(
+                        () -> inner.getString("INDEX_NAME"),
+                        () -> inner.getString("TABLE_NAME") + "_INDEX_STATISTIC");
+                case "COLUMN_NAME" -> inner.getString("COLUMN_NAME");
+                case "TABLE_NAME" -> inner.getString("TABLE_NAME");
+                default -> super.getString(columnLabel);
+            };
         }
     }
 
@@ -339,26 +325,22 @@ public class GenericMetadataTranslators {
         }
 
         @Override
-        public String getString(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "CONSTRAINT_NAME":
-                    return resolve(
-                            () -> inner.getString("PK_NAME"),
-                            () -> generateUniqueKeyName(inner.getString("TABLE_NAME"), null/*TODO what about multiple unique keys (find the additional discriminator)*/));
-
-
-                case "CONSTRAINT_TYPE": {
+        public String getString(@NonNls String columnLabel) throws SQLException {
+            return switch (columnLabel) {
+                case "CONSTRAINT_NAME" -> resolve(
+                        () -> inner.getString("PK_NAME"),
+                        () -> generateUniqueKeyName(inner.getString("TABLE_NAME"), null/*TODO what about multiple unique keys (find the additional discriminator)*/));
+                case "CONSTRAINT_TYPE" -> {
                     String pkName = inner.getString("PK_NAME");
-                    return pkName == null ? "UNIQUE" : "PRIMARY KEY";
+                    yield pkName == null ? "UNIQUE" : "PRIMARY KEY";
                 }
-
-                case "DATASET_NAME": return inner.getString("TABLE_NAME");
-                case "FK_CONSTRAINT_OWNER": return null;
-                case "FK_CONSTRAINT_NAME": return null;
-                case "CHECK_CONDITION": return "";
-                case "IS_ENABLED": return "Y";
-                default: return null;
-            }
+                case "DATASET_NAME" -> inner.getString("TABLE_NAME");
+                case "FK_CONSTRAINT_OWNER" -> null;
+                case "FK_CONSTRAINT_NAME" -> null;
+                case "CHECK_CONDITION" -> "";
+                case "IS_ENABLED" -> "Y";
+                default -> null;
+            };
 
         }
     }
@@ -374,25 +356,23 @@ public class GenericMetadataTranslators {
         }
 
         @Override
-        public String getString(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "CONSTRAINT_NAME":
-                    return resolve(
-                            () -> inner.getString("PK_NAME"),
-                            () -> generateUniqueKeyName(inner.getString("TABLE_NAME"), null/*TODO what about multiple unique keys (find the additional discriminator)*/));
-                case "COLUMN_NAME": return inner.getString("COLUMN_NAME");
-                case "DATASET_NAME": return inner.getString("TABLE_NAME");
-
-            }
-            return super.getString(columnLabel);
+        public String getString(@NonNls String columnLabel) throws SQLException {
+            return switch (columnLabel) {
+                case "CONSTRAINT_NAME" -> resolve(
+                        () -> inner.getString("PK_NAME"),
+                        () -> generateUniqueKeyName(inner.getString("TABLE_NAME"), null/*TODO what about multiple unique keys (find the additional discriminator)*/));
+                case "COLUMN_NAME" -> inner.getString("COLUMN_NAME");
+                case "DATASET_NAME" -> inner.getString("TABLE_NAME");
+                default -> super.getString(columnLabel);
+            };
         }
 
         @Override
         public int getInt(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "POSITION": return inner.getInt("KEY_SEQ");
-                default: return 0;
+            if (columnLabel.equals("POSITION")) {
+                return inner.getInt("KEY_SEQ");
             }
+            return 0;
         }
     }
 
@@ -406,30 +386,25 @@ public class GenericMetadataTranslators {
             super(inner);
         }
 
+        @NonNls
         @Override
-        public String getString(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "CONSTRAINT_NAME": {
-                    return resolve(
-                            () -> inner.getString("FK_NAME"),
-                            () -> generateForeignKeyName(inner.getString("FKTABLE_NAME"), null));
-                }
-
-                case "CONSTRAINT_TYPE":     return "FOREIGN KEY";
-                case "DATASET_NAME":        return inner.getString("FKTABLE_NAME");
-                case "FK_CONSTRAINT_OWNER": return resolveOwner(inner, "PKTABLE_CAT", "PKTABLE_SCHEM");
-
-                case "FK_CONSTRAINT_NAME":
-                    return resolve(
-                            () -> inner.getString("PK_NAME"),
-                            () -> generateUniqueKeyName(
-                                    inner.getString("PKTABLE_NAME"),
-                                    inner.getString("PKCOLUMN_NAME")));
-
-                case "CHECK_CONDITION": return "";
-                case "IS_ENABLED":      return literalBoolean(true);
-                default: return null;
-            }
+        public String getString(@NonNls String columnLabel) throws SQLException {
+            return switch (columnLabel) {
+                case "CONSTRAINT_NAME" -> resolve(
+                        () -> inner.getString("FK_NAME"),
+                        () -> generateForeignKeyName(inner.getString("FKTABLE_NAME"), null));
+                case "CONSTRAINT_TYPE" -> "FOREIGN KEY";
+                case "DATASET_NAME" -> inner.getString("FKTABLE_NAME");
+                case "FK_CONSTRAINT_OWNER" -> resolveOwner(inner, "PKTABLE_CAT", "PKTABLE_SCHEM");
+                case "FK_CONSTRAINT_NAME" -> resolve(
+                        () -> inner.getString("PK_NAME"),
+                        () -> generateUniqueKeyName(
+                                inner.getString("PKTABLE_NAME"),
+                                inner.getString("PKCOLUMN_NAME")));
+                case "CHECK_CONDITION" -> "";
+                case "IS_ENABLED" -> literalBoolean(true);
+                default -> null;
+            };
         }
     }
 
@@ -443,26 +418,25 @@ public class GenericMetadataTranslators {
             super(inner);
         }
 
+        @NonNls
         @Override
-        public String getString(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "CONSTRAINT_NAME":
-                    return resolve(
-                            () -> inner.getString("FK_NAME"),
-                            () -> generateForeignKeyName(inner.getString("PKTABLE_NAME"), null));
-
-                case "COLUMN_NAME":  return inner.getString("FKCOLUMN_NAME");
-                case "DATASET_NAME": return inner.getString("FKTABLE_NAME");
-                default:             return null;
-            }
+        public String getString(@NonNls String columnLabel) throws SQLException {
+            return switch (columnLabel) {
+                case "CONSTRAINT_NAME" -> resolve(
+                        () -> inner.getString("FK_NAME"),
+                        () -> generateForeignKeyName(inner.getString("PKTABLE_NAME"), null));
+                case "COLUMN_NAME" -> inner.getString("FKCOLUMN_NAME");
+                case "DATASET_NAME" -> inner.getString("FKTABLE_NAME");
+                default -> null;
+            };
         }
 
         @Override
         public int getInt(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "POSITION": return inner.getInt("KEY_SEQ");
-                default: return 0;
+            if (columnLabel.equals("POSITION")) {
+                return inner.getInt("KEY_SEQ");
             }
+            return 0;
         }
     }
 
@@ -481,27 +455,25 @@ public class GenericMetadataTranslators {
 
         @Override
         public String getString(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "FUNCTION_NAME":
-                case "PROCEDURE_NAME":   return resolveMethodName(inner);
-                case "METHOD_TYPE":      return getMethodType();
-                case "IS_VALID":         return literalBoolean(true);
-                case "IS_DEBUG":
-                case "IS_DETERMINISTIC": return literalBoolean(false);
-                case "LANGUAGE":         return "SQL";
-                case "TYPE_NAME":
-                case "PACKAGE_NAME":
-                default:                 return null;
-            }
+            return switch (columnLabel) {
+                case "FUNCTION_NAME",
+                     "PROCEDURE_NAME" -> resolveMethodName(inner);
+                case "METHOD_TYPE" -> getMethodType();
+                case "IS_VALID" -> literalBoolean(true);
+                case "IS_DEBUG",
+                     "IS_DETERMINISTIC" -> literalBoolean(false);
+                case "LANGUAGE" -> "SQL";
+                default -> null;
+            };
         }
 
         @Override
         public int getInt(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "OVERLOAD": return inner.getInt("METHOD_OVERLOAD");
-                case "POSITION": return 0;
-                default: return 0;
-            }
+            return switch (columnLabel) {
+                case "OVERLOAD" -> inner.getInt("METHOD_OVERLOAD");
+                case "POSITION" -> 0;
+                default -> 0;
+            };
         }
 
         public abstract String getMethodType();
@@ -519,55 +491,50 @@ public class GenericMetadataTranslators {
             super(inner);
         }
         @Override
-        public String getString(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "ARGUMENT_NAME":
-                    return resolve(
-                            () -> emptyToNull(inner.getString("COLUMN_NAME")),
-                            () -> "return");
-
-                case "METHOD_NAME":  return resolveMethodName(inner);
-                case "METHOD_TYPE":  return getMethodType(
+        public String getString(@NonNls String columnLabel) throws SQLException {
+            return switch (columnLabel) {
+                case "ARGUMENT_NAME" -> resolve(
+                        () -> emptyToNull(inner.getString("COLUMN_NAME")),
+                        () -> "return");
+                case "METHOD_NAME" -> resolveMethodName(inner);
+                case "METHOD_TYPE" -> getMethodType(
                         resolveMethodName(inner),
                         inner.getString("SPECIFIC_NAME"));
-                case "PROGRAM_NAME": return null;
+                case "PROGRAM_NAME" -> null;
+                case "IN_OUT" -> resolve(
+                        () -> {
+                            int columnType = inner.getInt("COLUMN_TYPE");
+                            return switch (columnType) {
+                                case functionColumnUnknown -> "IN";
+                                case functionColumnIn -> "IN";
+                                case functionColumnOut -> "OUT";
+                                case functionColumnInOut -> "IN/OUT";
+                                case functionColumnResult -> "OUT";
+                                case functionReturn -> "OUT";
 
-                case "IN_OUT":
-                    return resolve(
-                            () -> {
-                                int columnType = inner.getInt("COLUMN_TYPE");
-                                switch (columnType) {
-                                    case functionColumnUnknown: return "IN";
-                                    case functionColumnIn: return "IN";
-                                    case functionColumnOut: return "OUT";
-                                    case functionColumnInOut: return "IN/OUT";
-                                    case functionColumnResult: return "OUT";
-                                    case functionReturn: return "OUT";
-
-                                    //case procedureColumnUnknown: return "IN";
-                                    //case procedureColumnIn: return "IN";
-                                    //case procedureColumnOut: return "OUT";
-                                    //case procedureColumnInOut: return "IN/OUT";
-                                    //case procedureColumnResult: return "OUT";
-                                    //case procedureColumnReturn: return "OUT";
-                                    default: return "IN";
-                                }
-                            },
-                            () -> "IN");
-
-                default: return super.getString(columnLabel);
-            }
+                                //case procedureColumnUnknown: return "IN";
+                                //case procedureColumnIn: return "IN";
+                                //case procedureColumnOut: return "OUT";
+                                //case procedureColumnInOut: return "IN/OUT";
+                                //case procedureColumnResult: return "OUT";
+                                //case procedureColumnReturn: return "OUT";
+                                default -> "IN";
+                            };
+                        },
+                        () -> "IN");
+                default -> super.getString(columnLabel);
+            };
         }
         @Override
         public int getInt(String columnLabel) throws SQLException {
-            switch (columnLabel) {
-                case "SEQUENCE":       return 0;
-                case "OVERLOAD":       return getMethodOverload(
+            return switch (columnLabel) {
+                case "SEQUENCE" -> 0;
+                case "OVERLOAD" -> getMethodOverload(
                         resolveMethodName(inner),
                         inner.getString("SPECIFIC_NAME"));
-                case "POSITION":       return inner.getInt("ORDINAL_POSITION");
-                default:            return super.getInt(columnLabel);
-            }
+                case "POSITION" -> inner.getInt("ORDINAL_POSITION");
+                default -> super.getInt(columnLabel);
+            };
         }
 
         abstract String getMethodType(String methodName, String methodSpecificName) throws SQLException;
@@ -616,12 +583,12 @@ public class GenericMetadataTranslators {
                     () -> resultSet.getString("FUNCTION_TYPE"),
                     () -> "0");
             int procedureType = Integer.parseInt(methodType);
-            switch (procedureType) {
-                case procedureNoResult: return "PROCEDURE";
-                case procedureReturnsResult: return "FUNCTION";
-                case procedureResultUnknown: return "PROCEDURE";
-                default: return "PROCEDURE";
-            }
+            return switch (procedureType) {
+                case procedureNoResult -> "PROCEDURE";
+                case procedureReturnsResult -> "FUNCTION";
+                case procedureResultUnknown -> "PROCEDURE";
+                default -> "PROCEDURE";
+            };
         }
 
         if (source == MetadataSource.FUNCTIONS) {
@@ -632,12 +599,12 @@ public class GenericMetadataTranslators {
                     () -> resultSet.getString("PROCEDURE_TYPE"),
                     () -> "0");
             int functionType = Integer.parseInt(methodType);
-            switch (functionType) {
-                case functionNoTable: return "FUNCTION";
-                case functionReturnsTable: return "FUNCTION";
-                case functionResultUnknown: return "FUNCTION";
-                default: return "FUNCTION";
-            }
+            return switch (functionType) {
+                case functionNoTable -> "FUNCTION";
+                case functionReturnsTable -> "FUNCTION";
+                case functionResultUnknown -> "FUNCTION";
+                default -> "FUNCTION";
+            };
         }
         return null;
     }

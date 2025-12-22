@@ -64,8 +64,7 @@ public class GuardedBlocks {
     }
 
     public static void removeGuardedBlocks(Document document, GuardedBlockType type) {
-        if (document instanceof DocumentEx) {
-            DocumentEx documentEx = (DocumentEx) document;
+        if (document instanceof DocumentEx documentEx) {
             List<RangeMarker> guardedBlocks = new ArrayList<>(documentEx.getGuardedBlocks());
             for (RangeMarker block : guardedBlocks) {
                 if (block.getUserData(GuardedBlockType.KEY) == type) {

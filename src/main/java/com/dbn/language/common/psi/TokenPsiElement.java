@@ -96,8 +96,7 @@ public class TokenPsiElement extends LeafPsiElement<TokenElementType> {
 
     @Override
     public boolean matches(BasePsiElement basePsiElement, MatchType matchType) {
-        if (basePsiElement instanceof TokenPsiElement) {
-            TokenPsiElement remote = (TokenPsiElement) basePsiElement;
+        if (basePsiElement instanceof TokenPsiElement remote) {
             TokenType localTokenType = getTokenType();
             TokenType remoteTokenType = remote.getTokenType();
             if (localTokenType == remoteTokenType) {

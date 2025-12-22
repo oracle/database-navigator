@@ -106,8 +106,7 @@ public class UserInterface {
 
     public static void stopTableCellEditing(JComponent root) {
         visitRecursively(root, component -> {
-            if (component instanceof JTable) {
-                JTable table = (JTable) component;
+            if (component instanceof JTable table) {
                 TableCellEditor cellEditor = table.getCellEditor();
                 if (cellEditor != null) {
                     cellEditor.stopCellEditing();
@@ -189,8 +188,7 @@ public class UserInterface {
 
     public static boolean isFocused(Component component, boolean recursive) {
         if (component.isFocusOwner()) return true;
-        if (recursive && component instanceof JComponent) {
-            JComponent parentComponent = (JComponent) component;
+        if (recursive && component instanceof JComponent parentComponent) {
             for (Component childComponent : parentComponent.getComponents()) {
                 if (isFocused(childComponent, recursive)) {
                     return true;
@@ -204,8 +202,7 @@ public class UserInterface {
         if (!component.isFocusable()) return false;
         if (!component.isEnabled()) return false;
         if (!component.isVisible()) return false;
-        if (component instanceof JTextComponent) {
-            JTextComponent textComponent = (JTextComponent) component;
+        if (component instanceof JTextComponent textComponent) {
             if (!textComponent.isEditable()) return false;
         }
 
@@ -220,8 +217,7 @@ public class UserInterface {
 
     public static void updateTitledBorder(JPanel panel) {
         Border border = panel.getBorder();
-        if (border instanceof TitledBorder) {
-            TitledBorder titledBorder = (TitledBorder) border;
+        if (border instanceof TitledBorder titledBorder) {
             String title = titledBorder.getTitle();
             int indent = Strings.isEmpty(title) || ClientProperty.NO_INDENT.is(panel) ? 0 : 16;
             IdeaTitledBorder replacement = new IdeaTitledBorder(title, indent, Borders.EMPTY_INSETS);
@@ -235,7 +231,7 @@ public class UserInterface {
      * @deprecated use component.revalidate() on component layout or size changes, and component.repaint() on visual changes like colors.
      */
     public static void repaint(Component component) {
-        Dispatch.run(true, () -> {
+        Dispatch.run(component, true, () -> {
             component.revalidate();
             component.repaint();
         });
@@ -268,8 +264,7 @@ public class UserInterface {
     public static void changePanelBackground(JPanel panel, Color background) {
         panel.setBackground(background);
         for (Component component : panel.getComponents()) {
-            if (component instanceof JPanel) {
-                JPanel childPanel = (JPanel) component;
+            if (component instanceof JPanel childPanel) {
                 changePanelBackground(childPanel, background);
             }
         }
@@ -330,8 +325,7 @@ public class UserInterface {
                 sp.setViewportBorder(Borders.insetBorder(4));
             }
 
-            if (view instanceof JComponent) {
-                JComponent viewComponent = (JComponent) view;
+            if (view instanceof JComponent viewComponent) {
                 viewComponent.setBorder(null);
             }
         });
@@ -394,8 +388,7 @@ public class UserInterface {
         component.setBackground(color);
         Component[] children = component.getComponents();
         for (Component child : children) {
-            if (child instanceof JComponent) {
-                JComponent jComponent = (JComponent) child;
+            if (child instanceof JComponent jComponent) {
                 setBackgroundRecursive(jComponent, color);
             }
         }
@@ -408,8 +401,7 @@ public class UserInterface {
         for (int i = 0; i < container.getComponentCount(); i++) {
             if (container.getComponent(i) != oldComponent) continue;
 
-            if (layout instanceof GridLayoutManager) {
-                GridLayoutManager gridLayout = (GridLayoutManager) layout;
+            if (layout instanceof GridLayoutManager gridLayout) {
                 GridConstraints constraints = gridLayout.getConstraintsForComponent(oldComponent);
                 container.remove(i);
                 container.add(newComponent, constraints);
@@ -447,9 +439,8 @@ public class UserInterface {
 
         Component[] components = component.getComponents();
         for (Component child : components) {
-            if (!(child instanceof JComponent)) continue;
+            if (!(child instanceof JComponent childComponent)) continue;
 
-            JComponent childComponent = (JComponent) child;
             if (componentType.isAssignableFrom(childComponent.getClass()) && check.test(cast(childComponent))) {
                 return cast(child);
             }
@@ -535,23 +526,19 @@ public class UserInterface {
     public static String getComponentText(@Nullable Component component) {
         if (component == null) return null;
 
-        if (component instanceof JLabel) {
-            JLabel label = (JLabel) component;
+        if (component instanceof JLabel label) {
             return label.getText();
         }
 
-        if (component instanceof AbstractButton) {
-            AbstractButton button = (AbstractButton) component;
+        if (component instanceof AbstractButton button) {
             return button.getText();
         }
 
-        if (component instanceof JTextComponent) {
-            JTextComponent textComponent = (JTextComponent) component;
+        if (component instanceof JTextComponent textComponent) {
             return getText(textComponent);
         }
 
-        if (component instanceof JComboBox) {
-            JComboBox comboBox = (JComboBox) component;
+        if (component instanceof JComboBox comboBox) {
             Object selectedItem = comboBox.getSelectedItem();
             return selectedItem == null ? null : selectedItem.toString();
         }
@@ -634,8 +621,7 @@ public class UserInterface {
 
     public static <D extends DialogWrapper> D getParentDialog(JComponent component) {
         Window windowAncestor = SwingUtilities.getWindowAncestor(component);
-        if (windowAncestor instanceof DialogWrapperDialog) {
-            DialogWrapperDialog dialog = (DialogWrapperDialog) windowAncestor;
+        if (windowAncestor instanceof DialogWrapperDialog dialog) {
             return cast(dialog.getDialogWrapper());
         }
         return null;

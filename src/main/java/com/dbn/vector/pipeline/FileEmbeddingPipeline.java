@@ -12,14 +12,12 @@ import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.common.FileContent;
-import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
+import com.dbn.vector.model.source.FileSystemSourceConfig;
 import com.dbn.vector.service.FileProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 
@@ -38,7 +36,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
         // ensure documents table exists (shared step for all files)
         StepResult step = result.getstep(PipelineStep.ENSURE_DOCUMENT_TABLE);
-        ensureDocumentsTableStep(connection, vectorInterface, step, handler.getUserName());
+        ensureDocumentsTableStep(connection, request, vectorInterface, step);
 //        result.addSharedStep(step);
 
         if (step.getStatus() == StepResult.STEP_STATUS.FAILED && step.isCritical()) {
@@ -88,8 +86,8 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
             FileContent fileContent;
             try {
-                fileContent = new FileContent(file);  // ← READ FILE ONCE HERE
-            } catch (IOException | NoSuchAlgorithmException e) {
+                fileContent = new FileContent(file);
+            } catch (Exception e) {
                 fileResult.finishFailed("FILE_READ_ERROR", e.getMessage());
                 return;
             }
@@ -99,26 +97,28 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                             shortenFileName, currentIndex + 1, totalFiles)
             );
 
-            String documentId = fileService.checkFileExists(
+            String fileStoreId = fileService.resolveFileStoreId(
                     connection,
+                    request,
                     vectorInterface,
                     fileContent,
-                    fileResult
-            );
+                    fileResult);
 
             if (!fileResult.getStatus().equals(SourceStatus.RUNNING)) {
                 return;  // Check failed
             }
 
-            if (documentId != null) {
+            if (fileStoreId != null) {
                 // File already exists - use existing ID
                 progressIndicator.setText2(
                         String.format("File already uploaded, using existing \"%s\" (%d/%d)",
                                 shortenFileName, currentIndex + 1, totalFiles)
                 );
 
-                fileResult.setDocId(documentId);
-                fileResult.deleteStep(PipelineStep.UPLOADING_FILE);  // Skip upload
+                fileResult.setFileStoreId(fileStoreId);
+                fileContent.setFileStoreId(fileStoreId);
+
+              fileResult.deleteStep(PipelineStep.UPLOADING_FILE);  // Skip upload
 
             } else {
                 // New file - upload it
@@ -127,16 +127,16 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                                 shortenFileName, currentIndex + 1, totalFiles)
                 );
 
-                documentId = UUIDs.compact();
-                fileResult.setDocId(documentId);
-
+                fileStoreId = UUIDs.compact();
+                fileResult.setFileStoreId(fileStoreId);
+                fileContent.setFileStoreId(fileStoreId);
                 fileService.uploadFile(
                         connection,
+                        request,
                         vectorInterface,
                         fileContent,
-                        documentId,
-                        fileResult
-                );
+                        fileStoreId,
+                        fileResult);
             }
 
             if (!fileResult.getStatus().equals(SourceStatus.RUNNING)) {
@@ -152,7 +152,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
                     request,
                     connection,
                     vectorInterface,
-                    documentId,  // ← Pass ID only, no bytes!
+                    fileStoreId,  // ← Pass ID only, no bytes!
                     fileContent,
                     fileResult
             );

@@ -1,7 +1,7 @@
 package com.dbn.vector.model;
 
 import com.dbn.common.ui.Presentable;
-import com.dbn.vector.model.sourceconfig.SourceType;
+import com.dbn.vector.model.source.SourceType;
 import lombok.Getter;
 
 import java.util.List;

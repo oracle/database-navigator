@@ -23,7 +23,6 @@ import com.dbn.common.project.ProjectRef;
 import com.dbn.common.state.PersistentStateElement;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -126,7 +125,7 @@ public class ParserDiagnosticsResult implements PersistentStateElement, Comparab
     public void writeState(Element element) {
         element.setAttribute("id", id);
         element.setAttribute("timestamp", timestamp.toString());
-        for (val entry : entries.entrySet()) {
+        for (var entry : entries.entrySet()) {
             String filePath = entry.getKey();
             IssueCounter issues = entry.getValue();
 

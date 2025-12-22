@@ -66,10 +66,8 @@ public abstract class DBLanguageStructureViewModel extends TextEditorBasedStruct
 
     @Override
     public boolean isAlwaysLeaf(StructureViewTreeElement element) {
-        if (element instanceof SQLStructureViewElement) {
-            SQLStructureViewElement sqlElement = (SQLStructureViewElement) element;
-            if (sqlElement.getPsiElement() instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) sqlElement.getPsiElement();
+        if (element instanceof SQLStructureViewElement sqlElement) {
+            if (sqlElement.getPsiElement() instanceof BasePsiElement basePsiElement) {
                 BasePsiElement childStructureElement = basePsiElement.findFirstPsiElement(ElementTypeAttribute.STRUCTURE);
                 if (childStructureElement == null) {
                     return true;

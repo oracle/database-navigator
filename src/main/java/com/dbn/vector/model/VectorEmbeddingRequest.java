@@ -23,7 +23,8 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.vector.model.chunk.ChunkConfig;
 import com.dbn.vector.model.embed.EmbedConfig;
-import com.dbn.vector.model.sourceconfig.SourceConfig;
+import com.dbn.vector.model.source.SourceConfig;
+import com.dbn.vector.model.staging.StagingConfig;
 import com.dbn.vector.model.store.DestinationType;
 import com.dbn.vector.model.store.StoreConfig;
 import lombok.Getter;
@@ -44,6 +45,7 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
     private ChunkConfig chunkConfig = new ChunkConfig();
     private EmbedConfig embedConfig = new EmbedConfig();
     private StoreConfig storeConfig = new StoreConfig();
+    private StagingConfig stagingConfig = new StagingConfig();
 
     public VectorEmbeddingRequest(ConnectionId connectionId) {
         this.connectionId = connectionId;
@@ -63,6 +65,7 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
         embedConfig.getDatabaseModelConfig().setSchemaName(schemaName);
         embedConfig.getThirdPartyModelConfig().setCredentialSchemaName(schemaName);
         storeConfig.setSchemaName(schemaName);
+        stagingConfig.setSchemaName(schemaName);
     }
 
     public int getRecordCount() {
@@ -89,6 +92,7 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
      */
     public void resetHard(SchemaId userSchema) {
         sourceConfig = new SourceConfig();
+        stagingConfig = new StagingConfig();
         chunkConfig = new ChunkConfig();
         embedConfig = new EmbedConfig();
         storeConfig = new StoreConfig();
@@ -101,11 +105,13 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
         if (element == null) return;
 
         Element sourceConfigElement = element.getChild("source-config");
+        Element stagingConfigElement = element.getChild("staging-config");
         Element chunkConfigElement = element.getChild("chunk-config");
         Element embedConfigElement = element.getChild("embed-config");
         Element storeConfigElement = element.getChild("store-config");
 
         sourceConfig.readState(sourceConfigElement);
+        stagingConfig.readState(stagingConfigElement);
         chunkConfig.readState(chunkConfigElement);
         embedConfig.readState(embedConfigElement);
         storeConfig.readState(storeConfigElement);
@@ -114,11 +120,13 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
     @Override
     public void writeState(Element element) {
         Element sourceConfigElement = newElement(element, "source-config");
+        Element stagingConfigElement = newElement(element, "staging-config");
         Element chunkConfigElement = newElement(element, "chunk-config");
         Element embedConfigElement = newElement(element, "embed-config");
         Element storeConfigElement = newElement(element, "store-config");
 
         sourceConfig.writeState(sourceConfigElement);
+        stagingConfig.writeState(stagingConfigElement);
         chunkConfig.writeState(chunkConfigElement);
         embedConfig.writeState(embedConfigElement);
         storeConfig.writeState(storeConfigElement);

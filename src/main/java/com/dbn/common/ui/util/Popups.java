@@ -45,8 +45,7 @@ public class Popups {
         int width = Math.max((int) preferredSize.getWidth(), sourceComponent.getWidth());
         int height = (int) Math.min(maxHeight, preferredSize.getHeight());
 
-        if (popup instanceof ListPopupImpl) {
-            ListPopupImpl listPopup = (ListPopupImpl) popup;
+        if (popup instanceof ListPopupImpl listPopup) {
             JList list = listPopup.getList();
             int listHeight = (int) list.getPreferredSize().getHeight();
             if (listHeight > height) {

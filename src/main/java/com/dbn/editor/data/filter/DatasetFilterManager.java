@@ -32,7 +32,6 @@ import com.dbn.object.DBDataset;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -191,13 +190,13 @@ public class DatasetFilterManager extends ProjectComponentBase implements Persis
     public Element getComponentState() {
         Element element = newStateElement();
 
-        for (val entry : filters.entrySet()) {
+        for (var entry : filters.entrySet()) {
             ConnectionId connectionId = entry.getKey();
             ConnectionHandler connection = ConnectionHandler.get(connectionId);
             if (connection == null) continue;
 
-            val filterLists = entry.getValue();
-            for (val groupEntry : filterLists.entrySet()) {
+            var filterLists = entry.getValue();
+            for (var groupEntry : filterLists.entrySet()) {
                 DatasetFilterGroup filterGroup = groupEntry.getValue();
                 Element filterListElement = newElement(element, "filter-actions");
                 filterGroup.writeConfiguration(filterListElement);

@@ -48,10 +48,8 @@ public class DBNTableSorter<R, M extends DBNTableModel<R>> extends TableRowSorte
                 return 1;
             }
 
-            if (value1 instanceof Comparable && value2 instanceof Comparable) {
-                Comparable comparable1 = (Comparable) value1;
-                Comparable comparable2 = (Comparable) value2;
-
+            if (value1 instanceof Comparable comparable1 &&
+                    value2 instanceof Comparable comparable2) {
                 return comparable1.compareTo(comparable2);
             }
 

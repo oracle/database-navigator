@@ -40,12 +40,11 @@ public enum DatabaseUrlType implements Presentable, Constant<DatabaseUrlType> {
 
 
     public String databaseIdentifier() {
-        switch (this) {
-            case SERVICE:
-            case EZCONNECT: return txt("cfg.connection.label.ServiceName");
-            case SID: return txt("cfg.connection.label.SystemIdentifier");
-            default: return txt("cfg.connection.label.Database");
-        }
+        return switch (this) {
+            case SERVICE, EZCONNECT -> txt("cfg.connection.label.ServiceName");
+            case SID -> txt("cfg.connection.label.SystemIdentifier");
+            default -> txt("cfg.connection.label.Database");
+        };
     }
 
 }

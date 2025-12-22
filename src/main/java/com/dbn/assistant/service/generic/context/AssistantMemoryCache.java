@@ -61,8 +61,7 @@ public class AssistantMemoryCache extends AssistantStateExtension implements Cha
 
     private static boolean isValidMessage(ChatMessage message, List<ChatMessage> messages) {
         // empty ai messages
-        if (message instanceof AiMessage) {
-            AiMessage aiMessage = (AiMessage) message;
+        if (message instanceof AiMessage aiMessage) {
             boolean hasToolRequests = aiMessage.hasToolExecutionRequests();
             boolean hasContent = isNotEmpty(aiMessage.text());
 
@@ -72,8 +71,7 @@ public class AssistantMemoryCache extends AssistantStateExtension implements Cha
         // retried user messages
         if (message instanceof UserMessage) {
             ChatMessage previousMessage = getPreviousElement(messages, message);
-            if (previousMessage instanceof UserMessage) {
-                UserMessage previousUserMessage = (UserMessage) previousMessage;
+            if (previousMessage instanceof UserMessage previousUserMessage) {
                 if (previousUserMessage.equals(message)) return false;
             }
         }

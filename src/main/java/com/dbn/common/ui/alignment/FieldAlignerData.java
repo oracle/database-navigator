@@ -21,23 +21,30 @@ import lombok.Getter;
 
 import java.awt.Component;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
+
+import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 public class FieldAlignerData {
     private final List<List<Component>> alignableComponents = new ArrayList<>();
-    private final List<DBNForm> alignableForms = new ArrayList<>();
+    private Supplier<List<? extends DBNForm>> alignableForms = () -> Collections.emptyList();
 
     public void registerFieldGroup(Component... components) {
         alignableComponents.add(List.of(components));
     }
 
     public void registerForms(DBNForm... forms) {
-        registerForms(List.of(forms));
+        registerForms(() -> List.of(forms));
     }
 
-    public void registerForms(Collection<? extends DBNForm> forms) {
-        alignableForms.addAll(forms);
+    public void registerForms(Supplier<List<? extends DBNForm>> forms) {
+        alignableForms = forms;
+    }
+
+    public List<DBNForm> getAlignableForms() {
+        return cast(alignableForms.get());
     }
 }

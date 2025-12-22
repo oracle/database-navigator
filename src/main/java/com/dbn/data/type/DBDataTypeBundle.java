@@ -29,7 +29,6 @@ import com.dbn.object.DBType;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -69,7 +68,7 @@ public final class DBDataTypeBundle extends StatefulDisposableBase implements Un
         DBNativeDataType dataType = dataTypes.get(upperCaseName);
         if (dataType != null) return dataType;
 
-        for (val entry : dataTypes.entrySet()) {
+        for (var entry : dataTypes.entrySet()) {
             String key = entry.getKey();
             DBNativeDataType value = entry.getValue();
             if (key.startsWith(upperCaseName)) {

@@ -40,6 +40,13 @@ import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.SimpleTextAttributes;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
@@ -47,12 +54,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.swing.Icon;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Actions.createActionToolbar;
 import static com.dbn.common.util.Commons.nvl;
@@ -135,18 +136,15 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
         Project project = getProject();
         try {
             Object userValue = userValueHolder.getUserValue();
-            if (userValue instanceof ArrayValue) {
-                ArrayValue array = (ArrayValue) userValue;
+            if (userValue instanceof ArrayValue array) {
                 List<String> values = nvl(array.read(), () -> emptyList());
                 stringValues.addAll(values);
 
-            } else if (userValue instanceof VectorValue) {
-                VectorValue vector = (VectorValue) userValue;
+            } else if (userValue instanceof VectorValue vector) {
                 List<String> values = nvl(vector.getStringValues(), () -> emptyList());
                 stringValues.addAll(values);
             }
-            else if (userValue instanceof List<?>) {
-                List<?> rawList = (List<?>) userValue;
+            else if (userValue instanceof List<?> rawList) {
                 List<String> stringList = Data.asStringList(rawList);
                 stringValues.addAll(stringList);
             }

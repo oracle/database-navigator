@@ -203,8 +203,7 @@ public abstract class DBVirtualFileBase extends VirtualFile implements DBVirtual
             DebugUtil.performPsiModification("disposing database view provider", () -> cachedViewProvider.markInvalidated());
             List<PsiFile> cachedPsiFiles = cachedViewProvider.getCachedPsiFiles();
             for (PsiFile cachedPsiFile: cachedPsiFiles) {
-                if (cachedPsiFile instanceof DBLanguagePsiFile) {
-                    DBLanguagePsiFile languagePsiFile = (DBLanguagePsiFile) cachedPsiFile;
+                if (cachedPsiFile instanceof DBLanguagePsiFile languagePsiFile) {
                     Disposer.dispose(languagePsiFile);
                 }
             }

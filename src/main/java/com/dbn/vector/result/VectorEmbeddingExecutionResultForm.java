@@ -230,4 +230,13 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
   public VectorEmbeddingResult getResult() {
     return result;
   }
+
+  public SourceResult getSelectedSource() {
+    int viewRow = sourceDataTable.getSelectedRow();
+    if (viewRow < 0) return null;
+
+    int modelRow = sourceDataTable.convertRowIndexToModel(viewRow);
+    VectorEmbeddingSourcesTableModel model = sourceDataTable.getModel();
+    return model.getSourceResults().get(modelRow);
+  }
 }

@@ -88,7 +88,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 	@Override
 	protected void initFieldAlignment() {
 		FieldAlignerData alignerData = getFieldAlignerData();
-		alignerData.registerForms(fieldForms);
+		alignerData.registerForms(() -> fieldForms);
 		alignerData.registerFieldGroup(fieldLabel, inputFieldPanel, fieldTypeLabel);
 	}
 
@@ -109,17 +109,15 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 		builder.append(getFieldName());
 
 		DBNForm parentForm = getParentComponent();
-		while (parentForm instanceof JavaExecutionInputFieldForm) {
-			JavaExecutionInputFieldForm fieldForm = (JavaExecutionInputFieldForm) parentForm;
-			builder.prepend(".");
+		while (parentForm instanceof JavaExecutionInputFieldForm fieldForm) {
+            builder.prepend(".");
 			builder.prepend(fieldForm.getFieldName());
 
 			parentForm = parentForm.getParentComponent();
 		}
 
-		if (parentForm instanceof JavaExecutionInputParameterForm) {
-			JavaExecutionInputParameterForm parameterForm = (JavaExecutionInputParameterForm) parentForm;
-			builder.prepend(".");
+		if (parentForm instanceof JavaExecutionInputParameterForm parameterForm) {
+            builder.prepend(".");
 			builder.prepend(parameterForm.getParameterName());
 		}
 

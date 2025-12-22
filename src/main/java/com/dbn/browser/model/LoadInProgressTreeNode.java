@@ -202,13 +202,11 @@ public class LoadInProgressTreeNode extends StatefulDisposableBase implements Br
             setDisposed(true);
         }
 
-        if (parent instanceof DBObject) {
-            DBObject object = (DBObject) parent;
+        if (parent instanceof DBObject object) {
             if (object.isTreeStructureLoaded()) {
                 setDisposed(true);
             }
-        } else if (parent instanceof DBObjectList) {
-            DBObjectList objectList = (DBObjectList) parent;
+        } else if (parent instanceof DBObjectList objectList) {
             if (objectList.isLoaded()) {
                 setDisposed(true);
             }

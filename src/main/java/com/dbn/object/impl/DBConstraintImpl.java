@@ -263,13 +263,13 @@ class DBConstraintImpl extends DBSchemaObjectImpl<DBConstraintMetadata> implemen
 
     @Override
     public String getPresentableTextConditionalDetails() {
-         switch (constraintType) {
-            case CHECK: return "Check (" + checkCondition + ")";
-            case PRIMARY_KEY: return "Primary key";
-            case FOREIGN_KEY: return "Foreign key (" + (foreignKeyConstraint == null ? "" : foreignKeyConstraint.getPath()) + ")";
-            case UNIQUE_KEY: return "Unique";
-        }
-        return null;
+        return switch (constraintType) {
+            case CHECK -> "Check (" + checkCondition + ")";
+            case PRIMARY_KEY -> "Primary key";
+            case FOREIGN_KEY -> "Foreign key (" + (foreignKeyConstraint == null ? "" : foreignKeyConstraint.getPath()) + ")";
+            case UNIQUE_KEY -> "Unique";
+            default -> null;
+        };
     }
 
     /*********************************************************

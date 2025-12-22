@@ -132,8 +132,7 @@ class DBObjectRelationListImpl<T extends DBObjectRelation> extends DynamicConten
        String contentName = getName();
        String connectionName = getConnection().getName();
 
-       if (parent instanceof DBObject) {
-           DBObject object = (DBObject) parent;
+       if (parent instanceof DBObject object) {
            String parentName = object.getQualifiedNameWithType();
            return txt("app.object.label.SubContentDescription",
                    contentName,

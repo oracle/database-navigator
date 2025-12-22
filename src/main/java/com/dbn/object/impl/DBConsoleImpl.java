@@ -69,11 +69,10 @@ public class DBConsoleImpl extends DBObjectImpl<DBObjectMetadata> implements DBC
     @Nullable
     @Override
     public Icon getIcon() {
-        switch (consoleType) {
-            case STANDARD: return Icons.DBO_CONSOLE;
-            case DEBUG: return Icons.DBO_CONSOLE_DEBUG;
-        }
-        return super.getIcon();
+        return switch (consoleType) {
+            case STANDARD -> Icons.DBO_CONSOLE;
+            case DEBUG -> Icons.DBO_CONSOLE_DEBUG;
+        };
     }
 
     @Override

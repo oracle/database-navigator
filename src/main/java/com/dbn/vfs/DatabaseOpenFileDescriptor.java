@@ -72,8 +72,7 @@ public class DatabaseOpenFileDescriptor extends OpenFileDescriptor {
     @Override
     public VirtualFile getFile() {
         VirtualFile file = super.getFile();
-        if (file instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) file;
+        if (file instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             return sourceCodeFile.getMainDatabaseFile();
         }
 
