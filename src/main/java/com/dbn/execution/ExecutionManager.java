@@ -37,6 +37,7 @@ import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
 import com.dbn.execution.statement.result.StatementExecutionResult;
+import com.dbn.ml.result.MLExecutionResult;
 import com.dbn.vector.result.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -187,6 +188,10 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
     }
 
     public void addExecutionResult(VectorEmbeddingExecutionResult executionResult) {
+        showExecutionConsole(c -> c.addResult(executionResult));
+    }
+
+    public void addExecutionResult(MLExecutionResult executionResult) {
         showExecutionConsole(c -> c.addResult(executionResult));
     }
 

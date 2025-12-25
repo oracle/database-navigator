@@ -224,6 +224,7 @@
         <projectService serviceImplementation="com.dbn.event.registration.EventRegistrationManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.vector.DatabaseVectorManager"/>
+        <projectService serviceImplementation="com.dbn.ml.DatabaseMLManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.SourceCodeManager"/>
         <projectService serviceImplementation="com.dbn.editor.code.diff.SourceCodeDiffManager"/>
         <projectService serviceImplementation="com.dbn.editor.data.DatasetEditorManager"/>
@@ -481,6 +482,7 @@
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift S"/>
             </action>
             <action class="com.dbn.menu.action.VectorToolboxOpenAction" text="Open Vector Toolbox..." id="DBNavigator.Actions.MainMenu.OpenVectorToolbox" icon="com.dbn.common.icon.Icons.VECTOR_TOOLBOX"/>
+            <action class="com.dbn.menu.action.MLToolboxOpenAction" text="Open ML Toolbox..." id="DBNavigator.Actions.MainMenu.OpenMLToolbox"/>
             <separator/>
             <action class="com.dbn.menu.action.MethodExecutionHistoryAction" text="Method Execution History" id="DBNavigator.Actions.MainMenu.MethodExecutionHistory">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>

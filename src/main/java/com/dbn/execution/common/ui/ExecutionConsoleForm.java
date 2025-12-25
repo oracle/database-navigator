@@ -57,6 +57,7 @@ import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.execution.statement.result.StatementExecutionResult;
 import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.ml.result.MLExecutionResult;
 import com.dbn.vector.result.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
@@ -358,6 +359,13 @@ public class ExecutionConsoleForm extends DBNFormBase {
      *********************************************************/
     public void addResult(VectorEmbeddingExecutionResult executionResult) {
         showResultTab( executionResult);
+    }
+
+    /*********************************************************
+     *                       ML Training                     *
+     *********************************************************/
+    public void addResult(MLExecutionResult executionResult) {
+        showResultTab(executionResult);
     }
 
     /*********************************************************
