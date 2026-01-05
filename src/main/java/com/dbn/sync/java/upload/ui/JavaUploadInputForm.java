@@ -54,6 +54,7 @@ public class JavaUploadInputForm extends DBNFormBase {
     private DBNComboBox<ConnectionHandler> connectionComboBox;
     private DBObjectSelector<DBSchema> schemaComboBox;
     private CheckBoxList<JavaUploadTask> dependenciesCheckBoxList;
+    private JPanel dependenciesPanel;
 
     public JavaUploadInputForm(JavaUploaderInputDialog dialog) {
         super(dialog);
@@ -64,8 +65,13 @@ public class JavaUploadInputForm extends DBNFormBase {
 
         initConnectionSelector();
         initSchemaSelectors();
+        initDependenciesSelector(input);
+    }
 
+    private void initDependenciesSelector(JavaUploadInput input) {
+        dependenciesCheckBoxList = new CheckBoxList<>();
         dependenciesCheckBoxList.setElements(input.getTasks());
+        dependenciesPanel.add(dependenciesCheckBoxList.withSelectorActions());
     }
 
     @Override
