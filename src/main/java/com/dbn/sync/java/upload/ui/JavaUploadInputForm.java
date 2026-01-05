@@ -53,32 +53,30 @@ public class JavaUploadInputForm extends DBNFormBase {
     private JPanel targetLocationPanel;
     private DBNComboBox<ConnectionHandler> connectionComboBox;
     private DBObjectSelector<DBSchema> schemaComboBox;
-    private CheckBoxList<JavaUploadTask> dependenciesCheckBoxList;
-    private JPanel dependenciesPanel;
+    private CheckBoxList<JavaUploadTask> contentList;
+    private JPanel contentPanel;
 
     public JavaUploadInputForm(JavaUploaderInputDialog dialog) {
         super(dialog);
-		JavaUploadInput input = dialog.getBatch().getInput();
 
-        initHeaderPanel(input);
         initHintPanel();
-
         initConnectionSelector();
         initSchemaSelectors();
-        initDependenciesSelector(input);
+        initDependenciesSelector();
     }
 
-    private void initDependenciesSelector(JavaUploadInput input) {
-        dependenciesCheckBoxList = new CheckBoxList<>();
-        dependenciesCheckBoxList.setElements(input.getTasks());
-        dependenciesPanel.add(dependenciesCheckBoxList.withSelectorActions());
+    private void initDependenciesSelector() {
+        JavaUploadInput input = getInput();
+        contentList = new CheckBoxList<>();
+        contentList.setElements(input.getTasks());
+        contentPanel.add(contentList.withSelectorActions());
     }
 
     @Override
     protected void initValidation() {
         addSelectionValidation(connectionComboBox, "Please select the target connection");
         addSelectionValidation(schemaComboBox, "Please select the target schema");
-        addSelectionValidation(dependenciesCheckBoxList, "Please select at least one resource to upload");
+        addSelectionValidation(contentList, "Please select at least one resource to upload");
     }
 
     private void initHintPanel() {
@@ -90,18 +88,13 @@ public class JavaUploadInputForm extends DBNFormBase {
         hintPanel.add(hintForm.getComponent());
     }
 
-    private void initHeaderPanel(JavaUploadInput input) {
-/*
-        // TODO no database context available yet (remove header ??)
-        VirtualFile rootFile = input.getRootFile();
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, rootFile);
-        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
-*/
-    }
-
-    JavaUploadBatch getBatch() {
+    private JavaUploadBatch getBatch() {
         JavaUploaderInputDialog dialog = ensureParentComponent();
         return dialog.getBatch();
+    }
+
+    private JavaUploadInput getInput() {
+        return getBatch().getInput();
     }
 
     @Override
@@ -150,7 +143,7 @@ public class JavaUploadInputForm extends DBNFormBase {
         JavaUploadInput input = getBatch().getInput();
         input.setTargetConnection(getSelectedConnection());
         input.setTargetSchema(getSelectedSchema());
-        dependenciesCheckBoxList.applyChanges();
+        contentList.applyChanges();
     }
 
     @Nullable

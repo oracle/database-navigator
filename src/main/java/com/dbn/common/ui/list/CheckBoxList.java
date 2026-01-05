@@ -20,6 +20,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
+import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -70,6 +71,7 @@ import static com.dbn.nls.NlsResources.txt;
 @Setter
 public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry<T>> {
     private boolean mutable;
+    private Listeners<ActionListener> actionListeners = Listeners.create();
 
     public CheckBoxList() {
         setSelectionMode(mutable ?
@@ -116,7 +118,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        entries().forEach(e -> e.setEnabled(enabled && e.isModifiable()));
+        entryStream().forEach(e -> e.setEnabled(enabled && e.isModifiable()));
         repaint();
     }
 
@@ -172,13 +174,19 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
 
     public void selectAll() {
         entryStream().forEach(e -> e.setSelected(true));
+        notifyListeners();
         repaint();
     }
 
 
     public void selectNone() {
         entryStream().forEach(e -> e.setSelected(false));
+        notifyListeners();
         repaint();
+    }
+
+    private void notifyListeners() {
+        actionListeners.notify(e -> e.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "")));
     }
 
     private class SelectAllAction extends AnAction {
@@ -253,19 +261,13 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
     }
 
     public void addActionListener(ActionListener actionListener) {
-        DefaultListModel model = (DefaultListModel) getModel();
-        for (Object o : model.toArray()) {
-            Entry entry = (Entry) o;
-            entry.checkBox.addActionListener(actionListener);
-        }
+        actionListeners.add(actionListener);
+        entryStream().forEach(e -> e.getCheckBox().addActionListener(actionListener));
     }
 
     public void removeActionListener(ActionListener actionListener) {
-        DefaultListModel model = (DefaultListModel) getModel();
-        for (Object o : model.toArray()) {
-            Entry entry = (Entry) o;
-            entry.checkBox.removeActionListener(actionListener);
-        }
+        actionListeners.remove(actionListener);
+        entryStream().forEach(e -> e.getCheckBox().removeActionListener(actionListener));
     }
 
     public T getElementAt(int index) {
