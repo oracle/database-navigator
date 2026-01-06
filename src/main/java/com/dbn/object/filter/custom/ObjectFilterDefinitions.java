@@ -48,41 +48,41 @@ class ObjectFilterDefinitions {
     }
 
     static {
-        create(DBSchema.class, DBObjectType.SCHEMA, "SCHEMA_NAME not in ('SCH1', 'SCH2') and SCHEMA_NAME not like 'TEMP_%' and not SYSTEM_SCHEMA")
+        create(DBSchema.class, DBObjectType.SCHEMA, "SCHEMA_NAME not in ('SCH1', 'SCH2') and SCHEMA_NAME not like 'TEMP_%' and not IS_SYSTEM_SCHEMA")
                 .withAttribute(String.class,  "SCHEMA_NAME",     "schema name", o -> o.getName())
-                .withAttribute(Boolean.class, "USER_SCHEMA",     "is user / own schema", o -> o.isUserSchema())
-                .withAttribute(Boolean.class, "PUBLIC_SCHEMA",   "is public schema", o -> o.isPublicSchema())
-                .withAttribute(Boolean.class, "SYSTEM_SCHEMA",   "is system schema", o -> o.isSystemSchema())
-                .withAttribute(Boolean.class, "EMPTY_SCHEMA",    "is empty schema", o -> o.isEmptySchema());
+                .withAttribute(Boolean.class, "IS_USER_SCHEMA",     "is user / own schema", o -> o.isUserSchema())
+                .withAttribute(Boolean.class, "IS_PUBLIC_SCHEMA",   "is public schema", o -> o.isPublicSchema())
+                .withAttribute(Boolean.class, "IS_SYSTEM_SCHEMA",   "is system schema", o -> o.isSystemSchema())
+                .withAttribute(Boolean.class, "IS_EMPTY_SCHEMA",    "is empty schema", o -> o.isEmptySchema());
 
-        create(DBTable.class, DBObjectType.TABLE, "TABLE_NAME in ('TBL1', 'TBL2') or TABLE_NAME like 'TAB_%' or TEMPORARY_TABLE")
+        create(DBTable.class, DBObjectType.TABLE, "TABLE_NAME in ('TBL1', 'TBL2') or TABLE_NAME like 'TAB_%' or IS_TEMPORARY_TABLE")
                 .withAttribute(String.class,  "TABLE_NAME",      "table name", o -> o.getName())
-                .withAttribute(Boolean.class, "TEMPORARY_TABLE", "is temporary table", o -> o.isTemporary());
+                .withAttribute(Boolean.class, "IS_TEMPORARY_TABLE", "is temporary table", o -> o.isTemporary());
 
-        create(DBView.class, DBObjectType.VIEW, "VIEW_NAME in ('VIEW1', 'VIEW2') or VIEW_NAME like 'VW_%' or SYSTEM_VIEW")
+        create(DBView.class, DBObjectType.VIEW, "VIEW_NAME in ('VIEW1', 'VIEW2') or VIEW_NAME like 'VW_%' or IS_SYSTEM_VIEW")
                 .withAttribute(String.class,  "VIEW_NAME",       "view name", o -> o.getName())
-                .withAttribute(Boolean.class, "SYSTEM_VIEW",     "is system level view", o -> o.isSystemView());
+                .withAttribute(Boolean.class, "IS_SYSTEM_VIEW",  "is system level view", o -> o.isSystemView());
 
-        create(DBColumn.class, DBObjectType.COLUMN, "COLUM_NAME in ('COL1', 'COL2') or COLUM_NAME like 'COL_%' or PRIMARY_KEY")
-                .withAttribute(String.class,  "COLUM_NAME",      "column name", o -> o.getName())
-                .withAttribute(String.class,  "DATA_TYPE",       "column data name", o -> o.getDataType().getName())
-                .withAttribute(Integer.class, "DATA_LENGTH",     "column data length", o -> o.getDataType().getLength())
-                .withAttribute(Boolean.class, "AUDIT_COLUMN",    "is audit / tracking column", o -> o.isAudit())
-                .withAttribute(Boolean.class, "PSEUDO_COLUMN",   "is pseudo / hidden column", o -> o.isHidden())
-                .withAttribute(Boolean.class, "NULLABLE_COLUMN", "is nullable column", o -> o.isNullable())
-                .withAttribute(Boolean.class, "IDENTITY_COLUMN", "is identity column", o -> o.isIdentity())
-                .withAttribute(Boolean.class, "PRIMARY_KEY",     "is primary key column", o -> o.isPrimaryKey())
-                .withAttribute(Boolean.class, "FOREIGN_KEY",     "is foreign key column", o -> o.isForeignKey());
+        create(DBColumn.class, DBObjectType.COLUMN, "COLUM_NAME in ('COL1', 'COL2') or COLUM_NAME like 'COL_%' or IS_PRIMARY_KEY")
+                .withAttribute(String.class,  "COLUM_NAME",         "column name", o -> o.getName())
+                .withAttribute(String.class,  "DATA_TYPE",          "column data name", o -> o.getDataType().getName())
+                .withAttribute(Integer.class, "DATA_LENGTH",        "column data length", o -> o.getDataType().getLength())
+                .withAttribute(Boolean.class, "IS_AUDIT_COLUMN",    "is audit / tracking column", o -> o.isAudit())
+                .withAttribute(Boolean.class, "IS_PSEUDO_COLUMN",   "is pseudo / hidden column", o -> o.isHidden())
+                .withAttribute(Boolean.class, "IS_NULLABLE_COLUMN", "is nullable column", o -> o.isNullable())
+                .withAttribute(Boolean.class, "IS_IDENTITY_COLUMN", "is identity column", o -> o.isIdentity())
+                .withAttribute(Boolean.class, "IS_PRIMARY_KEY",     "is primary key column", o -> o.isPrimaryKey())
+                .withAttribute(Boolean.class, "IS_FOREIGN_KEY",     "is foreign key column", o -> o.isForeignKey());
 
-        create(DBConstraint.class, DBObjectType.CONSTRAINT, "CONSTRAINT_NAME in ('CONS1', 'CONS2') or CONSTRAINT_NAME like 'USRC_%' or UNIQUE_KEY")
+        create(DBConstraint.class, DBObjectType.CONSTRAINT, "CONSTRAINT_NAME in ('CONS1', 'CONS2') or CONSTRAINT_NAME like 'USRC_%' or IS_UNIQUE_KEY")
                 .withAttribute(String.class,  "CONSTRAINT_NAME", "constraint name", o -> o.getName())
-                .withAttribute(Boolean.class, "PRIMARY_KEY",     "is primary key column", o -> o.isPrimaryKey())
-                .withAttribute(Boolean.class, "FOREIGN_KEY",     "is foreign key column", o -> o.isForeignKey())
-                .withAttribute(Boolean.class, "UNIQUE_KEY",      "is unique key column", o -> o.isUniqueKey());
+                .withAttribute(Boolean.class, "IS_PRIMARY_KEY",  "is primary key column", o -> o.isPrimaryKey())
+                .withAttribute(Boolean.class, "IS_FOREIGN_KEY",  "is foreign key column", o -> o.isForeignKey())
+                .withAttribute(Boolean.class, "IS_UNIQUE_KEY",   "is unique key column", o -> o.isUniqueKey());
 
-        create(DBIndex.class, DBObjectType.INDEX, "INDEX_NAME in ('IDX1', 'IDX2') or INDEX_NAME like 'IDX_%' or UNIQUE_INDEX")
+        create(DBIndex.class, DBObjectType.INDEX, "INDEX_NAME in ('IDX1', 'IDX2') or INDEX_NAME like 'IDX_%' or IS_UNIQUE_INDEX")
                 .withAttribute(String.class,  "INDEX_NAME",      "index name", o -> o.getName())
-                .withAttribute(Boolean.class, "UNIQUE_INDEX",    "is unique index", o -> o.isUnique());
+                .withAttribute(Boolean.class, "IS_UNIQUE_INDEX", "is unique index", o -> o.isUnique());
 
     }
 
