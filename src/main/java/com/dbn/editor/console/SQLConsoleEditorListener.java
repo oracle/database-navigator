@@ -26,6 +26,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.util.FileEditors.isDbConsoleEditor;
 import static com.dbn.common.util.Files.isDbConsoleFile;
 
 public class SQLConsoleEditorListener extends DBNFileEditorManagerListener {
@@ -35,7 +36,9 @@ public class SQLConsoleEditorListener extends DBNFileEditorManagerListener {
         if (!isDbConsoleFile(file)) return;
 
         FileEditor editor = source.getSelectedEditor(file);
-        if (!(editor instanceof SQLConsoleEditor consoleEditor)) return;
+        if (!isDbConsoleEditor(editor)) return;
+
+        SQLConsoleEditor consoleEditor = (SQLConsoleEditor) editor;
         if (isNotValid(consoleEditor)) return;
 
         Project project = source.getProject();
