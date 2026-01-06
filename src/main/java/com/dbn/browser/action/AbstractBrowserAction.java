@@ -16,13 +16,13 @@
 
 package com.dbn.browser.action;
 
+import androidx.annotation.NonNull;
 import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.browser.ui.DatabaseBrowserTree;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ProjectAction;
 import com.intellij.openapi.project.Project;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @BackgroundUpdate
 public abstract class AbstractBrowserAction extends ProjectAction {
