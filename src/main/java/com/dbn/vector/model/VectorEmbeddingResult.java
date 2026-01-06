@@ -6,6 +6,7 @@ import com.dbn.vector.model.source.DBTableSourceConfig;
 import com.dbn.vector.model.source.FileSystemSourceConfig;
 import com.dbn.vector.model.source.SourceConfig;
 import com.dbn.vector.model.source.SourceType;
+import com.dbn.vector.model.sourceconfig.DbTableSource;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
@@ -68,9 +69,9 @@ public class VectorEmbeddingResult {
         break;
       case DATABASE_TABLE:
         DBTableSourceConfig tableConfig = sourceConfig.getTableSourceConfig();
-        String tableName = tableConfig.getTableName();
-        String schemaName = tableConfig.getSchemaName();
-        initTableResult(schemaName,tableName);
+        for (DbTableSource tableSource : tableConfig.getDbTableSources()){
+          initTableResult(tableSource.getSchemaName(), tableSource.getTableName());
+        }
         break;
     }
   }

@@ -24,6 +24,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.vector.model.source.SourceConfig;
 import com.dbn.vector.model.source.SourceType;
+import com.dbn.vector.model.sourceconfig.DbTableSource;
 import com.dbn.vector.ui.VectorToolboxForm;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
@@ -133,11 +134,19 @@ public class EmbeddingSourceForm extends VectorToolboxFormBase implements DBNCol
     }
 
     if (sourceType == SourceType.DATABASE_TABLE) {
-      DBSchema schema = tableForm.getSelectedSchema();
-      DBTable table = tableForm.getSelectedTable();
+      DbTableSource dbTableSource;
+      String schema = null;
+      String table = null;
+      if (!tableForm.getConfig().getDbTableSources().isEmpty()) {
+        dbTableSource = tableForm.getConfig().getDbTableSources().get(0);
+        schema = dbTableSource.getSchemaName();
+         table = dbTableSource.getTableName();
+      }
+
+
 
       if (schema != null && table != null) {
-        return sourceTypeName + " - " + schema.getName() + "." + table.getName();
+        return sourceTypeName + " - " + schema + "." + table;
       }
     }
     return sourceTypeName;

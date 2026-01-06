@@ -9,6 +9,7 @@ import com.dbn.vector.model.TableResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.source.DBTableSourceConfig;
+import com.dbn.vector.model.sourceconfig.DbTableSource;
 import com.dbn.vector.service.TableProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.jetbrains.annotations.NotNull;
@@ -35,24 +36,29 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
         // remove the PREPARE_DOCUMENT_STORE step from shared steps
         result.deleteStepFfromShared(ENSURE_DOCUMENT_TABLE);
         DBTableSourceConfig tableConfig = request.getSourceConfig().getTableSourceConfig();
-        
-        TableResult tableResult = result.initTableResult(
-                tableConfig.getSchemaName(),
-                tableConfig.getTableName()
-        );
 
-        String metadata = tableProcessingService.buildRowMetadata(request, tableConfig);
-        progressIndicator.setText2("Embedding table data from " + tableResult.getName());
 
-        // Execute the embedding with batching
-        embedTableDataInBatches(
-                request,
-                connection,
-                vectorInterface,
-                tableResult,
-                metadata,
-                progressIndicator
-        );
+        for (DbTableSource tableSource : tableConfig.getDbTableSources()){
+          TableResult tableResult = result.initTableResult(
+                  tableSource.getSchemaName(),
+                  tableSource.getTableName()
+          );
+
+          String metadata = tableProcessingService.buildRowMetadata(request, tableSource);
+          progressIndicator.setText2("Embedding table data from " + tableResult.getName());
+
+          // Execute the embedding with batching
+          embedTableDataInBatches(
+                  request,
+                  connection,
+                  vectorInterface,
+                  tableResult,
+                  tableSource,
+                  metadata,
+                  progressIndicator
+          );
+        }
+
     }
 
     /**
@@ -64,7 +70,7 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
             @NotNull DBNConnection connection,
             @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull TableResult tableResult,
-            @NotNull String metadata,
+            DbTableSource tableSource, @NotNull String metadata,
             @NotNull ProgressIndicator progressIndicator) throws SQLException {
 
         StepResult embedStep = tableResult.startStep(PipelineStep.EMBED);
@@ -86,7 +92,7 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
                 // Process one batch
                 batchCount = vectorInterface.embedDataContent(
                         connection,
-                        request.getSourceConfig().getTableSourceConfig(),
+                        tableSource,
                         request.getChunkConfig().getConfigJson(),
                         request.getEmbedConfig().getConfigJson(),
                         request.getStoreConfig(),
