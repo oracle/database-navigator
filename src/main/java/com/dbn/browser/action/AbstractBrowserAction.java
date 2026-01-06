@@ -16,19 +16,19 @@
 
 package com.dbn.browser.action;
 
-import androidx.annotation.NonNull;
 import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.browser.ui.DatabaseBrowserTree;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ProjectAction;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @BackgroundUpdate
 public abstract class AbstractBrowserAction extends ProjectAction {
 
     @Nullable
-    protected static DatabaseBrowserTree getActiveBrowserTree(@NonNull Project project) {
+    protected static DatabaseBrowserTree getActiveBrowserTree(@NotNull Project project) {
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
         return browserManager.getActiveBrowserTree();
     }
