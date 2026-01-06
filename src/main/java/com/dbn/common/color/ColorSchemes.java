@@ -106,12 +106,12 @@ public class ColorSchemes {
             return lightDarkColor(lightColor, darkColor);
         }
 
-        return new JBColor(() -> fallback.get());
+        return JBColor.lazy(() -> fallback.get());
     }
 
     @NotNull
     private static JBColor lightDarkColor(Color lightColor, Color darkColor) {
-        return new JBColor(() -> LookAndFeel.isDarkMode() ? darkColor : lightColor);
+        return JBColor.lazy(() -> LookAndFeel.isDarkMode() ? darkColor : lightColor);
     }
 
 
