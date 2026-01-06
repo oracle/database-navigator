@@ -32,6 +32,7 @@ import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.Components;
 import com.dbn.common.ui.util.ScrollPanes;
 import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Alarms;
 import com.dbn.common.util.Lists;
 import com.intellij.util.Alarm;
 import lombok.Getter;
@@ -60,7 +61,7 @@ public class ChatMessagesForm extends DBNFormBase {
     public ChatMessagesForm(@Nullable DBNComponent parent) {
         super(parent);
 
-        scrollAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD,this);
+        scrollAlarm = Alarms.createAlarm(this);
         ClientProperty.HORIZONTAL_SCROLL_POLICY.set(messagesScrollPanel, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         verticalBoxLayout(messagesPanel);
