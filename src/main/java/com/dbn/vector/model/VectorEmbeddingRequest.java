@@ -61,7 +61,7 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
 
         // preselect user schema in relevant config blocks
         String schemaName = userSchema.getName();
-        sourceConfig.getTableSourceConfig().setSchemaName(schemaName);
+//        sourceConfig.getTableSourceConfig().setSchemaName(schemaName);
         embedConfig.getDatabaseModelConfig().setSchemaName(schemaName);
         embedConfig.getThirdPartyModelConfig().setCredentialSchemaName(schemaName);
         storeConfig.setSchemaName(schemaName);
