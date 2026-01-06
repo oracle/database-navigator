@@ -16,6 +16,7 @@
 
 package com.dbn.browser.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.BasicActionGroup;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Actions;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
+@BackgroundUpdate
 public class ConnectionCreateDropdownAction extends BasicActionGroup {
     private final AnAction[] actions = new AnAction[] {
             new ConnectionCreateAction(DatabaseType.ORACLE),
