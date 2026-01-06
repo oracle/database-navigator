@@ -16,6 +16,8 @@
 
 package com.dbn.common.action;
 
+import com.dbn.common.Reflection;
+import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.ref.WeakRef;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataProvider;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.action.DataKeys.PARENT_DISPOSABLE;
 
+@Deprecated // TODO consider using com.intellij.openapi.actionSystem.CompositeDataProvider
 public class CompositeDataProvider implements DataProvider {
     private final WeakRef<DataProviderDelegate> dataProviderDelegate;
     private final WeakRef<DataProvider> dataProvider;
@@ -47,7 +50,7 @@ public class CompositeDataProvider implements DataProvider {
     @Override
     public @Nullable Object getData(@NotNull @NonNls String dataId) {
         DataProvider provider = getDataProvider();
-        Object data = provider == null ? null : provider.getData(dataId);
+        Object data = getData(provider, dataId);
         if (data != null) return data;
 
         DataProviderDelegate delegate = getDataProviderDelegate();
@@ -58,5 +61,11 @@ public class CompositeDataProvider implements DataProvider {
         }
 
         return delegate.getData(dataId);
+    }
+
+    @Workaround // OverrideOnly DataProvider
+    private static @Nullable Object getData(DataProvider provider, String dataId) {
+        if (provider == null) return null;
+        return Reflection.invokeMethod(provider, "getData", dataId);
     }
 }
