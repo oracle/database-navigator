@@ -28,6 +28,7 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
 import com.dbn.diagnostics.Diagnostics;
+import com.dbn.help.HelpTopic;
 import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
@@ -39,6 +40,7 @@ import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,7 +89,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         super(project, canBeParent);
         this.project = ProjectRef.of(project);
         setTitle(Titles.signed(title));
-        getHelpAction().setEnabled(false);
+        //getHelpAction().setEnabled(false);
     }
 
     @Override
@@ -209,6 +211,17 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     @NotNull
     protected abstract F createForm();
 
+
+    @Override
+    protected final @NonNls @Nullable String getHelpId() {
+        HelpTopic helpTopic = getHelpTopic();
+        return helpTopic == null ? null : "DBN." + helpTopic.id();
+    }
+
+    protected HelpTopic getHelpTopic() {
+        return null;
+    }
+
     @Nullable
     public final <T extends Disposable> T getParentComponent() {
         return null;
@@ -238,8 +251,26 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         return Arrays.stream(actions)
                 .filter(value -> value != null)
                 .toArray(l -> new Action[l]);
-
     }
+
+    protected Action [] actionsTemplateOk() {
+        return createActions(getOKAction());
+    }
+
+    protected Action [] actionsTemplateOkCancel() {
+        return createActions(getOKAction(), getCancelAction());
+    }
+
+    protected Action [] actionsTemplateCancel() {
+        return createActions(getCancelAction());
+    }
+
+    protected Action [] actionsTemplateClose() {
+        Action cancelAction = getCancelAction();
+        renameAction(cancelAction, "Close");
+        return createActions(cancelAction);
+    }
+
 
     protected static void renameAction(@NotNull Action action, @Nls String name) {
         action.putValue(Action.NAME, name);
@@ -290,6 +321,22 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     @Override
     protected void doHelpAction() {
         super.doHelpAction();
+    }
+
+    @Override // TODO final
+    protected Action[] createActions() {
+        Action[] actions = initializeActions();
+        if (getHelpId() == null) return actions;
+
+        Action[] allActions = new Action[actions.length + 1];
+        allActions[0] = getHelpAction();
+        System.arraycopy(actions, 0, allActions, 1, actions.length);
+        return allActions;
+    }
+
+    // TODO abstract (force override)
+    protected Action[] initializeActions() {
+        return actionsTemplateOkCancel();
     }
 
     public boolean isCancelButton(JButton button) {
