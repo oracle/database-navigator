@@ -23,9 +23,16 @@ import lombok.Getter;
 
 @Getter
 public enum HelpTopic implements Constant<HelpTopic> {
-    VECTOR_TOOLBOX("vector-toolbox.html");
+    DATABASE_BROWSER("database-browser.html"),
+    EVENTS_MONITOR("events-monitor.html"),
+    EXECUTION_ENGINE("execution-engine.html"),
+    DATABASE_ASSISTANT("database-assistant.html"),
+    VECTOR_TOOLBOX("vector-toolbox.html"),
+    TABLE_EDITORS("table-editors.html"),
+    //...
+    ;
 
-    public static final String ID_SUFFIX = DatabaseNavigator.DBN_PLUGIN_ID + ".";
+    public static final String ID_PREFIX = DatabaseNavigator.DBN_PLUGIN_ID + ".";
     private final String path;
 
     HelpTopic(String url) {
@@ -33,12 +40,12 @@ public enum HelpTopic implements Constant<HelpTopic> {
     }
 
     public String asHelpTopicId() {
-        return ID_SUFFIX + "." + id();
+        return ID_PREFIX + id();
     }
 
     public static HelpTopic get(String helpTopicId) {
-        if (helpTopicId.startsWith(ID_SUFFIX)) {
-            helpTopicId = helpTopicId.substring(ID_SUFFIX.length());
+        if (helpTopicId.startsWith(ID_PREFIX)) {
+            helpTopicId = helpTopicId.substring(ID_PREFIX.length());
         }
         return Constants.get(HelpTopic.values(), helpTopicId);
     }
