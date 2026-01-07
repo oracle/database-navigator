@@ -236,10 +236,10 @@
                         ) returning varchar2
                     )
                 from (
-                    select * from {5}.{6}
+                    select * from {5}.{6} s
                     where not exists (
-                        select 1 from {0}.{1} tgt
-                        where json_value(tgt.{4}, '$.embedding_source.source_id') = to_char({7})
+                        select 1 from {0}.{1} t
+                        where json_value(t.{4}, '$.embedding_source.source_id') = to_char(s.{7})
                     )
                     fetch first {12} rows only
                 ) src,

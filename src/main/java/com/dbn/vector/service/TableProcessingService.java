@@ -20,7 +20,8 @@ public class TableProcessingService {
     sourceMetadata.put("source_type", DATABASE_TABLE);
     sourceMetadata.put("owner_name", dbTableSource.getSchemaName());
     sourceMetadata.put("table_name", dbTableSource.getTableName());
-    sourceMetadata.put("column_name", dbTableSource.getDataColumnName());
+    sourceMetadata.put("key_column_name", dbTableSource.getKeyColumnName());
+    sourceMetadata.put("data_column_name", dbTableSource.getDataColumnName());
 
     @NonNls
     Map<String, Object> metadata = new LinkedHashMap<>();
