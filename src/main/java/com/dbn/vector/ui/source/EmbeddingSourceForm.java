@@ -20,11 +20,8 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.object.DBSchema;
-import com.dbn.object.DBTable;
 import com.dbn.vector.model.source.SourceConfig;
 import com.dbn.vector.model.source.SourceType;
-import com.dbn.vector.model.sourceconfig.DbTableSource;
 import com.dbn.vector.ui.VectorToolboxForm;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
@@ -130,24 +127,13 @@ public class EmbeddingSourceForm extends VectorToolboxFormBase implements DBNCol
     String sourceTypeName = sourceType == null ? "" : sourceType.getName();
 
     if (sourceType == SourceType.FILE_SYSTEM) {
-      return sourceTypeName + " - " + fileSystemForm.getSelectedFileCount() + " files";
+      int count = fileSystemForm.getSelectedFileCount();
+      return sourceTypeName + " - " + count + (count == 1 ? " file" : " files");
     }
 
     if (sourceType == SourceType.DATABASE_TABLE) {
-      DbTableSource dbTableSource;
-      String schema = null;
-      String table = null;
-      if (!tableForm.getConfig().getDbTableSources().isEmpty()) {
-        dbTableSource = tableForm.getConfig().getDbTableSources().get(0);
-        schema = dbTableSource.getSchemaName();
-         table = dbTableSource.getTableName();
-      }
-
-
-
-      if (schema != null && table != null) {
-        return sourceTypeName + " - " + schema + "." + table;
-      }
+      int count = tableForm.getSelectedTablesCount();
+      return sourceTypeName + " - " + count + (count == 1 ? " table" : " tables");
     }
     return sourceTypeName;
   }

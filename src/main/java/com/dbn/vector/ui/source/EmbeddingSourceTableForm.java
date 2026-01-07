@@ -76,4 +76,8 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
     protected JComponent getMainComponent() {
         return mainPanel;
     }
+
+    public int getSelectedTablesCount() {
+        return tableListForm.getTableList().getModel().getSize();
+    }
 }
