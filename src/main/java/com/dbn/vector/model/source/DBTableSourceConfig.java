@@ -9,7 +9,8 @@ import org.jdom.Element;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.newElement;
 
 @Getter
 @Setter
@@ -19,9 +20,9 @@ public class DBTableSourceConfig implements PersistentStateElement {
 
   @Override
   public void readState(Element element) {
-    for (Element child : element.getChildren()) {
+    for (Element childElement : childrenOf(element, "source")) {
       DbTableSource source = new DbTableSource();
-      source.readState(child);
+      source.readState(childElement);
       dbTableSources.add(source);
     }
   }
@@ -29,7 +30,7 @@ public class DBTableSourceConfig implements PersistentStateElement {
   @Override
   public void writeState(Element element) {
     for (DbTableSource source : dbTableSources) {
-      Element childElement = new Element(String.valueOf(element), "table-source");
+      Element childElement = newElement(element, "source");
       source.writeState(childElement);
     }
   }
