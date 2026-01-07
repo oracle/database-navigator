@@ -33,7 +33,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
@@ -55,9 +54,10 @@ public class SourceCodeEditorToolbarForm extends DBNToolbarForm {
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.SourceEditor");
         setAccessibleName(actionToolbar, txt("app.codeEditor.aria.SourceCodeEditorActions"));
-        this.actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
-        this.loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
+        this.actionsPanel.add(actionToolbar.getComponent());
+        this.loadingIconPanel.add(new AsyncProcessIcon("Loading"));
         this.loadingDataPanel.setVisible(sourceCodeFile.is(DBFileStatus.LOADING));
+        this.loadingDataPanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
 
         ProjectEvents.subscribe(ensureProject(), this, SourceCodeManagerListener.TOPIC, sourceCodeManagerListener());
         Disposer.register(sourceCodeEditor, this);
