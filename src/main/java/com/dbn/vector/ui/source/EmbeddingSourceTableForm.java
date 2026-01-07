@@ -16,7 +16,6 @@
 
 package com.dbn.vector.ui.source;
 
-import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.source.DBTableSourceConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
@@ -42,7 +41,7 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
     }
 
     private void initTableListForm() {
-        tableListForm = new TableListForm((DBNComponent) this, "Source Tables", getConnection());
+        tableListForm = new TableListForm(this, "Source tables", getConnection());
         tableListPanel.add(tableListForm.getComponent(), BorderLayout.CENTER);
     }
 
