@@ -18,7 +18,6 @@ package com.dbn.editor.data.filter.ui;
 
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.ValueSelectorListener;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.listener.ComboBoxSelectionKeyListener;
@@ -110,7 +109,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         valueTextField.addKeyListener(ComboBoxSelectionKeyListener.create(columnSelector, false));
         valueTextField.addKeyListener(ComboBoxSelectionKeyListener.create(operatorSelector, true));
 
-        operatorSelector.addListener(createOperatorSlectorListener());
+        operatorSelector.addListener(createOperatorSelectorListener());
         columnSelector.addListener(createColumnSelectorListener());
 
         updateValueTextField();
@@ -136,13 +135,17 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         return column;
     }
 
-    private @NotNull ValueSelectorListener<ConditionOperator> createOperatorSlectorListener() {
+    private @NotNull ValueSelectorListener<ConditionOperator> createOperatorSelectorListener() {
         return (oldValue, newValue) -> {
-            if (filterForm != null) {
-                filterForm.updateNameAndPreview();
-                updateValueTextField();
-            }
+            updateNameAndPreview();
+            updateValueTextField();
         };
+    }
+
+    private void updateNameAndPreview() {
+        DatasetBasicFilterForm filterForm = this.filterForm;
+        if (filterForm == null) return;
+        dispatch(() -> filterForm.updateNameAndPreview());
     }
 
     private @NotNull ValueSelectorListener<DBColumn> createColumnSelectorListener() {
@@ -152,9 +155,8 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
                 GenericDataType selectedDataType = newValue.getDataType().getGenericDataType();
                 editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, selectedDataType == GenericDataType.DATE_TIME);
             }
-            if (filterForm != null) {
-                Dispatch.run(mainPanel, () -> filterForm.updateNameAndPreview());
-            }
+
+            updateNameAndPreview();
             operatorSelector.reloadValues();
             announceEvent(columnSelector, "Selected column is " + columnSelector.getSelectedValueName());
         };
@@ -236,7 +238,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         operatorSelector.setEnabled(active);
         editorComponent.getTextField().setEnabled(active);
         if (filterForm != null) {
-            filterForm.updateNameAndPreview();
+            updateNameAndPreview();
         }
     }
 

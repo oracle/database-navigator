@@ -56,7 +56,7 @@ public class PluginConflictResolutionForm extends DBNFormBase {
         hintPanel.add(disclaimerForm.getComponent());
 
         selectOptionLabel.setVisible(false);
-        selectOptionAlarm = new Alarm(this);
+        selectOptionAlarm = Alarms.createAlarm(this);
 
         ActionListener selectionListener = e -> {
             PluginConflictResolution resolution = getChosenResolution();
@@ -86,7 +86,8 @@ public class PluginConflictResolutionForm extends DBNFormBase {
 
     protected void showErrorMessage() {
         selectOptionLabel.setVisible(true);
-        Alarms.alarmRequest(selectOptionAlarm, (int) TimeUnit.SECONDS.toMillis(3), true, () -> selectOptionLabel.setVisible(false));
+        int delay = (int) TimeUnit.SECONDS.toMillis(3);
+        Alarms.alarmRequest(selectOptionAlarm, delay, true, () -> selectOptionLabel.setVisible(false));
     }
 
     @Nullable
