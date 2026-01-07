@@ -30,7 +30,6 @@ public class ScriptExecutionInputDialog extends DBNDialog<ScriptExecutionInputFo
         super(project, "Execute SQL script", true);
         this.executionInput = executionInput;
         setModal(true);
-        renameAction(getOKAction(), "Execute");
         init();
     }
 
@@ -47,11 +46,11 @@ public class ScriptExecutionInputDialog extends DBNDialog<ScriptExecutionInputFo
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Execute");
+        return actions(
                 getOKAction(),
-                getCancelAction(),
-        };
+                getCancelAction());
     }
 
     public void setActionEnabled(boolean enabled) {

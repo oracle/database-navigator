@@ -39,14 +39,14 @@ public class WrapperResultDialog extends DBNDialog<WrapperResultForm> {
     this.setModal(true);
     this.setAutoSize(true);
     this.model = model;
-    renameAction(getCancelAction(), "Close");
     init();
   }
 
   @NotNull
   @Override
-  protected Action[] createActions() {
-    return new Action[]{getCancelAction()};
+  protected Action[] initializeActions() {
+    renameAction(getCancelAction(), "Close");
+    return actions(getCancelAction());
   }
 
   @Override

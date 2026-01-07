@@ -39,18 +39,19 @@ public class ProfilesAndCredentialsDialog extends DBNDialog<ProfilesAndCredentia
   public ProfilesAndCredentialsDialog(ConnectionHandler connection) {
     super(connection.getProject(), "Select AI Profiles and Credentials", true);
     this.connection = ConnectionRef.of(connection);
-    renameAction(getCancelAction(), "Close");
-
     setDefaultSize(800, 600);
     init();
   }
 
   @NotNull
   @Override
-  protected Action[] createActions() {
-    return new Action[]{getCancelAction(), new HelpAction()};
+  protected Action[] initializeActions() {
+    return actions(
+            new HelpAction(),
+            getCancelAction());
   }
 
+  @Deprecated // TODO use standard help mechanism
   private class HelpAction extends AbstractAction {
     private HelpAction() {
       super("Help");

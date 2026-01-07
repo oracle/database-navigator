@@ -33,7 +33,6 @@ public class CmdLineInterfaceInputDialog extends DBNDialog<CmdLineInterfaceInput
         this.cmdLineInterface = cmdLineInterface;
         this.usedNames = usedNames;
         setModal(true);
-        renameAction(getOKAction(), "Save");
         init();
     }
 
@@ -50,11 +49,11 @@ public class CmdLineInterfaceInputDialog extends DBNDialog<CmdLineInterfaceInput
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Save");
+        return actions(
                 getOKAction(),
-                getCancelAction(),
-        };
+                getCancelAction());
     }
 
     @Override

@@ -39,14 +39,14 @@ public class AssistantToolApprovalDialog extends DBNDialog<AssistantToolApproval
     this.setModal(true);
     this.setAutoSize(true);
     this.settings = settings;
-    renameAction(getCancelAction(), "Close");
     init();
   }
 
   @NotNull
   @Override
-  protected Action[] createActions() {
-    return new Action[]{getCancelAction()};
+  protected Action[] initializeActions() {
+    renameAction(getCancelAction(), "Close");
+    return actions(getCancelAction());
   }
 
   @Override

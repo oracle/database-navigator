@@ -36,10 +36,9 @@ public class WrapperNamesEditorDialog extends DBNDialog<WrapperNamesEditorForm> 
         init();
     }
 
-    @NotNull
     @Override
-    protected Action[] createActions() {
-        return createActions(
+    protected Action[] initializeActions() {
+        return actions(
                 getOKAction(),
                 getCancelAction());
     }

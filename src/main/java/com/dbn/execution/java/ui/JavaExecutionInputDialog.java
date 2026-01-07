@@ -51,12 +51,10 @@ public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> 
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 new ExecuteAction(),
-                getCancelAction(),
-                getHelpAction()
-        };
+                getCancelAction());
     }
 
     @Override

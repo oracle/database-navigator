@@ -30,7 +30,6 @@ public class DatasetEditorSortingDialog extends DBNDialog<DatasetEditorSortingFo
         this.datasetEditor = datasetEditor;
         setModal(true);
         setResizable(true);
-        renameAction(getCancelAction(), "Cancel");
         init();
     }
 
@@ -41,13 +40,10 @@ public class DatasetEditorSortingDialog extends DBNDialog<DatasetEditorSortingFo
     }
 
     @Override
-    @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected Action[] initializeActions() {
+        return actions(
                 getOKAction(),
-                getCancelAction(),
-                getHelpAction()
-        };
+                getCancelAction());
     }
 
     @Override

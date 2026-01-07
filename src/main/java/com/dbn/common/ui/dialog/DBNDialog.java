@@ -89,7 +89,6 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         super(project, canBeParent);
         this.project = ProjectRef.of(project);
         setTitle(Titles.signed(title));
-        //getHelpAction().setEnabled(false);
     }
 
     @Override
@@ -215,7 +214,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     @Override
     protected final @NonNls @Nullable String getHelpId() {
         HelpTopic helpTopic = getHelpTopic();
-        return helpTopic == null ? null : "DBN." + helpTopic.id();
+        return helpTopic == null ? null : helpTopic.asHelpTopicId();
     }
 
     protected HelpTopic getHelpTopic() {
@@ -247,30 +246,11 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         };
     }
 
-    protected static Action[] createActions(Action ... actions) {
+    protected static Action[] actions(Action ... actions) {
         return Arrays.stream(actions)
                 .filter(value -> value != null)
                 .toArray(l -> new Action[l]);
     }
-
-    protected Action [] actionsTemplateOk() {
-        return createActions(getOKAction());
-    }
-
-    protected Action [] actionsTemplateOkCancel() {
-        return createActions(getOKAction(), getCancelAction());
-    }
-
-    protected Action [] actionsTemplateCancel() {
-        return createActions(getCancelAction());
-    }
-
-    protected Action [] actionsTemplateClose() {
-        Action cancelAction = getCancelAction();
-        renameAction(cancelAction, "Close");
-        return createActions(cancelAction);
-    }
-
 
     protected static void renameAction(@NotNull Action action, @Nls String name) {
         action.putValue(Action.NAME, name);
@@ -323,21 +303,19 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         super.doHelpAction();
     }
 
-    @Override // TODO final
-    protected Action[] createActions() {
+    @NotNull
+    @Override
+    protected final Action[] createActions() {
         Action[] actions = initializeActions();
         if (getHelpId() == null) return actions;
 
         Action[] allActions = new Action[actions.length + 1];
-        allActions[0] = getHelpAction();
-        System.arraycopy(actions, 0, allActions, 1, actions.length);
+        System.arraycopy(actions, 0, allActions, 0, actions.length);
+        allActions[actions.length] = getHelpAction();
         return allActions;
     }
 
-    // TODO abstract (force override)
-    protected Action[] initializeActions() {
-        return actionsTemplateOkCancel();
-    }
+    protected abstract Action[] initializeActions();
 
     public boolean isCancelButton(JButton button) {
         if (button == null) return false;

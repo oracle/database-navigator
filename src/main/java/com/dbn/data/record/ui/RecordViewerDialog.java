@@ -35,7 +35,6 @@ public class RecordViewerDialog extends DBNDialog<RecordViewerForm> {
         this.record = record; 
         setModal(false);
         setResizable(true);
-        renameAction(getCancelAction(), "Close");
         init();
     }
 
@@ -47,12 +46,11 @@ public class RecordViewerDialog extends DBNDialog<RecordViewerForm> {
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(
                 new OpenInEditorAction(),
-                getCancelAction(),
-                getHelpAction()
-        };
+                getCancelAction());
     }
     
     @Override

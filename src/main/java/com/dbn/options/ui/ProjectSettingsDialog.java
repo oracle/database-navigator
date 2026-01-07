@@ -108,13 +108,11 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 getOKAction(),
-                getCancelAction(),
                 new ApplyAction(),
-                getHelpAction()
-        };
+                getCancelAction());
     }
 
     @Override

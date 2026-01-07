@@ -38,7 +38,6 @@ public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
         super(object.getProject(), "Detach DDL files", true);
         this.fileInfos = fileInfos;
         this.objectRef = DBObjectRef.of(object);
-        renameAction(getOKAction(), "Detach selected");
         setDefaultSize(700, 400);
         init();
     }
@@ -55,13 +54,13 @@ public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Detach selected");
+        return actions(
                 getOKAction(),
                 new SelectAllAction(),
                 new SelectNoneAction(),
-                getCancelAction()
-        };
+                getCancelAction());
     }
 
     private class SelectAllAction extends AbstractAction {

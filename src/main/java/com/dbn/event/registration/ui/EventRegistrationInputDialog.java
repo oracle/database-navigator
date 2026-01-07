@@ -25,6 +25,8 @@ import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Action;
+
 public class EventRegistrationInputDialog extends DBNDialog<EventRegistrationInputForm> {
   private final DBObjectRef<DBTable> table;
   private int mask;
@@ -50,11 +52,13 @@ public class EventRegistrationInputDialog extends DBNDialog<EventRegistrationInp
   }
 
   @Override
-  public void doCancelAction() {
-    super.doCancelAction();
+  protected Action[] initializeActions() {
+    return actions(
+            getOKAction(),
+            getCancelAction());
   }
 
-  //todo add validation layer
+//todo add validation layer
   /*
   at least one operation should be selected .
    */

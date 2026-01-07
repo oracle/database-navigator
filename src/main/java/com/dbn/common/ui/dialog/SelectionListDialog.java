@@ -20,6 +20,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Action;
 import javax.swing.JComponent;
 import java.util.List;
 
@@ -60,5 +61,13 @@ public class SelectionListDialog<T> extends DBNDialog<SelectionListForm<T>> {
     @Override
     public JComponent getPreferredFocusedComponent() {
         return getForm().getSelectionList();
+    }
+
+    @Override
+    protected Action[] initializeActions() {
+        //renameAction(getOKAction(), "Select");
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 }

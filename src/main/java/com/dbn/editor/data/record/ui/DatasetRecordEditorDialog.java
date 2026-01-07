@@ -30,7 +30,6 @@ public class DatasetRecordEditorDialog extends DBNDialog<DatasetRecordEditorForm
         this.row = row;
         setModal(true);
         setResizable(true);
-        renameAction(getCancelAction(), "Close");
         init();
     }
 
@@ -42,11 +41,9 @@ public class DatasetRecordEditorDialog extends DBNDialog<DatasetRecordEditorForm
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
-                getCancelAction(),
-                getHelpAction()
-        };
+    protected final Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(getCancelAction());
     }
 
     @Override

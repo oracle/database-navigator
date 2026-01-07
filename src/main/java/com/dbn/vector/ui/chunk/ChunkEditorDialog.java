@@ -7,6 +7,8 @@ import com.dbn.vector.model.chunk.ChunkConfig;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.Action;
+
 public class ChunkEditorDialog extends DBNDialog<ChunkEditorForm> {
   private ConnectionRef connection;
   @Getter
@@ -16,12 +18,19 @@ public class ChunkEditorDialog extends DBNDialog<ChunkEditorForm> {
     super(connection.getProject(), "Chunk Lab", true);
     this.connection = connection.ref();
     this.chunkConfig = chunkConfig;
-    renameAction(getOKAction(), "Use Configuration");
     init();
   }
 
   private ConnectionHandler getConnection() {
     return connection.ensure();
+  }
+
+  @Override
+  protected Action[] initializeActions() {
+    renameAction(getOKAction(), "Use Configuration");
+    return actions(
+            getOKAction(),
+            getCancelAction());
   }
 
   @Override
