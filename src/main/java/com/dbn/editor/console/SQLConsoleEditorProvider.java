@@ -62,7 +62,7 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements
         Document document = editor.getEditor().getDocument();
         int documentSignature = document.hashCode();
         if (document.hashCode() != consoleVirtualFile.getDocumentSignature()) {
-            document.addDocumentListener(consoleVirtualFile);
+            document.addDocumentListener(consoleVirtualFile, editor);
             consoleVirtualFile.setDocumentSignature(documentSignature);
         }
         return editor;

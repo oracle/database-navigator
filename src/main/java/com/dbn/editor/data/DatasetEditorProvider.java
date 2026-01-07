@@ -22,6 +22,7 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.EditorProviderId;
 import com.dbn.editor.data.state.DatasetEditorState;
 import com.dbn.object.DBDataset;
+import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBDatasetVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
@@ -38,6 +39,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.common.util.Unsafe.silent;
 
 public class DatasetEditorProvider implements FileEditorProvider, NamedComponent, DumbAware {
 
@@ -49,12 +51,15 @@ public class DatasetEditorProvider implements FileEditorProvider, NamedComponent
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        if (virtualFile instanceof DBEditableObjectVirtualFile databaseFile) {
-            DBContentType contentType = databaseFile.getContentType();
-            return contentType == DBContentType.DATA || contentType == DBContentType.CODE_AND_DATA;
+        if (!(virtualFile instanceof DBEditableObjectVirtualFile databaseFile)) return false;
 
-        }
-        return false;
+        DBContentType contentType = databaseFile.getContentType();
+        if (!contentType.has(DBContentType.DATA)) return false;
+
+        DBSchemaObject object = silent(null, databaseFile, f -> f.getObject());
+        if (object == null) return false;
+
+        return true;
     }
 
     @Override

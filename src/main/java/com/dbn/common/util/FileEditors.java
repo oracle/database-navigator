@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,14 @@
 
 package com.dbn.common.util;
 
-import com.intellij.DynamicBundle;
+import com.dbn.editor.console.SQLConsoleEditor;
+import com.intellij.openapi.fileEditor.FileEditor;
 import lombok.experimental.UtilityClass;
 
-import java.util.Locale;
-
 @UtilityClass
-public class Localization {
+public class FileEditors {
 
-    public static Locale getLocale() {
-        return DynamicBundle.getLocale();
-    }
-
-    public static void initDefaultLocale() {
-        Locale locale = getLocale();
-        Locale systemLocale = Locale.getDefault();
-
-        if (locale != null && !locale.equals(systemLocale)) {
-            // TODO we sure?
-            Locale.setDefault(locale);
-        }
+    public static boolean isDbConsoleEditor(FileEditor fileEditor) {
+        return fileEditor instanceof SQLConsoleEditor;
     }
 }
