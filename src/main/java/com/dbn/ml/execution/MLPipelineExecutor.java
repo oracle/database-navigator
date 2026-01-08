@@ -96,6 +96,10 @@ public class MLPipelineExecutor {
         result.setTestingDataSize(testingDataset.size());
         result.setFeatureCount(trainingDataset.getFeatureMap().size());
         result.setClassCount(trainingDataset.getOutputInfo().size());
+        
+        // Store original column names for ONNX metadata
+        result.setFeatureColumns(new ArrayList<>(featureConfig.getFeatureColumns()));
+        result.setLabelColumn(featureConfig.getLabelColumn());
 
         // Create and train the model
         Trainer<Label> trainer = trainerType.createTrainer();

@@ -25,6 +25,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.diagnostics.Diagnostics;
+import com.dbn.ml.onnx.OnnxMetadataHelper;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
@@ -39,6 +40,7 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.List;
@@ -93,11 +95,22 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelSp
                                 input.getCredentialName());
 
                     } else if (modelSourceType == ModelSourceType.MODEL_FILE) {
+                        // Look for Oracle metadata sidecar JSON file
+                        File modelFile = new File(input.getSourceLocation());
+                        String oracleMetadata = null;
+                        try {
+                            oracleMetadata = OnnxMetadataHelper.readMetadataFile(modelFile.toPath());
+                        } catch (Exception e) {
+                            Diagnostics.conditionallyLog(e);
+                            // Continue without metadata - will use default
+                        }
+                        
                         Blob modelBlob = uploadOnnxModel(conn, input, progress);
                         dataDefinition.createModelFromFile(conn,
                                 input.getSchemaName(true),
                                 input.getObjectName(true),
-                                modelBlob);
+                                modelBlob,
+                                oracleMetadata);
 
                     } else {
                         throw new IllegalArgumentException("Unsupported model source type: " + modelSourceType);

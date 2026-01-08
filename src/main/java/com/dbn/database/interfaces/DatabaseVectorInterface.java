@@ -33,6 +33,8 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
 
   void createModelFromFile(DBNConnection conn, String ownerName, String modelName, Blob modelBlob) throws SQLException;
 
+  void createModelFromFile(DBNConnection conn, String ownerName, String modelName, Blob modelBlob, String oracleMetadata) throws SQLException;
+
   void dropModel(DBNConnection conn, String modelSchema, String modelName) throws SQLException;
 
   ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException;

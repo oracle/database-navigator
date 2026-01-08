@@ -112,7 +112,20 @@
             begin
                 DBMS_VECTOR.LOAD_ONNX_MODEL(
                     MODEL_NAME => {#0},
-                    MODEL_DATA => {#1});
+                    MODEL_DATA => {#1}
+                );
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="create-ml-model-from-file" timeout="12000">
+        <statement>
+            begin
+                DBMS_DATA_MINING.IMPORT_ONNX_MODEL(
+                    MODEL_NAME => {#0},
+                    MODEL_DATA => {#1},
+                    METADATA   => JSON({#2})
+                );
             end;
         </statement>
     </statement-execution-processor>

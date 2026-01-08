@@ -23,6 +23,8 @@ import org.tribuo.Model;
 import org.tribuo.classification.Label;
 import org.tribuo.classification.evaluation.LabelEvaluation;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class MLResult {
@@ -37,6 +39,10 @@ public class MLResult {
     private int classCount;
     
     private long trainingTimeMs;
+    
+    // Original column names for Oracle DB ONNX metadata
+    private List<String> featureColumns;
+    private String labelColumn;
     
     public double getAccuracy() {
         return evaluation != null ? evaluation.accuracy() : 0.0;

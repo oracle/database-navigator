@@ -20,8 +20,13 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.interfaces.DatabaseInterfaces;
+import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.ml.model.MLResult;
+import com.dbn.ml.onnx.OnnxMetadataHelper;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
 import com.intellij.openapi.fileChooser.FileSaverDescriptor;
 import com.intellij.openapi.fileChooser.FileSaverDialog;
@@ -54,6 +59,7 @@ import java.awt.GridLayout;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -144,12 +150,20 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         exportOnnxButton.setToolTipText("Export model to ONNX format for deployment");
         exportOnnxButton.addActionListener(e -> exportToOnnx());
         
+        // Export to DB button
+        JButton exportToDbButton = new JButton("Export to DB");
+        exportToDbButton.setToolTipText("Export model directly to Oracle Database");
+        exportToDbButton.addActionListener(e -> exportToDatabase());
+        
         // Check if model supports ONNX export
         Model<Label> model = result.getModel();
-        exportOnnxButton.setEnabled(model instanceof ONNXExportable);
+        boolean supportsOnnx = model instanceof ONNXExportable;
+        exportOnnxButton.setEnabled(supportsOnnx);
+        exportToDbButton.setEnabled(supportsOnnx);
         
         panel.add(saveButton);
         panel.add(exportOnnxButton);
+        panel.add(exportToDbButton);
         
         return panel;
     }
@@ -217,16 +231,27 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
             Background.run(() -> {
                 try {
                     ONNXExportable onnxModel = (ONNXExportable) model;
+                    
+                    // Export ONNX model to file
                     onnxModel.saveONNXModel(
                             "com.dbn.ml",  // domain
                             0,             // model version
                             path
                     );
                     
+                    // Save Oracle metadata as sidecar JSON file
+                    String oracleMetadata = OnnxMetadataHelper.buildOracleMetadataJson(result);
+                    OnnxMetadataHelper.saveMetadataFile(path, oracleMetadata);
+                    
+                    Path metadataPath = OnnxMetadataHelper.getMetadataPath(path);
+                    
                     Dispatch.run(() -> Messages.showInfoDialog(
                             project,
                             "ONNX Export Complete",
-                            "Model exported successfully to:\n" + path
+                            "Model exported successfully!\n\n" +
+                            "ONNX Model: " + path.getFileName() + "\n" +
+                            "Oracle Metadata: " + metadataPath.getFileName() + "\n\n" +
+                            "Use both files when loading to Oracle DB with DBMS_DATA_MINING.IMPORT_ONNX_MODEL"
                     ));
                 } catch (Exception ex) {
                     Dispatch.run(() -> Messages.showErrorDialog(
@@ -237,6 +262,89 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
                 }
             });
         }
+    }
+
+    private void exportToDatabase() {
+        Project project = result.getConnection().getProject();
+        Model<Label> model = result.getModel();
+        
+        if (!(model instanceof ONNXExportable)) {
+            Messages.showErrorDialog(project, "Export Not Supported", 
+                    "This model type does not support ONNX export.");
+            return;
+        }
+        
+        // Ask user for model name using IntelliJ's Messages
+        String modelName = com.intellij.openapi.ui.Messages.showInputDialog(
+                project,
+                "Enter the model name for Oracle Database:",
+                "Export to Database",
+                com.intellij.openapi.ui.Messages.getQuestionIcon()
+        );
+        
+        if (modelName == null || modelName.trim().isEmpty()) {
+            return; // User cancelled
+        }
+        
+        // Validate model name (Oracle identifier rules)
+        String finalModelName = modelName.trim().toUpperCase();
+        if (!finalModelName.matches("^[A-Z][A-Z0-9_]*$")) {
+            Messages.showErrorDialog(project, "Invalid Model Name",
+                    "Model name must start with a letter and contain only letters, numbers, and underscores.");
+            return;
+        }
+        
+        Background.run(() -> {
+            try {
+                // 1. Export ONNX to byte array (in memory)
+                ONNXExportable onnxModel = (ONNXExportable) model;
+                ai.onnx.proto.OnnxMl.ModelProto modelProto = onnxModel.exportONNXModel(
+                        "com.dbn.ml",  // domain
+                        0              // model version
+                );
+                byte[] onnxBytes = modelProto.toByteArray();
+                
+                // 2. Generate Oracle metadata JSON
+                String metadataJson = OnnxMetadataHelper.buildOracleMetadataJson(result);
+                
+                // 3. Get connection and schema
+                ConnectionHandler connection = result.getConnection();
+                String schemaName = connection.getUserName();
+                
+                // 4. Upload to database
+                try (DBNConnection conn = connection.getMainConnection()) {
+                    // Create BLOB from bytes
+                    Blob modelBlob = conn.createBlob();
+                    modelBlob.setBytes(1, onnxBytes);
+                    
+                    // Call the import procedure
+                    DatabaseInterfaces interfaces = connection.getInterfaces();
+                    DatabaseVectorInterface vectorInterface = interfaces.getVectorInterface();
+                    vectorInterface.createModelFromFile(
+                            conn,
+                            schemaName,
+                            finalModelName,
+                            modelBlob,
+                            metadataJson
+                    );
+                }
+                
+                Dispatch.run(() -> Messages.showInfoDialog(
+                        project,
+                        "Export Complete",
+                        "Model '" + finalModelName + "' exported successfully to Oracle Database!\n\n" +
+                        "You can now use it in SQL:\n" +
+                        "SELECT PREDICTION(" + finalModelName + " USING *) FROM your_table;"
+                ));
+                
+            } catch (Exception ex) {
+                Dispatch.run(() -> Messages.showErrorDialog(
+                        project,
+                        "Export Failed",
+                        "Failed to export model to database: " + ex.getMessage()
+                ));
+            }
+        });
     }
 
     private JPanel createPredictionsPanel() {

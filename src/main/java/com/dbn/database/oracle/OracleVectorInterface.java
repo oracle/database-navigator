@@ -44,7 +44,18 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     public void createModelFromFile(DBNConnection conn, String ownerName, String modelName, Blob modelBlob) throws SQLException {
-        executeUpdate(conn, "create-model-from-file", ownerName + "." + modelName, modelBlob);
+        createModelFromFile(conn, ownerName, modelName, modelBlob, null);
+    }
+
+    @Override
+    public void createModelFromFile(DBNConnection conn, String ownerName, String modelName, Blob modelBlob, String oracleMetadata) throws SQLException {
+        if (oracleMetadata != null && !oracleMetadata.isEmpty()) {
+            // Use DBMS_DATA_MINING for classification models with metadata
+            executeUpdate(conn, "create-ml-model-from-file", ownerName + "." + modelName, modelBlob, oracleMetadata);
+        } else {
+            // Fall back to DBMS_VECTOR for embedding models (no metadata)
+            executeUpdate(conn, "create-model-from-file", ownerName + "." + modelName, modelBlob);
+        }
     }
 
     @Override
