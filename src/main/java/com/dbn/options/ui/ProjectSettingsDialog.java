@@ -24,6 +24,7 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.tns.TnsImportData;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
+import com.dbn.help.HelpTopic;
 import com.dbn.oci.OciConnectionData;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
@@ -113,6 +114,11 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
                 getOKAction(),
                 new ApplyAction(),
                 getCancelAction());
+    }
+
+    @Override
+    protected HelpTopic getHelpTopic() {
+        return getForm().getConfiguration().getConfigHelpTopic();
     }
 
     @Override

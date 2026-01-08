@@ -20,9 +20,11 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.constant.Constant;
 import com.dbn.common.constant.Constants;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 @Getter
 public enum HelpTopic implements Constant<HelpTopic> {
+    INTRODUCTION("introduction-oracle-database-navigator.html"),
     DATABASE_BROWSER("database-browser.html"),
     EVENTS_MONITOR("events-monitor.html"),
     EXECUTION_ENGINE("execution-engine.html"),
@@ -38,14 +40,27 @@ public enum HelpTopic implements Constant<HelpTopic> {
     JAVA_EXECUTION("executing-java-programs.html"),
     JAVA_EXECUTION_HISTORY("java-execution-history.html"),
     JAVA_EXECUTION_WRAPPERS("creating-java-execution-wrappers.html"),
+
+    DATABASE_CONFIG_PROPERTIES("connection-properties.html"),
+    DATABASE_CONFIG_DETAILS("connection-details.html"),
+    DATABASE_CONFIG("database-configuration.html"),
+    ASSISTANT_CONFIG("creating-credentials-public-llms.html"),
+    DATA_GRID_SETTINGS("data-grid-settings.html"),
+    DATA_EDITOR_SETTINGS("data-editor-settings.html"),
+    CODE_EDITOR_SETTINGS("configuration-code-editors.html"),
+    EXECUTION_ENGINE_SETTINGS("working-execution-engine.html"),
+    OPERATIONS_SETTINGS(null),
+    DDL_FILE_SETTINGS("ddl-file-editor.html"),
+    TRANSACTION_HANDLING("transaction-handling.html"),
+    GENERAL_SETTINGS("configuration-database-environments.html"),
     //...
     ;
 
     public static final String ID_PREFIX = DatabaseNavigator.DBN_PLUGIN_ID + ".";
     private final String path;
 
-    HelpTopic(String url) {
-        this.path = url;
+    HelpTopic(@NonNls String path) {
+        this.path = path;
     }
 
     public String asHelpTopicId() {
