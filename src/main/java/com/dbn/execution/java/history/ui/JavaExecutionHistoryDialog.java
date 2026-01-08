@@ -23,6 +23,7 @@ import com.dbn.database.DatabaseFeature;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.JavaExecutionManager;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -59,6 +60,11 @@ public class JavaExecutionHistoryDialog extends DBNDialog<JavaExecutionHistoryFo
 	@Override
 	protected JavaExecutionHistoryForm createForm() {
 		return new JavaExecutionHistoryForm(this, WeakRef.get(selectedExecutionInput), debug);
+	}
+
+	@Override
+	protected HelpTopic getHelpTopic() {
+		return HelpTopic.JAVA_EXECUTION_HISTORY;
 	}
 
 	@Override

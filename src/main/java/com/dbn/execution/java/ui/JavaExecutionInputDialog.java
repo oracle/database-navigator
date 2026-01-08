@@ -21,6 +21,7 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.execution.java.JavaExecutionInput;
+import com.dbn.help.HelpTopic;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractAction;
@@ -47,6 +48,11 @@ public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> 
     @Override
     protected JavaExecutionInputForm createForm() {
         return new JavaExecutionInputForm(this, executionInput, debuggerType, true);
+    }
+
+    @Override
+    protected HelpTopic getHelpTopic() {
+        return HelpTopic.JAVA_EXECUTION;
     }
 
     @Override

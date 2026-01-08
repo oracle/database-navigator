@@ -23,6 +23,7 @@ import com.dbn.database.DatabaseFeature;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.execution.method.MethodExecutionManager;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
+
+import static com.dbn.help.HelpTopic.METHOD_EXECUTION_HISTORY;
 
 public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHistoryForm> {
     private SelectAction selectAction;
@@ -64,6 +67,11 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
     @Override
     protected MethodExecutionHistoryForm createForm() {
         return new MethodExecutionHistoryForm(this, WeakRef.get(selectedExecutionInput), debug);
+    }
+
+    @Override
+    protected HelpTopic getHelpTopic() {
+        return METHOD_EXECUTION_HISTORY;
     }
 
     @Override

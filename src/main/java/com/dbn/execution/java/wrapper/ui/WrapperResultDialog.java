@@ -18,6 +18,7 @@ package com.dbn.execution.java.wrapper.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.execution.java.wrapper.WrapperModel;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,6 +41,11 @@ public class WrapperResultDialog extends DBNDialog<WrapperResultForm> {
     this.setAutoSize(true);
     this.model = model;
     init();
+  }
+
+  @Override
+  protected HelpTopic getHelpTopic() {
+    return HelpTopic.JAVA_EXECUTION_WRAPPERS;
   }
 
   @NotNull

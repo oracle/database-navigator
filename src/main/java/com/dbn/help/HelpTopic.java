@@ -33,6 +33,11 @@ public enum HelpTopic implements Constant<HelpTopic> {
     PROGRAM_EDITOR("program-editor.html"),
     DDL_FILE_EDITOR("ddl-file-editor.html"),
     SQL_CONSOLE("sql-editor.html"),
+    METHOD_EXECUTION("executing-methods.html"),
+    METHOD_EXECUTION_HISTORY("method-execution-history.html"),
+    JAVA_EXECUTION("executing-java-programs.html"),
+    JAVA_EXECUTION_HISTORY("java-execution-history.html"),
+    JAVA_EXECUTION_WRAPPERS("creating-java-execution-wrappers.html"),
     //...
     ;
 
