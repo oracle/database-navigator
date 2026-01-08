@@ -20,6 +20,7 @@ import com.dbn.common.editor.BasicTextEditorImpl;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.EditorProviderId;
 import com.dbn.editor.code.content.SourceCodeOffsets;
+import com.dbn.help.HelpTopic;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.psql.PSQLFile;
@@ -29,6 +30,8 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
+
+import static com.dbn.help.HelpTopic.PROGRAM_EDITOR;
 
 public class SourceCodeEditor extends BasicTextEditorImpl<DBSourceCodeVirtualFile>{
     private final DBObjectRef<DBSchemaObject> object;
@@ -58,5 +61,10 @@ public class SourceCodeEditor extends BasicTextEditorImpl<DBSourceCodeVirtualFil
 
     public DBContentType getContentType() {
         return getVirtualFile().getContentType();
+    }
+
+    @Override
+    public HelpTopic getHelpTopic() {
+        return PROGRAM_EDITOR;
     }
 }

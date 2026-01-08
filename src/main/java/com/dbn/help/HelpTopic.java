@@ -29,6 +29,10 @@ public enum HelpTopic implements Constant<HelpTopic> {
     DATABASE_ASSISTANT("database-assistant.html"),
     VECTOR_TOOLBOX("vector-toolbox.html"),
     TABLE_EDITORS("table-editors.html"),
+    SESSION_BROWSER("session-browser.html"),
+    PROGRAM_EDITOR("program-editor.html"),
+    DDL_FILE_EDITOR("ddl-file-editor.html"),
+    SQL_CONSOLE("sql-editor.html"),
     //...
     ;
 
