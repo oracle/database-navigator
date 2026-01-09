@@ -27,6 +27,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
+import static com.dbn.help.HelpTopic.METHOD_DEBUGGING;
 import static com.dbn.help.HelpTopic.METHOD_EXECUTION;
 
 public class MethodExecutionInputDialog extends DBNDialog<MethodExecutionInputForm> {
@@ -53,7 +54,9 @@ public class MethodExecutionInputDialog extends DBNDialog<MethodExecutionInputFo
 
     @Override
     protected HelpTopic getHelpTopic() {
-        return METHOD_EXECUTION;
+        return debuggerType.isDebug() ?
+                METHOD_DEBUGGING :
+                METHOD_EXECUTION;
     }
 
     @Override

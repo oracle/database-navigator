@@ -28,6 +28,9 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
+import static com.dbn.help.HelpTopic.JAVA_DEBUGGING;
+import static com.dbn.help.HelpTopic.JAVA_EXECUTION;
+
 public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> {
     private final JavaExecutionInput executionInput;
     private final DBDebuggerType debuggerType;
@@ -52,7 +55,9 @@ public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> 
 
     @Override
     protected HelpTopic getHelpTopic() {
-        return HelpTopic.JAVA_EXECUTION;
+        return debuggerType.isDebug() ?
+                JAVA_DEBUGGING :
+                JAVA_EXECUTION;
     }
 
     @Override
