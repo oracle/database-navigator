@@ -20,6 +20,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.data.record.DatasetRecord;
 import com.dbn.editor.data.DatasetEditorManager;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,6 +43,11 @@ public class RecordViewerDialog extends DBNDialog<RecordViewerForm> {
     @Override
     protected RecordViewerForm createForm() {
         return new RecordViewerForm(this, record);
+    }
+
+    @Override
+    protected HelpTopic getHelpTopic() {
+        return HelpTopic.RECORD_VIEWER;
     }
 
     @Override

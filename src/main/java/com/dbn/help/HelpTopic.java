@@ -50,6 +50,8 @@ public enum HelpTopic implements Constant<HelpTopic> {
     JAVA_EXECUTION_HISTORY("java-execution-history.html"),
     JAVA_EXECUTION_WRAPPERS("creating-java-execution-wrappers.html"),
     SCRIPT_EXECUTION("executing-scripts.html"),
+    RECORD_VIEWER("viewing-database-records.html"),
+    RECORD_EDITOR("editing-database-records.html"),
 
     // config
     DATABASE_CONFIG_PROPERTIES("connection-properties.html"),

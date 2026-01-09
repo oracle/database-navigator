@@ -18,6 +18,7 @@ package com.dbn.editor.data.record.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.editor.data.model.DatasetEditorModelRow;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,6 +32,13 @@ public class DatasetRecordEditorDialog extends DBNDialog<DatasetRecordEditorForm
         setModal(true);
         setResizable(true);
         init();
+    }
+
+    @Override
+    protected HelpTopic getHelpTopic() {
+        return row.getModel().isEditable() ?
+                HelpTopic.RECORD_EDITOR :
+                HelpTopic.RECORD_VIEWER;
     }
 
     @NotNull
