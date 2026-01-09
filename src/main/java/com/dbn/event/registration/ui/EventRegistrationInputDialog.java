@@ -18,6 +18,7 @@ package com.dbn.event.registration.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.event.registration.EventRegistrationManager;
+import com.dbn.help.HelpTopic;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -49,6 +50,11 @@ public class EventRegistrationInputDialog extends DBNDialog<EventRegistrationInp
   protected EventRegistrationInputForm createForm() {
     DBTable object = DBObjectRef.get(this.table);
     return new EventRegistrationInputForm(this, object);
+  }
+
+  @Override
+  protected HelpTopic getHelpTopic() {
+    return HelpTopic.EVENTS_REGISTRATION;
   }
 
   @Override

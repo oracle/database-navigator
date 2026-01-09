@@ -27,6 +27,7 @@ public enum HelpTopic implements Constant<HelpTopic> {
     INTRODUCTION("introduction-oracle-database-navigator.html"),
     DATABASE_BROWSER("database-browser.html"),
     EVENTS_MONITOR("events-monitor.html"),
+    EVENTS_REGISTRATION("enabling-notification-data-change.html"),
     EXECUTION_ENGINE("execution-engine.html"),
     DATABASE_ASSISTANT("database-assistant.html"),
     DATABASE_ASSISTANT_TOOLS("tool-approvals-and-tool-data.html"),
