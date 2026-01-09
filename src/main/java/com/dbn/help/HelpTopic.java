@@ -55,7 +55,7 @@ public enum HelpTopic implements Constant<HelpTopic> {
     CODE_EDITOR_SETTINGS("configuration-code-editors.html"),
     EXECUTION_ENGINE_SETTINGS("working-execution-engine.html"),
     OPERATIONS_SETTINGS(null),
-    DDL_FILE_SETTINGS("ddl-file-editor.html"),
+    DDL_FILE_SETTINGS("ddl-file-management.html"),
     TRANSACTION_HANDLING("transaction-handling.html"),
     GENERAL_SETTINGS("configuration-database-environments.html"),
     //...
