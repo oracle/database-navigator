@@ -21,6 +21,7 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ddl.DDLFileAttachmentManager;
+import com.dbn.help.HelpTopic;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -57,6 +58,11 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
                         "NOTE: Attached DDL files will become readonly and their content will change automatically when the " + typeName + " is edited.\n\n" +
                         "Select the files to attach to this " + typeName + ".");
         return new SelectDDLFileForm(this, object, fileInfos, hintText, showLookupOption);
+    }
+
+    @Override
+    protected HelpTopic getHelpTopic() {
+        return HelpTopic.DDL_FILE_ASSOCIATION;
     }
 
     @Override

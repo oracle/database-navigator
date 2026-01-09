@@ -18,6 +18,7 @@ package com.dbn.execution.script.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,6 +41,11 @@ public class CmdLineInterfaceInputDialog extends DBNDialog<CmdLineInterfaceInput
     @Override
     protected CmdLineInterfaceInputForm createForm() {
         return new CmdLineInterfaceInputForm(this, cmdLineInterface, usedNames);
+    }
+
+    @Override
+    protected HelpTopic getHelpTopic() {
+        return HelpTopic.SCRIPT_EXECUTION_SETUP;
     }
 
     @Override

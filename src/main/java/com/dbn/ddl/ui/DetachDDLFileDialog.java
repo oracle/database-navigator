@@ -20,6 +20,7 @@ import com.dbn.common.file.VirtualFileInfo;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.ddl.DDLFileAttachmentManager;
+import com.dbn.help.HelpTopic;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +51,11 @@ public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
                 "Following DDL files are currently attached the " + object.getQualifiedNameWithType() + ".\n\n" +
                 "Select the files to detach from this " + object.getTypeName() + ".");
         return new SelectDDLFileForm(this, object, fileInfos, hintText, false);
+    }
+
+    @Override
+    protected HelpTopic getHelpTopic() {
+        return HelpTopic.DDL_FILE_DISASSOCIATION;
     }
 
     @Override

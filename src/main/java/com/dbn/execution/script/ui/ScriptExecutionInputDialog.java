@@ -18,6 +18,7 @@ package com.dbn.execution.script.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.execution.script.ScriptExecutionInput;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,6 +38,11 @@ public class ScriptExecutionInputDialog extends DBNDialog<ScriptExecutionInputFo
     @Override
     protected ScriptExecutionInputForm createForm() {
         return new ScriptExecutionInputForm(this, executionInput);
+    }
+
+    @Override
+    protected HelpTopic getHelpTopic() {
+        return HelpTopic.SCRIPT_EXECUTION;
     }
 
     @Override

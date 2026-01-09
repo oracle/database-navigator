@@ -31,13 +31,14 @@ public enum HelpTopic implements Constant<HelpTopic> {
     DATABASE_ASSISTANT("database-assistant.html"),
     DATABASE_ASSISTANT_TOOLS("tool-approvals-and-tool-data.html"),
     DATABASE_ASSISTANT_SELECT_AI("oracle-select-ai.html"),
-    DATABASE_ASSISTANT_AI_PROFILES("creating-ai-profiles-oracle-select-ai.html"),
-    DATABASE_ASSISTANT_CREDENTIALS("creating-credentials-oracle-select-ai.html"),
     VECTOR_TOOLBOX("vector-toolbox.html"),
     TABLE_EDITORS("table-editors.html"),
     SESSION_BROWSER("session-browser.html"),
+    JAVA_EDITOR("java-editor.html"),
     PROGRAM_EDITOR("program-editor.html"),
     DDL_FILE_EDITOR("ddl-file-editor.html"),
+    DDL_FILE_ASSOCIATION("creating-ddl-files.html"),
+    DDL_FILE_DISASSOCIATION("disassociating-ddl-files.html"),
     SQL_CONSOLE("sql-editor.html"),
     RESOURCE_MONITOR("resource-monitor.html"),
     METHOD_DEBUGGING("debugging-methods.html"),
@@ -47,7 +48,9 @@ public enum HelpTopic implements Constant<HelpTopic> {
     JAVA_EXECUTION("executing-java-programs.html"),
     JAVA_EXECUTION_HISTORY("java-execution-history.html"),
     JAVA_EXECUTION_WRAPPERS("creating-java-execution-wrappers.html"),
+    SCRIPT_EXECUTION("executing-scripts.html"),
 
+    // config
     DATABASE_CONFIG_PROPERTIES("connection-properties.html"),
     DATABASE_CONFIG_DETAILS("connection-details.html"),
     DATABASE_CONFIG("database-configuration.html"),
@@ -60,6 +63,9 @@ public enum HelpTopic implements Constant<HelpTopic> {
     DDL_FILE_SETTINGS("ddl-file-management.html"),
     TRANSACTION_HANDLING("transaction-handling.html"),
     GENERAL_SETTINGS("configuration-database-environments.html"),
+    SCRIPT_EXECUTION_SETUP("creating-command-line-interfaces-databases.html"),
+    DATABASE_ASSISTANT_AI_PROFILES("creating-ai-profiles-oracle-select-ai.html"),
+    DATABASE_ASSISTANT_CREDENTIALS("creating-credentials-oracle-select-ai.html"),
     //...
     ;
 

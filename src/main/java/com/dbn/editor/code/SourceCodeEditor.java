@@ -27,10 +27,12 @@ import com.dbn.language.psql.PSQLFile;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 
+import static com.dbn.help.HelpTopic.JAVA_EDITOR;
 import static com.dbn.help.HelpTopic.PROGRAM_EDITOR;
 
 public class SourceCodeEditor extends BasicTextEditorImpl<DBSourceCodeVirtualFile>{
@@ -65,6 +67,8 @@ public class SourceCodeEditor extends BasicTextEditorImpl<DBSourceCodeVirtualFil
 
     @Override
     public HelpTopic getHelpTopic() {
-        return PROGRAM_EDITOR;
+        return object.getObjectType() == DBObjectType.JAVA_CLASS ?
+                JAVA_EDITOR :
+                PROGRAM_EDITOR;
     }
 }
