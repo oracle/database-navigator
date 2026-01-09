@@ -18,10 +18,13 @@ package com.dbn.assistant.tool.config.ui;
 
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
+
+import static com.dbn.help.HelpTopic.DATABASE_ASSISTANT_TOOLS;
 
 /**
  * Wrapper factory result dialog
@@ -40,6 +43,11 @@ public class AssistantToolApprovalDialog extends DBNDialog<AssistantToolApproval
     this.setAutoSize(true);
     this.settings = settings;
     init();
+  }
+
+  @Override
+  protected HelpTopic getHelpTopic() {
+    return DATABASE_ASSISTANT_TOOLS;
   }
 
   @NotNull

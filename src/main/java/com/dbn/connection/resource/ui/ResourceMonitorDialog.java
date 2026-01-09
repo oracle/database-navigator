@@ -18,10 +18,13 @@ package com.dbn.connection.resource.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.transaction.DatabaseTransactionManager;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
+
+import static com.dbn.help.HelpTopic.RESOURCE_MONITOR;
 
 public class ResourceMonitorDialog extends DBNDialog<ResourceMonitorForm> {
 
@@ -37,6 +40,11 @@ public class ResourceMonitorDialog extends DBNDialog<ResourceMonitorForm> {
     @Override
     protected ResourceMonitorForm createForm() {
         return new ResourceMonitorForm(this);
+    }
+
+    @Override
+    protected HelpTopic getHelpTopic() {
+        return RESOURCE_MONITOR;
     }
 
     @Override
