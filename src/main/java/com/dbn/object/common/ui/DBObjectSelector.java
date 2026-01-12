@@ -71,6 +71,14 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
         return this;
     }
 
+    @Override
+    protected String getHint() {
+        int size = getModelSize();
+        if (size < 10) return null;
+
+        return "Start typing to filter the " + getObjectType().getListName() + "...";
+    }
+
     public DBObjectSelector<T> withConnectionContext(Supplier<ConnectionHandler> connectionContext) {
         this.connectionContext = connectionContext;
         return this;

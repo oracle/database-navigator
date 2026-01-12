@@ -149,6 +149,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         popup = Popups.popupBuilder(actionGroup, this).
                 withTitle(title).
                 withTitleVisible(false).
+                withHint(getHint()).
                 withMaxRowCount(10).
                 withSpeedSearch().
                 withDisposeCallback(() -> disposePopup()).
@@ -157,6 +158,10 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
 
 
         Popups.showUnderneathOf(popup, this, 3, 200);
+    }
+
+    protected String getHint() {
+        return null;
     }
 
     private ActionGroup createActionGroup() {
@@ -466,6 +471,10 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     @Override
     public DBNComboBoxModel<T> getModel() {
         return (DBNComboBoxModel<T>) super.getModel();
+    }
+
+    protected int getModelSize() {
+        return getModel().getSize();
     }
 
     @Override
