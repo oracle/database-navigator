@@ -31,7 +31,6 @@ public class ResultSetRecordViewerDialog extends DBNDialog<ResultSetRecordViewer
         this.showDataTypes = showDataTypes;
         setModal(true);
         setResizable(true);
-        renameAction(getCancelAction(), "Close");
         init();
     }
 
@@ -43,11 +42,9 @@ public class ResultSetRecordViewerDialog extends DBNDialog<ResultSetRecordViewer
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
-                getCancelAction(),
-                getHelpAction()
-        };
+    protected final Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(getCancelAction());
     }
 
     @Override

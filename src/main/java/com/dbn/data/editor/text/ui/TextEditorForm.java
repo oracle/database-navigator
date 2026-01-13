@@ -139,7 +139,7 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
 
         document = nvl(document, () -> Documents.createDocument(text));
 
-        document.addDocumentListener(documentListener);
+        document.addDocumentListener(documentListener, this);
         editor = Editors.createEditor(document, project, virtualFile, fileType);
         editor.setEmbeddedIntoDialogWrapper(true);
         editor.getContentComponent().setFocusTraversalKeysEnabled(false);

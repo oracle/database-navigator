@@ -57,6 +57,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
+import static com.dbn.common.thread.ThreadMonitor.isDispatcherThread;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -514,6 +515,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
         ref = nvl(ref, () -> new PsiResolveResult(this));
 
         if (isDispatchThread()) return ref.getReference();
+        if (isDispatcherThread()) return ref.getReference();
         if (!ref.isDirty()) return ref.getReference();
 
 

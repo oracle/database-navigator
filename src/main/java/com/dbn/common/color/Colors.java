@@ -142,11 +142,11 @@ public final class Colors {
     }
 
     public static Color getTableGridColor() {
-        return cached(18, () -> new JBColor(() -> lafDarker(Colors.getTableBackground(), 3)));
+        return cached(18, () -> JBColor.lazy(() -> lafDarker(Colors.getTableBackground(), 3)));
     }
 
     public static Color getTableHeaderGridColor() {
-        return cached(19, () -> new JBColor(() -> lafDarker(Colors.getPanelBackground(), 3)));
+        return cached(19, () -> JBColor.lazy(() -> lafDarker(Colors.getPanelBackground(), 3)));
     }
 
     public static Color getTableGutterBackground() {
@@ -174,23 +174,23 @@ public final class Colors {
     }
 
     public static Color getReadonlyEditorCaretRowBackground() {
-        return cached(26, () -> new JBColor(() -> Colors.lafDarker(getReadonlyEditorBackground(), 1)));
+        return cached(26, () -> JBColor.lazy(() -> Colors.lafDarker(getReadonlyEditorBackground(), 1)));
     }
 
     public static Color getLighterPanelBackground() {
-        return cached(27, () -> new JBColor(() -> Colors.lafBrighter(UIUtil.getPanelBackground(), 1)));
+        return cached(27, () -> JBColor.lazy(() -> Colors.lafBrighter(UIUtil.getPanelBackground(), 1)));
     }
 
     public static Color getLightPanelBackground() {
-        return cached(28, () -> new JBColor(() -> Colors.lafBrighter(UIUtil.getPanelBackground(), 2)));
+        return cached(28, () -> JBColor.lazy(() -> Colors.lafBrighter(UIUtil.getPanelBackground(), 2)));
     }
 
     public static Color getDarkerPanelBackground() {
-        return cached(29, () -> new JBColor(() -> Colors.lafDarker(UIUtil.getPanelBackground(), 1)));
+        return cached(29, () -> JBColor.lazy(() -> Colors.lafDarker(UIUtil.getPanelBackground(), 1)));
     }
 
     public static Color getDarkPanelBackground() {
-        return cached(30, () -> new JBColor(() -> Colors.lafDarker(UIUtil.getPanelBackground(), 2)));
+        return cached(30, () -> JBColor.lazy(() -> Colors.lafDarker(UIUtil.getPanelBackground(), 2)));
     }
 
     public static Color getInfoHintColor() {

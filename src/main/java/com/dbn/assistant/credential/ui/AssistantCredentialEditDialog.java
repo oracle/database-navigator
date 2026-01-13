@@ -34,7 +34,6 @@ public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredential
         this.request = request;
         this.credential = initCredential();
 
-        renameAction(getOKAction(), request.isNewCredential() ? "Create" : "Update");
         setModal(true);
         setAutoSize(true);
         init();
@@ -57,10 +56,12 @@ public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredential
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        String actionName = request.isNewCredential() ? "Create" : "Update";
+        renameAction(getOKAction(), actionName);
+        return actions(
                 getOKAction(),
-                getCancelAction()};
+                getCancelAction());
     }
 
     @Override

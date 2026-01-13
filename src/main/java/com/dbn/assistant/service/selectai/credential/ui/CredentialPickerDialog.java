@@ -32,7 +32,6 @@ public class CredentialPickerDialog extends DBNDialog<CredentialPickerForm> {
     super(project, "Credential Templates", true);
 
     Action okAction = getOKAction();
-    renameAction(okAction, "Select");
     okAction.setEnabled(false);
     this.callback = callback;
     init();
@@ -50,10 +49,11 @@ public class CredentialPickerDialog extends DBNDialog<CredentialPickerForm> {
 
   @NotNull
   @Override
-  protected Action[] createActions() {
-    return new Action[]{
+  protected Action[] initializeActions() {
+    renameAction(getOKAction(), "Select");
+    return actions(
             getOKAction(),
-            getCancelAction()};
+            getCancelAction());
   }
 
   @Override

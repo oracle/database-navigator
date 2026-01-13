@@ -39,7 +39,6 @@ public class TextEditorDialog extends DBNDialog<TextEditorForm> {
     private TextEditorDialog(Project project, DataEditorComponent textEditorAdapter){
         super(project, getTitle(textEditorAdapter), true);
         this.textEditorAdapter = textEditorAdapter;
-        renameAction(getCancelAction(), "Close");
         getOKAction().setEnabled(false);
         setModal(true);
         init();
@@ -67,12 +66,11 @@ public class TextEditorDialog extends DBNDialog<TextEditorForm> {
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(
                 getOKAction(),
-                getCancelAction(),
-                getHelpAction()
-        };
+                getCancelAction());
     }
 
     @Override

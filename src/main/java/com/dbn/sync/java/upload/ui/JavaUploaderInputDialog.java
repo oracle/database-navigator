@@ -31,7 +31,6 @@ public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
     public JavaUploaderInputDialog(JavaUploadBatch batch) {
         super(batch.getProject(), "Upload Java Content", false);
         this.batch = batch;
-        renameAction(getOKAction(), "Upload");
         setDefaultSize(600, 600);
         init();
     }
@@ -58,10 +57,11 @@ public class JavaUploaderInputDialog extends DBNDialog<JavaUploadInputForm> {
 
 
     @Override
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Upload");
+        return actions(
                 getOKAction(),
-                getCancelAction()};
+                getCancelAction());
     }
 
     @Override

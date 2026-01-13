@@ -145,6 +145,6 @@ public class JavaExecutionCursorResultForm extends DBNFormBase implements Search
         if (DataKeys.JAVA_EXECUTION_ARGUMENT.is(dataId)) {
             return DBObjectRef.get(parameter);
         }
-        return super.getData(dataId);
+        return null;
     }
 }

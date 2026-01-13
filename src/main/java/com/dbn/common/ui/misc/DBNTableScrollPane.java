@@ -34,7 +34,7 @@ import java.awt.Font;
 import java.awt.event.MouseWheelEvent;
 
 public class DBNTableScrollPane extends DBNScrollPane{
-    private final Alarm resizeAlarm = new Alarm();
+    private Alarm resizeAlarm;
     private transient Font font;
 
     @Override
@@ -57,6 +57,10 @@ public class DBNTableScrollPane extends DBNScrollPane{
         Component view = getViewComponent();
         if (!(view instanceof BasicTable resultTable)) return false;
 
+        if (resizeAlarm == null || resizeAlarm.isDisposed()) {
+            resizeAlarm = Alarms.createAlarm(resultTable);
+        }
+
         Project project = resultTable.getProject();
         DataGridSettings dataGridSettings = DataGridSettings.getInstance(project);
         DataGridGeneralSettings generalSettings = dataGridSettings.getGeneralSettings();
@@ -70,13 +74,16 @@ public class DBNTableScrollPane extends DBNScrollPane{
             float defaultSize = Fonts.regular().getSize();
             int percentage = (int) (size / defaultSize * 100);
 
-            Alarms.alarmRequest(resizeAlarm, 10, true, () -> {
-                resultTable.setFont(font);
-                IdeTooltip tooltip = new IdeTooltip(this, e.getPoint(), new JLabel(percentage + "%"));
-                IdeTooltipManager.getInstance().show(tooltip, true);
-            });
+            Alarms.alarmRequest(resizeAlarm, 10, true,
+                    () -> resizeContent(e, resultTable, percentage));
             return true;
         }
         return false;
+    }
+
+    private void resizeContent(MouseWheelEvent e, BasicTable resultTable, int percentage) {
+        resultTable.setFont(font);
+        IdeTooltip tooltip = new IdeTooltip(this, e.getPoint(), new JLabel(percentage + "%"));
+        IdeTooltipManager.getInstance().show(tooltip, true);
     }
 }

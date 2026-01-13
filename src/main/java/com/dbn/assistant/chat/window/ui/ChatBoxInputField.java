@@ -182,7 +182,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         editor.setBorder(Borders.EMPTY_BORDER);
         Editors.updateEditorScrollPane(editor);
 
-        document.addDocumentListener(new EnterKeyInterceptor());
+        document.addDocumentListener(new EnterKeyInterceptor(), this);
 
         EditorSettings settings = editor.getSettings();
         settings.setFoldingOutlineShown(false);

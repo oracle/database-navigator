@@ -37,7 +37,6 @@ public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
         super(project, "Save Chat", true);
         this.changedField = changedField;
         this.usedTitles = usedTitles;
-        renameAction(getOKAction(), "Save");
         setModal(true);
         init();
     }
@@ -51,12 +50,12 @@ public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
-                getCancelAction(),
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Save");
+        return actions(
+                getOKAction(),
                 discardAction,
-                getOKAction()
-        };
+                getCancelAction());
     }
 
     @Override
