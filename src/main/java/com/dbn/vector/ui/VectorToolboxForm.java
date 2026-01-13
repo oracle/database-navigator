@@ -15,11 +15,11 @@ import com.dbn.vector.model.request.EmbeddingDestinationConfig;
 import com.dbn.vector.model.request.EmbeddingModelConfig;
 import com.dbn.vector.model.request.EmbeddingSourceConfig;
 import com.dbn.vector.model.request.EmbeddingStagingConfig;
-import com.dbn.vector.ui.chunking.ChunkingConfigForm;
-import com.dbn.vector.ui.destination.EmbeddingDestinationConfigForm;
-import com.dbn.vector.ui.embedding.EmbeddingModelConfigForm;
-import com.dbn.vector.ui.source.EmbeddingSourceConfigForm;
-import com.dbn.vector.ui.staging.EmbeddingStagingConfigForm;
+import com.dbn.vector.ui.request.EmbeddingChunkingConfigForm;
+import com.dbn.vector.ui.request.EmbeddingDestinationConfigForm;
+import com.dbn.vector.ui.request.EmbeddingModelConfigForm;
+import com.dbn.vector.ui.request.EmbeddingSourceConfigForm;
+import com.dbn.vector.ui.request.EmbeddingStagingConfigForm;
 import com.intellij.openapi.Disposable;
 
 import javax.swing.JComponent;
@@ -39,7 +39,7 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
 
   private EmbeddingSourceConfigForm embeddingSourceForm;
   private EmbeddingStagingConfigForm stagingConfigForm;
-  private ChunkingConfigForm chunkingConfigForm;
+  private EmbeddingChunkingConfigForm chunkingConfigForm;
   private EmbeddingModelConfigForm modelForm;
   private EmbeddingDestinationConfigForm destinationForm;
 
@@ -72,7 +72,7 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
     stagingConfigPanel.add(stagingCollapsiblePanel.getComponent());
 
     EmbeddingChunkingConfig chunkConfig = request.getChunkConfig();
-    chunkingConfigForm = new ChunkingConfigForm(this);
+    chunkingConfigForm = new EmbeddingChunkingConfigForm(this);
     DBNCollapsiblePanel chunkCollapsiblePanel = new DBNCollapsiblePanel(this, chunkingConfigForm, true /*TODO async chunkConfig.isExpanded()*/);
     chunkCollapsiblePanel.addToggleListener(expanded -> chunkConfig.setExpanded(expanded));
     chunkConfigPanel.add(chunkCollapsiblePanel.getComponent());

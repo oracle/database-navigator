@@ -19,7 +19,7 @@ package com.dbn.common.ui.file;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.vector.model.request.EmbeddingSourceType;
-import com.dbn.vector.ui.source.EmbeddingSourceConfigForm;
+import com.dbn.vector.ui.request.EmbeddingSourceConfigForm;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ToolbarDecorator;
 import lombok.Getter;

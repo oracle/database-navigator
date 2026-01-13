@@ -14,29 +14,19 @@
  * limitations under the License.
  */
 
-package com.dbn.object.factory.model;
+package com.dbn.object.type;
 
-import com.dbn.object.DBCredential;
-import com.dbn.object.DBSchema;
-import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBAIModelSourceType;
-import com.dbn.object.type.DBObjectType;
+import com.dbn.common.ui.Presentable;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
-public class DBAIModelSpec extends DBObjectSpec {
-  private DBAIModelSourceType sourceType;
-  private String sourceLocation;
-  private DBObjectRef<DBCredential> credential;
+public enum DBAIModelSourceType implements Presentable {
+  MODEL_FILE("Model File"),
+  OBJECT_STORAGE("Object Storage");
 
-  public DBAIModelSpec(DBSchema schema) {
-       super(schema, DBObjectType.AI_MODEL);
+  private final String name;
+
+  DBAIModelSourceType(String name) {
+    this.name = name;
   }
-
-  public String getCredentialName() {
-    return DBObjectRef.getQualifiedObjectName(credential);
-  }
-
 }
