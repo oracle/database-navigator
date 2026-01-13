@@ -35,9 +35,6 @@ public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
         this.request = request;
 
         setDefaultSize(600, 800);
-        renameAction(getOKAction(), "Train Model");
-        renameAction(getCancelAction(), "Close");
-
         init();
     }
 
@@ -51,8 +48,10 @@ public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
     }
 
     @Override
-    protected Action[] createActions() {
-        return createActions(
+    protected Action[] initializeActions() {
+        renameAction(getOKAction(), "Train Model");
+        renameAction(getCancelAction(), "Close");
+        return actions(
                 getOKAction(),
                 getResetAction(),
                 getCancelAction());
