@@ -69,7 +69,13 @@ public class EmbeddingSourceTablesList extends MutableObjectList<EmbeddingSource
 
         Dialogs.show(
                 () -> new EmbeddingSourceTableDialog(connection, sourceTable, CREATE),
-                whenOk(d -> model.add(d.getSourceTable().clone())));
+                whenOk(d -> {
+                    model.add(sourceTable.clone());
+                    // reset
+                    sourceTable.setTableName(null);
+                    sourceTable.setKeyColumnName(null);
+                    sourceTable.setDataColumnName(null);
+                }));
     }
 
     public void updateRow() {
