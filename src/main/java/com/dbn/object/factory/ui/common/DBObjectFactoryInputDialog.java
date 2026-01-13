@@ -36,6 +36,7 @@ import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.Action;
 import java.sql.SQLException;
 
 import static com.dbn.common.util.Commons.nvl;
@@ -52,7 +53,6 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
         this.schema = DBObjectRef.of(schema);
         this.objectType = objectType;
         this.initialInput = initialInput;
-        renameAction(getOKAction(), "Create " + objectType.getTitleCasedName());
 //        setModal(false);
         setResizable(true);
         init();
@@ -80,6 +80,14 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
     protected String getDimensionServiceKey() {
         // use custom dimension service keys for every object type
         return Diagnostics.isDialogSizingReset() ? null : super.getDimensionServiceKey() + "." + objectType;
+    }
+
+    @Override
+    protected Action[] initializeActions() {
+        renameAction(getOKAction(), "Create " + objectType.getTitleCasedName());
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 
     @Override

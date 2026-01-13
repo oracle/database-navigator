@@ -51,11 +51,6 @@ public class NavigationSettings extends CompositeProjectConfiguration<ProjectSet
     }
 
     @Override
-    public String getHelpTopic() {
-        return "navigationSettings";
-    }
-
-    @Override
     public ConfigId getConfigId() {
         return ConfigId.NAVIGATION;
     }

@@ -37,6 +37,7 @@ import javax.swing.JPanel;
 import static com.dbn.assistant.DatabaseAssistantManager.TOOL_WINDOW_ID;
 import static com.dbn.common.icon.Icons.WINDOW_DATABASE_ASSISTANT;
 import static com.dbn.common.util.ContextLookup.getConnectionId;
+import static com.dbn.help.HelpTopic.DATABASE_ASSISTANT;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -51,6 +52,7 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
         toolWindow.setTitle(txt("app.assistant.title.DatabaseAssistant"));
         toolWindow.setStripeTitle(txt("app.assistant.title.DatabaseAssistant"));
         toolWindow.setIcon(WINDOW_DATABASE_ASSISTANT.get());
+        toolWindow.setHelpId(DATABASE_ASSISTANT.asHelpTopicId());
     }
 
     @Override

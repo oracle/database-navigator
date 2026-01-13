@@ -66,11 +66,6 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
         return txt("cfg.connection.title.SshTunnelSettings");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "connectionSshTunnelSettings";
-    }
-
     /*********************************************************
      *                     Configuration                     *
      *********************************************************/

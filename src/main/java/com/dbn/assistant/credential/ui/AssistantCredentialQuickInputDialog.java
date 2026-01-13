@@ -74,11 +74,11 @@ public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCred
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 getOKAction(),
                 createAction("Advanced Setup", () -> openAdvancedSettings()),
-                getCancelAction()};
+                getCancelAction());
     }
 
     private void openAdvancedSettings() {

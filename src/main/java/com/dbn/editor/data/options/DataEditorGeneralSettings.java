@@ -44,11 +44,6 @@ public class DataEditorGeneralSettings extends BasicConfiguration<DataEditorSett
         return txt("cfg.dataEditor.title.GeneralSettings");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "dataEditor";
-    }
-
     /****************************************************
      *                   Configuration                  *
      ****************************************************/

@@ -60,7 +60,7 @@ public class OptionsDialog<O extends Presentable> extends DBNDialog<OptionsDialo
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
+    protected final Action[] initializeActions() {
         Action[] actions = new Action[this.actionNames.length + 1];
         String[] strings = this.actionNames;
         for (int i = 0; i < strings.length; i++) {

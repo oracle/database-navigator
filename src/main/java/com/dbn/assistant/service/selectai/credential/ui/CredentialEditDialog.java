@@ -74,9 +74,13 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
 
   @NotNull
   @Override
-  protected Action[] createActions() {
-    super.setOKButtonText(txt(credential != null ? "msg.shared.button.Update" : "msg.shared.button.Create"));
-    return super.createActions();
+  protected Action[] initializeActions() {
+    String actionName = txt(credential != null ? "msg.shared.button.Update" : "msg.shared.button.Create");
+    renameAction(getOKAction(), actionName);
+
+    return actions(
+            getOKAction(),
+            getCancelAction());
   }
 
   public ConnectionHandler getConnection() {

@@ -37,7 +37,6 @@ public class DatasetColumnSetupDialog extends DBNDialog<DatasetColumnSetupForm> 
         this.datasetEditor = datasetEditor;
         setModal(true);
         setResizable(true);
-        renameAction(getCancelAction(), "Cancel");
         init();
     }
 
@@ -49,12 +48,10 @@ public class DatasetColumnSetupDialog extends DBNDialog<DatasetColumnSetupForm> 
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 getOKAction(),
-                getCancelAction(),
-                getHelpAction()
-        };
+                getCancelAction());
     }
 
     @Override

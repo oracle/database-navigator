@@ -3,6 +3,7 @@ package com.dbn.vector.ui;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.help.HelpTopic;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import org.jetbrains.annotations.NotNull;
@@ -19,8 +20,6 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
     this.request = request;
 
     setDefaultSize(600, 1000);
-    renameAction(getOKAction(), "Create Embeddings");
-    renameAction(getCancelAction(), "Close");
 
     if (!request.isTemplate()) {
       VectorToolboxForm toolboxForm = getForm();
@@ -28,6 +27,11 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
     }
 
     init();
+  }
+
+  @Override
+  protected HelpTopic getHelpTopic() {
+    return HelpTopic.VECTOR_TOOLBOX;
   }
 
   private ConnectionHandler getConnection() {
@@ -40,15 +44,16 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
   }
 
   @Override
-  protected Action[] createActions() {
+  protected Action[] initializeActions() {
+    renameAction(getOKAction(), "Create Embeddings");
+    renameAction(getCancelAction(), "Close");
 
     return request.isTemplate() ?
-            createActions(
-              getOKAction(),
-              getResetAction(),
-              getCancelAction()) :
-            createActions(
-                    getCancelAction());
+            actions(
+                getOKAction(),
+                getResetAction(),
+                getCancelAction()) :
+            actions(getCancelAction());
   }
 
   @NotNull

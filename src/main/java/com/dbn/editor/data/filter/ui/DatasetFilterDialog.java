@@ -86,21 +86,17 @@ public class DatasetFilterDialog extends DBNDialog<DatasetFilterForm> {
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
+    protected final Action[] initializeActions() {
         if (automaticPrompt) {
-            return new Action[]{
+            return actions(
                     getOKAction(),
                     new NoFilterAction(),
-                    getCancelAction(),
-                    getHelpAction()
-            };
-        } else {
-            return new Action[]{
-                    getOKAction(),
-                    getCancelAction(),
-                    getHelpAction()
-            };
+                    getCancelAction());
         }
+
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 
     private class NoFilterAction extends AbstractAction {

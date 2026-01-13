@@ -61,11 +61,6 @@ public class CodeCompletionSettings extends CompositeProjectConfiguration<Projec
     }
 
     @Override
-    public String getHelpTopic() {
-        return "codeEditor";
-    }
-
-    @Override
     public ConfigId getConfigId() {
         return ConfigId.CODE_COMPLETION;
     }

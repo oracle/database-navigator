@@ -50,11 +50,6 @@ public class CodeEditorGeneralSettings
         return txt("cfg.codeEditor.title.GeneralSettings");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "codeEditor";
-    }
-
     @NotNull
     public Project getProject() {
         return getParent().getProject();

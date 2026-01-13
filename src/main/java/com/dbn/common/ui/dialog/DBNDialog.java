@@ -28,6 +28,7 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
 import com.dbn.diagnostics.Diagnostics;
+import com.dbn.help.HelpTopic;
 import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.options.ConfigurationException;
@@ -40,6 +41,7 @@ import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,7 +90,6 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         super(project, canBeParent);
         this.project = ProjectRef.of(project);
         setTitle(Titles.signed(title));
-        getHelpAction().setEnabled(false);
     }
 
     @Override
@@ -210,6 +211,17 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     @NotNull
     protected abstract F createForm();
 
+
+    @Override
+    protected final @NonNls @Nullable String getHelpId() {
+        HelpTopic helpTopic = getHelpTopic();
+        return helpTopic == null ? null : helpTopic.asHelpTopicId();
+    }
+
+    protected HelpTopic getHelpTopic() {
+        return null;
+    }
+
     public void resetFormChanges() {
         getForm().resetFormChanges();
     }
@@ -243,11 +255,10 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
         };
     }
 
-    protected static Action[] createActions(Action ... actions) {
+    protected static Action[] actions(Action ... actions) {
         return Arrays.stream(actions)
                 .filter(value -> value != null)
                 .toArray(l -> new Action[l]);
-
     }
 
     protected static void renameAction(@NotNull Action action, @Nls String name) {
@@ -300,6 +311,20 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     protected void doHelpAction() {
         super.doHelpAction();
     }
+
+    @NotNull
+    @Override
+    protected final Action[] createActions() {
+        Action[] actions = initializeActions();
+        if (getHelpId() == null) return actions;
+
+        Action[] allActions = new Action[actions.length + 1];
+        System.arraycopy(actions, 0, allActions, 0, actions.length);
+        allActions[actions.length] = getHelpAction();
+        return allActions;
+    }
+
+    protected abstract Action[] initializeActions();
 
     public boolean isCancelButton(JButton button) {
         if (button == null) return false;

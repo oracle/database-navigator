@@ -19,11 +19,15 @@ package com.dbn.editor.console;
 import com.dbn.common.editor.BasicTextEditorImpl;
 import com.dbn.common.editor.BasicTextEditorState;
 import com.dbn.editor.EditorProviderId;
+import com.dbn.help.HelpTopic;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 
+import static com.dbn.help.HelpTopic.SQL_CONSOLE;
+
 public class SQLConsoleEditor extends BasicTextEditorImpl<DBConsoleVirtualFile> implements TextEditor {
+
     SQLConsoleEditor(Project project, DBConsoleVirtualFile sqlConsoleFile, String name, EditorProviderId editorProviderId) {
         super(project, sqlConsoleFile, name, editorProviderId);
     }
@@ -33,4 +37,8 @@ public class SQLConsoleEditor extends BasicTextEditorImpl<DBConsoleVirtualFile> 
         return new SQLConsoleEditorState();
     }
 
+    @Override
+    public HelpTopic getHelpTopic() {
+        return SQL_CONSOLE;
+    }
 }
