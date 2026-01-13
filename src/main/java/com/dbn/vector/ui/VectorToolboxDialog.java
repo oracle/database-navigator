@@ -2,7 +2,6 @@ package com.dbn.vector.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.help.HelpTopic;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
@@ -11,12 +10,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 
 public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
-  private final ConnectionRef connection;
   private final VectorEmbeddingRequest request;
 
   public VectorToolboxDialog(ConnectionHandler connection, VectorEmbeddingRequest request) {
-    super(connection.getProject(), "Vector Toolbox", true);
-    this.connection = connection.ref();
+    super(connection, "Vector Toolbox", true);
     this.request = request;
 
     setDefaultSize(600, 1000);
@@ -32,10 +29,6 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
   @Override
   protected HelpTopic getHelpTopic() {
     return HelpTopic.VECTOR_TOOLBOX;
-  }
-
-  private ConnectionHandler getConnection() {
-    return connection.ensure();
   }
 
   @Override

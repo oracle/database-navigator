@@ -20,7 +20,6 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.request.EmbeddingSourceTable;
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
@@ -28,14 +27,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TableSelectionDialog extends DBNDialog<TableSelectionForm> {
-    private final ConnectionHandler connection;
-    
     // Store selected tables BEFORE dialog closes (components get disposed after close)
     private List<EmbeddingSourceTable> selectedTableSources = new ArrayList<>();
 
-    public TableSelectionDialog(@NotNull Project project, @NotNull ConnectionHandler connection) {
-        super(project, "Add Tables", true);
-        this.connection = connection;
+    public TableSelectionDialog(@NotNull ConnectionHandler connection) {
+        super(connection, "Add Tables", true);
         setDefaultSize(650, 550);
         init();
     }
@@ -43,13 +39,15 @@ public class TableSelectionDialog extends DBNDialog<TableSelectionForm> {
     @Override
     @NotNull
     protected TableSelectionForm createForm() {
-        return new TableSelectionForm(this, connection);
+        return new TableSelectionForm(this, ensureConnection());
     }
 
     @Override
-    protected Action[] createActions() {
+    protected Action[] initializeActions() {
         renameAction(getOKAction(), "Add Selected");
-        return super.createActions();
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 
     @Override

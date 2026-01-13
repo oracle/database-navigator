@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.dialog;
 
+import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.project.ProjectRef;
@@ -27,6 +28,9 @@ import com.dbn.common.ui.form.DBNFormValidatorImpl;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Titles;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.help.HelpTopic;
 import com.dbn.nls.NlsSupport;
@@ -35,11 +39,14 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.util.UserDataHolder;
+import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.wm.IdeFrame;
 import com.intellij.ui.AppIcon;
 import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -61,8 +68,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.dbn.common.action.UserDataKeys.CONNECTION_REF;
+import static com.dbn.common.action.UserDataKeys.PROJECT_REF;
 import static com.dbn.common.data.Data.asBooleanPrimitive;
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.registerDialog;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.releaseDialog;
 import static com.dbn.common.ui.util.UserInterface.findTopLeftmostFocusComponent;
@@ -74,21 +84,25 @@ import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
-public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, NlsSupport {
+public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, NlsSupport, UserDataHolder {
     private static final String HIDDEN = "HIDDEN";
 
     private F form;
-    private final ProjectRef project;
-
     private boolean rememberSelection;
     private boolean initialized;
     private boolean autoSize;
     private Dimension defaultSize;
     private final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
+    private final UserDataHolder userDataHolder = new UserDataHolderBase();
+
+    protected DBNDialog(@NotNull ConnectionHandler connection, String title, boolean canBeParent) {
+        this(connection.getProject(), title, canBeParent);
+        putUserData(UserDataKeys.CONNECTION_REF, ConnectionRef.of(connection));
+    }
 
     protected DBNDialog(@Nullable Project project, String title, boolean canBeParent) {
         super(project, canBeParent);
-        this.project = ProjectRef.of(project);
+        putUserData(PROJECT_REF, ProjectRef.of(project));
         setTitle(Titles.signed(title));
     }
 
@@ -337,7 +351,32 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     @Override
     @NotNull
     public Project getProject() {
-        return project.ensure();
+        ProjectRef project = getUserData(PROJECT_REF);
+        return ProjectRef.ensure(project);
+    }
+
+    public ConnectionId getConnectionId() {
+        ConnectionHandler connection = getConnection();
+        return connection == null ? null : connection.getConnectionId();
+    }
+
+    @Nullable
+    public ConnectionHandler getConnection() {
+        ConnectionRef connection = getUserData(CONNECTION_REF);
+        return ConnectionRef.get(connection);
+    }
+
+    public ConnectionHandler ensureConnection() {
+        return nd(getConnection());
+    }
+
+    public void setConnection(ConnectionHandler connection) {
+        putUserData(CONNECTION_REF, ConnectionRef.of(connection));
+    }
+
+    @Delegate
+    public UserDataHolder getUserDataHolder() {
+        return userDataHolder;
     }
 
     public void registerRememberSelectionCheckBox(JCheckBox rememberSelectionCheckBox) {

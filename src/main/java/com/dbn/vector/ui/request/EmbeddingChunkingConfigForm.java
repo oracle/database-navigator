@@ -21,7 +21,6 @@ import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.util.Dialogs;
 import com.dbn.vector.model.request.EmbeddingChunkingConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
-import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +33,7 @@ import javax.swing.JSpinner;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
-import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.vector.model.request.EmbeddingChunkingConfigValidator.validateMaxSize;
 import static com.dbn.vector.model.request.EmbeddingChunkingConfigValidator.validateOverlap;
 
@@ -59,9 +58,7 @@ public class EmbeddingChunkingConfigForm extends VectorToolboxFormBase implement
     applyFormChanges(chunkConfig);
 
     Dialogs.show(() -> new EmbeddingChunkLabDialog(getConnection(), chunkConfig),
-            (dialog, exitCode) -> when(
-                    exitCode == DialogWrapper.OK_EXIT_CODE,
-                    () -> resetFormChanges(dialog.getChunkConfig())));
+            whenOk(d -> resetFormChanges(d.getChunkConfig())));
   }
 
   private Integer getMaxSize() {

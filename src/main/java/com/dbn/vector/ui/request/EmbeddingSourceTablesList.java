@@ -18,14 +18,19 @@ package com.dbn.vector.ui.request;
 
 import com.dbn.common.ui.list.MutableObjectList;
 import com.dbn.common.util.Dialogs;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.request.EmbeddingSourceTable;
 import com.dbn.vector.ui.request.bulk.TableSelectionDialog;
-import com.intellij.openapi.ui.DialogWrapper;
 
 import java.util.List;
 
+import static com.dbn.common.operation.RecordOperation.CREATE;
+import static com.dbn.common.operation.RecordOperation.UPDATE;
+import static com.dbn.common.ui.util.Mouse.onMouseDoubleClick;
+import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.intellij.openapi.ui.DialogWrapper.OK_EXIT_CODE;
 
 public class EmbeddingSourceTablesList extends MutableObjectList<EmbeddingSourceTable> {
     private final VectorEmbeddingRequest embeddingRequest;
@@ -35,14 +40,15 @@ public class EmbeddingSourceTablesList extends MutableObjectList<EmbeddingSource
         setCellRenderer(new EmbeddingSourceTablesListRenderer());
         setVisibleRowCount(5);
         this.embeddingRequest = embeddingRequest;
+        onMouseDoubleClick(this, e -> updateRow());
     }
 
     public void insertRows() {
         Dialogs.show(
-                () -> new TableSelectionDialog(embeddingRequest.getProject(), embeddingRequest.getConnection()),
+                () -> new TableSelectionDialog(embeddingRequest.getConnection()),
                 (dialog, exitCode) -> {
                     System.out.println("DBTableList.insertRows: Dialog closed with exitCode=" + exitCode);
-                    if (exitCode == DialogWrapper.OK_EXIT_CODE) {
+                    if (exitCode == OK_EXIT_CODE) {
                         List<EmbeddingSourceTable> selectedTables = dialog.getSelectedTableSources();
                         System.out.println("DBTableList.insertRows: Got " + selectedTables.size() + " tables");
                         for (EmbeddingSourceTable t : selectedTables) {
@@ -57,16 +63,21 @@ public class EmbeddingSourceTablesList extends MutableObjectList<EmbeddingSource
     }
 
     public void insertRow() {
+        EmbeddingSourceTable sourceTable = embeddingRequest.getSourceConfig().getSourceTable();
+        ConnectionHandler connection = embeddingRequest.getConnection();
+        EmbeddingSourceTablesListModel model = getModel();
+
         Dialogs.show(
-                () -> new EmbeddingSourceTableDialog(embeddingRequest),
-                (dialog, exitCode) -> {
-                    if (exitCode == DialogWrapper.OK_EXIT_CODE) {
-                        EmbeddingSourceTable sourceTable = embeddingRequest.getSourceConfig().getSourceTable().clone();
-                        EmbeddingSourceTablesListModel model = getModel();
-                        model.add(sourceTable);
-                    }
-                }
-        );
+                () -> new EmbeddingSourceTableDialog(connection, sourceTable, CREATE),
+                whenOk(d -> model.add(d.getSourceTable().clone())));
+    }
+
+    public void updateRow() {
+        EmbeddingSourceTable sourceTable = getSelectedValue();
+        if (sourceTable == null) return;
+
+        ConnectionHandler connection = embeddingRequest.getConnection();
+        Dialogs.show(() -> new EmbeddingSourceTableDialog(connection, sourceTable, UPDATE));
     }
 
     @Override

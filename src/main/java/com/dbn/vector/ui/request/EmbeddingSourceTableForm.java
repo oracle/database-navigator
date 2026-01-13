@@ -23,6 +23,9 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
@@ -61,11 +64,13 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
     private JPanel headerPanel;
     private JPanel hintPanel;
 
-    private final VectorEmbeddingRequest embeddingRequest;
+    private final ConnectionRef connection;
+    private final EmbeddingSourceTable config;
 
-    public EmbeddingSourceTableForm(@NotNull Disposable parent, VectorEmbeddingRequest embeddingRequest) {
+    public EmbeddingSourceTableForm(@NotNull Disposable parent, ConnectionHandler connection, EmbeddingSourceTable config) {
         super(parent);
-        this.embeddingRequest = embeddingRequest;
+        this.connection = connection.ref();
+        this.config = config;
 
         initHeaderPanel();
         initHintPanel();
@@ -87,7 +92,17 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
     }
 
     protected VectorEmbeddingRequest getEmbeddingRequest() {
-        return embeddingRequest;
+        return null;
+    }
+
+    @Override
+    public ConnectionHandler getConnection() {
+        return connection.ensure();
+    }
+
+    @Override
+    public ConnectionId getConnectionId() {
+        return connection.getId();
     }
 
     @Override
@@ -109,8 +124,6 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
     }
 
     private void initComboBoxes() {
-        EmbeddingSourceTable config = getConfig();
-
         schemaComboBox
                 .initialize(this, SCHEMA)
                 .withConnectionContext(() -> getConnection())
@@ -192,7 +205,6 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
 
     @Override
     public void applyFormChanges() {
-        EmbeddingSourceTable config = getConfig();
         appyFormChanges(config);
     }
 
@@ -211,10 +223,6 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
     @Nullable
     public DBTable getSelectedTable() {
         return tableComboBox.getSelectedValue();
-    }
-
-    public EmbeddingSourceTable getConfig() {
-        return getEmbeddingRequest().getSourceConfig().getSourceTable();
     }
 
     @Override

@@ -45,6 +45,7 @@ public class EmbeddingSourceTablesListForm extends VectorToolboxFormBase {
   private JPanel initListComponent() {
     ToolbarDecorator decorator = createToolbarDecorator(tableList);
     decorator.setAddAction(b -> tableList.insertRow());
+    decorator.setEditAction(b -> tableList.updateRow());
     decorator.setRemoveAction(b -> tableList.removeRows());
     decorator.setMoveUpAction(b -> tableList.moveRowsUp());
     decorator.setMoveDownAction(b -> tableList.moveRowsDown());

@@ -16,25 +16,48 @@
 
 package com.dbn.vector.ui.request;
 
+import com.dbn.common.operation.RecordOperation;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.vector.model.VectorEmbeddingRequest;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
-public class EmbeddingSourceTableDialog extends DBNDialog<EmbeddingSourceTableForm> {
-    private final VectorEmbeddingRequest request;
+import javax.swing.Action;
 
-    public EmbeddingSourceTableDialog(VectorEmbeddingRequest request) {
-        super(request.getProject(), "Select Source Table", false);
-        this.request = request;
+@Getter
+public class EmbeddingSourceTableDialog extends DBNDialog<EmbeddingSourceTableForm> {
+    private final EmbeddingSourceTable sourceTable;
+    private final RecordOperation operation;
+
+
+    public EmbeddingSourceTableDialog(ConnectionHandler connection, EmbeddingSourceTable config, RecordOperation operation) {
+        super(connection, getDialogTitle(operation), false);
+        this.sourceTable = config;
+        this.operation = operation;
 
         init();
+    }
+
+    private static String getDialogTitle(RecordOperation operation) {
+        return operation == RecordOperation.CREATE ? "Add Source Table" :
+                operation == RecordOperation.UPDATE ? "Update Source Table" :
+                "Source Table";
     }
 
 
     @Override
     protected @NotNull EmbeddingSourceTableForm createForm() {
-        return new EmbeddingSourceTableForm(this, request);
+        return new EmbeddingSourceTableForm(this, ensureConnection(), sourceTable);
+    }
+
+    @Override
+    protected Action[] initializeActions() {
+        renameAction(getOKAction(), operation == RecordOperation.CREATE ? "Add" : "Update");
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 
     @Override
@@ -47,7 +70,9 @@ public class EmbeddingSourceTableDialog extends DBNDialog<EmbeddingSourceTableFo
     @Override
     @SneakyThrows
     public void doCancelAction() {
-        applyFormChanges(); // preserve input even if canceled
+        if (operation == RecordOperation.CREATE) {
+            applyFormChanges(); // preserve input even if canceled
+        }
         super.doCancelAction();
     }
 }

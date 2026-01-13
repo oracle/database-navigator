@@ -18,31 +18,40 @@ package com.dbn.vector.ui.request;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
+import com.dbn.help.HelpTopic;
 import com.dbn.vector.model.request.EmbeddingChunkingConfig;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.Action;
+
 @Getter
 public class EmbeddingChunkLabDialog extends DBNDialog<EmbeddingChunkLabForm> {
-  private final ConnectionRef connection;
   private EmbeddingChunkingConfig chunkConfig;
 
   public EmbeddingChunkLabDialog(ConnectionHandler connection, EmbeddingChunkingConfig chunkConfig) {
-    super(connection.getProject(), "Chunk Lab", true);
-    this.connection = connection.ref();
+    super(connection, "Chunk Lab", true);
     this.chunkConfig = chunkConfig;
     renameAction(getOKAction(), "Use Configuration");
     init();
   }
 
-  private ConnectionHandler getConnection() {
-    return connection.ensure();
+  @Override
+  protected Action[] initializeActions() {
+    renameAction(getOKAction(), "Use Configuration");
+    return actions(
+            getOKAction(),
+            getCancelAction());
   }
 
   @Override
   protected @NotNull EmbeddingChunkLabForm createForm() {
-    return new EmbeddingChunkLabForm(this, getConnection(), chunkConfig);
+    return new EmbeddingChunkLabForm(this, ensureConnection(), chunkConfig);
+  }
+
+  @Override
+  protected HelpTopic getHelpTopic() {
+    return HelpTopic.VECTOR_TOOLBOX;
   }
 
   @Override
