@@ -18,12 +18,10 @@ package com.dbn.vector.ui.source;
 
 import com.dbn.common.ui.file.VirtualFileListForm;
 import com.dbn.common.util.FileChoosers;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.vector.model.source.FileSystemSourceConfig;
+import com.dbn.vector.model.request.EmbeddingSourceFiles;
 import com.dbn.vector.ui.VectorToolboxFormBase;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -38,8 +36,8 @@ public class EmbeddingSourceFilesForm extends VectorToolboxFormBase {
           withTitle("Select Text Files to Embed").
           withDescription("Select valid text files to embed");
 
-  public EmbeddingSourceFilesForm(@Nullable Disposable parent, ConnectionHandler connection) {
-    super(parent, connection);
+  public EmbeddingSourceFilesForm(@NotNull VectorToolboxFormBase parent) {
+    super(parent);
     fileListForm = new VirtualFileListForm(this, "Source files");
     fileListPanel.add(fileListForm.getComponent());
   }
@@ -51,18 +49,18 @@ public class EmbeddingSourceFilesForm extends VectorToolboxFormBase {
 
   @Override
   public void resetFormChanges() {
-    FileSystemSourceConfig config = getConfig();
+    EmbeddingSourceFiles config = getConfig();
     fileListForm.setFiles(config.getFiles());
   }
 
   @Override
   public void applyFormChanges() {
-    FileSystemSourceConfig config = getConfig();
+    EmbeddingSourceFiles config = getConfig();
     config.setFilePaths(fileListForm.getFilePaths());
   }
 
-  private FileSystemSourceConfig getConfig() {
-    return getEmbeddingRequest().getSourceConfig().getFileSourceConfig();
+  private EmbeddingSourceFiles getConfig() {
+    return getEmbeddingRequest().getSourceConfig().getSourceFiles();
   }
 
   @Override

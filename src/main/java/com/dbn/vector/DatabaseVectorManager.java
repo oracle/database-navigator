@@ -17,9 +17,9 @@ import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
-import com.dbn.vector.model.chunk.ChunkConfig;
-import com.dbn.vector.model.source.SourceType;
-import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.vector.model.request.EmbeddingChunkingConfig;
+import com.dbn.vector.model.request.EmbeddingDestinationConfig;
+import com.dbn.vector.model.request.EmbeddingSourceType;
 import com.dbn.vector.pipeline.EmbeddingPipeline;
 import com.dbn.vector.pipeline.FileEmbeddingPipeline;
 import com.dbn.vector.pipeline.TableEmbeddingPipeline;
@@ -115,7 +115,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         Dialogs.show(() -> new VectorToolboxDialog(connection, request));
     }
 
-    public ResultSet chunkTextContent(ConnectionHandler connection, ChunkConfig config, String text) throws SQLException {
+    public ResultSet chunkTextContent(ConnectionHandler connection, EmbeddingChunkingConfig config, String text) throws SQLException {
         return DatabaseInterfaceInvoker.load(MEDIUM,
                 "Chunking Data",
                 "Chunking text content",
@@ -135,12 +135,12 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     public void createEmbeddings(VectorEmbeddingRequest request, ConnectionHandler handler)  {
         request.setTemplate(false); // no longer a template after used for embedding
 
-        StoreConfig storeConfig = request.getStoreConfig();
+        EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
         Progress.prompt(
                 getProject(),
                 handler.getSchema(), true,
                 "Embedding Data",
-                "Embedding data into \"" + storeConfig.getSchemaName() + "\".\"" + storeConfig.getTableName() + "\"",
+                "Embedding data into \"" + destinationConfig.getSchemaName() + "\".\"" + destinationConfig.getTableName() + "\"",
                  p -> {
                      DatabaseInterfaceInvoker.execute(MEDIUM,
                                 p.getText(),
@@ -186,7 +186,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     /**
      * Factory method to create the appropriate pipeline based on source type.
      */
-    private EmbeddingPipeline createPipeline(@NotNull SourceType sourceType) {
+    private EmbeddingPipeline createPipeline(@NotNull EmbeddingSourceType sourceType) {
         return switch (sourceType) {
             case DATABASE_TABLE -> new TableEmbeddingPipeline();
             case FILE_SYSTEM -> new FileEmbeddingPipeline();

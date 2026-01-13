@@ -138,8 +138,7 @@ public class DatasetFilterDialog extends DBNDialog<DatasetFilterForm> {
 
     @Override
     public void doCancelAction() {
-        DatasetFilterForm component = getForm();
-        component.resetFormChanges();
+        resetFormChanges();
         super.doCancelAction();
     }
 

@@ -3,20 +3,20 @@ package com.dbn.vector.pipeline;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
-import com.dbn.vector.model.PipelineStep;
-import com.dbn.vector.model.StepResult;
-import com.dbn.vector.model.TableResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
-import com.dbn.vector.model.source.DBTableSourceConfig;
-import com.dbn.vector.model.sourceconfig.DbTableSource;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
+import com.dbn.vector.model.request.EmbeddingSourceTables;
+import com.dbn.vector.model.result.PipelineStep;
+import com.dbn.vector.model.result.StepResult;
+import com.dbn.vector.model.result.TableResult;
 import com.dbn.vector.service.TableProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
-import static com.dbn.vector.model.PipelineStep.ENSURE_DOCUMENT_TABLE;
+import static com.dbn.vector.model.result.PipelineStep.ENSURE_DOCUMENT_TABLE;
 
 
 public class TableEmbeddingPipeline extends EmbeddingPipeline {
@@ -35,10 +35,10 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
 
         // remove the PREPARE_DOCUMENT_STORE step from shared steps
         result.deleteStepFfromShared(ENSURE_DOCUMENT_TABLE);
-        DBTableSourceConfig tableConfig = request.getSourceConfig().getTableSourceConfig();
+        EmbeddingSourceTables tableConfig = request.getSourceConfig().getSourceTables();
 
 
-        for (DbTableSource tableSource : tableConfig.getDbTableSources()){
+        for (EmbeddingSourceTable tableSource : tableConfig.getSourceTables()){
           TableResult tableResult = result.initTableResult(
                   tableSource.getSchemaName(),
                   tableSource.getTableName()
@@ -70,7 +70,7 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
             @NotNull DBNConnection connection,
             @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull TableResult tableResult,
-            DbTableSource tableSource, @NotNull String metadata,
+            EmbeddingSourceTable tableSource, @NotNull String metadata,
             @NotNull ProgressIndicator progressIndicator) throws SQLException {
 
         StepResult embedStep = tableResult.startStep(PipelineStep.EMBED);
@@ -94,8 +94,8 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
                         connection,
                         tableSource,
                         request.getChunkConfig().getConfigJson(),
-                        request.getEmbedConfig().getConfigJson(),
-                        request.getStoreConfig(),
+                        request.getModelConfig().getConfigJson(),
+                        request.getDestinationConfig(),
                         metadata,
                         DEFAULT_BATCH_SIZE
                 );

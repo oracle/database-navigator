@@ -22,7 +22,7 @@ import com.dbn.common.ui.table.DBNTableGutterModel;
 import com.dbn.common.ui.table.DBNTableWithGutterModel;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContextBase;
-import com.dbn.vector.model.SourceResult;
+import com.dbn.vector.model.result.SourceResult;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

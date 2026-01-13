@@ -3,13 +3,13 @@ package com.dbn.vector.service;
 import com.dbn.common.util.Json;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
-import com.dbn.vector.model.FileResult;
-import com.dbn.vector.model.PipelineStep;
-import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
-import com.dbn.vector.model.common.FileContent;
-import com.dbn.vector.model.staging.StagingConfig;
-import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.vector.model.request.EmbeddingDestinationConfig;
+import com.dbn.vector.model.request.EmbeddingStagingConfig;
+import com.dbn.vector.model.result.FileContent;
+import com.dbn.vector.model.result.FileResult;
+import com.dbn.vector.model.result.PipelineStep;
+import com.dbn.vector.model.result.StepResult;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.dbn.vector.DatabaseVectorManager.ENGINE_VERSION;
-import static com.dbn.vector.model.source.SourceType.FILE_SYSTEM;
+import static com.dbn.vector.model.request.EmbeddingSourceType.FILE_SYSTEM;
 
 @Slf4j
 public class FileProcessingService {
@@ -38,7 +38,7 @@ public class FileProcessingService {
 
         try {
             // Query database: does file with this hash and size exist?
-            StagingConfig stagingConfig = request.getStagingConfig();
+            EmbeddingStagingConfig stagingConfig = request.getStagingConfig();
             ResultSet rs = vectorInterface.loadFileStoreMetadata(
                     connection,
                     stagingConfig.getSchemaName(),
@@ -77,7 +77,7 @@ public class FileProcessingService {
         try {
             // Extract metadata from FileContent and connection
             String metadataJson = buildFileMetadata(connection, fileContent);
-            StagingConfig stagingConfig = request.getStagingConfig();
+            EmbeddingStagingConfig stagingConfig = request.getStagingConfig();
 
             // Step 1: Insert row with metadata and hash
             vectorInterface.createFileStoreEntry(
@@ -119,13 +119,13 @@ public class FileProcessingService {
 
         try {
             // Check if embeddings already exist for this document
-            StoreConfig storeConfig = request.getStoreConfig();
+            EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
 
             boolean alreadyEmbedded = vectorInterface.isContentEmbedded(
                     connection,
-                    storeConfig.getSchemaName(),
-                    storeConfig.getTableName(),
-                    storeConfig.getMetadataColumnName(),
+                    destinationConfig.getSchemaName(),
+                    destinationConfig.getTableName(),
+                    destinationConfig.getMetadataColumnName(),
                     documentId
             );
 
@@ -138,7 +138,7 @@ public class FileProcessingService {
 
             String rowMetadata = buildRowMetadata(request, fileContent.getMetadata());
             String chunkConfigJson = request.getChunkConfig().getConfigJson();
-            String embedConfigJson = request.getEmbedConfig().getConfigJson();
+            String embedConfigJson = request.getModelConfig().getConfigJson();
 
             // Call embedFileContent with documentId
             // It will SELECT the BLOB from database and process it
@@ -147,7 +147,7 @@ public class FileProcessingService {
                     chunkConfigJson,
                     embedConfigJson,
                     request.getStagingConfig(),
-                    storeConfig,
+                    destinationConfig,
                     documentId,
                     rowMetadata);
 
@@ -189,7 +189,7 @@ public class FileProcessingService {
         Map<String, Object> metadata = new LinkedHashMap<>();
         metadata.put("engine_version", ENGINE_VERSION);
         metadata.put("embedding_source", sourceMetadata);
-        metadata.put("embedding_config", request.getEmbedConfig().getConfigMap());
+        metadata.put("embedding_config", request.getModelConfig().getConfigMap());
         metadata.put("chunking_config", request.getChunkConfig().getConfigMap());
         return Json.writeAsString(metadata);
     }

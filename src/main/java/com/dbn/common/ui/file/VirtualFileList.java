@@ -69,7 +69,7 @@ public class VirtualFileList extends JList<VirtualFile> {
     }
 
     public List<VirtualFile> getFiles() {
-        return getModel().getFiles();
+        return getModel().getElements();
     }
 }
 

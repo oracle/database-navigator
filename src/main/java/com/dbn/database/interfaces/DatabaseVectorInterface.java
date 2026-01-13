@@ -17,10 +17,10 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.vector.model.source.DBTableSourceConfig;
-import com.dbn.vector.model.staging.StagingConfig;
-import com.dbn.vector.model.sourceconfig.DbTableSource;
-import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.vector.model.request.EmbeddingDestinationConfig;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
+import com.dbn.vector.model.request.EmbeddingSourceTables;
+import com.dbn.vector.model.request.EmbeddingStagingConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -42,11 +42,11 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
 
   void createEmbeddingSourceIndex(DBNConnection connection, String schemaName, String tableName, String metadataColumnName) throws SQLException;
 
-  int embedDataContent(DBNConnection connection, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig, @NotNull String metadata) throws SQLException;
+  int embedDataContent(DBNConnection connection, EmbeddingSourceTables sourceConfig, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata) throws SQLException;
 
-  int embedDataContent(DBNConnection connection, DbTableSource sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig, @NotNull String metadata, int batchSize) throws SQLException;
+  int embedDataContent(DBNConnection connection, EmbeddingSourceTable sourceConfig, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException;
 
-  int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StagingConfig stagingConfig, StoreConfig storeConfig, String fileStoreId, String metadata) throws SQLException;
+  int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, EmbeddingStagingConfig stagingConfig, EmbeddingDestinationConfig destinationConfig, String fileStoreId, String metadata) throws SQLException;
 
   void createFileStoreEntry(DBNConnection conn, String ownerName, String tableName, String fileStoreId, String fileMetadata, String fileHash, long fileSize) throws SQLException;
 

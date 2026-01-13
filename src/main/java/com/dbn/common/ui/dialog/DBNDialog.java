@@ -30,6 +30,7 @@ import com.dbn.common.util.Titles;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
@@ -208,6 +209,14 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     @NotNull
     protected abstract F createForm();
+
+    public void resetFormChanges() {
+        getForm().resetFormChanges();
+    }
+
+    public void applyFormChanges() throws ConfigurationException {
+        getForm().applyFormChanges();
+    }
 
     @Nullable
     public final <T extends Disposable> T getParentComponent() {

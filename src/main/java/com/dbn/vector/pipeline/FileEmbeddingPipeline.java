@@ -5,14 +5,14 @@ import com.dbn.common.util.UUIDs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
-import com.dbn.vector.model.FileResult;
-import com.dbn.vector.model.PipelineStep;
-import com.dbn.vector.model.SourceStatus;
-import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
-import com.dbn.vector.model.common.FileContent;
-import com.dbn.vector.model.source.FileSystemSourceConfig;
+import com.dbn.vector.model.request.EmbeddingSourceFiles;
+import com.dbn.vector.model.result.FileContent;
+import com.dbn.vector.model.result.FileResult;
+import com.dbn.vector.model.result.PipelineStep;
+import com.dbn.vector.model.result.SourceStatus;
+import com.dbn.vector.model.result.StepResult;
 import com.dbn.vector.service.FileProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -44,7 +44,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
         }
 
         // Process each file individually
-        FileSystemSourceConfig fileConfig = request.getSourceConfig().getFileSourceConfig();
+        EmbeddingSourceFiles fileConfig = request.getSourceConfig().getSourceFiles();
         List<VirtualFile> files = fileConfig.getFiles();
 
         for (int i = 0; i < files.size(); i++) {

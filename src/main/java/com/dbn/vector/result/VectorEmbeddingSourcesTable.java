@@ -23,8 +23,8 @@ import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.DBNTableGutter;
 import com.dbn.common.ui.table.DBNTableTransferHandler;
 import com.dbn.common.ui.table.DBNTableWithGutter;
-import com.dbn.vector.model.SourceResult;
-import com.dbn.vector.model.SourceStatus;
+import com.dbn.vector.model.result.SourceResult;
+import com.dbn.vector.model.result.SourceStatus;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 

@@ -2,11 +2,17 @@ package com.dbn.vector.model;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.vector.model.source.DBTableSourceConfig;
-import com.dbn.vector.model.source.FileSystemSourceConfig;
-import com.dbn.vector.model.source.SourceConfig;
-import com.dbn.vector.model.source.SourceType;
-import com.dbn.vector.model.sourceconfig.DbTableSource;
+import com.dbn.vector.model.request.EmbeddingSourceConfig;
+import com.dbn.vector.model.request.EmbeddingSourceFiles;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
+import com.dbn.vector.model.request.EmbeddingSourceTables;
+import com.dbn.vector.model.request.EmbeddingSourceType;
+import com.dbn.vector.model.result.FileResult;
+import com.dbn.vector.model.result.PipelineStep;
+import com.dbn.vector.model.result.SourceResult;
+import com.dbn.vector.model.result.SourceStatus;
+import com.dbn.vector.model.result.StepResult;
+import com.dbn.vector.model.result.TableResult;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,7 +39,7 @@ public class VectorEmbeddingResult {
 
   public  enum Status { RUNNING, SUCCESS, PARTIAL, FAILED }
   private Status status;
-  private SourceType sourceType;
+  private EmbeddingSourceType sourceType;
   private Map<String, SourceResult> sourceResults = new LinkedHashMap<>();
   protected final List<StepResult> sharedSteps = new ArrayList<>(Arrays.asList(
           new StepResult(PipelineStep.ENSURE_DESTINATION),
@@ -57,19 +63,19 @@ public class VectorEmbeddingResult {
   }
 
   private void initSourceResults() {
-    SourceConfig sourceConfig = request.getSourceConfig();
+    EmbeddingSourceConfig sourceConfig = request.getSourceConfig();
 
     switch (sourceConfig.getSourceType()) {
       case FILE_SYSTEM:
-        FileSystemSourceConfig fileConfig = sourceConfig.getFileSourceConfig();
+        EmbeddingSourceFiles fileConfig = sourceConfig.getSourceFiles();
         List<VirtualFile> files = fileConfig.getFiles();
         for (int i = 0; i < files.size(); i++) {
           initFileResult(files.get(i));
         }
         break;
       case DATABASE_TABLE:
-        DBTableSourceConfig tableConfig = sourceConfig.getTableSourceConfig();
-        for (DbTableSource tableSource : tableConfig.getDbTableSources()){
+        EmbeddingSourceTables tableConfig = sourceConfig.getSourceTables();
+        for (EmbeddingSourceTable tableSource : tableConfig.getSourceTables()){
           initTableResult(tableSource.getSchemaName(), tableSource.getTableName());
         }
         break;

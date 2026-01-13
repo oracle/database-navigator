@@ -7,13 +7,13 @@ import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.object.event.ObjectChangeEvent;
-import com.dbn.vector.model.PipelineStep;
-import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
-import com.dbn.vector.model.staging.StagingConfig;
-import com.dbn.vector.model.store.DestinationType;
-import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.vector.model.request.EmbeddingDestinationConfig;
+import com.dbn.vector.model.request.EmbeddingDestinationType;
+import com.dbn.vector.model.request.EmbeddingStagingConfig;
+import com.dbn.vector.model.result.PipelineStep;
+import com.dbn.vector.model.result.StepResult;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.jetbrains.annotations.NotNull;
 
@@ -82,21 +82,21 @@ public abstract class EmbeddingPipeline {
         step.start();
 
         try {
-            StoreConfig storeConfig = request.getStoreConfig();
-            step.setLink(storeConfig.getSchemaName()+"."+storeConfig.getTableName());
+            EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
+            step.setLink(destinationConfig.getSchemaName()+"."+ destinationConfig.getTableName());
             step.setIcon(Icons.DBO_TABLE);
-            if (storeConfig.getDestinationType() == DestinationType.NEW_TABLE) {
+            if (destinationConfig.getDestinationType() == EmbeddingDestinationType.NEW_TABLE) {
                 vectorInterface.createEmbeddingTable(
                         connection,
-                        storeConfig.getSchemaName(),
-                        storeConfig.getTableName(),
-                        storeConfig.getKeyColumnName(),
-                        storeConfig.getTextColumnName(),
-                        storeConfig.getEmbeddingColumnName(),
-                        storeConfig.getMetadataColumnName());
+                        destinationConfig.getSchemaName(),
+                        destinationConfig.getTableName(),
+                        destinationConfig.getKeyColumnName(),
+                        destinationConfig.getTextColumnName(),
+                        destinationConfig.getEmbeddingColumnName(),
+                        destinationConfig.getMetadataColumnName());
 
                 // Notify browser to refresh
-                notifyTableCreated(request.getConnectionId(), storeConfig.getSchemaName());
+                notifyTableCreated(request.getConnectionId(), destinationConfig.getSchemaName());
             }
 
             step.markSuccess();
@@ -120,7 +120,7 @@ public abstract class EmbeddingPipeline {
 
         step.start();
 
-        StagingConfig stagingConfig = request.getStagingConfig();
+        EmbeddingStagingConfig stagingConfig = request.getStagingConfig();
         String tableIdentifier = stagingConfig.getSchemaName() + "." + stagingConfig.getTableName();
         step.markSuccess();
         step.setLink(tableIdentifier);

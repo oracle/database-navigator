@@ -36,7 +36,7 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
 
   @Override
   protected @NotNull VectorToolboxForm createForm() {
-    return new VectorToolboxForm(this, getConnection(), request);
+    return new VectorToolboxForm(this, request);
   }
 
   @Override

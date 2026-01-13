@@ -24,16 +24,15 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecReader;
-import com.dbn.vector.model.staging.StagingConfig;
+import com.dbn.vector.model.request.EmbeddingStagingConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
-import com.intellij.openapi.Disposable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -57,8 +56,8 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
     private DBObjectSelector<DBSchema> schemaComboBox;
     private DBObjectSelector<DBTable> tableComboBox;
 
-    public EmbeddingStagingConfigForm(@Nullable Disposable parent, ConnectionHandler connection) {
-        super(parent, connection);
+    public EmbeddingStagingConfigForm(@NotNull VectorToolboxFormBase parent) {
+        super(parent);
         initInfoLabel();
     }
 
@@ -82,7 +81,7 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
     }
 
     private void initComboBoxes() {
-        StagingConfig config = getConfig();
+        EmbeddingStagingConfig config = getConfig();
 
         schemaComboBox
                 .initialize(this, SCHEMA)
@@ -150,7 +149,7 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
     @Override
     public void applyFormChanges() {
-        StagingConfig config = getConfig();
+        EmbeddingStagingConfig config = getConfig();
         config.setSchemaName(getSelectedObjectName(schemaComboBox, config.getSchemaName()));
         config.setTableName(getSelectedObjectName(tableComboBox, config.getTableName()));
     }
@@ -165,7 +164,7 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
         return tableComboBox.getSelectedValue();
     }
 
-    public StagingConfig getConfig() {
+    public EmbeddingStagingConfig getConfig() {
         return getEmbeddingRequest().getStagingConfig();
     }
 
