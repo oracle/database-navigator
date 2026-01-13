@@ -23,6 +23,7 @@ import com.dbn.database.DatabaseFeature;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.JavaExecutionManager;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,8 +63,13 @@ public class JavaExecutionHistoryDialog extends DBNDialog<JavaExecutionHistoryFo
 	}
 
 	@Override
+	protected HelpTopic getHelpTopic() {
+		return HelpTopic.JAVA_EXECUTION_HISTORY;
+	}
+
+	@Override
 	@NotNull
-	protected final Action[] createActions() {
+	protected final Action[] initializeActions() {
 		if (editable) {
 			executeAction = new ExecuteAction();
 			executeAction.setEnabled(false);
@@ -72,13 +78,19 @@ public class JavaExecutionHistoryDialog extends DBNDialog<JavaExecutionHistoryFo
 			saveAction = new SaveAction();
 			saveAction.setEnabled(false);
 			closeAction = new CloseAction();
-			return new Action[]{executeAction, debugAction, saveAction, closeAction};
+			return actions(
+					executeAction,
+					debugAction,
+					saveAction,
+					closeAction);
 		} else {
 			selectAction = new SelectAction();
 			selectAction.setEnabled(false);
 			closeAction = new CloseAction();
 			renameAction(closeAction, "Cancel");
-			return new Action[]{selectAction, closeAction};
+			return actions(
+					selectAction,
+					closeAction);
 		}
 	}
 

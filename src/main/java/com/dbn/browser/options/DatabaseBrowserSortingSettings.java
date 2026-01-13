@@ -93,11 +93,6 @@ public class DatabaseBrowserSortingSettings
         return txt("cfg.browser.title.SortingSettings");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "browserSettings";
-    }
-
     /*********************************************************
      *                     Configuration                     *
      *********************************************************/

@@ -20,6 +20,7 @@ import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.locale.options.RegionalSettings;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
+import com.dbn.help.HelpTopic;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.TopLevelConfig;
@@ -28,6 +29,8 @@ import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.help.HelpTopic.GENERAL_SETTINGS;
 
 @EqualsAndHashCode(callSuper = false)
 public class GeneralProjectSettings extends CompositeProjectConfiguration<ProjectSettings, GeneralProjectSettingsForm> implements TopLevelConfig {
@@ -56,6 +59,11 @@ public class GeneralProjectSettings extends CompositeProjectConfiguration<Projec
     @Override
     public ConfigId getConfigId() {
         return ConfigId.GENERAL;
+    }
+
+    @Override
+    public HelpTopic getConfigHelpTopic() {
+        return GENERAL_SETTINGS;
     }
 
     @NotNull

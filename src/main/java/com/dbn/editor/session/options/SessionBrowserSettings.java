@@ -63,12 +63,6 @@ public class SessionBrowserSettings extends BasicConfiguration<OperationSettings
         return txt("cfg.sessions.title.SessionBrowser");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "sessionBrowser";
-    }
-
-
     /****************************************************
      *                   Configuration                  *
      ****************************************************/

@@ -55,12 +55,10 @@ public class StatementExecutionInputsDialog extends DBNDialog<StatementExecution
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 executeAction,
-                getCancelAction(),
-                getHelpAction()
-        };
+                getCancelAction());
     }
 
     private class ExecuteAction extends AbstractAction {

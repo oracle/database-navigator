@@ -26,6 +26,7 @@ import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.icon.Icons.WINDOW_DATABASE_BROWSER;
+import static com.dbn.help.HelpTopic.DATABASE_BROWSER;
 
 public class DatabaseBrowserToolWindowFactory extends DBNToolWindowFactory {
 
@@ -34,6 +35,7 @@ public class DatabaseBrowserToolWindowFactory extends DBNToolWindowFactory {
         toolWindow.setTitle("DB Browser");
         toolWindow.setStripeTitle("DB Browser");
         toolWindow.setIcon(WINDOW_DATABASE_BROWSER.get());
+        toolWindow.setHelpId(DATABASE_BROWSER.asHelpTopicId());
     }
 
     @Override

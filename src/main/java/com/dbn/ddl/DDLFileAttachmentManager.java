@@ -483,7 +483,8 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
                 txt("msg.ddlFiles.title.SelectDdlFileType"),
                 providers,
                 preferredProvider,
-                object);
+                object,
+                null, null);
 
         fileTypeDialog.setSelectButtonText(create ? "Create DDL Files" : "Find DDL Files");
         JBList<DDLFileNameProvider> selectionList = fileTypeDialog.getForm().getSelectionList();

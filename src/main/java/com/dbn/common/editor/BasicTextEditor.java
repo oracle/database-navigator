@@ -18,6 +18,7 @@ package com.dbn.common.editor;
 
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.editor.EditorProviderId;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -36,4 +37,6 @@ public interface BasicTextEditor<T extends VirtualFile> extends FileEditor, Stat
     void navigateTo(@NotNull final Navigatable navigatable);
 
     EditorProviderId getEditorProviderId();
+
+    HelpTopic getHelpTopic();
 }
