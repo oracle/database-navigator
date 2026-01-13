@@ -170,7 +170,7 @@ dependencies {
 //    implementation("org.tribuo:tribuo-common-libsvm:4.3.1@jar")
 //    implementation("tw.edu.ntu.csie:libsvm:3.25@jar")
 //    implementation("com.oracle.labs.olcut:olcut-core:5.2.1@jar")
-    implementation("org.tribuo:tribuo-all:4.3.2@pom") { isTransitive = true }
+    implementation("org.tribuo:tribuo-all:4.3.2") { isTransitive = true } // TODO flat model
 
     implementation(project(":modules:dbn-api"))
     implementation(project(":modules:dbn-spi"))
