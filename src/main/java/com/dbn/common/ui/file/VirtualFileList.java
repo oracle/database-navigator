@@ -16,14 +16,14 @@
 
 package com.dbn.common.ui.file;
 
+import com.dbn.common.ui.list.MutableObjectList;
 import com.dbn.common.util.FileChoosers;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.vfs.VirtualFile;
 
-import javax.swing.JList;
 import java.util.List;
 
-public class VirtualFileList extends JList<VirtualFile> {
+public class VirtualFileList extends MutableObjectList<VirtualFile> {
     public VirtualFileList(List<VirtualFile> files) {
         super(new VirtualFileListModel(files));
         setCellRenderer(new VirtualFileListCellRenderer());
@@ -38,38 +38,12 @@ public class VirtualFileList extends JList<VirtualFile> {
                 });
     }
 
-    public void removeRow() {
-        VirtualFileListModel model = getModel();
-        int[] indices = getSelectedIndices();
-
-        model.removeRows(indices);
-        setSelectedIndices(new int[0]);
-    }
-
-    public void moveRowsUp() {
-        VirtualFileListModel model = getModel();
-        int[] indices = getSelectedIndices();
-        model.moveRowsUp(indices);
-
-        for (int i = 0; i < indices.length; i++) indices[i]--;
-        setSelectedIndices(indices);
-    }
-
-    public void moveRowsDown() {
-        VirtualFileListModel model = getModel();
-        int[] indices = getSelectedIndices();
-        model.moveRowsDown(indices);
-
-        for (int i = 0; i < indices.length; i++) indices[i]++;
-        setSelectedIndices(indices);
-    }
-
     public VirtualFileListModel getModel() {
         return (VirtualFileListModel) super.getModel();
     }
 
     public List<VirtualFile> getFiles() {
-        return getModel().getElements();
+        return getElements();
     }
 }
 

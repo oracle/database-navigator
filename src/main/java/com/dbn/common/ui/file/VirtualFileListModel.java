@@ -16,13 +16,13 @@
 
 package com.dbn.common.ui.file;
 
-import com.dbn.common.ui.list.EditableObjectListModel;
+import com.dbn.common.ui.list.MutableObjectListModel;
 import com.dbn.common.util.Lists;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.util.List;
 
-public class VirtualFileListModel extends EditableObjectListModel<VirtualFile> {
+public class VirtualFileListModel extends MutableObjectListModel<VirtualFile> {
     public VirtualFileListModel(List<VirtualFile> files) {
         super(files);
     }

@@ -16,12 +16,12 @@
 
 package com.dbn.vector.ui.request;
 
-import com.dbn.common.ui.list.EditableObjectListModel;
+import com.dbn.common.ui.list.MutableObjectListModel;
 import com.dbn.vector.model.request.EmbeddingSourceTable;
 
 import java.util.List;
 
-public class EmbeddingSourceTablesListModel extends EditableObjectListModel<EmbeddingSourceTable> {
+public class EmbeddingSourceTablesListModel extends MutableObjectListModel<EmbeddingSourceTable> {
   public EmbeddingSourceTablesListModel(List<EmbeddingSourceTable> tables) {
     super(tables);
   }

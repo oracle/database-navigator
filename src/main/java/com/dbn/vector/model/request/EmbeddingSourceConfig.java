@@ -21,6 +21,7 @@ import lombok.Setter;
 import org.jdom.Element;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 
 @Getter
@@ -38,6 +39,7 @@ public final class EmbeddingSourceConfig extends EmbeddingRequestConfig {
         super.readState(element);
         sourceType = enumAttribute(element, "source-type", sourceType);
 
+        sourceTable.readState(element.getChild("single-table-source"));
         sourceTables.readState(element);
         sourceFiles.readState(element);
     }
@@ -46,6 +48,8 @@ public final class EmbeddingSourceConfig extends EmbeddingRequestConfig {
     public void writeState(Element element) {
         super.writeState(element);
         setEnumAttribute(element, "source-type", sourceType);
+
+        sourceTable.writeState(newElement(element,  "single-table-source"));
         sourceTables.writeState(element);
         sourceFiles.writeState(element);
     }

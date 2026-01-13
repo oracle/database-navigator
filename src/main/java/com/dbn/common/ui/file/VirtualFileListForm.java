@@ -18,8 +18,6 @@ package com.dbn.common.ui.file;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.vector.model.request.EmbeddingSourceType;
-import com.dbn.vector.ui.request.EmbeddingSourceConfigForm;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ToolbarDecorator;
 import lombok.Getter;
@@ -52,22 +50,10 @@ public class VirtualFileListForm extends DBNFormBase {
         listPanel.add(initListComponent());
     }
 
-    @Override
-    protected void initValidation() {
-        addValidation(component,l-> {
-            // get the sourceForm to get which source type is selected .
-            EmbeddingSourceConfigForm parentForm = ensureParentFrom(EmbeddingSourceConfigForm.class);
-            if (parentForm.getSelectedSourceType() == EmbeddingSourceType.DATABASE_TABLE){
-                return true;
-            }
-            return !fileList.getFiles().isEmpty();
-        },"Please select a file ");
-    }
-
     private JPanel initListComponent() {
         ToolbarDecorator decorator = createToolbarDecorator(fileList);
         decorator.setAddAction(b -> fileList.insertRows());
-        decorator.setRemoveAction(b -> fileList.removeRow());
+        decorator.setRemoveAction(b -> fileList.removeRows());
         decorator.setMoveUpAction(b -> fileList.moveRowsUp());
         decorator.setMoveDownAction(b -> fileList.moveRowsDown());
 

@@ -28,15 +28,17 @@ import java.util.List;
 
 import static javax.swing.event.ListDataEvent.CONTENTS_CHANGED;
 
-public class EditableObjectListModel<T> implements ListModel<T> {
+public class MutableObjectListModel<T> implements ListModel<T> {
     private final Listeners<ListDataListener> listeners = Listeners.create();
     private final @Getter List<T> elements;
 
-    public EditableObjectListModel(List<T> elements) {
+    public MutableObjectListModel(List<T> elements) {
         this.elements = new ArrayList<>(elements);
     }
 
     public void add(T element) {
+        if (this.elements.contains(element)) return;
+
         int index = this.elements.size();
         this.elements.add(element);
 
@@ -48,10 +50,10 @@ public class EditableObjectListModel<T> implements ListModel<T> {
         int index = this.elements.size();
         int count = 0;
         for (T element : elements) {
-            if (!this.elements.contains(element)) {
-                this.elements.add(element);
-                count++;
-            }
+            if (this.elements.contains(element)) continue;
+
+            this.elements.add(element);
+            count++;
         }
 
         ListDataEvent event = new ListDataEvent(this, CONTENTS_CHANGED, index, index + count);
@@ -63,6 +65,9 @@ public class EditableObjectListModel<T> implements ListModel<T> {
         addAll(elements);
     }
 
+    public boolean contains(T element) {
+        return this.elements.contains(element);
+    }
 
     @Override
     public int getSize() {
