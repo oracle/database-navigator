@@ -30,7 +30,6 @@ import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
-import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @UtilityClass
@@ -47,12 +46,9 @@ public class DBObjectSpecReader {
     }
 
     private static DBObjectSpec readDefinition(Element element) {
-        DBObjectType objectType = enumAttribute(element, "type", DBObjectType.class);
-        String objectName = stringAttribute(element, "name");
         boolean readonly = booleanAttribute(element, "readonly", false);
 
-        DBObjectSpec definition = new DBObjectSpec(objectType);
-        definition.setObjectName(objectName);
+        DBObjectSpec definition = new DBObjectSpec();
         definition.setReadonly(readonly);
 
         readAttributes(element, definition);
@@ -79,19 +75,22 @@ public class DBObjectSpecReader {
     }
 
     private static void readAttributes(Element element, DBObjectSpec definition) {
-        List<Element> attributeElements = childrenOf(element.getChild("attributes"));
+        List<Element> attributeElements = childrenOf(element, "attribute");
         for (Element attributeElement : attributeElements) {
             readAttribute(attributeElement, definition);
         }
     }
 
     private static void readAttribute(Element element, DBObjectSpec definition) {
-        String name = stringAttribute(element, "name");
-        String stringValue = stringAttribute(element, "value");
-        DBObjectAttribute<Object> attribute = DBObjectAttribute.get(name);
-        Class<Object> type = attribute.getType();
+        var attributeName = stringAttribute(element, "name");
+        var attributeValue = stringAttribute(element, "value");
+        var attributeType = DBObjectAttributeType.get(attributeName);
+        var attributeClass = attributeType.getType();
 
-        Object value = Data.asType(stringValue, type);
-        definition.setAttribute(attribute, value);
+        Object value = Data.asType(attributeValue, attributeClass);
+        var attribute = definition.setAttributeValue(attributeType, value);
+
+        boolean readonly = booleanAttribute(element, "readonly", false);
+        attribute.setReadonly(readonly);
     }
 }

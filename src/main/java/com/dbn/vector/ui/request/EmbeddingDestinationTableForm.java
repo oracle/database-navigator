@@ -25,6 +25,8 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.ui.DBObjectSelector;
+import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.factory.model.DBObjectSpecReader;
 import com.dbn.vector.model.request.EmbeddingDestinationConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import org.jetbrains.annotations.NotNull;
@@ -75,6 +77,8 @@ public class EmbeddingDestinationTableForm extends VectorToolboxFormBase {
             .withSchemaContext(() -> getSelectedSchema())
             .withValueLoader(() -> loadTables())
             .withValuePreselector(() -> config.getTableName())
+            .withObjectFactory("New Table...")
+            .withValueFactoryInput(() -> createTableFactoryInput())
             .triggerLoad();
 
     dataColumnComboBox
@@ -174,6 +178,13 @@ public class EmbeddingDestinationTableForm extends VectorToolboxFormBase {
     dataColumnComboBox.reloadValues();
     embeddingColumnComboBox.reloadValues();
     metadataColumnComboBox.reloadValues();
+  }
+
+  private DBObjectSpec createTableFactoryInput() {
+    DBObjectSpec tableSpec = DBObjectSpecReader.read(getClass(), "embedding-table-definition.xml");
+    tableSpec.setConnectionId(getConnectionId());
+    tableSpec.setSchemaId(getSelectedSchemaId());
+    return tableSpec;
   }
 
   @Nullable

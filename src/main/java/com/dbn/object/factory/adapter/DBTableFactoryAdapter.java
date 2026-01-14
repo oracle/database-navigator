@@ -48,7 +48,10 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec,
     }
 
     public DBObjectSpec createInput(DBSchema schema) {
-        return new DBObjectSpec(schema, TABLE);
+        DBObjectSpec tableSpec = new DBObjectSpec(schema);
+        tableSpec.setObjectType(TABLE);
+        return tableSpec;
+
     }
 
     public DBTableFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec tableSpec) {

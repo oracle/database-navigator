@@ -49,12 +49,12 @@ import static com.dbn.database.DatabaseObjectTypeId.JSON_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.TRIGGER;
 import static com.dbn.database.DatabaseObjectTypeId.VIEW;
-import static com.dbn.object.factory.model.DBObjectAttribute.CONSTRAINT_COLUMNS;
-import static com.dbn.object.factory.model.DBObjectAttribute.CONSTRAINT_TYPE;
-import static com.dbn.object.factory.model.DBObjectAttribute.DATA_TYPE;
-import static com.dbn.object.factory.model.DBObjectAttribute.IS_NOT_NULL;
-import static com.dbn.object.factory.model.DBObjectAttribute.IS_PRIMARY_KEY;
-import static com.dbn.object.factory.model.DBObjectAttribute.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.CONSTRAINT_COLUMNS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.CONSTRAINT_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_NOT_NULL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_PRIMARY_KEY;
+import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
 
 public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
     public OracleDataDefinitionInterface(DatabaseInterfaces provider) {
@@ -272,24 +272,24 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             builder.append("    ");
             builder.append(columnSpec.getObjectName(true));
             builder.append(" ");
-            builder.append(columnSpec.getAttribute(DATA_TYPE));
-            builder.append(columnSpec.getBooleanAttribute(IS_NOT_NULL) ? " not null" : "");
-            builder.append(columnSpec.getBooleanAttribute(IS_PRIMARY_KEY) ? " primary key" : "");
+            builder.append(columnSpec.getAttributeValue(DATA_TYPE));
+            builder.append(columnSpec.getBooleanAttributeValue(IS_NOT_NULL) ? " not null" : "");
+            builder.append(columnSpec.getBooleanAttributeValue(IS_PRIMARY_KEY) ? " primary key" : "");
         }
 
         for (DBObjectSpec constraint : tableSpec.getChildren(DBObjectType.CONSTRAINT)) {
             builder.append(",\n");
             builder.append("    ");
-            builder.append(constraint.getAttribute(CONSTRAINT_TYPE));
+            builder.append(constraint.getAttributeValue(CONSTRAINT_TYPE));
             builder.append(" ");
             builder.append(nvl(constraint.getObjectName(), ""));
             builder.append("(");
-            builder.append(toCsv(Arrays.asList(constraint.getAttribute(CONSTRAINT_COLUMNS)),s -> s));
+            builder.append(toCsv(Arrays.asList(constraint.getAttributeValue(CONSTRAINT_COLUMNS)), s -> s));
             builder.append(")");
         }
 
         builder.append(")\n");
-        builder.append(tableSpec.getAttribute(OBJECT_DETAIL));
+        builder.append(tableSpec.getAttributeValue(OBJECT_DETAIL));
 
         createObject(builder.toString(), connection);
     }

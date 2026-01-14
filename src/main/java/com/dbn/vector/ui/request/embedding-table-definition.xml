@@ -15,38 +15,32 @@
   -->
 
 <definition>
-    <attribute name="OBJECT_TYPE"   value="TABLE"/>
-    <attribute name="OBJECT_NAME"   value="FILE_CONTENTS"/>
-    <attribute name="OBJECT_DETAIL" value="lob(FILE_CONTENT) store as securefile (nocache filesystem_like_logging)"/>
+    <attribute name="OBJECT_TYPE" value="TABLE"/>
+    <attribute name="OBJECT_NAME" value="VECTOR_EMBEDDINGS"/>
     <children readonly="Y">
-        <definition readonly="Y">
+        <definition>
             <attribute name="OBJECT_TYPE"    value="COLUMN"/>
             <attribute name="OBJECT_NAME"    value="ID"/>
-            <attribute name="DATA_TYPE"      value="varchar2(50)"/>
-            <attribute name="IS_NOT_NULL"    value="Y"/>
-            <attribute name="IS_PRIMARY_KEY" value="Y"/>
+            <attribute name="DATA_TYPE"      value="varchar2(50)" readonly="Y"/>
+            <attribute name="IS_NOT_NULL"    value="Y"            readonly="Y"/>
+            <attribute name="IS_PRIMARY_KEY" value="Y"            readonly="Y"/>
         </definition>
-        <definition readonly="Y">
+        <definition>
             <attribute name="OBJECT_TYPE"    value="COLUMN"/>
-            <attribute name="OBJECT_NAME"    value="FILE_SIZE"/>
-            <attribute name="DATA_TYPE"      value="number(19)"/>
-            <attribute name="IS_NOT_NULL"    value="Y"/>
+            <attribute name="OBJECT_NAME"    value="TEXT"/>
+            <attribute name="DATA_TYPE"      value="clob"         readonly="Y"/>
+            <attribute name="IS_NOT_NULL"    value="Y"            readonly="Y"/>
         </definition>
-        <definition readonly="Y">
+        <definition>
             <attribute name="OBJECT_TYPE"    value="COLUMN"/>
-            <attribute name="OBJECT_NAME"    value="FILE_HASH"/>
-            <attribute name="DATA_TYPE"      value="varchar2(64)"/>
-            <attribute name="IS_NOT_NULL"    value="Y"/>
+            <attribute name="OBJECT_NAME"    value="EMBEDDING"/>
+            <attribute name="DATA_TYPE"      value="vector"       readonly="Y"/>
+            <attribute name="IS_NOT_NULL"    value="Y"            readonly="Y"/>
         </definition>
-        <definition readonly="Y">
-            <attribute name="OBJECT_TYPE"    value="COLUMN"/>
-            <attribute name="OBJECT_NAME"    value="FILE_CONTENT"/>
-            <attribute name="DATA_TYPE"      value="blob"/>
-        </definition>
-        <definition readonly="Y">
+        <definition>
             <attribute name="OBJECT_TYPE"    value="COLUMN"/>
             <attribute name="OBJECT_NAME"    value="METADATA"/>
-            <attribute name="DATA_TYPE"      value="json"/>
+            <attribute name="DATA_TYPE"      value="json"         readonly="Y"/>
         </definition>
         <definition readonly="Y">
             <attribute name="OBJECT_TYPE"        value="CONSTRAINT"/>

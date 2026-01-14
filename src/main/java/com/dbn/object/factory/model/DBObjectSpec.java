@@ -22,7 +22,6 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -31,48 +30,36 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_NAME;
+import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_TYPE;
 
 @Getter
 @Setter
 public class DBObjectSpec extends DBObjectSpecBase{
-    private final DBObjectType objectType;
-
-    @NonNls
-    private String objectName;
     private int index;
     private boolean readonly;
 
     private final Map<DBObjectType, DBObjectSpecList<DBObjectSpec>> children = new EnumMap<>(DBObjectType.class);
-    private final Map<DBObjectAttribute, Object> attributes = new HashMap<>();
+    private final Map<DBObjectAttributeType, DBObjectAttribute> attributes = new HashMap<>();
 
-    public DBObjectSpec(DBObjectType objectType) {
-        this.objectType = objectType;
+    public DBObjectSpec() {
+
     }
 
-    public DBObjectSpec(DBSchema schema, DBObjectType objectType) {
-        this(objectType);
+    public DBObjectSpec(DBSchema schema) {
         setConnectionId(schema.getConnectionId());
         setSchemaId(schema.getSchemaId());
     }
 
-    public <T> void setAttribute(DBObjectAttribute<T> attribute, @NonNls T value) {
-        attributes.put(attribute, value);
-    }
-
     @Nullable
-    public <T> String getStringAttribute(DBObjectAttribute<T> attribute) {
-        T value = getAttribute(attribute);
+    public <T> String getStringAttributeValue(DBObjectAttributeType<T> type) {
+        T value = getAttributeValue(type);
         return Data.asString(value);
     }
 
-    public boolean getBooleanAttribute(DBObjectAttribute<Boolean> attribute) {
-        Boolean value = getAttribute(attribute);
+    public boolean getBooleanAttributeValue(DBObjectAttributeType<Boolean> type) {
+        Boolean value = getAttributeValue(type);
         return value != null && value;
-    }
-
-
-    public <T> T getAttribute(DBObjectAttribute<T> attribute) {
-        return cast(attributes.get(attribute));
     }
 
     public void addChild(DBObjectSpec child) {
@@ -91,11 +78,27 @@ public class DBObjectSpec extends DBObjectSpecBase{
     }
 
     public String getObjectPath() {
-        return objectName;
+        return getObjectName();
+    }
+
+    public void setObjectType(DBObjectType objectType) {
+        setAttributeValue(OBJECT_TYPE, objectType);
+    }
+
+    public DBObjectType getObjectType() {
+        return getAttributeValue(OBJECT_TYPE);
     }
 
     public String getObjectTypeName() {
         return getObjectType().getName();
+    }
+
+    public void setObjectName(String objectName) {
+        setAttributeValue(OBJECT_NAME, objectName);
+    }
+
+    public String getObjectName() {
+        return getAttributeValue(OBJECT_NAME);
     }
 
     public String getObjectName(boolean quoted) {
@@ -112,6 +115,22 @@ public class DBObjectSpec extends DBObjectSpecBase{
 
     @Override
     public String toString() {
-        return objectType.getName() + " " + getObjectName();
+        return getObjectTypeName() + " " + getObjectName();
     }
+
+    public <T> DBObjectAttribute<T> getAttribute(DBObjectAttributeType<T> type) {
+        return cast(attributes.get(type));
+    }
+
+    public <T> T getAttributeValue(DBObjectAttributeType<T> type) {
+        DBObjectAttribute<T> attribute = getAttribute(type);
+        return attribute == null ? null : attribute.getValue();
+    }
+
+    public <T> DBObjectAttribute<T> setAttributeValue(DBObjectAttributeType<T> type, T value) {
+        DBObjectAttribute<T> attribute = cast(attributes.computeIfAbsent(type, t -> new DBObjectAttribute<>()));
+        attribute.setValue(value);
+        return attribute;
+    }
+
 }

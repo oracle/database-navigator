@@ -16,55 +16,12 @@
 
 package com.dbn.object.factory.model;
 
-import com.dbn.common.constant.PseudoConstant;
-import com.dbn.object.type.DBCredentialType;
 import lombok.Getter;
-import org.jetbrains.annotations.NonNls;
-
-import static com.dbn.common.util.Unsafe.cast;
-
+import lombok.Setter;
 
 @Getter
-@SuppressWarnings("unused")
-public class DBObjectAttribute<T> extends PseudoConstant<DBObjectAttribute<T>> {
-
-    public static final DBObjectAttribute<String> OWNER_NAME = new DBObjectAttribute<>("OWNER_NAME", String.class);
-    public static final DBObjectAttribute<String> OBJECT_DETAIL = new DBObjectAttribute<>("OBJECT_DETAIL", String.class);
-    public static final DBObjectAttribute<String> DATA_TYPE = new DBObjectAttribute<>("DATA_TYPE", String.class);
-
-    public static final DBObjectAttribute<Integer> DATA_LENGTH = new DBObjectAttribute<>("DATA_LENGTH", Integer.class);
-    public static final DBObjectAttribute<Integer> DATA_PRECISION = new DBObjectAttribute<>("DATA_PRECISION", Integer.class);
-
-    public static final DBObjectAttribute<Boolean> IS_INPUT = new DBObjectAttribute<>("IS_INPUT", Boolean.class);
-    public static final DBObjectAttribute<Boolean> IS_OUTPUT = new DBObjectAttribute<>("IS_OUTPUT", Boolean.class);
-    public static final DBObjectAttribute<Boolean> IS_NOT_NULL = new DBObjectAttribute<>("IS_NOT_NULL", Boolean.class);
-    public static final DBObjectAttribute<Boolean> IS_PRIMARY_KEY = new DBObjectAttribute<>("IS_PRIMARY_KEY", Boolean.class);
-
-    public static final DBObjectAttribute<String> CONSTRAINT_TYPE = new DBObjectAttribute<>("CONSTRAINT_TYPE", String.class);
-    public static final DBObjectAttribute<String[]> CONSTRAINT_COLUMNS = new DBObjectAttribute<>("CONSTRAINT_COLUMNS", String[].class);
-
-    public static final DBObjectAttribute<DBCredentialType> CREDENTIAL_TYPE = new DBObjectAttribute<>("CREDENTIAL_TYPE", DBCredentialType.class);
-    public static final DBObjectAttribute<String> USER_NAME = new DBObjectAttribute<>("USER_NAME", String.class);
-    public static final DBObjectAttribute<String> USER_OCID = new DBObjectAttribute<>("USER_OCID", String.class);
-    public static final DBObjectAttribute<String> TENANCY_OCID = new DBObjectAttribute<>("TENANCY_OCID", String.class);
-    public static final DBObjectAttribute<String> PRIVATE_KEY = new DBObjectAttribute<>("PRIVATE_KEY", String.class);
-    public static final DBObjectAttribute<String> FINGERPRINT = new DBObjectAttribute<>("FINGERPRINT", String.class);
-    public static final DBObjectAttribute<char[]> PASSWORD = new DBObjectAttribute<>("PASSWORD", char[].class);
-    public static final DBObjectAttribute<char[]> ACCESS_TOKEN = new DBObjectAttribute<>("ACCESS_TOKEN", char[].class);
-
-    private final Class<T> type;
-
-    public static <T> DBObjectAttribute<T> get(String id) {
-        return PseudoConstant.get(DBObjectAttribute.class, id);
-    }
-
-    private DBObjectAttribute(@NonNls String id) {
-        super(id);
-        this.type = cast(Object.class);
-    }
-
-    private DBObjectAttribute(@NonNls String id, Class<T> type) {
-        super(id);
-        this.type = type;
-    }
+@Setter
+public class DBObjectAttribute<T> {
+    private T value;
+    private boolean readonly;
 }

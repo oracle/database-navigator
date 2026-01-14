@@ -32,7 +32,8 @@ public class DBAIModelSpec extends DBObjectSpec {
   private DBObjectRef<DBCredential> credential;
 
   public DBAIModelSpec(DBSchema schema) {
-       super(schema, DBObjectType.AI_MODEL);
+       super(schema);
+       setObjectType(DBObjectType.AI_MODEL);
   }
 
   public String getCredentialName() {

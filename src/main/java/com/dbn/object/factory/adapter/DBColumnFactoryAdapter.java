@@ -20,7 +20,7 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.util.Strings;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.ObjectFactoryAdapter;
-import com.dbn.object.factory.model.DBObjectAttribute;
+import com.dbn.object.factory.model.DBObjectAttributeType;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.DBColumnFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
@@ -57,7 +57,7 @@ public class DBColumnFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec
             errors.add("invalid column name specified at index " + inputIndex + ": \"" + objectName + "\"");
         }
 
-        String dataType = columnSpec.getAttribute(DBObjectAttribute.DATA_TYPE);
+        String dataType = columnSpec.getAttributeValue(DBObjectAttributeType.DATA_TYPE);
         if (Strings.isEmptyOrSpaces(dataType)){
             if (!objectName.isEmpty()) {
                 errors.add("missing data type for column \"" + objectName + "\"");

@@ -28,7 +28,8 @@ public class DBMethodSpec extends DBObjectSpec {
     private DBArgumentSpec returnArgument;
 
     public DBMethodSpec(DBSchema schema, DBObjectType methodType) {
-        super(schema, methodType);
+        super(schema);
+        setObjectType(methodType);
         if (methodType == DBObjectType.FUNCTION) {
             returnArgument = new DBArgumentSpec(this);
             returnArgument.setObjectName("return");

@@ -29,7 +29,7 @@ public class DBArgumentSpec extends DBObjectSpec {
     private boolean output;
 
     public DBArgumentSpec(DBObjectSpec parent) {
-        super(DBObjectType.ARGUMENT);
+        setObjectType(DBObjectType.ARGUMENT);
         setParent(parent);
     }
 }

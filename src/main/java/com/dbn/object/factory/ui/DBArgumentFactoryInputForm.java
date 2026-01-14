@@ -80,7 +80,7 @@ public class DBArgumentFactoryInputForm extends DBObjectFactoryInputForm<DBArgum
     @Override
     protected void initFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
-        fieldAdapter.initFieldsAvailability(() -> !isReadonly(), array(
+        fieldAdapter.initFieldsAvailability(() -> !isReadonlyInput(), array(
                 nameTextField,
                 dataTypeEditor,
                 inCheckBox,

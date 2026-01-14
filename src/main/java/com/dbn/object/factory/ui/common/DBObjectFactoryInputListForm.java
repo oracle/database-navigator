@@ -54,12 +54,12 @@ public abstract class DBObjectFactoryInputListForm<T extends DBObjectSpec> exten
         super(parent);
         verticalBoxLayout(listPanel);
 
-        if (!isReadonly()) {
+        if (!isReadonlyList()) {
             actionPanel.add(new DetailSelector());
         }
     }
 
-    private boolean isReadonly() {
+    public boolean isReadonlyList() {
         return getChildInputs().isReadonly();
     }
 
