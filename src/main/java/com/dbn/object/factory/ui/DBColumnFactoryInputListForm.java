@@ -51,10 +51,7 @@ public class DBColumnFactoryInputListForm extends DBObjectFactoryInputListForm {
     @Override
     protected DBObjectSpec createChildInput(Presentable detail) {
         DBObjectSpec tableSpec = getTableInput();
-
-        DBObjectSpec columnSpec = new DBObjectSpec();
-        columnSpec.setObjectType(COLUMN);
-        columnSpec.setParent(tableSpec);
+        DBObjectSpec columnSpec = new DBObjectSpec(tableSpec, COLUMN);
 
         String dataType = detail == null ? null : detail.getName();
         columnSpec.setAttributeValue(DATA_TYPE, dataType);

@@ -36,19 +36,29 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_TYPE;
 @Getter
 @Setter
 public class DBObjectSpec extends DBObjectSpecBase{
-    private int index;
     private boolean readonly;
 
     private final Map<DBObjectType, DBObjectSpecList<DBObjectSpec>> children = new EnumMap<>(DBObjectType.class);
     private final Map<DBObjectAttributeType, DBObjectAttribute> attributes = new HashMap<>();
 
-    public DBObjectSpec() {
+    public DBObjectSpec(DBObjectSpec parent) {
+        super(parent);
+    }
 
+    public DBObjectSpec(DBObjectSpec parent, DBObjectType objectType) {
+        this(parent);
+        setObjectType(objectType);
     }
 
     public DBObjectSpec(DBSchema schema) {
+        super(null);
         setConnectionId(schema.getConnectionId());
         setSchemaId(schema.getSchemaId());
+    }
+
+    public DBObjectSpec(DBSchema schema, DBObjectType objectType) {
+        this(schema);
+        setObjectType(objectType);
     }
 
     @Nullable
@@ -65,7 +75,6 @@ public class DBObjectSpec extends DBObjectSpecBase{
     public void addChild(DBObjectSpec child) {
         DBObjectType objectType = child.getObjectType();
         List<DBObjectSpec> children = getChildren(objectType);
-        child.setParent(this);
         children.add(child);
     }
 
@@ -75,6 +84,14 @@ public class DBObjectSpec extends DBObjectSpecBase{
 
     public DBObjectSpecList<DBObjectSpec> getChildren(DBObjectType type) {
         return this.children.computeIfAbsent(type, t -> new DBObjectSpecList<>(this));
+    }
+
+    public int getIndex() {
+        DBObjectSpec parent = getParent();
+        if (parent == null) return 0;
+
+        DBObjectSpecList<DBObjectSpec> children = parent.getChildren(getObjectType());
+        return children.indexOf(this);
     }
 
     public String getObjectPath() {
@@ -128,7 +145,7 @@ public class DBObjectSpec extends DBObjectSpecBase{
     }
 
     public <T> DBObjectAttribute<T> setAttributeValue(DBObjectAttributeType<T> type, T value) {
-        DBObjectAttribute<T> attribute = cast(attributes.computeIfAbsent(type, t -> new DBObjectAttribute<>()));
+        DBObjectAttribute<T> attribute = cast(attributes.computeIfAbsent(type, t -> new DBObjectAttribute<>(this)));
         attribute.setValue(value);
         return attribute;
     }

@@ -35,8 +35,7 @@ public class DBJavaClassSpec extends DBObjectSpec {
     private String extendsSuffix = " ";
 
     public DBJavaClassSpec(DBSchema schema) {
-        super(schema);
-        setObjectType(DBObjectType.JAVA_CLASS);
+        super(schema, DBObjectType.JAVA_CLASS);
     }
 
     public void setClassType(DBJavaClassType classType) {

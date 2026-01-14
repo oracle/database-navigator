@@ -46,6 +46,8 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     public static final DBObjectAttributeType<String> CONSTRAINT_TYPE = new DBObjectAttributeType<>("CONSTRAINT_TYPE", String.class);
     public static final DBObjectAttributeType<String[]> CONSTRAINT_COLUMNS = new DBObjectAttributeType<>("CONSTRAINT_COLUMNS", String[].class);
 
+    public static final DBObjectAttributeType<String> INDEX_SPEC = new DBObjectAttributeType<>("INDEX_SPEC", String.class);
+
     public static final DBObjectAttributeType<DBCredentialType> CREDENTIAL_TYPE = new DBObjectAttributeType<>("CREDENTIAL_TYPE", DBCredentialType.class);
     public static final DBObjectAttributeType<String> USER_NAME = new DBObjectAttributeType<>("USER_NAME", String.class);
     public static final DBObjectAttributeType<String> USER_OCID = new DBObjectAttributeType<>("USER_OCID", String.class);

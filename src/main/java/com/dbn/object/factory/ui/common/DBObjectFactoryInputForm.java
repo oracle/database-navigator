@@ -49,10 +49,6 @@ public abstract class DBObjectFactoryInputForm<T extends DBObjectSpec> extends D
         return input.getIndex();
     }
 
-    public void setIndex(int index) {
-        input.setIndex(index);
-    }
-
     public DBObjectType getObjectType() {
         return input.getObjectType();
     }

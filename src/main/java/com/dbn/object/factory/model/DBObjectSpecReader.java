@@ -23,6 +23,8 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -42,36 +44,36 @@ public class DBObjectSpecReader {
     }
 
     public static DBObjectSpec read(Element element) {
-        return readDefinition(element);
+        return readDefinition(element, null);
     }
 
-    private static DBObjectSpec readDefinition(Element element) {
+    private static DBObjectSpec readDefinition(@NotNull Element element, @Nullable DBObjectSpec parent) {
         boolean readonly = booleanAttribute(element, "readonly", false);
 
-        DBObjectSpec definition = new DBObjectSpec();
+        DBObjectSpec definition = new DBObjectSpec(parent);
         definition.setReadonly(readonly);
 
         readAttributes(element, definition);
-        radChildren(element, definition);
+        readChildren(element, definition);
         return definition;
     }
 
-    private static void radChildren(Element element, DBObjectSpec definition) {
+    private static void readChildren(Element element, DBObjectSpec objectSpec) {
         Element childrenElement = element.getChild("children");
         boolean readonly = booleanAttribute(childrenElement, "readonly", false);
 
         Set<DBObjectType> objectTypes = new HashSet<>();
         List<Element> childElements = childrenOf(childrenElement);
         for (Element childElement : childElements) {
-            DBObjectSpec childDefinition = readDefinition(childElement);
-            definition.addChild(childDefinition);
+            DBObjectSpec childSpec = readDefinition(childElement, objectSpec);
+            objectSpec.addChild(childSpec);
 
-            DBObjectType objectType = childDefinition.getObjectType();
+            DBObjectType objectType = childSpec.getObjectType();
             objectTypes.add(objectType);
         }
 
         // TODO child groups in xml definitions (allow individual "readonly" setting)
-        objectTypes.forEach(ot -> definition.setChildrenReadonly(ot, readonly));
+        objectTypes.forEach(ot -> objectSpec.setChildrenReadonly(ot, readonly));
     }
 
     private static void readAttributes(Element element, DBObjectSpec definition) {
@@ -82,15 +84,18 @@ public class DBObjectSpecReader {
     }
 
     private static void readAttribute(Element element, DBObjectSpec definition) {
+        var readonly = booleanAttribute(element, "readonly", false);
+
+        var attributeId = stringAttribute(element, "id");
         var attributeName = stringAttribute(element, "name");
         var attributeValue = stringAttribute(element, "value");
         var attributeType = DBObjectAttributeType.get(attributeName);
         var attributeClass = attributeType.getType();
 
         Object value = Data.asType(attributeValue, attributeClass);
-        var attribute = definition.setAttributeValue(attributeType, value);
+        DBObjectAttribute attribute = definition.setAttributeValue(attributeType, value);
 
-        boolean readonly = booleanAttribute(element, "readonly", false);
         attribute.setReadonly(readonly);
+        attribute.setId(attributeId);
     }
 }

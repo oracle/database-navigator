@@ -22,6 +22,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DBObjectAttribute<T> {
+    private final DBObjectSpec parent;
+    private String id;
     private T value;
     private boolean readonly;
+
+
+    public DBObjectAttribute(DBObjectSpec parent) {
+        this.parent = parent;
+    }
 }

@@ -130,7 +130,6 @@ public abstract class DBObjectFactoryInputListForm<T extends DBObjectSpec> exten
     private void createChildInputPanel(Presentable detail) {
         T input = createChildInput(detail);
         DBObjectSpecList<T> inputs = getChildInputs();
-        input.setIndex(inputs.size());
         inputs.add(input);
         createChildInputPanel(input);
     }
@@ -162,11 +161,6 @@ public abstract class DBObjectFactoryInputListForm<T extends DBObjectSpec> exten
         DBObjectSpec input = child.getObjectDetailsPanel().getInput();
         DBObjectSpecList<T> childInputs = getChildInputs();
         childInputs.remove(input);
-
-        // rebuild indexes
-        for (int i=0; i< inputForms.size(); i++) {
-            inputForms.get(i).setIndex(i);
-        }
 
         UserInterface.repaint(mainPanel);
         validateInput();  // clear validation errors produced by this form

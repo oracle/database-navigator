@@ -51,8 +51,7 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObject
     }
 
     public DBObjectSpec createInput(DBSchema schema) {
-        DBObjectSpec credentialSpec = new DBObjectSpec(schema);
-        credentialSpec.setObjectType(CREDENTIAL);
+        DBObjectSpec credentialSpec = new DBObjectSpec(schema, CREDENTIAL);
         credentialSpec.setAttributeValue(CREDENTIAL_TYPE, DBCredentialType.PASSWORD);
         return credentialSpec;
     }

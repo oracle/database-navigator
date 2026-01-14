@@ -41,11 +41,13 @@ public class DBObjectFactoryInputListItemForm extends DBNFormBase {
     }
 
     private void initActionPanel() {
+        if (inputForm.isReadonlyInput()) return;
+
         DBObjectFactoryInputListForm<?> listForm = ensureParentComponent();
-        if (!inputForm.isReadonlyInput() && !listForm.isReadonlyList()) {
-            ActionToolbar actionToolbar = Actions.createActionToolbar(removeActionPanel, true, new RemoveObjectAction());
-            removeActionPanel.add(actionToolbar.getComponent());
-        }
+        if (listForm.isReadonlyList()) return;
+
+        ActionToolbar actionToolbar = Actions.createActionToolbar(removeActionPanel, true, new RemoveObjectAction());
+        removeActionPanel.add(actionToolbar.getComponent());
     }
 
     @NotNull
