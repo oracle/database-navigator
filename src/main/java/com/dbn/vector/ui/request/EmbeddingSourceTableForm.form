@@ -37,7 +37,7 @@
         </constraints>
         <properties>
           <labelFor value="b9b37"/>
-          <text value="&amp;ID column"/>
+          <text value="&amp;Key column"/>
         </properties>
       </component>
       <component id="83ee8" class="javax.swing.JLabel" binding="dataColumnLabel">
