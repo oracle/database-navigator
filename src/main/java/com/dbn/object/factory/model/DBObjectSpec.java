@@ -28,6 +28,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_NAME;
@@ -70,6 +71,11 @@ public class DBObjectSpec extends DBObjectSpecBase{
     public boolean getBooleanAttributeValue(DBObjectAttributeType<Boolean> type) {
         Boolean value = getAttributeValue(type);
         return value != null && value;
+    }
+
+    public DBObjectSpec getRootObject() {
+        if (getParent() == null) return this;
+        return getParent().getRootObject();
     }
 
     public void addChild(DBObjectSpec child) {
@@ -139,6 +145,25 @@ public class DBObjectSpec extends DBObjectSpecBase{
         return cast(attributes.get(type));
     }
 
+    @Nullable
+    public <T> DBObjectAttribute<T> findAttribute(String attributeId) {
+        for (DBObjectAttribute attribute : attributes.values()) {
+            if (Objects.equals(attribute.getId(), attributeId)) {
+                return cast(attribute);
+            }
+        }
+
+        for (DBObjectType objectType : children.keySet()) {
+            DBObjectSpecList<DBObjectSpec> objectSpecs = children.get(objectType);
+            for (DBObjectSpec objectSpec : objectSpecs) {
+                DBObjectAttribute<Object> attribute = objectSpec.findAttribute(attributeId);
+                if (attribute != null) return cast(attribute);
+            }
+        }
+
+        return null;
+    }
+
     public <T> T getAttributeValue(DBObjectAttributeType<T> type) {
         DBObjectAttribute<T> attribute = getAttribute(type);
         return attribute == null ? null : attribute.getValue();
@@ -148,6 +173,11 @@ public class DBObjectSpec extends DBObjectSpecBase{
         DBObjectAttribute<T> attribute = cast(attributes.computeIfAbsent(type, t -> new DBObjectAttribute<>(this)));
         attribute.setValue(value);
         return attribute;
+    }
+
+    public <T> T getAttributeValue(String attributeId) {
+        DBObjectAttribute<T> attribute = findAttribute(attributeId);
+        return attribute == null ? null : attribute.getValue();
     }
 
 }

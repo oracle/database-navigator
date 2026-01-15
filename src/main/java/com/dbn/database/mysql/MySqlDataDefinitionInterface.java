@@ -188,23 +188,23 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(@NotNull DBObjectSpec method, DBNConnection connection) throws SQLException {
-        Project project = method.getSchema().getProject();
+    public void createMethod(@NotNull DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
+        Project project = methodSpec.getSchema().getProject();
         CodeStyleCaseSettings caseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
         CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();
         CodeStyleCaseOption dco = caseSettings.getDatatypeCaseOption();
-        boolean function = method.getObjectType() == DBObjectType.FUNCTION;
+        boolean function = methodSpec.getObjectType() == DBObjectType.FUNCTION;
 
         StringBuilder buffer = new StringBuilder();
         String methodType = function ? "function " : "procedure ";
         buffer.append(kco.format(methodType));
-        buffer.append(oco.format(method.getObjectName()));
+        buffer.append(oco.format(methodSpec.getObjectName()));
         buffer.append("(");
 
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        DBObjectSpecList<DBObjectSpec> arguments = method.getChildren(ARGUMENT);
+        DBObjectSpecList<DBObjectSpec> arguments = methodSpec.getChildren(ARGUMENT);
         for (DBObjectSpec argument : arguments) {
             boolean in = IS_INPUT.is(argument);
             boolean out = IS_OUTPUT.is(argument);
@@ -239,7 +239,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
 
         buffer.append(")\n");
         if (function) {
-            DBObjectSpec returnArgument = RETURN_ARGUMENT.of(method);
+            DBObjectSpec returnArgument = RETURN_ARGUMENT.of(methodSpec);
 
             buffer.append(kco.format("returns "));
             buffer.append(dco.format(DATA_TYPE.of(returnArgument)));
@@ -259,10 +259,5 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
         } finally {
             setSessionSqlMode(sqlMode, connection);
         }
-    }
-
-    @Override
-    public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
     }
 }

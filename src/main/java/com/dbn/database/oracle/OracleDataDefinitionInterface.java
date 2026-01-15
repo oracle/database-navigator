@@ -53,6 +53,8 @@ import static com.dbn.database.DatabaseObjectTypeId.VIEW;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CONSTRAINT_COLUMNS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CONSTRAINT_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.INDEX_COLUMNS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.INDEX_DEFINITION;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_NOT_NULL;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
@@ -205,24 +207,24 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(@NotNull DBObjectSpec method, DBNConnection connection) throws SQLException {
+    public void createMethod(@NotNull DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
         // TODO SQL-Injection
-        Project project = method.getSchema().getProject();
+        Project project = methodSpec.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();
         CodeStyleCaseOption oco = styleCaseSettings.getObjectCaseOption();
         CodeStyleCaseOption dco = styleCaseSettings.getDatatypeCaseOption();
-        boolean function = method.getObjectType() == DBObjectType.FUNCTION;
+        boolean function = methodSpec.getObjectType() == DBObjectType.FUNCTION;
 
         StringBuilder buffer = new StringBuilder();
         String methodType = function ? "function " : "procedure ";
         buffer.append(kco.format(methodType));
-        buffer.append(oco.format(method.getObjectName()));
+        buffer.append(oco.format(methodSpec.getObjectName()));
         buffer.append("(");
         
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        DBObjectSpecList<DBObjectSpec> arguments = method.getChildren(ARGUMENT);
+        DBObjectSpecList<DBObjectSpec> arguments = methodSpec.getChildren(ARGUMENT);
         for (DBObjectSpec argument : arguments) {
             boolean in = IS_INPUT.is(argument);
             boolean out = IS_OUTPUT.is(argument);
@@ -251,7 +253,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
         buffer.append(")\n");
         if (function) {
-            DBObjectSpec returnArgument = RETURN_ARGUMENT.of(method);
+            DBObjectSpec returnArgument = RETURN_ARGUMENT.of(methodSpec);
             buffer.append(kco.format("return "));
             buffer.append(dco.format(DATA_TYPE.of(returnArgument)));
             buffer.append("\n");
@@ -287,18 +289,55 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         }
 
         for (DBObjectSpec constraintSpec : tableSpec.getChildren(DBObjectType.CONSTRAINT)) {
+            String constraintType = CONSTRAINT_TYPE.of(constraintSpec);
+            String[] constraintColumns = CONSTRAINT_COLUMNS.of(constraintSpec);
+
             builder.append(",\n");
             builder.append("    ");
-            builder.append(CONSTRAINT_TYPE.of(constraintSpec));
+            builder.append(constraintType);
             builder.append(" ");
             builder.append(nvl(constraintSpec.getObjectName(), ""));
             builder.append("(");
-            builder.append(toCsv(Arrays.asList(CONSTRAINT_COLUMNS.of(constraintSpec)), s -> s));
+            builder.append(toCsv(Arrays.asList(constraintColumns), s -> s));
             builder.append(")");
         }
 
         builder.append(")\n");
         builder.append(nvl(OBJECT_DETAIL.of(tableSpec), ""));
+
+        createObject(builder.toString(), connection);
+    }
+
+    @Override
+    public void createIndex(DBObjectSpec indexSpec, DBNConnection connection) throws SQLException {
+        DBObjectSpec tableSpec = indexSpec.getParent();
+        String schemaName = tableSpec.getSchemaName(true);
+        String indexName = indexSpec.getObjectName(true);
+        String tableName = tableSpec.getObjectName(true);
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("index ");
+
+        builder.append(schemaName);
+        builder.append(".");
+        builder.append(indexName);
+        builder.append("\n");
+
+        builder.append("on ");
+        builder.append(schemaName);
+        builder.append(".");
+        builder.append(tableName);
+        builder.append("\n(");
+
+        String indexDefinition = INDEX_DEFINITION.of(indexSpec);
+        String[] indexColumns = INDEX_COLUMNS.of(indexSpec);
+        if (Strings.isNotEmpty(indexDefinition)) {
+            builder.append(indexDefinition);
+        } else if (indexColumns != null) {
+            builder.append(toCsv(Arrays.asList(indexColumns), s -> s));
+        }
+
+        builder.append(")\n");
 
         createObject(builder.toString(), connection);
     }

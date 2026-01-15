@@ -27,6 +27,7 @@ import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.ObjectFactoryAdapters;
 import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.factory.model.DBObjectSpecList;
 import com.dbn.object.factory.ui.DBTableFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 
@@ -101,6 +102,10 @@ public class DBTableFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec,
                 conn -> {
                     DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
                     dataDefinition.createTable(tableSpec, conn);
+                    DBObjectSpecList<DBObjectSpec> indexSpecs = tableSpec.getChildren(DBObjectType.INDEX);
+                    for (DBObjectSpec indexSpec : indexSpecs) {
+                        dataDefinition.createIndex(indexSpec, conn);
+                    }
                 });
 
         ObjectChangeEvent.notify(CREATE, TABLE, connectionId, schemaId);

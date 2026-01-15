@@ -16,12 +16,19 @@
 
 package com.dbn.object.factory.model;
 
+import com.dbn.common.data.Data;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
 public class DBObjectAttribute<T> {
+    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([^}]+)\\}");
     private final DBObjectSpec parent;
     private String id;
     private T value;
@@ -30,5 +37,30 @@ public class DBObjectAttribute<T> {
 
     public DBObjectAttribute(DBObjectSpec parent) {
         this.parent = parent;
+    }
+
+    public T getValue() {
+        if (value == null) return null;
+        if (!(value instanceof String string)) return value;
+        if (!string.contains("${")) return value;
+
+        DBObjectSpec rootObject = getParent().getRootObject();
+
+        Matcher matcher = PLACEHOLDER_PATTERN.matcher(string);
+        StringBuilder sb = new StringBuilder();
+
+        while (matcher.find()) {
+            String attributeId = matcher.group(1);
+            String attributeValue = findAttributeValue(rootObject, attributeId);
+            matcher.appendReplacement(sb, Matcher.quoteReplacement(attributeValue));
+        }
+        matcher.appendTail(sb);
+        return cast(sb.toString());
+
+    }
+
+    private String findAttributeValue(DBObjectSpec spec, String attributeId) {
+        Object value = spec.getAttributeValue(attributeId);
+        return Data.asString(value);
     }
 }

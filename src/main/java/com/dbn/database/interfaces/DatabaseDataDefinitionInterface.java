@@ -41,9 +41,11 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
      *********************************************************/
     void createView(String viewName, String code, DBNConnection connection) throws SQLException;
 
-    void createMethod(DBObjectSpec spec, DBNConnection connection) throws SQLException;
+    void createMethod(DBObjectSpec methodSpec, DBNConnection connection) throws SQLException;
 
     void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException;
+
+    void createIndex(DBObjectSpec indexSpec, DBNConnection connection) throws SQLException;
 
     void createObject(String code, DBNConnection connection) throws SQLException;
 

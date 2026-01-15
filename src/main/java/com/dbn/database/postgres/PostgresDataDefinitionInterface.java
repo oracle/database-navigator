@@ -98,24 +98,24 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(@NotNull DBObjectSpec method, DBNConnection connection) throws SQLException {
+    public void createMethod(@NotNull DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
         // TODO SQL-Injection
-        Project project = method.getSchema().getProject();
+        Project project = methodSpec.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption keywordCaseOption = styleCaseSettings.getKeywordCaseOption();
         CodeStyleCaseOption objectCaseOption = styleCaseSettings.getObjectCaseOption();
         CodeStyleCaseOption dataTypeCaseOption = styleCaseSettings.getDatatypeCaseOption();
-        boolean function = method.getObjectType() == DBObjectType.FUNCTION;
+        boolean function = methodSpec.getObjectType() == DBObjectType.FUNCTION;
 
         StringBuilder buffer = new StringBuilder();
         String methodType = function ? "function " : "procedure ";
         buffer.append(keywordCaseOption.format(methodType));
-        buffer.append(objectCaseOption.format(method.getObjectName()));
+        buffer.append(objectCaseOption.format(methodSpec.getObjectName()));
         buffer.append("(");
 
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        DBObjectSpecList<DBObjectSpec> arguments = method.getChildren(ARGUMENT);
+        DBObjectSpecList<DBObjectSpec> arguments = methodSpec.getChildren(ARGUMENT);
         for (DBObjectSpec argument : arguments) {
             boolean in = IS_INPUT.is(argument);
             boolean out = IS_OUTPUT.is(argument);
@@ -150,7 +150,7 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
 
         buffer.append(")\n");
         if (function) {
-            DBObjectSpec returnArgument = RETURN_ARGUMENT.of(method);
+            DBObjectSpec returnArgument = RETURN_ARGUMENT.of(methodSpec);
             buffer.append(keywordCaseOption.format("returns "));
             buffer.append(dataTypeCaseOption.format(DATA_TYPE.of(returnArgument)));
             buffer.append("\n");
@@ -168,10 +168,5 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         } finally {
             setSessionSqlMode(sqlMode, connection);
         }
-    }
-
-    @Override
-    public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
     }
 }
