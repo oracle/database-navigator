@@ -67,10 +67,6 @@ public class StepResult {
     return errorCode == null;
   }
 
-  public boolean isCritical() {
-    return step.isCritical();
-  }
-
   public long getDuration() {
     return endTime - startTime;
   }

@@ -36,12 +36,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
         // ensure documents table exists (shared step for all files)
         StepResult step = result.getstep(PipelineStep.ENSURE_DOCUMENT_TABLE);
-        ensureDocumentsTableStep(connection, request, vectorInterface, step);
-//        result.addSharedStep(step);
-
-        if (step.getStatus() == StepResult.STEP_STATUS.FAILED && step.isCritical()) {
-            return;
-        }
+        ensureDocumentsTableStep(request, step);
 
         // Process each file individually
         EmbeddingSourceFiles fileConfig = request.getSourceConfig().getSourceFiles();

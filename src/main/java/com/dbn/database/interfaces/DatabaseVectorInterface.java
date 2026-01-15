@@ -19,7 +19,6 @@ package com.dbn.database.interfaces;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.vector.model.request.EmbeddingDestinationConfig;
 import com.dbn.vector.model.request.EmbeddingSourceTable;
-import com.dbn.vector.model.request.EmbeddingSourceTables;
 import com.dbn.vector.model.request.EmbeddingStagingConfig;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,12 +37,6 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
 
   ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException;
 
-  void createEmbeddingTable(DBNConnection connection, String ownerName, String tableName, String keyColumnName, String textColumnName, String embeddingColumnName, String metadataColumnName) throws SQLException;
-
-  void createEmbeddingSourceIndex(DBNConnection connection, String schemaName, String tableName, String metadataColumnName) throws SQLException;
-
-  int embedDataContent(DBNConnection connection, EmbeddingSourceTables sourceConfig, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata) throws SQLException;
-
   int embedDataContent(DBNConnection connection, EmbeddingSourceTable sourceConfig, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException;
 
   int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, EmbeddingStagingConfig stagingConfig, EmbeddingDestinationConfig destinationConfig, String fileStoreId, String metadata) throws SQLException;
@@ -52,10 +45,7 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
 
   ResultSet loadFileStoreMetadata(DBNConnection conn, String ownerName, String tableName, String fileHash, long fileSize) throws SQLException;
 
-//  ResultSet loadFileStoreMetadata(DBNConnection conn, String filesTable, String crc, long filesize) throws SQLException;
-
   void uploadFileStoreContent(@NotNull DBNConnection connection, String ownerName, String tableName, @NotNull String fileStoreId, InputStream inputStream) throws SQLException;
-//  boolean checkEmbeddingsExistForDocument(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String documentId) throws SQLException;
 
   boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String sourceId) throws SQLException;
 }

@@ -126,27 +126,6 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="create-embedding-table" timeout="120" >
-        <statement>
-            begin
-                execute immediate '
-                    create table {0}.{1} (
-                        {2} varchar(4000) primary key,
-                        {3} clob,
-                        {4} vector(*, float32) not null,
-                        {5} json)
-                ';
-
-                -- Create index for efficient deduplication lookups
-                execute immediate '
-                    create index {0}.{1}_SOURCE_IDX on {0}.{1} (
-                        json_value({5}, ''$.embedding_source.source_id'')
-                    )
-                ';
-            end;
-        </statement>
-    </statement-execution-processor>
-
     <statement-execution-processor id="create-file-store-entry">
         <statement>
             insert into {0}.{1}(

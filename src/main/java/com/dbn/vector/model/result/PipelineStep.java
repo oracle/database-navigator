@@ -18,33 +18,32 @@ package com.dbn.vector.model.result;
 
 import lombok.Getter;
 
+@Getter
 public enum PipelineStep {
-  ENSURE_DESTINATION(true,
+  @Deprecated // TODO cleanup (no longer a pipeline step)
+  ENSURE_DESTINATION(
           "Prepare Vector Table",
           "Create or verify the destination vector table used to store chunk embeddings."),
-  ENSURE_DOCUMENT_TABLE(true,
+
+  @Deprecated // TODO cleanup (no longer a pipeline step)
+  ENSURE_DOCUMENT_TABLE(
           "Prepare Document Store",
           "Create or verify the document table used to persist original files (LOBs) and metadata."),
-  CHECK_CRC(false,
+  CHECK_CRC(
           "Check for Duplicated File",
           "Compute and look up the file checksum to detect previously uploaded files. If a match is found, " +
                   "the file is skipped to prevent duplicates."),
-  UPLOADING_FILE(false,
+  UPLOADING_FILE(
           "Upload to Database",
           "Stream the file content into the document store and record file metadata."),
-  EMBED(false,
+  EMBED(
           "Chunk & Embed Content",
           "Extract text, split into chunks according to the configured chunker, request embeddings from the "+
                   "chosen model/provider, and insert vector rows into the destination table.");
-  @Getter
   private final String displayName;
-  @Getter
   private final String description;
-  @Getter
-  private final boolean critical;
 
-  PipelineStep(boolean critical, String displayName, String description) {
-    this.critical = critical;
+  PipelineStep(String displayName, String description) {
     this.displayName = displayName;
     this.description = description;
   }
