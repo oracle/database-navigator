@@ -22,7 +22,7 @@ import lombok.Getter;
 @Getter
 public enum EmbeddingSourceType implements Presentable {
     FILE_SYSTEM("File system"),
-    DATABASE_TABLE("Database table");
+    DATABASE_TABLE("Database tables");
 
     private final String name;
 

@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JList;
 
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 
@@ -32,7 +33,7 @@ public class EmbeddingSourceTablesListRenderer extends ColoredListCellRenderer<E
     @Override
     protected void customize(@NotNull JList<? extends EmbeddingSourceTable> list, EmbeddingSourceTable value, int index, boolean selected, boolean hasFocus) {
         if (value == null) {
-            append("(null)", SimpleTextAttributes.ERROR_ATTRIBUTES);
+            append("(null)", ERROR_ATTRIBUTES);
             return;
         }
 
@@ -42,14 +43,16 @@ public class EmbeddingSourceTablesListRenderer extends ColoredListCellRenderer<E
         String dataColumn = value.getDataColumnName();
 
         // Schema.Table
+        boolean listEnabled = list.isEnabled();
+        SimpleTextAttributes regularAttributes = listEnabled ? REGULAR_ATTRIBUTES : GRAYED_ATTRIBUTES;
         if (isNotEmpty(schemaName)) {
-            append(schemaName + ".", REGULAR_ATTRIBUTES);
+            append(schemaName + ".", regularAttributes);
         }
 
         if (isNotEmpty(tableName)) {
-            append(tableName, REGULAR_ATTRIBUTES);
+            append(tableName, regularAttributes);
         } else {
-            append("(no table)", SimpleTextAttributes.ERROR_ATTRIBUTES);
+            append("(no table)", ERROR_ATTRIBUTES);
         }
 
         // Column info
