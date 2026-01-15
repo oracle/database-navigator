@@ -10,14 +10,11 @@ import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.request.EmbeddingDestinationConfig;
-import com.dbn.vector.model.request.EmbeddingDestinationType;
 import com.dbn.vector.model.request.EmbeddingStagingConfig;
 import com.dbn.vector.model.result.PipelineStep;
 import com.dbn.vector.model.result.StepResult;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.jetbrains.annotations.NotNull;
-
-import java.sql.SQLException;
 
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.type.DBObjectType.TABLE;
@@ -80,7 +77,13 @@ public abstract class EmbeddingPipeline {
             @NotNull DatabaseVectorInterface vectorInterface, StepResult step) {
 
         step.start();
+        EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
+        step.setLink(destinationConfig.getSchemaName()+"."+ destinationConfig.getTableName());
+        step.setIcon(Icons.DBO_TABLE);
+        step.markSuccess();
 
+/*
+        // TODO cleanup - table is created as part of the toolbox input
         try {
             EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
             step.setLink(destinationConfig.getSchemaName()+"."+ destinationConfig.getTableName());
@@ -103,7 +106,7 @@ public abstract class EmbeddingPipeline {
 
         } catch (SQLException e) {
             step.markFailed("ENSURE_DEST_ERROR", e.getMessage());
-        }
+        }*/
 
         return step;
     }

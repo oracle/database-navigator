@@ -20,16 +20,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 
-import static com.dbn.common.options.setting.Settings.enumAttribute;
-import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Setter
 @Getter
 public class EmbeddingDestinationConfig extends EmbeddingRequestConfig {
-  private EmbeddingDestinationType destinationType = EmbeddingDestinationType.EXISTING_TABLE;
-
   private String schemaName;
   private String tableName;
   private String keyColumnName = "ID";
@@ -42,7 +38,6 @@ public class EmbeddingDestinationConfig extends EmbeddingRequestConfig {
     if (element == null) return;
 
     super.readState(element);
-    destinationType = enumAttribute(element, "destination-type", destinationType);
 
     schemaName = stringAttribute(element, "schema");
     tableName = stringAttribute(element, "table");
@@ -55,7 +50,6 @@ public class EmbeddingDestinationConfig extends EmbeddingRequestConfig {
   @Override
   public void writeState(Element element) {
     super.writeState(element);
-    setEnumAttribute(element, "destination-type", destinationType);
     setStringAttribute(element, "schema", schemaName);
     setStringAttribute(element, "table", tableName);
     setStringAttribute(element, "key-column", keyColumnName);

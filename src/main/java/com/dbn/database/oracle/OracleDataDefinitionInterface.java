@@ -32,7 +32,6 @@ import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,6 +61,9 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.IS_PRIMARY_KEY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
 import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
+import static com.dbn.object.type.DBObjectType.COLUMN;
+import static com.dbn.object.type.DBObjectType.CONSTRAINT;
+import static com.dbn.object.type.DBObjectType.FUNCTION;
 
 public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
     public OracleDataDefinitionInterface(DatabaseInterfaces provider) {
@@ -214,7 +216,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();
         CodeStyleCaseOption oco = styleCaseSettings.getObjectCaseOption();
         CodeStyleCaseOption dco = styleCaseSettings.getDatatypeCaseOption();
-        boolean function = methodSpec.getObjectType() == DBObjectType.FUNCTION;
+        boolean function = methodSpec.getObjectType() == FUNCTION;
 
         StringBuilder buffer = new StringBuilder();
         String methodType = function ? "function " : "procedure ";
@@ -274,7 +276,8 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         builder.append(" (\n");
 
         boolean first = true;
-        for (DBObjectSpec columnSpec : tableSpec.getChildren(DBObjectType.COLUMN)) {
+        DBObjectSpecList<DBObjectSpec> columnSpecs = tableSpec.getChildren(COLUMN);
+        for (DBObjectSpec columnSpec : columnSpecs) {
             if (first) {
                 first = false;
             } else {
@@ -288,7 +291,8 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             builder.append(IS_PRIMARY_KEY.is(columnSpec) ? " primary key" : "");
         }
 
-        for (DBObjectSpec constraintSpec : tableSpec.getChildren(DBObjectType.CONSTRAINT)) {
+        DBObjectSpecList<DBObjectSpec> constraintSpecs = tableSpec.getChildren(CONSTRAINT);
+        for (DBObjectSpec constraintSpec : constraintSpecs) {
             String constraintType = CONSTRAINT_TYPE.of(constraintSpec);
             String[] constraintColumns = CONSTRAINT_COLUMNS.of(constraintSpec);
 

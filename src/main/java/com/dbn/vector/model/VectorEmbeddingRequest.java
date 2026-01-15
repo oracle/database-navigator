@@ -23,7 +23,6 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.vector.model.request.EmbeddingChunkingConfig;
 import com.dbn.vector.model.request.EmbeddingDestinationConfig;
-import com.dbn.vector.model.request.EmbeddingDestinationType;
 import com.dbn.vector.model.request.EmbeddingModelConfig;
 import com.dbn.vector.model.request.EmbeddingSourceConfig;
 import com.dbn.vector.model.request.EmbeddingStagingConfig;
@@ -85,11 +84,7 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
      */
     public void resetSoft() {
         sourceConfig.getSourceFiles().getFilePaths().clear();
-
-        EmbeddingDestinationType destinationType = destinationConfig.getDestinationType();
-        if (destinationType == EmbeddingDestinationType.NEW_TABLE) {
-            destinationConfig.setDestinationType(EmbeddingDestinationType.EXISTING_TABLE);
-        }
+        sourceConfig.getSourceTables().getSourceTables().clear();
     }
 
     /**

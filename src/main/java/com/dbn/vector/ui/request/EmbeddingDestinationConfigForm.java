@@ -16,139 +16,256 @@
 
 package com.dbn.vector.ui.request;
 
+import com.dbn.common.latent.Latent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ComboBoxes;
+import com.dbn.data.type.GenericDataType;
+import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
+import com.dbn.object.common.ui.DBObjectSelector;
+import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.factory.model.DBObjectSpecReader;
 import com.dbn.vector.model.request.EmbeddingDestinationConfig;
-import com.dbn.vector.model.request.EmbeddingDestinationType;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
-import static com.dbn.common.ui.util.ComboBoxes.setSelection;
-import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.common.util.Lists.filter;
+import static com.dbn.data.type.GenericDataType.CLOB;
+import static com.dbn.data.type.GenericDataType.JSON;
+import static com.dbn.data.type.GenericDataType.LITERAL;
+import static com.dbn.data.type.GenericDataType.VECTOR;
+import static com.dbn.object.type.DBObjectType.COLUMN;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
+import static com.dbn.object.type.DBObjectType.TABLE;
 
 public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
-  private JPanel mainPanel;
-  private JPanel dataPanel;
-  private JComboBox<EmbeddingDestinationType> destinationComboBox;
-  private JLabel destinationLabel;
-  // Sub-forms (defined as inner classes below)
-  private EmbeddingDestinationNewTableForm createForm;
-  private EmbeddingDestinationTableForm existingForm;
+    private JPanel mainPanel;
+    private JLabel schemaLabel;
+    private JLabel tableLabel;
+    private JLabel keyColumnLabel;
+    private JLabel dataColumnLabel;
+    private JLabel embeddingColumnLabel;
+    private JLabel metadataColumnLabel;
+    private DBObjectSelector<DBSchema> schemaComboBox;
+    private DBObjectSelector<DBTable> tableComboBox;
+    private DBObjectSelector<DBColumn> keyColumnComboBox;
+    private DBObjectSelector<DBColumn> dataColumnComboBox;
+    private DBObjectSelector<DBColumn> embeddingColumnComboBox;
+    private DBObjectSelector<DBColumn> metadataColumnComboBox;
 
-  public EmbeddingDestinationConfigForm(@NotNull VectorToolboxFormBase parent) {
-    super(parent);
-    initDestinationPanel();
-    initComboBoxes();
-  }
+    private final Latent<DBObjectSpec> tableSpec = Latent.basic(() -> createTableFactoryInput());
 
-  private void initDestinationPanel() {
-    createForm = new EmbeddingDestinationNewTableForm(this);
-    existingForm = new EmbeddingDestinationTableForm(this);
-
-    EmbeddingDestinationType destinationType = getDestinationType();
-    JComponent initialPanel = destinationType == EmbeddingDestinationType.NEW_TABLE
-        ? createForm.getComponent()
-        : existingForm.getComponent();
-    dataPanel.add(initialPanel);
-  }
-
-  private void initComboBoxes() {
-    initComboBox(destinationComboBox, EmbeddingDestinationType.values());
-    setSelection(destinationComboBox, EmbeddingDestinationType.NEW_TABLE);
-    onSelectionChange(destinationComboBox, t -> updateDestinationPanel());
-  }
-
-  private void updateDestinationPanel() {
-    dataPanel.removeAll();
-    if (getDestinationType() == EmbeddingDestinationType.NEW_TABLE) {
-      dataPanel.add(createForm.getComponent());
-
-    } else {
-      dataPanel.add(existingForm.getComponent());
-    }
-    dataPanel.revalidate();
-    dataPanel.repaint();
-    validateFormFields();
-  }
-
-  @Override
-  protected JComponent getMainComponent() {
-    return mainPanel;
-  }
-
-  @Override
-  public void resetFormChanges() {
-    EmbeddingDestinationConfig config = getConfig();
-    setSelection(destinationComboBox, config.getDestinationType());
-    createForm.resetFormChanges();
-    existingForm.resetFormChanges();
-    updateDestinationPanel();
-  }
-
-  @Override
-  public void applyFormChanges() {
-    EmbeddingDestinationConfig config = getConfig();
-    EmbeddingDestinationType destinationType = getDestinationType();
-    config.setDestinationType(destinationType);
-    if (destinationType == EmbeddingDestinationType.NEW_TABLE) {
-      createForm.applyFormChanges();
-    } else if (destinationType == EmbeddingDestinationType.EXISTING_TABLE) {
-      existingForm.applyFormChanges();
-    }
-  }
-
-  public EmbeddingDestinationConfig getConfig() {
-    return getEmbeddingRequest().getDestinationConfig();
-  }
-
-  public EmbeddingDestinationType getDestinationType() {
-    return ComboBoxes.getSelection(destinationComboBox);
-  }
-
-  @Override
-  public String getFormTitle() {
-    return "Embedding Destination";
-  }
-
-  @Override
-  public String getFormTitleDetail() {
-    EmbeddingDestinationType destinationType = getDestinationType();
-    String destinationTypeName = destinationType == null ? null : destinationType.getName();
-    if (destinationType == EmbeddingDestinationType.NEW_TABLE) {
-      DBSchema schema = createForm.getSelectedSchema();
-      String tableName = createForm.getTableName();
-
-      if (schema != null && isNotEmpty(tableName)) {
-        return destinationTypeName + " - " + schema.getName() + "." + tableName;
-      }
+    public EmbeddingDestinationConfigForm(@NotNull VectorToolboxFormBase parent) {
+        super(parent);
     }
 
-    if (destinationType == EmbeddingDestinationType.EXISTING_TABLE) {
-      DBSchema schema = existingForm.getSelectedSchema();
-      DBTable table = existingForm.getSelectedTable();
+    private void initComboBoxes() {
+        EmbeddingDestinationConfig config = getConfig();
+        schemaComboBox
+                .initialize(this, SCHEMA)
+                .withConnectionContext(() -> getConnection())
+                .withValueLoader(() -> loadSchemas())
+                .withValuePreselector(() -> config.getSchemaName())
+                .triggerLoad();
 
-      if (schema != null && table != null) {
-        return destinationTypeName + " - " + schema.getName() + "." + table.getName();
-      }
+        tableComboBox
+                .initialize(this, TABLE)
+                .withConnectionContext(() -> getConnection())
+                .withSchemaContext(() -> getSelectedSchema())
+                .withValueLoader(() -> loadTables())
+                .withValuePreselector(() -> config.getTableName())
+                .withObjectFactory("New Table...")
+                .withValueFactoryInput(tableSpec)
+                .triggerLoad();
+
+        keyColumnComboBox
+                .initialize(this, COLUMN)
+                .withConnectionContext(() -> getConnection())
+                .withValueLoader(() -> loadKeyColumns())
+                .withValuePreselector(() -> config.getKeyColumnName())
+                .triggerLoad();
+
+        dataColumnComboBox
+                .initialize(this, COLUMN)
+                .withConnectionContext(() -> getConnection())
+                .withValueLoader(() -> loadDataColumns())
+                .withValuePreselector(() -> config.getTextColumnName())
+                .triggerLoad();
+
+        embeddingColumnComboBox
+                .initialize(this, COLUMN)
+                .withConnectionContext(() -> getConnection())
+                .withValueLoader(() -> loadEmbeddingColumns())
+                .withValuePreselector(() -> config.getEmbeddingColumnName())
+                .triggerLoad();
+
+        metadataColumnComboBox
+                .initialize(this, COLUMN)
+                .withConnectionContext(() -> getConnection())
+                .withValueLoader(() -> loadMetadataColumns())
+                .withValuePreselector(() -> config.getMetadataColumnName())
+                .triggerLoad();
     }
 
-    return destinationTypeName;
-  }
+    protected void initEventListeners() {
+        onSelectionChange(schemaComboBox, e -> populateTables());
+        onSelectionChange(tableComboBox, e -> populateColumns());
+    }
 
-  @Override
-  protected void initFieldAlignment() {
-    FieldAlignerData alignerData = getFieldAlignerData();
-    alignerData.registerFieldGroup(destinationLabel, destinationComboBox);
-    alignerData.registerForms(createForm, existingForm);
-  }
+    @Override
+    protected void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedSchema()), array(tableComboBox));
+        fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedTable()), array(
+                keyColumnComboBox,
+                dataColumnComboBox,
+                embeddingColumnComboBox,
+                metadataColumnComboBox));
+    }
+
+    @Override
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerFieldGroup(schemaLabel, schemaComboBox);
+        alignerData.registerFieldGroup(tableLabel, tableComboBox);
+        alignerData.registerFieldGroup(keyColumnLabel, keyColumnComboBox);
+        alignerData.registerFieldGroup(dataColumnLabel, dataColumnComboBox);
+        alignerData.registerFieldGroup(embeddingColumnLabel, embeddingColumnComboBox);
+        alignerData.registerFieldGroup(metadataColumnLabel, metadataColumnComboBox);
+    }
+
+    protected List<DBTable> loadTables() {
+        List<DBTable> tables = super.loadTables();
+        return filter(tables, t -> isDestinationTable(t));
+    }
+
+    private boolean isDestinationTable(DBTable table) {
+        List<DBColumn> columns = table.getColumns();
+        if (columns.size() < 4) return false; // no exact match expected (consider system columns)
+
+        Set<GenericDataType> columnTypes = columns.stream().map(c -> c.getDataType().getGenericDataType()).collect(Collectors.toSet());
+        Set<GenericDataType> expectedColumnTypes = Set.of(LITERAL, CLOB, VECTOR, JSON);
+        if (!columnTypes.containsAll(expectedColumnTypes)) return false;
+
+        return true;
+    }
+
+    private List<DBColumn> loadKeyColumns() {
+        return filter(getAllColumns(), c -> c.isPrimaryKey());
+    }
+
+    private List<DBColumn> loadDataColumns() {
+        return filter(getAllColumns(), c -> c.getDataType().isLiteral() && !c.isPrimaryKey() && !c.isHidden());
+    }
+
+    private List<DBColumn> loadEmbeddingColumns() {
+        return filter(getAllColumns(), c -> c.getDataType().getGenericDataType() == VECTOR);
+    }
+
+    private List<DBColumn> loadMetadataColumns() {
+        return filter(getAllColumns(), c -> c.getDataType().getGenericDataType() == JSON);
+    }
+
+    private @NotNull List<DBColumn> getAllColumns() {
+        DBTable table = ComboBoxes.getSelection(tableComboBox);
+        return table == null ?
+                Collections.emptyList() :
+                table.getColumns();
+    }
+
+
+    @Override
+    protected void initValidation() {
+        addSelectionValidation(schemaComboBox, "Please select a schema");
+        addSelectionValidation(tableComboBox, "Please select a table");
+        addSelectionValidation(dataColumnComboBox, "Please select the primary key column");
+        addSelectionValidation(embeddingColumnComboBox, "Please select a data column");
+        addSelectionValidation(metadataColumnComboBox, "Please select a metadata column");
+    }
+
+    private void populateColumns() {
+        updateFieldAvailability();
+        keyColumnComboBox.reloadValues();
+        dataColumnComboBox.reloadValues();
+        embeddingColumnComboBox.reloadValues();
+        metadataColumnComboBox.reloadValues();
+    }
+
+    private void populateTables() {
+        tableComboBox.reloadValues();
+        populateColumns();
+    }
+
+    private DBObjectSpec createTableFactoryInput() {
+        DBObjectSpec tableSpec = DBObjectSpecReader.read(getClass(), "embedding-table-definition.xml");
+        tableSpec.setConnectionId(getConnectionId());
+        tableSpec.setSchemaId(getSelectedSchemaId());
+        return tableSpec;
+    }
+
+    @Nullable
+    public DBSchema getSelectedSchema() {
+        return ComboBoxes.getSelection(schemaComboBox);
+    }
+
+    @Nullable
+    public DBTable getSelectedTable() {
+        return ComboBoxes.getSelection(tableComboBox);
+    }
+
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
+    }
+
+    @Override
+    public void resetFormChanges() {
+        initComboBoxes();
+    }
+
+    @Override
+    public void applyFormChanges() {
+        EmbeddingDestinationConfig config = getConfig();
+        config.setSchemaName(getSelectedObjectName(schemaComboBox, config.getSchemaName()));
+        config.setTableName(getSelectedObjectName(tableComboBox, config.getTableName()));
+        config.setTextColumnName(getSelectedObjectName(dataColumnComboBox, config.getTextColumnName()));
+        config.setEmbeddingColumnName(getSelectedObjectName(embeddingColumnComboBox, config.getEmbeddingColumnName()));
+        config.setMetadataColumnName(getSelectedObjectName(metadataColumnComboBox, config.getMetadataColumnName()));
+    }
+
+    public EmbeddingDestinationConfig getConfig() {
+        return getEmbeddingRequest().getDestinationConfig();
+    }
+
+    @Override
+    public String getFormTitle() {
+        return "Embedding Destination";
+    }
+
+    @Override
+    public String getFormTitleDetail() {
+        DBSchema schema = getSelectedSchema();
+        DBTable table = getSelectedTable();
+
+        if (schema != null && table != null) {
+            return schema.getName() + "." + table.getName();
+        }
+
+        return null;
+    }
 }
