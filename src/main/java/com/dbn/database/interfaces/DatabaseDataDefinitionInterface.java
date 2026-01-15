@@ -20,7 +20,6 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
-import com.dbn.object.factory.model.DBMethodSpec;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBConstraintType;
 import com.intellij.openapi.project.Project;
@@ -42,7 +41,7 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
      *********************************************************/
     void createView(String viewName, String code, DBNConnection connection) throws SQLException;
 
-    void createMethod(DBMethodSpec spec, DBNConnection connection) throws SQLException;
+    void createMethod(DBObjectSpec spec, DBNConnection connection) throws SQLException;
 
     void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException;
 

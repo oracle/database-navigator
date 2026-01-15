@@ -26,6 +26,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@Deprecated // TODO convert to generic DBObjectSpec using DBObjectAttribute
 public class DBAIModelSpec extends DBObjectSpec {
   private DBAIModelSourceType sourceType;
   private String sourceLocation;

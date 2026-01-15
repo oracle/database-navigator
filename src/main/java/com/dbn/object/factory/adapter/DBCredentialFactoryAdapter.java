@@ -16,6 +16,7 @@
 
 package com.dbn.object.factory.adapter;
 
+import com.dbn.common.data.Data;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
@@ -77,22 +78,22 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObject
                 schemaId,
                 conn -> {
                     DatabaseAssistantInterface assistantInterface = input.getConnection().getAssistantInterface();
-                    DBCredentialType credentialType = input.getAttributeValue(CREDENTIAL_TYPE);
+                    DBCredentialType credentialType = CREDENTIAL_TYPE.of(input);
 
                     if (credentialType == DBCredentialType.OCI) {
                         assistantInterface.createOciCredential(
                                 conn,
                                 input.getObjectName(true),
-                                input.getAttributeValue(USER_OCID),
-                                input.getAttributeValue(TENANCY_OCID),
-                                input.getAttributeValue(PRIVATE_KEY),
-                                input.getAttributeValue(FINGERPRINT));
+                                USER_OCID.of(input),
+                                TENANCY_OCID.of(input),
+                                PRIVATE_KEY.of(input),
+                                FINGERPRINT.of(input));
                     } else if (credentialType == DBCredentialType.PASSWORD) {
                         assistantInterface.createPwdCredential(
                                 conn,
                                 input.getObjectName(true),
-                                input.getAttributeValue(USER_NAME),
-                                input.getStringAttributeValue(PASSWORD)
+                                USER_NAME.of(input),
+                                Data.asString(PASSWORD.of(input))
                         );
                     }
                 });

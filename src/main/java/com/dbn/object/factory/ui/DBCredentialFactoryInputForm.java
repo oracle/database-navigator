@@ -148,25 +148,25 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
     public void resetFormChanges() {
         super.resetFormChanges();
 
-        DBCredentialType credentialType = input.getAttributeValue(CREDENTIAL_TYPE);
+        DBCredentialType credentialType = CREDENTIAL_TYPE.of(input);
         setSelection(credentialTypeComboBox, credentialType);
 
         if (credentialType == null) return;
 
         switch (credentialType) {
             case PASSWORD -> {
-                setText(passwordCredentialUserField, input.getAttributeValue(USER_NAME));
-                setPassword(passwordCredentialPasswordField, input.getAttributeValue(PASSWORD));
+                setText(passwordCredentialUserField, USER_NAME.of(input));
+                setPassword(passwordCredentialPasswordField, PASSWORD.of(input));
             }
             case TOKEN -> {
                 // special case of credentials created for the vector framework
-                setPassword(tokenCredentialPasswordField, input.getAttributeValue(PASSWORD));
+                setPassword(tokenCredentialPasswordField, PASSWORD.of(input));
             }
             case OCI -> {
-                setText(ociCredentialUserOcidField, input.getAttributeValue(USER_OCID));
-                setText(ociCredentialTenancyOcidField, input.getAttributeValue(TENANCY_OCID));
-                setText(ociCredentialPrivateKeyField, input.getAttributeValue(PRIVATE_KEY));
-                setText(ociCredentialFingerprintField, input.getAttributeValue(FINGERPRINT));
+                setText(ociCredentialUserOcidField, USER_OCID.of(input));
+                setText(ociCredentialTenancyOcidField, TENANCY_OCID.of(input));
+                setText(ociCredentialPrivateKeyField, PRIVATE_KEY.of(input));
+                setText(ociCredentialFingerprintField, FINGERPRINT.of(input));
             }
         }
 

@@ -30,17 +30,24 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.common.QuotePair;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.model.DBArgumentSpec;
-import com.dbn.object.factory.model.DBMethodSpec;
 import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.factory.model.DBObjectSpecList;
 import com.dbn.object.type.DBConstraintType;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.util.Lists.lastElement;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
+import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
+import static com.dbn.object.type.DBObjectType.ARGUMENT;
 
 public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
     public MySqlDataDefinitionInterface(DatabaseInterfaces provider) {
@@ -181,59 +188,68 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(DBMethodSpec method, DBNConnection connection) throws SQLException {
+    public void createMethod(@NotNull DBObjectSpec method, DBNConnection connection) throws SQLException {
         Project project = method.getSchema().getProject();
         CodeStyleCaseSettings caseSettings = PSQLCodeStyle.caseSettings(project);
-        CodeStyleCaseOption keywordCaseOption = caseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption objectCaseOption = caseSettings.getObjectCaseOption();
-        CodeStyleCaseOption dataTypeCaseOption = caseSettings.getDatatypeCaseOption();
+        CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
+        CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();
+        CodeStyleCaseOption dco = caseSettings.getDatatypeCaseOption();
+        boolean function = method.getObjectType() == DBObjectType.FUNCTION;
 
         StringBuilder buffer = new StringBuilder();
-        String methodType = method.isFunction() ? "function " : "procedure ";
-        buffer.append(keywordCaseOption.format(methodType));
-        buffer.append(objectCaseOption.format(method.getObjectName()));
+        String methodType = function ? "function " : "procedure ";
+        buffer.append(kco.format(methodType));
+        buffer.append(oco.format(method.getObjectName()));
         buffer.append("(");
 
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        for (DBArgumentSpec argument : method.getArguments()) {
+        DBObjectSpecList<DBObjectSpec> arguments = method.getChildren(ARGUMENT);
+        for (DBObjectSpec argument : arguments) {
+            boolean in = IS_INPUT.is(argument);
+            boolean out = IS_OUTPUT.is(argument);
+
             maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
-            maxArgDirectionLength = Math.max(maxArgDirectionLength,
-                    argument.isInput() && argument.isOutput() ? 5 :
-                    argument.isInput() ? 2 :
-                    argument.isOutput() ? 3 : 0);
+            maxArgDirectionLength = Math.max(maxArgDirectionLength, in && out ? 5 : in ? 2 : out ? 3 : 0);
         }
 
+        for (DBObjectSpec argument : arguments) {
+            boolean in = IS_INPUT.is(argument);
+            boolean out = IS_OUTPUT.is(argument);
 
-        for (DBArgumentSpec argument : method.getArguments()) {
             buffer.append("\n    ");
             
-            if (!method.isFunction()) {
+            if (!function) {
                 String direction =
-                        argument.isInput() && argument.isOutput() ? keywordCaseOption.format("inout") :
-                                argument.isInput() ? keywordCaseOption.format("in") :
-                                        argument.isOutput() ? keywordCaseOption.format("out") : "";
+                        in && out ? kco.format("inout") :
+                        in ? kco.format("in") :
+                        out ? kco.format("out") : "";
                 buffer.append(direction);
                 buffer.append(Strings.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
             }
 
-            buffer.append(objectCaseOption.format(argument.getObjectName()));
+            buffer.append(oco.format(argument.getObjectName()));
             buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
 
-            buffer.append(dataTypeCaseOption.format(argument.getDataType()));
-            if (argument != method.getArguments().get(method.getArguments().size() -1)) {
+            buffer.append(dco.format(DATA_TYPE.of(argument)));
+            if (argument != lastElement(arguments)) {
                 buffer.append(",");
             }
         }
 
         buffer.append(")\n");
-        if (method.isFunction()) {
-            buffer.append(keywordCaseOption.format("returns "));
-            buffer.append(dataTypeCaseOption.format(method.getReturnArgument().getDataType()));
+        if (function) {
+            DBObjectSpec returnArgument = RETURN_ARGUMENT.of(method);
+
+            buffer.append(kco.format("returns "));
+            buffer.append(dco.format(DATA_TYPE.of(returnArgument)));
             buffer.append("\n");
         }
-        buffer.append(keywordCaseOption.format("begin\n\n"));
-        if (method.isFunction()) buffer.append(keywordCaseOption.format("    return null;\n\n"));
+        buffer.append(kco.format("begin\n\n"));
+        if (function) {
+            buffer.append(kco.format("    return null;\n\n"));
+        }
+
         buffer.append("end");
         
         String sqlMode = getSessionSqlMode(connection);

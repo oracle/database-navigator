@@ -20,6 +20,7 @@ import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
@@ -29,11 +30,11 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.model.DBArgumentSpec;
-import com.dbn.object.factory.model.DBMethodSpec;
 import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.factory.model.DBObjectSpecList;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -52,9 +53,13 @@ import static com.dbn.database.DatabaseObjectTypeId.VIEW;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CONSTRAINT_COLUMNS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CONSTRAINT_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_NOT_NULL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_PRIMARY_KEY;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
+import static com.dbn.object.type.DBObjectType.ARGUMENT;
 
 public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
     public OracleDataDefinitionInterface(DatabaseInterfaces provider) {
@@ -200,55 +205,59 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(DBMethodSpec method, DBNConnection connection) throws SQLException {
+    public void createMethod(@NotNull DBObjectSpec method, DBNConnection connection) throws SQLException {
         // TODO SQL-Injection
         Project project = method.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();
         CodeStyleCaseOption oco = styleCaseSettings.getObjectCaseOption();
         CodeStyleCaseOption dco = styleCaseSettings.getDatatypeCaseOption();
+        boolean function = method.getObjectType() == DBObjectType.FUNCTION;
 
         StringBuilder buffer = new StringBuilder();
-        String methodType = method.isFunction() ? "function " : "procedure ";
+        String methodType = function ? "function " : "procedure ";
         buffer.append(kco.format(methodType));
         buffer.append(oco.format(method.getObjectName()));
         buffer.append("(");
         
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        for (DBArgumentSpec argument : method.getArguments()) {
+        DBObjectSpecList<DBObjectSpec> arguments = method.getChildren(ARGUMENT);
+        for (DBObjectSpec argument : arguments) {
+            boolean in = IS_INPUT.is(argument);
+            boolean out = IS_OUTPUT.is(argument);
             maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
-            maxArgDirectionLength = Math.max(maxArgDirectionLength,
-                    argument.isInput() && argument.isOutput() ? 6 :
-                    argument.isInput() ? 2 :
-                    argument.isOutput() ? 3 : 0);
+            maxArgDirectionLength = Math.max(maxArgDirectionLength, in && out ? 6 : in ? 2 : out ? 3 : 0);
         }
 
+        for (DBObjectSpec argument : arguments) {
+            boolean in = IS_INPUT.is(argument);
+            boolean out = IS_OUTPUT.is(argument);
 
-        for (DBArgumentSpec argument : method.getArguments()) {
             buffer.append("\n    ");
             buffer.append(oco.format(argument.getObjectName()));
             buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
             String direction =
-                    argument.isInput() && argument.isOutput() ? kco.format("in out") :
-                    argument.isInput() ? kco.format("in") :
-                    argument.isOutput() ? kco.format("out") : "";
+                    in && out ? kco.format("in out") :
+                    in ? kco.format("in") :
+                    out ? kco.format("out") : "";
             buffer.append(direction);
             buffer.append(Strings.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
-            buffer.append(dco.format(argument.getDataType()));
-            if (argument != method.getArguments().get(method.getArguments().size() -1)) {
+            buffer.append(dco.format(DATA_TYPE.of(argument)));
+            if (argument != Lists.lastElement(arguments)) {
                 buffer.append(",");
             }
         }
 
         buffer.append(")\n");
-        if (method.isFunction()) {
+        if (function) {
+            DBObjectSpec returnArgument = RETURN_ARGUMENT.of(method);
             buffer.append(kco.format("return "));
-            buffer.append(dco.format(method.getReturnArgument().getDataType()));
+            buffer.append(dco.format(DATA_TYPE.of(returnArgument)));
             buffer.append("\n");
         }
         buffer.append(kco.format("is\nbegin\n\n"));
-        if (method.isFunction()) buffer.append(kco.format("    return null;\n\n"));
+        if (function) buffer.append(kco.format("    return null;\n\n"));
         buffer.append("end;");
         createObject(buffer.toString(), connection);
     }
@@ -272,24 +281,24 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             builder.append("    ");
             builder.append(columnSpec.getObjectName(true));
             builder.append(" ");
-            builder.append(columnSpec.getAttributeValue(DATA_TYPE));
-            builder.append(columnSpec.getBooleanAttributeValue(IS_NOT_NULL) ? " not null" : "");
-            builder.append(columnSpec.getBooleanAttributeValue(IS_PRIMARY_KEY) ? " primary key" : "");
+            builder.append(DATA_TYPE.of(columnSpec));
+            builder.append(IS_NOT_NULL.is(columnSpec) ? " not null" : "");
+            builder.append(IS_PRIMARY_KEY.is(columnSpec) ? " primary key" : "");
         }
 
-        for (DBObjectSpec constraint : tableSpec.getChildren(DBObjectType.CONSTRAINT)) {
+        for (DBObjectSpec constraintSpec : tableSpec.getChildren(DBObjectType.CONSTRAINT)) {
             builder.append(",\n");
             builder.append("    ");
-            builder.append(constraint.getAttributeValue(CONSTRAINT_TYPE));
+            builder.append(CONSTRAINT_TYPE.of(constraintSpec));
             builder.append(" ");
-            builder.append(nvl(constraint.getObjectName(), ""));
+            builder.append(nvl(constraintSpec.getObjectName(), ""));
             builder.append("(");
-            builder.append(toCsv(Arrays.asList(constraint.getAttributeValue(CONSTRAINT_COLUMNS)), s -> s));
+            builder.append(toCsv(Arrays.asList(CONSTRAINT_COLUMNS.of(constraintSpec)), s -> s));
             builder.append(")");
         }
 
         builder.append(")\n");
-        builder.append(tableSpec.getAttributeValue(OBJECT_DETAIL));
+        builder.append(nvl(OBJECT_DETAIL.of(tableSpec), ""));
 
         createObject(builder.toString(), connection);
     }

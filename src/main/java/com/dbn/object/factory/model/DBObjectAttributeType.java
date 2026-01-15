@@ -21,6 +21,7 @@ import com.dbn.object.type.DBCredentialType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Unsafe.cast;
 
@@ -47,6 +48,7 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     public static final DBObjectAttributeType<String[]> CONSTRAINT_COLUMNS = new DBObjectAttributeType<>("CONSTRAINT_COLUMNS", String[].class);
 
     public static final DBObjectAttributeType<String> INDEX_SPEC = new DBObjectAttributeType<>("INDEX_SPEC", String.class);
+    public static final DBObjectAttributeType<DBObjectSpec> RETURN_ARGUMENT = new DBObjectAttributeType<>("RETURN_ARGUMENT", DBObjectSpec.class);
 
     public static final DBObjectAttributeType<DBCredentialType> CREDENTIAL_TYPE = new DBObjectAttributeType<>("CREDENTIAL_TYPE", DBCredentialType.class);
     public static final DBObjectAttributeType<String> USER_NAME = new DBObjectAttributeType<>("USER_NAME", String.class);
@@ -58,6 +60,17 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     public static final DBObjectAttributeType<char[]> ACCESS_TOKEN = new DBObjectAttributeType<>("ACCESS_TOKEN", char[].class);
 
     private final Class<T> type;
+
+    @Nullable
+    public T of(@Nullable DBObjectSpec spec) {
+        if (spec == null) return null;
+        return spec.getAttributeValue(this);
+    }
+
+    public boolean is(DBObjectSpec spec) {
+        if (type != Boolean.class) throw new IllegalArgumentException("Only supported for boolean attributes");
+        return spec.getBooleanAttributeValue(cast(this));
+    }
 
     public static <T> DBObjectAttributeType<T> get(String id) {
         return PseudoConstant.get(DBObjectAttributeType.class, id);
