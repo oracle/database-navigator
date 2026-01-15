@@ -43,7 +43,15 @@ public interface ExecutionResult<F extends ExecutionResultForm> extends Stateful
     @NotNull
     String getName();
 
+    default void setName(@NotNull String name) {
+        setName(name, false);
+    }
+
     default void setName(@NotNull String name, boolean sticky) {}
+
+    default boolean supportsStickyNames() {
+        return false;
+    }
 
     default @Nullable Object getData(@NotNull String dataId) {
         return null;

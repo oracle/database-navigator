@@ -29,6 +29,8 @@ public class RenameExecutionResultDialog extends DBNDialog<RenameExecutionResult
     public RenameExecutionResultDialog(ExecutionResult executionResult) {
         super(executionResult.getProject(), "Rename result", true);
         this.executionResult = executionResult;
+        setResizable(false);
+        setAutoSize(true);
         init();
     }
 
@@ -50,14 +52,17 @@ public class RenameExecutionResultDialog extends DBNDialog<RenameExecutionResult
     @Override
     protected void doOKAction() {
         RenameExecutionResultForm component = getForm();
-
-        boolean stickyResultName = component.isStickyResultName();
         String resultName = component.getResultName();
 
-        executionResult.setName(resultName, stickyResultName);
+        if (executionResult.supportsStickyNames()) {
+            boolean stickyResultName = component.isStickyResultName();
+            executionResult.setName(resultName, stickyResultName);
 
-        ExecutionManager executionManager = ExecutionManager.getInstance(ensureProject());
-        executionManager.setRetainStickyNames(stickyResultName);
+            ExecutionManager executionManager = ExecutionManager.getInstance(ensureProject());
+            executionManager.setRetainStickyNames(stickyResultName);
+        } else {
+            executionResult.setName(resultName);
+        }
 
         super.doOKAction();
     }
