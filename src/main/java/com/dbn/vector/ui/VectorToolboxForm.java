@@ -70,14 +70,14 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
     EmbeddingStagingConfig stagingConfig = request.getStagingConfig();
     stagingConfigForm = new EmbeddingStagingConfigForm(this);
     DBNCollapsiblePanel stagingCollapsiblePanel = new DBNCollapsiblePanel(this, stagingConfigForm, true /*TODO async stagingConfig.isExpanded()*/);
-    stagingCollapsiblePanel.setInfoContent(html(this, "embedding_staging_config_info.html.ft"));
+    stagingCollapsiblePanel.setInfoContent(html(this, "info/embedding_staging_config_info.html.ft"));
     stagingCollapsiblePanel.addToggleListener(expanded -> stagingConfig.setExpanded(expanded));
     stagingConfigPanel.add(stagingCollapsiblePanel.getComponent());
 
     EmbeddingChunkingConfig chunkConfig = request.getChunkConfig();
     chunkingConfigForm = new EmbeddingChunkingConfigForm(this);
     DBNCollapsiblePanel chunkCollapsiblePanel = new DBNCollapsiblePanel(this, chunkingConfigForm, true /*TODO async chunkConfig.isExpanded()*/);
-    chunkCollapsiblePanel.setInfoContent(html(this, "embedding_chunking_config_info.html.ft"));
+    chunkCollapsiblePanel.setInfoContent(html(this, "info/embedding_chunking_config_info.html.ft"));
     chunkCollapsiblePanel.addToggleListener(expanded -> chunkConfig.setExpanded(expanded));
     chunkConfigPanel.add(chunkCollapsiblePanel.getComponent());
 
@@ -89,9 +89,10 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
 
     EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
     destinationForm = new EmbeddingDestinationConfigForm(this);
-    DBNCollapsiblePanel saveCollapsiblePanel = new DBNCollapsiblePanel(this, destinationForm, true /*TODO async storeConfig.isExpanded()*/);
-    saveCollapsiblePanel.addToggleListener(expanded -> destinationConfig.setExpanded(expanded));
-    saveDataPanel.add(saveCollapsiblePanel.getComponent());
+    DBNCollapsiblePanel destinationCollapsiblePanel = new DBNCollapsiblePanel(this, destinationForm, true /*TODO async storeConfig.isExpanded()*/);
+    destinationCollapsiblePanel.setInfoContent(html(this, "info/embedding_destination_config_info.html.ft"));
+    destinationCollapsiblePanel.addToggleListener(expanded -> destinationConfig.setExpanded(expanded));
+    saveDataPanel.add(destinationCollapsiblePanel.getComponent());
   }
 
   @Override

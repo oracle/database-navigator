@@ -129,7 +129,7 @@ public class TextContent {
         return new TextContent(text, MimeType.TEXT_HTML);
     }
 
-    public static TextContent html(Object object, String resourceName) {
+    public static TextContent html(Object object, @NonNls String resourceName) {
         String info = TextResources.get(object, resourceName);
         return html(info);
     }

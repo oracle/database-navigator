@@ -111,13 +111,12 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         toggleLabel.setIcon(expanded ? UIUtil.getTreeExpandedIcon() : UIUtil.getTreeCollapsedIcon());
         toggleLabel.setText(contentForm.getFormTitle());
 
+        infoPanel.setVisible(expanded && infoContent != null);
         contentRootPanel.setVisible(expanded);
         toggleDetailLabel.setVisible(!expanded);
 
         String detail = contentForm.getFormTitleDetail();
         toggleDetailLabel.setText(Strings.isEmpty(detail) ? "" : "(" + detail + ")");
-
-        infoPanel.setVisible(expanded && infoContent != null);
     }
 
     public void addToggleListener(ToggleListener listener) {
