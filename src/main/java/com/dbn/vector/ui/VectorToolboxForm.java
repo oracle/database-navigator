@@ -77,6 +77,7 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
     EmbeddingChunkingConfig chunkConfig = request.getChunkConfig();
     chunkingConfigForm = new EmbeddingChunkingConfigForm(this);
     DBNCollapsiblePanel chunkCollapsiblePanel = new DBNCollapsiblePanel(this, chunkingConfigForm, true /*TODO async chunkConfig.isExpanded()*/);
+    chunkCollapsiblePanel.setInfoContent(html(this, "embedding_chunking_config_info.html.ft"));
     chunkCollapsiblePanel.addToggleListener(expanded -> chunkConfig.setExpanded(expanded));
     chunkConfigPanel.add(chunkCollapsiblePanel.getComponent());
 
