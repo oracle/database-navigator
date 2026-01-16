@@ -45,7 +45,7 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
           );
 
           String metadata = tableProcessingService.buildRowMetadata(request, tableSource);
-          progressIndicator.setText2("Embedding table data from " + tableResult.getName());
+          progressIndicator.setText2("Processing table " + tableResult.getName());
 
           // Execute the embedding with batching
           embedTableDataInBatches(
@@ -87,7 +87,7 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
                 }
 
                 batchNumber++;
-                progressIndicator.setText2("Processing batch " + batchNumber + " (total rows: " + totalProcessed + ")");
+                progressIndicator.setText2("Processing table " + tableResult.getName() + " (batch " +  batchNumber + " / rows embedded " + totalProcessed + ")");
 
                 // Process one batch
                 batchCount = vectorInterface.embedDataContent(
