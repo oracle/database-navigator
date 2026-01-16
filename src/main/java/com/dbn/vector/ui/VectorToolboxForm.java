@@ -64,6 +64,7 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
     EmbeddingSourceConfig sourceConfig = request.getSourceConfig();
     embeddingSourceForm = new EmbeddingSourceConfigForm(this);
     DBNCollapsiblePanel sourceCollapsiblePanel = new DBNCollapsiblePanel(this, embeddingSourceForm, true /*TODO async sourceConfig.isExpanded()*/);
+    sourceCollapsiblePanel.setInfoContent(html(this, "info/embedding_source_config_info.html.ft"));
     sourceCollapsiblePanel.addToggleListener(expanded -> sourceConfig.setExpanded(expanded));
     sourcePanel.add(sourceCollapsiblePanel.getComponent());
 
