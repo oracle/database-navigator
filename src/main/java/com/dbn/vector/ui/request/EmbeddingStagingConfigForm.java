@@ -16,12 +16,9 @@
 
 package com.dbn.vector.ui.request;
 
-import com.dbn.common.text.TextContent;
-import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
-import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
 import com.dbn.object.DBColumn;
@@ -52,19 +49,11 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
     private JPanel mainPanel;
     private JLabel schemaLabel;
     private JLabel tableLabel;
-    private DBNInfoLabel tableInfoLabel;
     private DBObjectSelector<DBSchema> schemaComboBox;
     private DBObjectSelector<DBTable> tableComboBox;
 
     public EmbeddingStagingConfigForm(@NotNull VectorToolboxFormBase parent) {
         super(parent);
-        initInfoLabel();
-    }
-
-    private void initInfoLabel() {
-        String info = TextResources.get(this, "embedding_staging_table_info.html.ft");
-        TextContent infoContent = TextContent.html(info);
-        tableInfoLabel.setContent(infoContent);
     }
 
     @Override

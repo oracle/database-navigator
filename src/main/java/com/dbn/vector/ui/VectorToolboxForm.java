@@ -26,6 +26,8 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
+import static com.dbn.common.text.TextContent.html;
+
 public class VectorToolboxForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
   private JPanel sourcePanel;
@@ -68,6 +70,7 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
     EmbeddingStagingConfig stagingConfig = request.getStagingConfig();
     stagingConfigForm = new EmbeddingStagingConfigForm(this);
     DBNCollapsiblePanel stagingCollapsiblePanel = new DBNCollapsiblePanel(this, stagingConfigForm, true /*TODO async stagingConfig.isExpanded()*/);
+    stagingCollapsiblePanel.setInfoContent(html(this, "embedding_staging_config_info.html.ft"));
     stagingCollapsiblePanel.addToggleListener(expanded -> stagingConfig.setExpanded(expanded));
     stagingConfigPanel.add(stagingCollapsiblePanel.getComponent());
 

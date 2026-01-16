@@ -128,6 +128,11 @@ public class TextContent {
     public static TextContent html(String text) {
         return new TextContent(text, MimeType.TEXT_HTML);
     }
+
+    public static TextContent html(Object object, String resourceName) {
+        String info = TextResources.get(object, resourceName);
+        return html(info);
+    }
     public static TextContent markdown(String text) {
         return new TextContent(text, MimeType.TEXT_MARKDOWN);
     }
