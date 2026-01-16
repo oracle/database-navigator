@@ -168,19 +168,13 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         List<T> values = getModel().getItems();
 
-        boolean valueFactoryFirst = values.size() > 5;
-        if (valueFactoryFirst && valueFactory != null) {
+        if (valueFactory != null) {
             actionGroup.add(new AddValueAction());
             actionGroup.add(Actions.SEPARATOR);
         }
 
         for (T value : values) {
             actionGroup.add(new SelectValueAction(value));
-        }
-
-        if (!valueFactoryFirst && valueFactory != null) {
-            actionGroup.add(Actions.SEPARATOR);
-            actionGroup.add(new AddValueAction());
         }
 
         if (values.isEmpty() && valueFactory == null) {
