@@ -14,15 +14,28 @@
  * limitations under the License.
  */
 
-package com.dbn.vector.ui.request;
+package com.dbn.vector.model.request;
 
-import com.dbn.common.ui.list.MutableObjectListModel;
-import com.dbn.vector.model.request.EmbeddingTableSource;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class EmbeddingSourceTablesListModel extends MutableObjectListModel<EmbeddingTableSource> {
-  public EmbeddingSourceTablesListModel(List<EmbeddingTableSource> tables) {
-    super(tables);
-  }
+@Getter
+@Setter
+public class EmbeddingSourceList<T extends EmbeddingSource> {
+    private List<T> elements = new ArrayList<>();
+
+    public void addElement(T element) {
+        elements.add(element);
+    }
+
+    public int size() {
+        return elements.size();
+    }
+
+    public void clear() {
+        elements.clear();
+    }
 }

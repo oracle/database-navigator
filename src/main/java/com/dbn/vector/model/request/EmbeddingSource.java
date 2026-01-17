@@ -14,21 +14,8 @@
  * limitations under the License.
  */
 
-package com.dbn.vector.model.result;
+package com.dbn.vector.model.request;
 
-import lombok.Getter;
-
-@Getter
-public class ChunkData{
-  private long id;
-  private final long offset;
-  private final long length;
-  private final String data;
-
-  public ChunkData(long offset, long length, String data) {
-//    this.chunkId = chunkId;
-    this.offset = offset;
-    this.length = length;
-    this.data = data;
-  }
+public interface EmbeddingSource {
+    String getIdentifier();
 }

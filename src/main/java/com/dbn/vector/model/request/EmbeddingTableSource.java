@@ -27,11 +27,16 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Data
-public class EmbeddingSourceTable implements PersistentStateElement, Cloneable<EmbeddingSourceTable> {
+public class EmbeddingTableSource implements EmbeddingSource, PersistentStateElement, Cloneable<EmbeddingTableSource> {
   private String schemaName;
   private String tableName;
   private String keyColumnName;
   private String dataColumnName;
+
+  @Override
+  public String getIdentifier() {
+    return schemaName + "." + tableName +  "#" + keyColumnName + "/" + dataColumnName;
+  }
 
   @Override
   public void readState(Element element) {
@@ -53,7 +58,7 @@ public class EmbeddingSourceTable implements PersistentStateElement, Cloneable<E
 
   @Override
   @SneakyThrows
-  public EmbeddingSourceTable clone() {
+  public EmbeddingTableSource clone() {
     return cast(super.clone());
   }
 }

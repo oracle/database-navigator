@@ -18,32 +18,24 @@ package com.dbn.vector.model.request;
 
 import com.dbn.common.state.PersistentStateElement;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static java.util.Collections.emptyList;
 
 @Setter
 @Getter
-public class EmbeddingSourceFiles implements PersistentStateElement {
-    private List<String> filePaths = new ArrayList<>();
-
-    public List<VirtualFile> getFiles() {
-        if (filePaths == null) return emptyList();
-        VirtualFileManager fileManager = VirtualFileManager.getInstance();
-        return filePaths
+public class EmbeddingFileSources extends EmbeddingSourceList<EmbeddingFileSource> implements PersistentStateElement {
+    public List<VirtualFile> getFileSources() {
+        return getElements()
                 .stream()
-                .map(p -> fileManager.findFileByNioPath(Path.of(p)))
+                .map(p -> p.getFile())
                 .filter(f -> f != null)
                 .toList();
     }
@@ -54,20 +46,25 @@ public class EmbeddingSourceFiles implements PersistentStateElement {
         List<Element> fileElements = childrenOf(filesElement, "file");
         for (Element fileElement : fileElements) {
             String path = stringAttribute(fileElement, "path");
-            filePaths.add(path);
+            addElement(new EmbeddingFileSource(path));
         }
     }
 
     @Override
     public void writeState(Element element) {
         Element filesElement = newElement(element, "file-sources");
-        for (String filePath : filePaths) {
+        for (EmbeddingFileSource source : getElements()) {
             Element fileElement = newElement(filesElement, "file");
-            setStringAttribute(fileElement, "path", filePath);
+            setStringAttribute(fileElement, "path", source.getFilePath());
         }
     }
 
-    public int getFileCount() {
-        return filePaths.size();
+    public void setFilePaths(List<String> filePaths) {
+        List<EmbeddingFileSource> elements = getElements();
+        elements.clear();
+        filePaths
+            .stream()
+            .map(path -> new EmbeddingFileSource(path))
+            .forEach(e -> elements.add(e));
     }
 }

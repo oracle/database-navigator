@@ -16,7 +16,7 @@
 
 package com.dbn.vector.ui.request;
 
-import com.dbn.vector.model.request.EmbeddingSourceTables;
+import com.dbn.vector.model.request.EmbeddingTableSources;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,19 +52,19 @@ public class EmbeddingSourceTablesForm extends VectorToolboxFormBase {
 
     @Override
     public void resetFormChanges() {
-        EmbeddingSourceTables config = getConfig();
+        EmbeddingTableSources config = getConfig();
         autoSyncCheckBox.setSelected(config.isAutoSync());
-        tableListForm.setTables(config.getSourceTables());
+        tableListForm.setTables(config.getElements());
     }
 
     @Override
     public void applyFormChanges() {
-        EmbeddingSourceTables config = getConfig();
+        EmbeddingTableSources config = getConfig();
         config.setAutoSync(autoSyncCheckBox.isSelected());
-        config.setSourceTables(tableListForm.getTables());
+        config.setElements(tableListForm.getTables());
     }
 
-    public EmbeddingSourceTables getConfig() {
+    public EmbeddingTableSources getConfig() {
         return getEmbeddingRequest().getSourceConfig().getSourceTables();
     }
 

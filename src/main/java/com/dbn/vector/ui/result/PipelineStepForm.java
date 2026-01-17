@@ -32,11 +32,11 @@ import com.dbn.editor.data.filter.DatasetFilterGroup;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
-import com.dbn.vector.model.result.FileResult;
+import com.dbn.vector.model.result.EmbeddingFileResult;
+import com.dbn.vector.model.result.EmbeddingResult;
+import com.dbn.vector.model.result.EmbeddingTableResult;
 import com.dbn.vector.model.result.PipelineStep;
-import com.dbn.vector.model.result.SourceResult;
 import com.dbn.vector.model.result.StepResult;
-import com.dbn.vector.model.result.TableResult;
 import com.intellij.icons.AllIcons;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
@@ -113,7 +113,7 @@ public class PipelineStepForm extends DBNFormBase  {
     DBTable table = findTable(connection, stepResult.getLink());
     if (table == null) return;
 
-    SourceResult selectedSource = parentForm.getSelectedSource();
+    EmbeddingResult selectedSource = parentForm.getSelectedSource();
     boolean shouldFilter = stepResult.getStep() == PipelineStep.ENSURE_DESTINATION
             && selectedSource != null;
 
@@ -134,8 +134,11 @@ public class PipelineStepForm extends DBNFormBase  {
     return schema.getTable(tableName);
   }
 
-  private void openTableEditor(ConnectionHandler connection, DBTable table,
-                               @Nullable SourceResult selectedSource, boolean applyFilter) {
+  private void openTableEditor(
+          ConnectionHandler connection,
+          DBTable table,
+          @Nullable EmbeddingResult selectedSource,
+          boolean applyFilter) {
     DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(connection.getProject());
     boolean editorAlreadyOpen = editorManager.isFileOpen(table);
 
@@ -155,12 +158,12 @@ public class PipelineStepForm extends DBNFormBase  {
     datasetEditorManager.reloadEditorData(table);
   }
 
-  private void createAndApplyFilter(ConnectionHandler connection, DBTable table, SourceResult sourceResult) {
+  private void createAndApplyFilter(ConnectionHandler connection, DBTable table, EmbeddingResult embeddingResult) {
     DatasetFilterManager filterManager = DatasetFilterManager.getInstance(connection.getProject());
     DatasetFilterGroup filterGroup = filterManager.getFilterGroup(table);
 
-    DatasetCustomFilter filter = createTemporaryFilter(filterGroup, sourceResult);
-    String whereClause = buildWhereClause(sourceResult);
+    DatasetCustomFilter filter = createTemporaryFilter(filterGroup, embeddingResult);
+    String whereClause = buildWhereClause(embeddingResult);
 
     if (whereClause == null) return;
 
@@ -168,27 +171,27 @@ public class PipelineStepForm extends DBNFormBase  {
     filterManager.setActiveFilter(table, filter);
   }
 
-  private DatasetCustomFilter createTemporaryFilter(DatasetFilterGroup filterGroup, SourceResult sourceResult) {
+  private DatasetCustomFilter createTemporaryFilter(DatasetFilterGroup filterGroup, EmbeddingResult embeddingResult) {
     DatasetCustomFilter filter = new DatasetCustomFilter(
             filterGroup,
-            FILTER_NAME_PREFIX + sourceResult.getName()
+            FILTER_NAME_PREFIX + embeddingResult.getName()
     );
     filter.setTemporary(true);
     return filter;
   }
 
   @Nullable
-  private String buildWhereClause(SourceResult sourceResult) {
-    if (sourceResult instanceof TableResult) {
-      return buildTableWhereClause((TableResult) sourceResult);
-    } else if (sourceResult instanceof FileResult) {
-      return buildFileWhereClause((FileResult) sourceResult);
+  private String buildWhereClause(EmbeddingResult embeddingResult) {
+    if (embeddingResult instanceof EmbeddingTableResult) {
+      return buildTableWhereClause((EmbeddingTableResult) embeddingResult);
+    } else if (embeddingResult instanceof EmbeddingFileResult) {
+      return buildFileWhereClause((EmbeddingFileResult) embeddingResult);
     }
     return null;
   }
 
   @Nullable
-  private String buildTableWhereClause(TableResult tableResult) {
+  private String buildTableWhereClause(EmbeddingTableResult tableResult) {
     String tableName = extractTableName(tableResult.getIdentifier());
     if (tableName == null) return null;
 
@@ -198,7 +201,7 @@ public class PipelineStepForm extends DBNFormBase  {
     );
   }
 
-  private String buildFileWhereClause(FileResult fileResult) {
+  private String buildFileWhereClause(EmbeddingFileResult fileResult) {
     String fileStoreId = fileResult.getFileStoreId();
     return String.format(
             "JSON_VALUE(metadata, '$.embedding_source.source_id') = '%s'",

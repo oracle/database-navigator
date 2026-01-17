@@ -15,6 +15,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.execution.ExecutionManager;
+import com.dbn.vector.model.VectorEmbeddingContext;
 import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
@@ -75,6 +76,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
             }
         };
     }
+
     public static DatabaseVectorManager getInstance(Project project) {
         return Components.projectService(project, DatabaseVectorManager.class);
     }
@@ -132,7 +134,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     }
 
     @SneakyThrows
-    public void createEmbeddings(VectorEmbeddingRequest request, ConnectionHandler handler)  {
+    public void createEmbeddings(VectorEmbeddingRequest request, ConnectionHandler handler) {
         request.setTemplate(false); // no longer a template after used for embedding
 
         EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
@@ -141,45 +143,36 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
                 handler.getSchema(), true,
                 "Embedding Data",
                 "Embedding data into \"" + destinationConfig.getSchemaName() + "\".\"" + destinationConfig.getTableName() + "\"",
-                 p -> {
-                     DatabaseInterfaceInvoker.execute(MEDIUM,
-                                p.getText(),
-                                p.getText2(),
-                                handler.getProject(),
-                                handler.getConnectionId(),
-                                handler.getSchemaId(),
-                                conn -> {
-                                  VectorEmbeddingResult result = null;
-                                  try {
-                                    result = executePipeline(request, handler, conn, p);
-                                  } catch (Exception e) {
-                                    throw new RuntimeException(e);
-                                  }
-                                  result.finish();
-                                  showResultDialog(result);
+                p -> DatabaseInterfaceInvoker.execute(MEDIUM,
+                        p.getText(),
+                        p.getText2(),
+                        handler.getProject(),
+                        handler.getConnectionId(),
+                        handler.getSchemaId(),
+                        conn -> {
+                            VectorEmbeddingResult result = executePipeline(request, conn, p);
+                            result.finish();
+                            showResultDialog(result);
 //                                  callbackInfo.run();
 
-                                });
-                });
+                        }));
     }
+
     /**
      * Execute the embedding pipeline for the given request.
      */
     @SneakyThrows
     private VectorEmbeddingResult executePipeline(
             @NotNull VectorEmbeddingRequest request,
-            @NotNull ConnectionHandler handler,
             @NotNull DBNConnection connection,
-            @NotNull ProgressIndicator progressIndicator) throws Exception {
-        
+            @NotNull ProgressIndicator progressIndicator) {
 
         VectorEmbeddingResult result = new VectorEmbeddingResult(request);
-        result.setSourceType(request.getSourceConfig().getSourceType());
-        
+        VectorEmbeddingContext context = new VectorEmbeddingContext(progressIndicator, connection);
 
         EmbeddingPipeline pipeline = createPipeline(request.getSourceConfig().getSourceType());
-        pipeline.execute(request, handler, connection, progressIndicator, result);
-        
+        pipeline.execute(context, request, result);
+
         return result;
     }
 
@@ -194,13 +187,13 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     }
 
 
-  private void showResultDialog(VectorEmbeddingResult result) {
-    ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
-    Set<String> names = executionManager.getExecutionResultNames(VectorEmbeddingExecutionResult.class);
-    String name = Naming.nextNumberedIdentifier("Embedding Result",true,()->names);
-    VectorEmbeddingExecutionResult executionResult = new VectorEmbeddingExecutionResult(result,name);
-    executionManager.addExecutionResult(executionResult);
-  }
+    private void showResultDialog(VectorEmbeddingResult result) {
+        ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
+        Set<String> names = executionManager.getExecutionResultNames(VectorEmbeddingExecutionResult.class);
+        String name = Naming.nextNumberedIdentifier("Embedding Result", true, () -> names);
+        VectorEmbeddingExecutionResult executionResult = new VectorEmbeddingExecutionResult(result, name);
+        executionManager.addExecutionResult(executionResult);
+    }
 
 
     /****************************************

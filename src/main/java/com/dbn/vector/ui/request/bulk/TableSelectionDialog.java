@@ -19,7 +19,7 @@ package com.dbn.vector.ui.request.bulk;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.vector.model.request.EmbeddingSourceTable;
+import com.dbn.vector.model.request.EmbeddingTableSource;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
@@ -28,7 +28,7 @@ import java.util.List;
 
 public class TableSelectionDialog extends DBNDialog<TableSelectionForm> {
     // Store selected tables BEFORE dialog closes (components get disposed after close)
-    private List<EmbeddingSourceTable> selectedTableSources = new ArrayList<>();
+    private List<EmbeddingTableSource> selectedTableSources = new ArrayList<>();
 
     public TableSelectionDialog(@NotNull ConnectionHandler connection) {
         super(connection, "Add Tables", true);
@@ -76,7 +76,7 @@ public class TableSelectionDialog extends DBNDialog<TableSelectionForm> {
      * Get the configured table sources after dialog closes.
      * This returns the cached list that was captured before the dialog closed.
      */
-    public List<EmbeddingSourceTable> getSelectedTableSources() {
+    public List<EmbeddingTableSource> getSelectedTableSources() {
         return selectedTableSources;
     }
 }

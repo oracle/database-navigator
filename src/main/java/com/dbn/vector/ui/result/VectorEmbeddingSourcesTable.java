@@ -23,7 +23,7 @@ import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.DBNTableGutter;
 import com.dbn.common.ui.table.DBNTableTransferHandler;
 import com.dbn.common.ui.table.DBNTableWithGutter;
-import com.dbn.vector.model.result.SourceResult;
+import com.dbn.vector.model.result.EmbeddingResult;
 import com.dbn.vector.model.result.SourceStatus;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +38,7 @@ public class VectorEmbeddingSourcesTable extends DBNTableWithGutter<VectorEmbedd
     public VectorEmbeddingSourcesTable(@NotNull DBNComponent parent, VectorEmbeddingSourcesTableModel sources) {
         super(parent, sources, true);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        setDefaultRenderer(SourceResult.class, new CellRenderer());
+        setDefaultRenderer(EmbeddingResult.class, new CellRenderer());
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
         initTableSorter();
 
@@ -60,7 +60,7 @@ public class VectorEmbeddingSourcesTable extends DBNTableWithGutter<VectorEmbedd
     private class CellRenderer extends DBNColoredTableCellRenderer {
         @Override
         protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
-            SourceResult entry = (SourceResult) value;
+            EmbeddingResult entry = (EmbeddingResult) value;
             String columnValue = getModel().getPresentableValue(entry, column);
             append(columnValue == null ? "" : columnValue, SimpleTextAttributes.REGULAR_ATTRIBUTES);
             if (column == 0) setIcon(entry.getIcon());

@@ -22,7 +22,7 @@ import com.dbn.common.ui.table.DBNTableGutterModel;
 import com.dbn.common.ui.table.DBNTableWithGutterModel;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContextBase;
-import com.dbn.vector.model.result.SourceResult;
+import com.dbn.vector.model.result.EmbeddingResult;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,9 +33,9 @@ import java.util.List;
 import static com.dbn.common.util.Lists.isInBounds;
 
 @Getter
-public class VectorEmbeddingSourcesTableModel extends DBNMutableTableModel<SourceResult> implements DBNTableWithGutterModel<SourceResult>, DatabaseContextBase {
+public class VectorEmbeddingSourcesTableModel extends DBNMutableTableModel<EmbeddingResult> implements DBNTableWithGutterModel<EmbeddingResult>, DatabaseContextBase {
     private final ListModel gutterModel = new DBNTableGutterModel<>(this);
-    private final List<SourceResult> sourceResults;
+    private final List<EmbeddingResult> embeddingResults;
 
     // Column identifiers
     public static final String COL_SOURCE_NAME = "Source name";
@@ -50,8 +50,8 @@ public class VectorEmbeddingSourcesTableModel extends DBNMutableTableModel<Sourc
             COL_STATUS,
     };
 
-    public VectorEmbeddingSourcesTableModel(List<SourceResult> sourceResults) {
-        this.sourceResults = sourceResults;
+    public VectorEmbeddingSourcesTableModel(List<EmbeddingResult> embeddingResults) {
+        this.embeddingResults = embeddingResults;
     }
 
     @Nullable
@@ -61,7 +61,7 @@ public class VectorEmbeddingSourcesTableModel extends DBNMutableTableModel<Sourc
 
     @Override
     public int getRowCount() {
-        return sourceResults.size();
+        return embeddingResults.size();
     }
 
     @Override
@@ -71,18 +71,18 @@ public class VectorEmbeddingSourcesTableModel extends DBNMutableTableModel<Sourc
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        if (isInBounds(sourceResults, rowIndex)) {
-            return sourceResults.get(rowIndex);
+        if (isInBounds(embeddingResults, rowIndex)) {
+            return embeddingResults.get(rowIndex);
         }
         return null;
     }
 
     @Override
-    public Object getValue(SourceResult row, int column) {
+    public Object getValue(EmbeddingResult row, int column) {
         if (row == null) return null;
         return switch (column) {
             case 0 -> row.getName();
-            case 1 -> row.getSize();
+            case 1 -> row.getPresentableSize();
             case 2 -> row.getRowsInserted();
             case 3 -> row.getStatus();
             default -> "";
@@ -90,7 +90,7 @@ public class VectorEmbeddingSourcesTableModel extends DBNMutableTableModel<Sourc
     }
 
     @Override
-    public String getPresentableValue(SourceResult row, int column) {
+    public String getPresentableValue(EmbeddingResult row, int column) {
         return Data.asString(getValue(row, column));
     }
 
@@ -101,7 +101,7 @@ public class VectorEmbeddingSourcesTableModel extends DBNMutableTableModel<Sourc
 
     @Override
     public @NotNull Class<?> getColumnClass(int columnIndex) {
-        return SourceResult.class;
+        return EmbeddingResult.class;
     }
 
     @Override

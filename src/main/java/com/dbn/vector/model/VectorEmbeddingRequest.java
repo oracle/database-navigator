@@ -21,6 +21,7 @@ import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
+import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.vector.model.request.EmbeddingChunkingConfig;
 import com.dbn.vector.model.request.EmbeddingDestinationConfig;
 import com.dbn.vector.model.request.EmbeddingModelConfig;
@@ -52,13 +53,18 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
     }
 
     @NotNull
+    public final Project getProject() {
+        return getConnection().getProject();
+    }
+
+    @NotNull
     public final ConnectionHandler getConnection() {
         return ConnectionHandler.ensure(connectionId);
     }
 
     @NotNull
-    public final Project getProject() {
-        return getConnection().getProject();
+    public final DatabaseVectorInterface getVectorInterface() {
+        return getConnection().getVectorInterface();
     }
 
     public void initialize(SchemaId userSchema) {
@@ -80,11 +86,11 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
     /**
      * Soft reset, to be used after a request has been executed.
      * <li>clear source files</li>
-     * <li>switch store config to "existing table" assuming it has been created</li>
+     * <li>clear source tables</li>
      */
     public void resetSoft() {
-        sourceConfig.getSourceFiles().getFilePaths().clear();
-        sourceConfig.getSourceTables().getSourceTables().clear();
+        sourceConfig.getSourceFiles().clear();
+        sourceConfig.getSourceTables().clear();
     }
 
     /**

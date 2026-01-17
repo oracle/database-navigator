@@ -28,9 +28,9 @@ import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 @Setter
 public final class EmbeddingSourceConfig extends EmbeddingRequestConfig {
     private EmbeddingSourceType sourceType = EmbeddingSourceType.DATABASE_TABLE;
-    private final EmbeddingSourceTable sourceTable = new EmbeddingSourceTable(); // transient single selection
-    private final EmbeddingSourceTables sourceTables = new EmbeddingSourceTables();
-    private final EmbeddingSourceFiles sourceFiles = new EmbeddingSourceFiles();
+    private final EmbeddingTableSource sourceTable = new EmbeddingTableSource(); // transient single selection
+    private final EmbeddingTableSources sourceTables = new EmbeddingTableSources();
+    private final EmbeddingFileSources sourceFiles = new EmbeddingFileSources();
 
     @Override
     public void readState(Element element) {
@@ -56,8 +56,8 @@ public final class EmbeddingSourceConfig extends EmbeddingRequestConfig {
 
     public int getRecordCount() {
         return switch (sourceType) {
-            case DATABASE_TABLE -> sourceTables.getTableCount();
-            case FILE_SYSTEM -> sourceFiles.getFileCount();
+            case DATABASE_TABLE -> sourceTables.size();
+            case FILE_SYSTEM -> sourceFiles.size();
         };
     }
 }

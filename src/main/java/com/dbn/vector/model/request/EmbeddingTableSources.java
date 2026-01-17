@@ -21,38 +21,30 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 
 @Getter
 @Setter
-public class EmbeddingSourceTables implements PersistentStateElement {
-    private List<EmbeddingSourceTable> sourceTables = new ArrayList<>();
+public class EmbeddingTableSources extends EmbeddingSourceList<EmbeddingTableSource> implements PersistentStateElement {
     private boolean autoSync;
 
     @Override
     public void readState(Element element) {
         Element sourcesElement = element.getChild("table-sources");
         for (Element childElement : childrenOf(sourcesElement, "source")) {
-            EmbeddingSourceTable source = new EmbeddingSourceTable();
+            EmbeddingTableSource source = new EmbeddingTableSource();
             source.readState(childElement);
-            sourceTables.add(source);
+            addElement(source);
         }
     }
 
     @Override
     public void writeState(Element element) {
         Element sourcesElement = newElement(element, "table-sources");
-        for (EmbeddingSourceTable source : sourceTables) {
+        for (EmbeddingTableSource source : getElements()) {
             Element childElement = newElement(sourcesElement, "source");
             source.writeState(childElement);
         }
-    }
-
-    public int getTableCount() {
-        return sourceTables.size();
     }
 }

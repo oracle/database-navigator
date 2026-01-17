@@ -18,8 +18,8 @@ package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.vector.model.request.EmbeddingDestinationConfig;
-import com.dbn.vector.model.request.EmbeddingSourceTable;
 import com.dbn.vector.model.request.EmbeddingStagingConfig;
+import com.dbn.vector.model.request.EmbeddingTableSource;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -37,7 +37,7 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
 
   ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException;
 
-  int embedDataContent(DBNConnection connection, EmbeddingSourceTable sourceConfig, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException;
+  int embedDataContent(DBNConnection connection, EmbeddingTableSource sourceConfig, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException;
 
   int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, EmbeddingStagingConfig stagingConfig, EmbeddingDestinationConfig destinationConfig, String fileStoreId, String metadata) throws SQLException;
 

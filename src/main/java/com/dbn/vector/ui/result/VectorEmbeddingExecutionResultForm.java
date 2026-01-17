@@ -27,10 +27,10 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.dbn.vector.model.VectorEmbeddingResult;
-import com.dbn.vector.model.result.SourceResult;
+import com.dbn.vector.model.result.EmbeddingResult;
+import com.dbn.vector.model.result.EmbeddingTableResult;
 import com.dbn.vector.model.result.SourceStatus;
 import com.dbn.vector.model.result.StepResult;
-import com.dbn.vector.model.result.TableResult;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.SimpleTextAttributes;
@@ -95,17 +95,17 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
       case SUCCESS:
         statusBadge.setIcon(Icons.COMMON_STATUS_SUCCESS);
         statusBadge.setToolTipText(String.format("All %d sources embedded successfully",
-                result.getSourceResults().size()));
+                result.size()));
         break;
       case FAILED:
         statusBadge.setIcon(Icons.COMMON_STATUS_ERROR);
         statusBadge.setToolTipText(String.format("Embedding failed - 0 of %d sources processed",
-                result.getSourceResults().size()));
+                result.size()));
         break;
       case PARTIAL:
         statusBadge.setIcon(Icons.COMMON_WARNING);
         statusBadge.setToolTipText(String.format("Partial success - %d of %d sources embedded",
-                result.getSourceSucceedCount(),  result.getSourceResults().size()));
+                result.getSourceSucceedCount(),  result.size()));
         break;
     }
     statusBadge.setText("");
@@ -117,7 +117,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     metricsComponents.append(String.valueOf(result.getTotalInsertedRows()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
     metricsComponents.append(" • ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
     metricsComponents.append("Sources: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-    metricsComponents.append(String.valueOf(result.getSourceResults().size()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+    metricsComponents.append(String.valueOf(result.size()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
     metricsComponents.append(" • ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
     metricsComponents.append("Success Rate: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
     metricsComponents.append(result.getSuccessRate()+"%", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
@@ -126,7 +126,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
 
   private void initializeTable() {
 
-    VectorEmbeddingSourcesTableModel sourceDataModel = new VectorEmbeddingSourcesTableModel(result.getSourceResults());
+    VectorEmbeddingSourcesTableModel sourceDataModel = new VectorEmbeddingSourcesTableModel(result.getResults());
     sourceDataTable = new VectorEmbeddingSourcesTable(this, sourceDataModel);
     sourceDataScrollPane.setViewportView(sourceDataTable);
 
@@ -139,7 +139,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
 
         int modelRow = sourceDataTable.convertRowIndexToModel(viewRow);
         VectorEmbeddingSourcesTableModel model = sourceDataTable.getModel();
-        SourceResult sr = model.getSourceResults().get(modelRow);
+        EmbeddingResult sr = model.getEmbeddingResults().get(modelRow);
         String sourceN = Naming.shortenFileName(sr.getName(), 50);
 
         // Update source name and icon
@@ -148,7 +148,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
 
 
         // Only make it a hyperlink if it's a TableResult
-        if (sr instanceof TableResult) {
+        if (sr instanceof EmbeddingTableResult) {
           sourceName.setHyperlinkText(sourceN + "  ");
           sourceName.addHyperlinkListener((event) -> {
             openTableInEditor(sr);
@@ -164,9 +164,9 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     });
   }
 
-  private void openTableInEditor(SourceResult sourceResult) {
+  private void openTableInEditor(EmbeddingResult embeddingResult) {
     ConnectionHandler connection = getResult().getConnection();
-    String[] parts = sourceResult.getIdentifier().split("\\.");
+    String[] parts = embeddingResult.getIdentifier().split("\\.");
 
     if (parts.length != 2) {
       // Handle error - invalid identifier format
@@ -192,7 +192,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     editorManager.connectAndOpenEditor(table, null, true, true);
   }
 
-  private void updateStepStatus(SourceResult sr) {
+  private void updateStepStatus(EmbeddingResult sr) {
     SourceStatus status = sr.getStatus();
     Icon icon = null;
     if (status == SourceStatus.FAILED) {
@@ -206,7 +206,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     sourceStatusPanel.add(new JLabel(icon));
   }
 
-  private void showPipelineDetails(SourceResult sr) {
+  private void showPipelineDetails(EmbeddingResult sr) {
     // Render pipeline steps for the selected SourceResult
     pipelinePanel.removeAll();
 
@@ -251,12 +251,12 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     return result;
   }
 
-  public SourceResult getSelectedSource() {
+  public EmbeddingResult getSelectedSource() {
     int viewRow = sourceDataTable.getSelectedRow();
     if (viewRow < 0) return null;
 
     int modelRow = sourceDataTable.convertRowIndexToModel(viewRow);
     VectorEmbeddingSourcesTableModel model = sourceDataTable.getModel();
-    return model.getSourceResults().get(modelRow);
+    return model.getEmbeddingResults().get(modelRow);
   }
 }

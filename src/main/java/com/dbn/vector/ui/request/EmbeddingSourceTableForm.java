@@ -31,7 +31,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.vector.model.VectorEmbeddingRequest;
-import com.dbn.vector.model.request.EmbeddingSourceTable;
+import com.dbn.vector.model.request.EmbeddingTableSource;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.NotNull;
@@ -65,9 +65,9 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
     private JPanel hintPanel;
 
     private final ConnectionRef connection;
-    private final EmbeddingSourceTable config;
+    private final EmbeddingTableSource config;
 
-    public EmbeddingSourceTableForm(@NotNull Disposable parent, ConnectionHandler connection, EmbeddingSourceTable config) {
+    public EmbeddingSourceTableForm(@NotNull Disposable parent, ConnectionHandler connection, EmbeddingTableSource config) {
         super(parent);
         this.connection = connection.ref();
         this.config = config;
@@ -208,7 +208,7 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
         appyFormChanges(config);
     }
 
-    private void appyFormChanges(EmbeddingSourceTable config) {
+    private void appyFormChanges(EmbeddingTableSource config) {
         config.setSchemaName(getSelectedObjectName(schemaComboBox, config.getSchemaName()));
         config.setTableName(getSelectedObjectName(tableComboBox, config.getTableName()));
         config.setKeyColumnName(getSelectedObjectName(keyColumnComboBox, config.getKeyColumnName()));

@@ -18,7 +18,7 @@ package com.dbn.vector.ui.request;
 
 import com.dbn.common.ui.file.VirtualFileListForm;
 import com.dbn.common.util.FileChoosers;
-import com.dbn.vector.model.request.EmbeddingSourceFiles;
+import com.dbn.vector.model.request.EmbeddingFileSources;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import org.jetbrains.annotations.NotNull;
@@ -27,46 +27,46 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 public class EmbeddingSourceFilesForm extends VectorToolboxFormBase {
-  private JPanel mainPanel;
-  private JPanel fileListPanel;
-  private VirtualFileListForm fileListForm;
+    private JPanel mainPanel;
+    private JPanel fileListPanel;
+    private final VirtualFileListForm fileListForm;
 
-//  private FileSystemSourceConfig fileSystemSourceConfig;
-  public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.multipleFiles().
-          withTitle("Select Text Files to Embed").
-          withDescription("Select valid text files to embed");
+    //  private FileSystemSourceConfig fileSystemSourceConfig;
+    public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.multipleFiles().
+            withTitle("Select Text Files to Embed").
+            withDescription("Select valid text files to embed");
 
-  public EmbeddingSourceFilesForm(@NotNull VectorToolboxFormBase parent) {
-    super(parent);
-    fileListForm = new VirtualFileListForm(this, "Source files");
-    fileListPanel.add(fileListForm.getComponent());
-  }
+    public EmbeddingSourceFilesForm(@NotNull VectorToolboxFormBase parent) {
+        super(parent);
+        fileListForm = new VirtualFileListForm(this, "Source files");
+        fileListPanel.add(fileListForm.getComponent());
+    }
 
-  @Override
-  protected void initValidation() {
-    addValidation(fileListForm.getFileList(), l -> l.getModel().getSize() > 0, "Please select at least one file");
-  }
+    @Override
+    protected void initValidation() {
+        addValidation(fileListForm.getFileList(), l -> l.getModel().getSize() > 0, "Please select at least one file");
+    }
 
-  @Override
-  public void resetFormChanges() {
-    EmbeddingSourceFiles config = getConfig();
-    fileListForm.setFiles(config.getFiles());
-  }
+    @Override
+    public void resetFormChanges() {
+        EmbeddingFileSources config = getConfig();
+        fileListForm.setFiles(config.getFileSources());
+    }
 
-  @Override
-  public void applyFormChanges() {
-    EmbeddingSourceFiles config = getConfig();
-    config.setFilePaths(fileListForm.getFilePaths());
-  }
+    @Override
+    public void applyFormChanges() {
+        EmbeddingFileSources config = getConfig();
+        config.setFilePaths(fileListForm.getFilePaths());
+    }
 
-  private EmbeddingSourceFiles getConfig() {
-    return getEmbeddingRequest().getSourceConfig().getSourceFiles();
-  }
+    private EmbeddingFileSources getConfig() {
+        return getEmbeddingRequest().getSourceConfig().getSourceFiles();
+    }
 
-  @Override
-  protected JComponent getMainComponent() {
-    return mainPanel;
-  }
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
+    }
 
     public int getSelectedFileCount() {
         return fileListForm.getFileList().getModel().getSize();

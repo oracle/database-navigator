@@ -19,7 +19,7 @@ package com.dbn.vector.ui.request;
 import com.dbn.common.operation.RecordOperation;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.vector.model.request.EmbeddingSourceTable;
+import com.dbn.vector.model.request.EmbeddingTableSource;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -28,13 +28,13 @@ import javax.swing.Action;
 
 @Getter
 public class EmbeddingSourceTableDialog extends DBNDialog<EmbeddingSourceTableForm> {
-    private final EmbeddingSourceTable sourceTable;
+    private final EmbeddingTableSource tableSource;
     private final RecordOperation operation;
 
 
-    public EmbeddingSourceTableDialog(ConnectionHandler connection, EmbeddingSourceTable config, RecordOperation operation) {
+    public EmbeddingSourceTableDialog(ConnectionHandler connection, EmbeddingTableSource config, RecordOperation operation) {
         super(connection, getDialogTitle(operation), false);
-        this.sourceTable = config;
+        this.tableSource = config;
         this.operation = operation;
 
         init();
@@ -49,7 +49,7 @@ public class EmbeddingSourceTableDialog extends DBNDialog<EmbeddingSourceTableFo
 
     @Override
     protected @NotNull EmbeddingSourceTableForm createForm() {
-        return new EmbeddingSourceTableForm(this, ensureConnection(), sourceTable);
+        return new EmbeddingSourceTableForm(this, ensureConnection(), tableSource);
     }
 
     @Override

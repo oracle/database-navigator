@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package com.dbn.vector.ui.request;
+package com.dbn.vector.model;
 
-import com.dbn.common.ui.list.MutableObjectListModel;
-import com.dbn.vector.model.request.EmbeddingTableSource;
+import com.dbn.connection.jdbc.DBNConnection;
+import com.intellij.openapi.progress.ProgressIndicator;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.List;
+@Getter
+@Setter
+public class VectorEmbeddingContext {
+    private final ProgressIndicator progressIndicator;
+    private final DBNConnection connection;
 
-public class EmbeddingSourceTablesListModel extends MutableObjectListModel<EmbeddingTableSource> {
-  public EmbeddingSourceTablesListModel(List<EmbeddingTableSource> tables) {
-    super(tables);
-  }
+    public VectorEmbeddingContext(ProgressIndicator progressIndicator, DBNConnection connection) {
+        this.progressIndicator = progressIndicator;
+        this.connection = connection;
+    }
 }

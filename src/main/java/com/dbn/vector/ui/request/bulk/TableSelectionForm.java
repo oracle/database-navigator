@@ -27,7 +27,7 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.ui.DBObjectSelector;
-import com.dbn.vector.model.request.EmbeddingSourceTable;
+import com.dbn.vector.model.request.EmbeddingTableSource;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -481,8 +481,8 @@ public class TableSelectionForm extends VectorToolboxFormBase {
      * Get the configured table sources from user selections.
      * Only returns tables that have both key and data columns configured.
      */
-    public List<EmbeddingSourceTable> getSelectedTableSources() {
-        List<EmbeddingSourceTable> result = new ArrayList<>();
+    public List<EmbeddingTableSource> getSelectedTableSources() {
+        List<EmbeddingTableSource> result = new ArrayList<>();
         DBSchema schema = getSelectedSchema();
 
         if (schema == null) return result;
@@ -495,7 +495,7 @@ public class TableSelectionForm extends VectorToolboxFormBase {
             // Skip tables without column configuration
             if (keyCol == null || dataCol == null) continue;
 
-            EmbeddingSourceTable source = new EmbeddingSourceTable();
+            EmbeddingTableSource source = new EmbeddingTableSource();
             source.setSchemaName(schema.getName());
             source.setTableName(table.getName());
             source.setKeyColumnName(keyCol.getName());
