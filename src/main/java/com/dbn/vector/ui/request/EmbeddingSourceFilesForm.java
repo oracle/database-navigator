@@ -49,8 +49,7 @@ public class EmbeddingSourceFilesForm extends VectorToolboxFormBase {
 
     @Override
     public void resetFormChanges() {
-        EmbeddingFileSources config = getConfig();
-        fileListForm.setFiles(config.getFileSources());
+        fileListForm.initFileData(() -> getConfig().getFileSources());
     }
 
     @Override

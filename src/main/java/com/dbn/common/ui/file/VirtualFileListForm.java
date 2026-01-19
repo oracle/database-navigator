@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.file;
 
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -27,6 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
@@ -60,7 +62,19 @@ public class VirtualFileListForm extends DBNFormBase {
         return createToolbarDecoratorComponent(decorator, fileList);
     }
 
-  @NotNull
+    public void initFileData(Supplier<List<VirtualFile>> supplier) {
+        Dispatch.async(fileList, () -> {
+            boolean enabled = fileList.isEnabled();
+            try {
+                return supplier.get();
+            } finally {
+                fileList.setEnabled(enabled);
+            }
+
+        }, l -> setFiles(l));
+    }
+
+    @NotNull
     @Override
     public JPanel getMainComponent() {
         return component;
