@@ -22,6 +22,7 @@ import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.Resources;
+import com.dbn.connection.ResultSets;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
@@ -39,6 +40,7 @@ import com.intellij.openapi.project.Project;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.common.util.Strings.isEmpty;
@@ -111,7 +113,14 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
         try {
             resultSet = executeQuery(connection, "extract-ddl-statement", objectType, ownerName, objectName);
             resultSet.next();
-            return resultSet.getString(2);
+            List<String> columnNames = ResultSets.getColumnNames(resultSet);
+            for (String columnName : columnNames) {
+                if (columnName.equalsIgnoreCase("create " + objectType)) {
+                    return resultSet.getString(columnName);
+                }
+
+            }
+            throw new SQLException("Cannot extract DDL statement");
         } finally {
             Resources.close(resultSet);
         }
