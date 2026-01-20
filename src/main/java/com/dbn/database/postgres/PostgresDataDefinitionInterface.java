@@ -59,6 +59,11 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         }
     }
 
+    @Override
+    public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
     /*********************************************************
      *                   CHANGE statements                   *
      *********************************************************/
