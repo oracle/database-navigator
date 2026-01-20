@@ -28,34 +28,42 @@
         <token index="3" id="DT_BLOB" value="blob" type="datatype" reserved="true"/>
         <token index="4" id="DT_BOOL" value="bool" type="datatype" reserved="true"/>
         <token index="5" id="DT_BOOLEAN" value="boolean" type="datatype" reserved="true"/>
-        <token index="6" id="DT_DATE" value="date" type="datatype"/>
-        <token index="7" id="DT_DATETIME" value="datetime" type="datatype"/>
-        <token index="8" id="DT_DEC" value="dec" type="datatype"/>
-        <token index="9" id="DT_DECIMAL" value="decimal" type="datatype"/>
-        <token index="10" id="DT_DOUBLE" value="double" type="datatype"/>
-        <token index="11" id="DT_DOUBLE_PRECISION" value="double_precision" type="datatype"/>
+        <token index="6" id="DT_CHAR" value="char" type="datatype"/>
+        <token index="7" id="DT_DATE" value="date" type="datatype"/>
+        <token index="8" id="DT_DATETIME" value="datetime" type="datatype"/>
+        <token index="9" id="DT_DEC" value="dec" type="datatype"/>
+        <token index="10" id="DT_DECIMAL" value="decimal" type="datatype"/>
+        <token index="11" id="DT_DOUBLE" value="double" type="datatype"/>
         <token index="12" id="DT_ENUM" value="enum" type="datatype"/>
         <token index="13" id="DT_FLOAT" value="float" type="datatype"/>
-        <token index="14" id="DT_INT" value="int" type="datatype"/>
-        <token index="15" id="DT_INTEGER" value="integer" type="datatype"/>
-        <token index="16" id="DT_LONGBLOB" value="longblob" type="datatype"/>
-        <token index="17" id="DT_LONGTEXT" value="longtext" type="datatype"/>
-        <token index="18" id="DT_MEDIUMBLOB" value="mediumblob" type="datatype"/>
-        <token index="19" id="DT_MEDIUMINT" value="mediumint" type="datatype"/>
-        <token index="20" id="DT_MEDIUMTEXT" value="mediumtext" type="datatype"/>
-        <token index="21" id="DT_NATIONAL_VARCHAR" value="national_varchar" type="datatype"/>
-        <token index="22" id="DT_NUMERIC" value="numeric" type="datatype"/>
-        <token index="23" id="DT_REAL" value="real" type="datatype"/>
-        <token index="24" id="DT_SMALLINT" value="smallint" type="datatype"/>
-        <token index="25" id="DT_TEXT" value="text" type="datatype"/>
-        <token index="26" id="DT_TIME" value="time" type="datatype"/>
-        <token index="27" id="DT_TIMESTAMP" value="timestamp" type="datatype"/>
-        <token index="28" id="DT_TINYBLOB" value="tinyblob" type="datatype"/>
-        <token index="29" id="DT_TINYINT" value="tinyint" type="datatype"/>
-        <token index="30" id="DT_TINYTEXT" value="tinytext" type="datatype"/>
-        <token index="31" id="DT_VARBINARY" value="varbinary" type="datatype"/>
-        <token index="32" id="DT_VARCHAR" value="varchar" type="datatype" reserved="true"/>
-        <token index="33" id="DT_YEAR" value="year" type="datatype" reserved="true"/>
+        <token index="14" id="DT_GEOMETRY" value="geometry" type="datatype"/>
+        <token index="15" id="DT_GEOMETRYCOLLECTION" value="geometrycollection" type="datatype"/>
+        <token index="16" id="DT_INT" value="int" type="datatype"/>
+        <token index="17" id="DT_INTEGER" value="integer" type="datatype"/>
+        <token index="18" id="DT_LINESTRING" value="linestring" type="datatype"/>
+        <token index="19" id="DT_LONGBLOB" value="longblob" type="datatype"/>
+        <token index="20" id="DT_LONGTEXT" value="longtext" type="datatype"/>
+        <token index="21" id="DT_MEDIUMBLOB" value="mediumblob" type="datatype"/>
+        <token index="22" id="DT_MEDIUMINT" value="mediumint" type="datatype"/>
+        <token index="23" id="DT_MEDIUMTEXT" value="mediumtext" type="datatype"/>
+        <token index="24" id="DT_MULTILINESTRING" value="multilinestring" type="datatype"/>
+        <token index="25" id="DT_MULTIPOINT" value="multipoint" type="datatype"/>
+        <token index="26" id="DT_MULTIPOLYGON" value="multipolygon" type="datatype"/>
+        <token index="27" id="DT_NUMERIC" value="numeric" type="datatype"/>
+        <token index="28" id="DT_POINT" value="point" type="datatype"/>
+        <token index="29" id="DT_POLYGON" value="polygon" type="datatype"/>
+        <token index="30" id="DT_REAL" value="real" type="datatype"/>
+        <token index="31" id="DT_SMALLINT" value="smallint" type="datatype"/>
+        <token index="32" id="DT_TEXT" value="text" type="datatype"/>
+        <token index="33" id="DT_TIME" value="time" type="datatype"/>
+        <token index="34" id="DT_TIMESTAMP" value="timestamp" type="datatype"/>
+        <token index="35" id="DT_TINYBLOB" value="tinyblob" type="datatype"/>
+        <token index="36" id="DT_TINYINT" value="tinyint" type="datatype"/>
+        <token index="37" id="DT_TINYTEXT" value="tinytext" type="datatype"/>
+        <token index="38" id="DT_VARBINARY" value="varbinary" type="datatype"/>
+        <token index="39" id="DT_VARCHAR" value="varchar" type="datatype" reserved="true"/>
+        <token index="40" id="DT_YEAR" value="year" type="datatype" reserved="true"/>
+
 
         <!-- KEYWORDS -->
         <token index="0" id="KW_ACCESSIBLE" value="accessible" type="keyword"/>
@@ -205,122 +213,124 @@
         <token index="144" id="KW_MOD" value="mod" type="keyword"/>
         <token index="145" id="KW_MODE" value="mode" type="keyword"/>
         <token index="146" id="KW_MODIFIES" value="modifies" type="keyword"/>
-        <token index="147" id="KW_NATURAL" value="natural" type="keyword" reserved="true"/>
-        <token index="148" id="KW_NEXT" value="next" type="keyword"/>
-        <token index="149" id="KW_NO" value="no" type="keyword"/>
-        <token index="150" id="KW_NOT" value="not" type="keyword" reserved="true"/>
-        <token index="151" id="KW_NULL" value="null" type="keyword" reserved="true"/>
-        <token index="152" id="KW_OFFSET" value="offset" type="keyword"/>
-        <token index="153" id="KW_OJ" value="oj" type="keyword"/>
-        <token index="154" id="KW_ON" value="on" type="keyword" reserved="true"/>
-        <token index="155" id="KW_OPEN" value="open" type="keyword"/>
-        <token index="156" id="KW_OPTIMIZE" value="optimize" type="keyword" reserved="true"/>
-        <token index="157" id="KW_OPTION" value="option" type="keyword"/>
-        <token index="158" id="KW_OPTIONALLY" value="optionally" type="keyword"/>
-        <token index="159" id="KW_OR" value="or" type="keyword" reserved="true"/>
-        <token index="160" id="KW_ORDER" value="order" type="keyword" reserved="true"/>
-        <token index="161" id="KW_OUT" value="out" type="keyword"/>
-        <token index="162" id="KW_OUTER" value="outer" type="keyword" reserved="true"/>
-        <token index="163" id="KW_OUTFILE" value="outfile" type="keyword"/>
-        <token index="164" id="KW_PARSER" value="parser" type="keyword"/>
-        <token index="165" id="KW_PARTIAL" value="partial" type="keyword"/>
-        <token index="166" id="KW_PARTITION" value="partition" type="keyword" reserved="true"/>
-        <token index="167" id="KW_PARTITIONS" value="partitions" type="keyword"/>
-        <token index="168" id="KW_PASSWORD" value="password" type="keyword"/>
-        <token index="169" id="KW_PRECISION" value="precision" type="keyword"/>
-        <token index="170" id="KW_PREV" value="prev" type="keyword"/>
-        <token index="171" id="KW_PRIMARY" value="primary" type="keyword" reserved="true"/>
-        <token index="172" id="KW_PROCEDURE" value="procedure" type="keyword" reserved="true"/>
-        <token index="173" id="KW_PURGE" value="purge" type="keyword" reserved="true"/>
-        <token index="174" id="KW_QUERY" value="query" type="keyword"/>
-        <token index="175" id="KW_QUICK" value="quick" type="keyword"/>
-        <token index="176" id="KW_RANGE" value="range" type="keyword"/>
-        <token index="177" id="KW_READ" value="read" type="keyword" reserved="true"/>
-        <token index="178" id="KW_READ_ONLY" value="read_only" type="keyword"/>
-        <token index="179" id="KW_READ_WRITE" value="read_write" type="keyword"/>
-        <token index="180" id="KW_READS" value="reads" type="keyword"/>
-        <token index="181" id="KW_REDUNDANT" value="redundant" type="keyword"/>
-        <token index="182" id="KW_REFERENCES" value="references" type="keyword" reserved="true"/>
-        <token index="183" id="KW_REGEXP" value="regexp" type="keyword" reserved="true"/>
-        <token index="184" id="KW_RELEASE" value="release" type="keyword"/>
-        <token index="185" id="KW_RENAME" value="rename" type="keyword" reserved="true"/>
-        <token index="186" id="KW_REPEAT" value="repeat" type="keyword"/>
-        <token index="187" id="KW_REPLACE" value="replace" type="keyword" reserved="true"/>
-        <token index="188" id="KW_REQUIRE" value="require" type="keyword"/>
-        <token index="189" id="KW_RESTRICT" value="restrict" type="keyword" reserved="true"/>
-        <token index="190" id="KW_RETURN" value="return" type="keyword"/>
-        <token index="191" id="KW_REVERSE" value="reverse" type="keyword"/>
-        <token index="192" id="KW_REVOKE" value="revoke" type="keyword"/>
-        <token index="193" id="KW_RIGHT" value="right" type="keyword" reserved="true"/>
-        <token index="194" id="KW_RLIKE" value="rlike" type="keyword"/>
-        <token index="195" id="KW_ROLLBACK" value="rollback" type="keyword" reserved="true"/>
-        <token index="196" id="KW_ROLLUP" value="rollup" type="keyword"/>
-        <token index="197" id="KW_SCHEMA" value="schema" type="keyword"/>
-        <token index="198" id="KW_SCHEMAS" value="schemas" type="keyword"/>
-        <token index="199" id="KW_SECURITY" value="security" type="keyword"/>
-        <token index="200" id="KW_SELECT" value="select" type="keyword" reserved="true"/>
-        <token index="201" id="KW_SENSITIVE" value="sensitive" type="keyword"/>
-        <token index="202" id="KW_SEPARATOR" value="separator" type="keyword"/>
-        <token index="203" id="KW_SET" value="set" type="keyword" reserved="true"/>
-        <token index="204" id="KW_SHARE" value="share" type="keyword"/>
-        <token index="205" id="KW_SHOW" value="show" type="keyword" reserved="true"/>
-        <token index="206" id="KW_SIMPLE" value="simple" type="keyword"/>
-        <token index="207" id="KW_SPATIAL" value="spatial" type="keyword"/>
-        <token index="208" id="KW_SPECIFIC" value="specific" type="keyword"/>
-        <token index="209" id="KW_SQL" value="sql" type="keyword"/>
-        <token index="210" id="KW_SQL_BIG_RESULT" value="sql_big_result" type="keyword"/>
-        <token index="211" id="KW_SQL_BUFFER_RESULT" value="sql_buffer_result" type="keyword"/>
-        <token index="212" id="KW_SQL_CACHE" value="sql_cache" type="keyword"/>
-        <token index="213" id="KW_SQL_CALC_FOUND_ROWS" value="sql_calc_found_rows" type="keyword"/>
-        <token index="214" id="KW_SQL_NO_CACHE" value="sql_no_cache" type="keyword"/>
-        <token index="215" id="KW_SQL_SMALL_RESULT" value="sql_small_result" type="keyword"/>
-        <token index="216" id="KW_SQLEXCEPTION" value="sqlexception" type="keyword"/>
-        <token index="217" id="KW_SQLSTATE" value="sqlstate" type="keyword"/>
-        <token index="218" id="KW_SQLWARNING" value="sqlwarning" type="keyword"/>
-        <token index="219" id="KW_SSL" value="ssl" type="keyword"/>
-        <token index="220" id="KW_START" value="start" type="keyword"/>
-        <token index="221" id="KW_STARTING" value="starting" type="keyword"/>
-        <token index="222" id="KW_STORAGE" value="storage" type="keyword"/>
-        <token index="223" id="KW_STORED" value="stored" type="keyword"/>
-        <token index="224" id="KW_STRAIGHT_JOIN" value="straight_join" type="keyword"/>
-        <token index="225" id="KW_SUBPARTITION" value="subpartition" type="keyword"/>
-        <token index="226" id="KW_TABLE" value="table" type="keyword" reserved="true"/>
-        <token index="227" id="KW_TABLESPACE" value="tablespace" type="keyword"/>
-        <token index="228" id="KW_TEMPORARY" value="temporary" type="keyword" reserved="true"/>
-        <token index="229" id="KW_TEMPTABLE" value="temptable" type="keyword"/>
-        <token index="230" id="KW_TERMINATED" value="terminated" type="keyword"/>
-        <token index="231" id="KW_THAN" value="than" type="keyword"/>
-        <token index="232" id="KW_THEN" value="then" type="keyword" reserved="true"/>
-        <token index="233" id="KW_TO" value="to" type="keyword" reserved="true"/>
-        <token index="234" id="KW_TRAILING" value="trailing" type="keyword"/>
-        <token index="235" id="KW_TRANSACTION" value="transaction" type="keyword"/>
-        <token index="236" id="KW_TRIGGER" value="trigger" type="keyword" reserved="true"/>
-        <token index="237" id="KW_TRUNCATE" value="truncate" type="keyword"/>
-        <token index="238" id="KW_UNDEFINED" value="undefined" type="keyword"/>
-        <token index="239" id="KW_UNDO" value="undo" type="keyword" reserved="true"/>
-        <token index="240" id="KW_UNION" value="union" type="keyword" reserved="true"/>
-        <token index="241" id="KW_UNIQUE" value="unique" type="keyword" reserved="true"/>
-        <token index="242" id="KW_UNLOCK" value="unlock" type="keyword"/>
-        <token index="243" id="KW_UNSIGNED" value="unsigned" type="keyword"/>
-        <token index="244" id="KW_UPDATE" value="update" type="keyword" reserved="true"/>
-        <token index="245" id="KW_USAGE" value="usage" type="keyword" reserved="true"/>
-        <token index="246" id="KW_USE" value="use" type="keyword" reserved="true"/>
-        <token index="247" id="KW_USING" value="using" type="keyword"/>
-        <token index="248" id="KW_VALUE" value="value" type="keyword"/>
-        <token index="249" id="KW_VALUES" value="values" type="keyword" reserved="true"/>
-        <token index="250" id="KW_VARCHARACTER" value="varcharacter" type="keyword"/>
-        <token index="251" id="KW_VIEW" value="view" type="keyword"/>
-        <token index="252" id="KW_VISIBLE" value="visible" type="keyword"/>
-        <token index="253" id="KW_WHEN" value="when" type="keyword" reserved="true"/>
-        <token index="254" id="KW_WHEN" value="when" type="keyword" reserved="true"/>
-        <token index="255" id="KW_WHERE" value="where" type="keyword" reserved="true"/>
-        <token index="256" id="KW_WHILE" value="while" type="keyword" reserved="true"/>
-        <token index="257" id="KW_WITH" value="with" type="keyword" reserved="true"/>
-        <token index="258" id="KW_WRITE" value="write" type="keyword"/>
-        <token index="259" id="KW_XOR" value="xor" type="keyword"/>
-        <token index="260" id="KW_ZEROFILL" value="zerofill" type="keyword"/>
-        <token index="261" id="KW_FALSE" value="false" type="keyword" reserved="true"/>
-        <token index="262" id="KW_TRUE" value="true" type="keyword" reserved="true"/>
+        <token index="147" id="KW_NATIONAL" value="national" type="keyword"/>
+        <token index="148" id="KW_NATURAL" value="natural" type="keyword" reserved="true"/>
+        <token index="149" id="KW_NEXT" value="next" type="keyword"/>
+        <token index="150" id="KW_NO" value="no" type="keyword"/>
+        <token index="151" id="KW_NOT" value="not" type="keyword" reserved="true"/>
+        <token index="152" id="KW_NULL" value="null" type="keyword" reserved="true"/>
+        <token index="153" id="KW_OFFSET" value="offset" type="keyword"/>
+        <token index="154" id="KW_OJ" value="oj" type="keyword"/>
+        <token index="155" id="KW_ON" value="on" type="keyword" reserved="true"/>
+        <token index="156" id="KW_OPEN" value="open" type="keyword"/>
+        <token index="157" id="KW_OPTIMIZE" value="optimize" type="keyword" reserved="true"/>
+        <token index="158" id="KW_OPTION" value="option" type="keyword"/>
+        <token index="159" id="KW_OPTIONALLY" value="optionally" type="keyword"/>
+        <token index="160" id="KW_OR" value="or" type="keyword" reserved="true"/>
+        <token index="161" id="KW_ORDER" value="order" type="keyword" reserved="true"/>
+        <token index="162" id="KW_OUT" value="out" type="keyword"/>
+        <token index="163" id="KW_OUTER" value="outer" type="keyword" reserved="true"/>
+        <token index="164" id="KW_OUTFILE" value="outfile" type="keyword"/>
+        <token index="165" id="KW_PARSER" value="parser" type="keyword"/>
+        <token index="166" id="KW_PARTIAL" value="partial" type="keyword"/>
+        <token index="167" id="KW_PARTITION" value="partition" type="keyword" reserved="true"/>
+        <token index="168" id="KW_PARTITIONS" value="partitions" type="keyword"/>
+        <token index="169" id="KW_PASSWORD" value="password" type="keyword"/>
+        <token index="170" id="KW_PRECISION" value="precision" type="keyword"/>
+        <token index="171" id="KW_PREV" value="prev" type="keyword"/>
+        <token index="172" id="KW_PRIMARY" value="primary" type="keyword" reserved="true"/>
+        <token index="173" id="KW_PROCEDURE" value="procedure" type="keyword" reserved="true"/>
+        <token index="174" id="KW_PURGE" value="purge" type="keyword" reserved="true"/>
+        <token index="175" id="KW_QUERY" value="query" type="keyword"/>
+        <token index="176" id="KW_QUICK" value="quick" type="keyword"/>
+        <token index="177" id="KW_RANGE" value="range" type="keyword"/>
+        <token index="178" id="KW_READ" value="read" type="keyword" reserved="true"/>
+        <token index="179" id="KW_READ_ONLY" value="read_only" type="keyword"/>
+        <token index="180" id="KW_READ_WRITE" value="read_write" type="keyword"/>
+        <token index="181" id="KW_READS" value="reads" type="keyword"/>
+        <token index="182" id="KW_REDUNDANT" value="redundant" type="keyword"/>
+        <token index="183" id="KW_REFERENCES" value="references" type="keyword" reserved="true"/>
+        <token index="184" id="KW_REGEXP" value="regexp" type="keyword" reserved="true"/>
+        <token index="185" id="KW_RELEASE" value="release" type="keyword"/>
+        <token index="186" id="KW_RENAME" value="rename" type="keyword" reserved="true"/>
+        <token index="187" id="KW_REPEAT" value="repeat" type="keyword"/>
+        <token index="188" id="KW_REPLACE" value="replace" type="keyword" reserved="true"/>
+        <token index="189" id="KW_REQUIRE" value="require" type="keyword"/>
+        <token index="190" id="KW_RESTRICT" value="restrict" type="keyword" reserved="true"/>
+        <token index="191" id="KW_RETURN" value="return" type="keyword"/>
+        <token index="192" id="KW_REVERSE" value="reverse" type="keyword"/>
+        <token index="193" id="KW_REVOKE" value="revoke" type="keyword"/>
+        <token index="194" id="KW_RIGHT" value="right" type="keyword" reserved="true"/>
+        <token index="195" id="KW_RLIKE" value="rlike" type="keyword"/>
+        <token index="196" id="KW_ROLLBACK" value="rollback" type="keyword" reserved="true"/>
+        <token index="197" id="KW_ROLLUP" value="rollup" type="keyword"/>
+        <token index="198" id="KW_SCHEMA" value="schema" type="keyword"/>
+        <token index="199" id="KW_SCHEMAS" value="schemas" type="keyword"/>
+        <token index="200" id="KW_SECURITY" value="security" type="keyword"/>
+        <token index="201" id="KW_SELECT" value="select" type="keyword" reserved="true"/>
+        <token index="202" id="KW_SENSITIVE" value="sensitive" type="keyword"/>
+        <token index="203" id="KW_SEPARATOR" value="separator" type="keyword"/>
+        <token index="204" id="KW_SET" value="set" type="keyword" reserved="true"/>
+        <token index="205" id="KW_SHARE" value="share" type="keyword"/>
+        <token index="206" id="KW_SHOW" value="show" type="keyword" reserved="true"/>
+        <token index="207" id="KW_SIMPLE" value="simple" type="keyword"/>
+        <token index="208" id="KW_SPATIAL" value="spatial" type="keyword"/>
+        <token index="209" id="KW_SPECIFIC" value="specific" type="keyword"/>
+        <token index="210" id="KW_SQL" value="sql" type="keyword"/>
+        <token index="211" id="KW_SQL_BIG_RESULT" value="sql_big_result" type="keyword"/>
+        <token index="212" id="KW_SQL_BUFFER_RESULT" value="sql_buffer_result" type="keyword"/>
+        <token index="213" id="KW_SQL_CACHE" value="sql_cache" type="keyword"/>
+        <token index="214" id="KW_SQL_CALC_FOUND_ROWS" value="sql_calc_found_rows" type="keyword"/>
+        <token index="215" id="KW_SQL_NO_CACHE" value="sql_no_cache" type="keyword"/>
+        <token index="216" id="KW_SQL_SMALL_RESULT" value="sql_small_result" type="keyword"/>
+        <token index="217" id="KW_SQLEXCEPTION" value="sqlexception" type="keyword"/>
+        <token index="218" id="KW_SQLSTATE" value="sqlstate" type="keyword"/>
+        <token index="219" id="KW_SQLWARNING" value="sqlwarning" type="keyword"/>
+        <token index="220" id="KW_SSL" value="ssl" type="keyword"/>
+        <token index="221" id="KW_START" value="start" type="keyword"/>
+        <token index="222" id="KW_STARTING" value="starting" type="keyword"/>
+        <token index="223" id="KW_STORAGE" value="storage" type="keyword"/>
+        <token index="224" id="KW_STORED" value="stored" type="keyword"/>
+        <token index="225" id="KW_STRAIGHT_JOIN" value="straight_join" type="keyword"/>
+        <token index="226" id="KW_SUBPARTITION" value="subpartition" type="keyword"/>
+        <token index="227" id="KW_TABLE" value="table" type="keyword" reserved="true"/>
+        <token index="228" id="KW_TABLESPACE" value="tablespace" type="keyword"/>
+        <token index="229" id="KW_TEMPORARY" value="temporary" type="keyword" reserved="true"/>
+        <token index="230" id="KW_TEMPTABLE" value="temptable" type="keyword"/>
+        <token index="231" id="KW_TERMINATED" value="terminated" type="keyword"/>
+        <token index="232" id="KW_THAN" value="than" type="keyword"/>
+        <token index="233" id="KW_THEN" value="then" type="keyword" reserved="true"/>
+        <token index="234" id="KW_TO" value="to" type="keyword" reserved="true"/>
+        <token index="235" id="KW_TRAILING" value="trailing" type="keyword"/>
+        <token index="236" id="KW_TRANSACTION" value="transaction" type="keyword"/>
+        <token index="237" id="KW_TRIGGER" value="trigger" type="keyword" reserved="true"/>
+        <token index="238" id="KW_TRUNCATE" value="truncate" type="keyword"/>
+        <token index="239" id="KW_UNDEFINED" value="undefined" type="keyword"/>
+        <token index="240" id="KW_UNDO" value="undo" type="keyword" reserved="true"/>
+        <token index="241" id="KW_UNION" value="union" type="keyword" reserved="true"/>
+        <token index="242" id="KW_UNIQUE" value="unique" type="keyword" reserved="true"/>
+        <token index="243" id="KW_UNLOCK" value="unlock" type="keyword"/>
+        <token index="244" id="KW_UNSIGNED" value="unsigned" type="keyword"/>
+        <token index="245" id="KW_UPDATE" value="update" type="keyword" reserved="true"/>
+        <token index="246" id="KW_USAGE" value="usage" type="keyword" reserved="true"/>
+        <token index="247" id="KW_USE" value="use" type="keyword" reserved="true"/>
+        <token index="248" id="KW_USING" value="using" type="keyword"/>
+        <token index="249" id="KW_VALUE" value="value" type="keyword"/>
+        <token index="250" id="KW_VALUES" value="values" type="keyword" reserved="true"/>
+        <token index="251" id="KW_VARCHARACTER" value="varcharacter" type="keyword"/>
+        <token index="252" id="KW_VARYING" value="varying" type="keyword"/>
+        <token index="253" id="KW_VIEW" value="view" type="keyword"/>
+        <token index="254" id="KW_VIRTUAL" value="virtual" type="keyword"/>
+        <token index="255" id="KW_VISIBLE" value="visible" type="keyword"/>
+        <token index="256" id="KW_WHEN" value="when" type="keyword" reserved="true"/>
+        <token index="257" id="KW_WHERE" value="where" type="keyword" reserved="true"/>
+        <token index="258" id="KW_WHILE" value="while" type="keyword" reserved="true"/>
+        <token index="259" id="KW_WITH" value="with" type="keyword" reserved="true"/>
+        <token index="260" id="KW_WRITE" value="write" type="keyword"/>
+        <token index="261" id="KW_XOR" value="xor" type="keyword"/>
+        <token index="262" id="KW_ZEROFILL" value="zerofill" type="keyword"/>
+        <token index="263" id="KW_FALSE" value="false" type="keyword" reserved="true"/>
+        <token index="264" id="KW_TRUE" value="true" type="keyword" reserved="true"/>
 
 
 
@@ -347,182 +357,181 @@
         <token index="17" id="FN_BIT_XOR" value="bit_xor" type="function"/>
         <token index="18" id="FN_CEIL" value="ceil" type="function"/>
         <token index="19" id="FN_CEILING" value="ceiling" type="function"/>
-        <token index="20" id="FN_CHAR" value="char" type="function"/>
-        <token index="21" id="FN_CHAR_LENGTH" value="char_length" type="function"/>
-        <token index="22" id="FN_CHARACTER_LENGTH" value="character_length" type="function"/>
-        <token index="23" id="FN_CHARSET" value="charset" type="function"/>
-        <token index="24" id="FN_COERCIBILITY" value="coercibility" type="function"/>
-        <token index="25" id="FN_COLLATION" value="collation" type="function"/>
-        <token index="26" id="FN_COMPRESS" value="compress" type="function"/>
-        <token index="27" id="FN_CONCAT" value="concat" type="function"/>
-        <token index="28" id="FN_CONCAT_WS" value="concat_ws" type="function"/>
-        <token index="29" id="FN_CONNECTION_ID" value="connection_id" type="function"/>
-        <token index="30" id="FN_CONV" value="conv" type="function"/>
-        <token index="31" id="FN_CONVERT_TZ" value="convert_tz" type="function"/>
-        <token index="32" id="FN_COS" value="cos" type="function"/>
-        <token index="33" id="FN_COT" value="cot" type="function"/>
-        <token index="34" id="FN_COUNT" value="count" type="function"/>
-        <token index="35" id="FN_CRC32" value="crc32" type="function"/>
-        <token index="36" id="FN_CURDATE" value="curdate" type="function"/>
-        <token index="37" id="FN_CURRENT_DATE" value="current_date" type="function"/>
-        <token index="38" id="FN_CURRENT_TIME" value="current_time" type="function"/>
-        <token index="39" id="FN_CURRENT_TIMESTAMP" value="current_timestamp" type="function"/>
-        <token index="40" id="FN_CURTIME" value="curtime" type="function"/>
-        <token index="41" id="FN_DATE_ADD" value="date_add" type="function"/>
-        <token index="42" id="FN_DATE_FORMAT" value="date_format" type="function"/>
-        <token index="43" id="FN_DATE_SUB" value="date_sub" type="function"/>
-        <token index="44" id="FN_DATEDIFF" value="datediff" type="function"/>
-        <token index="45" id="FN_DAY" value="day" type="function"/>
-        <token index="46" id="FN_DAY_HOUR" value="day_hour" type="function"/>
-        <token index="47" id="FN_DAY_MICROSECOND" value="day_microsecond" type="function"/>
-        <token index="48" id="FN_DAY_MINUTE" value="day_minute" type="function"/>
-        <token index="49" id="FN_DAY_SECOND" value="day_second" type="function"/>
-        <token index="50" id="FN_DAYNAME" value="dayname" type="function"/>
-        <token index="51" id="FN_DAYOFMONTH" value="dayofmonth" type="function"/>
-        <token index="52" id="FN_DAYOFWEEK" value="dayofweek" type="function"/>
-        <token index="53" id="FN_DAYOFYEAR" value="dayofyear" type="function"/>
-        <token index="54" id="FN_DECODE" value="decode" type="function"/>
-        <token index="55" id="FN_DEGREES" value="degrees" type="function"/>
-        <token index="56" id="FN_DES_DECRYPT" value="des_decrypt" type="function"/>
-        <token index="57" id="FN_DES_ENCRYPT" value="des_encrypt" type="function"/>
-        <token index="58" id="FN_ELT" value="elt" type="function"/>
-        <token index="59" id="FN_ENCODE" value="encode" type="function"/>
-        <token index="60" id="FN_ENCRYPT" value="encrypt" type="function"/>
-        <token index="61" id="FN_EXP" value="exp" type="function"/>
-        <token index="62" id="FN_EXPORT_SET" value="export_set" type="function"/>
-        <token index="63" id="FN_EXTRACT" value="extract" type="function"/>
-        <token index="64" id="FN_FIELD" value="field" type="function"/>
-        <token index="65" id="FN_FIND_IN_SET" value="find_in_set" type="function"/>
-        <token index="66" id="FN_FLOOR" value="floor" type="function"/>
-        <token index="67" id="FN_FN_SECOND_MICROSECOND" value="fn_second_microsecond" type="function"/>
-        <token index="68" id="FN_FORMAT" value="format" type="function"/>
-        <token index="69" id="FN_FOUND_ROWS" value="found_rows" type="function"/>
-        <token index="70" id="FN_FROM_DAYS" value="from_days" type="function"/>
-        <token index="71" id="FN_FROM_UNIXTIME" value="from_unixtime" type="function"/>
-        <token index="72" id="FN_GET_FORMAT" value="get_format" type="function"/>
-        <token index="73" id="FN_GET_LOCK" value="get_lock" type="function"/>
-        <token index="74" id="FN_GROUP_CONCAT" value="group_concat" type="function"/>
-        <token index="75" id="FN_HEX" value="hex" type="function"/>
-        <token index="76" id="FN_HOUR" value="hour" type="function"/>
-        <token index="77" id="FN_HOUR_MICROSECOND" value="hour_microsecond" type="function"/>
-        <token index="78" id="FN_HOUR_MINUTE" value="hour_minute" type="function"/>
-        <token index="79" id="FN_HOUR_SECOND" value="hour_second" type="function"/>
-        <token index="80" id="FN_IFNULL" value="ifnull" type="function"/>
-        <token index="81" id="FN_INET_ATON" value="inet_aton" type="function"/>
-        <token index="82" id="FN_INET_NTOA" value="inet_ntoa" type="function"/>
-        <token index="83" id="FN_INSTR" value="instr" type="function"/>
-        <token index="84" id="FN_IS_FREE_LOCK" value="is_free_lock" type="function"/>
-        <token index="85" id="FN_IS_USED_LOCK" value="is_used_lock" type="function"/>
-        <token index="86" id="FN_LAST_DAY" value="last_day" type="function"/>
-        <token index="87" id="FN_LAST_INSERT_ID" value="last_insert_id" type="function"/>
-        <token index="88" id="FN_LCASE" value="lcase" type="function"/>
-        <token index="89" id="FN_LENGTH" value="length" type="function"/>
-        <token index="90" id="FN_LN" value="ln" type="function"/>
-        <token index="91" id="FN_LOAD_FILE" value="load_file" type="function"/>
-        <token index="92" id="FN_LOCALTIME" value="localtime" type="function"/>
-        <token index="93" id="FN_LOCALTIMESTAMP" value="localtimestamp" type="function"/>
-        <token index="94" id="FN_LOCATE" value="locate" type="function"/>
-        <token index="95" id="FN_LOG" value="log" type="function"/>
-        <token index="96" id="FN_LOG10" value="log10" type="function"/>
-        <token index="97" id="FN_LOG2" value="log2" type="function"/>
-        <token index="98" id="FN_LOWER" value="lower" type="function"/>
-        <token index="99" id="FN_LPAD" value="lpad" type="function"/>
-        <token index="100" id="FN_LTRIM" value="ltrim" type="function"/>
-        <token index="101" id="FN_MAKE_SET" value="make_set" type="function"/>
-        <token index="102" id="FN_MAKEDATE" value="makedate" type="function"/>
-        <token index="103" id="FN_MAKETIME" value="maketime" type="function"/>
-        <token index="104" id="FN_MASTER_POS_WAIT" value="master_pos_wait" type="function"/>
-        <token index="105" id="FN_MAX" value="max" type="function"/>
-        <token index="106" id="FN_MD5" value="md5" type="function"/>
-        <token index="107" id="FN_MID" value="mid" type="function"/>
-        <token index="108" id="FN_MIN" value="min" type="function"/>
-        <token index="109" id="FN_MINUTE" value="minute" type="function"/>
-        <token index="110" id="FN_MINUTE_MICROSECOND" value="minute_microsecond" type="function"/>
-        <token index="111" id="FN_MINUTE_SECOND" value="minute_second" type="function"/>
-        <token index="112" id="FN_MONTH" value="month" type="function"/>
-        <token index="113" id="FN_MONTHNAME" value="monthname" type="function"/>
-        <token index="114" id="FN_NAME_CONST" value="name_const" type="function"/>
-        <token index="115" id="FN_NOT_LIKE" value="not_like" type="function"/>
-        <token index="116" id="FN_NOT_REGEXP" value="not_regexp" type="function"/>
-        <token index="117" id="FN_NOW" value="now" type="function"/>
-        <token index="118" id="FN_NULLIF" value="nullif" type="function"/>
-        <token index="119" id="FN_OCT" value="oct" type="function"/>
-        <token index="120" id="FN_OCTET_LENGTH" value="octet_length" type="function"/>
-        <token index="121" id="FN_OLD_PASSWORD" value="old_password" type="function"/>
-        <token index="122" id="FN_ORD" value="ord" type="function"/>
-        <token index="123" id="FN_PERIOD_ADD" value="period_add" type="function"/>
-        <token index="124" id="FN_PERIOD_DIFF" value="period_diff" type="function"/>
-        <token index="125" id="FN_PI" value="pi" type="function"/>
-        <token index="126" id="FN_POSITION" value="position" type="function"/>
-        <token index="127" id="FN_POW" value="pow" type="function"/>
-        <token index="128" id="FN_POWER" value="power" type="function"/>
-        <token index="129" id="FN_QUARTER" value="quarter" type="function"/>
-        <token index="130" id="FN_QUOTE" value="quote" type="function"/>
-        <token index="131" id="FN_RADIANS" value="radians" type="function"/>
-        <token index="132" id="FN_RAND" value="rand" type="function"/>
-        <token index="133" id="FN_RELEASE_LOCK" value="release_lock" type="function"/>
-        <token index="134" id="FN_ROUND" value="round" type="function"/>
-        <token index="135" id="FN_ROW_COUNT" value="row_count" type="function"/>
-        <token index="136" id="FN_RPAD" value="rpad" type="function"/>
-        <token index="137" id="FN_RTRIM" value="rtrim" type="function"/>
-        <token index="138" id="FN_SEC_TO_TIME" value="sec_to_time" type="function"/>
-        <token index="139" id="FN_SECOND" value="second" type="function"/>
-        <token index="140" id="FN_SECOND_MICROSECOND" value="second_microsecond" type="function"/>
-        <token index="141" id="FN_SESSION_USER" value="session_user" type="function"/>
-        <token index="142" id="FN_SHA" value="sha" type="function"/>
-        <token index="143" id="FN_SHA1" value="sha1" type="function"/>
-        <token index="144" id="FN_SHA2" value="sha2" type="function"/>
-        <token index="145" id="FN_SIGN" value="sign" type="function"/>
-        <token index="146" id="FN_SIN" value="sin" type="function"/>
-        <token index="147" id="FN_SLEEP" value="sleep" type="function"/>
-        <token index="148" id="FN_SOUNDEX" value="soundex" type="function"/>
-        <token index="149" id="FN_SOUNDS_LIKE" value="sounds_like" type="function"/>
-        <token index="150" id="FN_SPACE" value="space" type="function"/>
-        <token index="151" id="FN_SQRT" value="sqrt" type="function"/>
-        <token index="152" id="FN_STD" value="std" type="function"/>
-        <token index="153" id="FN_STDDEV" value="stddev" type="function"/>
-        <token index="154" id="FN_STDDEV_POP" value="stddev_pop" type="function"/>
-        <token index="155" id="FN_STDDEV_SAMP" value="stddev_samp" type="function"/>
-        <token index="156" id="FN_STR_TO_DATE" value="str_to_date" type="function"/>
-        <token index="157" id="FN_STRCMP" value="strcmp" type="function"/>
-        <token index="158" id="FN_SUBDATE" value="subdate" type="function"/>
-        <token index="159" id="FN_SUBSTR" value="substr" type="function"/>
-        <token index="160" id="FN_SUBSTRING" value="substring" type="function"/>
-        <token index="161" id="FN_SUBSTRING_INDEX" value="substring_index" type="function"/>
-        <token index="162" id="FN_SUBTIME" value="subtime" type="function"/>
-        <token index="163" id="FN_SUM" value="sum" type="function"/>
-        <token index="164" id="FN_SYSDATE" value="sysdate" type="function"/>
-        <token index="165" id="FN_SYSTEM_USER" value="system_user" type="function"/>
-        <token index="166" id="FN_TAN" value="tan" type="function"/>
-        <token index="167" id="FN_TIME_FORMAT" value="time_format" type="function"/>
-        <token index="168" id="FN_TIME_TO_SEC" value="time_to_sec" type="function"/>
-        <token index="169" id="FN_TIMEDIFF" value="timediff" type="function"/>
-        <token index="170" id="FN_TIMESTAMPADD" value="timestampadd" type="function"/>
-        <token index="171" id="FN_TIMESTAMPDIFF" value="timestampdiff" type="function"/>
-        <token index="172" id="FN_TO_DAYS" value="to_days" type="function"/>
-        <token index="173" id="FN_TRIM" value="trim" type="function"/>
-        <token index="174" id="FN_UCASE" value="ucase" type="function"/>
-        <token index="175" id="FN_UNCOMPRESS" value="uncompress" type="function"/>
-        <token index="176" id="FN_UNCOMPRESSED_LENGTH" value="uncompressed_length" type="function"/>
-        <token index="177" id="FN_UNHEX" value="unhex" type="function"/>
-        <token index="178" id="FN_UNIX_TIMESTAMP" value="unix_timestamp" type="function"/>
-        <token index="179" id="FN_UPPER" value="upper" type="function"/>
-        <token index="180" id="FN_USER" value="user" type="function"/>
-        <token index="181" id="FN_UTC_DATE" value="utc_date" type="function"/>
-        <token index="182" id="FN_UTC_TIME" value="utc_time" type="function"/>
-        <token index="183" id="FN_UTC_TIMESTAMP" value="utc_timestamp" type="function"/>
-        <token index="184" id="FN_UUID" value="uuid" type="function"/>
-        <token index="185" id="FN_UUID_SHORT" value="uuid_short" type="function"/>
-        <token index="186" id="FN_VAR_POP" value="var_pop" type="function"/>
-        <token index="187" id="FN_VAR_SAMP" value="var_samp" type="function"/>
-        <token index="188" id="FN_VARIANCE" value="variance" type="function"/>
-        <token index="189" id="FN_VERSION" value="version" type="function"/>
-        <token index="190" id="FN_WEEK" value="week" type="function"/>
-        <token index="191" id="FN_WEEKDAY" value="weekday" type="function"/>
-        <token index="192" id="FN_WEEKOFYEAR" value="weekofyear" type="function"/>
-        <token index="193" id="FN_WEIGHT_STRING" value="weight_string" type="function"/>
-        <token index="194" id="FN_YEAR_MONTH" value="year_month" type="function"/>
-        <token index="195" id="FN_YEARWEEK" value="yearweek" type="function"/>
+        <token index="20" id="FN_CHAR_LENGTH" value="char_length" type="function"/>
+        <token index="21" id="FN_CHARACTER_LENGTH" value="character_length" type="function"/>
+        <token index="22" id="FN_CHARSET" value="charset" type="function"/>
+        <token index="23" id="FN_COERCIBILITY" value="coercibility" type="function"/>
+        <token index="24" id="FN_COLLATION" value="collation" type="function"/>
+        <token index="25" id="FN_COMPRESS" value="compress" type="function"/>
+        <token index="26" id="FN_CONCAT" value="concat" type="function"/>
+        <token index="27" id="FN_CONCAT_WS" value="concat_ws" type="function"/>
+        <token index="28" id="FN_CONNECTION_ID" value="connection_id" type="function"/>
+        <token index="29" id="FN_CONV" value="conv" type="function"/>
+        <token index="30" id="FN_CONVERT_TZ" value="convert_tz" type="function"/>
+        <token index="31" id="FN_COS" value="cos" type="function"/>
+        <token index="32" id="FN_COT" value="cot" type="function"/>
+        <token index="33" id="FN_COUNT" value="count" type="function"/>
+        <token index="34" id="FN_CRC32" value="crc32" type="function"/>
+        <token index="35" id="FN_CURDATE" value="curdate" type="function"/>
+        <token index="36" id="FN_CURRENT_DATE" value="current_date" type="function"/>
+        <token index="37" id="FN_CURRENT_TIME" value="current_time" type="function"/>
+        <token index="38" id="FN_CURRENT_TIMESTAMP" value="current_timestamp" type="function"/>
+        <token index="39" id="FN_CURTIME" value="curtime" type="function"/>
+        <token index="40" id="FN_DATE_ADD" value="date_add" type="function"/>
+        <token index="41" id="FN_DATE_FORMAT" value="date_format" type="function"/>
+        <token index="42" id="FN_DATE_SUB" value="date_sub" type="function"/>
+        <token index="43" id="FN_DATEDIFF" value="datediff" type="function"/>
+        <token index="44" id="FN_DAY" value="day" type="function"/>
+        <token index="45" id="FN_DAY_HOUR" value="day_hour" type="function"/>
+        <token index="46" id="FN_DAY_MICROSECOND" value="day_microsecond" type="function"/>
+        <token index="47" id="FN_DAY_MINUTE" value="day_minute" type="function"/>
+        <token index="48" id="FN_DAY_SECOND" value="day_second" type="function"/>
+        <token index="49" id="FN_DAYNAME" value="dayname" type="function"/>
+        <token index="50" id="FN_DAYOFMONTH" value="dayofmonth" type="function"/>
+        <token index="51" id="FN_DAYOFWEEK" value="dayofweek" type="function"/>
+        <token index="52" id="FN_DAYOFYEAR" value="dayofyear" type="function"/>
+        <token index="53" id="FN_DECODE" value="decode" type="function"/>
+        <token index="54" id="FN_DEGREES" value="degrees" type="function"/>
+        <token index="55" id="FN_DES_DECRYPT" value="des_decrypt" type="function"/>
+        <token index="56" id="FN_DES_ENCRYPT" value="des_encrypt" type="function"/>
+        <token index="57" id="FN_ELT" value="elt" type="function"/>
+        <token index="58" id="FN_ENCODE" value="encode" type="function"/>
+        <token index="59" id="FN_ENCRYPT" value="encrypt" type="function"/>
+        <token index="60" id="FN_EXP" value="exp" type="function"/>
+        <token index="61" id="FN_EXPORT_SET" value="export_set" type="function"/>
+        <token index="62" id="FN_EXTRACT" value="extract" type="function"/>
+        <token index="63" id="FN_FIELD" value="field" type="function"/>
+        <token index="64" id="FN_FIND_IN_SET" value="find_in_set" type="function"/>
+        <token index="65" id="FN_FLOOR" value="floor" type="function"/>
+        <token index="66" id="FN_FN_SECOND_MICROSECOND" value="fn_second_microsecond" type="function"/>
+        <token index="67" id="FN_FORMAT" value="format" type="function"/>
+        <token index="68" id="FN_FOUND_ROWS" value="found_rows" type="function"/>
+        <token index="69" id="FN_FROM_DAYS" value="from_days" type="function"/>
+        <token index="70" id="FN_FROM_UNIXTIME" value="from_unixtime" type="function"/>
+        <token index="71" id="FN_GET_FORMAT" value="get_format" type="function"/>
+        <token index="72" id="FN_GET_LOCK" value="get_lock" type="function"/>
+        <token index="73" id="FN_GROUP_CONCAT" value="group_concat" type="function"/>
+        <token index="74" id="FN_HEX" value="hex" type="function"/>
+        <token index="75" id="FN_HOUR" value="hour" type="function"/>
+        <token index="76" id="FN_HOUR_MICROSECOND" value="hour_microsecond" type="function"/>
+        <token index="77" id="FN_HOUR_MINUTE" value="hour_minute" type="function"/>
+        <token index="78" id="FN_HOUR_SECOND" value="hour_second" type="function"/>
+        <token index="79" id="FN_IFNULL" value="ifnull" type="function"/>
+        <token index="80" id="FN_INET_ATON" value="inet_aton" type="function"/>
+        <token index="81" id="FN_INET_NTOA" value="inet_ntoa" type="function"/>
+        <token index="82" id="FN_INSTR" value="instr" type="function"/>
+        <token index="83" id="FN_IS_FREE_LOCK" value="is_free_lock" type="function"/>
+        <token index="84" id="FN_IS_USED_LOCK" value="is_used_lock" type="function"/>
+        <token index="85" id="FN_LAST_DAY" value="last_day" type="function"/>
+        <token index="86" id="FN_LAST_INSERT_ID" value="last_insert_id" type="function"/>
+        <token index="87" id="FN_LCASE" value="lcase" type="function"/>
+        <token index="88" id="FN_LENGTH" value="length" type="function"/>
+        <token index="89" id="FN_LN" value="ln" type="function"/>
+        <token index="90" id="FN_LOAD_FILE" value="load_file" type="function"/>
+        <token index="91" id="FN_LOCALTIME" value="localtime" type="function"/>
+        <token index="92" id="FN_LOCALTIMESTAMP" value="localtimestamp" type="function"/>
+        <token index="93" id="FN_LOCATE" value="locate" type="function"/>
+        <token index="94" id="FN_LOG" value="log" type="function"/>
+        <token index="95" id="FN_LOG10" value="log10" type="function"/>
+        <token index="96" id="FN_LOG2" value="log2" type="function"/>
+        <token index="97" id="FN_LOWER" value="lower" type="function"/>
+        <token index="98" id="FN_LPAD" value="lpad" type="function"/>
+        <token index="99" id="FN_LTRIM" value="ltrim" type="function"/>
+        <token index="100" id="FN_MAKE_SET" value="make_set" type="function"/>
+        <token index="101" id="FN_MAKEDATE" value="makedate" type="function"/>
+        <token index="102" id="FN_MAKETIME" value="maketime" type="function"/>
+        <token index="103" id="FN_MASTER_POS_WAIT" value="master_pos_wait" type="function"/>
+        <token index="104" id="FN_MAX" value="max" type="function"/>
+        <token index="105" id="FN_MD5" value="md5" type="function"/>
+        <token index="106" id="FN_MID" value="mid" type="function"/>
+        <token index="107" id="FN_MIN" value="min" type="function"/>
+        <token index="108" id="FN_MINUTE" value="minute" type="function"/>
+        <token index="109" id="FN_MINUTE_MICROSECOND" value="minute_microsecond" type="function"/>
+        <token index="110" id="FN_MINUTE_SECOND" value="minute_second" type="function"/>
+        <token index="111" id="FN_MONTH" value="month" type="function"/>
+        <token index="112" id="FN_MONTHNAME" value="monthname" type="function"/>
+        <token index="113" id="FN_NAME_CONST" value="name_const" type="function"/>
+        <token index="114" id="FN_NOT_LIKE" value="not_like" type="function"/>
+        <token index="115" id="FN_NOT_REGEXP" value="not_regexp" type="function"/>
+        <token index="116" id="FN_NOW" value="now" type="function"/>
+        <token index="117" id="FN_NULLIF" value="nullif" type="function"/>
+        <token index="118" id="FN_OCT" value="oct" type="function"/>
+        <token index="119" id="FN_OCTET_LENGTH" value="octet_length" type="function"/>
+        <token index="120" id="FN_OLD_PASSWORD" value="old_password" type="function"/>
+        <token index="121" id="FN_ORD" value="ord" type="function"/>
+        <token index="122" id="FN_PERIOD_ADD" value="period_add" type="function"/>
+        <token index="123" id="FN_PERIOD_DIFF" value="period_diff" type="function"/>
+        <token index="124" id="FN_PI" value="pi" type="function"/>
+        <token index="125" id="FN_POSITION" value="position" type="function"/>
+        <token index="126" id="FN_POW" value="pow" type="function"/>
+        <token index="127" id="FN_POWER" value="power" type="function"/>
+        <token index="128" id="FN_QUARTER" value="quarter" type="function"/>
+        <token index="129" id="FN_QUOTE" value="quote" type="function"/>
+        <token index="130" id="FN_RADIANS" value="radians" type="function"/>
+        <token index="131" id="FN_RAND" value="rand" type="function"/>
+        <token index="132" id="FN_RELEASE_LOCK" value="release_lock" type="function"/>
+        <token index="133" id="FN_ROUND" value="round" type="function"/>
+        <token index="134" id="FN_ROW_COUNT" value="row_count" type="function"/>
+        <token index="135" id="FN_RPAD" value="rpad" type="function"/>
+        <token index="136" id="FN_RTRIM" value="rtrim" type="function"/>
+        <token index="137" id="FN_SEC_TO_TIME" value="sec_to_time" type="function"/>
+        <token index="138" id="FN_SECOND" value="second" type="function"/>
+        <token index="139" id="FN_SECOND_MICROSECOND" value="second_microsecond" type="function"/>
+        <token index="140" id="FN_SESSION_USER" value="session_user" type="function"/>
+        <token index="141" id="FN_SHA" value="sha" type="function"/>
+        <token index="142" id="FN_SHA1" value="sha1" type="function"/>
+        <token index="143" id="FN_SHA2" value="sha2" type="function"/>
+        <token index="144" id="FN_SIGN" value="sign" type="function"/>
+        <token index="145" id="FN_SIN" value="sin" type="function"/>
+        <token index="146" id="FN_SLEEP" value="sleep" type="function"/>
+        <token index="147" id="FN_SOUNDEX" value="soundex" type="function"/>
+        <token index="148" id="FN_SOUNDS_LIKE" value="sounds_like" type="function"/>
+        <token index="149" id="FN_SPACE" value="space" type="function"/>
+        <token index="150" id="FN_SQRT" value="sqrt" type="function"/>
+        <token index="151" id="FN_STD" value="std" type="function"/>
+        <token index="152" id="FN_STDDEV" value="stddev" type="function"/>
+        <token index="153" id="FN_STDDEV_POP" value="stddev_pop" type="function"/>
+        <token index="154" id="FN_STDDEV_SAMP" value="stddev_samp" type="function"/>
+        <token index="155" id="FN_STR_TO_DATE" value="str_to_date" type="function"/>
+        <token index="156" id="FN_STRCMP" value="strcmp" type="function"/>
+        <token index="157" id="FN_SUBDATE" value="subdate" type="function"/>
+        <token index="158" id="FN_SUBSTR" value="substr" type="function"/>
+        <token index="159" id="FN_SUBSTRING" value="substring" type="function"/>
+        <token index="160" id="FN_SUBSTRING_INDEX" value="substring_index" type="function"/>
+        <token index="161" id="FN_SUBTIME" value="subtime" type="function"/>
+        <token index="162" id="FN_SUM" value="sum" type="function"/>
+        <token index="163" id="FN_SYSDATE" value="sysdate" type="function"/>
+        <token index="164" id="FN_SYSTEM_USER" value="system_user" type="function"/>
+        <token index="165" id="FN_TAN" value="tan" type="function"/>
+        <token index="166" id="FN_TIME_FORMAT" value="time_format" type="function"/>
+        <token index="167" id="FN_TIME_TO_SEC" value="time_to_sec" type="function"/>
+        <token index="168" id="FN_TIMEDIFF" value="timediff" type="function"/>
+        <token index="169" id="FN_TIMESTAMPADD" value="timestampadd" type="function"/>
+        <token index="170" id="FN_TIMESTAMPDIFF" value="timestampdiff" type="function"/>
+        <token index="171" id="FN_TO_DAYS" value="to_days" type="function"/>
+        <token index="172" id="FN_TRIM" value="trim" type="function"/>
+        <token index="173" id="FN_UCASE" value="ucase" type="function"/>
+        <token index="174" id="FN_UNCOMPRESS" value="uncompress" type="function"/>
+        <token index="175" id="FN_UNCOMPRESSED_LENGTH" value="uncompressed_length" type="function"/>
+        <token index="176" id="FN_UNHEX" value="unhex" type="function"/>
+        <token index="177" id="FN_UNIX_TIMESTAMP" value="unix_timestamp" type="function"/>
+        <token index="178" id="FN_UPPER" value="upper" type="function"/>
+        <token index="179" id="FN_USER" value="user" type="function"/>
+        <token index="180" id="FN_UTC_DATE" value="utc_date" type="function"/>
+        <token index="181" id="FN_UTC_TIME" value="utc_time" type="function"/>
+        <token index="182" id="FN_UTC_TIMESTAMP" value="utc_timestamp" type="function"/>
+        <token index="183" id="FN_UUID" value="uuid" type="function"/>
+        <token index="184" id="FN_UUID_SHORT" value="uuid_short" type="function"/>
+        <token index="185" id="FN_VAR_POP" value="var_pop" type="function"/>
+        <token index="186" id="FN_VAR_SAMP" value="var_samp" type="function"/>
+        <token index="187" id="FN_VARIANCE" value="variance" type="function"/>
+        <token index="188" id="FN_VERSION" value="version" type="function"/>
+        <token index="189" id="FN_WEEK" value="week" type="function"/>
+        <token index="190" id="FN_WEEKDAY" value="weekday" type="function"/>
+        <token index="191" id="FN_WEEKOFYEAR" value="weekofyear" type="function"/>
+        <token index="192" id="FN_WEIGHT_STRING" value="weight_string" type="function"/>
+        <token index="193" id="FN_YEAR_MONTH" value="year_month" type="function"/>
+        <token index="194" id="FN_YEARWEEK" value="yearweek" type="function"/>
 
         <!-- PARAMETERS -->
         <token index="0" id="PRM_AUTOEXTEND_SIZE" value="autoextend_size" type="parameter"/>
@@ -541,7 +550,7 @@
         <token index="13" id="PRM_NO_WRITE_TO_BINLOG" value="no_write_to_binlog" type="parameter"/>
         <token index="14" id="PRM_PACK_KEYS" value="pack_keys" type="parameter"/>
         <token index="15" id="PRM_ROW_FORMAT" value="row_format" type="parameter"/>
-        <token index="16" id="PRM_SECONDARY_ENGINE_ATTRIBUT" value="secondary_engine_attribut" type="parameter"/>
+        <token index="16" id="PRM_SECONDARY_ENGINE_ATTRIBUTE" value="secondary_engine_attribute" type="parameter"/>
         <token index="17" id="PRM_STATS_AUTO_RECALC" value="stats_auto_recalc" type="parameter"/>
         <token index="18" id="PRM_STATS_PERSISTENT" value="stats_persistent" type="parameter"/>
         <token index="19" id="PRM_STATS_SAMPLE_PAGES" value="stats_sample_pages" type="parameter"/>
