@@ -46,6 +46,7 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
     private final IElementType dataType;
 
     private static final Set<String> GENERIC_TOKENS = new HashSet<>(Arrays.asList("INTEGER", "NUMBER", "STRING", "OPERATOR", "KEYWORD", "FUNCTION", "VARIABLE", "PARAMETER", "EXCEPTION", "DATA_TYPE"));
+    private final Set<String> undefinedTokens = new HashSet<>();
 
     public TokenTypeBundle(DBLanguageDialect languageDialect, Document document) {
         super(languageDialect, document);
@@ -99,7 +100,8 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
         if (tokenType != null) return tokenType;
 
 
-        if (!GENERIC_TOKENS.contains(id)) {
+        if (!GENERIC_TOKENS.contains(id) && !undefinedTokens.contains(id)) {
+            undefinedTokens.add(id);
             log.warn("DBN - [{}] undefined token type: {}", getLanguage().getID(), id);
         }
         //log.info("[DBN-WARNING] Undefined token type: " + id);

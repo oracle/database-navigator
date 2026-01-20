@@ -128,12 +128,655 @@
     <!-- ========= CREATE ========= -->
     <element-def description="CREATE statement" id="create_statement">
         <token id="00042" type-id="KW_CREATE" />
-        <sequence id="00043" optional="true">
+        <sequence id="00043" optional="true" branch="br_or_replace">
             <token id="00044" type-id="KW_OR" />
             <token id="00045" type-id="KW_REPLACE" />
         </sequence>
-        <element ref-id="create_view" />
+        <token type-id="KW_TEMPORARY" optional="true" branch="br_temporary"/>
+       <one-of>
+           <element ref-id="create_view" branch-check="-br_temporary"/>
+           <element ref-id="create_table" branch-check="-br_or_replace"/>
+       </one-of>
     </element-def>
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE TABLE statement" id="create_table">
+        <token id="00065" type-id="KW_TABLE" />
+        <sequence id="00043" optional="true">
+            <token id="00044" type-id="KW_IF" />
+            <token id="00045" type-id="KW_NOT" />
+            <token id="00045" type-id="KW_EXISTS" />
+        </sequence>
+        <qualified-identifier id="00066" separator="CHR_DOT">
+            <variant>
+                <object-ref id="00067" optional="true" type="SCHEMA" />
+                <object-def attributes="SUBJECT" id="00068" type="TABLE" />
+            </variant>
+        </qualified-identifier>
+        <one-of>
+            <sequence>
+                <wrapper template="PARENTHESES">
+                    <one-of>
+                        <element ref-id="like_table" branch="br_like_table"/>
+                        <iteration separator="CHR_COMMA">
+                            <element ref-id="create_definition"/>
+                        </iteration>
+                    </one-of>
+                </wrapper>
+                <sequence optional="true" branch-check="-br_like_table">
+                    <element ref-id="table_options" optional="true"/>
+                    <element ref-id="partition_options" optional="true"/>
+                    <one-of optional="true">
+                        <token id="00044" type-id="KW_IGNORE" />
+                        <token id="00044" type-id="KW_REPLACE" />
+                    </one-of>
+                    <sequence optional="true">
+                        <token id="00044" type-id="KW_AS" optional="true"/>
+                        <element ref-id="query_expression"/>
+                    </sequence>
+                </sequence>
+            </sequence>
+            <element ref-id="like_table"/>
+        </one-of>
+    </element-def>
+    <element-def description="LIKE table clause" id="like_table" custom="true">
+        <token id="00044" type-id="KW_LIKE" />
+        <qualified-identifier id="00066" separator="CHR_DOT">
+            <variant>
+                <object-ref id="00067" optional="true" type="SCHEMA" />
+                <object-def id="00068" type="TABLE" />
+            </variant>
+        </qualified-identifier>
+    </element-def>
+    <element-def description="TABLE detail definition" id="create_definition">
+        <one-of>
+            <sequence>
+                <object-def type="COLUMN"/>
+                <element ref-id="column_definition"/>
+            </sequence>
+            <sequence>
+                <one-of>
+                    <token id="00044" type-id="KW_INDEX" />
+                    <token id="00044" type-id="KW_KEY" />
+                </one-of>
+                <object-def type="INDEX" optional="true" original-name="index_name"/>
+                <element ref-id="index_type" optional="true"/>
+                <element ref-id="index_key_parts"/>
+                <element ref-id="index_options" optional="true"/>
+            </sequence>
+            <sequence>
+                <one-of>
+                    <token id="00044" type-id="KW_FULLTEXT" />
+                    <token id="00044" type-id="KW_SPATIAL" />
+                </one-of>
+                <one-of optional="true">
+                    <token id="00044" type-id="KW_INDEX" />
+                    <token id="00044" type-id="KW_KEY" />
+                </one-of>
+                <object-def type="INDEX" optional="true" original-name="index_name"/>
+                <element ref-id="index_key_parts"/>
+                <element ref-id="index_options" optional="true"/>
+            </sequence>
+            <sequence>
+                <sequence optional="true">
+                    <token id="00044" type-id="KW_CONSTRAINT" />
+                    <object-def type="CONSTRAINT" optional="true" original-name="symbol"/>
+                </sequence>
+                <one-of>
+                    <sequence>
+                        <token id="00044" type-id="KW_PRIMARY" />
+                        <token id="00044" type-id="KW_KEY" />
+                        <element ref-id="index_type" optional="true"/>
+                        <element ref-id="index_key_part"/>
+                        <element ref-id="index_options" optional="true"/>
+                    </sequence>
+                    <sequence>
+                        <token id="00044" type-id="KW_UNIQUE" />
+                        <one-of optional="true">
+                            <token id="00044" type-id="KW_INDEX" />
+                            <token id="00044" type-id="KW_KEY" />
+                        </one-of>
+                        <object-def type="INDEX" optional="true" original-name="index_name"/>
+                        <element ref-id="index_type" optional="true"/>
+                        <element ref-id="index_key_part"/>
+                        <element ref-id="index_options" optional="true"/>
+                    </sequence>
+                    <sequence>
+                        <token id="00044" type-id="KW_FOREIGN" />
+                        <token id="00044" type-id="KW_KEY" />
+                        <object-def type="INDEX" optional="true" original-name="index_name"/>
+                        <wrapper template="PARENTHESES">
+                            <iteration separator="CHR_COMMA">
+                                <object-ref type="COLUMN" original-name="col_name"/>
+                            </iteration>
+                        </wrapper>
+                        <element ref-id="reference_definition"/>
+                    </sequence>
+                    <sequence original-name="check_constraint_definition">
+                        <token id="00044" type-id="KW_CHECK" />
+                        <element ref-id="wrapped_expr"/>
+                        <sequence optional="true">
+                            <token id="00044" optional="true" type-id="KW_NOT" />
+                            <token id="00044" type-id="KW_ENFORCED" />
+                        </sequence>
+                    </sequence>
+                </one-of>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="COLUMN definition clause" id="column_definition">
+        <element ref-id="data_type"/>
+        <sequence optional="true" branch="br_not_null">
+            <token type-id="KW_NOT" optional="true"/>
+            <token type-id="KW_NULL"/>
+        </sequence>
+        <sequence optional="true" branch="br_default">
+            <token type-id="KW_DEFAULT"/>
+            <one-of>
+                <token type-id="STRING" original-name="literal"/>
+                <element ref-id="wrapped_expr"/>
+            </one-of>
+        </sequence>
+        <one-of optional="true">
+            <token type-id="KW_VISIBLE"/>
+            <token type-id="KW_INVISIBLE"/>
+        </one-of>
+        <sequence optional="true">
+            <token type-id="PRM_AUTO_INCREMENT" optional="true"/>
+            <sequence optional="true">
+                <one-of>
+                    <token type-id="KW_UNIQUE"/>
+                    <token type-id="KW_PRIMARY"/>
+                </one-of>
+                <token type-id="KW_KEY" optional="true"/>
+            </sequence>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_COMMENT"/>
+            <token type-id="STRING" original-name="string"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_COLLATE"/>
+            <object-ref type="COLLATION" original-name="collation_name"/>
+        </sequence>
+        <sequence optional="true" branch-check="-br_not_null -br_default">
+            <sequence optional="true">
+                <token type-id="KW_GENERATED"/>
+                <token type-id="KW_ALWAYS"/>
+            </sequence>
+            <token type-id="KW_AS"/>
+            <element ref-id="wrapped_expr"/>
+        </sequence>
+        <sequence optional="true" branch-check="-br_not_null -br_default">
+            <one-of>
+                <token type-id="KW_VIRTUAL"/>
+                <token type-id="KW_STORED"/>
+            </one-of>
+            <sequence>
+                <token type-id="KW_NOT" optional="true"/>
+                <token type-id="KW_NULL"/>
+            </sequence>
+        </sequence>
+        <one-of optional="true" branch-check="-br_not_null -br_default">
+            <token type-id="KW_VISIBLE"/>
+            <token type-id="KW_INVISIBLE"/>
+        </one-of>
+        <sequence optional="true" branch-check="-br_not_null -br_default">
+            <one-of>
+                <token type-id="KW_UNIQUE"/>
+                <token type-id="KW_PRIMARY"/>
+            </one-of>
+            <token type-id="KW_KEY"/>
+        </sequence>
+        <sequence optional="true" branch-check="-br_not_null -br_default">
+            <token type-id="KW_COMMENT"/>
+            <token type-id="STRING" original-name="string"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="PRM_COLUMN_FORMAT"/>
+            <one-of>
+                <token type-id="KW_FIXED"/>
+                <token type-id="KW_DYNAMIC"/>
+                <token type-id="KW_DEFAULT"/>
+            </one-of>
+        </sequence>
+        <sequence optional="true">
+            <one-of>
+                <token type-id="PRM_ENGINE_ATTRIBUTE"/>
+                <token type-id="PRM_SECONDARY_ENGINE_ATTRIBUTE"/>
+            </one-of>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <token type-id="STRING" original-name="string"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_STORAGE"/>
+            <one-of>
+                <token type-id="KW_DISK"/>
+                <token type-id="KW_MEMORY"/>
+            </one-of>
+        </sequence>
+        <element ref-id="reference_definition" optional="true"/>
+        <element ref-id="check_constraint_definition" optional="true"/>
+    </element-def>
+    <element-def description="INDEX KEY parts" id="index_key_parts" custom="true">
+        <wrapper template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <element ref-id="index_key_part"/>
+            </iteration>
+        </wrapper>
+    </element-def>
+    <element-def description="INDEX KEY parts" id="index_key_part" original-name="key_part">
+        <one-of>
+            <sequence>
+                <object-ref type="COLUMN" local="true"/>
+                <wrapper template="PARENTHESES" optional="true">
+                    <token id="00329" type-id="INTEGER" original-name="length"/>
+                </wrapper>
+            </sequence>
+            <element ref-id="wrapped_expr"/>
+        </one-of>
+        <element ref-id="asc_desc_clause" optional="true"/>
+    </element-def>
+    <element-def description="ASC DESC clause" id="asc_desc_clause" custom="true">
+        <one-of>
+            <token id="00044" type-id="KW_ASC" />
+            <token id="00044" type-id="KW_DESC" />
+        </one-of>
+    </element-def>
+    <element-def description="INDEX TYPE clause" id="index_type">
+        <token type-id="KW_USING"/>
+        <one-of>
+            <token type-id="KW_BTREE"/>
+            <token type-id="KW_HASH"/>
+        </one-of>
+    </element-def>
+    <element-def description="INDEX OPTIONS clause" id="index_options" custom="true">
+        <iteration>
+            <element ref-id="index_option"/>
+        </iteration>
+    </element-def>
+    <element-def description="INDEX OPTION clause" id="index_option">
+        <one-of>
+            <sequence>
+                <token type-id="PRM_KEY_BLOCK_SIZE"/>
+                <token type-id="CHR_EQUAL" optional="true"/>
+                <token type-id="INTEGER" original-name="value"/>
+            </sequence>
+            <element ref-id="index_type"/>
+            <sequence>
+                <token type-id="KW_WITH"/>
+                <token type-id="KW_PARSER"/>
+                <token id="00345" type-id="IDENTIFIER" original-name="parser_name" />
+            </sequence>
+            <sequence>
+                <token type-id="KW_COMMENT"/>
+                <token type-id="STRING" original-name="string"/>
+            </sequence>
+            <token type-id="KW_VISIBLE"/>
+            <token type-id="KW_INVISIBLE"/>
+            <sequence>
+                <one-of>
+                    <token type-id="PRM_ENGINE_ATTRIBUTE"/>
+                    <token type-id="PRM_SECONDARY_ENGINE_ATTRIBUTE"/>
+                </one-of>
+                <token type-id="CHR_EQUAL" optional="true"/>
+                <token type-id="STRING" original-name="string"/>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="REFERENCE definition" id="reference_definition">
+        <token type-id="KW_REFERENCES"/>
+        <qualified-identifier id="00066" separator="CHR_DOT">
+            <variant>
+                <object-ref id="00067" optional="true" type="SCHEMA" />
+                <object-ref id="00068" type="TABLE" />
+            </variant>
+        </qualified-identifier>
+        <element ref-id="index_key_parts"/>
+        <sequence optional="true">
+            <token type-id="KW_MATCH"/>
+            <one-of>
+                <token type-id="KW_FULL"/>
+                <token type-id="KW_PARTIAL"/>
+                <token type-id="KW_SIMPLE"/>
+            </one-of>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_ON"/>
+            <one-of>
+                <token type-id="KW_DELETE"/>
+                <token type-id="KW_UPDATE"/>
+            </one-of>
+            <element ref-id="reference_option"/>
+        </sequence>
+    </element-def>
+    <element-def description="REFERENCE option" id="reference_option">
+        <one-of>
+            <token type-id="KW_RESTRICT"/>
+            <token type-id="KW_CASCADE"/>
+            <sequence>
+                <token type-id="KW_SET"/>
+                <one-of>
+                    <token type-id="KW_NULL"/>
+                    <token type-id="KW_DEFAULT"/>
+                </one-of>
+            </sequence>
+            <sequence>
+                <token type-id="KW_NO"/>
+                <token type-id="KW_ACTION"/>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="CHECK CONSTRAINT definition" id="check_constraint_definition">
+        <sequence optional="true">
+            <token id="00044" type-id="KW_CONSTRAINT" />
+            <object-def type="CONSTRAINT" optional="true" original-name="symbol"/>
+        </sequence>
+        <token id="00044" type-id="KW_CHECK" />
+        <element ref-id="wrapped_expr"/>
+        <sequence optional="true">
+            <token id="00044" optional="true" type-id="KW_NOT" />
+            <token id="00044" type-id="KW_ENFORCED" />
+        </sequence>
+    </element-def>
+    <element-def description="TABLE options" id="table_options">
+        <element ref-id="table_option"/>
+        <iteration>
+            <sequence>
+                <token type-id="CHR_COMMA" optional="true"/>
+                <element ref-id="table_option"/>
+            </sequence>
+        </iteration>
+    </element-def>
+    <element-def description="TABLE option" id="table_option">
+        <one-of>
+            <sequence>
+                <one-of>
+                    <token type-id="PRM_AUTOEXTEND_SIZE"/>
+                    <token type-id="PRM_AUTO_INCREMENT"/>
+                    <token type-id="PRM_AVG_ROW_LENGTH"/>
+                    <token type-id="PRM_KEY_BLOCK_SIZE"/>
+                    <token type-id="PRM_MAX_ROWS"/>
+                    <token type-id="PRM_MIN_ROWS"/>
+                    <token type-id="PRM_STATS_SAMPLE_PAGES"/>
+                    <token type-id="PRM_DELAY_KEY_WRITE"/>
+                    <token type-id="KW_CHECKSUM"/>
+                </one-of>
+                <token type-id="CHR_EQUAL" optional="true"/>
+                <token type-id="INTEGER" original-name="value"/>
+            </sequence>
+            <sequence>
+                <one-of>
+                    <token type-id="KW_COMMENT"/>
+                    <token type-id="KW_COMPRESSION"/>
+                    <token type-id="KW_CONNECTION"/>
+                    <token type-id="KW_ENCRYPTION"/>
+                    <token type-id="KW_PASSWORD"/>
+                    <token type-id="PRM_ENGINE_ATTRIBUTE"/>
+                    <token type-id="PRM_SECONDARY_ENGINE_ATTRIBUTE"/>
+                    <sequence>
+                        <one-of>
+                            <token type-id="KW_DATA"/>
+                            <token type-id="KW_INDEX"/>
+                        </one-of>
+                        <token type-id="KW_DIRECTORY"/>
+                    </sequence>
+                </one-of>
+                <token type-id="CHR_EQUAL" optional="true"/>
+                <token type-id="STRING" original-name="string"/>
+            </sequence>
+            <sequence>
+                <one-of>
+                    <token type-id="PRM_PACK_KEYS"/>
+                    <token type-id="PRM_STATS_AUTO_RECALC"/>
+                    <token type-id="PRM_STATS_PERSISTENT"/>
+                </one-of>
+                <token type-id="CHR_EQUAL" optional="true"/>
+                <one-of>
+                    <token type-id="INTEGER"/>
+                    <token type-id="KW_DEFAULT"/>
+                </one-of>
+            </sequence>
+            <sequence>
+                <token type-id="KW_DEFAULT" optional="true"/>
+                <one-of>
+                    <sequence>
+                        <token type-id="KW_CHARACTER"/>
+                        <token type-id="KW_SET"/>
+                        <token type-id="CHR_EQUAL" optional="true"/>
+                        <object-ref type="CHARSET" original-name="charset_name"/>
+                    </sequence>
+                    <sequence>
+                        <token type-id="KW_COLLATE"/>
+                        <token type-id="CHR_EQUAL" optional="true"/>
+                        <object-ref type="COLLATION" original-name="collation_name"/>
+                    </sequence>
+                </one-of>
+            </sequence>
+            <sequence>
+                <token type-id="KW_ENGINE"/>
+                <object-ref type="ENGINE" original-name="engine_name"/>
+            </sequence>
+            <sequence>
+                <token type-id="PRM_INSERT_METHOD"/>
+                <token type-id="CHR_EQUAL" optional="true"/>
+                <one-of>
+                    <token type-id="KW_NO"/>
+                    <token type-id="KW_FIRST"/>
+                    <token type-id="KW_LAST"/>
+                </one-of>
+            </sequence>
+            <sequence>
+                <token type-id="PRM_ROW_FORMAT"/>
+                <token type-id="CHR_EQUAL" optional="true"/>
+                <one-of>
+                    <token type-id="KW_DEFAULT"/>
+                    <token type-id="KW_DYNAMIC"/>
+                    <token type-id="KW_FIXED"/>
+                    <token type-id="KW_COMPRESSED"/>
+                    <token type-id="KW_REDUNDANT"/>
+                    <token type-id="KW_COMPACT"/>
+                </one-of>
+            </sequence>
+            <sequence>
+                <token type-id="KW_START"/>
+                <token type-id="KW_TRANSACTION"/>
+            </sequence>
+            <element ref-id="tablespace_option"/>
+            <sequence>
+                <token type-id="KW_UNION"/>
+                <token type-id="CHR_EQUAL" optional="true"/>
+                <wrapper template="PARENTHESES">
+                    <iteration separator="CHR_COMMA">
+                        <object-ref type="TABLE" original-name="tbl_name"/>
+                    </iteration>
+                </wrapper>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="PARTITION options" id="partition_options">
+        <token type-id="KW_PARTITION"/>
+        <token type-id="KW_BY"/>
+        <one-of>
+            <element ref-id="linear_partition_clause"/>
+            <sequence>
+                <one-of>
+                    <token type-id="KW_RANGE"/>
+                    <token type-id="KW_LIST"/>
+                </one-of>
+                <one-of>
+                    <sequence>
+                        <token type-id="KW_COLUMNS"/>
+                        <wrapper template="PARENTHESES">
+                            <element ref-id="column_list"/>
+                        </wrapper>
+                    </sequence>
+                    <element ref-id="wrapped_expr"/>
+                </one-of>
+            </sequence>
+        </one-of>
+        <sequence optional="true">
+            <token type-id="KW_PARTITIONS"/>
+            <token type-id="INTEGER" original-name="num"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_SUBPARTITION"/>
+            <token type-id="KW_BY"/>
+            <element ref-id="linear_partition_clause"/>
+        </sequence>
+        <wrapper template="PARENTHESES" optional="true">
+            <iteration separator="CHR_COMMA">
+                <element ref-id="partition_definition"/>
+            </iteration>
+        </wrapper>
+    </element-def>
+    <element-def description="LINEAR PARTITION clause" id="linear_partition_clause" custom="true">
+        <token type-id="KW_LINEAR" optional="true"/>
+        <one-of>
+            <sequence>
+                <token type-id="KW_HASH"/>
+                <element ref-id="wrapped_expr"/>
+            </sequence>
+            <sequence>
+                <token type-id="KW_KEY"/>
+                <sequence optional="true">
+                    <token type-id="KW_ALGORITHM"/>
+                    <token type-id="CHR_EQUAL" optional="true"/>
+                    <token type-id="INTEGER"/>
+                </sequence>
+                <wrapper template="PARENTHESES">
+                    <element ref-id="column_list"/>
+                </wrapper>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="PARTITION definition" id="partition_definition">
+        <token type-id="KW_PARTITION"/>
+        <object-def type="PARTITION" original-name="partition_name"/>
+        <sequence optional="true">
+            <token type-id="KW_VALUES"/>
+            <one-of>
+                <sequence>
+                    <token type-id="KW_LESS"/>
+                    <token type-id="KW_THAN"/>
+                    <one-of>
+                        <token type-id="KW_MAXVALUE"/>
+                        <wrapper template="PARENTHESES">
+                            <element ref-id="expression_list" original-name="value_list"/>
+                        </wrapper>
+                    </one-of>
+                </sequence>
+                <sequence>
+                    <token type-id="KW_IN"/>
+                    <wrapper template="PARENTHESES">
+                        <element ref-id="expression_list" original-name="value_list"/>
+                    </wrapper>
+                </sequence>
+            </one-of>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_STORAGE" optional="true"/>
+            <token type-id="KW_ENGINE"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <object-ref type="ENGINE" original-name="engine_name"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_COMMENT"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <token type-id="STRING" original-name="string"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_DATA"/>
+            <token type-id="KW_DIRECTORY"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <token type-id="STRING" original-name="data_dir"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_INDEX"/>
+            <token type-id="KW_DIRECTORY"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <token type-id="STRING" original-name="index_dir"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="PRM_MAX_ROWS"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <token type-id="INTEGER" original-name="max_number_of_rows"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="PRM_MIN_ROWS"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <token type-id="INTEGER" original-name="min_number_of_rows"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_TABLESPACE"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <object-ref type="TABLESPACE"/>
+        </sequence>
+        <wrapper template="PARENTHESES" optional="true">
+            <iteration separator="CHR_COMMA">
+                <element ref-id="subpartition_definition"/>
+            </iteration>
+        </wrapper>
+    </element-def>
+    <element-def description="SUBPARTITION definition" id="subpartition_definition">
+        <token type-id="KW_SUBPARTITION"/>
+        <object-def type="PARTITION" original-name="logical_name"/>
+        <sequence optional="true">
+            <token type-id="KW_STORAGE" optional="true"/>
+            <token type-id="KW_ENGINE"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <object-ref type="ENGINE" original-name="engine_name"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_COMMENT"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <token type-id="STRING" original-name="string"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_DATA"/>
+            <token type-id="KW_DIRECTORY"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <token type-id="STRING" original-name="data_dir"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_INDEX"/>
+            <token type-id="KW_DIRECTORY"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <token type-id="STRING" original-name="index_dir"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="PRM_MAX_ROWS"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <token type-id="INTEGER" original-name="max_number_of_rows"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="PRM_MIN_ROWS"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <token type-id="INTEGER" original-name="min_number_of_rows"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_TABLESPACE"/>
+            <token type-id="CHR_EQUAL" optional="true"/>
+            <object-ref type="TABLESPACE"/>
+        </sequence>
+    </element-def>
+    <element-def description="COLUMN list" id="column_list">
+        <iteration separator="CHR_COMMA">
+            <object-ref type="COLUMN" local="true"/>
+        </iteration>
+    </element-def>
+    <element-def description="TABLESPACE option" id="tablespace_option">
+        <sequence optional="true" branch="br_tablespace">
+            <token type-id="KW_TABLESPACE"/>
+            <object-ref type="TABLESPACE"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_STORAGE"/>
+            <one-of>
+                <token type-id="KW_DISK" branch-check="+br_tablespace"/>
+                <token type-id="KW_DISK"/>
+            </one-of>
+        </sequence>
+    </element-def>
+
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE VIEW statement" id="create_view">
         <sequence id="00046" optional="true">
             <token id="00047" type-id="KW_ALGORITHM" />
@@ -619,10 +1262,7 @@
         <iteration id="00308" separator="CHR_COMMA">
             <element ref-id="expr" />
         </iteration>
-        <one-of id="00309" optional="true">
-            <token id="00310" type-id="KW_ASC" />
-            <token id="00311" type-id="KW_DESC" />
-        </one-of>
+        <element ref-id="asc_desc_clause" optional="true"/>
         <sequence id="00312" optional="true">
             <token id="00313" type-id="KW_WITH" />
             <token id="00314" type-id="KW_ROLLUP" />
@@ -640,10 +1280,7 @@
         <iteration id="00319" separator="CHR_COMMA">
             <element ref-id="expr" />
         </iteration>
-        <one-of id="00320" optional="true">
-            <token id="00321" type-id="KW_ASC" />
-            <token id="00322" type-id="KW_DESC" />
-        </one-of>
+        <element ref-id="asc_desc_clause" optional="true"/>
     </element-def>
     <element-def description="LIMIT clause" id="limit_clause">
         <token id="00323" type-id="KW_LIMIT" />
@@ -737,8 +1374,8 @@
     <!-- ========= UPDATE ========= -->
     <element-def attributes="DATA_MANIPULATION, TRANSACTIONAL, SPECIFIC" description="UPDATE statement" id="update_statement">
         <token id="00375" type-id="KW_UPDATE" />
-        <token id="00376" optional="true" type-id="KW_LOW_PRIORITY" />
-        <token id="00377" optional="true" type-id="KW_LOW_IGNORE" />
+        <token id="00376" optional="true" type-id="PRM_LOW_PRIORITY" />
+        <token id="00377" optional="true" type-id="PRM_LOW_IGNORE" />
         <element ref-id="table_identifier_with_alias" />
         <one-of id="00378">
             <sequence id="00379">
@@ -1118,7 +1755,7 @@
                     <token id="00593" type-id="FN_COMPRESS" />
                     <token id="00594" type-id="FN_MD5" />
                     <token id="00595" type-id="FN_OLD_PASSWORD" />
-                    <token id="00596" type-id="FN_PASSWORD" />
+                    <token id="00596" type-id="KW_PASSWORD" flavor="function"/>
                     <token id="00597" type-id="FN_SHA" />
                     <token id="00598" type-id="FN_SHA1" />
                     <token id="00599" type-id="FN_UNCOMPRESS" />
@@ -1535,10 +2172,7 @@
                             <iteration id="00864" separator="CHR_COMMA">
                                 <sequence id="00865">
                                     <element ref-id="expr" />
-                                    <one-of id="00866" optional="true">
-                                        <token id="00867" type-id="KW_ASC" />
-                                        <token id="00868" type-id="KW_DESC" />
-                                    </one-of>
+                                    <element ref-id="asc_desc_clause" optional="true"/>
                                 </sequence>
                             </iteration>
                         </sequence>
@@ -1595,7 +2229,7 @@
         <token id="00906" type-id="DT_DECIMAL" />
         <token id="00907" type-id="DT_DEC" />
         <token id="00908" type-id="DT_NUMERIC" />
-        <token id="00909" type-id="DT_FIXED" />
+        <token id="00909" type-id="KW_FIXED" flavor="datatype"/>
         <token id="00910" type-id="DT_DATE" />
         <token id="00911" type-id="DT_DATETIME" />
         <token id="00912" type-id="DT_TIMESTAMP" />
@@ -1645,6 +2279,11 @@
         </one-of>
     </element-def>
 
+    <element-def description="Wrapped expression" id="wrapped_expr">
+        <wrapper template="PARENTHESES">
+            <element ref-id="expr" />
+        </wrapper>
+    </element-def>
     <element-def description="Unknown identifier" id="custom_undefined">
         <token id="00943" type-id="IDENTIFIER" />
     </element-def>
