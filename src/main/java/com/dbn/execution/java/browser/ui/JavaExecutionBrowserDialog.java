@@ -56,15 +56,12 @@ public class JavaExecutionBrowserDialog extends DBNDialog<JavaExecutionBrowserFo
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
+    protected final Action[] initializeActions() {
         selectAction = new SelectAction();
         selectAction.setEnabled(false);
-        return new Action[]{selectAction, getCancelAction()};
-    }
-
-    @Override
-    protected void doOKAction() {
-        super.doOKAction();
+        return actions(
+                selectAction,
+                getCancelAction());
     }
 
     private TreeSelectionListener selectionListener = new TreeSelectionListener() {

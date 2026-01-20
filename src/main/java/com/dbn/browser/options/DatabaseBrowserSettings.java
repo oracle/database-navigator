@@ -19,6 +19,7 @@ package com.dbn.browser.options;
 import com.dbn.browser.options.ui.DatabaseBrowserSettingsForm;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
+import com.dbn.help.HelpTopic;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.TopLevelConfig;
@@ -63,8 +64,8 @@ public class DatabaseBrowserSettings
     }
 
     @Override
-    public String getHelpTopic() {
-        return "browserSettings";
+    public HelpTopic getConfigHelpTopic() {
+        return HelpTopic.DATABASE_BROWSER;
     }
 
     @Override

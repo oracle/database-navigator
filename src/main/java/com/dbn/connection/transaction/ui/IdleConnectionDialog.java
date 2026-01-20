@@ -38,7 +38,6 @@ import static com.dbn.connection.transaction.TransactionAction.COMMIT;
 import static com.dbn.connection.transaction.TransactionAction.DISCONNECT_IDLE;
 import static com.dbn.connection.transaction.TransactionAction.KEEP_ALIVE;
 import static com.dbn.connection.transaction.TransactionAction.ROLLBACK_IDLE;
-import static com.dbn.connection.transaction.TransactionAction.actions;
 
 public class IdleConnectionDialog extends DialogWithTimeout {
     private final IdleConnectionDialogForm idleConnectionDialogForm;
@@ -85,13 +84,11 @@ public class IdleConnectionDialog extends DialogWithTimeout {
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 new CommitAction(),
                 new RollbackAction(),
-                new KeepAliveAction(),
-                getHelpAction()
-        };
+                new KeepAliveAction());
     }
 
     private class CommitAction extends AbstractAction {
@@ -127,7 +124,7 @@ public class IdleConnectionDialog extends DialogWithTimeout {
 
     private void commit() {
         try {
-            List<TransactionAction> actions = actions(COMMIT, DISCONNECT_IDLE);
+            List<TransactionAction> actions = TransactionAction.actions(COMMIT, DISCONNECT_IDLE);
             DatabaseTransactionManager transactionManager = getTransactionManager();
             transactionManager.execute(getConnection(), conn, actions, true, null);
         } finally {
@@ -138,7 +135,7 @@ public class IdleConnectionDialog extends DialogWithTimeout {
 
     private void rollback() {
         try {
-            List<TransactionAction> actions = actions(ROLLBACK_IDLE, DISCONNECT_IDLE);
+            List<TransactionAction> actions = TransactionAction.actions(ROLLBACK_IDLE, DISCONNECT_IDLE);
             DatabaseTransactionManager transactionManager = getTransactionManager();
             transactionManager.execute(getConnection(), conn, actions, true, null);
         } finally {
@@ -148,7 +145,7 @@ public class IdleConnectionDialog extends DialogWithTimeout {
 
     private void ping() {
         try {
-            List<TransactionAction> actions = actions(KEEP_ALIVE);
+            List<TransactionAction> actions = TransactionAction.actions(KEEP_ALIVE);
             DatabaseTransactionManager transactionManager = getTransactionManager();
             transactionManager.execute(getConnection(), conn, actions, true, null);
         } finally {

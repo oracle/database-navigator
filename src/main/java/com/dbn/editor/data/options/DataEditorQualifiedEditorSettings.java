@@ -100,11 +100,6 @@ public class DataEditorQualifiedEditorSettings extends BasicConfiguration<DataEd
         return txt("cfg.dataEditor.title.ContentTypes");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "dataEditor";
-    }
-
     public List<TextContentType> getContentTypes() {
         return contentTypes.get();
     }

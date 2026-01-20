@@ -22,6 +22,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.icon.Icons.WINDOW_DATABASE_EVENTS;
+import static com.dbn.help.HelpTopic.EVENTS_MONITOR;
 
 public class EventMonitorToolWindowFactory extends DBNToolWindowFactory {
   @Override
@@ -29,6 +30,7 @@ public class EventMonitorToolWindowFactory extends DBNToolWindowFactory {
     toolWindow.setTitle("DB Events");
     toolWindow.setStripeTitle("DB Events");
     toolWindow.setIcon(WINDOW_DATABASE_EVENTS.get());
+    toolWindow.setHelpId(EVENTS_MONITOR.asHelpTopicId());
   }
 
   @Override

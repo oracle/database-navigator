@@ -42,11 +42,6 @@ public class DataEditorValueListPopupSettings extends BasicConfiguration<DataEdi
         return txt("cfg.dataEditor.title.ValueLists");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "dataEditor";
-    }
-
     /****************************************************
      *                   Configuration                  *
      ****************************************************/

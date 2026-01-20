@@ -22,6 +22,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.icon.Icons.WINDOW_EXECUTION_CONSOLE;
+import static com.dbn.help.HelpTopic.EXECUTION_ENGINE;
 
 public class ExecutionConsoleToolWindowFactory extends DBNToolWindowFactory {
     @Override
@@ -29,6 +30,7 @@ public class ExecutionConsoleToolWindowFactory extends DBNToolWindowFactory {
         toolWindow.setTitle("DB Execution Console");
         toolWindow.setStripeTitle("DB Execution Console");
         toolWindow.setIcon(WINDOW_EXECUTION_CONSOLE.get());
+        toolWindow.setHelpId(EXECUTION_ENGINE.asHelpTopicId());
 
     }
 

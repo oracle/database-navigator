@@ -147,6 +147,6 @@ public class MethodExecutionCursorResultForm extends DBNFormBase implements Sear
         if (DataKeys.METHOD_EXECUTION_ARGUMENT.is(dataId)) {
             return DBObjectRef.get(argument);
         }
-        return super.getData(dataId);
+        return null;
     }
 }

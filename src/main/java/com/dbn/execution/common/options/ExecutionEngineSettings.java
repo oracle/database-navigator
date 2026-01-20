@@ -24,6 +24,7 @@ import com.dbn.execution.java.options.JavaExecutionSettings;
 import com.dbn.execution.method.options.MethodExecutionSettings;
 import com.dbn.execution.script.options.ScriptExecutionSettings;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
+import com.dbn.help.HelpTopic;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.TopLevelConfig;
@@ -31,6 +32,8 @@ import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.help.HelpTopic.EXECUTION_ENGINE_SETTINGS;
 
 @EqualsAndHashCode(callSuper = false)
 public class ExecutionEngineSettings extends CompositeProjectConfiguration<ProjectSettings, ExecutionEngineSettingsForm> implements TopLevelConfig {
@@ -69,8 +72,8 @@ public class ExecutionEngineSettings extends CompositeProjectConfiguration<Proje
     }
 
     @Override
-    public String getHelpTopic() {
-        return "executionEngine";
+    public HelpTopic getConfigHelpTopic() {
+        return EXECUTION_ENGINE_SETTINGS;
     }
 
     @Override

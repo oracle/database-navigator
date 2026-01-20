@@ -29,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
-import java.awt.event.ActionEvent;
 
 public class ExportDataDialog extends DBNDialog<ExportDataForm> {
     private final DataExportSource source;
@@ -62,15 +61,11 @@ public class ExportDataDialog extends DBNDialog<ExportDataForm> {
 
     @NotNull
     @Override
-    protected Action[] createActions() {
-        return new Action[]{
-                new DialogWrapperAction("Export") {
-                    @Override
-                    protected void doAction(ActionEvent actionEvent) {
-                        doOKAction();
-                    }
-                },
-                getCancelAction()};
+    protected Action[] initializeActions() {
+        renameAction(getOKAction(), "Export");
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 
     @Override

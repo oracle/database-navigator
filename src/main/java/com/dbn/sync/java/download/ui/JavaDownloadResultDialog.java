@@ -44,7 +44,6 @@ public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> 
         this.setModal(false);  // non-modal: to allow opening the editors from the dialog
         this.setAutoSize(true);
         this.batch = batch;
-        renameAction(getCancelAction(), "Close");
         openSelectedAction.setEnabled(false);
         openAllAction.setEnabled(batch.getDownloadedFiles().size() < 15);
         init();
@@ -52,8 +51,9 @@ public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> 
 
     @NotNull
     @Override
-    protected Action[] createActions() {
-        return createActions(
+    protected Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(
                 createErrorAction(),
                 openAllAction,
                 openSelectedAction,

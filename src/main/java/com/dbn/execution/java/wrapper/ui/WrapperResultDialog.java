@@ -18,6 +18,7 @@ package com.dbn.execution.java.wrapper.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.execution.java.wrapper.WrapperModel;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,14 +40,19 @@ public class WrapperResultDialog extends DBNDialog<WrapperResultForm> {
     this.setModal(true);
     this.setAutoSize(true);
     this.model = model;
-    renameAction(getCancelAction(), "Close");
     init();
+  }
+
+  @Override
+  protected HelpTopic getHelpTopic() {
+    return HelpTopic.JAVA_EXECUTION_WRAPPERS;
   }
 
   @NotNull
   @Override
-  protected Action[] createActions() {
-    return new Action[]{getCancelAction()};
+  protected Action[] initializeActions() {
+    renameAction(getCancelAction(), "Close");
+    return actions(getCancelAction());
   }
 
   @Override

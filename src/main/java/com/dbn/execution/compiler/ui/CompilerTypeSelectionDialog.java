@@ -53,14 +53,12 @@ public class CompilerTypeSelectionDialog extends DBNDialog<CompilerTypeSelection
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 new CompileKeep(),
                 new CompileNormalAction(),
                 new CompileDebugAction(),
-                getCancelAction(),
-                //getHelpAction()
-        };
+                getCancelAction());
     }
 
     private class CompileKeep extends AbstractAction {

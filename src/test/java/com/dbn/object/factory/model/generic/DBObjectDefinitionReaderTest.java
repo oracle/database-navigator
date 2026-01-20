@@ -23,8 +23,10 @@ import com.dbn.object.factory.model.DBObjectSpecReader;
 import com.dbn.object.type.DBObjectType;
 import lombok.SneakyThrows;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -32,11 +34,55 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class DBObjectDefinitionReaderTest {
+    @NonNls
+    private static final String TABLE_DEFINITION = """
+            <definition type="TABLE" name="FILE_CONTENTS">
+                <attributes>
+                    <attr name="OBJECT_DETAIL" value="lob(FILE_CONTENT) store as securefile (nocache filesystem_like_logging)"/>
+                </attributes>
+                <children readonly="Y">
+                    <definition type="COLUMN" name="ID" readonly="Y">
+                        <attributes>
+                            <attr name="DATA_TYPE" value="varchar2(50)"/>
+                            <attr name="IS_NOT_NULL" value="Y"/>
+                            <attr name="IS_PRIMARY_KEY" value="Y"/>
+                        </attributes>
+                    </definition>
+                    <definition type="COLUMN" name="FILE_SIZE" readonly="Y">
+                        <attributes>
+                            <attr name="DATA_TYPE" value="number(19)"/>
+                            <attr name="IS_NOT_NULL" value="Y"/>
+                        </attributes>
+                    </definition>
+                    <definition type="COLUMN" name="FILE_HASH" readonly="Y">
+                        <attributes>
+                            <attr name="DATA_TYPE" value="varchar2(64)"/>
+                            <attr name="IS_NOT_NULL" value="Y"/>
+                        </attributes>
+                    </definition>
+                    <definition type="COLUMN" name="FILE_CONTENT" readonly="Y">
+                        <attributes>
+                            <attr name="DATA_TYPE" value="blob"/>
+                        </attributes>
+                    </definition>
+                    <definition type="COLUMN" name="METADATA" readonly="Y">
+                        <attributes>
+                            <attr name="DATA_TYPE" value="json"/>
+                        </attributes>
+                    </definition>
+                    <definition type="CONSTRAINT" readonly="Y">
+                        <attributes>
+                            <attr name="CONSTRAINT_TYPE" value="unique"/>
+                            <attr name="CONSTRAINT_COLUMNS" value="FILE_SIZE, FILE_HASH"/>
+                        </attributes>
+                    </definition>
+                </children>
+            </definition>""";
 
     @Test
     @SneakyThrows
     public void read() {
-        Element element = XmlContents.fileToElement(DBObjectDefinitionReaderTest.class, "staging-table-definition.xml");
+        Element element = XmlContents.streamToElement(new ByteArrayInputStream(TABLE_DEFINITION.getBytes()));
         DBObjectSpec definition = DBObjectSpecReader.read(element);
 
         assertEquals(DBObjectType.TABLE, definition.getObjectType());

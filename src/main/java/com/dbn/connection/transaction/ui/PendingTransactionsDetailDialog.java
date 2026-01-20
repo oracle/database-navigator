@@ -33,7 +33,6 @@ import java.util.List;
 
 import static com.dbn.connection.transaction.TransactionAction.COMMIT;
 import static com.dbn.connection.transaction.TransactionAction.ROLLBACK;
-import static com.dbn.connection.transaction.TransactionAction.actions;
 
 public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactionsDetailForm> {
     private final ConnectionRef connection;
@@ -63,18 +62,11 @@ public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactio
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 new CommitAction(),
                 new RollbackAction(),
-                getCancelAction(),
-                getHelpAction()
-        };
-    }
-
-    @Override
-    protected void doOKAction() {
-        super.doOKAction();
+                getCancelAction());
     }
 
     private class CommitAction extends AbstractAction {
@@ -85,7 +77,7 @@ public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactio
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                List<TransactionAction> actions = actions(COMMIT, additionalOperation);
+                List<TransactionAction> actions = TransactionAction.actions(COMMIT, additionalOperation);
                 executeActions(actions);
             } finally {
                 doOKAction();
@@ -101,7 +93,7 @@ public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactio
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                List<TransactionAction> actions = actions(ROLLBACK, additionalOperation);
+                List<TransactionAction> actions = TransactionAction.actions(ROLLBACK, additionalOperation);
                 executeActions(actions);
             } finally {
                 doOKAction();
