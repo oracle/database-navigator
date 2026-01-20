@@ -673,6 +673,4 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     private void addTreeChild(DBObjectType child) {
         treeChildren.add(child);
     }
-
-
 }
