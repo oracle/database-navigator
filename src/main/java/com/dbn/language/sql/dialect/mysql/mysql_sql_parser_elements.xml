@@ -306,7 +306,7 @@
                 <token type-id="KW_VIRTUAL" id="00149" />
                 <token type-id="KW_STORED" id="00150" />
             </one-of>
-            <sequence id="00151">
+            <sequence id="00151" optional="true">
                 <token type-id="KW_NOT" optional="true" id="00152" />
                 <token type-id="KW_NULL" id="00153" />
             </sequence>
@@ -1678,12 +1678,6 @@
                     <token id="00925" type-id="FN_VERSION" />
                     <token id="00926" type-id="FN_UUID" />
                     <token id="00927" type-id="FN_UUID_SHORT" />
-                </one-of>
-                <token id="00928" type-id="CHR_LEFT_PARENTHESIS" />
-                <token id="00929" type-id="CHR_RIGHT_PARENTHESIS" />
-            </sequence>
-            <sequence id="00930">
-                <one-of id="00931">
                     <token id="00932" type-id="FN_RAND" />
                     <token id="00933" type-id="FN_UNIX_TIMESTAMP" />
                     <token id="00934" type-id="FN_LAST_INSERT_ID" />
