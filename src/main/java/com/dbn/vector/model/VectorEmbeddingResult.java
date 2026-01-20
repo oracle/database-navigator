@@ -2,13 +2,10 @@ package com.dbn.vector.model;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.vector.model.request.EmbeddingFileSource;
-import com.dbn.vector.model.request.EmbeddingFileSources;
 import com.dbn.vector.model.request.EmbeddingSource;
 import com.dbn.vector.model.request.EmbeddingSourceConfig;
-import com.dbn.vector.model.request.EmbeddingTableSource;
-import com.dbn.vector.model.request.EmbeddingTableSources;
 import com.dbn.vector.model.result.EmbeddingFileResult;
+import com.dbn.vector.model.result.EmbeddingQueryResult;
 import com.dbn.vector.model.result.EmbeddingResult;
 import com.dbn.vector.model.result.EmbeddingTableResult;
 import com.dbn.vector.model.result.PipelineStep;
@@ -58,18 +55,9 @@ public class VectorEmbeddingResult {
         EmbeddingSourceConfig sourceConfig = request.getSourceConfig();
 
         switch (sourceConfig.getSourceType()) {
-            case FILE_SYSTEM:
-                EmbeddingFileSources fileConfig = sourceConfig.getSourceFiles();
-                for (EmbeddingFileSource source : fileConfig.getElements()) {
-                    results.put(source.getIdentifier(), new EmbeddingFileResult(source));
-                }
-                break;
-            case DATABASE_TABLE:
-                EmbeddingTableSources tableConfig = sourceConfig.getSourceTables();
-                for (EmbeddingTableSource source : tableConfig.getElements()) {
-                    results.put(source.getIdentifier(), new EmbeddingTableResult(source, getConnectionId()));
-                }
-                break;
+            case FILE_SYSTEM -> sourceConfig.getSourceFiles().forEach(s -> results.put(s.getIdentifier(), new EmbeddingFileResult(s)));
+            case DATABASE_TABLE -> sourceConfig.getSourceTables().forEach(s -> results.put(s.getIdentifier(), new EmbeddingTableResult(s, getConnectionId())));
+            case DATABASE_QUERY -> sourceConfig.getSourceQueries().forEach(s -> results.put(s.getIdentifier(), new EmbeddingQueryResult(s)));
         }
     }
 

@@ -212,7 +212,7 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
     }
 
     private DBObjectSpec createTableFactoryInput() {
-        DBObjectSpec tableSpec = DBObjectSpecReader.read(getClass(), "embedding-table-definition.xml");
+        DBObjectSpec tableSpec = DBObjectSpecReader.read(getClass(), "embedding-destination-table-definition.xml");
         tableSpec.setConnectionId(getConnectionId());
         tableSpec.setSchemaId(getSelectedSchemaId());
         return tableSpec;

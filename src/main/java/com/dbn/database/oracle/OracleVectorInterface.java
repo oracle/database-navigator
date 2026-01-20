@@ -58,9 +58,9 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public int embedDataContent(DBNConnection conn, EmbeddingTableSource tableSource, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException {
+    public int embedTableContent(DBNConnection conn, EmbeddingTableSource tableSource, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException {
         return executeUpdate(conn,
-                "insert-vector-embeddings-from-table-batch",
+                "embed-table-content",
                 destinationConfig.getSchemaName(),
                 destinationConfig.getTableName(),
                 destinationConfig.getTextColumnName(),
@@ -78,9 +78,26 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
+    public int embedQueryContent(DBNConnection conn, String selectStatement, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException {
+        return executeUpdate(conn,
+                "embed-query-content",
+                destinationConfig.getSchemaName(),
+                destinationConfig.getTableName(),
+                destinationConfig.getTextColumnName(),
+                destinationConfig.getEmbeddingColumnName(),
+                destinationConfig.getMetadataColumnName(),
+                selectStatement,
+                chunkConfig,
+                embedConfig,
+                metadata,
+                batchSize
+        );
+    }
+
+    @Override
     public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, EmbeddingStagingConfig stagingConfig, EmbeddingDestinationConfig destinationConfig, String fileStoreId, String metadata) throws SQLException {
         return executeUpdate(conn,
-                "insert-vector-embeddings-from-filesystem",
+                "embed-file-content",
                 destinationConfig.getSchemaName(),
                 destinationConfig.getTableName(),
                 destinationConfig.getTextColumnName(),

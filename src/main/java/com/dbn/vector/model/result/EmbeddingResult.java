@@ -28,11 +28,12 @@ import java.util.List;
 public abstract class EmbeddingResult<T extends EmbeddingSource> implements Presentable {
     private final T source;
 
-    protected SourceStatus status = SourceStatus.FAILED;
-    protected List<StepResult> steps;
-    protected long rowsInserted = 0L;
-    protected long durationMs = 0L;
-    protected String displayName;
+    private SourceStatus status = SourceStatus.FAILED;
+    private List<StepResult> steps;
+    private long rowsInserted = 0L;
+    private long durationMs = 0L;
+    private String displayName;
+    private String metadata;
 
     protected EmbeddingResult(T source) {
         this.source = source;

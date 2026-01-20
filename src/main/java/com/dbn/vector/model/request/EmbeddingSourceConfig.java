@@ -30,6 +30,7 @@ public final class EmbeddingSourceConfig extends EmbeddingRequestConfig {
     private EmbeddingSourceType sourceType = EmbeddingSourceType.DATABASE_TABLE;
     private final EmbeddingTableSource sourceTable = new EmbeddingTableSource(); // transient single selection
     private final EmbeddingTableSources sourceTables = new EmbeddingTableSources();
+    private final EmbeddingQuerySources sourceQueries = new EmbeddingQuerySources();
     private final EmbeddingFileSources sourceFiles = new EmbeddingFileSources();
 
     @Override
@@ -41,6 +42,7 @@ public final class EmbeddingSourceConfig extends EmbeddingRequestConfig {
 
         sourceTable.readState(element.getChild("single-table-source"));
         sourceTables.readState(element);
+        sourceQueries.readState(element);
         sourceFiles.readState(element);
     }
 
@@ -50,6 +52,7 @@ public final class EmbeddingSourceConfig extends EmbeddingRequestConfig {
         setEnumAttribute(element, "source-type", sourceType);
 
         sourceTable.writeState(newElement(element,  "single-table-source"));
+        sourceQueries.writeState(element);
         sourceTables.writeState(element);
         sourceFiles.writeState(element);
     }
@@ -57,6 +60,7 @@ public final class EmbeddingSourceConfig extends EmbeddingRequestConfig {
     public int getRecordCount() {
         return switch (sourceType) {
             case DATABASE_TABLE -> sourceTables.size();
+            case DATABASE_QUERY -> sourceQueries.size();
             case FILE_SYSTEM -> sourceFiles.size();
         };
     }

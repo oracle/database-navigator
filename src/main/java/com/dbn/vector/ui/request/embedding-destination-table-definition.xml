@@ -47,5 +47,10 @@
             <attribute name="OBJECT_NAME"      value="${TABLE_NAME}_SOURCE_IDX"/>
             <attribute name="INDEX_DEFINITION" value="json_value(${METADATA_COLUMN_NAME}, '$.embedding_source.source_id')"/>
         </definition>
+        <definition readonly="Y">
+            <attribute name="OBJECT_TYPE"      value="INDEX"/>
+            <attribute name="OBJECT_NAME"      value="${TABLE_NAME}_SOURCE_HASH"/>
+            <attribute name="INDEX_DEFINITION" value="json_value(${METADATA_COLUMN_NAME}, '$.embedding_source.source_hash')"/>
+        </definition>
     </children>
 </definition>

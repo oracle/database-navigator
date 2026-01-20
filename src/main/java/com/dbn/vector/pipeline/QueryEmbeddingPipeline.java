@@ -5,12 +5,12 @@ import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.vector.model.VectorEmbeddingContext;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
-import com.dbn.vector.model.request.EmbeddingTableSource;
-import com.dbn.vector.model.request.EmbeddingTableSources;
-import com.dbn.vector.model.result.EmbeddingTableResult;
+import com.dbn.vector.model.request.EmbeddingQuerySource;
+import com.dbn.vector.model.request.EmbeddingQuerySources;
+import com.dbn.vector.model.result.EmbeddingQueryResult;
 import com.dbn.vector.model.result.PipelineStep;
 import com.dbn.vector.model.result.StepResult;
-import com.dbn.vector.service.TableProcessingService;
+import com.dbn.vector.service.QueryProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,10 +19,10 @@ import java.sql.SQLException;
 import static com.dbn.vector.model.result.PipelineStep.ENSURE_DOCUMENT_TABLE;
 
 
-public class TableEmbeddingPipeline extends EmbeddingPipeline {
+public class QueryEmbeddingPipeline extends EmbeddingPipeline {
     private static final int DEFAULT_BATCH_SIZE = 100;
 
-    private final TableProcessingService tableProcessingService = new TableProcessingService();
+    private final QueryProcessingService queryProcessingService = new QueryProcessingService();
 
     @Override
     protected void executeSourceSpecificPipeline(
@@ -32,19 +32,19 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
 
         // remove the PREPARE_DOCUMENT_STORE step from shared steps
         result.deleteStepFfromShared(ENSURE_DOCUMENT_TABLE);
-        EmbeddingTableSources tableConfig = request.getSourceConfig().getSourceTables();
+        EmbeddingQuerySources sources = request.getSourceConfig().getSourceQueries();
 
-        for (EmbeddingTableSource tableSource : tableConfig.getElements()) {
-            EmbeddingTableResult tableResult = result.getResult(tableSource);
+        for (EmbeddingQuerySource source : sources.getElements()) {
+            EmbeddingQueryResult queryResult = result.getResult(source);
 
-            String metadata = tableProcessingService.buildRowMetadata(request, tableSource);
-            tableResult.setMetadata(metadata);
-            context.getProgressIndicator().setText2("Processing table " + tableResult.getName());
+            String metadata = queryProcessingService.buildRowMetadata(request, source);
+            queryResult.setMetadata(metadata);
+            context.getProgressIndicator().setText2("Processing table " + queryResult.getName());
 
             // Execute the embedding with batching
-            embedTableDataInBatches(
+            embedQueryDataInBatches(
                     context, request,
-                    tableResult
+                    queryResult
             );
         }
 
@@ -54,10 +54,10 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
      * Embed data from the source table using batching for failure recovery.
      * Each batch is committed separately, so progress is preserved on failure.
      */
-    private void embedTableDataInBatches(
+    private void embedQueryDataInBatches(
             @NotNull VectorEmbeddingContext context,
             @NotNull VectorEmbeddingRequest request,
-            @NotNull EmbeddingTableResult result) throws SQLException {
+            @NotNull EmbeddingQueryResult result) throws SQLException {
 
         StepResult embedStep = result.startStep(PipelineStep.EMBED);
         DBNConnection connection = context.getConnection();
@@ -76,13 +76,13 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
                 }
 
                 batchNumber++;
-                progressIndicator.setText2("Processing table " + result.getName() + " (batch " + batchNumber + " / rows embedded " + totalProcessed + ")");
+                progressIndicator.setText2("Processing query " + result.getName() + " (batch " + batchNumber + " / rows embedded " + totalProcessed + ")");
 
                 // Process one batch
                 DatabaseVectorInterface vectorInterface = request.getConnection().getVectorInterface();
-                batchCount = vectorInterface.embedTableContent(
+                batchCount = vectorInterface.embedQueryContent(
                         connection,
-                        result.getSource(),
+                        result.getSelectStatement(),
                         request.getChunkConfig().getConfigJson(),
                         request.getModelConfig().getConfigJson(),
                         request.getDestinationConfig(),

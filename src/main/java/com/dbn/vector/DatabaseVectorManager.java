@@ -24,6 +24,7 @@ import com.dbn.vector.model.request.EmbeddingDestinationConfig;
 import com.dbn.vector.model.request.EmbeddingSourceType;
 import com.dbn.vector.pipeline.EmbeddingPipeline;
 import com.dbn.vector.pipeline.FileEmbeddingPipeline;
+import com.dbn.vector.pipeline.QueryEmbeddingPipeline;
 import com.dbn.vector.pipeline.TableEmbeddingPipeline;
 import com.dbn.vector.ui.VectorToolboxDialog;
 import com.intellij.openapi.components.State;
@@ -57,7 +58,7 @@ import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 )
 public class DatabaseVectorManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseVectorManager";
-    public static final String ENGINE_VERSION = "1.0.0";
+    public static final String ENGINE_VERSION = "1.1.0";
 
     private final Map<ConnectionId, VectorEmbeddingRequest> requestTemplates = new ConcurrentHashMap<>();
 
@@ -182,6 +183,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     private EmbeddingPipeline createPipeline(@NotNull EmbeddingSourceType sourceType) {
         return switch (sourceType) {
             case DATABASE_TABLE -> new TableEmbeddingPipeline();
+            case DATABASE_QUERY -> new QueryEmbeddingPipeline();
             case FILE_SYSTEM -> new FileEmbeddingPipeline();
         };
     }

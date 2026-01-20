@@ -17,32 +17,30 @@
 package com.dbn.vector.model.request;
 
 import com.dbn.common.state.PersistentStateElement;
-import com.dbn.common.util.Cloneable;
-import lombok.Data;
-import lombok.SneakyThrows;
+import lombok.Getter;
+import lombok.Setter;
 import org.jdom.Element;
 
+import static com.dbn.common.options.setting.Settings.readCdata;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.util.Unsafe.cast;
-import static com.dbn.vector.model.request.EmbeddingSourceType.DATABASE_TABLE;
+import static com.dbn.common.options.setting.Settings.writeCdata;
+import static com.dbn.vector.model.request.EmbeddingSourceType.DATABASE_QUERY;
 
-@Data
-public class EmbeddingTableSource implements EmbeddingSource, PersistentStateElement, Cloneable<EmbeddingTableSource> {
+@Getter
+@Setter
+public class EmbeddingQuerySource implements EmbeddingSource, PersistentStateElement{
     private String schemaName;
-    private String tableName;
-    private String keyColumnName;
-    private String dataColumnName;
-
+    private String selectStatement;
 
     @Override
     public EmbeddingSourceType getType() {
-        return DATABASE_TABLE;
+        return DATABASE_QUERY;
     }
 
     @Override
     public String getIdentifier() {
-        return schemaName + "." + tableName + "#" + keyColumnName + "/" + dataColumnName;
+        return ""; // TODO list of tables selected "from" / UUID ???
     }
 
     @Override
@@ -50,22 +48,12 @@ public class EmbeddingTableSource implements EmbeddingSource, PersistentStateEle
         if (element == null) return;
 
         schemaName = stringAttribute(element, "schema");
-        tableName = stringAttribute(element, "table");
-        keyColumnName = stringAttribute(element, "key-column");
-        dataColumnName = stringAttribute(element, "data-column");
+        selectStatement = readCdata(element);
     }
 
     @Override
     public void writeState(Element element) {
         setStringAttribute(element, "schema", schemaName);
-        setStringAttribute(element, "table", tableName);
-        setStringAttribute(element, "key-column", keyColumnName);
-        setStringAttribute(element, "data-column", dataColumnName);
-    }
-
-    @Override
-    @SneakyThrows
-    public EmbeddingTableSource clone() {
-        return cast(super.clone());
+        writeCdata(element, selectStatement);
     }
 }

@@ -25,6 +25,8 @@ import lombok.SneakyThrows;
 import java.io.InputStream;
 import java.nio.file.Path;
 
+import static com.dbn.vector.model.request.EmbeddingSourceType.FILE_SYSTEM;
+
 @Data
 @NoArgsConstructor
 public class EmbeddingFileSource implements EmbeddingSource{
@@ -35,11 +37,16 @@ public class EmbeddingFileSource implements EmbeddingSource{
         this.filePath = filePath;
     }
 
+    @Override
+    public EmbeddingSourceType getType() {
+        return FILE_SYSTEM;
+    }
+
     public synchronized VirtualFile getFile() {
-        if (file == null) {
-            VirtualFileManager virtualFileManager = VirtualFileManager.getInstance();
-            file = virtualFileManager.findFileByNioPath(Path.of(this.filePath));
-        }
+        if (file != null) return file;
+
+        VirtualFileManager virtualFileManager = VirtualFileManager.getInstance();
+        file = virtualFileManager.findFileByNioPath(Path.of(this.filePath));
         return file;
     }
 

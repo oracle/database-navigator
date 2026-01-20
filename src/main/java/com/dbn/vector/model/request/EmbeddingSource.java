@@ -17,5 +17,6 @@
 package com.dbn.vector.model.request;
 
 public interface EmbeddingSource {
+    EmbeddingSourceType getType();
     String getIdentifier();
 }

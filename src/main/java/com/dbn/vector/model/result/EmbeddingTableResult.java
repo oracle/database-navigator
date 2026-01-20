@@ -41,7 +41,6 @@ public class EmbeddingTableResult extends EmbeddingResult<EmbeddingTableSource> 
     private long rowsFailed;
     private String firstKey;    // optional checkpoint keys
     private String lastKey;
-    private String metadata;
 
     public EmbeddingTableResult(EmbeddingTableSource source, ConnectionId connectionId) {
         super(source);
@@ -57,9 +56,9 @@ public class EmbeddingTableResult extends EmbeddingResult<EmbeddingTableSource> 
     }
 
     private void initSteps() {
-        steps = new ArrayList<>(Arrays.asList(
+        setSteps(new ArrayList<>(Arrays.asList(
                 new StepResult(PipelineStep.EMBED)
-        ));
+        )));
     }
 
     @NotNull

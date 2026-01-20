@@ -47,7 +47,7 @@ public class FileProcessingService {
             if (rs.next()) {
                 String fileStoreId = rs.getString("id");
                 String metadata = rs.getString("metadata");
-                result.setMetadata(Json.readAsMap(metadata));
+                result.setMetadata(metadata);
                 step.markSuccess();
                 return fileStoreId;
             }
@@ -71,7 +71,8 @@ public class FileProcessingService {
 
         try {
             // Extract metadata from FileContent and connection
-            String metadataJson = buildFileMetadata(connection, result);
+            String fileMetadata = buildFileMetadata(connection, result);
+            result.setMetadata(fileMetadata);
             EmbeddingStagingConfig stagingConfig = request.getStagingConfig();
 
             DatabaseVectorInterface vectorInterface = request.getVectorInterface();
@@ -82,7 +83,7 @@ public class FileProcessingService {
                     stagingConfig.getSchemaName(),
                     stagingConfig.getTableName(),
                     result.getFileStoreId(),
-                    metadataJson,
+                    fileMetadata,
                     result.getFileHash(),
                     result.getFileSize());
 
@@ -132,7 +133,7 @@ public class FileProcessingService {
                 return;
             }
 
-            String rowMetadata = buildRowMetadata(request, result.getMetadata());
+            String rowMetadata = buildRowMetadata(request, Json.readAsMap(result.getMetadata()));
             String chunkConfigJson = request.getChunkConfig().getConfigJson();
             String embedConfigJson = request.getModelConfig().getConfigJson();
 
@@ -172,8 +173,6 @@ public class FileProcessingService {
         metadata.put("file_size", fileResult.getFileSize());
         metadata.put("upload_timestamp", System.currentTimeMillis());
         metadata.put("uploaded_by", connection.getSchema() != null ? connection.getSchema() : "unknown");
-
-        fileResult.setMetadata(metadata);
         return Json.writeAsString(metadata);
     }
 

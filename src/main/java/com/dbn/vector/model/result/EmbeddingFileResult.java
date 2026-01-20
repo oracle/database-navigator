@@ -30,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
 
 @Getter
 @Setter
@@ -39,7 +38,6 @@ public class EmbeddingFileResult extends EmbeddingResult<EmbeddingFileSource> {
     private String fileStoreId;
     private String fileHash;
     private long fileSize;
-    private Map<String, Object> metadata;
 
     private boolean skipped = false;
 
@@ -60,11 +58,11 @@ public class EmbeddingFileResult extends EmbeddingResult<EmbeddingFileSource> {
     }
 
     private void initSteps() {
-        steps = new ArrayList<>(Arrays.asList(
-                new StepResult(PipelineStep.CHECK_CRC),
-                new StepResult(PipelineStep.UPLOADING_FILE),
-                new StepResult(PipelineStep.EMBED)
-        ));
+        setSteps(
+            new ArrayList<>(Arrays.asList(
+            new StepResult(PipelineStep.CHECK_CRC),
+            new StepResult(PipelineStep.UPLOADING_FILE),
+            new StepResult(PipelineStep.EMBED))));
     }
 
     @NotNull

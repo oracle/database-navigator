@@ -14,36 +14,32 @@
  * limitations under the License.
  */
 
-package com.dbn.vector.model.request;
+package com.dbn.vector.model.result;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.dbn.vector.model.request.EmbeddingQuerySource;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-@Getter
-@Setter
-public class EmbeddingSourceList<T extends EmbeddingSource> implements Iterable<T> {
-    private List<T> elements = new ArrayList<>();
-
-    public void addElement(T element) {
-        elements.add(element);
+public class EmbeddingQueryResult extends EmbeddingResult<EmbeddingQuerySource> {
+    public EmbeddingQueryResult(EmbeddingQuerySource source) {
+        super(source);
     }
 
-    public int size() {
-        return elements.size();
-    }
-
-    public void clear() {
-        elements.clear();
-    }
-
-    @NotNull
     @Override
-    public Iterator<T> iterator() {
-        return elements.iterator();
+    public String getPresentableSize() {
+        return "";
+    }
+
+    @Override
+    public String getIdentifier() {
+        return "";
+    }
+
+    @Override
+    public @NotNull String getName() {
+        return "";
+    }
+
+    public String getSelectStatement() {
+        return getSource().getSelectStatement();
     }
 }

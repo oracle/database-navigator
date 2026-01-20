@@ -62,7 +62,9 @@ public class Json {
         return OBJECT_MAPPER.writeValueAsString(value);
     }
 
+
     @SneakyThrows
+    @SuppressWarnings("Convert2Diamond") // needed for deserialization
     public static Map<String, Object> readAsMap(String json) {
         return OBJECT_MAPPER.readValue(json, new TypeReference<Map<String, Object>>(){});
     }

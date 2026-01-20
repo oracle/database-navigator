@@ -60,11 +60,10 @@ public class EmbeddingFileSources extends EmbeddingSourceList<EmbeddingFileSourc
     }
 
     public void setFilePaths(List<String> filePaths) {
-        List<EmbeddingFileSource> elements = getElements();
-        elements.clear();
+        clear();
         filePaths
             .stream()
             .map(path -> new EmbeddingFileSource(path))
-            .forEach(e -> elements.add(e));
+            .forEach(e -> addElement(e));
     }
 }
