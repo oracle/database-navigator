@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.7.0.0</version>
+    <version>3.7.1.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -53,6 +53,11 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.7.1</b>
+            <ul>
+                <li>Online documentation integration
+                <li>Bug fixes and performance improvements
+            </ul>
             <li><b>3.7.0</b>
             <ul>
                 <li>DB assistant (an AI-powered assistant with database and workspace integration)
