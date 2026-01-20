@@ -26,6 +26,7 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.ThreadInfo;
 import com.dbn.common.thread.ThreadProperty;
 import com.dbn.editor.EditorProviderId;
+import com.dbn.help.HelpTopic;
 import com.dbn.vfs.DatabaseOpenFileDescriptor;
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
 import com.intellij.ide.structureView.StructureViewBuilder;
@@ -57,6 +58,7 @@ public abstract class BasicTextEditorImpl<T extends VirtualFile> extends Statefu
     private final String name;
     private final EditorProviderId editorProviderId;
     private BasicTextEditorState cachedState;
+    private final BasicTextEditorPanel editorPanel = new BasicTextEditorPanel();
 
     public BasicTextEditorImpl(Project project, T virtualFile, String name, EditorProviderId editorProviderId) {
         this.project = ProjectRef.of(project);
@@ -66,6 +68,8 @@ public abstract class BasicTextEditorImpl<T extends VirtualFile> extends Statefu
 
         TextEditorProvider textEditorProvider = TextEditorProvider.getInstance();
         textEditor = (TextEditor) textEditorProvider.createEditor(project, virtualFile);
+        editorPanel.add(textEditor.getComponent());
+        editorPanel.setHelpTopic(() -> getHelpTopic());
 
         Disposer.register(this, textEditor);
     }
@@ -83,6 +87,11 @@ public abstract class BasicTextEditorImpl<T extends VirtualFile> extends Statefu
     @Override
     public @Nullable VirtualFile getFile() {
         return virtualFile.get();
+    }
+
+    @Override
+    public HelpTopic getHelpTopic() {
+        return null;
     }
 
     @Override
@@ -155,7 +164,7 @@ public abstract class BasicTextEditorImpl<T extends VirtualFile> extends Statefu
     @Override
     @NotNull
     public JComponent getComponent() {
-        return guarded(DISPOSED_COMPONENT, this, e -> getTextEditor().getComponent());
+        return editorPanel;
     }
 
     @Override
@@ -223,6 +232,7 @@ public abstract class BasicTextEditorImpl<T extends VirtualFile> extends Statefu
 
     @Override
     public void disposeInner() {
+        editorPanel.removeAll();
         // TODO cleanup - happens as part of text editor disposal
         // EditorUtil.releaseEditor(textEditor.getEditor());
     }

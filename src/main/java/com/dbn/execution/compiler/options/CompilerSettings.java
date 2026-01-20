@@ -45,11 +45,6 @@ public class CompilerSettings extends BasicConfiguration<OperationSettings, Comp
         return txt("cfg.compiler.title.CompilerSettings");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "executionEngine";
-    }
-
     /****************************************************
      *                   Configuration                  *
      ****************************************************/

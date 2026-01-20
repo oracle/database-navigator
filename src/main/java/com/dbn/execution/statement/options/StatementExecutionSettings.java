@@ -50,11 +50,6 @@ public class StatementExecutionSettings extends BasicProjectConfiguration<Execut
         return txt("cfg.execution.title.StatementExecution");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "executionEngine";
-    }
-
     /****************************************************
      *                   Configuration                  *
      ****************************************************/

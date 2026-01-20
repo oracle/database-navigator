@@ -147,11 +147,6 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
         return txt("cfg.connection.title.FilterSettings");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "connectionFilterSettings";
-    }
-
     /*********************************************************
      *                     Configuration                     *
      *********************************************************/

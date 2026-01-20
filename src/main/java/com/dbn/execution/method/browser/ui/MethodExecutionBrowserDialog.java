@@ -56,10 +56,12 @@ public class MethodExecutionBrowserDialog extends DBNDialog<MethodExecutionBrows
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
+    protected final Action[] initializeActions() {
         selectAction = new SelectAction();
         selectAction.setEnabled(false);
-        return new Action[]{selectAction, getCancelAction()};
+        return actions(
+                selectAction,
+                getCancelAction());
     }
 
     @Override

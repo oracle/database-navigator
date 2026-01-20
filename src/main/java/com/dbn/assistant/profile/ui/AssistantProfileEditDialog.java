@@ -33,7 +33,6 @@ public class AssistantProfileEditDialog extends DBNDialog<AssistantProfileEditFo
         super(project, request.isNewProfile() ? "Create Profile" : "Update Profile", true);
         this.request = request;
         this.profile = initProfile();
-        renameAction(getOKAction(), request.isNewProfile() ? "Create" : "Update");
         setModal(true);
         init();
     }
@@ -56,10 +55,12 @@ public class AssistantProfileEditDialog extends DBNDialog<AssistantProfileEditFo
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        String actionName = request.isNewProfile() ? "Create" : "Update";
+        renameAction(getOKAction(), actionName);
+        return actions(
                 getOKAction(),
-                getCancelAction()};
+                getCancelAction());
     }
 
     @Override

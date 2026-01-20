@@ -31,7 +31,6 @@ public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
     public JavaDownloadInputDialog(JavaDownloadBatch batch) {
         super(batch.getProject(), "Download Java Content", false);
         this.batch = batch;
-        renameAction(getOKAction(), "Download");
         setDefaultSize(600, 600);
         init();
     }
@@ -58,10 +57,11 @@ public class JavaDownloadInputDialog extends DBNDialog<JavaDownloadInputForm> {
 
 
     @Override
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Download");
+        return actions(
                 getOKAction(),
-                getCancelAction()};
+                getCancelAction());
     }
 
     @Override

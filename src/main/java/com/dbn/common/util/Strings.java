@@ -176,6 +176,8 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
 
     public static boolean isIndex(@Nullable String string) {
         if (string == null) return false;
+        if (string.length() > 3) return false; // practical limit for index inputs (e.g. column at index #)
+
         for (int i = 0; i < string.length(); i++) {
             char chr = string.charAt(i);
             if (chr < '0' || chr > '9') return false;

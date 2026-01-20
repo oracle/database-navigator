@@ -20,6 +20,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.ComponentDisposer;
+import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.file.VirtualFileRef;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
@@ -30,7 +31,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.intellij.codeInsight.intention.IntentionActionWithOptions;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.colors.ColorKey;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
@@ -38,6 +38,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.util.ui.JBUI;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +55,11 @@ import java.util.Objects;
 import static com.dbn.common.ui.util.UserInterface.findChildComponent;
 import static javax.swing.SwingConstants.RIGHT;
 
-public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationPanel implements Disposable {
+@Getter
+@Setter
+public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationPanel implements StatefulDisposable {
+    private boolean disposed;
+
     private final VirtualFileRef file;
     private final ProjectRef project;
     private final WeakRef<FileEditor> fileEditor;
@@ -177,7 +183,7 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
     }
 
     @Override
-    public void dispose() {
+    public void disposeInner() {
         ComponentDisposer.dispose(this);
     }
 

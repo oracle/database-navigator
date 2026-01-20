@@ -15,11 +15,14 @@
  */
 package com.dbn.common.ui.dialog;
 
+import com.dbn.common.text.TextContent;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Action;
 import javax.swing.JComponent;
 import java.util.List;
 
@@ -28,17 +31,23 @@ public class SelectionListDialog<T> extends DBNDialog<SelectionListForm<T>> {
     private final List<T> elements;
     private final T initialSelection;
     private final Object contextObject;
+    private final TextContent hintContent;
+    private final HelpTopic helpTopic;
 
 
     public SelectionListDialog(Project project,
                                String title,
                                @NotNull List<T> elements,
                                @Nullable T initialSelection,
-                               @Nullable Object contextObject) {
+                               @Nullable Object contextObject,
+                               @Nullable TextContent hintContent,
+                               @Nullable HelpTopic helpTopic) {
         super(project, title, false);
         this.elements = elements;
         this.initialSelection = initialSelection;
         this.contextObject = contextObject;
+        this.hintContent = hintContent;
+        this.helpTopic = helpTopic;
         init();
     }
 
@@ -49,7 +58,7 @@ public class SelectionListDialog<T> extends DBNDialog<SelectionListForm<T>> {
     @NotNull
     @Override
     protected SelectionListForm<T> createForm() {
-        return new SelectionListForm<>(this, contextObject);
+        return new SelectionListForm<>(this, contextObject, hintContent);
     }
 
     public List<T> getSelection() {
@@ -60,5 +69,13 @@ public class SelectionListDialog<T> extends DBNDialog<SelectionListForm<T>> {
     @Override
     public JComponent getPreferredFocusedComponent() {
         return getForm().getSelectionList();
+    }
+
+    @Override
+    protected Action[] initializeActions() {
+        //renameAction(getOKAction(), "Select");
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 }

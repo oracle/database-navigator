@@ -23,6 +23,7 @@ import com.dbn.common.ref.WeakRefCache;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Lists;
+import com.dbn.common.util.Recursion;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.connection.ConnectionHandler;
@@ -251,6 +252,12 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
 
     @Override
     public DBObject getChildObject(DBObjectType type, String name, short overload, boolean lookupHidden) {
+        return Recursion.computeGuarded("childObjectLookup", this,
+                o -> findChildObject(type, name, overload, lookupHidden));
+    }
+
+    @Nullable
+    private  DBObject findChildObject(DBObjectType type, String name, short overload, boolean lookupHidden) {
         if (isDisposed()) return null;
         DBObjectList<DBObject> childObjectList = getChildObjectList(type);
         if (childObjectList != null) {

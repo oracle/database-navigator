@@ -57,6 +57,7 @@ import com.intellij.ide.structureView.StructureViewModel;
 import com.intellij.ide.structureView.TreeBasedStructureViewBuilder;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorState;
@@ -82,6 +83,7 @@ import static com.dbn.editor.data.DataEditorStatus.LOADED;
 import static com.dbn.editor.data.DataEditorStatus.LOADING;
 import static com.dbn.editor.data.filter.DatasetFilterManager.EMPTY_FILTER;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
+import static com.dbn.help.HelpTopic.TABLE_EDITORS;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
@@ -522,6 +524,7 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
     @Override
     public Object getData(@NotNull String dataId) {
         if (DataKeys.DATASET_EDITOR.is(dataId)) return this;
+        if (PlatformCoreDataKeys.HELP_ID.is(dataId)) return TABLE_EDITORS.asHelpTopicId();
         return null;
     }
 
