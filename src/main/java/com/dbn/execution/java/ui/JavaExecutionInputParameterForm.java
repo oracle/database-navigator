@@ -51,6 +51,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
