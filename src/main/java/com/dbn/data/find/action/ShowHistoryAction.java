@@ -36,6 +36,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ShowHistoryAction extends DataSearchHeaderAction implements DumbAware {
@@ -55,7 +56,7 @@ public class ShowHistoryAction extends DataSearchHeaderAction implements DumbAwa
 
         registerCustomShortcutSet(new CustomShortcutSet(shortcuts.toArray(new Shortcut[0])), searchField);
         searchField.registerKeyboardAction(actionEvent -> {
-            if (searchField.getText().isEmpty()) {
+            if (getText(searchField).isEmpty()) {
                 getSearchComponent().showHistory(false, searchField);
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), JComponent.WHEN_FOCUSED);

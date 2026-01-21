@@ -145,12 +145,12 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
     }
 
     @Override
-    public String getCollapsedTitle() {
-        return "Target context:";
+    public String getFormTitle() {
+        return "Target context";
     }
 
     @Override
-    public String getCollapsedTitleDetail() {
+    public String getFormTitleDetail() {
         // connection
         ConnectionHandler connection = targetConnectionComboBox.getSelectedValue();
         String connectionToken = connection == null ? "" : connection.getName();
@@ -165,11 +165,6 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
         String sessionToken = sessionName == null ? "" : (" / " + sessionName);
 
         return connectionToken + schemaToken + sessionToken;
-    }
-
-    @Override
-    public String getExpandedTitle() {
-        return "Target context";
     }
 
     @NotNull

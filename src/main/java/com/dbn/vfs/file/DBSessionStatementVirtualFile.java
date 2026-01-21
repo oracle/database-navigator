@@ -49,7 +49,7 @@ import static com.dbn.common.action.UserDataKeys.LANGUAGE_DIALECT;
 @Getter
 @Setter
 public class DBSessionStatementVirtualFile extends DBVirtualFileBase implements DBParseableVirtualFile {
-    private final WeakRef<SessionBrowser> sessionBrowser;
+    private final transient WeakRef<SessionBrowser> sessionBrowser;
     private CharSequence content;
     private SchemaId schemaId;
 

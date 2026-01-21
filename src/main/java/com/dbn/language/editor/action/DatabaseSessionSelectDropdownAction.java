@@ -79,8 +79,7 @@ public class DatabaseSessionSelectDropdownAction extends ComboBoxAction implemen
 
     private boolean isDebugConsole(VirtualFile virtualFile) {
         boolean isDebugConsole = false;
-        if (virtualFile instanceof DBConsoleVirtualFile) {
-            DBConsoleVirtualFile consoleVirtualFile = (DBConsoleVirtualFile) virtualFile;
+        if (virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile) {
             if (consoleVirtualFile.getType() == DBConsoleType.DEBUG) {
                 isDebugConsole = true;
             }

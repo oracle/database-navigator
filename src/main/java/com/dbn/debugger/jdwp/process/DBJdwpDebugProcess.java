@@ -315,8 +315,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
 
     private void unmuteBreakpoints() {
         XDebugSession session = getSession();
-        if (session instanceof XDebugSessionImpl) {
-            XDebugSessionImpl sessionImpl = (XDebugSessionImpl) session;
+        if (session instanceof XDebugSessionImpl sessionImpl) {
             sessionImpl.getSessionData().setBreakpointsMuted(false);
         }
     }
@@ -346,8 +345,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
         return new DebugProcessListener() {
             @Override
             public void paused(@NotNull SuspendContext suspendContext) {
-                if (suspendContext instanceof XSuspendContext) {
-                    XSuspendContext xSuspendContext = (XSuspendContext) suspendContext;
+                if (suspendContext instanceof XSuspendContext xSuspendContext) {
 
                     XExecutionStack[] executionStacks = xSuspendContext.getExecutionStacks();
                     for (XExecutionStack executionStack : executionStacks) {
@@ -539,8 +537,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     public static Location getTopFrameLocation(@Nullable XExecutionStack executionStack) {
         if (executionStack == null) return null;
 
-        if (executionStack instanceof DBJdwpDebugExecutionStack) {
-            DBJdwpDebugExecutionStack dbExecutionStack = (DBJdwpDebugExecutionStack) executionStack;
+        if (executionStack instanceof DBJdwpDebugExecutionStack dbExecutionStack) {
             return dbExecutionStack.getTopFrameLocation();
         } else {
             XStackFrame topFrame = executionStack.getTopFrame();
@@ -552,8 +549,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     @Nullable
     @SneakyThrows
     public static Location getLocation(@Nullable XStackFrame stackFrame) {
-        if (stackFrame instanceof JavaStackFrame) {
-            JavaStackFrame javaStackFrame = (JavaStackFrame) stackFrame;
+        if (stackFrame instanceof JavaStackFrame javaStackFrame) {
             StackFrameDescriptorImpl frameDescriptor = javaStackFrame.getDescriptor();
             Location location = frameDescriptor.getLocation();
             if (location != null) return location;

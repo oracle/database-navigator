@@ -45,7 +45,14 @@ public class DBCredentialImpl extends DBSchemaObjectImpl<DBCredentialMetadata> i
     private final Map<DBAttributeType, String> attributes = new HashMap<>();
 
     public DBCredentialImpl(DBSchema parent, String name, DBCredentialType type, boolean enabled) throws SQLException {
-        super(parent, new DBCredentialMetadata.Record(name, type.name(), "", "", enabled));
+        super(parent, DBCredentialMetadata.Record
+                .builder()
+                .credentialName(name)
+                .credentialType(type.name())
+                .userName("")
+                .comments("")
+                .enabled(enabled)
+                .build());
     }
 
     DBCredentialImpl(DBSchema parent, DBCredentialMetadata metadata) throws SQLException {

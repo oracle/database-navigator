@@ -39,7 +39,7 @@ public class EventNotificationFilter implements Filter<DataChangeNotification> {
 
     private boolean matchesTable(DataChangeNotification event) {
         return Strings.isEmpty(table) ||
-                equalsIgnoreCase(table, event.getTableName());
+                equalsIgnoreCase(table, event.getTableIdentifier());
     }
 
     private boolean matchesOperation(DataChangeNotification event) {
@@ -49,11 +49,10 @@ public class EventNotificationFilter implements Filter<DataChangeNotification> {
 
     @Nullable
     public String getFilterValue(EventNotificationFilterType filterType) {
-        switch (filterType) {
-            case TABLE: return table;
-            case OPERATION: return operation;
-        }
-        return null;
+        return switch (filterType) {
+            case TABLE -> table;
+            case OPERATION -> operation;
+        };
     }
 
     public void clear() {

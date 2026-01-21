@@ -31,14 +31,14 @@ public class ObjectsReloadAction extends BasicAction {
 
     ObjectsReloadAction(DBObjectList<?> objectList) {
         super((objectList.isLoaded() ?
-                txt("app.objects.action.ReloadObjects", objectList.getCapitalizedName()) :
-                txt("app.objects.action.LoadObjects", objectList.getCapitalizedName())));
+                txt("app.objects.action.ReloadObjects", objectList.getTitleCasedName()) :
+                txt("app.objects.action.LoadObjects", objectList.getTitleCasedName())));
         this.objectList = objectList;
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        String listName = objectList.getCapitalizedName();
+        String listName = objectList.getTitleCasedName();
 
         String title = objectList.isLoaded() ?
                 txt("msg.objects.title.ReloadingObjects", listName) :

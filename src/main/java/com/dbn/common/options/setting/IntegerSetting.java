@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NonNls;
 
 import javax.swing.JTextField;
 
+import static com.dbn.common.ui.util.TextFields.getText;
+
 public class IntegerSetting extends Setting<Integer, JTextField> implements PersistentConfiguration {
     public IntegerSetting(@NonNls String name, Integer value) {
         super(name, value);
@@ -40,7 +42,7 @@ public class IntegerSetting extends Setting<Integer, JTextField> implements Pers
 
     @Override
     public boolean to(JTextField component) throws ConfigurationException {
-        return setValue(Integer.parseInt(component.getText()));
+        return setValue(Integer.parseInt(getText(component)));
     }
 
     @Override

@@ -39,7 +39,6 @@ public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements
 
         int height = Math.min(prerequisiteGroup.size() * 200 + 200, 800);
         setDefaultSize(1000, height);
-        renameAction(getCancelAction(), "Close");
 
         init();
     }
@@ -57,8 +56,9 @@ public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements
     }
 
     @Override
-    protected final Action[] createActions() {
-        return createActions(
+    protected final Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(
                 reevaluateAction,
                 getCancelAction());
     }

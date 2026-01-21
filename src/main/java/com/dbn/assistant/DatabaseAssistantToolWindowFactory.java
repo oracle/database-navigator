@@ -16,8 +16,8 @@
 
 package com.dbn.assistant;
 
+import com.dbn.assistant.chat.window.ui.ChatBoxFormContainer;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.window.DBNToolWindowFactory;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
@@ -37,6 +37,7 @@ import javax.swing.JPanel;
 import static com.dbn.assistant.DatabaseAssistantManager.TOOL_WINDOW_ID;
 import static com.dbn.common.icon.Icons.WINDOW_DATABASE_ASSISTANT;
 import static com.dbn.common.util.ContextLookup.getConnectionId;
+import static com.dbn.help.HelpTopic.DATABASE_ASSISTANT;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -51,6 +52,7 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
         toolWindow.setTitle(txt("app.assistant.title.DatabaseAssistant"));
         toolWindow.setStripeTitle(txt("app.assistant.title.DatabaseAssistant"));
         toolWindow.setIcon(WINDOW_DATABASE_ASSISTANT.get());
+        toolWindow.setHelpId(DATABASE_ASSISTANT.asHelpTopicId());
     }
 
     @Override
@@ -72,7 +74,7 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
 
     private static void createContentPanel(@NotNull ToolWindow toolWindow) {
         ContentManager contentManager = toolWindow.getContentManager();
-        JPanel contentPanel = CardLayouts.createCardPanel(true);
+        JPanel contentPanel = new ChatBoxFormContainer();
 
         ContentFactory contentFactory = contentManager.getFactory();
         Content content = contentFactory.createContent(contentPanel, null, true);
@@ -88,7 +90,7 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
 
                 ConnectionId connectionId = connection == null ? null : connection.getConnectionId();
                 DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-                manager.switchToConnection(connectionId);
+                manager.switchContext(connectionId);
             }
         };
     }
@@ -105,7 +107,7 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
                 if (connectionId == null) return; // do not switch away from last selected connection
 
                 DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
-                assistantManager.switchToConnection(connectionId);
+                assistantManager.switchContext(connectionId);
             }
         };
     }

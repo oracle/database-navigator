@@ -252,8 +252,7 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
     @Override
     public int getIndexInParent(LanguageNodeBase node) {
         LanguageNodeBase parentNode = (LanguageNodeBase) node.parent;
-        if (parentNode != null && parentNode.element instanceof SequenceElementType) {
-            SequenceElementType sequenceElementType = (SequenceElementType) parentNode.element;
+        if (parentNode != null && parentNode.element instanceof SequenceElementType sequenceElementType) {
             return sequenceElementType.indexOf(this);
         }
         return 0;

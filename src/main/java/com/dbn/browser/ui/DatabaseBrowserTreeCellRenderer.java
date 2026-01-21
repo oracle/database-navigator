@@ -63,16 +63,14 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
     private class DefaultTreeCellRenderer extends DBNColoredTreeCellRenderer {
         @Override
         public void customizeCellRenderer(DBNTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-            if (value instanceof LoadInProgressTreeNode) {
-                LoadInProgressTreeNode loadInProgressTreeNode = (LoadInProgressTreeNode) value;
+            if (value instanceof LoadInProgressTreeNode loadInProgressTreeNode) {
                 setIcon(loadInProgressTreeNode.getIcon(0));
                 append("Loading...", GRAY_ITALIC_ATTRIBUTES);
                 return;
             }
 
-            if (!(value instanceof BrowserTreeNode)) return;
+            if (!(value instanceof BrowserTreeNode treeNode)) return;
 
-            BrowserTreeNode treeNode = (BrowserTreeNode) value;
             setIcon(treeNode.getIcon(0));
 
             boolean dirty = false;
@@ -83,8 +81,7 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
                 displayName = treeNode.getPresentableText();
             }
 
-            if (treeNode instanceof DBObjectList) {
-                DBObjectList objectsList = (DBObjectList) treeNode;
+            if (treeNode instanceof DBObjectList objectsList) {
                 boolean empty = objectsList.getChildCount() == 0;
                 dirty = /*objectsList.isDirty() ||*/ objectsList.isLoading() || (!objectsList.isLoaded() && !hasConnectivity(objectsList));
                 SimpleTextAttributes textAttributes =
@@ -110,18 +107,14 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
             } else {
                 boolean showBold = false;
                 boolean showGrey = false;
-                if (treeNode instanceof DBObject) {
-                    DBObject object = (DBObject) treeNode;
-                    if (object instanceof DBSchema) {
-                        DBSchema schema = (DBSchema) object;
+                if (treeNode instanceof DBObject object) {
+                    if (object instanceof DBSchema schema) {
                         showBold = schema.isUserSchema();
                         showGrey = schema.isEmptySchema();
-                    } else if (object instanceof DBUser) {
-                        DBUser user = (DBUser) object;
+                    } else if (object instanceof DBUser user) {
                         showBold = user.isSessionUser();
                         showGrey = user.isExpired();
-                    } else if (object instanceof DBSchemaObject) {
-                        DBSchemaObject schemaObject = (DBSchemaObject) object;
+                    } else if (object instanceof DBSchemaObject schemaObject) {
                         showGrey = schemaObject.isDisabled();
                     }
 
@@ -129,15 +122,13 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
 
                     if (!dirty) {
                         BrowserTreeNode parent = object.getParent();
-                        if (parent instanceof DBObjectList) {
-                            DBObjectList objectList = (DBObjectList) parent;
+                        if (parent instanceof DBObjectList objectList) {
                             dirty = objectList.isLoading();
                         }
                     }
                 }
 
-                if (!showGrey && treeNode instanceof DBColumn) {
-                    DBColumn column = (DBColumn) treeNode;
+                if (!showGrey && treeNode instanceof DBColumn column) {
                     showGrey = column.isAudit();
                 }
 

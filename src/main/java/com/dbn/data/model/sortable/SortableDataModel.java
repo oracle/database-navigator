@@ -16,7 +16,6 @@
 
 package com.dbn.data.model.sortable;
 
-import com.dbn.common.list.FilteredList;
 import com.dbn.common.list.StatelessFilteredList;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.grid.options.DataGridSortingSettings;
@@ -86,8 +85,7 @@ public class SortableDataModel<
     }
 
     protected void sort(List<R> rows) {
-        if (rows instanceof StatelessFilteredList) {
-            FilteredList<R> filteredList = (FilteredList<R>) rows;
+        if (rows instanceof StatelessFilteredList<R> filteredList) {
             rows = filteredList.getBase();
         }
         if (getSortingState().isValid()) {

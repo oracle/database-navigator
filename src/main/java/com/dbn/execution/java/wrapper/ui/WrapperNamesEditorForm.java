@@ -18,10 +18,10 @@ package com.dbn.execution.java.wrapper.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
-import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBObject;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 
-public class WrapperNamesEditorForm extends DBNFormBase implements ComponentAligner.Container {
+public class WrapperNamesEditorForm extends DBNFormBase {
     private final WrapperModel model;
     private JPanel mainPanel;
     private JPanel headerPanel;
@@ -53,10 +53,16 @@ public class WrapperNamesEditorForm extends DBNFormBase implements ComponentAlig
         initObjectList();
     }
 
+    @Override
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerForms(() -> nameEditorForms);
+    }
+
     private void initHeaderPanel() {
         DBObject sourceObject = model.getSourceObject();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, sourceObject);
-        this.headerPanel.add(headerForm.getMainComponent());
+        this.headerPanel.add(headerForm.getComponent());
     }
 
     private void initHintPanel() {
@@ -96,11 +102,6 @@ public class WrapperNamesEditorForm extends DBNFormBase implements ComponentAlig
 
     public int getMaxIdentifierLength() {
         return model.getMaxIdentifierLength();
-    }
-
-    @Override
-    public List<? extends ComponentAligner.Form> getAlignableForms() {
-        return nameEditorForms;
     }
 
     public Set<String> getIdentifierNames(WrapperNameEditorForm exceptFor) {

@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.table;
 
+import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.Presentable;
 import com.dbn.data.grid.addon.ColumnDragScrollAddon;
 import org.jetbrains.annotations.Nls;
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.Nls;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
+import javax.swing.event.TableModelEvent;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -183,5 +185,9 @@ public class Tables {
         LineMetrics lineMetrics = font.getLineMetrics("ABCÄÜÖÂÇĞIİÖŞĀČḎĒËĠḤŌŠṢṬŪŽy", fontRenderContext);
         int fontHeight = Math.round(lineMetrics.getHeight());
         table.setRowHeight(fontHeight + (padding * 2));
+    }
+
+    public static void onModelChange(JTable table, Consumer<TableModelEvent> eventConsumer) {
+        table.getModel().addTableModelListener(e -> eventConsumer.accept(e));
     }
 }

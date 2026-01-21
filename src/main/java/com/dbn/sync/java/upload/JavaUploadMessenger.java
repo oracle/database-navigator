@@ -36,12 +36,12 @@ public class JavaUploadMessenger extends BatchMessengerBase<JavaUploadTask, Java
         if (batch.isCancelled()) return "Upload Cancelled";
         if (batch.isFinished()) {
             MessageType messageType = getProgressMessageType(batch);
-            switch (messageType) {
-                case SUCCESS: return "Upload Complete";
-                case WARNING: return "Upload Partially Complete";
-                case ERROR: return "Upload Failed";
-                default: return "Upload Finished";
-            }
+            return switch (messageType) {
+                case SUCCESS -> "Upload Complete";
+                case WARNING -> "Upload Partially Complete";
+                case ERROR -> "Upload Failed";
+                default -> "Upload Finished";
+            };
         }
 
         return "Java Upload";

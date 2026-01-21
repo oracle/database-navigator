@@ -81,8 +81,7 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
             workbook = createWorkbook();
             String sheetName = model.getTableName();
             Sheet sheet = createSheet(workbook, sheetName);
-            if (sheet instanceof SXSSFSheet) {
-                SXSSFSheet sxssfSheet = (SXSSFSheet) sheet;
+            if (sheet instanceof SXSSFSheet sxssfSheet) {
                 sxssfSheet.trackAllColumnsForAutoSizing();
             }
 
@@ -111,8 +110,7 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
             log.warn("Failed to export data", e);
             throw new DataExportException("Failed to export data. Cause: " + e.getMessage());
         } finally {
-            if (workbook instanceof SXSSFWorkbook) {
-                SXSSFWorkbook sxssfWorkbook = (SXSSFWorkbook) workbook;
+            if (workbook instanceof SXSSFWorkbook sxssfWorkbook) {
                 sxssfWorkbook.dispose();
             }
         }
@@ -141,8 +139,7 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
         Object value = model.getValue(r, c);
         if (value == null)  return;
 
-        if (value instanceof Number) {
-            Number number = (Number) value;
+        if (value instanceof Number number) {
             double doubleValue = number.doubleValue();
             cell.setCellValue(doubleValue);
             cell.setCellStyle(
@@ -150,8 +147,7 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
                             cellStyleCache.getIntegerStyle() :
                             cellStyleCache.getNumberStyle());
 
-        } else if (value instanceof Date) {
-            Date date = (Date) value;
+        } else if (value instanceof Date date) {
             boolean hasTime = hasTimeComponent(date);
             cell.setCellValue(date);
             cell.setCellStyle(hasTime ?

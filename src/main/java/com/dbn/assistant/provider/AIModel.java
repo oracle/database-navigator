@@ -20,10 +20,8 @@ import com.dbn.common.property.PropertyHolderBase.ShortStore;
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.function.Predicate;
+import static com.dbn.common.util.Commons.nvl;
 
 /**
  * AI models
@@ -34,12 +32,19 @@ import java.util.function.Predicate;
 public final class AIModel extends ShortStore<AIModelProperty> implements Presentable {
     private final String id;
     private final String apiName;
+    private final String shortName;
+    private final String description;
     private final AIProvider provider;
+    private final AIProviderId baseProviderId;
+    private final AIModelFeatures features = new AIModelFeatures();
 
-    AIModel(AIProvider provider, String id, String apiName) {
+    AIModel(String id, String apiName, String shortName, String description, AIProvider provider, AIProviderId baseProviderId) {
         this.id = id;
-        this.provider = provider;
         this.apiName = apiName;
+        this.shortName = shortName;
+        this.description = description;
+        this.provider = provider;
+        this.baseProviderId = baseProviderId;
     }
 
     @Override
@@ -47,37 +52,47 @@ public final class AIModel extends ShortStore<AIModelProperty> implements Presen
         return AIModelProperty.VALUES;
     }
 
+    @NotNull
     @Override
-    public @NotNull String getName() {
-        return apiName; // TODO presentable profile names
+    public String getName() {
+        return apiName;
     }
 
-    @Nullable
-    public static AIModel forId(String id) {
-        return get(m -> m.getId().equals(id));
+    public String getShortName() {
+        return nvl(shortName, apiName);
     }
 
-    @Nullable
-    public static AIModel forApiName(String apiName) {
-        return get(m -> m.getApiName().equals(apiName));
+    public AIProviderId getProviderId() {
+        return provider.getId();
     }
 
-    @Nullable
-    private static AIModel get(Predicate<AIModel> condition) {
-        List<AIProvider> providers = AIProvider.values();
-        for (AIProvider provider : providers) {
-            List<AIModel> models = provider.getModels();
-            for (AIModel model : models) {
-                if (condition.test(model)) return model;
-            }
-        }
+    public boolean isDefault() {
+        return is(AIModelProperty.DEFAULT);
+    }
 
-        return null;
+    public boolean isExperimental() {
+        return is(AIModelProperty.EXPERIMENTAL);
+    }
 
+    public boolean isDeprecated() {
+        return is(AIModelProperty.DEPRECATED);
+    }
+
+    public boolean isDiscontinued() {
+        return is(AIModelProperty.DISCONTINUED);
+    }
+
+    public boolean isRecommended() {
+        return is(AIModelProperty.RECOMMENDED);
+    }
+
+    public boolean isFeatureSupported(AIModelFeature feature){
+        return features.is(feature);
     }
 
     @Override
     public String toString() {
         return getName();
     }
+
 }

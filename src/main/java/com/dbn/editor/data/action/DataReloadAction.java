@@ -47,7 +47,6 @@ public class DataReloadAction extends AbstractDataEditorAction {
 
         boolean enabled =
                 isValid(datasetEditor) &&
-                datasetEditor.isLoaded() &&
                 !datasetEditor.isInserting() &&
                 !datasetEditor.isLoading();
         presentation.setEnabled(enabled);

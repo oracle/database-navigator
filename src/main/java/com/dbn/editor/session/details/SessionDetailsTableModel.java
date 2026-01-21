@@ -60,11 +60,11 @@ public class SessionDetailsTableModel extends StatefulDisposableBase implements 
 
     @Override
     public String getColumnName(int columnIndex) {
-        switch (columnIndex) {
-            case 0: return "Attribute";
-            case 1: return "Value";
-        }
-        return null;
+        return switch (columnIndex) {
+            case 0 -> "Attribute";
+            case 1 -> "Value";
+            default -> null;
+        };
     }
 
     @Override

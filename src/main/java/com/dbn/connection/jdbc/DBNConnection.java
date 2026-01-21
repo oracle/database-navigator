@@ -231,12 +231,10 @@ public class DBNConnection extends DBNConnectionBase {
     @Override
     protected <S extends Statement> S wrap(Statement statement, String sql) {
         updateLastAccess();
-        if (statement instanceof CallableStatement) {
-            CallableStatement callableStatement = (CallableStatement) statement;
+        if (statement instanceof CallableStatement callableStatement) {
             statement = new DBNCallableStatement(callableStatement, this);
 
-        } else  if (statement instanceof PreparedStatement) {
-            PreparedStatement preparedStatement = (PreparedStatement) statement;
+        } else  if (statement instanceof PreparedStatement preparedStatement) {
             statement = new DBNPreparedStatement(preparedStatement, this);
 
         } else {
@@ -256,8 +254,7 @@ public class DBNConnection extends DBNConnectionBase {
 
     protected void release(DBNStatement statement) {
         park(statement);
-        if (statement.isCached() && statement instanceof DBNPreparedStatement) {
-            DBNPreparedStatement preparedStatement = (DBNPreparedStatement) statement;
+        if (statement.isCached() && statement instanceof DBNPreparedStatement preparedStatement) {
             cachedStatements.values().removeIf(v -> v == preparedStatement);
         }
 
@@ -373,8 +370,7 @@ public class DBNConnection extends DBNConnectionBase {
     }
 
     public static Connection getInner(Connection connection) {
-        if (connection instanceof DBNConnection) {
-            DBNConnection dbnConnection = (DBNConnection) connection;
+        if (connection instanceof DBNConnection dbnConnection) {
             return dbnConnection.getInner();
         }
         return connection;

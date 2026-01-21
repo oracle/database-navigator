@@ -85,12 +85,11 @@ public class ObjectDependencyTree extends DBNTree{
         ObjectDependencyTreeNode rootNode = node.getModel().getRoot();
 
         DBObject object = node.getObject();
-        if (object instanceof DBSchemaObject && !Commons.match(rootNode.getObject(), object)) {
+        if (object instanceof DBSchemaObject schemaObject && !Commons.match(rootNode.getObject(), object)) {
             DefaultActionGroup actionGroup = new DefaultActionGroup();
-            actionGroup.add(new SelectObjectAction((DBSchemaObject) object));
-            DBSchemaObject schObject = (DBSchemaObject) object;
-            if (schObject.is(DBObjectProperty.EDITABLE)) {
-                actionGroup.add(new EditObjectAction((DBSchemaObject) object));
+            actionGroup.add(new SelectObjectAction(schemaObject));
+            if (schemaObject.is(DBObjectProperty.EDITABLE)) {
+                actionGroup.add(new EditObjectAction(schemaObject));
             }
             return actionGroup;
         }
@@ -109,8 +108,7 @@ public class ObjectDependencyTree extends DBNTree{
 
     @Override
     public void setModel(TreeModel model) {
-        if (model instanceof ObjectDependencyTreeModel) {
-            ObjectDependencyTreeModel treeModel = (ObjectDependencyTreeModel) model;
+        if (model instanceof ObjectDependencyTreeModel treeModel) {
             treeModel.setTree(this);
             super.setModel(treeModel);
         }
@@ -142,8 +140,7 @@ public class ObjectDependencyTree extends DBNTree{
                 if (object != null && TimeUtil.isOlderThan(selectionTimestamp, TimeUtil.Millis.ONE_SECOND)) {
                     selectionTimestamp = System.currentTimeMillis();
 
-                    if (object instanceof DBSchemaObject) {
-                        DBSchemaObject schemaObject = (DBSchemaObject) object;
+                    if (object instanceof DBSchemaObject schemaObject) {
                         if (schemaObject.is(DBObjectProperty.EDITABLE)) {
                             Project project = object.getProject();
                             DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
@@ -165,8 +162,7 @@ public class ObjectDependencyTree extends DBNTree{
     private DBObject getMouseEventObject(MouseEvent e) {
         TreePath path = Trees.getPathAtMousePosition(this, e);
         Object lastPathComponent = path == null ? null : path.getLastPathComponent();
-        if (lastPathComponent instanceof ObjectDependencyTreeNode) {
-            ObjectDependencyTreeNode dependencyTreeNode = (ObjectDependencyTreeNode) lastPathComponent;
+        if (lastPathComponent instanceof ObjectDependencyTreeNode dependencyTreeNode) {
             return dependencyTreeNode.getObject();
         }
         return null;

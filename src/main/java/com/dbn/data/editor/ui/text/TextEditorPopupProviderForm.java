@@ -22,6 +22,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Keyboard;
+import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
@@ -138,13 +139,12 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
         String text = "";
         UserValueHolder userValueHolder = getEditorComponent().getUserValueHolder();
         if (textField.isEditable()) {
-            text = textField.getText();
+            text = TextFields.getText(textField);
         } else {
             Object userValue = userValueHolder.getUserValue();
             if (userValue instanceof String) {
                 text = (String) userValue;
-            } else if (userValue instanceof LargeObjectValue) {
-                LargeObjectValue largeObjectValue = (LargeObjectValue) userValue;
+            } else if (userValue instanceof LargeObjectValue largeObjectValue) {
                 try {
                     text = Commons.nvl(largeObjectValue.read(), "");
                 } catch (SQLException e) {

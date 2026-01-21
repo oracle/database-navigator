@@ -114,6 +114,10 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
     }
 
     public void createConsole(ConnectionHandler connection, String name, DBConsoleType type) {
+        createConsole(connection, name, "", type);
+    }
+
+    public void createConsole(ConnectionHandler connection, String name, String content, DBConsoleType type) {
         Project project = connection.getProject();
         Progress.background(project, connection, true,
                 txt("prc.consoles.title.CreatingConsole"),
@@ -121,7 +125,7 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
                 indicator -> {
                     DBConsole console = connection.getConsoleBundle().createConsole(name, type);
                     DBConsoleVirtualFile consoleFile = console.getVirtualFile();
-                    consoleFile.setText("");
+                    consoleFile.setContent(content);
 
                     reloadConsoles(connection);
                     Editors.openFileEditor(project, consoleFile, true);
@@ -291,7 +295,7 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
 
                 DBConsole console = consoleBundle.getConsole(consoleName, consoleType, true);
                 DBConsoleVirtualFile virtualFile = console.getVirtualFile();
-                virtualFile.setText(consoleText);
+                virtualFile.setContent(consoleText);
                 virtualFile.setDatabaseSchemaName(schema);
                 virtualFile.setDatabaseSession(databaseSession);
             }

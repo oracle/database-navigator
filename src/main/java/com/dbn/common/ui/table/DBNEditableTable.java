@@ -103,8 +103,7 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
     @Override
     public Component prepareEditor(TableCellEditor editor, int rowIndex, int columnIndex) {
         Component component = super.prepareEditor(editor, rowIndex, columnIndex);
-        if (component instanceof JTextField) {
-            JTextField textField = (JTextField) component;
+        if (component instanceof JTextField textField) {
             textField.setBorder(Borders.TEXT_FIELD_INSETS);
 
             //selectCell(rowIndex, columnIndex);
@@ -157,24 +156,30 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
 
     public void insertRow() {
         stopCellEditing();
-        int rowIndex = getSelectedRow();
+        int selectedColumn = getSelectedColumn();
+        int selectedRow = getSelectedRow();
         T model = getModel();
-        rowIndex = model.getRowCount() == 0 ? 0 : rowIndex + 1;
-        model.insertRow(rowIndex);
+        selectedRow = model.getRowCount() == 0 ? 0 : selectedRow + 1;
+        model.insertRow(selectedRow);
         resizeAndRepaint();
 
-        selectRow(rowIndex);
+        selectCell(selectedRow, selectedColumn);
     }
 
 
     public void removeRow() {
         stopCellEditing();
-        int selectedRow = getSelectedRow();
+        int[] selectedRows = getSelectedRows();
+        if (selectedRows.length == 0) return;
+
+        int selectedColumn = getSelectedColumn();
         T model = getModel();
-        model.removeRow(selectedRow);
+        for (int selectedRow : selectedRows) {
+            model.removeRow(selectedRow);
+        }
         resizeAndRepaint();
 
-        selectRow(selectedRow -1);
+        selectCell(selectedRows[0] -1, selectedColumn);
     }
 
     public void moveRowUp() {

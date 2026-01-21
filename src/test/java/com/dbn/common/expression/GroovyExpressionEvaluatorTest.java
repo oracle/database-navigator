@@ -69,6 +69,12 @@ public class GroovyExpressionEvaluatorTest {
         result = expressionEvaluator.evaluateBooleanExpression("COLUMN_NAME LIKE '%TEST%'", context("COLUMN_NAME", "SOME_TEST_1234"));
         Assert.assertTrue(result);
 
+        result = expressionEvaluator.evaluateBooleanExpression("COLUMN_NAME LIKE '%TEST$%'", context("COLUMN_NAME", "SOME_TEST$_1234"));
+        Assert.assertTrue(result);
+
+        result = expressionEvaluator.evaluateBooleanExpression("COLUMN_NAME NOT LIKE '%TEST$%'", context("COLUMN_NAME", "SOME_TEST_1234"));
+        Assert.assertTrue(result);
+
     }
 
     @Test

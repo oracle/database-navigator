@@ -16,10 +16,12 @@
 
 package com.dbn.common.util;
 
+import com.intellij.openapi.util.io.StreamUtil;
 import lombok.experimental.UtilityClass;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -43,5 +45,11 @@ public class Streams {
 
     public static BufferedReader bufferedReader(InputStream inputStream, Charset charset) {
         return new BufferedReader(new InputStreamReader(inputStream, charset));
+    }
+
+    public static String readInputStream(InputStream inputStream) throws IOException {
+        try (InputStreamReader reader = new InputStreamReader(inputStream)) {
+            return StreamUtil.readText(reader);
+        }
     }
 }

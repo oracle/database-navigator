@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.action;
 
+import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.SelectionListDialog;
@@ -38,7 +39,8 @@ import java.util.List;
 
 import static com.dbn.common.operation.DatabaseOperation.CREATE_JAVA_WRAPPER;
 import static com.dbn.common.util.Messages.showWarningDialog;
-import static com.dbn.common.util.Naming.capitalizeWords;
+import static com.dbn.common.util.Titles.titleCased;
+import static com.dbn.help.HelpTopic.JAVA_EXECUTION_WRAPPERS;
 import static com.dbn.nls.NlsResources.txt;
 
 public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
@@ -63,7 +65,7 @@ public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
     private void createExecutionWrappers(@NotNull AnActionEvent e, DBJavaClass javaClass) {
         Project project = javaClass.getProject();
         String listName = "executable elements";
-        String title = txt("msg.objects.title.LoadingObjects", capitalizeWords(listName));
+        String title = txt("msg.objects.title.LoadingObjects", titleCased(listName));
         ConnectionAction.invoke(title, true, javaClass,
                 action -> Progress.prompt(project, javaClass, true,
                         txt("prc.objects.title.LoadingObjects"),
@@ -92,7 +94,9 @@ public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
 
 	private static @NotNull SelectionListDialog<DBJavaMethod> createDialog(DBJavaClass javaClass, List<DBJavaMethod> javaMethods) {
 		Project project = javaClass.getProject();
-		return new SelectionListDialog<>(project, "Select method to create wrapper", javaMethods, null, javaClass);
+        String title = "Create Execution Wrappers";
+        TextContent hint = TextContent.plain("This will generate all required PL/SQL objects for executing the selected methods. \n\nSelect the methods to create execution wrappers for.");
+        return new SelectionListDialog<>(project, title, javaMethods, null, javaClass, hint, JAVA_EXECUTION_WRAPPERS);
 	}
 
 	private static Dialogs.DialogCallback<SelectionListDialog<DBJavaMethod>> createDialogCallback(DBJavaClass javaClass) {

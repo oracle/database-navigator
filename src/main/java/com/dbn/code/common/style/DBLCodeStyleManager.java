@@ -96,14 +96,12 @@ public class DBLCodeStyleManager extends ProjectComponentBase implements Persist
                                         textRange.getEndOffset() <= endOffset);
                 if (isInRange) {
                     CodeStyleCaseOption caseOption = null;
-                    if (child instanceof IdentifierPsiElement) {
-                        IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) child;
+                    if (child instanceof IdentifierPsiElement identifierPsiElement) {
                         if (identifierPsiElement.isObject() && !identifierPsiElement.isQuoted()) {
                             caseOption = styleCaseSettings.getObjectCaseOption();
                         }
                     }
-                    else if (child instanceof TokenPsiElement) {
-                        TokenPsiElement tokenPsiElement = (TokenPsiElement) child;
+                    else if (child instanceof TokenPsiElement tokenPsiElement) {
                         TokenType tokenType = tokenPsiElement.getTokenType();
                         caseOption =
                                 tokenType.isKeyword() ? styleCaseSettings.getKeywordCaseOption() :

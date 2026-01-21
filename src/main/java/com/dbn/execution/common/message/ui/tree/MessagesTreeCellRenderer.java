@@ -60,8 +60,7 @@ public class MessagesTreeCellRenderer extends DBNColoredTreeCellRenderer {
     @Override
     public void customizeCellRenderer(DBNTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         try {
-            if (value instanceof StatefulDisposable) {
-                StatefulDisposable disposable = (StatefulDisposable) value;
+            if (value instanceof StatefulDisposable disposable) {
                 if (disposable.isDisposed()) return;;
             }
             Icon icon = null;
@@ -81,16 +80,14 @@ public class MessagesTreeCellRenderer extends DBNColoredTreeCellRenderer {
                 append("Compiler Messages", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
                 append(" (" + node.getChildCount() + " objects)", SimpleTextAttributes.GRAY_ATTRIBUTES);
             }
-            else if (value instanceof StatementExecutionMessagesFileNode){
-                StatementExecutionMessagesFileNode node = (StatementExecutionMessagesFileNode) value;
+            else if (value instanceof StatementExecutionMessagesFileNode node){
                 VirtualFile file = node.getFile();
 
                 icon = VirtualFiles.getIcon(file);
                 append(file.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
                 append(" (" + getPresentablePath(file) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
             }
-            else if (value instanceof ExplainPlanMessagesFileNode) {
-                ExplainPlanMessagesFileNode node = (ExplainPlanMessagesFileNode) value;
+            else if (value instanceof ExplainPlanMessagesFileNode node) {
                 VirtualFile file = node.getFile();
 
                 icon = VirtualFiles.getIcon(file);
@@ -98,8 +95,7 @@ public class MessagesTreeCellRenderer extends DBNColoredTreeCellRenderer {
                 append(" (" + getPresentablePath(file) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
 
             }
-            else if (value instanceof CompilerMessagesObjectNode){
-                CompilerMessagesObjectNode compilerMessagesObjectNode = (CompilerMessagesObjectNode) value;
+            else if (value instanceof CompilerMessagesObjectNode compilerMessagesObjectNode){
                 DBSchemaObject object = compilerMessagesObjectNode.getObject();
 
                 ConnectionHandler connection;
@@ -120,8 +116,7 @@ public class MessagesTreeCellRenderer extends DBNColoredTreeCellRenderer {
                     append(" - " + connection.getName(), SimpleTextAttributes.GRAY_ATTRIBUTES);
                 }
             }
-            else if (value instanceof CompilerMessageNode) {
-                CompilerMessageNode node = (CompilerMessageNode) value;
+            else if (value instanceof CompilerMessageNode node) {
                 CompilerMessage message = node.getMessage();
                 boolean highlight = message.isNew() && !selected;
                 SimpleTextAttributes regularAttributes = getRegularAttributes(highlight);
@@ -142,8 +137,7 @@ public class MessagesTreeCellRenderer extends DBNColoredTreeCellRenderer {
                 }
                 background = regularAttributes.getBgColor();
             }
-            else if (value instanceof StatementExecutionMessageNode) {
-                StatementExecutionMessageNode execMessageNode = (StatementExecutionMessageNode) value;
+            else if (value instanceof StatementExecutionMessageNode execMessageNode) {
                 StatementExecutionMessage message = execMessageNode.getMessage();
                 boolean isOrphan = message.isOrphan();
                 boolean highlight = message.isNew() && !selected;
@@ -172,8 +166,7 @@ public class MessagesTreeCellRenderer extends DBNColoredTreeCellRenderer {
                 append(" - Connection: " + connection.getName() + ": " + message.getExecutionResult().getExecutionDuration() + "ms", greyAttributes);
                 background = regularAttributes.getBgColor();
             }
-            else if (value instanceof ExplainPlanMessageNode) {
-                ExplainPlanMessageNode explainPlanMessageNode = (ExplainPlanMessageNode) value;
+            else if (value instanceof ExplainPlanMessageNode explainPlanMessageNode) {
                 ExplainPlanMessage message = explainPlanMessageNode.getMessage();
 
                 boolean highlight = message.isNew() && !selected;

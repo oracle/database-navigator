@@ -97,14 +97,12 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
         return new DBNFileEditorManagerListener() {
             @Override
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                if (file instanceof DBEditableObjectVirtualFile) {
-                    DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) file;
+                if (file instanceof DBEditableObjectVirtualFile editableObjectFile) {
                     DBSchemaObject object = editableObjectFile.getObject();
                     if (object instanceof DBDataset) {
                         FileEditor[] fileEditors = source.getEditors(file);
                         for (FileEditor fileEditor : fileEditors) {
-                            if (fileEditor instanceof DatasetEditor) {
-                                DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
+                            if (fileEditor instanceof DatasetEditor datasetEditor) {
                                 if (object instanceof DBTable || editableObjectFile.getSelectedEditorProviderId() == EditorProviderId.DATA) {
                                     datasetEditor.loadData(INITIAL_LOAD_INSTRUCTIONS);
                                 }
@@ -117,8 +115,7 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
             @Override
             public void whenSelectionChanged(@NotNull FileEditorManagerEvent event) {
                 FileEditor newEditor = event.getNewEditor();
-                if (newEditor instanceof DatasetEditor) {
-                    DatasetEditor datasetEditor = (DatasetEditor) newEditor;
+                if (newEditor instanceof DatasetEditor datasetEditor) {
                     DBDataset dataset = datasetEditor.getDataset();
                     if (dataset instanceof DBView) {
                         if (!datasetEditor.isLoaded() && !datasetEditor.isLoading()) {
@@ -134,14 +131,13 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
         VirtualFile file = dataset.getVirtualFile();
         FileEditor[] fileEditors = FileEditorManager.getInstance(getProject()).getEditors(file);
         for (FileEditor fileEditor : fileEditors) {
-            if (fileEditor instanceof DatasetEditor) {
-                DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
+            if (fileEditor instanceof DatasetEditor datasetEditor) {
                 datasetEditor.loadData(RELOAD_LOAD_INSTRUCTIONS);
                 break;
             }
         }
     }
-
+    // todo use this for filter opening
     public void openDataEditor(DatasetFilterInput filterInput) {
         DBDataset dataset = filterInput.getDataset();
         Project project = dataset.getProject();
@@ -182,8 +178,7 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
                     .withSpeedSearch()
                     .build();
 
-            if (inputEvent instanceof MouseEvent) {
-                MouseEvent mouseEvent = (MouseEvent) inputEvent;
+            if (inputEvent instanceof MouseEvent mouseEvent) {
                 popup.showInScreenCoordinates(component, mouseEvent.getLocationOnScreen());
                         
             } else {

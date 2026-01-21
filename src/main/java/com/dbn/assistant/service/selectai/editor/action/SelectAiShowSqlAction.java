@@ -37,10 +37,9 @@ public class SelectAiShowSqlAction extends SelectAiBaseEditorAction {
 
   @Override
   protected @Nls String getActionName(SelectAiBaseEditorAction.ActionPlace place) {
-    switch (place) {
-      case GENERATE_ACTION_GROUP: return txt("app.assistant.action.SqlStatement");
-      case EDITOR_POPUP_MENU:
-      default: return txt("app.assistant.action.GenerateSql");
-    }
+      return switch (place) {
+          case GENERATE_ACTION_GROUP -> txt("app.assistant.action.SqlStatement");
+          default -> txt("app.assistant.action.GenerateSql");
+      };
   }
 }

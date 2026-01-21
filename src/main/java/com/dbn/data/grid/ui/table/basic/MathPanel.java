@@ -26,6 +26,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Color;
 
+import static com.dbn.common.ui.util.UserInterface.visitRecursively;
+
 public class MathPanel extends DBNFormBase {
     private JLabel sumLabel;
     private JLabel countLabel;
@@ -37,8 +39,12 @@ public class MathPanel extends DBNFormBase {
         sumLabel.setText(result.getSum().toPlainString());
         countLabel.setText(result.getCount().toPlainString());
         averageLabel.setText(result.getAverage().toPlainString());
-        Color background = IdeTooltipManager.getInstance().getTextBackground(true);
+
+        IdeTooltipManager tooltipManager = IdeTooltipManager.getInstance();
+        Color background = tooltipManager.getTextBackground(true);
+        Color foreground = tooltipManager.getTextForeground(true);
         mainPanel.setBackground(background);
+        visitRecursively(mainPanel, JLabel.class, l -> l.setForeground(foreground));
     }
 
 

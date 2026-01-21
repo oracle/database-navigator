@@ -49,7 +49,7 @@ public class WrapperResultForm extends DBNFormBase {
     private void initHeaderPanel(WrapperModel model) {
         DBObject sourceObject = model.getSourceObject();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, sourceObject);
-        this.headerPanel.add(headerForm.getMainComponent());
+        this.headerPanel.add(headerForm.getComponent());
     }
 
     private void initHintPanel(WrapperModel model) {

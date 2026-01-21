@@ -17,6 +17,7 @@
 package com.dbn.common.util;
 
 import com.dbn.common.filter.Filter;
+import com.dbn.common.routine.ThrowableConsumer;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,8 +30,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -63,6 +64,12 @@ public class Lists {
         return filter(list, o -> o != null);
     }
 
+    @Nullable
+    public static <T> T removeLast(@NotNull List<T> list) {
+        if (list.isEmpty()) return null;
+        return list.remove(list.size() - 1);
+    }
+
     public static <T> List<T> filter(@NotNull List<T> list, @Nullable Filter<T> filter) {
         if (filter == null) return list;
         if (list.isEmpty()) return list;
@@ -81,7 +88,10 @@ public class Lists {
     }
 
     @NotNull
-    public static <S, T> List<T> convert(@NotNull Collection<S> list, Function<S, T> mapper) {
+    public static <S, T> List<T> convert(@Nullable Collection<S> list, Function<S, T> mapper) {
+        if (list == null) return emptyList();
+        if (list.isEmpty()) return emptyList();
+
         List<T> result = new ArrayList<>(list.size());
         for (S s : list) {
             T value = mapper.apply(s);
@@ -96,6 +106,20 @@ public class Lists {
         if (list.isEmpty()) return null;
 
         for (T element : list) {
+            if (predicate.test(element)) {
+                return element;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static <T> T last(@Nullable List<T> list, Predicate<? super T> predicate) {
+        if (list == null) return null;
+        if (list.isEmpty()) return null;
+
+        for (int i = list.size() - 1; i >= 0; i--) {
+            T element = list.get(i);
             if (predicate.test(element)) {
                 return element;
             }
@@ -136,7 +160,7 @@ public class Lists {
         return count;
     }
 
-    public static <T> void forEach(@Nullable Collection<T> list, Consumer<? super T> consumer) {
+    public static <T, E extends Throwable> void forEach(@Nullable Collection<T> list, ThrowableConsumer<? super T, E> consumer) throws E {
         if (list == null) return;
         if (list.isEmpty()) return;
 
@@ -209,6 +233,12 @@ public class Lists {
         return index < 0 || index >= list.size();
     }
 
+    @Nullable
+    public static <T> T getElementAt(List<T> list, int index) {
+        if (isOutOfBounds(list, index)) return null;
+        return list.get(index);
+    }
+
     public static <T> String toCsv(Collection<T> elements, Function<T, String> toString) {
         return toCsv(elements, ", ", toString);
     }
@@ -220,6 +250,11 @@ public class Lists {
             buffer.append(toString.apply(element));
         }
         return buffer.toString();
+    }
+
+    public static <K, V> Map<K, V> toMap(Collection<V> elements, Function<V, K> keyFunction) {
+        if (elements == null) return Collections.emptyMap();
+        return  elements.stream().collect(Collectors.toMap(keyFunction, v -> v));
     }
 
     public static List<String> fromCsv(String csvString) {
@@ -259,5 +294,34 @@ public class Lists {
         List<T> copy = new ArrayList<>(list);
         Collections.sort(copy);
         return copy;
+    }
+
+    public static <T> List<T> nullToEmpty(List<T> list) {
+        return list == null ? emptyList() : list;
+    }
+
+    public static int indexOfIdentity(List<?> list, Object obj) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i) == obj) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public static <T> T getNextElement(List<T> list, T element) {
+        int index = indexOfIdentity(list, element);   // ref equals
+        if (index < 0) index = list.indexOf(element); // equals
+        if (index < 0) return null;
+
+        return getElementAt(list, index + 1);
+    }
+
+    public static <T> T getPreviousElement(List<T> list, T element) {
+        int index = indexOfIdentity(list, element);
+        if (index < 0) index = list.indexOf(element);
+        if (index < 0) return null;
+
+        return getElementAt(list, index - 1);
     }
 }

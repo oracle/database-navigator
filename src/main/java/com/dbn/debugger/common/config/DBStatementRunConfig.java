@@ -126,8 +126,7 @@ public class DBStatementRunConfig extends DBRunConfig<StatementExecutionInput> {
 
         List<DBObjectRef<DBMethod>> methods = new ArrayList<>();
         executablePsiElement.collectObjectReferences(DBObjectType.METHOD, object -> {
-            if (object instanceof DBMethod) {
-                DBMethod method = (DBMethod) object;
+            if (object instanceof DBMethod method) {
                 DBSchema schema = method.getSchema();
                 if (!schema.isSystemSchema() && !schema.isPublicSchema()) {
                     methods.add(method.ref());

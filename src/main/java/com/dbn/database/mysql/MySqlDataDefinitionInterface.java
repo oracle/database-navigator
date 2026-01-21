@@ -28,9 +28,11 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
+import com.dbn.language.common.QuotePair;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.ArgumentFactoryInput;
-import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.factory.model.DBArgumentSpec;
+import com.dbn.object.factory.model.DBMethodSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBConstraintType;
 import com.intellij.openapi.project.Project;
 
@@ -111,12 +113,12 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
         try {
             // try instructions
             String tempViewName = getTempObjectName("VIEW");
-            dropObjectIfExists("VIEW", tempViewName, connection);
+            dropObjectIfExists("VIEW", ownerName, tempViewName, connection);
             createView(tempViewName, code, connection);
-            dropObjectIfExists("VIEW", tempViewName, connection);
+            dropObjectIfExists("VIEW", ownerName, tempViewName, connection);
 
             // instructions
-            dropObjectIfExists("VIEW", viewName, connection);
+            dropObjectIfExists("VIEW", ownerName, viewName, connection);
             createView(viewName, code, connection);
         } finally {
             setSessionSqlMode(sqlMode, connection);
@@ -124,11 +126,11 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
     }
 
     @Override
-    public void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+    public void updateTrigger(String ownerName, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
         // triggers do not support multiple triggers with same event (i.e can not use "try temp" approach)
         String sqlMode = getSessionSqlMode(connection);
         setSessionSqlMode("TRADITIONAL", connection);
-        dropObjectIfExists("trigger", triggerName, connection);
+        dropObjectIfExists("trigger", ownerName, triggerName, connection);
         try {
             createObject(newCode, connection);
         } catch (SQLException e) {
@@ -141,16 +143,20 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
     }
 
     @Override
-    public void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+    public void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
         String sqlMode = getSessionSqlMode(connection);
         setSessionSqlMode("TRADITIONAL", connection);
         try {
             String tempObjectName = getTempObjectName(objectType);
-            dropObjectIfExists(objectType, tempObjectName, connection);
-            createObject(newCode.replaceFirst("(?i)" + objectName, tempObjectName), connection);
-            dropObjectIfExists(objectType, tempObjectName, connection);
+            dropObjectIfExists(objectType, ownerName, tempObjectName, connection);
 
-            dropObjectIfExists(objectType, objectName, connection);
+            QuotePair quotePair = getIdentifierEnquoter(connection);
+            String rawObjectName = quotePair.unquote(objectName);
+
+            createObject(newCode.replaceFirst("(?i)" + rawObjectName, tempObjectName), connection);
+            dropObjectIfExists(objectType, ownerName, tempObjectName, connection);
+
+            dropObjectIfExists(objectType, ownerName, objectName, connection);
             createObject(newCode, connection);
         } finally {
             setSessionSqlMode(sqlMode, connection);
@@ -160,9 +166,6 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
     /*********************************************************
      *                     DROP statements                   *
      *********************************************************/
-    private void dropObjectIfExists(String objectType, String objectName, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "drop-object-if-exists", objectType, objectName);
-    }
 
     @Override
     public void dropConstraint(String ownerName, String tableName, String constraintName, DBConstraintType constraintType, DBNConnection connection) throws SQLException {
@@ -178,7 +181,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(MethodFactoryInput method, DBNConnection connection) throws SQLException {
+    public void createMethod(DBMethodSpec method, DBNConnection connection) throws SQLException {
         Project project = method.getSchema().getProject();
         CodeStyleCaseSettings caseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption keywordCaseOption = caseSettings.getKeywordCaseOption();
@@ -193,7 +196,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
 
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        for (ArgumentFactoryInput argument : method.getArguments()) {
+        for (DBArgumentSpec argument : method.getArguments()) {
             maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
             maxArgDirectionLength = Math.max(maxArgDirectionLength,
                     argument.isInput() && argument.isOutput() ? 5 :
@@ -202,7 +205,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
         }
 
 
-        for (ArgumentFactoryInput argument : method.getArguments()) {
+        for (DBArgumentSpec argument : method.getArguments()) {
             buffer.append("\n    ");
             
             if (!method.isFunction()) {
@@ -240,7 +243,10 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
         } finally {
             setSessionSqlMode(sqlMode, connection);
         }
-
     }
 
+    @Override
+    public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

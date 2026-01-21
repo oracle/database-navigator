@@ -42,6 +42,8 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.sql.SQLException;
 
+import static com.dbn.common.ui.util.TextFields.getText;
+
 @SuppressWarnings("unused")
 public class ConnectionInfoForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -193,7 +195,7 @@ public class ConnectionInfoForm extends DBNFormBase {
         textField.setText(getPresentableText(value));
         textField.setCursor(Cursors.textCursor());
 
-        String text = textField.getText();
+        String text = getText(textField);
         if (Strings.isNotEmpty(text)) {
             FontMetrics fontMetrics = textField.getFontMetrics(textField.getFont());
             int width = fontMetrics.charsWidth(text.toCharArray(), 0, text.length()) + 40;

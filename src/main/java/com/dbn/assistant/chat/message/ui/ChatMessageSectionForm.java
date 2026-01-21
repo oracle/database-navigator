@@ -16,37 +16,49 @@
 
 package com.dbn.assistant.chat.message.ui;
 
-import com.dbn.common.text.MimeType;
+import com.dbn.assistant.chat.message.ChatMessageSection;
+import com.dbn.assistant.chat.message.ChatMessageSectionType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.intellij.lang.Language;
+import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTextPane;
+import java.util.Objects;
+import java.util.function.Function;
 
-public class ChatMessageSectionForm extends DBNFormBase {
-    private JTextPane messageTextPane;
-    private JPanel mainPanel;
+@Getter
+public abstract class ChatMessageSectionForm extends DBNFormBase {
+    private String content;
+    private TextContent textContent;
+    private final Function<String, TextContent > contentBuilder;
+    private final ChatMessageSectionType sectionType;
 
-    public ChatMessageSectionForm(DBNForm parent) {
+    ChatMessageSectionForm(DBNForm parent, ChatMessageSectionType sectionType) {
+        this(parent, sectionType, c -> TextContent.plain(c));
+    }
+
+    ChatMessageSectionForm(DBNForm parent, ChatMessageSectionType sectionType, Function<String, TextContent> contentBuilder) {
         super(parent);
+        this.sectionType = sectionType;
+        this.contentBuilder = contentBuilder;
     }
 
-    @Override
-    protected JComponent getMainComponent() {
-        return mainPanel;
+    public final void updateContent(ChatMessageSection section) {
+        String content = section.getContent();
+        if (Objects.equals(this.content, content)) return;
+
+        this.content = content;
+        this.textContent = createTextContent(this.content);
+        applyContent(this.textContent, section.getLanguage());
     }
 
-    public void setContent(TextContent textContent) {
-        setContent(
-            textContent.getType(),
-            textContent.getText());
+    public void hideProcessingIndicator() {}
+
+    protected final TextContent createTextContent(String content) {
+        return contentBuilder.apply(content);
     }
 
-    public void setContent(MimeType mimeType, String content) {
-        messageTextPane.setContentType(mimeType.id());
-        messageTextPane.setText( content);
-        messageTextPane.revalidate();
-    }
+    abstract protected void applyContent(TextContent content, @Nullable Language language);
 }

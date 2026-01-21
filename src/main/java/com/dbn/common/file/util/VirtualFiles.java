@@ -18,6 +18,7 @@ package com.dbn.common.file.util;
 
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.thread.Write;
+import com.dbn.common.util.Lists;
 import com.dbn.ddl.DDLFileAttachmentManager;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.DBVirtualFileBase;
@@ -57,8 +58,7 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 public final class VirtualFiles {
 
     public static Icon getIcon(VirtualFile virtualFile) {
-        if (virtualFile instanceof DBVirtualFileBase) {
-            DBVirtualFileBase file = (DBVirtualFileBase) virtualFile;
+        if (virtualFile instanceof DBVirtualFileBase file) {
             return file.getIcon();
         }
         return virtualFile.getFileType().getIcon();
@@ -141,8 +141,7 @@ public final class VirtualFiles {
 
     @Nullable
     public static VirtualFile getOriginalFile(VirtualFile file) {
-        if (file instanceof LightVirtualFile) {
-            LightVirtualFile lightVirtualFile = (LightVirtualFile) file;
+        if (file instanceof LightVirtualFile lightVirtualFile) {
             VirtualFile originalFile = lightVirtualFile.getOriginalFile();
             if (originalFile != null && originalFile != file) {
                 return getOriginalFile(originalFile);
@@ -155,13 +154,11 @@ public final class VirtualFiles {
     public static VirtualFile getUnderlyingFile(VirtualFile file) {
         file = getOriginalFile(file);
 
-        if (file instanceof VirtualFileWindow) {
-            VirtualFileWindow fileWindow = (VirtualFileWindow) file;
+        if (file instanceof VirtualFileWindow fileWindow) {
             return fileWindow.getDelegate();
         }
 
-        if (file instanceof LightVirtualFile) {
-            LightVirtualFile lightVirtualFile = (LightVirtualFile) file;
+        if (file instanceof LightVirtualFile lightVirtualFile) {
             // TODO is this ever the case?
         }
         return file;
@@ -211,11 +208,23 @@ public final class VirtualFiles {
     public static String getPresentablePath(@Nullable VirtualFile file) {
         if (file == null) return null;
 
-        if (file instanceof VirtualFilePathWrapper) {
-            VirtualFilePathWrapper databaseFile = (VirtualFilePathWrapper) file;
+        if (file instanceof VirtualFilePathWrapper databaseFile) {
             return databaseFile.getPresentablePath();
         }
         return file.getPath();
+    }
+
+    public static List<String> toFilePaths(List<VirtualFile> files) {
+        return Lists.convert(files, f -> f.getPath());
+    }
+
+    public static String getPresentableFileSize(VirtualFile file) {
+        long size = file.getLength();
+        if (size < 1024) return size + " B";
+        if (size < 1024 * 1024) return String.format("%.2f KB", size / 1024.0);
+        if (size < 1024 * 1024 * 1024) return String.format("%.2f MB", size / (1024.0 * 1024));
+
+        return String.format("%.2f GB", size / (1024.0 * 1024 * 1024));
     }
 }
 

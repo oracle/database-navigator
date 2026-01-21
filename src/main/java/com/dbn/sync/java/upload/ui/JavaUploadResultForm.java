@@ -53,7 +53,7 @@ public class JavaUploadResultForm extends DBNFormBase {
         DBSchema targetSchema = input.getTargetSchema();
         Presentable presentable = targetSchema == null ? input.getTargetConnection() : targetSchema;
         DBNHeaderForm headerForm = new DBNHeaderForm(this, presentable);
-        this.headerPanel.add(headerForm.getMainComponent());
+        this.headerPanel.add(headerForm.getComponent());
     }
 
     private void initHintPanel(JavaUploadBatch batch) {

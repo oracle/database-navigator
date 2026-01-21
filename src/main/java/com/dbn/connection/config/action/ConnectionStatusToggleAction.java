@@ -16,15 +16,13 @@
 
 package com.dbn.connection.config.action;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import static com.intellij.icons.AllIcons.Diff.GutterCheckBox;
-import static com.intellij.icons.AllIcons.Diff.GutterCheckBoxSelected;
 
 /**
  * Toggle action for the connection management dialogs, allowing to quickly change the active status of a Connection
@@ -43,7 +41,7 @@ public class ConnectionStatusToggleAction extends ConnectionSettingsAction {
         boolean active = target != null && target.isSelectionDominantlyEnabled();
         int size = target == null ? 0 : target.getSelectionSize();
 
-        presentation.setIcon(active ? GutterCheckBoxSelected: GutterCheckBox);
+        presentation.setIcon(active ? Icons.ACTION_CHECK_BOX_SELECTED: Icons.ACTION_CHECK_BOX);
         presentation.setText(active ?
                 (size == 1 ? "Disable Connection" : "Disable Connections") :
                 (size == 1 ? "Enable Connection" : "Enable Connections"));

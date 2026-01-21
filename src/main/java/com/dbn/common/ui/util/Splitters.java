@@ -59,8 +59,7 @@ public class Splitters {
                 Splitter.DividerPositionStrategy.KEEP_FIRST_SIZE :
                 Splitter.DividerPositionStrategy.KEEP_PROPORTION);
 
-        if (parent instanceof Splitter) {
-            Splitter psplitter = (Splitter) parent;
+        if (parent instanceof Splitter psplitter) {
             if (psplitter.getFirstComponent() == pane) {
                 psplitter.setFirstComponent(splitter);
             } else {

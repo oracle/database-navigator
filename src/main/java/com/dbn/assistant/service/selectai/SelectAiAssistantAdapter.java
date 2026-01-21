@@ -40,16 +40,16 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.PooledConnection;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.common.assistant.AssistantQueryResponse;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -85,6 +85,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         if (action == null) return null;
 
         return new ChatContextImpl(
+                AssistantType.SELECT_AI,
                 profile.getName(),
                 profile.getProviderId(),
                 model.getId(),
@@ -142,10 +143,6 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
                 });
     }
 
-    private static @NotNull ConnectionHandler getConnection(ConnectionId connectionId) {
-        return ConnectionHandler.ensure(connectionId);
-    }
-
     private void promptAcknowledgement(ConnectionId connectionId) {
         ConnectionHandler connection = getConnection(connectionId);
         Project project = connection.getProject();
@@ -201,7 +198,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         ChatContext chatContext = getChatContext(connectionId);
         if (chatContext == null) return false;
 
-        String profileName = chatContext.getProfileName();
+        String profileName = chatContext.getProfileId();
         if (isEmpty(profileName)) return false;
 
         DBAIProfile profile = SelectAiContextUtil.getProfile(connectionId, profileName);
@@ -213,7 +210,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         ChatContext chatContext = getChatContext(connectionId);
         if (chatContext == null) return false;
 
-        String profileName = chatContext.getProfileName();
+        String profileName = chatContext.getProfileId();
         String modelName = chatContext.getModelId();
 
         if (isEmpty(profileName)) return false;
@@ -235,8 +232,8 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
 
     @Override
     public String buildChatContextTitle(ChatContext context) {
-        return context.getProfileName() + " / " +
-                context.getModel().getName() + " / " +
+        return context.getProfileId() + " / " +
+                context.getModelName() + " / " +
                 PromptAction.get(context.getActionId()).getName();
     }
 
@@ -262,6 +259,11 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
     }
 
     @Override
+    public void checkContext(ConnectionId connectionId, ChatContext chatContext, Runnable onSuccess) {
+        onSuccess.run();
+    }
+
+    @Override
     public final void generate(String prompt, String chatId, ConnectionId connectionId, ChatContext chatContext, AssistantResponseConsumer responseConsumer) {
         try {
             String message = generate(prompt, connectionId, chatContext);
@@ -274,20 +276,48 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         }
     }
 
-    public String generate(String prompt, ConnectionId connectionId, ChatContext chatContext) throws Exception {
+    private String generate(String prompt, ConnectionId connectionId, ChatContext chatContext) throws Exception {
         ConnectionHandler connection = getConnection(connectionId);
 
-        SelectAiChatContext selectAiChatContext = SelectAiChatContext.wrap(chatContext);
-        String profile = chatContext.getProfileName();
-        String action = selectAiChatContext.getAction().getApiId();
-        String attributes = selectAiChatContext.getAttributes();
+        SelectAiChatContext customChatContext = SelectAiChatContext.wrap(chatContext);
+        String profile = chatContext.getProfileId();
+        String action = customChatContext.getAction().getApiId();
+        String attributes = customChatContext.getAttributes();
 
         DBNConnection conn = connection.getConnection(SessionId.ASSISTANT);
         DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
 
-        AssistantQueryResponse response = assistantInterface.generate(conn, action, profile, attributes, prompt);
+        String response = assistantInterface.generate(conn, action, profile, attributes, prompt);
         ProgressMonitor.checkCancelled();
 
-        return response.read();
+        return response;
+    }
+
+    @Override
+    public String generateTitle(String chatId, ConnectionId connectionId, ChatContext context) throws Exception {
+        AssistantState assistantState = getAssistantState(connectionId);
+        if (assistantState == null) return null;
+
+        Chat chat = assistantState.getChat(chatId);
+        if (chat == null) return null;
+
+        ChatContext chatContext = chat.getContext();
+        SelectAiChatContext customChatContext = SelectAiChatContext.wrap(chatContext);
+        String profile = customChatContext.getProfileId();
+        String action = PromptAction.CHAT.getApiId();
+        String attributes = customChatContext.getAttributes();
+
+        List<String> userPrompts = chat.getUserPrompts();
+        if (userPrompts.isEmpty()) return null;
+
+        String prompts = Lists.toCsv(userPrompts, "\n", s -> "\"" + s + "\"");
+        String titlePrompt = "Summarize the following prompts into a concise title (3-5 words). Respond with the title only, no additional information:\n\n" + prompts;
+
+        ConnectionHandler connection = getConnection(connectionId);
+        // use pool connection to avoid interfering with the current conversation
+        return PooledConnection.call(connection.createConnectionContext(), c -> {
+            DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
+            return assistantInterface.generate(c, action, profile, attributes, titlePrompt);
+        });
     }
 }

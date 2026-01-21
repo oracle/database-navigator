@@ -17,32 +17,30 @@
 package com.dbn.assistant.service.generic.model.factory;
 
 import com.dbn.assistant.service.generic.model.AssistantModelInput;
-import dev.langchain4j.model.bedrock.BedrockChatModel;
-import dev.langchain4j.model.bedrock.BedrockStreamingChatModel;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.language.LanguageModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.OPENAI;
+import static com.dbn.assistant.provider.AIProviderId.BEDROCK;
 
 public class BedrockModelFactory extends AbstractModelFactory {
 
     public BedrockModelFactory() {
-        super(OPENAI);
+        super(BEDROCK);
     }
 
     @Nullable
     @Override
     public ChatModel createChatModel(AssistantModelInput input) {
-        return BedrockChatModel.builder().build(); // TODO
+        return null; // TODO
     }
 
     @Nullable
     @Override
     public StreamingChatModel createStreamingChatModel(AssistantModelInput input) {
-        return BedrockStreamingChatModel.builder().build(); // TODO
+        return null; // TODO
     }
 
     @Nullable

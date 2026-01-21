@@ -19,6 +19,7 @@ package com.dbn.ddl.options;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
 import com.dbn.ddl.options.ui.DDFileSettingsForm;
+import com.dbn.help.HelpTopic;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.TopLevelConfig;
@@ -52,8 +53,8 @@ public class DDLFileSettings extends CompositeProjectConfiguration<ProjectSettin
     }
 
     @Override
-    public String getHelpTopic() {
-        return "ddlFileSettings";
+    public HelpTopic getConfigHelpTopic() {
+        return HelpTopic.DDL_FILE_SETTINGS;
     }
 
     @Override

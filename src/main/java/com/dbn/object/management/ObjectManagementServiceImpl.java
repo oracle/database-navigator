@@ -23,11 +23,6 @@ import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.management.adapter.impl.DBAIProfileManagementAdapter;
-import com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter;
-import com.dbn.object.management.adapter.impl.DBCredentialManagementAdapter;
-import com.dbn.object.management.adapter.impl.DBJsonViewManagementAdapter;
-import com.dbn.object.management.adapter.impl.DBTriggerManagementAdapter;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -37,7 +32,9 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.exception.Exceptions.unsupported;
@@ -47,12 +44,6 @@ import static com.dbn.object.event.ObjectChangeAction.DELETE;
 import static com.dbn.object.event.ObjectChangeAction.DISABLE;
 import static com.dbn.object.event.ObjectChangeAction.ENABLE;
 import static com.dbn.object.event.ObjectChangeAction.UPDATE;
-import static com.dbn.object.type.DBObjectType.AI_PROFILE;
-import static com.dbn.object.type.DBObjectType.CONSTRAINT;
-import static com.dbn.object.type.DBObjectType.CREDENTIAL;
-import static com.dbn.object.type.DBObjectType.DATABASE_TRIGGER;
-import static com.dbn.object.type.DBObjectType.DATASET_TRIGGER;
-import static com.dbn.object.type.DBObjectType.JSON_VIEW;
 
 /**
  * Generic database object management component
@@ -69,21 +60,24 @@ import static com.dbn.object.type.DBObjectType.JSON_VIEW;
 final class ObjectManagementServiceImpl extends ProjectComponentBase implements ObjectManagementService, PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.ObjectManagementService";
 
-    private final Map<DBObjectType, ObjectManagementAdapterFactory> managementAdapters = new HashMap<>();
+    private final Map<DBObjectType, ObjectManagementAdapterExtension> managementAdapters = initAdapters();
 
     public ObjectManagementServiceImpl(@NotNull Project project) {
         super(project, COMPONENT_NAME);
-        registerAdapters();
     }
 
-    private void registerAdapters() {
-        managementAdapters.put(CONSTRAINT, new DBConstraintManagementAdapter());
-        managementAdapters.put(JSON_VIEW, new DBJsonViewManagementAdapter());
-        managementAdapters.put(DATASET_TRIGGER, new DBTriggerManagementAdapter());
-        managementAdapters.put(DATABASE_TRIGGER, new DBTriggerManagementAdapter());
-        managementAdapters.put(CREDENTIAL, new DBCredentialManagementAdapter());
-        managementAdapters.put(AI_PROFILE, new DBAIProfileManagementAdapter());
-        //...
+    private static Map<DBObjectType, ObjectManagementAdapterExtension> initAdapters() {
+        Map<DBObjectType, ObjectManagementAdapterExtension> adapters = new HashMap<>();
+
+        List<ObjectManagementAdapterExtension> factories = ObjectManagementAdapterExtension.EP.getExtensionList();
+        for (ObjectManagementAdapterExtension factory : factories) {
+            DBObjectType[] objectTypes = factory.getObjectTypes();
+            for (DBObjectType objectType : objectTypes) {
+                adapters.put(objectType, factory);
+            }
+        }
+
+        return Collections.unmodifiableMap(adapters);
     }
 
     @Override
@@ -125,7 +119,7 @@ final class ObjectManagementServiceImpl extends ProjectComponentBase implements 
 
     private <T extends DBObject> void  invokeModal(T object, ObjectChangeAction action, OutcomeHandler successHandler) {
         DBObjectType objectType = object.getObjectType();
-        ObjectManagementAdapterFactory<T> factory = cast(managementAdapters.get(objectType));
+        ObjectManagementAdapterExtension<T> factory = cast(managementAdapters.get(objectType));
         if (factory == null) throw new UnsupportedOperationException("Not supported for objects of type " + objectType);
 
         ObjectManagementAdapter<T> adapter = factory.createAdapter(object, action);

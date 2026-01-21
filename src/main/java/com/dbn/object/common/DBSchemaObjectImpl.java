@@ -215,7 +215,7 @@ public abstract class DBSchemaObjectImpl<M extends DBObjectMetadata> extends DBO
                 conn -> {
                     ConnectionHandler connection = getConnection();
                     DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-                    dataDefinition.updateObject(getName(true), getObjectType().getName(), oldCode, newCode, conn);
+                    dataDefinition.updateObject(getSchemaName(true), getName(true), getObjectType().getName(), oldCode, newCode, conn);
                 });
     }
 

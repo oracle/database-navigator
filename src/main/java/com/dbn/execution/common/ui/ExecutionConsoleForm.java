@@ -57,6 +57,7 @@ import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.execution.statement.result.StatementExecutionResult;
 import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.vector.result.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
@@ -80,6 +81,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
@@ -155,8 +158,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
 
         for (Component component : components) {
             var executionResult = getExecutionResult(component);
-            if (executionResult instanceof StatementExecutionResult) {
-                StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
+            if (executionResult instanceof StatementExecutionResult statementExecutionResult) {
                 StatementExecutionProcessor executionProcessor = statementExecutionResult.getExecutionProcessor();
                 if (!isValid(executionProcessor)) continue;
                 if (!Objects.equals(file, executionProcessor.getPsiFile())) continue;
@@ -207,8 +209,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
             ExecutionResult<?> executionResult = getExecutionResult(component);
             if (isNotValid(executionResult)) return;
 
-            if (executionResult instanceof StatementExecutionResult) {
-                StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
+            if (executionResult instanceof StatementExecutionResult statementExecutionResult) {
                 statementExecutionResult.navigateToEditor(NavigationInstructions.create(FOCUS, SCROLL));
             }
         };
@@ -332,7 +333,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
     public void addResult(MethodExecutionResult executionResult) {
         showResultTab(executionResult);
     }
-
+    //todo add one foe vector embeddings
     public void addResult(JavaExecutionResult executionResult) {
         showResultTab(executionResult);
     }
@@ -346,11 +347,17 @@ public class ExecutionConsoleForm extends DBNFormBase {
     @Nullable
     private static ExecutionResult<?> getExecutionResult(Component component) {
         Object content = ClientProperty.TAB_CONTENT.get(component);
-        if (content instanceof ExecutionResultForm) {
-            ExecutionResultForm<?> executionResultForm = (ExecutionResultForm<?>) content;
+        if (content instanceof ExecutionResultForm<?> executionResultForm) {
             return isValid(executionResultForm) ? executionResultForm.getExecutionResult() : null;
         }
         return null;
+    }
+
+    /*********************************************************
+     *                       Vector Embeddings               *
+     *********************************************************/
+    public void addResult(VectorEmbeddingExecutionResult executionResult) {
+        showResultTab( executionResult);
     }
 
     /*********************************************************
@@ -421,8 +428,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
 
         for (Component component : getTabbedComponents()) {
             ExecutionResult<?> executionResult = getExecutionResult(component);
-            if (executionResult instanceof DatabaseLoggingResult) {
-                DatabaseLoggingResult logOutput = (DatabaseLoggingResult) executionResult;
+            if (executionResult instanceof DatabaseLoggingResult logOutput) {
                 if (!logOutput.matches(context)) continue;
 
                 logOutput.write(context, output);
@@ -527,8 +533,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
             if (index == -1) return;
 
             DBLanguagePsiFile file = null;
-            if (executionResult instanceof StatementExecutionResult) {
-                StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
+            if (executionResult instanceof StatementExecutionResult statementExecutionResult) {
                 StatementExecutionInput executionInput = statementExecutionResult.getExecutionInput();
                 file = executionInput.getExecutionProcessor().getPsiFile();
             }
@@ -577,5 +582,15 @@ public class ExecutionConsoleForm extends DBNFormBase {
     @Nullable
     public <T extends ExecutionResultForm> T getExecutionResultForm(ExecutionResult<?> executionResult) {
         return cast(executionResultForms.get(executionResult));
+    }
+
+    public Set<String> getExecutionResultNames(Class<? extends ExecutionResult<?>> resultType) {
+        return executionResultForms
+                .values()
+                .stream()
+                .map(ExecutionResultForm::getExecutionResult)
+                .filter(result->resultType.isAssignableFrom(result.getClass()))
+                .map(ExecutionResult::getName)
+                .collect(Collectors.toSet());
     }
 }

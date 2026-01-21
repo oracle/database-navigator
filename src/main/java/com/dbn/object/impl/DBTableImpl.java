@@ -63,6 +63,7 @@ class DBTableImpl extends DBDatasetImpl<DBTableMetadata> implements DBTable {
     @Override
     protected String initObject(ConnectionHandler connection, DBObject parentObject, DBTableMetadata metadata) throws SQLException {
         String name = metadata.getTableName();
+        this.comments = metadata.getComments();
         set(TEMPORARY, metadata.isTemporary());
         return name;
     }

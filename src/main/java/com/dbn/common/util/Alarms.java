@@ -27,12 +27,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.intellij.util.Alarm.ThreadToUse.SWING_THREAD;
 
 @UtilityClass
 public class Alarms {
 
     public static void executeLater(int delayMillis, @NotNull Runnable runnable) {
-        Alarm alarm = new Alarm();
+        Alarm alarm = new Alarm(SWING_THREAD);
         alarm.addRequest(() -> {
             try {
                 runnable.run();
@@ -50,7 +51,7 @@ public class Alarms {
 
     public static Alarm createAlarm(Disposable parentDisposable) {
         Failsafe.nd(parentDisposable);
-        return new Alarm(parentDisposable);
+        return new Alarm(SWING_THREAD, parentDisposable);
     }
 
     public static void alarmRequest(@NotNull Alarm alarm, long delayMillis, boolean cancelRequests, @NotNull Runnable runnable) {

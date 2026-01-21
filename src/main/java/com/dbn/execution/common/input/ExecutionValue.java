@@ -26,6 +26,7 @@ import java.sql.ResultSet;
 public class ExecutionValue<T> {
     private final String path;
     private ValueHolder<T> valueHolder;
+    private boolean isArrayObject;
 
     public ExecutionValue(String path) {
         this(path, null);
@@ -34,6 +35,7 @@ public class ExecutionValue<T> {
     public ExecutionValue(String path, ValueHolder<T> valueHolder) {
         this.path = path;
         this.valueHolder = valueHolder;
+        this.isArrayObject = false;
     }
 
     public Object getValue() {
@@ -48,8 +50,7 @@ public class ExecutionValue<T> {
         T value = valueHolder.getValue();
         if (value == null) return false;
 
-        if (value instanceof String) {
-            String stringValue = (String) value;
+        if (value instanceof String stringValue) {
             return stringValue.length() > 200 || stringValue.contains("\n");
         }
         return false;

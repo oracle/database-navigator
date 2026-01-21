@@ -28,18 +28,27 @@ public class DBViewMetadataImpl extends DBObjectMetadataBase implements DBViewMe
         super(resultSet);
     }
 
+    @Override
     public String getViewName() throws SQLException {
         return getString("VIEW_NAME");
     }
 
+    @Override
     public String getViewType() throws SQLException {
         return getString("VIEW_TYPE");
     }
 
+    @Override
     public String getViewTypeOwner() throws SQLException {
         return getString("VIEW_TYPE_OWNER");
     }
 
+    @Override
+    public String getComments() throws SQLException {
+        return getString("COMMENTS");
+    }
+
+    @Override
     public boolean isSystemView() throws SQLException {
         return isYesFlag("IS_SYSTEM_VIEW");
     }

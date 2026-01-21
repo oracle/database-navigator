@@ -72,12 +72,11 @@ public class EventRegistrationFilter implements Filter<DataChangeRegistration> {
 
     @Nullable
     public FilterOption getFilterOption(EventRegistrationFilterType filterType) {
-        switch (filterType) {
-            case USER: return user;
-            case TABLE: return table;
-            case STATUS: return status;
-        }
-        return null;
+        return switch (filterType) {
+            case USER -> user;
+            case TABLE -> table;
+            case STATUS -> status;
+        };
     }
 
     public void clear() {

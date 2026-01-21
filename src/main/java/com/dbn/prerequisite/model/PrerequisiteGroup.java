@@ -278,8 +278,14 @@ public class PrerequisiteGroup extends StatefulDisposableBase implements Databas
                                 "Please request the missing privileges from your database administrator.");
             }
 
+            return new TitledMessage(MessageType.ERROR,
+                    description + " - Failed to verify some requirements",
+                    "Some of the requirements for performing the operation \"" + description + "\" are not met or could not be verified.\n" +
+                            "Please check the connectivity or database access rights.");
+
+
         }
-        return new TitledMessage(MessageType.INFO,
+        return new TitledMessage(MessageType.PROCESSING,
                 description + " - Verifying requirements...",
                 "Verifying requirements for performing the operation \"" + description + "\"\n");
     }

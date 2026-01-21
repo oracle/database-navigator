@@ -33,6 +33,7 @@ import java.awt.BorderLayout;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
 public class CreateRenameConsoleForm extends DBNFormBase {
@@ -92,7 +93,7 @@ public class CreateRenameConsoleForm extends DBNFormBase {
     }
 
     public String getConsoleName() {
-        return consoleNameTextField.getText();
+        return getText(consoleNameTextField);
     }
 
     public DBConsoleType getConsoleType() {

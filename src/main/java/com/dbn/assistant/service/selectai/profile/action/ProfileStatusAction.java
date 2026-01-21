@@ -17,6 +17,7 @@
 package com.dbn.assistant.service.selectai.profile.action;
 
 import com.dbn.assistant.service.selectai.profile.ui.ProfileManagementForm;
+import com.dbn.common.icon.Icons;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -25,8 +26,6 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
-import static com.intellij.icons.AllIcons.Diff.GutterCheckBox;
-import static com.intellij.icons.AllIcons.Diff.GutterCheckBoxSelected;
 
 /**
  * Toggle action for the credential management dialogs, allowing to quickly enable or disable a Credential
@@ -51,7 +50,7 @@ public class ProfileStatusAction extends ProfileManagementAction {
         boolean enabled = profile != null && profile.isEnabled();
 
         Presentation presentation = e.getPresentation();
-        presentation.setIcon(enabled ? GutterCheckBoxSelected: GutterCheckBox);
+        presentation.setIcon(enabled ? Icons.ACTION_CHECK_BOX_SELECTED: Icons.ACTION_CHECK_BOX);
         presentation.setText(enabled ?
                 txt("app.assistant.action.DisableProfile") :
                 txt("app.assistant.action.EnableProfile"));

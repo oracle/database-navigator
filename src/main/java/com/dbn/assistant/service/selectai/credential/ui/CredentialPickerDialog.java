@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.service.selectai.credential.ui;
 
-import com.dbn.assistant.credential.LocalCredential;
+import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.intellij.openapi.project.Project;
@@ -26,13 +26,12 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Action;
 
 public class CredentialPickerDialog extends DBNDialog<CredentialPickerForm> {
-  private final Consumer<LocalCredential> callback;
+  private final Consumer<AssistantCredential> callback;
 
-  public CredentialPickerDialog(Project project, Consumer<LocalCredential> callback) {
+  public CredentialPickerDialog(Project project, Consumer<AssistantCredential> callback) {
     super(project, "Credential Templates", true);
 
     Action okAction = getOKAction();
-    renameAction(okAction, "Select");
     okAction.setEnabled(false);
     this.callback = callback;
     init();
@@ -50,10 +49,11 @@ public class CredentialPickerDialog extends DBNDialog<CredentialPickerForm> {
 
   @NotNull
   @Override
-  protected Action[] createActions() {
-    return new Action[]{
+  protected Action[] initializeActions() {
+    renameAction(getOKAction(), "Select");
+    return actions(
             getOKAction(),
-            getCancelAction()};
+            getCancelAction());
   }
 
   @Override
@@ -66,7 +66,7 @@ public class CredentialPickerDialog extends DBNDialog<CredentialPickerForm> {
     getOKAction().setEnabled(getSelectedCredential() != null);
   }
 
-  private @Nullable LocalCredential getSelectedCredential() {
+  private @Nullable AssistantCredential getSelectedCredential() {
     return getForm().getSelectedCredential();
   }
 }

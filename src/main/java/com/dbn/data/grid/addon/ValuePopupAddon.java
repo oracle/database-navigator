@@ -67,8 +67,7 @@ public class ValuePopupAddon extends ComponentAddonBase<BasicTable> {
 
         table.addPropertyChangeListener("columnModel", event -> {
             Object newValue = event.getNewValue();
-            if (newValue instanceof TableColumnModel) {
-                TableColumnModel columnModel = (TableColumnModel) newValue;
+            if (newValue instanceof TableColumnModel columnModel) {
                 columnModel.getSelectionModel().addListSelectionListener(selectionListener);
             }
         });

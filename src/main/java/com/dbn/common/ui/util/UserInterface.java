@@ -33,6 +33,7 @@ import com.intellij.ui.border.IdeaTitledBorder;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
@@ -74,6 +76,7 @@ import java.util.function.Predicate;
 
 import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.ui.util.Borderless.isBorderless;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.common.util.Unsafe.logged;
@@ -103,8 +106,7 @@ public class UserInterface {
 
     public static void stopTableCellEditing(JComponent root) {
         visitRecursively(root, component -> {
-            if (component instanceof JTable) {
-                JTable table = (JTable) component;
+            if (component instanceof JTable table) {
                 TableCellEditor cellEditor = table.getCellEditor();
                 if (cellEditor != null) {
                     cellEditor.stopCellEditing();
@@ -119,26 +121,26 @@ public class UserInterface {
      * @param runnable the @{@link Runnable} to be invoked when the component is shown
      */
     public static void whenFirstShown(JComponent component, Runnable runnable) {
-        whenShown(component, runnable, true);
+        if (component.isShowing()) {
+            runnable.run();
+        } else {
+            whenShown(component, runnable, true);
+        }
     }
 
 
     public static void whenShown(JComponent component, Runnable runnable, boolean first) {
-        // one time invocation of the runnable when component is shown
+        // invocation of the runnable when the component is shown
         AtomicReference<AncestorListener> listenerRef = new AtomicReference<>();
         AncestorListener listener = new AncestorListenerAdapter() {
             @Override
             public void ancestorAdded(AncestorEvent event) {
-                try {
-                    runnable.run();
-                } finally {
-                    if (first) {
-                        // remove the listener if only first shown time is to be considered
-                        AncestorListener listener = listenerRef.get();
-                        component.removeAncestorListener(listener);
-                    }
+                if (first) {
+                    // remove the listener if only the first time is to be considered
+                    AncestorListener listener = listenerRef.get();
+                    component.removeAncestorListener(listener);
                 }
-
+                runnable.run();
             }
         };
         listenerRef.set(listener);
@@ -186,8 +188,7 @@ public class UserInterface {
 
     public static boolean isFocused(Component component, boolean recursive) {
         if (component.isFocusOwner()) return true;
-        if (recursive && component instanceof JComponent) {
-            JComponent parentComponent = (JComponent) component;
+        if (recursive && component instanceof JComponent parentComponent) {
             for (Component childComponent : parentComponent.getComponents()) {
                 if (isFocused(childComponent, recursive)) {
                     return true;
@@ -200,6 +201,10 @@ public class UserInterface {
     public static boolean isFocusableComponent(Component component) {
         if (!component.isFocusable()) return false;
         if (!component.isEnabled()) return false;
+        if (!component.isVisible()) return false;
+        if (component instanceof JTextComponent textComponent) {
+            if (!textComponent.isEditable()) return false;
+        }
 
         return
             component instanceof JTextComponent ||
@@ -212,8 +217,7 @@ public class UserInterface {
 
     public static void updateTitledBorder(JPanel panel) {
         Border border = panel.getBorder();
-        if (border instanceof TitledBorder) {
-            TitledBorder titledBorder = (TitledBorder) border;
+        if (border instanceof TitledBorder titledBorder) {
             String title = titledBorder.getTitle();
             int indent = Strings.isEmpty(title) || ClientProperty.NO_INDENT.is(panel) ? 0 : 16;
             IdeaTitledBorder replacement = new IdeaTitledBorder(title, indent, Borders.EMPTY_INSETS);
@@ -227,7 +231,7 @@ public class UserInterface {
      * @deprecated use component.revalidate() on component layout or size changes, and component.repaint() on visual changes like colors.
      */
     public static void repaint(Component component) {
-        Dispatch.run(true, () -> {
+        Dispatch.run(component, true, () -> {
             component.revalidate();
             component.repaint();
         });
@@ -260,8 +264,7 @@ public class UserInterface {
     public static void changePanelBackground(JPanel panel, Color background) {
         panel.setBackground(background);
         for (Component component : panel.getComponents()) {
-            if (component instanceof JPanel) {
-                JPanel childPanel = (JPanel) component;
+            if (component instanceof JPanel childPanel) {
                 changePanelBackground(childPanel, background);
             }
         }
@@ -322,8 +325,7 @@ public class UserInterface {
                 sp.setViewportBorder(Borders.insetBorder(4));
             }
 
-            if (view instanceof JComponent) {
-                JComponent viewComponent = (JComponent) view;
+            if (view instanceof JComponent viewComponent) {
                 viewComponent.setBorder(null);
             }
         });
@@ -375,14 +377,18 @@ public class UserInterface {
         visitRecursively(component, JSplitPane.class, sp -> Splitters.replaceSplitPane(sp));
     }
 
+    public static void updateTextPanes(JComponent component) {
+        // text panes do not properly size when hidden. This should force them to revalidate first time they are shown
+        visitRecursively(component, JTextPane.class, tp -> whenFirstShown(tp, () -> tp.revalidate()));
+    }
+
     public static void setBackgroundRecursive(JComponent component, Color color) {
         if (component == null) return;
 
         component.setBackground(color);
         Component[] children = component.getComponents();
         for (Component child : children) {
-            if (child instanceof JComponent) {
-                JComponent jComponent = (JComponent) child;
+            if (child instanceof JComponent jComponent) {
                 setBackgroundRecursive(jComponent, color);
             }
         }
@@ -395,8 +401,7 @@ public class UserInterface {
         for (int i = 0; i < container.getComponentCount(); i++) {
             if (container.getComponent(i) != oldComponent) continue;
 
-            if (layout instanceof GridLayoutManager) {
-                GridLayoutManager gridLayout = (GridLayoutManager) layout;
+            if (layout instanceof GridLayoutManager gridLayout) {
                 GridConstraints constraints = gridLayout.getConstraintsForComponent(oldComponent);
                 container.remove(i);
                 container.add(newComponent, constraints);
@@ -434,9 +439,8 @@ public class UserInterface {
 
         Component[] components = component.getComponents();
         for (Component child : components) {
-            if (!(child instanceof JComponent)) continue;
+            if (!(child instanceof JComponent childComponent)) continue;
 
-            JComponent childComponent = (JComponent) child;
             if (componentType.isAssignableFrom(childComponent.getClass()) && check.test(cast(childComponent))) {
                 return cast(child);
             }
@@ -461,6 +465,53 @@ public class UserInterface {
         return hasChildComponent(rootComponent, JComponent.class, check);
     }
 
+    public static JComponent findTopLeftmostFocusComponent(Container container) {
+        TopLeftmost topLeftmost = new TopLeftmost(container);
+        findTopLeftmostFocusComponent(container, topLeftmost);
+        return topLeftmost.getComponent();
+    }
+
+    private static void findTopLeftmostFocusComponent(Container container, TopLeftmost topLeftmost) {
+        for (Component component : container.getComponents()) {
+            if (isFocusableComponent(component)) {
+                topLeftmost.update(cast(component));
+            }
+
+            if (component instanceof Container) {
+                // do not step into subcomponents of "container" text components (e.g. browse buttons aso.)
+                if (component instanceof JTextComponent) continue;
+
+                findTopLeftmostFocusComponent((Container) component, topLeftmost);
+            }
+        }
+    }
+
+    @Getter
+    @Setter
+    private class TopLeftmost {
+        private static final Point ZERO_POINT = new Point(0, 0);
+        private final Container rootContainer;
+        private JComponent component;
+        private int x = Integer.MAX_VALUE;
+        private int y = Integer.MAX_VALUE;
+
+        private TopLeftmost(Container rootContainer) {
+            this.rootContainer = rootContainer;
+        }
+
+        private void update(Component component) {
+            if (component instanceof JComponent) {
+                Point location = SwingUtilities.convertPoint(component, ZERO_POINT, rootContainer);
+                if (location.y < y || (location.y == y && location.x < x)) {
+                    // further to the top / same level but further to the left
+                    x = location.x;
+                    y = location.y;
+                    this.component = (JComponent) component;
+                }
+            }
+        }
+    }
+
     @Nullable
     public static JLabel getComponentLabel(@Nullable Component component) {
         if (component == null) return null;
@@ -475,23 +526,19 @@ public class UserInterface {
     public static String getComponentText(@Nullable Component component) {
         if (component == null) return null;
 
-        if (component instanceof JLabel) {
-            JLabel label = (JLabel) component;
+        if (component instanceof JLabel label) {
             return label.getText();
         }
 
-        if (component instanceof AbstractButton) {
-            AbstractButton button = (AbstractButton) component;
+        if (component instanceof AbstractButton button) {
             return button.getText();
         }
 
-        if (component instanceof JTextComponent) {
-            JTextComponent textComponent = (JTextComponent) component;
-            return textComponent.getText();
+        if (component instanceof JTextComponent textComponent) {
+            return getText(textComponent);
         }
 
-        if (component instanceof JComboBox) {
-            JComboBox comboBox = (JComboBox) component;
+        if (component instanceof JComboBox comboBox) {
             Object selectedItem = comboBox.getSelectedItem();
             return selectedItem == null ? null : selectedItem.toString();
         }
@@ -574,8 +621,7 @@ public class UserInterface {
 
     public static <D extends DialogWrapper> D getParentDialog(JComponent component) {
         Window windowAncestor = SwingUtilities.getWindowAncestor(component);
-        if (windowAncestor instanceof DialogWrapperDialog) {
-            DialogWrapperDialog dialog = (DialogWrapperDialog) windowAncestor;
+        if (windowAncestor instanceof DialogWrapperDialog dialog) {
             return cast(dialog.getDialogWrapper());
         }
         return null;

@@ -21,13 +21,11 @@ import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.adapter.ui.AssistantDetailFormBase;
 import com.dbn.assistant.adapter.ui.AssistantIntroductionForm;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.service.selectai.ui.SelectAiHelpDialog;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.form.DBNHintForm;
-import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import lombok.SneakyThrows;
@@ -48,7 +46,6 @@ public class GenericAssistantIntroductionForm extends AssistantDetailFormBase im
 
     private JPanel mainPanel;
     private JPanel hintPanel;
-    private JPanel introPanel;
     private JButton helpButton;
     private JButton continueButton;
 
@@ -86,10 +83,11 @@ public class GenericAssistantIntroductionForm extends AssistantDetailFormBase im
     protected void initButtons() {
         continueButton.addActionListener(e -> getChatBox().acknowledgeIntro());
         helpButton.addActionListener(e -> showHelpDialog());
+        helpButton.setVisible(false); // TODO
     }
 
     private void showHelpDialog() {
-        Dialogs.show(() -> new SelectAiHelpDialog(getConnection()));
+        //Dialogs.show(() -> new GenericAssistantHelpDialog(getConnection()));
     }
 
     private @NotNull ConnectionHandler getConnection() {

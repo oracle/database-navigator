@@ -70,8 +70,7 @@ public class DBLLanguageFileScrambler {
             String text = child.getText();
             builder.append(text.replaceAll("[a-zA-Z0-9]", "#"));
         } else if (child instanceof LeafPsiElement) {
-            if (child instanceof TokenPsiElement) {
-                TokenPsiElement token = (TokenPsiElement) child;
+            if (child instanceof TokenPsiElement token) {
                 TokenType tokenType = token.getTokenType();
                 String text = child.getText();
                 if (tokenType.getCategory() == TokenTypeCategory.LITERAL) {
@@ -87,8 +86,7 @@ public class DBLLanguageFileScrambler {
                     builder.append(text);
                 }
 
-            } else if (child instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifier = (IdentifierPsiElement) child;
+            } else if (child instanceof IdentifierPsiElement identifier) {
 
                 String objectName = identifier.getText();
                 int objectNameLength = objectName.length();
@@ -97,8 +95,7 @@ public class DBLLanguageFileScrambler {
 
                 boolean normalize = true;
                 PsiElement nextLeaf = PsiUtil.getNextLeaf(child);
-                if (nextLeaf instanceof TokenPsiElement) {
-                    TokenPsiElement tokenPsiElement = (TokenPsiElement) nextLeaf;
+                if (nextLeaf instanceof TokenPsiElement tokenPsiElement) {
                     normalize = !tokenPsiElement.isCharacterToken();
                 }
                 if (normalize) {
@@ -109,8 +106,7 @@ public class DBLLanguageFileScrambler {
         } else if (child instanceof com.intellij.psi.impl.source.tree.LeafPsiElement) {
             IElementType elementType = ((com.intellij.psi.impl.source.tree.LeafPsiElement) child).getElementType();
             String text = child.getText();
-            if (elementType instanceof TokenType) {
-                TokenType tokenType = (TokenType) elementType;
+            if (elementType instanceof TokenType tokenType) {
                 TokenTypeCategory category = tokenType.getCategory();
                 if (category == TokenTypeCategory.LITERAL) {
                     builder.append(text.replaceAll("[a-zA-Z0-9]", "#"));

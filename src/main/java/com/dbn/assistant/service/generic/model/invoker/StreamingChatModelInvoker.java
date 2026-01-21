@@ -16,53 +16,97 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
+import com.dbn.assistant.AssistantComponent;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
-import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.memory.ChatMemory;
+import com.dbn.assistant.service.generic.context.AssistantMemoryId;
+import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.tool.execution.AssistantToolRequestNormalizer;
+import com.dbn.common.compatibility.Workaround;
+import com.dbn.common.util.Unsafe;
+import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.model.chat.StreamingChatModel;
-import dev.langchain4j.model.chat.response.ChatResponse;
-import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import dev.langchain4j.service.AiServiceTokenStream;
+import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.TokenStream;
 
-public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingChatModel>{
+import static com.dbn.assistant.service.generic.model.AssistantModelType.STREAMING_CHAT;
+
+public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingChatModel> implements AssistantComponent {
     public StreamingChatModelInvoker() {
-        super(StreamingChatModel.class);
+        super(STREAMING_CHAT);
     }
 
     @Override
-    public void invokeModel(StreamingChatModel model, @Nullable ChatMemory memory, String prompt, AssistantResponseConsumer consumer) {
-        StreamingChatResponseHandler responseHandler = createResponseHandler(memory, consumer);
-        if (memory == null) {
-            model.chat(prompt, responseHandler);
-        } else {
-            UserMessage userMessage = UserMessage.from(prompt);
-            memory.add(userMessage);
-            model.chat(memory.messages(), responseHandler);
+    public void invokeModel(StreamingChatModel model, AssistantState state, AssistantMemoryId memoryId, String prompt, AssistantResponseConsumer consumer) {
+
+        boolean stateless = memoryId.isStateless();
+
+        var builder = AiServices.builder(StreamingChatModelAdapter.class);
+        builder.streamingChatModel(model);
+
+        initChatMemory(builder, state, stateless);
+        initSystemMessage(builder, state);
+        initToolProvider(builder, state, stateless);
+
+        StreamingChatModelAdapter adapter = builder.build();
+
+        TokenStream tokenStream = adapter.chat(memoryId, prompt);
+        initTokenStream(tokenStream, consumer);
+    }
+
+    private void initTokenStream(TokenStream tokenStream, AssistantResponseConsumer consumer) {
+        if (tokenStream instanceof AiServiceTokenStream aiTokenStream) {
+            aiTokenStream.beforeToolExecution(e -> {
+                ToolExecutionRequest request = e.request();
+                normalizeRequest(request);
+                consumer.acceptToolRequest(
+                        request.id(),
+                        request.name(),
+                        request.arguments());
+            });
+
+            aiTokenStream.onToolExecuted(e -> {
+                ToolExecutionRequest request = e.request();
+                consumer.acceptToolResponse(
+                        request.id(),
+                        request.name(),
+                        e.result());
+            });
+
+            aiTokenStream.onPartialResponse(t -> {
+                consumer.acceptToken(t);
+            });
+
+            aiTokenStream.onCompleteResponse(r -> {
+                consumer.acceptMessage(r.aiMessage().text());
+                consumer.acceptCompletion();
+            });
+
+            aiTokenStream.onError((e) -> {
+                consumer.acceptError(e);
+                consumer.acceptCompletion();
+            });
+
+            aiTokenStream.onRetrieved(l -> {
+                return;
+            });
+
+            aiTokenStream.onIntermediateResponse(r -> {
+                return;
+            });
+
+            aiTokenStream.onPartialThinking(t -> {
+                // TODO display "thinking..." in chat box
+                return;
+            });
+
+            wrapped(() -> tokenStream.start());
         }
     }
 
-    private static @NotNull StreamingChatResponseHandler createResponseHandler(@Nullable ChatMemory memory, AssistantResponseConsumer consumer) {
-        return new StreamingChatResponseHandler() {
-            @Override
-            public void onPartialResponse(String s) {
-                consumer.acceptToken(s);
-            }
-
-            @Override
-            public void onCompleteResponse(ChatResponse response) {
-                consumer.acceptMessage(response.aiMessage().text());
-                consumer.acceptCompletion();
-                if (memory != null) {
-                    memory.add(response.aiMessage());
-                }
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                consumer.acceptError(throwable);
-                consumer.acceptCompletion();
-            }
-        };
+    @Workaround
+    private static void normalizeRequest(ToolExecutionRequest request) {
+        Unsafe.logged(() -> AssistantToolRequestNormalizer.normalize(request));
     }
+
 }

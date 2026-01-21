@@ -16,13 +16,13 @@
 
 package com.dbn.assistant.service.generic.model;
 
-import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderId;
 import com.intellij.openapi.extensions.ExtensionPointName;
 
 public interface AssistantModelFactory {
     ExtensionPointName<AssistantModelFactory> EP = ExtensionPointName.create("com.dbn.assistantModelFactory");
 
-    AIProvider getProvider();
+    AIProviderId getProviderId();
 
     <T> T createModel(Class<T> modelType, AssistantModelInput input);
 }

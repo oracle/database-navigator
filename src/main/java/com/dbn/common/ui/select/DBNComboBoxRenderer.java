@@ -26,7 +26,7 @@ import javax.swing.JList;
 
 import static com.dbn.common.ui.util.ClientProperty.LOADING;
 
-public class DBNComboBoxRenderer<T extends Presentable> extends ColoredListCellRenderer<T> {
+public class DBNComboBoxRenderer<T> extends ColoredListCellRenderer<T> {
     private final JComboBox<T> comboBox;
 
     public DBNComboBoxRenderer(JComboBox<T> comboBox) {
@@ -36,8 +36,12 @@ public class DBNComboBoxRenderer<T extends Presentable> extends ColoredListCellR
     @Override
     protected void customize(@NotNull JList<? extends T> list, T value, int index, boolean selected, boolean hasFocus) {
         if (value != null) {
-            append(value.getName());
-            setIcon(value.getIcon());
+            if (value instanceof Presentable presentable) {
+                append(presentable.getName());
+                setIcon(presentable.getIcon());
+            } else {
+                append(value.toString());
+            }
             return;
         }
         boolean loading = LOADING.is(comboBox);

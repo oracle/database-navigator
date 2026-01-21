@@ -30,7 +30,6 @@ public class PluginConflictResolutionDialog extends DBNDialog<PluginConflictReso
         setResizable(false);
         //setDefaultSize(700, 400);
         getCancelAction().setEnabled(false);
-        renameAction(getOKAction(), "Continue");
         init();
     }
 
@@ -52,10 +51,9 @@ public class PluginConflictResolutionDialog extends DBNDialog<PluginConflictReso
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
-                getOKAction()
-        };
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Continue");
+        return actions(getOKAction());
     }
 
     @Override

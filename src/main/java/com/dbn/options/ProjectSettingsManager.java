@@ -17,7 +17,7 @@
 package com.dbn.options;
 
 import com.dbn.DatabaseNavigator;
-import com.dbn.assistant.credential.LocalCredentialSettings;
+import com.dbn.assistant.credential.AssistantCredentialSettings;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.browser.options.DatabaseBrowserSettings;
 import com.dbn.code.common.completion.options.CodeCompletionSettings;
@@ -195,7 +195,7 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
 
         // LOCAL CREDENTIALS
         AssistantSettings assistantSettings = getAssistantSettings();
-        LocalCredentialSettings credentialSettings = assistantSettings.getCredentialSettings();
+        AssistantCredentialSettings credentialSettings = assistantSettings.getCredentialSettings();
         credentialSettings.getCredentials().initSecrets();
     }
 

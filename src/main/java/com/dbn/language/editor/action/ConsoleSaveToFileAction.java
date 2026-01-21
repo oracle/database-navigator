@@ -37,8 +37,7 @@ public class ConsoleSaveToFileAction extends ProjectAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         VirtualFile file = Lookups.getVirtualFile(e);
-        if (file instanceof DBConsoleVirtualFile) {
-            DBConsoleVirtualFile consoleFile = (DBConsoleVirtualFile) file;
+        if (file instanceof DBConsoleVirtualFile consoleFile) {
             DatabaseConsoleManager consoleManager = DatabaseConsoleManager.getInstance(project);
             consoleManager.saveConsoleToFile(consoleFile);
         }

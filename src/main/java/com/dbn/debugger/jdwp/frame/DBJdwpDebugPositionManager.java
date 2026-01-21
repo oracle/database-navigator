@@ -67,8 +67,7 @@ public class DBJdwpDebugPositionManager implements PositionManager {
 
         if (ownerName == null) {
             ExecutionInput executionInput = debugProcess.getExecutionInput();
-            if (executionInput instanceof StatementExecutionInput) {
-                StatementExecutionInput statementExecutionInput = (StatementExecutionInput) executionInput;
+            if (executionInput instanceof StatementExecutionInput statementExecutionInput) {
                 lineNumber += statementExecutionInput.getExecutableLineNumber();
             }
         }

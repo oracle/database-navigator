@@ -65,6 +65,7 @@ import static com.dbn.common.ui.table.Tables.installFocusTraversal;
 import static com.dbn.common.ui.table.Tables.selectTableRow;
 import static com.dbn.common.ui.util.Keyboard.onKeyPress;
 import static com.dbn.common.ui.util.Mouse.onMouseClick;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.nls.NlsResources.txt;
@@ -175,7 +176,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   private void updateDatasetsFilter() {
     AvailableDatasetsTableModel model = getDatasetsModel();
     AvailableDatasetsFilter filter = getDatasetFilter();
-    filter.setNameToken(filterTextField.getText());
+    filter.setNameToken(getText(filterTextField));
 
     Set<String> selectedElements = filter.getSelectedElements();
     selectedElements.clear();

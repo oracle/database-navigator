@@ -16,7 +16,6 @@
 
 package com.dbn.assistant.service.selectai.editor;
 
-import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.message.ChatMessage;
@@ -38,6 +37,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.experimental.UtilityClass;
 
+import static com.dbn.assistant.AssistantType.SELECT_AI;
 import static com.intellij.util.ObjectUtils.coalesce;
 
 /**
@@ -54,11 +54,12 @@ public class SelectAiEditorAdapter {
         DBAIProfile profile = SelectAiContextUtil.getDefaultProfile(connectionId);
 
         if (profile == null) {
-            manager.initializeAssistant(connectionId, AssistantType.SELECT_AI);
+            manager.initializeAssistant(connectionId, SELECT_AI);
             return;
         }
 
         ChatContextImpl context = new ChatContextImpl(
+                SELECT_AI,
                 profile.getName(),
                 profile.getProviderId(),
                 profile.getModelId(),

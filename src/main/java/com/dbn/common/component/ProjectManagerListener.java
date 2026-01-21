@@ -35,8 +35,7 @@ public interface ProjectManagerListener {
     default void projectClosed() {}
 
     static void register(ProjectComponent projectComponent) {
-        if (projectComponent instanceof ProjectManagerListener) {
-            ProjectManagerListener listener = (ProjectManagerListener) projectComponent;
+        if (projectComponent instanceof ProjectManagerListener listener) {
             VetoableProjectManagerListener projectManagerListener = new VetoableProjectManagerListener() {
                 @Override
                 public boolean canClose(@NotNull Project project) {

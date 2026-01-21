@@ -16,6 +16,7 @@
 
 package com.dbn.common.data;
 
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Csvs;
 import com.dbn.common.util.Strings;
 import lombok.experimental.UtilityClass;
@@ -71,6 +72,9 @@ public final class Data {
         if (type == short.class)      return cast(asShortPrimitive(object));
         if (type == BigDecimal.class) return cast(asBigDecimal(object));
         if (type == BigInteger.class) return cast(asBigInteger(object));
+        if (type == Object.class)     return cast(object);
+
+        if (type == String[].class) return cast(asStringArray(object));
 
         throw new UnsupportedOperationException("Cast from " + object.getClass() + " to " + type + " is not implemented");
         // TODO add more cast logic if required
@@ -83,12 +87,21 @@ public final class Data {
     @Nullable
     public static String asString(@Nullable Object object) {
         if (object == null) return null;
+        if (object instanceof char[] chars) return Chars.toString(chars);
         return object.toString();
     }
 
 
     public static List<String> asStringList(@Nullable Object object) {
         return asList(object, o -> asString(o));
+    }
+
+    public static String[] asStringArray(@Nullable Object object) {
+        List<String> strings =
+                object instanceof String string ?
+                        csvToList(string, String.class) : // assumed csv
+                        asList(object, o -> asString(o));
+        return strings == null ? new String[0] : strings.toArray(new String[0]);
     }
 
     public static Character asCharacter(@Nullable Object object) {
@@ -186,7 +199,7 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Boolean) return (Boolean) object;
         if (object.equals(NULL)) return null;
-        if (object instanceof String) return Strings.isOneOfIgnoreCase((String) object, "Y", "YES", "TRUE", "1");
+        if (object instanceof String) return Strings.isOneOfIgnoreCase((String) object, "Y", "YES", "T", "TRUE", "1");
         if (object instanceof Number) return ((Number) object).intValue() != 0;
         return null;
     }
@@ -227,18 +240,18 @@ public final class Data {
     public static Class<?> asPrimitiveClass(@NonNls String primitiveTypeName) {
         if (primitiveTypeName == null) return null;
 
-        switch (primitiveTypeName) {
-            case "boolean": return boolean.class;
-            case "byte":    return byte.class;
-            case "char":    return char.class;
-            case "short":   return short.class;
-            case "int":     return int.class;
-            case "long":    return long.class;
-            case "float":   return float.class;
-            case "double":  return double.class;
-            case "void":    return void.class;
-            default:        return null;
-        }
+        return switch (primitiveTypeName) {
+            case "boolean" -> boolean.class;
+            case "byte" -> byte.class;
+            case "char" -> char.class;
+            case "short" -> short.class;
+            case "int" -> int.class;
+            case "long" -> long.class;
+            case "float" -> float.class;
+            case "double" -> double.class;
+            case "void" -> void.class;
+            default -> null;
+        };
     }
 
 

@@ -69,8 +69,7 @@ public class DBBreakpointUtil {
         String fileUrl = breakpoint.getFileUrl();
         if (databaseFileSystem.isDatabaseUrl(fileUrl)) {
             VirtualFile virtualFile = databaseFileSystem.findFileByPath(fileUrl);
-            if (virtualFile instanceof DBContentVirtualFile) {
-                DBContentVirtualFile contentVirtualFile = (DBContentVirtualFile) virtualFile;
+            if (virtualFile instanceof DBContentVirtualFile contentVirtualFile) {
                 breakpointFile = contentVirtualFile.getMainDatabaseFile();
                 breakpoint.putUserData(BREAKPOINT_FILE, breakpointFile);
             } else if (virtualFile instanceof DBConsoleVirtualFile) {
@@ -86,8 +85,7 @@ public class DBBreakpointUtil {
     @Nullable
     public static DBObjectRef getDatabaseObject(@NotNull XLineBreakpoint breakpoint) {
         VirtualFile file = getVirtualFile(breakpoint);
-        if (file instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile objectFile = (DBEditableObjectVirtualFile) file;
+        if (file instanceof DBEditableObjectVirtualFile objectFile) {
             return objectFile.getObjectRef();
         }
         return null;
@@ -96,8 +94,7 @@ public class DBBreakpointUtil {
     public static DBContentType getContentType(@NotNull XLineBreakpoint breakpoint) {
         DBContentType contentType = DBContentType.CODE;
         VirtualFile virtualFile = getVirtualFile(breakpoint);
-        if (virtualFile instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) virtualFile;
+        if (virtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             contentType = sourceCodeFile.getContentType();
         }
         return contentType;
@@ -139,8 +136,7 @@ public class DBBreakpointUtil {
         Collection<XLineBreakpoint<XBreakpointProperties>> databaseBreakpoints = getDatabaseBreakpoints(project);
         for (var breakpoint : databaseBreakpoints) {
             XBreakpointProperties properties = breakpoint.getProperties();
-            if (properties instanceof DBBreakpointProperties) {
-                DBBreakpointProperties breakpointProperties = (DBBreakpointProperties) properties;
+            if (properties instanceof DBBreakpointProperties breakpointProperties) {
                 if (connection == breakpointProperties.getConnection()) {
                     breakpoints.add(breakpoint);
                 }

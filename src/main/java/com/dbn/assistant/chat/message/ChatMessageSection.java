@@ -17,10 +17,13 @@
 package com.dbn.assistant.chat.message;
 
 import com.intellij.lang.Language;
+import com.intellij.openapi.util.TextRange;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.assistant.chat.message.ChatMessageLanguages.resolveLanguage;
@@ -29,14 +32,27 @@ import static com.dbn.assistant.chat.message.ChatMessageLanguages.resolveLanguag
  * Section of chat message, qualified with a language
  */
 @Getter
+@Setter
 public class ChatMessageSection {
 
-    private String content;
+    private final String content;
     private final String languageId;
 
-    public ChatMessageSection(String content, @Nullable @NonNls String languageId) {
+    // offsets in the original message
+    private TextRange contentRange;
+
+    public ChatMessageSection(String content, TextRange contentRange, @Nullable @NonNls String languageId) {
         this.content = content.trim();
+        this.contentRange = contentRange;
         this.languageId = languageId;
+    }
+
+    public int getContentStartOffset() {
+        return contentRange.getStartOffset();
+    }
+
+    public int getContentEndOffset() {
+        return contentRange.getEndOffset();
     }
 
     @Nullable
@@ -44,12 +60,10 @@ public class ChatMessageSection {
         return resolveLanguage(languageId);
     }
 
-    public void append(String content) {
-        this.content = this.content + "\n" + content;
-    }
-
     public List<ChatMessageSection> asList() {
-        return List.of(this);
+        List<ChatMessageSection> sections = new ArrayList<>();
+        sections.add(this);
+        return sections;
     }
 
     @Override

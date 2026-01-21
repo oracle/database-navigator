@@ -28,7 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class VirtualFileDelegate extends VirtualFile{
-    private final WeakRef<VirtualFile> inner;
+    private final transient WeakRef<VirtualFile> inner;
     private final FileType fileType;
 
     public VirtualFileDelegate(VirtualFile virtualFile, FileType fileType) {

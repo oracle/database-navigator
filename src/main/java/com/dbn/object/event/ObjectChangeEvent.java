@@ -24,11 +24,13 @@ import com.dbn.connection.SchemaId;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import static com.dbn.common.util.Unsafe.cast;
 
@@ -104,6 +106,22 @@ public class ObjectChangeEvent {
 
         Project project = connection.getProject();
         ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(this));
+    }
+
+    public static void subscribe(
+            Project project,
+            Disposable parentDisposable,
+            Supplier<ConnectionId> connectionId,
+            Supplier<SchemaId> ownerId,
+            Supplier<DBObjectType> objectType, Runnable runnable) {
+        if (project == null) return;
+
+        ProjectEvents.subscribe(project, parentDisposable, ObjectChangeListener.TOPIC, e -> {
+            if (!e.matches(connectionId.get())) return;
+            if (!e.matches(ownerId.get())) return;
+            if (!e.matches(objectType.get())) return;
+            runnable.run();
+        });
     }
 
     @Nullable

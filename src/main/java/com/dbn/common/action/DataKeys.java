@@ -16,11 +16,14 @@
 
 package com.dbn.common.action;
 
+import com.dbn.assistant.chat.message.ui.AssistantToolDataForm;
 import com.dbn.assistant.chat.message.ui.ChatMessageForm;
+import com.dbn.assistant.chat.message.ui.ChatMessageToolSectionForm;
 import com.dbn.assistant.chat.ui.ChatHistoryForm;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.service.selectai.credential.ui.CredentialManagementForm;
 import com.dbn.assistant.service.selectai.profile.ui.ProfileManagementForm;
+import com.dbn.assistant.tool.config.ui.AssistantToolApprovalItemForm;
 import com.dbn.batch.ui.BatchMonitorForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
@@ -44,6 +47,7 @@ import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.prerequisite.ui.PrerequisitesForm;
+import com.dbn.vector.result.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataKey;
 
@@ -56,6 +60,7 @@ public interface DataKeys {
     DataKey<StatementExecutionCursorResult> STATEMENT_EXECUTION_CURSOR_RESULT = DataKey.create("DBNavigator.StatementExecutionCursorResult");
     DataKey<MethodExecutionResult> METHOD_EXECUTION_RESULT = DataKey.create("DBNavigator.MethodExecutionResult");
     DataKey<JavaExecutionResult> JAVA_EXECUTION_RESULT = DataKey.create("DBNavigator.JavaExecutionResult");
+    DataKey<VectorEmbeddingExecutionResult> EMBEDDING_EXECUTION_RESULT = DataKey.create("DBNavigator.VectorEmbeddingExecutionResult");
     DataKey<MethodExecutionCursorResultForm> METHOD_EXECUTION_CURSOR_RESULT_FORM = DataKey.create("DBNavigator.MethodExecutionCursorResult");
     DataKey<JavaExecutionCursorResultForm> JAVA_EXECUTION_CURSOR_RESULT_FORM = DataKey.create("DBNavigator.JavaExecutionCursorResult");
     DataKey<DBArgument> METHOD_EXECUTION_ARGUMENT = DataKey.create("DBNavigator.MethodExecutionArgument");
@@ -65,6 +70,9 @@ public interface DataKeys {
     DataKey<ParserDiagnosticsForm> PARSER_DIAGNOSTICS_FORM = DataKey.create("DBNavigator.ParserDiagnosticsForm");
     DataKey<ChatBoxForm> ASSISTANT_CHAT_BOX = DataKey.create("DBNavigator.AssistantChatBox");
     DataKey<ChatHistoryForm> CHAT_HISTORY_FORM = DataKey.create("DBNavigator.ChatHistoryForm");
+    DataKey<ChatMessageToolSectionForm> CHAT_MESSAGE_TOOL_SECTION_FORM = DataKey.create("DBNavigator.ChatMessageToolSectionForm");
+    DataKey<AssistantToolApprovalItemForm> ASSISTANT_TOOL_APPROVAL_FORM = DataKey.create("DBNavigator.AssistantToolApprovalItemForm");
+    DataKey<AssistantToolDataForm> ASSISTANT_TOOL_DATA_FORM = DataKey.create("DBNavigator.AssistantToolDataForm");
     DataKey<CredentialManagementForm> CREDENTIAL_MANAGEMENT_FORM = DataKey.create("DBNavigator.CredentialManagementForm");
     DataKey<ProfileManagementForm> PROFILE_MANAGEMENT_FORM = DataKey.create("DBNavigator.ProfileManagementForm");
     DataKey<BatchMonitorForm> BATCH_MONITOR_FORM = DataKey.create("DBNavigator.BatchMonitorForm");

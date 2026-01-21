@@ -21,7 +21,6 @@ import com.dbn.common.ui.table.DBNEditableTableModel;
 import com.dbn.common.util.Commons;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.val;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +46,7 @@ public class PropertiesTableModel extends DBNEditableTableModel {
     }
 
     public void loadProperties(Map<String, String> propertiesMap) {
-        for (val entry : propertiesMap.entrySet()) {
+        for (var entry : propertiesMap.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
 

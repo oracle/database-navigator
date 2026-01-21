@@ -38,6 +38,7 @@ public class ProjectStartupActivity implements StartupActivity/*, ProjectActivit
         assesPluginConflict(project);
         removeRunConfigurations(project);
         reopenDatabaseEditors(project);
+        initializeDatabaseAssistant(project);
     }
 
     private static void evaluatePluginStatus(Project project) {
@@ -58,6 +59,11 @@ public class ProjectStartupActivity implements StartupActivity/*, ProjectActivit
     private static void reopenDatabaseEditors(Project project) {
         DatabaseFileManager fileManager = DatabaseFileManager.getInstance(project);
         fileManager.reopenDatabaseEditors();
+    }
+
+    private static void initializeDatabaseAssistant(Project project) {
+        DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
+        assistantManager.initializeAssistant();
     }
 
 /*

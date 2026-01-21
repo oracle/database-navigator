@@ -190,9 +190,10 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 			Resources.commitSilently(conn);
 		}
 
-		Resources.close(conn);
+		if (conn.isDebugConnection()) {
+			Resources.close(conn);
 
-		if (conn.isPoolConnection()) {
+		} else if (conn.isPoolConnection()) {
 			connection.freePoolConnection(conn);
 		}
 	}

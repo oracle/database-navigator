@@ -153,8 +153,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
     private void loadContent(boolean initial) {
         String text = "";
         Object userValue = userValueHolder.getUserValue();
-        if (userValue instanceof LargeObjectValue) {
-            LargeObjectValue largeObjectValue = (LargeObjectValue) userValue;
+        if (userValue instanceof LargeObjectValue largeObjectValue) {
             try {
                 text = initial ?
                         largeObjectValue.read(INITIAL_MAX_SIZE) :
@@ -175,8 +174,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
                 contentInfoText = "Could not load " + largeObjectValue.getDisplayValue() + " content. Cause: " + e.getMessage();
                 loadContentCaption = "Reload content";
             }
-        } else if (userValue instanceof VectorValue) {
-            VectorValue vectorValue = (VectorValue) userValue;
+        } else if (userValue instanceof VectorValue vectorValue) {
             List<String> stringValues = vectorValue.getStringValues();
             text = stringValues == null ? "" : stringValues
                     .stream()
@@ -291,8 +289,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
     @Override
     public void disposeInner() {
         Object userValue = userValueHolder.getUserValue();
-        if (userValue instanceof LargeObjectValue) {
-            LargeObjectValue largeObjectValue = (LargeObjectValue) userValue;
+        if (userValue instanceof LargeObjectValue largeObjectValue) {
             largeObjectValue.release();
         }
         popup = replace(popup, null);

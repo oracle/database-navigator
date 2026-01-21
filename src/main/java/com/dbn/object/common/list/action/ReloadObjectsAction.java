@@ -47,7 +47,7 @@ public class ReloadObjectsAction extends ProjectAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        String listName = objectList.getCapitalizedName();
+        String listName = objectList.getTitleCasedName();
 
         String title =  objectList.isLoaded() ?
                 txt("msg.objects.title.ReloadingObjects", listName) :

@@ -25,7 +25,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 
 @Getter
 public class DriverLibrary {
@@ -43,7 +42,7 @@ public class DriverLibrary {
                     .map(n -> n.replaceAll("/", "."))
                     .map(n -> n.substring(0, n.length() - 6))
                     .map(n -> n.intern())
-                    .collect(Collectors.toList());
+                    .toList();
 
             this.classNames.addAll(classNames);
         }

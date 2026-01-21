@@ -30,7 +30,6 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.JBUI;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JCheckBox;
@@ -117,7 +116,7 @@ public class CodeStyleFormattingSettingsForm extends ConfigurationEditorForm<Cod
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
-        for (val mapping : mappings) {
+        for (var mapping : mappings) {
             CodeStyleFormattingOption option = mapping.first();
             JComboBox<CodeStylePreset> comboBox = mapping.second();
             option.setPreset(getSelection(comboBox));
@@ -128,7 +127,7 @@ public class CodeStyleFormattingSettingsForm extends ConfigurationEditorForm<Cod
 
     @Override
     public void resetFormChanges() {
-        for (val mapping : mappings) {
+        for (var mapping : mappings) {
             CodeStyleFormattingOption option = mapping.first();
             JComboBox<CodeStylePreset> comboBox = mapping.second();
             setSelection(comboBox, option.getPreset());

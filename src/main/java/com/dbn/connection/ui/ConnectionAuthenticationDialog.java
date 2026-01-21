@@ -42,7 +42,6 @@ public class ConnectionAuthenticationDialog extends DBNDialog<ConnectionAuthenti
         setResizable(true);
         this.connection = ConnectionRef.of(connection);
         Action okAction = getOKAction();
-        renameAction(okAction, "Connect");
         okAction.setEnabled(false);
         if (connection != null) {
             setDoNotAskOption(new RememberOption() {
@@ -100,11 +99,11 @@ public class ConnectionAuthenticationDialog extends DBNDialog<ConnectionAuthenti
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Connect");
+        return actions(
                 getOKAction(),
-                getCancelAction(),
-        };
+                getCancelAction());
     }
     
     @Override

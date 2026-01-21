@@ -44,8 +44,7 @@ public class CodeCompletionFilterTreeNode extends CheckedTreeNode {
     public void applyChanges() {
         Object userObject = getUserObject();
         
-        if (userObject instanceof CodeCompletionFilterOption) {
-            CodeCompletionFilterOption option = (CodeCompletionFilterOption) userObject;
+        if (userObject instanceof CodeCompletionFilterOption option) {
             option.setSelected(isChecked());
         } else {
             for (int i = 0; i < getChildCount(); i++) {
@@ -58,8 +57,7 @@ public class CodeCompletionFilterTreeNode extends CheckedTreeNode {
     public void resetChanges() {
         Object userObject = getUserObject();
 
-        if (userObject instanceof CodeCompletionFilterOption) {
-            CodeCompletionFilterOption option = (CodeCompletionFilterOption) userObject;
+        if (userObject instanceof CodeCompletionFilterOption option) {
             setCheckedSilently(option.isSelected());
         } else {
             for (int i = 0; i < getChildCount(); i++) {
@@ -75,11 +73,9 @@ public class CodeCompletionFilterTreeNode extends CheckedTreeNode {
         setCheckedPropagateUp(checked);
         Object userObject = getUserObject();
 
-        if (userObject instanceof CodeCompletionFilterOption) {
-            CodeCompletionFilterOption option = (CodeCompletionFilterOption) userObject;
+        if (userObject instanceof CodeCompletionFilterOption option) {
             option.getFilterSettings().setModified(true);
-        } else if (userObject instanceof CodeCompletionFilterOptionBundle) {
-            CodeCompletionFilterOptionBundle optionBundle = (CodeCompletionFilterOptionBundle) userObject;
+        } else if (userObject instanceof CodeCompletionFilterOptionBundle optionBundle) {
             optionBundle.getFilterSettings().setModified(true);
         }
     }
@@ -129,16 +125,13 @@ public class CodeCompletionFilterTreeNode extends CheckedTreeNode {
 
     @Override
     public String toString() {
-        if (userObject instanceof CodeCompletionFilterOptionBundle) {
-            CodeCompletionFilterOptionBundle optionBundle = (CodeCompletionFilterOptionBundle) userObject;
+        if (userObject instanceof CodeCompletionFilterOptionBundle optionBundle) {
             return optionBundle.getName();
         }
-        else if(userObject instanceof CodeCompletionFilterOption) {
-            CodeCompletionFilterOption option = (CodeCompletionFilterOption) userObject;
+        else if(userObject instanceof CodeCompletionFilterOption option) {
             return option.getName();
         }
-        else if (userObject instanceof CodeCompletionFilterSettings){
-            CodeCompletionFilterSettings codeCompletionFilterSettings = (CodeCompletionFilterSettings) userObject;
+        else if (userObject instanceof CodeCompletionFilterSettings codeCompletionFilterSettings){
             return codeCompletionFilterSettings.getDisplayName();
         }
         return super.toString();
