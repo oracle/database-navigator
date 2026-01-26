@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package com.dbn.object;
+package com.dbn.execution.java.wrapper;
 
-import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.common.property.Property;
 
-public interface DBJavaParameter extends DBOrderedObject {
-    boolean isArray();
+public enum WrapperProperty implements Property.IntBase {
+    TEMPORARY, // the wrappers are temporarily created for method execution and discarded afterward
+    DEBUG_MODE, // the wrapper elements need to be compiled in debug mode
+    ;
 
-    boolean isClass();
+    public static final WrapperProperty[] VALUES = values();
 
-    boolean isPrimitive();
+    private final IntMasks masks = new IntMasks(this);
 
-    boolean isScalar();
+    @Override
+    public IntMasks masks() {
+        return masks;
+    }
 
-    short getArrayDepth();
-
-    DBJavaClass getJavaClass();
-
-    DBObjectRef<DBJavaClass> getJavaClassRef();
-
-    String getJavaClassName();
 }

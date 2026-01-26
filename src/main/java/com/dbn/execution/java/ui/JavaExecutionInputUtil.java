@@ -3,8 +3,8 @@ package com.dbn.execution.java.ui;
 import com.dbn.common.data.Data;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.UserValueHolderImpl;
-import com.dbn.execution.java.wrapper.ClassComplianceAndUI;
-import com.dbn.execution.java.wrapper.ClassComplianceAndUICalculator;
+import com.dbn.execution.java.wrapper.support.WrapperSupportData;
+import com.dbn.execution.java.wrapper.support.WrapperSupportInfo;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaParameter;
@@ -20,6 +20,10 @@ import javax.swing.JTextField;
 import java.util.List;
 
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.execution.java.ui.JavaExecutionInputUtil.UiSuitability.UI_NOT_PREFERRED;
+import static com.dbn.execution.java.ui.JavaExecutionInputUtil.UiSuitability.UI_NOT_SUPPORTED;
+import static com.dbn.execution.java.ui.JavaExecutionInputUtil.UiSuitability.UI_PREFERRED;
+import static com.dbn.execution.java.wrapper.support.WrapperSupportEvaluator.evaluateArgumentSupport;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 @UtilityClass
@@ -32,19 +36,15 @@ public class JavaExecutionInputUtil {
     }
     private final static int PREFERRED_MAXIMUM_DEPTH = 6;
 
-    public static UiSuitability classifyForUi(DBJavaParameter parameter, ClassComplianceAndUI.CachedData cachedData) {
-        ClassComplianceAndUI.ComplianceData argumentComplianceData
-                = ClassComplianceAndUICalculator.getInstance().getArgumentComplianceData(parameter, cachedData);
-        if(!argumentComplianceData.isSupported())
-            return UiSuitability.UI_NOT_SUPPORTED;
-        int nestedFieldCount = argumentComplianceData.getDisplayRowCount();
-        if(nestedFieldCount == -1) {
-            return UiSuitability.UI_NOT_SUPPORTED;
-        }
-        else if(nestedFieldCount > PREFERRED_MAXIMUM_DEPTH) {
-            return UiSuitability.UI_NOT_PREFERRED;
-        }
-        return UiSuitability.UI_PREFERRED;
+    public static UiSuitability classifyForUi(DBJavaParameter parameter, WrapperSupportData supportData) {
+        WrapperSupportInfo supportInfo = evaluateArgumentSupport(parameter, supportData);
+        if (!supportInfo.isSupported()) return UI_NOT_SUPPORTED;
+
+        int nestingLevel = supportInfo.getNestingLevel();
+        if (nestingLevel == -1) return UI_NOT_SUPPORTED;
+        if (nestingLevel > PREFERRED_MAXIMUM_DEPTH) return UI_NOT_PREFERRED;
+
+        return UI_PREFERRED;
     }
 
     public static void setupSingleDimArrayEditor(TextFieldWithPopup<?> inputField, DBJavaField javaField) {

@@ -72,6 +72,7 @@ public class CodeBlock {
 
     public static CodeBlock deserialize(String serialized) {
         if (!isCodeBlock(serialized)) return null;
+
         try {
             int langStart = CODE_BLOCK_PREFIX.length();
             int bracketIndex = serialized.indexOf('[', langStart);

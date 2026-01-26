@@ -70,7 +70,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		return DBObjectRef.ensure(method);
 	}
 
-	public List<DBJavaParameter> getArguments() {
+	public List<DBJavaParameter> getParameters() {
 		DBJavaMethod method = getMethod();
 		List<DBJavaParameter> parameters = method.getParameters();
 		parameters = sortedCopy(parameters, POSITION_COMPARATOR);
@@ -84,12 +84,12 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	protected  int getArgumentsCount(JavaExecutionContext context) {
 		int excludedParamCount  = 0;
 		if(context != null) {
-			if(context.getWrapperModel().getInput().getJavaInjectedParameters() != null) {
+			if(context.getWrapperModel().getInput().getCodeInputs() != null) {
 				excludedParamCount = context.getWrapperModel().getInput()
-													.getJavaInjectedParameters().size();
+													.getCodeInputs().size();
 			}
 		}
-		return getArguments().size() - excludedParamCount;
+		return getParameters().size() - excludedParamCount;
 	}
 
 	protected String getReturnArgument() {
@@ -302,16 +302,12 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		return getMethod().getConnection();
 	}
 
-	protected boolean isQuery() {
-		return isQuery(null);
-	}
-
 	protected boolean isQuery(JavaExecutionContext context) {
 		return getArgumentsCount(context) > 0 || isReturnType();
 	}
 
 	private boolean isReturnType(){
-		return !getMethod().getSignature().split(":")[1].trim().equals("void");
+		return !getMethod().isReturningVoid();
 	}
 
 	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement preparedStatement, WrapperModel wrapperModel) {

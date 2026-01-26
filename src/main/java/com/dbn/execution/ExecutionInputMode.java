@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,29 @@
  * limitations under the License.
  */
 
-package com.dbn.object;
+package com.dbn.execution;
 
-import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.common.ui.Presentable;
+import org.jetbrains.annotations.NotNull;
 
-public interface DBJavaParameter extends DBOrderedObject {
-    boolean isArray();
+public enum ExecutionInputMode implements Presentable {
+    CODE("Code"),
+    FIELDS("Fields");
 
-    boolean isClass();
+    private final String label;
 
-    boolean isPrimitive();
+    ExecutionInputMode(String label) {
+        this.label = label;
+    }
 
-    boolean isScalar();
+    @Override
+    public String toString() {
+        return label;
+    }
 
-    short getArrayDepth();
-
-    DBJavaClass getJavaClass();
-
-    DBObjectRef<DBJavaClass> getJavaClassRef();
-
-    String getJavaClassName();
+    @NotNull
+    @Override
+    public String getName() {
+        return label;
+    }
 }

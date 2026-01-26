@@ -14,29 +14,26 @@
  * limitations under the License.
  */
 
-package com.dbn.execution.java.wrapper;
+package com.dbn.execution.java.wrapper.support;
 
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.lookup.DBJavaNameCache;
+import com.dbn.object.lookup.DBObjectRef;
+import lombok.Getter;
 
-import java.util.HashMap;
-import java.util.Map;
+@Getter
+public class WrapperSupportEntity {
+    private final DBObjectRef<DBJavaClass> javaClass;
+    private final short arrayDepth;
+    private final boolean input;
 
-import lombok.Data;
-import lombok.experimental.UtilityClass;
-
-@UtilityClass
-public class ClassComplianceAndUI {
-    @Data
-    public static class CachedData{
-        private Map<DBJavaClass, ComplianceData> argumentData = new HashMap<>();
-        private Map<DBJavaClass, ComplianceData> returnData = new HashMap<>();
+    public WrapperSupportEntity(DBObjectRef<DBJavaClass> javaClass, short arrayDepth, boolean input) {
+        this.javaClass = javaClass;
+        this.arrayDepth = arrayDepth;
+        this.input = input;
     }
 
-    @Data
-    public static class ComplianceData {
-        private boolean isSupported;
-        private int displayRowCount;
-        private String unsupportedReason;
+    public String getJavaClassName() {
+        return DBJavaNameCache.getCanonicalName(javaClass);
     }
-
 }

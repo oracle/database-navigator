@@ -55,9 +55,8 @@ public class WrapperModel implements DatabaseContextBase {
 
 	private List<MethodWrapper> methods = new ArrayList<>();
     private List<ClassWrapper> classes = new ArrayList<>();
+    private List<String> errors = new ArrayList<>();
     private String signature;
-    private boolean isFullyCompatible = true;
-    private List<String> compatibilityIssues = new ArrayList<>();
 
     public WrapperModel(WrapperContext context) {
         this.context = context;
@@ -202,5 +201,13 @@ public class WrapperModel implements DatabaseContextBase {
 
     private boolean exceedsMaxIdentifierLength(String identifier) {
         return identifier != null && identifier.length() > getMaxIdentifierLength();
+    }
+
+    public void addError(String message) {
+        errors.add(message);
+    }
+
+    public boolean hasErrors() {
+        return !errors.isEmpty();
     }
 }

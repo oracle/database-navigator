@@ -200,6 +200,12 @@ public abstract class DBNFormBase
         }
     }
 
+    public void revalidateForm() {
+        JComponent mainComponent = getMainComponent();
+        mainComponent.revalidate();
+        mainComponent.repaint();
+    }
+
     private void initFormAccessibility() {
         JComponent mainComponent = getMainComponent();
         initAccessibility();

@@ -23,6 +23,7 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.debugger.DBDebuggerType;
+import com.dbn.execution.ExecutionInputMode;
 import com.dbn.execution.ExecutionOption;
 import com.dbn.execution.ExecutionOptions;
 import com.dbn.execution.ExecutionTarget;
@@ -32,8 +33,7 @@ import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.execution.common.input.ExecutionVariable;
 import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.execution.java.result.JavaExecutionResult;
-import com.dbn.execution.java.wrapper.ClassComplianceAndUI;
-import com.dbn.execution.java.wrapper.ClassComplianceAndUICalculator;
+import com.dbn.execution.java.wrapper.support.WrapperSupportData;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
@@ -53,10 +53,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.execution.common.input.CodeBlock.deserialize;
 import static com.dbn.execution.common.input.CodeBlock.isCodeBlock;
+import static com.dbn.execution.java.wrapper.support.WrapperSupportEvaluator.evaluateWrapperSupport;
 import static com.dbn.object.common.status.DBObjectStatus.INITIALIZING;
 
 @Getter
@@ -65,9 +67,11 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
     private DBObjectRef<DBJavaMethod> method;
 
     private transient JavaExecutionResult executionResult;
-    private final Map<String, ExecutionValue<String>> inputValues = new LinkedHashMap<>();
-    private Map<String, ExecutionVariable> executionVariables = new LinkedHashMap<>();
-    private ClassComplianceAndUI.CachedData wrapperComplianceCache;
+    private Map<String, ExecutionVariable> inputValueHistory = new LinkedHashMap<>();
+    private Map<String, ExecutionValue<String>> inputValues = new LinkedHashMap<>();
+
+    private Map<String, ExecutionInputMode> inputModes = new LinkedHashMap<>();
+    private WrapperSupportData wrapperSupportData;
 
     public JavaExecutionInput(Project project) {
         super(project, ExecutionTarget.JAVA);
@@ -122,7 +126,7 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
 
     private void buildWrapperComplianceCache() {
         DBJavaMethod method = getMethod();
-        wrapperComplianceCache = ClassComplianceAndUICalculator.getInstance().buildCachedData(method);
+        wrapperSupportData = evaluateWrapperSupport(method);
     }
 
     private void initClass(DBJavaClass javaClass) {
@@ -202,20 +206,19 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         return connection != null && !connection.getSettings().isActive();
     }
 
-    @Nullable
     public String getInputValue(String path) {
-        ExecutionValue<String> fieldValue = inputValues.get(path);
-        return fieldValue == null ? null : fieldValue.getValueHolder().getValue() ;
+        ExecutionValue<String> fieldValue = getExecutionValue(path);
+        return fieldValue.getValue();
     }
 
-    public String ensureInputValue(String path) {
-        ExecutionValue<String> fieldValue = prepareInputValue(path);
-        return fieldValue.getValueHolder().getValue();
+    public String getInputValue(String path, ExecutionInputMode mode) {
+        ExecutionVariable executionVariable = getExecutionVariable(path);
+        return executionVariable.getValue(mode);
     }
 
     public void setInputValue(String path, String value) {
-        ExecutionValue<String> fieldValue = prepareInputValue(path);
-        fieldValue.getValueHolder().setValue(value);
+        ExecutionValue<String> fieldValue = getExecutionValue(path);
+        fieldValue.setValue(value);
     }
 
     public void removeInput(String path) {
@@ -240,13 +243,13 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
 
     public void setInputValue(DBJavaParameter parameter, String value) {
         String path = parameter.getName();
-        ExecutionValue<String> fieldValue = prepareInputValue(path);
+        ExecutionValue<String> fieldValue = getExecutionValue(path);
         fieldValue.getValueHolder().setValue(value);
         fieldValue.setArrayObject(parameter.isArray());
     }
 
     public List<String> getInputValueHistory(String path) {
-        ExecutionValue<String> fieldValue = prepareInputValue(path) ;
+        ExecutionValue<String> fieldValue = getExecutionValue(path) ;
 
         ValueHolder<?> valueStore = fieldValue.getValueHolder();
         if (valueStore instanceof ExecutionVariable executionVariable) {
@@ -256,13 +259,13 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
     }
 
     @NotNull
-    private ExecutionValue<String> prepareInputValue(String path) {
+    public ExecutionValue<String> getExecutionValue(String path) {
         return inputValues.computeIfAbsent(path, p -> new ExecutionValue<>(path, getExecutionVariable(path)));
     }
 
     @NotNull
-    private ExecutionVariable getExecutionVariable(String path) {
-        return executionVariables.computeIfAbsent(path, p -> new ExecutionVariable(p) );
+    public ExecutionVariable getExecutionVariable(String path) {
+        return inputValueHistory.computeIfAbsent(path, p -> new ExecutionVariable(p) );
     }
 
     /*********************************************************
@@ -273,12 +276,12 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         super.readConfiguration(element);
         method.readState(element);
         setTargetSchemaId(SchemaId.get(stringAttribute(element, "execution-schema")));
+
         Element variablesElement = element.getChild("execution-variables");
-        if (variablesElement != null) {
-            for (Element variableElement : variablesElement.getChildren()) {
-                ExecutionVariable executionVariable = new ExecutionVariable(variableElement);
-                executionVariables.put(executionVariable.getPath(), executionVariable);
-            }
+        for (Element variableElement : childrenOf(variablesElement)) {
+            ExecutionVariable executionVariable = new ExecutionVariable();
+            executionVariable.readState(variableElement);
+            inputValueHistory.put(executionVariable.getPath(), executionVariable);
         }
     }
 
@@ -289,7 +292,7 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         element.setAttribute("execution-schema", getTargetSchemaId() == null ? "" : getTargetSchemaId().id());
 
         Element variablesElement = newElement(element, "execution-variables");
-        for (ExecutionVariable executionVariable : executionVariables.values()) {
+        for (ExecutionVariable executionVariable : inputValueHistory.values()) {
             Element variableElement = newElement(variablesElement, "variable");
             executionVariable.writeState(variableElement);
         }
@@ -314,9 +317,9 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         clone.method = method;
         clone.setTargetSchemaId(getTargetSchemaId());
         clone.setOptions(ExecutionOptions.clone(getOptions()));
-        clone.executionVariables = new HashMap<>();
-        for (ExecutionVariable executionVariable : executionVariables.values()) {
-            clone.executionVariables.put(
+        clone.inputValueHistory = new LinkedHashMap<>();
+        for (ExecutionVariable executionVariable : inputValueHistory.values()) {
+            clone.inputValueHistory.put(
                     executionVariable.getPath(),
                     executionVariable.clone());
         }

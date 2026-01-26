@@ -23,12 +23,13 @@ import com.dbn.execution.java.wrapper.model.FieldWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
 import com.dbn.execution.java.wrapper.model.ParameterWrapper;
 import com.dbn.execution.java.wrapper.naming.WrapperNamingProvider;
+import com.dbn.execution.java.wrapper.support.WrapperSupportData;
+import com.dbn.execution.java.wrapper.support.WrapperSupportInfo;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +43,8 @@ import static com.dbn.execution.java.wrapper.TypeMappings.isUnsupportedType;
 import static com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection.IN;
 import static com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection.IN_OUT;
 import static com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection.OUT;
+import static com.dbn.execution.java.wrapper.support.WrapperSupportEvaluator.evaluateArgumentSupport;
+import static com.dbn.execution.java.wrapper.support.WrapperSupportEvaluator.evaluateReturnArgumentSupport;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static com.dbn.object.type.DBJavaScalarType.isScalar;
@@ -137,13 +140,12 @@ public final class WrapperModelBuilder {
 			String javaInjectedCode = getJavaInjectedCode(context, parameter);
 
 			//remove this
-			if(context.getInput().isUseFriendlyNames()) {
-				ClassComplianceAndUI.ComplianceData argumentCompliance
-						= ClassComplianceAndUICalculator.getInstance().getArgumentComplianceData(parameter,
-						getComplianceCachedData(context));
-				if (!argumentCompliance.isSupported()) {
-					context.getModel().setFullyCompatible(false);
-					context.getModel().getCompatibilityIssues().add(argumentCompliance.getUnsupportedReason());
+			if(context.getInput().isTemporary()) {
+				WrapperSupportData supportData = context.getInput().getSupportData();
+				WrapperSupportInfo supportInfo = evaluateArgumentSupport(parameter, supportData);
+				if (!supportInfo.isSupported()) {
+					WrapperModel model = context.getModel();
+					model.addError(supportInfo.getUnsupportedReason());
 					isJavaInjected = true;
 				}
 			}
@@ -161,13 +163,17 @@ public final class WrapperModelBuilder {
 	}
 
 	private String getJavaInjectedCode(WrapperContext context, DBJavaParameter parameter) {
-		if(context.getInput().isUseFriendlyNames()){return null;}
-		return context.getInput().getJavaInjectedParameters().get(parameter.getName());
+		WrapperModelInput input = context.getInput();
+		if (!input.isTemporary()) return null;
+		return input.getCodeInputs().get(parameter.getName());
 	}
 
 	private boolean isJavaInjected(WrapperContext context, DBJavaParameter parameter) {
-		if(context.getInput().isUseFriendlyNames()){return false;}
-		if(context.getInput().getJavaInjectedParameters().containsKey(parameter.getName())){ return true;}
+		WrapperModelInput input = context.getInput();
+		if (!input.isTemporary()) return false;
+		if (input.getCodeInputs().containsKey(parameter.getName())) {
+			return true;
+		}
 		return false;
 	}
 
@@ -180,18 +186,14 @@ public final class WrapperModelBuilder {
 
 		var javaClass = javaMethod.getReturnClassRef();
 		short arrayDepth = javaMethod.getReturnArrayDepth();
-		DBJavaClass returnClass = Objects.requireNonNull(javaClass.get());
 
-		ClassComplianceAndUI.ComplianceData returnComplianceData =
-				ClassComplianceAndUICalculator.getInstance().getReturnComplianceData(returnClass, arrayDepth,
-						getComplianceCachedData(context) );
+		WrapperSupportData supportData = context.getInput().getSupportData();
+		WrapperSupportInfo supportInfo = evaluateReturnArgumentSupport(javaClass, arrayDepth, supportData);
 
-		boolean isIncompatible = !returnComplianceData.isSupported();
+		boolean isIncompatible = !supportInfo.isSupported();
 		if(isIncompatible) {
-			context.getModel().setFullyCompatible(false);
 			context.getModel().
-					getCompatibilityIssues().
-					add(returnComplianceData.getUnsupportedReason());
+					addError(supportInfo.getUnsupportedReason());
 		}
 
 		ParameterWrapper parameterWrapper = createParameterWrapper(
@@ -204,10 +206,6 @@ public final class WrapperModelBuilder {
 
 		methodWrapper.setReturnParameter(parameterWrapper);
     }
-
-	private ClassComplianceAndUI.CachedData getComplianceCachedData(WrapperContext context) {
-		return context.getInput().getWrapperComplianceCachedData();
-	}
 
 	/**
 	 * Creates a {@link ParameterWrapper} for the given DB elements, either

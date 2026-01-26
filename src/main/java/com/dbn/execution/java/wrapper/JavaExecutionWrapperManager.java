@@ -23,6 +23,7 @@ import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
+import com.dbn.execution.java.wrapper.support.WrapperSupportData;
 import com.dbn.execution.java.wrapper.ui.WrapperNamesEditorDialog;
 import com.dbn.execution.java.wrapper.ui.WrapperResultDialog;
 import com.dbn.object.DBJavaClass;
@@ -32,7 +33,6 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import java.util.HashMap;
 import lombok.Getter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +42,7 @@ import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.execution.java.wrapper.support.WrapperSupportEvaluator.evaluateWrapperSupport;
 import static com.dbn.nls.NlsResources.txt;
 
 @State(
@@ -60,17 +61,17 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
 		return projectService(project, JavaExecutionWrapperManager.class);
 	}
 
-    public void createExecutionWrappers(DBJavaMethod javaMethod, boolean useFriendlyNames, boolean compileInDebugMode) {
-        ClassComplianceAndUI.CachedData wrapperCompilanceCachedData
-                = ClassComplianceAndUICalculator.getInstance().buildCachedData(javaMethod);
-        WrapperModelInput modelInput = new WrapperModelInput(javaMethod, new HashMap<>(), wrapperCompilanceCachedData, useFriendlyNames, compileInDebugMode);
+    public void createExecutionWrappers(DBJavaMethod javaMethod) {
+        WrapperSupportData supportData = evaluateWrapperSupport(javaMethod);
+        WrapperModelInput modelInput = new WrapperModelInput(javaMethod);
+        modelInput.setSupportData(supportData);
         createExecutionWrappers(modelInput);
     }
 
-    public void createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> javaMethods, boolean useFriendlyNames, boolean compileInDebugMode) {
-        ClassComplianceAndUI.CachedData wrapperCompilanceCachedData
-                = ClassComplianceAndUICalculator.getInstance().buildCachedData(javaMethods);
-        WrapperModelInput modelInput = new WrapperModelInput(javaClass, javaMethods, wrapperCompilanceCachedData, useFriendlyNames, compileInDebugMode);
+    public void createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> javaMethods) {
+        WrapperSupportData supportData = evaluateWrapperSupport(javaMethods);
+        WrapperModelInput modelInput = new WrapperModelInput(javaClass, javaMethods);
+        modelInput.setSupportData(supportData);
         createExecutionWrappers(modelInput);
     }
 
@@ -85,10 +86,10 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
                     progress.setText2("Building execution wrapper model");
                     WrapperModelBuilder builder = WrapperModelBuilder.getInstance();
                     WrapperModel model = builder.buildModel(modelInput);
-                    if(model.isFullyCompatible()) {
+                    if(!model.hasErrors()) {
                         verifyAndCreateExecutionWrappers(model);
                     } else {
-                        Messages.showErrorDialog(getProject(), "Wrapper Creation Error", String.join("\n", model.getCompatibilityIssues()));
+                        Messages.showErrorDialog(getProject(), "Wrapper Creation Error", String.join("\n", model.getErrors()));
                     }
                 });
     }
@@ -116,7 +117,7 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
         ProgressMonitor.setProgressDetail("Creating execution wrapper objects");
         try {
             WrapperStatementExecutor.createExecutionWrappers(model);
-            if (model.getInput().isUseFriendlyNames()) {
+            if (!model.getInput().isTemporary()) {
                 showWrapperResult(model);
             }
         } catch (Throwable e) {

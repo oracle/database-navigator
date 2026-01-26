@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.object;
+package com.dbn.execution.java.wrapper.support;
 
-import com.dbn.object.lookup.DBObjectRef;
+import lombok.Data;
 
-public interface DBJavaParameter extends DBOrderedObject {
-    boolean isArray();
-
-    boolean isClass();
-
-    boolean isPrimitive();
-
-    boolean isScalar();
-
-    short getArrayDepth();
-
-    DBJavaClass getJavaClass();
-
-    DBObjectRef<DBJavaClass> getJavaClassRef();
-
-    String getJavaClassName();
+@Data
+public class WrapperSupportInfo {
+    private boolean supported;
+    private int nestingLevel;
+    private String unsupportedReason;
 }
