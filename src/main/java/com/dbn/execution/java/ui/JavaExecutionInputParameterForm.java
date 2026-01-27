@@ -23,6 +23,7 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.TextFields;
+import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Commons;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
@@ -44,6 +45,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.DocumentListener;
@@ -228,7 +230,16 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
 		inputFieldsPanel.setVisible(inputMode == ExecutionInputMode.FIELDS);
 		inputCodePanel.setVisible(inputMode == ExecutionInputMode.CODE);
 
-		revalidateForm();
+		recalibrateInputForm();
+	}
+
+	private void recalibrateInputForm() {
+		JScrollPane scrollPane = UserInterface.getParentOfType(mainPanel, JScrollPane.class);
+		if (scrollPane != null) {
+			Dimension preferredSize = scrollPane.getViewport().getPreferredSize();
+			scrollPane.setPreferredSize(preferredSize);
+			getParentForm().revalidateForm();
+		}
 	}
 
 	private @Nullable ExecutionInputMode getInputMode() {
