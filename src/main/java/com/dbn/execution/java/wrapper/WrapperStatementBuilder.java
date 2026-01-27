@@ -41,8 +41,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.dbn.common.util.Java.isPrimitive;
-
 @Slf4j
 @NonNls
 public final class WrapperStatementBuilder {
@@ -294,190 +292,107 @@ public final class WrapperStatementBuilder {
     }
 
     public String buildSqlToJavaAssignmentLine(FieldWrapper fieldWrapper) {
-        WrapperModel model = fieldWrapper.getModel();
+        if (!fieldWrapper.isUpdatable()) return ""; // TODO will this ever happen?
 
-        @NonNls
-        StringBuilder line = new StringBuilder();
+        String fieldName = fieldWrapper.getName();
+        int fieldIndex = fieldWrapper.getIndex();
 
-        // Determine assignment operator and line terminator based on access modifier.
-        String assignmentOperatorStart = "." + fieldWrapper.getName() + "=";
-        String assignmentOperatorEnd = "";
-        String lineTerminator = ";";
-
-        if (!isPrimitive(fieldWrapper.getTypeClassName())) {
-            //check if value is not null before accessing it
-            line.append("if (objArray[")
-                    .append(fieldWrapper.getIndex())
-                    .append("] != null){");
-            lineTerminator = ";}";
-        }
-
-
-        if (!fieldWrapper.isAccessible()) {
-            if (fieldWrapper.getSetterName() == null)
-                line.append("//");
-            else {
-                assignmentOperatorStart = "." + fieldWrapper.getSetterName() + "(";
-                assignmentOperatorEnd = ")";
-            }
-
-        }
+        String valueExpression = "objArray[" + fieldIndex + "]";
 
         // Build conversion expression.
-        String conversionPrefix = "";
-        String conversionSuffix = "";
         if (fieldWrapper.isComplexType()) {
             // For complex types, wrap the SQL element with the proper converter.
+            WrapperModel model = fieldWrapper.getModel();
             ClassWrapper classWrapper = model.getFieldClassWrapper(fieldWrapper);
-            String converterMethod = classWrapper.getSqlToJavaConverterName();
+            String converterName = classWrapper.getSqlToJavaConverterName();
 
-            conversionPrefix = converterMethod + "(" +
-                    (fieldWrapper.isArray() ? "(java.sql.Array)" : "(java.sql.Struct)") + "(";
-            conversionSuffix = "))";
+            String castBlock = fieldWrapper.isArray() ? "(java.sql.Array)" : "(java.sql.Struct)";
+            valueExpression = converterName + "(" + castBlock + " " + valueExpression + ")";
         }
 
-        String typeCastStart = ((fieldWrapper.getTypeCastStart() != null) && (!fieldWrapper.isComplexType())) ?
-                fieldWrapper.getTypeCastStart() : "";
-        String typeCastEnd = ((fieldWrapper.getTypeCastEnd() != null) && (!fieldWrapper.isComplexType())) ?
-                fieldWrapper.getTypeCastEnd() : "";
+        // Type cast
+        String typeCastStart = fieldWrapper.getTypeCastStart();
+        String typeCastEnd = fieldWrapper.getTypeCastEnd();
+        typeCastStart = typeCastStart != null && !fieldWrapper.isComplexType() ? typeCastStart : "";
+        typeCastEnd = typeCastEnd != null && !fieldWrapper.isComplexType() ? typeCastEnd : "";
 
-        // Build the value expression.
-        String valueExpression = (typeCastStart)
-                + conversionPrefix
-                + "objArray[" + fieldWrapper.getIndex() + "]"
-                + conversionSuffix
-                + typeCastEnd;
+        valueExpression = typeCastStart + valueExpression + typeCastEnd;
 
-        // Complete the assignment line.
-        line.append("javaObj")
-                .append(assignmentOperatorStart)
-                .append(valueExpression)
-                .append(assignmentOperatorEnd)
-                .append(lineTerminator);
+        // Update block
+        boolean accessible = fieldWrapper.isAccessible();
+        String setterName = fieldWrapper.getSetterName();
+        String assignmentStart = accessible ?
+                "." + fieldName + " = " :
+                "." + setterName + "(";
+        String assignmentEnd = accessible ? "" : ")";
+        String assignmentExpr = assignmentStart + valueExpression + assignmentEnd;
 
-        return line.toString();
+        // Assignment line
+        return "if (objArray[" + fieldIndex + "] != null) { javaObj" + assignmentExpr + "; }";
     }
 
 
     public String buildJavaToSqlAssignmentLine(FieldWrapper fieldWrapper) {
-        WrapperModel model = fieldWrapper.getModel();
-        StringBuilder line = new StringBuilder();
+        if (!fieldWrapper.isReadable()) return ""; // TODO will this ever happen?
 
-        // Determine assignment operator and line terminator based on access modifier.
-        String assignmentOperator = "[" + fieldWrapper.getIndex() + "] = ";
-        String fieldAccessor = "." + fieldWrapper.getName();
+        String fieldName = fieldWrapper.getName();
+        int fieldIndex = fieldWrapper.getIndex();
 
-        if (!fieldWrapper.isAccessible()) {
-            if (fieldWrapper.getGetterName() == null)
-                line.append("//");
-            else
-                fieldAccessor = "." + fieldWrapper.getGetterName() + "()";
-        }
+        boolean accessible = fieldWrapper.isAccessible();
+        String getterName = fieldWrapper.getGetterName();
+        String fieldAccessor = accessible ?
+                "." + fieldName :
+                "." + getterName + "()";
 
-        String conversionStart = "";
-        String conversionEnd = "";
+        String valueExpression = "javaObj" + fieldAccessor;
 
         if (fieldWrapper.isArray() || fieldWrapper.isComplexType()) {
+            WrapperModel model = fieldWrapper.getModel();
             ClassWrapper classWrapper = model.getFieldClassWrapper(fieldWrapper);
             String converterName = classWrapper.getJavaToSqlConverterName();
-            conversionStart = converterName + "(";
-            conversionEnd = ")";
+
+            valueExpression = converterName + "(" +valueExpression + ")";
         }
 
-        // Build the value expression.
-        String valueExpression = conversionStart
-                + "javaObj"
-                + fieldAccessor
-                + conversionEnd;
-
-        // Complete the assignment line.
-        line.append("objArray")
-                .append(assignmentOperator)
-                .append(valueExpression)
-                .append(";");
-
-        return line.toString();
+        // Assignment line
+        return "objArray[" + fieldIndex + "] = " + valueExpression + ";";
     }
 
     public String buildSqlArrayToJavaAssignmentLine(ClassWrapper classWrapper) {
-
         @NonNls
-        StringBuilder line = new StringBuilder();
-
-        // Determine assignment operator and line terminator based on access modifier.
-        String lineTerminator = ";";
-
-        if (!isPrimitive(classWrapper.getClassName())) {
-            //check if value is not null before accessing it
-            line.append("if (objArray[i] != null) {");
-            lineTerminator = ";}";
-        }
-
-        // Begin the assignment statement.
-        line.append("javaObj[i] = ");
-
-        // Build conversion expression.
-        String conversionPrefix = "";
-        String conversionSuffix = "";
-
-        String getValueStart = "";
-        String getValueEnd = "";
+        String valueExpression = "objArray[i]";
 
         if (classWrapper.getArrayDepth() <= 1) {
             SqlType sqlType = TypeMappings.getSqlType(classWrapper.getClassName());
 
             if (sqlType != null) {
-                getValueStart = sqlType.getTransformerPrefix();
-                getValueEnd = sqlType.getTransformerSuffix();
+                String transformerPrefix = sqlType.getTransformerPrefix();
+                String transformerSuffix = sqlType.getTransformerSuffix();
+                valueExpression = transformerPrefix + valueExpression + transformerSuffix;
             } else {
-                conversionPrefix = classWrapper.getContainedClassWrapper().getSqlToJavaConverterName() + "((java.sql.Struct)(";
-                conversionSuffix = "))";
+                String converterName = classWrapper.getContainedClassWrapper().getSqlToJavaConverterName();
+                valueExpression = converterName + "((java.sql.Struct) " + valueExpression + ")";
             }
         } else {
             // Multi-dimensional
-            conversionPrefix = classWrapper.getContainedClassWrapper().getSqlToJavaConverterName() + "((java.sql.Array)(";
-            conversionSuffix = "))";
+            String converterName = classWrapper.getContainedClassWrapper().getSqlToJavaConverterName();
+            valueExpression = converterName + "((java.sql.Array) " + valueExpression + ")";
         }
 
-        // Build the value expression.
-        String valueExpression = getValueStart
-                + conversionPrefix
-                + "objArray[i]"
-                + conversionSuffix
-                + getValueEnd;
-
-        // Complete the assignment line.
-        line.append(valueExpression).append(lineTerminator);
-
-        return line.toString();
+        return "if (objArray[i] != null) { javaObj[i] = " + valueExpression + "; }";
     }
 
     public String buildJavaArrayToSqlAssignmentLine(ClassWrapper classWrapper) {
-        StringBuilder line = new StringBuilder();
-
-        // Begin the assignment statement.
-        line.append("objArray[i] = ");
-
-        // Build conversion expression.
-        String conversionPrefix = "";
-        String conversionSuffix = "";
+        @NonNls
+        String valueExpression = "javaObj[i]";
 
         ClassWrapper containedClassWrapper = classWrapper.getContainedClassWrapper();
         if (containedClassWrapper != null) {
             String converterMethodName = containedClassWrapper.getJavaToSqlConverterName();
-            conversionPrefix = converterMethodName + "(";
-            conversionSuffix = ")";
+            valueExpression = converterMethodName + "(" +  valueExpression + ")";
         }
 
-        // Build the value expression.
-        String valueExpression = conversionPrefix
-                + "javaObj[i]"
-                + conversionSuffix;
-
-        // Complete the assignment line.
-        line.append(valueExpression).append(";");
-
-        return line.toString();
+        return "objArray[i] = " + valueExpression + ";";
     }
 
     //methods for supporting wrapper creation

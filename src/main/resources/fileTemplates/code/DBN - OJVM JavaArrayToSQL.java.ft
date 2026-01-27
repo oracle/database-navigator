@@ -1,4 +1,4 @@
-    public static java.sql.Array ${CONVERTER_METHOD_NAME}(${JAVA_COMPLEX_TYPE}[]${SQUARE_BRACKETS} javaObj) throws java.sql.SQLException {
+    private static java.sql.Array ${CONVERTER_METHOD_NAME}(${JAVA_COMPLEX_TYPE}[]${SQUARE_BRACKETS} javaObj) throws java.sql.SQLException {
         if (javaObj == null) return null;
         $BR
         java.lang.Object[] objArray = new java.lang.Object[javaObj.length];

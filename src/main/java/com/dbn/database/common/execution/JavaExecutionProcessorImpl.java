@@ -228,7 +228,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.setLogging(logging);
 	}
 
-	private void initParameters(JavaExecutionContext context) {
+	private void initParameters(JavaExecutionContext context) throws SQLException {
 		if (!isQuery(context)) return;
 
 		WrapperModel wrapperModel = context.getWrapperModel();
@@ -310,7 +310,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		return !getMethod().isReturningVoid();
 	}
 
-	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement preparedStatement, WrapperModel wrapperModel) {
+	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement preparedStatement, WrapperModel wrapperModel) throws SQLException {
 
 	}
 
