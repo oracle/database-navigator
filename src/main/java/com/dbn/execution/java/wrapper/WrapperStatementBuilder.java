@@ -522,30 +522,9 @@ public final class WrapperStatementBuilder {
         List<ParameterWrapper> params = method.getParameters();
 
         return IntStream.range(0, params.size())
-                .mapToObj(i -> {
-                    ParameterWrapper p = params.get(i);
-                    return getArgumentNameInJavaCaller(p, i);
-                })
+                .mapToObj(i -> "param" + i)
                 .collect(Collectors.joining(", "));
     }
-
-    public String getArgumentNameInJavaCaller(ParameterWrapper p, int paramIndex) {
-        if (p.isCodeInput())
-            return getJavaInitializedArgumentName(paramIndex) ;
-
-        @NonNls
-        StringBuilder name = new StringBuilder("arg").append(paramIndex);
-        if (p.isArray() || p.isComplexType()) {
-            name.append("Java");
-        } else {
-            String t = p.getJavaTypeName();
-            if ("char".equals(t) || "java.lang.Character".equals(t)) {
-                name.append("Char");
-            }
-        }
-        return name.toString();
-    }
-
 
     public List<String> buildArgumentConversions(MethodWrapper method) {
         List<String> argumentConversions = new ArrayList<>();
@@ -565,11 +544,16 @@ public final class WrapperStatementBuilder {
                 // Construct the conversion statement.
                 statement.append(javaTypeName)
                         .append(arrayBrackets(parameter.getArrayDepth()))
-                        .append(" arg").append(i).append("Java = ")
+                        .append(" param").append(i).append(" = ")
                         .append(parameter.getConverterName())
                         .append("(arg").append(i).append(");");
             } else if ("char".equals(javaTypeName) || "java.lang.Character".equals(javaTypeName)) {
-                statement.append(getCharacterArgumentInitialization(javaTypeName, "arg", i));
+                statement.append(getCharacterArgumentInitialization(javaTypeName, i));
+            } else {
+                statement.append(javaTypeName)
+                        .append(arrayBrackets(parameter.getArrayDepth()))
+                        .append(" param").append(i).append(" = ")
+                        .append("arg").append(i).append(";");
             }
 
             if (!statement.isEmpty()) {
@@ -581,11 +565,10 @@ public final class WrapperStatementBuilder {
 
     private String getCharacterArgumentInitialization(
             String javaTypeName,
-            String originalArgName,
             int argumentIndex) {
 
-        String srcName = originalArgName + argumentIndex;
-        String destName = "arg" + argumentIndex + "Char";
+        String srcName = "arg" + argumentIndex;
+        String destName = "param" + argumentIndex;
 
         @NonNls
         StringBuilder sb = new StringBuilder();
@@ -685,10 +668,6 @@ public final class WrapperStatementBuilder {
         }
         return  "java.lang.Character retChar = " + returnCaller + ";\n"
                 + "return (retChar == null) ? null : String.valueOf(retChar);";
-    }
-
-    public String getJavaInitializedArgumentName(int index) {
-        return "customarg" + index;
     }
 
     private String generateCode(@NonNls String templateName, Properties properties) {

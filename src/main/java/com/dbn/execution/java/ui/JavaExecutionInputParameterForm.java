@@ -32,13 +32,13 @@ import com.dbn.execution.common.input.CodeBlock;
 import com.dbn.execution.common.input.ExecutionVariable;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.ui.JavaExecutionInputUtil.UiSuitability;
-import com.dbn.execution.java.wrapper.WrapperStatementBuilder;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,6 +62,7 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Lists.sortedCopy;
 import static com.dbn.execution.java.ui.JavaExecutionInputUtil.classifyForUi;
 import static com.dbn.execution.java.ui.JavaExecutionInputUtil.setupSingleDimArrayEditor;
+import static com.dbn.execution.java.wrapper.WrapperStatementBuilder.arrayBrackets;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static java.util.Collections.emptyList;
 
@@ -338,20 +339,14 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
 		return inputModes.contains(ExecutionInputMode.FIELDS);
 	}
 
+	@NonNls
 	private String getJavaTypeDeclaration() {
 		DBJavaParameter parameter  = getParameter();
-		StringBuilder declaration = new StringBuilder(parameter.getJavaClassName());
-		if (parameter.isArray())
-			declaration.append(WrapperStatementBuilder.arrayBrackets(parameter.getArrayDepth()));
-		declaration.append(" ");
 
-		Project project = parameter.getProject();
-		WrapperStatementBuilder statementBuilder = new WrapperStatementBuilder(project);
-		declaration.append(statementBuilder.getJavaInitializedArgumentName(parameter.getPosition()));
-        declaration.append(" = null;");
-        declaration.append(System.lineSeparator());
-
-        return declaration.toString();
+        return "%s%s param%s = null;\n".formatted(
+				parameter.getJavaClassName(),
+				arrayBrackets(parameter.getArrayDepth()),
+				parameter.getPosition());
 	}
 
 }
