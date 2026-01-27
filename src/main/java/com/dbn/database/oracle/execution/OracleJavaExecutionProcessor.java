@@ -52,7 +52,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import static com.dbn.common.data.Data.asBigDecimal;
@@ -86,7 +85,6 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 	@Override
 	public String buildExecutionCommand(JavaExecutionInput executionInput, WrapperModel wrapperModel) {
-		Map<String, String> codeParameters = wrapperModel.getInput().getCodeInputs();
 		boolean procedure = isProcedure();
 		String wrapperName = wrapperModel.getSqlWrapperName();
 		List<DBJavaParameter> parameters = getParameters();
@@ -97,7 +95,8 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 		List<String> inputPlaceHolders = new ArrayList<>();
 		for (DBJavaParameter parameter : parameters) {
-			if (!codeParameters.containsKey(parameter.getName())) {
+			String parameterName = parameter.getName();
+			if (!wrapperModel.isCodeInput(parameterName)) {
 				inputPlaceHolders.add("?");
 			}
 		}
@@ -140,16 +139,15 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	@Override
 	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement statement, WrapperModel wrapperModel) {
 		// bind input variables
-		Map<String, String> javaInjectedParams = wrapperModel.getInput().getCodeInputs();
 		int parameterIndex = 1;
 		MethodWrapper methodWrapper = wrapperModel.getMethods().get(0);
 		List<DBJavaParameter> parameters = getParameters();
 		for (int i=0; i<parameters.size(); i++) {
 			DBJavaParameter parameter = parameters.get(i);
-			if(javaInjectedParams.containsKey(parameter.getName()))
-				continue;
-
 			String parameterName = parameter.getName();
+			if (wrapperModel.isCodeInput(parameterName)) continue;
+
+
 			if (parameter.isArray()) {
 				String objectName = methodWrapper.getParameters().get(i).getSqlTypeName();
 				Array arrObj = getArrayObject(executionInput, parameter.getJavaClassRef(), wrapperModel, objectName, parameterName);

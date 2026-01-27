@@ -210,4 +210,8 @@ public class WrapperModel implements DatabaseContextBase {
     public boolean hasErrors() {
         return !errors.isEmpty();
     }
+
+    public boolean isCodeInput(String parameterName) {
+        return getInput().getCodeInputs().containsKey(parameterName);
+    }
 }

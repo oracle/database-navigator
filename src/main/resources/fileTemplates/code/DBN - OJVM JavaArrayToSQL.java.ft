@@ -1,19 +1,15 @@
-public static java.sql.Array ${CONVERTER_METHOD_NAME}(${JAVA_COMPLEX_TYPE}[]${SQUARE_BRACKETS} ${JAVA_OBJECT}) {
-    if (${JAVA_OBJECT} == null)
-        return null;
-
-    java.lang.Object[] ${OBJ_ARRAY} = new java.lang.Object[${JAVA_OBJECT}.length];
-    for(int ${ITERATOR} = 0; ${ITERATOR} < ${JAVA_OBJECT}.length; ${ITERATOR}++)
-        ${ITERATION_CODE};
-
-    java.sql.Array returnArray;
-    try {
-        oracle.jdbc.driver.OracleDriver driverDef = new oracle.jdbc.driver.OracleDriver();
-        java.sql.Connection conn = driverDef.defaultConnection();
-        returnArray = ((oracle.jdbc.OracleConnection)conn).createARRAY("${SQL_OBJECT_TYPE}",${OBJ_ARRAY});
-    } catch (java.sql.SQLException e) {
-        return null;
+    public static java.sql.Array ${CONVERTER_METHOD_NAME}(${JAVA_COMPLEX_TYPE}[]${SQUARE_BRACKETS} javaObj) throws java.sql.SQLException {
+        if (javaObj == null) return null;
+        $BR
+        java.lang.Object[] objArray = new java.lang.Object[javaObj.length];
+        for (int i = 0; i < javaObj.length; i++) {
+            ${ITERATION_CODE}
+        }
+        $BR
+        oracle.jdbc.driver.OracleDriver driver = new oracle.jdbc.driver.OracleDriver();
+        oracle.jdbc.OracleConnection connection = (oracle.jdbc.OracleConnection) driver.defaultConnection();
+        java.sql.Array returnArray = connection.createARRAY("${SQL_OBJECT_TYPE}", objArray);
+        $BR
+        return returnArray;
     }
-
-    return returnArray;
-}
+    $BR

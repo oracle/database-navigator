@@ -331,7 +331,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
 		DBJavaParameter parameter  = getParameter();
 		StringBuilder declaration = new StringBuilder(parameter.getJavaClassName());
 		if (parameter.isArray())
-			declaration.append("[]".repeat(Math.max(0, parameter.getArrayDepth())));
+			declaration.append(WrapperStatementBuilder.arrayBrackets(parameter.getArrayDepth()));
 		declaration.append(" ");
 
 		Project project = parameter.getProject();
@@ -342,4 +342,5 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
 
         return declaration.toString();
 	}
+
 }

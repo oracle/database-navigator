@@ -17,6 +17,7 @@
 package com.dbn.execution.java.wrapper;
 
 import com.dbn.common.util.Lists;
+import com.dbn.common.util.Strings;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection;
 import com.dbn.execution.java.wrapper.model.FieldWrapper;
@@ -135,18 +136,15 @@ public final class WrapperModelBuilder {
 			var javaClass = parameter.getJavaClassRef();
 			int arrayDepth = parameter.getArrayDepth();
 
+			String codeInput = getCodeInput(context, parameter);
 
-			boolean isJavaInjected = isJavaInjected(context, parameter);
-			String javaInjectedCode = getJavaInjectedCode(context, parameter);
-
-			//remove this
+			//TODO review this
 			if(context.getInput().isTemporary()) {
 				WrapperSupportData supportData = context.getInput().getSupportData();
 				WrapperSupportInfo supportInfo = evaluateArgumentSupport(parameter, supportData);
 				if (!supportInfo.isSupported()) {
 					WrapperModel model = context.getModel();
 					model.addError(supportInfo.getUnsupportedReason());
-					isJavaInjected = true;
 				}
 			}
 
@@ -154,27 +152,17 @@ public final class WrapperModelBuilder {
                     	context,
                     	javaClass,
                     	arrayDepth,
-						isJavaInjected,
-						javaInjectedCode,
+						codeInput,
 						IN);
 
 			methodWrapper.addParameter(parameterWrapper);
 		}
 	}
 
-	private String getJavaInjectedCode(WrapperContext context, DBJavaParameter parameter) {
+	private String getCodeInput(WrapperContext context, DBJavaParameter parameter) {
 		WrapperModelInput input = context.getInput();
 		if (!input.isTemporary()) return null;
 		return input.getCodeInputs().get(parameter.getName());
-	}
-
-	private boolean isJavaInjected(WrapperContext context, DBJavaParameter parameter) {
-		WrapperModelInput input = context.getInput();
-		if (!input.isTemporary()) return false;
-		if (input.getCodeInputs().containsKey(parameter.getName())) {
-			return true;
-		}
-		return false;
 	}
 
 	/**
@@ -200,7 +188,6 @@ public final class WrapperModelBuilder {
                 context,
                 javaClass,
                 arrayDepth,
-				isIncompatible,
 				null,
                 OUT);
 
@@ -215,8 +202,7 @@ public final class WrapperModelBuilder {
             WrapperContext context,
 			DBObjectRef<DBJavaClass> javaClass,
 			int arrayDepth,
-			boolean isJavaInjected,
-			String javaInjectedCode,
+			String codeInput,
 			ArgumentDirection direction) {
 
 		String className = getCanonicalName(javaClass);
@@ -226,8 +212,8 @@ public final class WrapperModelBuilder {
 			return createSimpleParameterWrapper(context, className);
 		}
 
-		if(isJavaInjected) {
-			return createSimpleParameterWrapperForJavaInjection(context, className, arrayDepth, javaInjectedCode, direction);
+		if(Strings.isNotEmpty(codeInput)) {
+			return createCodeParameterWrapper(context, className, arrayDepth, codeInput, direction);
 		}
 
 		// Otherwise, build or retrieve a JavaComplexType
@@ -252,7 +238,9 @@ public final class WrapperModelBuilder {
 	/**
 	 * Builds a simple (non-complex) method attribute with a known SQL type mapping.
 	 */
-	private ParameterWrapper createSimpleParameterWrapper(WrapperContext context, String javaClassName) {
+	private ParameterWrapper createSimpleParameterWrapper(
+			WrapperContext context,
+			String javaClassName) {
         WrapperModel model = context.getModel();
         ParameterWrapper methodAttribute = new ParameterWrapper(model);
 		methodAttribute.setJavaTypeName(javaClassName);
@@ -266,28 +254,32 @@ public final class WrapperModelBuilder {
 	/**
 	 * Builds a simple (non-complex) method attribute with a known SQL type mapping.
 	 */
-	private ParameterWrapper createSimpleParameterWrapperForJavaInjection(WrapperContext context,
-																		  String javaClassName,
-																		  int ArrayDepth,
-																		  String javaInjectedCode,
-																		  ArgumentDirection direction) {
+	private ParameterWrapper createCodeParameterWrapper(
+			WrapperContext context,
+			String javaClassName,
+			int arrayDepth,
+			String codeInput,
+			ArgumentDirection direction) {
+
 		WrapperModel model = context.getModel();
-		ParameterWrapper methodAttribute = new ParameterWrapper(model);
-		methodAttribute.setJavaTypeName(javaClassName);
+		ParameterWrapper parameter = new ParameterWrapper(model);
+		parameter.setJavaTypeName(javaClassName);
 		if(direction == ArgumentDirection.OUT) {
-			methodAttribute.setSqlTypeName(TypeMappings.getSqlTypeName("java.lang.String"));
+			parameter.setSqlTypeName(TypeMappings.getSqlTypeName("java.lang.String"));
 		}
-		methodAttribute.setArrayDepth(ArrayDepth);
-		methodAttribute.setComplexType(false);
-		methodAttribute.setJavaInjection(true);
-		methodAttribute.setJavaInjectedCode(javaInjectedCode);
-		return methodAttribute;
+		parameter.setArrayDepth(arrayDepth);
+		parameter.setComplexType(false);
+		parameter.setCodeInput(codeInput);
+		return parameter;
 	}
 
 	/**
 	 * Builds a method attribute that is backed by a {@link ClassWrapper}.
 	 */
-	private ParameterWrapper createComplexParameterWrapper(WrapperContext context, ClassWrapper classWrapper, ArgumentDirection argumentDirection) {
+	private ParameterWrapper createComplexParameterWrapper(
+			WrapperContext context,
+			ClassWrapper classWrapper,
+			ArgumentDirection argumentDirection) {
         WrapperModel model = context.getModel();
         ParameterWrapper methodAttribute = new ParameterWrapper(model);
 		methodAttribute.setArrayDepth(classWrapper.getArrayDepth());
