@@ -137,7 +137,7 @@ public final class WrapperStatementBuilder {
             Map<String, Object> context = new HashMap<>();
 
             context.put("JAVA_COMPLEX_TYPE", classWrapper.getClassName());
-            context.put("SQL_OBJECT_TYPE", classWrapper.getSqlTypeName());
+            context.put("SQL_OBJECT_TYPE", classWrapper.getSqlType().getQualifiedName());
             context.put("CONVERTER_METHOD_NAME", classWrapper.getJavaToSqlConverterName());
 
             String code;
@@ -277,18 +277,17 @@ public final class WrapperStatementBuilder {
 
     public String buildWrapperRemovalStatement(WrapperModel model) {
         @NonNls
-        Properties properties = new Properties();
+        Map<String, Object> context = new HashMap<>();
 
-        boolean isFunction = model.getMethods().get(0).getReturnParameter() != null
-                && model.getMethods().get(0).getReturnParameter().getJavaTypeName() != null;
-        properties.setProperty("TYPE", isFunction ? "FUNCTION" : "PROCEDURE");
+        ParameterWrapper returnParameter = model.getMethods().get(0).getReturnParameter();
+        boolean isFunction = returnParameter != null && returnParameter.getJavaTypeName() != null;
+        context.put("SQL_WRAPPER_TYPE", isFunction ? "FUNCTION" : "PROCEDURE");
 
         Set<String> sqlTypeNames = model.getSqlTypeNames();
-        String allTypes = String.join(",", sqlTypeNames);
-        properties.setProperty("SQLTYPES", allTypes);
-        properties.setProperty("SQL_WRAPPER_NAME", model.getSqlWrapperName());
-        properties.setProperty("JAVA_WRAPPER_NAME", model.getJavaWrapperName());
-        return generateCode("DBN - OJVM SQLCleanup.sql", properties);
+        context.put("SQL_TYPE_NAMES", sqlTypeNames);
+        context.put("SQL_WRAPPER_NAME", model.getSqlWrapperName());
+        context.put("JAVA_WRAPPER_NAME", model.getJavaWrapperName());
+        return generateCode("DBN - OJVM SQLCleanup.sql", context);
     }
 
     public String buildSqlToJavaAssignmentLine(FieldWrapper fieldWrapper) {

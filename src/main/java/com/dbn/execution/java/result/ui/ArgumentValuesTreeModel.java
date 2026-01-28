@@ -106,7 +106,9 @@ public class ArgumentValuesTreeModel implements TreeModel {
                                                  ArgumentValuesTreeNode parentNode,
                                                  List<ExecutionValue> inputValues) {
         for (ExecutionValue fieldValue : inputValues) {
-            boolean codeInput = isCodeBlock((String)fieldValue.getValue());
+            String value = (String) fieldValue.getValue();
+            boolean codeInput = isCodeBlock(value);
+
             String[] tokens = fieldValue.getPath().split("\\.");
             String parameterName = tokens[0];
 
@@ -114,9 +116,9 @@ public class ArgumentValuesTreeModel implements TreeModel {
             if(parameter == null) continue;
             String dataType = getCanonicalName(parameter.getJavaClassRef());
 
-            Class dataTypeClass = Data.asPrimitiveClass(dataType);
-            if (parameter.isArray()) {
-                List elementsString = Data.arrayStringToList((String) fieldValue.getValue(), dataTypeClass);
+            if (parameter.isArray() && !codeInput) {
+                Class dataTypeClass = Data.asPrimitiveClass(dataType);
+                List elementsString = Data.arrayStringToList(value, dataTypeClass);
                 Object[] elements = elementsString.toArray();
                 Object[] firstThree = Arrays.copyOfRange(elements, 0, Math.min(3, elements.length));
 

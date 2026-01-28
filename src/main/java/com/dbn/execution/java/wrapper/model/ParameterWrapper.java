@@ -20,6 +20,8 @@ import com.dbn.common.util.Strings;
 import com.dbn.execution.java.wrapper.SqlType;
 import com.dbn.execution.java.wrapper.TypeMappings;
 import com.dbn.execution.java.wrapper.WrapperModel;
+import com.dbn.object.DBType;
+import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
@@ -28,13 +30,15 @@ import org.jetbrains.annotations.NonNls;
 @Getter
 @Setter
 public class ParameterWrapper extends EntityWrapper {
-    private String javaTypeName;         // Java type name
-    private String sqlTypeName;          // Java type name
+    private String javaTypeName;
+    private String sqlTypeName;
     private String converterName;
     private int arrayDepth = 0;
     private boolean complexType;
     private boolean sqlConversionPossible;
     private String codeInput;
+
+    private DBObjectRef<DBType> sqlType;
 
     public ParameterWrapper(WrapperModel model) {
         super(model);

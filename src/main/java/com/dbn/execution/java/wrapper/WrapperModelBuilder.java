@@ -285,6 +285,7 @@ public final class WrapperModelBuilder {
 		methodAttribute.setArrayDepth(classWrapper.getArrayDepth());
 		methodAttribute.setJavaTypeName(classWrapper.getClassName());
 		methodAttribute.setSqlTypeName(classWrapper.getSqlTypeName());
+		methodAttribute.setSqlType(classWrapper.getSqlType());
 		methodAttribute.setComplexType(true);
 
 		String converterName = argumentDirection == IN ?
