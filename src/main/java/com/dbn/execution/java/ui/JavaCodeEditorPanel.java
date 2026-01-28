@@ -28,6 +28,8 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -37,10 +39,16 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+
+import static com.dbn.common.ui.util.ScrollPanes.recalibrateScrollContainer;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 @Getter
 @Setter
@@ -55,8 +63,6 @@ public class JavaCodeEditorPanel extends JPanel implements StatefulDisposable {
         super(new BorderLayout());
         this.project = ProjectRef.of(project);
         setBorder(Borders.insetBorder(4));
-        setPreferredSize(new Dimension(-1, 120));
-
         initCodeEditor();
 
         Disposer.register(parent, this);
@@ -71,7 +77,8 @@ public class JavaCodeEditorPanel extends JPanel implements StatefulDisposable {
 
         JavaCodeFragmentFactory factory = JavaCodeFragmentFactory.getInstance(project);
         JavaCodeFragment codeFragment = factory.createCodeBlockCodeFragment("", null, true);
-        document = PsiDocumentManager.getInstance(project).getDocument(codeFragment);
+        PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
+        document = documentManager.getDocument(codeFragment);
 
         VirtualFile virtualFile = codeFragment.getVirtualFile();
 
@@ -106,7 +113,29 @@ public class JavaCodeEditorPanel extends JPanel implements StatefulDisposable {
         settings.setShowIntentionBulb(false);
         settings.setGutterIconsShown(false);
 
-        add(editor.getComponent());
+        document.addDocumentListener(createAutoResizer(), this);
+
+        JComponent editorComponent = editor.getComponent();
+        add(editorComponent);
+    }
+
+    private @NotNull DocumentListener createAutoResizer() {
+        return new DocumentListener() {
+            @Override
+            public void documentChanged(@NotNull DocumentEvent event) {
+                int lineCount = editor.getDocument().getLineCount();
+                int lineHeight = editor.getLineHeight();
+                int preferredHeight = (min(max(lineCount, 4), 8) + 1) * lineHeight;
+
+                JComponent editorComponent = editor.getComponent();
+                Dimension currentSize = editorComponent.getPreferredSize();
+                Dimension newSize = new Dimension(currentSize.width, preferredHeight);
+                if (currentSize.height == newSize.height) return;
+
+                editorComponent.setPreferredSize(newSize);
+                recalibrateScrollContainer(JavaCodeEditorPanel.this);
+            }
+        };
     }
 
     @Override
