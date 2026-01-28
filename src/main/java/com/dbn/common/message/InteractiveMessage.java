@@ -16,7 +16,7 @@
 
 package com.dbn.common.message;
 
-import com.dbn.common.option.DoNotAskOption;
+import com.dbn.common.option.RememberOption;
 import com.dbn.common.util.Classes;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Messages;
@@ -27,7 +27,7 @@ public class InteractiveMessage extends TitledMessage{
     private String[] options = Messages.OPTIONS_OK;
     private int defaultOptionIndex = 0;
     private MessageCallback callback;
-    private DoNotAskOption doNotAskOption;
+    private RememberOption rememberOption;
     private Exception exception;
 
     public InteractiveMessage(MessageType type, String title, String text) {
@@ -65,8 +65,8 @@ public class InteractiveMessage extends TitledMessage{
         return this;
     }
 
-    public InteractiveMessage withDoNotAskOption(DoNotAskOption doNotAskOption) {
-        this.doNotAskOption = doNotAskOption;
+    public InteractiveMessage withRememberOption(RememberOption rememberOption) {
+        this.rememberOption = rememberOption;
         return this;
     }
 

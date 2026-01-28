@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.ref.WeakReference;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.util.Unsafe.cast;
 
 public class WeakRef<T> extends WeakReference<T> {
     protected WeakRef(T referent) {
@@ -72,10 +73,16 @@ public class WeakRef<T> extends WeakReference<T> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof WeakRef) {
-            WeakRef<?> that = (WeakRef<?>) obj;
+        if (obj instanceof WeakRef<?> that) {
             return Commons.match(this, that, ref -> ref.get());
         }
         return false;
+    }
+
+    public static <T> T unwrap(Object object) {
+        if (object instanceof WeakRef weakRef) {
+            return cast(weakRef.get());
+        }
+        return cast(object);
     }
 }

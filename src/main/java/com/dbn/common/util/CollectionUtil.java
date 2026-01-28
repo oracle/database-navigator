@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,12 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @UtilityClass
 public class CollectionUtil {
+    public static <T extends Cloneable<T>> List<T> cloneElements(Collection<T> source) {
+        ArrayList<T> elements = new ArrayList<>();
+        cloneElements(source, elements);
+        return elements;
+    }
+
     public static <T extends Cloneable<T>> void cloneElements(Collection<T> source, Collection<T> target) {
         for (T cloneable : source) {
             T clone = cloneable.clone();

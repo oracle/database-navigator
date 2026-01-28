@@ -22,9 +22,11 @@ import lombok.Getter;
 @Getter
 public enum AIModelProperty implements Property.ShortBase {
     DEFAULT,
-    DEPRECATED,
-    EXPERIMENTAL;
-
+    DEPRECATED,   // no longer maintained / not recommended
+    DISCONTINUED, // no longer available
+    RECOMMENDED,  // recommended for coding and database assistance
+    EXPERIMENTAL,
+    ;
     public static final AIModelProperty[] VALUES = values();
 
     private final ShortMasks masks = new ShortMasks(this);

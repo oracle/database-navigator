@@ -251,10 +251,9 @@ public class SessionBrowser extends DisposableUserDataHolderBase implements File
 
     @Override
     public void setState(@NotNull FileEditorState fileEditorState) {
-        if (fileEditorState instanceof SessionBrowserState) {
+        if (fileEditorState instanceof SessionBrowserState sessionBrowserState) {
             SessionBrowserTable editorTable = getBrowserTable();
             SessionBrowserModel model = editorTable.getModel();
-            SessionBrowserState sessionBrowserState = (SessionBrowserState) fileEditorState;
             model.setState(sessionBrowserState);
             refreshTable();
             startRefreshTimer((sessionBrowserState).getRefreshInterval());

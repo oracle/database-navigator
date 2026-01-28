@@ -145,8 +145,7 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
             return (DBParseableVirtualFile) virtualFile;
         }
 
-        if (virtualFile instanceof LightVirtualFile) {
-            LightVirtualFile lightVirtualFile = (LightVirtualFile) virtualFile;
+        if (virtualFile instanceof LightVirtualFile lightVirtualFile) {
             VirtualFile originalFile = lightVirtualFile.getOriginalFile();
             if (originalFile != null && !originalFile.equals(virtualFile)) {
                 return getParseableFile(originalFile);

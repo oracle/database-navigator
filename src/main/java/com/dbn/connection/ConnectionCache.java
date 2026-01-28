@@ -63,18 +63,22 @@ final class ConnectionCache {
             }
 
             // ensure entry
-            for (Project project : Projects.getOpenProjects()) {
-                ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-                ConnectionHandler connection = connectionManager.getConnection(connectionId);
-
-                // cache as null if disposed
-                if (isNotValid(connection)) connection = null;
-
-                data[index] = new Wrapper(connection);
-            }
+            ConnectionHandler connection = lookup(connectionId);
+            data[index] = new Wrapper(connection);
         } finally {
             lock.unlock();
         }
+    }
+
+    @Nullable
+    private static ConnectionHandler lookup(ConnectionId connectionId) {
+        for (Project project : Projects.getOpenProjects()) {
+            ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+            ConnectionHandler connection = connectionManager.getConnection(connectionId);
+
+            if (isValid(connection)) return connection;
+        }
+        return null;
     }
 
     private static boolean found(int index) {

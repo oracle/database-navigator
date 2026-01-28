@@ -26,6 +26,7 @@ import com.dbn.common.util.Conditional;
 import com.dbn.connection.ConnectionId;
 import com.dbn.event.registration.EventRegistrationListener;
 import com.dbn.event.ui.EventMonitorForm;
+import com.dbn.object.DBTable;
 import com.dbn.object.event.ObjectChangeAction;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -35,6 +36,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +44,7 @@ import static com.dbn.common.action.UserDataKeys.EVENT_MONITOR_FORM;
 import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.editor.DatabaseFileEditorManager.COMPONENT_NAME;
 
+@Getter
 @State(
         name = COMPONENT_NAME,
         storages = @Storage(DatabaseNavigator.STORAGE_FILE)
@@ -49,6 +52,8 @@ import static com.dbn.editor.DatabaseFileEditorManager.COMPONENT_NAME;
 public class EventNotificationManager extends ProjectComponentBase {
     public static final String COMPONENT_NAME = "DBNavigator.Project.EventNotificationManager";
     public static final String TOOL_WINDOW_ID = "DB Events";
+
+    private final EventNotificationData notificationData = new EventNotificationData();
 
     public EventNotificationManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -76,6 +81,7 @@ public class EventNotificationManager extends ProjectComponentBase {
     public void showEventNotificationConsole() {
         showEventNotificationConsole(null, -1);
     }
+
     public void showEventNotificationConsole(ConnectionId connectionId, int tabIndex) {
         EventMonitorForm form = ensureEventMonitorForm();
         ToolWindow toolWindow = getEventMonitorToolWindow();
@@ -86,12 +92,17 @@ public class EventNotificationManager extends ProjectComponentBase {
             contentManager.setSelectedContent(content);
         }
 
-
-
         toolWindow.setAvailable(true, null);
         toolWindow.show(null);
         form.selectContent(connectionId, tabIndex);
     }
+
+    public void showTableNotifications(DBTable table) {
+        showEventNotificationConsole(table.getConnectionId(), 1);
+        EventMonitorForm monitorForm = ensureEventMonitorForm();
+        monitorForm.showTableNotifications(table);
+    }
+
 
     @NotNull
     private EventMonitorForm ensureEventMonitorForm() {
@@ -127,7 +138,5 @@ public class EventNotificationManager extends ProjectComponentBase {
 
         return contents.length > 0 ? contents[0] : null;
     }
-
-
 }
 

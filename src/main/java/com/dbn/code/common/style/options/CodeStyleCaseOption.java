@@ -17,7 +17,6 @@
 package com.dbn.code.common.style.options;
 
 import com.dbn.common.options.PersistentConfiguration;
-import com.dbn.common.util.Naming;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +29,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isMixedCase;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.common.util.Strings.toUpperCase;
+import static com.dbn.common.util.Titles.titleCased;
 
 @Getter
 @Setter
@@ -46,15 +46,14 @@ public class CodeStyleCaseOption implements PersistentConfiguration {
     }
 
     public @NonNls String format(String string) {
-        if (string != null) {
-            switch (styleCase) {
-                case UPPER: return ignore(string) ? string : toUpperCase(string);
-                case LOWER: return ignore(string) ? string : toLowerCase(string);
-                case CAPITALIZED: return ignore(string) ? string : Naming.capitalize(string);
-                case PRESERVE: return string;
-            }
-        }
-        return null;
+        if (string == null) return null;
+
+        return switch (styleCase) {
+            case UPPER -> ignore(string) ? string : toUpperCase(string);
+            case LOWER -> ignore(string) ? string : toLowerCase(string);
+            case CAPITALIZED -> ignore(string) ? string : titleCased(string);
+            case PRESERVE -> string;
+        };
     }
 
     boolean ignore(String string) {

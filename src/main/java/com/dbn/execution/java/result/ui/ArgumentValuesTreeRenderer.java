@@ -41,8 +41,7 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
         ArgumentValuesTreeNode treeNode = (ArgumentValuesTreeNode) value;
         DBObject object = DBObjectRef.get(treeNode.getObject());
 
-        if (object instanceof DBJavaMethod) {
-            DBJavaMethod method = (DBJavaMethod) object;
+        if (object instanceof DBJavaMethod method) {
             setIcon(method.getIcon());
             append(method.getSignature(), REGULAR_ATTRIBUTES);
             return;
@@ -75,8 +74,7 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
 
     private void renderValue(ArgumentValuesTreeNode treeNode) {
         Object userValue = treeNode.getValue();
-        if (userValue instanceof ExecutionValue) {
-            ExecutionValue fieldValue = (ExecutionValue) userValue;
+        if (userValue instanceof ExecutionValue fieldValue) {
             String stringValue = Objects.toString(fieldValue.getValue());
             append(" = ", REGULAR_ATTRIBUTES);
             append(stringValue, REGULAR_BOLD_ATTRIBUTES);
@@ -84,20 +82,17 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
     }
 
     private void renderDataType(DBObject object) {
-        if (object instanceof DBJavaParameter) {
-            DBJavaParameter parameter = (DBJavaParameter) object;
+        if (object instanceof DBJavaParameter parameter) {
             String dataType = getCanonicalName(parameter.getJavaClassRef());
 
             append(" (" + dataType + ")", GRAY_ATTRIBUTES);
             setIcon(object.getIcon());
-        } else if (object instanceof DBJavaField) {
-            DBJavaField field = (DBJavaField) object;
+        } else if (object instanceof DBJavaField field) {
             String dataType = getCanonicalName(field.getJavaClassRef());
 
             append(" (" + dataType + ")", GRAY_ATTRIBUTES);
             setIcon(object.getIcon());
-        } else if (object instanceof DBJavaClass) {
-            DBJavaClass javaClass = (DBJavaClass) object;
+        } else if (object instanceof DBJavaClass javaClass) {
             append(" (" + javaClass.getCanonicalName() + ")", GRAY_ATTRIBUTES);
         }
     }

@@ -63,10 +63,11 @@ public class CodeGeneratorInputDialog extends DBNDialog<CodeGeneratorInputForm> 
 
     @NotNull
     @Override
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Generate Code");
+        return actions(
                 getOKAction(),
-                getCancelAction()};
+                getCancelAction());
     }
 
     @Override

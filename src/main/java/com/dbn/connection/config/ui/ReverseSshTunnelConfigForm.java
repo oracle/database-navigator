@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dbn.connection.config.ui;
 
 import com.dbn.common.options.ConfigMonitor;
@@ -20,6 +36,7 @@ import javax.swing.JTextField;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 
 public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseSshTunnelConfiguration> {
@@ -66,15 +83,15 @@ public class ReverseSshTunnelConfigForm extends ConfigurationEditorForm<ReverseS
         // snapshot old secret before form changes are applied
         Secret[] oldSecrets = configuration.getSecrets();
 
-        configuration.setHost(hostTextField.getText());
-        configuration.setPort(portTextField.getText());
-        configuration.setUser(userTextField.getText());
+        configuration.setHost(getText(hostTextField));
+        configuration.setPort(getText(portTextField));
+        configuration.setUser(getText(userTextField));
         configuration.setAuthType(getSelection(authTypeComboBox));
         configuration.setPassword(passwordField.getPassword());
-        configuration.setKeyFile(keyFileBrowseInput.getText());
+        configuration.setKeyFile(getText(keyFileBrowseInput));
         configuration.setKeyPassphrase(keyPassPhraseInput.getPassword());
-        configuration.setBindHost(bindHostTextField.getText());
-        configuration.setBindPort(bindPortTextField.getText());
+        configuration.setBindHost(getText(bindHostTextField));
+        configuration.setBindPort(getText(bindPortTextField));
 
         if (!ConfigMonitor.isCloning()) {
             // replace secrets in the password store

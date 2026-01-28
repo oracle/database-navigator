@@ -144,7 +144,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	}
 
 	@Override
-	public String getPresentableText() {
+	public String getPresentableName() {
 		return isInner() ?
                 getSimpleName() :
                 getCanonicalName();

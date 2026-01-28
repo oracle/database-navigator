@@ -75,14 +75,13 @@ public class PSQLStructureViewModelSorter implements Sorter {
         @Override
         public int compare(Object object1, Object object2) {
 
-            if (object1 instanceof PSQLStructureViewElement && object2 instanceof PSQLStructureViewElement) {
-                PSQLStructureViewElement structureViewElement1 = (PSQLStructureViewElement) object1;
-                PSQLStructureViewElement structureViewElement2 = (PSQLStructureViewElement) object2;
+            if (object1 instanceof PSQLStructureViewElement structureViewElement1 &&
+                    object2 instanceof PSQLStructureViewElement structureViewElement2) {
                 PsiElement psiElement1 = (PsiElement) structureViewElement1.getValue();
                 PsiElement psiElement2 = (PsiElement) structureViewElement2.getValue();
-                if (psiElement1 instanceof BasePsiElement && psiElement2 instanceof BasePsiElement) {
-                    BasePsiElement namedPsiElement1 = (BasePsiElement) psiElement1;
-                    BasePsiElement namedPsiElement2 = (BasePsiElement) psiElement2;
+
+                if (psiElement1 instanceof BasePsiElement namedPsiElement1 &&
+                        psiElement2 instanceof BasePsiElement namedPsiElement2) {
                     BasePsiElement subjectPsiElement1 = namedPsiElement1.findFirstPsiElement(ElementTypeAttribute.SUBJECT);
                     BasePsiElement subjectPsiElement2 = namedPsiElement2.findFirstPsiElement(ElementTypeAttribute.SUBJECT);
                     if (subjectPsiElement1 != null && subjectPsiElement2 != null) {

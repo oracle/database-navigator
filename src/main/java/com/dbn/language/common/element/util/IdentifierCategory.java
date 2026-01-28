@@ -26,11 +26,11 @@ public enum IdentifierCategory {
     ALL;
 
     public boolean matches(IdentifierPsiElement identifierPsiElement) {
-        switch (this) {
-            case DEFINITION: return identifierPsiElement.isDefinition();
-            case REFERENCE: return identifierPsiElement.isReference();
-            default: return true;
-        }
+        return switch (this) {
+            case DEFINITION -> identifierPsiElement.isDefinition();
+            case REFERENCE -> identifierPsiElement.isReference();
+            default -> true;
+        };
     }
 
     public boolean isOneOf(IdentifierCategory... categories) {

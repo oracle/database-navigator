@@ -76,21 +76,25 @@ public abstract class ConfigurationEditorForm<E extends BasicConfiguration> exte
         return new DocumentAdapter() {
             @Override
             protected void textChanged(@NotNull DocumentEvent e) {
-                getConfiguration().setModified(true);
+                mackConfigModified();
             }
         };
     }
 
     protected ActionListener createActionListener() {
-        return e -> getConfiguration().setModified(true);
+        return e -> mackConfigModified();
     }
 
     protected ItemListener createItemListener() {
-        return e -> getConfiguration().setModified(true);
+        return e -> mackConfigModified();
     }
 
     protected TableModelListener createTableModelListener() {
-        return e -> getConfiguration().setModified(true);
+        return e -> mackConfigModified();
+    }
+
+    protected void mackConfigModified() {
+        getConfiguration().setModified(true);
     }
 
     protected void registerComponents(JComponent ... components) {
@@ -103,25 +107,20 @@ public abstract class ConfigurationEditorForm<E extends BasicConfiguration> exte
         if (ClientProperty.REGISTERED.isSet(component)) return;
 
         ClientProperty.REGISTERED.set(component, true);
-        if (component instanceof AbstractButton) {
-            AbstractButton abstractButton = (AbstractButton) component;
+        if (component instanceof AbstractButton abstractButton) {
             if (actionListener == null) actionListener = createActionListener();
             abstractButton.addActionListener(actionListener);
         }
-        else if (component instanceof CheckBoxList) {
-            CheckBoxList<?> checkBoxList = (CheckBoxList<?>) component;
+        else if (component instanceof CheckBoxList<?> checkBoxList) {
             if (actionListener == null) actionListener = createActionListener();
             checkBoxList.addActionListener(actionListener);
-        } else if (component instanceof JTextField) {
-            JTextField textField = (JTextField) component;
+        } else if (component instanceof JTextField textField) {
             if (documentListener == null) documentListener = createDocumentListener();
             TextFields.addDocumentListener(textField, documentListener);
-        } else if (component instanceof JComboBox) {
-            JComboBox<?> comboBox = (JComboBox<?>) component;
+        } else if (component instanceof JComboBox<?> comboBox) {
             if (itemListener == null) itemListener = createItemListener();
             comboBox.addItemListener(itemListener);
-        } else if (component instanceof JTable) {
-            JTable table = (JTable) component;
+        } else if (component instanceof JTable table) {
             if (tableModelListener == null) tableModelListener = createTableModelListener();
             table.getModel().addTableModelListener(tableModelListener);
         } else {

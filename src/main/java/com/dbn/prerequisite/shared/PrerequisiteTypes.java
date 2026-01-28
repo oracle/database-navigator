@@ -21,10 +21,14 @@ import com.dbn.prerequisite.model.PrerequisiteType;
 public class PrerequisiteTypes {
 
     // shared prerequisites
+    public static final PrerequisiteType CREATE_TABLE = PrerequisiteType.get("CREATE_TABLE");
     public static final PrerequisiteType CREATE_PROCEDURE = PrerequisiteType.get("CREATE_PROCEDURE");
     public static final PrerequisiteType CREATE_TYPE = PrerequisiteType.get("CREATE_TYPE");
+    public static final PrerequisiteType CREATE_ANY_TABLE = PrerequisiteType.get("CREATE_ANY_TABLE");
     public static final PrerequisiteType CREATE_ANY_PROCEDURE = PrerequisiteType.get("CREATE_ANY_PROCEDURE");
     public static final PrerequisiteType CREATE_ANY_TYPE = PrerequisiteType.get("CREATE_ANY_TYPE");
+    public static final PrerequisiteType TABLESPACE_QUOTA = PrerequisiteType.get("TABLESPACE_QUOTA");
+    public static final PrerequisiteType UNLIMITED_TABLESPACE = PrerequisiteType.get("UNLIMITED_TABLESPACE");
 
     // debugger prerequisites
     public static final PrerequisiteType EXECUTE_DBMS_DEBUG = PrerequisiteType.get("EXECUTE_DBMS_DEBUG");
@@ -36,4 +40,9 @@ public class PrerequisiteTypes {
     // change notification prerequisites
     public static final PrerequisiteType EXECUTE_DBMS_CHANGE_NOTIFICATION = PrerequisiteType.get("EXECUTE_DBMS_CHANGE_NOTIFICATION");
     public static final PrerequisiteType CHANGE_NOTIFICATION = PrerequisiteType.get("CHANGE_NOTIFICATION");
+
+    // vector embedding prerequisites
+    public static final PrerequisiteType EXECUTE_DBMS_VECTOR = PrerequisiteType.get("EXECUTE_DBMS_VECTOR");
+    public static final PrerequisiteType EXECUTE_DBMS_VECTOR_CHAIN = PrerequisiteType.get("EXECUTE_DBMS_VECTOR_CHAIN");
+    public static final PrerequisiteType DATABASE_VERSION_23_1 = PrerequisiteType.get("DATABASE_VERSION_23_1");
 }

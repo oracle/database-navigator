@@ -54,6 +54,8 @@ class DBViewImpl<M extends DBViewMetadata> extends DBDatasetImpl<M> implements D
     @Override
     protected String initObject(ConnectionHandler connection, DBObject parentObject, M metadata) throws SQLException {
         String name = metadata.getViewName();
+        comments = metadata.getComments();
+
         set(SYSTEM_OBJECT, metadata.isSystemView());
         set(EDITIONABLE, metadata.isEditionable());
         String typeOwner = metadata.getViewTypeOwner();

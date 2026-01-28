@@ -89,11 +89,9 @@ public class ParserDiagnosticsTable extends DBNTable<ParserDiagnosticsTableModel
             Object columnValue = model.getValue(entry, column);
 
             SimpleTextAttributes textAttributes = SimpleTextAttributes.REGULAR_ATTRIBUTES;
-            if (columnValue instanceof StateTransition) {
-                StateTransition stateTransition = (StateTransition) columnValue;
+            if (columnValue instanceof StateTransition stateTransition) {
                 textAttributes = stateTransition.getCategory().getTextAttributes();
-            } else if (columnValue instanceof VirtualFile) {
-                VirtualFile virtualFile = (VirtualFile) columnValue;
+            } else if (columnValue instanceof VirtualFile virtualFile) {
                 setIcon(virtualFile.getFileType().getIcon());
             }
 

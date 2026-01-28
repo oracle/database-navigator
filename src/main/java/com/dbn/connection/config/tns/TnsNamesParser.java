@@ -28,17 +28,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Commons.coalesce;
+import static com.dbn.common.util.FileChoosers.extensionFilter;
 
 public class TnsNamesParser {
     public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFile().
             withTitle("Select TNS Names File").
             withDescription("Select a valid Oracle tnsnames.ora file").
-            withFileFilter(virtualFile -> Objects.equals(virtualFile.getExtension(), "ora"));
+            withFileFilter(extensionFilter("ora"));
 
     private static final FileContentCache<TnsNames> cache = new FileContentCache<>() {
         @Override

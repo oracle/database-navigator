@@ -80,6 +80,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.object.common.property.DBObjectProperty.DISPOSED;
 import static com.dbn.object.common.property.DBObjectProperty.LISTS_LOADED;
+import static com.dbn.object.common.property.DBObjectProperty.REFRESHING;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
@@ -292,6 +293,10 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
         }
     }
 
+    @Override
+    public String getComments() {
+        return null;
+    }
 
     @Override
     public String getToolTip() {
@@ -428,10 +433,10 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     @Override
     @NotNull
-    public List<DBObject> collectChildObjects(DBObjectType objectType) {
+    public <T extends DBObject> List<T> collectChildObjects(DBObjectType objectType) {
         ListCollector<DBObject> collector = ListCollector.basic();
         collectChildObjects(objectType, collector);
-        return collector.elements();
+        return cast(collector.elements());
     }
 
     @Override
@@ -464,7 +469,11 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
         }
     }
 
-
+    @Override
+    public DBObjectList<?>[] getChildObjectLists() {
+        DBObjectListContainer objects = getChildObjects();
+        return objects == null ? DBObjectList.EMPTY_ARRAY : objects.getObjects();
+    }
 
     @Nullable
     @Override
@@ -518,11 +527,17 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public final void refresh() {
-        DBObjectListContainer childObjects = getChildObjects();
-        if (childObjects == null) return;
+    public synchronized final void refresh() {
+        if (is(REFRESHING)) return;
+        try {
+            set(REFRESHING, true);
+            DBObjectListContainer childObjects = getChildObjects();
+            if (childObjects == null) return;
 
-        childObjects.refreshObjects();
+            childObjects.refreshObjects();
+        } finally {
+            set(REFRESHING, false);
+        }
     }
 
     public final void refresh(@NotNull DBObjectType childObjectType) {
@@ -555,7 +570,12 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public String getPresentableText() {
+    public final String getPresentableText() {
+        return getPresentableName();
+    }
+
+    @Override
+    public String getPresentableName() {
         return getName();
     }
 
@@ -619,8 +639,7 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     @Override
     public int compareTo(@NotNull Object o) {
-        if (o instanceof DBObject) {
-            DBObject object = (DBObject) o;
+        if (o instanceof DBObject object) {
             return ref.compareTo(object.ref());
         }
         return -1;

@@ -25,7 +25,6 @@ import com.intellij.lang.Language;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
@@ -257,7 +256,7 @@ public abstract class TokenTypeBundleBase {
     }
     
     private void createTokenSets(Map<String, Set<String>> tokenSetIds) {
-        for (val entry : tokenSetIds.entrySet()) {
+        for (var entry : tokenSetIds.entrySet()) {
             String tokenSetId = entry.getKey();
             Set<String> tokenIds = entry.getValue();
 

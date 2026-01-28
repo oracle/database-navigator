@@ -50,16 +50,16 @@ class CalendarHeaderTableModel implements TableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        switch (columnIndex) {
-            case 0: return "S";
-            case 1: return "M";
-            case 2: return "T";
-            case 3: return "W";
-            case 4: return "T";
-            case 5: return "F";
-            case 6: return "S";
-        }
-        return null;
+        return switch (columnIndex) {
+            case 0 -> "S";
+            case 1 -> "M";
+            case 2 -> "T";
+            case 3 -> "W";
+            case 4 -> "T";
+            case 5 -> "F";
+            case 6 -> "S";
+            default -> null;
+        };
     }
 
     @Override

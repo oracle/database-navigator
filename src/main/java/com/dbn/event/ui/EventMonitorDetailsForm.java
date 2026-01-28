@@ -25,6 +25,7 @@ import com.dbn.event.notification.model.DataChangeNotificationBundle;
 import com.dbn.event.notification.ui.EventNotificationsForm;
 import com.dbn.event.registration.model.DataChangeRegistrationBundle;
 import com.dbn.event.registration.ui.EventRegistrationsForm;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
@@ -39,6 +40,9 @@ public class EventMonitorDetailsForm extends DBNFormBase {
     private JPanel headerPanel;
     private final DBNTabbedPane<DBNForm> contentTabs;
 
+    private final @Getter EventRegistrationsForm registrationsForm;
+    private final @Getter EventNotificationsForm notificationsForm;
+
     public EventMonitorDetailsForm(@NotNull EventMonitorForm parent, ConnectionHandler connection) {
         super(parent);
 
@@ -47,14 +51,14 @@ public class EventMonitorDetailsForm extends DBNFormBase {
         tabsPanel.add(contentTabs, BorderLayout.CENTER);
         contentTabs.enableFocusInheritance();
 
-        DataChangeNotificationBundle eventModel = new DataChangeNotificationBundle(connection.getConnectionId());
+        DataChangeNotificationBundle eventModel = new DataChangeNotificationBundle(connection);
         DataChangeRegistrationBundle registrationModel = new DataChangeRegistrationBundle(connection);
 
         // Initialize tables
-        EventRegistrationsForm registrationsForm = new EventRegistrationsForm(this, registrationModel);
+        registrationsForm = new EventRegistrationsForm(this, registrationModel);
         contentTabs.addTab("Registrations", registrationsForm.getComponent(), registrationsForm);
 
-        EventNotificationsForm notificationsForm = new EventNotificationsForm(this, eventModel);
+        notificationsForm = new EventNotificationsForm(this, eventModel);
         contentTabs.addTab("Notifications", notificationsForm.getComponent(), notificationsForm);
 
         initFormHeader(connection);

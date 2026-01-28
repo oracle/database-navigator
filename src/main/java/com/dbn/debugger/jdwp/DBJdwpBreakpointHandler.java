@@ -24,6 +24,7 @@ import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugUtil;
 import com.dbn.debugger.common.breakpoint.DBBreakpointHandler;
 import com.dbn.debugger.common.breakpoint.DBBreakpointProperties;
+import com.dbn.debugger.common.breakpoint.DBBreakpointType;
 import com.dbn.debugger.common.breakpoint.DBBreakpointUtil;
 import com.dbn.debugger.jdwp.process.DBJdwpDebugProcess;
 import com.dbn.editor.DBContentType;
@@ -48,6 +49,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.xdebugger.XDebugSession;
+import com.intellij.xdebugger.breakpoints.XBreakpointManager;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.sun.jdi.Location;
@@ -58,11 +60,13 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties;
 
 import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.debugger.common.breakpoint.DBBreakpointUtil.getBreakpointManager;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.NORMAL;
 
@@ -118,8 +122,17 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
             ConnectionHandler connection = contentFile.getConnection();
 
             DBJdwpBreakpointProperties breakpointProperties = new DBJdwpBreakpointProperties(connection);
-            DBBreakpointUtil.registerBreakpoint(contentFile, line, breakpointProperties);
+            registerBreakpoint(contentFile, line, breakpointProperties);
         });
+    }
+
+    public static void registerBreakpoint(DBContentVirtualFile contentFile, int line, DBJdwpBreakpointProperties properties) {
+        String fileUrl = contentFile.getUrl();
+        Project project = contentFile.getProject();
+        XBreakpointManager breakpointManager = getBreakpointManager(project);
+
+        DBBreakpointType breakpointType = DBBreakpointType.get();
+        breakpointManager.addLineBreakpoint(breakpointType, fileUrl, line, properties, true);
     }
 
     @Override
@@ -189,11 +202,12 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
     private void registerLineBreakpoints(@NotNull List<XLineBreakpoint<XBreakpointProperties>> breakpoints) {
         for (var breakpoint : breakpoints) {
             XBreakpointProperties properties = breakpoint.getProperties();
-            if (properties instanceof DBBreakpointProperties) {
-                DBBreakpointProperties breakpointProperties = (DBBreakpointProperties) properties;
+            if (properties instanceof DBBreakpointProperties breakpointProperties) {
                 if (breakpointProperties.getConnection() == getConnection()) {
                     prepareObjectClasses(breakpoint);
                 }
+            } else if (properties instanceof JavaLineBreakpointProperties) {
+                prepareObjectClasses(breakpoint);
             }
         }
     }

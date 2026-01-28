@@ -42,8 +42,6 @@ import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.common.statement.ByteArray;
-import com.dbn.database.common.statement.ClobText;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
@@ -55,15 +53,17 @@ import com.dbn.editor.code.diff.MergeAction;
 import com.dbn.editor.code.diff.SourceCodeDiffManager;
 import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
 import com.dbn.editor.code.options.CodeEditorSettings;
-import com.dbn.execution.statement.DataDefinitionChangeListener;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.psql.PSQLFile;
 import com.dbn.object.DBDatasetTrigger;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
@@ -107,7 +107,7 @@ import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
 import static com.dbn.common.navigation.NavigationInstruction.OPEN;
 import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
 import static com.dbn.common.notification.NotificationCategory.SOURCE_CODE;
-import static com.dbn.common.util.Commons.list;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Editors.getOpenFiles;
 import static com.dbn.common.util.Messages.options;
@@ -138,7 +138,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         super(project, COMPONENT_NAME);
         EditorActionManager.getInstance().setReadonlyFragmentModificationHandler(OverrideReadonlyFragmentModificationHandler.INSTANCE);
 
-        ProjectEvents.subscribe(project, this, DataDefinitionChangeListener.TOPIC, dataDefinitionChangeListener());
+        ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, createObjectChangeListener());
         ProjectEvents.subscribe(project, this, EnvironmentManagerListener.TOPIC, environmentManagerListener());
         ProjectEvents.subscribe(project, this, FILE_EDITOR_MANAGER, fileEditorManagerListener());
         //ProjectEvents.subscribe(project, this, FILE_EDITOR_MANAGER, new DBLanguageFileEditorListener());
@@ -146,27 +146,25 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         //ProjectEvents.subscribe(project, this, FILE_EDITOR_MANAGER, new SourceCodeEditorListener());
     }
 
+    private ObjectChangeListener createObjectChangeListener() {
+        return e -> {
+            DBObject object = e.getObject();
+            if (object == null) return;
 
-    @NotNull
-    private DataDefinitionChangeListener dataDefinitionChangeListener() {
-        return new DataDefinitionChangeListener() {
-            @Override
-            public void dataDefinitionChanged(@NotNull DBSchemaObject schemaObject) {
-                DBEditableObjectVirtualFile databaseFile = schemaObject.getCachedVirtualFile();
-                if (databaseFile == null) return;
+            DatabaseFileSystem fileSystem = DatabaseFileSystem.getInstance();
+            DBEditableObjectVirtualFile databaseFile = fileSystem.findDatabaseFile(object);
+            if (databaseFile == null) return;
 
-                if (databaseFile.isModified()) {
-                    showQuestionDialog(
-                            getProject(), "Unsaved changes",
-                            "The " + schemaObject.getQualifiedNameWithType() + " has been updated in database. You have unsaved changes in the object editor.\n" +
-                                    "Do you want to discard the changes and reload the updated database version?",
-                            new String[]{"Reload", "Keep changes"}, 0,
-                            option -> when(option == 0, () ->
-                                    reloadAndUpdateEditors(databaseFile, false)));
-                } else {
-                    reloadAndUpdateEditors(databaseFile, true);
-                }
-
+            if (databaseFile.isModified()) {
+                showQuestionDialog(
+                        getProject(), "Unsaved Changes",
+                        "The " + object.getQualifiedNameWithType() + " has been updated in database. You have unsaved changes in the object editor.\n" +
+                                "Do you want to discard the changes and reload the updated database version?",
+                        new String[]{"Reload", "Keep changes"}, 0,
+                        option -> when(option == 0, () ->
+                                reloadAndUpdateEditors(databaseFile, false)));
+            } else {
+                reloadAndUpdateEditors(databaseFile, true);
             }
         };
     }
@@ -176,8 +174,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         return new EnvironmentManagerListener() {
             @Override
             public void editModeChanged(Project project, DBContentVirtualFile databaseContentFile) {
-                if (databaseContentFile instanceof DBSourceCodeVirtualFile) {
-                    DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) databaseContentFile;
+                if (databaseContentFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
                     if (sourceCodeFile.isModified()) {
                         loadSourceCode(sourceCodeFile, true);
                     }
@@ -192,8 +189,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             @Override
             public void whenSelectionChanged(@NotNull FileEditorManagerEvent event) {
                 FileEditor newEditor = event.getNewEditor();
-                if (newEditor instanceof SourceCodeEditor) {
-                    SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) newEditor;
+                if (newEditor instanceof SourceCodeEditor sourceCodeEditor) {
                     DBEditableObjectVirtualFile databaseFile = sourceCodeEditor.getVirtualFile().getMainDatabaseFile();
                     for (DBSourceCodeVirtualFile sourceCodeFile : databaseFile.getSourceCodeFiles()) {
                         if (!sourceCodeFile.isLoaded()) {
@@ -269,14 +265,14 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     private void saveSourceToDatabase(@NotNull DBSourceCodeVirtualFile sourceCodeFile, @Nullable SourceCodeEditor fileEditor, @Nullable Runnable successCallback) {
-        if (!sourceCodeFile.isNot(SAVING)) return;
-
-        DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(getProject());
-        if (!debuggerManager.checkForbiddenOperation(sourceCodeFile.getConnection())) return;
-
+        if (sourceCodeFile.is(SAVING)) return;
         sourceCodeFile.set(SAVING, true);
+
         Project project = getProject();
         try {
+            DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
+            if (!debuggerManager.checkForbiddenOperation(sourceCodeFile.getConnection())) return;
+
             Document document = Failsafe.nn(Documents.getDocument(sourceCodeFile));
             Documents.saveDocument(document);
 
@@ -400,8 +396,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         try {
             String schemaName = object.getSchemaName();
             String objectName = object.getName();
-            ByteArray byteArray = metadata.loadJavaBinaryCode(schemaName, objectName, conn);
-            byte[] bytes = byteArray.getValue();
+            byte[] bytes = metadata.loadJavaBinaryCode(schemaName, objectName, conn);
 
             tempFile = FileUtil.createTempFile(objectName, ".class");
             Files.write(tempFile.toPath(), bytes);
@@ -424,13 +419,9 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     private static String loadJavaResourceCode(@NotNull DBSchemaObject object, DBNConnection conn, DatabaseMetadataInterface metadata) throws SQLException {
         try {
-            String schemaName = object.getSchemaName();
-            String objectName = object.getName();
-            ClobText code = metadata.loadJavaResourceSourceCode(schemaName, objectName, conn);
-            List<String> lines = code.getValue();
-
-            return String.join("\n", lines);
-
+            return metadata.loadJavaResourceSourceCode(
+                    object.getSchemaName(),
+                    object.getName(), conn);
         } catch (Exception e) {
             throw Exceptions.toSqlException(e);
         }
@@ -582,25 +573,22 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     @NonNls
     private static String getContentQualifier(DBObjectType objectType, DBContentType contentType) {
-        switch (objectType) {
-            case JAVA_CLASS:       return "JAVA SOURCE";
-            case JAVA_RESOURCE:    return "JAVA RESOURCE";
-            case FUNCTION:         return "FUNCTION";
-            case PROCEDURE:        return "PROCEDURE";
-            case VIEW:             return "VIEW";
-            case DATASET_TRIGGER:  return "TRIGGER";
-            case DATABASE_TRIGGER: return "TRIGGER";
-            case PACKAGE:
-                return
+        return switch (objectType) {
+            case JAVA_CLASS -> "JAVA SOURCE";
+            case JAVA_RESOURCE -> "JAVA RESOURCE";
+            case FUNCTION -> "FUNCTION";
+            case PROCEDURE -> "PROCEDURE";
+            case VIEW -> "VIEW";
+            case DATASET_TRIGGER -> "TRIGGER";
+            case DATABASE_TRIGGER -> "TRIGGER";
+            case PACKAGE ->
                     contentType == DBContentType.CODE_SPEC ? "PACKAGE" :
                     contentType == DBContentType.CODE_BODY ? "PACKAGE BODY" : null;
-            case TYPE:
-                return
+            case TYPE ->
                     contentType == DBContentType.CODE_SPEC ? "TYPE" :
                     contentType == DBContentType.CODE_BODY ? "TYPE BODY" : null;
-
-        }
-        return null;
+            default -> null;
+        };
     }
 
     private boolean isValidObjectTypeAndName(@NotNull PsiFile psiFile, @NotNull DBSchemaObject object, DBContentType contentType) {
@@ -696,8 +684,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         DBEditableObjectVirtualFile editableObjectFile = parentObject.getEditableVirtualFile();
         DBLanguagePsiFile psiFile = basePsiElement.getFile();
         VirtualFile elementVirtualFile = psiFile.getVirtualFile();
-        if (elementVirtualFile instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) elementVirtualFile;
+        if (elementVirtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             BasicTextEditor textEditor = Editors.getTextEditor(sourceCodeFile);
             if (textEditor != null) {
                 Project project = getProject();
@@ -714,8 +701,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         VirtualFile[] openFiles = getOpenFiles(project);
 
         for (VirtualFile openFile : openFiles) {
-            if (openFile instanceof DBEditableObjectVirtualFile) {
-                DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) openFile;
+            if (openFile instanceof DBEditableObjectVirtualFile databaseFile) {
                 if (!databaseFile.isModified()) continue;
                 if (databaseFile.isSaving()) continue;
 
@@ -729,7 +715,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                 String objectDescription = object.getQualifiedNameWithType();
                 boolean exitApp = checkAppExitRequested();
                 confirmationSettings.getExitOnChanges().resolve(
-                        project, list(objectDescription),
+                        project, array(objectDescription),
                         option -> {
                             switch (option) {
                                 case SAVE: saveSourceCodeChanges(databaseFile, () -> closeProject(exitApp)); break;

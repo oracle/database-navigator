@@ -18,6 +18,7 @@ package com.dbn.execution.statement.action;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.thread.Read;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.execution.ExecutionStatus;
@@ -68,7 +69,7 @@ public class StatementGutterAction extends BasicAction {
         if (isValid(psiElement)) return psiElement;
 
         // try to restore orphaned gutter actions
-        psiElement = resolvePsiElement();
+        psiElement = Read.call(() -> resolvePsiElement());
         return psiElement;
     }
 

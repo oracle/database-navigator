@@ -22,7 +22,7 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Strings;
 import com.dbn.execution.ExecutionManager;
-import com.dbn.execution.statement.result.StatementExecutionResult;
+import com.dbn.execution.ExecutionResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,6 +33,7 @@ import javax.swing.JTextField;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.common.ui.util.TextFields.getText;
 
 public class RenameExecutionResultForm extends DBNFormBase {
     private JPanel headerPanel;
@@ -41,7 +42,7 @@ public class RenameExecutionResultForm extends DBNFormBase {
     private JTextField resultNameTextField;
     private JCheckBox stickyCheckBox;
 
-    RenameExecutionResultForm(RenameExecutionResultDialog parent, @NotNull StatementExecutionResult executionResult) {
+    RenameExecutionResultForm(RenameExecutionResultDialog parent, @NotNull ExecutionResult executionResult) {
         super(parent);
 
         DBNHeaderForm headerForm = new DBNHeaderForm(this,
@@ -72,7 +73,7 @@ public class RenameExecutionResultForm extends DBNFormBase {
     }
 
     public String getResultName() {
-        return resultNameTextField.getText();
+        return getText(resultNameTextField);
     }
 
     public boolean isStickyResultName() {

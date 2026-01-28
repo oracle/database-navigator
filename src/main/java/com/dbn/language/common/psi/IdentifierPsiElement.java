@@ -57,6 +57,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
+import static com.dbn.common.thread.ThreadMonitor.isDispatcherThread;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -128,8 +129,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
     @Override
     @Nullable
     public BasePsiElement findPsiElement(PsiLookupAdapter lookupAdapter, int scopeCrossCount) {
-        if (lookupAdapter instanceof IdentifierLookupAdapter) {
-            IdentifierLookupAdapter identifierLookupAdapter = (IdentifierLookupAdapter) lookupAdapter;
+        if (lookupAdapter instanceof IdentifierLookupAdapter identifierLookupAdapter) {
             if (identifierLookupAdapter.matchesName(this)) {
                 /*PsiElement parentPsiElement = getParent();
                 if (parentPsiElement instanceof QualifiedIdentifierPsiElement) {
@@ -148,8 +148,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
 
     @Override
     public void collectPsiElements(PsiLookupAdapter lookupAdapter, int scopeCrossCount, @NotNull Consumer<BasePsiElement> consumer) {
-        if (lookupAdapter instanceof IdentifierLookupAdapter) {
-            IdentifierLookupAdapter identifierLookupAdapter = (IdentifierLookupAdapter) lookupAdapter;
+        if (lookupAdapter instanceof IdentifierLookupAdapter identifierLookupAdapter) {
             if (identifierLookupAdapter.matchesName(this)) {
                 if (lookupAdapter.matches(this)) {
                     consumer.accept(this);
@@ -260,13 +259,11 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
         IdentifierPsiElement originalElement = (IdentifierPsiElement) getOriginalElement();
         PsiElement psiReferenceElement = originalElement.resolve();
         if (psiReferenceElement != null && psiReferenceElement != this) {
-            if (psiReferenceElement instanceof DBObjectPsiElement) {
-                DBObjectPsiElement objectPsiElement = (DBObjectPsiElement) psiReferenceElement;
+            if (psiReferenceElement instanceof DBObjectPsiElement objectPsiElement) {
                 return objectPsiElement.getObject();
             }
 
-            if (psiReferenceElement instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) psiReferenceElement;
+            if (psiReferenceElement instanceof IdentifierPsiElement identifierPsiElement) {
                 return identifierPsiElement.getUnderlyingObject();
             }
         }
@@ -333,8 +330,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
         for (QualifiedIdentifierVariant parseVariant : qualifiedIdentifier.getParseVariants()) {
             LeafElementType leafElementType = parseVariant.getLeaf(index);
 
-            if (leafElementType instanceof IdentifierElementType) {
-                IdentifierElementType elementType = (IdentifierElementType) leafElementType;
+            if (leafElementType instanceof IdentifierElementType elementType) {
                 DBObjectType objectType = elementType.getObjectType();
 
                 CharSequence refText = ref.getText();
@@ -448,8 +444,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
 
     public boolean isPrecededByDot() {
         LeafPsiElement prevLeaf = getPrevLeaf();
-        if (prevLeaf instanceof TokenPsiElement) {
-            TokenPsiElement tokenPsiElement = (TokenPsiElement) prevLeaf;
+        if (prevLeaf instanceof TokenPsiElement tokenPsiElement) {
             return tokenPsiElement.getTokenType() == tokenPsiElement.getLanguage().getSharedTokenTypes().getChrDot();
         }
         return false;
@@ -474,8 +469,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
     }
 
     private boolean isValidReference(DBObject referencedObject) {
-        if (referencedObject instanceof DBVirtualObject) {
-            DBVirtualObject object = (DBVirtualObject) referencedObject;
+        if (referencedObject instanceof DBVirtualObject object) {
             BasePsiElement underlyingPsiElement = Failsafe.guarded(null, object, o -> o.getUnderlyingPsiElement());
             if (underlyingPsiElement != null && underlyingPsiElement.containsPsiElement(this)) {
                 return false;
@@ -488,8 +482,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
         if (referencedElement == null || referencedElement == this) return false;
 
         // check if inside same scope
-        if (referencedElement instanceof IdentifierPsiElement) {
-            IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) referencedElement;
+        if (referencedElement instanceof IdentifierPsiElement identifierPsiElement) {
             if (identifierPsiElement.isReference() && identifierPsiElement.isReferenceable()) {
                 return identifierPsiElement.getEnclosingScopeElement() == getEnclosingScopeElement();
             }
@@ -522,6 +515,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
         ref = nvl(ref, () -> new PsiResolveResult(this));
 
         if (isDispatchThread()) return ref.getReference();
+        if (isDispatcherThread()) return ref.getReference();
         if (!ref.isDirty()) return ref.getReference();
 
 
@@ -530,8 +524,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
             ref.preResolve();
             CharSequence text = ref.getText();
             if (text != null && text.length() > 0) {
-                if (getParent() instanceof QualifiedIdentifierPsiElement) {
-                    QualifiedIdentifierPsiElement qualifiedIdentifier = (QualifiedIdentifierPsiElement) getParent();
+                if (getParent() instanceof QualifiedIdentifierPsiElement qualifiedIdentifier) {
                     resolveWithinQualifiedIdentifierElement(qualifiedIdentifier);
                 } else {
                     resolveWithScopeParentLookup(getObjectType(), elementType);
@@ -593,8 +586,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
 
     @Override
     public boolean matches(BasePsiElement basePsiElement, MatchType matchType) {
-        if (basePsiElement instanceof IdentifierPsiElement) {
-            IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) basePsiElement;
+        if (basePsiElement instanceof IdentifierPsiElement identifierPsiElement) {
             return matchType == MatchType.SOFT || Strings.equalsIgnoreCase(identifierPsiElement.getChars(), getChars());
         }
 

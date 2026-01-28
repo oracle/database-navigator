@@ -81,8 +81,7 @@ public class SelectionMathAddon extends ComponentAddonBase<BasicTable> {
             int[] selectedRows = table.getSelectedRows();
             for (int selectedRow : selectedRows) {
                 Object value = table.getValueAt(selectedRow, selectedColumn);
-                if (value instanceof BasicDataModelCell) {
-                    BasicDataModelCell<?, ?> cell = (BasicDataModelCell<?, ?>) value;
+                if (value instanceof BasicDataModelCell<?, ?> cell) {
                     Object userValue = cell.getUserValue();
                     if (userValue == null || userValue instanceof Number) {
                         if (userValue != null) {

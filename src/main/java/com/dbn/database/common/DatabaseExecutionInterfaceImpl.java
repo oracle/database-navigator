@@ -27,12 +27,10 @@ import com.dbn.object.DBProcedure;
 public abstract class DatabaseExecutionInterfaceImpl implements DatabaseExecutionInterface {
 
     public MethodExecutionProcessor createSimpleMethodExecutionProcessor(DBMethod method) {
-        if (method instanceof DBFunction) {
-            DBFunction function = (DBFunction) method;
+        if (method instanceof DBFunction function) {
             return new SimpleFunctionExecutionProcessor(function);
         }
-        if (method instanceof DBProcedure) {
-            DBProcedure procedure = (DBProcedure) method;
+        if (method instanceof DBProcedure procedure) {
             return new SimpleProcedureExecutionProcessor(procedure);
 
         }

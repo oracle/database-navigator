@@ -17,7 +17,7 @@
 package com.dbn.assistant.service.generic.model.factory;
 
 import com.dbn.assistant.http.AssistantHttpClientBuilderFactory;
-import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.service.generic.model.AssistantModelFactory;
 import com.dbn.assistant.service.generic.model.AssistantModelInput;
 import dev.langchain4j.http.client.HttpClientBuilder;
@@ -33,10 +33,10 @@ import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 abstract class AbstractModelFactory implements AssistantModelFactory {
-    private final AIProvider provider;
+    private final AIProviderId providerId;
 
-    public AbstractModelFactory(AIProvider provider) {
-        this.provider = provider;
+    public AbstractModelFactory(AIProviderId providerId) {
+        this.providerId = providerId;
     }
 
     protected static @NotNull HttpClientBuilder createHttpClientBuilder() {

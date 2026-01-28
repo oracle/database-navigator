@@ -129,7 +129,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
             Project project = getProject();
             if (focusEditor) {
                 Progress.prompt(project, object, true,
-                        txt("prc.editor.title.OpeningObjectEditor", object.getObjectType().getCapitalizedName()),
+                        txt("prc.editor.title.OpeningObjectEditor", object.getObjectType().getTitleCasedName()),
                         txt("prc.editor.text.OpeningObjectEditor", object.getQualifiedNameWithType()),
                         progress -> openEditor(object, editorProviderId, scrollBrowser, true));
             } else {
@@ -151,7 +151,10 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
 
         try {
             handle.init();
-            if (object.is(DBObjectProperty.SCHEMA_OBJECT)) {
+            if (object instanceof DBConsole console) {
+                Editors.openFileEditor(getProject(), console.getVirtualFile(), focusEditor);
+
+            } else if (object.is(DBObjectProperty.SCHEMA_OBJECT)) {
                 openSchemaObject(handle);
 
             } else {
@@ -232,8 +235,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
         DBObject object = handle.getObject();
         Project project = object.getProject();
         for (FileEditor fileEditor : fileEditors) {
-            if (fileEditor instanceof SourceCodeMainEditor) {
-                SourceCodeMainEditor sourceCodeEditor = (SourceCodeMainEditor) fileEditor;
+            if (fileEditor instanceof SourceCodeMainEditor sourceCodeEditor) {
                 NavigationInstructions instructions = NavigationInstructions.create().
                         with(SCROLL).
                         with(FOCUS, focusEditor);

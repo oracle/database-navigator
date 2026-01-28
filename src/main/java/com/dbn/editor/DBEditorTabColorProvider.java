@@ -70,18 +70,15 @@ public class DBEditorTabColorProvider implements EditorTabColorProvider, DumbAwa
     
     @Nullable
     public static ConnectionHandler getConnection(VirtualFile file, Project project) {
-        if (file instanceof DBConsoleVirtualFile) {
-            DBConsoleVirtualFile consoleFile = (DBConsoleVirtualFile) file;
+        if (file instanceof DBConsoleVirtualFile consoleFile) {
             return consoleFile.getConnection();
         }
 
-        if (file instanceof DBSessionBrowserVirtualFile) {
-            DBSessionBrowserVirtualFile sessionBrowserFile = (DBSessionBrowserVirtualFile) file;
+        if (file instanceof DBSessionBrowserVirtualFile sessionBrowserFile) {
             return sessionBrowserFile.getConnection();
         }
         
-        if (file instanceof DBObjectVirtualFile) {
-            DBObjectVirtualFile objectFile = (DBObjectVirtualFile) file;
+        if (file instanceof DBObjectVirtualFile objectFile) {
             return objectFile.getConnection();
         }
 

@@ -25,6 +25,7 @@ import javax.swing.border.Border;
 import java.awt.Color;
 import java.util.regex.Pattern;
 
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -39,7 +40,7 @@ public class OciCompartmentIdVerifier extends InputVerifier {
   @Override
   public boolean verify(JComponent input) {
     JTextField textField = (JTextField) input;
-    String text = textField.getText().trim();
+    String text = getText(textField);
 
     // Allow empty field (optional)
     if (text.isEmpty()) {

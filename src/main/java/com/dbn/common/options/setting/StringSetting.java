@@ -17,12 +17,13 @@
 package com.dbn.common.options.setting;
 
 import com.dbn.common.options.PersistentConfiguration;
-import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 
 import javax.swing.text.JTextComponent;
+
+import static com.dbn.common.ui.util.TextFields.getText;
 
 public class StringSetting extends Setting<String, JTextComponent> implements PersistentConfiguration {
     public StringSetting(@NonNls String name, @NonNls String value) {
@@ -41,7 +42,7 @@ public class StringSetting extends Setting<String, JTextComponent> implements Pe
 
     @Override
     public boolean to(JTextComponent component) throws ConfigurationException {
-        return setValue(Strings.trim(component.getText()));
+        return setValue(getText(component));
     }
 
     @Override

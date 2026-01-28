@@ -39,19 +39,18 @@ import static com.dbn.common.cache.CacheKey.key;
 
 @NonNls
 public interface GenericMetadataLoaders {
-    CachedResultSet.Mapper<String> METHOD_COLUMNS = original -> {
-        switch (original) {
-            case "FUNCTION_CAT":
-            case "PROCEDURE_CAT": return "METHOD_CAT";
-            case "FUNCTION_SCHEM":
-            case "PROCEDURE_SCHEM": return "METHOD_SCHEM";
-            case "FUNCTION_NAME":
-            case "PROCEDURE_NAME": return "METHOD_NAME";
-            case "FUNCTION_TYPE":
-            case "PROCEDURE_TYPE": return "METHOD_TYPE";
-            default: return null;
-        }
-    };
+    CachedResultSet.Mapper<String> METHOD_COLUMNS = original ->
+            switch (original) {
+                case "FUNCTION_CAT",
+                     "PROCEDURE_CAT" -> "METHOD_CAT";
+                case "FUNCTION_SCHEM",
+                     "PROCEDURE_SCHEM" -> "METHOD_SCHEM";
+                case "FUNCTION_NAME",
+                     "PROCEDURE_NAME" -> "METHOD_NAME";
+                case "FUNCTION_TYPE",
+                     "PROCEDURE_TYPE" -> "METHOD_TYPE";
+                default -> null;
+            };
 
     /**************************************************************
      *                     Raw cached meta-data                   *

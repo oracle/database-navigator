@@ -18,7 +18,6 @@ package com.dbn.vfs.file;
 
 import com.dbn.common.dispose.Checks;
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseEntity;
@@ -42,10 +41,10 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 
 public class DBObjectListVirtualFile<T extends DBObjectList> extends DBVirtualFileBase {
-    private final WeakRef<T> objectList;
+    private final transient WeakRef<T> objectList;
 
     public DBObjectListVirtualFile(T objectList) {
-        super(objectList.getProject(), Naming.capitalize(objectList.getName()));
+        super(objectList.getProject(), objectList.getTitleCasedName());
         this.objectList = WeakRef.of(objectList);
     }
 
@@ -76,8 +75,7 @@ public class DBObjectListVirtualFile<T extends DBObjectList> extends DBVirtualFi
     @Override
     public SchemaId getSchemaId() {
         DatabaseEntity parent = getObjectList().getParentEntity();
-        if (parent instanceof DBObject) {
-            DBObject object = (DBObject) parent;
+        if (parent instanceof DBObject object) {
             return SchemaId.from(object.getSchema());
         }
         return null;
@@ -116,13 +114,11 @@ public class DBObjectListVirtualFile<T extends DBObjectList> extends DBVirtualFi
         if (isNotValid(objectList)) return null;
 
         DatabaseEntity parent = getObjectList().getParentEntity();
-        if (parent instanceof DBObject) {
-            DBObject parentObject = (DBObject) parent;
+        if (parent instanceof DBObject parentObject) {
             return DBObjectPsiCache.asPsiDirectory(parentObject).getVirtualFile();
         }
 
-        if (parent instanceof DBObjectBundle) {
-            DBObjectBundle objectBundle = (DBObjectBundle) parent;
+        if (parent instanceof DBObjectBundle objectBundle) {
             return objectBundle.getConnection().getPsiDirectory().getVirtualFile();
         }
 

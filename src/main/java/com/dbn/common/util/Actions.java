@@ -16,6 +16,7 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.compatibility.Workaround;
 import com.intellij.openapi.actionSystem.ActionGroup;
@@ -25,6 +26,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.Separator;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 import java.awt.event.InputEvent;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,6 +45,18 @@ import static com.intellij.openapi.actionSystem.ActionPlaces.TOOLBAR;
 @UtilityClass
 public class Actions {
     public static final AnAction SEPARATOR = Separator.getInstance();
+    public static final AnAction[] LOADING_SURROGATE = {
+            new BasicAction() {
+                @Override
+                public void actionPerformed(@NotNull AnActionEvent e) {
+                }
+
+                @Override
+                public void update(@NotNull AnActionEvent e) {
+                    Presentation presentation = e.getPresentation();
+                    presentation.setText("Loading...");
+                }
+            }};
 
     public static ActionToolbar createActionToolbar(@NotNull JComponent component, boolean horizontal, String name){
         ActionManager actionManager = ActionManager.getInstance();
@@ -115,8 +130,7 @@ public class Actions {
     @Compatibility
     public static List<AnAction> getActions(ActionToolbar actionToolbar) {
         ActionGroup actionGroup = actionToolbar.getActionGroup();
-        if (actionGroup instanceof DefaultActionGroup) {
-            DefaultActionGroup defaultActionGroup = (DefaultActionGroup) actionGroup;
+        if (actionGroup instanceof DefaultActionGroup defaultActionGroup) {
             AnAction[] actions = defaultActionGroup.getChildActionsOrStubs();
             return Arrays
                     .stream(actions)
@@ -131,5 +145,9 @@ public class Actions {
 
     public static boolean isSeparator(AnAction action) {
         return action instanceof Separator;
+    }
+
+    public static AnAction[] toActionArray(Collection<AnAction> actions) {
+        return actions.toArray(new AnAction[0]);
     }
 }

@@ -144,8 +144,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
         FormattingAttributes formattingAttributes = getFormattingAttributes();
         if (formattingAttributes == null) {
             PsiElement psiElement = left ? getFirstChild() : getLastChild();
-            if (psiElement instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+            if (psiElement instanceof BasePsiElement basePsiElement) {
                 return basePsiElement.getFormattingAttributesRecursive(left);
             }
         }
@@ -192,8 +191,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
             if (elementStartOffset < startOffset) {
                 break;
             }
-            if (psiElement instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+            if (psiElement instanceof BasePsiElement basePsiElement) {
                 boolean isSameElement = basePsiElement.elementType == elementType;
                 boolean isIdentifier = basePsiElement instanceof IdentifierPsiElement && this instanceof IdentifierPsiElement;
                 if ((isSameElement || isIdentifier) && elementStartOffset == startOffset) {
@@ -324,8 +322,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
             preElement = preElement.getPrevSibling();
         }
 
-        if (preElement instanceof BasePsiElement) {
-            BasePsiElement previous = (BasePsiElement) preElement;
+        if (preElement instanceof BasePsiElement previous) {
             while (previous.getLastChild() instanceof BasePsiElement) {
                 previous = (BasePsiElement) previous.getLastChild();
             }
@@ -344,14 +341,12 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
         // is first in parent
         if (previousElement == null) {
             PsiElement parent = getParent();
-            if (parent instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) parent;
+            if (parent instanceof BasePsiElement basePsiElement) {
                 return basePsiElement.getPrevLeaf();
             }
         } else if (previousElement instanceof LeafPsiElement) {
             return (LeafPsiElement) previousElement;
-        } else if (previousElement instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) previousElement;
+        } else if (previousElement instanceof BasePsiElement basePsiElement) {
             PsiElement lastChild = basePsiElement.getLastChild();
             while (lastChild != null) {
                 if (lastChild instanceof LeafPsiElement) {
@@ -390,8 +385,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
         Project project = getProject();
         if (virtualFile == null) return;
 
-        if (virtualFile instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) virtualFile;
+        if (virtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             DBEditableObjectVirtualFile databaseFile = sourceCodeFile.getMainDatabaseFile();
             DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
             if (!editorManager.isFileOpen(databaseFile)) {
@@ -407,8 +401,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
             return;
         }
 
-        if (virtualFile instanceof DBConsoleVirtualFile) {
-            DBConsoleVirtualFile consoleVirtualFile = (DBConsoleVirtualFile) virtualFile;
+        if (virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile) {
             BasicTextEditor textEditor = Editors.getTextEditor(consoleVirtualFile);
             if (textEditor != null) {
                 Editor editor = textEditor.getEditor();
@@ -418,8 +411,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
             return;
         }
 
-        if (virtualFile instanceof DBSessionStatementVirtualFile) {
-            DBSessionStatementVirtualFile sessionBrowserStatementFile = (DBSessionStatementVirtualFile) virtualFile;
+        if (virtualFile instanceof DBSessionStatementVirtualFile sessionBrowserStatementFile) {
             SessionBrowser sessionBrowser = sessionBrowserStatementFile.getSessionBrowser();
             SessionBrowserForm editorForm = sessionBrowser.getBrowserForm();
             EditorEx viewer = editorForm.getDetailsForm().getCurrentSqlPanel().getViewer();
@@ -433,8 +425,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
         FileEditorManager editorManager = FileEditorManager.getInstance(project);
         FileEditor[] fileEditors = editorManager.getSelectedEditors();
         for (FileEditor fileEditor : fileEditors) {
-            if (fileEditor instanceof DDLFileEditor) {
-                DDLFileEditor textEditor = (DDLFileEditor) fileEditor;
+            if (fileEditor instanceof DDLFileEditor textEditor) {
                 if (textEditor.getVirtualFile().equals(virtualFile)) {
                     Editor editor = textEditor.getEditor();
                     descriptor.navigateIn(editor);
@@ -473,11 +464,9 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
     public void collectObjectReferences(DBObjectType objectType, Consumer<DBObject> consumer) {
         PsiLookupAdapter lookupAdapter = new ObjectReferenceLookupAdapter(null, objectType, null);
         lookupAdapter.collectInElement(this, basePsiElement -> {
-            if (basePsiElement instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) basePsiElement;
+            if (basePsiElement instanceof IdentifierPsiElement identifierPsiElement) {
                 PsiElement reference = identifierPsiElement.resolve();
-                if (reference instanceof DBObjectPsiElement) {
-                    DBObjectPsiElement objectPsiElement = (DBObjectPsiElement) reference;
+                if (reference instanceof DBObjectPsiElement objectPsiElement) {
                     consumer.accept(objectPsiElement.ensureObject());
                 }
             }
@@ -559,8 +548,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
         PsiElement element = includeThis ? this : getParent();
         while (element != null) {
             if (element instanceof PsiFile) break;
-            if (element instanceof BasePsiElement) {
-                BasePsiElement<?> basePsiElement = (BasePsiElement<?>) element;
+            if (element instanceof BasePsiElement<?> basePsiElement) {
                 if (predicate.test(basePsiElement)) return (E) element;
             }
             element = element.getParent();

@@ -53,13 +53,15 @@ public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
     }
 
     public synchronized WrapperModel initWrapperModel() {
-        if (wrapperModel == null) {
-            WrapperModelBuilder modelBuilder = WrapperModelBuilder.getInstance();
+        String signature = getInput().getMethodSignature();
+        if (wrapperModel != null && wrapperModel.matchesSignature(signature)) return wrapperModel;
 
-            // use technical names during anonymous execution
-            WrapperModelInput wrapperModelInput = new WrapperModelInput(getMethod(), false, true);
-            wrapperModel = modelBuilder.buildModel(wrapperModelInput);
-        }
+        // use technical names during anonymous execution
+        WrapperModelBuilder modelBuilder = WrapperModelBuilder.getInstance();
+        WrapperModelInput wrapperModelInput = new WrapperModelInput(getMethod(), false, true);
+
+        wrapperModel = modelBuilder.buildModel(wrapperModelInput);
+        wrapperModel.setSignature(signature);
         return wrapperModel;
     }
 

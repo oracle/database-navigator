@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.service.selectai.action;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
@@ -47,6 +48,7 @@ public class ProfileSelectAction extends AbstractChatBoxAction {
         DBAIProfile profile = getProfile();
         ChatContext currentContext = chatBox.getCurrentContext();
         ChatContext targetContext = new ChatContextImpl(
+                AssistantType.SELECT_AI,
                 profile.getName(),
                 profile.getProviderId(),
                 profile.getModelId(),

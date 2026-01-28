@@ -22,6 +22,7 @@ import com.dbn.connection.operation.options.ui.OperationsSettingsForm;
 import com.dbn.connection.transaction.options.TransactionManagerSettings;
 import com.dbn.editor.session.options.SessionBrowserSettings;
 import com.dbn.execution.compiler.options.CompilerSettings;
+import com.dbn.help.HelpTopic;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.TopLevelConfig;
@@ -29,6 +30,8 @@ import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.help.HelpTopic.OPERATIONS_SETTINGS;
 
 @EqualsAndHashCode(callSuper = false)
 public class OperationSettings extends CompositeProjectConfiguration<ProjectSettings, OperationsSettingsForm> implements TopLevelConfig {
@@ -57,8 +60,8 @@ public class OperationSettings extends CompositeProjectConfiguration<ProjectSett
     }
 
     @Override
-    public String getHelpTopic() {
-        return "operations";
+    public HelpTopic getConfigHelpTopic() {
+        return OPERATIONS_SETTINGS;
     }
 
     @Override

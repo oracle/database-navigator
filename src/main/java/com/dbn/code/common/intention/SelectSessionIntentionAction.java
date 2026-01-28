@@ -31,7 +31,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 import static com.dbn.assistant.editor.AssistantPrompt.Flavor.COMMENT;
 import static com.dbn.common.util.Editors.isMainEditor;
@@ -79,8 +79,7 @@ public class SelectSessionIntentionAction extends EditorIntentionAction  {
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         PsiFile psiFile = psiElement.getContainingFile();
-        if (psiFile instanceof DBLanguagePsiFile) {
-            DBLanguagePsiFile dbLanguageFile = (DBLanguagePsiFile) psiFile;
+        if (psiFile instanceof DBLanguagePsiFile dbLanguageFile) {
             DataContext dataContext = Context.getDataContext(editor);
             FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
             contextManager.promptSessionSelector(dbLanguageFile.getVirtualFile(), dataContext, null);

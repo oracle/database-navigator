@@ -105,13 +105,7 @@ public abstract class EventNotificationFilterAction extends ComboBoxAction imple
             EventNotificationsForm notificationForm = getNotificationForm(e);
             if (notificationForm == null) return;
 
-            EventNotificationFilter filter = notificationForm.getNotificationsTable().getModel().getFilter();
-            switch (filterType) {
-                case TABLE: filter.setTable(filterValue); break;
-                case OPERATION: filter.setOperation(filterValue); break;
-            }
-            notificationForm.refresh();
-
+            notificationForm.applyFilter(filterType, filterValue);
         }
 
         @Override

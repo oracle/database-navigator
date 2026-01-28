@@ -21,26 +21,34 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBCredential;
-import com.dbn.object.management.ObjectManagementAdapterFactory;
-import com.dbn.object.management.ObjectManagementAdapterFactoryBase;
+import com.dbn.object.management.ObjectManagementAdapterBase;
+import com.dbn.object.management.ObjectManagementAdapterExtension;
 import com.dbn.object.type.DBAttributeType;
 import com.dbn.object.type.DBCredentialType;
+import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 import java.util.Map;
 
+import static com.dbn.common.constant.Constant.array;
 import static com.dbn.object.type.DBAttributeType.FINGERPRINT;
 import static com.dbn.object.type.DBAttributeType.PASSWORD;
 import static com.dbn.object.type.DBAttributeType.PRIVATE_KEY;
+import static com.dbn.object.type.DBAttributeType.TENANCY_OCID;
 import static com.dbn.object.type.DBAttributeType.USER_NAME;
 import static com.dbn.object.type.DBAttributeType.USER_OCID;
-import static com.dbn.object.type.DBAttributeType.USER_TENANCY_OCID;
+import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
 /**
- * Implementation of {@link ObjectManagementAdapterFactory} for objects of type {@link DBCredential}
+ * Implementation of {@link ObjectManagementAdapterExtension} for objects of type {@link DBCredential}
  * @author Dan Cioca (Oracle)
  */
-public class DBCredentialManagementAdapter extends ObjectManagementAdapterFactoryBase<DBCredential> {
+public class DBCredentialManagementAdapter extends ObjectManagementAdapterBase<DBCredential> {
+
+    @Override
+    public DBObjectType[] getObjectTypes() {
+        return array(CREDENTIAL);
+    }
 
     @Override
     protected void createObject(ConnectionHandler connection, DBNConnection conn, DBCredential object) throws SQLException {
@@ -48,7 +56,7 @@ public class DBCredentialManagementAdapter extends ObjectManagementAdapterFactor
         String credentialName = object.getName(true);
         DBCredentialType credentialType = object.getType();
 
-        if (credentialType == DBCredentialType.PASSWORD) {
+        if (credentialType.isOneOf(DBCredentialType.PASSWORD, DBCredentialType.TOKEN)) {
             databaseInterface.createPwdCredential(conn,
                     credentialName,
                     object.getAttribute(USER_NAME),
@@ -58,9 +66,8 @@ public class DBCredentialManagementAdapter extends ObjectManagementAdapterFactor
             databaseInterface.createOciCredential(conn,
                     credentialName,
                     object.getAttribute(USER_OCID),
-                    object.getAttribute(USER_TENANCY_OCID),
-                    object.getAttribute(PRIVATE_KEY),
-                    object.getAttribute(FINGERPRINT));
+                    object.getAttribute(TENANCY_OCID),
+                    object.getAttribute(PRIVATE_KEY), object.getAttribute(FINGERPRINT));
         }
         // update status
         if (object.isEnabled())

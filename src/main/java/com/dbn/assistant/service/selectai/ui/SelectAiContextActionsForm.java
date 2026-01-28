@@ -19,7 +19,6 @@ package com.dbn.assistant.service.selectai.ui;
 import com.dbn.assistant.adapter.ui.AssistantContextActionsForm;
 import com.dbn.assistant.adapter.ui.AssistantDetailFormBase;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.chat.window.ui.ChatBoxInputField;
 import com.dbn.assistant.service.selectai.SelectAiChatContext;
 import com.dbn.assistant.service.selectai.SelectAiContextUtil;
 import com.dbn.assistant.state.AssistantState;
@@ -38,7 +37,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.util.List;
-import java.util.Objects;
 
 import static com.dbn.assistant.state.AssistantStatus.INITIALIZING;
 import static com.dbn.assistant.state.AssistantStatus.UNAVAILABLE;
@@ -75,9 +73,9 @@ public class SelectAiContextActionsForm extends AssistantDetailFormBase implemen
     }
 
     private ObjectChangeListener createObjectChangeListener() {
-        return (connectionId, ownerId, objectType, action) -> {
-            if (!objectType.isOneOf(AI_PROFILE, CREDENTIAL)) return;
-            if (!Objects.equals(connectionId, getConnectionId())) return;
+        return e -> {
+            if (!e.matches(getConnectionId())) return;
+            if (!e.matches(AI_PROFILE, CREDENTIAL)) return;
 
             Background.run(() -> loadProfiles(false));
         };
@@ -136,9 +134,7 @@ public class SelectAiContextActionsForm extends AssistantDetailFormBase implemen
             chatBoxForm.showErrorHeader(e);
         } else {
             initCurrentChat();
-
-            ChatBoxInputField inputField = chatBoxForm.getInputField();
-            inputField.requestFocus();
+            chatBoxForm.focusInputField();
         }
 
         updateActionToolbars();

@@ -31,21 +31,26 @@ public class ConnectionInfo {
     private final DatabaseType databaseType;
     private final String productName;
     private final String productVersion;
+    private final String productVersionNumber;
+
     private final String driverName;
     private final String driverVersion;
     private final String driverJdbcType;
     private final String url;
     private final String userName;
+    private final int maxIdentifierLength;
 
     public ConnectionInfo(DatabaseMetaData metaData) throws SQLException {
         productName = metaData.getDatabaseProductName();
         productVersion = resolveProductVersion(metaData);
+        productVersionNumber = metaData.getDatabaseMajorVersion() + "." + metaData.getDatabaseMinorVersion();
         driverName = Unsafe.silent("UNKNOWN", metaData, md -> md.getDriverName());
         driverVersion = Unsafe.silent("UNKNOWN", metaData, md -> md.getDriverVersion());
         url = metaData.getURL();
         userName = metaData.getUserName();
         driverJdbcType = resolveDriverType(metaData);
         databaseType = DatabaseType.resolve(toLowerCase(productName));
+        maxIdentifierLength = metaData.getMaxProcedureNameLength();
     }
 
     @NotNull

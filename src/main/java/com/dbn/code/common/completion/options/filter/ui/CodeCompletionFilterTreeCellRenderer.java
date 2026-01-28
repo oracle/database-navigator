@@ -36,20 +36,17 @@ public class CodeCompletionFilterTreeCellRenderer extends CheckboxTree.CheckboxT
         Object userObject = node.getUserObject();
 
         ColoredTreeCellRenderer textRenderer = getTextRenderer();
-        if (userObject instanceof CodeCompletionFilterOptionBundle) {
-            CodeCompletionFilterOptionBundle optionBundle = (CodeCompletionFilterOptionBundle) userObject;
+        if (userObject instanceof CodeCompletionFilterOptionBundle optionBundle) {
             textRenderer.append(optionBundle.getName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
         }
-        else if(userObject instanceof CodeCompletionFilterOption) {
-            CodeCompletionFilterOption option = (CodeCompletionFilterOption) userObject;
+        else if(userObject instanceof CodeCompletionFilterOption option) {
             Icon icon = option.getIcon();
             textRenderer.append(option.getName(), icon == null ?
                     SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES :
                     SimpleTextAttributes.REGULAR_ATTRIBUTES);
             textRenderer.setIcon(icon);
         }
-        else if (userObject instanceof CodeCompletionFilterSettings){
-            CodeCompletionFilterSettings codeCompletionFilterSettings = (CodeCompletionFilterSettings) userObject;
+        else if (userObject instanceof CodeCompletionFilterSettings codeCompletionFilterSettings){
             textRenderer.append(codeCompletionFilterSettings.getDisplayName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
         }
 

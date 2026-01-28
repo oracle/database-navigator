@@ -53,8 +53,7 @@ public interface FilteredList<T> extends List<T> {
     }
 
     static <T> List<T> unwrap(List<T> list) {
-        if (list instanceof FilteredList) {
-            FilteredList<T> filteredList = (FilteredList<T>) list;
+        if (list instanceof FilteredList<T> filteredList) {
             return filteredList.getBase();
         }
         return list;

@@ -20,6 +20,7 @@ import com.dbn.common.file.VirtualFileInfo;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.ddl.DDLFileAttachmentManager;
+import com.dbn.help.HelpTopic;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +39,6 @@ public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
         super(object.getProject(), "Detach DDL files", true);
         this.fileInfos = fileInfos;
         this.objectRef = DBObjectRef.of(object);
-        renameAction(getOKAction(), "Detach selected");
         setDefaultSize(700, 400);
         init();
     }
@@ -54,14 +54,19 @@ public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     }
 
     @Override
+    protected HelpTopic getHelpTopic() {
+        return HelpTopic.DDL_FILE_DISASSOCIATION;
+    }
+
+    @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Detach selected");
+        return actions(
                 getOKAction(),
                 new SelectAllAction(),
                 new SelectNoneAction(),
-                getCancelAction()
-        };
+                getCancelAction());
     }
 
     private class SelectAllAction extends AbstractAction {

@@ -89,11 +89,6 @@ public class DatabaseBrowserEditorSettings extends BasicProjectConfiguration<Dat
     }
 
     @Override
-    public String getHelpTopic() {
-        return "browserSettings";
-    }
-
-    @Override
     public void readConfiguration(Element element) {
         List<DefaultEditorOption> newOptions = new ArrayList<>();
         List<Element> children = element.getChildren();

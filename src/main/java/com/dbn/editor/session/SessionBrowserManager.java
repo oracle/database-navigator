@@ -51,7 +51,6 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,7 +68,7 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.notification.NotificationCategory.SESSION_BROWSER;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.util.Commons.list;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -99,9 +98,8 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
         return new DBNFileEditorManagerListener() {
             @Override
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                if (file instanceof DBSessionBrowserVirtualFile) {
+                if (file instanceof DBSessionBrowserVirtualFile sessionBrowserFile) {
                     boolean schedule = openFiles.isEmpty();
-                    DBSessionBrowserVirtualFile sessionBrowserFile = (DBSessionBrowserVirtualFile) file;
                     openFiles.add(sessionBrowserFile);
 
                     if (schedule) {
@@ -113,8 +111,7 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
 
             @Override
             public void whenFileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                if (file instanceof DBSessionBrowserVirtualFile) {
-                    DBSessionBrowserVirtualFile sessionBrowserFile = (DBSessionBrowserVirtualFile) file;
+                if (file instanceof DBSessionBrowserVirtualFile sessionBrowserFile) {
                     openFiles.remove(sessionBrowserFile);
 
                     if (openFiles.isEmpty() && timestampUpdater != null) {
@@ -208,7 +205,7 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
             if (disconnect != null) {
                 String subject = sessionIds.size() > 1 ? "selected sessions" : "session with id \"" + sessionIds.iterator().next().toString() + "\"";
                 disconnect.resolve(getProject(),
-                        list(subject, connection.getName()),
+                        array(subject, connection.getName()),
                         option -> {
                             if (option != SessionInterruptionOption.CANCEL && option != SessionInterruptionOption.ASK) {
                                 doInterruptSessions(sessionBrowser, sessionIds, type, option);
@@ -232,7 +229,7 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
                         Map<SessionIdentifier, SQLException> errors = new HashMap<>();
                         DatabaseMetadataInterface metadata = connection.getMetadataInterface();
                         int index = 0;
-                        for (val entry : sessionIds) {
+                        for (SessionIdentifier entry : sessionIds) {
                             Object sessionId = entry.getSessionId();
                             Object serialNumber = entry.getSerialNumber();
 
@@ -275,7 +272,7 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
         if (sessionCount == 1) {
             SessionIdentifier identifier = idenrifiers.get(0);
             Object sessionId = identifier.getSessionId();
-            if (errors.size() == 0) {
+            if (errors.isEmpty()) {
                 Messages.showInfoDialog(project, "Info", "Session " + sessionId + " " + disconnectedAction + ".");
             } else {
                 SQLException exception = errors.get(identifier);

@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.TextFields.getText;
 
 public class ChatHistoryForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -61,7 +62,7 @@ public class ChatHistoryForm extends DBNFormBase {
         });
 
         TextFields.onTextChange(filterTextField, e ->
-                chatHistoryTable.getModel().filter(filterTextField.getText())
+                chatHistoryTable.getModel().filter(getText(filterTextField))
         );
 
         chatHistoryTable.adjustColumnWidths();

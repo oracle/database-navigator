@@ -53,6 +53,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.TextFields.getText;
 
 public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<ConnectionDetailSettings> {
     private JPanel mainPanel;
@@ -134,7 +135,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
                     restoreWorkspaceDeepCheckBox.setSelected(false);
                 }
             }
-            getConfiguration().setModified(true);
+            mackConfigModified();
         };
     }
 
@@ -196,7 +197,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         configuration.setEnableSessionManagement(sessionManagementCheckBox.isSelected());
         configuration.setEnableDdlFileBinding(ddlFileBindingCheckBox.isSelected());
         configuration.setEnableDatabaseLogging(databaseLoggingCheckBox.isSelected());
-        configuration.setAlternativeStatementDelimiter(alternativeStatementDelimiterTextField.getText());
+        configuration.setAlternativeStatementDelimiter(getText(alternativeStatementDelimiterTextField));
         int connectivityTimeout = ConfigurationEditors.validateIntegerValue(connectivityTimeoutTextField, txt("cfg.connection.field.ConnectivityTimeout"), true, 0, 90, "");
         int idleTimeToDisconnect = ConfigurationEditors.validateIntegerValue(idleTimeTextField, txt("cfg.connection.field.IdleTimeToDisconnect"), true, 0, 60, "");
         int idleTimeToDisconnectPool = ConfigurationEditors.validateIntegerValue(idleTimePoolTextField, txt("cfg.connection.field.IdleTimeToDisconnectPool"), true, 1, 60, "");

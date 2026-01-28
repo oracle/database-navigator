@@ -52,6 +52,11 @@ public enum ClientProperty {
     EMPTY_OPTIONS_TEXT,
     HORIZONTAL_SCROLL_POLICY,
     VERTICAL_SCROLL_POLICY,
+    VALIDATION_INFO,
+    FIELD_ALIGNER_DATA,
+    FIELD_DISABLED_REASONS,
+    NON_DISABLEABLE,
+    FORM,
 
     // addons
     COLUMN_DRAG_SCROLL_ADDON,
@@ -72,11 +77,9 @@ public enum ClientProperty {
     }
 
     public <T> T get(Component component) {
-        if (component instanceof JComponent) {
-            JComponent comp = (JComponent) component;
+        if (component instanceof JComponent comp) {
             Object prop = comp.getClientProperty(this);
-            if (prop instanceof WeakRef) {
-                WeakRef ref = (WeakRef) prop;
+            if (prop instanceof WeakRef ref) {
                 prop = ref.get();
             }
             return Unsafe.cast(prop);
@@ -97,9 +100,12 @@ public enum ClientProperty {
         set(component, value, false);
     }
 
+    public void reset(Component component) {
+        set(component, null, false);
+    }
+
     public <T> void set(Component component, T value, boolean weak) {
-        if (component instanceof JComponent) {
-            JComponent comp = (JComponent) component;
+        if (component instanceof JComponent comp) {
             comp.putClientProperty(this, weak ? WeakRef.of(value) : value);
         }
     }

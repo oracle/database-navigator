@@ -16,8 +16,10 @@
 
 package com.dbn.assistant.service.selectai.profile.wizard;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
@@ -33,8 +35,10 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.util.Commons.nvl;
@@ -45,123 +49,133 @@ import static com.dbn.nls.NlsResources.txt;
  *
  * @see ProfileEditionWizard
  */
-public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardModel>  implements Disposable {
+public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardModel> implements Disposable {
 
-  private JPanel mainPanel;
-  private JComboBox<AIProvider> providerNameCombo;
-  private JComboBox<AIModel> providerModelCombo;
-  private JSlider temperatureSlider;
-  private JLabel conversationLabel;
-  private JCheckBox conversationCheckBox;
-  private final ProfileData profile;
+    private JPanel mainPanel;
+    private JComboBox<AIProvider> providerNameCombo;
+    private JComboBox<AIModel> providerModelCombo;
+    private JSlider temperatureSlider;
+    private JLabel conversationLabel;
+    private JCheckBox conversationCheckBox;
+    private final ProfileData profile;
 
-  private static final int MIN_TEMPERATURE = 0;
-  private static final int MAX_TEMPERATURE = 10;
-  private static final int DEFAULT_TEMPERATURE = 5;
+    private static final int MIN_TEMPERATURE = 0;
+    private static final int MAX_TEMPERATURE = 10;
+    private static final int DEFAULT_TEMPERATURE = 5;
 
 
-  public ProfileEditionProviderStep(ConnectionHandler connection, ProfileData profile, boolean isUpdate) {
-    super(txt("cfg.assistant.title.ProviderSettings"),
-            txt("cfg.assistant.text.ProviderSettings"));
-    this.profile = profile;
-    configureTemperatureSlider();
-    populateCombos();
-    if (isUpdate) {
-      providerNameCombo.setSelectedItem(profile.getProvider());
-      providerModelCombo.setSelectedItem(profile.getModel() != null ? profile.getModel() : profile.getProvider().getDefaultModel());
-      conversationCheckBox.setSelected(profile.isConversation());
-      temperatureSlider.setValue((int) (profile.getTemperature() * 10));
-    } else {
-      UserInterface.whenShown(mainPanel, () -> {
-        AIProvider provider = guessProviderType(profile);
-        providerNameCombo.setSelectedItem(provider);
-        providerModelCombo.setSelectedItem(provider.getDefaultModel());
-        conversationCheckBox.setSelected(true);
-        temperatureSlider.setValue(5);
-      }, false);
+    public ProfileEditionProviderStep(ConnectionHandler connection, ProfileData profile, boolean isUpdate) {
+        super(txt("cfg.assistant.title.ProviderSettings"),
+                txt("cfg.assistant.text.ProviderSettings"));
+        this.profile = profile;
+        configureTemperatureSlider();
+        populateCombos();
+        if (isUpdate) {
+            providerNameCombo.setSelectedItem(profile.getProvider());
+            providerModelCombo.setSelectedItem(profile.getModel() != null ? profile.getModel() : profile.getProvider().getDefaultModel());
+            conversationCheckBox.setSelected(profile.isConversation());
+            temperatureSlider.setValue((int) (profile.getTemperature() * 10));
+        } else {
+            UserInterface.whenShown(mainPanel, () -> {
+                AIProvider provider = guessProviderType(profile);
+                providerNameCombo.setSelectedItem(provider);
+                providerModelCombo.setSelectedItem(provider.getDefaultModel());
+                conversationCheckBox.setSelected(true);
+                temperatureSlider.setValue(5);
+            }, false);
+
+        }
+    }
+
+    private AIProvider guessProviderType(ProfileData profile) {
+        Set<String> captions = new HashSet<>();
+        captions.add(nvl(profile.getName(), ""));
+        captions.add(nvl(profile.getCredentialName(), ""));
+        captions.add(nvl(profile.getDescription(), ""));
+
+        List<AIProvider> providers = getProviders();
+        for (AIProvider value : providers) {
+            if (captions.stream().anyMatch(c -> Strings.containsIgnoreCase(c, value.getId().id()))) return value;
+        }
+        return Lists.firstElement(providers);
+    }
+
+    private static List<AIProvider> getProviders() {
+        return AIProviderData.getProviders(AssistantType.SELECT_AI);
+    }
+
+    private void populateCombos() {
+        for (AIProvider type : getProviders()) {
+            providerNameCombo.addItem(type);
+        }
+        getModels().forEach(m -> providerModelCombo.addItem(m));
+        providerNameCombo.addActionListener((e) -> {
+            providerModelCombo.removeAllItems();
+            getModels().forEach(m -> providerModelCombo.addItem(m));
+        });
+    }
+
+    private List<AIModel> getModels() {
+        AIProvider selectedProvider = (AIProvider) providerNameCombo.getSelectedItem();
+        return selectedProvider == null ? Collections.emptyList() : selectedProvider.getModels();
+    }
+
+    private void configureTemperatureSlider() {
+        temperatureSlider.setMinimum(MIN_TEMPERATURE);
+        temperatureSlider.setMaximum(MAX_TEMPERATURE);
+        temperatureSlider.setValue(DEFAULT_TEMPERATURE);
+        temperatureSlider.setMajorTickSpacing(2);
+        temperatureSlider.setMinorTickSpacing(1);
+        temperatureSlider.setPaintTicks(true);
+        temperatureSlider.setPaintLabels(true);
+        updateSliderLabels(temperatureSlider, temperatureSlider.getValue());
+
+        temperatureSlider.addChangeListener(e -> {
+            JSlider source = (JSlider) e.getSource();
+            if (!source.getValueIsAdjusting()) {
+                updateSliderLabels(source, source.getValue());
+            }
+        });
 
     }
-  }
 
-  private AIProvider guessProviderType(ProfileData profile) {
-    Set<String> captions = new HashSet<>();
-    captions.add(nvl(profile.getName(), ""));
-    captions.add(nvl(profile.getCredentialName(), ""));
-    captions.add(nvl(profile.getDescription(), ""));
-
-    for (AIProvider value : AIProvider.values()) {
-        if (captions.stream().anyMatch(c -> Strings.containsIgnoreCase(c, value.getId()))) return value;
+    private void updateSliderLabels(JSlider slider, int currentValue) {
+        Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
+        labelTable.put(0, new JLabel("0"));
+        labelTable.put(currentValue, new JLabel(String.valueOf((float) currentValue / 10)));
+        labelTable.put(10, new JLabel("1"));
+        slider.setLabelTable(labelTable);
     }
-    return Lists.firstElement(AIProvider.values());
-  }
 
-  private void populateCombos() {
-    for (AIProvider type : AIProvider.values()) {
-      providerNameCombo.addItem(type);
+    @Override
+    public @Nullable String getHelpId() {
+        return null;
     }
-    ((AIProvider) providerNameCombo.getSelectedItem()).getModels().forEach(m -> providerModelCombo.addItem(m));
-    providerNameCombo.addActionListener((e) -> {
-      providerModelCombo.removeAllItems();
-      ((AIProvider) providerNameCombo.getSelectedItem()).getModels().forEach(m -> providerModelCombo.addItem(m));
-    });
-  }
 
-  private void configureTemperatureSlider() {
-    temperatureSlider.setMinimum(MIN_TEMPERATURE);
-    temperatureSlider.setMaximum(MAX_TEMPERATURE);
-    temperatureSlider.setValue(DEFAULT_TEMPERATURE);
-    temperatureSlider.setMajorTickSpacing(2);
-    temperatureSlider.setMinorTickSpacing(1);
-    temperatureSlider.setPaintTicks(true);
-    temperatureSlider.setPaintLabels(true);
-    updateSliderLabels(temperatureSlider, temperatureSlider.getValue());
+    @Override
+    public JComponent prepare(WizardNavigationState wizardNavigationState) {
+        return mainPanel;
+    }
 
-    temperatureSlider.addChangeListener(e -> {
-      JSlider source = (JSlider) e.getSource();
-      if (!source.getValueIsAdjusting()) {
-        updateSliderLabels(source, source.getValue());
-      }
-    });
+    @Nullable
+    @Override
+    public JComponent getPreferredFocusedComponent() {
+        return providerNameCombo;
+    }
 
-  }
+    @Override
+    public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel wizardModel) {
+        AIProvider provider = (AIProvider) providerNameCombo.getSelectedItem();
+        AIModel model = (AIModel) providerModelCombo.getSelectedItem();
+        profile.setProvider(provider);
+        profile.setModel(model);
+        profile.setConversation(conversationCheckBox.isSelected());
+        profile.setTemperature((float) temperatureSlider.getValue() / 10);
+        return super.onNext(wizardModel);
+    }
 
-  private void updateSliderLabels(JSlider slider, int currentValue) {
-    Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
-    labelTable.put(0, new JLabel("0"));
-    labelTable.put(currentValue, new JLabel(String.valueOf((float) currentValue / 10)));
-    labelTable.put(10, new JLabel("1"));
-    slider.setLabelTable(labelTable);
-  }
-
-  @Override
-  public @Nullable String getHelpId() {
-    return null;
-  }
-
-  @Override
-  public JComponent prepare(WizardNavigationState wizardNavigationState) {
-    return mainPanel;
-  }
-
-  @Nullable
-  @Override
-  public JComponent getPreferredFocusedComponent() {
-    return providerNameCombo;
-  }
-
-  @Override
-  public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel wizardModel) {
-    AIProvider provider = (AIProvider) providerNameCombo.getSelectedItem();
-    AIModel model = (AIModel) providerModelCombo.getSelectedItem();
-    profile.setProvider(provider);
-    profile.setModel(model);
-    profile.setConversation(conversationCheckBox.isSelected());
-    profile.setTemperature((float) temperatureSlider.getValue() / 10);
-    return super.onNext(wizardModel);
-  }
-
-  @Override
-  public void dispose() {
-    // TODO dispose UI resources
-  }
+    @Override
+    public void dispose() {
+        // TODO dispose UI resources
+    }
 }

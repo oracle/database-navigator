@@ -36,8 +36,7 @@ public class ConsoleDeleteAction extends ProjectAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         VirtualFile virtualFile = Lookups.getVirtualFile(e);
-        if (virtualFile instanceof DBConsoleVirtualFile) {
-            DBConsoleVirtualFile consoleVirtualFile = (DBConsoleVirtualFile) virtualFile;
+        if (virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile) {
             DatabaseConsoleManager consoleManager = DatabaseConsoleManager.getInstance(project);
             consoleManager.deleteConsole(consoleVirtualFile.getConsole());
         }

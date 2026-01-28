@@ -32,8 +32,7 @@ public class DBObjectListCellRenderer extends ColoredListCellRenderer {
 
     @Override
     protected void customize(@NotNull JList list, Object value, int index, boolean selected, boolean hasFocus) {
-        if (value instanceof DBObject) {
-            DBObject object = (DBObject) value;
+        if (value instanceof DBObject object) {
             setIcon(object.getIcon());
             append(object.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             ConnectionHandler connection = Failsafe.nn(object.getConnection());

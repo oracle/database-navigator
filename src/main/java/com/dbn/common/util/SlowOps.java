@@ -38,6 +38,7 @@ public class SlowOps {
         if (invalidEntity != null && invalidEntity) return false;
 
         if (ThreadMonitor.isDispatchThread()) return true;
+        if (ThreadMonitor.isDispatcherThread()) return true;
         boolean valid = verifier.test(entity);
 
         if (!valid) entity.putUserData(UserDataKeys.INVALID_ENTITY, true);

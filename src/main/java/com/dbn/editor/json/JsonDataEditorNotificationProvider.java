@@ -89,11 +89,8 @@ public class JsonDataEditorNotificationProvider extends EditorNotificationProvid
     @Nullable
     @Override
     public JsonDataEditorNotificationPanel createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
-        if (!(file instanceof DBEditableObjectVirtualFile)) return null;
-        if (!(fileEditor instanceof JsonDataEditor)) return null;
-
-        DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) file;
-        JsonDataEditor jsonDataEditor = (JsonDataEditor) fileEditor;
+        if (!(file instanceof DBEditableObjectVirtualFile editableObjectFile)) return null;
+        if (!(fileEditor instanceof JsonDataEditor jsonDataEditor)) return null;
 
         DBJsonView jsonView = (DBJsonView) editableObjectFile.getObject();
         if (!jsonDataEditor.isLoaded()) return null;

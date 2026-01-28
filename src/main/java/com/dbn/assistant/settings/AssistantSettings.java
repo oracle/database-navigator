@@ -16,10 +16,12 @@
 
 package com.dbn.assistant.settings;
 
-import com.dbn.assistant.credential.LocalCredentialSettings;
+import com.dbn.assistant.credential.AssistantCredentialSettings;
+import com.dbn.assistant.profile.AssistantProfileSettings;
 import com.dbn.assistant.settings.ui.AssistantSettingsForm;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
+import com.dbn.help.HelpTopic;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.TopLevelConfig;
@@ -28,16 +30,22 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.util.Commons.array;
+import static com.dbn.help.HelpTopic.ASSISTANT_CONFIG;
+
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class AssistantSettings
     extends CompositeProjectConfiguration<ProjectSettings, AssistantSettingsForm>
     implements TopLevelConfig {
 
-  private final LocalCredentialSettings credentialSettings = new LocalCredentialSettings(this);
+  private final AssistantCredentialSettings credentialSettings;
+  private final AssistantProfileSettings profileSettings;
 
   public AssistantSettings(ProjectSettings parent) {
     super(parent);
+    this.credentialSettings = new AssistantCredentialSettings(this);
+    this.profileSettings = new AssistantProfileSettings(this);
   }
 
   @NotNull
@@ -62,8 +70,8 @@ public class AssistantSettings
   }
 
   @Override
-  public String getHelpTopic() {
-    return "aiProvidersSettings";
+  public HelpTopic getConfigHelpTopic() {
+    return ASSISTANT_CONFIG;
   }
 
   @Override
@@ -83,8 +91,9 @@ public class AssistantSettings
 
   @Override
   protected Configuration[] createConfigurations() {
-    return new Configuration[]{
-            credentialSettings};
+    return array(
+            credentialSettings,
+            profileSettings);
   }
 
   @Override

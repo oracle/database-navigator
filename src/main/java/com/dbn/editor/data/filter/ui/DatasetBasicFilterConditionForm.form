@@ -8,12 +8,6 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="e3cdf" class="com.dbn.common.ui.misc.DBNComboBox" binding="columnSelector">
-        <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
-      </component>
       <component id="94293" class="com.dbn.common.ui.misc.DBNComboBox" binding="operatorSelector">
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -36,6 +30,12 @@
         <border type="none"/>
         <children/>
       </grid>
+      <component id="ae605" class="com.dbn.object.common.ui.DBObjectSelector" binding="columnSelector">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
     </children>
   </grid>
 </form>

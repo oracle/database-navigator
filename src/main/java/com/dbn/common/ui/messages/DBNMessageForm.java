@@ -16,6 +16,8 @@
 
 package com.dbn.common.ui.messages;
 
+import com.dbn.common.dispose.Disposer;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -27,6 +29,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.ui.MouseDragHelper;
+import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,22 +41,25 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
 
+import static com.dbn.common.message.MessageType.PROCESSING;
 import static com.intellij.util.ui.JBUI.emptyInsets;
 
 public class DBNMessageForm extends DBNFormBase {
     private JPanel mainPanel;
     private JLabel titleLabel;
     private JTextPane messageTextPane;
-    private JLabel iconLabel;
     private JPanel rememberOptionPanel;
+    private JPanel iconPanel;
 
     private Icon icon;
+    private AsyncProcessIcon processIcon;
     private String title;
     private String message;
 
@@ -76,7 +82,14 @@ public class DBNMessageForm extends DBNFormBase {
     }
 
     public void setMessage(TitledMessage message) {
-        setIcon(message.getDialogIcon());
+        MessageType messageType = message.getType();
+        if (messageType == PROCESSING) {
+            initProgressIcon();
+        } else {
+            icon = message.getDialogIcon();
+            initIcon();
+        }
+
         setTitle(message.getTitle());
         setMessage(message.getText());
     }
@@ -96,13 +109,27 @@ public class DBNMessageForm extends DBNFormBase {
         initMessage();
     }
 
+    private void initProgressIcon() {
+        Disposer.dispose(processIcon);
+        processIcon = new AsyncProcessIcon.Big("Processing");
+        iconPanel.removeAll();
+        iconPanel.add(processIcon);
+        iconPanel.setVisible(true);
+    }
+
     private void initIcon() {
+        Disposer.dispose(processIcon);
         if (icon == null) {
-            iconLabel.setVisible(false);
+            iconPanel.setVisible(false);
         } else {
-            iconLabel.setVisible(true);
+            iconPanel.removeAll();
+            iconPanel.setVisible(true);
+
+            JLabel iconLabel = new JLabel();
             iconLabel.setIcon(icon);
             iconLabel.setText("");
+            iconLabel.setPreferredSize(new Dimension(32, 32));
+            iconPanel.add(iconLabel);
         }
     }
 
@@ -138,8 +165,7 @@ public class DBNMessageForm extends DBNFormBase {
 
     private void initDragging() {
         Disposable parentComponent = getParentComponent();
-        if (parentComponent instanceof DBNMessageDialog) {
-            DBNMessageDialog dialog = (DBNMessageDialog) parentComponent;
+        if (parentComponent instanceof DBNMessageDialog dialog) {
             DragHelper dragHelper = new DragHelper(dialog, this);
             dragHelper.start();
         }

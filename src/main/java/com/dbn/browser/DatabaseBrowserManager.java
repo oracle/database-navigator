@@ -119,8 +119,7 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
         if (activeBrowserTree == null) return null;
 
         BrowserTreeModel model = activeBrowserTree.getModel();
-        if (model instanceof ConnectionBrowserTreeModel) {
-            ConnectionBrowserTreeModel treeModel = (ConnectionBrowserTreeModel) model;
+        if (model instanceof ConnectionBrowserTreeModel treeModel) {
             return treeModel.getConnection();
         }
 
@@ -258,8 +257,7 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
                 if (!autoscrollFromEditor.value()) return;
                 if (isSkipBrowserAutoscroll(file)) return;
 
-                if (file instanceof DBVirtualFile) {
-                    DBVirtualFile databaseVirtualFile = (DBVirtualFile) file;
+                if (file instanceof DBVirtualFile databaseVirtualFile) {
                     DBObject object = databaseVirtualFile.getObject();
                     if (object != null) {
                         navigateToElement(object, true);
@@ -281,8 +279,7 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
                 if (isSkipBrowserAutoscroll(newFile)) return;
                 if (Objects.equals(oldFile, newFile)) return;
 
-                if (newFile instanceof DBVirtualFile) {
-                    DBVirtualFile virtualFile = (DBVirtualFile) newFile;
+                if (newFile instanceof DBVirtualFile virtualFile) {
                     DBObject object = virtualFile.getObject();
                     if (object != null) {
                         navigateToElement(object, true);
@@ -323,8 +320,7 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
 
         for (TreePath treePath : selectionPaths) {
             Object lastPathComponent = treePath.getLastPathComponent();
-            if (lastPathComponent instanceof DBObject) {
-                DBObject object = (DBObject) lastPathComponent;
+            if (lastPathComponent instanceof DBObject object) {
                 selectedObjects.add(object);
             }
         }

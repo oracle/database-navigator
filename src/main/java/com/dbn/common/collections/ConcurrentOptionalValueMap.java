@@ -119,7 +119,7 @@ public class ConcurrentOptionalValueMap<K, V> implements Map<K, V> {
 
     @Override
     public Collection<V> values() {
-        return inner.values().stream().map(v -> unwrap(v)).collect(Collectors.toList());
+        return inner.values().stream().map(v -> unwrap(v)).toList();
     }
 
     @Override

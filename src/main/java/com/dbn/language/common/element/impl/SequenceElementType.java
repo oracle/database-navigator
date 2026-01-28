@@ -178,8 +178,7 @@ public class SequenceElementType extends ElementTypeBase {
     }
 
     public int indexOf(LeafElementType leafElementType) {
-        if (wrapping != null && leafElementType instanceof TokenElementType) {
-            TokenElementType tokenElementType = (TokenElementType) leafElementType;
+        if (wrapping != null && leafElementType instanceof TokenElementType tokenElementType) {
             if (wrapping.endElementType.tokenType == tokenElementType.tokenType) {
                 return children.length-1;
             }
@@ -196,8 +195,7 @@ public class SequenceElementType extends ElementTypeBase {
     }
 
     public int indexOf(ElementType elementType, int fromIndex) {
-        if (wrapping != null && elementType instanceof TokenElementType) {
-            TokenElementType tokenElementType = (TokenElementType) elementType;
+        if (wrapping != null && elementType instanceof TokenElementType tokenElementType) {
             if (wrapping.endElementType.tokenType == tokenElementType.tokenType) {
                 return children.length-1;
             }

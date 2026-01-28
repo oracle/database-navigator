@@ -25,14 +25,14 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Unsafe.cast;
 
-public class AssistantModelInvokers extends ExtensionPointCache<Class, AssistantModelInvoker> {
+public class AssistantModelInvokers extends ExtensionPointCache<AssistantModelType, AssistantModelInvoker> {
     private static final AssistantModelInvokers INSTANCE = new AssistantModelInvokers();
 
     private AssistantModelInvokers() {
         super(AssistantModelInvoker.EP, e -> e.getModelType());
     }
 
-    public static @NotNull <T> AssistantModelInvoker<T> get(Class modelType) {
+    public static @NotNull <T> AssistantModelInvoker<T> get(AssistantModelType modelType) {
         return cast(INSTANCE.find(modelType));
     }
 

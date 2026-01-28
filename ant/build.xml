@@ -99,7 +99,7 @@
         <mkdir dir="${compiler.output.dir}"/>
         <javac2 srcdir="${source.dir}/../modules/dbn-api/src/main/java"
                 destdir="${compiler.output.dir}"
-                source="11" target="11" debug="true">
+                source="17" target="17" debug="true">
             <patternset refid="compiler.ignored.files"/>
             <classpath refid="classpath.ide"/>
             <classpath refid="classpath.project"/>
@@ -108,7 +108,7 @@
 
         <javac2 srcdir="${source.dir}/../modules/dbn-spi/src/main/java"
                 destdir="${compiler.output.dir}"
-                source="11" target="11" debug="true">
+                source="17" target="17" debug="true">
             <patternset refid="compiler.ignored.files"/>
             <classpath refid="classpath.ide"/>
             <classpath refid="classpath.project"/>
@@ -118,7 +118,7 @@
 
         <javac2 srcdir="${source.dir}/main/java"
                 destdir="${compiler.output.dir}"
-                source="11" target="11" debug="true">
+                source="17" target="17" debug="true">
             <patternset refid="compiler.ignored.files"/>
             <classpath refid="classpath.ide"/>
             <classpath refid="classpath.project"/>
@@ -160,7 +160,6 @@
         <mkdir dir="${distribution.dir}" />
         <antcall target="build.jar"/>
         <antcall target="build.zip"/>
-        <antcall target="build.src"/>
     </target>
 
     <target name="build.jar" description="Build plugin jar">
@@ -186,20 +185,6 @@
             </zipfileset>
         </zip>
     </target>
-    <target name="build.src" description="Build distribution src file">
-        <zip file="${distribution.dir}/src.zip">
-            <zipfileset dir=".." prefix="DBNavigator">
-                <include name="src/**/*"/>
-                <include name="build/**/*"/>
-                <include name="lib/**/*"/>
-
-                <include name="*.iml"/>
-                <include name="*.ipr"/>
-                <include name="*.iws"/>
-            </zipfileset>
-        </zip>
-    </target>
-
     <target name="init" description="Build initialization">
         <!-- Perform any build initialization in this target -->
     </target>

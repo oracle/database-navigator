@@ -53,7 +53,7 @@ import static com.dbn.common.component.ApplicationMonitor.checkAppExitRequested;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
-import static com.dbn.common.util.Commons.list;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.isLast;
 import static com.dbn.connection.transaction.TransactionAction.COMMIT;
@@ -228,7 +228,7 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
                     String fileUrl = selectedFile.getPresentableUrl();
 
                     getSettings().getCommitMultipleChanges().resolve(
-                            project, list(connectionName, fileUrl),
+                            project, array(connectionName, fileUrl),
                             option -> {
                                 switch (option) {
                                     case COMMIT: execute(connection, c, actions, background, commitCallback); break;
@@ -267,7 +267,7 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
                     String connectionName = connection.getConnectionName(c);
 
                     getSettings().getRollbackMultipleChanges().resolve(
-                            project, list(connectionName, selectedFile.getPresentableUrl()),
+                            project, array(connectionName, selectedFile.getPresentableUrl()),
                             option -> {
                                 switch (option) {
                                     case ROLLBACK: execute(connection, c, actions, background, rollbackCallback); break;
@@ -321,7 +321,7 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
                 String connectionName = connection.getConnectionName(conn);
 
                 getSettings().getToggleAutoCommit().resolve(
-                        project, list(connectionName),
+                        project, array(connectionName),
                         option -> {
                             switch (option) {
                                 case COMMIT:   execute(connection, conn, actions(COMMIT, autoCommitAction), true, null); break;
@@ -343,7 +343,7 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
             if (conn.hasDataChanges()) {
                 String connectionName = connection.getConnectionName(conn);
                 getSettings().getDisconnect().resolve(
-                        project, list(connectionName),
+                        project, array(connectionName),
                         option -> {
                             switch (option) {
                                 case COMMIT:   execute(connection, conn, actions(COMMIT, DISCONNECT), false, null);break;
@@ -368,7 +368,7 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
         InteractiveOptionBroker<TransactionOption> closeProjectOptionHandler = transactionManagerSettings.getCloseProject();
 
         closeProjectOptionHandler.resolve(
-                project, list(project.getName()),
+                project, array(project.getName()),
                 option -> {
                     switch (option) {
                         case COMMIT: {

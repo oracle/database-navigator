@@ -26,12 +26,13 @@ import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.ui.DBObjectSelector;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.sync.java.upload.JavaUploadBatch;
 import com.dbn.sync.java.upload.JavaUploadInput;
 import com.dbn.sync.java.upload.JavaUploadManager;
 import com.dbn.sync.java.upload.JavaUploadTask;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -42,7 +43,6 @@ import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
-import static com.dbn.common.ui.util.ComboBoxes.setEmptyOptionsText;
 import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
 import static java.util.Collections.emptyList;
 
@@ -52,9 +52,8 @@ public class JavaUploadInputForm extends DBNFormBase {
     private JPanel hintPanel;
     private JPanel targetLocationPanel;
     private DBNComboBox<ConnectionHandler> connectionComboBox;
-    private DBNComboBox<DBSchema> schemaComboBox;
+    private DBObjectSelector<DBSchema> schemaComboBox;
     private CheckBoxList<JavaUploadTask> dependenciesCheckBoxList;
-    private JPanel schemaLoadPanel;
 
     public JavaUploadInputForm(JavaUploaderInputDialog dialog) {
         super(dialog);
@@ -122,15 +121,13 @@ public class JavaUploadInputForm extends DBNFormBase {
     }
 
     private void initSchemaSelectors() {
-        schemaLoadPanel.add(new AsyncProcessIcon("Loading schemas"));
-        schemaLoadPanel.setVisible(false);
-        setEmptyOptionsText(schemaComboBox, "Schemas not loaded");
-        //initLadingHint(schemaComboBox, "Loading schemas...");
+        schemaComboBox
+                .initialize(this, DBObjectType.SCHEMA)
+                .withConnectionContext(() -> getSelectedConnection())
+                .withValueLoader(() -> loadSchemas())
+                .triggerLoad();
 
-        whenShown(() -> {
-            schemaComboBox.setValueLoader(() -> loadSchemas());
-            onSelectionChange(connectionComboBox, s -> schemaComboBox.reloadValues());
-        });
+        onSelectionChange(connectionComboBox, s -> schemaComboBox.reloadValues());
     }
 
     private List<DBSchema> loadSchemas() {

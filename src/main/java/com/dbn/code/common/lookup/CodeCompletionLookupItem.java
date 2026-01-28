@@ -74,8 +74,7 @@ public class CodeCompletionLookupItem extends LookupItem {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof CodeCompletionLookupItem) {
-            CodeCompletionLookupItem lookupItem = (CodeCompletionLookupItem) o;
+        if (o instanceof CodeCompletionLookupItem lookupItem) {
             return Objects.equals(lookupItem.getLookupString(), getLookupString());
         }
 

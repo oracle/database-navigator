@@ -17,12 +17,9 @@
 package com.dbn.debugger.prerequisite;
 
 import com.dbn.common.operation.DatabaseOperation;
-import com.dbn.connection.context.DatabaseContext;
-import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator;
+import com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluatorBase;
 import com.dbn.prerequisite.model.PrerequisiteMandate;
-import com.dbn.prerequisite.model.PrerequisiteType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.operation.DatabaseOperation.DEBUG_JAVA_CODE;
@@ -36,7 +33,7 @@ import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_DEBUG;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.EXECUTE_DBMS_DEBUG_JDWP;
 import static com.dbn.prerequisite.shared.PrerequisiteTypes.HOST_ACE_JDWP;
 
-public class DebugPrerequisitesEvaluator implements PrerequisiteRequirementEvaluator {
+public class DebugPrerequisitesEvaluator extends PrerequisiteRequirementEvaluatorBase {
 
 
     @Override
@@ -48,9 +45,7 @@ public class DebugPrerequisitesEvaluator implements PrerequisiteRequirementEvalu
     }
 
     @Override
-    public List<PrerequisiteMandate> resolvePrerequisites(DatabaseContext context, DatabaseOperation operation) {
-        List<PrerequisiteMandate> mandates = new ArrayList<>();
-
+    protected void createMandates(List<PrerequisiteMandate> mandates, DatabaseOperation operation) {
         if (operation == DEBUG_JAVA_CODE) {
             createMandate(mandates, CREATE_PROCEDURE, "Allows user to create functions, procedures, and packages in own schema. This is required for creating the java execution wrappers");
             createMandate(mandates, CREATE_TYPE, "Allows user to create database types in own schema. These are sometimes required as data converters in the java execution wrappers");
@@ -67,10 +62,5 @@ public class DebugPrerequisitesEvaluator implements PrerequisiteRequirementEvalu
             createMandate(mandates, EXECUTE_DBMS_DEBUG_JDWP, "Allows the user to execute procedures and functions of the SYS.DBMS_DEBUG_JDWP package, which provides an API for debugging PL/SQL and Java code within the database");
             createMandate(mandates, HOST_ACE_JDWP, "Grants database access to a network location. Enables a database user to establish a JDWP connection to a specific host");
         }
-        return mandates;
-    }
-
-    private static void createMandate(List<PrerequisiteMandate> mandates, PrerequisiteType type, String reason) {
-        mandates.add(new PrerequisiteMandate(type, reason));
     }
 }

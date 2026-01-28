@@ -18,8 +18,8 @@ package com.dbn.data.record.ui;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.locale.Formatter;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.data.record.DatasetRecord;
 import com.dbn.data.type.DBDataType;
@@ -33,14 +33,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 
-public class RecordViewerColumnForm extends DBNFormBase implements ComponentAligner.Form {
+public class RecordViewerColumnForm extends DBNFormBase {
     private JLabel columnLabel;
     private JPanel valueFieldPanel;
     private JLabel dataTypeLabel;
@@ -84,6 +83,12 @@ public class RecordViewerColumnForm extends DBNFormBase implements ComponentAlig
         setAccessibleUnit(valueTextField, dataTypeLabel.getText());
     }
 
+    @Override
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerFieldGroup(columnLabel, dataTypeLabel);
+    }
+
     @NotNull
     @Override
     public JPanel getMainComponent() {
@@ -98,8 +103,7 @@ public class RecordViewerColumnForm extends DBNFormBase implements ComponentAlig
     private void updateColumnValue(DBColumn column) {
         Object value = record.getColumnValue(column);
         Formatter formatter = Formatter.getInstance(ensureProject());
-        if (value instanceof String) {
-            String userValue = (String) value;
+        if (value instanceof String userValue) {
             if (userValue.indexOf('\n') > -1) {
                 userValue = userValue.replace('\n', ' ');
             } else {
@@ -115,12 +119,6 @@ public class RecordViewerColumnForm extends DBNFormBase implements ComponentAlig
     public DBColumn getColumn() {
         return column.ensure();
     }
-
-    @Override
-    public Component[] getAlignableComponents() {
-        return new Component[]{columnLabel, dataTypeLabel};
-    }
-
 
 /*    public Object getEditorValue() throws ParseException {
         DBDataType dataType = cell.getColumnInfo().getDataType();

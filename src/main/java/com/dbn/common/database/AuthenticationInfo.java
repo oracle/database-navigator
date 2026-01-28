@@ -39,6 +39,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Objects;
 
+import static com.dbn.common.database.AuthenticationInfo.Attributes.ADB_COMPARTMENT_OCID;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.ADB_DATABASE_OCID;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_CLIENT_CERTIFICATE_FILE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_CLIENT_ID;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.AZURE_TOKEN_DATABASE_ID_URI;
@@ -74,6 +76,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         @NonNls String TOKEN_TYPE = "token-type";
         @NonNls String TOKEN_CONFIG_FILE = "token-config-file";
         @NonNls String TOKEN_PROFILE = "token-profile";
+        @NonNls String ADB_COMPARTMENT_OCID = "adb-compartment-ocid";
+        @NonNls String ADB_DATABASE_OCID = "adb-database-ocid";
         @NonNls String AZURE_TOKEN_CLIENT_ID = "azure-token-client-id";
         @NonNls String AZURE_TOKEN_TENANT_ID = "azure-token-tenant-id";
         @NonNls String AZURE_TOKEN_DATABASE_ID_URI = "azure-token-database-id-uri";
@@ -93,6 +97,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     // OCI token auth
     private String tokenConfigFile;
     private String tokenProfile;
+    private String databaseOcid;
+    private String compartmentOcid;
 
     // Azure token auth
     private String azureDatabaseApplicationIdUri;
@@ -145,11 +151,12 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
                             isNotEmpty(azureDatabaseApplicationIdUri);
 
                     case AZURE_SERVICE_PRINCIPAL_CERTIFICATE:
+                        // Note: azureClientCertificatePassword can be empty as non-password protected
+                        // certificate files are allowed.
                         return
                             isNotEmpty(azureClientId) &&
                             isNotEmpty(azureTenantId) &&
                             isNotEmpty(azureClientCertificateFile) &&
-                            Chars.isNotEmpty(azureClientCertificatePassword) &&
                             isNotEmpty(azureDatabaseApplicationIdUri);
 
                     case AZURE_SERVICE_PRINCIPAL_TOKEN:
@@ -204,8 +211,14 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
 
                 switch (tokenType) {
                     case OCI_INTERACTIVE:
+                        return  match(this.compartmentOcid, that.compartmentOcid) &&
+                                match(this.databaseOcid, that.databaseOcid);
+
+                    case OCI_API_KEY:
                         return match(this.tokenConfigFile, that.tokenConfigFile) &&
-                               match(this.tokenProfile, that.tokenProfile);
+                               match(this.tokenProfile, that.tokenProfile) &&
+                               match(this.compartmentOcid, that.compartmentOcid) &&
+                               match(this.databaseOcid, that.databaseOcid);
 
                     case AZURE_INTERACTIVE:
                         return match(this.azureDatabaseApplicationIdUri, that.azureDatabaseApplicationIdUri);
@@ -248,6 +261,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         tokenType = getEnum(element, TOKEN_TYPE, AuthenticationTokenType.class);
         tokenConfigFile = getString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
         tokenProfile = getString(element, TOKEN_PROFILE, tokenProfile);
+        compartmentOcid = getString(element, ADB_COMPARTMENT_OCID, compartmentOcid);
+        databaseOcid = getString(element, ADB_DATABASE_OCID, databaseOcid);
 
         // azure auth attributes
         azureClientId = getString(element, AZURE_TOKEN_CLIENT_ID, azureClientId);
@@ -282,6 +297,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         setEnum(element, TOKEN_TYPE, tokenType);
         setString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
         setString(element, TOKEN_PROFILE, tokenProfile);
+        setString(element, ADB_COMPARTMENT_OCID, compartmentOcid);
+        setString(element, ADB_DATABASE_OCID, databaseOcid);
 
         setString(element, AZURE_TOKEN_DATABASE_ID_URI, azureDatabaseApplicationIdUri);
         setString(element, AZURE_TOKEN_TENANT_ID, azureTenantId);
@@ -304,6 +321,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         this.tokenType = that.tokenType;
         this.tokenConfigFile = that.tokenConfigFile;
         this.tokenProfile = that.tokenProfile;
+        this.databaseOcid = that.databaseOcid;
+        this.compartmentOcid = that.compartmentOcid;
 
         this.azureDatabaseApplicationIdUri = that.azureDatabaseApplicationIdUri;
         this.azureClientId = that.azureClientId;
@@ -324,6 +343,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
                 Objects.deepEquals(password, that.password) &&
                 Objects.equals(tokenConfigFile, that.tokenConfigFile) &&
                 Objects.equals(tokenProfile, that.tokenProfile) &&
+                Objects.equals(compartmentOcid, that.compartmentOcid) &&
+                Objects.equals(databaseOcid, that.databaseOcid) &&
                 Objects.equals(azureClientId, that.azureClientId) &&
                 Objects.equals(azureTenantId, that.azureTenantId) &&
                 Objects.equals(azureClientCertificateFile, that.azureClientCertificateFile) &&
@@ -342,6 +363,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
                 tokenType,
                 tokenConfigFile,
                 tokenProfile,
+                compartmentOcid,
+                databaseOcid,
                 azureClientId,
                 azureTenantId,
                 azureClientCertificateFile,

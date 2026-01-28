@@ -28,7 +28,6 @@ import com.dbn.editor.code.ui.SourceCodeReadonlyNotificationPanel;
 import com.dbn.execution.script.ScriptExecutionListener;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.vfs.DBVirtualFile;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
@@ -104,13 +103,11 @@ public class SourceCodeEditorNotificationProvider extends EditorNotificationProv
             @Override
             public void whenSelectionChanged(@NotNull FileEditorManagerEvent event) {
                 VirtualFile virtualFile = event.getNewFile();
-                if (virtualFile instanceof DBEditableObjectVirtualFile) {
-                    DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) virtualFile;
+                if (virtualFile instanceof DBEditableObjectVirtualFile databaseFile) {
                     for (DBSourceCodeVirtualFile sourceCodeFile : databaseFile.getSourceCodeFiles()) {
                         updateEditorNotification(sourceCodeFile.getProject(), sourceCodeFile);
                     }
-                } else if (virtualFile instanceof DBSourceCodeVirtualFile) {
-                    DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) virtualFile;
+                } else if (virtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
                     updateEditorNotification(sourceCodeFile.getProject(), sourceCodeFile);
                 }
             }
@@ -127,15 +124,12 @@ public class SourceCodeEditorNotificationProvider extends EditorNotificationProv
     @Override
     public SourceCodeEditorNotificationPanel createComponent(@NotNull VirtualFile virtualFile, @NotNull FileEditor fileEditor, @NotNull Project project) {
         if (isNotValid(fileEditor)) return null;
-        if (!(virtualFile instanceof DBEditableObjectVirtualFile)) return null;
-        if (!(fileEditor instanceof SourceCodeEditor)) return null;
+        if (!(virtualFile instanceof DBEditableObjectVirtualFile databaseFile)) return null;
+        if (!(fileEditor instanceof SourceCodeEditor sourceCodeEditor)) return null;
 
-        DBVirtualFile databaseFile = (DBVirtualFile) virtualFile;
         DBObject object = databaseFile.getObject();
-        if (!(object instanceof DBSchemaObject)) return null;
+        if (!(object instanceof DBSchemaObject schemaObject)) return null;
 
-        DBSchemaObject schemaObject = (DBSchemaObject) object;
-        SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) fileEditor;
         DBSourceCodeVirtualFile sourceCodeFile = sourceCodeEditor.getVirtualFile();
         Exception sourceLoadException = sourceCodeFile.getSourceLoadException();
         if (sourceLoadException != null) {

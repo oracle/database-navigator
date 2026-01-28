@@ -168,8 +168,7 @@ public final class IdentifierElementType extends LeafElementType {
 
     @Override
     public boolean isSameAs(LeafElementType elementType) {
-        if (elementType instanceof IdentifierElementType) {
-            IdentifierElementType identifierElementType = (IdentifierElementType) elementType;
+        if (elementType instanceof IdentifierElementType identifierElementType) {
             return  identifierElementType.objectType.matches(objectType) &&
                     identifierElementType.identifierType == identifierType &&
                     identifierElementType.identifierCategory == identifierCategory;

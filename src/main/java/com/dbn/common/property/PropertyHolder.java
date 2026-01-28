@@ -18,6 +18,8 @@ package com.dbn.common.property;
 
 import com.dbn.nls.NlsSupport;
 
+import java.util.Collection;
+
 public interface PropertyHolder<T extends Property> extends NlsSupport {
     boolean set(T property, boolean value);
 
@@ -28,6 +30,12 @@ public interface PropertyHolder<T extends Property> extends NlsSupport {
     };
 
     default void set(T[] properties, boolean value) {
+        for (T property : properties) {
+            set(property, value);
+        }
+    }
+
+    default void set(Collection<T> properties, boolean value) {
         for (T property : properties) {
             set(property, value);
         }

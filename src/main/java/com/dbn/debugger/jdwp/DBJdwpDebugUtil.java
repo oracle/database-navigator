@@ -55,8 +55,7 @@ public final class DBJdwpDebugUtil {
     }
 
     public static ExecutionResult execute(DBRunProfileState state, Executor executor, @NotNull ProgramRunner<?> runner) throws ExecutionException {
-        if (runner instanceof DBProgramRunner) {
-            DBProgramRunner<?> programRunner = (DBProgramRunner<?>) runner;
+        if (runner instanceof DBProgramRunner<?> programRunner) {
             if (programRunner.getDebuggerType() == DBDebuggerType.JDWP) {
                 Project project = state.getEnvironment().getProject();
                 RemoteDebugProcessHandler processHandler = new RemoteDebugProcessHandler(project);

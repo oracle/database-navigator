@@ -85,12 +85,10 @@ public class JsonDataSchemaManager extends ProjectComponentBase implements Persi
         return new DBNFileEditorManagerListener() {
             @Override
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                if (!(file instanceof DBEditableObjectVirtualFile)) return;
+                if (!(file instanceof DBEditableObjectVirtualFile editableObjectFile)) return;
 
-                DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) file;
                 DBSchemaObject object = editableObjectFile.getObject();
-                if (object instanceof DBJsonView) {
-                    DBJsonView jsonView = (DBJsonView) object;
+                if (object instanceof DBJsonView jsonView) {
                     cacheJsonSchema(jsonView);
                 }
             }

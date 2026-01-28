@@ -54,7 +54,6 @@ public class DBJavaJdwpRunner extends DBProgramRunner<JavaExecutionInput> {
 
     @Override
     protected void performInitialization(
-            @NotNull ConnectionHandler connection,
             @NotNull JavaExecutionInput executionInput,
             @NotNull ExecutionEnvironment environment) {
 

@@ -18,6 +18,7 @@ package com.dbn.data.editor.ui.array;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
+import com.dbn.common.data.Data;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.list.ListProperty;
 import com.dbn.common.ui.misc.DBNScrollPane;
@@ -135,15 +136,17 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
         Project project = getProject();
         try {
             Object userValue = userValueHolder.getUserValue();
-            if (userValue instanceof ArrayValue) {
-                ArrayValue array = (ArrayValue) userValue;
+            if (userValue instanceof ArrayValue array) {
                 List<String> values = nvl(array.read(), () -> emptyList());
                 stringValues.addAll(values);
 
-            } else if (userValue instanceof VectorValue) {
-                VectorValue vector = (VectorValue) userValue;
+            } else if (userValue instanceof VectorValue vector) {
                 List<String> values = nvl(vector.getStringValues(), () -> emptyList());
                 stringValues.addAll(values);
+            }
+            else if (userValue instanceof List<?> rawList) {
+                List<String> stringList = Data.asStringList(rawList);
+                stringValues.addAll(stringList);
             }
 
         } catch (SQLException e) {
@@ -183,7 +186,7 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
     @Override
     public TextFieldPopupType getPopupType() {
-        return TextFieldPopupType.TEXT_EDITOR;
+        return TextFieldPopupType.ARRAY_EDITOR;
     }
 
     @Nullable

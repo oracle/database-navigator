@@ -138,8 +138,7 @@ public class MessagesTreeModel extends StatefulDisposableBase implements TreeMod
     }
 
     private void resetMessagesStatus(TreeNode node) {
-        if (node instanceof MessagesTreeLeafNode) {
-            MessagesTreeLeafNode messageTreeNode = (MessagesTreeLeafNode) node;
+        if (node instanceof MessagesTreeLeafNode messageTreeNode) {
             messageTreeNode.getMessage().setNew(false);
         } else {
             Enumeration<? extends TreeNode> children = node.children();

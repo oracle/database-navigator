@@ -96,8 +96,7 @@ public class JavaExecutionHistoryGroupedTreeModel extends JavaExecutionHistoryTr
             for (TreeNode schemaTreeNode : connectionNode.getChildren()) {
                 SchemaTreeNode schemaNode = (SchemaTreeNode) schemaTreeNode;
                 for (TreeNode node : schemaNode.getChildren()) {
-                    if (node instanceof ProgramTreeNode) {
-                        ProgramTreeNode programNode = (ProgramTreeNode) node;
+                    if (node instanceof ProgramTreeNode programNode) {
                         for (TreeNode methodTreeNode : programNode.getChildren()) {
                             MethodTreeNode methodNode = (MethodTreeNode) methodTreeNode;
                             JavaExecutionInput executionInput =

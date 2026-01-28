@@ -16,9 +16,11 @@
 
 package com.dbn.common.data;
 
+import com.dbn.common.util.Chars;
+import com.dbn.common.util.Csvs;
 import com.dbn.common.util.Strings;
-import com.dbn.common.util.Unsafe;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -29,6 +31,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import static com.dbn.common.util.Strings.firstCharacter;
+import static com.dbn.common.util.Unsafe.cast;
 import static java.util.Collections.singletonList;
 
 /**
@@ -44,34 +47,47 @@ import static java.util.Collections.singletonList;
 @UtilityClass
 public final class Data {
 
-    public static <T> T cast(@Nullable Object object, Class<T> type) {
+    @NonNls
+    public static final String NULL = "null";
+
+    public static <T> T asType(@Nullable Object object, Class<T> type) {
         if (object == null) return null;
 
-        if (type == Boolean.class)    return Unsafe.cast(asBoolean(object));
-        if (type == Character.class)  return Unsafe.cast(asCharacter(object));
-        if (type == Double.class)     return Unsafe.cast(asDouble(object));
-        if (type == Float.class)      return Unsafe.cast(asFloat(object));
-        if (type == Integer.class)    return Unsafe.cast(asInteger(object));
-        if (type == Long.class)       return Unsafe.cast(asLong(object));
-        if (type == Short.class)      return Unsafe.cast(asShort(object));
-        if (type == String.class)     return Unsafe.cast(asString(object));
-        if (type == boolean.class)    return Unsafe.cast(asBooleanPrimitive(object));
-        if (type == char.class)       return Unsafe.cast(asCharacterPrimitive(object));
-        if (type == double.class)     return Unsafe.cast(asDoublePrimitive(object));
-        if (type == float.class)      return Unsafe.cast(asFloatPrimitive(object));
-        if (type == int.class)        return Unsafe.cast(asIntegerPrimitive(object));
-        if (type == long.class)       return Unsafe.cast(asLongPrimitive(object));
-        if (type == short.class)      return Unsafe.cast(asShortPrimitive(object));
-        if (type == BigDecimal.class) return Unsafe.cast(asBigDecimal(object));
-        if (type == BigInteger.class) return Unsafe.cast(asBigInteger(object));
+        if (type == Boolean.class)    return cast(asBoolean(object));
+        if (type == Byte.class)       return cast(asByte(object));
+        if (type == Character.class)  return cast(asCharacter(object));
+        if (type == Double.class)     return cast(asDouble(object));
+        if (type == Float.class)      return cast(asFloat(object));
+        if (type == Integer.class)    return cast(asInteger(object));
+        if (type == Long.class)       return cast(asLong(object));
+        if (type == Short.class)      return cast(asShort(object));
+        if (type == String.class)     return cast(asString(object));
+        if (type == boolean.class)    return cast(asBooleanPrimitive(object));
+        if (type == byte.class)       return cast(asBytePrimitive(object));
+        if (type == char.class)       return cast(asCharacterPrimitive(object));
+        if (type == double.class)     return cast(asDoublePrimitive(object));
+        if (type == float.class)      return cast(asFloatPrimitive(object));
+        if (type == int.class)        return cast(asIntegerPrimitive(object));
+        if (type == long.class)       return cast(asLongPrimitive(object));
+        if (type == short.class)      return cast(asShortPrimitive(object));
+        if (type == BigDecimal.class) return cast(asBigDecimal(object));
+        if (type == BigInteger.class) return cast(asBigInteger(object));
+        if (type == Object.class)     return cast(object);
+
+        if (type == String[].class) return cast(asStringArray(object));
 
         throw new UnsupportedOperationException("Cast from " + object.getClass() + " to " + type + " is not implemented");
         // TODO add more cast logic if required
     }
 
+    public static <T> List<T> asTypeList(@Nullable Object object, Class<T> type) {
+        return asList(object, o -> asType(o, type));
+    }
+
     @Nullable
     public static String asString(@Nullable Object object) {
         if (object == null) return null;
+        if (object instanceof char[] chars) return Chars.toString(chars);
         return object.toString();
     }
 
@@ -80,9 +96,18 @@ public final class Data {
         return asList(object, o -> asString(o));
     }
 
+    public static String[] asStringArray(@Nullable Object object) {
+        List<String> strings =
+                object instanceof String string ?
+                        csvToList(string, String.class) : // assumed csv
+                        asList(object, o -> asString(o));
+        return strings == null ? new String[0] : strings.toArray(new String[0]);
+    }
+
     public static Character asCharacter(@Nullable Object object) {
         if (object == null) return null;
         if (object instanceof Character) return (Character) object;
+        if (object.equals(NULL)) return null;
         return firstCharacter(object.toString());
     }
 
@@ -96,7 +121,7 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Integer) return (Integer) object;
         if (object instanceof Number) return ((Number) object).intValue();
-        return Integer.valueOf(object.toString());
+        return asNumber(object, s -> Integer.valueOf(s));
     }
 
     public static int asIntegerPrimitive(@Nullable Object object) {
@@ -108,7 +133,7 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Byte) return (Byte) object;
         if (object instanceof Number) return ((Number) object).byteValue();
-        return Byte.valueOf(object.toString());
+        return asNumber(object, s -> Byte.valueOf(s));
     }
 
     public static byte asBytePrimitive(@Nullable Object object) {
@@ -120,7 +145,7 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Short) return (Short) object;
         if (object instanceof Number) return ((Number) object).shortValue();
-        return Short.valueOf(object.toString());
+        return asNumber(object, s -> Short.valueOf(s));
     }
 
     public static short asShortPrimitive(@Nullable Object object) {
@@ -133,7 +158,7 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Long) return (Long) object;
         if (object instanceof Number) return ((Number) object).longValue();
-        return Long.valueOf(object.toString());
+        return asNumber(object, s -> Long.valueOf(s));
     }
 
     public static long asLongPrimitive(@Nullable Object object) {
@@ -145,11 +170,11 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Double) return (Double) object;
         if (object instanceof Number) return ((Number) object).doubleValue();
-        return Double.valueOf(object.toString());
+        return asNumber(object, s -> Double.valueOf(s));
     }
 
     public static List<Double> asDoubleList(@Nullable Object object) {
-        return asList(object, o -> asDouble(o));
+        return asTypeList(object, Double.class);
     }
 
     public static double asDoublePrimitive(@Nullable Object object) {
@@ -161,7 +186,7 @@ public final class Data {
         if (object == null) return null;
         if (object instanceof Float) return (Float) object;
         if (object instanceof Number) return ((Number) object).floatValue();
-        return Float.valueOf(object.toString());
+        return asNumber(object, s -> Float.valueOf(s));
     }
 
     public static float asFloatPrimitive(@Nullable Object object) {
@@ -173,7 +198,8 @@ public final class Data {
     public static Boolean asBoolean(@Nullable Object object) {
         if (object == null) return null;
         if (object instanceof Boolean) return (Boolean) object;
-        if (object instanceof String) return Strings.isOneOfIgnoreCase((String) object, "Y", "YES", "TRUE", "1");
+        if (object.equals(NULL)) return null;
+        if (object instanceof String) return Strings.isOneOfIgnoreCase((String) object, "Y", "YES", "T", "TRUE", "1");
         if (object instanceof Number) return ((Number) object).intValue() != 0;
         return null;
     }
@@ -186,18 +212,19 @@ public final class Data {
     public static BigDecimal asBigDecimal(@Nullable Object object) {
         if (object == null) return null;
         if (object instanceof BigDecimal) return (BigDecimal) object;
-        return new BigDecimal(object.toString());
+        return asNumber(object, s -> new BigDecimal(s));
     }
 
     public static BigInteger asBigInteger(@Nullable Object object) {
         if (object == null) return null;
         if (object instanceof BigInteger) return (BigInteger) object;
-        return new BigInteger(object.toString());
+        return asNumber(object, s -> new BigInteger(s));
     }
 
-    public static Class<?> primitive(Class<?> type) {
+    public static Class<?> asPrimitiveClass(Class<?> type) {
         if (type.isPrimitive()) return type;
 
+        if (type == Boolean.class) return boolean.class;
         if (type == Byte.class) return byte.class;
         if (type == Character.class) return char.class;
         if (type == Short.class) return short.class;
@@ -205,8 +232,26 @@ public final class Data {
         if (type == Long.class) return long.class;
         if (type == Float.class) return float.class;
         if (type == Double.class) return double.class;
+        if (type == Void.class) return void.class;
 
         return null;
+    }
+
+    public static Class<?> asPrimitiveClass(@NonNls String primitiveTypeName) {
+        if (primitiveTypeName == null) return null;
+
+        return switch (primitiveTypeName) {
+            case "boolean" -> boolean.class;
+            case "byte" -> byte.class;
+            case "char" -> char.class;
+            case "short" -> short.class;
+            case "int" -> int.class;
+            case "long" -> long.class;
+            case "float" -> float.class;
+            case "double" -> double.class;
+            case "void" -> void.class;
+            default -> null;
+        };
     }
 
 
@@ -235,7 +280,7 @@ public final class Data {
         T[] result = (T[]) Array.newInstance(type, array.length);
         for (int i = 0; i < array.length; i++) {
             Object o = array[i];
-            result[i] = cast(o, type);
+            result[i] = asType(o, type);
         }
         return result;
     }
@@ -244,8 +289,42 @@ public final class Data {
         T[] result = (T[]) Array.newInstance(type, array.length);
         for (int i = 0; i < array.length; i++) {
             double d = array[i];
-            result[i] = cast(d, type);
+            result[i] = asType(d, type);
         }
         return result;
+    }
+
+    @Nullable
+    private static <T extends Number> T asNumber(Object object, Function<String, T> converter) {
+        if (object == null) return null;
+        String string = object.toString().trim();
+        if (string.isEmpty()) return null;
+        if (string.equals(NULL)) return null;
+
+        return converter.apply(string);
+    }
+
+    public static <T> String listToCsv(List<T> list) {
+        return Csvs.valuesToCsv(list, v -> asString(v));
+    }
+
+    public static <T> List<T> csvToList(String csv, Class<T> type) {
+        return Csvs.csvToValues(csv, v -> asType(v, type));
+    }
+
+    public static <T> String listToArrayString(List<T> list) {
+        if (list == null) return null;
+        if (list.isEmpty()) return "[]";
+        return "[" + listToCsv(list) + "]";
+    }
+
+    public static <T> List<T> arrayStringToList(String arrayString, Class<T> type) {
+        if (arrayString == null) return null;
+        if (arrayString.isEmpty()) return null;
+        if (arrayString.startsWith("[") && arrayString.endsWith("]")) {
+            arrayString = arrayString.substring(1, arrayString.length() - 1);
+        }
+        return csvToList(arrayString, type);
+
     }
 }

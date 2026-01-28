@@ -31,15 +31,13 @@ public enum ColorAdjustment {
 
 
     public Color adjust(Color color, int tones) {
-        switch (this) {
-            case BRIGHTER: return hackBrightness(color, tones, 1.03F);
-            case DARKER: return hackBrightness(color, tones, 1 / 1.03F);
+        return switch (this) {
+            case BRIGHTER -> hackBrightness(color, tones, 1.03F);
+            case DARKER -> hackBrightness(color, tones, 1 / 1.03F);
+            case SOFTER -> tuneSaturation(color, tones, 1 / 1.03F);
+            case STRONGER -> tuneSaturation(color, tones, 1.03F);
+        };
 
-            case SOFTER: return tuneSaturation(color, tones, 1 / 1.03F);
-            case STRONGER: return tuneSaturation(color, tones, 1.03F);
-        }
-
-        return color;
     }
 
     /*****************************************************************

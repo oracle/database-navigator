@@ -426,7 +426,7 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
     }
 
     @Override
-    public SchemaId getUserSchema() {
+    public SchemaId getUserSchemaId() {
         if (DatabaseFeature.USER_SCHEMA.isSupported(this)) {
             String userName = cachedUpperCase(getUserName());
             return SchemaId.get(userName);
@@ -434,24 +434,30 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
         return null;
     }
 
+    @Override
+    public DBSchema getUserSchema() {
+        SchemaId userSchemaId = getUserSchemaId();
+        return userSchemaId == null ? null : getSchema(userSchemaId);
+    }
+
     @Nullable
-    private SchemaId getDatabaseSchema() {
+    private SchemaId getDatabaseSchemaId() {
         String databaseName = getSettings().getDatabaseSettings().getDatabaseInfo().getDatabase();
         return Strings.isEmptyOrSpaces(databaseName) ? null : SchemaId.get(databaseName);
     }
 
     @Nullable
-    private SchemaId getFirstSchema() {
+    private SchemaId getFirstSchemaId() {
         List<DBSchema> schemas = getObjectBundle().getSchemas();
         return schemas.isEmpty() ? null : SchemaId.from(schemas.get(0));
     }
 
     @Override
-    public SchemaId getDefaultSchema() {
+    public SchemaId getDefaultSchemaId() {
         return coalesce(this,
-                c -> c.getUserSchema(),
-                c -> c.getDatabaseSchema(),
-                c -> c.getFirstSchema());
+                c -> c.getUserSchemaId(),
+                c -> c.getDatabaseSchemaId(),
+                c -> c.getFirstSchemaId());
     }
 
     @NotNull

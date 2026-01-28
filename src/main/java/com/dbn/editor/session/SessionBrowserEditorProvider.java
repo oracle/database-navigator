@@ -69,8 +69,7 @@ public class SessionBrowserEditorProvider implements FileEditorProvider, NamedCo
 
     @Override
     public void writeState(@NotNull FileEditorState state, @NotNull Project project, @NotNull Element targetElement) {
-        if (state instanceof SessionBrowserState) {
-            SessionBrowserState editorState = (SessionBrowserState) state;
+        if (state instanceof SessionBrowserState editorState) {
             editorState.writeState(targetElement);
         }
     }

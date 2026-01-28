@@ -47,8 +47,7 @@ public class DBJdwpDebugValue extends DBDebugValueDelegate<DBJdwpDebugStackFrame
 
         ValueDescriptorImpl descriptor = javaValue.getDescriptor();
 
-        if (descriptor instanceof LocalVariableDescriptorImpl) {
-            LocalVariableDescriptorImpl localVariableDescriptor = (LocalVariableDescriptorImpl) descriptor;
+        if (descriptor instanceof LocalVariableDescriptorImpl localVariableDescriptor) {
             LocalVariableProxyImpl localVariable = localVariableDescriptor.getLocalVariable();
             Type type = localVariable.getType();
             setType(type.name());

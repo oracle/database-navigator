@@ -26,7 +26,6 @@ import com.dbn.ddl.DDLFileTypeId;
 import com.dbn.ddl.options.DDLFileExtensionSettings;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JLabel;
@@ -37,6 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.dbn.common.ui.util.TextFields.getText;
 
 public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFileExtensionSettings> {
     private JPanel mainPanel;
@@ -103,7 +104,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
 
     private void validateInputs() throws ConfigurationException {
         List<String> allExtensions = new ArrayList<>();
-        for (val entry : extensionTextFields.entrySet()) {
+        for (var entry : extensionTextFields.entrySet()) {
             String fieldName = entry.getKey();
             JTextField extensionTextField = entry.getValue();
 
@@ -143,7 +144,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
 
     private void applySetting(JTextField textField, DDLFileTypeId fileTypeId, AtomicBoolean changed) {
         DDLFileType ddlFileType = getConfiguration().getFileType(fileTypeId);
-        boolean valueChanged = ddlFileType.setExtensionsAsString(textField.getText().trim());
+        boolean valueChanged = ddlFileType.setExtensionsAsString(getText(textField));
         if (valueChanged) {
             changed.set(true);
         }

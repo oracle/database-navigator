@@ -71,8 +71,7 @@ public class ExplainPlanEditorAction extends ProjectAction {
         Editor editor = Lookups.getEditor(e);
         if (editor != null) {
             PsiFile psiFile = PsiUtil.getPsiFile(project, editor.getDocument());
-            if (psiFile instanceof DBLanguagePsiFile) {
-                DBLanguagePsiFile languagePsiFile = (DBLanguagePsiFile) psiFile;
+            if (psiFile instanceof DBLanguagePsiFile languagePsiFile) {
 
                 ConnectionHandler connection = languagePsiFile.getConnection();
                 visible = isVisible(e) && DatabaseFeature.EXPLAIN_PLAN.isSupported(connection);

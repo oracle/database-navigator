@@ -16,17 +16,17 @@
 
 package com.dbn.assistant.service.generic.model;
 
-import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.extension.ExtensionPointCache;
 
-public class AssistantModelFactories extends ExtensionPointCache<AIProvider, AssistantModelFactory> {
+public class AssistantModelFactories extends ExtensionPointCache<AIProviderId, AssistantModelFactory> {
     private static final AssistantModelFactories INSTANCE = new AssistantModelFactories();
 
     private AssistantModelFactories() {
-        super(AssistantModelFactory.EP, f -> f.getProvider());
+        super(AssistantModelFactory.EP, f -> f.getProviderId());
     }
 
-    public static AssistantModelFactory get(AIProvider provider) {
-        return INSTANCE.find(provider);
+    public static AssistantModelFactory get(AIProviderId providerId) {
+        return INSTANCE.find(providerId);
     }
 }

@@ -70,26 +70,26 @@ public class FileConnectionMappingTableModel extends DBNMutableTableModel<FileCo
 
     @Override
     public Object getValue(FileConnectionContext row, int column) {
-        switch (column) {
-            case 0: return row.getFile();
-            case 1: return row.getConnection();
-            case 2: return row.getSchemaId();
-            case 3: return row.getSession();
-            case 4: return Safe.call(row.getConnection(), c -> c.getEnvironmentType());
-        }
-        return "";
+        return switch (column) {
+            case 0 -> row.getFile();
+            case 1 -> row.getConnection();
+            case 2 -> row.getSchemaId();
+            case 3 -> row.getSession();
+            case 4 -> Safe.call(row.getConnection(), c -> c.getEnvironmentType());
+            default -> "";
+        };
     }
 
     @Override
     public String getPresentableValue(FileConnectionContext row, int column) {
-        switch (column) {
-            case 0: return Safe.call(row.getFile(), f -> f.getPath(), "");
-            case 1: return Safe.call(row.getConnection(), c -> c.getName(), "");
-            case 2: return Safe.call(row.getSchemaId(), s -> s.getName(), "");
-            case 3: return Safe.call(row.getSession(), s -> s.getName(), "");
-            case 4: return Safe.call(row.getConnection(), c -> c.getEnvironmentType().getName(), "");
-        }
-        return "";
+        return switch (column) {
+            case 0 -> Safe.call(row.getFile(), f -> f.getPath(), "");
+            case 1 -> Safe.call(row.getConnection(), c -> c.getName(), "");
+            case 2 -> Safe.call(row.getSchemaId(), s -> s.getName(), "");
+            case 3 -> Safe.call(row.getSession(), s -> s.getName(), "");
+            case 4 -> Safe.call(row.getConnection(), c -> c.getEnvironmentType().getName(), "");
+            default -> "";
+        };
     }
 
     @Override

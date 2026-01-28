@@ -42,11 +42,6 @@ public class DataEditorFilterSettings extends BasicConfiguration<DataEditorSetti
         return txt("cfg.dataEditor.title.FilterSettings");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "dataEditor";
-    }
-
     /****************************************************
      *                   Configuration                  *
      ****************************************************/

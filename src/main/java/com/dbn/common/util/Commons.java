@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 
@@ -134,7 +133,7 @@ public final class Commons {
     }
 
     @NotNull
-    public static <T> T[] list(T... values) {
+    public static <T> T[] array(T... values) {
         return values;
     }
 
@@ -238,7 +237,7 @@ public final class Commons {
     @SuppressWarnings("unchecked")
     public static <T> T[] nonNulls(T ... array) {
         if (array == null) return null;
-        List<T> nonNulls = Arrays.stream(array).filter(Objects::nonNull).collect(Collectors.toList());
+        List<T> nonNulls = Arrays.stream(array).filter(Objects::nonNull).toList();
 
         T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), nonNulls.size());
         return nonNulls.toArray(result);
