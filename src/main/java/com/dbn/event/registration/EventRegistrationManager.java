@@ -116,7 +116,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         Progress.prompt(project, table, false, processTitle, processText, progress -> {
             try {
                 ConnectionId connectionId = connection.getConnectionId();
-                String tableName = table.getQualifiedName();
+                String tableName = table.getQualifiedName(true);
                 DatabaseInterfaceInvoker.execute(HIGH,
                         processTitle,
                         processText,
