@@ -41,7 +41,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import static com.dbn.common.util.Strings.isNotEmpty;
+import static java.util.Collections.emptySet;
 
 
 @Getter
@@ -213,5 +217,29 @@ public class WrapperModel implements DatabaseContextBase {
 
     public boolean isCodeInput(String parameterName) {
         return getInput().getCodeInputs().containsKey(parameterName);
+    }
+
+    public Set<String> getJavaImportPackages() {
+        // only relevant for stateless wrappers with code inputs
+        WrapperModelInput input = getInput();
+        if (!input.isTemporary()) return emptySet();
+        if (input.getCodeInputs().isEmpty()) return emptySet();
+
+        Set<String> importPackages = new TreeSet<>();
+        for (ClassWrapper classWrapper : classes) {
+
+            String packageName = classWrapper.getClassPackage();
+            if (isNotEmpty(packageName)) {
+                importPackages.add(packageName);
+            }
+        }
+        for (MethodWrapper method : methods) {
+            String packageName = method.getJavaMethod().getOwnerClass().getPackageName();
+            if (isNotEmpty(packageName)) {
+                importPackages.add(packageName);
+            }
+
+        }
+        return importPackages;
     }
 }

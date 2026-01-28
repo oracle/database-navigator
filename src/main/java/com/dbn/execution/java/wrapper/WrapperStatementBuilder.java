@@ -202,6 +202,7 @@ public final class WrapperStatementBuilder {
         @NonNls
         Map<String, Object> context = new HashMap<>();
 
+        context.put("JAVA_IMPORT_PACKAGES", model.getJavaImportPackages());
         context.put("JAVA_WRAPPER_NAME", model.getJavaWrapperName());
         context.put("SQL_CONVERSION_METHODS", sqlMethods);
         context.put("JAVA_CONVERSION_METHODS", javaMethods);
