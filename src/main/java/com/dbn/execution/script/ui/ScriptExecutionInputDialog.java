@@ -18,6 +18,7 @@ package com.dbn.execution.script.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.execution.script.ScriptExecutionInput;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +31,6 @@ public class ScriptExecutionInputDialog extends DBNDialog<ScriptExecutionInputFo
         super(project, "Execute SQL script", true);
         this.executionInput = executionInput;
         setModal(true);
-        renameAction(getOKAction(), "Execute");
         init();
     }
 
@@ -41,17 +41,22 @@ public class ScriptExecutionInputDialog extends DBNDialog<ScriptExecutionInputFo
     }
 
     @Override
+    protected HelpTopic getHelpTopic() {
+        return HelpTopic.SCRIPT_EXECUTION;
+    }
+
+    @Override
     protected String getDimensionServiceKey() {
         return null;
     }
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Execute");
+        return actions(
                 getOKAction(),
-                getCancelAction(),
-        };
+                getCancelAction());
     }
 
     public void setActionEnabled(boolean enabled) {

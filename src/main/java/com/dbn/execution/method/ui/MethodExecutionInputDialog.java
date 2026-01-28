@@ -20,11 +20,15 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.method.MethodExecutionInput;
+import com.dbn.help.HelpTopic;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
+
+import static com.dbn.help.HelpTopic.METHOD_DEBUGGING;
+import static com.dbn.help.HelpTopic.METHOD_EXECUTION;
 
 public class MethodExecutionInputDialog extends DBNDialog<MethodExecutionInputForm> {
     private final MethodExecutionInput executionInput;
@@ -49,13 +53,18 @@ public class MethodExecutionInputDialog extends DBNDialog<MethodExecutionInputFo
     }
 
     @Override
+    protected HelpTopic getHelpTopic() {
+        return debuggerType.isDebug() ?
+                METHOD_DEBUGGING :
+                METHOD_EXECUTION;
+    }
+
+    @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 new ExecuteAction(),
-                getCancelAction(),
-                getHelpAction()
-        };
+                getCancelAction());
     }
 
     @Override

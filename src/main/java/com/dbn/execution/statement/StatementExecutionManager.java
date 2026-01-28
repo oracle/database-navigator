@@ -99,6 +99,7 @@ import static com.dbn.common.notification.NotificationCategory.EXECUTION;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;
+import static java.util.Collections.emptyList;
 
 @State(
     name = StatementExecutionManager.COMPONENT_NAME,
@@ -459,10 +460,12 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
     @Nullable
     private StatementExecutionProcessor getExecutionProcessorAtCursor(@NotNull FileEditor fileEditor) {
         Editor editor = Editors.getEditor(fileEditor);
-        if (editor != null) {
-            DBLanguagePsiFile file = (DBLanguagePsiFile) Documents.getFile(editor);
+        if (editor == null) return null;
+
+        PsiFile psiFile = Documents.getFile(editor);
+        if (psiFile instanceof DBLanguagePsiFile file) {
             String selection = editor.getSelectionModel().getSelectedText();
-            if (selection != null && file != null) {
+            if (selection != null) {
                 return new StatementExecutionCursorProcessor(getProject(), fileEditor, file, selection, RESULT_SEQUENCE.incrementAndGet());
             }
 
@@ -470,40 +473,44 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
             if (executablePsiElement != null) {
                 return getExecutionProcessor(fileEditor, executablePsiElement, true);
             }
+            return null;
+        } else {
+            return null;
         }
-        return null;
+
     }
 
     private List<StatementExecutionProcessor> getExecutionProcessorsFromOffset(@NotNull FileEditor fileEditor, int offset) {
-        List<StatementExecutionProcessor> executionProcessors = new ArrayList<>();
         Editor editor = Editors.getEditor(fileEditor);
+        if (editor == null) return emptyList();
 
-        if (editor != null) {
-            DBLanguagePsiFile file = (DBLanguagePsiFile) Documents.getFile(editor);
-            if (file != null) {
-                PsiElement child = file.getFirstChild();
-                while (child != null) {
-                    if (child instanceof ChameleonPsiElement chameleonPsiElement) {
-                        for (ExecutablePsiElement executable : chameleonPsiElement.getExecutablePsiElements()) {
+
+        PsiFile psiFile = Documents.getFile(editor);
+        if (psiFile instanceof DBLanguagePsiFile file) {
+            List<StatementExecutionProcessor> executionProcessors = new ArrayList<>();
+            PsiElement child = file.getFirstChild();
+            while (child != null) {
+                if (child instanceof ChameleonPsiElement chameleonPsiElement) {
+                    for (ExecutablePsiElement executable : chameleonPsiElement.getExecutablePsiElements()) {
+                        StatementExecutionProcessor executionProcessor = getExecutionProcessor(fileEditor, executable, true);
+                        executionProcessors.add(executionProcessor);
+                    }
+
+                }
+                if (child instanceof RootPsiElement root) {
+
+                    for (ExecutablePsiElement executable: root.getExecutablePsiElements()) {
+                        if (executable.getTextOffset() > offset) {
                             StatementExecutionProcessor executionProcessor = getExecutionProcessor(fileEditor, executable, true);
                             executionProcessors.add(executionProcessor);
                         }
-
                     }
-                    if (child instanceof RootPsiElement root) {
-
-                        for (ExecutablePsiElement executable: root.getExecutablePsiElements()) {
-                            if (executable.getTextOffset() > offset) {
-                                StatementExecutionProcessor executionProcessor = getExecutionProcessor(fileEditor, executable, true);
-                                executionProcessors.add(executionProcessor);
-                            }
-                        }
-                    }
-                    child = child.getNextSibling();
                 }
+                child = child.getNextSibling();
             }
+            return executionProcessors;
         }
-        return executionProcessors;
+        return emptyList();
     }
 
     @Nullable

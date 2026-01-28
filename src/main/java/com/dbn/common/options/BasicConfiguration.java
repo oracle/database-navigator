@@ -20,6 +20,7 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ref.WeakRef;
+import com.dbn.help.HelpTopic;
 import com.dbn.options.TopLevelConfig;
 import com.intellij.openapi.options.ConfigurationException;
 import lombok.Getter;
@@ -52,7 +53,12 @@ public abstract class BasicConfiguration<P extends Configuration, E extends Conf
     }
 
     @Override
-    public String getHelpTopic() {
+    public final String getHelpTopic() {
+        HelpTopic configHelpTopic = getConfigHelpTopic();
+        return configHelpTopic == null ? null : configHelpTopic.asHelpTopicId();
+    }
+
+    public HelpTopic getConfigHelpTopic() {
         return null;
     }
 

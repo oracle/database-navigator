@@ -16,9 +16,7 @@
 
 package com.dbn.browser.action;
 
-import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.browser.ui.DatabaseBrowserTree;
-import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -27,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class BrowserTreeExpandAction extends ProjectAction {
+public class BrowserTreeExpandAction extends AbstractBrowserAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -38,8 +36,7 @@ public class BrowserTreeExpandAction extends ProjectAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();
+        DatabaseBrowserTree activeBrowserTree = getActiveBrowserTree(project);
         if (activeBrowserTree != null) {
             activeBrowserTree.expandAll();
         }

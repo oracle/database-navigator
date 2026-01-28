@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.7.0.0</version>
+    <version>3.7.1.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -53,6 +53,11 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.7.1</b>
+            <ul>
+                <li>Online documentation integration
+                <li>Bug fixes and performance improvements
+            </ul>
             <li><b>3.7.0</b>
             <ul>
                 <li>DB assistant (an AI-powered assistant with database and workspace integration)
@@ -805,6 +810,8 @@
         <listener topic="com.intellij.openapi.actionSystem.ex.AnActionListener" class="com.dbn.execution.statement.action.ExecuteStatementEditorAction$ShortcutInterceptor"/>
     </projectListeners>
     <extensions defaultExtensionNs="com.intellij">
+        <webHelpProvider implementation="com.dbn.help.PluginHelpProvider"/>
+
         <notificationGroup id="DBNavigator.NotificationGroup.Default" displayType="BALLOON" key="ntf.shared.title.DBNavigator"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Browser" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorBrowser" toolWindowId="DB Browser"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Execution" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorExecution" toolWindowId="DB Execution Console"/>

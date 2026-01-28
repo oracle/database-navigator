@@ -21,6 +21,7 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.ddl.DDLFileAttachmentManager;
+import com.dbn.help.HelpTopic;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -43,7 +44,6 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
         this.fileInfos = fileInfos;
         this.object = DBObjectRef.of(object);
         this.showLookupOption = showLookupOption;
-        renameAction(getOKAction(), "Attach selected");
         setDefaultSize(700, 400);
         init();
     }
@@ -61,14 +61,19 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     }
 
     @Override
+    protected HelpTopic getHelpTopic() {
+        return HelpTopic.DDL_FILE_ASSOCIATION;
+    }
+
+    @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Attach Selected");
+        return actions(
                 getOKAction(),
                 new SelectAllAction(),
                 new SelectNoneAction(),
-                getCancelAction()
-        };
+                getCancelAction());
     }
 
     @NotNull

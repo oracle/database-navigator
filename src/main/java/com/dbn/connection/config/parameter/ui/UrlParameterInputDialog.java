@@ -46,12 +46,11 @@ public class UrlParameterInputDialog extends DBNDialog<UrlParameterInputForm> {
         return new UrlParameterInputForm(this, parameters);
     }
 
-    @NotNull
     @Override
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected Action[] initializeActions() {
+        return actions(
                 getOKAction(),
-                getCancelAction()};
+                getCancelAction());
     }
 
     @Override

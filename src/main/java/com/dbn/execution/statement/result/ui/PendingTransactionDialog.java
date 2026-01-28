@@ -66,12 +66,10 @@ public class PendingTransactionDialog extends DialogWithTimeout {
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 commitAction,
-                rollbackAction,
-                getHelpAction()
-        };
+                rollbackAction);
     }
 
     private class CommitAction extends AbstractAction {

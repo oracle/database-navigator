@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.util.regex.Matcher.quoteReplacement;
+
 @NonNls
 public class SqlToGroovyExpressionConverter {
     private static final Map<String, String> cache = new ConcurrentHashMap<>();
@@ -61,11 +63,13 @@ public class SqlToGroovyExpressionConverter {
         StringBuilder result = new StringBuilder();
         while (m.find()) {
             String name = m.group(1);
-            String value = "/(?i)" + m.group(2)
+            String patchedValue = m.group(2)
                     .replaceAll("'", "")
-                    .replaceAll("[%*]", ".*") + "/";
+                    .replaceAll("[%*]", ".*")
+                    .replaceAll("\\$", quoteReplacement("[$]"));
+            String value = "/(?i)" + patchedValue + "/";
             String transformed = String.format("!(%s ==~ %s)", name, value);
-            m.appendReplacement(result, transformed);
+            m.appendReplacement(result, quoteReplacement(transformed));
         }
         m.appendTail(result);
         expression = result.toString();
@@ -78,11 +82,13 @@ public class SqlToGroovyExpressionConverter {
         StringBuilder result = new StringBuilder();
         while (m.find()) {
             String name = m.group(1);
-            String value = "/(?i)" + m.group(2)
+            String patchedValue = m.group(2)
                     .replaceAll("'", "")
-                    .replaceAll("[%*]", ".*") + "/";
+                    .replaceAll("[%*]", ".*")
+                    .replaceAll("\\$", quoteReplacement("[$]"));
+            String value = "/(?i)" + patchedValue + "/";
             String transformed = String.format("%s ==~ %s", name, value);
-            m.appendReplacement(result, transformed);
+            m.appendReplacement(result, quoteReplacement(transformed));
         }
         m.appendTail(result);
         expression = result.toString();

@@ -19,6 +19,7 @@ package com.dbn.editor.data.options;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
 import com.dbn.editor.data.options.ui.DataEditorSettingsForm;
+import com.dbn.help.HelpTopic;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.TopLevelConfig;
@@ -26,6 +27,8 @@ import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.help.HelpTopic.DATA_EDITOR_SETTINGS;
 
 @EqualsAndHashCode(callSuper = false)
 public class DataEditorSettings extends CompositeProjectConfiguration<ProjectSettings, DataEditorSettingsForm> implements TopLevelConfig {
@@ -56,8 +59,8 @@ public class DataEditorSettings extends CompositeProjectConfiguration<ProjectSet
     }
 
     @Override
-    public String getHelpTopic() {
-        return "dataEditor";
+    public HelpTopic getConfigHelpTopic() {
+        return DATA_EDITOR_SETTINGS;
     }
 
     @Override

@@ -46,11 +46,6 @@ public class JavaExecutionSettings extends BasicProjectConfiguration<ExecutionEn
         return txt("cfg.execution.title.MethodExecution");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "executionEngine";
-    }
-
     /****************************************************
      *                   Configuration                  *
      ****************************************************/

@@ -33,13 +33,13 @@ public class JavaUploadResultDialog extends DBNDialog<JavaUploadResultForm> {
 		this.setModal(true);
 		this.setAutoSize(true);
 		this.batch = batch;
-		renameAction(getCancelAction(), "Close");
 		init();
 	}
 
 	@Override
-	protected Action[] createActions() {
-		return createActions(
+	protected Action[] initializeActions() {
+		renameAction(getCancelAction(), "Close");
+		return actions(
 				getCancelAction(),
 				createErrorAction());
 	}
