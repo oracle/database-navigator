@@ -206,12 +206,18 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         fieldValue.getValueHolder().setValue(value);
     }
 
+    public void setInputValue(DBJavaParameter parameter, String value) {
+        String path = parameter.getName();
+        ExecutionValue<String> fieldValue = prepareInputValue(path);
+        fieldValue.getValueHolder().setValue(value);
+        fieldValue.setArrayObject(parameter.isArray());
+    }
+
     public List<String> getInputValueHistory(String path) {
         ExecutionValue<String> fieldValue = prepareInputValue(path) ;
 
         ValueHolder<?> valueStore = fieldValue.getValueHolder();
-        if (valueStore instanceof ExecutionVariable) {
-            ExecutionVariable executionVariable = (ExecutionVariable) valueStore;
+        if (valueStore instanceof ExecutionVariable executionVariable) {
             return executionVariable.getValueHistory();
         }
         return Collections.emptyList();
@@ -257,6 +263,12 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         }
     }
 
+    @Nullable
+    public String getMethodSignature() {
+        DBJavaMethod method = getMethod();
+        return method == null ? null : method.getSignature();
+    }
+
     @Override
     public int compareTo(@NotNull JavaExecutionInput executionInput) {
         DBObjectRef<DBJavaMethod> localMethod = method;
@@ -278,5 +290,4 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         }
         return clone;
     }
-
 }

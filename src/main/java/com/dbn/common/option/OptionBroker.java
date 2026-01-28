@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nls;
 
 import javax.swing.Icon;
 
-public interface OptionBroker<T> extends DoNotAskOption, PersistentConfiguration {
+public interface OptionBroker<T> extends RememberOption, PersistentConfiguration {
     void resolve(Project project, Object[] messageArgs, Consumer<T> consumer);
 
     OptionBroker<T> withIcon(Icon icon);

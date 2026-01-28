@@ -76,8 +76,7 @@ public abstract class AbstractConfiguration<P extends Configuration, E extends C
 
     @Override
     public final Project resolveProject() {
-        if (this instanceof ProjectSupplier) {
-            ProjectSupplier projectSupplier = (ProjectSupplier) this;
+        if (this instanceof ProjectSupplier projectSupplier) {
             Project project = projectSupplier.getProject();
             if (project != null) {
                 return project;

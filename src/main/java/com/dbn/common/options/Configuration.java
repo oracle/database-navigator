@@ -17,6 +17,7 @@
 package com.dbn.common.options;
 
 import com.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dbn.help.HelpTopic;
 import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
@@ -56,4 +57,6 @@ public interface Configuration<P extends Configuration, E extends ConfigurationE
     E ensureSettingsEditor();
 
     Project resolveProject();
+
+    HelpTopic getConfigHelpTopic();
 }

@@ -79,6 +79,7 @@ import static com.dbn.database.DatabaseFeature.SESSION_INTERRUPTION_TIMING;
 import static com.dbn.database.DatabaseFeature.SESSION_KILL;
 import static com.dbn.database.DatabaseFeature.UPDATABLE_RESULT_SETS;
 import static com.dbn.database.DatabaseFeature.USER_SCHEMA;
+import static com.dbn.database.DatabaseFeature.VECTOR_EMBEDDING;
 import static com.dbn.database.DatabaseObjectTypeId.AI_PROFILE;
 import static com.dbn.database.DatabaseObjectTypeId.CREDENTIAL;
 import static com.dbn.database.DatabaseObjectTypeId.JAVA_CLASS;
@@ -203,6 +204,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
                 READONLY_CONNECTIVITY,
                 AI_ASSISTANT,
                 DATA_CHANGE_NOTIFICATION,
+                VECTOR_EMBEDDING,
                 JAVA_VIRTUAL_MACHINE
                 //EMPTY_SCHEMA_EVALUATION // TODO disabled due to performance reasons
                 );
@@ -323,9 +325,9 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
 
     private static void copyCommonOciTokenProperties(ConnectorProperties properties, AuthenticationInfo authenticationInfo) {
         // make sure to leave these null if the user didn't set them as the provider won't check for empty string
-        Strings.ifNotEmpty(authenticationInfo.getAutonomousDatabaseCompartmentOcid(),
+        Strings.ifNotEmpty(authenticationInfo.getCompartmentOcid(),
                 compartmentOcid -> properties.add(Property.ORACLE_JDBC_OCI_COMPARTMENT, compartmentOcid));
-        Strings.ifNotEmpty(authenticationInfo.getAutonomousDatabaseOcid(),
+        Strings.ifNotEmpty(authenticationInfo.getDatabaseOcid(),
                 databaseOcid -> properties.add(Property.ORACLE_JDBC_OCI_DATABASE, databaseOcid));
     }
 

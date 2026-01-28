@@ -18,7 +18,7 @@ package com.dbn.execution.script.ui;
 
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.text.TextContent;
-import com.dbn.common.ui.PresentableFactory;
+import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -69,8 +69,7 @@ public class ScriptExecutionInputForm extends DBNFormBase {
         VirtualFile sourceFile = executionInput.getSourceFile();
         String headerTitle = sourceFile.isInLocalFileSystem() ? sourceFile.getPath() : sourceFile.getName();
         Icon headerIcon = sourceFile.getFileType().getIcon();
-        if (sourceFile instanceof DBVirtualFile) {
-            DBVirtualFile databaseVirtualFile = (DBVirtualFile) sourceFile;
+        if (sourceFile instanceof DBVirtualFile databaseVirtualFile) {
             headerIcon = databaseVirtualFile.getIcon();
         }
 
@@ -93,16 +92,7 @@ public class ScriptExecutionInputForm extends DBNFormBase {
         schemaComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
 
         cmdLineExecutableComboBox.set(ValueSelectorOption.HIDE_ICON, true);
-        cmdLineExecutableComboBox.setValueFactory(new PresentableFactory<>("New Cmd-Line Interface...") {
-            @Override
-            public void create(Consumer<CmdLineInterface> consumer) {
-                ConnectionHandler connection = connectionComboBox.getSelectedValue();
-                if (connection != null) {
-                    ScriptExecutionManager scriptExecutionManager = ScriptExecutionManager.getInstance(project);
-                    scriptExecutionManager.createCmdLineInterface(connection.getDatabaseType(), null, consumer);
-                }
-            }
-        });
+        cmdLineExecutableComboBox.withValueFactory(createCmdLineFactory(project));
 
         clearOutputCheckBox.setSelected(executionInput.isClearOutput());
         executionTimeoutForm = new ExecutionTimeoutForm(this, executionInput, DBDebuggerType.NONE) {
@@ -135,6 +125,19 @@ public class ScriptExecutionInputForm extends DBNFormBase {
         });
     }
 
+    private ValueFactory<CmdLineInterface> createCmdLineFactory(Project project) {
+        return new ValueFactory<>("New Cmd-Line Interface...") {
+            @Override
+            public void createValue(Consumer<CmdLineInterface> consumer) {
+                ConnectionHandler connection = connectionComboBox.getSelectedValue();
+                if (connection != null) {
+                    ScriptExecutionManager scriptExecutionManager = ScriptExecutionManager.getInstance(project);
+                    scriptExecutionManager.createCmdLineInterface(connection.getDatabaseType(), null, consumer);
+                }
+            }
+        };
+    }
+
     @Nullable
     @Override
     public JComponent getPreferredFocusedComponent() {
@@ -146,7 +149,7 @@ public class ScriptExecutionInputForm extends DBNFormBase {
         SchemaId schema = executionInput.getSchemaId();
         CmdLineInterface cmdLineInterface;
         if (isLiveConnection(connection)) {
-            schema = Commons.nvln(schema, connection.getDefaultSchema());
+            schema = Commons.nvln(schema, connection.getDefaultSchemaId());
             connectionComboBox.setSelectedValue(connection);
             schemaComboBox.setValues(connection.getSchemaIds());
             schemaComboBox.setSelectedValue(schema);

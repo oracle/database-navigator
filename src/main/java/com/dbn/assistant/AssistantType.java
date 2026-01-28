@@ -29,10 +29,11 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Getter
 public enum AssistantType {
-    PUBLIC    (txt("app.assistant.title.DatabaseAssistantName_PUBLIC")),    // external publicly available language model
-    LOCAL     (txt("app.assistant.title.DatabaseAssistantName_LOCAL")),  // local llm (internally deployed llm)
-    CUSTOM    (txt("app.assistant.title.DatabaseAssistantName_CUSTOM")),    // custom llm (user defined llm)
-    SELECT_AI (txt("app.assistant.title.DatabaseAssistantName_SELECT_AI"))  // oracle select ai
+    PUBLIC    (txt("app.assistant.title.DatabaseAssistantName_PUBLIC")),         // external publicly available language model
+    LOCAL     (txt("app.assistant.title.DatabaseAssistantName_LOCAL")),          // local llm (internally deployed llm)
+    CUSTOM    (txt("app.assistant.title.DatabaseAssistantName_CUSTOM")),   // custom llm (user defined llm)
+    SELECT_AI (txt("app.assistant.title.DatabaseAssistantName_SELECT_AI")),   // oracle select ai
+    VECTOR_AI (txt("app.assistant.title.DatabaseAssistantName_VECTOR_AI"))  // oracle vector-ai search
     ;
 
     private final String name;

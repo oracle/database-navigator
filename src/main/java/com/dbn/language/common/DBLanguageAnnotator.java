@@ -48,13 +48,13 @@ public abstract class DBLanguageAnnotator implements Annotator {
         TokenTypeCategory flavor = tokenPsiElement.elementType.getFlavor();
         if (flavor == null) return;
 
-        TextAttributesKey textAttributes = SQLTextAttributesKeys.IDENTIFIER;
-        switch (flavor) {
-            case DATATYPE: textAttributes = SQLTextAttributesKeys.DATA_TYPE; break;
-            case FUNCTION: textAttributes = SQLTextAttributesKeys.FUNCTION; break;
-            case KEYWORD: textAttributes = SQLTextAttributesKeys.KEYWORD; break;
-            case LITERAL: textAttributes = SQLTextAttributesKeys.STRING; break;
-        }
+        TextAttributesKey textAttributes = switch (flavor) {
+            case DATATYPE -> SQLTextAttributesKeys.DATA_TYPE;
+            case FUNCTION -> SQLTextAttributesKeys.FUNCTION;
+            case KEYWORD -> SQLTextAttributesKeys.KEYWORD;
+            case LITERAL -> SQLTextAttributesKeys.STRING;
+            default -> SQLTextAttributesKeys.IDENTIFIER;
+        };
         createSilentAnnotation(holder, tokenPsiElement, textAttributes);
     }
 

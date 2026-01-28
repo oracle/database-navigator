@@ -111,13 +111,12 @@ public class FormattingAttributes {
     }
 
     public FormattingAttributeDefinition getAttributeDefinition(Type type) {
-        switch (type) {
-            case WRAP: return wrap;
-            case INDENT: return indent;
-            case SPACING_BEFORE: return spacingBefore;
-            case SPACING_AFTER: return spacingAfter;
-        }
-        return null;
+        return switch (type) {
+            case WRAP -> wrap;
+            case INDENT -> indent;
+            case SPACING_BEFORE -> spacingBefore;
+            case SPACING_AFTER -> spacingAfter;
+        };
     }
 
     @Nullable

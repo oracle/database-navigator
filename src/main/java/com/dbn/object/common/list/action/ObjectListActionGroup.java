@@ -50,14 +50,13 @@ public class ObjectListActionGroup extends DefaultActionGroup {
         DBObjectType objectType = objectList.getObjectType();
         DatabaseEntity parentElement = objectList.getParentEntity();
 
-        if (parentElement instanceof DBSchema) {
-            DBSchema schema = (DBSchema) parentElement;
+        if (parentElement instanceof DBSchema schema) {
             addSeparator();
             if (objectType == DBObjectType.JAVA_CLASS) {
                 add(new JavaObjectDownloadAction(schema));
             }
             if(objectType == DBObjectType.JAVA_RESOURCE) {
-                add(new JavaResourceDownloadAction(schema, objectList));
+                add(new JavaResourceDownloadAction(schema));
             }
 
             add(new CreateObjectAction(objectList));

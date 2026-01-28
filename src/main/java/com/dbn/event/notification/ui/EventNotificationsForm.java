@@ -28,8 +28,10 @@ import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionId;
 import com.dbn.event.notification.EventNotificationListener;
 import com.dbn.event.notification.filter.EventNotificationFilter;
+import com.dbn.event.notification.filter.EventNotificationFilterType;
 import com.dbn.event.notification.model.DataChangeNotificationBundle;
 import com.dbn.event.ui.EventMonitorDetailsForm;
+import com.dbn.object.DBTable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
@@ -91,6 +93,22 @@ public class EventNotificationsForm extends DBNFormBase {
         notificationsTable = new EventNotificationsTable(this, notifications);
         notificationsScrollPane.setViewportView(notificationsTable);
         NO_BORDER.set(notificationsTable, true);
+    }
+
+    public void applyTableFilter(DBTable table) {
+        EventNotificationFilter filter = getNotificationsTable().getModel().getFilter();
+        filter.setTable(table.getQualifiedName());
+        filter.setOperation(null);
+        refresh();
+    }
+
+    public void applyFilter(EventNotificationFilterType filterType, String filterValue) {
+        EventNotificationFilter filter = getNotificationsTable().getModel().getFilter();
+        switch (filterType) {
+            case TABLE: filter.setTable(filterValue); break;
+            case OPERATION: filter.setOperation(filterValue); break;
+        }
+        refresh();
     }
 
     public void refresh() {

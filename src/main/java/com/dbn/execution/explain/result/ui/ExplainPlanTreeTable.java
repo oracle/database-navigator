@@ -170,13 +170,11 @@ public class ExplainPlanTreeTable extends TreeTable implements StatefulDisposabl
             SimpleTextAttributes attributes = selected ?
                     SimpleTextAttributes.SELECTED_SIMPLE_CELL_ATTRIBUTES :
                     BasicTableTextAttributes.get().getPlainData(false, false);
-            if (value instanceof DBObjectRef) {
-                DBObjectRef objectRef = (DBObjectRef) value;
+            if (value instanceof DBObjectRef objectRef) {
                 append(objectRef.getPath(), attributes);
             } else if (value instanceof String){
                 append((String) value, attributes);
-            } else if (value instanceof BigDecimal) {
-                BigDecimal bigDecimal = (BigDecimal) value;
+            } else if (value instanceof BigDecimal bigDecimal) {
                 append(bigDecimal.toPlainString(), attributes);
                 setTextAlign(SwingConstants.RIGHT);
             }

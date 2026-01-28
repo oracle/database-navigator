@@ -22,6 +22,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.Presentable;
 import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
@@ -43,7 +44,7 @@ public final class SchemaId extends PseudoConstant<SchemaId> implements Presenta
         return id();
     }
 
-    public static SchemaId from(DBSchema schema) {
+    public static SchemaId from(@Nullable DBSchema schema) {
         return schema == null ? null : schema.getIdentifier();
     }
 

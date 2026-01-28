@@ -48,6 +48,8 @@ import com.dbn.editor.data.state.column.DatasetColumnState;
 import com.dbn.editor.data.structure.DatasetEditorStructureViewModel;
 import com.dbn.editor.data.ui.DatasetEditorForm;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
+import com.dbn.event.notification.EventNotificationData;
+import com.dbn.event.notification.EventNotificationManager;
 import com.dbn.object.DBDataset;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.ide.structureView.StructureViewBuilder;
@@ -55,6 +57,7 @@ import com.intellij.ide.structureView.StructureViewModel;
 import com.intellij.ide.structureView.TreeBasedStructureViewBuilder;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorState;
@@ -73,12 +76,14 @@ import java.sql.SQLRecoverableException;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.database.DatabaseFeature.DATA_CHANGE_NOTIFICATION;
 import static com.dbn.editor.DBContentType.DATA;
 import static com.dbn.editor.data.DataEditorStatus.CONNECTED;
 import static com.dbn.editor.data.DataEditorStatus.LOADED;
 import static com.dbn.editor.data.DataEditorStatus.LOADING;
 import static com.dbn.editor.data.filter.DatasetFilterManager.EMPTY_FILTER;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
+import static com.dbn.help.HelpTopic.TABLE_EDITORS;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
@@ -119,6 +124,18 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
     @NotNull
     public DatasetEditorModel getTableModel() {
         return getEditorTable().getModel();
+    }
+
+    public boolean isOutdateResult() {
+        if (!DATA_CHANGE_NOTIFICATION.isSupported(this)) return false;
+
+        Project project = getProject();
+        EventNotificationManager notificationManager = EventNotificationManager.getInstance(project);
+        EventNotificationData notificationData = notificationManager.getNotificationData();
+
+        long loadTimestamp = getTableModel().getLoadTimestamp();
+        int count = notificationData.countEventsSince(getDataset(), loadTimestamp);
+        return count > 0;
     }
 
     @Override
@@ -507,6 +524,7 @@ public class DatasetEditor extends DataEditorBase<DBDataset> {
     @Override
     public Object getData(@NotNull String dataId) {
         if (DataKeys.DATASET_EDITOR.is(dataId)) return this;
+        if (PlatformCoreDataKeys.HELP_ID.is(dataId)) return TABLE_EDITORS.asHelpTopicId();
         return null;
     }
 

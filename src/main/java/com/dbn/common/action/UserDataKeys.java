@@ -16,12 +16,17 @@
 
 package com.dbn.common.action;
 
+import com.dbn.assistant.service.generic.context.AssistantInstructionsCache;
+import com.dbn.assistant.service.generic.context.AssistantMemoryCache;
+import com.dbn.assistant.tool.AssistantToolCache;
+import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.data.Data;
 import com.dbn.common.notification.NotificationCategory;
 import com.dbn.common.outcome.MessageOutcomeHandler;
 import com.dbn.common.outcome.NotificationOutcomeHandler;
 import com.dbn.common.project.ModuleRef;
 import com.dbn.common.project.ProjectRef;
+import com.dbn.common.thread.Synchronized;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.connection.mapping.FileConnectionContext;
 import com.dbn.diagnostics.data.DiagnosticCategory;
@@ -31,7 +36,6 @@ import com.dbn.language.common.DBLanguageDialect;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.UserDataHolder;
 import com.intellij.openapi.vfs.VirtualFile;
-import dev.langchain4j.memory.ChatMemory;
 import lombok.experimental.UtilityClass;
 
 import java.util.List;
@@ -58,7 +62,10 @@ public class UserDataKeys {
     public static final Key<Boolean> SKIP_BROWSER_AUTOSCROLL = Key.create("DBNavigator.SkipEditorScroll");
     public static final Key<Long> LAST_ANNOTATION_REFRESH = Key.create("DBNavigator.LastAnnotationRefresh");
     public static final Key<Boolean> WRAPPER_FILE = Key.create("DBNavigator.WrapperFile");
-    public static final Key<ChatMemory> CHAT_MEMORY = Key.create("DBNavigator.ChatMemory");
+    public static final Key<AssistantMemoryCache> ASSISTANT_MEMORY_CACHE = Key.create("DBNavigator.AssistantMemoryCache");
+    public static final Key<AssistantToolCache> ASSISTANT_TOOL_CACHE = Key.create("DBNavigator.AssistantMemoryCache");
+    public static final Key<AssistantToolSettings> ASSISTANT_TOOL_SETTINGS = Key.create("DBNavigator.AssistantToolSettings");
+    public static final Key<AssistantInstructionsCache> ASSISTANT_INSTRUCTIONS_CACHE = Key.create("DBNavigator.AssistantInstructionsCache");
 
     public static final Key<MessageOutcomeHandler> MESSAGE_OUTCOME_HANDLER = Key.create("DBNavigator.MessageOutcomeHandler");
     public static final Key<Map<NotificationCategory, NotificationOutcomeHandler>> NOTIFICATION_OUTCOME_HANDLERS = Key.create("DBNavigator.NotificationOutcomeHandlers");
@@ -82,5 +89,11 @@ public class UserDataKeys {
             dataHolder.putUserData(key, userData);
         }
         return userData;
+    }
+
+    public static <T> T getUserDataSync(UserDataHolder dataHolder, Key<T> key, Supplier<T> supplier) {
+        return Synchronized.on(dataHolder, h -> {
+            return getUserData(h, key, supplier);
+        });
     }
 }

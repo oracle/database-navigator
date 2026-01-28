@@ -603,8 +603,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         if (parentObject == null) return;
         if (!getConnectionObjectTypeFilter().accepts(objectType)) return;
 
-        if (parentObject instanceof DBSchema) {
-            DBSchema schema = (DBSchema) parentObject;
+        if (parentObject instanceof DBSchema schema) {
             if (objectType.isGeneric()) {
                 Set<DBObjectType> concreteTypes = objectType.getInheritingTypes();
                 for (DBObjectType concreteType : concreteTypes) {

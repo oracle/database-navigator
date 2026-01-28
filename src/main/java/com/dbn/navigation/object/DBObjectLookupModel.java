@@ -39,7 +39,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.ListCellRenderer;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 
@@ -194,8 +194,7 @@ public class DBObjectLookupModel extends StatefulDisposableBase implements Choos
 
     @Override
     public String getElementName(@NotNull Object element) {
-        if (element instanceof DBObject) {
-            DBObject object = (DBObject) element;
+        if (element instanceof DBObject object) {
             return object.getQualifiedName();
         }
 

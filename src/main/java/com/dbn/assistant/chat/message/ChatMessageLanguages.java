@@ -38,10 +38,11 @@ import static com.intellij.lang.Language.findLanguageByID;
 @UtilityClass
 @NonNls
 public class ChatMessageLanguages {
-    public static final Map<@NonNls String, @NonNls String> LANGUAGE_MAPPINGS = new HashMap<>();
+    public static final Map<String, String> LANGUAGE_MAPPINGS = new HashMap<>();
     static {
         // mappings between language ids from llm outputs to IntelliJ language identifiers
         LANGUAGE_MAPPINGS.put("sql", "DBN-SQL");
+        LANGUAGE_MAPPINGS.put("plsql", "DBN-PSQL");
         LANGUAGE_MAPPINGS.put("oracle", "DBN-SQL");
         LANGUAGE_MAPPINGS.put("jql", "JQL");
         LANGUAGE_MAPPINGS.put("js", "JavaScript");

@@ -23,6 +23,7 @@ import com.dbn.common.text.MimeType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.LookAndFeel;
+import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.RoundedLineBorder;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -92,6 +93,8 @@ public class DBNHintForm extends DBNFormBase {
                 updateHintContent();
             }
         });
+
+        hintTextPane.addHyperlinkListener(new BrowserHyperlinkListener());
 
         mainPanel.addComponentListener(new ComponentAdapter() {
             @Override
@@ -224,11 +227,11 @@ public class DBNHintForm extends DBNFormBase {
     }
 
     private static Icon getIcon(MessageType messageType) {
-        switch (messageType) {
-            case INFO: return Icons.COMMON_INFO;
-            case WARNING: return Icons.COMMON_WARNING;
-            case ERROR: return Icons.COMMON_ERROR;
-            default: return null;
-        }
+        return switch (messageType) {
+            case INFO -> Icons.COMMON_INFO;
+            case WARNING -> Icons.COMMON_WARNING;
+            case ERROR -> Icons.COMMON_ERROR;
+            default -> null;
+        };
     }
 }

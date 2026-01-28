@@ -19,7 +19,6 @@ package com.dbn.editor.data.filter.ui;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.ValueSelectorListener;
-import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.listener.ComboBoxSelectionKeyListener;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -36,6 +35,7 @@ import com.dbn.editor.data.filter.action.DeleteBasicFilterConditionAction;
 import com.dbn.editor.data.filter.action.EnableDisableBasicFilterConditionAction;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
+import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.options.ConfigurationException;
@@ -65,8 +65,8 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     private JPanel valueFieldPanel;
     private boolean active = true;
 
-    private DBNComboBox<DBColumn> columnSelector;
     private DBNComboBox<ConditionOperator> operatorSelector;
+    private DBObjectSelector<DBColumn> columnSelector;
 
     private TextFieldWithPopup<?> editorComponent;
     private DatasetBasicFilterForm filterForm;
@@ -80,23 +80,18 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
                 new DeleteBasicFilterConditionAction(this));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
 
-        DBColumn column = dataset.getColumn(condition.getColumnName());
-        if (column == null) {
-            for (DBColumn col : dataset.getColumns()) {
-                if (col.getDataType().isNative()) {
-                    column = col;
-                    break;
-                }
-            }
-        }
+        DBColumn column = getConditionColumn(dataset, condition);
         GenericDataType dataType = column == null ? null : column.getDataType().getGenericDataType();
 
-        columnSelector.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
-        columnSelector.setValueLoader(this::loadColumns);
-        columnSelector.setSelectedValue(column);
+        columnSelector
+                .withValueLoader(() -> loadColumns())
+                .withValuePreselector(v -> v.equals(column))
+                .triggerLoad();
 
-        operatorSelector.setValueLoader(this::loadOperators);
-        operatorSelector.setSelectedValue(condition.getOperator());
+        operatorSelector
+                .withValueLoader(() -> loadOperators())
+                .withValuePreselector(v -> v == condition.getOperator())
+                .triggerLoad();
 
 
         editorComponent = new TextFieldWithPopup<>(dataset.getProject());
@@ -114,7 +109,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         valueTextField.addKeyListener(ComboBoxSelectionKeyListener.create(columnSelector, false));
         valueTextField.addKeyListener(ComboBoxSelectionKeyListener.create(operatorSelector, true));
 
-        operatorSelector.addListener(createOperatorSlectorListener());
+        operatorSelector.addListener(createOperatorSelectorListener());
         columnSelector.addListener(createColumnSelectorListener());
 
         updateValueTextField();
@@ -127,13 +122,30 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         Disposer.register(this, editorComponent);
     }
 
-    private @NotNull ValueSelectorListener<ConditionOperator> createOperatorSlectorListener() {
-        return (oldValue, newValue) -> {
-            if (filterForm != null) {
-                filterForm.updateNameAndPreview();
-                updateValueTextField();
+    private static DBColumn getConditionColumn(DBDataset dataset, DatasetBasicFilterCondition condition) {
+        DBColumn column = dataset.getColumn(condition.getColumnName());
+        if (column != null) return column;
+
+        for (DBColumn col : dataset.getColumns()) {
+            if (col.getDataType().isNative()) {
+                column = col;
+                break;
             }
+        }
+        return column;
+    }
+
+    private @NotNull ValueSelectorListener<ConditionOperator> createOperatorSelectorListener() {
+        return (oldValue, newValue) -> {
+            updateNameAndPreview();
+            updateValueTextField();
         };
+    }
+
+    private void updateNameAndPreview() {
+        DatasetBasicFilterForm filterForm = this.filterForm;
+        if (filterForm == null) return;
+        dispatch(() -> filterForm.updateNameAndPreview());
     }
 
     private @NotNull ValueSelectorListener<DBColumn> createColumnSelectorListener() {
@@ -143,9 +155,8 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
                 GenericDataType selectedDataType = newValue.getDataType().getGenericDataType();
                 editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, selectedDataType == GenericDataType.DATE_TIME);
             }
-            if (filterForm != null) {
-                filterForm.updateNameAndPreview();
-            }
+
+            updateNameAndPreview();
             operatorSelector.reloadValues();
             announceEvent(columnSelector, "Selected column is " + columnSelector.getSelectedValueName());
         };
@@ -227,7 +238,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         operatorSelector.setEnabled(active);
         editorComponent.getTextField().setEnabled(active);
         if (filterForm != null) {
-            filterForm.updateNameAndPreview();
+            updateNameAndPreview();
         }
     }
 

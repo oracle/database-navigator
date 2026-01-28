@@ -21,9 +21,9 @@ import com.dbn.common.action.ToggleAction;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Strings;
@@ -48,10 +48,10 @@ import java.awt.BorderLayout;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.dbn.common.ui.util.ComponentAligner.alignFormComponents;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
-public class DatasetRecordEditorForm extends DBNFormBase implements ComponentAligner.Container {
+public class DatasetRecordEditorForm extends DBNFormBase {
     private JPanel actionsPanel;
     private JPanel columnsPanel;
     private JPanel mainPanel;
@@ -92,7 +92,7 @@ public class DatasetRecordEditorForm extends DBNFormBase implements ComponentAli
         DatasetEditorManager datasetEditorManager = DatasetEditorManager.getInstance(project);
         ColumnSortingType columnSortingType = datasetEditorManager.getRecordViewColumnSortingType();
         sortColumns(columnSortingType);
-        alignFormComponents(this);
+        updateFieldAlignment();
 
         filterTextField.getEmptyText().setText("Filter");
         onTextChange(filterTextField, e -> filterColumForms());
@@ -104,12 +104,13 @@ public class DatasetRecordEditorForm extends DBNFormBase implements ComponentAli
     }
 
     @Override
-    public List<? extends ComponentAligner.Form> getAlignableForms() {
-        return columnForms;
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerForms(() -> columnForms);
     }
 
     private void filterColumForms() {
-        String text = filterTextField.getText();
+        String text = getText(filterTextField);
         for (DatasetRecordEditorColumnForm columnForm : columnForms) {
             String columnName = columnForm.getColumnName();
             boolean visible = Strings.indexOfIgnoreCase(columnName, text, 0) > -1;

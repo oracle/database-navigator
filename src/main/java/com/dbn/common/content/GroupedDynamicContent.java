@@ -22,4 +22,5 @@ import java.util.List;
 
 public interface GroupedDynamicContent<T extends DynamicContentElement> extends DynamicContent<T> {
     List<T> getChildElements(DatabaseEntity entity);
+    T getChildElement(DatabaseEntity entity, String name);
 }

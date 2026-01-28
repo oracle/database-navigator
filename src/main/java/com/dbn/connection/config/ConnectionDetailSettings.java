@@ -23,6 +23,7 @@ import com.dbn.common.options.BasicProjectConfiguration;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ui.ConnectionDetailSettingsForm;
+import com.dbn.help.HelpTopic;
 import com.dbn.options.general.GeneralProjectSettings;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -39,6 +40,7 @@ import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.options.setting.Settings.setInteger;
 import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.help.HelpTopic.DATABASE_CONFIG_DETAILS;
 
 @Getter
 @Setter
@@ -71,8 +73,8 @@ public class ConnectionDetailSettings extends BasicProjectConfiguration<Connecti
     }
 
     @Override
-    public String getHelpTopic() {
-        return "connectionPropertySettings";
+    public HelpTopic getConfigHelpTopic() {
+        return DATABASE_CONFIG_DETAILS;
     }
 
     /*********************************************************

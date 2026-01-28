@@ -28,19 +28,22 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
+import java.util.List;
 import java.util.Set;
 
 public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
 
   private final ConnectionRef connection;
   private final DBObjectRef<DBCredential> credential;
+  private final List<DBCredentialType> credentialTypes;
   private final Set<String> usedCredentialNames;
 
 
-  public CredentialEditDialog(ConnectionHandler connection, @Nullable DBCredential credential, @NotNull Set<String> usedCredentialNames) {
+  public CredentialEditDialog(ConnectionHandler connection, @Nullable DBCredential credential, @Nullable List<DBCredentialType> credentialTypes, @NotNull Set<String> usedCredentialNames) {
     super(connection.getProject(), getDialogTitle(credential), true);
     this.connection = ConnectionRef.of(connection);
     this.credential = DBObjectRef.of(credential);
+    this.credentialTypes = credentialTypes;
     this.usedCredentialNames = usedCredentialNames;
     setDefaultSize(600, 420);
     init();
@@ -57,9 +60,6 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
   @Override
   protected void doOKAction() {
     CredentialEditForm form = getForm();
-    if (form.getSaveLocalCheckBox().isSelected() && form.getCredentialTypeComboBox().getSelectedItem() == DBCredentialType.PASSWORD) {
-      form.saveProviderInfo();
-    }
     if (credential != null) {
       form.doUpdateAction(dialogClose());
     } else {
@@ -74,9 +74,13 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
 
   @NotNull
   @Override
-  protected Action[] createActions() {
-    super.setOKButtonText(txt(credential != null ? "msg.shared.button.Update" : "msg.shared.button.Create"));
-    return super.createActions();
+  protected Action[] initializeActions() {
+    String actionName = txt(credential != null ? "msg.shared.button.Update" : "msg.shared.button.Create");
+    renameAction(getOKAction(), actionName);
+
+    return actions(
+            getOKAction(),
+            getCancelAction());
   }
 
   public ConnectionHandler getConnection() {
@@ -84,7 +88,7 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
   }
   @Override
   protected @NotNull CredentialEditForm createForm() {
-    return new CredentialEditForm(this, DBObjectRef.get(credential), usedCredentialNames);
+    return new CredentialEditForm(this, DBObjectRef.get(credential), credentialTypes, usedCredentialNames);
   }
 
 

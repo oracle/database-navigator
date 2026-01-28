@@ -59,8 +59,7 @@ public class DiagnosticsTable<T extends AbstractDiagnosticsTableModel> extends D
             DiagnosticEntry<?> entry = (DiagnosticEntry) value;
             T model = getModel();
             Object columnValue = model.getValue(entry, column);
-            if (columnValue instanceof Presentable) {
-                Presentable presentable = (Presentable) columnValue;
+            if (columnValue instanceof Presentable presentable) {
                 setIcon(presentable.getIcon());
                 append(presentable.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             } else {

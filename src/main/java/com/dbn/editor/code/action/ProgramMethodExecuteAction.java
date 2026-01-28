@@ -31,6 +31,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.operation.DatabaseOperation.EXECUTE_JAVA_CODE;
 import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
@@ -38,13 +39,11 @@ public class ProgramMethodExecuteAction extends ProgramMethodLaunchAction {
 
     @Override
     protected AnAction createExecutionAction(DBObject method) {
-        if (method instanceof DBMethod) {
-            DBMethod programMethod = (DBMethod) method;
+        if (method instanceof DBMethod programMethod) {
             return new ExecuteMethodAction(programMethod);
         }
 
-        if (method instanceof DBJavaMethod) {
-            DBJavaMethod javaMethod = (DBJavaMethod) method;
+        if (method instanceof DBJavaMethod javaMethod) {
             return new ExecuteJavaMethodAction(javaMethod);
         }
         return null;
@@ -86,7 +85,11 @@ public class ProgramMethodExecuteAction extends ProgramMethodLaunchAction {
                 @NotNull AnActionEvent e,
                 @NotNull Project project,
                 @NotNull DBJavaMethod object) {
+            EXECUTE_JAVA_CODE.start(object, () -> startMethodExecution(object));
+        }
 
+        private static void startMethodExecution(@NotNull DBJavaMethod object) {
+            Project project = object.getProject();
             JavaExecutionManager executionManager = JavaExecutionManager.getInstance(project);
             executionManager.startMethodExecution(object, DBDebuggerType.NONE);
         }

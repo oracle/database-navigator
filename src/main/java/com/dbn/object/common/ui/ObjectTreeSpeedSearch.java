@@ -52,8 +52,7 @@ public class ObjectTreeSpeedSearch extends SpeedSearchBase<ObjectTree> {
     protected String getElementText(Object obj) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) obj;
         Object userObject = node.getUserObject();
-        if (userObject instanceof DBObjectRef) {
-            DBObjectRef objectRef = (DBObjectRef) userObject;
+        if (userObject instanceof DBObjectRef objectRef) {
             return objectRef.getObjectName();
         }
         return userObject.toString();

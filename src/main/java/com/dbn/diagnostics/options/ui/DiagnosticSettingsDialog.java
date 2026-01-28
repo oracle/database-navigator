@@ -45,12 +45,10 @@ public class DiagnosticSettingsDialog extends DBNDialog<DiagnosticSettingsForm> 
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 getOKAction(),
-                getCancelAction(),
-                getHelpAction()
-        };
+                getCancelAction());
     }
 
     @Override

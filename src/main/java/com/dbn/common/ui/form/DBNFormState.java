@@ -19,6 +19,7 @@ package com.dbn.common.ui.form;
 import com.dbn.common.data.Data;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.Presentable;
+import com.dbn.object.common.ui.DBObjectSelector;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 
@@ -29,6 +30,7 @@ import javax.swing.JTextField;
 import static com.dbn.common.ui.util.CheckBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
 import static com.dbn.common.ui.util.ComboBoxes.selectElement;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.nvl;
 
@@ -38,14 +40,18 @@ public class DBNFormState {
     public static <T extends Presentable> void initPersistence(JComboBox<T> comboBox, StateAttributes stateAttributes, @NonNls String stateAttribute) {
         initSelectionListener(comboBox, s -> stateAttributes.setAttribute(stateAttribute, s == null ? null : s.getName()));
 
-        comboBox.addPropertyChangeListener(e -> {
-            if ("model".equals(e.getPropertyName())) {
-                selectElement(comboBox, stateAttributes.getAttribute(stateAttribute));
-                if (comboBox.getSelectedItem() == null && comboBox.getItemCount() > 0) {
-                    comboBox.setSelectedIndex(0);
+        if (comboBox instanceof DBObjectSelector<?> objectSelector) {
+            objectSelector.withValuePreselector(() -> stateAttributes.getAttribute(stateAttribute));
+        } else {
+            comboBox.addPropertyChangeListener(e -> {
+                if ("model".equals(e.getPropertyName())) {
+                    selectElement(comboBox, stateAttributes.getAttribute(stateAttribute));
+                    if (comboBox.getSelectedItem() == null && comboBox.getItemCount() > 0) {
+                        comboBox.setSelectedIndex(0);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         String attribute = stateAttributes.getAttribute(stateAttribute);
         selectElement(comboBox, attribute);
@@ -55,7 +61,7 @@ public class DBNFormState {
         String attribute = stateAttributes.getAttribute(stateAttribute);
 
         textField.setText(nvl(attribute, ""));
-        onTextChange(textField, e -> stateAttributes.setAttribute(stateAttribute, textField.getText().trim()));
+        onTextChange(textField, e -> stateAttributes.setAttribute(stateAttribute, getText(textField)));
     }
 
     public static void initPersistence(AbstractButton button, StateAttributes stateAttributes, @NonNls String stateAttribute) {

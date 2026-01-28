@@ -39,7 +39,6 @@ import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionManager;
 import com.intellij.execution.Executor;
@@ -85,8 +84,7 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
         if (!Objects.equals(executorId, DefaultDebugExecutor.EXECUTOR_ID)) return false;
 
-        if (profile instanceof DBRunConfig) {
-            DBRunConfig<?> config = (DBRunConfig<?>) profile;
+        if (profile instanceof DBRunConfig<?> config) {
             DBDebuggerType configDebuggerType = config.getDebuggerType();
             if (debuggerType != configDebuggerType) return false;
 
@@ -109,18 +107,15 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
         if (!canContinue) return null;
 
         T executionInput = runProfile.getExecutionInput();
-
-        DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
-        prerequisiteManager.startOperation(connection, databaseOperation, () ->
-                performInitialization(connection, cast(executionInput), environment));
-
+        // TODO move to the debug actions (all prerequisite verifications should be invoked in actions)
+        databaseOperation.start(connection, () -> performInitialization(executionInput, environment));
         return null;
     }
 
     protected void performInitialization(
-            @NotNull ConnectionHandler connection,
             @NotNull T executionInput,
             @NotNull ExecutionEnvironment environment) {
+        ConnectionHandler connection = executionInput.ensureConnection();
 
         ConnectionDebuggerSettings debuggerSettings = connection.getSettings().getDebuggerSettings();
         if (!debuggerSettings.isCompileDependencies()) return;
@@ -228,8 +223,7 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
             if (!processHandler.isStartNotified()) processHandler.startNotify();
 
             ExecutionConsole executionConsole = descriptor.getExecutionConsole();
-            if (executionConsole instanceof ConsoleView) {
-                ConsoleView consoleView = (ConsoleView) executionConsole;
+            if (executionConsole instanceof ConsoleView consoleView) {
                 consoleView.attachToProcess(processHandler);
             }
 

@@ -55,8 +55,7 @@ public class PsiUtil {
 
     public static DBSchema getDatabaseSchema(PsiElement psiElement) {
         DBSchema currentSchema = null;
-        if (psiElement instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+        if (psiElement instanceof BasePsiElement basePsiElement) {
             currentSchema = basePsiElement.getSchema();
         }
 
@@ -86,8 +85,7 @@ public class PsiUtil {
     @Nullable
     public static BasePsiElement resolveAliasedEntityElement(IdentifierPsiElement aliasElement) {
         PsiElement psiElement = aliasElement.isReference() ? aliasElement.resolve() : aliasElement; 
-        if (psiElement instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+        if (psiElement instanceof BasePsiElement basePsiElement) {
             BasePsiElement scope = basePsiElement.findEnclosingNamedElement();
 
             DBObjectType objectType = aliasElement.getObjectType();
@@ -128,8 +126,7 @@ public class PsiUtil {
         Iterator<PsiElement> children = PsiUtil.getChildrenIterator(scope);
         while (children.hasNext()) {
             PsiElement child = children.next();
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            if (child instanceof BasePsiElement basePsiElement) {
                 PsiLookupAdapter lookupInput = LookupAdapters.object(objectType);
                 BasePsiElement objectPsiElement = lookupInput.findInScope(basePsiElement);
                 if (objectPsiElement instanceof IdentifierPsiElement) {
@@ -168,8 +165,7 @@ public class PsiUtil {
 
         PsiElement parent = current.getParent();
         while (parent != null && !(parent instanceof PsiFile)) {
-            if (parent instanceof ExecutablePsiElement){
-                ExecutablePsiElement executable = (ExecutablePsiElement) parent;
+            if (parent instanceof ExecutablePsiElement executable){
                 if (!executable.isNestedExecutable()) return executable;
             }
             parent = parent.getParent();
@@ -182,8 +178,7 @@ public class PsiUtil {
     public static BasePsiElement lookupElementAtOffset(@NotNull PsiFile file, ElementTypeAttribute typeAttribute, int offset) {
         PsiElement element = file.findElementAt(offset);
         while (element != null && !(element instanceof PsiFile)) {
-            if (element instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) element;
+            if (element instanceof BasePsiElement basePsiElement) {
                 if (basePsiElement.elementType.is(typeAttribute)) {
                     return basePsiElement;
                 }
@@ -359,8 +354,7 @@ public class PsiUtil {
 
     @Nullable
     public static ElementType getElementType(PsiElement psiElement) {
-        if (psiElement instanceof BasePsiElement) {
-            BasePsiElement<?> basePsiElement = (BasePsiElement<?>) psiElement;
+        if (psiElement instanceof BasePsiElement<?> basePsiElement) {
             return basePsiElement.elementType;
         }
         return null;
@@ -368,8 +362,7 @@ public class PsiUtil {
 
     public static Language getLanguage(@NotNull PsiElement element) {
         Language language = element.getLanguage();
-        if (language instanceof DBLanguageDialect) {
-            DBLanguageDialect languageDialect = (DBLanguageDialect) language;
+        if (language instanceof DBLanguageDialect languageDialect) {
             language = languageDialect.getBaseLanguage();
         }
         return language;

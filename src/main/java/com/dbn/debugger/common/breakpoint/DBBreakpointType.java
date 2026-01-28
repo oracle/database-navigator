@@ -74,8 +74,7 @@ public class DBBreakpointType extends XLineBreakpointType<XBreakpointProperties>
         if (isNotValid(psiFile)) return false;
         if (!isDbLanguagePsiFile(psiFile)) return false;
 
-        if (file instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) file;
+        if (file instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             DBContentType contentType = sourceCodeFile.getContentType();
             if (contentType == DBContentType.CODE || contentType == DBContentType.CODE_BODY) {
                 BasePsiElement basePsiElement = findPsiElement(psiFile, line);
@@ -108,8 +107,7 @@ public class DBBreakpointType extends XLineBreakpointType<XBreakpointProperties>
             }
         }
 
-        if (element instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) element;
+        if (element instanceof BasePsiElement basePsiElement) {
             int textOffset = basePsiElement.getTextOffset();
             if (textOffset< document.getTextLength()) {
                 int elementLine = document.getLineNumber(textOffset);
@@ -124,8 +122,7 @@ public class DBBreakpointType extends XLineBreakpointType<XBreakpointProperties>
     @Override
     public XBreakpointProperties createBreakpointProperties(@NotNull VirtualFile file, int line) {
         ConnectionHandler connection = null;
-        if (file instanceof DatabaseContext) {
-            DatabaseContext connectionProvider = (DatabaseContext) file;
+        if (file instanceof DatabaseContext connectionProvider) {
             connection = connectionProvider.getConnection();
         }
 

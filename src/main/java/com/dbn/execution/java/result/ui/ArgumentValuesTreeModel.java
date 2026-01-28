@@ -16,7 +16,9 @@
 
 package com.dbn.execution.java.result.ui;
 
+import com.dbn.common.data.Data;
 import com.dbn.execution.common.input.ExecutionValue;
+import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
@@ -28,8 +30,10 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static com.dbn.object.type.DBJavaScalarType.isScalar;
 
 @Getter
@@ -49,8 +53,21 @@ public class ArgumentValuesTreeModel implements TreeModel {
         // void
         if (method.isReturningVoid()) return;
 
-        // scalar (single value)
         DBObjectRef<DBJavaClass> returnClassRef = method.getReturnClassRef();
+
+        if (outputValues.get(0).isArrayObject()) {
+            Object[] elements = (Object[]) outputValues.get(0).getValue();
+            Object[] firstThree = Arrays.copyOfRange(elements, 0, Math.min(3, elements.length));
+
+            String arrayString = Data.listToArrayString(Arrays.asList(firstThree));
+            if (elements.length > 3) arrayString += "...";
+
+            ExecutionValue<String> executionValue = new ExecutionValue<>("return", ValueHolder.basic(arrayString));
+            new ArgumentValuesTreeNode(parentNode, "return", returnClassRef, executionValue);
+            return;
+        }
+
+        // scalar (single value)
         if(returnClassRef == null || isScalar(returnClassRef)){
             new ArgumentValuesTreeNode(parentNode, "return", returnClassRef, outputValues.get(0));
             return;
@@ -88,6 +105,22 @@ public class ArgumentValuesTreeModel implements TreeModel {
         for (ExecutionValue fieldValue : inputValues) {
             String[] tokens = fieldValue.getPath().split("\\.");
             DBJavaParameter parameter = method.getParameter(tokens[0]);
+            String dataType = getCanonicalName(parameter.getJavaClassRef());
+
+            Class dataTypeClass = Data.asPrimitiveClass(dataType);
+            if (parameter.isArray()) {
+                List elementsString = Data.arrayStringToList((String) fieldValue.getValue(), dataTypeClass);
+                Object[] elements = elementsString.toArray();
+                Object[] firstThree = Arrays.copyOfRange(elements, 0, Math.min(3, elements.length));
+
+                String arrayString = Data.listToArrayString(Arrays.asList(firstThree));
+                if (elements.length > 3) arrayString += "...";
+
+                ExecutionValue<String> executionValue = new ExecutionValue<>(parameter.getName(), ValueHolder.basic(arrayString));
+                ArgumentValuesTreeNode argumentNode = parentNode.initChild(parameter);
+                argumentNode.setValue(executionValue);
+                return;
+            }
 
             ArgumentValuesTreeNode argumentNode = parentNode.initChild(parameter);
             DBJavaClass argumentClass = parameter.getJavaClass();

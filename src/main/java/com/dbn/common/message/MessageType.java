@@ -27,18 +27,19 @@ public enum MessageType {
     ERROR,
     SYSTEM,
     QUESTION,
+    PROCESSING,
     NEUTRAL;
 
 
     public Icon getDialogIcon() {
-        switch (this) {
-            case INFO: return Icons.DIALOG_INFORMATION;
-            case SUCCESS: return Icons.DIALOG_SUCCESS;
-            case WARNING: return Icons.DIALOG_WARNING;
-            case ERROR: return Icons.DIALOG_ERROR;
-            case QUESTION: return Icons.DIALOG_QUESTION;
-            default: return null;
-        }
+        return switch (this) {
+            case INFO -> Icons.DIALOG_INFORMATION;
+            case SUCCESS -> Icons.DIALOG_SUCCESS;
+            case WARNING -> Icons.DIALOG_WARNING;
+            case ERROR -> Icons.DIALOG_ERROR;
+            case QUESTION -> Icons.DIALOG_QUESTION;
+            default -> null;
+        };
     }
 
 }

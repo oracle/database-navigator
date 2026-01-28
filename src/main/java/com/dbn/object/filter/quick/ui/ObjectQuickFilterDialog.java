@@ -51,8 +51,8 @@ public class ObjectQuickFilterDialog extends DBNDialog<ObjectQuickFilterForm> {
 
     @NotNull
     @Override
-    protected Action[] createActions() {
-        return new Action[]{
+    protected Action[] initializeActions() {
+        return actions(
                 getOKAction(),
                 new AbstractAction("Clear Filters") {
                     @Override
@@ -61,8 +61,7 @@ public class ObjectQuickFilterDialog extends DBNDialog<ObjectQuickFilterForm> {
                         doOKAction();
                     }
                 },
-                getCancelAction()
-        };
+                getCancelAction());
     }
 
     @Override

@@ -60,8 +60,7 @@ public final class DisposableContainers {
         @Override
         public boolean remove(Object o) {
             boolean removed = super.remove(o);
-            if (removed && o instanceof Disposable) {
-                Disposable disposable = (Disposable) o;
+            if (removed && o instanceof Disposable disposable) {
                 Disposer.dispose(disposable);
             }
             return removed;
@@ -88,8 +87,7 @@ public final class DisposableContainers {
         @Override
         public boolean remove(Object o) {
             boolean removed = super.remove(o);
-            if (removed && o instanceof Disposable) {
-                Disposable disposable = (Disposable) o;
+            if (removed && o instanceof Disposable disposable) {
                 Disposer.dispose(disposable);
             }
             return removed;
@@ -110,8 +108,7 @@ public final class DisposableContainers {
         @Override
         public boolean remove(Object key, Object value) {
             boolean removed = super.remove(key, value);
-            if (removed && value instanceof Disposable) {
-                Disposable disposable = (Disposable) value;
+            if (removed && value instanceof Disposable disposable) {
                 Disposer.dispose(disposable);
             }
             return removed;

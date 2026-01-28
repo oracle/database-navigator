@@ -16,17 +16,9 @@
 
 package com.dbn.assistant.service.selectai.credential.ui;
 
-import com.dbn.assistant.credential.LocalCredential;
-import com.dbn.assistant.credential.LocalCredentialSettings;
-import com.dbn.assistant.settings.AssistantSettings;
-import com.dbn.common.exception.Exceptions;
 import com.dbn.common.outcome.OutcomeHandler;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.TextFields;
-import com.dbn.common.util.Chars;
-import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBCredential;
@@ -34,252 +26,240 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.impl.DBCredentialImpl;
 import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBCredentialType;
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextField;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.List;
 import java.util.Set;
 
-import static com.dbn.common.ui.CardLayouts.showCard;
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Strings.startsWith;
 import static com.dbn.object.type.DBAttributeType.FINGERPRINT;
 import static com.dbn.object.type.DBAttributeType.PASSWORD;
 import static com.dbn.object.type.DBAttributeType.PRIVATE_KEY;
+import static com.dbn.object.type.DBAttributeType.TENANCY_OCID;
 import static com.dbn.object.type.DBAttributeType.USER_NAME;
 import static com.dbn.object.type.DBAttributeType.USER_OCID;
-import static com.dbn.object.type.DBAttributeType.USER_TENANCY_OCID;
 
 /**
  * A dialog window for creating new AI credentials.
  * This window allows users to input credential information, supporting different types of credentials.
- * It interacts with {@link CredentialManagementService} to create credentials in the system.
  */
 @Getter
 public class CredentialEditForm extends DBNFormBase {
 
-  private JPanel mainPanel;
-  private JTextField credentialNameField;
-  private JComboBox<DBCredentialType> credentialTypeComboBox;
-  private JTextField passwordCredentialUsernameField;
-  private javax.swing.JPasswordField passwordCredentialPasswordField;
-  private JPanel attributesPane;
-  private JBTextField ociCredentialUserOcidField;
-  private JBTextField ociCredentialUserTenancyOcidField;
-  private JTextField ociCredentialPrivateKeyField;
-  private JTextField ociCredentialFingerprintField;
-  private JButton localCredentialPickerButton;
-  private JCheckBox saveLocalCheckBox;
-  private JCheckBox statusCheckBox;
-  private JPanel passwordCard;
-  private JPanel ociCard;
-  private JLabel errorLabel;
+    private JPanel mainPanel;
+    private JPanel attributesPane;
+    private JTextField credentialNameField;
+    private JCheckBox statusCheckBox;
+    private JComboBox<DBCredentialType> credentialTypeComboBox;
 
+    private JTextField passwordCredentialUserField;
+    private JPasswordField passwordCredentialPasswordField;
+    private JPasswordField tokenCredentialPasswordField;
 
-  private final ConnectionRef connection;
-  private DBCredential credential;
-  private LocalCredential localCredential;
-  private final Set<String> usedCredentialNames;
+    private JBTextField ociCredentialUserOcidField;
+    private JBTextField ociCredentialTenancyOcidField;
+    private JTextField ociCredentialPrivateKeyField;
+    private JTextField ociCredentialFingerprintField;
 
-  /**
-   * Constructs a CredentialEditForm
-   *
-   * @param dialog the parent dialog
-   * @param credential the credential to be edited, can be null in case of credential creation
-   * @param usedCredentialNames the names of credentials which are already defined and name can no longer be used
-   */
-  public CredentialEditForm(CredentialEditDialog dialog, @Nullable DBCredential credential, Set<String> usedCredentialNames) {
-    super(dialog);
-    this.connection = dialog.getConnection().ref();
-    this.credential = credential;
-    this.usedCredentialNames = usedCredentialNames;
+    private JPanel passwordCredentialPanel;
+    private JPanel tokenCredentialPanel;
+    private JPanel ociCredentialPanel;
 
-    initCredentialTypeComboBox();
-    initCredentialPickerButton();
-    initCredentialAttributeFields();
-  }
+    private DBCredential credential;
+    private final ConnectionRef connection;
+    private final Set<String> usedCredentialNames;
+    private final List<DBCredentialType> credentialTypes;
 
-  @Override
-  protected JComponent getMainComponent() {
-    return mainPanel;
-  }
+    /**
+     * Constructs a CredentialEditForm
+     *
+     * @param dialog              the parent dialog
+     * @param credential          the credential to be edited, can be null in case of credential creation
+     * @param usedCredentialNames the names of credentials which are already defined and name can no longer be used
+     */
+    public CredentialEditForm(CredentialEditDialog dialog, @Nullable DBCredential credential, List<DBCredentialType> credentialTypes, Set<String> usedCredentialNames) {
+        super(dialog);
+        this.connection = dialog.getConnection().ref();
+        this.credential = credential;
+        this.credentialTypes = credentialTypes == null ? List.of(DBCredentialType.values()) : credentialTypes;
+        this.usedCredentialNames = usedCredentialNames;
 
-  private ConnectionHandler getConnection() {
-    return connection.ensure();
-  }
-
-  @Override
-  protected void initValidation() {
-    addTextValidation(credentialNameField, c -> isNotEmpty(c), txt("cfg.assistant.error.CredentialNameEmpty"));
-    addTextValidation(credentialNameField, c -> isNotUsed(c), txt("cfg.assistant.error.CredentialNameExists"));
-    addTextValidation(credentialNameField, c -> isAlphanumericWithUnderscore(c), txt("cfg.assistant.error.CredentialNameInvalid"));
-
-
-    addTextValidation(passwordCredentialUsernameField, c -> !isPassword() || isNotEmpty(c), txt("cfg.assistant.error.UserNameEmpty"));
-    addTextValidation(passwordCredentialPasswordField, c -> !isPassword() || isNotEmpty(c), txt("cfg.assistant.error.PasswordEmpty"));
-
-    addTextValidation(ociCredentialUserOcidField,        c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.UserOcidEmpty"));
-    addTextValidation(ociCredentialUserOcidField,        c -> !isOci() || startsWith(c, "ocid1.user.oc1."), txt("cfg.assistant.error.UserOcidInvalid"));
-    addTextValidation(ociCredentialUserTenancyOcidField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.UserTenancyOcidEmpty"));
-    addTextValidation(ociCredentialUserTenancyOcidField, c -> !isOci() || startsWith(c, "ocid1.tenancy.oc1."), txt("cfg.assistant.error.UserTenancyOcidInvalid"));
-    addTextValidation(ociCredentialFingerprintField,     c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.FingerprintEmpty"));
-    addTextValidation(ociCredentialPrivateKeyField,      c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.PrivateKeyEmpty"));
-  }
-
-  private boolean isPassword() {
-    return credentialTypeComboBox.getSelectedItem() == DBCredentialType.PASSWORD;
-  }
-
-  private boolean isOci() {
-    return credentialTypeComboBox.getSelectedItem() == DBCredentialType.OCI;
-  }
-
-private boolean isNotUsed(String name) {
-    return !usedCredentialNames.contains(name);
-  }
-
-  private void initCredentialTypeComboBox() {
-    credentialTypeComboBox.addItem(DBCredentialType.PASSWORD);
-    credentialTypeComboBox.addItem(DBCredentialType.OCI);
-    credentialTypeComboBox.addActionListener((e) -> showCard(attributesPane, credentialTypeComboBox.getSelectedItem()));
-    credentialTypeComboBox.setEnabled(credential == null);
-
-    ociCredentialUserOcidField.getEmptyText().setText("ocid1.user.oc1...");
-    ociCredentialUserTenancyOcidField.getEmptyText().setText("ocid1.tenancy.oc1...");
-  }
-
-  private void initCredentialPickerButton() {
-    localCredentialPickerButton.addActionListener((e) -> showCredentialPicker());
-  }
-
-  private void showCredentialPicker() {
-    Dialogs.show(() -> new CredentialPickerDialog(getProject(), c -> pickLocalCredential(c)));
-  }
-
-  private void pickLocalCredential(LocalCredential credential) {
-    localCredential = credential;
-    passwordCredentialUsernameField.setText(credential.getUser());
-    passwordCredentialPasswordField.setText(Chars.toString(credential.getKey()));
-    saveLocalCheckBox.setEnabled(false);
-  }
-
-  /**
-   * Populate fields with the attributes of the credential to be updated
-   */
-  private void initCredentialAttributeFields() {
-    if (credential == null) return;
-
-    credentialNameField.setText(credential.getName());
-    credentialNameField.setEnabled(false);
-    statusCheckBox.setSelected(credential.isEnabled());
-    DBCredentialType credentialType = credential.getType();
-    if (credentialType == DBCredentialType.PASSWORD) {
-      initPasswordCredentialFields();
-    } else if (credentialType == DBCredentialType.OCI) {
-      initOciCredentialFields();
+        initCredentialTypeComboBox();
+        initCredentialAttributeFields();
     }
-  }
 
-  private void initOciCredentialFields() {
-    credentialTypeComboBox.setSelectedItem(DBCredentialType.OCI);
-    ociCredentialUserOcidField.setText(credential.getUserName());
-  }
-
-  private void initPasswordCredentialFields() {
-    credentialTypeComboBox.setSelectedItem(DBCredentialType.PASSWORD);
-    passwordCredentialUsernameField.setText(credential.getUserName());
-    TextFields.onTextChange(passwordCredentialUsernameField, e -> initLocalSaveCheckbox());
-    TextFields.onTextChange(passwordCredentialPasswordField, e -> initLocalSaveCheckbox());
-  }
-
-  private void initLocalSaveCheckbox() {
-    boolean enabled = canSaveLocalCredential();
-    boolean selected = enabled && saveLocalCheckBox.isSelected();
-    saveLocalCheckBox.setEnabled(enabled);
-    saveLocalCheckBox.setSelected(selected);
-  }
-
-  private boolean canSaveLocalCredential() {
-    if (localCredential == null) return true; // local credential has been chosen to fill the attributes
-    return
-        !Objects.equals(localCredential.getUser(), passwordCredentialUsernameField.getText()) ||
-        !Arrays.equals(localCredential.getKey(), passwordCredentialPasswordField.getPassword());
-  }
-
-
-  /**
-   * Collects the fields' info and sends them to the service layer to create new credential
-   */
-  protected void doCreateAction(OutcomeHandler successHandler) {
-    credential = inputsToCredential();
-    if (credential == null) return;
-    getManagementService().createObject(credential, successHandler);
-  }
-
-  /**
-   * Collects the fields' info and sends them to the service layer to update new credential
-   */
-  protected void doUpdateAction(OutcomeHandler successHandler) {
-    credential = inputsToCredential();
-    if (credential == null) return;
-    getManagementService().updateObject(credential, successHandler);
-  }
-
-  @NotNull
-  private ObjectManagementService getManagementService() {
-    return ObjectManagementService.getInstance(ensureProject());
-  }
-
-  private Void handleException(Throwable e) {
-    Dispatch.run(mainPanel, () -> Messages.showErrorDialog(getProject(), Exceptions.causeMessage(e)));
-    return null;
-  }
-
-  @Nullable
-  @SneakyThrows
-  private DBCredential inputsToCredential() {
-    DBCredentialType credentialType = (DBCredentialType) credentialTypeComboBox.getSelectedItem();
-    if (credentialType == null) return null;
-
-    DBSchema schema = getConnection().getObjectBundle().getUserSchema();
-    String credentialName = credentialNameField.getText();
-    boolean selected = statusCheckBox.isSelected();
-
-    DBCredential credential = new DBCredentialImpl(schema, credentialName, credentialType, selected);
-    if (credentialType == DBCredentialType.PASSWORD) {
-      credential.setAttribute(USER_NAME, passwordCredentialUsernameField.getText());
-      credential.setAttribute(PASSWORD, passwordCredentialPasswordField.getText());
-
-    } else if (credentialType == DBCredentialType.OCI) {
-      credential.setAttribute(USER_OCID,         ociCredentialUserOcidField.getText());
-      credential.setAttribute(USER_TENANCY_OCID, ociCredentialUserTenancyOcidField.getText());
-      credential.setAttribute(PRIVATE_KEY,       ociCredentialPrivateKeyField.getText());
-      credential.setAttribute(FINGERPRINT,       ociCredentialFingerprintField.getText());
-
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
     }
-    return credential;
-  }
 
-  protected void saveProviderInfo() {
-    Project project = ensureProject();
-    LocalCredentialSettings settings = AssistantSettings.getInstance(project).getCredentialSettings();
-    LocalCredential credential = new LocalCredential();
-    credential.setName(credentialNameField.getText());
-    credential.setUser(passwordCredentialUsernameField.getText());
-    credential.setKey(passwordCredentialPasswordField.getPassword());
-    settings.getCredentials().add(credential);
-  }
+    private ConnectionHandler getConnection() {
+        return connection.ensure();
+    }
+
+    @Override
+    protected void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.initFieldsVisibility(() -> getCredentialType() == DBCredentialType.TOKEN, array(tokenCredentialPanel));
+        fieldAdapter.initFieldsVisibility(() -> getCredentialType() == DBCredentialType.PASSWORD, array(passwordCredentialPanel));
+        fieldAdapter.initFieldsVisibility(() -> getCredentialType() == DBCredentialType.OCI, array(ociCredentialPanel));
+    }
+
+    @Override
+    protected void initValidation() {
+        addTextValidation(credentialNameField, c -> isNotEmpty(c), txt("cfg.assistant.error.CredentialNameEmpty"));
+        addTextValidation(credentialNameField, c -> isNotUsed(c), txt("cfg.assistant.error.CredentialNameExists"));
+        addTextValidation(credentialNameField, c -> isAlphanumericWithUnderscore(c), txt("cfg.assistant.error.CredentialNameInvalid"));
+
+        addTextValidation(passwordCredentialUserField, c -> !isPassword() || isNotEmpty(c), txt("cfg.assistant.error.UserNameEmpty"));
+        addTextValidation(passwordCredentialPasswordField, c -> !isPassword() || isNotEmpty(c), txt("cfg.assistant.error.PasswordEmpty"));
+        addTextValidation(tokenCredentialPasswordField, c -> !isToken() || isNotEmpty(c), txt("cfg.assistant.error.TokenEmpty"));
+
+        addTextValidation(ociCredentialUserOcidField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.UserOcidEmpty"));
+        addTextValidation(ociCredentialUserOcidField, c -> !isOci() || startsWith(c, "ocid1.user.oc1."), txt("cfg.assistant.error.UserOcidInvalid"));
+        addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.UserTenancyOcidEmpty"));
+        addTextValidation(ociCredentialTenancyOcidField, c -> !isOci() || startsWith(c, "ocid1.tenancy.oc1."), txt("cfg.assistant.error.UserTenancyOcidInvalid"));
+        addTextValidation(ociCredentialFingerprintField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.FingerprintEmpty"));
+        addTextValidation(ociCredentialPrivateKeyField, c -> !isOci() || isNotEmpty(c), txt("cfg.assistant.error.PrivateKeyEmpty"));
+    }
+
+    private boolean isPassword() {
+        return getCredentialType() == DBCredentialType.PASSWORD;
+    }
+
+    private boolean isToken() {
+        return getCredentialType() == DBCredentialType.TOKEN;
+    }
+
+    private boolean isOci() {
+        return getCredentialType() == DBCredentialType.OCI;
+    }
+
+    private boolean isNotUsed(String name) {
+        return !usedCredentialNames.contains(name);
+    }
+
+    private void initCredentialTypeComboBox() {
+        initComboBox(credentialTypeComboBox, credentialTypes);
+        if (credentialTypes.size() == 1 || credential != null) {
+            DBCredentialType credentialType = credential == null ? credentialTypes.iterator().next() : credential.getType();
+            credentialTypeComboBox.setSelectedItem(credentialType);
+            credentialTypeComboBox.setEnabled(false);
+            updateFieldAvailability();
+        } else {
+            credentialTypeComboBox.addActionListener((e) -> updateFieldAvailability());
+        }
+
+        ociCredentialUserOcidField.getEmptyText().setText("ocid1.user.oc1...");
+        ociCredentialTenancyOcidField.getEmptyText().setText("ocid1.tenancy.oc1...");
+    }
+
+    /**
+     * Populate fields with the attributes of the credential to be updated
+     */
+    private void initCredentialAttributeFields() {
+        if (credential == null) return;
+
+        setText(credentialNameField, credential.getName());
+        credentialNameField.setEnabled(false);
+        statusCheckBox.setSelected(credential.isEnabled());
+        DBCredentialType credentialType = credential.getType();
+        if (credentialType == DBCredentialType.PASSWORD) {
+            initPasswordCredentialFields();
+        } else if (credentialType == DBCredentialType.TOKEN) {
+            initTokenCredentialFields();
+        } else if (credentialType == DBCredentialType.OCI) {
+            initOciCredentialFields();
+        }
+    }
+
+    private void initTokenCredentialFields() {
+        setSelection(credentialTypeComboBox, DBCredentialType.TOKEN);
+    }
+
+    private void initPasswordCredentialFields() {
+        setSelection(credentialTypeComboBox, DBCredentialType.PASSWORD);
+        setText(passwordCredentialUserField, credential.getUserName());
+    }
+
+    private void initOciCredentialFields() {
+        setSelection(credentialTypeComboBox, DBCredentialType.OCI);
+        setText(ociCredentialUserOcidField, credential.getUserName());
+    }
+
+    /**
+     * Collects the fields' info and sends them to the service layer to create new credential
+     */
+    protected void doCreateAction(OutcomeHandler successHandler) {
+        credential = inputsToCredential();
+        if (credential == null) return;
+        getManagementService().createObject(credential, successHandler);
+    }
+
+    /**
+     * Collects the fields' info and sends them to the service layer to update new credential
+     */
+    protected void doUpdateAction(OutcomeHandler successHandler) {
+        credential = inputsToCredential();
+        if (credential == null) return;
+        getManagementService().updateObject(credential, successHandler);
+    }
+
+    @NotNull
+    private ObjectManagementService getManagementService() {
+        return ObjectManagementService.getInstance(ensureProject());
+    }
+
+    @Nullable
+    @SneakyThrows
+    private DBCredential inputsToCredential() {
+        DBCredentialType credentialType = getCredentialType();
+        if (credentialType == null) return null;
+
+        DBSchema schema = getConnection().getObjectBundle().getUserSchema();
+        String credentialName = getText(credentialNameField);
+        boolean selected = statusCheckBox.isSelected();
+
+        DBCredential credential = new DBCredentialImpl(schema, credentialName, credentialType, selected);
+        if (credentialType == DBCredentialType.PASSWORD) {
+            credential.setAttribute(USER_NAME, getText(passwordCredentialUserField));
+            credential.setAttribute(PASSWORD, getText(passwordCredentialPasswordField));
+
+        } else if (credentialType == DBCredentialType.TOKEN) {
+            // special case of credentials created for the vector framework
+            credential.setAttribute(USER_NAME, "access_token");
+            credential.setAttribute(PASSWORD, getText(tokenCredentialPasswordField));
+
+        } else if (credentialType == DBCredentialType.OCI) {
+            credential.setAttribute(USER_OCID, getText(ociCredentialUserOcidField));
+            credential.setAttribute(TENANCY_OCID, getText(ociCredentialTenancyOcidField));
+            credential.setAttribute(PRIVATE_KEY, getText(ociCredentialPrivateKeyField));
+            credential.setAttribute(FINGERPRINT, getText(ociCredentialFingerprintField));
+
+        }
+        return credential;
+    }
+
+    @Nullable
+    private DBCredentialType getCredentialType() {
+        return getSelection(credentialTypeComboBox);
+    }
 }

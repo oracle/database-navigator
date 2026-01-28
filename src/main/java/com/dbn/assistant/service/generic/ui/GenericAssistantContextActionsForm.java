@@ -19,10 +19,14 @@ package com.dbn.assistant.service.generic.ui;
 import com.dbn.assistant.adapter.ui.AssistantContextActionsForm;
 import com.dbn.assistant.adapter.ui.AssistantDetailFormBase;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.common.util.Actions;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 @Slf4j
 public class GenericAssistantContextActionsForm extends AssistantDetailFormBase implements AssistantContextActionsForm {
@@ -41,10 +45,8 @@ public class GenericAssistantContextActionsForm extends AssistantDetailFormBase 
     }
 
     private void createActionPanel() {
-/*
-        ActionToolbar contextActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.SelectAiContextActions");
+        ActionToolbar contextActions = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.GenericAssistantContextActions");
         setAccessibleName(contextActions, txt("app.assistant.aria.ChatProfileActions"));
         this.actionsPanel.add(contextActions.getComponent());
-*/
     }
 }

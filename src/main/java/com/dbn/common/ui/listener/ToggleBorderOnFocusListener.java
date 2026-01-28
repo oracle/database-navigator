@@ -49,8 +49,7 @@ public class ToggleBorderOnFocusListener implements FocusListener {
 
     private static void changeBorder(FocusEvent e, Border border) {
         Component component = e.getComponent();
-        if (component instanceof JComponent) {
-            JComponent comp = (JComponent) component;
+        if (component instanceof JComponent comp) {
             comp.setBorder(border);
         }
     }

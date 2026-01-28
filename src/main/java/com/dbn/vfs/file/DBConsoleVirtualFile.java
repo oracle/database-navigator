@@ -19,6 +19,7 @@ package com.dbn.vfs.file;
 import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Documents;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -64,7 +65,7 @@ import java.util.Objects;
 @Getter
 public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> implements DocumentListener, DBParseableVirtualFile, Comparable<DBConsoleVirtualFile>, FileConnectionContextProvider {
     private final SourceCodeContent content = new SourceCodeContent();
-    private final FileConnectionContext connectionContext;
+    private final transient FileConnectionContext connectionContext;
 
     public DBConsoleVirtualFile(@NotNull DBConsole console) {
         super(console.getProject(), DBObjectRef.of(console));
@@ -76,7 +77,7 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
         setCharset(connection.getSettings().getDetailSettings().getCharset());
     }
 
-    public void setText(String text) {
+    public void setContent(String text) {
         if (getObject().getConsoleType() == DBConsoleType.DEBUG && Strings.isEmpty(text)) {
             ConnectionHandler connection = getConnection();
             Project project = connection.getProject();
@@ -86,6 +87,12 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
             text = debuggerInterface.getDebugConsoleTemplate(styleCaseSettings);
         }
         content.importContent(text);
+    }
+
+    public void updateContent(String text) {
+        setContent(text);
+        Document document = Documents.getDocument(this);
+        Documents.setText(document, text);
     }
 
     @Override
@@ -109,11 +116,10 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
     @Nullable
     @Override
     public Icon getIcon() {
-        switch (getType()) {
-            case STANDARD: return Icons.FILE_SQL_CONSOLE;
-            case DEBUG: return Icons.FILE_SQL_DEBUG_CONSOLE;
-        }
-        return null;
+        return switch (getType()) {
+            case STANDARD -> Icons.FILE_SQL_CONSOLE;
+            case DEBUG -> Icons.FILE_SQL_DEBUG_CONSOLE;
+        };
     }
     public void setDatabaseSchema(SchemaId schemaId) {
         connectionContext.setSchemaId(schemaId);
@@ -226,8 +232,7 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
     public void documentChanged(DocumentEvent event) {
         Document document = event.getDocument();
         content.setText(document.getCharsSequence());
-        if (document instanceof DocumentEx) {
-            DocumentEx documentEx = (DocumentEx) document;
+        if (document instanceof DocumentEx documentEx) {
             List<RangeMarker> blocks = documentEx.getGuardedBlocks();
             if (!blocks.isEmpty()) {
                 content.getOffsets().setGuardedBlocks(blocks);

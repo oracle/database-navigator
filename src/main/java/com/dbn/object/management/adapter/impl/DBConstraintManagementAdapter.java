@@ -21,16 +21,25 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.object.DBConstraint;
-import com.dbn.object.management.ObjectManagementAdapterFactory;
-import com.dbn.object.management.ObjectManagementAdapterFactoryBase;
+import com.dbn.object.management.ObjectManagementAdapterBase;
+import com.dbn.object.management.ObjectManagementAdapterExtension;
+import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.constant.Constant.array;
+import static com.dbn.object.type.DBObjectType.CONSTRAINT;
+
 /**
- * Implementation of {@link ObjectManagementAdapterFactory} for objects of type {@link com.dbn.object.DBConstraint}
+ * Implementation of {@link ObjectManagementAdapterExtension} for objects of type {@link com.dbn.object.DBConstraint}
  * @author Dan Cioca (Oracle)
  */
-public class DBConstraintManagementAdapter extends ObjectManagementAdapterFactoryBase<DBConstraint> {
+public class DBConstraintManagementAdapter extends ObjectManagementAdapterBase<DBConstraint> {
+
+    @Override
+    public DBObjectType[] getObjectTypes() {
+        return array(CONSTRAINT);
+    }
 
     @Override
     protected void createObject(ConnectionHandler connection, DBNConnection conn, DBConstraint object) throws SQLException {

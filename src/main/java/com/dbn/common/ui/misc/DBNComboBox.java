@@ -19,12 +19,12 @@ package com.dbn.common.ui.misc;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.latent.Loader;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.Presentable;
-import com.dbn.common.ui.PresentableFactory;
+import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.ValueSelectorListener;
 import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.util.Listeners;
@@ -46,11 +46,13 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ComboBoxEditor;
 import javax.swing.ComboBoxModel;
+import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,21 +60,35 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_ICON;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
 import static com.dbn.common.ui.util.ClientProperty.LOADING;
+import static com.dbn.common.ui.util.ClientProperty.VISITED;
 import static com.dbn.common.ui.util.ComboBoxes.getEmptyOptionsText;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBoxRenderer;
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Conditional.when;
-import static com.dbn.common.util.Lists.firstElement;
+import static com.dbn.common.util.Lists.first;
 
-public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements PropertyHolder<ValueSelectorOption> {
+public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<ValueSelectorOption> {
 
     private final Listeners<ValueSelectorListener<T>> listeners = Listeners.create();
     private ListPopup popup;
-    private PresentableFactory<T> valueFactory;
-    private Loader<List<T>> valueLoader;
+    private ValueFactory<T> valueFactory;
+    private Supplier<List<T>> valueLoader;
+    private Predicate<T> valuePreselector;
+    private transient ActionListener[] actionListeners;
+
+    private final AtomicInteger loadSignature = new AtomicInteger(0);
+    private final Lock loadLock = new ReentrantLock();
 
     @Delegate
     private final PropertyHolder<ValueSelectorOption> options = PropertyHolderBase.intBase(ValueSelectorOption.VALUES);
@@ -146,17 +162,23 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
     private ActionGroup createActionGroup() {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         List<T> values = getModel().getItems();
+
+        boolean valueFactoryFirst = values.size() > 5;
+        if (valueFactoryFirst && valueFactory != null) {
+            actionGroup.add(new AddValueAction());
+            actionGroup.add(Actions.SEPARATOR);
+        }
+
         for (T value : values) {
             actionGroup.add(new SelectValueAction(value));
         }
 
-        if (valueFactory != null) {
+        if (!valueFactoryFirst && valueFactory != null) {
             actionGroup.add(Actions.SEPARATOR);
             actionGroup.add(new AddValueAction());
-            return actionGroup;
         }
 
-        if (values.isEmpty()) {
+        if (values.isEmpty() && valueFactory == null) {
             String emptyOptionsText = getEmptyOptionsText(this);
             if (emptyOptionsText == null) return actionGroup;
 
@@ -181,15 +203,6 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
         return false;
     }
 
-    public void setValueFactory(PresentableFactory<T> valueFactory) {
-        this.valueFactory = valueFactory;
-    }
-
-    public void setValueLoader(Loader<List<T>> valueLoader) {
-        this.valueLoader = valueLoader;
-        loadValues();
-    }
-
     public void addListener(ValueSelectorListener<T> listener) {
         listeners.add(listener);
     }
@@ -209,27 +222,114 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
     }
 
     public void loadValues() {
-        setValues(new ArrayList<>());
-        setSelectedValue(null);
-
         if (valueLoader == null) return;
 
-        Background.run(() -> {
-            boolean enabled = isEnabled();
-            try {
-                setEnabled(false);
-                LOADING.set(this, true);
-                List<T> values = valueLoader.load();
-                setValues(values);
+        try {
+            loadLock.lock();
 
-                T selectedValue = firstElement(values);
-                setSelectedValue(selectedValue);
+            // block the control
+            LOADING.set(this, true);
+            disableFormField(this, "TEMPORARY_LOAD");
+            muteActionListeners();
 
-            } finally {
-                LOADING.set(this, false);
-                setEnabled(enabled);
+            // reset values and selection
+            setValues(new ArrayList<>());
+            setSelectedValue(null);
+
+            int signature = loadSignature.incrementAndGet();
+            Background.run(() -> {
+                if (!matchesLoadSignature(signature)) return;
+                try {
+                    List<T> values = valueLoader.get();
+
+                    if (matchesLoadSignature(signature)) {
+                        Dispatch.run(this, () -> {
+                            setValues(values);
+                            preselectValue();
+                        });
+                    }
+
+                } finally {
+                    if (matchesLoadSignature(signature)) {
+                        LOADING.set(this, false);
+                        enableFormField(this, "TEMPORARY_LOAD");
+                        unmuteActionListeners();
+                    }
+                }
+            });
+
+        } finally {
+            loadLock.unlock();
+        }
+    }
+
+    private void preselectValue() {
+        DBNComboBoxModel<T> model = getModel();
+        if (model.isEmpty()) return;
+
+        Predicate<T> valuePreselector = this.valuePreselector;
+
+        if (valuePreselector == null) {
+            if (model.getSize() == 1) {
+                // preselect if only one option available
+                T firstElement = model.getElementAt(0);
+                selectValue(firstElement);
             }
-        });
+        } else {
+            T selectedValue = first(model.getItems(), valuePreselector);
+            if (selectedValue != null) {
+                this.valuePreselector = null; // one-time selection
+                selectValue(selectedValue);
+            }
+        }
+    }
+
+    public DBNComboBox<T> withValueLoader(Supplier<List<T>> valueLoader) {
+        this.valueLoader = valueLoader;
+        return this;
+    }
+
+    public DBNComboBox<T> withValuePreselector(Predicate<T> valuePreselector) {
+        this.valuePreselector = valuePreselector;
+        return this;
+    }
+
+    public DBNComboBox<T> withValueFactory(ValueFactory<T> valueFactory) {
+        this.valueFactory = valueFactory;
+        return this;
+    }
+
+    public void triggerLoad(){
+        if (isShowing()) {
+            loadValues();
+        } else {
+            whenFirstShown(this, () -> loadValues());
+        }
+    }
+
+    private void muteActionListeners() {
+        actionListeners = getActionListeners();
+        if (actionListeners == null) return;
+
+        for (ActionListener actionListener : actionListeners) {
+            removeActionListener(actionListener);
+        }
+    }
+
+    private void unmuteActionListeners() {
+        if (actionListeners == null) return;
+        for (ActionListener actionListener : actionListeners) {
+            addActionListener(actionListener);
+        }
+    }
+
+    private boolean matchesLoadSignature(int signature) {
+        return signature == loadSignature.get();
+    }
+
+    public void reloadValues(Predicate<T> valuePreselector) {
+        this.valuePreselector = valuePreselector;
+        reloadValues();
     }
 
     public void reloadValues() {
@@ -257,7 +357,7 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
         private final T value;
 
         SelectValueAction(T value) {
-            super(getOptionDisplayName(value), null, options != null && options.is(HIDE_ICON) ? null : value == null ? null : value.getIcon());
+            super(getOptionDisplayName(value), null, getOptionIcon(value));
             this.value = value;
         }
 
@@ -275,6 +375,15 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
         }
     }
 
+    private @Nullable Icon getOptionIcon(T value) {
+        if (value == null) return null;
+        if (options.is(HIDE_ICON)) return null;
+        if (value instanceof Presentable presentable) {
+            return presentable.getIcon();
+        }
+        return null;
+    }
+
     private class AddValueAction extends BasicAction {
         AddValueAction() {
             super(valueFactory.getActionName(), null, valueFactory.getIcon() != null ? valueFactory.getIcon() : Icons.ACTION_ADD);
@@ -282,11 +391,11 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            valueFactory.create(inputValue -> {
-                if (inputValue != null) {
-                    addValue(inputValue);
-                    selectValue(inputValue);
-                }
+            valueFactory.createValue(inputValue -> {
+                if (inputValue == null) return;
+
+                addValue(inputValue);
+                selectValue(inputValue);
             });
         }
 
@@ -298,10 +407,17 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
 
     @NotNull
     private String getValueName(T value) {
-        if (value == null) return "";
+        if (value == null) return " ";
 
-        String name = value.getName();
-        String description = value.getDescription();
+        String name;
+        String description = null;
+
+        if (value instanceof Presentable presentable) {
+            name = presentable.getName();
+            description = presentable.getDescription();
+        } else {
+            name = value.toString();
+        }
 
         if (options.is(HIDE_DESCRIPTION)) return name;
         if (Strings.isEmptyOrSpaces(description)) return name;
@@ -333,10 +449,13 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
         setValues(Arrays.asList(values));
     }
 
-    public void setValues(java.util.List<T> values) {
-        DBNComboBoxModel<T> model = getModel();
-        model.removeAllElements();
-        addValues(values);
+    public void setValues(List<T> values) {
+        T selectedValue = getSelectedValue();
+        DBNComboBoxModel<T> model = new DBNComboBoxModel<>(values);
+        setModel(model);
+
+        selectValue(selectedValue);
+        VISITED.set(this, false); // reset visited flag on model changes
     }
 
     private void addValue(T value) {
@@ -366,7 +485,9 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
 
         super.setSelectedItem(anObject);
         T newValue = getSelectedValue();
-        listeners.notify(l -> l.selectionChanged(oldValue, newValue));
+        if (!Commons.match(oldValue, newValue)) {
+            listeners.notify(l -> l.selectionChanged(oldValue, newValue));
+        }
     }
 
     private void selectValue(T value) {
@@ -375,7 +496,7 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
         if (value != null) {
             value = model.containsItem(value) ? value : model.isEmpty() ? null : model.getElementAt(0);
         }
-        if (!Commons.match(oldValue, value) || (model.isEmpty() && value == null)) {
+        if (!Commons.match(oldValue, value)) {
             setSelectedItem(value);
         }
     }

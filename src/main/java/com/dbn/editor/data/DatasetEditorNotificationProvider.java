@@ -21,6 +21,7 @@ import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Strings;
+import com.dbn.editor.data.ui.DatasetChangesNotificationPanel;
 import com.dbn.editor.data.ui.DatasetEditorLoadErrorNotificationPanel;
 import com.dbn.editor.data.ui.DatasetEditorNotificationPanel;
 import com.dbn.editor.data.ui.DatasetEditorReadonlyNotificationPanel;
@@ -89,22 +90,25 @@ public class DatasetEditorNotificationProvider extends EditorNotificationProvide
     @Nullable
     @Override
     public DatasetEditorNotificationPanel createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
-        if (!(file instanceof DBEditableObjectVirtualFile)) return null;
-        if (!(fileEditor instanceof DatasetEditor)) return null;
-
-        DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) file;
-        DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
-
-        DBSchemaObject editableObject = editableObjectFile.getObject();
+        if (!(file instanceof DBEditableObjectVirtualFile datasetFile)) return null;
+        if (!(fileEditor instanceof DatasetEditor datasetEditor)) return null;
         if (!datasetEditor.isLoaded()) return null;
 
-        String sourceLoadError = datasetEditor.getDataLoadError();
-        if (Strings.isNotEmpty(sourceLoadError)) {
-            return new DatasetEditorLoadErrorNotificationPanel(editableObject, fileEditor, sourceLoadError);
+        DBSchemaObject dataset = datasetFile.getObject();
+
+        String dataLoadError = datasetEditor.getDataLoadError();
+        if (Strings.isNotEmpty(dataLoadError)) {
+            return new DatasetEditorLoadErrorNotificationPanel(dataset, fileEditor, dataLoadError);
         }
 
-        if (editableObject instanceof DBTable && editableObjectFile.getEnvironmentType().isReadonlyData()) {
-            return new DatasetEditorReadonlyNotificationPanel(editableObject, fileEditor);
+        if (dataset instanceof DBTable table) {
+            if (datasetEditor.isOutdateResult()) {
+                return new DatasetChangesNotificationPanel(table, datasetEditor);
+            }
+
+            if (datasetFile.getEnvironmentType().isReadonlyData()) {
+                return new DatasetEditorReadonlyNotificationPanel(table, datasetEditor);
+            }
         }
 
         return null;

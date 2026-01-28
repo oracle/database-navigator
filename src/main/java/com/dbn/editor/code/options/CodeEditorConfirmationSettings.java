@@ -63,12 +63,6 @@ public class CodeEditorConfirmationSettings extends BasicConfiguration<CodeEdito
         return txt("cfg.codeEditor.title.ConfirmationSettings");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "codeEditorConfirmationSettings";
-    }
-
-
     /****************************************************
      *                   Configuration                  *
      ****************************************************/

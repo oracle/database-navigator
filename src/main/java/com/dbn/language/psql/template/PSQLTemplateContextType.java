@@ -21,6 +21,7 @@ import com.dbn.language.common.psi.LeafPsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.psql.PSQLLanguage;
 import com.dbn.language.sql.SQLLanguage;
+import com.intellij.codeInsight.template.TemplateActionContext;
 import com.intellij.codeInsight.template.TemplateContextType;
 import com.intellij.lang.Language;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
@@ -33,8 +34,12 @@ public class PSQLTemplateContextType extends TemplateContextType {
         super("PL/SQL", "PL/SQL (DBN)");
     }
 
+
     @Override
-    public boolean isInContext(@NotNull PsiFile file, int offset) {
+    public boolean isInContext(@NotNull TemplateActionContext context) {
+        PsiFile file = context.getFile();
+        int offset = context.getStartOffset();
+
         Language language = file.getLanguage();
         if (language instanceof SQLLanguage) {
             // support PSQL in SQL language

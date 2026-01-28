@@ -28,7 +28,8 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.factory.model.DBMethodSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
@@ -85,30 +86,30 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         // try instructions
         String objectType = "VIEW";
         String tempViewName = getTempObjectName(objectType);
-        dropObjectIfExists(objectType, tempViewName, connection);
+        dropObjectIfExists(objectType, ownerName, tempViewName, connection);
         createView(tempViewName, code, connection);
-        dropObjectIfExists(objectType, tempViewName, connection);
+        dropObjectIfExists(objectType, ownerName, tempViewName, connection);
 
         // instructions
-        dropObjectIfExists(objectType, viewName, connection);
+        dropObjectIfExists(objectType, ownerName, viewName, connection);
         createView(viewName, code, connection);
     }
 
     @Override
-    public void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+    public void updateTrigger(String ownerName, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
         String objectType = "TRIGGER";
         String tempTriggerName = getTempObjectName(objectType);
-        dropObjectIfExists(objectType, tempTriggerName, connection);
+        dropObjectIfExists(objectType, ownerName, tempTriggerName, connection);
         createObject(newCode.replaceFirst("(?i)" + triggerName, tempTriggerName), connection);
-        dropObjectIfExists(objectType, tempTriggerName, connection);
+        dropObjectIfExists(objectType, ownerName, tempTriggerName, connection);
 
-        dropObjectIfExists(objectType, triggerName, connection);
+        dropObjectIfExists(objectType, ownerName, triggerName, connection);
         createObject(newCode, connection);
     }
 
     @Override
-    public void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
-        dropObjectIfExists(objectType, objectName, connection);
+    public void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+        dropObjectIfExists(objectType, ownerName, objectName, connection);
         try {
             createObject(newCode, connection);
         } catch (SQLException e) {
@@ -119,18 +120,15 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     }
 
     /*********************************************************
-     *                     DROP statements                   *
-     *********************************************************/
-    private void dropObjectIfExists(String objectType, String objectName, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "drop-object-if-exists", objectType, objectName);
-    }
-
-    /*********************************************************
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(MethodFactoryInput method, DBNConnection connection) throws SQLException {
+    public void createMethod(DBMethodSpec method, DBNConnection connection) throws SQLException {
         throw new SQLException("Operation not supported: [create method]");
     }
 
+    @Override
+    public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

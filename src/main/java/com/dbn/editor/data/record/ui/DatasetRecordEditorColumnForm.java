@@ -19,8 +19,8 @@ package com.dbn.editor.data.record.ui;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.locale.Formatter;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.data.editor.ui.BasicDataEditorComponent;
 import com.dbn.data.editor.ui.DataEditorComponent;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
@@ -74,7 +74,7 @@ import static com.dbn.data.type.GenericDataType.XMLTYPE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
 
-public class DatasetRecordEditorColumnForm extends DBNFormBase implements ComponentAligner.Form {
+public class DatasetRecordEditorColumnForm extends DBNFormBase {
     private JLabel columnLabel;
     private JPanel valueFieldPanel;
     private JLabel dataTypeLabel;
@@ -202,8 +202,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase implements Compon
         editorComponent.setUserValueHolder(cell);
 
         Formatter formatter = cell.getFormatter();
-        if (cell.getUserValue() instanceof String) {
-            String userValue = (String) cell.getUserValue();
+        if (cell.getUserValue() instanceof String userValue) {
             if (userValue.indexOf('\n') > -1) {
                 userValue = userValue.replace('\n', ' ');
                 editorComponent.setEditable(false);
@@ -228,8 +227,9 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase implements Compon
     }
 
     @Override
-    public Component[] getAlignableComponents() {
-        return new Component[]{columnLabel, dataTypeLabel};
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerFieldGroup(columnLabel, dataTypeLabel);
     }
 
     public JComponent getEditorComponent() {

@@ -39,6 +39,7 @@ import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValu
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
+import static com.dbn.common.ui.util.TextFields.getText;
 
 public class DiagnosticSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -154,7 +155,7 @@ public class DiagnosticSettingsForm extends DBNFormBase {
 
     private int getDeveloperModeTimeout() {
         try {
-            int timeout = Integer.parseInt(developerModeTimeoutTextField.getText());
+            int timeout = Integer.parseInt(getText(developerModeTimeoutTextField));
             if (timeout < 1) return 1;
             if (timeout > 180) return 180;
             return timeout;

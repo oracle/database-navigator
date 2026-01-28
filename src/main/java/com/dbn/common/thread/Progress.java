@@ -34,6 +34,7 @@ import com.intellij.openapi.progress.util.ProgressIndicatorListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts.ProgressText;
 import com.intellij.openapi.util.NlsContexts.ProgressTitle;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -93,6 +94,7 @@ public final class Progress {
         });
     }
 
+    @SneakyThrows
     private static void execute(ProgressIndicator indicator, ThreadProperty threadProperty, ThreadInfo invoker, String text, ProgressRunnable runnable) {
         ThreadMonitor.surround(invoker, threadProperty, () -> Failsafe.guarded(() -> {
             indicator.setText(text);

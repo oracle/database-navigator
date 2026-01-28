@@ -39,14 +39,12 @@ public class DataExportSource {
     private DataExportSource(ResultSetTable<?> sourceTable, Object sourceObject) {
         this.table = sourceTable;
 
-        if (sourceObject instanceof DBObject) {
-            DBObject object = (DBObject) sourceObject;
+        if (sourceObject instanceof DBObject object) {
 
             this.object = DBObjectRef.of(object);
             this.connection = object.getConnection().ref();
 
-        } else if (sourceObject instanceof ExecutionResult) {
-            ExecutionResult executionResult = (ExecutionResult) sourceObject;
+        } else if (sourceObject instanceof ExecutionResult executionResult) {
 
             this.result = executionResult;
             this.connection = executionResult.getConnection().ref();

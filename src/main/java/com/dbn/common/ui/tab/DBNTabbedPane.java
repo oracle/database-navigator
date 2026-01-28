@@ -70,8 +70,7 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
         Component selectedComponent = getSelectedComponent();
         if (selectedComponent == null) return false;
 
-        if (selectedComponent instanceof JComponent) {
-            JComponent component = (JComponent) selectedComponent;
+        if (selectedComponent instanceof JComponent component) {
             return hasChildComponent(component, JComponent.class, c -> c.hasFocus());
         }
         return false;

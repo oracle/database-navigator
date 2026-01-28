@@ -24,8 +24,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
-import static com.dbn.common.util.Commons.nonNulls;
-
 @Getter
 public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm> {
     private final ObjectFilter<?> filter;
@@ -42,7 +40,6 @@ public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm
         setResizable(true);
         Action okAction = getOKAction();
 
-        renameAction(okAction, create ? "Create" : "Update");
         init();
     }
 
@@ -53,8 +50,11 @@ public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm
     }
 
     @Override
-    protected Action[] createActions() {
-        return nonNulls(
+    protected Action[] initializeActions() {
+        String actionName = create ? "Create" : "Update";
+        renameAction(getOKAction(), actionName);
+
+        return actions(
                 getOKAction(),
                 getRemoveAction(),
                 getToggleAction(),

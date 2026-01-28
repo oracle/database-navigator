@@ -39,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,6 +55,7 @@ public class WrapperModel implements DatabaseContextBase {
 
 	private List<MethodWrapper> methods = new ArrayList<>();
     private List<ClassWrapper> classes = new ArrayList<>();
+    private String signature;
 
     public WrapperModel(WrapperContext context) {
         this.context = context;
@@ -81,15 +83,18 @@ public class WrapperModel implements DatabaseContextBase {
 		String sqlWrapperName = namingProvider.getSqlWrapperName(sourceObject);
 		if (sourceObject instanceof DBJavaClass) {
 			sqlWrapperPackage = new DBObjectRef<>(schemaRef, DBObjectType.PACKAGE, sqlWrapperName);
-		} else if (sourceObject instanceof DBJavaMethod) {
-			DBJavaMethod javaMethod = (DBJavaMethod) sourceObject;
-			DBObjectType methodType = javaMethod.isReturningVoid() ?
+		} else if (sourceObject instanceof DBJavaMethod javaMethod) {
+            DBObjectType methodType = javaMethod.isReturningVoid() ?
 					DBObjectType.PROCEDURE :
 					DBObjectType.FUNCTION;
 
 			sqlWrapperMethod = new DBObjectRef<>(schemaRef, methodType, sqlWrapperName);
 		}
 	}
+
+    public boolean matchesSignature(String signature) {
+        return Objects.equals(this.signature, signature);
+    }
 
     public WrapperModelInput getInput() {
         return context.getInput();

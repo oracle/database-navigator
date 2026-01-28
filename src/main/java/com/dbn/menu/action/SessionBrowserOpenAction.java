@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Popups.popupBuilder;
+import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -78,7 +79,7 @@ public class SessionBrowserOpenAction extends ProjectAction {
             ConnectionHandler connection = getConnection();
             if (connection == null) return;
 
-            presentation.setText(connection.getName());
+            presentation.setText(adjustActionName(connection.getName()));
             presentation.setIcon(connection.getIcon());
 
         }

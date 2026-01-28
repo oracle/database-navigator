@@ -19,6 +19,8 @@ package com.dbn.assistant;
 import com.dbn.connection.ConnectionId;
 import lombok.Data;
 
+import java.util.Objects;
+
 @Data
 public class AssistantContext {
     private final ConnectionId connectionId;
@@ -37,6 +39,16 @@ public class AssistantContext {
 
     public String getIdentifier() {
         return assistantType + "@" + connectionId;
+    }
+
+    public boolean matches(ConnectionId connectionId, AssistantType assistantType) {
+        return
+            Objects.equals(this.connectionId, connectionId) &&
+            Objects.equals(this.assistantType, assistantType);
+    }
+
+    public static AssistantContext fromIdentifier(String identifier) {
+        return new AssistantContext(identifier);
     }
 
     @Override

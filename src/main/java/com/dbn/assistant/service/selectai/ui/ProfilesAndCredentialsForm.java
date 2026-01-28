@@ -19,6 +19,7 @@ package com.dbn.assistant.service.selectai.ui;
 import com.dbn.assistant.service.selectai.credential.ui.CredentialManagementForm;
 import com.dbn.assistant.service.selectai.profile.ui.ProfileManagementForm;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.connection.ConnectionHandler;
@@ -29,6 +30,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import java.awt.BorderLayout;
+import java.awt.Component;
 
 public class ProfilesAndCredentialsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -38,6 +40,9 @@ public class ProfilesAndCredentialsForm extends DBNFormBase {
     private JPanel profilesPanel;
 
     private final ConnectionRef connection;
+
+    private ProfileManagementForm profileManagementForm;
+    private CredentialManagementForm credentialManagementForm;
 
     public ProfilesAndCredentialsForm(@Nullable DBNDialog<?> parent, ConnectionHandler connection) {
         super(parent);
@@ -55,11 +60,19 @@ public class ProfilesAndCredentialsForm extends DBNFormBase {
 
     private void initConfigTabs() {
         ConnectionHandler connection = getConnection();
-        ProfileManagementForm profileManagementForm = new ProfileManagementForm(this, connection);
-        CredentialManagementForm credentialManagementForm = new CredentialManagementForm(this, connection);
+        profileManagementForm = new ProfileManagementForm(this, connection);
+        credentialManagementForm = new CredentialManagementForm(this, connection);
 
         profilesPanel.add(profileManagementForm.getComponent());
         credentialsPanel.add(credentialManagementForm.getComponent());
+    }
+
+    @Nullable
+    protected DBNForm getSelectedConfigForm() {
+        Component selectedComponent = settingsTabbedPane.getSelectedComponent();
+        if (selectedComponent == profilesPanel) return profileManagementForm;
+        if (selectedComponent == credentialsPanel) return credentialManagementForm;
+        return null;
     }
 
     private ConnectionHandler getConnection() {

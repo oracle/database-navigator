@@ -22,8 +22,11 @@ import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.execution.java.JavaExecutionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
 
 
 public class JavaExecutionHistoryAction extends ProjectAction {
@@ -39,6 +42,18 @@ public class JavaExecutionHistoryAction extends ProjectAction {
 
 		JavaExecutionManager executionManager = JavaExecutionManager.getInstance(project);
 		executionManager.showExecutionHistoryDialog(null, true, false, false, null);
+	}
+
+	@Override
+	protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+		boolean visible = isVisible(project);
+		Presentation presentation = e.getPresentation();
+
+		presentation.setVisible(visible);
+	}
+
+	private boolean isVisible(@NotNull Project project) {
+		return JAVA_VIRTUAL_MACHINE.isSupported(project);
 	}
 }
 

@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NonNls;
 
 import javax.swing.text.JTextComponent;
 
+import static com.dbn.common.ui.util.TextFields.getText;
+
 public class EnumSetting extends Setting<String, JTextComponent> implements PersistentConfiguration {
     public EnumSetting(@NonNls String name, @NonNls String value) {
         super(name, value);
@@ -40,7 +42,7 @@ public class EnumSetting extends Setting<String, JTextComponent> implements Pers
 
     @Override
     public boolean to(JTextComponent component) throws ConfigurationException {
-        return setValue(component.getText());
+        return setValue(getText(component));
     }
 
     @Override

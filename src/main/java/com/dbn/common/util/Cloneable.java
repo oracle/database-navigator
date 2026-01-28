@@ -16,6 +16,16 @@
 
 package com.dbn.common.util;
 
+import org.jetbrains.annotations.Contract;
+
+import static com.dbn.common.util.Unsafe.cast;
+
 public interface Cloneable<T> extends java.lang.Cloneable{
     T clone();
+
+
+    @Contract("null -> null")
+    static <T extends Cloneable> T clone(T object) {
+        return object == null ? null : cast(object.clone());
+    }
 }

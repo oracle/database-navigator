@@ -37,7 +37,6 @@ public class DriverDownloadDialog extends DBNDialog<DriverDownloadForm> {
         super(project, "Download Libraries", true);
         this.databaseType = databaseType;
         this.driverPackages = driverPackages;
-        renameAction(getOKAction(), "Download");
         setModal(true);
         setResizable(true);
         init();
@@ -51,11 +50,11 @@ public class DriverDownloadDialog extends DBNDialog<DriverDownloadForm> {
 
     @NotNull
     @Override
-    protected Action[] createActions() {
-        return new Action[]{
+    protected Action[] initializeActions() {
+        renameAction(getOKAction(), "Download");
+        return actions(
                 getOKAction(),
-                getCancelAction()
-        };
+                getCancelAction());
     }
 
     @Override

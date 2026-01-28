@@ -75,7 +75,7 @@ class DBArgumentImpl extends DBObjectImpl<DBArgumentMetadata> implements DBArgum
 
     @Override
     public DBMethod getMethod() {
-        return (DBMethod) getParentObject();
+        return getParentObject();
     }
 
     @Override
@@ -143,8 +143,7 @@ class DBArgumentImpl extends DBObjectImpl<DBArgumentMetadata> implements DBArgum
 
     @Override
     public int compareTo(@NotNull Object o) {
-        if (o instanceof DBArgument) {
-            DBArgument argument = (DBArgument) o;
+        if (o instanceof DBArgument argument) {
             DBMethod thisMethod = getMethod();
             DBMethod thatMethod = argument.getMethod();
             if (thisMethod.equals(thatMethod)) {

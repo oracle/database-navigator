@@ -22,6 +22,7 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.navigation.NavigationInstructions;
+import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
@@ -36,6 +37,7 @@ import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
 import com.dbn.execution.statement.result.StatementExecutionResult;
+import com.dbn.vector.result.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -51,6 +53,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
@@ -88,9 +91,14 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
         return projectService(project, ExecutionManager.class);
     }
 
-    private void showExecutionConsole() {
-        ToolWindow toolWindow = initExecutionConsole();
-        toolWindow.show(null);
+    private void showExecutionConsole(Consumer<ExecutionConsoleForm> initializer) {
+        Dispatch.run(nonModal(), () -> {
+            ToolWindow toolWindow = initExecutionConsole();
+            toolWindow.show(null);
+        });
+
+        ExecutionConsoleForm consoleForm = getExecutionConsoleForm(); // init form outside EDT
+        Dispatch.run(nonModal(), () -> initializer.accept(consoleForm));
     }
 
     public void hideExecutionConsole() {
@@ -125,55 +133,41 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
     }
 
     public void addCompilerResult(@NotNull CompilerResult compilerResult) {
-        Dispatch.run(() -> {
-            showExecutionConsole();
-            ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
-            executionConsoleForm.addCompilerResult(compilerResult);
-        });
+        showExecutionConsole(c -> c.addCompilerResult(compilerResult));
     }
 
     public void addExplainPlanResult(@NotNull ExplainPlanResult explainPlanResult) {
-        Dispatch.run(() -> {
-            showExecutionConsole();
-            ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
-            executionConsoleForm.addResult(explainPlanResult, NavigationInstructions.create(SELECT, FOCUS));
-        });
+        NavigationInstructions instructions = NavigationInstructions.create(SELECT, FOCUS);
+        showExecutionConsole(c -> c.addResult(explainPlanResult, instructions));
     }
 
     public void writeLogOutput(@NotNull LogOutputContext context, LogOutput output) {
-        Dispatch.run(() -> {
-            if (context.isClosed()) return;
-
-            showExecutionConsole();
-            ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
-            executionConsoleForm.displayLogOutput(context, output);
-        });
+        if (context.isClosed()) return;
+        showExecutionConsole(c -> c.displayLogOutput(context, output));
     }
 
     public void addExecutionResult(@NotNull StatementExecutionResult executionResult, NavigationInstructions instructions) {
-        Dispatch.run(nonModal(), () -> {
-            showExecutionConsole();
-            ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
+        showExecutionConsole(c -> {
             if (executionResult.isLoggingActive()) {
                 LogOutputContext context = new LogOutputContext(executionResult.getConnection());
                 context.setHideEmptyLines(false);
                 String loggingOutput = executionResult.getLoggingOutput();
 
-                executionConsoleForm.displayLogOutput(
+                c.displayLogOutput(
                         context, LogOutput.createSysOutput(context,
                                 executionResult.getExecutionContext().getExecutionTimestamp(),
                                 " - Statement execution started", false));
 
                 if (Strings.isNotEmptyOrSpaces(loggingOutput)) {
-                    executionConsoleForm.displayLogOutput(context,
+                    c.displayLogOutput(context,
                             LogOutput.createStdOutput(loggingOutput));
                 }
 
-                executionConsoleForm.displayLogOutput(context,
+                c.displayLogOutput(context,
                         LogOutput.createSysOutput(context, " - Statement execution finished\n", false));
             }
 
-            executionConsoleForm.addResult(executionResult, instructions);
+            c.addResult(executionResult, instructions);
             if (!executionResult.isBulkExecution() && !executionResult.hasCompilerResult() && !focusOnExecution()) {
                 executionResult.navigateToEditor(NavigationInstructions.create(FOCUS, SCROLL, SELECT));
             }
@@ -189,44 +183,32 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
 
 
     public void addExecutionResult(MethodExecutionResult executionResult) {
-        Dispatch.run(() -> {
-            showExecutionConsole();
-            ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
-            executionConsoleForm.addResult(executionResult);
-        });
+        showExecutionConsole(c -> c.addResult(executionResult));
+    }
+
+    public void addExecutionResult(VectorEmbeddingExecutionResult executionResult) {
+        showExecutionConsole(c -> c.addResult(executionResult));
     }
 
     public void addExecutionResult(JavaExecutionResult executionResult) {
-        Dispatch.run(() -> {
-            showExecutionConsole();
-            ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
-            executionConsoleForm.addResult(executionResult);
-        });
+        showExecutionConsole(c -> c.addResult(executionResult));
     }
 
     public void selectExecutionResult(StatementExecutionResult executionResult) {
-        Dispatch.run(() -> {
-            ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
-            executionConsoleForm.selectResult(executionResult, NavigationInstructions.create(FOCUS, SCROLL, SELECT));
-            showExecutionConsole();
-        });
-
+        NavigationInstructions instructions = NavigationInstructions.create(FOCUS, SCROLL, SELECT);
+        showExecutionConsole(c -> c.selectResult(executionResult, instructions));
     }
 
     public void removeMessagesTab() {
-        ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
-        executionConsoleForm.removeMessagesTab();
+        Dispatch.run(nonModal(), () -> getExecutionConsoleForm().removeMessagesTab());
     }
 
     public void removeResultTab(ExecutionResult executionResult) {
-        ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
-        executionConsoleForm.removeResultTab(executionResult);
+        Dispatch.run(nonModal(), () -> getExecutionConsoleForm().removeResultTab(executionResult));
     }
 
     public void selectResultTab(ExecutionResult executionResult) {
-        showExecutionConsole();
-        ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
-        executionConsoleForm.selectResultTab(executionResult);
+        showExecutionConsole(f -> f.selectResultTab(executionResult));
     }
 
     @NotNull
@@ -244,6 +226,11 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
         if (!executionConsoleForm.loaded()) return null;
         return Dispatch.call(true, () ->
                 getExecutionConsoleForm().getSelectedExecutionResult());
+    }
+
+    public Set<String> getExecutionResultNames(Class<? extends ExecutionResult<?>> resultType) {
+        ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
+        return executionConsoleForm.getExecutionResultNames(resultType);
     }
 
     /*********************************************

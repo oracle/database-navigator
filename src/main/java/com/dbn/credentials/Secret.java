@@ -16,11 +16,11 @@
 
 package com.dbn.credentials;
 
+import com.dbn.common.util.Chars;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.common.util.Chars.isEmpty;
 import static com.dbn.common.util.Commons.nvl;
 import static java.util.Arrays.copyOf;
 
@@ -50,7 +50,11 @@ public final class Secret {
 
     @Nullable
     public String getStringToken() {
-        return isEmpty(token) ? null : new String(token);
+        return isEmpty() ? null : new String(token);
+    }
+
+    public boolean isEmpty() {
+        return Chars.isEmpty(token);
     }
 
     @NotNull
@@ -60,7 +64,7 @@ public final class Secret {
 
     public String safePresentation() {
         // secret representation with length of token only
-        return type + ":" + (isEmpty(token) ? "0" : token.length);
+        return type + ":" + (isEmpty() ? "0" : token.length);
     }
 
     @Override

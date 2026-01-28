@@ -16,11 +16,12 @@
 
 package com.dbn.assistant.chat.message.ui;
 
+import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.action.AskAgainAction;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
 import com.dbn.assistant.chat.message.action.ToggleFoldingAction;
-import com.dbn.common.text.MimeType;
+import com.dbn.common.color.Colors;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -67,9 +68,9 @@ public class UserChatMessageForm extends ChatMessageForm {
     }
 
     private void initMessagePanel() {
-        ChatMessageSectionForm messageSectionForm = new ChatMessageSectionForm(this);
         String content = getMessage().getContent();
-        messageSectionForm.setContent(MimeType.TEXT_PLAIN, content);
+        ChatMessageTextSectionForm messageSectionForm = new ChatMessageTextSectionForm(this, content);
+
         messagePanel.add(messageSectionForm.getComponent());
     }
 
@@ -80,25 +81,20 @@ public class UserChatMessageForm extends ChatMessageForm {
 
     @Override
     protected void changeContentFolding(boolean folded) {
-        ChatMessageForm nextMessageForm = getNextMessageForm();
-        if (nextMessageForm == null) return;
-        if (nextMessageForm instanceof UserChatMessageForm) return; // only fold agent or system messages
-
-        nextMessageForm.changeContentFolding(folded);
-    }
-
-    private ChatMessageForm getNextMessageForm() {
-        ChatMessagesForm messagesForm = getParentComponent();
-        if (messagesForm == null) return null;
-
-        return messagesForm.getNextMessageForm(this);
+        getMessage().setFolded(folded);
+        ChatMessageForm nextForm = getNextMessageForm();
+        while (nextForm != null && nextForm.getMessage().getAuthor() != AuthorType.USER) {
+            // only fold agent or system messages
+            nextForm.changeContentFolding(folded);
+            nextForm = nextForm.getNextMessageForm();
+        }
     }
 
     @Override
     protected AnAction[] createActions() {
         return new AnAction[]{
                 new AskAgainAction(),
-                new CopyContentAction()};
+                new CopyContentAction(() -> getMessage().getContent())};
     }
 
     private void createUIComponents() {
@@ -121,7 +117,17 @@ public class UserChatMessageForm extends ChatMessageForm {
     }
 
     @Override
+    protected Color getForeground() {
+        return Colors.getLabelForeground();
+    }
+
+    @Override
     protected Color getBackground() {
         return Backgrounds.USER_PROMPT;
+    }
+
+    @Override
+    public void hideProcessingIndicators() {
+        progressBar.setVisible(false);
     }
 }

@@ -17,6 +17,7 @@
 package com.dbn.assistant.chat;
 
 import com.dbn.assistant.chat.context.ChatContext;
+import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.state.AssistantState;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,8 +58,9 @@ public final class ChatContextEvent {
         // if current is a previously interactive persistent chat, signal no interruption
         if (currentChat.isInteractive() && currentChat.isPersisted()) return null;
 
-        // if the current chat is empty, signal no interruption
+        // if the current chat is empty or has no agent messages, signal no interruption
         if (currentChat.isEmpty()) return null;
+        if (currentChat.countMessages(AuthorType.AGENT) == 0) return null;
 
         if (newChatRequest) return ChatInterruptionReason.NEW_CHAT_REQUEST;
         if (targetChatId != null) return ChatInterruptionReason.HISTORY_CHAT_SELECTION;

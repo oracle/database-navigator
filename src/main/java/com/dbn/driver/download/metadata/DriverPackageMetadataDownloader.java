@@ -55,7 +55,7 @@ public class DriverPackageMetadataDownloader {
         List<DriverPackage> driverPackages = packageElements.parallelStream()
                 .map(e -> createDriverPackage(e, session))
                 .filter(p -> p != null)
-                .collect(Collectors.toList());
+                .toList();
         return driverPackages.stream().collect(Collectors.toMap(p -> p.getId(), p -> p));
     }
 
@@ -195,6 +195,12 @@ public class DriverPackageMetadataDownloader {
         List<String> versions = new ArrayList<>();
         try (FileReader fileReader = new FileReader(tempFile)) {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+            // XML External Entity Injection (fortify recommendations)
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(tempFile);
             NodeList versionNodes = document.getElementsByTagName("version");

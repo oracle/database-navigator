@@ -27,6 +27,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.operation.DatabaseOperation.EXECUTE_JAVA_CODE;
+
 public class JavaMethodExecuteAction extends AnObjectAction<DBJavaMethod> {
     private final boolean listElement;
     public JavaMethodExecuteAction(DBJavaMethod method, boolean listElement) {
@@ -39,7 +41,11 @@ public class JavaMethodExecuteAction extends AnObjectAction<DBJavaMethod> {
             @NotNull AnActionEvent e,
             @NotNull Project project,
             @NotNull DBJavaMethod object) {
+        EXECUTE_JAVA_CODE.start(object, () -> startMethodExecution(object));
+    }
 
+    private static void startMethodExecution(@NotNull DBJavaMethod object) {
+        Project project = object.getProject();
         JavaExecutionManager executionManager = JavaExecutionManager.getInstance(project);
         executionManager.startMethodExecution(object, DBDebuggerType.NONE);
     }

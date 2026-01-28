@@ -141,8 +141,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                 if (editor == null) return;
 
                 VirtualFile file = editor.getFile();
-                if (file instanceof DBEditableObjectVirtualFile) {
-                    DBEditableObjectVirtualFile objectVirtualFile = (DBEditableObjectVirtualFile) file;
+                if (file instanceof DBEditableObjectVirtualFile objectVirtualFile) {
                     DBContentType contentType = objectVirtualFile.getContentType();
                     if (contentType.has(DBContentType.DATA) || contentType.has(DBContentType.JSON)) {
                         SessionId sessionId = objectVirtualFile.getSessionId();

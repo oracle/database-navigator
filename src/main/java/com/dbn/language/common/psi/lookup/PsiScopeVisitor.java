@@ -42,8 +42,7 @@ public abstract class PsiScopeVisitor implements Visitor<BasePsiElement> {
 
             // LOOKUP
             PsiElement parent = scope.getParent();
-            if (parent instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) parent;
+            if (parent instanceof BasePsiElement basePsiElement) {
                 scope = basePsiElement.getEnclosingScopeElement();
 
             } else {

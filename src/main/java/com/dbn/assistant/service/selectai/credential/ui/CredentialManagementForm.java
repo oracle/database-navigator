@@ -167,20 +167,21 @@ public class CredentialManagementForm extends DBNFormBase {
 
   public void promptCredentialCreation() {
     Dialogs.show(() -> new CredentialEditDialog(
-            getConnection(), null,
+            getConnection(), null, null,
             credentialUsage.keySet()));
   }
 
   public void promptCredentialEdition(@NotNull DBCredential credential) {
     Dialogs.show(() -> new CredentialEditDialog(
-            getConnection(), credential,
+            getConnection(),
+            credential, null,
             Collections.emptySet()));  // not relevant when editing an existing credential
   }
 
   public void promptCredentialDeletion(@NotNull DBCredential credential) {
     String credentialName = credential.getName();
 
-    StringBuilder detailedMessage = new StringBuilder(txt("msg.assistant.question.DeleteCredential"));
+    StringBuilder detailedMessage = new StringBuilder(txt("msg.assistant.question.DeleteCredential", credential.getName()));
     detailedMessage.append(' ');
     detailedMessage.append(credentialName);
     Set<String> uses = credentialUsage.get(credentialName);

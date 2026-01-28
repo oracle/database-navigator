@@ -21,7 +21,8 @@ import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.DBContentType;
-import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.factory.model.DBMethodSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
@@ -60,28 +61,25 @@ public class GenericDataDefinitionInterface extends DatabaseDataDefinitionInterf
     }
 
     @Override
-    public void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+    public void updateTrigger(String ownerName, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+    public void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
-    }
-
-    /*********************************************************
-     *                     DROP statements                   *
-     *********************************************************/
-    private void dropObjectIfExists(String objectType, String objectName, DBNConnection connection) throws SQLException {
-        executeQuery(connection, true, "drop-object-if-exists", objectType, objectName);
     }
 
     /*********************************************************
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(MethodFactoryInput method, DBNConnection connection) throws SQLException {
+    public void createMethod(DBMethodSpec method, DBNConnection connection) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
 
+    @Override
+    public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

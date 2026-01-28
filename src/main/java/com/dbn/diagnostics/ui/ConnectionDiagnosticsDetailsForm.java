@@ -47,7 +47,7 @@ public class ConnectionDiagnosticsDetailsForm extends DBNFormBase {
     public ConnectionDiagnosticsDetailsForm(@NotNull ConnectionDiagnosticsForm parent, ConnectionHandler connection) {
         super(parent);
 
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, connection).withEmptyBorder();
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
         diagnosticsTabs = new DBNTabbedPane<>(this);

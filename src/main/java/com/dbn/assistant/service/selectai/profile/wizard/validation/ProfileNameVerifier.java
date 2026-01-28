@@ -25,6 +25,7 @@ import javax.swing.border.Border;
 import java.awt.Color;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -45,7 +46,7 @@ public class ProfileNameVerifier extends InputVerifier {
   @Override
   public boolean verify(JComponent input) {
     JTextField textField = (JTextField) input;
-    String text = textField.getText();
+    String text = getText(textField);
 
     boolean isEmpty = text.trim().isEmpty();
     boolean hasValidFormat = isAlphanumericWithUnderscore(text);

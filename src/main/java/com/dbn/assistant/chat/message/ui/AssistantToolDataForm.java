@@ -1,0 +1,237 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.assistant.chat.message.ui;
+
+import com.dbn.assistant.tool.action.ToolExecutionDataCloseAction;
+import com.dbn.assistant.tool.execution.AssistantToolInvocation;
+import com.dbn.assistant.tool.info.AssistantToolInfoProvider;
+import com.dbn.common.action.DataKeys;
+import com.dbn.common.action.DefaultActionGroup;
+import com.dbn.common.color.Colors;
+import com.dbn.common.dispose.Disposer;
+import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.info.DBNInfoLabel;
+import com.dbn.common.ui.util.Fonts;
+import com.dbn.common.util.Actions;
+import com.dbn.common.util.Context;
+import com.dbn.common.util.Documents;
+import com.dbn.common.util.Editors;
+import com.dbn.common.util.Languages;
+import com.dbn.common.util.Viewers;
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
+import com.intellij.lang.Language;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
+import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.FileViewProvider;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.impl.file.impl.FileManager;
+import com.intellij.testFramework.LightVirtualFile;
+import com.intellij.ui.awt.RelativePoint;
+import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
+import java.awt.Color;
+import java.awt.Dimension;
+
+import static com.dbn.language.common.psi.PsiUtil.getFileManager;
+
+public class AssistantToolDataForm extends DBNFormBase {
+    private JPanel mainPanel;
+    private JPanel requestDataPanel;
+    private JPanel responseDataPanel;
+    private JLabel toolLabel;
+    private JLabel typeNameLabel;
+    private JLabel categoryNameLabel;
+    private DBNInfoLabel typeInfoLabel;
+    private DBNInfoLabel categoryInfoLabel;
+    private JLabel typeLabel;
+    private JLabel categoryLabel;
+    private JTextPane descriptionTextPane;
+    private JPanel actionsPanel;
+
+    private EditorEx requestViewer;
+    private EditorEx responseViewer;
+    private final JComponent owner;
+    private transient JBPopup popup;
+
+    public AssistantToolDataForm(Project project, JComponent owner, AssistantToolInfoProvider info, AssistantToolInvocation invocation) {
+        super(null, project);
+        this.owner = owner;
+
+        initDataHeader(info);
+        initDataViewers(invocation);
+        initActionsPanel();
+    }
+
+    private void initActionsPanel() {
+        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        actionGroup.add(new ToolExecutionDataCloseAction());
+        ActionToolbar toolbar = Actions.createActionToolbar(actionsPanel, true, actionGroup);
+        actionsPanel.add(toolbar.getComponent());
+    }
+
+    private void initDataHeader(AssistantToolInfoProvider info) {
+        Color faded = Colors.faded(UIUtil.getLabelForeground());
+        typeLabel.setForeground(faded);
+        typeLabel.setFont(Fonts.regular(-1));
+        categoryLabel.setForeground(faded);
+        categoryLabel.setFont(Fonts.regular(-1));
+
+        toolLabel.setFont(Fonts.regular(2));
+        toolLabel.setText(info.getToolName());
+        descriptionTextPane.setText(info.getToolDescription());
+        descriptionTextPane.setForeground(faded);
+
+        typeNameLabel.setText(info.getToolTypeName());
+        categoryNameLabel.setText(info.getToolCategoryName());
+
+        typeInfoLabel.setContent(TextContent.plain(info.getToolTypeDescription()));
+        categoryInfoLabel.setContent(TextContent.plain(info.getToolCategoryDescription()));
+    }
+
+    private void initDataViewers(AssistantToolInvocation invocation) {
+        Project project = getProject();
+        String requestContent = invocation.getRequestContent();
+        String responseContent = invocation.getResponseContent();
+
+        requestViewer = createViewer(project, owner, "ai_tool_request.json", requestContent);
+        responseViewer = createViewer(project, owner, "ai_tool_response.json", responseContent);
+
+        if (requestViewer != null && responseViewer != null) {
+            requestDataPanel.add(requestViewer.getComponent());
+            responseDataPanel.add(responseViewer.getComponent());
+        } else {
+            JTextPane requestTextPane = new JTextPane();
+            JTextPane responseTextPane = new JTextPane();
+
+            requestTextPane.setEditable(false);
+            requestTextPane.setText(requestContent);
+            responseTextPane.setEditable(false);
+            requestTextPane.setText(responseContent);
+
+            requestDataPanel.add(requestTextPane);
+            responseDataPanel.add(responseTextPane);
+        }
+    }
+
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
+    }
+
+    private static @Nullable EditorEx createViewer(Project project, JComponent owner, String fileName, String content) {
+        Language language = Languages.getJsonLanguage();
+        VirtualFile file =  new LightVirtualFile(fileName, language, content);
+
+        PsiFile psiFile = initPreviewPsiFile(project, file, language);
+        if (psiFile == null) return null;
+
+        Document document = Documents.getDocument(psiFile);
+        if (document == null) return null;
+
+        return createViewer(document, owner, project, file);
+    }
+
+    public static @Nullable PsiFile initPreviewPsiFile(Project project, VirtualFile file, Language language) {
+        FileManager fileManager = getFileManager(project);
+        FileViewProvider viewProvider = fileManager.createFileViewProvider(file, true);
+        PsiFile psiFile = viewProvider.getPsi(language);
+        if (psiFile != null) {
+            DaemonCodeAnalyzer codeAnalyzer = DaemonCodeAnalyzer.getInstance(project);
+            codeAnalyzer.setHighlightingEnabled(psiFile, false);
+        }
+        return psiFile;
+    }
+
+
+    private static @NotNull EditorEx createViewer(Document document, JComponent owner, Project project, VirtualFile file) {
+        EditorEx viewer = Viewers.createViewer(document, project, file, file.getFileType());
+        viewer.setEmbeddedIntoDialogWrapper(true);
+
+        Editors.updateEditorScrollPane(viewer);
+
+        EditorSettings settings = viewer.getSettings();
+        viewer.getComponent().setPreferredSize(new Dimension(owner.getWidth() - 72, 80));
+
+        settings.setFoldingOutlineShown(false);
+        settings.setLineMarkerAreaShown(false);
+        settings.setLineNumbersShown(false);
+        settings.setVirtualSpace(false);
+        settings.setDndEnabled(false);
+        settings.setRightMarginShown(false);
+        settings.setCaretRowShown(false);
+        settings.setUseSoftWraps(true);
+        settings.setAdditionalLinesCount(0);
+        settings.setAutoCodeFoldingEnabled(false);
+        settings.setShowIntentionBulb(false);
+        settings.setGutterIconsShown(false);
+        return viewer;
+    }
+
+    public static void showPopup(JComponent owner, AssistantToolInfoProvider info, AssistantToolInvocation invocation) {
+        Project project = Context.getDataContext(owner).getData(CommonDataKeys.PROJECT);
+        if (project == null) return;
+
+        AssistantToolDataForm dataForm = new AssistantToolDataForm(project, owner, info, invocation);
+        dataForm.showPopup();
+
+    }
+
+    private void showPopup() {
+        JComponent component = getComponent();
+        ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(component, null);
+        popup = popupBuilder.createPopup();
+        Disposer.register(popup, this);
+        RelativePoint point = RelativePoint.getNorthWestOf(owner);
+        popup.show(point);
+
+    }
+
+    public void hidePopup() {
+        JBPopup popup = this.popup;
+        if (popup != null) {
+            popup.cancel();
+        }
+    }
+
+    @Nullable
+    @Override
+    public Object getData(@NotNull String dataId) {
+        if (DataKeys.ASSISTANT_TOOL_DATA_FORM.is(dataId)) return this;
+        return null;
+    }
+
+    @Override
+    public void disposeInner() {
+        Editors.releaseEditor(requestViewer);
+        Editors.releaseEditor(responseViewer);
+    }
+}

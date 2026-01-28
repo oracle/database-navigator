@@ -40,8 +40,7 @@ public class DBJdwpDebugSourcePosition extends SourcePosition {
     @NotNull
     public PsiFile getFile() {
         VirtualFile virtualFile = file.getVirtualFile();
-        if (virtualFile instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeVirtualFile = (DBSourceCodeVirtualFile) virtualFile;
+        if (virtualFile instanceof DBSourceCodeVirtualFile sourceCodeVirtualFile) {
             DBSchemaObject object = sourceCodeVirtualFile.getObject();
             return DBObjectPsiCache.asPsiFile(object);
         }

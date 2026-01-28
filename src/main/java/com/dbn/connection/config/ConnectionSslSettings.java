@@ -48,11 +48,6 @@ public class ConnectionSslSettings extends BasicProjectConfiguration<ConnectionS
         return txt("cfg.connection.title.SslSettings");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "connectionSslSettings";
-    }
-
     /*********************************************************
      *                     Configuration                     *
      *********************************************************/

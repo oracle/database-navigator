@@ -18,6 +18,7 @@ package com.dbn.common.options.setting;
 
 import com.dbn.common.constant.Constant;
 import com.dbn.common.constant.PseudoConstant;
+import com.dbn.common.data.Data;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
@@ -123,7 +124,11 @@ public final class Settings {
 
     @NonNls
     public static String stringAttribute(Element element, @NonNls String name) {
-        String attributeValue = element == null ? null : element.getAttributeValue(name);
+        return stringAttribute(element, name, null);
+    }
+
+    public static String stringAttribute(Element element, @NonNls String name, String defaultValue) {
+        String attributeValue = element == null ? defaultValue : element.getAttributeValue(name);
         return Strings.isEmptyOrSpaces(attributeValue) ? attributeValue : attributeValue.intern();
     }
 
@@ -140,7 +145,7 @@ public final class Settings {
 
     public static boolean booleanAttribute(Element element, @NonNls String attributeName, boolean defaultValue) {
         String attributeValue = stringAttribute(element, attributeName);
-        return Strings.isEmptyOrSpaces(attributeValue) ? defaultValue : Boolean.parseBoolean(attributeValue);
+        return Strings.isEmptyOrSpaces(attributeValue) ? defaultValue : Data.asBooleanPrimitive(attributeValue);
     }
 
     public static double doubleAttribute(Element element, @NonNls String attributeName, double defaultValue) {
@@ -234,12 +239,14 @@ public final class Settings {
     }
 
     public static String readCdata(Element element) {
-        StringBuilder builder = new StringBuilder();
+        if (element == null) return "";
         int contentSize = element.getContentSize();
+        if (contentSize == 0) return "";
+
+        StringBuilder builder = new StringBuilder();
         for (int i=0; i<contentSize; i++) {
             Content content = element.getContent(i);
-            if (content instanceof Text) {
-                Text text = (Text) content;
+            if (content instanceof Text text) {
                 builder.append(text.getText());
             }
         }
@@ -247,10 +254,12 @@ public final class Settings {
     }
 
     public static void writeCdata(Element element, @NonNls String content) {
+        if (content == null) return;
         element.setContent(new CDATA(content));
     }
 
     public static void writeCdata(Element element, @NonNls String content, boolean conditional) {
+        if (content == null) return;
         if (needsCdataWrapping(content) || !conditional) {
             element.setContent(new CDATA(content));
         } else {
@@ -310,6 +319,10 @@ public final class Settings {
 
     public static void setCharsAttribute(Element element, @NonNls String attributeName, char[] value) {
         element.setAttribute(attributeName, value == null ? "" : new String(value));
+    }
+
+    public static void setDoubleAttribute(Element element, @NonNls String attributeName, double value) {
+        element.setAttribute(attributeName, Double.toString(value));
     }
 
     public static  <T extends Enum<T>> void setEnumAttribute(Element element, String attributeName, T value) {

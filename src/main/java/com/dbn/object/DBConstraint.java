@@ -31,6 +31,7 @@ public interface DBConstraint extends DBSchemaObject {
 
     @Nullable
     DBConstraint getForeignKeyConstraint();
+    String getCheckCondition();
 
     List<DBColumn> getColumns();
     short getColumnPosition(DBColumn constraint);

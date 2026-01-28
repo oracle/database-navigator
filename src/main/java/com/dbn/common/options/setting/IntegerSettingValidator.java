@@ -20,6 +20,7 @@ import com.intellij.openapi.options.ConfigurationException;
 
 import javax.swing.JTextField;
 
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.nls.NlsResources.txt;
 
 public class IntegerSettingValidator implements SettingValidator<IntegerSetting>{
@@ -35,7 +36,7 @@ public class IntegerSettingValidator implements SettingValidator<IntegerSetting>
 
     public static int parseIntegerInputValue(JTextField inputField, String name, int min, int max, String hint) throws ConfigurationException {
         try {
-            int integer = Integer.parseInt(inputField.getText());
+            int integer = Integer.parseInt(getText(inputField));
             if (min > integer || max < integer) throw new NumberFormatException("Number not in range");
             return integer;
         } catch (NumberFormatException e) {

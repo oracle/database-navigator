@@ -40,8 +40,7 @@ public class BreakpointInfo extends BasicOperationInfo {
     @Override
     public void read(CallableStatement statement) throws SQLException {
         Object object = statement.getObject(1);
-        if (object instanceof BigDecimal) {
-            BigDecimal bigDecimal = (BigDecimal) object;
+        if (object instanceof BigDecimal bigDecimal) {
             breakpointId = bigDecimal.intValue();
         }
 

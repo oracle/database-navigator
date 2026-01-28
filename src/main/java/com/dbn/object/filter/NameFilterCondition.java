@@ -51,13 +51,12 @@ public abstract class NameFilterCondition implements PersistentStateElement {
     }
 
     public boolean accepts(String name) {
-        switch (operator) {
-            case EQUAL: return isEqual(name, pattern);
-            case NOT_EQUAL: return !isEqual(name, pattern);
-            case LIKE: return isLike(name, pattern);
-            case NOT_LIKE: return !isLike(name, pattern);
-        }
-        return false;
+        return switch (operator) {
+            case EQUAL -> isEqual(name, pattern);
+            case NOT_EQUAL -> !isEqual(name, pattern);
+            case LIKE -> isLike(name, pattern);
+            case NOT_LIKE -> !isLike(name, pattern);
+        };
     }
 
     private static boolean isEqual(String name, String pattern) {

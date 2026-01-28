@@ -71,7 +71,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.util.Commons.list;
+import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Lists.anyMatch;
 import static com.dbn.connection.config.ConnectionConfigListener.whenChangedOrRemoved;
 import static com.dbn.nls.NlsResources.txt;
@@ -107,16 +107,14 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
         return new DBNFileEditorManagerListener() {
             @Override
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                if (file instanceof DBObjectVirtualFile) {
-                    DBObjectVirtualFile<?> databaseFile = (DBObjectVirtualFile<?>) file;
+                if (file instanceof DBObjectVirtualFile<?> databaseFile) {
                     openFiles.add(databaseFile);
                 }
             }
 
             @Override
             public void whenFileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                if (file instanceof DBObjectVirtualFile) {
-                    DBObjectVirtualFile<?> databaseFile = (DBObjectVirtualFile<?>) file;
+                if (file instanceof DBObjectVirtualFile<?> databaseFile) {
                     openFiles.remove(databaseFile);
                 }
             }
@@ -133,8 +131,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
         return new FileEditorManagerListener.Before() {
             @Override
             public void beforeFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                if (file instanceof DBEditableObjectVirtualFile) {
-                    DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) file;
+                if (file instanceof DBEditableObjectVirtualFile databaseFile) {
                     DBObjectRef<DBSchemaObject> objectRef = databaseFile.getObjectRef();
                     objectRef.ensure();
                 }
@@ -142,9 +139,8 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
 
             @Override
             public void beforeFileClosed(@NotNull FileEditorManager editorManager, @NotNull VirtualFile file) {
-                if (!(file instanceof DBEditableObjectVirtualFile)) return;
+                if (!(file instanceof DBEditableObjectVirtualFile databaseFile)) return;
 
-                DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) file;
                 if (!databaseFile.isModified()) return;
 
                 DBSchemaObject object = databaseFile.getObject();
@@ -153,7 +149,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
 
                 CodeEditorConfirmationSettings confirmationSettings = CodeEditorSettings.getInstance(project).getConfirmationSettings();
                 confirmationSettings.getExitOnChanges().resolve(project,
-                        list(objectDescription),
+                        array(objectDescription),
                         option -> processCodeChangeOption(databaseFile, option));
                 // TODO fix - this prevents the other files from being closed in a "close all.." bulk action
                 throw new ProcessDeferredException();
@@ -212,8 +208,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
     public void closeDatabaseFiles(@NotNull final List<ConnectionId> connectionIds) {
         VirtualFile[] openFiles = Editors.getOpenFiles(getProject());
         for (VirtualFile virtualFile : openFiles) {
-            if (virtualFile instanceof DBVirtualFileBase) {
-                DBVirtualFileBase databaseVirtualFile = (DBVirtualFileBase) virtualFile;
+            if (virtualFile instanceof DBVirtualFileBase databaseVirtualFile) {
                 ConnectionId connectionId = databaseVirtualFile.getConnectionId();
                 if (connectionIds.contains(connectionId)) {
                     closeFile(virtualFile);
@@ -297,8 +292,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
             if (object == null) continue;
 
             progress.setText2(connection.getName() + " - " + objectRef.getQualifiedNameWithType());
-            if (object instanceof DBConsole) {
-                DBConsole console = (DBConsole) object;
+            if (object instanceof DBConsole console) {
                 editorManager.openDatabaseConsole(console, false, false);
             } else {
                 editorManager.openEditor(object, null, false, false);

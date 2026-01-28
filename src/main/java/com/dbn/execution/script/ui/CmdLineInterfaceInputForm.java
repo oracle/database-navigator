@@ -33,6 +33,7 @@ import java.awt.BorderLayout;
 import java.io.File;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.common.util.Strings.trim;
@@ -125,8 +126,8 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
     }
 
     public void applyFormChanges() {
-        cmdLineInterface.setExecutablePath(trim(executableTextField.getText()));
+        cmdLineInterface.setExecutablePath(getText(executableTextField));
         cmdLineInterface.setDatabaseType(databaseTypeComboBox.getSelectedValue());
-        cmdLineInterface.setName(trim(nameTextField.getText()));
+        cmdLineInterface.setName(getText(nameTextField));
     }
 }

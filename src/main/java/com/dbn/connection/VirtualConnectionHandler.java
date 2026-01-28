@@ -377,12 +377,17 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
     }
 
     @Override
-    public SchemaId getUserSchema() {
+    public SchemaId getUserSchemaId() {
         return null;
     }
 
     @Override
-    public SchemaId getDefaultSchema() {
+    public DBSchema getUserSchema() {
+        return null;
+    }
+
+    @Override
+    public SchemaId getDefaultSchemaId() {
         return null;
     }
 

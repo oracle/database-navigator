@@ -19,7 +19,6 @@ package com.dbn.navigation.psi;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ref.WeakRefCache;
-import com.dbn.common.util.Naming;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
@@ -77,7 +76,7 @@ public class DBObjectListPsiDirectory implements ReadonlyPsiDirectoryStub  {
     @Override
     @NotNull
     public String getName() {
-        return Naming.capitalize(getObjectList().getName());
+        return getObjectList().getTitleCasedName();
     }
 
     @Override
@@ -102,13 +101,11 @@ public class DBObjectListPsiDirectory implements ReadonlyPsiDirectoryStub  {
     public PsiDirectory getParent() {
         return guarded(null, this, e -> {
             DatabaseEntity parent = e.getObjectList().getParent();
-            if (parent instanceof DBObject) {
-                DBObject parentObject = (DBObject) parent;
+            if (parent instanceof DBObject parentObject) {
                 return DBObjectPsiCache.asPsiDirectory(parentObject);
             }
 
-            if (parent instanceof DBObjectBundle) {
-                DBObjectBundle objectBundle = (DBObjectBundle) parent;
+            if (parent instanceof DBObjectBundle objectBundle) {
                 return objectBundle.getConnection().getPsiDirectory();
             }
 

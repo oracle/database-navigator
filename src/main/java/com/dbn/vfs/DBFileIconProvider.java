@@ -27,8 +27,7 @@ import javax.swing.Icon;
 public class DBFileIconProvider implements FileIconProvider{
     @Override
     public Icon getIcon(@NotNull VirtualFile file, int flags, @Nullable Project project) {
-        if (file instanceof DBVirtualFileBase) {
-            DBVirtualFileBase virtualFile = (DBVirtualFileBase) file;
+        if (file instanceof DBVirtualFileBase virtualFile) {
             return virtualFile.getIcon();
         }
         return null;

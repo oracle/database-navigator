@@ -45,6 +45,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
 import static com.dbn.common.ui.util.Fonts.regularBold;
+import static com.dbn.common.util.Commons.array;
 
 /**
  * Stub implementation for chat message forms
@@ -57,8 +58,7 @@ public abstract class ChatMessageForm extends DBNFormBase {
     protected interface Backgrounds {
         Color USER_PROMPT = new JBColor(new Color(218, 234, 255), new Color(68, 95, 128));
         Color AGENT_RESPONSE = Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 3));
-        Color SYSTEM_INFO = Colors.delegate(() -> Colors.lafBrighter(Colors.getPanelBackground(), 2));
-        Color SYSTEM_ERROR = new JBColor(new Color(255, 213, 204), new Color(69, 48, 43));
+        Color SYSTEM_RESPONSE = Colors.delegate(() -> Colors.lafBrighter(Colors.getPanelBackground(), 2));
     }
     private final ChatMessage message;
 
@@ -73,25 +73,37 @@ public abstract class ChatMessageForm extends DBNFormBase {
 
     public final void toggleContentFolding() {
         boolean folded = message.isFolded();
-        message.setFolded(!folded);
         changeContentFolding(!folded);
     }
 
     protected void changeContentFolding(boolean folded) {
+        message.setFolded(folded);
         getContentPanel().setVisible(!folded);
-        getMessage().setFolded(folded);
     }
+
+    public void refreshMessageContent() {}
+
+    public void refreshToolContent() {}
+
 
     @NotNull
     public static ChatMessageForm create(ChatMessagesForm parent, ChatMessage message) {
         AuthorType author = message.getAuthor();
-        switch (author) {
-            case USER: return new UserChatMessageForm(parent, message);
-            case AGENT: return new AgentChatMessageForm(parent, message);
-            case SYSTEM: return new SystemChatMessageForm(parent, message);
-            default: throw new IllegalArgumentException("Unknown author: " + author);
-        }
+        return switch (author) {
+            case USER -> new UserChatMessageForm(parent, message);
+            case AGENT -> new AgentChatMessageForm(parent, message);
+            case SYSTEM -> new SystemChatMessageForm(parent, message);
+        };
     }
+
+    protected ChatMessageForm getNextMessageForm() {
+        ChatMessagesForm messagesForm = getParentComponent();
+        if (messagesForm == null) return null;
+
+        return messagesForm.getNextMessageForm(this);
+    }
+
+    protected abstract Color getForeground();
 
     protected abstract Color getBackground();
 
@@ -127,7 +139,7 @@ public abstract class ChatMessageForm extends DBNFormBase {
     }
 
     protected AnAction[] createActions() {
-        return new AnAction[]{new CopyContentAction()};
+        return array(new CopyContentAction(() -> getMessage().getContent()));
     }
 
     @Nullable
@@ -137,6 +149,8 @@ public abstract class ChatMessageForm extends DBNFormBase {
     protected abstract JPanel getActionPanel();
 
     protected abstract JPanel getContentPanel();
+
+    public void hideProcessingIndicators() {}
 
     /**
      * Custom painted JPanel to be used as rounded-corner container for chatbox messages

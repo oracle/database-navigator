@@ -26,9 +26,8 @@ import lombok.experimental.UtilityClass;
 public class DatabaseFileEditorInitializer {
 
     public static void makeEditorReady(DBObject object) {
-        if (object instanceof DBDataset) {
+        if (object instanceof DBDataset dataset) {
             // make sure columns are loaded before the editor is opened
-            DBDataset dataset = (DBDataset) object;
             dataset.getColumns();
         }
 

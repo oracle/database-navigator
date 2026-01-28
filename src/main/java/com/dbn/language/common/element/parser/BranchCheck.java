@@ -28,11 +28,10 @@ public class BranchCheck extends Branch{
     private Type type;
 
     public boolean check(Branch branch, double currentVersion) {
-        switch (type) {
-            case ALLOWED: return Objects.equals(name, branch.name) && currentVersion >= version;
-            case FORBIDDEN: return !Objects.equals(name, branch.name) || currentVersion < version;
-        }
-        return true;
+        return switch (type) {
+            case ALLOWED -> Objects.equals(name, branch.name) && currentVersion >= version;
+            case FORBIDDEN -> !Objects.equals(name, branch.name) || currentVersion < version;
+        };
     }
 
     @Override

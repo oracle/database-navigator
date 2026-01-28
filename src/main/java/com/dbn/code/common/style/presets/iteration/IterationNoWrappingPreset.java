@@ -44,8 +44,7 @@ public class IterationNoWrappingPreset extends IterationAbstractPreset {
             IterationElementType iterationElementType = (IterationElementType) parentPsiElement.elementType;
             ElementType elementType = psiElement.elementType;
 
-            if (elementType instanceof TokenElementType) {
-                TokenElementType tokenElementType = (TokenElementType) elementType;
+            if (elementType instanceof TokenElementType tokenElementType) {
                 if (iterationElementType.isSeparator(tokenElementType)) {
                     return tokenElementType.isCharacter() ?
                             SPACING_NO_SPACE :

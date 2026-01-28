@@ -75,9 +75,8 @@ public class JavaUploadTask extends BatchTaskBase {
 
 	private VirtualFile initArchiveFile() {
 		VirtualFileSystem fileSystem = file.getFileSystem();
-		if (fileSystem instanceof JarFileSystem) {
-			JarFileSystem jarFileSystem = (JarFileSystem) fileSystem;
-			return jarFileSystem.getRootByEntry(file);
+		if (fileSystem instanceof JarFileSystem jarFileSystem) {
+            return jarFileSystem.getRootByEntry(file);
 		}
 		return null;
 	}
@@ -153,9 +152,8 @@ public class JavaUploadTask extends BatchTaskBase {
 		if (!isJavaSource() && !isJavaClass()) return null;
 
 		String packageName = null;
-		if (psiFile instanceof PsiClassOwner) {
-			PsiClassOwner classOwner = (PsiClassOwner) psiFile;
-			packageName = Read.call(classOwner, o-> o.getPackageName());
+		if (psiFile instanceof PsiClassOwner classOwner) {
+            packageName = Read.call(classOwner, o-> o.getPackageName());
 		}
 
 		String packagePrefix = Strings.isEmpty(packageName) ? "" : packageName + ".";
