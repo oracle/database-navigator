@@ -63,8 +63,7 @@ public class PSQLLanguageAnnotator extends DBLanguageAnnotator {
 
     @Override
     public void annotateElement(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
-        if (psiElement instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+        if (psiElement instanceof BasePsiElement basePsiElement) {
 
             ElementType elementType = basePsiElement.elementType;
             if (elementType.is(OBJECT_SPECIFICATION) || elementType.is(OBJECT_DECLARATION)) {
@@ -77,8 +76,7 @@ public class PSQLLanguageAnnotator extends DBLanguageAnnotator {
             } else if (basePsiElement instanceof IdentifierPsiElement) {
                 annotateIdentifier(cast(psiElement), holder);
 
-            } else if (basePsiElement instanceof NamedPsiElement) {
-                NamedPsiElement namedPsiElement = (NamedPsiElement) basePsiElement;
+            } else if (basePsiElement instanceof NamedPsiElement namedPsiElement) {
                 if (namedPsiElement.hasErrors()) {
                     String message = "Invalid " + namedPsiElement.elementType.getDescription();
                     createAnnotation(holder, namedPsiElement, ERROR, null, message);
@@ -154,8 +152,7 @@ public class PSQLLanguageAnnotator extends DBLanguageAnnotator {
         if (basePsiElement.isInjectedContext()) return;
 
         BasePsiElement subjectPsiElement = basePsiElement.findFirstPsiElement(SUBJECT);
-        if (subjectPsiElement instanceof IdentifierPsiElement) {
-            IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) subjectPsiElement;
+        if (subjectPsiElement instanceof IdentifierPsiElement identifierPsiElement) {
             DBObjectType objectType = identifierPsiElement.getObjectType();
             ElementType elementType = basePsiElement.elementType;
 
@@ -165,8 +162,7 @@ public class PSQLLanguageAnnotator extends DBLanguageAnnotator {
                         elementType.is(OBJECT_DECLARATION) ? DBContentType.CODE_SPEC :
                         elementType.is(OBJECT_SPECIFICATION) ? DBContentType.CODE_BODY : null;
 
-                if (targetContentType != null && identifierPsiElement.getFile() instanceof PSQLFile) {
-                    PSQLFile file = (PSQLFile) identifierPsiElement.getFile();
+                if (targetContentType != null && identifierPsiElement.getFile() instanceof PSQLFile file) {
                     DBSchemaObject object = (DBSchemaObject) file.getUnderlyingObject();
                     VirtualFile virtualFile = file.getVirtualFile();
 

@@ -67,6 +67,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         this.chatBox = WeakRef.of(chatBox);
         this.editor = createEditor();
         add(editor.getComponent(), BorderLayout.CENTER);
+        setBorder(Borders.insetBorder(0, 8, 8, 8));
         Disposer.register(chatBox, this);
 
         ProjectEvents.subscribe(getProject(), this, AssistantStateListener.TOPIC, createStateListener());
@@ -119,17 +120,17 @@ public class ChatBoxInputField extends JPanel implements Disposable {
 
     @Nullable
     private String computeReadonlyHint(ChatAvailability availability) {
-        switch (availability) {
-            case AVAILABLE: return null;
-            case BUSY_QUERYING: return "Assistant is processing your request...";
-            case BUSY_INITIALIZING: return "Assistant is initializing...";
-            case INACTIVE_CHAT_SELECTED: return "This chat is no longer active";
-            case NO_PROFILE_AVAILABLE: return "No profiles available for this connection. Please setup profiles to continue";
-            case NO_PROFILE_SELECTED: return "No profile selected. Please select a profile to continue";
-            case DISABLED_PROFILE_SELECTED: return "The selected profile is disabled. Please select an active profile to continue";
-        }
+        return switch (availability) {
+            case AVAILABLE -> null;
+            case BUSY_QUERYING -> "Assistant is processing your request...";
+            case BUSY_INITIALIZING -> "Assistant is initializing...";
+            case INACTIVE_CHAT_SELECTED -> "This chat is no longer active";
+            case NO_PROFILE_AVAILABLE -> "No profiles available for this connection. Please setup profiles to continue";
+            case NO_PROFILE_SELECTED -> "No profile selected. Please select a profile to continue";
+            case DISABLED_PROFILE_SELECTED -> "The selected profile is disabled. Please select an active profile to continue";
+            default -> null;
+        };
 
-        return null;
     }
 
     private Project getProject() {
@@ -181,7 +182,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         editor.setBorder(Borders.EMPTY_BORDER);
         Editors.updateEditorScrollPane(editor);
 
-        document.addDocumentListener(new EnterKeyInterceptor());
+        document.addDocumentListener(new EnterKeyInterceptor(), this);
 
         EditorSettings settings = editor.getSettings();
         settings.setFoldingOutlineShown(false);

@@ -31,8 +31,7 @@ public class SourceCodeBodyEditorProvider extends SourceCodeEditorProviderBase {
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        if (virtualFile instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) virtualFile;
+        if (virtualFile instanceof DBEditableObjectVirtualFile databaseFile) {
             DBContentType contentType = databaseFile.getContentType();
             return contentType == DBContentType.CODE_SPEC_AND_BODY;
         }

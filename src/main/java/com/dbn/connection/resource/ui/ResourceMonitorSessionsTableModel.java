@@ -63,15 +63,15 @@ public class ResourceMonitorSessionsTableModel extends StatefulDisposableBase im
 
     @Override
     public String getColumnName(int columnIndex) {
-        switch (columnIndex) {
-            case 0: return "Session";
-            case 1: return "Status";
-            case 2: return "Last Access";
-            case 3: return "Open Connections / Peak";
-            case 4: return "Open Cursors";
-            case 5: return "Cached Statements";
-        }
-        return null;
+        return switch (columnIndex) {
+            case 0 -> "Session";
+            case 1 -> "Status";
+            case 2 -> "Last Access";
+            case 3 -> "Open Connections / Peak";
+            case 4 -> "Open Cursors";
+            case 5 -> "Cached Statements";
+            default -> null;
+        };
     }
 
     @Override

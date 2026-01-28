@@ -19,6 +19,7 @@ package com.dbn.data.grid.options;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
 import com.dbn.data.grid.options.ui.DataGridSettingsForm;
+import com.dbn.help.HelpTopic;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.TopLevelConfig;
@@ -26,6 +27,8 @@ import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.help.HelpTopic.DATA_GRID_SETTINGS;
 
 @EqualsAndHashCode(callSuper = false)
 public class DataGridSettings extends CompositeProjectConfiguration<ProjectSettings, DataGridSettingsForm> implements TopLevelConfig {
@@ -58,8 +61,8 @@ public class DataGridSettings extends CompositeProjectConfiguration<ProjectSetti
     }
 
     @Override
-    public String getHelpTopic() {
-        return "dataGrid";
+    public HelpTopic getConfigHelpTopic() {
+        return DATA_GRID_SETTINGS;
     }
 
     @Override

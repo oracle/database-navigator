@@ -1,0 +1,131 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.assistant.tool.spec;
+
+import com.dbn.assistant.tool.AssistantTool;
+import com.dbn.assistant.tool.AssistantToolFactoryBase;
+import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
+import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
+import com.dbn.assistant.tool.impl.TableMetadataToolImpl;
+import dev.langchain4j.agent.tool.P;
+import dev.langchain4j.agent.tool.Tool;
+import dev.langchain4j.model.output.structured.Description;
+import lombok.Data;
+
+import java.util.List;
+
+import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
+import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
+
+@ToolSpec(
+    type = "TABLE_METADATA",
+    name = "Table metadata",
+    category = METADATA_PROVIDER,
+    description = "Information about tables in a given schema")
+public interface TableMetadataTool extends AssistantTool {
+
+    @FactorySpec(
+        spec = TableMetadataTool.class,
+        impl = TableMetadataToolImpl.class)
+    class Factory extends AssistantToolFactoryBase<TableMetadataTool> {}
+
+    /*********************************************
+     *                 TOOLS                     *
+     *********************************************/
+
+    @Tool(name = "LIST_TABLE_NAMES")
+    @UtilitySpec(
+            name = "List table names",
+            description = "Lists table names in a given schema",
+            summary = "schema %s")
+    List<String> listTableNames(
+            @P("Schema name") String schemaName,
+            @P("Include regular tables") boolean includeRegularTables,
+            @P("Include temporary tables") boolean includeTemporaryTables);
+
+
+    @Tool(name = "LOAD_TABLE_DEFINITION")
+    @UtilitySpec(
+            name = "Load table definition",
+            description = "Loads the definition of a given table",
+            summary = "%s.%s",
+            discontinued = true) // token optimization
+    TableDefinition loadTableDefinition(
+            @P("Schema name") String schemaName,
+            @P("Table name") String tableName,
+            @P("Include detailed constraint information (may be slow to respond)") boolean detailed);
+
+
+    @Tool(name = "LOAD_TABLE_DEFINITIONS")
+    @UtilitySpec(
+            name = "Load table definitions",
+            description = "Loads the definitions of a given set of tables",
+            summary = "%s.%s")
+    List<TableDefinition> loadTableDefinitions(
+            @P("Schema name") String schemaName,
+            @P("Table names") List<String> tableNames,
+            @P("Include detailed constraint information (may be slow to respond)") boolean detailed);
+
+
+    @Data
+    @Description("Table definition")
+    class TableDefinition {
+        @Description("Table name")
+        private String name;
+
+        @Description("Table description")
+        private String description;
+
+        @Description("Column definitions")
+        private List<ColumnDefinition> columns;
+
+        @Description("Constraint definitions")
+        private List<ConstraintDefinition> constraints;
+    }
+
+    @Data
+    @Description("Column definition")
+    class ColumnDefinition {
+        @Description("Column name")
+        private String name;
+
+        @Description("Column data type")
+        private String type;
+
+        @Description("Column description")
+        private String description;
+    }
+
+    @Data
+    @Description("Constraint definition")
+    class ConstraintDefinition {
+        @Description("Constraint name")
+        private String name;
+
+        @Description("Constraint type")
+        private String type;
+
+        @Description("Constraint check condition")
+        private String checkCondition;
+
+        @Description("Constraint columns")
+        private List<String> columns;
+
+        @Description("Foreign key constraint")
+        private ConstraintDefinition foreignKeyConstraint;
+    }
+}

@@ -32,7 +32,7 @@ import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
 
 import static com.dbn.common.ui.util.Keyboard.onKeyPress;
-import static com.dbn.common.ui.util.Mouse.onMouseClick;
+import static com.dbn.common.ui.util.Mouse.onMousePress;
 
 /**
  * A custom Swing panel for button-like functionality, designed with focus and click handling.
@@ -75,7 +75,7 @@ public class DBNButtonPanel extends JPanel {
         setOpaque(false);
 
         addFocusListener(new ToggleBorderOnFocusListener(DEFAULT_BORDER, FOCUS_BORDER));
-        onMouseClick(this, MouseEvent.BUTTON1, 1, e -> actionConsumer.accept(e));
+        onMousePress(this, MouseEvent.BUTTON1, e -> actionConsumer.accept(e));
         onKeyPress(this, KeyEvent.VK_SPACE, e -> actionConsumer.accept(e));
     }
 

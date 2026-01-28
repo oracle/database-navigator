@@ -252,8 +252,7 @@ public abstract class MethodExecutionProcessorImpl implements MethodExecutionPro
                 String stringValue = executionInput.getInputValue(argument);
                 setParameterValue(preparedStatement, argument.getPosition(), dataType, stringValue);
             }
-            if (argument.isOutput() && preparedStatement instanceof CallableStatement) {
-                CallableStatement callableStatement = (CallableStatement) preparedStatement;
+            if (argument.isOutput() && preparedStatement instanceof CallableStatement callableStatement) {
                 callableStatement.registerOutParameter(argument.getPosition(), dataType.getSqlType());
             }
         }
@@ -261,8 +260,7 @@ public abstract class MethodExecutionProcessorImpl implements MethodExecutionPro
 
     public void loadValues(MethodExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
         for (DBArgument argument : getArguments()) {
-            if (argument.isOutput() && preparedStatement instanceof CallableStatement) {
-                CallableStatement callableStatement = (CallableStatement) preparedStatement;
+            if (argument.isOutput() && preparedStatement instanceof CallableStatement callableStatement) {
                 Object result = callableStatement.getObject(argument.getPosition());
                 executionResult.addArgumentValue(argument, result);
             }

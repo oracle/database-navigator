@@ -19,7 +19,6 @@ package com.dbn.assistant.service.selectai.ui;
 import com.dbn.assistant.adapter.ui.AssistantContextActionsForm;
 import com.dbn.assistant.adapter.ui.AssistantDetailFormBase;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.chat.window.ui.ChatBoxInputField;
 import com.dbn.assistant.service.selectai.SelectAiChatContext;
 import com.dbn.assistant.service.selectai.SelectAiContextUtil;
 import com.dbn.assistant.state.AssistantState;
@@ -135,9 +134,7 @@ public class SelectAiContextActionsForm extends AssistantDetailFormBase implemen
             chatBoxForm.showErrorHeader(e);
         } else {
             initCurrentChat();
-
-            ChatBoxInputField inputField = chatBoxForm.getInputField();
-            inputField.requestFocus();
+            chatBoxForm.focusInputField();
         }
 
         updateActionToolbars();

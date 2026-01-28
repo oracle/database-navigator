@@ -50,11 +50,6 @@ public class DatabaseBrowserFilterSettings
         return txt("cfg.browser.title.FilterSettings");
     }
 
-    @Override
-    public String getHelpTopic() {
-        return "browserSettings";
-    }
-
     /*********************************************************
      *                     Configuration                     *
      *********************************************************/

@@ -50,6 +50,7 @@ import java.util.Locale;
 
 import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class RegionalSettingsEditorForm extends ConfigurationEditorForm<RegionalSettings> {
@@ -169,9 +170,9 @@ public class RegionalSettingsEditorForm extends ConfigurationEditorForm<Regional
                     formatter = new Formatter(
                             0,
                             locale,
-                            customDateFormatTextField.getText(),
-                            customTimeFormatTextField.getText(),
-                            customNumberFormatTextField.getText());
+                            getText(customDateFormatTextField),
+                            getText(customTimeFormatTextField),
+                            getText(customNumberFormatTextField));
                     errorLabel.setVisible(false);
                 } catch (Exception e) {
                     conditionallyLog(e);

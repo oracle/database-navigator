@@ -125,12 +125,11 @@ public class CodeCompletionFilterSettings
 
     private boolean showSchemaObject(int schemaType, DBObjectType objectType) {
         Set<DBObjectType> objectTypes = objectType.isGeneric() ? objectType.getInheritingTypes() : null;
-        CodeCompletionFilterOptionBundle schemaOptions;
-        switch (schemaType) {
-            case SCHEMA_TYPE_USER: schemaOptions = userSchemaOptions; break;
-            case SCHEMA_TYPE_PUBLIC: schemaOptions = publicSchemaOptions; break;
-            default: schemaOptions = anySchemaOptions; break;
-        }
+        CodeCompletionFilterOptionBundle schemaOptions = switch (schemaType) {
+            case SCHEMA_TYPE_USER -> userSchemaOptions;
+            case SCHEMA_TYPE_PUBLIC -> publicSchemaOptions;
+            default -> anySchemaOptions;
+        };
 
         for(CodeCompletionFilterOption option : schemaOptions.getOptions()) {
             if (objectTypes != null) {

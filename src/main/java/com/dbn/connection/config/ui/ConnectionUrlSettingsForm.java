@@ -22,7 +22,6 @@ import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Commons;
-import com.dbn.common.util.Lists;
 import com.dbn.common.util.Safe;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseProtocol;
@@ -43,7 +42,6 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import com.intellij.util.ui.UIUtil;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
@@ -64,6 +62,7 @@ import java.util.Objects;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Commons.nvl;
@@ -171,19 +170,19 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     }
 
     public String getHost() {
-        return hostTextField.getText();
+        return getText(hostTextField);
     }
 
     public String getPort() {
-        return portTextField.getText();
+        return getText(portTextField);
     }
 
     public String getDatabase() {
-        return databaseTextField.getText();
+        return getText(databaseTextField);
     }
 
     public String getTnsFolder() {
-        return tnsFolderTextField.getText();
+        return getText(tnsFolderTextField);
     }
 
     public String getTnsProfile() {
@@ -195,7 +194,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     }
 
     public String getUrl() {
-        return urlTextField.getText();
+        return getText(urlTextField);
     }
 
     public DatabaseFileBundle getFileBundle() {
@@ -351,7 +350,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         updateFieldVisibility();
     }
 
-    void resetFormChanges() {
+    public void resetFormChanges() {
         ConnectionDatabaseSettings configuration = getDatabaseSettings();
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
         applyDatabaseInfo(databaseInfo);

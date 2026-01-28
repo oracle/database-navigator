@@ -34,8 +34,7 @@ public class DBNTreeModel extends DefaultTreeModel implements StatefulDisposable
 
     public void disposeInner() {
         Object root = getRoot();
-        if (root instanceof DBNTreeNode) {
-            DBNTreeNode treeNode = (DBNTreeNode) root;
+        if (root instanceof DBNTreeNode treeNode) {
             treeNode.detach();
         }
     }

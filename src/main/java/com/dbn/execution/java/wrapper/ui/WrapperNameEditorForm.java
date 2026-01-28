@@ -17,9 +17,8 @@
 package com.dbn.execution.java.wrapper.ui;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.ComponentAligner;
-import com.dbn.common.util.Commons;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.util.ui.JBUI;
@@ -30,13 +29,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.Color;
-import java.awt.Component;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 
-public class WrapperNameEditorForm extends DBNFormBase implements ComponentAligner.Form {
+public class WrapperNameEditorForm extends DBNFormBase {
     private JPanel mainPanel;
     private JLabel objectIconLabel;
     private JTextField objectNameTextField;
@@ -53,6 +52,12 @@ public class WrapperNameEditorForm extends DBNFormBase implements ComponentAlign
         initStatusLabel();
     }
 
+    @Override
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerFieldGroup(objectIconLabel, objectNameTextField, statusLabel);
+    }
+
     private void initStatusLabel() {
         statusLabel.setForeground(Colors.faded(UIUtil.getLabelForeground()));
         statusLabel.setHorizontalAlignment(JLabel.RIGHT);
@@ -60,7 +65,7 @@ public class WrapperNameEditorForm extends DBNFormBase implements ComponentAlign
     }
 
     private void updateStatusLabel() {
-        String identifier = objectNameTextField.getText().trim();
+        String identifier = getText(objectNameTextField);
         int length = identifier.length();
         int maxLength = getMaxIdentifierLength();
 
@@ -84,12 +89,12 @@ public class WrapperNameEditorForm extends DBNFormBase implements ComponentAlign
         objectNameTextField.setText(object.getObjectName(false));
 
         onTextChange(objectNameTextField, e -> {
-            String objectName = objectNameTextField.getText().trim();
+            String objectName = getText(objectNameTextField);
             object.setObjectName(objectName);
             updateStatusLabel();
 
             WrapperNamesEditorForm providerForm = ensureParentComponent();
-            ComponentAligner.alignFormComponents(providerForm);
+            providerForm.updateFieldAlignment();
         });
     }
 
@@ -113,16 +118,11 @@ public class WrapperNameEditorForm extends DBNFormBase implements ComponentAlign
     }
 
     public String getIdentifierName() {
-        return objectNameTextField.getText().trim();
+        return getText(objectNameTextField);
     }
 
     private int getMaxIdentifierLength() {
         WrapperNamesEditorForm providerForm = ensureParentComponent();
         return providerForm.getMaxIdentifierLength();
-    }
-
-    @Override
-    public Component[] getAlignableComponents() {
-        return Commons.list(objectIconLabel, objectNameTextField, statusLabel);
     }
 }

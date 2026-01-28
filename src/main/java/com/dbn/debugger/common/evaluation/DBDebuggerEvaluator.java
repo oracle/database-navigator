@@ -90,9 +90,8 @@ public abstract class DBDebuggerEvaluator<F extends DBDebugStackFrame<? extends 
         if (psiFile == null) return null;
 
         PsiElement psiElement = psiFile.findElementAt(offset);
-        if (psiElement == null || !(psiElement.getParent() instanceof IdentifierPsiElement)) return null;
+        if (psiElement == null || !(psiElement.getParent() instanceof IdentifierPsiElement identifierPsiElement)) return null;
 
-        IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) psiElement.getParent();
         QualifiedIdentifierPsiElement qualifiedIdentifier = identifierPsiElement.getParentQualifiedIdentifier();
         if (qualifiedIdentifier == null) {
             return identifierPsiElement.getTextRange();

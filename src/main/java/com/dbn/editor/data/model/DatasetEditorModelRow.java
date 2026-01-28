@@ -151,15 +151,13 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
         DBObject messageObject = error.getMessageObject();
         if (messageObject == null) return;
 
-        if (messageObject instanceof DBColumn) {
-            DBColumn column = (DBColumn) messageObject;
+        if (messageObject instanceof DBColumn column) {
             DatasetEditorModelCell cell = getCellForColumn(column);
             if (cell != null) {
                 boolean isErrorNew = cell.notifyError(error, true);
                 if (isErrorNew && startEditing) cell.edit();
             }
-        } else if (messageObject instanceof DBConstraint) {
-            DBConstraint constraint = (DBConstraint) messageObject;
+        } else if (messageObject instanceof DBConstraint constraint) {
             DatasetEditorModelCell firstCell = null;
             boolean isErrorNew = false;
             for (DBColumn column : constraint.getColumns()) {
@@ -212,8 +210,7 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
             Object userValue = cell.getUserValue();
             if (userValue == null) continue;
 
-            if (userValue instanceof String) {
-                String stringUserValue = (String) userValue;
+            if (userValue instanceof String stringUserValue) {
                 if (Strings.isNotEmpty(stringUserValue)) {
                     return false;
                 }

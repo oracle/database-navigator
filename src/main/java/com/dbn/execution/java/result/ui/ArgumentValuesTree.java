@@ -59,8 +59,7 @@ class ArgumentValuesTree extends DBNTree{
             if (treeNode == null) return;
 
             Object userValue = treeNode.getValue();
-            if (userValue instanceof ExecutionValue) {
-                ExecutionValue fieldValue = (ExecutionValue) userValue;
+            if (userValue instanceof ExecutionValue fieldValue) {
                 DBJavaParameter argument = null; // TODO inputValue.getArgument();
                 if (argument == null) return;
 

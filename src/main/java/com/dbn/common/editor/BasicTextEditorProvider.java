@@ -49,8 +49,7 @@ public abstract class BasicTextEditorProvider implements FileEditorProvider, Nam
 
     @Override
     public void writeState(@NotNull FileEditorState state, @NotNull Project project, @NotNull Element targetElement) {
-        if (state instanceof BasicTextEditorState) {
-            BasicTextEditorState editorState = (BasicTextEditorState) state;
+        if (state instanceof BasicTextEditorState editorState) {
             editorState.writeState(targetElement, project);
         }
     }

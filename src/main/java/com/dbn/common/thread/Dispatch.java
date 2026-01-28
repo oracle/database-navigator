@@ -65,9 +65,22 @@ public final class Dispatch {
         }
     }
 
+    public static void run(Component component, boolean conditional, Runnable runnable) {
+        if (conditional && isDispatchThread()) {
+            guarded(runnable, r -> r.run());
+        } else {
+            run(component, runnable);
+        }
+    }
     public static void run(Component component, Runnable runnable) {
-        ModalityState modalityState = ModalityState.stateForComponent(component);
-        run(modalityState, runnable);
+        if (component.isShowing()) {
+            ModalityState modalityState = ModalityState.stateForComponent(component);
+            run(modalityState, runnable);
+        } else if (component instanceof JComponent){
+            whenFirstShown((JComponent) component, () -> run(component, runnable));
+        } else {
+            run(ModalityState.defaultModalityState(), runnable);
+        }
     }
 
     // fire and forget

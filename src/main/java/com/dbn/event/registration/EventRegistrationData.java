@@ -18,7 +18,6 @@ package com.dbn.event.registration;
 
 import com.dbn.connection.ConnectionId;
 import com.dbn.event.model.DatabaseChangeRegistration;
-import com.intellij.openapi.util.Predicates;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -94,7 +93,7 @@ public class EventRegistrationData {
         return registrationIds.
                 stream().
                 map(id -> data.get(id)).
-                filter(Predicates.nonNull()).
+                filter(r -> r != null).
                 collect(Collectors.toList());
     }
 

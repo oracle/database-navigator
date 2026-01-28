@@ -190,6 +190,11 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
     }
 
     @Override
+    public boolean isRenameable() {
+        return true;
+    }
+
+    @Override
     public void disposeInner() {
         dataModel = null;
         super.disposeInner();

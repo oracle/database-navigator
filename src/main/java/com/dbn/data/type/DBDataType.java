@@ -29,6 +29,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import static com.dbn.data.type.GenericDataType.CLOB;
+import static com.dbn.data.type.GenericDataType.LITERAL;
+import static com.dbn.data.type.GenericDataType.NCLOB;
+
 @Getter
 @Setter
 public class DBDataType {
@@ -91,6 +95,14 @@ public class DBDataType {
 
     public boolean isNativeDeclared() {
         return nativeType != null && declaredType != null;
+    }
+
+    public boolean isLiteral() {
+        if (!isNative()) return false;
+
+        GenericDataType genericDataType = getGenericDataType();
+        return genericDataType.isOneOf(LITERAL, CLOB, NCLOB);
+
     }
 
     public String getName() {

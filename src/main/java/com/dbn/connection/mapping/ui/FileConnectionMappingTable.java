@@ -121,8 +121,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
             FileConnectionContext entry = (FileConnectionContext) value;
             FileConnectionMappingTableModel model = (FileConnectionMappingTableModel) table.getModel();
             Object columnValue = model.getValue(entry, column);
-            if (columnValue instanceof Presentable) {
-                Presentable presentable = (Presentable) columnValue;
+            if (columnValue instanceof Presentable presentable) {
                 //setIcon(presentable.getIcon());
             }
 
@@ -131,8 +130,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
                     columnValue instanceof DatabaseSession) {
                 //setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-            } else if (columnValue instanceof VirtualFile) {
-                VirtualFile virtualFile = (VirtualFile) columnValue;
+            } else if (columnValue instanceof VirtualFile virtualFile) {
                 setIcon(virtualFile.getFileType().getIcon());
             }
 

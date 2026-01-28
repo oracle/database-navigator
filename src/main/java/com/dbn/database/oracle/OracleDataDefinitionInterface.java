@@ -29,12 +29,17 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.ArgumentFactoryInput;
-import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.factory.model.DBArgumentSpec;
+import com.dbn.object.factory.model.DBMethodSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 
+import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Lists.toCsv;
 import static com.dbn.common.util.Naming.unquote;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.database.DatabaseObjectTypeId.DATABASE_TRIGGER;
@@ -44,6 +49,12 @@ import static com.dbn.database.DatabaseObjectTypeId.JSON_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.TRIGGER;
 import static com.dbn.database.DatabaseObjectTypeId.VIEW;
+import static com.dbn.object.factory.model.DBObjectAttribute.CONSTRAINT_COLUMNS;
+import static com.dbn.object.factory.model.DBObjectAttribute.CONSTRAINT_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttribute.DATA_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttribute.IS_NOT_NULL;
+import static com.dbn.object.factory.model.DBObjectAttribute.IS_PRIMARY_KEY;
+import static com.dbn.object.factory.model.DBObjectAttribute.OBJECT_DETAIL;
 
 public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
     public OracleDataDefinitionInterface(DatabaseInterfaces provider) {
@@ -131,12 +142,12 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     }
 
     @Override
-    public void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
-        updateObject(triggerName, "trigger", oldCode, newCode, connection);
+    public void updateTrigger(String ownerName, String tableName, String triggerName, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+        updateObject(ownerName, triggerName, "trigger", oldCode, newCode, connection);
     }
 
     @Override
-    public void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
+    public void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
         // code assumed to contain object type and name
         executeUpdate(connection, "update-object", newCode);
     }
@@ -189,7 +200,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(MethodFactoryInput method, DBNConnection connection) throws SQLException {
+    public void createMethod(DBMethodSpec method, DBNConnection connection) throws SQLException {
         // TODO SQL-Injection
         Project project = method.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
@@ -205,7 +216,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        for (ArgumentFactoryInput argument : method.getArguments()) {
+        for (DBArgumentSpec argument : method.getArguments()) {
             maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
             maxArgDirectionLength = Math.max(maxArgDirectionLength,
                     argument.isInput() && argument.isOutput() ? 6 :
@@ -214,7 +225,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         }
 
 
-        for (ArgumentFactoryInput argument : method.getArguments()) {
+        for (DBArgumentSpec argument : method.getArguments()) {
             buffer.append("\n    ");
             buffer.append(oco.format(argument.getObjectName()));
             buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
@@ -240,5 +251,46 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         if (method.isFunction()) buffer.append(kco.format("    return null;\n\n"));
         buffer.append("end;");
         createObject(buffer.toString(), connection);
+    }
+
+    @Override
+    public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
+        StringBuilder builder = new StringBuilder();
+        builder.append("table ");
+        builder.append(tableSpec.getSchemaName(true));
+        builder.append(".");
+        builder.append(tableSpec.getObjectName(true));
+        builder.append(" (\n");
+
+        boolean first = true;
+        for (DBObjectSpec columnSpec : tableSpec.getChildren(DBObjectType.COLUMN)) {
+            if (first) {
+                first = false;
+            } else {
+                builder.append(",\n");
+            }
+            builder.append("    ");
+            builder.append(columnSpec.getObjectName(true));
+            builder.append(" ");
+            builder.append(columnSpec.getAttribute(DATA_TYPE));
+            builder.append(columnSpec.getBooleanAttribute(IS_NOT_NULL) ? " not null" : "");
+            builder.append(columnSpec.getBooleanAttribute(IS_PRIMARY_KEY) ? " primary key" : "");
+        }
+
+        for (DBObjectSpec constraint : tableSpec.getChildren(DBObjectType.CONSTRAINT)) {
+            builder.append(",\n");
+            builder.append("    ");
+            builder.append(constraint.getAttribute(CONSTRAINT_TYPE));
+            builder.append(" ");
+            builder.append(nvl(constraint.getObjectName(), ""));
+            builder.append("(");
+            builder.append(toCsv(Arrays.asList(constraint.getAttribute(CONSTRAINT_COLUMNS)),s -> s));
+            builder.append(")");
+        }
+
+        builder.append(")\n");
+        builder.append(tableSpec.getAttribute(OBJECT_DETAIL));
+
+        createObject(builder.toString(), connection);
     }
 }

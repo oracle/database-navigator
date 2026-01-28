@@ -26,5 +26,7 @@ public interface DBTableMetadata extends DBObjectMetadata {
     @ObjectIdentifier
     String getTableName() throws SQLException;
 
+    String getComments() throws SQLException;
+
     boolean isTemporary() throws SQLException;
 }

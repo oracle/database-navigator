@@ -61,9 +61,8 @@ public final class JavaDownloadProcessor extends BatchProcessorBase<JavaDownload
 	private static void writeJavaEntity(JavaDownloadBatch batch, JavaDownloadTask task) {
 		DBObject object = task.getEntity();
 		String packageName = "";
-		if (object instanceof DBJavaClass) {
-			DBJavaClass javaClass = (DBJavaClass) object;
-			packageName = javaClass.getPackageName();
+		if (object instanceof DBJavaClass javaClass) {
+            packageName = javaClass.getPackageName();
 		} else if (object instanceof DBJavaResource) {
 			String[] packageNameTokens = task.getEntityPathTokens();
 			packageName = String.join(".", packageNameTokens);

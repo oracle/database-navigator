@@ -32,12 +32,10 @@ public class SQLDocumentationProvider implements DocumentationProvider {
 
     @Nullable
     private String getQuickNavigateInfo(PsiElement element) {
-        if (element instanceof DBObjectPsiElement) {
-            DBObjectPsiElement objectPsiElement = (DBObjectPsiElement) element;
+        if (element instanceof DBObjectPsiElement objectPsiElement) {
             return objectPsiElement.ensureObject().getNavigationTooltipText();
-        } else if (element instanceof IdentifierPsiElement) {
-            IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) element;
-             if (identifierPsiElement.isAlias()) {
+        } else if (element instanceof IdentifierPsiElement identifierPsiElement) {
+            if (identifierPsiElement.isAlias()) {
                 if (identifierPsiElement.isDefinition()) {
                     BasePsiElement aliasedObjectElement = PsiUtil.resolveAliasedEntityElement(identifierPsiElement);
                     if (aliasedObjectElement == null) {

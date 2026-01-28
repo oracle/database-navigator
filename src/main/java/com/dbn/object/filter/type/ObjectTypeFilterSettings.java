@@ -79,7 +79,8 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
             new ObjectTypeFilterSetting(this, DBObjectType.CLUSTER),
             new ObjectTypeFilterSetting(this, DBObjectType.DBLINK),
             new ObjectTypeFilterSetting(this, DBObjectType.CREDENTIAL),
-            new ObjectTypeFilterSetting(this, DBObjectType.AI_PROFILE));
+            new ObjectTypeFilterSetting(this, DBObjectType.AI_PROFILE),
+            new ObjectTypeFilterSetting(this,DBObjectType.AI_MODEL));
 
     private Map<DBObjectType, ObjectTypeFilterSetting> cache = new ConcurrentHashMap<>(settings.size());
 
@@ -140,14 +141,12 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
             return false;
         }
 
-        if (treeNode instanceof DBObject) {
-            DBObject object = (DBObject) treeNode;
+        if (treeNode instanceof DBObject object) {
             DBObjectType objectType = object.getObjectType();
             return isVisible(objectType);
         }
 
-        if (treeNode instanceof DBObjectList) {
-            DBObjectList objectList = (DBObjectList) treeNode;
+        if (treeNode instanceof DBObjectList objectList) {
             return isVisible(objectList.getObjectType());
         }
 

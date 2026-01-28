@@ -109,7 +109,7 @@ public class DatabaseConsoleBundle extends ConnectionComponentBase {
         Collections.sort(consoles);
 
         DBConsoleVirtualFile virtualFile = console.getVirtualFile();
-        virtualFile.setDatabaseSchema(connection.getDefaultSchema());
+        virtualFile.setDatabaseSchema(connection.getDefaultSchemaId());
 
         return console;
     }

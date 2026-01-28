@@ -44,27 +44,24 @@ public class PSQLStructureViewModelGrouper implements Grouper {
     @Override
     public Collection<Group> group(@NotNull AbstractTreeNode<?> abstractTreeNode, @NotNull Collection<TreeElement> treeElements) {
         Map<DBObjectType, Group> groups = null;
-        if (abstractTreeNode.getValue() instanceof PSQLStructureViewElement) {
-            PSQLStructureViewElement structureViewElement = (PSQLStructureViewElement) abstractTreeNode.getValue();
+        if (abstractTreeNode.getValue() instanceof PSQLStructureViewElement structureViewElement) {
             Object value = structureViewElement.getValue();
             if (value instanceof BasePsiElement || value instanceof PSQLFile) {
 
                 for (TreeElement treeElement : treeElements) {
-                    if (treeElement instanceof PSQLStructureViewElement) {
-                        PSQLStructureViewElement element = (PSQLStructureViewElement) treeElement;
-                        if (element.getValue() instanceof BasePsiElement) {
-                            BasePsiElement basePsiElement = (BasePsiElement) element.getValue();
+                    if (treeElement instanceof PSQLStructureViewElement element) {
+                        if (element.getValue() instanceof BasePsiElement basePsiElement) {
                             if (!basePsiElement.elementType.is(ElementTypeAttribute.ROOT)) {
                                 BasePsiElement subjectPsiElement = basePsiElement.findFirstPsiElement(ElementTypeAttribute.SUBJECT);
-                                if (subjectPsiElement instanceof IdentifierPsiElement) {
-                                    IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) subjectPsiElement;
+                                if (subjectPsiElement instanceof IdentifierPsiElement identifierPsiElement) {
                                     DBObjectType objectType = identifierPsiElement.getObjectType();
-                                    switch (objectType) {
-                                        case PACKAGE_PROCEDURE: objectType = DBObjectType.PROCEDURE; break;
-                                        case PACKAGE_FUNCTION: objectType = DBObjectType.FUNCTION; break;
-                                        case TYPE_PROCEDURE: objectType = DBObjectType.PROCEDURE; break;
-                                        case TYPE_FUNCTION: objectType = DBObjectType.FUNCTION; break;
-                                    }
+                                    objectType = switch (objectType) {
+                                        case PACKAGE_PROCEDURE -> DBObjectType.PROCEDURE;
+                                        case PACKAGE_FUNCTION -> DBObjectType.FUNCTION;
+                                        case TYPE_PROCEDURE -> DBObjectType.PROCEDURE;
+                                        case TYPE_FUNCTION -> DBObjectType.FUNCTION;
+                                        default -> objectType;
+                                    };
 
                                     if (groups == null) groups = new EnumMap<>(DBObjectType.class);
                                     PSQLStructureViewModelGroup group = (PSQLStructureViewModelGroup) groups.get(objectType);

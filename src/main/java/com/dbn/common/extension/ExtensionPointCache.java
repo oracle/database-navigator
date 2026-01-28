@@ -22,21 +22,29 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public abstract class ExtensionPointCache<K, E> {
     private final ExtensionPointName<E> extensionPointName;
+    private final Set<K> keys;
     private final Map<K, E> cache = new ConcurrentHashMap<>();
     private final Function<E, K> keyProvider;
 
     protected ExtensionPointCache(ExtensionPointName<E> extensionPointName, Function<E, K> keyProvider) {
         this.extensionPointName = extensionPointName;
         this.keyProvider = keyProvider;
+        this.keys = extensionPointName.getExtensionList().stream().map(keyProvider).collect(Collectors.toSet());
     }
 
     protected E find(K key) {
         return cache.computeIfAbsent(key, t -> scan(t));
+    }
+
+    protected Set<K> keys() {
+        return keys;
     }
 
     @NotNull
@@ -48,5 +56,9 @@ public abstract class ExtensionPointCache<K, E> {
         }
 
         throw new UnsupportedOperationException("No extension of type \"" + extensionPointName + "\" registered for key \"" + key + "\"");
+    }
+
+    protected List<E> all() {
+        return extensionPointName.getExtensionList();
     }
 }

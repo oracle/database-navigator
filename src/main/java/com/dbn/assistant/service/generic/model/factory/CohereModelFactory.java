@@ -19,12 +19,11 @@ package com.dbn.assistant.service.generic.model.factory;
 import com.dbn.assistant.service.generic.model.AssistantModelInput;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
-import dev.langchain4j.model.cohere.CohereEmbeddingModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.language.LanguageModel;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.assistant.provider.AIProviders.COHERE;
+import static com.dbn.assistant.provider.AIProviderId.COHERE;
 
 public class CohereModelFactory extends AbstractModelFactory {
 
@@ -53,11 +52,6 @@ public class CohereModelFactory extends AbstractModelFactory {
     @Nullable
     @Override
     public EmbeddingModel createEmbeddingModel(AssistantModelInput input) {
-        return CohereEmbeddingModel.builder()
-                .modelName(input.getModel())
-                .baseUrl(input.getUrl())
-                .apiKey(input.getToken())
-                //.httpClientBuilder(createHttpClientBuilder())
-                .build();
+        return null; // TODO
     }
 }

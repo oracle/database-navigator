@@ -107,11 +107,9 @@ public class QualifiedIdentifierVariant implements Comparable{
     public String toString() {
         StringBuilder buffer = new StringBuilder();
         for (LeafElementType leaf : leafs) {
-            if (leaf instanceof IdentifierElementType) {
-                IdentifierElementType identifierElementType = (IdentifierElementType) leaf;
+            if (leaf instanceof IdentifierElementType identifierElementType) {
                 buffer.append(identifierElementType.getObjectTypeName());
-            } else if (leaf instanceof TokenElementType) {
-                TokenElementType tokenElementType = (TokenElementType) leaf;
+            } else if (leaf instanceof TokenElementType tokenElementType) {
                 buffer.append(tokenElementType.tokenType.getValue());
             }
             if (leaf != leafs[leafs.length-1]) {

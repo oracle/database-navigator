@@ -85,6 +85,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         try {
             toolbarPanel.setBorder(Borders.insetBorder(2));
 
+            loadingDataPanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
             tablePanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
             editorPanel.setBorder(Borders.tableBorder(0, 1, 0, 0));
             editorPanel.setVisible(false);
@@ -95,11 +96,11 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
             setAccessibleName(actionToolbar, txt("app.dataEditor.aria.JsonDataEditorActions"));
 
             actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
-            loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
+            loadingIconPanel.add(new AsyncProcessIcon("Loading"));
             hideLoadingHint();
 
             ActionToolbar loadingActionToolbar = Actions.createActionToolbar(actionsPanel, true, new CancelLoadingAction());
-            loadingActionPanel.add(loadingActionToolbar.getComponent(), BorderLayout.CENTER);
+            loadingActionPanel.add(loadingActionToolbar.getComponent());
 
             Disposer.register(this, autoCommitLabel);
         } catch (SQLException e) {

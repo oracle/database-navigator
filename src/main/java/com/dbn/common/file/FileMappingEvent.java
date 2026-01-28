@@ -48,8 +48,7 @@ public class FileMappingEvent<T> {
             eventType = FileEventType.CREATED;
         } else if (fileEvent instanceof VFileContentChangeEvent) {
             eventType = FileEventType.MODIFIED;
-        } else if (fileEvent instanceof VFilePropertyChangeEvent) {
-            VFilePropertyChangeEvent propertyChangeEvent = (VFilePropertyChangeEvent) fileEvent;
+        } else if (fileEvent instanceof VFilePropertyChangeEvent propertyChangeEvent) {
             String propertyName = propertyChangeEvent.getPropertyName();
             if (VirtualFile.PROP_NAME.equals(propertyName)) {
                 eventType = FileEventType.RENAMED;

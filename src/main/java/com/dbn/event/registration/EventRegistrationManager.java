@@ -35,20 +35,21 @@ import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.event.OracleConstants;
+import com.dbn.event.model.DatabaseChangeEvent;
 import com.dbn.event.model.DatabaseChangeListener;
 import com.dbn.event.model.DatabaseChangeRegistration;
 import com.dbn.event.model.OracleConnection;
 import com.dbn.event.model.OracleStatement;
 import com.dbn.event.model.RowChangeDescription;
 import com.dbn.event.model.TableChangeDescription;
+import com.dbn.event.notification.EventNotificationData;
 import com.dbn.event.notification.EventNotificationListener;
+import com.dbn.event.notification.EventNotificationManager;
 import com.dbn.event.notification.model.DataChangeNotification;
 import com.dbn.event.registration.EventRegistrationListener.RegistrationEvent;
 import com.dbn.event.registration.ui.EventRegistrationInputDialog;
-import com.dbn.event.service.EventHistoryService;
 import com.dbn.object.DBTable;
 import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.prerequisite.DatabasePrerequisiteManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -62,13 +63,12 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Properties;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.notification.NotificationCategory.DCN;
-import static com.dbn.common.operation.DatabaseOperation.ENABLE_DATABASE_CHANGE_NOTIFICATION;
+import static com.dbn.common.operation.DatabaseOperation.ENABLE_CHANGE_NOTIFICATIONS;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Lists.toCsv;
 import static com.dbn.event.registration.EventRegistrationManager.COMPONENT_NAME;
@@ -95,11 +95,8 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
     }
 
     public void registerTable(DBTable table) {
-        Project project = getProject();
-        DatabasePrerequisiteManager prerequisiteManager = DatabasePrerequisiteManager.getInstance(project);
-        prerequisiteManager.startOperation(table,
-                ENABLE_DATABASE_CHANGE_NOTIFICATION,
-                () -> openRegistrationDialog(table));
+        // TODO move to the DCN registration actions (all prerequisite verifications should be invoked in actions)
+        ENABLE_CHANGE_NOTIFICATIONS.start(table, () -> openRegistrationDialog(table));
     }
 
     private void openRegistrationDialog(DBTable object) {
@@ -151,26 +148,8 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         DatabaseChangeRegistration registration = connection.registerDatabaseChangeNotification(properties);
         long regId = registration.getRegId();
 
-        DatabaseChangeListener listener = event -> {
-            long eventRegId = event.getRegId();
-            if (regId != eventRegId) return;
-            TableChangeDescription[] tableChanges = event.getTableChangeDescription();
-            for (TableChangeDescription tableChange : tableChanges) {
-                String eventTableName = tableChange.getTableName();
-                if (!tableName.equals(eventTableName)) continue;
-
-                RowChangeDescription[] rowChanges = tableChange.getRowChangeDescription();
-                for (RowChangeDescription rowChange : rowChanges) {
-                    String rowId = rowChange.getRowid().toString();
-                    String operation = toCsv(rowChange.getRowOperations(), ", ", o -> Data.asString(o));
-
-                    String timestamp = LocalDateTime.now().toString();
-                    DataChangeNotification notification = new DataChangeNotification(operation, eventTableName, rowId, timestamp, eventRegId, connectionId);
-                    EventHistoryService.getInstance().pushEvent(connectionId, eventRegId, notification);
-                }
-                notifyNotificationListeners(connectionId, eventTableName);
-            }
-        };
+        DatabaseChangeListener listener =
+                event -> processEvent(event, connectionId, tableName, regId);
 
         registration.addListener(listener);
 
@@ -179,6 +158,29 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
             statement.executeQuery("SELECT * FROM " + tableName + " WHERE 1=0");
         }
         registrationCache.addRegistration(connectionId, registration);
+    }
+
+    private void processEvent(DatabaseChangeEvent event, ConnectionId connectionId, String tableName, long regId) {
+        if (event.getRegId() != regId) return;
+
+        TableChangeDescription[] tableChanges = event.getTableChangeDescription();
+        for (TableChangeDescription tableChange : tableChanges) {
+            String eventTableName = tableChange.getTableName();
+            if (!tableName.equals(eventTableName)) continue;
+
+            RowChangeDescription[] rowChanges = tableChange.getRowChangeDescription();
+            for (RowChangeDescription rowChange : rowChanges) {
+                String rowId = rowChange.getRowid().toString();
+                String operation = toCsv(rowChange.getRowOperations(), ", ", o -> Data.asString(o));
+
+                DataChangeNotification notification = new DataChangeNotification(operation, eventTableName, rowId, regId, connectionId);
+
+                EventNotificationManager notificationManager = EventNotificationManager.getInstance(getProject());
+                EventNotificationData notificationData = notificationManager.getNotificationData();
+                notificationData.pushEvent(connectionId, notification);
+            }
+            notifyNotificationListeners(connectionId, eventTableName);
+        }
     }
 
     private Properties buildDcnProperties(int mask) {

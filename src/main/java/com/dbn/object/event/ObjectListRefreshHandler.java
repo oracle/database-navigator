@@ -41,8 +41,7 @@ public class ObjectListRefreshHandler implements OutcomeHandler {
         if (object == null) return;
 
         BrowserTreeNode parent = object.getParent();
-        if (parent instanceof DBObjectList) {
-            DBObjectList objectList = (DBObjectList) parent;
+        if (parent instanceof DBObjectList objectList) {
             objectList.markDirty();
         }
     }

@@ -119,8 +119,7 @@ public class DatabaseLoggingResult extends ExecutionResultBase<DatabaseLoggingRe
         }
         if (output.isScrollToEnd()) {
             ConsoleView consoleView = console.getConsole();
-            if (consoleView instanceof ConsoleViewImpl) {
-                ConsoleViewImpl consoleViewImpl = (ConsoleViewImpl) consoleView;
+            if (consoleView instanceof ConsoleViewImpl consoleViewImpl) {
                 consoleViewImpl.requestScrollingToEnd();
             }
         }

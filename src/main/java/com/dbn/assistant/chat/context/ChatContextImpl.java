@@ -16,8 +16,11 @@
 
 package com.dbn.assistant.chat.context;
 
+import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.AIProviderId;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -25,27 +28,29 @@ import org.jdom.Element;
 import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Getter
 @Setter
 public final class ChatContextImpl implements ChatContext{
-    private String profileName;
-    private String providerId;
+    private final AssistantType assistantType;
+    private String profileId;
+    private AIProviderId providerId;
     private String modelId;
     private String actionId;
     private boolean interactive = true;
 
-    public ChatContextImpl() {}
-
-    public ChatContextImpl(String providerId, String modelId) {
-        this(null, providerId, modelId, null, true);
+    public ChatContextImpl(AssistantType assistantType) {
+        this.assistantType = assistantType;
     }
 
-    public ChatContextImpl(String profileName, String providerId, String modelId, String actionId, boolean interactive) {
-        this.profileName = profileName;
+    public ChatContextImpl(AssistantType assistantType, String profileId, AIProviderId providerId, String modelId, String actionId, boolean interactive) {
+        this(assistantType);
+        this.profileId = profileId;
         this.providerId = providerId;
         this.modelId = modelId;
         this.actionId = actionId;
@@ -54,11 +59,14 @@ public final class ChatContextImpl implements ChatContext{
 
     @Override
     public AIProvider getProvider() {
-        return AIProvider.forId(this.providerId);
+        return AIProviderData.getProvider(assistantType, this.providerId);
     }
 
     public AIModel getModel() {
-        return AIModel.forId(this.modelId);
+        AIProvider provider = getProvider();
+        if (provider == null) return null;
+
+        return provider.getModel(this.modelId);
     }
 
     @Override
@@ -68,10 +76,15 @@ public final class ChatContextImpl implements ChatContext{
     }
 
     @Override
-    public boolean isInteractive() {
-        // all contexts are fundamentally interactive
-        // (except for Oracle "Select AI" with non-conversational profiles)
-        return true;
+    public String getProviderName() {
+        AIProvider provider = getProvider();
+        return provider == null ? Objects.toString(providerId) : provider.getName();
+    }
+
+    @Override
+    public String getModelName() {
+        AIModel model = getModel();
+        return model == null ? modelId : model.getName();
     }
 
     @Override
@@ -86,7 +99,7 @@ public final class ChatContextImpl implements ChatContext{
 
     @Override
     public boolean isProfileSwitch(ChatContext that) {
-        return !Objects.equals(this.profileName, that.getProfileName());
+        return !Objects.equals(this.profileId, that.getProfileId());
     }
 
     @Override
@@ -96,8 +109,8 @@ public final class ChatContextImpl implements ChatContext{
 
     @Override
     public void readState(Element element) {
-        profileName = stringAttribute(element, "profile");
-        providerId = stringAttribute(element, "provider");
+        providerId = enumAttribute(element, "provider", AIProviderId.class);
+        profileId = stringAttribute(element, "profile");
         modelId = stringAttribute(element, "model");
         actionId = stringAttribute(element, "action");
         interactive = booleanAttribute(element, "interactive", interactive);
@@ -105,14 +118,14 @@ public final class ChatContextImpl implements ChatContext{
 
     @Override
     public void writeState(Element element) {
-        setStringAttribute(element, "profile", profileName);
-        setStringAttribute(element, "provider", providerId);
+        setEnumAttribute(element, "provider", providerId);
+        setStringAttribute(element, "profile", profileId);
         setStringAttribute(element, "model", modelId);
         setStringAttribute(element, "action", actionId);
         setBooleanAttribute(element, "interactive", interactive);
     }
 
     public String toString() {
-        return (profileName == null ? "" : (profileName + " / ")) + providerId + " / " + modelId + " / " + actionId;
+        return (profileId == null ? "" : (profileId + " / ")) + providerId + " / " + modelId + " / " + actionId;
     }
 }

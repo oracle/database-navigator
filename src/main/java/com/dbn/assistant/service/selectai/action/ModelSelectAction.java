@@ -46,7 +46,8 @@ public class ModelSelectAction extends AbstractChatBoxAction {
         // preserve profile and action from the current context
         ChatContext currentContext = chatBox.getCurrentContext();
         ChatContext targetContext = new ChatContextImpl(
-                currentContext.getProfileName(),
+                chatBox.getAssistantType(),
+                currentContext.getProfileId(),
                 currentContext.getProviderId(),
                 model.getId(),
                 currentContext.getActionId(),

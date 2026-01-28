@@ -80,7 +80,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     private DBObjectType objectType;
     private short overload;
 
-    private WeakRef<T> reference;
+    private transient WeakRef<T> reference;
     private int hashCode = -1;
 
     public DBObjectRef(ConnectionId connectionId, String identifier) {
@@ -118,6 +118,16 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         this.objectName = objectName.intern();
     }
 
+    @Contract(value = "null -> null", pure = true)
+    public static String getObjectName(@Nullable DBObjectRef<?> object) {
+        return object == null ? null : object.getObjectName();
+    }
+
+    @Contract(value = "null -> null", pure = true)
+    public static String getQualifiedObjectName(@Nullable DBObjectRef<?> object) {
+        return object == null ? null : object.getQualifiedObjectName();
+    }
+
     public String getObjectName(boolean quoted) {
         if (!quoted) return objectName;
 
@@ -134,8 +144,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     public void setParent(Object parent) {
         if (parent == null) return;
 
-        if (parent instanceof DBObject) {
-            DBObject object = (DBObject) parent;
+        if (parent instanceof DBObject object) {
             this.parent = object.ref();
 
         } else if (parent instanceof DBObjectRef) {
@@ -144,8 +153,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         } else if (parent instanceof ConnectionId) {
             this.parent =  parent;
 
-        } else if (parent instanceof DatabaseContext) {
-            DatabaseContext databaseContext = (DatabaseContext) parent;
+        } else if (parent instanceof DatabaseContext databaseContext) {
             this.parent = databaseContext.getConnectionId();
         } else {
             throw new IllegalArgumentException(parent + " is not supported as parent of database object");
@@ -370,8 +378,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
             return (ConnectionId) parent;
         }
 
-        if (parent instanceof DBObjectRef)  {
-            DBObjectRef parentRef = (DBObjectRef) parent;
+        if (parent instanceof DBObjectRef parentRef)  {
             return parentRef.getConnectionId();
         }
 
@@ -521,10 +528,9 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
 
     @Nullable
     private DBObject unpackSynonym(DBObject object) {
-        if (object instanceof DBSynonym) {
+        if (object instanceof DBSynonym synonym) {
             if (objectType == SYNONYM) return object;
 
-            DBSynonym synonym = (DBSynonym) object;
             object = synonym.getUnderlyingObject();
             if (object == null) return null;
             if (!object.matches(objectType)) return null;
@@ -581,34 +587,15 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     }
 
     private static boolean deepEqual(DBObjectRef local, DBObjectRef remote) {
-        if (local == null && remote == null) {
-            return true;
-        }
+        if (local == null && remote == null) return true;
+        if (local == null || remote == null) return false;
+        if (local == remote) return true;
 
-        if (local == null || remote == null) {
-            return false;
-        }
+        if (local.getConnectionId() != remote.getConnectionId()) return false;
+        if (local.getObjectType() != remote.getObjectType()) return false;
+        if (local.getOverload() != remote.getOverload()) return false;
 
-        if (local == remote) {
-            return true;
-        }
-
-        if (local.getObjectType() != remote.getObjectType()) {
-            return false;
-        }
-
-        if (local.getOverload() != remote.getOverload()) {
-            return false;
-        }
-
-        if (local.getConnectionId() != remote.getConnectionId()) {
-            return false;
-        }
-
-        if (!Objects.equals(local.getObjectName(), remote.getObjectName())) {
-            return false;
-        }
-
+        if (!Objects.equals(local.getObjectName(), remote.getObjectName())) return false;
         return deepEqual(local.getParentRef(), remote.getParentRef());
     }
 

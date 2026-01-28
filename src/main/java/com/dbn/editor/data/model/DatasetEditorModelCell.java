@@ -112,8 +112,7 @@ public class DatasetEditorModelCell
             if (isValueAdapter) {
                 ValueAdapter<?> valueAdapter = ValueAdapter.create(genericDataType);
                 if (valueAdapter != null) {
-                    if (newUserValue instanceof ValueAdapter) {
-                        ValueAdapter<?> newValueAdapter = (ValueAdapter<?>) newUserValue;
+                    if (newUserValue instanceof ValueAdapter<?> newValueAdapter) {
                         newUserValue = newValueAdapter.read();
                     }
                     resultSetAdapter.setValue(columnIndex, valueAdapter, newUserValue);
@@ -179,8 +178,7 @@ public class DatasetEditorModelCell
 
     private boolean userValueChanged(Object newUserValue) {
         Object userValue = getUserValue();
-        if (userValue instanceof ValueAdapter) {
-            ValueAdapter<?> valueAdapter = (ValueAdapter<?>) userValue;
+        if (userValue instanceof ValueAdapter<?> valueAdapter) {
             try {
                 return !Commons.match(valueAdapter.read(), newUserValue);
             } catch (SQLException e) {

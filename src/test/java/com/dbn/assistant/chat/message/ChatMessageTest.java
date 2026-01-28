@@ -17,7 +17,6 @@
 package com.dbn.assistant.chat.message;
 
 import com.dbn.assistant.chat.context.ChatContextImpl;
-import com.dbn.common.message.MessageType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,6 +25,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+
+import static com.dbn.assistant.AssistantType.PUBLIC;
+import static com.dbn.assistant.chat.message.AuthorType.AGENT;
+import static com.dbn.common.message.MessageType.NEUTRAL;
 
 public class ChatMessageTest {
 
@@ -71,7 +74,8 @@ public class ChatMessageTest {
 
     private static List<ChatMessageSection> readMessageSections(String resource) throws IOException {
         String content = readResource(resource);
-        ChatMessage chatMessage = new ChatMessage(MessageType.NEUTRAL, content, AuthorType.AGENT, new ChatContextImpl());
+        ChatContextImpl chatContext = new ChatContextImpl(PUBLIC);
+        ChatMessage chatMessage = new ChatMessage(PUBLIC, NEUTRAL, content, AGENT, chatContext);
         return chatMessage.getSections();
     }
 

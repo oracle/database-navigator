@@ -47,8 +47,7 @@ public class Keyboard {
 
     public static boolean match(Shortcut[] shortcuts, AnActionEvent e) {
         InputEvent inputEvent = e.getInputEvent();
-        if (inputEvent instanceof KeyEvent) {
-            KeyEvent keyEvent = (KeyEvent) inputEvent;
+        if (inputEvent instanceof KeyEvent keyEvent) {
             return match(shortcuts, keyEvent);
         }
         return false;
@@ -56,8 +55,7 @@ public class Keyboard {
 
     public static boolean match(Shortcut[] shortcuts, KeyEvent e) {
         for (Shortcut shortcut : shortcuts) {
-            if (shortcut instanceof KeyboardShortcut) {
-                KeyboardShortcut keyboardShortcut = (KeyboardShortcut) shortcut;
+            if (shortcut instanceof KeyboardShortcut keyboardShortcut) {
                 KeyStroke shortkutKeyStroke = keyboardShortcut.getFirstKeyStroke();
                 KeyStroke eventKeyStroke = KeyStroke.getKeyStrokeForEvent(e);
                 if (shortkutKeyStroke.equals(eventKeyStroke)) {

@@ -190,8 +190,7 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
                         getArgumentValue(argument, typeAttribute);
 
         ValueHolder valueStore = argumentValue.getValueHolder();
-        if (valueStore instanceof ExecutionVariable) {
-            ExecutionVariable executionVariable = (ExecutionVariable) valueStore;
+        if (valueStore instanceof ExecutionVariable executionVariable) {
             return executionVariable.getValueHistory();
         }
         return Collections.emptyList();

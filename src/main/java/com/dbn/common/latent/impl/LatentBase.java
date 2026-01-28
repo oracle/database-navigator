@@ -20,9 +20,9 @@ import com.dbn.common.latent.Latent;
 import com.dbn.common.latent.Loader;
 
 abstract class LatentBase<T> implements Latent<T> {
-    private final Loader<T> loader;
-    private T value;
-    private boolean loaded;
+    private transient final Loader<T> loader;
+    private transient T value;
+    private transient boolean loaded;
 
     public LatentBase(Loader<T> loader) {
         this.loader = loader;

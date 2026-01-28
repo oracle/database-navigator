@@ -71,23 +71,21 @@ public class MessageBundleItemForm extends DBNFormBase {
     }
 
     private Icon getMessageIcon() {
-        switch (message.getType()) {
-            case INFO: return Icons.COMMON_INFO;
-            case WARNING: return Icons.COMMON_WARNING;
-            case ERROR: return Icons.COMMON_ERROR;
-            default: return null;
-        }
+        return switch (message.getType()) {
+            case INFO -> Icons.COMMON_INFO;
+            case WARNING -> Icons.COMMON_WARNING;
+            case ERROR -> Icons.COMMON_ERROR;
+            default -> null;
+        };
     }
 
     @Nullable
     private String getMessageTitle() {
-        if (message instanceof Titled) {
-            Titled titled = (Titled) message;
+        if (message instanceof Titled titled) {
             return titled.getTitle();
         }
 
-        if (message instanceof TaggedMessage) {
-            TaggedMessage taggedMessage = (TaggedMessage) message;
+        if (message instanceof TaggedMessage taggedMessage) {
             Object subject = taggedMessage.getSubject();
             return presentableName(subject);
         }

@@ -64,7 +64,7 @@ public class DataGridAuditColumnSettingsForm extends ConfigurationEditorForm<Dat
     @Override
     protected ActionListener createActionListener() {
         return e -> {
-            getConfiguration().setModified(true);
+            mackConfigModified();
             if (e.getSource() == visibleCheckBox) {
                 editableCheckBox.setEnabled(visibleCheckBox.isSelected());
             }

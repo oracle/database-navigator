@@ -126,8 +126,7 @@ public interface DynamicContent<T extends DynamicContentElement> extends
 
     default String getParentSchemaName() {
         DatabaseEntity entity = getParentEntity();
-        if (entity instanceof DBObject) {
-            DBObject object = (DBObject) entity;
+        if (entity instanceof DBObject object) {
             DBSchema schema = object.getSchema();
             if (schema != null) return schema.getName();
         }
@@ -135,8 +134,7 @@ public interface DynamicContent<T extends DynamicContentElement> extends
     }
     default String getParentObjectName() {
         DatabaseEntity entity = getParentEntity();
-        if (entity instanceof DBObject) {
-            DBObject object = (DBObject) entity;
+        if (entity instanceof DBObject object) {
             return object.getName();
         }
         return null;

@@ -150,8 +150,7 @@ public final class PsiResolveResult extends PropertyHolderBase.IntStore<PsiResol
         if (parent != null) {
             if (!parent.isValid()) {
                 return true;
-            } else if (referencedElement instanceof DBObjectPsiElement) {
-                DBObjectPsiElement objectPsiElement = (DBObjectPsiElement) referencedElement;
+            } else if (referencedElement instanceof DBObjectPsiElement objectPsiElement) {
                 if (!objectPsiElement.isValid()) {
                     return true;
                 }
@@ -225,17 +224,14 @@ public final class PsiResolveResult extends PropertyHolderBase.IntStore<PsiResol
 
         try {
             PsiElement referencedElement = getReference();
-            if (referencedElement instanceof DBObjectPsiElement) {
-                DBObjectPsiElement objectPsiElement = (DBObjectPsiElement) referencedElement;
+            if (referencedElement instanceof DBObjectPsiElement objectPsiElement) {
                 return objectPsiElement.getObjectType();
             }
-            if (referencedElement instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) referencedElement;
+            if (referencedElement instanceof IdentifierPsiElement identifierPsiElement) {
                 return identifierPsiElement.getObjectType();
             }
 
-            if (referencedElement instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) referencedElement;
+            if (referencedElement instanceof BasePsiElement basePsiElement) {
                 DBObject object = basePsiElement.getUnderlyingObject();
                 if (object != null) {
                     return object.getObjectType();
@@ -291,8 +287,7 @@ public final class PsiResolveResult extends PropertyHolderBase.IntStore<PsiResol
 
     private ConnectionId getReferenceConnectionId() {
         PsiElement reference = getReference();
-        if (reference instanceof DatabaseContext) {
-            DatabaseContext context = (DatabaseContext) reference;
+        if (reference instanceof DatabaseContext context) {
             return context.getConnectionId();
         }
         return null;
@@ -300,8 +295,7 @@ public final class PsiResolveResult extends PropertyHolderBase.IntStore<PsiResol
 
     private SchemaId getReferenceSchemaId() {
         PsiElement reference = getReference();
-        if (reference instanceof DatabaseContext) {
-            DatabaseContext context = (DatabaseContext) reference;
+        if (reference instanceof DatabaseContext context) {
             return context.getSchemaId();
         }
         return null;

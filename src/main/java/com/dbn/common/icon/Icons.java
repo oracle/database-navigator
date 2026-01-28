@@ -112,6 +112,11 @@ public class Icons {
     public static final Icon ACTION_DISCONNECT_SESSION        = load("/img/action/DisconnectSession.png");
     public static final Icon ACTION_KILL_SESSION              = load("/img/action/KillSession.png");
     public static final Icon ACTION_TOGGLE_LOGGING            = load("/img/action/ToggleLogging.svg");
+    public static final Icon ACTION_CHECK_BOX                 = load("/img/action/CheckBox.svg");
+    public static final Icon ACTION_CHECK_BOX_SELECTED        = load("/img/action/CheckBoxSelected.svg");
+    public static final Icon ACTION_TOOL_PROMPTED             = load("/img/action/ToolPrompted.svg");
+    public static final Icon ACTION_TOOL_APPROVED             = load("/img/action/ToolApproved.svg");
+
 
     public static final Icon ACTION_LAYOUT_DATA               = load("/img/action/LayoutDataOnly.svg");
     public static final Icon ACTION_LAYOUT_DATA_CONTENT       = load("/img/action/LayoutDataAndContent.svg");
@@ -125,6 +130,9 @@ public class Icons {
 
     public static final Icon SQL_CONSOLE = load("/img/tools/SQLConsole.svg");
     public static final Icon SESSION_BROWSER = load("/img/tools/SessionBrowser.svg");
+    public static final Icon VECTOR_TOOLBOX = load("/img/tools/VectorToolbox.svg");
+    public static final Icon ASSISTANT_TOOL = load("/img/tools/AssistantTool.svg");
+    public static final Icon ASSISTANT_QUESTION = load("/img/tools/AssistantQuestion.svg");
 
     public static final Icon FILE_SQL_CONSOLE = load("/img/file/SQLConsoleFile.svg");
     public static final Icon FILE_SQL_DEBUG_CONSOLE = load("/img/file/SQLDebugConsole.svg");
@@ -147,7 +155,7 @@ public class Icons {
     public static final Icon METHOD_EXECUTION_DEBUG   = ACTION_DEBUG;
     public static final Icon METHOD_EXECUTION_RERUN   = ACTION_RERUN;
     public static final Icon METHOD_EXECUTION_STOP    = ACTION_STOP;
-    public static final Icon METHOD_EXECUTION_DIALOG  = load("/img/ExecuteMethodDialog.png");
+    public static final Icon METHOD_EXECUTION_DIALOG  = load("/img/action/InputFormRerun.png");
     public static final Icon METHOD_EXECUTION_HISTORY = load("/img/MethodExecutionHistory.png");
     public static final Icon METHOD_CALL              = load("/img/MethodCall.png", "METHOD_CALL");
     public static final Icon SQL_STATEMENT            = load("/img/SQLStatement.png", "SQL_STATEMENT");
@@ -176,7 +184,8 @@ public class Icons {
     public static final Icon STMT_EXEC_RESULTSET_RERUN  = load("/img/ExecutionResultSetRerun.png");
     public static final Icon STMT_EXEC_RESULTSET_ORPHAN = load("/img/ExecutionResultSetOrphan.png");
 
-    public static final Icon EXEC_RESULT_OPEN_EXEC_DIALOG   = load("/img/ExecuteMethodDialog.png");
+    public static final Icon EXEC_RESULT_INPUT_FORM         = load("/img/action/InputForm.svg");
+    public static final Icon EXEC_RESULT_INPUT_FORM_RERUN   = load("/img/action/InputFormRerun.png");
     public static final Icon EXEC_RESULT_RERUN              = ACTION_RERUN;
     public static final Icon EXEC_RESULT_RESUME             = ACTION_RESUME;
     public static final Icon EXEC_RESULT_STOP               = ACTION_STOP;
@@ -364,10 +373,13 @@ public class Icons {
 //    public static final Icon DBO_ARGUMENT_IN_OUT     = createRowIcon(DBO_ARGUMENT, COMMON_DIRECTION_IN_OUT);
 
 
-    public static final Icon DBO_AI_PROFILE                      = load("/img/object/profile/AIProfile.png");
-    public static final Icon DBO_AI_PROFILE_CONVERSATION         = load("/img/object/profile/AIProfileConversation.png");
-    public static final Icon DBO_AI_PROFILE_DISABLED             = load("/img/object/profile/AIProfileDisabled.png");
-    public static final Icon DBO_AI_PROFILES                     = load("/img/object/profile/AIProfiles.png");
+
+    public static final Icon DBO_AI_MODEL                        = load("/img/object/model/AIModel.svg");
+    public static final Icon DBO_AI_MODELS                       = load("/img/object/model/AIModels.svg");
+    public static final Icon DBO_AI_PROFILE                      = load("/img/object/profile/AIProfile.svg");
+    public static final Icon DBO_AI_PROFILE_CONVERSATION         = load("/img/object/profile/AIProfileConversation.svg");
+    public static final Icon DBO_AI_PROFILE_DISABLED             = load("/img/object/profile/AIProfileDisabled.svg");
+    public static final Icon DBO_AI_PROFILES                     = load("/img/object/profile/AIProfiles.svg");
     public static final Icon DBO_ATTRIBUTE                       = load("/img/object/Attribute.png");
     public static final Icon DBO_ATTRIBUTES                      = load("/img/object/Attributes.png");
     public static final Icon DBO_ARGUMENT                        = load("/img/object/Argument.png");
@@ -513,8 +525,7 @@ public class Icons {
     }
 
     public static Icon scaleToWidth(Icon icon, float newWidth) {
-        if (icon instanceof ScalableIcon) {
-            ScalableIcon scalableIcon = (ScalableIcon) icon;
+        if (icon instanceof ScalableIcon scalableIcon) {
 
             int iconWidth = scalableIcon.getIconWidth();
             if (newWidth != iconWidth) {

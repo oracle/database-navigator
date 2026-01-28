@@ -69,8 +69,7 @@ class ArgumentValuesTree extends DBNTree{
             if (treeNode == null) return;
 
             Object userValue = treeNode.getUserValue();
-            if (userValue instanceof ArgumentValue) {
-                ArgumentValue argumentValue = (ArgumentValue) userValue;
+            if (userValue instanceof ArgumentValue argumentValue) {
                 DBArgument argument = argumentValue.getArgument();
                 if (argument == null || !argument.isOutput()) return;
 
@@ -87,8 +86,7 @@ class ArgumentValuesTree extends DBNTree{
         public void customizeCellRenderer(@NotNull DBNTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             ArgumentValuesTreeNode treeNode = (ArgumentValuesTreeNode) value;
             Object userValue = treeNode.getUserValue();
-            if (userValue instanceof DBMethod) {
-                DBMethod method = (DBMethod) userValue;
+            if (userValue instanceof DBMethod method) {
                 setIcon(method.getIcon());
                 append(method.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
@@ -106,8 +104,7 @@ class ArgumentValuesTree extends DBNTree{
                 append(argumentRef.getObjectName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
 
-            if (userValue instanceof ArgumentValue) {
-                ArgumentValue argumentValue = (ArgumentValue) userValue;
+            if (userValue instanceof ArgumentValue argumentValue) {
                 DBArgument argument = argumentValue.getArgument();
                 DBTypeAttribute attribute = argumentValue.getAttribute();
                 Object originalValue = argumentValue.getValue();

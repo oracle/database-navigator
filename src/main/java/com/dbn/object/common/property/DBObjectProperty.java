@@ -85,6 +85,7 @@ public enum DBObjectProperty implements Property.LongBase {
     // these belong to DBObjectStatus (here for optimization reasons)
     TREE_LOADED,
     LISTS_LOADED,
+    REFRESHING,
     DISPOSED,
     ;
 

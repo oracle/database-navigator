@@ -26,6 +26,7 @@ import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.Configuration;
 import com.dbn.common.options.ProjectConfiguration;
 import com.dbn.common.util.Cloneable;
+import com.dbn.common.util.Commons;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.data.grid.options.DataGridSettings;
@@ -33,6 +34,7 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.execution.common.options.ExecutionEngineSettings;
+import com.dbn.help.HelpTopic;
 import com.dbn.navigation.options.NavigationSettings;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.dbn.options.ui.ProjectSettingsForm;
@@ -53,6 +55,7 @@ import javax.swing.JPanel;
 
 import static com.dbn.common.options.ConfigActivity.APPLYING;
 import static com.dbn.common.options.ConfigActivity.CLONING;
+import static com.dbn.help.HelpTopic.INTRODUCTION;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)
@@ -89,13 +92,14 @@ public class ProjectSettings
     }
 
     @Override
-    public String getHelpTopic() {
+    public HelpTopic getConfigHelpTopic() {
         ProjectSettingsForm settingsEditor = getSettingsEditor();
         if (settingsEditor == null) {
-            return super.getHelpTopic();
+            return INTRODUCTION;
         } else {
             Configuration selectedConfiguration = settingsEditor.getActiveConfiguration();
-            return selectedConfiguration.getHelpTopic();
+            HelpTopic helpTopic = selectedConfiguration.getConfigHelpTopic();
+            return Commons.nvl(helpTopic, INTRODUCTION);
         }
     }
 

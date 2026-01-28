@@ -130,8 +130,7 @@ public class Actions {
     @Compatibility
     public static List<AnAction> getActions(ActionToolbar actionToolbar) {
         ActionGroup actionGroup = actionToolbar.getActionGroup();
-        if (actionGroup instanceof DefaultActionGroup) {
-            DefaultActionGroup defaultActionGroup = (DefaultActionGroup) actionGroup;
+        if (actionGroup instanceof DefaultActionGroup defaultActionGroup) {
             AnAction[] actions = defaultActionGroup.getChildActionsOrStubs();
             return Arrays
                     .stream(actions)

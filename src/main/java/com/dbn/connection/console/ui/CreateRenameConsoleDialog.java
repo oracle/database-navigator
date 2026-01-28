@@ -36,7 +36,6 @@ public class CreateRenameConsoleDialog extends DBNDialog<CreateRenameConsoleForm
         this.connection = connection.ref();
         this.consoleType = consoleType;
         setModal(true);
-        renameAction(getOKAction(), "Create");
         init();
     }
 
@@ -45,7 +44,6 @@ public class CreateRenameConsoleDialog extends DBNDialog<CreateRenameConsoleForm
         this.connection = connection.ref();
         this.console = console;
         setModal(true);
-        renameAction(getOKAction(), "Rename");
         init();
     }
 
@@ -60,11 +58,11 @@ public class CreateRenameConsoleDialog extends DBNDialog<CreateRenameConsoleForm
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
-            getOKAction(),
-            getCancelAction()
-        };
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), console == null ? "Create" : "Rename");
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 
     @Override

@@ -18,8 +18,8 @@ package com.dbn.object.filter.custom.ui;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.util.Actions;
 import com.dbn.language.sql.SQLFileType;
 import com.dbn.object.filter.custom.ObjectFilter;
@@ -46,13 +46,12 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.intellij.openapi.fileTypes.SyntaxHighlighterFactory.getSyntaxHighlighter;
 
-public class ObjectFilterExpressionForm extends DBNFormBase implements ComponentAligner.Form {
+public class ObjectFilterExpressionForm extends DBNFormBase {
     private JPanel mainPanel;
     private JLabel objectTypeLabel;
     private JPanel actionsPanel;
@@ -131,8 +130,9 @@ public class ObjectFilterExpressionForm extends DBNFormBase implements Component
     }
 
     @Override
-    public Component[] getAlignableComponents() {
-        return new Component[] {objectTypeLabel};
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerFieldGroup(objectTypeLabel);
     }
 
     @NotNull

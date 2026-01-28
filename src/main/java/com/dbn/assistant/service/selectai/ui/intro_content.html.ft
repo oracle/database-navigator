@@ -15,31 +15,39 @@
   -->
 
 <html lang="en">
-<head><title>DB Assistant</title></head>
-<body style="${REGULAR_FONT_STYLE}">
+<head>
+    <title>DB Assistant - Oracle Select AI</title>
+    <style>
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+    </style>
+</head>
+<body>
 <div style="${REGULAR_LARGE_FONT_STYLE}">
     <b>Oracle Autonomous Database Select AI</b><br>
 </div>
-Use natural language to analyze your data and get quick insights about your business
+Transform how you interact with your data!<br>
+Oracle Select AI enables you to use natural language to query your Autonomous Database, generating SQL queries automatically to deliver fast and accurate insights about your business. <br>
+Powered by advanced AI models, this feature simplifies data analysis for users of all skill levels, from business analysts to developers.
 
 <br>
 <br>
 <br>
-<u>Before you begin</u><br>
-(unless already provisioned by your company)<br><br>
-You may need to:
+<u>Before You Begin</u><br>
+(unless already provisioned by your organization)<br><br>
+To use Select AI, ensure the following:
 <ul>
-    <li>Request privileges to execute DBMS_CLOUD and DBMS_CLOUD_AI packages</li>
-    <li>Grant network access to the external AI provider</li>
-    <li>Provide API credentials for one of the supported AI Providers (OpenAI, Cohere or OCI)</li>
-    <li>Configure AI profiles exposing certain parts of your data model</li>
+    <li><b>Database Privileges</b> - Obtain execute privileges for the <code>DBMS_CLOUD</code> and <code>DBMS_CLOUD_AI</code> packages to enable AI-driven query generation.</li>
+    <li><b>Network Access</b> - Configure network ACLs to allow connectivity to the selected AI provider’s endpoint.</li>
+    <li><b>AI Provider Credentials</b> - Provide valid API credentials for a supported AI provider (OpenAI, Cohere, or Oracle Cloud Infrastructure Generative AI).</li>
+    <li><b>AI Profiles</b> - Set up AI profiles to define which schemas, tables, or views are accessible for natural language queries, ensuring secure and controlled data access.</li>
 </ul>
-(see "Help" for more details)
+Refer to the <a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/select-ai.html">Oracle Select AI Documentation</a> for detailed setup instructions.
 
 <br>
 <br>
 <br>
-NOTE<br>
-This is an early EXPERIMENTAL feature. Please use with caution and report the issues you encounter to the DBN plugin developers.
+<b>NOTE</b><br>
+Oracle Select AI is an experimental feature in preview. Results may vary based on query complexity or data model. Please validate outputs and report any issues to the DBN plugin development team for continuous improvement.
 </body>
 </html>

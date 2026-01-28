@@ -16,6 +16,13 @@
 
 package com.dbn.assistant.service.generic.model;
 
+import com.dbn.assistant.AssistantType;
+import com.dbn.assistant.credential.AssistantCredential;
+import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.provider.AIProviderData;
+import com.dbn.assistant.provider.AIProviderId;
+import com.dbn.assistant.provider.ProviderUrlType;
+import com.dbn.common.util.Chars;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -23,46 +30,61 @@ import java.util.Map;
 
 @Data
 public class AssistantModelInput {
-    private final String model;
-    private String url;
-    private String user;
-    private String token;
+    private final AIProviderId baseProviderId;
+    private final AIProviderId providerId;
+    private final String modelName;
+    private String baseUrl;
     private Double temperature;
+    private AssistantCredential credential;
     private Map<String, String> headers = new HashMap<>();
+    private Map<Attribute, String> attributes = new HashMap<>();
 
-    private AssistantModelInput(String model) {
-        this.model = model;
+    private AssistantModelInput(AIProviderId baseProviderId, AIProviderId providerId, String modelName) {
+        this.baseProviderId = baseProviderId;
+        this.providerId = providerId;
+        this.modelName = modelName;
     }
 
-    public AssistantModelInput withUrl(String url) {
-        this.url = url;
-        return this;
+    public String getTokenString() {
+        char[] secret = credential.getSecret();
+        return Chars.toString(secret);
     }
 
-    public AssistantModelInput withUser(String user) {
-        this.user = user;
-        return this;
+    public static AssistantModelInput create(AIProviderId baseProviderId, AIProviderId providerId, String model) {
+        return new AssistantModelInput(baseProviderId, providerId, model);
     }
 
-    public AssistantModelInput withToken(String token) {
-        this.token = token;
-        return this;
+    public String getAttribute(Attribute attribute) {
+        return attributes.get(attribute);
     }
 
-    public AssistantModelInput withTemperature(Double temperature) {
-        this.temperature = temperature;
-        return this;
+    public String getUser() {
+        return credential.getUser();
     }
 
-    public AssistantModelInput withHeader(String key, String value) {
-        this.headers.put(key, value);
-        return this;
+    public String getBaseUrl() {
+        if (baseUrl != null) return baseUrl;
+
+        if (providerId == AIProviderId.X_AI || providerId == AIProviderId.HUGGING_FACE) {
+            // TODO both xai and hugging face providers use OPENAI api specifications (same langchain4j libraries)
+            //  (shall we always source urls from the stale ai-providers.xml file?)
+
+
+            AIProvider provider = AIProviderData.getProvider(AssistantType.PUBLIC, providerId);
+            if (provider == null) return null;
+
+            return provider.getUrl(ProviderUrlType.API);
+        }
+        return null;
     }
 
-    public static AssistantModelInput create(String model) {
-        return new AssistantModelInput(model);
+    public String getRegionId() {
+        // TODO region specific OCI hosted models
+        return "us-chicago-1";
     }
 
-
+    public enum Attribute{
+        COMPARTMENT_ID
+    }
 
 }

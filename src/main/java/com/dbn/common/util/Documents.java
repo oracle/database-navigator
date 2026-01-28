@@ -70,9 +70,8 @@ public class Documents {
         if (!isValid(project)) return;
 
         PsiFile file = Documents.getFile(editor);
-        if (!(file instanceof DBLanguagePsiFile)) return;
+        if (!(file instanceof DBLanguagePsiFile dbLanguageFile)) return;
 
-        DBLanguagePsiFile dbLanguageFile = (DBLanguagePsiFile) file;
         DBLanguage dbLanguage = dbLanguageFile.getDBLanguage();
         if (dbLanguage != null) {
             ConnectionHandler connection = dbLanguageFile.getConnection();
@@ -151,8 +150,7 @@ public class Documents {
 
     @Nullable
     public static VirtualFile getVirtualFile(Editor editor) {
-        if (editor instanceof EditorEx) {
-            EditorEx editorEx = (EditorEx) editor;
+        if (editor instanceof EditorEx editorEx) {
             VirtualFile virtualFile = editorEx.getVirtualFile();
             if (virtualFile != null) return virtualFile;
         }

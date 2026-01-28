@@ -109,8 +109,7 @@ public abstract class MessagesTreeBundleNode<P extends MessagesTreeNode, C exten
     @Override
     public boolean hasMessageChildren(MessageType type) {
         for (C child : children) {
-            if (child instanceof MessagesTreeLeafNode) {
-                MessagesTreeLeafNode messageTreeNode = (MessagesTreeLeafNode) child;
+            if (child instanceof MessagesTreeLeafNode messageTreeNode) {
                 if (messageTreeNode.getMessage().getType() == type) {
                     return true;
                 }

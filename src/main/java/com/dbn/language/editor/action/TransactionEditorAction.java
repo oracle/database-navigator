@@ -57,8 +57,7 @@ public abstract class TransactionEditorAction extends ProjectAction {
 
                 if (!connection.isAutoCommit()) {
                     visible = true;
-                    if (virtualFile instanceof DBEditableObjectVirtualFile) {
-                        DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) virtualFile;
+                    if (virtualFile instanceof DBEditableObjectVirtualFile databaseFile) {
                         DBSchemaObject object = databaseFile.getObject();
                         if (object instanceof DBTable) {
                             EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);

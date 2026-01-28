@@ -51,7 +51,7 @@ import java.awt.Point;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Popups.popupBuilder;
-import static com.dbn.common.util.Naming.capitalizeWords;
+import static com.dbn.common.util.Titles.titleCased;
 import static com.dbn.nls.NlsResources.txt;
 
 @Getter
@@ -81,7 +81,7 @@ public abstract class ObjectListShowAction extends BasicAction {
         DBObject sourceObject = getSourceObject();
         Project project = sourceObject.getProject();
         String listName = getListName();
-        String title = txt("msg.objects.title.LoadingObjects", capitalizeWords(listName));
+        String title = txt("msg.objects.title.LoadingObjects", titleCased(listName));
         ConnectionAction.invoke(title, true, sourceObject,
                 action -> Progress.prompt(project, sourceObject, true,
                         txt("prc.objects.title.LoadingObjects"),

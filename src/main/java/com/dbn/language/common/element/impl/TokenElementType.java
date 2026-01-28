@@ -97,16 +97,14 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     @Override
     public Set<LeafElementType> getNextPossibleLeafs(LanguageNode pathNode, @NotNull ElementLookupContext context) {
         if (isIterationSeparator()) {
-            if (parent instanceof IterationElementType) {
-                IterationElementType iterationElementType = (IterationElementType) parent;
+            if (parent instanceof IterationElementType iterationElementType) {
                 ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElementType.cache;
                 return lookupCache.captureFirstPossibleLeafs(context.reset());
             } else if (parent instanceof QualifiedIdentifierElementType){
                 return super.getNextPossibleLeafs(pathNode, context);
             }
         }
-        if (parent instanceof WrapperElementType) {
-            WrapperElementType wrapperElementType = (WrapperElementType) parent;
+        if (parent instanceof WrapperElementType wrapperElementType) {
             if (this.equals(wrapperElementType.getBeginTokenElement())) {
                 ElementTypeLookupCache<?> lookupCache = wrapperElementType.wrappedElement.cache;
                 return lookupCache.captureFirstPossibleLeafs(context.reset());
@@ -119,8 +117,7 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     @Override
     public Set<LeafElementType> getNextRequiredLeafs(LanguageNode pathNode, ParserContext context) {
         if (isIterationSeparator()) {
-            if (parent instanceof IterationElementType) {
-                IterationElementType iterationElementType = (IterationElementType) parent;
+            if (parent instanceof IterationElementType iterationElementType) {
                 return iterationElementType.iteratedElementType.cache.getFirstRequiredLeafs();
             } else if (parent instanceof QualifiedIdentifierElementType){
                 return super.getNextRequiredLeafs(pathNode, context);
@@ -145,8 +142,7 @@ public final class TokenElementType extends LeafElementType implements LookupIte
 
     @Override
     public boolean isSameAs(LeafElementType elementType) {
-        if (elementType instanceof TokenElementType) {
-            TokenElementType token = (TokenElementType) elementType;
+        if (elementType instanceof TokenElementType token) {
             return token.tokenType == tokenType;
         }
         return false;

@@ -92,9 +92,8 @@ public class DDLMappedNotificationProvider extends EditorNotificationProvider<DD
             private void updateDdlFileHeaders(Project project, VirtualFile file) {
                 if (isNotValid(project)) return;
                 if (isNotValid(file)) return;
-                if (!(file instanceof DBEditableObjectVirtualFile)) return;
+                if (!(file instanceof DBEditableObjectVirtualFile editableObjectFile)) return;
 
-                DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) file;
                 DBObjectRef<DBSchemaObject> object = editableObjectFile.getObjectRef();
                 DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
                 List<VirtualFile> attachedDDLFiles = attachmentManager.getAttachedDDLFiles(object);
@@ -128,10 +127,9 @@ public class DDLMappedNotificationProvider extends EditorNotificationProvider<DD
         DDLFileGeneralSettings generalSettings = fileSettings.getGeneralSettings();
         if (!generalSettings.isDdlFilesSynchronizationEnabled()) return null;
 
-        if (file instanceof DBEditableObjectVirtualFile) {
+        if (file instanceof DBEditableObjectVirtualFile editableObjectFile) {
             if (!isDdlFileEditor(fileEditor)) return null;
 
-            DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) file;
             DBSchemaObject object = editableObjectFile.getObject();
             DDLFileEditor ddlFileEditor = (DDLFileEditor) fileEditor;
             VirtualFile ddlFile = Failsafe.nn(ddlFileEditor.getVirtualFile());

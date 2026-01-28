@@ -58,7 +58,7 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
     private static final DynamicContentTypeIndex<DBObjectType, DBObjectType> OBJECT_INDEX = new DynamicContentTypeIndex<>(DBObjectType.class);
     private static final DynamicContentTypeIndex<DBObjectType, DBObjectRelationType> RELATION_INDEX = new DynamicContentTypeIndex<>(DBObjectType.class);
 
-    private static final DBObjectList<?>[] DISPOSED_OBJECTS = new DBObjectList[0];
+    private static final DBObjectList<?>[] DISPOSED_OBJECTS = DBObjectList.EMPTY_ARRAY;
     private static final DBObjectRelationList[] DISPOSED_RELATIONS = new DBObjectRelationList[0];
 
     private DatabaseEntity owner;
@@ -97,8 +97,7 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
 
     private DBObjectType getOwnerType() {
         DatabaseEntity owner = getOwner();
-        if (owner instanceof DBObject) {
-            DBObject object = (DBObject) owner;
+        if (owner instanceof DBObject object) {
             return object.getObjectType();
         } else if (owner instanceof DBObjectBundle) {
             return DBObjectType.BUNDLE;
@@ -138,14 +137,14 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
             return cast(objectList.getObject(name, overload));
         }
 
-        switch (direction) {
-            case UP:   return findInheritedObject(objectType, name, overload);
-            case DOWN: return findInheritingObject(objectType, name, overload);
-            case ANY:  return Commons.coalesce(
-                        () -> findInheritedObject(objectType, name, overload),
-                        () -> findInheritingObject(objectType, name, overload));
-        }
-        return null;
+        return switch (direction) {
+            case UP -> findInheritedObject(objectType, name, overload);
+            case DOWN -> findInheritingObject(objectType, name, overload);
+            case ANY -> Commons.coalesce(
+                    () -> findInheritedObject(objectType, name, overload),
+                    () -> findInheritingObject(objectType, name, overload));
+            default -> null;
+        };
     }
 
     @Nullable
@@ -153,14 +152,14 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
         DBObjectList<T> objectList = getObjectList(objectType);
         if (isValid(objectList)) return objectList;
 
-        switch (direction) {
-            case UP:   return findInheritedObjectList(objectType);
-            case DOWN: return findInheritingObjectList(objectType);
-            case ANY:  return Commons.coalesce(
+        return switch (direction) {
+            case UP -> findInheritedObjectList(objectType);
+            case DOWN -> findInheritingObjectList(objectType);
+            case ANY -> Commons.coalesce(
                     () -> findInheritedObjectList(objectType),
                     () -> findInheritingObjectList(objectType));
-        }
-        return null;
+            default -> null;
+        };
     }
 
     @Nullable
@@ -458,13 +457,11 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
     }
 
     public DynamicContent getDynamicContent(DynamicContentType contentType) {
-        if(contentType instanceof DBObjectType) {
-            DBObjectType objectType = (DBObjectType) contentType;
+        if(contentType instanceof DBObjectType objectType) {
             return getObjectList(objectType);
         }
 
-        else if (contentType instanceof DBObjectRelationType) {
-            DBObjectRelationType objectRelationType = (DBObjectRelationType) contentType;
+        else if (contentType instanceof DBObjectRelationType objectRelationType) {
             return getRelations(objectRelationType);
         }
 

@@ -123,14 +123,14 @@ public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventL
         List<Prerequisite> prerequisites = prerequisiteGroup.getPrerequisites();
         for (Prerequisite prerequisite : prerequisites) {
             PrerequisiteDetailForm detailForm = new PrerequisiteDetailForm(this, prerequisite);
-            detailsPanel.add(detailForm.getMainComponent());
+            detailsPanel.add(detailForm.getComponent());
         }
     }
 
     private void initHeaderPanel() {
         ConnectionHandler connection = prerequisiteGroup.getConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
-        headerPanel.add(headerForm.getMainComponent());
+        headerPanel.add(headerForm.getComponent());
     }
 
     private void initMessagePanel() {

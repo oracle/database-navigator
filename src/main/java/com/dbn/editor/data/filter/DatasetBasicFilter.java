@@ -44,7 +44,7 @@ public class DatasetBasicFilter extends DatasetFilterImpl {
     private ConditionJoinType joinType = ConditionJoinType.AND;
 
 
-    DatasetBasicFilter(DatasetFilterGroup parent, String name) {
+    public DatasetBasicFilter(DatasetFilterGroup parent, String name) {
         super(parent, name, DatasetFilterType.BASIC);
     }
 
@@ -71,7 +71,7 @@ public class DatasetBasicFilter extends DatasetFilterImpl {
         }
     }
 
-    void addCondition(String columnName, Object value, ConditionOperator operator) {
+    public void addCondition(String columnName, Object value, ConditionOperator operator) {
         DatasetBasicFilterCondition condition = new DatasetBasicFilterCondition(this, columnName, value, operator, true);
         addCondition(condition);
     }

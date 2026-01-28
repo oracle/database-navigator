@@ -29,16 +29,15 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.object.type.DBObjectType.FUNCTION;
-import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
-import static com.dbn.object.type.DBObjectType.PROCEDURE;
+import static com.dbn.object.factory.ObjectFactoryAdapters.isSupported;
+import static com.dbn.object.factory.ObjectFactoryAdapters.isSuppressed;
 
 public class CreateObjectAction extends BasicAction {
 
     private final WeakRef<DBObjectList> objectList;
 
     CreateObjectAction(DBObjectList objectList) {
-        super(txt("app.objects.action.NewObject", objectList.getObjectType().getCapitalizedName()));
+        super(txt("app.objects.action.NewObject", objectList.getObjectType().getTitleCasedName()));
         this.objectList = WeakRef.of(objectList);
     }
 
@@ -60,12 +59,11 @@ public class CreateObjectAction extends BasicAction {
         DBObjectList objectList = getObjectList();
         DatabaseEntity parentElement = objectList.getParentEntity();
 
-        if (parentElement instanceof DBSchema) {
-            DBSchema schema = (DBSchema) parentElement;
+        if (parentElement instanceof DBSchema schema) {
             if (schema.isSystemSchema()) return false;
 
             DBObjectType objectType = objectList.getObjectType();
-            return objectType.isOneOf(FUNCTION, PROCEDURE, JAVA_CLASS);
+            return isSupported(objectType) && !isSuppressed(objectType);
         }
         return false;
     }

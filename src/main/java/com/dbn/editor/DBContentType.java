@@ -87,30 +87,30 @@ public enum DBContentType {
     }
 
     public static DBContentType get(DBObjectType objectType) {
-        switch (objectType) {
-            case FUNCTION:
-            case PROCEDURE:
-            case TRIGGER:
-            case DATASET_TRIGGER:
-            case DATABASE_TRIGGER:
-            case JAVA_RESOURCE:
-            case JAVA_CLASS: return CODE;
-            case PACKAGE:
-            case TYPE: return CODE_SPEC_AND_BODY;
-            case VIEW:
-            case JSON_VIEW:
-            case MATERIALIZED_VIEW: return CODE_AND_DATA;
-            case TABLE: return DATA;
-            default: return NONE;
-        }
+        return switch (objectType) {
+            case FUNCTION,
+                 PROCEDURE,
+                 TRIGGER,
+                 DATASET_TRIGGER,
+                 DATABASE_TRIGGER,
+                 JAVA_RESOURCE,
+                 JAVA_CLASS -> CODE;
+            case PACKAGE,
+                 TYPE -> CODE_SPEC_AND_BODY;
+            case VIEW,
+                 JSON_VIEW,
+                 MATERIALIZED_VIEW -> CODE_AND_DATA;
+            case TABLE -> DATA;
+            default -> NONE;
+        };
     }
 
     public boolean has(DBContentType contentType) {
-        switch (contentType) {
-            case DATA: return this == DATA || this == CODE_AND_DATA;
-            case JSON: return this == JSON || this == CODE_AND_JSON;
-            case CODE: return this == CODE || this == CODE_AND_DATA || this == CODE_SPEC_AND_BODY;
-            default:   return false;
-        }
+        return switch (contentType) {
+            case DATA -> this == DATA || this == CODE_AND_DATA;
+            case JSON -> this == JSON || this == CODE_AND_JSON;
+            case CODE -> this == CODE || this == CODE_AND_DATA || this == CODE_SPEC_AND_BODY;
+            default -> false;
+        };
     }
 }

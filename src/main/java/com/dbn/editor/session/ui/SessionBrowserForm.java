@@ -37,6 +37,7 @@ import com.dbn.editor.session.model.SessionBrowserModel;
 import com.dbn.editor.session.ui.table.SessionBrowserTable;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.util.text.DateFormatUtil;
 import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +52,7 @@ import java.awt.BorderLayout;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
+import static com.dbn.help.HelpTopic.SESSION_BROWSER;
 
 public class SessionBrowserForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;
@@ -193,8 +195,7 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
     @Override
     public String getSelectedText() {
         TableCellEditor cellEditor = getBrowserTable().getCellEditor();
-        if (cellEditor instanceof DatasetTableCellEditor) {
-            DatasetTableCellEditor tableCellEditor = (DatasetTableCellEditor) cellEditor;
+        if (cellEditor instanceof DatasetTableCellEditor tableCellEditor) {
             return tableCellEditor.getTextField().getSelectedText();
         }
         return null;
@@ -210,6 +211,7 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
     @Override
     public Object getData(@NotNull String dataId) {
         if (DataKeys.SESSION_BROWSER.is(dataId)) return getSessionBrowser();
+        if (PlatformCoreDataKeys.HELP_ID.is(dataId)) return SESSION_BROWSER.asHelpTopicId();
         return null;
     }
 
