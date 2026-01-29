@@ -389,4 +389,8 @@ public abstract class DBNFormBase
     private void enable(JComponent c) {
         enableFormField(c, "READONLY_FORM");
     }
+
+    public void setVisible(boolean visible) {
+        getMainComponent().setVisible(visible);
+    }
 }
