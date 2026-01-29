@@ -21,6 +21,8 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -227,6 +229,13 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
             return buffer.toString();
         }
         return content;
+    }
+
+
+    public static String removeHtmlTags(String content) {
+        if (content == null) return "";
+        content = Jsoup.clean(content, Safelist.none());
+        return content.replaceAll("\\s+", " ").trim();
     }
 
     public static @NotNull String trim(@Nullable String message) {
