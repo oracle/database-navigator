@@ -94,7 +94,7 @@ public class TextFields {
         if (textComponent == null) return true;
 
         String text = textComponent.getText();
-        return Strings.isNotEmptyOrSpaces(text);
+        return Strings.isEmptyOrSpaces(text);
     }
 
     public static void limitTextLength(JTextComponent textComponent, int maxLength) {

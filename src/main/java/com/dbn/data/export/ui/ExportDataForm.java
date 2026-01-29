@@ -268,23 +268,23 @@ public class ExportDataForm extends DBNFormBase {
         }
         if (beginQuoteTextField.isEnabled() || endQuoteTextField.isEnabled()) {
             if (!validOpenQuote || !validCloseQuote)  {
-                if (fields.length() > 0) fields.append(", ");
+                if (!fields.isEmpty()) fields.append(", ");
                 fields.append(txt("msg.dataExport.label.Quotes"));
             }
         }
         if (fileNameTextField.isEnabled()) {
             if (!validFileName)  {
-                if (fields.length() > 0) fields.append(", ");
+                if (!fields.isEmpty()) fields.append(", ");
                 fields.append(txt("msg.dataExport.label.FileName"));
             }
             if (!validFileLocation) {
-                if (fields.length() > 0) fields.append(", ");
+                if (!fields.isEmpty()) fields.append(", ");
                 fields.append(txt("msg.dataExport.label.FileLocation"));
             }
         }
 
         Project project = getProject();
-        if (fields.length() > 0) {
+        if (!fields.isEmpty()) {
             Messages.showErrorDialog(project,
                     txt("msg.dataExport.title.MissingInput"),
                     txt("msg.dataExport.error.MissingInput", fields.toString()));
