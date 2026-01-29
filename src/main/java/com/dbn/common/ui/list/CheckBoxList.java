@@ -17,9 +17,16 @@
 package com.dbn.common.ui.list;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
+import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.scale.JBUIScale;
 import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
@@ -28,11 +35,11 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
@@ -49,9 +56,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.dbn.common.ui.util.Accessibility.attachStateAnnouncer;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
+import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
+import static com.dbn.common.ui.util.Lists.modelIterable;
+import static com.dbn.common.ui.util.Lists.modelStream;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -59,6 +71,7 @@ import static com.dbn.nls.NlsResources.txt;
 @Setter
 public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry<T>> {
     private boolean mutable;
+    private Listeners<ActionListener> actionListeners = Listeners.create();
 
     public CheckBoxList() {
         setSelectionMode(mutable ?
@@ -72,26 +85,41 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
         UserInterface.enableSelectOnFocus(this);
     }
 
+    private Iterable<Entry<T>> entries() {
+        return modelIterable(getModel());
+    }
+
+    private Stream<Entry<T>> entryStream() {
+        return modelStream(getModel());
+    }
+
     public boolean hasSelection() {
-        ListModel<Entry<T>> model = getModel();
-        for (int i = 0; i< model.getSize(); i++) {
-            Entry<T> entry = model.getElementAt(i);
-            if (entry.getCheckBox().isSelected()){
-                return true;
-            }
-        }
-        return false;
+        return entryStream().anyMatch(e -> e.isSelected());
+    }
+
+    public boolean allSelected() {
+        return entryStream().allMatch(e -> e.isSelected());
+    }
+
+    public boolean noneSelected() {
+        return entryStream().noneMatch(e -> e.isSelected());
+    }
+
+    public JComponent withSelectorActions() {
+        ToolbarDecorator decorator = createToolbarDecorator(this);
+        decorator.setAddAction(null);
+        decorator.setRemoveAction(null);
+        decorator.setMoveUpAction(null);
+        decorator.setMoveDownAction(null);
+        decorator.addExtraAction(new SelectAllAction());
+        return createToolbarDecoratorComponent(decorator, this);
     }
 
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        ListModel<Entry<T>> model = getModel();
-        for (int i = 0; i< model.getSize(); i++) {
-            Entry<T> entry = model.getElementAt(i);
-            entry.checkBox.setEnabled(enabled && entry.isModifiable());
-        }
-        UserInterface.repaint(this);
+        entryStream().forEach(e -> e.setEnabled(enabled && e.isModifiable()));
+        repaint();
     }
 
     public void setElements(List<T> elements) {
@@ -136,8 +164,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
     }
 
     public boolean isSelected(T presentable) {
-        for (int i=0; i<getModel().getSize(); i++) {
-            Entry<T> entry = getModel().getElementAt(i);
+        for (Entry<T> entry : entries()) {
             if (entry.getSelectable().equals(presentable)) {
                 return entry.isSelected();
             }
@@ -146,12 +173,49 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
     }
 
     public void selectAll() {
-        for (int i=0; i<getModel().getSize(); i++) {
-            Entry<T> entry = getModel().getElementAt(i);
-            entry.checkBox.setSelected(true);
+        entryStream().forEach(e -> e.setSelected(true));
+        notifyListeners();
+        repaint();
+    }
+
+
+    public void selectNone() {
+        entryStream().forEach(e -> e.setSelected(false));
+        notifyListeners();
+        repaint();
+    }
+
+    private void notifyListeners() {
+        actionListeners.notify(e -> e.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "")));
+    }
+
+    private class SelectAllAction extends AnAction {
+        public SelectAllAction() {
+            super("Select All");
+            //getTemplatePresentation().putClientProperty(ActionUtil.SHOW_TEXT_IN_TOOLBAR, true);
         }
 
-        UserInterface.repaint(this);
+        @Override
+        @Compatibility
+        public boolean displayTextInToolbar() {
+            return true;
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            boolean checked = allSelected();
+            if (checked) selectNone(); else selectAll();
+        }
+
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            Presentation presentation = e.getPresentation();
+
+            boolean checked = allSelected();
+            presentation.setIcon(checked ?
+                    Icons.ACTION_CHECK_BOX_SELECTED :
+                    Icons.ACTION_CHECK_BOX);
+        }
     }
 
     private class CellRenderer implements ListCellRenderer<Entry<T>> {
@@ -173,9 +237,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
 
     public void sortElements(Comparator<T> comparator) {
         List<Entry<T>> entries = new ArrayList<>();
-        ListModel<Entry<T>> model = getModel();
-        for (int i=0; i<model.getSize(); i++) {
-            Entry<T> entry = model.getElementAt(i);
+        for (Entry<T> entry : entries()) {
             entries.add(entry);
         }
         if (comparator == null)
@@ -192,28 +254,20 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
         if (!isEnabled()) return false;
 
         boolean changed = false;
-        ListModel model = getModel();
-        for (int i=0; i<model.getSize(); i++) {
-            Entry entry = (Entry) model.getElementAt(i);
+        for (Entry<T> entry : entries()) {
             changed = entry.updatePresentable() || changed;
         }
         return changed;
     }
 
     public void addActionListener(ActionListener actionListener) {
-        DefaultListModel model = (DefaultListModel) getModel();
-        for (Object o : model.toArray()) {
-            Entry entry = (Entry) o;
-            entry.checkBox.addActionListener(actionListener);
-        }
+        actionListeners.add(actionListener);
+        entryStream().forEach(e -> e.getCheckBox().addActionListener(actionListener));
     }
 
     public void removeActionListener(ActionListener actionListener) {
-        DefaultListModel model = (DefaultListModel) getModel();
-        for (Object o : model.toArray()) {
-            Entry entry = (Entry) o;
-            entry.checkBox.removeActionListener(actionListener);
-        }
+        actionListeners.remove(actionListener);
+        entryStream().forEach(e -> e.getCheckBox().removeActionListener(actionListener));
     }
 
     public T getElementAt(int index) {
@@ -278,6 +332,10 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
 
         public boolean isSelected() {
             return checkBox.isSelected();
+        }
+
+        public void setSelected(boolean selected) {
+            checkBox.setSelected(selected);
         }
 
         private void switchSelection() {
