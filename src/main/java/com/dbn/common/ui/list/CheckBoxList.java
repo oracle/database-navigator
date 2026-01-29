@@ -23,9 +23,9 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.ui.AnActionButton;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.scale.JBUIScale;
 import com.intellij.util.ui.UIUtil;
@@ -189,7 +189,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
         actionListeners.notify(e -> e.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "")));
     }
 
-    private class SelectAllAction extends AnAction {
+    private class SelectAllAction extends AnActionButton {
         public SelectAllAction() {
             super("Select All");
             //getTemplatePresentation().putClientProperty(ActionUtil.SHOW_TEXT_IN_TOOLBAR, true);
@@ -208,7 +208,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
         }
 
         @Override
-        public void update(@NotNull AnActionEvent e) {
+        public void updateButton(@NotNull AnActionEvent e) {
             Presentation presentation = e.getPresentation();
 
             boolean checked = allSelected();
