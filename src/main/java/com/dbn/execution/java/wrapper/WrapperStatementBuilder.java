@@ -24,6 +24,8 @@ import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.FieldWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
 import com.dbn.execution.java.wrapper.model.ParameterWrapper;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaParameter;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -40,6 +42,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static com.dbn.common.util.Strings.indentText;
+import static java.util.Collections.emptyList;
 
 @Slf4j
 @NonNls
@@ -86,8 +91,8 @@ public final class WrapperStatementBuilder {
         return sqlTypes;
     }
 
-    private List<String> createSQLToJava(WrapperModel model) {
-        List<String> javaConverterMethods = new ArrayList<>();
+    private List<String> createSQLToJavaConverters(WrapperModel model) {
+        List<String> converterMethods = new ArrayList<>();
 
         for (ClassWrapper classWrapper : model.getClasses()) {
             // Skip RETURN attributes and duplicates based on SQL type name.
@@ -120,16 +125,14 @@ public final class WrapperStatementBuilder {
                 context.put("FIELD_ASSIGNMENTS", fieldAssignments);
                 code = generateCode("DBN - OJVM SQLObjectToJava.java", context);
             }
-            javaConverterMethods.add(code);
+            converterMethods.add(code);
         }
-        return javaConverterMethods;
+        return converterMethods;
     }
 
 
-    private List<String> createJavaToSQL(WrapperModel model) {
-        List<String> javaConverterMethods = new ArrayList<>();
-        if (model.getMethods().isEmpty()) return javaConverterMethods;
-
+    private List<String> createJavaToSQLConverters(WrapperModel model) {
+        List<String> converterMethods = new ArrayList<>();
         for (ClassWrapper classWrapper : model.getClasses()) {
             if (classWrapper.getArgumentDirection() == ClassWrapper.ArgumentDirection.IN) continue;
 
@@ -161,9 +164,9 @@ public final class WrapperStatementBuilder {
                 code = generateCode("DBN - OJVM JavaObjectToSQL.java", context);
             }
 
-            javaConverterMethods.add(code);
+            converterMethods.add(code);
         }
-        return javaConverterMethods;
+        return converterMethods;
     }
 
     private List<String> createJavaWrapperMethods(WrapperModel model) {
@@ -195,24 +198,59 @@ public final class WrapperStatementBuilder {
     @NonNls
     @NotNull
     private String createJavaWrapper(WrapperModel model) {
-        List<String> sqlMethods = createSQLToJava(model);
-        List<String> javaMethods = createJavaToSQL(model);
+        List<String> sqlConversionMethods = createSQLToJavaConverters(model);
+        List<String> javaConversionMethods = createJavaToSQLConverters(model);
         List<String> javaWrapperMethods = createJavaWrapperMethods(model);
+        List<String> codeWrapperMethods = createCodeWrapperMethods(model);
 
         @NonNls
         Map<String, Object> context = new HashMap<>();
 
         context.put("JAVA_IMPORT_PACKAGES", model.getJavaImportPackages());
         context.put("JAVA_WRAPPER_NAME", model.getJavaWrapperName());
-        context.put("SQL_CONVERSION_METHODS", sqlMethods);
-        context.put("JAVA_CONVERSION_METHODS", javaMethods);
+        context.put("SQL_CONVERSION_METHODS", sqlConversionMethods);
+        context.put("JAVA_CONVERSION_METHODS", javaConversionMethods);
         context.put("JAVA_WRAPPER_METHODS", javaWrapperMethods);
-        context.put("FULLY_QUALIFIED_ORIGINAL_CLASSNAME", model.getClassName());
-        context.put("JAVA_CLASS", model.getClassName());
-        context.put("WRAPPER_METHODS", model.getMethods());
+        context.put("CODE_WRAPPER_METHODS", codeWrapperMethods);
 
         return generateCode("DBN - OJVM JavaWrapper.java", context);
 
+    }
+
+    private List<String> createCodeWrapperMethods(WrapperModel model) {
+        WrapperModelInput modelInput = model.getInput();
+        Map<String, String> codeInputs = modelInput.getCodeInputs();
+        if (codeInputs == null) return emptyList();
+
+        List<String> codeWrappers = new ArrayList<>();
+        for (String paramName : codeInputs.keySet()) {
+
+            DBJavaMethod method = modelInput.getJavaMethods().get(0);
+            DBJavaParameter parameter = method.getParameter(paramName);
+
+            String parameterType = parameter.getJavaClassName();
+            short parameterIndex = parameter.getPosition();
+
+            String codeInput = codeInputs.get(paramName);
+            String codeBlock = indentText(codeInput.trim(), 4);
+            String arrayBrackets = arrayBrackets(parameter.getArrayDepth());
+
+            @NonNls
+            String wrapper = String.format("""
+                    private static %s%s INIT_PARAMETER_%s() {
+                    %s
+                    }
+                    """,
+                    parameterType,
+                    arrayBrackets,
+                    parameterIndex,
+                    codeBlock);
+
+
+            codeWrappers.add(indentText(wrapper, 4));
+        }
+
+        return codeWrappers;
     }
 
     private String createSQLWrapper(WrapperModel model) {
@@ -447,33 +485,32 @@ public final class WrapperStatementBuilder {
 
         for (int i = 0; i < parameters.size(); i++) {
             @NonNls
-            StringBuilder statement = new StringBuilder();
+            String statement;
 
             ParameterWrapper parameter = parameters.get(i);
             String javaTypeName = parameter.getJavaTypeName();
+            String arrayBrackets = arrayBrackets(parameter.getArrayDepth());
             if (parameter.isCodeInput()) {
-                statement.append(parameter.getCodeInput());
-                statement.append(System.lineSeparator());
-            }
-            else if (parameter.isArray() || parameter.isComplexType()) {
-                // Construct the conversion statement.
-                statement.append(javaTypeName)
-                        .append(arrayBrackets(parameter.getArrayDepth()))
-                        .append(" param").append(i).append(" = ")
-                        .append(parameter.getConverterName())
-                        .append("(arg").append(i).append(");");
+                statement = String.format(
+                        "%s%s param%d = INIT_PARAMETER_%d();",
+                        javaTypeName, arrayBrackets, i, i);
+
+            } else if (parameter.isArray() || parameter.isComplexType()) {
+                String converterName = parameter.getConverterName();
+                statement = String.format(
+                        "%s%s param%d = %s(arg%d);",
+                        javaTypeName, arrayBrackets, i, converterName, i);
+
             } else if ("char".equals(javaTypeName) || "java.lang.Character".equals(javaTypeName)) {
-                statement.append(getCharacterArgumentInitialization(javaTypeName, i));
+                statement = getCharacterArgumentInitialization(javaTypeName, i);
+
             } else {
-                statement.append(javaTypeName)
-                        .append(arrayBrackets(parameter.getArrayDepth()))
-                        .append(" param").append(i).append(" = ")
-                        .append("arg").append(i).append(";");
+                statement = String.format(
+                        "%s%s param%d = arg%d;",
+                        javaTypeName, arrayBrackets, i, i);
             }
 
-            if (!statement.isEmpty()) {
-                argumentConversions.add(statement.toString());
-            }
+            argumentConversions.add(statement);
         }
         return argumentConversions;
     }

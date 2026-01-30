@@ -33,7 +33,7 @@ import javax.swing.tree.TreePath;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.dbn.execution.common.input.CodeBlock.isCodeBlock;
+import static com.dbn.execution.common.input.CodeBlocks.isCodeBlock;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static com.dbn.object.type.DBJavaScalarType.isScalar;
 

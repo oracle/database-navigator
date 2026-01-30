@@ -23,6 +23,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
 @Setter
+@Deprecated // not used to transport actual code contents. replaced with CodeBlocks utility
 public class CodeBlock {
     private final static String CODE_BLOCK_PREFIX = "DBN_CODE:";
 

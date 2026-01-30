@@ -28,7 +28,7 @@ import com.dbn.execution.ExecutionOption;
 import com.dbn.execution.ExecutionOptions;
 import com.dbn.execution.ExecutionTarget;
 import com.dbn.execution.LocalExecutionInput;
-import com.dbn.execution.common.input.CodeBlock;
+import com.dbn.execution.common.input.CodeBlocks;
 import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.execution.common.input.ExecutionVariable;
 import com.dbn.execution.common.input.ValueHolder;
@@ -56,8 +56,7 @@ import java.util.Map;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.execution.common.input.CodeBlock.deserialize;
-import static com.dbn.execution.common.input.CodeBlock.isCodeBlock;
+import static com.dbn.execution.common.input.CodeBlocks.isCodeBlock;
 import static com.dbn.execution.java.wrapper.support.WrapperSupportEvaluator.evaluateWrapperSupport;
 import static com.dbn.object.common.status.DBObjectStatus.INITIALIZING;
 
@@ -225,20 +224,17 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         inputValues.remove(path);
     }
 
-    public Map<String, String> findJavaInjectedParameters() {
-        Map<String, String> injectedParameters = new HashMap<>();
-        for (Map.Entry<String, ExecutionValue<String>> entry : inputValues.entrySet()) {
-            String value = entry.getValue().getValueHolder().getValue();
-            if(isCodeBlock(value)) {
-                CodeBlock codeBlock = deserialize(value);
-                if (codeBlock != null) {
-                    if (codeBlock.getLanguage() == CodeBlock.Language.JAVA) {
-                        injectedParameters.put(entry.getKey(), codeBlock.getContent());
-                    }
-                }
+    public Map<String, String> getCodeInputs() {
+        Map<String, String> codeInputs = new HashMap<>();
+        for (String parameterName : inputValues.keySet()) {
+            ExecutionValue<String> parameterValue = inputValues.get(parameterName);
+            String inputValue = parameterValue.getValue();
+            if (isCodeBlock(inputValue)) {
+                String codeBlock = CodeBlocks.deserialize(inputValue)[1];
+                codeInputs.put(parameterName, codeBlock);
             }
         }
-        return injectedParameters;
+        return codeInputs;
     }
 
     public void setInputValue(DBJavaParameter parameter, String value) {

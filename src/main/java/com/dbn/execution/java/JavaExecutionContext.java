@@ -67,7 +67,7 @@ public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
         wrapperModelInput.set(WrapperProperty.TEMPORARY, true);
         wrapperModelInput.set(WrapperProperty.DEBUG_MODE, getDebuggerType().isDebug());
         wrapperModelInput.setSupportData(executionInput.getWrapperSupportData());
-        wrapperModelInput.setCodeInputs(executionInput.findJavaInjectedParameters());
+        wrapperModelInput.setCodeInputs(executionInput.getCodeInputs());
 
         wrapperModel = modelBuilder.buildModel(wrapperModelInput);
         wrapperModel.setSignature(signature);

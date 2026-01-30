@@ -19,7 +19,7 @@ package com.dbn.execution.java.result.ui;
 import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.util.Strings;
-import com.dbn.execution.common.input.CodeBlock;
+import com.dbn.execution.common.input.CodeBlocks;
 import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
@@ -77,9 +77,9 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
         Object userValue = treeNode.getValue();
         if (userValue instanceof ExecutionValue fieldValue) {
             String stringValue = Objects.toString(fieldValue.getValue());
-            if (CodeBlock.isCodeBlock(stringValue)) {
+            if (CodeBlocks.isCodeBlock(stringValue)) {
                 append(" = [CODE]", REGULAR_ATTRIBUTES);
-                String content = CodeBlock.deserialize(stringValue).getContent();
+                String content = CodeBlocks.deserialize(stringValue)[1];
                 setToolTipText("<html><pre>" + content + "</pre></html>");
             } else {
                 append(" = ", REGULAR_ATTRIBUTES);

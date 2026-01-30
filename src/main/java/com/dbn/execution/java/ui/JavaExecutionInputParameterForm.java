@@ -24,10 +24,12 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Environment;
+import com.dbn.common.util.Java;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.execution.ExecutionInputMode;
-import com.dbn.execution.common.input.CodeBlock;
+import com.dbn.execution.common.input.CodeBlocks;
 import com.dbn.execution.common.input.ExecutionVariable;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.ui.JavaExecutionInputUtil.UiSuitability;
@@ -214,9 +216,9 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
 
 		JavaExecutionInput executionInput = getExecutionInput();
 		String codeBlock = executionInput.getInputValue(getParameterName(), ExecutionInputMode.CODE);
-		String code = codeBlock == null ?
+		String code = codeBlock == null || Environment.isVersionUpdate() ? // TODO remove version based code-reset after 1 release
 				getJavaTypeDeclaration() :
-				CodeBlock.deserialize(codeBlock).getContent();
+				CodeBlocks.deserialize(codeBlock)[1];
 
 		inputCodeEditor.setText(code);
 	}
@@ -297,8 +299,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
 			}
 		} else {
 			String code = inputCodeEditor.getText();
-			CodeBlock codeBlock = new CodeBlock(code, CodeBlock.Language.JAVA);
-			executionInput.setInputValue(parameter, codeBlock.serialize());
+			executionInput.setInputValue(parameter, CodeBlocks.serialize("java", code));
 			fieldForms.forEach(f -> f.removeExecutionInput());
 		}
     }
@@ -333,10 +334,21 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
 	private String getJavaTypeDeclaration() {
 		DBJavaParameter parameter  = getParameter();
 
-        return "%s%s param%s = null;\n".formatted(
-				parameter.getJavaClassName(),
-				arrayBrackets(parameter.getArrayDepth()),
-				parameter.getPosition());
+		String className = parameter.getJavaClassName();
+		String variableName = parameter.isArray() ? "array" : Java.getSimpleVariableName(className);
+		String arrayBrackets = arrayBrackets(parameter.getArrayDepth());
+		String constructorSuffix = parameter.isArray() ? " {}" : "()";
+
+		return String.format("""
+				%s%s %s = new %s%s%s;
+				return %s;""",
+				className,
+				arrayBrackets,
+				variableName,
+				className,
+				arrayBrackets,
+				constructorSuffix,
+				variableName);
 	}
 
 }

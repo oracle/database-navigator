@@ -147,4 +147,13 @@ public class Java {
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
         return connectionManager.hasConnectionsSupportingFeature(DatabaseFeature.JAVA_VIRTUAL_MACHINE);
     }
+
+    public static String getSimpleClassName(String className) {
+        return className.substring(className.lastIndexOf('.') + 1);
+    }
+
+    public static String getSimpleVariableName(String className) {
+        String simpleClassName = getSimpleClassName(className);
+        return Character.toLowerCase(simpleClassName.charAt(0)) + simpleClassName.substring(1);
+    }
 }
