@@ -27,17 +27,27 @@ import static com.dbn.common.exception.Exceptions.unsupported;
 import static com.dbn.common.util.Naming.toUpperSnakeCase;
 
 public class TransientWrapperNamingProvider implements WrapperNamingProvider {
-    public static final String NAME_PREFIX = "DBN_OJVM_";
+    private static int baselineIndex = 0;
+
+    public static final String NAME_PREFIX = "DBN$OJVM$";
     private final Map<Pair<String, Integer>, String> typeNames = new HashMap<>();
+
+    public TransientWrapperNamingProvider() {
+        // increase the baseline index with every new naming provider
+        // (avoid naming collisions and ORA-29549 invalid session states)
+        if (baselineIndex > 100) baselineIndex = 0;
+        baselineIndex++;
+
+    }
 
     @Override
     public String getJavaWrapperName(DBJavaClass javaClass) {
-        return NAME_PREFIX + "JAVA_WRAPPER";
+        return NAME_PREFIX + "JAVA_WRAPPER_" + baselineIndex;
     }
 
     @Override
     public String getJavaWrapperName(DBJavaMethod javaMethod) {
-        return NAME_PREFIX + "JAVA_WRAPPER";
+        return NAME_PREFIX + "JAVA_WRAPPER_" + baselineIndex;
     }
 
     @Override
@@ -48,8 +58,8 @@ public class TransientWrapperNamingProvider implements WrapperNamingProvider {
     @Override
     public String getSqlWrapperName(DBJavaMethod javaMethod) {
         return javaMethod.isReturningVoid() ?
-                NAME_PREFIX + "SQL_PROCEDURE_WRAPPER" :
-                NAME_PREFIX + "SQL_FUNCTION_WRAPPER";
+                NAME_PREFIX + "SQL_PROCEDURE_WRAPPER_" + baselineIndex :
+                NAME_PREFIX + "SQL_FUNCTION_WRAPPER_" + baselineIndex;
     }
 
     @Override
@@ -62,7 +72,7 @@ public class TransientWrapperNamingProvider implements WrapperNamingProvider {
         var key = Pair.of(javaClassName, arrayDepth);
         int size = typeNames.size();
 
-        return typeNames.computeIfAbsent(key, object -> NAME_PREFIX + "TYPE_" + size);
+        return typeNames.computeIfAbsent(key, object -> NAME_PREFIX + "TYPE_" + baselineIndex + "_" + size);
     }
 
     @Override
