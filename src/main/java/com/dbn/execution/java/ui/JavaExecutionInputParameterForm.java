@@ -61,6 +61,7 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.ScrollPanes.recalibrateScrollContainer;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.execution.common.input.CodeBlocks.isCodeBlock;
 import static com.dbn.execution.java.ui.JavaExecutionInputUtil.classifyForUi;
 import static com.dbn.execution.java.ui.JavaExecutionInputUtil.setupSingleDimArrayEditor;
 import static com.dbn.execution.java.wrapper.WrapperStatementBuilder.arrayBrackets;
@@ -216,7 +217,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
 
 		JavaExecutionInput executionInput = getExecutionInput();
 		String codeBlock = executionInput.getInputValue(getParameterName(), ExecutionInputMode.CODE);
-		String code = codeBlock == null || Environment.isVersionUpdate() ? // TODO remove version based code-reset after 1 release
+		String code = codeBlock == null || !isCodeBlock(codeBlock) || Environment.isVersionUpdate() ? // TODO remove version based code-reset after 1 release
 				getJavaTypeDeclaration() :
 				CodeBlocks.deserialize(codeBlock)[1];
 

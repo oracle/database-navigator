@@ -31,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+import static com.dbn.execution.common.input.CodeBlocks.extractCodeBlock;
+import static com.dbn.execution.java.wrapper.WrapperStatementBuilder.arrayBrackets;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
@@ -79,7 +81,7 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
             String stringValue = Objects.toString(fieldValue.getValue());
             if (CodeBlocks.isCodeBlock(stringValue)) {
                 append(" = [CODE]", REGULAR_ATTRIBUTES);
-                String content = CodeBlocks.deserialize(stringValue)[1];
+                String content = extractCodeBlock(stringValue);
                 setToolTipText("<html><pre>" + content + "</pre></html>");
             } else {
                 append(" = ", REGULAR_ATTRIBUTES);
@@ -91,13 +93,15 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
     private void renderDataType(DBObject object) {
         if (object instanceof DBJavaParameter parameter) {
             String dataType = getCanonicalName(parameter.getJavaClassRef());
+            String arrayBrackets = arrayBrackets(parameter.getArrayDepth());
 
-            append(" (" + dataType + ")", GRAY_ATTRIBUTES);
+            append(" (" + dataType + arrayBrackets + ")", GRAY_ATTRIBUTES);
             setIcon(object.getIcon());
         } else if (object instanceof DBJavaField field) {
             String dataType = getCanonicalName(field.getJavaClassRef());
+            String arrayBrackets = arrayBrackets(field.getArrayDepth());
 
-            append(" (" + dataType + ")", GRAY_ATTRIBUTES);
+            append(" (" + dataType + arrayBrackets + ")", GRAY_ATTRIBUTES);
             setIcon(object.getIcon());
         } else if (object instanceof DBJavaClass javaClass) {
             append(" (" + javaClass.getCanonicalName() + ")", GRAY_ATTRIBUTES);

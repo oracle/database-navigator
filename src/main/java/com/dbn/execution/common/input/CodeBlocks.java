@@ -40,6 +40,11 @@ public class CodeBlocks {
         return new String[]{null, null};
     }
 
+    @NonNls
+    public static String extractCodeBlock(@NonNls String serialized) {
+        return CodeBlocks.deserialize(serialized)[1];
+    }
+
     public static boolean isCodeBlock(@NonNls String input) {
         return PATTERN.matcher(input).matches();
     }

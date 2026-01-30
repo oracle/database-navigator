@@ -28,7 +28,6 @@ import com.dbn.execution.ExecutionOption;
 import com.dbn.execution.ExecutionOptions;
 import com.dbn.execution.ExecutionTarget;
 import com.dbn.execution.LocalExecutionInput;
-import com.dbn.execution.common.input.CodeBlocks;
 import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.execution.common.input.ExecutionVariable;
 import com.dbn.execution.common.input.ValueHolder;
@@ -56,6 +55,7 @@ import java.util.Map;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.execution.common.input.CodeBlocks.extractCodeBlock;
 import static com.dbn.execution.common.input.CodeBlocks.isCodeBlock;
 import static com.dbn.execution.java.wrapper.support.WrapperSupportEvaluator.evaluateWrapperSupport;
 import static com.dbn.object.common.status.DBObjectStatus.INITIALIZING;
@@ -230,7 +230,7 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
             ExecutionValue<String> parameterValue = inputValues.get(parameterName);
             String inputValue = parameterValue.getValue();
             if (isCodeBlock(inputValue)) {
-                String codeBlock = CodeBlocks.deserialize(inputValue)[1];
+                String codeBlock = extractCodeBlock(inputValue);
                 codeInputs.put(parameterName, codeBlock);
             }
         }
