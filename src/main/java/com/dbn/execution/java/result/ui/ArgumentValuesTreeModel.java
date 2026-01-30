@@ -17,6 +17,7 @@
 package com.dbn.execution.java.result.ui;
 
 import com.dbn.common.data.Data;
+import com.dbn.common.util.Unsafe;
 import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.object.DBJavaClass;
@@ -33,6 +34,7 @@ import javax.swing.tree.TreePath;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.common.util.Java.isPrimitive;
 import static com.dbn.execution.common.input.CodeBlocks.isCodeBlock;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static com.dbn.object.type.DBJavaScalarType.isScalar;
@@ -117,9 +119,12 @@ public class ArgumentValuesTreeModel implements TreeModel {
             String dataType = getCanonicalName(parameter.getJavaClassRef());
 
             if (parameter.isArray() && !codeInput) {
-                Class dataTypeClass = Data.asPrimitiveClass(dataType);
-                List elementsString = Data.arrayStringToList(value, dataTypeClass);
-                Object[] elements = elementsString.toArray();
+                Class dataTypeClass = isPrimitive(dataType) ?
+                        Data.asPrimitiveClass(dataType) :
+                        Unsafe.logged(String.class, () -> Class.forName(dataType));
+
+                List elementsList = Data.arrayStringToList(value, dataTypeClass);
+                Object[] elements = elementsList.toArray();
                 Object[] firstThree = Arrays.copyOfRange(elements, 0, Math.min(3, elements.length));
 
                 String arrayString = Data.listToArrayString(Arrays.asList(firstThree));

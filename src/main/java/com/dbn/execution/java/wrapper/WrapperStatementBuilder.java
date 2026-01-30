@@ -519,34 +519,30 @@ public final class WrapperStatementBuilder {
             String javaTypeName,
             int argumentIndex) {
 
-        String srcName = "arg" + argumentIndex;
-        String destName = "param" + argumentIndex;
+        String sourceName = "arg" + argumentIndex;
+        String destinationName = "param" + argumentIndex;
 
         @NonNls
-        StringBuilder sb = new StringBuilder();
         SqlType sqlType = TypeMappings.getSqlType(javaTypeName);
 
+        String transformerPrefix = sqlType.getTransformerPrefix();
+        String transformerSuffix = sqlType.getTransformerSuffix();
         if ("char".equals(javaTypeName)) {
-            sb.append("char ").append(destName)
-                    .append(" = ")
-                    .append(sqlType.getTransformerPrefix())
-                    .append(srcName)
-                    .append(sqlType.getTransformerSuffix())
-                    .append(";");
+            return String.format("char %s = %s%s%s;",
+                    destinationName,
+                    transformerPrefix,
+                    sourceName,
+                    transformerSuffix);
         } else { // java.lang.Character
-            sb.append("java.lang.Character ").append(destName)
-                    .append(" = null;\n")
-                    .append("if (").append(srcName)
-                    .append(" != null && ").append(srcName).append(".length() > 0) {\n")
-                    .append("    ").append(destName)
-                    .append(" = ")
-                    .append(sqlType.getTransformerPrefix())
-                    .append(srcName)
-                    .append(sqlType.getTransformerSuffix())
-                    .append(";\n")
-                    .append("}");
+            return String.format("java.lang.Character %s = %s == null || %s.length() == 0 ? null : %s%s%s;",
+                    destinationName,
+                    sourceName,
+                    sourceName,
+                    transformerPrefix,
+                    sourceName,
+                    transformerSuffix);
         }
-        return sb.toString();
+
     }
 
 
@@ -601,9 +597,9 @@ public final class WrapperStatementBuilder {
             if(returnType.isCodeInput()) { // TODO when will this ever happen?
                 String declaration = returnType.getJavaTypeName() +
                         arrayBrackets(returnType.getArrayDepth())
-                        + " retStr = new " + statement + ";" + System.lineSeparator();
+                        + " retStr = new " + statement + ";\n";
                 return declaration +
-                        " if(retStr! = null)" + System.lineSeparator()
+                        " if(retStr! = null)\n"
                         + "   return retStr.toString();"
                         + "return null;";
 
