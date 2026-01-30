@@ -46,6 +46,8 @@ public class CodeBlocks {
     }
 
     public static boolean isCodeBlock(@NonNls String input) {
+        if (input == null) return false;
+        if (!input.startsWith("DBN_CODE:")) return false;
         return PATTERN.matcher(input).matches();
     }
 }
