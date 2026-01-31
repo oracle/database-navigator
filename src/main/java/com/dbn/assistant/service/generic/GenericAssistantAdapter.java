@@ -94,6 +94,13 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         AIProvider provider = chatContext.getProvider();
         if (provider == null) return ChatAvailability.NO_PROFILE_SELECTED;
 
+        ConnectionHandler connection = ConnectionHandler.get(connectionId);
+        if (connection == null) return ChatAvailability.NOT_SUPPORTED;
+
+        Project project = connection.getProject();
+        AssistantProfile profile = getProfile(project, chatContext.getProfileId());
+        if (profile == null) return ChatAvailability.NO_PROFILE_SELECTED;
+
         return ChatAvailability.AVAILABLE;
     }
 
