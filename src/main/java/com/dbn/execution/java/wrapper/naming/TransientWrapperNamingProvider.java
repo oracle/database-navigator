@@ -29,7 +29,7 @@ import static com.dbn.common.util.Naming.toUpperSnakeCase;
 public class TransientWrapperNamingProvider implements WrapperNamingProvider {
     private static int baselineIndex = 0;
 
-    public static final String NAME_PREFIX = "DBN_OJVM_";
+    public static final String NAME_PREFIX = "DBN$OJVM$";
     private final Map<Pair<String, Integer>, String> typeNames = new HashMap<>();
 
     public TransientWrapperNamingProvider() {
