@@ -16,6 +16,7 @@
 
 package com.dbn.execution.explain.result.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ContextAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.execution.ExecutionManager;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 
+@BackgroundUpdate
 public abstract class AbstractExplainPlanResultAction extends ContextAction<ExplainPlanResult> {
     protected ExplainPlanResult getContext(@NotNull AnActionEvent e) {
         ExplainPlanResult result = e.getData(DataKeys.EXPLAIN_PLAN_RESULT);
