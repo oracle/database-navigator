@@ -128,7 +128,7 @@ public class RecordViewerForm extends DBNFormBase {
         for (RecordViewerColumnForm columnForm : columnForms) {
             String columnName = columnForm.getColumnName();
             boolean visible = Strings.indexOfIgnoreCase(columnName, text, 0) > -1;
-            columnForm.getMainComponent().setVisible(visible);
+            columnForm.setVisible(visible);
         }
     }
 

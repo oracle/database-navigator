@@ -21,10 +21,15 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.JList;
+import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -72,5 +77,29 @@ public final class Lists {
                 eventConsumer.accept(e);
             }
         });
+    }
+
+    public static <T> Iterable<T> modelIterable(ListModel<T> model) {
+        return () -> new Iterator<>() {
+            private int index = 0;
+
+            @Override
+            public boolean hasNext() {
+                return index < model.getSize();
+            }
+
+            @Override
+            public T next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                return model.getElementAt(index++);
+            }
+        };
+    }
+
+    public static <T> Stream<T> modelStream(ListModel<T> model) {
+        return IntStream.range(0, model.getSize())
+                .mapToObj(model::getElementAt);
     }
 }
