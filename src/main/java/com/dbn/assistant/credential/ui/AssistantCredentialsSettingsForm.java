@@ -17,14 +17,17 @@
 package com.dbn.assistant.credential.ui;
 
 
+import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.credential.AssistantCredential;
 import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.credential.AssistantCredentialSettings;
+import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Dialogs;
 import com.dbn.credentials.Secret;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
@@ -129,6 +132,19 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
         }
 
         oldCredentials.values().forEach(c -> c.removeSecrets());
+
+        if (configuration.isModified()) {
+            refreshAssistantStates();
+        }
+    }
+
+    private void refreshAssistantStates() {
+        // notify after setting changes are applied
+        SettingsChangeNotifier.register(() -> {
+            Project project = ensureProject();
+            DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
+            assistantManager.notifyConfigChanges();
+        });
     }
 
     @Override
