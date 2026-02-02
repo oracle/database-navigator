@@ -318,6 +318,7 @@ public class ChatBoxForm extends DBNFormBase {
         AssistantState state = getAssistantState();
         String chatId = state.getCurrentChatId();
         state.deleteChat(chatId);
+        state.set(QUERYING, false);
     }
 
     public void attemptContextSwitch(ChatContext targetContext) {

@@ -30,11 +30,14 @@ import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.execution.AssistantToolInvocationMonitor;
 import com.dbn.assistant.tool.execution.AssistantToolRequest;
+import com.dbn.common.exception.RequestCancelledException;
 import com.dbn.common.message.MessageType;
 import com.dbn.connection.ConnectionId;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.assistant.chat.message.AuthorType.SYSTEM;
@@ -59,9 +62,12 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptToken(String token) {
+        if (!isCurrentChat()) return;
+
         chatBoxForm.hideProcessingIndicators();
         tokenized = true;
-        Chat chat = getChat();
+
+        Chat chat = ensureChat();
         ChatMessage lastMessage = chat.getLastMessage();
         if (lastMessage == null) return;
 
@@ -79,6 +85,8 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptMessage(String message) {
+        if (!isCurrentChat()) return;
+
         chatBoxForm.hideProcessingIndicators();
         // ignore if token-stream is supported
         if (tokenized) return;
@@ -92,8 +100,9 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptError(Throwable e) {
-        chatBoxForm.hideProcessingIndicators();
+        if (!isCurrentChat()) return;
 
+        chatBoxForm.hideProcessingIndicators();
         if (e instanceof AssistantToolApprovalException) return;
 
         log.warn("Error processing assistant query", e);
@@ -108,6 +117,8 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptCompletion() {
+        if (!isCurrentChat()) return;
+
         chatBoxForm.hideProcessingIndicators();
         AssistantState assistantState = getAssistantState();
         assistantState.set(QUERYING, false);
@@ -115,9 +126,10 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptToolRequest(String requestId, String toolName, String toolArguments) {
+        if (!isCurrentChat()) return;
+
+        Chat chat = ensureChat();
         chatBoxForm.hideProcessingIndicators();
-        Chat chat = getChat();
-        if (chat == null) return; // chat discarded
 
         ChatMessage lastMessage = chat.getLastMessage();
         if (lastMessage == null) return;
@@ -154,9 +166,9 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptToolResponse(String requestId, String toolName, String toolResponse) {
-        Chat chat = getChat();
-        if (chat == null) return; // chat discarded
+        if (!isCurrentChat()) return;
 
+        Chat chat = ensureChat();
         ChatMessage lastMessage = chat.getLastMessage();
         if (lastMessage == null) return;
 
@@ -177,6 +189,22 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     private Chat getChat() {
         return chatBoxForm.getChat(chatId);
+    }
+
+    private Chat ensureChat() {
+        Chat chat = getChat();
+        if (chat == null) {
+            throw new RequestCancelledException("Chat already discarded by user");
+        }
+        return chat;
+    }
+
+    private boolean isCurrentChat() {
+        Chat chat = getChat();
+        if (chat == null) return false;
+
+        String currentChatId = getAssistantState().getCurrentChatId();;
+        return Objects.equals(chatId, currentChatId);
     }
 
     private AssistantState getAssistantState() {
