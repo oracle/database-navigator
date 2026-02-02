@@ -25,6 +25,7 @@
             </urls>
             <models>
                 <!-- 2025 -->
+                <model id="GPT_5_2"                api-name="gpt-5.2"                description="Advanced reasoning, large systems, complex SQL"/>
                 <model id="GPT_5_1"                api-name="gpt-5.1"                description="Complex reasoning, large codebases, advanced SQL"/>
                 <model id="GPT_5"                  api-name="gpt-5"                  description="Deep coding logic, multi-step database tasks"/>
                 <model id="GPT_5_MINI"             api-name="gpt-5-mini"             description="Fast coding, lightweight SQL queries"/>
@@ -345,6 +346,7 @@
                     <field id="API_KEY" required="true"/>
                 </auth>
                 <models>
+                    <model id="GPT_5_2" features="MEMORY, TOOLS, INSTRUCTIONS" recommended="true"/>
                     <model id="GPT_5_1" features="MEMORY, TOOLS, INSTRUCTIONS" recommended="true"/>
                     <model id="GPT_5" features="MEMORY, TOOLS, INSTRUCTIONS" recommended="true"/>
                     <model id="GPT_5_MINI" features="MEMORY, TOOLS, INSTRUCTIONS"/>

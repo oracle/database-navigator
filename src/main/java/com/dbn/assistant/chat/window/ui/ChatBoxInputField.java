@@ -73,6 +73,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         ProjectEvents.subscribe(getProject(), this, AssistantStateListener.TOPIC, createStateListener());
         ProjectEvents.subscribe(getProject(), this, ObjectChangeListener.TOPIC, createObjectChangeListener());
         ProjectEvents.subscribe(getProject(), this, ConnectionStatusListener.TOPIC, createConnectionListener());
+        refreshComponentState();
     }
 
     /**

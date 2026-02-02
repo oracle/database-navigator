@@ -85,7 +85,7 @@ public class DBJavaNameCache {
             if (parentRef.getObjectType() == DBObjectType.JAVA_CLASS) {
                 DBObjectRef<DBJavaClass> parentClassRef = cast(parentRef);
                 String parenClassName = parentRef.getObjectName();
-                return getCanonicalName(parentClassRef) + "." + className.substring(parenClassName.length() + 1);
+                return resolveCanonicalName(parentClassRef) + "." + className.substring(parenClassName.length() + 1);
             }
         }
 
