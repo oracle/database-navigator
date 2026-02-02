@@ -1,0 +1,358 @@
+<!--
+  ~ Copyright 2024-2025 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE data-dictionary [
+        <!ELEMENT data-dictionary (statement-execution-processor)*>
+        <!ELEMENT statement-execution-processor (statement)*>
+        <!ATTLIST statement-execution-processor
+                id CDATA #REQUIRED
+                timeout CDATA #IMPLIED>
+        <!ELEMENT statement (#PCDATA)>
+        <!ATTLIST statement
+                comment CDATA #IMPLIED
+                prefixes CDATA #IMPLIED>
+        ]>
+<data-dictionary>
+
+    <!-- ==================== MODEL CREATION ==================== -->
+
+    <!-- Create ML Model using DBMS_DATA_MINING -->
+    <statement-execution-processor id="create-ml-model" timeout="300000">
+        <statement>
+            BEGIN
+                DBMS_DATA_MINING.CREATE_MODEL(
+                    model_name          => {#0},
+                    mining_function     => {#1},
+                    data_table_name     => {#2},
+                    case_id_column_name => {#3},
+                    target_column_name  => {#4},
+                    settings_table_name => {#5}
+                );
+            END;
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Create Settings Table -->
+    <statement-execution-processor id="create-settings-table" timeout="5000">
+        <statement>
+            CREATE TABLE {0} (
+                setting_name  VARCHAR2(30),
+                setting_value VARCHAR2(4000)
+            )
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Insert Setting into Settings Table -->
+    <statement-execution-processor id="insert-setting" timeout="5000">
+        <statement>
+            INSERT INTO {0} (setting_name, setting_value)
+            VALUES ({#1}, {#2})
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Drop ML Model -->
+    <statement-execution-processor id="drop-ml-model" timeout="30000">
+        <statement>
+            BEGIN
+                DBMS_DATA_MINING.DROP_MODEL({#0});
+            END;
+        </statement>
+    </statement-execution-processor>
+
+    <!-- ==================== DATA SPLITTING ==================== -->
+
+    <!-- Create Training Data Table using SAMPLE with SEED (80% by default) -->
+    <!-- Parameters: 0=train_table, 1=source_table, 2=sample_percent, 3=seed -->
+    <statement-execution-processor id="create-training-table" timeout="60000">
+        <statement>
+            CREATE TABLE {0} AS SELECT * FROM {1} SAMPLE ({2}) SEED ({3})
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Create Test Data Table (remaining data not in training) -->
+    <!-- Parameters: 0=test_table, 1=source_table, 2=train_table -->
+    <statement-execution-processor id="create-test-table" timeout="60000">
+        <statement>
+            CREATE TABLE {0} AS SELECT * FROM {1} MINUS SELECT * FROM {2}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Add CASE_ID column to a table for evaluation -->
+    <!-- Parameters: 0=table_name -->
+    <statement-execution-processor id="add-case-id-column" timeout="10000">
+        <statement>
+            ALTER TABLE {0} ADD (CASE_ID NUMBER GENERATED ALWAYS AS IDENTITY)
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Get row count from table -->
+    <statement-execution-processor id="get-row-count" timeout="10000">
+        <statement>
+            SELECT COUNT(*) AS ROW_COUNT FROM {0}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- ==================== APPLY MODEL (Create Predictions) ==================== -->
+
+    <!-- Create Apply Results table using PREDICTION and PREDICTION_PROBABILITY -->
+    <!-- Parameters: 0=apply_result_table, 1=model_name, 2=test_table -->
+    <statement-execution-processor id="create-apply-results" timeout="120000">
+        <statement>
+            CREATE TABLE {0} AS
+            SELECT
+                CASE_ID,
+                PREDICTION({1} USING *) AS PREDICTION,
+                PREDICTION_PROBABILITY({1} USING *) AS PROBABILITY
+            FROM {2}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Create Apply Results for Regression (no probability) -->
+    <!-- Parameters: 0=apply_result_table, 1=model_name, 2=test_table -->
+    <statement-execution-processor id="create-apply-results-regression" timeout="120000">
+        <statement>
+            CREATE TABLE {0} AS
+            SELECT
+                CASE_ID,
+                PREDICTION({1} USING *) AS PREDICTION
+            FROM {2}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- ==================== EVALUATION PROCEDURES ==================== -->
+
+    <!-- Compute Confusion Matrix using DBMS_DATA_MINING.COMPUTE_CONFUSION_MATRIX -->
+    <!-- Parameters: 0=apply_result_table, 1=target_table, 2=target_column, 3=confusion_matrix_table -->
+    <!-- Returns: accuracy as OUT parameter -->
+    <statement-execution-processor id="compute-confusion-matrix" timeout="120000">
+        <statement>
+            DECLARE
+                v_accuracy NUMBER;
+            BEGIN
+                DBMS_DATA_MINING.COMPUTE_CONFUSION_MATRIX(
+                    accuracy                    => v_accuracy,
+                    apply_result_table_name     => {#0},
+                    target_table_name           => {#1},
+                    case_id_column_name         => 'CASE_ID',
+                    target_column_name          => {#2},
+                    confusion_matrix_table_name => {#3},
+                    score_column_name           => 'PREDICTION',
+                    score_criterion_column_name => 'PROBABILITY',
+                    cost_matrix_table_name      => NULL,
+                    apply_result_schema_name    => NULL,
+                    target_schema_name          => NULL,
+                    cost_matrix_schema_name     => NULL,
+                    score_criterion_type        => 'PROBABILITY'
+                );
+                -- Store accuracy in a temp table so we can retrieve it
+                EXECUTE IMMEDIATE 'CREATE TABLE {3}_ACC (ACCURACY NUMBER)';
+                EXECUTE IMMEDIATE 'INSERT INTO {3}_ACC VALUES (' || v_accuracy || ')';
+            END;
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Get accuracy from temp table created by compute-confusion-matrix -->
+    <statement-execution-processor id="get-accuracy" timeout="5000">
+        <statement>
+            SELECT ACCURACY FROM {0}_ACC
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Get confusion matrix results -->
+    <statement-execution-processor id="get-confusion-matrix-results" timeout="10000">
+        <statement>
+            SELECT ACTUAL_TARGET_VALUE, PREDICTED_TARGET_VALUE, VALUE
+            FROM {0}
+            ORDER BY ACTUAL_TARGET_VALUE, PREDICTED_TARGET_VALUE
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Compute ROC (for binary classification) -->
+    <!-- Parameters: 0=apply_result_table, 1=target_table, 2=target_column, 3=roc_table, 4=positive_target_value -->
+    <statement-execution-processor id="compute-roc" timeout="120000">
+        <statement>
+            DECLARE
+                v_auc NUMBER;
+            BEGIN
+                DBMS_DATA_MINING.COMPUTE_ROC(
+                    roc_area_under_curve        => v_auc,
+                    apply_result_table_name     => {#0},
+                    target_table_name           => {#1},
+                    case_id_column_name         => 'CASE_ID',
+                    target_column_name          => {#2},
+                    roc_table_name              => {#3},
+                    positive_target_value       => {#4},
+                    score_column_name           => 'PREDICTION',
+                    score_criterion_column_name => 'PROBABILITY',
+                    apply_result_schema_name    => NULL,
+                    target_schema_name          => NULL
+                );
+                -- Store AUC in a temp table
+                EXECUTE IMMEDIATE 'CREATE TABLE {3}_AUC (AUC NUMBER)';
+                EXECUTE IMMEDIATE 'INSERT INTO {3}_AUC VALUES (' || v_auc || ')';
+            END;
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Get AUC from temp table -->
+    <statement-execution-processor id="get-auc" timeout="5000">
+        <statement>
+            SELECT AUC FROM {0}_AUC
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Compute Lift (for binary classification) -->
+    <!-- Parameters: 0=apply_result_table, 1=target_table, 2=target_column, 3=lift_table, 4=positive_target_value -->
+    <statement-execution-processor id="compute-lift" timeout="120000">
+        <statement>
+            BEGIN
+                DBMS_DATA_MINING.COMPUTE_LIFT(
+                    apply_result_table_name     => {#0},
+                    target_table_name           => {#1},
+                    case_id_column_name         => 'CASE_ID',
+                    target_column_name          => {#2},
+                    lift_table_name             => {#3},
+                    positive_target_value       => {#4},
+                    score_column_name           => 'PREDICTION',
+                    score_criterion_column_name => 'PROBABILITY',
+                    num_quantiles               => 10,
+                    cost_matrix_table_name      => NULL,
+                    apply_result_schema_name    => NULL,
+                    target_schema_name          => NULL,
+                    cost_matrix_schema_name     => NULL,
+                    score_criterion_type        => 'PROBABILITY'
+                );
+            END;
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Get Lift results -->
+    <statement-execution-processor id="get-lift-results" timeout="10000">
+        <statement>
+            SELECT QUANTILE_NUMBER, PROBABILITY_THRESHOLD, GAIN_CUMULATIVE, LIFT_CUMULATIVE,
+                   TARGETS_CUMULATIVE, NON_TARGETS_CUMULATIVE
+            FROM {0}
+            ORDER BY QUANTILE_NUMBER
+        </statement>
+    </statement-execution-processor>
+
+    <!-- ==================== REGRESSION EVALUATION ==================== -->
+
+    <!-- Get Regression Metrics by comparing predictions to actuals on TEST data -->
+    <!-- Parameters: 0=model_name, 1=target_column, 2=test_table -->
+    <statement-execution-processor id="get-regression-metrics" timeout="30000">
+        <statement>
+            SELECT
+                COUNT(*) as sample_count,
+                ROUND(1 - (SUM(POWER(actual - predicted, 2)) / NULLIF(SUM(POWER(actual - avg_actual, 2)), 0)), 4) as r_squared,
+                ROUND(SQRT(AVG(POWER(actual - predicted, 2))), 4) as rmse,
+                ROUND(AVG(ABS(actual - predicted)), 4) as mae
+            FROM (
+                SELECT
+                    PREDICTION({0} USING *) as predicted,
+                    {1} as actual,
+                    AVG({1}) OVER () as avg_actual
+                FROM {2}
+            )
+        </statement>
+    </statement-execution-processor>
+
+    <!-- ==================== LEGACY EVALUATION (for backward compatibility) ==================== -->
+
+    <!-- Get Classification Accuracy (legacy - evaluates on provided table) -->
+    <statement-execution-processor id="get-classification-accuracy" timeout="30000">
+        <statement>
+            SELECT
+                COUNT(*) as total_count,
+                SUM(CASE WHEN predicted = actual THEN 1 ELSE 0 END) as correct_count,
+                ROUND(SUM(CASE WHEN predicted = actual THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) as accuracy_pct
+            FROM (
+                SELECT
+                    PREDICTION({0} USING *) as predicted,
+                    {1} as actual
+                FROM {2}
+            )
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Get Confusion Matrix (legacy - evaluates on provided table) -->
+    <statement-execution-processor id="get-confusion-matrix" timeout="30000">
+        <statement>
+            SELECT
+                actual as actual_target_value,
+                predicted as predicted_target_value,
+                COUNT(*) as value
+            FROM (
+                SELECT
+                    PREDICTION({0} USING *) as predicted,
+                    {1} as actual
+                FROM {2}
+            )
+            GROUP BY actual, predicted
+            ORDER BY actual, predicted
+        </statement>
+    </statement-execution-processor>
+
+    <!-- ==================== UTILITY OPERATIONS ==================== -->
+
+    <!-- Create Staging Table -->
+    <statement-execution-processor id="create-staging-table" timeout="10000">
+        <statement>
+            CREATE TABLE {0} (
+                {1}
+            )
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Drop Staging Table -->
+    <statement-execution-processor id="drop-staging-table" timeout="10000">
+        <statement>
+            DROP TABLE {0} PURGE
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Drop Table (generic) -->
+    <statement-execution-processor id="drop-table" timeout="10000">
+        <statement>
+            DROP TABLE {0} PURGE
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Check if Table Exists -->
+    <statement-execution-processor id="check-table-exists" timeout="5000">
+        <statement>
+            SELECT COUNT(*)
+            FROM ALL_TABLES
+            WHERE owner = NVL({#0}, USER)
+              AND table_name = {#1}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Get distinct class count for classification -->
+    <statement-execution-processor id="get-distinct-class-count" timeout="10000">
+        <statement>
+            SELECT COUNT(DISTINCT {0}) AS CLASS_COUNT FROM {1}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Get class values for binary classification check -->
+    <statement-execution-processor id="get-class-values" timeout="10000">
+        <statement>
+            SELECT DISTINCT {0} AS CLASS_VALUE FROM {1} ORDER BY {0}
+        </statement>
+    </statement-execution-processor>
+
+</data-dictionary>

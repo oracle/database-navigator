@@ -28,6 +28,7 @@ import com.dbn.database.interfaces.DatabaseExecutionInterface;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
+import com.dbn.database.interfaces.DatabaseMLInterface;
 import com.dbn.language.common.DBLanguageDialectIdentifier;
 import com.dbn.language.psql.PSQLLanguage;
 import com.dbn.language.sql.SQLLanguage;
@@ -41,6 +42,7 @@ public class OracleDatabaseInterfaces extends DatabaseInterfacesBase {
     private final @Getter(lazy = true) DatabaseDebuggerInterface debuggerInterface = new OracleDebuggerInterface(this);
     private final @Getter(lazy = true) DatabaseAssistantInterface assistantInterface = new OracleAssistantInterface(this);
     private final @Getter(lazy = true) DatabaseVectorInterface vectorInterface = new OracleVectorInterface(this);
+    private volatile DatabaseMLInterface mlInterface;
     private final @Getter(lazy = true) DatabaseDataDefinitionInterface dataDefinitionInterface = new OracleDataDefinitionInterface(this);
     private final @Getter(lazy = true) DatabaseExecutionInterface executionInterface = new OracleExecutionInterface();
     private final @Getter(lazy = true) DatabaseNativeDataTypes nativeDataTypes = new OracleNativeDataTypes();
@@ -54,5 +56,19 @@ public class OracleDatabaseInterfaces extends DatabaseInterfacesBase {
     @Override
     public DatabaseType getDatabaseType() {
         return DatabaseType.ORACLE;
+    }
+
+    @Override
+    public DatabaseMLInterface getMLInterface() {
+        DatabaseMLInterface iface = mlInterface;
+        if (iface == null) {
+            synchronized (this) {
+                iface = mlInterface;
+                if (iface == null) {
+                    mlInterface = iface = new OracleMLInterface(this);
+                }
+            }
+        }
+        return iface;
     }
 }

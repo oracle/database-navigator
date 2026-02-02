@@ -55,6 +55,10 @@ public interface DatabaseInterfaces {
         return null;
     }
 
+    default DatabaseMLInterface getMLInterface() {
+        return null;
+    }
+
 
     void reset();
 }
