@@ -126,6 +126,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptToolRequest(String requestId, String toolName, String toolArguments) {
+        resetToolInvocation();
         if (!isCurrentChat()) return;
 
         Chat chat = ensureChat();
@@ -147,6 +148,10 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
             lastMessage.appendToolRequest(invocation);
             chatBoxForm.refreshTools(lastMessage);
         }
+    }
+
+    private static void resetToolInvocation() {
+        AssistantToolInvocation.resetCurrent();
     }
 
     @Nullable
