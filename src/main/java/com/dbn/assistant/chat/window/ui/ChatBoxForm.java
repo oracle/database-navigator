@@ -345,6 +345,9 @@ public class ChatBoxForm extends DBNFormBase {
     }
 
     private void performContextSwitch(ChatContextEvent event) {
+        AssistantState assistantState = getAssistantState();
+        assistantState.set(QUERYING, false);
+
         ChatContext targetContext = event.getTargetContext();
         String targetChatId = event.getTargetChatId();
 
