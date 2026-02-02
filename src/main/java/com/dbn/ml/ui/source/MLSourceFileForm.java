@@ -109,6 +109,11 @@ public class MLSourceFileForm extends MLToolboxFormBase {
         return filePathField.getText();
     }
 
+    public String getSelectedDelimiter() {
+        String delimiter = delimiterField.getText();
+        return (delimiter != null && !delimiter.isEmpty()) ? delimiter : ",";
+    }
+
     @Nullable
     public VirtualFile getSelectedFile() {
         MLFileSourceConfig config = getConfig();

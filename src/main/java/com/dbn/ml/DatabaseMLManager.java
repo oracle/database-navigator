@@ -106,7 +106,6 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
 
     /**
      * Trains a model in the background and shows results in execution manager.
-     * Follows the same pattern as VectorToolbox.
      */
     public void trainModel(MLRequest request, ConnectionHandler connection) {
         request.setTemplate(false); // no longer a template after training
@@ -124,15 +123,15 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                     try {
                         progress.setText("Loading data...");
                         MLPipelineExecutor executor = new MLPipelineExecutor();
-                        
+
                         progress.setText("Training model...");
                         MLResult result = executor.execute(request, connection);
-                        
+
                         progress.setText("Training complete!");
-                        
+
                         // Show result in Execution Manager (like VectorToolbox)
                         showResultInExecutionManager(result);
-                        
+
                     } catch (Exception e) {
                         e.printStackTrace();
                         Messages.showErrorDialog(

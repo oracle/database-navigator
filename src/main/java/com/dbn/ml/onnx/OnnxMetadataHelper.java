@@ -17,6 +17,7 @@
 package com.dbn.ml.onnx;
 
 import com.dbn.ml.model.MLResult;
+import com.dbn.ml.model.MLTaskType;
 import org.tribuo.Model;
 import org.tribuo.classification.Label;
 
@@ -28,39 +29,32 @@ import java.util.stream.Collectors;
 
 /**
  * Helper class for Oracle DB ONNX metadata management.
- * 
- * Oracle's DBMS_DATA_MINING.IMPORT_ONNX_MODEL requires metadata JSON to map:
- * - DB columns → ONNX input tensor positions
- * - ONNX output tensor → class labels
- * 
- * This class creates/reads sidecar JSON metadata files (.onnx.json) that 
- * accompany ONNX model files for Oracle DB deployment.
- * 
- * File convention:
- *   model.onnx      - The ONNX model file
- *   model.onnx.json - Oracle metadata JSON (created by this helper)
  */
 public class OnnxMetadataHelper {
     
-    /**
-     * Suffix for Oracle metadata sidecar files
-     */
     public static final String METADATA_SUFFIX = ".json";
     
     /**
      * Builds Oracle DB metadata JSON from ML result.
-     * 
-     * The JSON format required by Oracle:
-     * {
-     *   "function": "classification",
-     *   "input": {"input": ["COL1", "COL2", ...]},
-     *   "classificationProbOutput": "output",
-     *   "labels": ["label1", "label2", ...]
-     * }
+     * Automatically detects task type (classification or regression).
      */
     public static String buildOracleMetadataJson(MLResult result) {
+        MLTaskType taskType = result.getTaskType();
         List<String> featureColumns = result.getFeatureColumns();
-        Model<Label> model = result.getModel();
+        List<String> labelColumns = result.getLabelColumns();
+        
+        return switch (taskType) {
+            case CLASSIFICATION -> buildClassificationMetadata(result, featureColumns);
+            case REGRESSION -> buildRegressionMetadata(featureColumns, labelColumns);
+        };
+    }
+    
+    /**
+     * Builds Oracle DB metadata JSON for classification models.
+     */
+    @SuppressWarnings("unchecked")
+    private static String buildClassificationMetadata(MLResult result, List<String> featureColumns) {
+        Model<Label> model = (Model<Label>) result.getTribuoModel();
         
         // Extract labels from model (sorted alphabetically - Tribuo convention)
         List<String> labels = model.getOutputIDInfo()
@@ -70,17 +64,67 @@ public class OnnxMetadataHelper {
                 .sorted()
                 .collect(Collectors.toList());
         
-        return buildOracleMetadataJson(featureColumns, labels);
+        StringBuilder json = new StringBuilder();
+        json.append("{\n");
+        json.append("  \"function\": \"classification\",\n");
+        json.append("  \"input\": {\n");
+        json.append("    \"input\": [");
+        json.append(featureColumns.stream()
+                .map(c -> "\"" + escapeJson(c) + "\"")
+                .collect(Collectors.joining(", ")));
+        json.append("]\n");
+        json.append("  },\n");
+        json.append("  \"classificationProbOutput\": \"output\",\n");
+        json.append("  \"labels\": [");
+        json.append(labels.stream()
+                .map(l -> "\"" + escapeJson(l) + "\"")
+                .collect(Collectors.joining(", ")));
+        json.append("]\n");
+        json.append("}");
+        
+        return json.toString();
     }
     
     /**
-     * Builds Oracle DB metadata JSON from feature columns and labels.
+     * Builds Oracle DB metadata JSON for regression models.
+     * Supports both single-output and multi-output regression.
      */
-    public static String buildOracleMetadataJson(List<String> featureColumns, List<String> labels) {
-        // Sort labels alphabetically (Tribuo convention)
+    private static String buildRegressionMetadata(List<String> featureColumns, List<String> labelColumns) {
+        StringBuilder json = new StringBuilder();
+        json.append("{\n");
+        json.append("  \"function\": \"regression\",\n");
+        json.append("  \"input\": {\n");
+        json.append("    \"input\": [");
+        json.append(featureColumns.stream()
+                .map(c -> "\"" + escapeJson(c) + "\"")
+                .collect(Collectors.joining(", ")));
+        json.append("]\n");
+        json.append("  },\n");
+        
+        // Multi-output regression requires explicit output attribute names
+        if (labelColumns != null && labelColumns.size() > 1) {
+            json.append("  \"output\": {\n");
+            json.append("    \"output\": [");
+            json.append(labelColumns.stream()
+                    .map(c -> "\"" + escapeJson(c) + "\"")
+                    .collect(Collectors.joining(", ")));
+            json.append("]\n");
+            json.append("  }\n");
+        } else {
+            json.append("  \"regressionOutput\": \"output\"\n");
+        }
+        
+        json.append("}");
+        
+        return json.toString();
+    }
+    
+    /**
+     * Builds Oracle DB metadata JSON from feature columns and labels (classification).
+     */
+    public static String buildClassificationMetadataJson(List<String> featureColumns, List<String> labels) {
         List<String> sortedLabels = labels.stream().sorted().collect(Collectors.toList());
         
-        // Build JSON manually to avoid extra dependencies
         StringBuilder json = new StringBuilder();
         json.append("{\n");
         json.append("  \"function\": \"classification\",\n");
@@ -103,12 +147,22 @@ public class OnnxMetadataHelper {
     }
     
     /**
+     * Builds Oracle DB metadata JSON from feature columns (regression).
+     * For single-output regression.
+     */
+    public static String buildRegressionMetadataJson(List<String> featureColumns) {
+        return buildRegressionMetadata(featureColumns, null);
+    }
+    
+    /**
+     * Builds Oracle DB metadata JSON from feature columns and label columns (multi-output regression).
+     */
+    public static String buildRegressionMetadataJson(List<String> featureColumns, List<String> labelColumns) {
+        return buildRegressionMetadata(featureColumns, labelColumns);
+    }
+    
+    /**
      * Saves Oracle metadata JSON as a sidecar file next to ONNX file.
-     * 
-     * Example: model.onnx → model.onnx.json
-     * 
-     * @param onnxPath Path to the ONNX file
-     * @param metadataJson The Oracle metadata JSON string
      */
     public static void saveMetadataFile(Path onnxPath, String metadataJson) throws IOException {
         Path metadataPath = getMetadataPath(onnxPath);
@@ -117,9 +171,6 @@ public class OnnxMetadataHelper {
     
     /**
      * Reads Oracle metadata JSON from sidecar file.
-     * 
-     * @param onnxPath Path to the ONNX file
-     * @return The Oracle metadata JSON string, or null if not found
      */
     public static String readMetadataFile(Path onnxPath) throws IOException {
         Path metadataPath = getMetadataPath(onnxPath);
@@ -131,9 +182,6 @@ public class OnnxMetadataHelper {
     
     /**
      * Gets the metadata sidecar file path for an ONNX file.
-     * 
-     * @param onnxPath Path to the ONNX file
-     * @return Path to the metadata file (e.g., model.onnx → model.onnx.json)
      */
     public static Path getMetadataPath(Path onnxPath) {
         return onnxPath.resolveSibling(onnxPath.getFileName() + METADATA_SUFFIX);

@@ -27,8 +27,6 @@ import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 
 /**
  * Parent configuration for ML data sources.
- * Follows VectorToolbox pattern (SourceConfig).
- * 
  * Contains sourceType selector and child configs for each source type.
  */
 @Getter

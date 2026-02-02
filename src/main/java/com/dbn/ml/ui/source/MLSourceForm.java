@@ -37,7 +37,6 @@ import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 
 /**
  * Parent form for ML data source selection.
- * Follows VectorToolbox pattern (EmbeddingSourceForm).
  * 
  * Swaps between child forms based on selected source type:
  * - DATABASE_TABLE -> MLSourceTableForm
@@ -115,6 +114,20 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
      */
     public DBTable getSelectedTable() {
         return tableForm != null ? tableForm.getSelectedTable() : null;
+    }
+
+    /**
+     * Get selected file path (only valid for FILE_SYSTEM source type)
+     */
+    public String getSelectedFilePath() {
+        return fileForm != null ? fileForm.getSelectedFilePath() : null;
+    }
+
+    /**
+     * Get selected delimiter (only valid for FILE_SYSTEM source type)
+     */
+    public String getSelectedDelimiter() {
+        return fileForm != null ? fileForm.getSelectedDelimiter() : ",";
     }
 
     private MLSourceConfig getConfig() {

@@ -41,7 +41,6 @@ import static com.dbn.object.type.DBObjectType.TABLE;
 
 /**
  * Form for database table source selection.
- * Follows VectorToolbox pattern (EmbeddingSourceTableForm).
  */
 public class MLSourceTableForm extends MLToolboxFormBase {
     private JPanel mainPanel;

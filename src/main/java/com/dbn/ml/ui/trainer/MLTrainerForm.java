@@ -20,11 +20,15 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.ml.backend.MLBackendType;
+import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
 import com.dbn.ml.model.trainer.MLTrainerType;
 import com.dbn.ml.ui.MLToolboxForm;
 import com.dbn.ml.ui.MLToolboxFormBase;
 import com.intellij.openapi.Disposable;
+
+import java.util.List;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -75,10 +79,6 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
     private void initComponents() {
         if (algorithmComboBox == null) return;
-        
-        // Algorithm combo
-        algorithmComboBox.setValues(MLTrainerType.values());
-        algorithmComboBox.setSelectedValue(MLTrainerType.SVM_LINEAR);
 
         // Split slider
         if (splitSlider != null) {
@@ -92,9 +92,52 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
             seedSpinner.setModel(new SpinnerNumberModel(1L, 0L, Long.MAX_VALUE, 1L));
         }
 
+        // Initialize trainer combo with backend-filtered trainers
+        refreshTrainers();
+
         onAlgorithmChanged();
         updateSplitLabel();
         updateSeedEnabled();
+    }
+
+    /**
+     * Refreshes available trainers based on selected backend and task type.
+     * Called when backend type changes.
+     */
+    public void refreshTrainers() {
+        if (algorithmComboBox == null) return;
+
+        // Get selected backend from parent form
+        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
+        if (toolboxForm == null) {
+            // Default to all trainers if parent not found
+            algorithmComboBox.setValues(MLTrainerType.values());
+            return;
+        }
+
+        MLBackendType backendType = toolboxForm.getMLRequest().getBackendConfig().getBackendType();
+
+        // For now, assume classification task type (will be refined when task type selection is added)
+        // TODO: Get task type from feature config when label column is selected
+        MLTaskType taskType = MLTaskType.CLASSIFICATION;
+
+        // Filter trainers by backend and task type
+        List<MLTrainerType> availableTrainers = MLTrainerType.getTrainersForBackendAndTask(backendType, taskType);
+
+        // Store currently selected trainer
+        MLTrainerType currentSelection = algorithmComboBox.getSelectedValue();
+
+        // Update combo box values
+        algorithmComboBox.setValues(availableTrainers.toArray(new MLTrainerType[0]));
+
+        // Restore selection if still available, otherwise select first trainer
+        if (availableTrainers.contains(currentSelection)) {
+            algorithmComboBox.setSelectedValue(currentSelection);
+        } else if (!availableTrainers.isEmpty()) {
+            algorithmComboBox.setSelectedValue(availableTrainers.get(0));
+        }
+
+        onAlgorithmChanged();
     }
 
     private void onAlgorithmChanged() {
@@ -132,7 +175,7 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         MLTrainerConfig config = toolboxForm.getMLRequest().getTrainerConfig();
 
         MLTrainerType trainerType = config.getTrainerType();
-        if (trainerType == null) trainerType = MLTrainerType.SVM_LINEAR;
+        if (trainerType == null) trainerType = MLTrainerType.SVM_CLASSIFICATION;
         algorithmComboBox.setSelectedValue(trainerType);
         
         if (splitSlider != null) {
