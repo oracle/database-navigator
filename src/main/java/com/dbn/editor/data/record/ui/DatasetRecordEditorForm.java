@@ -114,7 +114,7 @@ public class DatasetRecordEditorForm extends DBNFormBase {
         for (DatasetRecordEditorColumnForm columnForm : columnForms) {
             String columnName = columnForm.getColumnName();
             boolean visible = Strings.indexOfIgnoreCase(columnName, text, 0) > -1;
-            columnForm.getMainComponent().setVisible(visible);
+            columnForm.setVisible(visible);
         }
     }
 
