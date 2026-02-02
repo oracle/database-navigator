@@ -85,6 +85,10 @@ public class AssistantToolInvocation implements PersistentStateElement {
         return CURRENT.get();
     }
 
+    public static void resetCurrent() {
+        CURRENT.remove();
+    }
+
     public synchronized AssistantPrompt getPrompt() {
         if (prompt != null) return prompt;
         if (isInteractiveRequest()) {
