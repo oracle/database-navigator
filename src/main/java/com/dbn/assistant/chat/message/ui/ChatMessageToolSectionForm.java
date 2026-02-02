@@ -293,9 +293,16 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
                         txt("app.assistant.button.DisableTool"), null,
                         () -> denyToolInvocation(true))));
 
+/*
+        TODO does "cancel" make sense? should it cancel the entire tool chain?
+        JButton cancelButton = new JButton(txt("app.assistant.button.CancelTool"));
+        onButtonClick(cancelButton, e -> cancelToolInvocation());
+*/
+
         horizontalBoxLayout(messageButtonsPanel);
         messageButtonsPanel.add(allowButton);
         messageButtonsPanel.add(denyButton);
+        //messageButtonsPanel.add(cancelButton);
     }
 
     public boolean isInteractive() {
@@ -327,6 +334,13 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         processingPanel.setVisible(true);
         AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
         executionMonitor.deny();
+    }
+
+    private void cancelToolInvocation() {
+        messagePanel.setVisible(false);
+        processingPanel.setVisible(false);
+        AssistantToolInvocationMonitor executionMonitor = getInvocationMonitor();
+        executionMonitor.cancel();
     }
 
     public void hideProcessingIndicator() {
