@@ -16,61 +16,58 @@
 
 package com.dbn.ml.result;
 
-import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Background;
-import com.dbn.common.thread.Dispatch;
-import com.dbn.common.util.Messages;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.interfaces.DatabaseInterfaces;
-import com.dbn.database.interfaces.DatabaseVectorInterface;
+import com.dbn.common.ui.misc.DBNScrollPane;
+import com.dbn.common.util.Actions;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.dbn.ml.backend.MLBackendType;
+import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
+import com.dbn.ml.backend.model.MLEvaluationResult;
 import com.dbn.ml.model.MLResult;
-import com.dbn.ml.onnx.OnnxMetadataHelper;
-import com.intellij.openapi.fileChooser.FileChooserFactory;
-import com.intellij.openapi.fileChooser.FileSaverDescriptor;
-import com.intellij.openapi.fileChooser.FileSaverDialog;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFileWrapper;
-import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.components.JBTabbedPane;
-import com.intellij.ui.components.JBTextField;
+import com.intellij.ui.JBColor;
+import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.table.JBTable;
+import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 import org.tribuo.Model;
 import org.tribuo.ONNXExportable;
-import org.tribuo.Prediction;
-import org.tribuo.classification.Label;
-import org.tribuo.classification.evaluation.LabelEvaluation;
-import org.tribuo.impl.ArrayExample;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.io.ObjectOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.sql.Blob;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
+/**
+ * Form for displaying ML model evaluation results.
+ *
+ * @author ayoub allali
+ */
 public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionResult> {
+
+    // Form bindings
     private JPanel mainPanel;
+    private JPanel actionsPanel;
+    private JPanel headerPanel;
+    private JPanel titleBar;
+    private JLabel titleLabel;
+    private JLabel taskTypeLabel;
+    private JLabel scoreLabel;
+    private com.intellij.ui.SimpleColoredComponent metricsSummary;
+    private DBNScrollPane contentScrollPane;
+    private JPanel contentPanel;
+    private JPanel metricsCardsPanel;
+    private JPanel confusionMatrixPanel;
+    private JPanel perClassPanel;
+    private JPanel modelDetailsPanel;
+
+    // Data
     private final MLResult result;
-    
-    // Prediction components
-    private List<JBTextField> featureInputFields;
-    private JLabel predictionResultLabel;
-    private JTextArea predictionDetailsArea;
 
     public MLExecutionResultForm(@NotNull MLExecutionResult executionResult) {
         super(executionResult);
@@ -79,603 +76,414 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     }
 
     private void initializeComponents() {
-        mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        // Header with status, metrics, and action buttons
-        JPanel headerPanel = createHeaderPanel();
-        mainPanel.add(headerPanel, BorderLayout.NORTH);
-
-        // Tabbed pane for different views
-        JBTabbedPane tabbedPane = new JBTabbedPane();
-        
-        // Tab 1: Summary Metrics
-        tabbedPane.addTab("Summary", createSummaryPanel());
-        
-        // Tab 2: Per-Class Metrics
-        tabbedPane.addTab("Per-Class Metrics", createPerClassMetricsPanel());
-        
-        // Tab 3: Confusion Matrix
-        tabbedPane.addTab("Confusion Matrix", createConfusionMatrixPanel());
-        
-        // Tab 4: Predictions
-        tabbedPane.addTab("Predictions", createPredictionsPanel());
-        
-        // Tab 5: Model Info
-        tabbedPane.addTab("Model Info", createModelInfoPanel());
-
-        mainPanel.add(tabbedPane, BorderLayout.CENTER);
+        initializeHeader();
+        initializeMetricsCards();
+        initializeConfusionMatrix();
+        initializePerClassMetrics();
+        initializeModelDetails();
+        createActionsPanel();
     }
 
-    private JPanel createHeaderPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 5));
-        panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-        
-        // Left: Status and title
-        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        JLabel statusIcon = new JLabel(Icons.COMMON_STATUS_SUCCESS);
-        JLabel titleLabel = new JLabel("Model Training Complete");
+    private void createActionsPanel() {
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.MLExecutionResult");
+        setAccessibleName(actionToolbar, "ML Execution Result Actions");
+        actionsPanel.add(actionToolbar.getComponent());
+    }
+
+    private void initializeHeader() {
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 16f));
-        titlePanel.add(statusIcon);
-        titlePanel.add(titleLabel);
-        
-        // Center: Key metrics summary
-        JPanel metricsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
-        double accuracy = result.getAccuracy() * 100;
-        addMetricBadge(metricsPanel, "Accuracy", String.format("%.1f%%", accuracy));
-        addMetricBadge(metricsPanel, "Classes", String.valueOf(result.getClassCount()));
-        addMetricBadge(metricsPanel, "Features", String.valueOf(result.getFeatureCount()));
-        addMetricBadge(metricsPanel, "Time", result.getTrainingTimeMs() + "ms");
-        
-        // Right: Action buttons
-        JPanel actionsPanel = createActionsPanel();
-        
-        panel.add(titlePanel, BorderLayout.WEST);
-        panel.add(metricsPanel, BorderLayout.CENTER);
-        panel.add(actionsPanel, BorderLayout.EAST);
-        
-        return panel;
-    }
 
-    private JPanel createActionsPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-        
-        // Save Model button
-        JButton saveButton = new JButton("Save Model");
-        saveButton.setToolTipText("Save model to file for later use");
-        saveButton.addActionListener(e -> saveModel());
-        
-        // Export ONNX button
-        JButton exportOnnxButton = new JButton("Export ONNX");
-        exportOnnxButton.setToolTipText("Export model to ONNX format for deployment");
-        exportOnnxButton.addActionListener(e -> exportToOnnx());
-        
-        // Export to DB button
-        JButton exportToDbButton = new JButton("Export to DB");
-        exportToDbButton.setToolTipText("Export model directly to Oracle Database");
-        exportToDbButton.addActionListener(e -> exportToDatabase());
-        
-        // Check if model supports ONNX export
-        Model<Label> model = result.getModel();
-        boolean supportsOnnx = model instanceof ONNXExportable;
-        exportOnnxButton.setEnabled(supportsOnnx);
-        exportToDbButton.setEnabled(supportsOnnx);
-        
-        panel.add(saveButton);
-        panel.add(exportOnnxButton);
-        panel.add(exportToDbButton);
-        
-        return panel;
-    }
+        // Task type
+        String taskType = result.isClassification() ? "Classification" : "Regression";
+        taskTypeLabel.setText(taskType);
+        taskTypeLabel.setForeground(JBColor.gray);
 
-    private void saveModel() {
-        Project project = result.getConnection().getProject();
-        
-        FileSaverDescriptor descriptor = new FileSaverDescriptor(
-                "Save Model",
-                "Save the trained model to a file",
-                "model"
-        );
-        
-        FileSaverDialog dialog = FileChooserFactory.getInstance().createSaveFileDialog(descriptor, project);
-        VirtualFileWrapper fileWrapper = dialog.save("trained_model.model");
-        
-        if (fileWrapper != null) {
-            Path path = fileWrapper.getFile().toPath();
-            
-            Background.run(() -> {
-                try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(path))) {
-                    oos.writeObject(result.getModel());
-                    
-                    Dispatch.run(() -> Messages.showInfoDialog(
-                            project,
-                            "Model Saved",
-                            "Model saved successfully to:\n" + path
-                    ));
-                } catch (Exception ex) {
-                    Dispatch.run(() -> Messages.showErrorDialog(
-                            project,
-                            "Save Failed",
-                            "Failed to save model: " + ex.getMessage()
-                    ));
-                }
-            });
+        // Overall score
+        double score = calculateOverallScore();
+        scoreLabel.setText(String.format("Score: %.0f", score));
+        scoreLabel.setFont(scoreLabel.getFont().deriveFont(Font.BOLD));
+
+        // Metrics summary line
+        MLEvaluationResult evalResult = result.getEvaluationResult();
+        if (evalResult != null) {
+            if (result.isClassification()) {
+                metricsSummary.append("Accuracy: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                metricsSummary.append(String.format("%.1f%%", evalResult.getAccuracy() * 100), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
+                metricsSummary.append("F1: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                metricsSummary.append(String.format("%.1f%%", evalResult.getF1Score() * 100), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+            } else {
+                metricsSummary.append("R\u00B2: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                metricsSummary.append(String.format("%.4f", evalResult.getR2Score()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
+                metricsSummary.append("RMSE: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                metricsSummary.append(String.format("%.4f", evalResult.getRMSE()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+            }
+            metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
+            metricsSummary.append("Algorithm: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+            metricsSummary.append(result.getAlgorithmName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+            metricsSummary.append(" | ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
+            metricsSummary.append("Time: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+            metricsSummary.append(result.getTrainingTimeMs() + "ms", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
         }
     }
 
-    private void exportToOnnx() {
-        Project project = result.getConnection().getProject();
-        Model<Label> model = result.getModel();
-        
-        if (!(model instanceof ONNXExportable)) {
-            Messages.showErrorDialog(
-                    project,
-                    "Export Not Supported",
-                    "This model type does not support ONNX export."
-            );
+    private void initializeMetricsCards() {
+        metricsCardsPanel.setLayout(new GridLayout(1, 0, 12, 0));
+        metricsCardsPanel.setBorder(JBUI.Borders.empty(8));
+
+        MLEvaluationResult evalResult = result.getEvaluationResult();
+        if (evalResult == null) return;
+
+        if (result.isClassification()) {
+            metricsCardsPanel.add(createMetricCard("Accuracy", evalResult.getAccuracy(), true));
+            metricsCardsPanel.add(createMetricCard("Precision", evalResult.getPrecision(), true));
+            metricsCardsPanel.add(createMetricCard("Recall", evalResult.getRecall(), true));
+            metricsCardsPanel.add(createMetricCard("F1 Score", evalResult.getF1Score(), true));
+
+            if (evalResult instanceof DBMSEvaluationResult dbmsEval && dbmsEval.getAucRoc() > 0) {
+                metricsCardsPanel.add(createMetricCard("AUC-ROC", dbmsEval.getAucRoc(), true));
+            }
+        } else {
+            metricsCardsPanel.add(createMetricCard("R\u00B2 Score", evalResult.getR2Score(), true));
+            metricsCardsPanel.add(createMetricCard("RMSE", evalResult.getRMSE(), false));
+            metricsCardsPanel.add(createMetricCard("MAE", evalResult.getMAE(), false));
+        }
+    }
+
+    private JPanel createMetricCard(String name, double value, boolean isRatio) {
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(JBColor.border(), 1),
+                JBUI.Borders.empty(12)
+        ));
+
+        JLabel nameLabel = new JLabel(name);
+        nameLabel.setFont(nameLabel.getFont().deriveFont(11f));
+        nameLabel.setForeground(JBColor.gray);
+        nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(nameLabel);
+        card.add(Box.createVerticalStrut(4));
+
+        String valueStr = isRatio ? String.format("%.1f%%", value * 100) : String.format("%.4f", value);
+        JLabel valueLabel = new JLabel(valueStr);
+        valueLabel.setFont(valueLabel.getFont().deriveFont(Font.BOLD, 18f));
+        valueLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(valueLabel);
+
+        if (isRatio) {
+            card.add(Box.createVerticalStrut(6));
+            JPanel bar = createSubduedProgressBar((int) (value * 100), 4);
+            bar.setAlignmentX(Component.LEFT_ALIGNMENT);
+            card.add(bar);
+        }
+
+        return card;
+    }
+
+    private void initializeConfusionMatrix() {
+        if (!result.isClassification()) {
+            confusionMatrixPanel.setVisible(false);
             return;
         }
-        
-        FileSaverDescriptor descriptor = new FileSaverDescriptor(
-                "Export ONNX Model",
-                "Export the model to ONNX format",
-                "onnx"
-        );
-        
-        FileSaverDialog dialog = FileChooserFactory.getInstance().createSaveFileDialog(descriptor, project);
-        VirtualFileWrapper fileWrapper = dialog.save("trained_model.onnx");
-        
-        if (fileWrapper != null) {
-            Path path = fileWrapper.getFile().toPath();
-            
-            Background.run(() -> {
-                try {
-                    ONNXExportable onnxModel = (ONNXExportable) model;
-                    
-                    // Export ONNX model to file
-                    onnxModel.saveONNXModel(
-                            "com.dbn.ml",  // domain
-                            0,             // model version
-                            path
-                    );
-                    
-                    // Save Oracle metadata as sidecar JSON file
-                    String oracleMetadata = OnnxMetadataHelper.buildOracleMetadataJson(result);
-                    OnnxMetadataHelper.saveMetadataFile(path, oracleMetadata);
-                    
-                    Path metadataPath = OnnxMetadataHelper.getMetadataPath(path);
-                    
-                    Dispatch.run(() -> Messages.showInfoDialog(
-                            project,
-                            "ONNX Export Complete",
-                            "Model exported successfully!\n\n" +
-                            "ONNX Model: " + path.getFileName() + "\n" +
-                            "Oracle Metadata: " + metadataPath.getFileName() + "\n\n" +
-                            "Use both files when loading to Oracle DB with DBMS_DATA_MINING.IMPORT_ONNX_MODEL"
-                    ));
-                } catch (Exception ex) {
-                    Dispatch.run(() -> Messages.showErrorDialog(
-                            project,
-                            "Export Failed",
-                            "Failed to export model to ONNX: " + ex.getMessage()
-                    ));
-                }
-            });
-        }
-    }
 
-    private void exportToDatabase() {
-        Project project = result.getConnection().getProject();
-        Model<Label> model = result.getModel();
-        
-        if (!(model instanceof ONNXExportable)) {
-            Messages.showErrorDialog(project, "Export Not Supported", 
-                    "This model type does not support ONNX export.");
-            return;
+        confusionMatrixPanel.setLayout(new BorderLayout(8, 8));
+        confusionMatrixPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(JBColor.border(), 1),
+                JBUI.Borders.empty(12)
+        ));
+
+        JLabel titleLabel = new JLabel("Confusion Matrix");
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
+        confusionMatrixPanel.add(titleLabel, BorderLayout.NORTH);
+
+        // Try to get confusion matrix data
+        Map<String, Integer> confusionData = null;
+        if (result.getBackendType() == MLBackendType.DBMS_DATA_MINING && result.getEvaluationResult() != null) {
+            var dbmsEval = (DBMSEvaluationResult) result.getEvaluationResult();
+            confusionData = dbmsEval.getConfusionMatrixData();
         }
-        
-        // Ask user for model name using IntelliJ's Messages
-        String modelName = com.intellij.openapi.ui.Messages.showInputDialog(
-                project,
-                "Enter the model name for Oracle Database:",
-                "Export to Database",
-                com.intellij.openapi.ui.Messages.getQuestionIcon()
-        );
-        
-        if (modelName == null || modelName.trim().isEmpty()) {
-            return; // User cancelled
-        }
-        
-        // Validate model name (Oracle identifier rules)
-        String finalModelName = modelName.trim().toUpperCase();
-        if (!finalModelName.matches("^[A-Z][A-Z0-9_]*$")) {
-            Messages.showErrorDialog(project, "Invalid Model Name",
-                    "Model name must start with a letter and contain only letters, numbers, and underscores.");
-            return;
-        }
-        
-        Background.run(() -> {
-            try {
-                // 1. Export ONNX to byte array (in memory)
-                ONNXExportable onnxModel = (ONNXExportable) model;
-                ai.onnx.proto.OnnxMl.ModelProto modelProto = onnxModel.exportONNXModel(
-                        "com.dbn.ml",  // domain
-                        0              // model version
-                );
-                byte[] onnxBytes = modelProto.toByteArray();
-                
-                // 2. Generate Oracle metadata JSON
-                String metadataJson = OnnxMetadataHelper.buildOracleMetadataJson(result);
-                
-                // 3. Get connection and schema
-                ConnectionHandler connection = result.getConnection();
-                String schemaName = connection.getUserName();
-                
-                // 4. Upload to database
-                try (DBNConnection conn = connection.getMainConnection()) {
-                    // Create BLOB from bytes
-                    Blob modelBlob = conn.createBlob();
-                    modelBlob.setBytes(1, onnxBytes);
-                    
-                    // Call the import procedure
-                    DatabaseInterfaces interfaces = connection.getInterfaces();
-                    DatabaseVectorInterface vectorInterface = interfaces.getVectorInterface();
-                    vectorInterface.createModelFromFile(
-                            conn,
-                            schemaName,
-                            finalModelName,
-                            modelBlob,
-                            metadataJson
-                    );
-                }
-                
-                Dispatch.run(() -> Messages.showInfoDialog(
-                        project,
-                        "Export Complete",
-                        "Model '" + finalModelName + "' exported successfully to Oracle Database!\n\n" +
-                        "You can now use it in SQL:\n" +
-                        "SELECT PREDICTION(" + finalModelName + " USING *) FROM your_table;"
-                ));
-                
-            } catch (Exception ex) {
-                Dispatch.run(() -> Messages.showErrorDialog(
-                        project,
-                        "Export Failed",
-                        "Failed to export model to database: " + ex.getMessage()
-                ));
+
+        if (confusionData != null && !confusionData.isEmpty()) {
+            confusionMatrixPanel.add(createHeatmapTable(confusionData), BorderLayout.CENTER);
+        } else {
+            String matrixText = result.getConfusionMatrix();
+            if (matrixText != null && !matrixText.equals("N/A")) {
+                JTextArea textArea = new JTextArea(matrixText);
+                textArea.setEditable(false);
+                textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+                confusionMatrixPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+            } else {
+                confusionMatrixPanel.add(new JLabel("Confusion matrix not available"), BorderLayout.CENTER);
             }
-        });
-    }
-
-    private JPanel createPredictionsPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        // Input section
-        JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
-        inputPanel.setBorder(BorderFactory.createTitledBorder("Enter Feature Values"));
-
-        // Get feature names from model
-        Model<Label> model = result.getModel();
-        var featureMap = model.getFeatureIDMap();
-        featureInputFields = new ArrayList<>();
-
-        for (var featureInfo : featureMap) {
-            JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 2));
-            JLabel label = new JLabel(featureInfo.getName() + ":");
-            label.setPreferredSize(new java.awt.Dimension(150, 25));
-            
-            JBTextField textField = new JBTextField(10);
-            textField.setText("0.0");
-            featureInputFields.add(textField);
-            
-            row.add(label);
-            row.add(textField);
-            inputPanel.add(row);
         }
-
-        // Predict button
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        JButton predictButton = new JButton("Predict");
-        predictButton.addActionListener(e -> executePrediction());
-        buttonPanel.add(predictButton);
-        inputPanel.add(buttonPanel);
-
-        // Result section
-        JPanel resultPanel = new JPanel(new BorderLayout(10, 10));
-        resultPanel.setBorder(BorderFactory.createTitledBorder("Prediction Result"));
-
-        predictionResultLabel = new JLabel("Enter feature values and click Predict");
-        predictionResultLabel.setFont(predictionResultLabel.getFont().deriveFont(Font.BOLD, 14f));
-        
-        predictionDetailsArea = new JTextArea(5, 40);
-        predictionDetailsArea.setEditable(false);
-        predictionDetailsArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-        
-        resultPanel.add(predictionResultLabel, BorderLayout.NORTH);
-        resultPanel.add(new JBScrollPane(predictionDetailsArea), BorderLayout.CENTER);
-
-        // Layout
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(inputPanel, BorderLayout.WEST);
-        
-        panel.add(topPanel, BorderLayout.NORTH);
-        panel.add(resultPanel, BorderLayout.CENTER);
-
-        return panel;
     }
 
-    private void executePrediction() {
-        try {
-            Model<Label> model = result.getModel();
-            var featureMap = model.getFeatureIDMap();
-            
-            // Collect feature names and values
-            String[] featureNames = new String[featureInputFields.size()];
-            double[] featureValues = new double[featureInputFields.size()];
-            
-            int i = 0;
-            for (var featureInfo : featureMap) {
-                featureNames[i] = featureInfo.getName();
-                featureValues[i] = Double.parseDouble(featureInputFields.get(i).getText().trim());
-                i++;
+    private JComponent createHeatmapTable(Map<String, Integer> confusionData) {
+        TreeSet<String> classLabels = new TreeSet<>();
+        int maxCount = 0;
+        for (Map.Entry<String, Integer> entry : confusionData.entrySet()) {
+            String[] parts = entry.getKey().split("_");
+            if (parts.length >= 2) {
+                classLabels.add(parts[0]);
+                classLabels.add(parts[1]);
+                maxCount = Math.max(maxCount, entry.getValue());
             }
-            
-            // Create example and predict
-            ArrayExample<Label> example = new ArrayExample<>(
-                    new Label("unknown"),
-                    featureNames,
-                    featureValues
-            );
-            
-            Prediction<Label> prediction = model.predict(example);
-            
-            // Display result
-            Label predictedLabel = prediction.getOutput();
-            predictionResultLabel.setText("Predicted: " + predictedLabel.getLabel() + 
-                    " (Score: " + String.format("%.4f", predictedLabel.getScore()) + ")");
-            
-            // Show all class probabilities
-            StringBuilder details = new StringBuilder();
-            details.append("=== Prediction Details ===\n\n");
-            details.append("Predicted Class: ").append(predictedLabel.getLabel()).append("\n");
-            details.append("Confidence Score: ").append(String.format("%.4f", predictedLabel.getScore())).append("\n\n");
-            details.append("=== Class Scores ===\n");
-            
-            var outputScores = prediction.getOutputScores();
-            for (var entry : outputScores.entrySet()) {
-                details.append(String.format("  %s: %.4f\n", entry.getKey(), entry.getValue().getScore()));
+        }
+
+        List<String> labels = new ArrayList<>(classLabels);
+        int size = labels.size();
+
+        String[] columns = new String[size + 1];
+        columns[0] = "Actual / Predicted";
+        for (int i = 0; i < size; i++) {
+            columns[i + 1] = labels.get(i);
+        }
+
+        Object[][] data = new Object[size][size + 1];
+        for (int i = 0; i < size; i++) {
+            data[i][0] = labels.get(i);
+            for (int j = 0; j < size; j++) {
+                String key = labels.get(i) + "_" + labels.get(j);
+                Integer count = confusionData.get(key);
+                data[i][j + 1] = count != null ? count : 0;
             }
-            
-            details.append("\n=== Input Features ===\n");
-            for (int j = 0; j < featureNames.length; j++) {
-                details.append(String.format("  %s: %.4f\n", featureNames[j], featureValues[j]));
-            }
-            
-            predictionDetailsArea.setText(details.toString());
-            
-        } catch (NumberFormatException ex) {
-            Messages.showErrorDialog(
-                    result.getConnection().getProject(),
-                    "Invalid Input",
-                    "Please enter valid numeric values for all features."
-            );
-        } catch (Exception ex) {
-            Messages.showErrorDialog(
-                    result.getConnection().getProject(),
-                    "Prediction Failed",
-                    "Failed to execute prediction: " + ex.getMessage()
-            );
-        }
-    }
-
-    private void addMetricBadge(JPanel panel, String label, String value) {
-        JPanel badge = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 0));
-        JLabel labelComp = new JLabel(label + ":");
-        labelComp.setFont(labelComp.getFont().deriveFont(Font.PLAIN, 11f));
-        JLabel valueComp = new JLabel(value);
-        valueComp.setFont(valueComp.getFont().deriveFont(Font.BOLD, 12f));
-        badge.add(labelComp);
-        badge.add(valueComp);
-        panel.add(badge);
-    }
-
-    private JPanel createSummaryPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        // Training info
-        JPanel trainingPanel = new JPanel();
-        trainingPanel.setLayout(new BoxLayout(trainingPanel, BoxLayout.Y_AXIS));
-        trainingPanel.setBorder(BorderFactory.createTitledBorder("Training Summary"));
-
-        addInfoRow(trainingPanel, "Algorithm", result.getAlgorithmName());
-        addInfoRow(trainingPanel, "Training Samples", String.valueOf(result.getTrainingDataSize()));
-        addInfoRow(trainingPanel, "Testing Samples", String.valueOf(result.getTestingDataSize()));
-        addInfoRow(trainingPanel, "Number of Features", String.valueOf(result.getFeatureCount()));
-        addInfoRow(trainingPanel, "Number of Classes", String.valueOf(result.getClassCount()));
-        addInfoRow(trainingPanel, "Training Time", result.getTrainingTimeMs() + " ms");
-
-        // Evaluation metrics
-        JPanel evalPanel = new JPanel();
-        evalPanel.setLayout(new BoxLayout(evalPanel, BoxLayout.Y_AXIS));
-        evalPanel.setBorder(BorderFactory.createTitledBorder("Evaluation Metrics"));
-
-        LabelEvaluation eval = result.getEvaluation();
-        if (eval != null) {
-            addInfoRow(evalPanel, "Accuracy", String.format("%.4f (%.2f%%)", eval.accuracy(), eval.accuracy() * 100));
-            addInfoRow(evalPanel, "Micro Precision", String.format("%.4f", eval.microAveragedPrecision()));
-            addInfoRow(evalPanel, "Micro Recall", String.format("%.4f", eval.microAveragedRecall()));
-            addInfoRow(evalPanel, "Micro F1", String.format("%.4f", eval.microAveragedF1()));
-            addInfoRow(evalPanel, "Macro Precision", String.format("%.4f", eval.macroAveragedPrecision()));
-            addInfoRow(evalPanel, "Macro Recall", String.format("%.4f", eval.macroAveragedRecall()));
-            addInfoRow(evalPanel, "Macro F1", String.format("%.4f", eval.macroAveragedF1()));
-            addInfoRow(evalPanel, "Balanced Error Rate", String.format("%.4f", eval.balancedErrorRate()));
         }
 
-        JPanel gridPanel = new JPanel(new GridLayout(1, 2, 10, 0));
-        gridPanel.add(trainingPanel);
-        gridPanel.add(evalPanel);
-
-        panel.add(gridPanel, BorderLayout.NORTH);
-        
-        return panel;
-    }
-
-    private JPanel createPerClassMetricsPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        LabelEvaluation eval = result.getEvaluation();
-        if (eval == null) {
-            panel.add(new JLabel("No evaluation data available"), BorderLayout.CENTER);
-            return panel;
-        }
-
-        // Create table with per-class metrics
-        String[] columns = {"Class", "n", "TP", "FN", "FP", "Recall", "Precision", "F1"};
-        DefaultTableModel tableModel = new DefaultTableModel(columns, 0) {
+        DefaultTableModel model = new DefaultTableModel(data, columns) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
 
-        // Get labels from confusion matrix domain
-        var confusionMatrix = eval.getConfusionMatrix();
-        var labelDomain = confusionMatrix.getDomain();
-        
-        // Add per-class rows
-        for (Label label : labelDomain.getDomain()) {
-            String className = label.getLabel();
-            double n = confusionMatrix.support(label);
-            double tp = confusionMatrix.tp(label);
-            double fn = confusionMatrix.fn(label);
-            double fp = confusionMatrix.fp(label);
-            double recall = eval.recall(label);
-            double precision = eval.precision(label);
-            double f1 = eval.f1(label);
-
-            tableModel.addRow(new Object[]{
-                    className,
-                    (int) n,
-                    (int) tp,
-                    (int) fn,
-                    (int) fp,
-                    String.format("%.3f", recall),
-                    String.format("%.3f", precision),
-                    String.format("%.3f", f1)
-            });
-        }
-
-        // Add totals row
-        tableModel.addRow(new Object[]{
-                "Total",
-                result.getTestingDataSize(),
-                "-", "-", "-", "", "", ""
-        });
-
-        // Add averages
-        tableModel.addRow(new Object[]{
-                "Micro Average", "", "", "", "",
-                String.format("%.3f", eval.microAveragedRecall()),
-                String.format("%.3f", eval.microAveragedPrecision()),
-                String.format("%.3f", eval.microAveragedF1())
-        });
-
-        tableModel.addRow(new Object[]{
-                "Macro Average", "", "", "", "",
-                String.format("%.3f", eval.macroAveragedRecall()),
-                String.format("%.3f", eval.macroAveragedPrecision()),
-                String.format("%.3f", eval.macroAveragedF1())
-        });
-
-        JBTable table = new JBTable(tableModel);
-        table.setRowHeight(25);
+        JBTable table = new JBTable(model);
+        table.setRowHeight(36);
         table.getTableHeader().setReorderingAllowed(false);
 
-        JBScrollPane scrollPane = new JBScrollPane(table);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        final int finalMaxCount = maxCount;
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setHorizontalAlignment(SwingConstants.CENTER);
 
-        // Add accuracy summary at bottom
-        JPanel summaryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
-        summaryPanel.add(new JLabel(String.format("Accuracy: %.4f", eval.accuracy())));
-        summaryPanel.add(new JLabel(String.format("Balanced Error Rate: %.4f", eval.balancedErrorRate())));
-        panel.add(summaryPanel, BorderLayout.SOUTH);
+                if (column > 0 && value instanceof Integer) {
+                    int count = (Integer) value;
+                    float intensity = finalMaxCount > 0 ? (float) count / finalMaxCount : 0;
+                    if (count > 0) {
+                        int alpha = (int)(20 + intensity * 80);
+                        setBackground(new JBColor(
+                            new Color(100, 100, 100, alpha),
+                            new Color(180, 180, 180, alpha)));
+                    } else {
+                        setBackground(JBColor.background());
+                    }
+                } else {
+                    setBackground(JBColor.background());
+                    setFont(getFont().deriveFont(Font.BOLD));
+                }
+                setForeground(JBColor.foreground());
+                return c;
+            }
+        };
+
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(renderer);
+        }
+
+        // Don't wrap in JScrollPane - let parent scroll pane handle scrolling
+        JPanel tablePanel = new JPanel(new BorderLayout());
+        tablePanel.add(table.getTableHeader(), BorderLayout.NORTH);
+        tablePanel.add(table, BorderLayout.CENTER);
+        return tablePanel;
+    }
+
+    private void initializePerClassMetrics() {
+        if (!result.isClassification()) {
+            perClassPanel.setVisible(false);
+            return;
+        }
+
+        perClassPanel.setLayout(new BorderLayout(8, 8));
+        perClassPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(JBColor.border(), 1),
+                JBUI.Borders.empty(12)
+        ));
+
+        JLabel titleLabel = new JLabel("Per-Class Performance");
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
+        perClassPanel.add(titleLabel, BorderLayout.NORTH);
+
+        JPanel chartPanel = new JPanel();
+        chartPanel.setLayout(new BoxLayout(chartPanel, BoxLayout.Y_AXIS));
+
+        MLEvaluationResult evalResult = result.getEvaluationResult();
+        if (evalResult != null) {
+            var perClassMetrics = evalResult.getPerClassMetrics();
+            if (perClassMetrics != null && !perClassMetrics.isEmpty()) {
+                for (var entry : perClassMetrics.entrySet()) {
+                    var m = entry.getValue();
+                    chartPanel.add(createClassRow(entry.getKey(), m.getPrecision(), m.getRecall(), m.getF1Score(), m.getSupport()));
+                    chartPanel.add(Box.createVerticalStrut(6));
+                }
+            }
+        }
+
+        if (chartPanel.getComponentCount() == 0) {
+            chartPanel.add(new JLabel("Per-class metrics not available"));
+        }
+
+        perClassPanel.add(chartPanel, BorderLayout.CENTER);
+    }
+
+    private JPanel createClassRow(String className, double precision, double recall, double f1, int support) {
+        JPanel row = new JPanel(new BorderLayout(10, 0));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
+
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        leftPanel.setPreferredSize(new Dimension(140, 28));
+        JLabel nameLabel = new JLabel(className);
+        nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD));
+        leftPanel.add(nameLabel);
+        JLabel supportLabel = new JLabel("(n=" + support + ")");
+        supportLabel.setForeground(JBColor.gray);
+        supportLabel.setFont(supportLabel.getFont().deriveFont(10f));
+        leftPanel.add(supportLabel);
+        row.add(leftPanel, BorderLayout.WEST);
+
+        JPanel barsPanel = new JPanel(new GridLayout(1, 3, 10, 0));
+        barsPanel.add(createMiniBar("P", precision));
+        barsPanel.add(createMiniBar("R", recall));
+        barsPanel.add(createMiniBar("F1", f1));
+        row.add(barsPanel, BorderLayout.CENTER);
+
+        return row;
+    }
+
+    private JPanel createMiniBar(String label, double value) {
+        JPanel panel = new JPanel(new BorderLayout(5, 0));
+
+        JLabel labelComp = new JLabel(label);
+        labelComp.setFont(labelComp.getFont().deriveFont(10f));
+        labelComp.setForeground(JBColor.gray);
+        labelComp.setPreferredSize(new Dimension(20, 20));
+        panel.add(labelComp, BorderLayout.WEST);
+
+        JPanel barPanel = createSubduedProgressBar((int) (value * 100), 16);
+        panel.add(barPanel, BorderLayout.CENTER);
+
+        JLabel valueLabel = new JLabel(String.format("%.0f%%", value * 100));
+        valueLabel.setFont(valueLabel.getFont().deriveFont(10f));
+        valueLabel.setForeground(JBColor.foreground());
+        valueLabel.setPreferredSize(new Dimension(35, 16));
+        valueLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        panel.add(valueLabel, BorderLayout.EAST);
 
         return panel;
     }
 
-    private JPanel createConfusionMatrixPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    /**
+     * Creates a subdued progress bar using neutral gray colors following IntelliJ's style.
+     */
+    private JPanel createSubduedProgressBar(int percentage, int height) {
+        return new JPanel() {
+            {
+                setPreferredSize(new Dimension(100, height));
+                setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+                setOpaque(false);
+            }
 
-        String confusionMatrix = result.getConfusionMatrix();
-        
-        JTextArea textArea = new JTextArea(confusionMatrix);
-        textArea.setEditable(false);
-        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-        
-        JBScrollPane scrollPane = new JBScrollPane(textArea);
-        panel.add(scrollPane, BorderLayout.CENTER);
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        JLabel explanationLabel = new JLabel(
-                "<html><i>Rows represent actual classes, columns represent predicted classes. " +
-                "Diagonal values show correct predictions.</i></html>"
-        );
-        explanationLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-        panel.add(explanationLabel, BorderLayout.SOUTH);
+                int width = getWidth();
+                int h = getHeight();
+                int fillWidth = (int) (width * percentage / 100.0);
 
-        return panel;
+                // Background track - subtle gray
+                g2.setColor(JBColor.border());
+                g2.fillRoundRect(0, 0, width, h, h, h);
+
+                // Filled portion - slightly darker gray
+                if (fillWidth > 0) {
+                    g2.setColor(new JBColor(new Color(140, 140, 140), new Color(120, 120, 120)));
+                    g2.fillRoundRect(0, 0, fillWidth, h, h, h);
+                }
+
+                g2.dispose();
+            }
+        };
     }
 
-    private JPanel createModelInfoPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    private void initializeModelDetails() {
+        modelDetailsPanel.setLayout(new BorderLayout(8, 8));
+        modelDetailsPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(JBColor.border(), 1),
+                JBUI.Borders.empty(12)
+        ));
 
-        StringBuilder info = new StringBuilder();
-        info.append("=== Model Information ===\n\n");
-        info.append("Algorithm: ").append(result.getAlgorithmName()).append("\n");
-        info.append("Training Samples: ").append(result.getTrainingDataSize()).append("\n");
-        info.append("Testing Samples: ").append(result.getTestingDataSize()).append("\n");
-        info.append("Features: ").append(result.getFeatureCount()).append("\n");
-        info.append("Classes: ").append(result.getClassCount()).append("\n");
-        info.append("Training Time: ").append(result.getTrainingTimeMs()).append(" ms\n\n");
-        
-        // ONNX support info
-        Model<Label> model = result.getModel();
-        info.append("ONNX Export: ").append(model instanceof ONNXExportable ? "Supported" : "Not Supported").append("\n\n");
+        JLabel titleLabel = new JLabel("Model Details");
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
+        modelDetailsPanel.add(titleLabel, BorderLayout.NORTH);
 
-        info.append("=== Full Evaluation ===\n\n");
-        info.append(result.getEvaluationSummary());
+        JPanel detailsGrid = new JPanel(new GridLayout(0, 4, 16, 6));
 
-        JTextArea textArea = new JTextArea(info.toString());
-        textArea.setEditable(false);
-        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-        
-        JBScrollPane scrollPane = new JBScrollPane(textArea);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        addDetailRow(detailsGrid, "Algorithm", result.getAlgorithmName());
+        addDetailRow(detailsGrid, "Backend", result.getBackendType().getName());
+        addDetailRow(detailsGrid, "Features", String.valueOf(result.getFeatureCount()));
+        addDetailRow(detailsGrid, "Training Samples", String.valueOf(result.getTrainingDataSize()));
+        addDetailRow(detailsGrid, "Test Samples", String.valueOf(result.getTestingDataSize()));
+        addDetailRow(detailsGrid, "Training Time", result.getTrainingTimeMs() + " ms");
 
-        return panel;
+        if (result.isClassification()) {
+            addDetailRow(detailsGrid, "Classes", String.valueOf(result.getClassCount()));
+        } else {
+            addDetailRow(detailsGrid, "Output Dimensions", String.valueOf(result.getOutputDimensions()));
+        }
+
+        if (result.getBackendType() == MLBackendType.TRIBUO) {
+            Model<?> model = result.getTribuoModel();
+            addDetailRow(detailsGrid, "ONNX Export", model instanceof ONNXExportable ? "Supported" : "Not Supported");
+        }
+
+        modelDetailsPanel.add(detailsGrid, BorderLayout.CENTER);
     }
 
-    private void addInfoRow(JPanel panel, String label, String value) {
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
-        
-        JLabel labelComponent = new JLabel(label + ":");
-        labelComponent.setFont(labelComponent.getFont().deriveFont(Font.PLAIN));
-        
-        JLabel valueComponent = new JLabel(value);
-        valueComponent.setFont(valueComponent.getFont().deriveFont(Font.BOLD));
-        
-        row.add(labelComponent);
-        row.add(valueComponent);
-        panel.add(row);
+    private void addDetailRow(JPanel panel, String label, String value) {
+        JLabel labelComp = new JLabel(label + ":");
+        labelComp.setForeground(JBColor.gray);
+        panel.add(labelComp);
+
+        JLabel valueComp = new JLabel(value);
+        valueComp.setFont(valueComp.getFont().deriveFont(Font.BOLD));
+        panel.add(valueComp);
+    }
+
+    private double calculateOverallScore() {
+        MLEvaluationResult evalResult = result.getEvaluationResult();
+        if (evalResult == null) return 0;
+
+        if (result.isClassification()) {
+            double accuracy = evalResult.getAccuracy();
+            double f1 = evalResult.getF1Score();
+            return (accuracy * 0.6 + f1 * 0.4) * 100;
+        } else {
+            return Math.max(0, evalResult.getR2Score()) * 100;
+        }
     }
 
     @Override
     protected JComponent getMainComponent() {
         return mainPanel;
+    }
+
+    public MLResult getResult() {
+        return result;
     }
 }
