@@ -24,6 +24,7 @@ import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
@@ -77,10 +78,15 @@ public class AssistantToolInvocation implements PersistentStateElement {
         return Data.asType(value, returnType);
     }
 
+    @Nullable
     public static AssistantToolInvocation current() {
         // NOTE: this assumes the tool concurrency is disabled
         // TODO find alternative ways to propagate this context to the com.dbn.assistant.tool.event.AssistantToolInvocationHandler
         return CURRENT.get();
+    }
+
+    public static void resetCurrent() {
+        CURRENT.remove();
     }
 
     public synchronized AssistantPrompt getPrompt() {

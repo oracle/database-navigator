@@ -32,6 +32,7 @@ import com.dbn.sync.java.upload.ui.JavaUploadResultDialog;
 import com.dbn.sync.java.upload.ui.JavaUploaderInputDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.JdkOrderEntry;
 import com.intellij.openapi.roots.LibraryOrderEntry;
@@ -97,6 +98,7 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 	}
 
 	public void openCodeUploader(VirtualFile file) {
+		FileDocumentManager.getInstance().saveAllDocuments();
 		Progress.prompt(getProject(), null, true,
 				"Preparing Java Upload",
 				"Loading java dependencies for " + file.getPresentableName() + "...",
