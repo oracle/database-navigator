@@ -17,10 +17,12 @@
 package com.dbn.common.editor.document;
 
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.util.Messages;
+import com.dbn.common.util.Documents;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
+import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.ReadOnlyFragmentModificationException;
 import com.intellij.openapi.editor.actionSystem.EditorActionManager;
@@ -30,6 +32,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.LightVirtualFile;
 
 import static com.dbn.common.action.UserDataKeys.GUARDED_BLOCK_REASON;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 public class OverrideReadonlyFragmentModificationHandler implements
@@ -49,7 +52,13 @@ public class OverrideReadonlyFragmentModificationHandler implements
         Document document = guardedBlock.getDocument();
         String message = document.getUserData(GUARDED_BLOCK_REASON);
         if (message != null) {
-            Messages.showErrorDialog(null, txt("msg.codeEditor.title.ReadonlyContent"), message);
+            Editor[] editors = Documents.getEditors(document);
+            if (editors.length > 0) {
+                HintManager hintManager = HintManager.getInstance();
+                hintManager.showInformationHint(editors[0], message);
+            } else {
+                Dispatch.run(() -> showErrorDialog(null, txt("msg.codeEditor.title.ReadonlyContent"), message));
+            }
         } else {
             VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
             if (virtualFile instanceof DBSourceCodeVirtualFile || virtualFile instanceof LightVirtualFile || virtualFile instanceof DBConsoleVirtualFile) {

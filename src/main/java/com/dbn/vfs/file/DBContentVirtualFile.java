@@ -88,6 +88,11 @@ public abstract class DBContentVirtualFile extends DBVirtualFileBase implements 
         return mainDatabaseFile != null ? mainDatabaseFile.getObjectType() : DBObjectType.UNKNOWN;
     }
 
+    public String getObjectTypeName() {
+        DBObjectType objectType = getObjectType();
+        return objectType == null ? "undefined" : objectType.getName();
+    }
+
     @NotNull
     public DBEditableObjectVirtualFile getMainDatabaseFile() {
         return mainDatabaseFile.ensure();

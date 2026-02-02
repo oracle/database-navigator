@@ -66,6 +66,8 @@ public class AssistantToolInvocationHandler<T extends AssistantTool> extends Ass
         }
 
         AssistantToolInvocation invocation = AssistantToolInvocation.current();
+        if (invocation == null) return null;
+
         AssistantToolRequest request = invocation.getRequest();
         request.setMethodArguments(args);
         verifyRequest(request, method, args);

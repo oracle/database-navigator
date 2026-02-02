@@ -127,22 +127,29 @@ public class ObjectFilter<T extends DBObject> implements Filter<T>, PersistentCo
     }
 
     private static String patchExpression(String expression) {
+        // restore issues reported in DBNE-14302
+        expression = expression.replaceAll("(?i)(?:IS_){2,}", "IS_");
+
         // backward compatibility (replace old boolean attribute names)
-        expression = expression.replaceAll("USER_SCHEMA", "IS_USER_SCHEMA");
-        expression = expression.replaceAll("PUBLIC_SCHEMA", "IS_PUBLIC_SCHEMA");
-        expression = expression.replaceAll("SYSTEM_SCHEMA", "IS_SYSTEM_SCHEMA");
-        expression = expression.replaceAll("EMPTY_SCHEMA", "IS_EMPTY_SCHEMA");
-        expression = expression.replaceAll("TEMPORARY_TABLE", "IS_TEMPORARY_TABLE");
-        expression = expression.replaceAll("SYSTEM_VIEW", "IS_SYSTEM_VIEW");
-        expression = expression.replaceAll("AUDIT_COLUMN", "IS_AUDIT_COLUMN");
-        expression = expression.replaceAll("PSEUDO_COLUMN", "IS_PSEUDO_COLUMN");
-        expression = expression.replaceAll("NULLABLE_COLUMN", "IS_NULLABLE_COLUMN");
-        expression = expression.replaceAll("IDENTITY_COLUMN", "IS_IDENTITY_COLUMN");
-        expression = expression.replaceAll("PRIMARY_KEY", "IS_PRIMARY_KEY");
-        expression = expression.replaceAll("FOREIGN_KEY", "IS_FOREIGN_KEY");
-        expression = expression.replaceAll("UNIQUE_KEY", "IS_UNIQUE_KEY");
-        expression = expression.replaceAll("UNIQUE_INDEX", "IS_UNIQUE_INDEX");
+        expression = patchExpression(expression, "USER_SCHEMA");
+        expression = patchExpression(expression, "PUBLIC_SCHEMA");
+        expression = patchExpression(expression, "SYSTEM_SCHEMA");
+        expression = patchExpression(expression, "EMPTY_SCHEMA");
+        expression = patchExpression(expression, "TEMPORARY_TABLE");
+        expression = patchExpression(expression, "SYSTEM_VIEW");
+        expression = patchExpression(expression, "AUDIT_COLUMN");
+        expression = patchExpression(expression, "PSEUDO_COLUMN");
+        expression = patchExpression(expression, "NULLABLE_COLUMN");
+        expression = patchExpression(expression, "IDENTITY_COLUMN");
+        expression = patchExpression(expression, "PRIMARY_KEY");
+        expression = patchExpression(expression, "FOREIGN_KEY");
+        expression = patchExpression(expression, "UNIQUE_KEY");
+        expression = patchExpression(expression, "UNIQUE_INDEX");
         return expression;
+    }
+
+    private static String patchExpression(String expression, String oldBooleanIdentifier) {
+        return expression.replaceAll("\\b"+oldBooleanIdentifier+"\\b", "IS_" + oldBooleanIdentifier);
     }
 
     public Project getProject() {
