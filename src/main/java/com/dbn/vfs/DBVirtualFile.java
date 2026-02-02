@@ -53,6 +53,10 @@ public interface DBVirtualFile extends /*VirtualFileWithId, */EnvironmentTypePro
         return null;
     }
 
+    default String getObjectTypeName() {
+        return "undefined";
+    }
+
     default void setCachedViewProvider(@Nullable DatabaseFileViewProvider viewProvider) {
         putUserData(DatabaseFileViewProvider.CACHED_VIEW_PROVIDER, viewProvider);
     }
