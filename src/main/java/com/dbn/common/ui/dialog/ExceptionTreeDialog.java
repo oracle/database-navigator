@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
 public class ExceptionTreeDialog extends DBNDialog<ExceptionChainTreeForm> {
@@ -49,12 +49,11 @@ public class ExceptionTreeDialog extends DBNDialog<ExceptionChainTreeForm> {
 
 
     @Override
-    protected final Action @NotNull [] createActions() {
-        return new Action[]{
+    protected final Action @NotNull [] initializeActions() {
+        return actions(
                 getCopyToClipboard(),
                 getDetailAction(),
-                getOKAction()
-        };
+                getOKAction());
     }
 
     protected Action getCopyToClipboard() {
