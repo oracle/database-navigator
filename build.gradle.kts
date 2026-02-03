@@ -53,7 +53,7 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
 
     intellijPlatform {
-        intellijIdea("2025.3")
+        intellijIdea("2024.3.3")
 
         // https://plugins.jetbrains.com/docs/intellij/plugin-dependencies.html#bundled-and-other-plugins
         bundledPlugins(
