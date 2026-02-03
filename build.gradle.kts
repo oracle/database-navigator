@@ -317,6 +317,10 @@ tasks {
     withType<JavaCompile> {
         sourceCompatibility = "17"
         targetCompatibility = "17"
+
+        // deprecated api usage is a common thing in DBN given the
+        // wide range of IntelliJ versions we support with few compatibility builds
+        options.compilerArgs.add("-Xlint:-deprecation")
     }
 
     test {
