@@ -28,8 +28,6 @@ import com.dbn.ml.ui.MLToolboxForm;
 import com.dbn.ml.ui.MLToolboxFormBase;
 import com.intellij.openapi.Disposable;
 
-import java.util.List;
-
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -38,6 +36,7 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.SpinnerNumberModel;
+import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 
@@ -58,6 +57,12 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         initComponents();
     }
 
+    private void initComponents() {
+        splitSlider.setMinimum(10);
+        splitSlider.setMaximum(90);
+        seedSpinner.setModel(new SpinnerNumberModel(1L, 0L, Long.MAX_VALUE, 1L));
+    }
+
     @Override
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
@@ -69,35 +74,8 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     @Override
     protected void initEventListeners() {
         onSelectionChange(algorithmComboBox, t -> onAlgorithmChanged());
-        if (splitSlider != null) {
-            splitSlider.addChangeListener(e -> updateSplitLabel());
-        }
-        if (useFixedSeedCheckBox != null) {
-            useFixedSeedCheckBox.addActionListener(e -> updateSeedEnabled());
-        }
-    }
-
-    private void initComponents() {
-        if (algorithmComboBox == null) return;
-
-        // Split slider
-        if (splitSlider != null) {
-            splitSlider.setMinimum(10);
-            splitSlider.setMaximum(90);
-            splitSlider.setValue(70);
-        }
-
-        // Seed spinner
-        if (seedSpinner != null) {
-            seedSpinner.setModel(new SpinnerNumberModel(1L, 0L, Long.MAX_VALUE, 1L));
-        }
-
-        // Initialize trainer combo with backend-filtered trainers
-        refreshTrainers();
-
-        onAlgorithmChanged();
-        updateSplitLabel();
-        updateSeedEnabled();
+        splitSlider.addChangeListener(e -> updateSplitLabel());
+        useFixedSeedCheckBox.addActionListener(e -> updateSeedEnabled());
     }
 
     /**
@@ -105,32 +83,22 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
      * Called when backend type changes.
      */
     public void refreshTrainers() {
-        if (algorithmComboBox == null) return;
-
-        // Get selected backend from parent form
         MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
         if (toolboxForm == null) {
-            // Default to all trainers if parent not found
             algorithmComboBox.setValues(MLTrainerType.values());
             return;
         }
 
         MLBackendType backendType = toolboxForm.getMLRequest().getBackendConfig().getBackendType();
 
-        // For now, assume classification task type (will be refined when task type selection is added)
         // TODO: Get task type from feature config when label column is selected
         MLTaskType taskType = MLTaskType.CLASSIFICATION;
 
-        // Filter trainers by backend and task type
         List<MLTrainerType> availableTrainers = MLTrainerType.getTrainersForBackendAndTask(backendType, taskType);
 
-        // Store currently selected trainer
         MLTrainerType currentSelection = algorithmComboBox.getSelectedValue();
-
-        // Update combo box values
         algorithmComboBox.setValues(availableTrainers.toArray(new MLTrainerType[0]));
 
-        // Restore selection if still available, otherwise select first trainer
         if (availableTrainers.contains(currentSelection)) {
             algorithmComboBox.setSelectedValue(currentSelection);
         } else if (!availableTrainers.isEmpty()) {
@@ -141,8 +109,6 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     }
 
     private void onAlgorithmChanged() {
-        if (algorithmComboBox == null || descriptionTextArea == null) return;
-        
         MLTrainerType trainerType = algorithmComboBox.getSelectedValue();
         if (trainerType != null) {
             descriptionTextArea.setText(trainerType.getDescription());
@@ -150,74 +116,48 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     }
 
     private void updateSplitLabel() {
-        if (splitSlider == null || splitValueLabel == null) return;
-        
         int trainPercent = splitSlider.getValue();
         int testPercent = 100 - trainPercent;
         splitValueLabel.setText(String.format("%d%% Train / %d%% Test", trainPercent, testPercent));
     }
 
     private void updateSeedEnabled() {
-        if (useFixedSeedCheckBox == null) return;
-        
         boolean useFixed = useFixedSeedCheckBox.isSelected();
-        if (seedLabel != null) seedLabel.setEnabled(useFixed);
-        if (seedSpinner != null) seedSpinner.setEnabled(useFixed);
+        seedLabel.setEnabled(useFixed);
+        seedSpinner.setEnabled(useFixed);
+    }
+
+    private MLTrainerConfig getConfig() {
+        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
+        if (toolboxForm == null) return new MLTrainerConfig();
+        return toolboxForm.getMLRequest().getTrainerConfig();
     }
 
     @Override
     public void resetFormChanges() {
-        if (algorithmComboBox == null) return;
-        
-        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
-        if (toolboxForm == null) return;
-        
-        MLTrainerConfig config = toolboxForm.getMLRequest().getTrainerConfig();
+        MLTrainerConfig config = getConfig();
 
         MLTrainerType trainerType = config.getTrainerType();
         if (trainerType == null) trainerType = MLTrainerType.SVM_CLASSIFICATION;
+
+        refreshTrainers();
         algorithmComboBox.setSelectedValue(trainerType);
-        
-        if (splitSlider != null) {
-            int splitPercent = (int) (config.getTrainTestSplitRatio() * 100);
-            splitSlider.setValue(splitPercent);
-        }
-        
-        if (useFixedSeedCheckBox != null) {
-            useFixedSeedCheckBox.setSelected(config.isUseFixedSeed());
-        }
-        
-        if (seedSpinner != null) {
-            seedSpinner.setValue(config.getRandomSeed());
-        }
-        
-        updateSeedEnabled();
-        onAlgorithmChanged();
+
+        splitSlider.setValue((int) (config.getTrainTestSplitRatio() * 100));
+        useFixedSeedCheckBox.setSelected(config.isUseFixedSeed());
+        seedSpinner.setValue(config.getRandomSeed());
+
         updateSplitLabel();
+        updateSeedEnabled();
     }
 
     @Override
     public void applyFormChanges() {
-        if (algorithmComboBox == null) return;
-        
-        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
-        if (toolboxForm == null) return;
-        
-        MLTrainerConfig config = toolboxForm.getMLRequest().getTrainerConfig();
-
+        MLTrainerConfig config = getConfig();
         config.setTrainerType(algorithmComboBox.getSelectedValue());
-        
-        if (splitSlider != null) {
-            config.setTrainTestSplitRatio(splitSlider.getValue() / 100.0);
-        }
-        
-        if (useFixedSeedCheckBox != null) {
-            config.setUseFixedSeed(useFixedSeedCheckBox.isSelected());
-        }
-        
-        if (seedSpinner != null) {
-            config.setRandomSeed((Long) seedSpinner.getValue());
-        }
+        config.setTrainTestSplitRatio(splitSlider.getValue() / 100.0);
+        config.setUseFixedSeed(useFixedSeedCheckBox.isSelected());
+        config.setRandomSeed((Long) seedSpinner.getValue());
     }
 
     @Override
@@ -232,11 +172,9 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
 
     @Override
     public String getFormTitleDetail() {
-        if (algorithmComboBox == null || splitSlider == null) return null;
-        
         MLTrainerType trainerType = algorithmComboBox.getSelectedValue();
         if (trainerType == null) return null;
-        
+
         int trainPercent = splitSlider.getValue();
         return trainerType.getName() + ", " + trainPercent + "/" + (100 - trainPercent) + " split";
     }

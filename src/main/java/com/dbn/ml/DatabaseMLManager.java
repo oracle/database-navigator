@@ -37,6 +37,7 @@ import com.dbn.ml.ui.MLToolboxDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,6 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.options.setting.Settings.*;
 
+@Slf4j
 @State(
         name = DatabaseMLManager.COMPONENT_NAME,
         storages = @Storage(DatabaseNavigator.STORAGE_FILE)
@@ -81,11 +83,11 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
             Dialogs.show(() -> new MLToolboxDialog(connection, request));
         } catch (Exception e) {
             Messages.showErrorDialog(
-                getProject(), 
-                "ML Toolbox Error", 
+                getProject(),
+                "ML Toolbox Error",
                 "Failed to open ML Toolbox: " + e.getMessage()
             );
-            e.printStackTrace();
+            log.warn("Failed to open ML Toolbox", e);
         }
     }
 
@@ -133,7 +135,7 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                         showResultInExecutionManager(result);
 
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        log.warn("Model training failed", e);
                         Messages.showErrorDialog(
                                 getProject(),
                                 "Model Training Failed",

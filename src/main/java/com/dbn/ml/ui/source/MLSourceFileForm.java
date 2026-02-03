@@ -34,6 +34,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import static com.dbn.common.ui.util.TextFields.onTextChange;
+
 /**
  * Form for CSV file source selection.
  * Follows VectorToolbox pattern (EmbeddingSourceFilesForm).
@@ -73,14 +75,7 @@ public class MLSourceFileForm extends MLToolboxFormBase {
         );
         
         // Notify parent when file changes
-        filePathField.getTextField().getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            @Override
-            public void insertUpdate(javax.swing.event.DocumentEvent e) { notifySourceChanged(); }
-            @Override
-            public void removeUpdate(javax.swing.event.DocumentEvent e) { notifySourceChanged(); }
-            @Override
-            public void changedUpdate(javax.swing.event.DocumentEvent e) { notifySourceChanged(); }
-        });
+        onTextChange(filePathField, e -> notifySourceChanged());
     }
 
     @Override

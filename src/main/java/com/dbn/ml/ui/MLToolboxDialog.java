@@ -73,7 +73,6 @@ public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
         }
 
         // Close dialog first, then start training in background
-        // (same pattern as VectorToolboxDialog)
         super.doOKAction();
         
         DatabaseMLManager mlManager = DatabaseMLManager.getInstance(getProject());

@@ -18,6 +18,7 @@ package com.dbn.ml.ui.feature;
 
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
+import lombok.extern.slf4j.Slf4j;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -51,10 +52,11 @@ import static com.dbn.common.ui.form.field.JComponentFilter.array;
 /**
  * Form for selecting features and labels for ML training.
  * Supports both database tables and CSV files as data sources.
- * 
+ *
  * For CSV: reads headers from file and displays as column names
  * For DB: loads columns from selected table
  */
+@Slf4j
 public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleForm {
     private JPanel mainPanel;
     private JLabel featuresLabel;
@@ -63,11 +65,11 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private JLabel label2Label;
     private DBNComboBox<String> labelComboBox;
     private DBNComboBox<String> labelComboBox2;
-    
-    // Features list (multi-select) - now uses String instead of DBColumn
+
+    // Features list (multi-select)
     private JBList<String> featuresList;
     private DefaultListModel<String> featuresListModel;
-    
+
     // Cached column names (works for both CSV headers and DB columns)
     private List<String> availableColumns = new ArrayList<>();
 
@@ -80,7 +82,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         featuresListModel = new DefaultListModel<>();
         featuresList = new JBList<>(featuresListModel);
         featuresList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        
+
         if (featuresScrollPane != null) {
             featuresScrollPane.setViewportView(featuresList);
         }
@@ -91,7 +93,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
         // Features and labels available when columns are loaded
         fieldAdapter.initFieldsAvailability(
-                () -> !availableColumns.isEmpty(), 
+                () -> !availableColumns.isEmpty(),
                 array(featuresScrollPane, labelComboBox, labelComboBox2));
     }
 
@@ -110,12 +112,12 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     public void refreshColumns() {
         MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
         if (toolboxForm == null) return;
-        
+
         MLSourceForm sourceForm = toolboxForm.getSourceForm();
         if (sourceForm == null) return;
-        
+
         MLSourceType sourceType = sourceForm.getSelectedSourceType();
-        
+
         if (sourceType == MLSourceType.FILE_SYSTEM) {
             loadColumnsFromCSV(sourceForm);
         } else if (sourceType == MLSourceType.DATABASE_TABLE) {
@@ -130,34 +132,26 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private void loadColumnsFromCSV(MLSourceForm sourceForm) {
         // Get file path directly from the source form's file field
         String filePath = sourceForm.getSelectedFilePath();
-        
-        System.out.println("=== loadColumnsFromCSV() ===");
-        System.out.println("File path: " + filePath);
-        
+
         if (filePath == null || filePath.isEmpty()) {
-            System.out.println("File path is empty, clearing columns");
             clearColumns();
             return;
         }
-        
+
         // Get delimiter directly from source form
         String delimiter = sourceForm.getSelectedDelimiter();
-        System.out.println("Delimiter: " + delimiter);
-        
+
         // Read CSV headers in background
         Background.run(() -> {
             try {
-                System.out.println("Reading CSV headers from: " + filePath);
                 List<String> headers = readCSVHeaders(filePath, delimiter);
-                System.out.println("Found " + headers.size() + " headers: " + headers);
-                
+
                 // Update UI on EDT
                 Dispatch.run(featuresList, () -> {
                     updateColumnsUI(headers);
                 });
             } catch (Exception e) {
-                System.err.println("Failed to read CSV headers: " + e.getMessage());
-                e.printStackTrace();
+                log.warn("Failed to read CSV headers", e);
                 Dispatch.run(featuresList, this::clearColumns);
             }
         });
@@ -172,7 +166,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
             if (headerLine == null || headerLine.isEmpty()) {
                 return Collections.emptyList();
             }
-            
+
             String[] headers = headerLine.split(delimiter);
             List<String> result = new ArrayList<>(headers.length);
             for (String header : headers) {
@@ -185,7 +179,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private String getDelimiter() {
         MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
         if (toolboxForm == null) return ",";
-        
+
         String delimiter = toolboxForm.getMLRequest().getSourceConfig()
                 .getFileSourceConfig().getDelimiter();
         return delimiter != null ? delimiter : ",";
@@ -200,7 +194,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
             clearColumns();
             return;
         }
-        
+
         // Load columns in background
         Background.run(() -> {
             List<DBColumn> columns = table.getColumns();
@@ -208,7 +202,7 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
             for (DBColumn column : columns) {
                 columnNames.add(column.getName());
             }
-            
+
             // Update UI on EDT
             Dispatch.run(featuresList, () -> {
                 updateColumnsUI(columnNames);
@@ -219,10 +213,10 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private DBTable getSelectedTable() {
         MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
         if (toolboxForm == null) return null;
-        
+
         MLSourceForm sourceForm = toolboxForm.getSourceForm();
         if (sourceForm == null) return null;
-        
+
         return sourceForm.getSelectedTable();
     }
 
@@ -232,23 +226,23 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
      */
     private void updateColumnsUI(List<String> columns) {
         this.availableColumns = new ArrayList<>(columns);
-        
+
         // Update features list
         featuresListModel.clear();
         for (String column : columns) {
             featuresListModel.addElement(column);
         }
-        
+
         // Update label combo boxes
         ComboBoxes.initComboBox(labelComboBox, columns);
         ComboBoxes.initComboBox(labelComboBox2, columns);
-        
+
         // Add empty option for optional second label
         labelComboBox2.insertItemAt(null, 0);
         labelComboBox2.setSelectedIndex(0);
-        
+
         updateFieldAvailability();
-        
+
         // Restore saved selections if any
         MLFeatureConfig config = getConfig();
         restoreSelections(config);
@@ -278,13 +272,13 @@ public class MLFeatureForm extends MLToolboxFormBase implements DBNCollapsibleFo
                 featuresList.setSelectedIndices(indicesArray);
             }
         }
-        
+
         // Restore label selections
         String savedLabel1 = config.getLabelColumn();
         if (savedLabel1 != null && availableColumns.contains(savedLabel1)) {
             ComboBoxes.setSelection(labelComboBox, savedLabel1);
         }
-        
+
         String savedLabel2 = config.getLabelColumn2();
         if (savedLabel2 != null && availableColumns.contains(savedLabel2)) {
             ComboBoxes.setSelection(labelComboBox2, savedLabel2);

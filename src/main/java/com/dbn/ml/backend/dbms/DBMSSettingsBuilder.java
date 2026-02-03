@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Builds DBMS_DATA_MINING settings for algorithms.
  *
- * @author Oracle
+ * @author ayoub allali
  */
 public class DBMSSettingsBuilder {
 

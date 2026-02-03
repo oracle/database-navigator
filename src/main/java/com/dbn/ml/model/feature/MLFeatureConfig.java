@@ -31,21 +31,21 @@ import static com.dbn.common.options.setting.Settings.*;
 public class MLFeatureConfig extends MLConfig {
     // Column names selected as features (input)
     private List<String> featureColumns = new ArrayList<>();
-    
+
     // Column name selected as label (output to predict)
     private String labelColumn;
-    
+
     // Optional second label for multi-output regression (e.g., home_goals, away_goals)
     private String labelColumn2;
-    
+
     /**
      * Returns true if this is a multi-output regression (two labels selected)
      */
     public boolean isMultiOutput() {
-        return labelColumn != null && !labelColumn.isEmpty() 
+        return labelColumn != null && !labelColumn.isEmpty()
             && labelColumn2 != null && !labelColumn2.isEmpty();
     }
-    
+
     /**
      * Returns all label columns as a list (1 or 2 items)
      */
@@ -64,10 +64,10 @@ public class MLFeatureConfig extends MLConfig {
     public void readState(Element element) {
         if (element == null) return;
         super.readState(element);
-        
+
         labelColumn = stringAttribute(element, "label-column", labelColumn);
         labelColumn2 = stringAttribute(element, "label-column-2", labelColumn2);
-        
+
         featureColumns.clear();
         Element featuresElement = element.getChild("features");
         if (featuresElement != null) {
@@ -83,10 +83,10 @@ public class MLFeatureConfig extends MLConfig {
     @Override
     public void writeState(Element element) {
         super.writeState(element);
-        
+
         setStringAttribute(element, "label-column", labelColumn);
         setStringAttribute(element, "label-column-2", labelColumn2);
-        
+
         Element featuresElement = newElement(element, "features");
         for (String featureColumn : featureColumns) {
             Element featureElement = newElement(featuresElement, "feature");

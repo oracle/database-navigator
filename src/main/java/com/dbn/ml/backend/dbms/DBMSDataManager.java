@@ -38,7 +38,7 @@ import java.util.List;
  * Manages data preparation for DBMS_DATA_MINING backend.
  * Handles staging table creation, CSV loading, and cleanup.
  *
- * @author Oracle
+ * @author ayoub allali
  */
 @Slf4j
 public class DBMSDataManager {
@@ -91,6 +91,7 @@ public class DBMSDataManager {
 
     /**
      * Parses CSV file and auto-detects which feature columns are numeric vs categorical.
+     * TODO: Refactor to use streaming for large files - current approach loads all rows into memory
      */
     private CSVParseResult parseCSVFile(MLFileSourceConfig fileConfig,
                                          List<String> featureColumns,
@@ -123,20 +124,22 @@ public class DBMSDataManager {
     }
 
     /**
-     * Checks if a column contains only numeric values.
+     * Checks if a column is numeric by examining the first non-empty value.
      */
     private boolean isNumericColumn(List<String[]> dataRows, int columnIndex) {
         for (String[] row : dataRows) {
             if (columnIndex >= row.length) continue;
             String value = row[columnIndex].trim();
             if (value.isEmpty()) continue;
+
             try {
                 Double.parseDouble(value);
+                return true;  // First non-empty value is numeric
             } catch (NumberFormatException e) {
-                return false;
+                return false; // First non-empty value is not numeric
             }
         }
-        return true;
+        return true; // All empty, default to numeric
     }
 
     /**
@@ -224,6 +227,7 @@ public class DBMSDataManager {
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {
+                    conn.setAutoCommit(false);
                     int rowCount = 0;
                     int batchSize = 0;
 
@@ -237,12 +241,14 @@ public class DBMSDataManager {
 
                             if (batchSize >= 1000) {
                                 stmt.executeBatch();
+                                conn.commit();
                                 batchSize = 0;
                             }
                         }
 
                         if (batchSize > 0) {
                             stmt.executeBatch();
+                            conn.commit();
                         }
                     }
 

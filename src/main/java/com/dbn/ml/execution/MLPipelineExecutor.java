@@ -23,6 +23,7 @@ import com.dbn.ml.backend.model.MLEvaluationResult;
 import com.dbn.ml.backend.model.MLModelHandle;
 import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 
@@ -33,6 +34,7 @@ import java.util.ArrayList;
  *
  * @author ayoub allali
  */
+@Slf4j
 public class MLPipelineExecutor {
 
     /**
@@ -104,7 +106,7 @@ public class MLPipelineExecutor {
             } catch (Exception e) {
                 // Log cleanup failure but don't fail the entire operation
                 // The training was successful, cleanup is a best-effort operation
-                System.err.println("Warning: Failed to cleanup backend resources: " + e.getMessage());
+                log.warn("Failed to cleanup backend resources", e);
             }
         }
     }
