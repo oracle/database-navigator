@@ -43,7 +43,6 @@ import org.jetbrains.jps.model.module.JpsModuleSourceRootType;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -60,34 +59,43 @@ public class JavaDownloadInputForm extends DBNFormBase {
     private JPanel targetLocationPanel;
     private JComboBox<ModulePresentable> moduleComboBox;
     private JComboBox<VirtualFilePresentable> contentRootComboBox;
-    private CheckBoxList<JavaDownloadTask> dependenciesCheckBoxList;
+    private CheckBoxList<JavaDownloadTask> contentList;
     private JPanel hintPanel;
+    private JPanel contentPanel;
 
 
     public JavaDownloadInputForm(JavaDownloadInputDialog dialog) {
         super(dialog);
-        JavaDownloadInput input = dialog.getBatch().getInput();
 
-        initHeaderPanel(input);
+        initHeaderPanel();
         initHintPanel();
+        initModules();
+        initContentSelector();
 
         initSelectionListener(moduleComboBox, s -> initContentRoots());
-        initModules();
-
-        dependenciesCheckBoxList.setElements(input.getTasks());
     }
+
+
+    private void initContentSelector() {
+        JavaDownloadInput input = getInput();
+        contentList = new CheckBoxList<>();
+        contentList.setElements(input.getTasks());
+        contentPanel.add(contentList.withSelectorActions());
+    }
+
 
     @Override
     protected void initValidation() {
         addSelectionValidation(moduleComboBox, "Please select the target module");
         addSelectionValidation(contentRootComboBox, "Please select the target content root");
-        addSelectionValidation(dependenciesCheckBoxList, "Please select at least one resource to download");
+        addSelectionValidation(contentList, "Please select at least one resource to download");
     }
 
-    private void initHeaderPanel(JavaDownloadInput input) {
+    private void initHeaderPanel() {
+        JavaDownloadInput input = getInput();
         DBObject sourceObject = input.getSourceObject();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, sourceObject);
-        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+        headerPanel.add(headerForm.getComponent());
     }
 
     private void initHintPanel() {
@@ -99,9 +107,13 @@ public class JavaDownloadInputForm extends DBNFormBase {
         hintPanel.add(hintForm.getComponent());
     }
 
-    JavaDownloadBatch getBatch() {
+    private JavaDownloadBatch getBatch() {
         JavaDownloadInputDialog dialog = ensureParentComponent();
         return dialog.getBatch();
+    }
+
+    private JavaDownloadInput getInput() {
+        return getBatch().getInput();
     }
 
     @Override
@@ -159,7 +171,7 @@ public class JavaDownloadInputForm extends DBNFormBase {
         JavaDownloadInput input = getBatch().getInput();
         input.setModuleName(getSelectedModuleName());
         input.setContentRoot(getSelectedContentPath());
-        dependenciesCheckBoxList.applyChanges();
+        contentList.applyChanges();
     }
 
     @Nullable
