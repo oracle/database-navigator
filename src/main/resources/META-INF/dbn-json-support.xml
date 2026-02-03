@@ -16,7 +16,7 @@
 
 <idea-plugin>
     <extensions defaultExtensionNs="JavaScript">
-        <JsonSchema.ProviderFactory implementation="com.dbn.editor.json.schema.JsonViewSchemaProviderFactory" />
+        <!--<JsonSchema.ProviderFactory implementation="com.dbn.editor.json.schema.JsonViewSchemaProviderFactory" />-->
     </extensions>
 
 </idea-plugin>
