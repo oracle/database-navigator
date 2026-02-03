@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package com.dbn.common.exception;
+package com.dbn.common.ui.util;
 
-import com.intellij.openapi.progress.ProcessCanceledException;
+import lombok.experimental.UtilityClass;
 
-public class RequestCancelledException extends ProcessCanceledException {
-    public RequestCancelledException() {
-        this("Request cancelled by user");
-    }
+import javax.swing.JButton;
+import java.awt.event.ActionEvent;
+import java.util.function.Consumer;
 
-    public RequestCancelledException(String message) {
-        super(new IllegalStateException(message));
+@UtilityClass
+public class Buttons {
+
+    public static void onButtonClick(JButton button, Consumer<ActionEvent> consumer) {
+        button.addActionListener(e -> consumer.accept(e));
     }
 }
