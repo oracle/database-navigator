@@ -5,7 +5,6 @@ import com.dbn.credentials.mock.TestableDatabaseCredentialManager;
 import com.dbn.test.util.RegressionTest;
 import com.dbn.test.util.RegressionTest.BugSystem;
 import com.intellij.credentialStore.CredentialAttributes;
-import com.intellij.idea.TestFor;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -15,7 +14,6 @@ import org.junit.runners.Parameterized;
 import java.util.Arrays;
 import java.util.Collection;
 
-@TestFor(classes = DatabaseCredentialManager.class)
 @RunWith(Parameterized.class)
 public class DatabaseCredentialManagerTests {
 
