@@ -16,9 +16,7 @@
 
 package com.dbn.browser.action;
 
-import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.browser.ui.DatabaseBrowserTree;
-import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -27,12 +25,11 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class BrowserNavigateForwardAction extends ProjectAction {
+public class BrowserNavigateForwardAction extends AbstractBrowserAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        DatabaseBrowserTree activeTree = browserManager.getActiveBrowserTree();
-        boolean enabled = activeTree != null && activeTree.getNavigationHistory().hasNext();
+        DatabaseBrowserTree browserTree = getActiveBrowserTree(project);
+        boolean enabled = browserTree != null && browserTree.getNavigationHistory().hasNext();
 
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.browser.action.NavigateForward"));
@@ -42,10 +39,9 @@ public class BrowserNavigateForwardAction extends ProjectAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();
-        if (activeBrowserTree != null) {
-            activeBrowserTree.navigateForward();
+        DatabaseBrowserTree browserTree = getActiveBrowserTree(project);
+        if (browserTree != null) {
+            browserTree.navigateForward();
         }
     }
 }

@@ -34,7 +34,6 @@ public class FileConnectionMappingDialog extends DBNDialog<FileConnectionMapping
         setModal(false);
         setResizable(true);
         setDefaultSize(1200, 700);
-        renameAction(getCancelAction(), "Close");
         this.selectedContext = selectedContext;
 
         init();
@@ -48,15 +47,8 @@ public class FileConnectionMappingDialog extends DBNDialog<FileConnectionMapping
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
-                getCancelAction(),
-                getHelpAction()
-        };
-    }
-
-    @Override
-    public void doCancelAction() {
-        super.doCancelAction();
+    protected final Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(getCancelAction());
     }
 }

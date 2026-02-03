@@ -23,6 +23,7 @@ import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
+import com.dbn.help.HelpTopic;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.TopLevelConfig;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.help.HelpTopic.DATABASE_CONFIG;
 
 @Getter
 @Setter
@@ -78,8 +80,8 @@ public class ConnectionBundleSettings extends BasicProjectConfiguration<ProjectS
     }
 
     @Override
-    public String getHelpTopic() {
-        return "connectionBundle";
+    public HelpTopic getConfigHelpTopic() {
+        return DATABASE_CONFIG;
     }
 
     @Override

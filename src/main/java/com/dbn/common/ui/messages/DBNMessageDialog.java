@@ -102,7 +102,7 @@ public class DBNMessageDialog extends DBNDialog<DBNMessageForm> {
 
     @NotNull
     @Override
-    protected Action[] createActions() {
+    protected Action[] initializeActions() {
         return actions;
     }
 

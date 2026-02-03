@@ -55,13 +55,12 @@ public class CompileDebugDependenciesDialog extends DBNDialog<CompileDebugDepend
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 new CompileAllAction(),
                 new CompileSelectedAction(),
                 new CompileNoneAction(),
-                getCancelAction()
-        };
+                getCancelAction());
     }
 
     private class CompileSelectedAction extends AbstractAction {

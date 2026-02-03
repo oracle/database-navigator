@@ -17,6 +17,7 @@
 package com.dbn.browser.action;
 
 import com.dbn.browser.DatabaseBrowserManager;
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectPopupAction;
 import com.dbn.common.icon.Icons;
@@ -41,6 +42,7 @@ import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
 
+@BackgroundUpdate
 public class SQLConsoleOpenAction extends ProjectPopupAction {
     private static ConnectionHandler getConnection(@NotNull AnActionEvent e) {
         Project project = Lookups.getProject(e);

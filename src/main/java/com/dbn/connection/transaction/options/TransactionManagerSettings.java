@@ -21,6 +21,7 @@ import com.dbn.common.options.BasicConfiguration;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.connection.transaction.TransactionOption;
 import com.dbn.connection.transaction.options.ui.TransactionManagerSettingsForm;
+import com.dbn.help.HelpTopic;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.help.HelpTopic.TRANSACTION_HANDLING;
 
 @Getter
 @Setter
@@ -108,8 +110,8 @@ public class TransactionManagerSettings extends BasicConfiguration<OperationSett
     }
 
     @Override
-    public String getHelpTopic() {
-        return "transactionManager";
+    public HelpTopic getConfigHelpTopic() {
+        return TRANSACTION_HANDLING;
     }
 
     /****************************************************

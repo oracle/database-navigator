@@ -35,7 +35,6 @@ public class CreateRenameSessionDialog extends DBNDialog<CreateRenameSessionForm
         super(connection.getProject(), session == null ? "Create session" : "Rename session", true);
         this.connection = connection.ref();
         this.session = WeakRef.of(session);
-        renameAction(getOKAction(), session == null ? "Create" : "Rename");
         setModal(true);
         init();
     }
@@ -49,11 +48,13 @@ public class CreateRenameSessionDialog extends DBNDialog<CreateRenameSessionForm
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
-            getOKAction(),
-            getCancelAction()
-        };
+    protected final Action[] initializeActions() {
+        String actionName = session == null ? "Create" : "Rename";
+        renameAction(getOKAction(), actionName);
+
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 
     @Override

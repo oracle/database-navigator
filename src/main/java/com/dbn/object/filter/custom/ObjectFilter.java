@@ -116,7 +116,7 @@ public class ObjectFilter<T extends DBObject> implements Filter<T>, PersistentCo
     public void readConfiguration(Element element) {
         objectType = enumAttribute(element, "object-type", DBObjectType.class);
         active = booleanAttribute(element, "active", active);
-        expression = readCdata(element);
+        expression = patchExpression(readCdata(element));
     }
 
     @Override
@@ -124,6 +124,25 @@ public class ObjectFilter<T extends DBObject> implements Filter<T>, PersistentCo
         setEnumAttribute(element, "object-type", objectType);
         setBooleanAttribute(element, "active", active);
         writeCdata(element, expression);
+    }
+
+    private static String patchExpression(String expression) {
+        // backward compatibility (replace old boolean attribute names)
+        expression = expression.replaceAll("USER_SCHEMA", "IS_USER_SCHEMA");
+        expression = expression.replaceAll("PUBLIC_SCHEMA", "IS_PUBLIC_SCHEMA");
+        expression = expression.replaceAll("SYSTEM_SCHEMA", "IS_SYSTEM_SCHEMA");
+        expression = expression.replaceAll("EMPTY_SCHEMA", "IS_EMPTY_SCHEMA");
+        expression = expression.replaceAll("TEMPORARY_TABLE", "IS_TEMPORARY_TABLE");
+        expression = expression.replaceAll("SYSTEM_VIEW", "IS_SYSTEM_VIEW");
+        expression = expression.replaceAll("AUDIT_COLUMN", "IS_AUDIT_COLUMN");
+        expression = expression.replaceAll("PSEUDO_COLUMN", "IS_PSEUDO_COLUMN");
+        expression = expression.replaceAll("NULLABLE_COLUMN", "IS_NULLABLE_COLUMN");
+        expression = expression.replaceAll("IDENTITY_COLUMN", "IS_IDENTITY_COLUMN");
+        expression = expression.replaceAll("PRIMARY_KEY", "IS_PRIMARY_KEY");
+        expression = expression.replaceAll("FOREIGN_KEY", "IS_FOREIGN_KEY");
+        expression = expression.replaceAll("UNIQUE_KEY", "IS_UNIQUE_KEY");
+        expression = expression.replaceAll("UNIQUE_INDEX", "IS_UNIQUE_INDEX");
+        return expression;
     }
 
     public Project getProject() {

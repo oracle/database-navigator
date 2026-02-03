@@ -31,14 +31,12 @@ public class MessageBundleDialog extends DBNDialog<MessageBundleForm> {
     @Delegate
     private final MessageBundleDialogConfig config;
     private final MessageBundle messageBundle;
-    private final Action[] defaultActions = new Action[] {getCancelAction()}; // default actions
 
     public MessageBundleDialog(MessageBundleDialogConfig config, MessageBundle messageBundle) {
         super(config.getProject(), config.getTitle(), false);
         this.config = config;
         this.messageBundle = messageBundle;
 
-        renameAction(getCancelAction(), "Close");
         setAutoSize(true);
         init();
     }
@@ -51,7 +49,8 @@ public class MessageBundleDialog extends DBNDialog<MessageBundleForm> {
 
 
     @Override
-    protected final Action[] createActions() {
-        return nvl(config.getActions(), defaultActions);
+    protected final Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return nvl(config.getActions(), actions(getCancelAction()));
     }
 }

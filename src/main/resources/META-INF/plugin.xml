@@ -814,6 +814,8 @@
         <listener topic="com.intellij.openapi.actionSystem.ex.AnActionListener" class="com.dbn.execution.statement.action.ExecuteStatementEditorAction$ShortcutInterceptor"/>
     </projectListeners>
     <extensions defaultExtensionNs="com.intellij">
+        <webHelpProvider implementation="com.dbn.help.PluginHelpProvider"/>
+
         <notificationGroup id="DBNavigator.NotificationGroup.Default" displayType="BALLOON" key="ntf.shared.title.DBNavigator"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Browser" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorBrowser" toolWindowId="DB Browser"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Execution" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorExecution" toolWindowId="DB Execution Console"/>

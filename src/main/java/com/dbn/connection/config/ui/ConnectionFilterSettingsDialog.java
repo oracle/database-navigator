@@ -68,13 +68,11 @@ public class ConnectionFilterSettingsDialog extends DBNDialog<DBNContentWithHead
         };
     }
 
-    @NotNull
     @Override
-    protected Action[] createActions() {
-        return new Action[]{
+    protected Action[] initializeActions() {
+        return actions(
                 getOKAction(),
-                getCancelAction()
-        };
+                getCancelAction());
     }
 
     @Override

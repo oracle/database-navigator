@@ -30,7 +30,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.util.List;
 
 public class SelectDDLFileForm extends DBNFormBase {
@@ -43,10 +42,10 @@ public class SelectDDLFileForm extends DBNFormBase {
     SelectDDLFileForm(DBNDialog<?> parent, DBSchemaObject object, List<VirtualFileInfo> fileInfos, TextContent hint, boolean isFileOpenEvent) {
         super(parent);
         DBNHeaderForm headerForm = new DBNHeaderForm(this, object);
-        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+        headerPanel.add(headerForm.getComponent());
 
         DBNHintForm hintForm = new DBNHintForm(this, hint, null, true);
-        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        hintPanel.add(hintForm.getComponent());
 
         DefaultListModel<VirtualFileInfo> listModel = new DefaultListModel<>();
         for (VirtualFileInfo fileInfo : fileInfos) {

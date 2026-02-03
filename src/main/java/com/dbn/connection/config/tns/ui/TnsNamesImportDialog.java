@@ -54,12 +54,11 @@ public class TnsNamesImportDialog extends DBNDialog<TnsNamesImportForm> {
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 importSelectedAction,
                 importAllAction,
-                getCancelAction(),
-        };
+                getCancelAction());
     }
 
     private class ImportAllAction extends AbstractAction {
