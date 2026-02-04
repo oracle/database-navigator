@@ -5363,7 +5363,7 @@
         </one-of>
     </element-def>
     <element-def description="RESULT_CACHE clause" id="result_cache_clause">
-        <token type-id="RESULT_CACHE" id="03070" />
+        <token type-id="KW_RESULT_CACHE" id="03070" />
         <one-of id="03071">
             <wrapper template="PARENTHESES" id="03072">
                 <element ref-id="result_cache_options" />
