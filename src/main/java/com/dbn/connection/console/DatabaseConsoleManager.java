@@ -289,7 +289,7 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
                         sessionBundle.getSession(session);
 
 
-                DBConsoleType consoleType = enumAttribute(consoleElement, "type", DBConsoleType.class);
+                DBConsoleType consoleType = enumAttribute(consoleElement, "type", DBConsoleType.STANDARD);
 
                 String consoleText = readCdata(consoleElement);
 
