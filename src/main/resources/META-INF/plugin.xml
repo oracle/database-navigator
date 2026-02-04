@@ -27,7 +27,7 @@
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
     <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
     <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
-    <idea-version since-build="231.4840.387" until-build="253.*"/>
+    <idea-version since-build="231.4840.387" until-build="261.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
             <b>Database Development and Management Tool</b><br></br>
@@ -55,6 +55,7 @@
         <ul>
             <li><b>3.7.2</b>
             <ul>
+                <li>Support for latest ide EAP versions
                 <li>Bug fixes
             </ul>
             <li><b>3.7.1</b>
