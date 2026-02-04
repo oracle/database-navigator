@@ -113,6 +113,7 @@
                             <token id="00029" type-id="KW_UNLIMITED" />
                         </one-of>
                     </sequence>
+                    <element ref-id="maxsize_clause"/>
                     <sequence id="00030">
                         <token id="00031" type-id="KW_PCTINCREASE" />
                         <token id="00032" type-id="INTEGER" />
@@ -134,13 +135,25 @@
                         </one-of>
                     </sequence>
                     <sequence id="00044">
-                        <token id="00045" type-id="KW_BUFFER_POOL" />
+                        <token id="00045" type-id="PRM_BUFFER_POOL" />
                         <one-of id="00046">
                             <token id="00047" type-id="KW_KEEP" />
                             <token id="00048" type-id="KW_RECYCLE" />
                             <token id="00049" type-id="KW_DEFAULT" />
                         </one-of>
                     </sequence>
+                    <sequence id="00044">
+                        <one-of>
+                            <token id="00045" type-id="PRM_FLASH_CACHE" />
+                            <token id="00045" type-id="PRM_CELL_FLASH_CACHE" />
+                        </one-of>
+                        <one-of id="00046">
+                            <token id="00047" type-id="KW_KEEP" />
+                            <token id="00048" type-id="KW_NONE" />
+                            <token id="00049" type-id="KW_DEFAULT" />
+                        </one-of>
+                    </sequence>
+                    <token id="00045" type-id="KW_ENCRYPT" />
                 </one-of>
             </iteration>
         </wrapper>
@@ -1605,7 +1618,7 @@
         <one-of id="00916">
             <token id="00917" type-id="KW_LOGGING" />
             <token id="00918" type-id="KW_NOLOGGING" />
-            <token id="00919" type-id="KW_FILESYSTEM_LIKE_LOGGING" />
+            <token id="00919" type-id="PRM_FILESYSTEM_LIKE_LOGGING" />
         </one-of>
     </element-def>
     <element-def attributes="CLAUSE" description="REBUILD clause" id="rebuild_clause">
@@ -3696,21 +3709,43 @@
         </wrapper>
         <element optional="true" ref-id="column_properties" />
     </element-def>
-    <element-def description="Column definition" id="column_definition">
-        <object-def id="02202" type="COLUMN" />
-        <element ref-id="data_type" />
-        <token id="02203" optional="true" type-id="KW_SORT" />
-        <sequence id="02204" optional="true">
-            <token id="02205" type-id="KW_DEFAULT" />
-            <element ref-id="expression" />
+    <element-def description="COLUMN definition" id="column_definition" original-name="column_definition, virtual_column_definition">
+        <object-def type="COLUMN" id="00073" />
+        <sequence optional="true">
+            <element ref-id="data_type"/>
+            <sequence optional="true">
+                <token type-id="KW_COLLATE"/>
+                <object-ref type="COLLATION" id="00073" original-name="column_collation_name"/>
+            </sequence>
         </sequence>
-        <sequence id="02206" optional="true">
-            <token id="02207" type-id="KW_ENCRYPT" />
-            <element optional="true" ref-id="encryption_spec" />
+        <token type-id="KW_SORT" optional="true"/>
+        <one-of optional="true">
+            <token type-id="KW_VISIBLE"/>
+            <token type-id="KW_INVISIBLE"/>
+        </one-of>
+        <one-of optional="true">
+            <sequence>
+                <token type-id="KW_DEFAULT"/>
+                <sequence optional="true">
+                    <token type-id="KW_ON"/>
+                    <token type-id="KW_NULL"/>
+                </sequence>
+                <element original-name="expr" ref-id="expression" />
+            </sequence>
+            <element ref-id="identity_clause"/>
+        </one-of>
+        <token type-id="KW_VIRTUAL" optional="true"/>
+        <element ref-id="evaluation_edition_clause" optional="true"/>
+        <element ref-id="unusable_editions_clause" optional="true"/>
+        <sequence optional="true">
+            <token type-id="KW_ENCRYPT"/>
+            <element ref-id="encryption_spec"/>
         </sequence>
-        <one-of id="02208" optional="true">
-            <element ref-id="inline_constraint" />
-            <element ref-id="inline_ref_constraint" />
+        <one-of>
+            <iteration>
+                <element ref-id="inline_constraint"/>
+            </iteration>
+            <element ref-id="inline_ref_constraint"/>
         </one-of>
     </element-def>
     <element-def description="Column properties" id="column_properties">
@@ -3793,6 +3828,8 @@
         </one-of>
     </element-def>
     <element-def description="Supplemental logging props" id="supplemental_logging_props">
+        <token id="02177" type-id="KW_SUPPLEMENTAL" />
+        <token id="02178" type-id="KW_LOG" />
         <one-of id="02244">
             <element ref-id="supplemental_log_grp_clause" />
             <element ref-id="supplemental_id_key_clause" />
@@ -3808,6 +3845,7 @@
             <token id="02250" type-id="KW_BY" />
             <token id="02251" original-name="password" type-id="STRING" />
         </sequence>
+        <token type-id="STRING" original-name="integrity_algorithm"/>
         <sequence id="02252" optional="true">
             <token id="02253" optional="true" type-id="KW_NO" />
             <token id="02254" type-id="KW_SALT" />
@@ -4848,6 +4886,7 @@
             <element ref-id="create_index" />
             <element ref-id="create_user" />
             <element ref-id="create_role" />
+            <element ref-id="create_table" />
         </one-of>
     </element-def>
 
@@ -4968,13 +5007,23 @@
         <one-of id="02858" tokens="KW_ACCESS, KW_MODIFICATION, KW_CREATION" />
     </element-def>
     <element-def description="Index properties" id="index_properties">
-        <iteration id="02859">
-            <one-of id="02860">
-                <element ref-id="global_partitioned_index" />
-                <element ref-id="local_partitioned_index" />
-                <element ref-id="index_attributes" />
-            </one-of>
-        </iteration>
+        <one-of>
+            <iteration id="02859">
+                <one-of id="02860">
+                    <element ref-id="global_partitioned_index" />
+                    <element ref-id="local_partitioned_index" />
+                    <element ref-id="index_attributes" />
+                </one-of>
+            </iteration>
+            <sequence>
+                <token type-id="KW_INDEXTYPE"/>
+                <token type-id="KW_IS"/>
+                <one-of>
+                    <element ref-id="domain_index_clause"/><!--TODO -->
+                    <element ref-id="xml_index_clause"/><!--TODO -->
+                </one-of>
+            </sequence>
+        </one-of>
     </element-def>
     <element-def description="Index attributes" id="index_attributes">
         <one-of id="02861">
@@ -5065,8 +5114,110 @@
             </variant>
         </qualified-identifier>
         <element optional="true" ref-id="sharing_metadata_clause" />
+        <one-of>
+            <element ref-id="relational_table"/>
+            <element ref-id="object_table"/>
+            <element ref-id="xml_type_table"/>
+        </one-of>
+        <iteration optional="true">
+            <sequence>
+                <token id="02895" type-id="KW_MEMOPTIMIZE" />
+                <token id="02895" type-id="KW_FOR" />
+                <one-of>
+                    <token id="02895" type-id="KW_READ" />
+                    <token id="02895" type-id="KW_WRITE" />
+                </one-of>
+            </sequence>
+        </iteration>
+        <sequence optional="true">
+            <token id="02895" type-id="KW_PARENT" />
+            <qualified-identifier id="02955" separator="CHR_DOT">
+                <variant>
+                    <object-ref id="02956" optional="true" type="SCHEMA" />
+                    <object-ref id="02957" type="TABLE" original-name="table" />
+                </variant>
+            </qualified-identifier>
+        </sequence>
     </element-def>
-    <element-def description="immutable table clauses" id="immutable_table_clauses">
+    <element-def description="Relational TABLE" id="relational_table">
+        <wrapper template="PARENTHESES" optional="true">
+            <element ref-id="relational_properties"/>
+        </wrapper>
+        <element ref-id="immutable_table_clauses" optional="true"/>
+    </element-def>
+    <element-def description="Relational properties clause" id="relational_properties">
+        <iteration separator="CHR_COMMA">
+            <one-of>
+                <element ref-id="column_definition"/>
+                <element ref-id="period_definition"/>
+                <element ref-id="out_of_line_constraint"/>
+                <element ref-id="out_of_line_ref_constraint"/>
+                <element ref-id="supplemental_logging_props"/>
+            </one-of>
+        </iteration>
+    </element-def>
+    <element-def description="IDENTITY clause" id="identity_clause">
+        <token type-id="KW_GENERATED"/>
+        <one-of optional="true">
+            <token type-id="KW_ALWAYS"/>
+            <sequence>
+                <token type-id="KW_BY"/>
+                <token type-id="KW_DEFAULT"/>
+                <sequence optional="true">
+                    <token type-id="KW_ON"/>
+                    <token type-id="KW_NULL"/>
+                </sequence>
+            </sequence>
+        </one-of>
+        <token type-id="KW_AS"/>
+        <token type-id="KW_IDENTITY" optional="true"/>
+        <wrapper template="PARENTHESES" optional="true">
+            <one-of>
+                <element ref-id="identity_options"/>
+                <element ref-id="expression" original-name="column_expression"/>
+            </one-of>
+        </wrapper>
+    </element-def>
+    <element-def description="IDENTITY options" id="identity_options">
+        <iteration>
+            <one-of>
+                <sequence>
+                    <token type-id="KW_START"/>
+                    <token type-id="KW_WITH"/>
+                    <one-of>
+                        <sequence>
+                            <token type-id="KW_LIMIT"/>
+                            <token type-id="KW_VALUE"/>
+                        </sequence>
+                        <token original-name="integer" type-id="INTEGER" />
+                    </one-of>
+                </sequence>
+                <sequence>
+                    <sequence>
+                        <token type-id="KW_INCREMENT"/>
+                        <token type-id="KW_BY"/>
+                    </sequence>
+                    <token original-name="integer" type-id="INTEGER" />
+                </sequence>
+                <sequence>
+                    <one-of>
+                        <token type-id="KW_CACHE"/>
+                        <token type-id="KW_NOCACHE"/>
+                        <token type-id="KW_MAXVALUE"/>
+                        <token type-id="KW_NOMAXVALUE"/>
+                        <token type-id="KW_MINVALUE"/>
+                        <token type-id="KW_NOMINVALUE"/>
+                    </one-of>
+                    <token original-name="integer" type-id="INTEGER" />
+                </sequence>
+                <token type-id="KW_ORDER"/>
+                <token type-id="KW_NOORDER"/>
+                <token type-id="KW_CYCLE"/>
+                <token type-id="KW_NOCYCLE"/>
+            </one-of>
+        </iteration>
+    </element-def>
+    <element-def description="Immutable table clauses" id="immutable_table_clauses">
         <iteration id="02907">
             <sequence id="02908">
                 <token type-id="KW_NO" id="02909" />
@@ -5097,6 +5248,18 @@
                 </one-of>
             </sequence>
         </iteration>
+    </element-def>
+    <element-def description="PERIOD definition" id="period_definition">
+        <token type-id="KW_PERIOD"/>
+        <token type-id="KW_FOR"/>
+        <object-ref type="COLUMN" original-name="valid_time_column"/>
+        <wrapper template="PARENTHESES" optional="true">
+            <sequence>
+                <object-ref type="COLUMN" original-name="start_time_column"/>
+                <token type-id="CHR_COMMA"/>
+                <object-ref type="COLUMN" original-name="end_time_column"/>
+            </sequence>
+        </wrapper>
     </element-def>
 
     <element-def description="CREATE JSON VIEW statement" id="create_json_view_statement" original-name="create_json_relational_duality_view">
@@ -6169,6 +6332,7 @@
                 <token id="03504" type-id="KW_WITH" />
                 <token id="03505" type-id="DT_ROWID" />
             </sequence>
+<!--
             <sequence id="03506">
                 <sequence id="03507" optional="true">
                     <token id="03508" type-id="KW_CONSTRAINT" />
@@ -6177,6 +6341,7 @@
                 <element ref-id="references_clause" />
                 <element optional="true" ref-id="constraint_state" />
             </sequence>
+-->
         </one-of>
     </element-def>
     <element-def description="Out of line REF CONSTRAINT" id="out_of_line_ref_constraint">
@@ -6232,11 +6397,13 @@
         <qualified-identifier id="03541" separator="CHR_DOT">
             <variant>
                 <object-ref id="03542" optional="true" type="SCHEMA" />
-                <object-ref id="03543" type="DATASET" />
+                <object-ref type="ANY" original-name="object" />
             </variant>
         </qualified-identifier>
         <wrapper id="03544" optional="true" template="PARENTHESES">
-            <object-ref id="03545" type="COLUMN" />
+            <iteration separator="CHR_COMMA">
+                <object-ref type="COLUMN"/>
+            </iteration>
         </wrapper>
         <sequence id="03546" optional="true">
             <token id="03547" type-id="KW_ON" />
