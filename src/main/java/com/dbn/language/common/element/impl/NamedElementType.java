@@ -69,7 +69,7 @@ public final class NamedElementType extends SequenceElementType {
     @Override
     public void loadDefinition(Element def) throws ElementTypeDefinitionException {
         if (definitionLoaded) {
-            log.error("[{}] duplicate definition for element\"{}\"", getLanguageDialect().getID(), getId());
+            log.error("[{}] duplicate definition for element \"{}\"", getLanguageDialect().getID(), getId());
         }
 
         super.loadDefinition(def);
