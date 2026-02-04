@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -192,6 +193,38 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     private Map<DBContentType, DDLFileTypeId> ddlFileTypeIds;
 
     private static final Map<String, DBObjectType> CACHE = new ConcurrentHashMap<>(200);
+    public static final Set<DBObjectType> BROWSABLE_TYPES = new LinkedHashSet<>(List.of(
+            DBObjectType.ROLE,
+            DBObjectType.PRIVILEGE,
+            DBObjectType.CHARSET,
+            DBObjectType.TABLE,
+            DBObjectType.VIEW,
+            DBObjectType.JSON_VIEW,
+            DBObjectType.MATERIALIZED_VIEW,
+            DBObjectType.NESTED_TABLE,
+            DBObjectType.COLUMN,
+            DBObjectType.INDEX,
+            DBObjectType.CONSTRAINT,
+            DBObjectType.DATASET_TRIGGER,
+            DBObjectType.DATABASE_TRIGGER,
+            DBObjectType.SYNONYM,
+            DBObjectType.SEQUENCE,
+            DBObjectType.PROCEDURE,
+            DBObjectType.FUNCTION,
+            DBObjectType.PACKAGE,
+            DBObjectType.TYPE,
+            DBObjectType.TYPE_ATTRIBUTE,
+            DBObjectType.ARGUMENT,
+            DBObjectType.JAVA_CLASS,
+            DBObjectType.JAVA_FIELD,
+            DBObjectType.JAVA_METHOD,
+            DBObjectType.JAVA_RESOURCE,
+            DBObjectType.DIMENSION,
+            DBObjectType.CLUSTER,
+            DBObjectType.DBLINK,
+            DBObjectType.CREDENTIAL,
+            DBObjectType.AI_PROFILE,
+            DBObjectType.AI_MODEL));
 
     DBObjectType(DatabaseObjectTypeId typeId, String name, String listName, Icon icon, Icon disabledIcon, Icon listIcon, boolean generic) {
         this.typeId = typeId;
@@ -639,6 +672,10 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
 
         DatabaseCompatibilityInterface compatibility = connectionProvider.getCompatibilityInterface();
         return compatibility.supportsObjectType(getTypeId());
+    }
+
+    public boolean isBrowsable() {
+        return BROWSABLE_TYPES.contains(this);
     }
 
     /*************************************************************************

@@ -110,6 +110,7 @@ public class SQLLanguageAnnotator extends DBLanguageAnnotator {
 
         DBObjectType objectType = objectReference.getObjectType();
         if (objectType == DBObjectType.UNKNOWN) return; // not supported (do not highlight)
+        if (!objectType.isBrowsable()) return;
         if (!objectType.isSupported(objectReference)) return;
 
         PsiElement reference = objectReference.resolve();
