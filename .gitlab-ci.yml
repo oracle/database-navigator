@@ -40,7 +40,7 @@ build-job:       # This job runs in the build stage, which runs first.
   stage: build
   script:
     - ./gradlew --build-cache clean build -x buildSearchableOptions -PexcludeTests="**/*DatabaseInterfaceQueueTest*;**/*ObjectPoolBaseTest*"
-    - ls -altr build/distributions
+    - ls -altr build/distributions || true
 
 #deploy-to-artifactory:
 #    stage: deploy
