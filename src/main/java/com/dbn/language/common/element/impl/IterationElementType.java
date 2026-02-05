@@ -26,6 +26,7 @@ import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.SequencePsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,6 +36,7 @@ import java.util.StringTokenizer;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
+@Slf4j
 public final class IterationElementType extends ElementTypeBase {
 
     public ElementTypeBase iteratedElementType;
@@ -93,6 +95,11 @@ public final class IterationElementType extends ElementTypeBase {
         }
         Element child = children.get(0);
         String type = child.getName();
+        if (isMarkedOptional(child)) {
+            // not supported - prevent false expectations
+            log.warn("DBN - [{}] iterated element cannot be optional (iteration = {})", getLanguage().getID(), getId());
+        }
+
         iteratedElementType = bundle.resolveElementDefinition(child, type, this);
 
         String elementsCountDef = stringAttribute(def, "elements-count");

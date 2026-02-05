@@ -26,6 +26,7 @@ import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.SequencePsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,6 +38,7 @@ import java.util.Set;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Unsafe.cast;
 
+@Slf4j
 public final class OneOfElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
     private boolean sortable;
@@ -74,6 +76,11 @@ public final class OneOfElementType extends ElementTypeBase {
             ElementTypeRef previous = null;
             for (int i=0; i<children.size(); i++) {
                 Element child = children.get(i);
+                if (isMarkedOptional(child)) {
+                    // not supported - prevent false expectations
+                    log.warn("DBN - [{}] one-of element cannot be optional (one-of = {})", getLanguage().getID(), getId());
+                }
+
                 String type = child.getName();
                 ElementTypeBase elementType = bundle.resolveElementDefinition(child, type, this);
                 double version = Double.parseDouble(Commons.nvl(stringAttribute(child, "version"), "0"));

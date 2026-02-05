@@ -149,14 +149,13 @@
         </wrapper>
     </element-def>
     <element-def description="Function restrictions" id="function_restrictions">
-
         <iteration id="00057">
             <one-of id="00058">
                 <token id="00059" type-id="KW_DETERMINISTIC" />
-                <element optional="true" ref-id="parallel_enable_clause" />
-                <element optional="true" ref-id="default_collation_clause" />
-                <element optional="true" ref-id="invoker_rights_clause" />
-                <element optional="true" ref-id="accessible_by_clause" />
+                <element ref-id="parallel_enable_clause" />
+                <element ref-id="default_collation_clause" />
+                <element ref-id="invoker_rights_clause" />
+                <element ref-id="accessible_by_clause" />
                 <sequence id="00060">
                     <token id="00061" type-id="KW_RESULT_CACHE" />
                     <element optional="true" ref-id="relies_on_clause" />
@@ -592,8 +591,8 @@
                                 <sequence id="00282">
                                     <token id="00283" optional="true" type-id="KW_NOT" />
                                     <one-of id="00284">
-                                        <token id="00285" optional="true" type-id="KW_FINAL" />
-                                        <token id="00286" optional="true" type-id="KW_INSTANTIABLE" />
+                                        <token id="00285" type-id="KW_FINAL" />
+                                        <token id="00286" type-id="KW_INSTANTIABLE" />
                                     </one-of>
                                 </sequence>
                             </iteration>
@@ -1667,7 +1666,7 @@
         <token id="00854" type-id="KW_WHEN" />
         <one-of id="00855">
             <token id="00856" type-id="KW_OTHERS" />
-            <iteration id="00857" optional="true" separator="KW_OR">
+            <iteration id="00857" separator="KW_OR">
                 <element ref-id="exception" />
             </iteration>
         </one-of>
@@ -3084,10 +3083,10 @@
                 <iteration id="01536" separator="CHR_COMMA">
                     <one-of id="01537">
                         <element original-name="collection_name" ref-id="chained_references" />
-                        <wrapper id="01538" optional="true" template="PARENTHESES">
+                        <wrapper id="01538" template="PARENTHESES">
                             <element ref-id="expression" />
                         </wrapper>
-                        <sequence id="01539" optional="true">
+                        <sequence id="01539">
                             <token id="01540" type-id="CHR_COLON" />
                             <variable-ref id="01541" original-name="host_array_name" type="ANY" />
                         </sequence>
@@ -4284,7 +4283,7 @@
                         <token id="02139" type-id="CHR_DOT" />
                         <element ref-id="numeric_index_suffix" />
                     </sequence>
-                    <sequence id="02140" optional="true">
+                    <sequence id="02140">
                         <wrapper id="02141" template="PARENTHESES">
                             <element ref-id="expression" />
                         </wrapper>
@@ -5382,7 +5381,7 @@
                         <element original-name="value_expr" ref-id="expression" />
                         <one-of id="02766">
                             <alias-def id="02767" type="ANY" />
-                            <sequence id="02768" optional="true">
+                            <sequence id="02768">
                                 <token id="02769" type-id="KW_AS" />
                                 <one-of id="02770">
                                     <alias-def id="02771" type="ANY" />

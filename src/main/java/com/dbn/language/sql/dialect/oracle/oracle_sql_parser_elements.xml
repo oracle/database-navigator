@@ -4127,7 +4127,7 @@
                                 </sequence>
                             </wrapper>
                         </sequence>
-                        <wrapper id="02432" optional="true" template="PARENTHESES">
+                        <wrapper id="02432" template="PARENTHESES">
                             <sequence id="02433" optional="true">
                                 <token id="02434" type-id="KW_TABLESPACE" />
                                 <object-ref id="02435" type="TABLESPACE" />
@@ -4157,8 +4157,8 @@
         </one-of>
         <sequence id="02444" optional="true">
             <token id="02445" type-id="KW_OVERFLOW" />
-            <iteration id="02446">
-                <one-of id="02447" optional="true">
+            <iteration id="02446" optional="true">
+                <one-of id="02447">
                     <element ref-id="physical_attributes_clause" />
                     <element ref-id="logging_clause" />
                     <element ref-id="allocate_extent_clause" />
@@ -4753,7 +4753,7 @@
                     </sequence>
                     <token id="02767" optional="true" type-id="KW_FORCE" />
                 </sequence>
-                <element optional="true" ref-id="container_clause" />
+                <element ref-id="container_clause" />
             </one-of>
         </iteration>
     </element-def>
@@ -6127,7 +6127,7 @@
                             <token id="03497" type-id="KW_PRECISION" />
                         </sequence>
                     </sequence>
-                    <iteration id="03498" optional="true">
+                    <iteration id="03498">
                         <one-of id="03499">
                             <element ref-id="physical_properties" />
                             <element ref-id="materialized_view_props" />
@@ -6155,7 +6155,7 @@
                 <element optional="true" ref-id="create_mv_refresh" />
                 <element optional="true" ref-id="evaluation_edition_clause" />
                 <iteration id="03511" optional="true">
-                    <sequence id="03512" optional="true">
+                    <sequence id="03512">
                         <one-of id="03513" tokens="KW_ENABLE, KW_DISABLE" />
                         <one-of id="03514">
                             <sequence id="03515">
@@ -6358,11 +6358,11 @@
                     <iteration id="03634">
                         <one-of id="03635">
                             <element ref-id="segment_attributes_clause" />
-                            <element optional="true" ref-id="table_compression" />
-                            <element optional="true" ref-id="logging_clause" />
-                            <element optional="true" ref-id="storage_clause" />
-                            <element optional="true" ref-id="inmemory_clause" />
-                            <element optional="true" ref-id="ilm_clause" />
+                            <element ref-id="table_compression" />
+                            <element ref-id="logging_clause" />
+                            <element ref-id="storage_clause" />
+                            <element ref-id="inmemory_clause" />
+                            <element ref-id="ilm_clause" />
                         </one-of>
                     </iteration>
                     <sequence id="03636">
@@ -7384,7 +7384,7 @@
                     </sequence>
                 </one-of>
             </sequence>
-            <element optional="true" ref-id="container_clause" />
+            <element ref-id="container_clause" />
         </one-of>
     </element-def>
 
@@ -11356,9 +11356,9 @@
                 <iteration id="06232" separator="CHR_COMMA">
                     <sequence id="06233">
                         <element original-name="value_expr" ref-id="expression" />
-                        <one-of id="06234">
+                        <one-of id="06234" optional="true">
                             <alias-def id="06235" type="ANY" />
-                            <sequence id="06236" optional="true">
+                            <sequence id="06236">
                                 <token id="06237" type-id="KW_AS" />
                                 <one-of id="06238">
                                     <alias-def id="06239" type="ANY" />

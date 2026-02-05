@@ -277,6 +277,10 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         return false;
     }
 
+    protected boolean isMarkedOptional(Element element) {
+        return getBooleanAttribute(element, "optional");
+    }
+
     @Override
     public TokenType getTokenType() {
         return null;
