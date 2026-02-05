@@ -5166,30 +5166,40 @@
         <element ref-id="blockchain_table_clauses" optional="true" />
         <element ref-id="default_collation_clause" optional="true" />
         <iteration optional="true" id="02972">
-            <sequence id="02973">
-                <token type-id="KW_ON" id="02974" />
-                <token type-id="KW_COMMIT" id="02975" />
-                <one-of id="02976">
-                    <sequence id="02977">
-                        <token type-id="KW_DROP" id="02978" />
-                        <token type-id="KW_DEFINITION" id="02979" />
-                    </sequence>
-                    <sequence id="02980">
-                        <token type-id="KW_DELETE" id="02981" />
-                        <token type-id="KW_ROWS" id="02982" />
-                    </sequence>
-                    <sequence id="02983">
-                        <token type-id="KW_PRESERVE" id="02984" />
-                        <one-of id="02985">
-                            <token type-id="KW_ROWS" id="02986" />
-                            <token type-id="KW_DEFINITION" id="02987" />
-                        </one-of>
-                    </sequence>
-                </one-of>
-            </sequence>
+            <element ref-id="on_commit_clause"/>
         </iteration>
         <element ref-id="physical_properties" optional="true" />
         <element ref-id="table_properties" optional="true" />
+    </element-def>
+    <element-def description="ON COMMIT clause" id="on_commit_clause" custom="true">
+        <token type-id="KW_ON" id="02974" />
+        <token type-id="KW_COMMIT" id="02975" />
+        <one-of id="02976">
+            <sequence id="02977">
+                <token type-id="KW_DROP" id="02978" />
+                <token type-id="KW_DEFINITION" id="02979" />
+            </sequence>
+            <sequence id="02980">
+                <token type-id="KW_DELETE" id="02981" />
+                <token type-id="KW_ROWS" id="02982" />
+            </sequence>
+            <sequence id="02983">
+                <token type-id="KW_PRESERVE" id="02984" />
+                <one-of id="02985">
+                    <token type-id="KW_ROWS" id="02986" />
+                    <token type-id="KW_DEFINITION" id="02987" />
+                </one-of>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="ON COMMIT rows clause" id="on_commit_rows_clause" custom="true">
+        <token type-id="KW_ON" id="03227" />
+        <token type-id="KW_COMMIT" id="03228" />
+        <one-of id="03229">
+            <token type-id="KW_DELETE" id="03230" />
+            <token type-id="KW_PRESERVE" id="03231" />
+        </one-of>
+        <token type-id="KW_ROWS" id="03232" />
     </element-def>
     <element-def description="Relational properties clause" id="relational_properties">
         <iteration separator="CHR_COMMA" id="02988">
@@ -5548,7 +5558,7 @@
             </sequence>
         </wrapper>
     </element-def>
-    <element-def description="blockchain_table_clauses" id="blockchain_table_clauses">
+    <element-def description="Blockchain table clauses" id="blockchain_table_clauses">
         <one-of id="03195">
             <sequence id="03196">
                 <token type-id="KW_NO" id="03197" />
@@ -5596,15 +5606,7 @@
         <wrapper template="PARENTHESES" optional="true" id="03225">
             <element ref-id="object_properties" />
         </wrapper>
-        <sequence optional="true" id="03226">
-            <token type-id="KW_ON" id="03227" />
-            <token type-id="KW_COMMIT" id="03228" />
-            <one-of id="03229">
-                <token type-id="KW_DELETE" id="03230" />
-                <token type-id="KW_PRESERVE" id="03231" />
-            </one-of>
-            <token type-id="KW_ROWS" id="03232" />
-        </sequence>
+        <element ref-id="on_commit_rows_clause" optional="true"/>
         <element ref-id="oid_clause" optional="true" />
         <element ref-id="oid_index_clause" optional="true" />
         <element ref-id="physical_properties" optional="true" />
@@ -5657,6 +5659,80 @@
                 <token type-id="KW_KEY" id="03263" />
             </sequence>
         </one-of>
+    </element-def>
+    <element-def description="XMLTYPE table" id="xml_type_table">
+        <token type-id="KW_OF"/>
+        <token type-id="KW_XMLTYPE"/>
+        <wrapper template="PARENTHESES" optional="true">
+            <element ref-id="object_properties"/>
+        </wrapper>
+        <sequence optional="true">
+            <token type-id="KW_XMLTYPE"/>
+            <element ref-id="xml_type_storage"/>
+        </sequence>
+        <element ref-id="xml_schema_spec" optional="true"/>
+        <element ref-id="xml_type_virtual_columns" optional="true"/>
+        <element ref-id="on_commit_rows_clause" optional="true"/>
+        <element ref-id="oid_index_clause" optional="true"/>
+        <element ref-id="physical_properties" optional="true"/>
+        <element ref-id="table_properties" optional="true"/>
+    </element-def>
+    <element-def description="XMLTYPE storage" id="xml_type_storage">
+        <token type-id="KW_STORE"/>
+        <one-of>
+            <sequence>
+                <token type-id="KW_AS"/>
+                <one-of>
+                    <sequence>
+                        <token type-id="KW_OBJECT"/>
+                        <token type-id="KW_RELATIONAL"/>
+                    </sequence>
+                    <sequence>
+                        <one-of optional="true">
+                            <token type-id="KW_SECUREFILE"/>
+                            <token type-id="KW_BASICFILE"/>
+                        </one-of>
+                        <one-of>
+                            <token type-id="DT_CLOB"/>
+                            <sequence>
+                                <token type-id="KW_BINARY"/>
+                                <token type-id="KW_XML"/>
+                            </sequence>
+                        </one-of>
+                        <sequence optional="true">
+                            <token id="01209" optional="true" original-name="LOB_segname" type-id="IDENTIFIER" />
+                            <wrapper template="PARENTHESES">
+                                <element ref-id="lob_parameters"/>
+                            </wrapper>
+                        </sequence>
+                    </sequence>
+                </one-of>
+            </sequence>
+            <sequence>
+                <token type-id="KW_ALL"/>
+                <token type-id="KW_VARIANTS"/>
+                <token type-id="KW_AS"/>
+                <one-of>
+                    <token type-id="KW_LOBS"/>
+                    <token type-id="KW_TABLES"/>
+                </one-of>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="XMLTYPE VIRTUAL COLUMNS" id="xml_type_virtual_columns">
+        <token type-id="KW_VIRTUAL"/>
+        <token type-id="KW_COLUMNS"/>
+        <wrapper template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <sequence>
+                    <object-ref type="COLUMN"/>
+                    <token type-id="KW_AS"/>
+                    <wrapper template="PARENTHESES">
+                        <element ref-id="expr"/>
+                    </wrapper>
+                </sequence>
+            </iteration>
+        </wrapper>
     </element-def>
 
     <element-def description="CREATE JSON VIEW statement" id="create_json_view_statement" original-name="create_json_relational_duality_view">
@@ -6640,7 +6716,7 @@
             </one-of>
         </sequence>
     </element-def>
-    <element-def description="xml_schema_spec" id="xml_schema_spec">
+    <element-def description="XMLSCHEMA spec" id="xml_schema_spec">
         <sequence id="03793" optional="true">
             <token id="03794" type-id="KW_XMLSCHEMA" />
             <token id="03795" original-name="XMLSchema_URL" type-id="STRING" />
@@ -6651,6 +6727,28 @@
             <token id="03799" type-id="CHR_HASH" />
         </sequence>
         <token id="03800" original-name="element" type-id="STRING" />
+        <sequence optional="true">
+            <token type-id="KW_STORE"/>
+            <token type-id="KW_ALL"/>
+            <token type-id="KW_VARRAYS"/>
+            <token type-id="KW_AS"/>
+            <one-of>
+                <token type-id="KW_LOBS"/>
+                <token type-id="KW_TABLES"/>
+            </one-of>
+        </sequence>
+        <iteration optional="true">
+            <sequence>
+                <one-of>
+                    <token type-id="KW_ALLOW"/>
+                    <token type-id="KW_DISALLOW"/>
+                </one-of>
+                <one-of>
+                    <token type-id="KW_NOSCHEMA"/>
+                    <token type-id="KW_ANYSCHEMA"/>
+                </one-of>
+            </sequence>
+        </iteration>
     </element-def>
     <element-def description="Constraints" id="constraints">
         <iteration id="03801">
