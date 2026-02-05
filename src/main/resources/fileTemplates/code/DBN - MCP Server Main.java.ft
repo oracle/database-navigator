@@ -1,0 +1,114 @@
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.modelcontextprotocol.server.McpServer;
+import io.modelcontextprotocol.server.McpServerFeatures;
+import io.modelcontextprotocol.server.transport.StdioServerTransportProvider;
+import io.modelcontextprotocol.spec.McpSchema;
+
+import java.io.InputStream;
+import java.sql.*;
+import java.util.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import oracle.jdbc.OraclePreparedStatement;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        Properties cfg = new Properties();
+        try (InputStream in = Main.class.getResourceAsStream("/mcp-config.properties")) {
+            if (in != null) cfg.load(in);
+        }
+        String url = System.getProperty("mcp.url", cfg.getProperty("mcp.url"));
+        String password = System.getProperty("mcp.password", cfg.getProperty("mcp.password"));
+        String user = System.getProperty("mcp.user", cfg.getProperty("mcp.user"));
+        String serverName = System.getProperty("mcp.serverName", cfg.getProperty("mcp.serverName", "mcp-server"));
+        String serverVersion = System.getProperty("mcp.serverVersion", cfg.getProperty("mcp.serverVersion", "1.0.0"));
+
+        int toolCount = Integer.parseInt(System.getProperty(
+                "mcp.tools.count",
+                cfg.getProperty("mcp.tools.count", "0")));
+        java.util.List<McpServerFeatures.SyncToolSpecification> specs = new java.util.ArrayList<>();
+        for (int i = 0; i < toolCount; i++) {
+            String p = "mcp.tools." + i + ".";
+            String tName   = System.getProperty(p + "name",   cfg.getProperty(p + "name",   "tool_" + i));
+            String tDesc   = System.getProperty(p + "desc",   cfg.getProperty(p + "desc",   "Parameterized SELECT tool"));
+            String tSql    = System.getProperty(p + "sql",    cfg.getProperty(p + "sql",    "SELECT 1 AS value FROM dual"));
+            String tSchema = System.getProperty(p + "schema", cfg.getProperty(p + "schema", "{\"type\":\"object\",\"additionalProperties\":true}"));
+            specs.add(createTool(tName, tDesc, tSchema, new DbDetails(url, user, password), tSql));
+        }
+        if (specs.isEmpty()) {
+            String tName   = System.getProperty("mcp.toolName", cfg.getProperty("mcp.toolName", "run_select"));
+            String tDesc   = System.getProperty("mcp.toolDesc", cfg.getProperty("mcp.toolDesc", "Parameterized SELECT tool"));
+            String tSql    = System.getProperty("tool.sql",    cfg.getProperty("tool.sql",    "SELECT 1 AS value FROM dual"));
+            String tSchema = System.getProperty("tool.schema", cfg.getProperty("tool.schema", "{\"type\":\"object\",\"additionalProperties\":true}"));
+            specs.add(createTool(tName, tDesc, tSchema, new DbDetails(url, user, password), tSql));
+        }
+
+        StdioServerTransportProvider transport = new StdioServerTransportProvider(new ObjectMapper());
+        McpServer.sync(transport)
+                .serverInfo(serverName, serverVersion)
+                .capabilities(McpSchema.ServerCapabilities.builder()
+                        .tools(true)
+                        .logging()
+                        .build())
+                .tools(specs.toArray(new McpServerFeatures.SyncToolSpecification[0]))
+                .build();
+    }
+
+    private static McpServerFeatures.SyncToolSpecification createTool(String toolName, String toolDesc, String schema, DbDetails db, String sql) {
+        McpSchema.Tool tool = new McpSchema.Tool(toolName, toolDesc, schema);
+        return new McpServerFeatures.SyncToolSpecification(tool, (e, request) -> {
+            try (Connection conn = DriverManager.getConnection(db.url(), db.user(), db.password());
+                 OraclePreparedStatement ps = (OraclePreparedStatement) conn.prepareStatement(sql)) {
+                // Dynamically bind all provided parameters by name
+                for (Map.Entry<String, Object> en : request.entrySet()) {
+                    ps.setObjectAtName(en.getKey(), en.getValue());
+                }
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    List<Map<String, Object>> rows = new ArrayList<>();
+                    ResultSetMetaData md = rs.getMetaData();
+                    int colCount = md.getColumnCount();
+                    while (rs.next()) {
+                        Map<String, Object> row = new HashMap<>();
+                        for (int i = 1; i <= colCount; i++) {
+                            row.put(md.getColumnLabel(i), rs.getObject(i));
+                        }
+                        rows.add(row);
+                    }
+                    String json = new ObjectMapper().writeValueAsString(rows);
+                    return new McpSchema.CallToolResult(List.of(new McpSchema.TextContent(json)), false);
+                } catch (JsonProcessingException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } catch (SQLException ex) {
+                return new McpSchema.CallToolResult(ex.getMessage(), true);
+            }
+        });
+    }
+
+    public static class DbDetails {
+        String url;
+        String user;
+        String password;
+
+        public DbDetails(String url, String user, String password) {
+            this.url = url;
+            this.user = user;
+            this.password = password;
+        }
+
+        String url() { return url; }
+        String user() { return user; }
+        String password() { return password; }
+    }
+}

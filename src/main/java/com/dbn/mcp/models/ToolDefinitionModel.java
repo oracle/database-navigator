@@ -1,138 +1,91 @@
 package com.dbn.mcp.models;
 
-import com.dbn.mcp.McpServerInputForm;
-import com.dbn.mcp.ui.ToolDefinitionCreateForm;
+import com.dbn.common.util.Json;
+import com.dbn.mcp.McpServerInputForm.ParamRow;
+import com.dbn.mcp.McpServerInputForm.ParamType;
+import com.dbn.mcp.ui.ParamTableModel;
+import com.dbn.mcp.util.SqlParameterParser;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.dbn.mcp.ui.ToolDefinitionCreateForm.*;
 
 @Data
 public class ToolDefinitionModel {
-  String name ;
-  String description ;
-  String sql;
-  String rewritingSql;
-  String paramOrderCsv;
-  String jsonSchema;
-  ToolDefinitionCreateForm.ParamTableModel paramsModel;
+    private String name;
+    private String description;
+    private String sql;
+    private ParamTableModel paramsModel;
 
-  public ToolDefinitionModel(ToolDefinitionCreateForm.ParamTableModel paramsModel) {
-    this.paramsModel = paramsModel;
-  }
-
-
-  public String getRewritingSql() {
-    return rewriteToJdbc(sql).rewrittenSql;
-  }
-  public String getParamOrderCsv() {
-
-    Rewritten r = rewriteToJdbc(sql);
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < r.paramOrder.size(); i++) {
-      if (i > 0) sb.append(',');
-      sb.append(r.paramOrder.get(i));
+    public ToolDefinitionModel(ParamTableModel paramsModel) {
+        this.paramsModel = paramsModel;
     }
-    return sb.toString();
-  }
 
-  public String getToolJsonSchema() {
+    public String getRewrittenSql() {
+        return SqlParameterParser.rewriteToJdbc(sql).getSql();
+    }
 
-    List<String> occ = parseOccurrences(sql);
-    List<String> uniq = uniqueInOrder(occ);
+    public String getParamOrderCsv() {
+        return String.join(",", SqlParameterParser.rewriteToJdbc(sql).getParamOrder());
+    }
 
-    Map<String, McpServerInputForm.ParamRow> byName = new LinkedHashMap<>();
-    for (McpServerInputForm.ParamRow r : paramsModel.getRows()) byName.put(stripColon(r.name), r);
+    public String getJsonSchema() {
+        List<String> params = SqlParameterParser.uniqueInOrder(SqlParameterParser.parseOccurrences(sql));
+        Map<String, ParamRow> paramMap = buildParamMap();
 
-    StringBuilder sb = new StringBuilder();
-    sb.append('{');
-    sb.append("\"type\":\"object\",");
-    sb.append("\"properties\":{");
-    for (int i = 0; i < uniq.size(); i++) {
-      String n = uniq.get(i);
-      if (i > 0) sb.append(',');
-      sb.append("\"").append(escape(n)).append("\":{");
-      McpServerInputForm.ParamRow r = byName.get(n);
-      McpServerInputForm.ParamType t = r == null ? McpServerInputForm.ParamType.String : r.type;
-      sb.append("\"type\":\"").append(jsonType(t)).append("\"");
-      if (t == McpServerInputForm.ParamType.Date) sb.append(',').append("\"format\":\"date\"");
-      if (r != null && r.defaultValue != null && !r.defaultValue.isEmpty()) {
-        sb.append(',').append("\"default\":");
-        switch (t) {
-          case Boolean:
-            sb.append(r.defaultValue.equalsIgnoreCase("true") || r.defaultValue.equals("1"));
-            break;
-          case Integer:
-          case Float:
-            sb.append(r.defaultValue);
-            break;
-          default:
-            sb.append("\"").append(escape(r.defaultValue)).append("\"");
+        Map<String, Object> properties = new LinkedHashMap<>();
+        for (String p : params) properties.put(p, buildParamSchema(paramMap.get(p)));
+
+        Map<String, Object> schema = new LinkedHashMap<>();
+        schema.put("type", "object");
+        schema.put("properties", properties);
+        schema.put("required", new ArrayList<>(params));
+        return Json.writeAsString(schema);
+    }
+
+    private Map<String, ParamRow> buildParamMap() {
+        Map<String, ParamRow> map = new LinkedHashMap<>();
+        for (ParamRow row : paramsModel.getRows()) {
+            map.put(SqlParameterParser.stripColon(row.name), row);
         }
-      }
-      sb.append('}');
+        return map;
     }
-    sb.append("},");
-    sb.append("\"required\":[");
-    for (int i = 0; i < uniq.size(); i++) {
-      if (i > 0) sb.append(',');
-      sb.append("\"").append(escape(uniq.get(i))).append("\"");
+
+    private Map<String, Object> buildParamSchema(ParamRow row) {
+        Map<String, Object> schema = new LinkedHashMap<>();
+        ParamType type = row != null ? row.type : ParamType.String;
+
+        schema.put("type", toJsonType(type));
+        if (type == ParamType.Date) schema.put("format", "date");
+        if (row != null && notEmpty(row.description)) schema.put("description", row.description);
+        if (row != null && notEmpty(row.defaultValue)) addDefault(schema, row.defaultValue, type);
+
+        return schema;
     }
-    sb.append(']');
-    sb.append('}');
-    return sb.toString();
-  }
 
-
-
-
-  // helpers
-
-  private static String jsonType(McpServerInputForm.ParamType t) {
-    switch (t) {
-      case Integer:
-        return "integer";
-      case Float:
-        return "number";
-      case Boolean:
-        return "boolean";
-      case Date:
-        return "string";
-      default:
-        return "string";
+    private void addDefault(Map<String, Object> schema, String value, ParamType type) {
+        try {
+            switch (type) {
+                case Boolean: schema.put("default", "true".equalsIgnoreCase(value)); break;
+                case Integer: schema.put("default", Long.parseLong(value)); break;
+                case Float:   schema.put("default", Double.parseDouble(value)); break;
+                default:      schema.put("default", value);
+            }
+        } catch (NumberFormatException ignored) {}
     }
-  }
 
-  private String escape(String s) {
-    return s == null ? "" : s.replace("\\", "\\\\").replace("\"", "\\\"");
-  }
-  private static Rewritten rewriteToJdbc(String sql) {
-    if (sql == null) return new Rewritten("", List.of());
-    StringBuffer out = new StringBuffer();
-    List<String> order = new ArrayList<>();
-    Matcher m = Pattern.compile(":(\\w+)").matcher(sql);
-    while (m.find()) {
-      order.add(m.group(1));
-      m.appendReplacement(out, "?");
+    private String toJsonType(ParamType type) {
+        switch (type) {
+            case Integer: return "integer";
+            case Float:   return "number";
+            case Boolean: return "boolean";
+            default:      return "string";
+        }
     }
-    m.appendTail(out);
-    return new Rewritten(out.toString(), order);
-  }
 
-
-  private static class Rewritten {
-    final String rewrittenSql; // with '?'
-    final List<String> paramOrder; // names without colon, repeats preserved
-
-    Rewritten(String s, List<String> o) {
-      this.rewrittenSql = s;
-      this.paramOrder = o;
+    private boolean notEmpty(String s) {
+        return s != null && !s.isEmpty();
     }
-  }
 }

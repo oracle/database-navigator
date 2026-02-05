@@ -43,6 +43,7 @@ import com.dbn.vfs.file.DBObjectListVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
 import com.dbn.vfs.file.DBSessionBrowserVirtualFile;
 import com.dbn.vfs.file.DBSessionStatementVirtualFile;
+import com.dbn.mcp.vfs.McpToolSqlVirtualFile;
 import com.intellij.openapi.components.NamedComponent;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
@@ -406,6 +407,11 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
 
             if (virtualFile instanceof DBLooseContentVirtualFile) {
                 DBLooseContentVirtualFile file = (DBLooseContentVirtualFile) virtualFile;
+                return connectionId + PSS + LOOSE_CONTENTS + file.getName();
+            }
+
+            if (virtualFile instanceof McpToolSqlVirtualFile) {
+                McpToolSqlVirtualFile file = (McpToolSqlVirtualFile) virtualFile;
                 return connectionId + PSS + LOOSE_CONTENTS + file.getName();
             }
 

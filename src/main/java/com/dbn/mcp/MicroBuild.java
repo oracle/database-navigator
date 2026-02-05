@@ -1,273 +1,192 @@
 package com.dbn.mcp;
 
+import com.dbn.common.template.TemplateUtilities;
 import org.apache.maven.shared.invoker.*;
-import java.util.function.Consumer;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
-import java.util.EnumSet;
-import java.util.Set;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class MicroBuild {
-    // give this another try : use intelij bundled maven instead of install one
-  private static File guessIdeaBundledMaven() {
-      try {
-          String ideaHome = com.intellij.openapi.application.PathManager.getHomePath();
-          if (ideaHome.isEmpty()) return null;
-          String base = ideaHome;
-          File dir = new File(base + "/plugins/maven/lib/maven3");
-          File bin = new File(dir, "bin");
-          File mvn = new File(bin, isWindows() ? "mvn.cmd" : "mvn");
-          if (mvn.exists() && mvn.canRead()) return dir;
-      } catch (Throwable ignore) { }
-      return null;
-  }
+    private static final String POM_TEMPLATE = "DBN - MCP Server POM.xml";
+    private static final Pattern PKG = Pattern.compile("\\bpackage\\s+([a-zA-Z_][a-zA-Z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z0-9_]*)*)\\s*;");
+    private static final Pattern PUB_CLASS = Pattern.compile("\\bpublic\\s+class\\s+([A-Za-z_][A-Za-z0-9_]*)");
+    private static final Pattern ANY_CLASS = Pattern.compile("\\bclass\\s+([A-Za-z_][A-Za-z0-9_]*)");
 
-  private static boolean isMac() {
-      String os = System.getProperty("os.name", "").toLowerCase();
-      return os.contains("mac");
-  }
+    private MicroBuild() {}
 
+    public static Path buildWithMaven(Path outDir, String sdkCoord, String jdbcCoord, String java, Path props, Consumer<String> log)
+            throws IOException, MavenInvocationException {
+        Coord sdk = Coord.parse(sdkCoord);
+        Coord jdbc = Coord.parse(jdbcCoord);
+        Info info = analyze(java);
 
-  /** Overload that streams Maven output to a log consumer (e.g., to a ProgressIndicator). */
-  public static Path buildWithMaven(Path outputDir,
-                                    String mcpSdkCoord,
-                                    String jdbcCoord,
-                                    String javaSource,
-                                    Path propertiesFile,
-                                    Consumer<String> log)
-          throws IOException, MavenInvocationException {
+        Path projDir = uniqueDir(outDir, info.className);
+        setupProject(projDir, java, props, info);
+        writePom(projDir, sdk, jdbc, info.fqn);
+        runMaven(projDir, log);
 
-      String[] sdk  = mcpSdkCoord.split(":");   // groupId:artifactId:version
-      String[] jdbc = jdbcCoord.split(":");
+        return copyJar(projDir, outDir);
+    }
 
-      // Decide a persistent project folder name next to the output JAR
-      String mainClassSimple = detectMainClassName(javaSource);
-      String packageName = detectPackageName(javaSource);
-      String baseName = (mainClassSimple == null || mainClassSimple.isBlank()) ? "server" : mainClassSimple;
-      String projectFolderName = "mcp-mvn-" + baseName;
+    private static Info analyze(String src) {
+        String pkg = find(PKG, src);
+        String cls = find(PUB_CLASS, src);
+        if (cls == null) cls = find(ANY_CLASS, src);
+        if (cls == null) cls = "GeneratedMcpServer";
+        return new Info(pkg, cls, pkg != null ? pkg + "." + cls : cls);
+    }
 
-      // Ensure unique folder if one already exists
-      Path proj = outputDir.resolve(projectFolderName);
-      int suffix = 1;
-      while (Files.exists(proj)) {
-          proj = outputDir.resolve(projectFolderName + "-" + suffix++);
-      }
+    private static String find(Pattern p, String src) {
+        Matcher m = p.matcher(src);
+        return m.find() ? m.group(1) : null;
+    }
 
-      // Create project structure
-      Path src  = proj.resolve("src/main/java");
-      Path res  = proj.resolve("src/main/resources");
-      Files.createDirectories(src);
-      Files.createDirectories(res);
+    private static Path uniqueDir(Path base, String name) throws IOException {
+        Path dir = base.resolve("mcp-mvn-" + name);
+        int i = 1;
+        while (Files.exists(dir)) dir = base.resolve("mcp-mvn-" + name + "-" + i++);
+        return dir;
+    }
 
-      String mainClassFq = (packageName == null || packageName.isBlank()) ? baseName : packageName + "." + baseName;
+    private static void setupProject(Path dir, String java, Path props, Info info) throws IOException {
+        Path src = dir.resolve("src/main/java");
+        Path res = dir.resolve("src/main/resources");
+        Files.createDirectories(src);
+        Files.createDirectories(res);
 
-      Path pkgDir = (packageName == null || packageName.isBlank()) ? src : src.resolve(packageName.replace('.', '/'));
+        Path pkg = info.pkg != null ? src.resolve(info.pkg.replace('.', '/')) : src;
+        Files.createDirectories(pkg);
+        Files.writeString(pkg.resolve(info.className + ".java"), java);
+        Files.copy(props, res.resolve("mcp-config.properties"), StandardCopyOption.REPLACE_EXISTING);
+    }
 
-      Files.createDirectories(pkgDir);
-      Files.writeString(pkgDir.resolve(mainClassSimple + ".java"), javaSource);
+    private static void writePom(Path dir, Coord sdk, Coord jdbc, String main) throws IOException {
+        Properties p = new Properties();
+        p.setProperty("MCP_SDK_GROUP_ID", sdk.g);
+        p.setProperty("MCP_SDK_ARTIFACT_ID", sdk.a);
+        p.setProperty("MCP_SDK_VERSION", sdk.v);
+        p.setProperty("JDBC_GROUP_ID", jdbc.g);
+        p.setProperty("JDBC_ARTIFACT_ID", jdbc.a);
+        p.setProperty("JDBC_VERSION", jdbc.v);
+        p.setProperty("MAIN_CLASS_FQ", main);
+        Files.writeString(dir.resolve("pom.xml"), TemplateUtilities.generateCode(null, POM_TEMPLATE, p));
+    }
 
-      Files.copy(propertiesFile, res.resolve("mcp-config.properties"),
-              StandardCopyOption.REPLACE_EXISTING);
+    private static void runMaven(Path dir, Consumer<String> log) throws MavenInvocationException, IOException {
+        InvocationRequest req = new DefaultInvocationRequest();
+        req.setPomFile(dir.resolve("pom.xml").toFile());
+        req.addArgs(List.of("clean", "package"));
+        req.setBatchMode(true);
+        if (log != null) { req.setOutputHandler(log::accept); req.setErrorHandler(log::accept); }
 
-      String pom = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n"
-              + "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
-              + "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 "
-              + "                             http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n"
-              + "  <modelVersion>4.0.0</modelVersion>\n"
-              + "  <groupId>temp</groupId><artifactId>mcp-server</artifactId><version>1.0</version>\n"
-              + "  <properties>\n"
-              + "    <maven.compiler.source>17</maven.compiler.source>\n"
-              + "    <maven.compiler.target>17</maven.compiler.target>\n"
-              + "  </properties>\n"
-              + "  <dependencies>\n"
-              + "    <dependency><groupId>"+sdk[0]+"</groupId><artifactId>"+sdk[1]+"</artifactId><version>"+sdk[2]+"</version></dependency>\n"
-              + "    <dependency><groupId>"+jdbc[0]+"</groupId><artifactId>"+jdbc[1]+"</artifactId><version>"+jdbc[2]+"</version></dependency>\n"
-              + "  </dependencies>\n"
-              + "  <build>\n"
-              + "    <plugins>\n"
-              + "      <plugin>\n"
-              + "        <groupId>org.apache.maven.plugins</groupId>\n"
-              + "        <artifactId>maven-shade-plugin</artifactId><version>3.5.0</version>\n"
-              + "        <executions><execution><phase>package</phase><goals><goal>shade</goal></goals></execution></executions>\n"
-              + "        <configuration>\n"
-              + "          <transformers>\n"
-              + "            <transformer implementation=\"org.apache.maven.plugins.shade.resource.ManifestResourceTransformer\">\n"
-              + "              <mainClass>" + mainClassFq + "</mainClass>\n"
-              + "            </transformer>\n"
-              + "          </transformers>\n"
-              + "        </configuration>\n"
-              + "      </plugin>\n"
-              + "    </plugins>\n"
-              + "  </build>\n"
-              + "</project>\n";
-      Files.writeString(proj.resolve("pom.xml"), pom);
+        Invoker inv = new DefaultInvoker();
+        configureMaven(inv, dir);
 
-      InvocationRequest req = new DefaultInvocationRequest();
-      req.setPomFile(proj.resolve("pom.xml").toFile());
-      req.addArgs(List.of("clean", "package"));
-      req.setBatchMode(true);
+        InvocationResult res = inv.execute(req);
+        if (res.getExitCode() != 0) throw new IllegalStateException("Maven failed: " + res.getExitCode());
+    }
 
-      org.apache.maven.shared.invoker.Invoker inv = new DefaultInvoker();
-      File mavenHome = guessMavenHome();
-      if (mavenHome != null) {
-          inv.setMavenHome(mavenHome);
-      } else {
-          File mvnExec = guessMvnExecutable();
-          if (mvnExec != null) {
-              inv.setMavenExecutable(mvnExec);
-          } else {
-              Path mvnw = installMavenWrapper(proj);
-              inv.setMavenExecutable(mvnw.toFile());
-          }
-      }
+    private static void configureMaven(Invoker inv, Path dir) throws IOException {
+        File home = findMavenHome();
+        if (home != null) { inv.setMavenHome(home); return; }
+        File exe = findMavenExe();
+        if (exe != null) { inv.setMavenExecutable(exe); return; }
+        inv.setMavenExecutable(installWrapper(dir).toFile());
+    }
 
-      if (log != null) {
-          req.setOutputHandler(log::accept);
-          req.setErrorHandler(log::accept);
-      }
+    private static Path copyJar(Path proj, Path out) throws IOException {
+        Path jar = Files.list(proj.resolve("target"))
+                .filter(p -> p.toString().endsWith(".jar") && !p.toString().contains("original"))
+                .findFirst().orElseThrow(() -> new IOException("JAR not found"));
+        Files.createDirectories(out);
+        Path dest = out.resolve(jar.getFileName());
+        Files.copy(jar, dest, StandardCopyOption.REPLACE_EXISTING);
+        return dest;
+    }
 
-      InvocationResult resBuild = inv.execute(req);
-      if (resBuild.getExitCode() != 0) throw new IllegalStateException("Maven build failed");
+    // Maven discovery
+    private static File findMavenHome() {
+        for (String c : new String[]{System.getProperty("maven.home"), System.getenv("MAVEN_HOME"), System.getenv("M2_HOME")}) {
+            if (c != null && !c.isBlank()) {
+                File d = new File(c);
+                if (validHome(d)) return d;
+            }
+        }
+        try {
+            File d = new File(com.intellij.openapi.application.PathManager.getHomePath() + "/plugins/maven/lib/maven3");
+            if (validHome(d)) return d;
+        } catch (Throwable ignored) {}
+        return null;
+    }
 
-      Path jar = Files.list(proj.resolve("target"))
-              .filter(p -> p.toString().endsWith(".jar"))
-              .findFirst()
-              .orElseThrow(() -> new IOException("Maven jar not found"));
-      Files.createDirectories(outputDir);
-      Path dest = outputDir.resolve(jar.getFileName());
-      Files.copy(jar, dest, StandardCopyOption.REPLACE_EXISTING);
-      return dest;
-  }
+    private static boolean validHome(File d) {
+        return d.isDirectory() && new File(d, "bin/" + (win() ? "mvn.cmd" : "mvn")).exists();
+    }
 
-  // --- Helper methods for Maven discovery and wrapper ---
-  private static File guessMavenHome() {
-      String[] candidates = new String[] {
-              System.getProperty("maven.home"),
-              System.getenv("MAVEN_HOME"),
-              System.getenv("M2_HOME")
-      };
-      for (String c : candidates) {
-          if (c == null || c.isBlank()) continue;
-          File dir = new File(c);
-          if (dir.isDirectory()) {
-              File bin = new File(dir, "bin");
-              File mvn = new File(bin, isWindows() ? "mvn.cmd" : "mvn");
-              if (mvn.exists()) return dir;
-          }
-      }
-      return null;
-  }
+    private static File findMavenExe() {
+        String prop = System.getProperty("mvn.executable");
+        if (prop != null) { File f = new File(prop); if (f.canExecute()) return f; }
+        String path = System.getenv("PATH");
+        if (path != null) {
+            for (String dir : path.split(File.pathSeparator)) {
+                File f = new File(dir, win() ? "mvn.cmd" : "mvn");
+                if (f.canExecute()) return f;
+            }
+        }
+        for (File f : new File[]{new File("/opt/homebrew/bin/mvn"), new File("/usr/local/bin/mvn")}) {
+            if (f.canExecute()) return f;
+        }
+        return null;
+    }
 
-  private static File guessMvnExecutable() {
-      String prop = System.getProperty("mvn.executable");
-      if (prop != null) {
-          File f = new File(prop);
-          if (f.canExecute()) return f;
-      }
-      String path = System.getenv("PATH");
-      if (path != null) {
-          for (String dir : path.split(java.io.File.pathSeparator)) {
-              File f = new File(dir, isWindows() ? "mvn.cmd" : "mvn");
-              if (f.canExecute()) return f;
-          }
-      }
-      File[] candidates = new File[] {
-              new File("/opt/homebrew/bin/mvn"),
-              new File("/usr/local/bin/mvn")
-      };
-      for (File f : candidates) {
-          if (f.canExecute()) return f;
-      }
-      return null;
-  }
+    // Maven wrapper
+    private static Path installWrapper(Path dir) throws IOException {
+        Path wrap = dir.resolve(".mvn/wrapper");
+        Files.createDirectories(wrap);
+        Files.writeString(wrap.resolve("maven-wrapper.properties"),
+                "distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.9/apache-maven-3.9.9-bin.zip\n" +
+                "wrapperUrl=https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.3.2/maven-wrapper-3.3.2.jar\n");
 
-  private static boolean isWindows() {
-      String os = System.getProperty("os.name", "");
-      return os.toLowerCase().contains("win");
-  }
+        Path unix = dir.resolve("mvnw");
+        Files.writeString(unix,
+                "#!/bin/sh\nset -e\nBASE=\"$PWD\"\nJAR=\"$BASE/.mvn/wrapper/maven-wrapper.jar\"\n" +
+                "PROPS=\"$BASE/.mvn/wrapper/maven-wrapper.properties\"\nURL=`sed -n 's/^wrapperUrl=//p' \"$PROPS\"`\n" +
+                "[ -f \"$JAR\" ] || { curl -fsSL -o \"$JAR\" \"$URL\" 2>/dev/null || wget -q -O \"$JAR\" \"$URL\"; }\n" +
+                "exec java -Dmaven.multiModuleProjectDirectory=\"$BASE\" -cp \"$JAR\" org.apache.maven.wrapper.MavenWrapperMain \"$@\"\n");
+        try { Files.setPosixFilePermissions(unix, EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE)); }
+        catch (UnsupportedOperationException ignored) {}
 
-  private static Path installMavenWrapper(Path projectDir) throws IOException {
-      Path dotMvn = projectDir.resolve(".mvn");
-      Path wrapperDir = dotMvn.resolve("wrapper");
-      Files.createDirectories(wrapperDir);
+        Files.writeString(dir.resolve("mvnw.cmd"),
+                "@ECHO OFF\nSETLOCAL\nSET BASE=%CD%\nSET JAR=%BASE%\\.mvn\\wrapper\\maven-wrapper.jar\n" +
+                "SET PROPS=%BASE%\\.mvn\\wrapper\\maven-wrapper.properties\n" +
+                "FOR /F \"tokens=1,2 delims==\" %%A IN (%PROPS%) DO IF \"%%A\"==\"wrapperUrl\" SET URL=%%B\n" +
+                "IF NOT EXIST \"%JAR%\" powershell -Command \"(New-Object Net.WebClient).DownloadFile('%URL%','%JAR%')\"\n" +
+                "java -Dmaven.multiModuleProjectDirectory=\"%BASE%\" -cp \"%JAR%\" org.apache.maven.wrapper.MavenWrapperMain %*\n");
 
-      String properties = "distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.9/apache-maven-3.9.9-bin.zip\n" +
-              "wrapperUrl=https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.3.2/maven-wrapper-3.3.2.jar\n";
-      Files.writeString(wrapperDir.resolve("maven-wrapper.properties"), properties);
+        return win() ? dir.resolve("mvnw.cmd") : unix;
+    }
 
-      String mvnw = "" +
-              "#!/bin/sh\n" +
-              "set -e\n" +
-              "BASE_DIR=\"$PWD\"\n" +
-              "WRAPPER_JAR=\"$BASE_DIR/.mvn/wrapper/maven-wrapper.jar\"\n" +
-              "PROPS=\"$BASE_DIR/.mvn/wrapper/maven-wrapper.properties\"\n" +
-              "WRAPPER_URL=`sed -n 's/^wrapperUrl=//p' \"$PROPS\"`\n" +
-              "if [ ! -f \"$WRAPPER_JAR\" ]; then\n" +
-              "  echo \"Downloading Maven Wrapper from $WRAPPER_URL\"\n" +
-              "  mkdir -p \"$BASE_DIR/.mvn/wrapper\"\n" +
-              "  if command -v curl >/dev/null 2>&1; then\n" +
-              "    curl -fsSL -o \"$WRAPPER_JAR\" \"$WRAPPER_URL\"\n" +
-              "  elif command -v wget >/dev/null 2>&1; then\n" +
-              "    wget -q -O \"$WRAPPER_JAR\" \"$WRAPPER_URL\"\n" +
-              "  else\n" +
-              "    echo \"Error: need curl or wget to download maven-wrapper.jar\"\n" +
-              "    exit 1\n" +
-              "  fi\n" +
-              "fi\n" +
-              "exec \"java\" -Dmaven.multiModuleProjectDirectory=\"$BASE_DIR\" -cp \"$WRAPPER_JAR\" org.apache.maven.wrapper.MavenWrapperMain \"$@\"\n";
-      Path mvnwPath = projectDir.resolve("mvnw");
-      Files.writeString(mvnwPath, mvnw);
-      try {
-          Set<PosixFilePermission> perms = EnumSet.of(
-                  PosixFilePermission.OWNER_READ,
-                  PosixFilePermission.OWNER_WRITE,
-                  PosixFilePermission.OWNER_EXECUTE,
-                  PosixFilePermission.GROUP_READ,
-                  PosixFilePermission.OTHERS_READ
-          );
-          Files.setPosixFilePermissions(mvnwPath, perms);
-      } catch (UnsupportedOperationException ignore) {
-      }
+    private static boolean win() { return System.getProperty("os.name", "").toLowerCase().contains("win"); }
 
-      String mvnwCmd = "" +
-              "@ECHO OFF\n" +
-              "SETLOCAL ENABLEDELAYEDEXPANSION\n" +
-              "SET BASE_DIR=%CD%\n" +
-              "SET WRAPPER_JAR=%BASE_DIR%\\.mvn\\wrapper\\maven-wrapper.jar\n" +
-              "SET PROPS=%BASE_DIR%\\.mvn\\wrapper\\maven-wrapper.properties\n" +
-              "FOR /F \"usebackq tokens=1,2 delims==\" %%A IN (\"%PROPS%\") DO (\n" +
-              "  IF \"%%A\"==\"wrapperUrl\" SET WRAPPER_URL=%%B\n" +
-              ")\n" +
-              "IF NOT EXIST \"%WRAPPER_JAR%\" (\n" +
-              "  ECHO Downloading Maven Wrapper from %WRAPPER_URL%\n" +
-              "  powershell -Command \"[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('%WRAPPER_URL%', '%WRAPPER_JAR%')\"\n" +
-              ")\n" +
-              "\"java\" -Dmaven.multiModuleProjectDirectory=\"%BASE_DIR%\" -cp \"%WRAPPER_JAR%\" org.apache.maven.wrapper.MavenWrapperMain %*\n";
-      Files.writeString(projectDir.resolve("mvnw.cmd"), mvnwCmd);
+    private static class Coord {
+        final String g, a, v;
+        Coord(String g, String a, String v) { this.g = g; this.a = a; this.v = v; }
+        static Coord parse(String s) { String[] p = s.split(":"); return new Coord(p[0], p[1], p[2]); }
+    }
 
-      return isWindows() ? projectDir.resolve("mvnw.cmd") : mvnwPath;
-  }
-
-  private static String detectPackageName(String src) {
-      Matcher m = Pattern.compile("\\bpackage\\s+([a-zA-Z_][a-zA-Z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z0-9_]*)*)\\s*;").matcher(src);
-      return m.find() ? m.group(1) : null;
-  }
-
-  private static String detectMainClassName(String src) {
-      // Prefer a public class if present, otherwise take the first class
-      Matcher pub = Pattern.compile("\\bpublic\\s+class\\s+([A-Za-z_][A-Za-z0-9_]*)").matcher(src);
-      if (pub.find()) return pub.group(1);
-      Matcher any = Pattern.compile("\\bclass\\s+([A-Za-z_][A-Za-z0-9_]*)").matcher(src);
-      if (any.find()) return any.group(1);
-      // Fallback to the name we historically used
-      return "GeneratedMcpServer";
-  }
+    private static class Info {
+        final String pkg, className, fqn;
+        Info(String pkg, String className, String fqn) { this.pkg = pkg; this.className = className; this.fqn = fqn; }
+    }
 }
