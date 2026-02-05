@@ -129,7 +129,7 @@ public final class Settings {
 
     public static String stringAttribute(Element element, @NonNls String name, String defaultValue) {
         String attributeValue = element == null ? defaultValue : element.getAttributeValue(name);
-        return Strings.isEmptyOrSpaces(attributeValue) ? attributeValue : attributeValue.intern();
+        return Strings.isEmptyOrSpaces(attributeValue) ? defaultValue : attributeValue.intern();
     }
 
     public static <T extends PseudoConstant<T>> T constantAttribute(Element element, @NonNls String name, Class<T> constantType) {

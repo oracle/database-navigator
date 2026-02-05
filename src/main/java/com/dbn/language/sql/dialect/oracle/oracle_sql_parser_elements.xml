@@ -3769,7 +3769,7 @@
             <token type-id="KW_ENCRYPT" id="02251" />
             <element ref-id="encryption_spec" />
         </sequence>
-        <element ref-id="inline_constraints" optional="true" />
+        <element ref-id="constraints" optional="true" />
     </element-def>
     <element-def description="Column properties" id="column_properties">
         <iteration id="02252">
@@ -3829,22 +3829,23 @@
         </sequence>
     </element-def>
     <element-def description="Object properties" id="object_properties">
-        <one-of id="02278">
-            <sequence id="02279">
-                <one-of id="02280">
-                    <object-ref id="02281" type="COLUMN" />
-                    <object-ref id="02282" type="ATTRIBUTE" />
-                </one-of>
-                <sequence id="02283" optional="true">
-                    <token id="02284" type-id="KW_DEFAULT" />
-                    <element ref-id="expr" />
-                    <element ref-id="inline_constraints" optional="true" />
+        <iteration separator="CHR_COMMA">
+            <one-of id="02278" sortable="true">
+                <sequence id="02279">
+                    <qualified-identifier separator="CHR_DOT">
+                        <variant><object-ref type="COLUMN" original-name="column"/></variant>
+                        <variant><object-ref type="TYPE_ATTRIBUTE" original-name="attribute"/></variant>
+                    </qualified-identifier>
+                    <sequence id="02283" optional="true">
+                        <token id="02284" type-id="KW_DEFAULT" />
+                        <element ref-id="expr" />
+                        <element ref-id="constraints" optional="true" />
+                    </sequence>
                 </sequence>
-            </sequence>
-            <element ref-id="out_of_line_constraint" />
-            <element ref-id="out_of_line_ref_constraint" />
-            <element ref-id="supplemental_logging_props" />
-        </one-of>
+                <element ref-id="constraints" />
+                <element ref-id="supplemental_logging_props" />
+            </one-of>
+        </iteration>
     </element-def>
     <element-def description="Supplemental logging props" id="supplemental_logging_props">
         <token id="02285" type-id="KW_SUPPLEMENTAL" />
@@ -3874,12 +3875,7 @@
         <one-of id="02299">
             <sequence id="02300">
                 <token id="02301" type-id="KW_ADD" />
-                <one-of id="02302">
-                    <iteration id="02303">
-                        <element ref-id="out_of_line_constraint" />
-                    </iteration>
-                    <element ref-id="out_of_line_ref_constraint" />
-                </one-of>
+                <element ref-id="constraints"/>
             </sequence>
             <sequence id="02304">
                 <token id="02305" type-id="KW_MODIFY" />
@@ -5200,8 +5196,7 @@
             <one-of id="02990">
                 <element ref-id="column_definition" />
                 <element ref-id="period_definition" />
-                <element ref-id="out_of_line_constraint" />
-                <element ref-id="out_of_line_ref_constraint" />
+                <element ref-id="constraints" />
                 <element ref-id="supplemental_logging_props" />
             </one-of>
         </iteration>
@@ -6657,12 +6652,15 @@
         </sequence>
         <token id="03801" original-name="element" type-id="STRING" />
     </element-def>
+    <element-def description="Constraints" id="constraints">
+        <iteration>
+            <element ref-id="constraint"/>
+        </iteration>
+    </element-def>
     <element-def description="Constraint" id="constraint">
         <one-of id="03802">
-            <element ref-id="inline_constraint" />
-            <element ref-id="out_of_line_constraint" />
-            <element ref-id="inline_ref_constraint" />
-            <element ref-id="out_of_line_ref_constraint" />
+            <element ref-id="inline_outofline_constraint" />
+            <element ref-id="inline_outofline_ref_constraint" />
         </one-of>
     </element-def>
     <element-def description="Inline CONSTRAINT" id="inline_constraint">
@@ -6690,12 +6688,86 @@
         </one-of>
         <element optional="true" ref-id="constraint_state" />
     </element-def>
-    <element-def description="Inline constraints" id="inline_constraints">
-        <one-of id="03817" optional="true">
-            <iteration id="03818">
-                <element ref-id="inline_constraint" />
-            </iteration>
-            <element ref-id="inline_ref_constraint" />
+    <element-def description="Inline / Out of Line constraint" id="inline_outofline_constraint" original-name="inline_constraint, out_of_line_constraint">
+        <sequence id="03803" optional="true">
+            <token id="03804" type-id="KW_CONSTRAINT" />
+            <object-def id="03805" original-name="constraint_name" type="CONSTRAINT" />
+        </sequence>
+        <one-of id="03806">
+            <sequence id="03807">
+                <token id="03808" optional="true" type-id="KW_NOT" />
+                <token id="03809" type-id="KW_NULL" />
+            </sequence>
+            <sequence>
+                <one-of>
+                    <token id="03810" type-id="KW_UNIQUE" />
+                    <sequence>
+                        <token id="03812" type-id="KW_PRIMARY" />
+                        <token id="03813" type-id="KW_KEY" />
+                    </sequence>
+                </one-of>
+                <wrapper id="03816" template="PARENTHESES" optional="true">
+                    <iteration separator="CHR_COMMA">
+                        <object-ref type="COLUMN"/>
+                    </iteration>
+                </wrapper>
+            </sequence>
+            <sequence>
+                <token id="03812" type-id="KW_FOREIGN" />
+                <token id="03813" type-id="KW_KEY" />
+                <wrapper id="03816" template="PARENTHESES" optional="true">
+                    <iteration separator="CHR_COMMA">
+                        <object-ref type="COLUMN"/>
+                    </iteration>
+                </wrapper>
+                <element ref-id="references_clause"/>
+            </sequence>
+            <element ref-id="references_clause" />
+            <sequence id="03814">
+                <token id="03815" type-id="KW_CHECK" />
+                <wrapper id="03816" template="PARENTHESES">
+                    <element ref-id="condition" />
+                </wrapper>
+            </sequence>
+        </one-of>
+        <element optional="true" ref-id="constraint_state" />
+    </element-def>
+    <element-def description="Ref constraint" id="inline_outofline_ref_constraint" original-name="inline_ref_constraint, out_of_line_ref_constraint">
+        <one-of id="03840">
+            <sequence id="03841">
+                <token id="03842" type-id="KW_SCOPE" />
+                <sequence optional="true">
+                    <token id="03843" type-id="KW_FOR" />
+                    <wrapper template="PARENTHESES">
+                        <qualified-identifier separator="CHR_DOT">
+                            <variant><object-ref type="COLUMN" original-name="ref_col"/></variant>
+                            <variant><object-ref type="TYPE_ATTRIBUTE" original-name="ref_attr"/></variant>
+                        </qualified-identifier>
+                    </wrapper>
+                </sequence>
+                <token id="03843" type-id="KW_IS" />
+                <qualified-identifier id="03844" separator="CHR_DOT">
+                    <variant>
+                        <object-ref id="03845" optional="true" type="SCHEMA" />
+                        <object-ref id="03846" original-name="scope_table" referenceable="true" type="TABLE" />
+                    </variant>
+                </qualified-identifier>
+            </sequence>
+            <sequence id="03847">
+                <wrapper template="PARENTHESES" optional="true">
+                    <sequence>
+                        <token type-id="KW_REF"/>
+                        <wrapper template="PARENTHESES">
+                            <qualified-identifier>
+                                <variant><object-ref type="COLUMN" original-name="ref_col"/></variant>
+                                <variant><object-ref type="TYPE_ATTRIBUTE" original-name="ref_attr"/></variant>
+                            </qualified-identifier>
+                        </wrapper>
+                    </sequence>
+                </wrapper>
+                <token id="03848" type-id="KW_WITH" />
+                <token id="03849" type-id="DT_ROWID" />
+            </sequence>
         </one-of>
     </element-def>
     <element-def description="Out of line CONSTRAINT" id="out_of_line_constraint">
@@ -6756,6 +6828,14 @@
                 <token id="03848" type-id="KW_WITH" />
                 <token id="03849" type-id="DT_ROWID" />
             </sequence>
+            <sequence>
+                <sequence id="03871" optional="true">
+                    <token id="03872" type-id="KW_CONSTRAINT" />
+                    <object-def id="03873" original-name="constraint_name" type="CONSTRAINT" />
+                </sequence>
+                <element ref-id="references_clause"/>
+                <element ref-id="constraint_state" optional="true"/>
+            </sequence>
         </one-of>
     </element-def>
     <element-def description="Out of line REF CONSTRAINT" id="out_of_line_ref_constraint">
@@ -6780,10 +6860,10 @@
             <sequence id="03862">
                 <token id="03863" type-id="KW_REF" />
                 <wrapper id="03864" template="PARENTHESES">
-                    <one-of id="03865">
-                        <object-ref id="03866" original-name="ref_col" type="COLUMN" />
-                        <object-ref id="03867" original-name="ref_attr" type="TYPE_ATTRIBUTE" />
-                    </one-of>
+                    <qualified-identifier separator="CHR_DOT">
+                        <variant><object-ref id="03878" original-name="ref_col" type="COLUMN" /></variant>
+                        <variant><object-ref id="03879" original-name="ref_attr" type="TYPE_ATTRIBUTE" /></variant>
+                    </qualified-identifier>
                 </wrapper>
                 <token id="03868" type-id="KW_WITH" />
                 <token id="03869" type-id="DT_ROWID" />
@@ -6796,10 +6876,10 @@
                 <token id="03874" type-id="KW_FOREIGN" />
                 <token id="03875" type-id="KW_KEY" />
                 <wrapper id="03876" template="PARENTHESES">
-                    <one-of id="03877">
-                        <object-ref id="03878" original-name="ref_col" type="COLUMN" />
-                        <object-ref id="03879" original-name="ref_attr" type="TYPE_ATTRIBUTE" />
-                    </one-of>
+                    <qualified-identifier separator="CHR_DOT">
+                        <variant><object-ref id="03878" original-name="ref_col" type="COLUMN" /></variant>
+                        <variant><object-ref id="03879" original-name="ref_attr" type="TYPE_ATTRIBUTE" /></variant>
+                    </qualified-identifier>
                 </wrapper>
                 <element ref-id="references_clause" />
                 <element optional="true" ref-id="constraint_state" />
@@ -6868,7 +6948,7 @@
     <element-def attributes="CLAUSE" description="USING INDEX clause" id="using_index_clause">
         <token id="03917" type-id="KW_USING" />
         <token id="03918" type-id="KW_INDEX" />
-        <one-of id="03919">
+        <one-of id="03919" optional="true">
             <qualified-identifier id="03920" separator="CHR_DOT">
                 <variant>
                     <object-ref id="03921" optional="true" type="SCHEMA" />
