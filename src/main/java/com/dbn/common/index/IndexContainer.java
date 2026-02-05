@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Slf4j
@@ -44,7 +44,7 @@ public class IndexContainer<T extends Indexable> implements Compactable {
         if (INDEX.isEmpty()) {
             return Collections.emptySet();
         } else {
-            Set<T> elements = new HashSet<>(INDEX.size());
+            Set<T> elements = new LinkedHashSet<>(INDEX.size());
             int[] values = INDEX.values();
             for (int value : values) {
                 T element = resolver.apply(value);

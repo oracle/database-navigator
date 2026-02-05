@@ -80,17 +80,12 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
 
     @Override
     public Set<TokenType> getFirstPossibleTokens() {
-        Set<TokenType> tokenTypes = initBucket(null);
-        tokenTypes.add(getBeginTokenElement().tokenType);
-        elementType.wrappedElement.cache.captureFirstPossibleTokens(tokenTypes);
-        return tokenTypes;
+        return getFirstRequiredTokens();
     }
 
     @Override
     public Set<TokenType> getFirstRequiredTokens() {
-        Set<TokenType> tokenTypes = initBucket(null);
-        tokenTypes.add(getBeginTokenElement().tokenType);
-        return tokenTypes;
+        return Set.of(getBeginTokenElement().tokenType);
     }
 
     @Override
@@ -110,16 +105,12 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
 
     @Override
     public Set<LeafElementType> getFirstPossibleLeafs() {
-        Set<LeafElementType> firstPossibleLeafs = initBucket(null);
-        firstPossibleLeafs.add(getBeginTokenElement());
-        return firstPossibleLeafs;
+        return getFirstRequiredLeafs();
     }
 
     @Override
     public Set<LeafElementType> getFirstRequiredLeafs() {
-        Set<LeafElementType> firstRequiredLeafs = initBucket(null);
-        firstRequiredLeafs.add(getBeginTokenElement());
-        return firstRequiredLeafs;
+        return Set.of(getBeginTokenElement());
     }
 
     @Override

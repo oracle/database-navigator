@@ -51,7 +51,6 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
     public TokenTypeBundle(DBLanguageDialect languageDialect, Document document) {
         super(languageDialect, document);
         this.baseLanguage = languageDialect.getBaseLanguage();
-        initIndex(getSharedTokenTypes().size());
 
         this.integer   = getTokenType("INTEGER");
         this.number    = getTokenType("NUMBER");
@@ -63,6 +62,12 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
         this.parameter = getTokenType("PARAMETER");
         this.exception = getTokenType("EXCEPTION");
         this.dataType  = getTokenType("DATA_TYPE");
+    }
+
+    @Override
+    protected int getInitialIndex() {
+        DBLanguage baseLanguage = getLanguageDialect().getBaseLanguage();
+        return baseLanguage.getSharedTokenTypes().size();
     }
 
     public TokenType getTokenType(short index) {

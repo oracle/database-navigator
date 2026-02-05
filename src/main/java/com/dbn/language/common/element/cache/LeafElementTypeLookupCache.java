@@ -21,7 +21,6 @@ import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.Set;
 
 public abstract class LeafElementTypeLookupCache<T extends LeafElementType> extends ElementTypeLookupCache<T> {
@@ -42,7 +41,7 @@ public abstract class LeafElementTypeLookupCache<T extends LeafElementType> exte
 
     @Override
     public Set<LeafElementType> getFirstPossibleLeafs() {
-        return Collections.singleton(elementType);
+        return Set.of(elementType);
     }
 
     @Override
