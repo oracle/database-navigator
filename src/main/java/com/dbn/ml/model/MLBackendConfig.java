@@ -31,8 +31,8 @@ import org.jdom.Element;
 @Setter
 public class MLBackendConfig extends MLConfig {
 
-    /** Selected backend type (defaults to Tribuo ) */
-    private MLBackendType backendType = MLBackendType.TRIBUO;
+    /** Selected backend type (defaults to DBMS_DATA_MINING) */
+    private MLBackendType backendType = MLBackendType.DBMS_DATA_MINING;
 
     /** Auto-cleanup staging tables after training (DBMS backend only) */
     private boolean autoCleanupStagingTables = true;
@@ -49,8 +49,8 @@ public class MLBackendConfig extends MLConfig {
         try {
             backendType = MLBackendType.valueOf(backendTypeStr);
         } catch (IllegalArgumentException e) {
-            // If invalid backend type, default to Tribuo
-            backendType = MLBackendType.TRIBUO;
+            // If invalid backend type, default to DBMS_DATA_MINING
+            backendType = MLBackendType.DBMS_DATA_MINING;
         }
 
         autoCleanupStagingTables = Settings.booleanAttribute(element, "auto-cleanup", autoCleanupStagingTables);

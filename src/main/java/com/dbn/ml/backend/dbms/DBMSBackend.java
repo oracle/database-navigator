@@ -17,6 +17,7 @@
 package com.dbn.ml.backend.dbms;
 
 import com.dbn.common.Priority;
+import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -31,6 +32,7 @@ import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLSourceConfig;
 import com.dbn.ml.model.source.MLSourceType;
+import com.dbn.object.DBSchema;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -471,13 +474,26 @@ public class DBMSBackend implements MLBackend {
     }
 
     private String generateModelName(MLTrainingContext context, String timestamp) {
+        String baseName;
         String sourceName = extractSourceName(context);
         if (sourceName != null && !sourceName.isEmpty()) {
-            return sourceName.toUpperCase() + "_MODEL";
+            baseName = sourceName.toUpperCase() + "_MODEL";
+        } else {
+            String taskPrefix = context.getTaskType() == MLTaskType.CLASSIFICATION ? "CLS" : "REG";
+            baseName = "ML_MODEL_" + taskPrefix + "_" + timestamp;
         }
-        // Fallback to timestamp-based name
-        String taskPrefix = context.getTaskType() == MLTaskType.CLASSIFICATION ? "CLS" : "REG";
-        return "ML_MODEL_" + taskPrefix + "_" + timestamp;
+
+        // Use Naming utility to generate unique name
+        return Naming.nextNumberedIdentifier(baseName, false, this::getExistingModelNames);
+    }
+
+    private Set<String> getExistingModelNames() {
+        DBSchema schema = connection.getUserSchema();
+        if (schema == null) return Set.of();
+
+        return schema.getAIModels().stream()
+                .map(model -> model.getName().toUpperCase())
+                .collect(Collectors.toSet());
     }
 
     private String extractSourceName(MLTrainingContext context) {
