@@ -50,13 +50,14 @@ import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import java.awt.BorderLayout;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.announceEvent;
 import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.editor.data.filter.ConditionOperator.getConditionOperators;
+import static java.util.Collections.emptyList;
 
 public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<DatasetBasicFilterCondition> {
 
@@ -111,8 +112,6 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
 
         operatorSelector.addListener(createOperatorSelectorListener());
         columnSelector.addListener(createColumnSelectorListener());
-
-        updateValueTextField();
 
         valueTextField.setToolTipText("<html>While editing value, <br> " +
                 "press <b>Up/Down</b> keys to change column or <br> " +
@@ -175,11 +174,10 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     @NotNull
     List<ConditionOperator> loadOperators() {
         DBColumn selectedColumn = getSelectedColumn();
-        if (selectedColumn != null) {
-            Class typeClass = selectedColumn.getDataType().getTypeClass();
-            return Arrays.asList(ConditionOperator.getConditionOperators(typeClass));
-        }
-        return Collections.emptyList();
+        if (selectedColumn == null) return emptyList();
+
+        Class typeClass = selectedColumn.getDataType().getTypeClass();
+        return Arrays.asList(getConditionOperators(typeClass));
     }
 
     @NotNull
@@ -189,7 +187,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
             List<DBColumn> columns = filter(dataset.getColumns(), c -> !c.isHidden());
             return sortedCopy(columns);
         }
-        return Collections.emptyList();
+        return emptyList();
     }
 
     public void setBasicFilterPanel(DatasetBasicFilterForm filterForm) {

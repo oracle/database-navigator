@@ -84,4 +84,37 @@ public class StringsTest extends TestCase {
         List<String> expected = List.of(input);
         assertEquals(expected, slices);
     }
+
+    public void testRemoveHtmlTags1() {
+        String content = Strings.removeHtmlTags("""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                  <title>Sample Page</title>
+                  <style>
+                    body { background: #f3f3f3; }
+                    h1 { color: blue; }
+                  </style>
+                </head>
+                <body>
+                  <!-- This is a comment -->
+                  <h1>Welcome to <span>The Test</span> Page</h1>
+                  <script type="text/javascript">
+                    alert("Hello, world!");
+                  </script>
+                  <p>This is a <b>sample</b> paragraph.<br>Here is a line break.</p>
+                  <noscript>Javascript is disabled.</noscript>
+                  <iframe src="https://example.com"></iframe>
+                  <div>
+                    <ul>
+                      <li>One</li>
+                      <li>Two <em>(second)</em></li>
+                    </ul>
+                  </div>
+                  Text outside tags.
+                </body>
+                </html>
+                """);
+        assertEquals("Sample Page Welcome to The Test Page This is a sample paragraph.Here is a line break. Javascript is disabled. One Two (second) Text outside tags.", content);
+    }
 }

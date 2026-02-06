@@ -25,6 +25,7 @@ import com.dbn.assistant.chat.window.ui.ChatBoxFormContainer;
 import com.dbn.assistant.state.AssistantSelectionState;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateDelegate;
+import com.dbn.assistant.state.AssistantStateListener;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Failsafe;
@@ -298,6 +299,12 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         AssistantState assistantState = getAssistantState(connectionId, assistantType);
         AssistantAdapter assistantAdapter = assistantState.getAssistantAdapter();
         return assistantAdapter.generateTitle(chatId, connectionId, context);
+    }
+
+    public void notifyConfigChanges() {
+        Project project = getProject();
+        Set<ConnectionId> connectionIds = getAssistantStates().keySet();
+        connectionIds.forEach(connectionId -> ProjectEvents.notify(project, AssistantStateListener.TOPIC, l -> l.stateChanged(project, connectionId)));
     }
 
     /*********************************************

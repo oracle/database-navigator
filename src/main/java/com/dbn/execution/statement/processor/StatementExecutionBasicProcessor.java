@@ -32,7 +32,6 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Naming;
 import com.dbn.common.util.Safe;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.Resources;
@@ -128,19 +127,19 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
     private String stickyResultName;
 
     private final Latent<String> resultName = Latent.basic(() -> {
-        if (stickyResultName != null) {
-            return stickyResultName;
-        }
-        String resultName = null;
+        if (stickyResultName != null) return stickyResultName;
+
         ExecutablePsiElement executablePsiElement = executionInput.getExecutablePsiElement();
-        if (executablePsiElement!= null) {
-            resultName = executablePsiElement.createSubjectList();
+        if (executablePsiElement != null) {
+            String resultName = executablePsiElement.createSubjectList();
+            if (isValidResultName(resultName)) return resultName;
         }
-        if (Strings.isEmptyOrSpaces(resultName)) {
-            resultName = "Result " + index;
-        }
-        return resultName;
+        return "Result " + index;
     });
+
+    private static boolean isValidResultName(String resultName) {
+        return resultName != null && resultName.matches("[a-zA-Z0-9$#,.:;_\\- ]+");
+    }
 
     public StatementExecutionBasicProcessor(@NotNull Project project, @NotNull FileEditor fileEditor, @NotNull ExecutablePsiElement psiElement, int index) {
         DBLanguagePsiFile psiFile = psiElement.getFile();

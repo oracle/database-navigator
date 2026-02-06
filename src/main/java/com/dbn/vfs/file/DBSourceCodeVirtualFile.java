@@ -274,7 +274,9 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
 
         Write.run(getProject(), () -> {
             removeGuardedBlocks(document, GuardedBlockType.READONLY_DOCUMENT_SECTION);
-            createGuardedBlocks(document, GuardedBlockType.READONLY_DOCUMENT_SECTION, guardedBlocks, null);
+            createGuardedBlocks(document, GuardedBlockType.READONLY_DOCUMENT_SECTION, guardedBlocks,
+                    "Changes to object TYPE and NAME are not supported in this editor.\n" +
+                    "Please move the cursor outside the " + getObjectTypeName() + " declaration to edit the code.");
         });
     }
 
