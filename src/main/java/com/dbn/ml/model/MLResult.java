@@ -57,6 +57,9 @@ public class MLResult {
     private String labelColumn;
     private List<String> labelColumns;
 
+    // Source name for default model naming (table name or CSV file name)
+    private String sourceName;
+
     /**
      * Returns true if this is a multi-output regression (2+ labels)
      */

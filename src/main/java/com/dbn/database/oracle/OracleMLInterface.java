@@ -77,6 +77,12 @@ public class OracleMLInterface extends DatabaseInterfaceBase implements Database
         executeUpdate(conn, "drop-ml-model", modelName);
     }
 
+    @Override
+    public void renameModel(DBNConnection conn, String oldModelName, String newModelName) throws SQLException {
+        log.debug("Renaming ML model: {} -> {}", oldModelName, newModelName);
+        executeUpdate(conn, "rename-ml-model", oldModelName, newModelName);
+    }
+
     // ==================== DATA SPLITTING ====================
 
     @Override

@@ -72,6 +72,15 @@
         </statement>
     </statement-execution-processor>
 
+    <!-- Rename ML Model -->
+    <statement-execution-processor id="rename-ml-model" timeout="30000">
+        <statement>
+            BEGIN
+                DBMS_DATA_MINING.RENAME_MODEL({#0}, {#1});
+            END;
+        </statement>
+    </statement-execution-processor>
+
     <!-- ==================== DATA SPLITTING ==================== -->
 
     <!-- Create Training Data Table using SAMPLE with SEED (80% by default) -->

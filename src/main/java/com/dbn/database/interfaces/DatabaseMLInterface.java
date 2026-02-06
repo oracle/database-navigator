@@ -64,6 +64,11 @@ public interface DatabaseMLInterface extends DatabaseInterface {
      */
     void dropModel(DBNConnection conn, String modelName) throws SQLException;
 
+    /**
+     * Renames a model using DBMS_DATA_MINING.RENAME_MODEL.
+     */
+    void renameModel(DBNConnection conn, String oldModelName, String newModelName) throws SQLException;
+
     // ==================== DATA SPLITTING ====================
 
     /**

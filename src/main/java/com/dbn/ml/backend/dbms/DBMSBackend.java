@@ -29,6 +29,7 @@ import com.dbn.ml.backend.model.MLModelMetadata;
 import com.dbn.ml.backend.model.MLPredictionResult;
 import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.MLTaskType;
+import com.dbn.ml.model.source.MLSourceConfig;
 import com.dbn.ml.model.source.MLSourceType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
 import com.intellij.openapi.project.Project;
@@ -470,8 +471,32 @@ public class DBMSBackend implements MLBackend {
     }
 
     private String generateModelName(MLTrainingContext context, String timestamp) {
+        String sourceName = extractSourceName(context);
+        if (sourceName != null && !sourceName.isEmpty()) {
+            return sourceName.toUpperCase() + "_MODEL";
+        }
+        // Fallback to timestamp-based name
         String taskPrefix = context.getTaskType() == MLTaskType.CLASSIFICATION ? "CLS" : "REG";
         return "ML_MODEL_" + taskPrefix + "_" + timestamp;
+    }
+
+    private String extractSourceName(MLTrainingContext context) {
+        MLSourceConfig sourceConfig = context.getRequest().getSourceConfig();
+        MLSourceType sourceType = sourceConfig.getSourceType();
+
+        if (sourceType == MLSourceType.DATABASE_TABLE) {
+            return sourceConfig.getTableSourceConfig().getTableName();
+        } else if (sourceType == MLSourceType.FILE_SYSTEM) {
+            String filePath = sourceConfig.getFileSourceConfig().getFilePath();
+            if (filePath == null || filePath.isEmpty()) return null;
+
+            int lastSep = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
+            String fileName = lastSep >= 0 ? filePath.substring(lastSep + 1) : filePath;
+
+            int dotIndex = fileName.lastIndexOf('.');
+            return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
+        }
+        return null;
     }
 
     private int getDistinctClassCount(String tableName, String columnName) throws SQLException {

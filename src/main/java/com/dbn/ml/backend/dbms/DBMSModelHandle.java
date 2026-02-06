@@ -36,7 +36,8 @@ import java.util.List;
 @Getter
 public class DBMSModelHandle implements MLModelHandle {
 
-    private final String modelName;
+    @Setter
+    private String modelName;
     private final ConnectionHandler connection;
     private final MLTaskType taskType;
     private final MLModelMetadata metadata;

@@ -52,10 +52,11 @@ public class MLResultExportToDatabaseAction extends AbstractMLExecutionResultAct
         Model<?> model = result.getTribuoModel();
         if (model == null) return;
 
+        String defaultName = buildDefaultModelName(result);
         String modelName = JOptionPane.showInputDialog(
                 null,
                 "Enter a name for the model:",
-                "ml_model_" + System.currentTimeMillis()
+                defaultName
         );
 
         if (modelName == null || modelName.trim().isEmpty()) return;
@@ -93,6 +94,19 @@ public class MLResultExportToDatabaseAction extends AbstractMLExecutionResultAct
                 ));
             }
         });
+    }
+
+    /**
+     * Builds default model name from source name.
+     * For database tables: TABLE_NAME_MODEL
+     * For CSV files: FILE_NAME_MODEL
+     */
+    private String buildDefaultModelName(MLResult result) {
+        String sourceName = result.getSourceName();
+        if (sourceName == null || sourceName.isEmpty()) {
+            return "ML_MODEL";
+        }
+        return sourceName.toUpperCase() + "_MODEL";
     }
 
     @Override

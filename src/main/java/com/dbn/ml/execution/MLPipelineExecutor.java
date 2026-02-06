@@ -23,6 +23,8 @@ import com.dbn.ml.backend.model.MLEvaluationResult;
 import com.dbn.ml.backend.model.MLModelHandle;
 import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.*;
+import com.dbn.ml.model.source.MLSourceConfig;
+import com.dbn.ml.model.source.MLSourceType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -94,6 +96,9 @@ public class MLPipelineExecutor {
                 result.setLabelColumns(new ArrayList<>(request.getFeatureConfig().getLabelColumns()));
             }
 
+            // Set source name for default model naming
+            result.setSourceName(extractSourceName(request));
+
             // Record training time
             result.setTrainingTimeMs(System.currentTimeMillis() - startTime);
 
@@ -119,5 +124,32 @@ public class MLPipelineExecutor {
         context.setRequest(request);
         context.setShouldCleanupStagingTable(request.getBackendConfig().isAutoCleanupStagingTables());
         return context;
+    }
+
+    /**
+     * Extract source name from request for default model naming.
+     * For database tables: returns table name
+     * For CSV files: returns file name without extension
+     */
+    private String extractSourceName(MLRequest request) {
+        MLSourceConfig sourceConfig = request.getSourceConfig();
+        MLSourceType sourceType = sourceConfig.getSourceType();
+
+        if (sourceType == MLSourceType.DATABASE_TABLE) {
+            return sourceConfig.getTableSourceConfig().getTableName();
+        } else if (sourceType == MLSourceType.FILE_SYSTEM) {
+            String filePath = sourceConfig.getFileSourceConfig().getFilePath();
+            if (filePath == null || filePath.isEmpty()) return "model";
+
+            // Extract file name without path
+            int lastSep = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
+            String fileName = lastSep >= 0 ? filePath.substring(lastSep + 1) : filePath;
+
+            // Remove extension
+            int dotIndex = fileName.lastIndexOf('.');
+            return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
+        }
+
+        return "model";
     }
 }
