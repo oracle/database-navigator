@@ -28,8 +28,6 @@ import com.dbn.language.common.element.impl.WrappingDefinition;
 
 import java.util.Set;
 
-import static com.dbn.common.util.Compactables.compact;
-
 public abstract class ElementTypeLookupCacheIndexed<T extends ElementTypeBase> extends ElementTypeLookupCache<T> {
 
     private final IndexContainer<LeafElementType> allPossibleLeafs = new IndexContainer<>();
@@ -44,17 +42,6 @@ public abstract class ElementTypeLookupCacheIndexed<T extends ElementTypeBase> e
     ElementTypeLookupCacheIndexed(T elementType) {
         super(elementType);
         assert !elementType.isLeaf();
-    }
-
-    public void initialize() {
-        super.initialize();
-        compact(allPossibleLeafs);
-        compact(firstPossibleLeafs);
-        compact(firstRequiredLeafs);
-
-        compact(allPossibleTokens);
-        compact(firstPossibleTokens);
-        compact(firstRequiredTokens);
     }
 
     @Override

@@ -17,7 +17,6 @@
 package com.dbn.language.common.element;
 
 import com.dbn.common.index.IndexRegistry;
-import com.dbn.common.thread.Background;
 import com.dbn.common.util.Measured;
 import com.dbn.common.util.Unsafe;
 import com.dbn.language.common.DBLanguage;
@@ -141,17 +140,8 @@ public class ElementTypeBundle {
                 });
             }
 
-            Set<ElementTypeBase> allElementTypes = builder.allElementTypes;
             builder = null;
-            Background.run(() -> Measured.run(
-                    "initializing element-type lookup cache for " + this.languageDialect.getID(),
-                    () -> {
-                        for (ElementTypeBase elementType : allElementTypes) {
-                            elementType.cache.initialize();
-                        }
-                    }));
-
-            //warnAmbiguousBranches();
+            // TODO warnAmbiguousBranches();
         } catch (Exception e) {
             conditionallyLog(e);
             log.error("[DBN] Failed to build element-type bundle for {}", languageDialect.getID(), e);

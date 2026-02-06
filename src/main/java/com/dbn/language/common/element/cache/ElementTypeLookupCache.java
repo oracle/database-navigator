@@ -18,7 +18,6 @@ package com.dbn.language.common.element.cache;
 
 import com.dbn.common.index.IndexContainer;
 import com.dbn.common.latent.Latent;
-import com.dbn.common.util.Compactables;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
@@ -40,11 +39,6 @@ public abstract class ElementTypeLookupCache<T extends ElementTypeBase>/* implem
 
     ElementTypeLookupCache(T elementType) {
         this.elementType = elementType;
-    }
-
-    public void initialize() {
-        IndexContainer<TokenType> tokenTypes = nextPossibleTokens.get();
-        Compactables.compact(tokenTypes);
     }
 
     /**

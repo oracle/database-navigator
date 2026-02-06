@@ -18,7 +18,6 @@ package com.dbn.language.common.element.util;
 
 import com.dbn.common.index.IndexContainer;
 import com.dbn.common.util.Commons;
-import com.dbn.common.util.Compactables;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.cache.ElementTypeLookupCache;
@@ -53,7 +52,6 @@ public final class NextTokenResolver {
         } else {
             visitElement(source.parent, source);
         }
-        Compactables.compact(bucket);
         return bucket;
     }
 

@@ -16,7 +16,6 @@
 
 package com.dbn.common.index;
 
-import com.dbn.common.util.Compactable;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
@@ -25,7 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Slf4j
-public class IndexContainer<T extends Indexable> implements Compactable {
+public class IndexContainer<T extends Indexable> {
     private final IndexCollection INDEX = new IndexCollection();
 
     public void add(T element) {
@@ -54,11 +53,6 @@ public class IndexContainer<T extends Indexable> implements Compactable {
             }
             return elements;
         }
-    }
-
-    @Override
-    public void compact() {
-        //INDEX.trimToSize();
     }
 
     public void addAll(Collection<T> elements) {
