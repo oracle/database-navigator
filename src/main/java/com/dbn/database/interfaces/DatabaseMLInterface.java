@@ -119,6 +119,27 @@ public interface DatabaseMLInterface extends DatabaseInterface {
     // ==================== MODEL APPLICATION ====================
 
     /**
+     * Makes an ad-hoc prediction using a trained model.
+     *
+     * @param conn Database connection
+     * @param modelName The trained model name
+     * @param featureClause SQL clause with feature values (e.g., "1.5 AS col1, 'A' AS col2")
+     * @return The predicted value as a string
+     */
+    String predict(DBNConnection conn, String modelName, String featureClause) throws SQLException;
+
+    /**
+     * Makes an ad-hoc prediction with probability using a trained model.
+     * For classification models only.
+     *
+     * @param conn Database connection
+     * @param modelName The trained model name
+     * @param featureClause SQL clause with feature values (e.g., "1.5 AS col1, 'A' AS col2")
+     * @return ResultSet with PREDICTION and PROBABILITY columns
+     */
+    ResultSet predictWithProbability(DBNConnection conn, String modelName, String featureClause) throws SQLException;
+
+    /**
      * Creates an apply results table with predictions for classification.
      * Contains CASE_ID, PREDICTION, and PROBABILITY columns.
      */

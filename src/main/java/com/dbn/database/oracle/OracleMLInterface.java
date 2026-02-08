@@ -133,6 +133,26 @@ public class OracleMLInterface extends DatabaseInterfaceBase implements Database
     // ==================== MODEL APPLICATION ====================
 
     @Override
+    public String predict(DBNConnection conn, String modelName, String featureClause) throws SQLException {
+        log.debug("Ad-hoc prediction using model: {}", modelName);
+        ResultSet rs = executeQuery(conn, "predict-adhoc", modelName, featureClause);
+        try {
+            if (rs.next()) {
+                return rs.getString("PREDICTION");
+            }
+            return null;
+        } finally {
+            rs.close();
+        }
+    }
+
+    @Override
+    public ResultSet predictWithProbability(DBNConnection conn, String modelName, String featureClause) throws SQLException {
+        log.debug("Ad-hoc prediction with probability using model: {}", modelName);
+        return executeQuery(conn, "predict-adhoc-with-probability", modelName, featureClause);
+    }
+
+    @Override
     public void createApplyResults(
             DBNConnection conn,
             String applyResultTableName,
