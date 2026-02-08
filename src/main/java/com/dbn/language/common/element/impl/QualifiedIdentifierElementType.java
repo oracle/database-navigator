@@ -55,7 +55,7 @@ public final class QualifiedIdentifierElementType extends ElementTypeBase {
             variants.addAll(childVariants);
         }
         String separatorId = stringAttribute(def, "separator", "CHR_DOT");
-        separatorToken = new TokenElementType(bundle, this, separatorId, TokenElementType.SEPARATOR);
+        separatorToken = new TokenElementType(bundle, this, separatorId, id + ".1");
     }
 
     @Override

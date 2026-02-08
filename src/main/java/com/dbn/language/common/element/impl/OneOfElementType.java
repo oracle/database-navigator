@@ -19,6 +19,8 @@ package com.dbn.language.common.element.impl;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.element.ElementTypeBundle;
+import com.dbn.language.common.element.cache.ElementTypeLookupCache;
+import com.dbn.language.common.element.cache.ElementTypeLookupCacheIndexed;
 import com.dbn.language.common.element.cache.OneOfElementTypeLookupCache;
 import com.dbn.language.common.element.parser.BranchCheck;
 import com.dbn.language.common.element.parser.impl.OneOfElementTypeParser;
@@ -29,24 +31,61 @@ import com.intellij.psi.PsiElement;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.dbn.common.Linked.linkElements;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Slf4j
 public final class OneOfElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
+    public boolean basic;
     private boolean sortable;
     private boolean sorted;
-    private boolean basic;
+
+    public final AtomicInteger idSuffix = new AtomicInteger(0);
 
     public OneOfElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
+    }
+
+    public OneOfElementType(@NotNull ElementTypeBundle bundle, ElementTypeBase parent, String id, @Nullable String description) {
+        super(bundle, parent, id, description);
+    }
+
+    void setElements(Collection<? extends ElementTypeBase> elements) {
+        children = new ElementTypeRef[elements.size()];
+
+        int index = 0;
+        for (ElementTypeBase element : elements) {
+            element.parent = this;
+            children[index] = new ElementTypeRef(element);
+            index++;
+        }
+        linkElements(children);
+        initLookupCache();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initLookupCache() {
+        ElementTypeLookupCacheIndexed cache = (ElementTypeLookupCacheIndexed) this.cache;
+        for (ElementTypeRef child : children) {
+            ElementTypeBase elementType = child.elementType;
+            ElementTypeLookupCache<?> elementTypeCache = elementType.cache;
+            cache.firstPossibleLeafs.addAll(elementTypeCache.getFirstPossibleLeafs());
+            cache.firstRequiredLeafs.addAll(elementTypeCache.getFirstRequiredLeafs());
+            cache.allPossibleTokens.addAll(elementTypeCache.getAllPossibleTokens());
+            cache.firstPossibleTokens.addAll(elementTypeCache.getFirstPossibleTokens());
+            cache.firstRequiredTokens.addAll(elementTypeCache.getFirstRequiredTokens());
+        }
     }
 
     @Override
@@ -60,20 +99,17 @@ public final class OneOfElementType extends ElementTypeBase {
             String[] tokens = tokenIds.split(",");
             this.children = new ElementTypeRef[tokens.length];
 
-            ElementTypeRef previous = null;
             for (int i=0; i<tokens.length; i++) {
                 String tokenTypeId = tokens[i].trim();
 
                 TokenElementType tokenElementType = new TokenElementType(bundle, this, tokenTypeId, id);
-                children[i] = new ElementTypeRef(previous, this, tokenElementType, false, 0, null);
-                previous = this.children[i];
+                children[i] = new ElementTypeRef(tokenElementType);
             }
             sortable = false;
         } else {
             List<Element> children = def.getChildren();
             this.children = new ElementTypeRef[children.size()];
 
-            ElementTypeRef previous = null;
             for (int i=0; i<children.size(); i++) {
                 Element child = children.get(i);
                 if (isMarkedOptional(child)) {
@@ -86,9 +122,7 @@ public final class OneOfElementType extends ElementTypeBase {
                 double version = Double.parseDouble(Commons.nvl(stringAttribute(child, "version"), "0"));
                 Set<BranchCheck> branchChecks = parseBranchChecks(stringAttribute(child, "branch-check"));
 
-                this.children[i] = new ElementTypeRef(previous, this, elementType, false, version, branchChecks);
-                previous = this.children[i];
-
+                this.children[i] = new ElementTypeRef(elementType, false, version, branchChecks);
             }
             sortable = getBooleanAttribute(def, "sortable");
         }
@@ -97,6 +131,7 @@ public final class OneOfElementType extends ElementTypeBase {
             // TODO assert at least 2 children
             throw new ElementTypeDefinitionException("[" + getLanguageDialect().getID() + "] Invalid one-of definition (id=" + getId() + "). Element should contain at least 2 elements.");
         }
+        linkElements(children);
     }
 
     @Override
@@ -157,12 +192,24 @@ public final class OneOfElementType extends ElementTypeBase {
     }
 
     @Override
-    public void collectLeafElements(Set<LeafElementType> bucket) {
-        super.collectLeafElements(bucket);
+    public void collectAnonymousLeafs(Set<LeafElementType> bucket) {
+        super.collectAnonymousLeafs(bucket);
         if (basic) {
             for (ElementTypeRef child : children) {
                 bucket.add(cast(child.elementType));
             }
         }
+    }
+
+    public void initialize() {
+        if (initialized) return;
+        initialized = true;
+
+        // rebuild children before this
+        for (ElementTypeRef child : children) {
+            child.elementType.initialize();
+        }
+
+        //rebuildAmbiguousPaths(this);
     }
 }

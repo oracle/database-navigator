@@ -20,7 +20,6 @@ import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.impl.ExecVariableElementType;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class ExecVariableElementTypeLookupCache extends LeafElementTypeLookupCache<ExecVariableElementType>{
@@ -36,16 +35,6 @@ public class ExecVariableElementTypeLookupCache extends LeafElementTypeLookupCac
     @Override
     public boolean isFirstRequiredToken(TokenType tokenType) {
         return tokenType.isVariable();
-    }
-
-
-    @Override
-    public Set<TokenType> getFirstPossibleTokens() {
-        Set<TokenType> firstPossibleTokens = new HashSet<>(1);
-        SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
-        TokenType variable = sharedTokenTypes.getVariable();
-        firstPossibleTokens.add(variable);
-        return firstPossibleTokens;
     }
 
     @Override

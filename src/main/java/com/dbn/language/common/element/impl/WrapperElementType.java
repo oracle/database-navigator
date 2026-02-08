@@ -55,12 +55,12 @@ public final class WrapperElementType extends ElementTypeBase {
             String startTokenId = stringAttribute(def, "begin-token");
             String endTokenId = stringAttribute(def, "end-token");
 
-            beginTokenElement = new TokenElementType(bundle, this, startTokenId, "begin-token");
-            endTokenElement = new TokenElementType(bundle, this, endTokenId, "end-token");
+            beginTokenElement = new TokenElementType(bundle, this, startTokenId, id + ".1");
+            endTokenElement = new TokenElementType(bundle, this, endTokenId, id + ".2");
         } else {
             TokenPairTemplate template = TokenPairTemplate.valueOf(templateId);
-            beginTokenElement = new TokenElementType(bundle, this, template.getBeginToken(), "begin-token");
-            endTokenElement = new TokenElementType(bundle, this, template.getEndToken(), "end-token");
+            beginTokenElement = new TokenElementType(bundle, this, template.getBeginToken(), id + ".1");
+            endTokenElement = new TokenElementType(bundle, this, template.getEndToken(), id + ".2");
 
             if (template.isBlock()) {
                 beginTokenElement.setDefaultFormatting(FormattingDefinition.LINE_BREAK_AFTER);
@@ -143,8 +143,15 @@ public final class WrapperElementType extends ElementTypeBase {
     }
 
     @Override
-    public void collectLeafElements(Set<LeafElementType> bucket) {
+    public void collectAnonymousLeafs(Set<LeafElementType> bucket) {
         bucket.add(getBeginTokenElement());
         bucket.add(getEndTokenElement());
+    }
+
+    public void initialize() {
+        if (initialized) return;
+        initialized = true;
+
+        wrappedElement.initialize();
     }
 }

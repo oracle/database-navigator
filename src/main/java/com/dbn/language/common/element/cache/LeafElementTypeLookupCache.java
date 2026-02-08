@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
-public abstract class LeafElementTypeLookupCache<T extends LeafElementType> extends ElementTypeLookupCache<T> {
+public abstract class LeafElementTypeLookupCache<T extends LeafElementType> extends ElementTypeLookupCacheBase<T> {
     public LeafElementTypeLookupCache(T elementType) {
         super(elementType);
     }
@@ -50,18 +50,18 @@ public abstract class LeafElementTypeLookupCache<T extends LeafElementType> exte
     }
 
     @Override
-    public boolean isFirstPossibleLeaf(LeafElementType elementType) {
-        return this.elementType == elementType;
+    public Set<TokenType> getAllPossibleTokens() {
+        return Set.of(elementType.tokenType);
     }
 
     @Override
-    public boolean isFirstRequiredLeaf(LeafElementType elementType) {
-        return isFirstPossibleLeaf(elementType);
+    public Set<TokenType> getFirstPossibleTokens() {
+        return getAllPossibleTokens();
     }
 
     @Override
     public Set<TokenType> getFirstRequiredTokens() {
-        return getFirstPossibleTokens();
+        return getAllPossibleTokens();
     }
 
     @Override
@@ -81,11 +81,6 @@ public abstract class LeafElementTypeLookupCache<T extends LeafElementType> exte
         bucket = initBucket(bucket);
         captureFirstPossibleTokens(bucket);
         return bucket;
-    }
-
-    @Override
-    public boolean containsLeaf(LeafElementType elementType) {
-        return this.elementType == elementType;
     }
 
     @Override

@@ -77,6 +77,11 @@ public class ChameleonTokenType extends SimpleTokenType<ChameleonTokenType> impl
     }
 
     @Override
+    public boolean isSurrogate() {
+        return false;
+    }
+
+    @Override
     public boolean isVirtualObject() {
         return false;
     }

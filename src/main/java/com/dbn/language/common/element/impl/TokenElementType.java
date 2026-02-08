@@ -20,6 +20,7 @@ import com.dbn.code.common.lookup.LookupItemBuilderProvider;
 import com.dbn.code.common.lookup.TokenLookupItemBuilder;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.DBLanguage;
+import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
@@ -37,14 +38,12 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.ITERATION_SEPARATOR;
 
-public final class TokenElementType extends LeafElementType implements LookupItemBuilderProvider {
-    public static final String SEPARATOR = "SEPARATOR";
-
+public class TokenElementType extends LeafElementType implements LookupItemBuilderProvider {
     private final TokenLookupItemBuilder lookupItemBuilder = new TokenLookupItemBuilder(this);
     private TokenTypeCategory flavor;
     private String text;
@@ -53,7 +52,7 @@ public final class TokenElementType extends LeafElementType implements LookupIte
         super(bundle, parent, id, def);
         String typeId = stringAttribute(def, "type-id");
         text = stringAttribute(def, "text");
-        this.tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
+        tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
         setDefaultFormatting(tokenType.getFormatting());
 
         String flavorName = stringAttribute(def, "flavor");
@@ -61,13 +60,21 @@ public final class TokenElementType extends LeafElementType implements LookupIte
             flavor = TokenTypeCategory.getCategory(flavorName);
         }
 
-        setDescription(tokenType.getValue() + " " + getTokenTypeCategory());
+        description = tokenType.getValue() + " " + getTokenTypeCategory();
+    }
+
+    public TokenElementType(ElementTypeBundle bundle, ElementTypeBase parent, @NonNls TokenType tokenType, @NonNls String id, String description) {
+        super(bundle, parent, id, (String)null);
+        this.tokenType = tokenType;
+        this.description = description;
+
+        setDefaultFormatting(tokenType.getFormatting());
     }
 
     public TokenElementType(ElementTypeBundle bundle, ElementTypeBase parent, @NonNls String typeId, @NonNls String id) {
         super(bundle, parent, id, (String)null);
         tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
-        setDescription(tokenType.getValue() + " " + getTokenTypeCategory());
+        description = tokenType.getValue() + " " + getTokenTypeCategory();
 
         setDefaultFormatting(tokenType.getFormatting());
     }
@@ -127,12 +134,7 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     }
 
     public boolean isIterationSeparator() {
-        return Objects.equals(getId(), SEPARATOR);
-    }
-
-    @Override
-    public boolean isLeaf() {
-        return true;
+        return is(ITERATION_SEPARATOR);
     }
 
     @Override

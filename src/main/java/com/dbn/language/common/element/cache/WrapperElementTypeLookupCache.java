@@ -22,9 +22,10 @@ import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.impl.WrapperElementType;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.Set;
 
-public class WrapperElementTypeLookupCache extends ElementTypeLookupCache<WrapperElementType> {
+public class WrapperElementTypeLookupCache extends ElementTypeLookupCacheBase<WrapperElementType> {
 
     public WrapperElementTypeLookupCache(WrapperElementType elementType) {
         super(elementType);
@@ -72,10 +73,12 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
     }
 
     @Override
-    public boolean containsLeaf(LeafElementType leafElementType) {
-        return getBeginTokenElement() == leafElementType ||
-                getEndTokenElement() == leafElementType ||
-                elementType.wrappedElement.cache.containsLeaf(leafElementType);
+    public Set<TokenType> getAllPossibleTokens() {
+        Set<TokenType> tokenTypes = new HashSet<>();
+        tokenTypes.add(elementType.getBeginTokenElement().tokenType);
+        tokenTypes.add(elementType.getEndTokenElement().tokenType);
+        tokenTypes.addAll(this.elementType.wrappedElement.cache.getAllPossibleTokens());
+        return tokenTypes;
     }
 
     @Override
@@ -85,7 +88,7 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
 
     @Override
     public Set<TokenType> getFirstRequiredTokens() {
-        return Set.of(getBeginTokenElement().tokenType);
+        return getBeginTokenElement().cache.getFirstRequiredTokens();
     }
 
     @Override
@@ -111,16 +114,6 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
     @Override
     public Set<LeafElementType> getFirstRequiredLeafs() {
         return Set.of(getBeginTokenElement());
-    }
-
-    @Override
-    public boolean isFirstPossibleLeaf(LeafElementType elementType) {
-        return getBeginTokenElement() == elementType;
-    }
-
-    @Override
-    public boolean isFirstRequiredLeaf(LeafElementType elementType) {
-        return isFirstPossibleLeaf(elementType);
     }
 
     @Override

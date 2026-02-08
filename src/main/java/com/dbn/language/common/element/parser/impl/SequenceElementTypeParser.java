@@ -87,7 +87,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
 
                     // not matched and not optional
                     if (result.isNoMatch() && !element.optional) {
-                        boolean isWeakMatch = matches < 2 && matchedTokens < 3 && index > 1 && ignoreFirstMatch();
+                        boolean isWeakMatch = elementType.surrogate || (matches < 2 && matchedTokens < 3 && index > 1 && ignoreFirstMatch());
 
                         if (element.isFirst() || elementType.isExitIndex(index) || isWeakMatch || matches == 0) {
                             //if (isFirst(i) || isExitIndex(i)) {
@@ -151,12 +151,12 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                 tokenType = builder.getToken();
             } else {
                 //builder.markerDone(marker, getElementBundle().getUnknownElementType());
-                marker.error("Invalid or incomplete statement. Expected: ");
+                marker.error("Invalid or incomplete statement");
                 return newIndex;
             }
         }
         //builder.markerDone(marker, getElementBundle().getUnknownElementType());
-        marker.error("Invalid or incomplete statement. Expected: ");
+        marker.error("Invalid or incomplete statement");
         return 0;
     }
 

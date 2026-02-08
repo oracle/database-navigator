@@ -102,7 +102,7 @@ public final class NextTokenResolver {
             ElementTypeRef child = parent.children[index];
             while (child != null) {
                 ensureBucket();
-                ElementTypeLookupCache lookupCache = child.elementType.cache;
+                ElementTypeLookupCache<?> lookupCache = child.elementType.cache;
                 lookupCache.captureFirstPossibleTokens(bucket);
                 if (!child.optional) {
                     parent = null;

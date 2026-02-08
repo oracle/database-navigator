@@ -70,9 +70,9 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
         return baseLanguage.getSharedTokenTypes().size();
     }
 
-    public TokenType getTokenType(short index) {
+    public TokenType getTokenType(int index) {
         TokenType tokenType = super.getTokenType(index);
-        if (tokenType == null ){
+        if (tokenType == null) {
             return getSharedTokenTypes().getTokenType(index);
         }
         return tokenType;

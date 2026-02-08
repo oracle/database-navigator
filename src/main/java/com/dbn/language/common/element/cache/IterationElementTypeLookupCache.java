@@ -19,13 +19,12 @@ package com.dbn.language.common.element.cache;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.impl.IterationElementType;
 import com.dbn.language.common.element.impl.LeafElementType;
-import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.impl.WrappingDefinition;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
-public class IterationElementTypeLookupCache extends ElementTypeLookupCache<IterationElementType> {
+public class IterationElementTypeLookupCache extends ElementTypeLookupCacheBase<IterationElementType> {
     public IterationElementTypeLookupCache(IterationElementType elementType) {
         super(elementType);
     }
@@ -36,21 +35,6 @@ public class IterationElementTypeLookupCache extends ElementTypeLookupCache<Iter
                 elementType.isWrappingBegin(tokenType) ||
                 elementType.isWrappingEnd(tokenType) ||
                 getIteratedElementLookupCache().containsToken(tokenType);
-    }
-
-    @Override
-    public boolean containsLeaf(LeafElementType leafElementType) {
-        if (getIteratedElementLookupCache().containsLeaf(leafElementType)) {
-            return true;
-        }
-
-        if (leafElementType instanceof TokenElementType tokenElementType) {
-            if (elementType.isSeparator(tokenElementType)) {
-                return true;
-            }
-        }
-
-        return elementType.isWrappingBegin(leafElementType) || elementType.isWrappingEnd(leafElementType);
     }
 
     @Override
@@ -92,24 +76,13 @@ public class IterationElementTypeLookupCache extends ElementTypeLookupCache<Iter
     }
 
     @Override
+    public Set<TokenType> getAllPossibleTokens() {
+        return getIteratedElementLookupCache().getAllPossibleTokens();
+    }
+
+    @Override
     public Set<LeafElementType> getFirstRequiredLeafs() {
         return getIteratedElementLookupCache().getFirstRequiredLeafs();
-    }
-
-    @Override
-    public boolean isFirstPossibleLeaf(LeafElementType elementType) {
-        WrappingDefinition wrapping = this.elementType.wrapping;
-        if (wrapping != null) {
-            if (wrapping.beginElementType == elementType) {
-                return true;
-            }
-        }
-        return getIteratedElementLookupCache().isFirstPossibleLeaf(elementType);
-    }
-
-    @Override
-    public boolean isFirstRequiredLeaf(LeafElementType elementType) {
-        return false;
     }
 
     @Override

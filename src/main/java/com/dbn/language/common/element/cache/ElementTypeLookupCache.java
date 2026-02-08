@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,138 +17,63 @@
 package com.dbn.language.common.element.cache;
 
 import com.dbn.common.index.IndexContainer;
-import com.dbn.common.latent.Latent;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
-import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
-import com.dbn.language.common.element.impl.WrappingDefinition;
-import com.dbn.language.common.element.util.NextTokenResolver;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
-public abstract class ElementTypeLookupCache<T extends ElementTypeBase>/* implements ElementTypeLookupCache<T>*/ {
-    private final Latent<IndexContainer<TokenType>> nextPossibleTokens = Latent.basic(() -> computeNextPossibleTokens());
-    protected final T elementType;
+public interface ElementTypeLookupCache<T extends ElementTypeBase> {
+    Set<TokenType> getNextPossibleTokens();
 
-    ElementTypeLookupCache(T elementType) {
-        this.elementType = elementType;
-    }
+    boolean isNextPossibleToken(TokenType tokenType);
 
-    /**
-     * This method returns all possible tokens (optional or not) which may follow current element.
-     *
-     * NOTE: to be used only for limited scope, since the tree walk-up
-     * is done only until first named element is hit.
-     * (named elements do not have parents)
-     */
-    public Set<TokenType> getNextPossibleTokens() {
-        IndexContainer<TokenType> nextPossibleTokens = this.nextPossibleTokens.get();
-        TokenTypeBundle tokenTypes = elementType.getLanguageDialect().getParserTokenTypes();
-        return nextPossibleTokens == null ?
-                Collections.emptySet() :
-                nextPossibleTokens.elements(index -> tokenTypes.getTokenType(index));
-    }
+    DBLanguage getLanguage();
 
-    public boolean isNextPossibleToken(TokenType tokenType) {
-        IndexContainer<TokenType> nextPossibleTokens = this.nextPossibleTokens.get();
-        return nextPossibleTokens != null && nextPossibleTokens.contains(tokenType);
-    }
+    ElementTypeBundle getElementTypeBundle();
 
-    @Nullable
-    private IndexContainer<TokenType> computeNextPossibleTokens() {
-        return NextTokenResolver.from(this.elementType).resolve();
-    }
+    SharedTokenTypeBundle getSharedTokenTypes();
 
-    protected DBLanguage getLanguage() {
-        return elementType.getLanguage();
-    }
+    boolean containsToken(TokenType tokenType);
 
-    protected ElementTypeBundle getElementTypeBundle() {
-        return elementType.bundle;
-    }
+    Set<TokenType> getAllPossibleTokens();
 
-    protected SharedTokenTypeBundle getSharedTokenTypes() {
-        return getLanguage().getSharedTokenTypes();
-    }
+    Set<TokenType> getFirstPossibleTokens();
 
-    public void captureFirstPossibleTokens(Set<TokenType> bucket) {
-        bucket.addAll(getFirstPossibleTokens());
-    }
+    Set<TokenType> getFirstRequiredTokens();
 
-    public void captureFirstPossibleTokens(IndexContainer<TokenType> bucket) {
-        bucket.addAll(getFirstPossibleTokens());
-    }
+    boolean couldStartWithLeaf(LeafElementType elementType);
 
-    public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context) {
-        return captureFirstPossibleLeafs(context.reset(), null);
-    }
+    boolean shouldStartWithLeaf(LeafElementType elementType);
 
-    public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context) {
-        return captureFirstPossibleTokens(context.reset(), null);
-    }
+    boolean couldStartWithToken(TokenType tokenType);
 
-    public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, @Nullable Set<LeafElementType> bucket) {
-        WrappingDefinition wrapping = elementType.wrapping;
-        if (wrapping != null) {
-            bucket = initBucket(bucket);
-            bucket.add(wrapping.beginElementType);
-        }
-        return bucket;
-    }
+    Set<LeafElementType> getFirstPossibleLeafs();
 
-    public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, @Nullable Set<TokenType> bucket) {
-        WrappingDefinition wrapping = elementType.wrapping;
-        if (wrapping != null) {
-            bucket = initBucket(bucket);
-            bucket.add(wrapping.beginElementType.tokenType);
-        }
-        return bucket;
-    }
+    Set<LeafElementType> getFirstRequiredLeafs();
 
-    public void registerLeaf(LeafElementType leaf, ElementTypeBase source) {
-        ElementTypeBase parent = elementType.parent;
-        if (parent != null) {
-            parent.cache.registerLeaf(leaf, elementType);
-        }
-    }
+    boolean startsWithIdentifier();
 
-    <E> Set<E> initBucket(Set<E> bucket) {
-        if (bucket == null) bucket = new HashSet<>();
-        return bucket;
-    }
+    boolean isFirstPossibleToken(TokenType tokenType);
 
-    public abstract boolean containsToken(TokenType tokenType);
+    boolean isFirstRequiredToken(TokenType tokenType);
 
-    public abstract boolean containsLeaf(LeafElementType elementType);
+    void captureFirstPossibleTokens(Set<TokenType> bucket);
 
-    public abstract Set<TokenType> getFirstPossibleTokens();
+    void captureFirstPossibleTokens(IndexContainer<TokenType> bucket);
 
-    public abstract Set<TokenType> getFirstRequiredTokens();
+    Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context);
 
-    public abstract boolean couldStartWithLeaf(LeafElementType elementType);
+    Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context);
 
-    public abstract boolean shouldStartWithLeaf(LeafElementType elementType);
+    Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, @Nullable Set<LeafElementType> bucket);
 
-    public abstract boolean couldStartWithToken(TokenType tokenType);
+    Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, @Nullable Set<TokenType> bucket);
 
-    public abstract Set<LeafElementType> getFirstPossibleLeafs();
+    void registerLeaf(LeafElementType leaf, ElementTypeBase source);
 
-    public abstract Set<LeafElementType> getFirstRequiredLeafs();
-
-    public abstract boolean isFirstPossibleLeaf(LeafElementType elementType);
-
-    public abstract boolean isFirstRequiredLeaf(LeafElementType elementType);
-
-    public abstract boolean startsWithIdentifier();
-
-    public abstract boolean isFirstPossibleToken(TokenType tokenType);
-
-    public abstract boolean isFirstRequiredToken(TokenType tokenType);
 }

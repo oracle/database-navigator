@@ -23,12 +23,16 @@ import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.parser.ElementTypeParser;
 import com.dbn.language.common.element.parser.ParseResult;
-import com.dbn.language.common.element.parser.ParseResultType;
 import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
 import com.intellij.lang.PsiBuilder.Marker;
+import lombok.extern.slf4j.Slf4j;
 
+import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
+
+@Slf4j
 public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> {
     public TokenElementTypeParser(TokenElementType elementType) {
         super(elementType);
@@ -40,35 +44,49 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
         Marker marker = null;
 
         TokenType token = builder.getToken();
-        if (token == elementType.tokenType || builder.isDummyToken()) {
+        if (token == elementType.tokenType) {
+            if (elementType.isSurrogate()) {
+                return stepOut(marker, context, FULL_MATCH, 0);
+            }
 
+            if (context.isSurrogate()) {
+                if (context.isSurrogateFor(elementType)) {
+                    marker = builder.markAndAdvance();
+                    return stepOut(marker, context, FULL_MATCH, 1);
+                } else /*if (!builder.getTokenText().equals("("))*/ {
+                    return stepOut(marker, context, NO_MATCH, 0);
+                }
+            }
+        }
+
+        if (token == elementType.tokenType || builder.isDummyToken()) {
             String text = elementType.getText();
             if (Strings.isNotEmpty(text) && Strings.equalsIgnoreCase(builder.getTokenText(), text)) {
                 marker = builder.markAndAdvance();
-                return stepOut(marker, context, ParseResultType.FULL_MATCH, 1);
+                return stepOut(marker, context, FULL_MATCH, 1);
             }
 
-            SharedTokenTypeBundle sharedTokenTypes = elementType.bundle.tokenTypeBundle.getSharedTokenTypes();
-            SimpleTokenType leftParenthesis = sharedTokenTypes.getChrLeftParenthesis();
-            SimpleTokenType dot = sharedTokenTypes.getChrDot();
-
             if (token.isSuppressibleReservedWord()) {
+                SharedTokenTypeBundle sharedTokenTypes = elementType.bundle.tokenTypeBundle.getSharedTokenTypes();
+                SimpleTokenType leftParenthesis = sharedTokenTypes.getChrLeftParenthesis();
+                SimpleTokenType dot = sharedTokenTypes.getChrDot();
+
                 TokenType nextTokenType = builder.getNextToken();
                 if (nextTokenType == dot && !elementType.isNextPossibleToken(dot, parentNode, context)) {
                     context.setWavedTokenType(token);
-                    return stepOut(marker, context, ParseResultType.NO_MATCH, 0);
+                    return stepOut(marker, context, NO_MATCH, 0);
                 }
                 if (token.isFunction() && elementType.getFlavor() == null) {
                     if (nextTokenType != leftParenthesis && elementType.isNextRequiredToken(leftParenthesis, parentNode, context)) {
                         context.setWavedTokenType(token);
-                        return stepOut(marker, context, ParseResultType.NO_MATCH, 0);
+                        return stepOut(marker, context, NO_MATCH, 0);
                     }
                 }
             }
 
             marker = builder.markAndAdvance();
-            return stepOut(marker, context, ParseResultType.FULL_MATCH, 1);
+            return stepOut(marker, context, FULL_MATCH, 1);
         }
-        return stepOut(marker, context, ParseResultType.NO_MATCH, 0);
+        return stepOut(marker, context, NO_MATCH, 0);
     }
 }

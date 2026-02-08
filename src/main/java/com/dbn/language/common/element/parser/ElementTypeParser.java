@@ -131,18 +131,24 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
         return false;
     }
 
+    /**
+     * // TODO check if it can be decommissioned
+     * (the parser tree-walk logic would anyways verify all these aspects)
+     * NOTE: parser diagnostic tests fail when this is removed (try gradual remove with test-runs in between)
+     */
     @Deprecated
     protected boolean shouldParseElement(ElementTypeBase elementType, ParserNode node, ParserContext context) {
         ParserBuilder builder = context.builder;
         TokenType token = builder.getToken();
-        if (token == null || token.isChameleon()) {
-            return false;
-        }
+        if (token == null) return false;
+        if (token.isChameleon()) return false;
 
-        return
-            builder.isDummyToken() ||
-            elementType.cache.couldStartWithToken(token) ||
-            isSuppressibleReservedWord(token, node, context);
+        if (builder.isDummyToken()) return true;
+        if (context.isStartSurrogateFor(elementType)) return true;
+        if (elementType.cache.couldStartWithToken(token)) return true;
+        if (isSuppressibleReservedWord(token, node, context)) return true;
+
+        return false;
     }
 
     @Override

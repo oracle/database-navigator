@@ -22,7 +22,7 @@ import com.dbn.language.common.element.impl.LeafElementType;
 
 import java.util.Set;
 
-public class VoidElementTypeLookupCache<T extends ElementTypeBase> extends ElementTypeLookupCache<T>{
+public class VoidElementTypeLookupCache<T extends ElementTypeBase> extends ElementTypeLookupCacheBase<T> {
     public VoidElementTypeLookupCache(T elementType) {
         super(elementType);
     }
@@ -33,8 +33,8 @@ public class VoidElementTypeLookupCache<T extends ElementTypeBase> extends Eleme
     }
 
     @Override
-    public boolean containsLeaf(LeafElementType elementType) {
-        return false;
+    public Set<TokenType> getAllPossibleTokens() {
+        return null;
     }
 
     @Override
@@ -70,16 +70,6 @@ public class VoidElementTypeLookupCache<T extends ElementTypeBase> extends Eleme
     @Override
     public Set<LeafElementType> getFirstRequiredLeafs() {
         return null;
-    }
-
-    @Override
-    public boolean isFirstPossibleLeaf(LeafElementType elementType) {
-        return false;
-    }
-
-    @Override
-    public boolean isFirstRequiredLeaf(LeafElementType elementType) {
-        return false;
     }
 
     @Override

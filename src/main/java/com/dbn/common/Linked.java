@@ -22,6 +22,10 @@ public class Linked<T extends Linked<T>> {
     private int index = -1;
 
     public Linked(T previous) {
+        setPrevious(previous);
+    }
+
+    private void setPrevious(T previous) {
         this.previous = previous;
         if (previous != null) {
             previous.next = (T) this;
@@ -41,5 +45,13 @@ public class Linked<T extends Linked<T>> {
 
     public boolean isFirst() {
         return previous == null;
+    }
+
+    public static void linkElements(Linked[] refs) {
+        Linked previous = null;
+        for (Linked ref : refs) {
+            ref.setPrevious(previous);
+            previous = ref;
+        }
     }
 }

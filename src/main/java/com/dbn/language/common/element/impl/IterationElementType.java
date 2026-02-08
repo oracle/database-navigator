@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.ITERATION_SEPARATOR;
 
 @Slf4j
 public final class IterationElementType extends ElementTypeBase {
@@ -60,6 +61,14 @@ public final class IterationElementType extends ElementTypeBase {
     }
 
     @Override
+    public void initialize() {
+        if (initialized) return;
+        initialized = true;
+
+        iteratedElementType.initialize();
+    }
+
+    @Override
     protected IterationElementTypeLookupCache createLookupCache() {
         return new IterationElementTypeLookupCache(this);
     }
@@ -79,8 +88,10 @@ public final class IterationElementType extends ElementTypeBase {
             List<TokenElementType> separators = new ArrayList<>();
             while (tokenizer.hasMoreTokens()) {
                 String separatorTokenId = tokenizer.nextToken().trim();
-                TokenElementType separatorToken = new TokenElementType(bundle, this, separatorTokenId, TokenElementType.SEPARATOR);
+                TokenElementType separatorToken = new TokenElementType(bundle, this, separatorTokenId, id + ".1");
                         //bundle.getTokenElementType(separatorTokenId);
+
+                separatorToken.set(ITERATION_SEPARATOR, true);
                 separatorToken.setDefaultFormatting(separatorToken.isCharacter() ?
                         FormattingDefinition.NO_SPACE_BEFORE :
                         FormattingDefinition.ONE_SPACE_BEFORE);

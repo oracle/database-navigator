@@ -40,8 +40,12 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMEN
 
 public abstract class LeafElementType extends ElementTypeBase implements Indexable {
     public TokenType tokenType;
+
     public boolean optional;
     private final int idx;
+
+    public Set<LeafElementType> surrogateFor;
+    public Set<ElementTypeBase> startSurrogateFor;
 
     LeafElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -55,6 +59,14 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
         bundle.registerElement(this);
     }
 
+    public boolean isSurrogateFor(LeafElementType leafElementType) {
+        return surrogateFor != null && surrogateFor.contains(leafElementType);
+    }
+
+    public boolean isStartSurrogateFor(ElementTypeBase elementType) {
+        return startSurrogateFor != null && startSurrogateFor.contains(elementType);
+    }
+
     @Override
     public int index() {
         return idx;
@@ -63,6 +75,12 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
     public void registerLeaf() {
         parent.cache.registerLeaf(this, this);
     }
+
+    @Override
+    public TokenType getTokenType() {
+        return tokenType;
+    }
+
 
     public abstract boolean isSameAs(LeafElementType elementType);
 
@@ -240,8 +258,8 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
     }
 
     @Override
-    public void collectLeafElements(Set<LeafElementType> bucket) {
-        super.collectLeafElements(bucket);
+    public void collectAnonymousLeafs(Set<LeafElementType> bucket) {
+        super.collectAnonymousLeafs(bucket);
         bucket.add(this);
     }
 }

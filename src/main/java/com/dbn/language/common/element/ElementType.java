@@ -55,6 +55,8 @@ public interface ElementType extends PropertyHolder<ElementTypeAttribute>{
 
     boolean isLeaf();
 
+    boolean isSurrogate();
+
     boolean isVirtualObject();
 
     PsiElement createPsiElement(ASTNode astNode);
@@ -75,5 +77,5 @@ public interface ElementType extends PropertyHolder<ElementTypeAttribute>{
 
     TokenType getTokenType();
 
-    default void collectLeafElements(Set<LeafElementType> leafElementTypes) {};
+    default void collectAnonymousLeafs(Set<LeafElementType> leafElementTypes) {};
 }

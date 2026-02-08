@@ -19,6 +19,7 @@ package com.dbn.language.common.element.parser;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.cache.ElementLookupContext;
+import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.intellij.lang.PsiBuilder;
 
@@ -41,5 +42,21 @@ public class ParserContext extends ElementLookupContext {
     public void setWavedTokenType(TokenType wavedTokenType) {
         this.wavedTokenType = wavedTokenType;
         this.wavedTokenTypeOffset = builder.getOffset();
+    }
+
+    public boolean isSurrogate() {
+        return lastResolvedLeaf != null && lastResolvedLeaf.surrogateFor != null;
+    }
+
+    public boolean isSurrogateFor(LeafElementType leafElementType) {
+        return lastResolvedLeaf != null &&
+                lastResolvedLeaf.surrogateFor != null &&
+                lastResolvedLeaf.surrogateFor.contains(leafElementType);
+    }
+
+    public boolean isStartSurrogateFor(ElementTypeBase elementType) {
+        return lastResolvedLeaf != null &&
+                lastResolvedLeaf.startSurrogateFor != null &&
+                lastResolvedLeaf.startSurrogateFor.contains(elementType);
     }
 }

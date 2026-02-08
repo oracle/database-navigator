@@ -57,6 +57,7 @@ public enum ElementTypeAttribute implements Property.LongBase {
     SCHEMA_CHANGE("SCHEMA_CHANGE", "Schema change clause"),
     DB_ASSISTANT("DB_ASSISTANT", "Database assistant statement"),
     DB_ASSISTANT_PROMPT("DB_ASSISTANT_PROMPT", "Database assistant prompt"),
+    ITERATION_SEPARATOR("ITERATION_SEPARATOR", "Iterator separator"),
     ;
 
     public static final ElementTypeAttribute[] VALUES = values();
