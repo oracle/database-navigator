@@ -112,7 +112,7 @@ public class OneOfElementTypeBuilder {
     }
 
     private String nextId() {
-        return subject.id + "." + subject.idSuffix.incrementAndGet();
+        return subject.nextChildId();
     }
 
     @Nullable

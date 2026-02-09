@@ -133,6 +133,10 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         this.initialized = true;
     }
 
+    public String nextChildId() {
+        return ElementTypeIdCache.nextId(this);
+    }
+
     public boolean isWrappingBegin(LeafElementType elementType) {
         return wrapping != null && wrapping.beginElementType == elementType;
     }
@@ -196,15 +200,15 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
             String endTokenId = stringAttribute(def, "wrapping-end-token");
 
             if (Strings.isNotEmpty(beginTokenId) && Strings.isNotEmpty(endTokenId)) {
-                beginTokenElement = new TokenElementType(bundle, this, beginTokenId, id);
-                endTokenElement = new TokenElementType(bundle, this, endTokenId, id);
+                beginTokenElement = new TokenElementType(bundle, this, beginTokenId);
+                endTokenElement = new TokenElementType(bundle, this, endTokenId);
             }
         } else {
             TokenPairTemplate template = TokenPairTemplate.valueOf(optionalWrapping);
             String beginTokenId = template.getBeginToken();
             String endTokenId = template.getEndToken();
-            beginTokenElement = new TokenElementType(bundle, this, beginTokenId, id);
-            endTokenElement = new TokenElementType(bundle, this, endTokenId, id);
+            beginTokenElement = new TokenElementType(bundle, this, beginTokenId);
+            endTokenElement = new TokenElementType(bundle, this, endTokenId);
 
             if (template.isBlock()) {
                 beginTokenElement.setDefaultFormatting(FormattingDefinition.LINE_BREAK_AFTER);

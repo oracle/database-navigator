@@ -111,13 +111,12 @@ public class SequenceElementType extends ElementTypeBase {
         String tokenIds = stringAttribute(def, "tokens");
         if (Strings.isNotEmptyOrSpaces(tokenIds)) {
             basic = true;
-            String id = getId();
             String[] tokens = tokenIds.split(",");
             children = new ElementTypeRef[tokens.length];
             for (int i=0; i<tokens.length; i++) {
                 String tokenTypeId = tokens[i].trim();
 
-                TokenElementType tokenElementType = new TokenElementType(bundle, this, tokenTypeId, id);
+                TokenElementType tokenElementType = new TokenElementType(bundle, this, tokenTypeId);
                 children[i] = new ElementTypeRef(tokenElementType);
             }
         } else {

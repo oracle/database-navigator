@@ -55,12 +55,12 @@ public final class WrapperElementType extends ElementTypeBase {
             String startTokenId = stringAttribute(def, "begin-token");
             String endTokenId = stringAttribute(def, "end-token");
 
-            beginTokenElement = new TokenElementType(bundle, this, startTokenId, id + ".1");
-            endTokenElement = new TokenElementType(bundle, this, endTokenId, id + ".2");
+            beginTokenElement = new TokenElementType(bundle, this, startTokenId);
+            endTokenElement = new TokenElementType(bundle, this, endTokenId);
         } else {
             TokenPairTemplate template = TokenPairTemplate.valueOf(templateId);
-            beginTokenElement = new TokenElementType(bundle, this, template.getBeginToken(), id + ".1");
-            endTokenElement = new TokenElementType(bundle, this, template.getEndToken(), id + ".2");
+            beginTokenElement = new TokenElementType(bundle, this, template.getBeginToken());
+            endTokenElement = new TokenElementType(bundle, this, template.getEndToken());
 
             if (template.isBlock()) {
                 beginTokenElement.setDefaultFormatting(FormattingDefinition.LINE_BREAK_AFTER);

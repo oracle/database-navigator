@@ -33,7 +33,6 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
-import static com.intellij.lang.annotation.HighlightSeverity.ERROR;
 import static com.intellij.lang.annotation.HighlightSeverity.WARNING;
 
 public class SQLLanguageAnnotator extends DBLanguageAnnotator {
@@ -52,12 +51,15 @@ public class SQLLanguageAnnotator extends DBLanguageAnnotator {
             annotateIdentifier(cast(psiElement), holder);
         }
 
+/*
+        // TODO cleanup (intrusive error highlighting)
         if (psiElement instanceof NamedPsiElement namedPsiElement) {
             if (namedPsiElement.hasErrors()) {
                 String message = "Invalid " + namedPsiElement.elementType.getDescription();
-                createAnnotation(holder, namedPsiElement, ERROR, null, message);
+                createAnnotation(holder, namedPsiElement, WARNING, null, message);
             }
         }
+*/
     }
 
     protected boolean isSupported(PsiElement psiElement) {

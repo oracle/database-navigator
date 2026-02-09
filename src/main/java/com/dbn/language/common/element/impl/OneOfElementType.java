@@ -38,11 +38,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.common.Linked.linkElements;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.language.common.element.impl.OneOfElementTypeBuilder.rebuildAmbiguousPaths;
 
 @Slf4j
 public final class OneOfElementType extends ElementTypeBase {
@@ -50,8 +50,6 @@ public final class OneOfElementType extends ElementTypeBase {
     public boolean basic;
     private boolean sortable;
     private boolean sorted;
-
-    public final AtomicInteger idSuffix = new AtomicInteger(0);
 
     public OneOfElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -94,15 +92,13 @@ public final class OneOfElementType extends ElementTypeBase {
         String tokenIds = stringAttribute(def, "tokens");
         if (Strings.isNotEmptyOrSpaces(tokenIds)) {
             basic = true;
-            String id = getId();
-
             String[] tokens = tokenIds.split(",");
             this.children = new ElementTypeRef[tokens.length];
 
             for (int i=0; i<tokens.length; i++) {
                 String tokenTypeId = tokens[i].trim();
 
-                TokenElementType tokenElementType = new TokenElementType(bundle, this, tokenTypeId, id);
+                TokenElementType tokenElementType = new TokenElementType(bundle, this, tokenTypeId);
                 children[i] = new ElementTypeRef(tokenElementType);
             }
             sortable = false;
@@ -210,6 +206,6 @@ public final class OneOfElementType extends ElementTypeBase {
             child.elementType.initialize();
         }
 
-        //rebuildAmbiguousPaths(this);
+        rebuildAmbiguousPaths(this);
     }
 }
