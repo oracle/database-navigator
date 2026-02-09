@@ -23,6 +23,9 @@ public class ParserNode extends LanguageNodeBase {
     public final int startOffset;
     public int currentOffset;
     public int cursorPosition;
+    public int matchedTokens;
+    public int matchedElements;
+
     public PsiBuilder.Marker elementMarker;
 
     public ParserNode(ElementTypeBase elementType, ParserNode parent, int startOffset, int cursorPosition) {

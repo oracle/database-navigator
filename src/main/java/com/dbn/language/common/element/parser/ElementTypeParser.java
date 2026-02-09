@@ -46,6 +46,10 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
         return node;
     }
 
+    public ParseResult stepOut(ParserNode node, ParserContext context, ParseResultType resultType) {
+        return stepOut(node, context, resultType, node.matchedTokens);
+    }
+
     public ParseResult stepOut(ParserNode node, ParserContext context, ParseResultType resultType, int matchedTokens) {
         return stepOut(null, node, context, resultType, matchedTokens);
     }
@@ -136,7 +140,6 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
      * (the parser tree-walk logic would anyways verify all these aspects)
      * NOTE: parser diagnostic tests fail when this is removed (try gradual remove with test-runs in between)
      */
-    @Deprecated
     protected boolean shouldParseElement(ElementTypeBase elementType, ParserNode node, ParserContext context) {
         ParserBuilder builder = context.builder;
         TokenType token = builder.getToken();

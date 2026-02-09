@@ -39,27 +39,28 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
         TokenType token = builder.getToken();
         Marker marker = null;
 
-        if (token != null && !token.isChameleon()){
-            if (elementType.isSurrogate()) {
-                // do not advance builder on surrogates
-                return stepOut(marker, context, FULL_MATCH, 0);
-            }
+        if (token != null && !token.isChameleon()) {
+            if (token.isIdentifier()) {
+                if (elementType.isSurrogate()) {
+                    // do not advance builder on surrogates
+                    return stepOut(marker, context, FULL_MATCH, 0);
+                }
 
-            if (context.isSurrogate()) {
-                if (context.isSurrogateFor(elementType)) {
-                    marker = builder.markAndAdvance();
-                    return stepOut(marker, context, FULL_MATCH, 1);
-                } else  {
-                    return stepOut(marker, context, NO_MATCH, 0);
+                if (context.isSurrogate()) {
+                    if (context.isSurrogateFor(elementType)) {
+                        marker = builder.markAndAdvance();
+                        return stepOut(marker, context, FULL_MATCH, 1);
+                    } else  {
+                        return stepOut(marker, context, NO_MATCH, 0);
+                    }
                 }
             }
-
 
             if (token.isIdentifier()) {
                 marker = builder.markAndAdvance();
                 return stepOut(marker, context, FULL_MATCH, 1);
             }
-            else if (isSuppressibleReservedWord(parentNode, context, token)) {
+            else if (isSuppressibleReservedWord(parentNode, context, token) && !elementType.isSurrogate()) {
                 marker = builder.markAndAdvance();
                 return stepOut(marker, context, FULL_MATCH, 1);
             }

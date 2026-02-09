@@ -34,6 +34,10 @@ import com.intellij.lang.PsiBuilder;
 
 import java.util.Set;
 
+import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
+
 public class IterationElementTypeParser extends ElementTypeParser<IterationElementType> {
     public IterationElementTypeParser(IterationElementType elementType) {
         super(elementType);
@@ -47,20 +51,17 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
         ElementTypeBase iteratedElementType = elementType.iteratedElementType;
         TokenElementType[] separatorTokens = elementType.separatorTokens;
 
-        int iterations = 0;
-        int matchedTokens = 0;
-
         //if (shouldParseElement(iteratedElementType, node, context)) {
             ParseResult result = iteratedElementType.parser.parse(node, context);
 
             // check first iteration element
             if (result.isMatch()) {
                 if (node.isRecursive(node.startOffset)) {
-                    ParseResultType resultType = matchesMinIterations(iterations) ? result.getType() : ParseResultType.NO_MATCH;
-                    return stepOut(node, context, resultType, matchedTokens);
+                    ParseResultType resultType = matchesMinIterations(node.matchedElements) ? result.getType() : NO_MATCH;
+                    return stepOut(node, context, resultType);
                 }
                 while (true) {
-                    iterations++;
+                    node.matchedElements++;
                     // check separator
                     // if not matched just step out
                     PsiBuilder.Marker partialMatchMarker = null;
@@ -72,21 +73,21 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
                         ParseResult sepResult = ParseResult.noMatch();
                         for (TokenElementType separatorToken : separatorTokens) {
                             sepResult = separatorToken.parser.parse(node, context);
-                            matchedTokens = matchedTokens + sepResult.getMatchedTokens();
+                            node.matchedTokens += sepResult.getMatchedTokens();
                             if (sepResult.isMatch()) break;
                         }
 
                         if (sepResult.isNoMatch()) {
                             // if NO_MATCH, no additional separator found, hence then iteration should exit with MATCH
                             ParseResultType resultType =
-                                    matchesMinIterations(iterations) ?
-                                            matchesIterations(iterations) ?
+                                    matchesMinIterations(node.matchedElements) ?
+                                            matchesIterations(node.matchedElements) ?
                                                     result.getType() :
-                                                    ParseResultType.PARTIAL_MATCH :
-                                            ParseResultType.NO_MATCH;
+                                                    PARTIAL_MATCH :
+                                            NO_MATCH;
 
                             builder.markerDrop(partialMatchMarker);
-                            return stepOut(node, context, resultType, matchedTokens);
+                            return stepOut(node, context, resultType);
                         } else {
                             node.currentOffset = builder.getOffset();
                         }
@@ -101,38 +102,38 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
                         // missing separators permit ending the iteration as valid at any time
                         if (separatorTokens == null) {
                             ParseResultType resultType =
-                                    matchesMinIterations(iterations) ?
-                                        matchesIterations(iterations) ?
-                                            ParseResultType.FULL_MATCH :
-                                            ParseResultType.PARTIAL_MATCH :
-                                    ParseResultType.NO_MATCH;
-                            return stepOut(node, context, resultType, matchedTokens);
+                                    matchesMinIterations(node.matchedElements) ?
+                                        matchesIterations(node.matchedElements) ?
+                                            FULL_MATCH :
+                                            PARTIAL_MATCH :
+                                    NO_MATCH;
+                            return stepOut(node, context, resultType);
                         } else {
-                            if (matchesMinIterations(iterations)) {
+                            if (matchesMinIterations(node.matchedElements)) {
                                 if (elementType.isFollowedBySeparator()) {
                                     builder.markerRollbackTo(partialMatchMarker);
-                                    return stepOut(node, context, ParseResultType.FULL_MATCH, matchedTokens);
+                                    return stepOut(node, context, FULL_MATCH);
                                 } else {
                                     builder.markerDrop(partialMatchMarker);
                                 }
 
                                 boolean exit = advanceLexerToNextLandmark(node, false, context);
                                 if (exit){
-                                    return stepOut(node, context, ParseResultType.PARTIAL_MATCH, matchedTokens);
+                                    return stepOut(node, context, PARTIAL_MATCH);
                                 }
                             } else {
                                 builder.markerDrop(partialMatchMarker);
-                                return stepOut(node, context, ParseResultType.NO_MATCH, matchedTokens);
+                                return stepOut(node, context, NO_MATCH);
                             }
                         }
                     } else {
                         builder.markerDrop(partialMatchMarker);
-                        matchedTokens = matchedTokens + result.getMatchedTokens();
+                        node.matchedTokens += result.getMatchedTokens();
                     }
                 }
-            }
-        //}
-        return stepOut(node, context, ParseResultType.NO_MATCH, matchedTokens);
+            //}
+        }
+        return stepOut(node, context, NO_MATCH);
     }
 
     private boolean advanceLexerToNextLandmark(ParserNode parentNode, boolean lenient, ParserContext context) {

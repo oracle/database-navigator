@@ -25,7 +25,6 @@ import com.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.parser.ElementTypeParser;
 import com.dbn.language.common.element.parser.ParseResult;
-import com.dbn.language.common.element.parser.ParseResultType;
 import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
@@ -35,6 +34,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
 
 public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<QualifiedIdentifierElementType> {
     public QualifiedIdentifierElementTypeParser(QualifiedIdentifierElementType elementType) {
@@ -47,7 +50,6 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
         ParserNode node = stepIn(parentNode, context);
 
         TokenElementType separatorToken = elementType.getSeparatorToken();
-        int matchedTokens = 0;
 
         QualifiedIdentifierVariant variant = getMostProbableParseVariant(builder);
         if (variant != null) {
@@ -55,27 +57,30 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
 
             for (LeafElementType elementType : elementTypes) {
                 ParseResult result = elementType.parser.parse(node, context);
-                if (result.isNoMatch()) break;  else matchedTokens = matchedTokens + result.getMatchedTokens();
+                if (result.isNoMatch()) break;
+
+                node.matchedTokens += result.getMatchedTokens();
 
                 if (elementType != elementTypes[elementTypes.length -1])  {
                     result = separatorToken.parser.parse(node, context);
-                    if (result.isNoMatch()) break; else matchedTokens = matchedTokens + result.getMatchedTokens();
+                    if (result.isNoMatch()) break;
+                    node.matchedTokens += result.getMatchedTokens();
                 }
                 node.incrementIndex(builder.getOffset());
             }
 
-            if (matchedTokens > 0) {
+            if (node.matchedTokens > 0) {
                 if (variant.isIncomplete()) {
                     Set<TokenType> expected = Collections.singleton(separatorToken.tokenType);
                     ParseBuilderErrorHandler.updateBuilderError(expected, context);
-                    return stepOut(node, context, ParseResultType.PARTIAL_MATCH, matchedTokens);
+                    return stepOut(node, context, PARTIAL_MATCH);
                 } else {
-                    return stepOut(node, context, ParseResultType.FULL_MATCH, matchedTokens);
+                    return stepOut(node, context, FULL_MATCH);
                 }
             }
         }
 
-        return stepOut(node, context, ParseResultType.NO_MATCH, matchedTokens);
+        return stepOut(node, context, NO_MATCH);
     }
 
     private QualifiedIdentifierVariant getMostProbableParseVariant(ParserBuilder builder) {

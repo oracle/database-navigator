@@ -122,7 +122,7 @@ public final class IdentifierElementType extends LeafElementType {
         String prefix =
                 isObject() ? (isReference() ? "object-ref " : "object-def ") :
                 isAlias() ? (isReference() ? "alias-ref " : "alias-def ") :
-                isVariable() ? (isReference() ? "variable-ref " : "variable-def ") : "unknown";
+                isVariable() ? (isReference() ? "variable-ref " : "variable-def ") : "unknown ";
         return prefix + getObjectTypeName() + " (" + getId() + ")";
     }
 

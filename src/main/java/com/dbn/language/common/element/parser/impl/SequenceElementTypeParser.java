@@ -36,6 +36,10 @@ import com.intellij.lang.PsiBuilder;
 
 import java.util.Set;
 
+import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
+
 public class SequenceElementTypeParser<ET extends SequenceElementType> extends ElementTypeParser<ET> {
     public SequenceElementTypeParser(ET elementType) {
         super(elementType);
@@ -45,9 +49,6 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
     public ParseResult parse(ParserNode parentNode, ParserContext context) throws ParseException {
         ParserBuilder builder = context.builder;
         ParserNode node = stepIn(parentNode, context);
-
-        int matches = 0;
-        int matchedTokens = 0;
 
         TokenType token = builder.getToken();
 
@@ -61,14 +62,14 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                 if (token == null || token.isChameleon()) {
 
                     if (element.isFirst() || elementType.isExitIndex(index)) {
-                        return stepOut(node, context, ParseResultType.NO_MATCH, matchedTokens);
+                        return stepOut(node, context, NO_MATCH);
                     }
 
                     if (element.optional && element.isOptionalFromHere()) {
-                        return stepOut(node, context, ParseResultType.FULL_MATCH, matchedTokens);
+                        return stepOut(node, context, FULL_MATCH);
                     }
 
-                    return stepOut(node, context, ParseResultType.PARTIAL_MATCH, matchedTokens);
+                    return stepOut(node, context, PARTIAL_MATCH);
                 }
 
                 if (context.check(element)) {
@@ -79,26 +80,27 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                         result = element.elementType.parser.parse(node, context);
 
                         if (result.isMatch()) {
-                            matchedTokens = matchedTokens + result.getMatchedTokens();
+                            node.matchedTokens += result.getMatchedTokens();
                             token = builder.getToken();
-                            matches++;
+                            node.matchedElements++;
                         }
                     }
 
                     // not matched and not optional
                     if (result.isNoMatch() && !element.optional) {
-                        boolean isWeakMatch = elementType.surrogate || parentNode.element.surrogate || (matches < 2 && matchedTokens < 3 && index > 1 && ignoreFirstMatch());
+                        boolean isSurrogate = elementType.surrogate || parentNode.element.surrogate;
+                        boolean isWeakMatch = node.matchedElements < 2 && node.matchedTokens < 3 && index > 1 && ignoreFirstMatch();
 
-                        if (element.isFirst() || elementType.isExitIndex(index) || isWeakMatch || matches == 0) {
+                        if (isSurrogate || isWeakMatch || element.isFirst() || elementType.isExitIndex(index) || node.matchedElements == 0) {
                             //if (isFirst(i) || isExitIndex(i)) {
-                            return stepOut(node, context, ParseResultType.NO_MATCH, matchedTokens);
+                            return stepOut(node, context, NO_MATCH);
                         }
 
                         index = advanceLexerToNextLandmark(node, context);
 
                         if (index <= 0) {
                             // no landmarks found or landmark in parent found
-                            return stepOut(node, context, ParseResultType.PARTIAL_MATCH, matchedTokens);
+                            return stepOut(node, context, PARTIAL_MATCH);
                         } else {
                             // local landmarks found
 
@@ -113,14 +115,14 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                 // if is last element
                 if (element.isLast()) {
                     //matches == 0 reaches this stage only if all sequence elements are optional
-                    ParseResultType resultType = matches == 0 ? ParseResultType.NO_MATCH : ParseResultType.FULL_MATCH;
-                    return stepOut(node, context, resultType, matchedTokens);
+                    ParseResultType resultType = node.matchedElements == 0 ? NO_MATCH : FULL_MATCH;
+                    return stepOut(node, context, resultType);
                 }
                 node.incrementIndex(builder.getOffset());
             }
         }
 
-        return stepOut(node, context, ParseResultType.NO_MATCH, matchedTokens);
+        return stepOut(node, context, NO_MATCH);
     }
 
     @Deprecated // ambiguous
@@ -150,8 +152,8 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                 builder.advance();
                 tokenType = builder.getToken();
             } else {
-                //builder.markerDone(marker, getElementBundle().getUnknownElementType());
-                marker.error("Invalid or incomplete statement");
+                builder.markerDone(marker, elementType.bundle.getUnknownElementType());
+                //marker.error("Invalid or incomplete statement");
                 return newIndex;
             }
         }
