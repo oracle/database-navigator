@@ -53,8 +53,8 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
         bundle.registerElement(this);
     }
 
-    LeafElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, String description) {
-        super(bundle, parent, id, description);
+    LeafElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id) {
+        super(bundle, parent, id);
         idx = bundle.nextIndex();
         bundle.registerElement(this);
     }

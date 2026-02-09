@@ -58,7 +58,7 @@ public class SequenceElementType extends ElementTypeBase {
     }
 
     public SequenceElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id) {
-        super(bundle, parent, id, (String) null);
+        super(bundle, parent, id);
     }
 
     public SequenceElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {

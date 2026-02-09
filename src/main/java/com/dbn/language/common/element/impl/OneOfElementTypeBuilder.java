@@ -76,13 +76,15 @@ public class OneOfElementTypeBuilder {
             if (variant.tokens.size() > 1) {
                 List<LeafElementType> tokenElementTypes = new ArrayList<>(variant.tokens.size());
                 for (TokenType tokenType : variant.tokens) {
-                    TokenElementType tokenELementType = new TokenElementType(bundle, sequenceElementType, tokenType, nextId(), "");
-                    tokenELementType.surrogate = true;
-                    tokenELementType.surrogateFor = variant.getLeafs(tokenType);
-                    tokenELementType.startSurrogateFor = variant.elements;
-                    tokenElementTypes.add(tokenELementType);
+                    LeafElementType surrogateLeafElementType = tokenType.isIdentifier() ?
+                            new IdentifierElementType(sequenceElementType, nextId()) :
+                            new TokenElementType(sequenceElementType, tokenType, nextId());
+                    surrogateLeafElementType.surrogate = true;
+                    surrogateLeafElementType.surrogateFor = variant.getLeafs(tokenType);
+                    surrogateLeafElementType.startSurrogateFor = variant.elements;
+                    tokenElementTypes.add(surrogateLeafElementType);
                 }
-                OneOfElementType oneOfElementType = new OneOfElementType(bundle, sequenceElementType, nextId(), "");
+                OneOfElementType oneOfElementType = new OneOfElementType(sequenceElementType, nextId());
                 oneOfElementType.setElements(tokenElementTypes);
                 oneOfElementType.surrogate = true;
                 oneOfElementType.basic = true;
@@ -90,15 +92,20 @@ public class OneOfElementTypeBuilder {
 
             } else {
                 LeafElementType leafElementType = variant.getFirstLeaf();
-                TokenElementType tokenELementType = new TokenElementType(bundle, sequenceElementType, leafElementType.tokenType, nextId(), "");
-                tokenELementType.surrogate = true;
-                tokenELementType.surrogateFor = variant.leafs;
-                tokenELementType.startSurrogateFor = variant.elements;
-                firstSequenceElement = tokenELementType;
+                TokenType tokenType = leafElementType.tokenType;
+
+                LeafElementType surrogateLeafElementType = tokenType.isIdentifier() ?
+                        new IdentifierElementType(sequenceElementType, nextId()) :
+                        new TokenElementType(sequenceElementType, tokenType, nextId());
+
+                surrogateLeafElementType.surrogate = true;
+                surrogateLeafElementType.surrogateFor = variant.leafs;
+                surrogateLeafElementType.startSurrogateFor = variant.elements;
+                firstSequenceElement = surrogateLeafElementType;
             }
 
             if (variant.elements.size() > 1) {
-                OneOfElementType oneOfElementType = new OneOfElementType(bundle, sequenceElementType, nextId(), "");
+                OneOfElementType oneOfElementType = new OneOfElementType(sequenceElementType, nextId());
                 oneOfElementType.setElements(variant.elements);
                 oneOfElementType.surrogate = true;
                 secondSequenceElement = oneOfElementType;

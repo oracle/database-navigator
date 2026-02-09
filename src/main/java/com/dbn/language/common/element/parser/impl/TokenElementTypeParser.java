@@ -46,6 +46,7 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
         TokenType token = builder.getToken();
         if (token == elementType.tokenType) {
             if (elementType.isSurrogate()) {
+                // do not advance builder on surrogates
                 return stepOut(marker, context, FULL_MATCH, 0);
             }
 
@@ -53,7 +54,7 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
                 if (context.isSurrogateFor(elementType)) {
                     marker = builder.markAndAdvance();
                     return stepOut(marker, context, FULL_MATCH, 1);
-                } else /*if (!builder.getTokenText().equals("("))*/ {
+                } else {
                     return stepOut(marker, context, NO_MATCH, 0);
                 }
             }

@@ -50,6 +50,10 @@ public final class IdentifierElementType extends LeafElementType {
     private boolean localReference; // is local reference
 
 
+    public IdentifierElementType(ElementTypeBase parent, String id) {
+        super(parent.bundle, parent, id);
+    }
+
     public IdentifierElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
         tokenType = bundle.getTokenTypeBundle().getIdentifier();

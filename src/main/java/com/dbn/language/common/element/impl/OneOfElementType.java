@@ -31,7 +31,6 @@ import com.intellij.psi.PsiElement;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,8 +54,8 @@ public final class OneOfElementType extends ElementTypeBase {
         super(bundle, parent, id, def);
     }
 
-    public OneOfElementType(@NotNull ElementTypeBundle bundle, ElementTypeBase parent, String id, @Nullable String description) {
-        super(bundle, parent, id, description);
+    public OneOfElementType(ElementTypeBase parent, String id) {
+        super(parent.bundle, parent, id);
     }
 
     void setElements(Collection<? extends ElementTypeBase> elements) {

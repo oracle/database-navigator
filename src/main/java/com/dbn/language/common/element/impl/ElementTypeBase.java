@@ -46,7 +46,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.util.HashSet;
@@ -89,11 +88,10 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         return new BasicCompositeElement(this);
     }
 
-    ElementTypeBase(@NotNull ElementTypeBundle bundle, ElementTypeBase parent, String id, @Nullable String description) {
+    ElementTypeBase(@NotNull ElementTypeBundle bundle, ElementTypeBase parent, String id) {
         super(id, bundle.getLanguageDialect(), false);
         this.id = id.intern();
         this.hashCode = System.identityHashCode(this);
-        this.description = description;
         this.bundle = bundle;
         this.parent = parent;
     }

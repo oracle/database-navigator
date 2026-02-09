@@ -39,9 +39,19 @@ public class IdentifierElementTypeLookupCache extends LeafElementTypeLookupCache
     }
 
     @Override
-    public Set<TokenType> getFirstPossibleTokens() {
+    public Set<TokenType> getAllPossibleTokens() {
         SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
         return sharedTokenTypes.getIdentifierTokens();
+    }
+
+    @Override
+    public Set<TokenType> getFirstPossibleTokens() {
+        return getAllPossibleTokens();
+    }
+
+    @Override
+    public Set<TokenType> getFirstRequiredTokens() {
+        return getAllPossibleTokens();
     }
 
     @Override
