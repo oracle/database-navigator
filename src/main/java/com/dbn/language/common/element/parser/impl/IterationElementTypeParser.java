@@ -51,7 +51,7 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
         ElementTypeBase iteratedElementType = elementType.iteratedElementType;
         TokenElementType[] separatorTokens = elementType.separatorTokens;
 
-        //if (shouldParseElement(iteratedElementType, node, context)) {
+        if (shouldParseElement(iteratedElementType, node, context)) {
             ParseResult result = iteratedElementType.parser.parse(node, context);
 
             // check first iteration element
@@ -131,7 +131,7 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
                         node.matchedTokens += result.getMatchedTokens();
                     }
                 }
-            //}
+            }
         }
         return stepOut(node, context, NO_MATCH);
     }

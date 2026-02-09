@@ -41,8 +41,7 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
     public ParserNode stepIn(ParserNode parentNode, ParserContext context) {
         ParserBuilder builder = context.builder;
         ParserNode node = new ParserNode(elementType, parentNode, builder.getOffset(), 0);
-        Marker marker = builder.mark(node);
-        node.elementMarker = marker;
+        node.elementMarker = builder.mark(node);
         return node;
     }
 
@@ -104,42 +103,36 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
      * Returns true if the token is a reserved word, but can act as an identifier in this context.
      */
     protected boolean isSuppressibleReservedWord(TokenType tokenType, ParserNode node, ParserContext context) {
-        if (tokenType != null && tokenType.isSuppressibleReservedWord()) {
-            SharedTokenTypeBundle sharedTokenTypes = elementType.bundle.tokenTypeBundle.getSharedTokenTypes();
-            SimpleTokenType dot = sharedTokenTypes.getChrDot();
-            SimpleTokenType leftParenthesis = sharedTokenTypes.getChrLeftParenthesis();
-            ParserBuilder builder = context.builder;
-            if (builder.getPreviousToken() == dot || builder.getNextToken() == dot) {
-                return true;
-            }
+        if (tokenType == null) return false;
+        if (!tokenType.isSuppressibleReservedWord()) return false;
 
-            if (tokenType.isFunction() && builder.getNextToken() != leftParenthesis) {
-                if (elementType instanceof LeafElementType leafElementType) {
-                    return !leafElementType.isNextRequiredToken(leftParenthesis, node, context);
-                }
-            }
+        SharedTokenTypeBundle sharedTokenTypes = elementType.bundle.tokenTypeBundle.getSharedTokenTypes();
+        SimpleTokenType dot = sharedTokenTypes.getChrDot();
+        SimpleTokenType leftParenthesis = sharedTokenTypes.getChrLeftParenthesis();
+        ParserBuilder builder = context.builder;
+        if (builder.getPreviousToken() == dot) return true;
+        if (builder.getNextToken() == dot) return true;
 
-            ElementTypeBase namedElementType = ElementTypeUtil.getEnclosingNamedElementType(node);
-            if (namedElementType != null && namedElementType.cache.containsToken(tokenType)) {
-                LeafElementType lastResolvedLeaf = context.lastResolvedLeaf;
-                return lastResolvedLeaf != null && !lastResolvedLeaf.isNextPossibleToken(tokenType, node, context);
+        if (tokenType.isFunction() && builder.getNextToken() != leftParenthesis) {
+            if (elementType instanceof LeafElementType leafElementType) {
+                return !leafElementType.isNextRequiredToken(leftParenthesis, node, context);
             }
-
-            if (context.lastResolvedLeaf != null) {
-                if (context.lastResolvedLeaf.isNextPossibleToken(tokenType, node, context)) {
-                    return false;
-                }
-            }
-            return true;//!isFollowedByToken(tokenType, node);
         }
-        return false;
+
+        ElementTypeBase namedElementType = ElementTypeUtil.getEnclosingNamedElementType(node);
+        if (namedElementType != null && namedElementType.cache.containsToken(tokenType)) {
+            LeafElementType lastResolvedLeaf = context.lastResolvedLeaf;
+            return lastResolvedLeaf != null && !lastResolvedLeaf.isNextPossibleToken(tokenType, node, context);
+        }
+
+        if (context.lastResolvedLeaf != null) {
+            if (context.lastResolvedLeaf.isNextPossibleToken(tokenType, node, context)) {
+                return false;
+            }
+        }
+        return true;//!isFollowedByToken(tokenType, node);
     }
 
-    /**
-     * // TODO check if it can be decommissioned
-     * (the parser tree-walk logic would anyways verify all these aspects)
-     * NOTE: parser diagnostic tests fail when this is removed (try gradual remove with test-runs in between)
-     */
     protected boolean shouldParseElement(ElementTypeBase elementType, ParserNode node, ParserContext context) {
         ParserBuilder builder = context.builder;
         TokenType token = builder.getToken();
