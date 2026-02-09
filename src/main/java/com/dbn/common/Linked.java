@@ -48,10 +48,15 @@ public class Linked<T extends Linked<T>> {
     }
 
     public static void linkElements(Linked[] refs) {
-        Linked previous = null;
+        Linked current = null;
         for (Linked ref : refs) {
-            ref.setPrevious(previous);
-            previous = ref;
+            ref.setPrevious(current);
+            current = ref;
+        }
+
+        // delink last element
+        if (current != null) {
+            current.next = null;
         }
     }
 }

@@ -71,8 +71,8 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
         setDefaultFormatting(tokenType.getFormatting());
     }
 
-    public TokenElementType(ElementTypeBundle bundle, ElementTypeBase parent, @NonNls String typeId) {
-        super(bundle, parent, parent.nextChildId());
+    public TokenElementType(ElementTypeBase parent, @NonNls String typeId) {
+        super(parent.bundle, parent, parent.nextChildId());
         tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
         description = tokenType.getValue() + " " + getTokenTypeCategory();
 

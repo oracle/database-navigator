@@ -87,7 +87,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
 
                     // not matched and not optional
                     if (result.isNoMatch() && !element.optional) {
-                        boolean isWeakMatch = elementType.surrogate || (matches < 2 && matchedTokens < 3 && index > 1 && ignoreFirstMatch());
+                        boolean isWeakMatch = elementType.surrogate || parentNode.element.surrogate || (matches < 2 && matchedTokens < 3 && index > 1 && ignoreFirstMatch());
 
                         if (element.isFirst() || elementType.isExitIndex(index) || isWeakMatch || matches == 0) {
                             //if (isFirst(i) || isExitIndex(i)) {

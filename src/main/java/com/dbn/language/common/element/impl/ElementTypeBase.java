@@ -54,6 +54,10 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_DEMARCATION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_ISOLATION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.WRAPPING_TOKEN;
 
 @Slf4j
 @Getter
@@ -174,7 +178,7 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
             virtualObjectType = ElementTypeBundle.resolveObjectType(objectTypeName);
         }
         formatting = FormattingDefinitionFactory.loadDefinition(def);
-        if (is(ElementTypeAttribute.STATEMENT)) {
+        if (is(STATEMENT)) {
             setDefaultFormatting(STATEMENT_FORMATTING);
         }
 
@@ -198,15 +202,15 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
             String endTokenId = stringAttribute(def, "wrapping-end-token");
 
             if (Strings.isNotEmpty(beginTokenId) && Strings.isNotEmpty(endTokenId)) {
-                beginTokenElement = new TokenElementType(bundle, this, beginTokenId);
-                endTokenElement = new TokenElementType(bundle, this, endTokenId);
+                beginTokenElement = new TokenElementType(this, beginTokenId);
+                endTokenElement = new TokenElementType(this, endTokenId);
             }
         } else {
             TokenPairTemplate template = TokenPairTemplate.valueOf(optionalWrapping);
             String beginTokenId = template.getBeginToken();
             String endTokenId = template.getEndToken();
-            beginTokenElement = new TokenElementType(bundle, this, beginTokenId);
-            endTokenElement = new TokenElementType(bundle, this, endTokenId);
+            beginTokenElement = new TokenElementType(this, beginTokenId);
+            endTokenElement = new TokenElementType(this, endTokenId);
 
             if (template.isBlock()) {
                 beginTokenElement.setDefaultFormatting(FormattingDefinition.LINE_BREAK_AFTER);
@@ -216,11 +220,13 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         }
 
         if (beginTokenElement != null) {
+            beginTokenElement.set(WRAPPING_TOKEN, true);
+            endTokenElement.set(WRAPPING_TOKEN, true);
             wrapping = new WrappingDefinition(beginTokenElement, endTokenElement);
         }
 
-        scopeDemarcation = is(ElementTypeAttribute.SCOPE_DEMARCATION) || is(ElementTypeAttribute.STATEMENT);
-        scopeIsolation = is(ElementTypeAttribute.SCOPE_ISOLATION);
+        scopeDemarcation = is(SCOPE_DEMARCATION) || is(STATEMENT);
+        scopeIsolation = is(SCOPE_ISOLATION);
     }
 
     @Override

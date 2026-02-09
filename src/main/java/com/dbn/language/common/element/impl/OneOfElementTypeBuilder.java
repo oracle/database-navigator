@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.dbn.language.common.element.util.ElementTypeAttribute.WRAPPING_TOKEN;
+
 public class OneOfElementTypeBuilder {
     private final OneOfElementType subject;
 
@@ -87,6 +89,7 @@ public class OneOfElementTypeBuilder {
                 OneOfElementType oneOfElementType = new OneOfElementType(sequenceElementType, nextId());
                 oneOfElementType.setElements(tokenElementTypes);
                 oneOfElementType.surrogate = true;
+                oneOfElementType.sortable = subject.sortable;
                 oneOfElementType.basic = true;
                 firstSequenceElement = oneOfElementType;
 
@@ -108,6 +111,7 @@ public class OneOfElementTypeBuilder {
                 OneOfElementType oneOfElementType = new OneOfElementType(sequenceElementType, nextId());
                 oneOfElementType.setElements(variant.elements);
                 oneOfElementType.surrogate = true;
+                oneOfElementType.sortable = subject.sortable;
                 secondSequenceElement = oneOfElementType;
             } else {
                 secondSequenceElement = variant.getFirstElement();
@@ -131,6 +135,7 @@ public class OneOfElementTypeBuilder {
             Set<LeafElementType> possibleLeafs = child.elementType.cache.getFirstPossibleLeafs();
             possibleLeafs = unwrapSurrogates(possibleLeafs);
             for (LeafElementType leaf : possibleLeafs) {
+                if (leaf.is(WRAPPING_TOKEN)) continue;
                 TokenType tokenType = leaf.tokenType;
 
                 PathVariantMap leafMappings = paths.computeIfAbsent(tokenType, t -> new PathVariantMap());

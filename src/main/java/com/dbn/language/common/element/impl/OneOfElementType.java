@@ -41,13 +41,12 @@ import java.util.Set;
 import static com.dbn.common.Linked.linkElements;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Unsafe.cast;
-import static com.dbn.language.common.element.impl.OneOfElementTypeBuilder.rebuildAmbiguousPaths;
 
 @Slf4j
 public final class OneOfElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
     public boolean basic;
-    private boolean sortable;
+    public boolean sortable;
     private boolean sorted;
 
     public OneOfElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
@@ -97,7 +96,7 @@ public final class OneOfElementType extends ElementTypeBase {
             for (int i=0; i<tokens.length; i++) {
                 String tokenTypeId = tokens[i].trim();
 
-                TokenElementType tokenElementType = new TokenElementType(bundle, this, tokenTypeId);
+                TokenElementType tokenElementType = new TokenElementType(this, tokenTypeId);
                 children[i] = new ElementTypeRef(tokenElementType);
             }
             sortable = false;
@@ -160,19 +159,7 @@ public final class OneOfElementType extends ElementTypeBase {
         if (sortable && !sorted) {
             sorted = true;
             Arrays.sort(children, ONE_OF_COMPARATOR);
-            relink();
-        }
-    }
-
-    private void relink() {
-        ElementTypeRef previous = null;
-        for (ElementTypeRef child : children) {
-            child.previous = previous;
-            child.next = null;
-            if (previous != null) {
-                previous.next = child;
-            }
-            previous = child;
+            linkElements(children);
         }
     }
 
@@ -200,11 +187,12 @@ public final class OneOfElementType extends ElementTypeBase {
         if (initialized) return;
         initialized = true;
 
-        // rebuild children before this
+        // initialize children before this
         for (ElementTypeRef child : children) {
             child.elementType.initialize();
         }
 
-        rebuildAmbiguousPaths(this);
+        // TODO ambiguous paths logic
+        //rebuildAmbiguousPaths(this);
     }
 }

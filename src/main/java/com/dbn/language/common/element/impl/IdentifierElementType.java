@@ -52,6 +52,7 @@ public final class IdentifierElementType extends LeafElementType {
 
     public IdentifierElementType(ElementTypeBase parent, String id) {
         super(parent.bundle, parent, id);
+        objectType = DBObjectType.ANY;
     }
 
     public IdentifierElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
@@ -154,7 +155,7 @@ public final class IdentifierElementType extends LeafElementType {
     }
 
     public String getObjectTypeName() {
-        return objectType.getName();
+        return objectType == null ? DBObjectType.ANY.getName() : objectType.getName();
     }
 
     public String getQualifiedObjectTypeName() {

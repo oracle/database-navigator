@@ -116,7 +116,7 @@ public class SequenceElementType extends ElementTypeBase {
             for (int i=0; i<tokens.length; i++) {
                 String tokenTypeId = tokens[i].trim();
 
-                TokenElementType tokenElementType = new TokenElementType(bundle, this, tokenTypeId);
+                TokenElementType tokenElementType = new TokenElementType(this, tokenTypeId);
                 children[i] = new ElementTypeRef(tokenElementType);
             }
         } else {

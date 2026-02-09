@@ -88,7 +88,7 @@ public final class IterationElementType extends ElementTypeBase {
             List<TokenElementType> separators = new ArrayList<>();
             while (tokenizer.hasMoreTokens()) {
                 String separatorTokenId = tokenizer.nextToken().trim();
-                TokenElementType separatorToken = new TokenElementType(bundle, this, separatorTokenId);
+                TokenElementType separatorToken = new TokenElementType(this, separatorTokenId);
                         //bundle.getTokenElementType(separatorTokenId);
 
                 separatorToken.set(ITERATION_SEPARATOR, true);
