@@ -32,8 +32,10 @@ import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLSourceConfig;
 import com.dbn.ml.model.source.MLSourceType;
-import com.dbn.object.DBSchema;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
+import com.dbn.object.DBSchema;
+import com.dbn.object.common.DBObjectUtil;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,6 +45,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -130,6 +133,9 @@ public class DBMSBackend implements MLBackend {
                 });
 
         log.info("Model created successfully: {}", modelName);
+
+        // Notify browser to refresh AI models
+        DBObjectUtil.refreshUserObjects(connection.getConnectionId(), DBObjectType.AI_MODEL);
 
         // Step 7: Create model metadata
         Integer classCount = null;
@@ -488,12 +494,27 @@ public class DBMSBackend implements MLBackend {
     }
 
     private Set<String> getExistingModelNames() {
-        DBSchema schema = connection.getUserSchema();
-        if (schema == null) return Set.of();
-
-        return schema.getAIModels().stream()
-                .map(model -> model.getName().toUpperCase())
-                .collect(Collectors.toSet());
+        try {
+            return DatabaseInterfaceInvoker.load(Priority.HIGH,
+                    getProject(),
+                    connection.getConnectionId(),
+                    conn -> {
+                        Set<String> names = new HashSet<>();
+                        DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                        ResultSet rs = mlInterface.getExistingModelNames(conn);
+                        try {
+                            while (rs.next()) {
+                                names.add(rs.getString("MODEL_NAME").toUpperCase());
+                            }
+                        } finally {
+                            rs.close();
+                        }
+                        return names;
+                    });
+        } catch (SQLException e) {
+            log.warn("Failed to get existing model names: {}", e.getMessage());
+            return Set.of();
+        }
     }
 
     private String extractSourceName(MLTrainingContext context) {

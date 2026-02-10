@@ -648,6 +648,7 @@
         <group id="DBNavigator.ActionGroup.MLExecutionResult">
             <action id="DBNavigator.Actions.MLExecutionResult.OpenToolbox" class="com.dbn.ml.result.action.MLResultOpenToolboxAction" text="ML Result - Open ML Toolbox" icon="com.dbn.common.icon.Icons.EXEC_RESULT_INPUT_FORM"/>
             <action id="DBNavigator.Actions.MLExecutionResult.Predict" class="com.dbn.ml.result.action.MLResultPredictAction" text="ML Result - Predict" icon="com.dbn.common.icon.Icons.ACTION_EXECUTE"/>
+            <action id="DBNavigator.Actions.MLExecutionResult.ViewInBrowser" class="com.dbn.ml.result.action.MLResultViewInBrowserAction" text="ML Result - View in Database" icon="com.dbn.common.icon.Icons.DBO_AI_MODEL"/>
             <action id="DBNavigator.Actions.MLExecutionResult.Rename" class="com.dbn.ml.result.action.MLResultRenameAction" text="ML Result - Rename Model" icon="com.dbn.common.icon.Icons.ACTION_EDIT"/>
             <action id="DBNavigator.Actions.MLExecutionResult.ExportOnnx" class="com.dbn.ml.result.action.MLResultExportOnnxAction" text="ML Result - Export ONNX" icon="com.dbn.common.icon.Icons.ACTION_DOWNLOAD"/>
             <action id="DBNavigator.Actions.MLExecutionResult.ExportToDatabase" class="com.dbn.ml.result.action.MLResultExportToDatabaseAction" text="ML Result - Save to Database" icon="com.dbn.common.icon.Icons.DBO_TABLE"/>

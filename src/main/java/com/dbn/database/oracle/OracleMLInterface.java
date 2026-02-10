@@ -348,6 +348,11 @@ public class OracleMLInterface extends DatabaseInterfaceBase implements Database
         return executeQuery(conn, "get-class-values", columnName, tableName);
     }
 
+    @Override
+    public ResultSet getExistingModelNames(DBNConnection conn) throws SQLException {
+        return executeQuery(conn, "get-existing-model-names");
+    }
+
     // ==================== HELPER METHODS ====================
 
     private String buildFullTableName(String schemaName, String tableName) {

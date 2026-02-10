@@ -22,6 +22,7 @@ import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.dbn.ml.backend.MLBackendType;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
+import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.backend.model.MLEvaluationResult;
 import com.dbn.ml.model.MLResult;
 import com.intellij.ui.JBColor;
@@ -49,6 +50,8 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
  * @author ayoub allali
  */
 public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionResult> {
+
+    private static final int BAR_HEIGHT = 4;
 
     // Form bindings
     private JPanel mainPanel;
@@ -92,6 +95,13 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
     private void initializeHeader() {
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 16f));
+
+        // Set title with model name
+        if (result.getModelHandle() instanceof DBMSModelHandle dbmsHandle) {
+            titleLabel.setText(dbmsHandle.getModelName());
+        } else {
+            titleLabel.setText("ML Training Result");
+        }
 
         // Task type
         String taskType = result.isClassification() ? "Classification" : "Regression";
@@ -154,6 +164,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     private JPanel createMetricCard(String name, double value, boolean isRatio) {
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        //
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(JBColor.border(), 1),
                 JBUI.Borders.empty(12)
@@ -174,7 +185,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
         if (isRatio) {
             card.add(Box.createVerticalStrut(6));
-            JPanel bar = createSubduedProgressBar((int) (value * 100), 4);
+            JPanel bar = createProgressBar((int) (value * 100), BAR_HEIGHT);
             bar.setAlignmentX(Component.LEFT_ALIGNMENT);
             card.add(bar);
         }
@@ -327,7 +338,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
                 for (var entry : perClassMetrics.entrySet()) {
                     var m = entry.getValue();
                     chartPanel.add(createClassRow(entry.getKey(), m.getPrecision(), m.getRecall(), m.getF1Score(), m.getSupport()));
-                    chartPanel.add(Box.createVerticalStrut(6));
+                    chartPanel.add(Box.createVerticalStrut(8));
                 }
             }
         }
@@ -340,59 +351,66 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     }
 
     private JPanel createClassRow(String className, double precision, double recall, double f1, int support) {
-        JPanel row = new JPanel(new BorderLayout(10, 0));
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
+        JPanel row = new JPanel(new BorderLayout(12, 0));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 24));
 
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        leftPanel.setPreferredSize(new Dimension(140, 28));
+        // Left: class name and support
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
         JLabel nameLabel = new JLabel(className);
-        nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD));
+        nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 12f));
         leftPanel.add(nameLabel);
         JLabel supportLabel = new JLabel("(n=" + support + ")");
         supportLabel.setForeground(JBColor.gray);
         supportLabel.setFont(supportLabel.getFont().deriveFont(10f));
         leftPanel.add(supportLabel);
+        leftPanel.setPreferredSize(new Dimension(180, 24));
         row.add(leftPanel, BorderLayout.WEST);
 
-        JPanel barsPanel = new JPanel(new GridLayout(1, 3, 10, 0));
-        barsPanel.add(createMiniBar("P", precision));
-        barsPanel.add(createMiniBar("R", recall));
-        barsPanel.add(createMiniBar("F1", f1));
-        row.add(barsPanel, BorderLayout.CENTER);
+        // Center: metrics spread across available width
+        JPanel metricsPanel = new JPanel(new GridLayout(1, 3, 20, 0));
+        metricsPanel.add(createMetricBar("P", precision));
+        metricsPanel.add(createMetricBar("R", recall));
+        metricsPanel.add(createMetricBar("F1", f1));
+        row.add(metricsPanel, BorderLayout.CENTER);
 
         return row;
     }
 
-    private JPanel createMiniBar(String label, double value) {
-        JPanel panel = new JPanel(new BorderLayout(5, 0));
+    private JPanel createMetricBar(String label, double value) {
+        JPanel panel = new JPanel(new BorderLayout(6, 0));
 
+        // Label on left
         JLabel labelComp = new JLabel(label);
-        labelComp.setFont(labelComp.getFont().deriveFont(10f));
+        labelComp.setFont(labelComp.getFont().deriveFont(11f));
         labelComp.setForeground(JBColor.gray);
-        labelComp.setPreferredSize(new Dimension(20, 20));
+        labelComp.setPreferredSize(new Dimension(20, 16));
         panel.add(labelComp, BorderLayout.WEST);
 
-        JPanel barPanel = createSubduedProgressBar((int) (value * 100), 16);
-        panel.add(barPanel, BorderLayout.CENTER);
+        // Bar in center - wrap to keep fixed height
+        JPanel barWrapper = new JPanel(new GridBagLayout());
+        barWrapper.setOpaque(false);
+        JPanel bar = createProgressBar((int) (value * 100), BAR_HEIGHT);
+        barWrapper.add(bar, new GridBagConstraints() {{
+            fill = GridBagConstraints.HORIZONTAL;
+            weightx = 1.0;
+        }});
+        panel.add(barWrapper, BorderLayout.CENTER);
 
+        // Value on right
         JLabel valueLabel = new JLabel(String.format("%.0f%%", value * 100));
-        valueLabel.setFont(valueLabel.getFont().deriveFont(10f));
-        valueLabel.setForeground(JBColor.foreground());
-        valueLabel.setPreferredSize(new Dimension(35, 16));
+        valueLabel.setFont(valueLabel.getFont().deriveFont(11f));
+        valueLabel.setPreferredSize(new Dimension(40, 16));
         valueLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         panel.add(valueLabel, BorderLayout.EAST);
 
         return panel;
     }
 
-    /**
-     * Creates a subdued progress bar using neutral gray colors following IntelliJ's style.
-     */
-    private JPanel createSubduedProgressBar(int percentage, int height) {
+    private JPanel createProgressBar(int percentage, int height) {
         return new JPanel() {
             {
-                setPreferredSize(new Dimension(100, height));
-                setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+                setPreferredSize(new Dimension(60, height));
+                setMinimumSize(new Dimension(30, height));
                 setOpaque(false);
             }
 
@@ -406,13 +424,13 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
                 int h = getHeight();
                 int fillWidth = (int) (width * percentage / 100.0);
 
-                // Background track - subtle gray
+                // Background track
                 g2.setColor(JBColor.border());
                 g2.fillRoundRect(0, 0, width, h, h, h);
 
-                // Filled portion - slightly darker gray
+                // Filled portion
                 if (fillWidth > 0) {
-                    g2.setColor(new JBColor(new Color(140, 140, 140), new Color(120, 120, 120)));
+                    g2.setColor(new JBColor(new Color(130, 130, 130), new Color(160, 160, 160)));
                     g2.fillRoundRect(0, 0, fillWidth, h, h, h);
                 }
 

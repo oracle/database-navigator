@@ -305,4 +305,11 @@ public interface DatabaseMLInterface extends DatabaseInterface {
      * @return ResultSet with column CLASS_VALUE
      */
     ResultSet getClassValues(DBNConnection conn, String columnName, String tableName) throws SQLException;
+
+    /**
+     * Gets existing model names from USER_MINING_MODELS.
+     *
+     * @return ResultSet with column MODEL_NAME
+     */
+    ResultSet getExistingModelNames(DBNConnection conn) throws SQLException;
 }

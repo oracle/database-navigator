@@ -383,4 +383,11 @@
         </statement>
     </statement-execution-processor>
 
+    <!-- Get existing model names from USER_MINING_MODELS -->
+    <statement-execution-processor id="get-existing-model-names" timeout="10000">
+        <statement>
+            SELECT MODEL_NAME FROM USER_MINING_MODELS
+        </statement>
+    </statement-execution-processor>
+
 </data-dictionary>
