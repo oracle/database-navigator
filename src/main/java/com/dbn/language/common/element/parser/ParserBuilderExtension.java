@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.language.common.element.impl;
+package com.dbn.language.common.element.parser;
 
-import com.dbn.language.common.element.ElementType;
+public abstract class ParserBuilderExtension {
+    protected final ParserBuilder builder;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
-public class ElementTypeIdCache {
-    private static final Map<ElementType, AtomicInteger> cache = new ConcurrentHashMap<>();
-
-    public static String nextId(ElementType elementType) {
-        AtomicInteger id = cache.computeIfAbsent(elementType, e -> new AtomicInteger());
-        return elementType.getId() + "." + id.incrementAndGet();
+    protected ParserBuilderExtension(ParserBuilder builder) {
+        this.builder = builder;
     }
 }

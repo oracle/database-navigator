@@ -28,12 +28,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class TokenPairMonitor {
+public class TokenPairMonitor extends ParserBuilderExtension {
     private final Map<TokenPairTemplate, TokenPairStack> stacks;
-    private final ParserBuilder builder;
 
     public TokenPairMonitor(ParserBuilder builder, DBLanguageDialect languageDialect) {
-        this.builder = builder;
+        super(builder);
 
         TokenPairTemplate[] tokenPairTemplates = languageDialect.getTokenPairTemplates();
         stacks = new EnumMap<>(TokenPairTemplate.class);

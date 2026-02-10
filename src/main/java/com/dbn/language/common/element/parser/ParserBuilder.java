@@ -31,13 +31,16 @@ import org.jetbrains.annotations.Nullable;
 
 public final class ParserBuilder {
     private final PsiBuilder builder;
-    public final TokenPairMonitor tokenPairMonitor;
-    private final ParseErrorMonitor errorMonitor;
     private final Cache cache = new Cache();
+
+    public final TokenMonitor tokenMonitor;
+    public final TokenPairMonitor tokenPairMonitor;
+    public final ParseErrorMonitor errorMonitor;
 
     public ParserBuilder(PsiBuilder builder, DBLanguageDialect languageDialect) {
         this.builder = builder;
         this.builder.setDebugMode(false);
+        this.tokenMonitor = new TokenMonitor(this);
         this.tokenPairMonitor = new TokenPairMonitor(this, languageDialect);
         this.errorMonitor = new ParseErrorMonitor(this);
     }
@@ -146,20 +149,20 @@ public final class ParserBuilder {
     }
 
     public void markError(String message) {
-        if (!errorMonitor.isErrorAtOffset()) {
-            errorMonitor.markError();
-            Marker errorMaker = builder.mark();
-            errorMaker.error(message);
-        }
+        if (errorMonitor.isErrorAtOffset()) return;
+
+        errorMonitor.markError();
+        Marker errorMaker = builder.mark();
+        errorMaker.error(message);
     }
 
     public void markerRollbackTo(Marker marker) {
-        if (marker != null) {
-            marker.rollbackTo();
-            errorMonitor.reset();
-            tokenPairMonitor.rollback();
-            cache.reset();
-        }
+        if (marker == null) return;
+
+        marker.rollbackTo();
+        errorMonitor.reset();
+        tokenPairMonitor.rollback();
+        cache.reset();
     }
 
     public void markerDone(Marker marker, ElementType elementType) {
@@ -167,16 +170,16 @@ public final class ParserBuilder {
     }
 
     public void markerDone(Marker marker, ElementType elementType, @Nullable ParserNode node) {
-        if (marker != null) {
-            tokenPairMonitor.consumeEndTokens(node);
-            marker.done((IElementType) elementType);
-        }
+        if (marker == null) return;
+
+        tokenPairMonitor.consumeEndTokens(node);
+        marker.done((IElementType) elementType);
     }
 
     public void markerDrop(Marker marker) {
-        if (marker != null) {
-            marker.drop();
-        }
+        if (marker == null) return;
+
+        marker.drop();
     }
 
     private class Cache {

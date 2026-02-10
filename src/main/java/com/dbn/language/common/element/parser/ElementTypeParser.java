@@ -59,13 +59,14 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
 
     private ParseResult stepOut(Marker marker, ParserNode node, ParserContext context, ParseResultType resultType, int matchedTokens) {
         try {
+            ParserBuilder builder = context.builder;
             marker = marker == null ? node == null ? null : node.elementMarker : marker;
             if (resultType == ParseResultType.PARTIAL_MATCH) {
-                ElementTypeBase offsetPsiElement = Commons.nvl(context.lastResolvedLeaf, elementType);
+                ElementTypeBase offsetPsiElement = Commons.nvl(builder.tokenMonitor.lastLeaf, elementType);
                 Set<TokenType> nextPossibleTokens = offsetPsiElement.cache.getNextPossibleTokens();
                 ParseBuilderErrorHandler.updateBuilderError(nextPossibleTokens, context);
             }
-            ParserBuilder builder = context.builder;
+
             if (resultType == ParseResultType.NO_MATCH) {
                 builder.markerRollbackTo(marker);
             } else {
@@ -83,8 +84,8 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
                     // if node is matched add branches marker
                     context.addBranchMarker(node, branch);
                 }
-                if (elementType instanceof LeafElementType) {
-                    context.lastResolvedLeaf = (LeafElementType) elementType;
+                if (elementType instanceof LeafElementType leafElementType) {
+                    builder.tokenMonitor.markResolved(leafElementType);
                 }
 
                 return ParseResult.match(resultType, matchedTokens);
@@ -119,17 +120,19 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
             }
         }
 
+        LeafElementType lastResolvedLeaf = builder.tokenMonitor.lastLeaf;
+
         ElementTypeBase namedElementType = ElementTypeUtil.getEnclosingNamedElementType(node);
         if (namedElementType != null && namedElementType.cache.containsToken(tokenType)) {
-            LeafElementType lastResolvedLeaf = context.lastResolvedLeaf;
             return lastResolvedLeaf != null && !lastResolvedLeaf.isNextPossibleToken(tokenType, node, context);
         }
 
-        if (context.lastResolvedLeaf != null) {
-            if (context.lastResolvedLeaf.isNextPossibleToken(tokenType, node, context)) {
+        if (lastResolvedLeaf != null) {
+            if (lastResolvedLeaf.isNextPossibleToken(tokenType, node, context)) {
                 return false;
             }
         }
+
         return true;//!isFollowedByToken(tokenType, node);
     }
 
