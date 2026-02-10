@@ -150,12 +150,12 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
         if (elementType.isSurrogate()) {
             if (elementType instanceof LeafElementType leafElementType) {
                 TokenType tokenType = leafElementType.tokenType;
-                return builder.tokenPairMonitor.isSoftMatch(tokenType);
+                return builder.tokenPairMonitor.isConsumedMatch(tokenType);
             } else if (elementType instanceof SequenceElementType sequenceElementType) {
                 ElementTypeBase firstElementType = sequenceElementType.getFirstChild().elementType;
                 if (firstElementType instanceof LeafElementType leafElementType) {
                     TokenType tokenType = leafElementType.tokenType;
-                    return builder.tokenPairMonitor.isSoftMatch(tokenType);
+                    return builder.tokenPairMonitor.isConsumedMatch(tokenType);
                 }
             }
         }

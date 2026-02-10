@@ -58,7 +58,7 @@ public class WrapperElementTypeParser extends ElementTypeParser<WrapperElementTy
         boolean isStrong = elementType.isStrong();
 
         TokenPairMonitor tokenPairMonitor = builder.tokenPairMonitor;
-        boolean beginMatched = beginTokenResult.isMatch() || tokenPairMonitor.isSoftMatch(beginTokenType);
+        boolean beginMatched = beginTokenResult.isMatch() || tokenPairMonitor.isConsumedMatch(beginTokenType);
         if (beginMatched) {
             node.matchedTokens++;
             boolean initialExplicitRange = tokenPairMonitor.isExplicitRange(beginTokenType);

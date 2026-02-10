@@ -57,6 +57,6 @@ public final class SurrogateSequenceElementType extends SequenceElementType {
     @NotNull
     @Override
     public String getName() {
-        return "block (" + getId() + ")";
+        return "one-of-sequence (" + getId() + ")";
     }
 }

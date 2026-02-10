@@ -41,7 +41,7 @@ public class TokenPairMonitor extends ParserBuilderExtension {
         }
     }
 
-    public boolean isSoftMatch(TokenType tokenType) {
+    public boolean isConsumedMatch(TokenType tokenType) {
         return builder.getPreviousToken() == tokenType && !builder.tokenPairMonitor.isExplicitRange(tokenType);
     }
 
