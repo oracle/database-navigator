@@ -310,4 +310,8 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         bucket.add(wrapping.beginElementType);
         bucket.add(wrapping.beginElementType);
     }
+
+    public void changeParent(ElementTypeBase oldParent, ElementTypeBase newParent) {
+        this.parent = newParent;
+    }
 }

@@ -267,7 +267,9 @@ public class ElementTypeBundle {
         NamedElementType elementType = namedElementTypes.computeIfAbsent(id,
                 i -> createNamedElementType(i));
 
-        if (parent != null) elementType.addParent(parent);
+        if (parent != null) {
+            elementType.parents.add(parent);
+        }
         return elementType;
     }
 

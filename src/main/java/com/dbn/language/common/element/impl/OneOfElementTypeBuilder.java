@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.dbn.language.common.element.util.ElementTypeAttribute.WRAPPING_TOKEN;
+import static java.util.stream.Collectors.toCollection;
 
 public class OneOfElementTypeBuilder {
     private final OneOfElementType subject;
@@ -58,13 +59,18 @@ public class OneOfElementTypeBuilder {
         ElementTypeBundle bundle = subject.bundle;
         List<ElementTypeBase> children = new ArrayList<>(subject.children.length);
         for (PathVariant variant : pathVariants) {
+            Set<TokenType> tokens = variant.tokens;
+            Set<ElementTypeBase> elements = variant.elements;
+
             if (variant.unambiguous) {
-                children.addAll(variant.elements);
+                children.addAll(elements);
                 continue;
             }
 
-            if (variant.leafs.equals(variant.elements)) {
-                children.addAll(variant.elements);
+            if (variant.leafs.equals(elements)) {
+                // this only happens on ambiguous "identifier one-of" elements
+                // TODO fix all occurrences of this use-case in the parser definitions and delete this block
+                children.addAll(elements);
                 continue;
             }
 
@@ -75,15 +81,16 @@ public class OneOfElementTypeBuilder {
 
             ElementTypeBase firstSequenceElement;
             ElementTypeBase secondSequenceElement;
-            if (variant.tokens.size() > 1) {
-                List<LeafElementType> tokenElementTypes = new ArrayList<>(variant.tokens.size());
-                for (TokenType tokenType : variant.tokens) {
+
+            if (tokens.size() > 1) {
+                List<LeafElementType> tokenElementTypes = new ArrayList<>(tokens.size());
+                for (TokenType tokenType : tokens) {
                     LeafElementType surrogateLeafElementType = tokenType.isIdentifier() ?
                             new IdentifierElementType(sequenceElementType, nextId()) :
                             new TokenElementType(sequenceElementType, tokenType, nextId());
                     surrogateLeafElementType.surrogate = true;
                     surrogateLeafElementType.surrogateFor = variant.getLeafs(tokenType);
-                    surrogateLeafElementType.startSurrogateFor = variant.elements;
+                    surrogateLeafElementType.startSurrogateFor = elements;
                     tokenElementTypes.add(surrogateLeafElementType);
                 }
                 OneOfElementType oneOfElementType = new OneOfElementType(sequenceElementType, nextId());
@@ -103,18 +110,29 @@ public class OneOfElementTypeBuilder {
 
                 surrogateLeafElementType.surrogate = true;
                 surrogateLeafElementType.surrogateFor = variant.leafs;
-                surrogateLeafElementType.startSurrogateFor = variant.elements;
+                surrogateLeafElementType.startSurrogateFor = elements;
                 firstSequenceElement = surrogateLeafElementType;
             }
 
-            if (variant.elements.size() > 1) {
+            if (elements.size() > 1) {
                 OneOfElementType oneOfElementType = new OneOfElementType(sequenceElementType, nextId());
-                oneOfElementType.setElements(variant.elements);
+                oneOfElementType.setElements(elements);
                 oneOfElementType.surrogate = true;
                 oneOfElementType.sortable = subject.sortable;
                 secondSequenceElement = oneOfElementType;
+
+/*
+                // TODO verify if changing the parents is really needed
+                // Complication: unnamed element types will potentially appear in multiple nodes,
+                //   which would require multiple "parent" associations)
+
+                for (ElementTypeBase element : elements) {
+                    element.changeParent(subject, oneOfElementType);
+                }
+*/
             } else {
                 secondSequenceElement = variant.getFirstElement();
+                //secondSequenceElement.changeParent(subject, sequenceElementType);
             }
 
             sequenceElementType.setElements(List.of(firstSequenceElement, secondSequenceElement));
@@ -128,8 +146,8 @@ public class OneOfElementTypeBuilder {
 
     @Nullable
     private List<PathVariant> findAmbiguousPaths() {
-        Map<TokenType, PathVariantMap> paths = new LinkedHashMap<>();
-        Map<TokenType, PathVariantMap>  ambiguousPaths = new LinkedHashMap<>();
+        Map<TokenType, PathVariantMappings> paths = new LinkedHashMap<>();
+        Map<TokenType, PathVariantMappings> ambiguousPaths = new LinkedHashMap<>();
 
         for (ElementTypeRef child : subject.children) {
             Set<LeafElementType> possibleLeafs = child.elementType.cache.getFirstPossibleLeafs();
@@ -138,10 +156,10 @@ public class OneOfElementTypeBuilder {
                 if (leaf.is(WRAPPING_TOKEN)) continue;
                 TokenType tokenType = leaf.tokenType;
 
-                PathVariantMap leafMappings = paths.computeIfAbsent(tokenType, t -> new PathVariantMap());
+                PathVariantMappings leafMappings = paths.computeIfAbsent(tokenType, t -> new PathVariantMappings());
                 leafMappings.put(leaf, child.elementType);
 
-                if (leafMappings.size() > 1) {
+                if (leafMappings.ambiguous) {
                     ambiguousPaths.put(tokenType, leafMappings);
                 }
             }
@@ -152,17 +170,20 @@ public class OneOfElementTypeBuilder {
         // ambiguous paths (one token to many elements)
         List<PathVariant> pathVariants = new ArrayList<>();
         for (TokenType tokenType : ambiguousPaths.keySet()) {
-            PathVariantMap mappings = ambiguousPaths.get(tokenType);
-            ambiguousElements.addAll(mappings.values());
+            PathVariantMappings mappings = ambiguousPaths.get(tokenType);
+            Set<LeafElementType> leafs = mappings.leafs();
+            Set<ElementTypeBase> elements = mappings.elements();
 
-            PathVariant pathVariant = new PathVariant(mappings.keySet(), mappings.values());
+            PathVariant pathVariant = new PathVariant(leafs, elements);
             pathVariants.add(pathVariant);
             paths.remove(tokenType);
+
+            ambiguousElements.addAll(elements);
         }
 
         Map<ElementTypeBase, Set<LeafElementType>> groupedPaths = new LinkedHashMap<>();
         for (TokenType tokenType : paths.keySet()) {
-            PathVariantMap pathVariantMap = paths.get(tokenType);
+            PathVariantMappings pathVariantMap = paths.get(tokenType);
             ElementTypeBase elementType = pathVariantMap.firstValue();
             Set<LeafElementType> leafElementTypes = groupedPaths.computeIfAbsent(elementType, t -> new LinkedHashSet<>());
             leafElementTypes.add(pathVariantMap.firstKey());
@@ -182,7 +203,7 @@ public class OneOfElementTypeBuilder {
     }
 
     private static Set<LeafElementType> unwrapSurrogates(Set<LeafElementType> leafs) {
-        Set<LeafElementType> collector = new  HashSet<>();
+        Set<LeafElementType> collector = new LinkedHashSet<>();
         for (LeafElementType leaf : leafs) {
             unwrapSurrogate(leaf, collector);
         }
@@ -201,13 +222,34 @@ public class OneOfElementTypeBuilder {
         }
     }
 
-    private static class PathVariantMap extends LinkedHashMap<LeafElementType, ElementTypeBase> {
-        public LeafElementType firstKey() {
-            return keySet().iterator().next();
+    private static class PathVariantMappings {
+        private boolean ambiguous;
+        Map<LeafElementType, Set<ElementTypeBase>> elements = new LinkedHashMap<>();
+
+        public void put(LeafElementType leaf, ElementTypeBase elementType) {
+            Set<ElementTypeBase> elements = this.elements.computeIfAbsent(leaf, t -> new LinkedHashSet<>());
+            elements.add(elementType);
+            ambiguous = elements.size() > 1 || this.elements.size() > 1;
+        }
+
+        public Set<LeafElementType> leafs() {
+            return elements.keySet();
+        }
+
+        public Set<ElementTypeBase> elements() {
+            return elements
+                    .values()
+                    .stream()
+                    .flatMap(e -> e.stream())
+                    .collect(toCollection(() -> new LinkedHashSet<>()));
         }
 
         public ElementTypeBase firstValue() {
-            return get(firstKey());
+            return elements.values().iterator().next().iterator().next();
+        }
+
+        public LeafElementType firstKey() {
+            return elements.keySet().iterator().next();
         }
     }
 

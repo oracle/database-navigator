@@ -22,10 +22,11 @@ import com.dbn.language.common.element.impl.ElementTypeRef;
 import com.dbn.language.common.element.impl.OneOfElementType;
 import com.dbn.language.common.element.parser.ElementTypeParser;
 import com.dbn.language.common.element.parser.ParseResult;
-import com.dbn.language.common.element.parser.ParseResultType;
 import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
+
+import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 
 public class OneOfElementTypeParser extends ElementTypeParser<OneOfElementType> {
 
@@ -38,7 +39,6 @@ public class OneOfElementTypeParser extends ElementTypeParser<OneOfElementType> 
         ParserBuilder builder = context.builder;
         ParserNode node = stepIn(parentNode, context);
 
-        elementType.sort();
         TokenType token = builder.getToken();
 
         if (token != null && !token.isChameleon()) {
@@ -54,6 +54,6 @@ public class OneOfElementTypeParser extends ElementTypeParser<OneOfElementType> 
                 element = element.next;
             }
         }
-        return stepOut(node, context, ParseResultType.NO_MATCH, 0);
+        return stepOut(node, context, NO_MATCH, 0);
     }
 }

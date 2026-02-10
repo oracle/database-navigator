@@ -47,7 +47,6 @@ public final class OneOfElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
     public boolean basic;
     public boolean sortable;
-    private boolean sorted;
 
     public OneOfElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -155,12 +154,11 @@ public final class OneOfElementType extends ElementTypeBase {
         return new SequencePsiElement<>(astNode, this);
     }
 
-    public void sort() {
-        if (sortable && !sorted) {
-            sorted = true;
-            Arrays.sort(children, ONE_OF_COMPARATOR);
-            linkElements(children);
-        }
+    private void sortChildren() {
+        if (!sortable) return;
+
+        Arrays.sort(children, ONE_OF_COMPARATOR);
+        linkElements(children);
     }
 
     private static final Comparator<ElementTypeRef> ONE_OF_COMPARATOR = (o1, o2) -> {
@@ -176,10 +174,16 @@ public final class OneOfElementType extends ElementTypeBase {
     @Override
     public void collectAnonymousLeafs(Set<LeafElementType> bucket) {
         super.collectAnonymousLeafs(bucket);
-        if (basic) {
-            for (ElementTypeRef child : children) {
-                bucket.add(cast(child.elementType));
-            }
+        if (!basic) return;
+
+        for (ElementTypeRef child : children) {
+            bucket.add(cast(child.elementType));
+        }
+    }
+
+    private void initChildren() {
+        for (ElementTypeRef child : children) {
+            child.elementType.initialize();
         }
     }
 
@@ -188,9 +192,8 @@ public final class OneOfElementType extends ElementTypeBase {
         initialized = true;
 
         // initialize children before this
-        for (ElementTypeRef child : children) {
-            child.elementType.initialize();
-        }
+        initChildren();
+        sortChildren();
 
         // TODO ambiguous paths logic
         //rebuildAmbiguousPaths(this);

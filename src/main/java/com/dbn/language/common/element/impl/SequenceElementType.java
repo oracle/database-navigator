@@ -219,10 +219,10 @@ public class SequenceElementType extends ElementTypeBase {
     @Override
     public void collectAnonymousLeafs(Set<LeafElementType> bucket) {
         super.collectAnonymousLeafs(bucket);
-        if (basic) {
-            for (ElementTypeRef child : children) {
-                bucket.add(cast(child.elementType));
-            }
+        if (!basic) return;
+
+        for (ElementTypeRef child : children) {
+            bucket.add(cast(child.elementType));
         }
     }
 

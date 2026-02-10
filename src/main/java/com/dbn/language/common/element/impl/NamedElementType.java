@@ -86,13 +86,15 @@ public final class NamedElementType extends SequenceElementType {
         definitionLoaded = true;
     }
 
+    @Override
+    public void changeParent(ElementTypeBase oldParent, ElementTypeBase newParent) {
+        parents.remove(oldParent);
+        parents.add(newParent);
+    }
+
     @NotNull
     @Override
     public String getName() {
         return cachedUpperCase(getId());
-    }
-
-    public void addParent(ElementTypeBase parent) {
-        parents.add(parent);
     }
 }

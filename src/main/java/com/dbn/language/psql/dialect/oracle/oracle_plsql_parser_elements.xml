@@ -1066,10 +1066,10 @@
                 <element optional="true" ref-id="exception_handler_block" />
             </sequence>
         </wrapper>
-        <one-of id="00526" optional="true" original-name="name">
-            <object-ref id="00527" local="true" type="FUNCTION" />
-            <object-ref id="00528" local="true" type="PROCEDURE" />
-        </one-of>
+        <qualified-identifier id="00526" optional="true" original-name="name">
+            <variant><object-ref id="00527" local="true" type="FUNCTION" /></variant>
+            <variant><object-ref id="00528" local="true" type="PROCEDURE" /></variant>
+        </qualified-identifier>
         <token id="00529" type-id="CHR_SEMICOLON" />
     </element-def>
     <element-def description="VARRAY TYPE definition" id="varray_type_def">
@@ -2490,10 +2490,10 @@
         </wrapper>
     </element-def>
     <element-def description="Measure column" id="measure_column">
-        <one-of id="01235">
-            <alias-ref id="01236" type="COLUMN" />
-            <object-ref id="01237" type="COLUMN" />
-        </one-of>
+        <qualified-identifier id="01235">
+            <variant><alias-ref id="01236" type="COLUMN" /></variant>
+            <variant><object-ref id="01237" type="COLUMN" /></variant>
+        </qualified-identifier>
     </element-def>
     <element-def description="Single column FOR loop" id="single_column_for_loop">
         <token id="01238" type-id="KW_FOR" />
@@ -2549,10 +2549,10 @@
         </wrapper>
     </element-def>
     <element-def description="Dimension column" id="dimension_column">
-        <one-of id="01267">
-            <alias-ref id="01268" type="COLUMN" />
-            <object-ref id="01269" type="COLUMN" />
-        </one-of>
+        <qualified-identifier id="01267">
+            <variant><alias-ref id="01268" type="COLUMN" /></variant>
+            <variant><object-ref id="01269" type="COLUMN" /></variant>
+        </qualified-identifier>
     </element-def>
     <element-def attributes="CLAUSE" description="QUERY PARTITION clause" id="query_partition_clause">
         <token id="01270" type-id="KW_PARTITION" />
