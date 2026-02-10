@@ -33,12 +33,9 @@ public class SurrogateSequenceElementTypeParser extends SequenceElementTypeParse
 
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) throws ParseException {
-        // TODO JDBC-5173
-        if (true) return super.parse(parentNode, context);
-
-        ParserNode node = stepIn(parentNode, context);
-        if (shouldParseElement(elementType, node, context)) {
-
+        ParserNode node = null;
+        if (shouldParseElement(elementType, null, context)) {
+            node = stepIn(parentNode, context);
             // leading element
             ElementTypeBase leadingElement = elementType.getLeadingElementType();
             if (shouldParseElement(leadingElement, node, context)) {
@@ -46,26 +43,18 @@ public class SurrogateSequenceElementTypeParser extends SequenceElementTypeParse
                 if (result.isMatch()) {
                     node.matchedTokens += result.matchedTokens;
                     node.matchedElements++;
-                } else {
-                    return stepOut(node, context, NO_MATCH);
-                }
-            } else {
-                return stepOut(node, context, NO_MATCH);
-            }
 
-            ElementTypeBase mainElement = elementType.getMainElementType();
-            if (shouldParseElement(mainElement, node, context)) {
-                ParseResult result = mainElement.parser.parse(node, context);
-                if (result.isMatch()) {
-                    node.matchedTokens += result.matchedTokens;
-                    node.matchedElements++;
-                } else {
-                    return stepOut(node, context, NO_MATCH);
+                    ElementTypeBase mainElement = elementType.getMainElementType();
+                    if (shouldParseElement(mainElement, node, context)) {
+                        result = mainElement.parser.parse(node, context);
+                        if (result.isMatch()) {
+                            node.matchedTokens += result.matchedTokens;
+                            node.matchedElements++;
+                            return stepOut(node, context, FULL_MATCH);
+                        }
+                    }
                 }
-            } else {
-                return stepOut(node, context, NO_MATCH);
             }
-            stepOut(node, context, FULL_MATCH);
         }
 
         return stepOut(node, context, NO_MATCH);

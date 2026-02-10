@@ -47,7 +47,7 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
     }
 
     public ParseResult stepOut(ParserNode node, ParserContext context, ParseResultType resultType) {
-        return stepOut(node, context, resultType, node.matchedTokens);
+        return stepOut(node, context, resultType, node == null ? 0 : node.matchedTokens);
     }
 
     public ParseResult stepOut(ParserNode node, ParserContext context, ParseResultType resultType, int matchedTokens) {
