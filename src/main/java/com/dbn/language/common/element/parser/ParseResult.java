@@ -16,14 +16,11 @@
 
 package com.dbn.language.common.element.parser;
 
-import lombok.Getter;
-
-@Getter
 public class ParseResult{
     private static final ParseResult NO_MATCH = new ParseResult(ParseResultType.NO_MATCH, 0);
 
-    private final ParseResultType type;
-    private final int matchedTokens;
+    public final ParseResultType type;
+    public final int matchedTokens;
 
     private ParseResult(ParseResultType type, int matchedTokens) {
         this.type = type;

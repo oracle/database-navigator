@@ -41,14 +41,14 @@ public class OneOfElementTypeParser extends ElementTypeParser<OneOfElementType> 
 
         TokenType token = builder.getToken();
 
-        if (token != null && !token.isChameleon()) {
+        if (token != null) {
             ElementTypeRef element = elementType.getFirstChild();
             while (element != null) {
                 if (context.check(element) && shouldParseElement(element.elementType, node, context)) {
                     ParseResult result = element.elementType.parser.parse(node, context);
 
                     if (result.isMatch()) {
-                        return stepOut(node, context, result.getType(), result.getMatchedTokens());
+                        return stepOut(node, context, result.type, result.matchedTokens);
                     }
                 }
                 element = element.next;

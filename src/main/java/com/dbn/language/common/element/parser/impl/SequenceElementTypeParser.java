@@ -50,16 +50,15 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
         ParserBuilder builder = context.builder;
         ParserNode node = stepIn(parentNode, context);
 
-        TokenType token = builder.getToken();
-
-        if (token != null && !token.isChameleon() && shouldParseElement(elementType, node, context)) {
+        if (shouldParseElement(elementType, node, context)) {
             ElementTypeRef[] elements = elementType.children;
             while (node.cursorPosition < elements.length) {
                 int index = node.cursorPosition;
                 ElementTypeRef element = elements[index];
 
                 // end of document / language switch
-                if (token == null || token.isChameleon()) {
+                TokenType token = builder.getToken();
+                if (token == null) {
 
                     if (element.isFirst() || elementType.isExitIndex(index)) {
                         return stepOut(node, context, NO_MATCH);
@@ -80,8 +79,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                         result = element.elementType.parser.parse(node, context);
 
                         if (result.isMatch()) {
-                            node.matchedTokens += result.getMatchedTokens();
-                            token = builder.getToken();
+                            node.matchedTokens += result.matchedTokens;
                             node.matchedElements++;
                         }
                     }
@@ -103,8 +101,6 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                             return stepOut(node, context, PARTIAL_MATCH);
                         } else {
                             // local landmarks found
-
-                            token = builder.getToken();
                             node.cursorPosition = index;
                             continue;
                         }

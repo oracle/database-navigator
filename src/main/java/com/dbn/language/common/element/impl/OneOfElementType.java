@@ -195,7 +195,7 @@ public final class OneOfElementType extends ElementTypeBase {
         initChildren();
         sortChildren();
 
-        // TODO ambiguous paths logic
+        // TODO JDBC-5173
         //rebuildAmbiguousPaths(this);
     }
 }

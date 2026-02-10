@@ -41,6 +41,10 @@ public class TokenPairMonitor extends ParserBuilderExtension {
         }
     }
 
+    public boolean isSoftMatch(TokenType tokenType) {
+        return builder.getPreviousToken() == tokenType && !builder.tokenPairMonitor.isExplicitRange(tokenType);
+    }
+
     protected void consumeBeginTokens(@Nullable ParserNode node) {
         if (node == null) return;
 
@@ -53,6 +57,7 @@ public class TokenPairMonitor extends ParserBuilderExtension {
             Marker beginTokenMarker = builder.mark();
             acknowledge(false);
             builder.advanceInternally();
+            builder.tokenMonitor.markResolved(beginElement);
             beginTokenMarker.done(beginElement);
         }
     }
@@ -69,6 +74,7 @@ public class TokenPairMonitor extends ParserBuilderExtension {
             Marker endTokenMarker = builder.mark();
             acknowledge(false);
             builder.advanceInternally();
+            builder.tokenMonitor.markResolved(endElement);
             endTokenMarker.done(endElement);
         }
     }

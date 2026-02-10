@@ -57,7 +57,7 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
             // check first iteration element
             if (result.isMatch()) {
                 if (node.isRecursive(node.startOffset)) {
-                    ParseResultType resultType = matchesMinIterations(node.matchedElements) ? result.getType() : NO_MATCH;
+                    ParseResultType resultType = matchesMinIterations(node.matchedElements) ? result.type : NO_MATCH;
                     return stepOut(node, context, resultType);
                 }
                 while (true) {
@@ -73,7 +73,7 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
                         ParseResult sepResult = ParseResult.noMatch();
                         for (TokenElementType separatorToken : separatorTokens) {
                             sepResult = separatorToken.parser.parse(node, context);
-                            node.matchedTokens += sepResult.getMatchedTokens();
+                            node.matchedTokens += sepResult.matchedTokens;
                             if (sepResult.isMatch()) break;
                         }
 
@@ -82,7 +82,7 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
                             ParseResultType resultType =
                                     matchesMinIterations(node.matchedElements) ?
                                             matchesIterations(node.matchedElements) ?
-                                                    result.getType() :
+                                                    result.type :
                                                     PARTIAL_MATCH :
                                             NO_MATCH;
 
@@ -128,7 +128,7 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
                         }
                     } else {
                         builder.markerDrop(partialMatchMarker);
-                        node.matchedTokens += result.getMatchedTokens();
+                        node.matchedTokens += result.matchedTokens;
                     }
                 }
             }
@@ -151,7 +151,7 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
         BasicElementType unknownElementType = elementType.bundle.unknownElementType;
         while (!builder.eof()) {
             TokenType token = builder.getToken();
-            if (token == null || token.isChameleon())  break;
+            if (token == null)  break;
 
             if (token.isParserLandmark()) {
                 if (separatorTokens != null) {

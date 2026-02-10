@@ -78,7 +78,10 @@ public final class ParserBuilder {
 
     @Nullable
     public TokenType getToken() {
-        return cache.getCurrentToken();
+        TokenType currentToken = cache.getCurrentToken();
+        if (currentToken == null) return null;
+        if (currentToken.isChameleon()) return null;
+        return currentToken;
     }
 
     public TokenType getPreviousToken() {
@@ -180,6 +183,11 @@ public final class ParserBuilder {
         if (marker == null) return;
 
         marker.drop();
+    }
+
+    @Override
+    public String toString() {
+        return "last=" + tokenMonitor.lastLeaf + ", current=" + getToken() + ", text=" + getTokenText();
     }
 
     private class Cache {

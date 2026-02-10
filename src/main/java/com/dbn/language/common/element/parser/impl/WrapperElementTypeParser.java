@@ -24,7 +24,6 @@ import com.dbn.language.common.element.impl.WrapperElementType;
 import com.dbn.language.common.element.impl.WrappingDefinition;
 import com.dbn.language.common.element.parser.ElementTypeParser;
 import com.dbn.language.common.element.parser.ParseResult;
-import com.dbn.language.common.element.parser.ParseResultType;
 import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.parser.TokenPairMonitor;
@@ -59,17 +58,16 @@ public class WrapperElementTypeParser extends ElementTypeParser<WrapperElementTy
         boolean isStrong = elementType.isStrong();
 
         TokenPairMonitor tokenPairMonitor = builder.tokenPairMonitor;
-        boolean beginMatched = beginTokenResult.isMatch() || (builder.getPreviousToken() == beginTokenType && !tokenPairMonitor.isExplicitRange(beginTokenType));
+        boolean beginMatched = beginTokenResult.isMatch() || tokenPairMonitor.isSoftMatch(beginTokenType);
         if (beginMatched) {
             node.matchedTokens++;
             boolean initialExplicitRange = tokenPairMonitor.isExplicitRange(beginTokenType);
             tokenPairMonitor.setExplicitRange(beginTokenType, true);
 
             ParseResult wrappedResult = wrappedElement.parser.parse(node, context);
-            node.matchedTokens += wrappedResult.getMatchedTokens();
+            node.matchedTokens += wrappedResult.matchedTokens;
 
-            ParseResultType wrappedResultType = wrappedResult.getType();
-            if (wrappedResultType == NO_MATCH  && !elementType.wrappedElementOptional) {
+            if (wrappedResult.type == NO_MATCH  && !elementType.wrappedElementOptional) {
                 if (!isStrong && builder.getToken() != endTokenType) {
                     tokenPairMonitor.setExplicitRange(beginTokenType, initialExplicitRange);
                     return stepOut(node, context, NO_MATCH);

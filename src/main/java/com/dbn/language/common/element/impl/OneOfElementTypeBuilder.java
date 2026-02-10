@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.dbn.language.common.element.util.ElementTypeAttribute.WRAPPING_TOKEN;
 import static java.util.stream.Collectors.toCollection;
 
 public class OneOfElementTypeBuilder {
@@ -75,8 +74,7 @@ public class OneOfElementTypeBuilder {
             }
 
             // build "sequence (token, one-of)"
-            SequenceElementType sequenceElementType = new SequenceElementType(bundle, subject, nextId());
-            sequenceElementType.surrogate = true;
+            SequenceElementType sequenceElementType = new SurrogateSequenceElementType(bundle, subject, nextId());
             children.add(sequenceElementType);
 
             ElementTypeBase firstSequenceElement;
@@ -153,7 +151,8 @@ public class OneOfElementTypeBuilder {
             Set<LeafElementType> possibleLeafs = child.elementType.cache.getFirstPossibleLeafs();
             possibleLeafs = unwrapSurrogates(possibleLeafs);
             for (LeafElementType leaf : possibleLeafs) {
-                if (leaf.is(WRAPPING_TOKEN)) continue;
+                // TODO JDBC-5173
+                //if (leaf.is(WRAPPING_TOKEN)) continue;
                 TokenType tokenType = leaf.tokenType;
 
                 PathVariantMappings leafMappings = paths.computeIfAbsent(tokenType, t -> new PathVariantMappings());

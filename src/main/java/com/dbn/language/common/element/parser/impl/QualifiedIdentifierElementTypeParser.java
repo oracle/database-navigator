@@ -59,12 +59,12 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
                 ParseResult result = elementType.parser.parse(node, context);
                 if (result.isNoMatch()) break;
 
-                node.matchedTokens += result.getMatchedTokens();
+                node.matchedTokens += result.matchedTokens;
 
                 if (elementType != elementTypes[elementTypes.length -1])  {
                     result = separatorToken.parser.parse(node, context);
                     if (result.isNoMatch()) break;
-                    node.matchedTokens += result.getMatchedTokens();
+                    node.matchedTokens += result.matchedTokens;
                 }
                 node.incrementIndex(builder.getOffset());
             }

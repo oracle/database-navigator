@@ -39,7 +39,7 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
         TokenType token = builder.getToken();
         Marker marker = null;
 
-        if (token != null && !token.isChameleon()) {
+        if (token != null) {
             if (token.isIdentifier()) {
                 if (elementType.isSurrogate()) {
                     // do not advance builder on surrogates
@@ -54,9 +54,7 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
                         return stepOut(marker, context, NO_MATCH, 0);
                     }
                 }
-            }
 
-            if (token.isIdentifier()) {
                 marker = builder.markAndAdvance();
                 return stepOut(marker, context, FULL_MATCH, 1);
             }

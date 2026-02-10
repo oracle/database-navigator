@@ -77,7 +77,7 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
         Set<TokenType> tokenTypes = new HashSet<>();
         tokenTypes.add(elementType.getBeginTokenElement().tokenType);
         tokenTypes.add(elementType.getEndTokenElement().tokenType);
-        tokenTypes.addAll(this.elementType.wrappedElement.cache.getAllPossibleTokens());
+        tokenTypes.addAll(elementType.wrappedElement.cache.getAllPossibleTokens());
         return tokenTypes;
     }
 

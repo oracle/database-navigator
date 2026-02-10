@@ -54,7 +54,7 @@ public class ParserDiagnosticsTable extends DBNTableWithGutter<ParserDiagnostics
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
         ClientProperty.BORDER.set(this, Borders.tableBorder(1, 0, 0, 0));
 
-        setProportionalColumnWidth(1, 60);
+        setProportionalColumnWidth(0, 60);
 
         setAccessibleName(this, "Parser Diagnostic Results");
     }

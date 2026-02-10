@@ -24,6 +24,7 @@ import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.impl.BlockElementType;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
+import com.dbn.language.common.element.impl.SequenceElementType;
 import com.dbn.language.common.element.path.ParserNode;
 import com.dbn.language.common.element.util.ElementTypeUtil;
 import com.dbn.language.common.element.util.ParseBuilderErrorHandler;
@@ -140,11 +141,25 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
         ParserBuilder builder = context.builder;
         TokenType token = builder.getToken();
         if (token == null) return false;
-        if (token.isChameleon()) return false;
 
         if (builder.isDummyToken()) return true;
         if (context.isStartSurrogateFor(elementType)) return true;
         if (elementType.cache.couldStartWithToken(token)) return true;
+
+        // TODO JDBC-5173
+        if (elementType.isSurrogate()) {
+            if (elementType instanceof LeafElementType leafElementType) {
+                TokenType tokenType = leafElementType.tokenType;
+                return builder.tokenPairMonitor.isSoftMatch(tokenType);
+            } else if (elementType instanceof SequenceElementType sequenceElementType) {
+                ElementTypeBase firstElementType = sequenceElementType.getFirstChild().elementType;
+                if (firstElementType instanceof LeafElementType leafElementType) {
+                    TokenType tokenType = leafElementType.tokenType;
+                    return builder.tokenPairMonitor.isSoftMatch(tokenType);
+                }
+            }
+        }
+
         if (isSuppressibleReservedWord(token, node, context)) return true;
 
         return false;
