@@ -53,6 +53,7 @@ public final class IdentifierElementType extends LeafElementType {
     public IdentifierElementType(ElementTypeBase parent, String id) {
         super(parent.bundle, parent, id);
         objectType = DBObjectType.ANY;
+        identifierType = IdentifierType.OBJECT;
     }
 
     public IdentifierElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {

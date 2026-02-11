@@ -18,7 +18,9 @@ package com.dbn.language.common.element.parser;
 
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.common.element.TokenPairTemplate;
+import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.impl.WrappingDefinition;
 import com.dbn.language.common.element.path.ParserNode;
@@ -26,23 +28,43 @@ import com.intellij.lang.PsiBuilder.Marker;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class TokenPairMonitor extends ParserBuilderExtension {
     private final Map<TokenPairTemplate, TokenPairStack> stacks;
+    private final Set<TokenType> tokens;
 
     public TokenPairMonitor(ParserBuilder builder, DBLanguageDialect languageDialect) {
         super(builder);
 
         TokenPairTemplate[] tokenPairTemplates = languageDialect.getTokenPairTemplates();
         stacks = new EnumMap<>(TokenPairTemplate.class);
+        tokens = new HashSet<>();
+
+        TokenTypeBundle tokenTypes = languageDialect.getParserTokenTypes();
         for (TokenPairTemplate tokenPairTemplate : tokenPairTemplates) {
             stacks.put(tokenPairTemplate, new TokenPairStack(builder, languageDialect, tokenPairTemplate));
+            tokens.add(tokenTypes.getTokenType(tokenPairTemplate.getBeginToken()));
         }
+
     }
 
     public boolean isConsumedMatch(TokenType tokenType) {
-        return builder.getPreviousToken() == tokenType && !builder.tokenPairMonitor.isExplicitRange(tokenType);
+        return builder.getPreviousToken() == tokenType && !isExplicitRange(tokenType);
+    }
+
+    public boolean hasConsumedMatch(ElementTypeBase elementType) {
+        for (TokenType token : tokens) {
+            if (isConsumedMatch(token)) {
+                if (elementType.cache.couldStartWithToken(token)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     protected void consumeBeginTokens(@Nullable ParserNode node) {

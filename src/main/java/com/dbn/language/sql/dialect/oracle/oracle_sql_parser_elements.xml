@@ -3832,8 +3832,8 @@
                     <sequence id="02279" optional="true">
                         <token id="02280" type-id="KW_DEFAULT" />
                         <element ref-id="expr" />
-                        <element ref-id="constraints" optional="true" />
                     </sequence>
+                    <element ref-id="constraints" optional="true" />
                 </sequence>
                 <element ref-id="constraints" />
                 <element ref-id="supplemental_logging_props" />

@@ -41,6 +41,7 @@ import java.util.Set;
 import static com.dbn.common.Linked.linkElements;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.language.common.element.impl.OneOfElementTypeBuilder.rebuildAmbiguousPaths;
 
 @Slf4j
 public final class OneOfElementType extends ElementTypeBase {
@@ -154,7 +155,7 @@ public final class OneOfElementType extends ElementTypeBase {
         return new SequencePsiElement<>(astNode, this);
     }
 
-    private void sortChildren() {
+    public void sortChildren() {
         if (!sortable) return;
 
         Arrays.sort(children, ONE_OF_COMPARATOR);
@@ -195,7 +196,6 @@ public final class OneOfElementType extends ElementTypeBase {
         initChildren();
         sortChildren();
 
-        // TODO JDBC-5173
-        //rebuildAmbiguousPaths(this);
+        rebuildAmbiguousPaths(this);
     }
 }

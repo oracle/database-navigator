@@ -151,8 +151,6 @@ public class OneOfElementTypeBuilder {
             Set<LeafElementType> possibleLeafs = child.elementType.cache.getFirstPossibleLeafs();
             possibleLeafs = unwrapSurrogates(possibleLeafs);
             for (LeafElementType leaf : possibleLeafs) {
-                // TODO JDBC-5173
-                //if (leaf.is(WRAPPING_TOKEN)) continue;
                 TokenType tokenType = leaf.tokenType;
 
                 PathVariantMappings leafMappings = paths.computeIfAbsent(tokenType, t -> new PathVariantMappings());

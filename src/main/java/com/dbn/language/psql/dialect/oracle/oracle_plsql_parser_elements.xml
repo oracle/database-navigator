@@ -333,9 +333,6 @@
                 <object-def attributes="SUBJECT" id="00152" type="PACKAGE" />
             </variant>
         </qualified-identifier>
-        at io.ktor.client.plugins.RequestError$install$1.invokeSuspend(HttpCallValidator.kt:150)
-        at io.ktor.client.plugins.RequestError$install$1.invoke(HttpCallValidator.kt)
-        at io.ktor.client.plugins.RequestError$install$1.invoke(HttpCallValidator.kt)
         <one-of id="00153">
             <token id="00154" type-id="KW_WRAPPED" />
             <sequence id="00155">
@@ -6590,15 +6587,9 @@
                 <element ref-id="numeric_index_suffix" />
                 <sequence id="03450">
                     <qualified-identifier id="03451" separator="CHR_DOT">
-                        <variant>
-                            <variable-ref attributes="SUBJECT" id="03452" type="CURSOR" />
-                        </variant>
-                        <variant>
-                            <variable-ref attributes="SUBJECT" id="03453" type="ANY" />
-                        </variant>
-                        <variant>
-                            <object-ref attributes="SUBJECT" id="03454" type="ANY" />
-                        </variant>
+                        <variant><variable-ref attributes="SUBJECT" id="03452" type="CURSOR" /></variant>
+                        <variant><variable-ref attributes="SUBJECT" id="03453" type="ANY" /></variant>
+                        <variant><object-ref attributes="SUBJECT" id="03454" type="ANY" /></variant>
                     </qualified-identifier>
                     <element optional="true" ref-id="wrapped_expression_list" />
                 </sequence>

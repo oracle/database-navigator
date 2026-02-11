@@ -217,8 +217,17 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                 if (this == qualifiedIdentifierElementType.getSeparatorToken()) {
                     break;
                 }
-            } else if (elementType instanceof WrapperElementType wrapperElementType) {
+            }
+
+            if (elementType instanceof WrapperElementType wrapperElementType) {
                 return wrapperElementType.getEndTokenElement().tokenType == tokenType;
+            }
+
+            if (elementType instanceof OneOfElementType oneOfElementType && !required) {
+                ElementTypeLookupCache<?> lookupCache = oneOfElementType.cache;
+                if (lookupCache.isFirstPossibleToken(tokenType)) {
+                    return true;
+                }
             }
 
             position = pathNode.getIndexInParent() + 1;

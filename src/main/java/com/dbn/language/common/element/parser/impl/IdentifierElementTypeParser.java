@@ -40,7 +40,8 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
         Marker marker = null;
 
         if (token != null) {
-            if (token.isIdentifier()) {
+            // if reserved word, verify if suppressible in this context (i.e. converted to identifier)
+            if (token.isIdentifier() || isSuppressibleReservedWord(parentNode, context, token)) {
                 if (elementType.isSurrogate()) {
                     // do not advance builder on surrogates
                     return stepOut(marker, context, FULL_MATCH, 0);
@@ -58,22 +59,15 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
                 marker = builder.markAndAdvance();
                 return stepOut(marker, context, FULL_MATCH, 1);
             }
-            else if (isSuppressibleReservedWord(parentNode, context, token) && !elementType.isSurrogate()) {
-                marker = builder.markAndAdvance();
-                return stepOut(marker, context, FULL_MATCH, 1);
-            }
         }
         return stepOut(marker, context, NO_MATCH, 0);
     }
 
     private boolean isSuppressibleReservedWord(ParserNode parentNode, ParserContext context, TokenType tokenType) {
-        if (tokenType.isSuppressibleReservedWord()) {
-            if (context.isWavedTokenType(tokenType)) {
-                return true;
-            }
+        if (!tokenType.isSuppressibleReservedWord()) return false;
+        if (context.isWavedTokenType(tokenType)) return true;
+        if (elementType.isDefinition() && !elementType.isAlias()) return true;
 
-            return (elementType.isDefinition() && !elementType.isAlias()) || isSuppressibleReservedWord(tokenType, parentNode, context);
-        }
-        return false;
+        return isSuppressibleReservedWord(tokenType, parentNode, context);
     }
 }

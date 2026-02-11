@@ -112,6 +112,6 @@ public class ElementTypeRef extends Linked<ElementTypeRef> {
 
     @Override
     public String toString() {
-        return elementType.toString();
+        return elementType.getName();
     }
 }
