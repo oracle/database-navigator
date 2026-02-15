@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.dbn.language.common.element.parser.TokenMonitor.unwrapSurrogates;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.WRAPPING_TOKEN;
 import static java.util.stream.Collectors.toCollection;
 
 public class OneOfElementTypeBuilder {
@@ -87,8 +89,7 @@ public class OneOfElementTypeBuilder {
                             new IdentifierElementType(sequenceElementType, nextId()) :
                             new TokenElementType(sequenceElementType, tokenType, nextId());
                     surrogateLeafElementType.surrogate = true;
-                    surrogateLeafElementType.surrogateFor = variant.getLeafs(tokenType);
-                    surrogateLeafElementType.startSurrogateFor = elements;
+                    surrogateLeafElementType.surrogateFor = unwrapSurrogates(variant.getLeafs(tokenType));
                     tokenElementTypes.add(surrogateLeafElementType);
                 }
                 OneOfElementType oneOfElementType = new OneOfElementType(sequenceElementType, nextId());
@@ -107,8 +108,7 @@ public class OneOfElementTypeBuilder {
                         new TokenElementType(sequenceElementType, tokenType, nextId());
 
                 surrogateLeafElementType.surrogate = true;
-                surrogateLeafElementType.surrogateFor = variant.leafs;
-                surrogateLeafElementType.startSurrogateFor = elements;
+                surrogateLeafElementType.surrogateFor = unwrapSurrogates(variant.leafs);
                 firstSequenceElement = surrogateLeafElementType;
             }
 
@@ -117,8 +117,13 @@ public class OneOfElementTypeBuilder {
                 oneOfElementType.setElements(elements);
                 oneOfElementType.surrogate = true;
                 oneOfElementType.sortable = subject.sortable;
+                oneOfElementType.sortChildren();
                 secondSequenceElement = oneOfElementType;
-
+                for (ElementTypeBase element : elements) {
+                    if (element.wrapping != null) {
+                        secondSequenceElement.wrapping = element.wrapping;
+                    }
+                }
 /*
                 // TODO verify if changing the parents is really needed
                 // Complication: unnamed element types will potentially appear in multiple nodes,
@@ -130,12 +135,14 @@ public class OneOfElementTypeBuilder {
 */
             } else {
                 secondSequenceElement = variant.getFirstElement();
+                sequenceElementType.wrapping = secondSequenceElement.wrapping;
                 //secondSequenceElement.changeParent(subject, sequenceElementType);
             }
 
             sequenceElementType.setElements(List.of(firstSequenceElement, secondSequenceElement));
         }
         subject.setElements(children);
+        subject.sortChildren();
     }
 
     private String nextId() {
@@ -149,8 +156,8 @@ public class OneOfElementTypeBuilder {
 
         for (ElementTypeRef child : subject.children) {
             Set<LeafElementType> possibleLeafs = child.elementType.cache.getFirstPossibleLeafs();
-            possibleLeafs = unwrapSurrogates(possibleLeafs);
             for (LeafElementType leaf : possibleLeafs) {
+                if (leaf.is(WRAPPING_TOKEN)) continue;
                 TokenType tokenType = leaf.tokenType;
 
                 PathVariantMappings leafMappings = paths.computeIfAbsent(tokenType, t -> new PathVariantMappings());
@@ -197,26 +204,6 @@ public class OneOfElementTypeBuilder {
         }
 
         return pathVariants;
-    }
-
-    private static Set<LeafElementType> unwrapSurrogates(Set<LeafElementType> leafs) {
-        Set<LeafElementType> collector = new LinkedHashSet<>();
-        for (LeafElementType leaf : leafs) {
-            unwrapSurrogate(leaf, collector);
-        }
-        return collector;
-    }
-
-    private static void unwrapSurrogate(LeafElementType leafElementType, Set<LeafElementType> collector) {
-        Set<LeafElementType> surrogateFor = leafElementType.surrogateFor;
-        if (surrogateFor == null) {
-            collector.add(leafElementType);
-            return;
-        }
-
-        for (LeafElementType elementType : surrogateFor) {
-            unwrapSurrogate(elementType, collector);
-        }
     }
 
     private static class PathVariantMappings {

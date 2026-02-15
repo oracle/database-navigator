@@ -17,6 +17,7 @@
 package com.dbn.language.common.element.cache;
 
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.ElementTypeRef;
@@ -49,7 +50,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
     }
 
     private boolean couldStartWithElement(ElementType elementType) {
-        ElementTypeRef child = this.elementType.getFirstChild();
+        ElementTypeRef child = this.element.getFirstChild();
         while (child != null) {
             if (child.optional) {
                 if (elementType == child.elementType) return true;
@@ -62,7 +63,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
     }
 
     private boolean shouldStartWithElement(ElementType elementType) {
-        ElementTypeRef child = this.elementType.getFirstChild();
+        ElementTypeRef child = this.element.getFirstChild();
         while (child != null) {
             if (!child.optional) {
                 return child.elementType == elementType;
@@ -73,27 +74,21 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
     }
 
     @Override
-    public boolean checkStartsWithIdentifier() {
-        ElementTypeRef child = this.elementType.getFirstChild();
+    protected boolean checkStartsWith(TokenTypeCategory typeCategory) {
+        ElementTypeRef child = this.element.getFirstChild();
         while (child != null) {
-            if (child.elementType.cache.startsWithIdentifier()) {
-                return true;
-            }
-
-            if (!child.optional) {
-                return false;
-            }
+            if (child.elementType.cache.startsWith(typeCategory)) return true;
+            if (!child.optional) return false;
             child = child.next;
         }
-        return false;
-    }
+        return false;    }
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, Set<LeafElementType> bucket) {
         bucket = super.captureFirstPossibleLeafs(context, bucket);
         bucket = initBucket(bucket);
 
-        ElementTypeRef child = this.elementType.getFirstChild();
+        ElementTypeRef child = this.element.getFirstChild();
         while (child != null) {
             if (context.check(child)) {
                 child.elementType.cache.captureFirstPossibleLeafs(context, bucket);
@@ -109,7 +104,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
         bucket = super.captureFirstPossibleTokens(context, bucket);
         bucket = initBucket(bucket);
 
-        ElementTypeRef child = this.elementType.getFirstChild();
+        ElementTypeRef child = this.element.getFirstChild();
         while (child != null) {
             if (context.check(child)) {
                 child.elementType.cache.captureFirstPossibleTokens(context, bucket);

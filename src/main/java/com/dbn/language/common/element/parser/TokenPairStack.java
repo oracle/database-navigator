@@ -22,8 +22,6 @@ import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.common.element.TokenPairTemplate;
 import com.intellij.util.containers.Stack;
-import lombok.Getter;
-import lombok.Setter;
 
 public class TokenPairStack {
     private int stackSize = 0;
@@ -47,9 +45,9 @@ public class TokenPairStack {
      */
     public void rollback() {
         int builderOffset = builder.getOffset();
-        while (markersStack.size() > 0) {
+        while (!markersStack.isEmpty()) {
             TokenPairMarker lastMarker = markersStack.peek();
-            if (lastMarker.getOffset() >= builderOffset) {
+            if (lastMarker.offset >= builderOffset) {
                 markersStack.pop();
                 if (stackSize > 0) stackSize--;
             } else {
@@ -66,7 +64,7 @@ public class TokenPairStack {
             markersStack.push(marker);
         } else if (tokenType == endToken) {
             if (stackSize > 0) stackSize--;
-            if (markersStack.size() > 0) {
+            if (!markersStack.isEmpty()) {
 /*
                 NestedRangeMarker marker = markersStack.peek();
                 ParsePathNode markerNode = marker.getParseNode();
@@ -95,23 +93,20 @@ public class TokenPairStack {
     }
 
     public boolean isExplicitRange() {
-        if (!markersStack.isEmpty()) {
-            TokenPairMarker marker = markersStack.peek();
-            return marker.isExplicit();
-        }
+        if (markersStack.isEmpty()) return false;
 
-        return false;
+        TokenPairMarker marker = markersStack.peek();
+        return marker.explicit;
+
     }
 
     public void setExplicitRange(boolean value) {
         if (!markersStack.isEmpty()) {
             TokenPairMarker marker = markersStack.peek();
-            marker.setExplicit(value);
+            marker.explicit = value;
         }
     }
 
-    @Getter
-    @Setter
     public static class TokenPairMarker {
         private final int offset;
         private boolean explicit;

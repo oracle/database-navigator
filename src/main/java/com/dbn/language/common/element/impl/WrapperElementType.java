@@ -36,7 +36,7 @@ import java.util.Set;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 public final class WrapperElementType extends ElementTypeBase {
-    private WrappingDefinition wrappingDefinition;
+    public WrappingDefinition wrappingDefinition;
     public ElementTypeBase wrappedElement;
     public boolean wrappedElementOptional;
 
@@ -55,12 +55,12 @@ public final class WrapperElementType extends ElementTypeBase {
             String startTokenId = stringAttribute(def, "begin-token");
             String endTokenId = stringAttribute(def, "end-token");
 
-            beginTokenElement = new TokenElementType(this, startTokenId);
-            endTokenElement = new TokenElementType(this, endTokenId);
+            beginTokenElement = new TokenElementType(this, startTokenId, id + ".b");
+            endTokenElement = new TokenElementType(this, endTokenId, id + ".e");
         } else {
             TokenPairTemplate template = TokenPairTemplate.valueOf(templateId);
-            beginTokenElement = new TokenElementType(this, template.getBeginToken());
-            endTokenElement = new TokenElementType(this, template.getEndToken());
+            beginTokenElement = new TokenElementType(this, template.getBeginToken(), id + ".b");
+            endTokenElement = new TokenElementType(this, template.getEndToken(), id + ".e");
 
             if (template.isBlock()) {
                 beginTokenElement.setDefaultFormatting(FormattingDefinition.LINE_BREAK_AFTER);
@@ -103,11 +103,11 @@ public final class WrapperElementType extends ElementTypeBase {
     }
 
     public TokenElementType getBeginTokenElement() {
-        return wrappingDefinition.beginElementType;
+        return wrappingDefinition.beginElement;
     }
 
     public TokenElementType getEndTokenElement() {
-        return wrappingDefinition.endElementType;
+        return wrappingDefinition.endElement;
     }
 
     public boolean isStrong() {

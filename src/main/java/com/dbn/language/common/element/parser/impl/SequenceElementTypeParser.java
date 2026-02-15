@@ -36,9 +36,11 @@ import com.intellij.lang.PsiBuilder;
 
 import java.util.Set;
 
+import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
 import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.SURROGATE_MATCH;
 
 public class SequenceElementTypeParser<ET extends SequenceElementType> extends ElementTypeParser<ET> {
     public SequenceElementTypeParser(ET elementType) {
@@ -48,9 +50,12 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) throws ParseException {
         ParserBuilder builder = context.builder;
-        ParserNode node = stepIn(parentNode, context);
+        ParserNode node = null;
 
-        if (shouldParseElement(elementType, node, context)) {
+        if (shouldParseElement(elementType, parentNode, context)) {
+            node = stepIn(parentNode, context);
+            boolean surrogateMatch = false;
+
             ElementTypeRef[] elements = elementType.children;
             while (node.cursorPosition < elements.length) {
                 int index = node.cursorPosition;
@@ -72,24 +77,29 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                 }
 
                 if (context.check(element)) {
-                    ParseResult result = ParseResult.noMatch();
+                    ParseResult result = NO_MATCH_RESULT;
                     if (shouldParseElement(element.elementType, node, context)) {
 
                         //node = node.createVariant(builder.getCurrentOffset(), i);
                         result = element.elementType.parser.parse(node, context);
 
-                        if (result.isMatch()) {
+                        if (result.type == SURROGATE_MATCH) {
+                            surrogateMatch = true;
+                        }
+                        if (result.type != NO_MATCH) {
                             node.matchedTokens += result.matchedTokens;
                             node.matchedElements++;
                         }
                     }
 
                     // not matched and not optional
-                    if (result.isNoMatch() && !element.optional) {
-                        boolean isWeakMatch = node.matchedElements < 2 && node.matchedTokens < 3 && index > 1 && ignoreFirstMatch();
-
-                        if (isWeakMatch || element.isFirst() || elementType.isExitIndex(index) || node.matchedElements == 0) {
-                            //if (isFirst(i) || isExitIndex(i)) {
+                    if (result.type == NO_MATCH && !element.optional) {
+                        if (element.isFirst() ||
+                                node.matchedElements == 0 ||
+                                node.matchedTokens == 0 ||
+                                (node.matchedTokens == 1 && surrogateMatch) ||
+                                elementType.isExitIndex(index) ||
+                                isWeakMatch(node)) {
                             return stepOut(node, context, NO_MATCH);
                         }
 
@@ -118,6 +128,10 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
         }
 
         return stepOut(node, context, NO_MATCH);
+    }
+
+    private boolean isWeakMatch(ParserNode node) {
+        return node.matchedElements < 2 && node.matchedTokens < 3 && node.cursorPosition > 1 && ignoreFirstMatch();
     }
 
     @Deprecated // ambiguous

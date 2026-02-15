@@ -24,6 +24,7 @@ import com.dbn.language.common.element.impl.OneOfElementType;
 import com.dbn.language.common.element.impl.SurrogateSequenceElementType;
 import com.dbn.language.common.element.parser.ParseResult;
 import com.dbn.language.common.element.parser.ParserContext;
+import com.dbn.language.common.element.parser.TokenMonitor;
 import com.dbn.language.common.element.parser.TokenPairMonitor;
 import com.dbn.language.common.element.path.ParserNode;
 
@@ -39,32 +40,33 @@ public class SurrogateSequenceElementTypeParser extends SequenceElementTypeParse
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) throws ParseException {
         ParserNode node = null;
-        if (shouldParseElement(elementType, null, context)) {
+        if (shouldParseElement(elementType, parentNode, context)) {
             node = stepIn(parentNode, context);
-            // leading element
             ElementTypeBase leadingElement = elementType.getLeadingElementType();
-            if (shouldParseElement(leadingElement, node, context)) {
 
-                ParseResult result;
-                if (isConsumedMatch(context, leadingElement)) {
-                    result = match(FULL_MATCH, 0);
-                } else {
-                    result = leadingElement.parser.parse(node, context);
-                }
+            ParseResult result;
+            if (isConsumedMatch(context, leadingElement)) {
+                result = match(FULL_MATCH, 0);
+            } else {
+                result = leadingElement.parser.parse(node, context);
+            }
 
-                if (result.isMatch()) {
+            if (result.type != NO_MATCH) {
+                node.matchedTokens += result.matchedTokens;
+                node.matchedElements++;
+
+                TokenMonitor tokenMonitor = context.builder.tokenMonitor;
+                LeafElementType surrogateLeaf = tokenMonitor.lastLeaf;
+                tokenMonitor.enterSurrogateSection(surrogateLeaf);
+
+                ElementTypeBase mainElement = elementType.getMainElementType();
+                result = mainElement.parser.parse(node, context);
+
+                tokenMonitor.exitSurrogateSection(surrogateLeaf);
+                if (result.type != NO_MATCH) {
                     node.matchedTokens += result.matchedTokens;
                     node.matchedElements++;
-
-                    ElementTypeBase mainElement = elementType.getMainElementType();
-                    if (shouldParseElement(mainElement, node, context)) {
-                        result = mainElement.parser.parse(node, context);
-                        if (result.isMatch()) {
-                            node.matchedTokens += result.matchedTokens;
-                            node.matchedElements++;
-                            return stepOut(node, context, FULL_MATCH);
-                        }
-                    }
+                    return stepOut(node, context, FULL_MATCH);
                 }
             }
         }

@@ -120,7 +120,7 @@ public class QualifiedIdentifierVariant implements Comparable{
     }
 
     public boolean matchesPsiElement(QualifiedIdentifierPsiElement psiElement) {
-        TokenElementType separatorToken = psiElement.elementType.getSeparatorToken();
+        TokenElementType separatorToken = psiElement.elementType.separatorToken;
         PsiElement child = psiElement.getFirstChild();
         int index = 0;
         while (child != null) {

@@ -2619,8 +2619,7 @@
         <iteration id="01309" optional-wrapping="PARENTHESES" original-name="compound_condition" separator="KW_AND, KW_OR">
             <sequence id="01310" optional-wrapping="PARENTHESES">
                 <token id="01311" optional="true" type-id="KW_NOT" />
-                <one-of id="01312" optional-wrapping="PARENTHESES">
-
+                <one-of id="01312" optional-wrapping="PARENTHESES" sortable="true">
                     <element ref-id="exists_condition" />
                     <element ref-id="equals_path_condition" />
                     <element ref-id="regexp_like_condition" />

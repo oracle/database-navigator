@@ -31,17 +31,17 @@ public abstract class LeafElementTypeLookupCache<T extends LeafElementType> exte
     @Override
     @Deprecated
     public boolean couldStartWithLeaf(LeafElementType elementType) {
-        return this.elementType == elementType;
+        return this.element == elementType;
     }
 
     @Override
     public boolean shouldStartWithLeaf(LeafElementType elementType) {
-        return this.elementType == elementType;
+        return this.element == elementType;
     }
 
     @Override
     public Set<LeafElementType> getFirstPossibleLeafs() {
-        return Set.of(elementType);
+        return Set.of(element);
     }
 
     @Override
@@ -51,7 +51,7 @@ public abstract class LeafElementTypeLookupCache<T extends LeafElementType> exte
 
     @Override
     public Set<TokenType> getAllPossibleTokens() {
-        return Set.of(elementType.tokenType);
+        return Set.of(element.tokenType);
     }
 
     @Override
@@ -66,13 +66,13 @@ public abstract class LeafElementTypeLookupCache<T extends LeafElementType> exte
 
     @Override
     public boolean couldStartWithToken(TokenType tokenType) {
-        return elementType.tokenType == tokenType;
+        return element.tokenType == tokenType;
     }
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, @Nullable Set<LeafElementType> bucket) {
         bucket = initBucket(bucket);
-        bucket.add(elementType);
+        bucket.add(element);
         return bucket;
     }
 

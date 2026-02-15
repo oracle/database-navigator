@@ -26,6 +26,7 @@ import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
 
+import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 
 public class OneOfElementTypeParser extends ElementTypeParser<OneOfElementType> {
@@ -37,22 +38,21 @@ public class OneOfElementTypeParser extends ElementTypeParser<OneOfElementType> 
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) throws ParseException {
         ParserBuilder builder = context.builder;
+        TokenType token = builder.getToken();
+        if (token == null) return NO_MATCH_RESULT;
+
         ParserNode node = stepIn(parentNode, context);
 
-        TokenType token = builder.getToken();
+        ElementTypeRef element = elementType.getFirstChild();
+        while (element != null) {
+            if (context.check(element) && shouldParseElement(element.elementType, node, context)) {
+                ParseResult result = element.elementType.parser.parse(node, context);
 
-        if (token != null) {
-            ElementTypeRef element = elementType.getFirstChild();
-            while (element != null) {
-                if (context.check(element) && shouldParseElement(element.elementType, node, context)) {
-                    ParseResult result = element.elementType.parser.parse(node, context);
-
-                    if (result.isMatch()) {
-                        return stepOut(node, context, result.type, result.matchedTokens);
-                    }
+                if (result.type != NO_MATCH) {
+                    return stepOut(node, context, result.type, result.matchedTokens);
                 }
-                element = element.next;
             }
+            element = element.next;
         }
         return stepOut(node, context, NO_MATCH, 0);
     }

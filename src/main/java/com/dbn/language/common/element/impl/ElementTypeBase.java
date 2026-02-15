@@ -140,21 +140,21 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
     }
 
     public boolean isWrappingBegin(LeafElementType elementType) {
-        return wrapping != null && wrapping.beginElementType == elementType;
+        return wrapping != null && wrapping.beginElement == elementType;
     }
 
     @Override
     public boolean isWrappingBegin(TokenType tokenType) {
-        return wrapping != null && wrapping.beginElementType.tokenType == tokenType;
+        return wrapping != null && wrapping.beginElement.tokenType == tokenType;
     }
 
     public boolean isWrappingEnd(LeafElementType elementType) {
-        return wrapping != null && wrapping.endElementType == elementType;
+        return wrapping != null && wrapping.endElement == elementType;
     }
 
     @Override
     public boolean isWrappingEnd(TokenType tokenType) {
-        return wrapping != null && wrapping.endElementType.tokenType == tokenType;
+        return wrapping != null && wrapping.endElement.tokenType == tokenType;
     }
 
     protected abstract ElementTypeLookupCache<?> createLookupCache();
@@ -202,15 +202,15 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
             String endTokenId = stringAttribute(def, "wrapping-end-token");
 
             if (Strings.isNotEmpty(beginTokenId) && Strings.isNotEmpty(endTokenId)) {
-                beginTokenElement = new TokenElementType(this, beginTokenId);
-                endTokenElement = new TokenElementType(this, endTokenId);
+                beginTokenElement = new TokenElementType(this, beginTokenId, id + ".b");
+                endTokenElement = new TokenElementType(this, endTokenId, id + ".e");
             }
         } else {
             TokenPairTemplate template = TokenPairTemplate.valueOf(optionalWrapping);
             String beginTokenId = template.getBeginToken();
             String endTokenId = template.getEndToken();
-            beginTokenElement = new TokenElementType(this, beginTokenId);
-            endTokenElement = new TokenElementType(this, endTokenId);
+            beginTokenElement = new TokenElementType(this, beginTokenId, id + ".b");
+            endTokenElement = new TokenElementType(this, endTokenId, id + ".e");
 
             if (template.isBlock()) {
                 beginTokenElement.setDefaultFormatting(FormattingDefinition.LINE_BREAK_AFTER);
@@ -307,8 +307,8 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
     public void collectAnonymousLeafs(Set<LeafElementType> bucket) {
         if (wrapping == null) return;
 
-        bucket.add(wrapping.beginElementType);
-        bucket.add(wrapping.beginElementType);
+        bucket.add(wrapping.beginElement);
+        bucket.add(wrapping.beginElement);
     }
 
     public void changeParent(ElementTypeBase oldParent, ElementTypeBase newParent) {

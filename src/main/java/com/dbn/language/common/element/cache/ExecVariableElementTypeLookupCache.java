@@ -18,6 +18,7 @@ package com.dbn.language.common.element.cache;
 
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.impl.ExecVariableElementType;
 
 import java.util.Set;
@@ -49,7 +50,7 @@ public class ExecVariableElementTypeLookupCache extends LeafElementTypeLookupCac
     }
 
     @Override
-    public boolean startsWithIdentifier() {
-        return false;
+    public boolean startsWith(TokenTypeCategory typeCategory) {
+        return typeCategory == TokenTypeCategory.VARIABLE;
     }
 }

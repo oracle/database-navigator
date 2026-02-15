@@ -17,6 +17,7 @@
 package com.dbn.language.common.element.cache;
 
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierElementType;
@@ -31,7 +32,7 @@ public class QualifiedIdentifierElementTypeLookupCache extends ElementTypeLookup
 
     @Override
     boolean initAsFirstPossibleLeaf(LeafElementType leaf, ElementTypeBase source) {
-        for (LeafElementType[] variant : elementType.getVariants()) {
+        for (LeafElementType[] variant : element.variants) {
             if (variant[0] == source) return true;
         }
         return false;
@@ -39,24 +40,21 @@ public class QualifiedIdentifierElementTypeLookupCache extends ElementTypeLookup
 
     @Override
     boolean initAsFirstRequiredLeaf(LeafElementType leaf, ElementTypeBase source) {
-        for (LeafElementType[] variant : elementType.getVariants()) {
+        for (LeafElementType[] variant : element.variants) {
             if (variant[0] == source && !variant[0].optional) return true;
         }
         return false;
     }
 
     @Override
-    public boolean checkStartsWithIdentifier() {
-        for (LeafElementType[] elementTypes : elementType.getVariants()) {
-            if (elementTypes[0].cache.startsWithIdentifier()) return true;
-        }
-        return false;
+    protected boolean checkStartsWith(TokenTypeCategory typeCategory) {
+        return element.variants.stream().anyMatch(t -> t[0].cache.startsWith(typeCategory));
     }
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, @Nullable Set<LeafElementType> bucket) {
         bucket = initBucket(bucket);
-        for (LeafElementType[] elementTypes : elementType.getVariants()) {
+        for (LeafElementType[] elementTypes : element.variants) {
             // variants already consider optional leafs
             bucket.add(elementTypes[0]);
         }
@@ -67,7 +65,7 @@ public class QualifiedIdentifierElementTypeLookupCache extends ElementTypeLookup
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, @Nullable Set<TokenType> bucket) {
         bucket = initBucket(bucket);
-        for (LeafElementType[] elementTypes : elementType.getVariants()) {
+        for (LeafElementType[] elementTypes : element.variants) {
             // variants already consider optional leafs
             bucket.add(elementTypes[0].tokenType);
         }

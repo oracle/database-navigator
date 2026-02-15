@@ -17,6 +17,7 @@
 package com.dbn.language.common.element.cache;
 
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
 
@@ -73,7 +74,7 @@ public class VoidElementTypeLookupCache<T extends ElementTypeBase> extends Eleme
     }
 
     @Override
-    public boolean startsWithIdentifier() {
+    public boolean startsWith(TokenTypeCategory typeCategory) {
         return false;
     }
 

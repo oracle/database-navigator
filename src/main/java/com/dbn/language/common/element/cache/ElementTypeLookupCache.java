@@ -20,6 +20,7 @@ import com.dbn.common.index.IndexContainer;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
@@ -56,7 +57,7 @@ public interface ElementTypeLookupCache<T extends ElementTypeBase> {
 
     Set<LeafElementType> getFirstRequiredLeafs();
 
-    boolean startsWithIdentifier();
+    boolean startsWith(TokenTypeCategory typeCategory);
 
     boolean isFirstPossibleToken(TokenType tokenType);
 

@@ -35,10 +35,10 @@ import java.util.Set;
 
 public abstract class ElementTypeLookupCacheBase<T extends ElementTypeBase> implements ElementTypeLookupCache<T> {
     private final Latent<IndexContainer<TokenType>> nextPossibleTokens = Latent.basic(() -> computeNextPossibleTokens());
-    protected final T elementType;
+    protected final T element;
 
-    ElementTypeLookupCacheBase(T elementType) {
-        this.elementType = elementType;
+    ElementTypeLookupCacheBase(T element) {
+        this.element = element;
     }
 
     /**
@@ -51,7 +51,7 @@ public abstract class ElementTypeLookupCacheBase<T extends ElementTypeBase> impl
     @Override
     public Set<TokenType> getNextPossibleTokens() {
         IndexContainer<TokenType> nextPossibleTokens = this.nextPossibleTokens.get();
-        TokenTypeBundle tokenTypes = elementType.getLanguageDialect().getParserTokenTypes();
+        TokenTypeBundle tokenTypes = element.getLanguageDialect().getParserTokenTypes();
         return nextPossibleTokens == null ?
                 Collections.emptySet() :
                 nextPossibleTokens.elements(index -> tokenTypes.getTokenType(index));
@@ -65,17 +65,17 @@ public abstract class ElementTypeLookupCacheBase<T extends ElementTypeBase> impl
 
     @Nullable
     private IndexContainer<TokenType> computeNextPossibleTokens() {
-        return NextTokenResolver.from(this.elementType).resolve();
+        return NextTokenResolver.from(this.element).resolve();
     }
 
     @Override
     public DBLanguage getLanguage() {
-        return elementType.getLanguage();
+        return element.getLanguage();
     }
 
     @Override
     public ElementTypeBundle getElementTypeBundle() {
-        return elementType.bundle;
+        return element.bundle;
     }
 
     @Override
@@ -105,30 +105,30 @@ public abstract class ElementTypeLookupCacheBase<T extends ElementTypeBase> impl
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, @Nullable Set<LeafElementType> bucket) {
-        WrappingDefinition wrapping = elementType.wrapping;
-        if (wrapping != null) {
-            bucket = initBucket(bucket);
-            bucket.add(wrapping.beginElementType);
-        }
+        WrappingDefinition wrapping = element.wrapping;
+        if (wrapping == null) return bucket;
+
+        bucket = initBucket(bucket);
+        bucket.add(wrapping.beginElement);
         return bucket;
     }
 
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, @Nullable Set<TokenType> bucket) {
-        WrappingDefinition wrapping = elementType.wrapping;
-        if (wrapping != null) {
-            bucket = initBucket(bucket);
-            bucket.add(wrapping.beginElementType.tokenType);
-        }
+        WrappingDefinition wrapping = element.wrapping;
+        if (wrapping == null) return bucket;
+
+        bucket = initBucket(bucket);
+        bucket.add(wrapping.beginElement.tokenType);
         return bucket;
     }
 
     @Override
     public void registerLeaf(LeafElementType leaf, ElementTypeBase source) {
-        ElementTypeBase parent = elementType.parent;
-        if (parent != null) {
-            parent.cache.registerLeaf(leaf, elementType);
-        }
+        ElementTypeBase parent = element.parent;
+        if (parent == null) return;
+
+        parent.cache.registerLeaf(leaf, element);
     }
 
     <E> Set<E> initBucket(Set<E> bucket) {

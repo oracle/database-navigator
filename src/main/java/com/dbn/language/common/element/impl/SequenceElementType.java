@@ -195,7 +195,7 @@ public class SequenceElementType extends ElementTypeBase {
 
     public int indexOf(ElementType elementType, int fromIndex) {
         if (wrapping != null && elementType instanceof TokenElementType tokenElementType) {
-            if (wrapping.endElementType.tokenType == tokenElementType.tokenType) {
+            if (wrapping.endElement.tokenType == tokenElementType.tokenType) {
                 return children.length-1;
             }
         }

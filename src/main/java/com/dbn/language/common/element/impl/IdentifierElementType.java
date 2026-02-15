@@ -52,6 +52,7 @@ public final class IdentifierElementType extends LeafElementType {
 
     public IdentifierElementType(ElementTypeBase parent, String id) {
         super(parent.bundle, parent, id);
+        tokenType = bundle.getTokenTypeBundle().getIdentifier();
         objectType = DBObjectType.ANY;
         identifierType = IdentifierType.OBJECT;
     }

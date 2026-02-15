@@ -21,6 +21,7 @@ import lombok.Getter;
 @Getter
 public enum ParseResultType {
     FULL_MATCH (2),
+    SURROGATE_MATCH(2),
     PARTIAL_MATCH(1),
     NO_MATCH(0);
 

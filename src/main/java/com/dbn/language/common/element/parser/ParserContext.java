@@ -19,7 +19,6 @@ package com.dbn.language.common.element.parser;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.cache.ElementLookupContext;
-import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.intellij.lang.PsiBuilder;
 
@@ -49,9 +48,5 @@ public class ParserContext extends ElementLookupContext {
 
     public boolean isSurrogateFor(LeafElementType leafElementType) {
         return builder.tokenMonitor.isSurrogateFor(leafElementType);
-    }
-
-    public boolean isStartSurrogateFor(ElementTypeBase elementType) {
-        return builder.tokenMonitor.isStartSurrogateFor(elementType);
     }
 }

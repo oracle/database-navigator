@@ -34,6 +34,7 @@ import com.intellij.lang.PsiBuilder;
 
 import java.util.Set;
 
+import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
 import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
@@ -48,14 +49,14 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
         ParserBuilder builder = context.builder;
         ParserNode node = stepIn(parentNode, context);
 
-        ElementTypeBase iteratedElementType = elementType.iteratedElementType;
+        ElementTypeBase iteratedElementType = elementType.iteratedElement;
         TokenElementType[] separatorTokens = elementType.separatorTokens;
 
         if (shouldParseElement(iteratedElementType, node, context)) {
             ParseResult result = iteratedElementType.parser.parse(node, context);
 
             // check first iteration element
-            if (result.isMatch()) {
+            if (result.type != NO_MATCH) {
                 if (node.isRecursive(node.startOffset)) {
                     ParseResultType resultType = matchesMinIterations(node.matchedElements) ? result.type : NO_MATCH;
                     return stepOut(node, context, resultType);
@@ -70,14 +71,14 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
                             partialMatchMarker = builder.mark();
                         }
 
-                        ParseResult sepResult = ParseResult.noMatch();
+                        ParseResult separatorResult = NO_MATCH_RESULT;
                         for (TokenElementType separatorToken : separatorTokens) {
-                            sepResult = separatorToken.parser.parse(node, context);
-                            node.matchedTokens += sepResult.matchedTokens;
-                            if (sepResult.isMatch()) break;
+                            separatorResult = separatorToken.parser.parse(node, context);
+                            node.matchedTokens++;
+                            if (separatorResult.type != NO_MATCH) break;
                         }
 
-                        if (sepResult.isNoMatch()) {
+                        if (separatorResult.type == NO_MATCH) {
                             // if NO_MATCH, no additional separator found, hence then iteration should exit with MATCH
                             ParseResultType resultType =
                                     matchesMinIterations(node.matchedElements) ?
@@ -95,10 +96,8 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
 
                     // check consecutive iterated element
                     // if not matched, step out with error
-
                     result = iteratedElementType.parser.parse(node, context);
-
-                    if (result.isNoMatch()) {
+                    if (result.type == NO_MATCH) {
                         // missing separators permit ending the iteration as valid at any time
                         if (separatorTokens == null) {
                             ParseResultType resultType =
@@ -140,7 +139,7 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
         ParserBuilder builder = context.builder;
 
         PsiBuilder.Marker marker = builder.mark();
-        ElementTypeBase iteratedElementType = elementType.iteratedElementType;
+        ElementTypeBase iteratedElementType = elementType.iteratedElement;
         TokenElementType[] separatorTokens = elementType.separatorTokens;
 
         if (!lenient) {

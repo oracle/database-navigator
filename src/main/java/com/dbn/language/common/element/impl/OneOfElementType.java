@@ -41,6 +41,8 @@ import java.util.Set;
 import static com.dbn.common.Linked.linkElements;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.language.common.TokenTypeCategory.CHARACTER;
+import static com.dbn.language.common.TokenTypeCategory.IDENTIFIER;
 import static com.dbn.language.common.element.impl.OneOfElementTypeBuilder.rebuildAmbiguousPaths;
 
 @Slf4j
@@ -163,8 +165,12 @@ public final class OneOfElementType extends ElementTypeBase {
     }
 
     private static final Comparator<ElementTypeRef> ONE_OF_COMPARATOR = (o1, o2) -> {
-        int i1 = o1.elementType.cache.startsWithIdentifier() ? 1 : 2;
-        int i2 = o2.elementType.cache.startsWithIdentifier() ? 1 : 2;
+        int i1 = o1.elementType.cache.startsWith(IDENTIFIER) ? 1 :
+                 o1.elementType.cache.startsWith(CHARACTER) ? 2 : 3;
+
+        int i2 = o2.elementType.cache.startsWith(IDENTIFIER) ? 1 :
+                 o2.elementType.cache.startsWith(CHARACTER) ? 2 : 3;
+
         return i2-i1;
     };
 

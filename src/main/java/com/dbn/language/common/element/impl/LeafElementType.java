@@ -36,7 +36,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.dbn.language.common.element.impl.ElementTypeCache.getUnwrappedFirstPossibleLeafs;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
+import static java.util.Collections.disjoint;
 
 public abstract class LeafElementType extends ElementTypeBase implements Indexable {
     public TokenType tokenType;
@@ -45,7 +47,6 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
     private final int idx;
 
     public Set<LeafElementType> surrogateFor;
-    public Set<ElementTypeBase> startSurrogateFor;
 
     LeafElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -59,12 +60,15 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
         bundle.registerElement(this);
     }
 
-    public boolean isSurrogateFor(LeafElementType leafElementType) {
-        return surrogateFor != null && surrogateFor.contains(leafElementType);
-    }
+    public boolean isSurrogateFor(ElementTypeBase elementType) {
+        if (surrogateFor == null) return false;
 
-    public boolean isStartSurrogateFor(ElementTypeBase elementType) {
-        return startSurrogateFor != null && startSurrogateFor.contains(elementType);
+        if (elementType instanceof LeafElementType leafElementType && !leafElementType.isSurrogate()) {
+            return surrogateFor.contains(leafElementType);
+        }
+
+        Set<LeafElementType> firstPossibleLeafs = getUnwrappedFirstPossibleLeafs(elementType);
+        return !disjoint(surrogateFor, firstPossibleLeafs);
     }
 
     @Override
@@ -134,11 +138,11 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                 TokenElementType[] separatorTokens = iterationElementType.separatorTokens;
                 if (separatorTokens != null) possibleLeafs.addAll(Arrays.asList(separatorTokens));
 
-                ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElementType.cache;
+                ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElement.cache;
                 lookupCache.captureFirstPossibleLeafs(context.reset(), possibleLeafs);
 
             } else if (elementType instanceof QualifiedIdentifierElementType qualifiedIdentifierElementType) {
-                if (this == qualifiedIdentifierElementType.getSeparatorToken()) break;
+                if (this == qualifiedIdentifierElementType.separatorToken) break;
 
             } else if (elementType instanceof ChameleonElementType chameleonElementType) {
                 ElementTypeBundle elementTypeBundle = chameleonElementType.getParentLanguage().getParserDefinition().getParser().getElementTypes();
@@ -206,7 +210,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
             } else if (elementType instanceof IterationElementType iterationElementType) {
                 TokenElementType[] separatorTokens = iterationElementType.separatorTokens;
                 if (separatorTokens == null) {
-                    ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElementType.cache;
+                    ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElement.cache;
                     if (required ?
                             lookupCache.isFirstRequiredToken(tokenType) :
                             lookupCache.isFirstPossibleToken(tokenType)) {
@@ -214,7 +218,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                     }
                 }
             } else if (elementType instanceof QualifiedIdentifierElementType qualifiedIdentifierElementType) {
-                if (this == qualifiedIdentifierElementType.getSeparatorToken()) {
+                if (this == qualifiedIdentifierElementType.separatorToken) {
                     break;
                 }
             }

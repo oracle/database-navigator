@@ -41,6 +41,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.language.common.TokenTypeCategory.getCategory;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.ITERATION_SEPARATOR;
 
 public class TokenElementType extends LeafElementType implements LookupItemBuilderProvider {
@@ -57,7 +58,7 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
 
         String flavorName = stringAttribute(def, "flavor");
         if (Strings.isNotEmpty(flavorName)) {
-            flavor = TokenTypeCategory.getCategory(flavorName);
+            flavor = getCategory(flavorName);
         }
 
         description = tokenType.getValue() + " " + getTokenTypeCategory();
@@ -72,7 +73,11 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
     }
 
     public TokenElementType(ElementTypeBase parent, @NonNls String typeId) {
-        super(parent.bundle, parent, parent.nextChildId());
+        this(parent, typeId, parent.nextChildId());
+    }
+
+    public TokenElementType(ElementTypeBase parent, @NonNls String typeId, String id) {
+        super(parent.bundle, parent, id);
         tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
         description = tokenType.getValue() + " " + getTokenTypeCategory();
 
@@ -105,7 +110,7 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
     public Set<LeafElementType> getNextPossibleLeafs(LanguageNode pathNode, @NotNull ElementLookupContext context) {
         if (isIterationSeparator()) {
             if (parent instanceof IterationElementType iterationElementType) {
-                ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElementType.cache;
+                ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElement.cache;
                 return lookupCache.captureFirstPossibleLeafs(context.reset());
             } else if (parent instanceof QualifiedIdentifierElementType){
                 return super.getNextPossibleLeafs(pathNode, context);
@@ -125,8 +130,10 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
     public Set<LeafElementType> getNextRequiredLeafs(LanguageNode pathNode, ParserContext context) {
         if (isIterationSeparator()) {
             if (parent instanceof IterationElementType iterationElementType) {
-                return iterationElementType.iteratedElementType.cache.getFirstRequiredLeafs();
-            } else if (parent instanceof QualifiedIdentifierElementType){
+                return iterationElementType.iteratedElement.cache.getFirstRequiredLeafs();
+            }
+
+            if (parent instanceof QualifiedIdentifierElementType){
                 return super.getNextRequiredLeafs(pathNode, context);
             }
         }

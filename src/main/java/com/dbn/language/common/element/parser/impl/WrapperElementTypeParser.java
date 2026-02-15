@@ -58,7 +58,7 @@ public class WrapperElementTypeParser extends ElementTypeParser<WrapperElementTy
         boolean isStrong = elementType.isStrong();
 
         TokenPairMonitor tokenPairMonitor = builder.tokenPairMonitor;
-        boolean beginMatched = beginTokenResult.isMatch() || tokenPairMonitor.isConsumedMatch(beginTokenType);
+        boolean beginMatched = beginTokenResult.type != NO_MATCH || tokenPairMonitor.isConsumedMatch(beginTokenType);
         if (beginMatched) {
             node.matchedTokens++;
             boolean initialExplicitRange = tokenPairMonitor.isExplicitRange(beginTokenType);
@@ -80,7 +80,7 @@ public class WrapperElementTypeParser extends ElementTypeParser<WrapperElementTy
 
             // check the end element => exit with partial match if not available
             ParseResult endTokenResult = endTokenElement.parser.parse(node, context);
-            if (endTokenResult.isMatch()) {
+            if (endTokenResult.type != NO_MATCH) {
                 node.matchedTokens++;
                 return stepOut(node, context, FULL_MATCH);
             } else {
@@ -96,7 +96,7 @@ public class WrapperElementTypeParser extends ElementTypeParser<WrapperElementTy
         ParserNode parent = (ParserNode) node.parent;
         while (parent != null && parent.cursorPosition == 0) {
             WrappingDefinition parentWrapping = parent.element.wrapping;
-            if (parentWrapping != null && parentWrapping.beginElementType.tokenType == tokenType) {
+            if (parentWrapping != null && parentWrapping.beginElement.tokenType == tokenType) {
                 return true;
             }
             parent = (ParserNode) parent.parent;

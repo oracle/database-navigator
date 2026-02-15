@@ -31,6 +31,11 @@ import com.intellij.lang.PsiBuilder.Marker;
 
 import java.util.Set;
 
+import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
+import static com.dbn.language.common.element.parser.ParseResult.match;
+import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
+
 public abstract class ElementTypeParser<T extends ElementTypeBase> {
     public final T elementType;
 
@@ -61,13 +66,13 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
         try {
             ParserBuilder builder = context.builder;
             marker = marker == null ? node == null ? null : node.elementMarker : marker;
-            if (resultType == ParseResultType.PARTIAL_MATCH) {
+            if (resultType == PARTIAL_MATCH) {
                 ElementTypeBase offsetPsiElement = Commons.nvl(builder.tokenMonitor.lastLeaf, elementType);
                 Set<TokenType> nextPossibleTokens = offsetPsiElement.cache.getNextPossibleTokens();
                 ParseBuilderErrorHandler.updateBuilderError(nextPossibleTokens, context);
             }
 
-            if (resultType == ParseResultType.NO_MATCH) {
+            if (resultType == NO_MATCH) {
                 builder.markerRollbackTo(marker);
             } else {
                 if (elementType instanceof BlockElementType)
@@ -76,8 +81,8 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
             }
 
 
-            if (resultType == ParseResultType.NO_MATCH) {
-                return ParseResult.noMatch();
+            if (resultType == NO_MATCH) {
+                return NO_MATCH_RESULT;
             } else {
                 Branch branch = this.elementType.branch;
                 if (node != null && branch != null) {
@@ -88,7 +93,7 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
                     builder.tokenMonitor.markResolved(leafElementType);
                 }
 
-                return ParseResult.match(resultType, matchedTokens);
+                return match(resultType, matchedTokens);
             }
         } finally {
             if (node != null) {
@@ -142,8 +147,13 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
         if (token == null) return false;
 
         if (builder.isDummyToken()) return true;
-        if (context.isStartSurrogateFor(elementType)) return true;
         if (elementType.cache.couldStartWithToken(token)) return true;
+
+        // TODO this returns true even if context is not surrogate block
+        if (builder.tokenMonitor.isSurrogateConsumed()) return true;
+        if (builder.tokenMonitor.isSurrogate()) {
+            if (builder.tokenMonitor.isSurrogateFor(elementType)) return true;
+        }
 
         if (elementType.isSurrogate()) {
             if (builder.tokenPairMonitor.hasConsumedMatch(elementType)) return true;

@@ -40,7 +40,7 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.ITERATIO
 @Slf4j
 public final class IterationElementType extends ElementTypeBase {
 
-    public ElementTypeBase iteratedElementType;
+    public ElementTypeBase iteratedElement;
     public TokenElementType[] separatorTokens;
     public int[] elementsCountVariants;
     public int minIterations;
@@ -65,7 +65,7 @@ public final class IterationElementType extends ElementTypeBase {
         if (initialized) return;
         initialized = true;
 
-        iteratedElementType.initialize();
+        iteratedElement.initialize();
     }
 
     @Override
@@ -88,7 +88,7 @@ public final class IterationElementType extends ElementTypeBase {
             List<TokenElementType> separators = new ArrayList<>();
             while (tokenizer.hasMoreTokens()) {
                 String separatorTokenId = tokenizer.nextToken().trim();
-                TokenElementType separatorToken = new TokenElementType(this, separatorTokenId);
+                TokenElementType separatorToken = new TokenElementType(this, separatorTokenId, id + ".i");
                         //bundle.getTokenElementType(separatorTokenId);
 
                 separatorToken.set(ITERATION_SEPARATOR, true);
@@ -111,7 +111,7 @@ public final class IterationElementType extends ElementTypeBase {
             log.warn("DBN - [{}] iterated element cannot be optional (iteration = {})", getLanguage().getID(), getId());
         }
 
-        iteratedElementType = bundle.resolveElementDefinition(child, type, this);
+        iteratedElement = bundle.resolveElementDefinition(child, type, this);
 
         String elementsCountDef = stringAttribute(def, "elements-count");
         if (elementsCountDef != null) {

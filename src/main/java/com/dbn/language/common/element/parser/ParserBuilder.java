@@ -187,7 +187,7 @@ public final class ParserBuilder {
 
     @Override
     public String toString() {
-        return "last=" + tokenMonitor.lastLeaf + ", current=" + getToken() + ", text=" + getTokenText();
+        return "position=" + getOffset() + ", surrogate=" + tokenMonitor.getLastSurrogate() + ", token=" + getToken() + "('" + getTokenText() + "')";
     }
 
     private class Cache {

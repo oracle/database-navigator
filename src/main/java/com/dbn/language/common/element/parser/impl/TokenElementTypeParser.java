@@ -29,8 +29,10 @@ import com.dbn.language.common.element.path.ParserNode;
 import com.intellij.lang.PsiBuilder.Marker;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
 import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.SURROGATE_MATCH;
 
 @Slf4j
 public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> {
@@ -42,21 +44,26 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
     public ParseResult parse(ParserNode parentNode, ParserContext context) {
         ParserBuilder builder = context.builder;
         Marker marker = null;
+        if (context.isSurrogateFor(elementType)) {
+            if (elementType.isSurrogate()) {
+                return stepOut(marker, context, FULL_MATCH, 0);
+            } else {
+                marker = builder.markAndAdvance();
+                return stepOut(marker, context, SURROGATE_MATCH, 1);
+            }
+        }
+
+        if (builder.tokenMonitor.isSurrogateConsumed()) {
+            return stepOut(marker, context, SURROGATE_MATCH, 1);
+        }
+
 
         TokenType token = builder.getToken();
+        if (token == null) return NO_MATCH_RESULT;
+
         if (token == elementType.tokenType) {
             if (elementType.isSurrogate()) {
-                // do not advance builder on surrogates
                 return stepOut(marker, context, FULL_MATCH, 0);
-            }
-
-            if (context.isSurrogate()) {
-                if (context.isSurrogateFor(elementType)) {
-                    marker = builder.markAndAdvance();
-                    return stepOut(marker, context, FULL_MATCH, 1);
-                } else {
-                    return stepOut(marker, context, NO_MATCH, 0);
-                }
             }
         }
 
@@ -88,6 +95,6 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
             marker = builder.markAndAdvance();
             return stepOut(marker, context, FULL_MATCH, 1);
         }
-        return stepOut(marker, context, NO_MATCH, 0);
+        return NO_MATCH_RESULT;
     }
 }

@@ -52,7 +52,11 @@ public class TokenPairMonitor extends ParserBuilderExtension {
     }
 
     public boolean isConsumedMatch(TokenType tokenType) {
-        return builder.getPreviousToken() == tokenType && !isExplicitRange(tokenType);
+        if (builder.getPreviousToken() != tokenType) return false;
+        if (!tokens.contains(tokenType)) return false;
+        if (!isExplicitRange(tokenType)) return true;
+
+        return false;
     }
 
     public boolean hasConsumedMatch(ElementTypeBase elementType) {
@@ -73,7 +77,7 @@ public class TokenPairMonitor extends ParserBuilderExtension {
         WrappingDefinition wrapping = node.element.wrapping;
         if (wrapping == null) return;
 
-        TokenElementType beginElement = wrapping.beginElementType;
+        TokenElementType beginElement = wrapping.beginElement;
         TokenType beginToken = beginElement.tokenType;
         while(builder.getToken() == beginToken) {
             Marker beginTokenMarker = builder.mark();
@@ -90,7 +94,7 @@ public class TokenPairMonitor extends ParserBuilderExtension {
         WrappingDefinition wrapping = node.element.wrapping;
         if (wrapping == null) return;
 
-        TokenElementType endElement = wrapping.endElementType;
+        TokenElementType endElement = wrapping.endElement;
         TokenType endToken = endElement.tokenType;
         while (builder.getToken() == endToken && !isExplicitRange(endToken)) {
             Marker endTokenMarker = builder.mark();
@@ -127,10 +131,9 @@ public class TokenPairMonitor extends ParserBuilderExtension {
         if (tokenType == null) return null;
 
         TokenPairTemplate template = tokenType.getTokenPairTemplate();
-        if (template != null) {
-            return stacks.get(template);
-        }
-        return null;
+        if (template == null) return null;
+
+        return stacks.get(template);
     }
 
     public boolean isExplicitRange(TokenType tokenType) {

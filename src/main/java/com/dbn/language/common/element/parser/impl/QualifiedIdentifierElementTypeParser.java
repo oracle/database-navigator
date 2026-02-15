@@ -49,7 +49,7 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
         ParserBuilder builder = context.builder;
         ParserNode node = stepIn(parentNode, context);
 
-        TokenElementType separatorToken = elementType.getSeparatorToken();
+        TokenElementType separatorToken = elementType.separatorToken;
 
         QualifiedIdentifierVariant variant = getMostProbableParseVariant(builder);
         if (variant != null) {
@@ -57,14 +57,14 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
 
             for (LeafElementType elementType : elementTypes) {
                 ParseResult result = elementType.parser.parse(node, context);
-                if (result.isNoMatch()) break;
+                if (result.type == NO_MATCH) break;
 
-                node.matchedTokens += result.matchedTokens;
+                node.matchedTokens++;
 
                 if (elementType != elementTypes[elementTypes.length -1])  {
                     result = separatorToken.parser.parse(node, context);
-                    if (result.isNoMatch()) break;
-                    node.matchedTokens += result.matchedTokens;
+                    if (result.type == NO_MATCH) break;
+                    node.matchedTokens++;
                 }
                 node.incrementIndex(builder.getOffset());
             }
@@ -84,7 +84,7 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
     }
 
     private QualifiedIdentifierVariant getMostProbableParseVariant(ParserBuilder builder) {
-        TokenType separatorToken = elementType.getSeparatorToken().tokenType;
+        TokenType separatorToken = elementType.separatorToken.tokenType;
         SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
         TokenType identifier = sharedTokenTypes.getIdentifier();
 
@@ -114,7 +114,7 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
 
         QualifiedIdentifierVariant mostProbableVariant = null;
 
-        for (LeafElementType[] elementTypes : elementType.getVariants()) {
+        for (LeafElementType[] elementTypes : elementType.variants) {
             if (elementTypes.length <= chan.size()) {
                 int matchedTokens = 0;
                 for (int i=0; i<elementTypes.length; i++) {

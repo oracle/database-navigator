@@ -18,41 +18,93 @@ package com.dbn.language.common.element.parser;
 
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
+import com.intellij.util.containers.Stack;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class TokenMonitor extends ParserBuilderExtension {
+    private final Stack<SurrogateMarker> surrogateStack = new Stack<>();
     public LeafElementType lastLeaf;
-    public int lastLeafOffset;
 
     protected TokenMonitor(ParserBuilder builder) {
         super(builder);
     }
 
     public void markResolved(LeafElementType leaf) {
-        if (sameBuilderOffset() && leaf.isSurrogate()) return;
-
         lastLeaf = leaf;
-        lastLeafOffset = builder.getOffset();
     }
 
-    private boolean sameBuilderOffset() {
-        return lastLeafOffset == builder.getOffset();
+    public void enterSurrogateSection(LeafElementType surrogateLeaf) {
+        SurrogateMarker surrogateMarker = new SurrogateMarker(surrogateLeaf, builder.getOffset());
+        surrogateStack.push(surrogateMarker);
+    }
+
+    public void exitSurrogateSection(LeafElementType surrogateLeaf) {
+        SurrogateMarker surrogateMarker = surrogateStack.pop();
+        assert surrogateMarker.elementType == surrogateLeaf;
     }
 
     public boolean isSurrogate() {
+        if (surrogateStack.isEmpty()) return false;
+
+        SurrogateMarker surrogateMarker = surrogateStack.peek();
+        if (surrogateMarker.builderOffset != builder.getOffset()) return false;
+        return true;
+    }
+
+    public boolean isSurrogateConsumed() {
         if (lastLeaf == null) return false;
-        if (lastLeaf.surrogateFor == null) return false;
-        if (sameBuilderOffset()) return true;
+
+/*        if (!surrogateStack.isEmpty()) {
+            SurrogateMarker lastSurrogate = surrogateStack.peek();
+            if (lastSurrogate.elementType.surrogateFor.contains(lastLeaf)) return true;
+        }*/
+
+        if (builder.tokenPairMonitor.isConsumedMatch(lastLeaf.tokenType)) return true;
 
         return false;
     }
 
-    public boolean isSurrogateFor(LeafElementType leafElementType) {
-        if (!isSurrogate()) return false;
-        return lastLeaf.surrogateFor.contains(leafElementType);
+    public boolean isSurrogateFor(ElementTypeBase elementType) {
+        if (surrogateStack.isEmpty()) return false;
+
+        SurrogateMarker surrogateMarker = surrogateStack.peek();
+        if (surrogateMarker.builderOffset != builder.getOffset()) return false;
+
+        return surrogateMarker.elementType.isSurrogateFor(elementType);
     }
 
-    public boolean isStartSurrogateFor(ElementTypeBase elementType) {
-        if (!isSurrogate()) return false;
-        return lastLeaf.startSurrogateFor.contains(elementType);
+
+    public LeafElementType getLastSurrogate() {
+        return surrogateStack.isEmpty() ? null : surrogateStack.peek().elementType;
+    }
+
+/*    public boolean isStartSurrogateFor(ElementTypeBase elementType) {
+        if (surrogateStack.isEmpty()) return false;
+        return lastSurrogate.startSurrogateFor.contains(elementType);
+    }*/
+
+    public static Set<LeafElementType> unwrapSurrogates(Set<LeafElementType> leafs) {
+        Set<LeafElementType> collector = new LinkedHashSet<>();
+        for (LeafElementType leaf : leafs) {
+            unwrapSurrogate(leaf, collector);
+        }
+        return collector;
+    }
+
+    private static void unwrapSurrogate(LeafElementType leafElementType, Set<LeafElementType> collector) {
+        Set<LeafElementType> surrogateFor = leafElementType.surrogateFor;
+        if (surrogateFor == null) {
+            collector.add(leafElementType);
+            return;
+        }
+
+        for (LeafElementType elementType : surrogateFor) {
+            unwrapSurrogate(elementType, collector);
+        }
+    }
+
+    private record SurrogateMarker(LeafElementType elementType, int builderOffset) {
     }
 }
