@@ -37,12 +37,11 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) {
         ParserBuilder builder = context.builder;
-        Marker marker = null;
         if (context.isSurrogateFor(elementType) && parentNode.matchedTokens == 0) {
             if (elementType.isSurrogate()) {
-                return stepOut(marker, context, FULL_MATCH, 0);
+                return stepOut(null, context, FULL_MATCH, 0);
             } else {
-                marker = builder.markAndAdvance();
+                Marker marker = builder.markAndAdvance();
                 return stepOut(marker, context, SURROGATE_MATCH, 1);
             }
         }
@@ -53,10 +52,10 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
         // if reserved word, verify if suppressible in this context (i.e. converted to identifier)
         if (token.isIdentifier() || isSuppressibleReservedWord(parentNode, context, token)) {
             if (elementType.isSurrogate()) {
-                return stepOut(marker, context, FULL_MATCH, 0);
+                return stepOut(null, context, FULL_MATCH, 0);
             }
 
-            marker = builder.markAndAdvance();
+            Marker marker = builder.markAndAdvance();
             return stepOut(marker, context, FULL_MATCH, 1);
         }
 

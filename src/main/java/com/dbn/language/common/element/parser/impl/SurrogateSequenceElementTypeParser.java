@@ -39,10 +39,10 @@ public class SurrogateSequenceElementTypeParser extends SequenceElementTypeParse
 
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) throws ParseException {
+        ElementTypeBase leadingElement = elementType.getLeadingElementType();
         ParserNode node = null;
-        if (shouldParseElement(elementType, parentNode, context)) {
+        if (shouldParseElement(leadingElement, parentNode, context)) {
             node = stepIn(parentNode, context);
-            ElementTypeBase leadingElement = elementType.getLeadingElementType();
 
             ParseResult result;
             if (isConsumedMatch(context, leadingElement)) {

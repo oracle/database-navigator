@@ -57,8 +57,8 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
             boolean surrogateMatch = false;
 
             ElementTypeRef[] elements = elementType.children;
-            while (node.cursorPosition < elements.length) {
-                int index = node.cursorPosition;
+            while (node.elementIndex < elements.length) {
+                int index = node.elementIndex;
                 ElementTypeRef element = elements[index];
 
                 // end of document / language switch
@@ -110,7 +110,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                             return stepOut(node, context, PARTIAL_MATCH);
                         } else {
                             // local landmarks found
-                            node.cursorPosition = index;
+                            node.elementIndex = index;
                             continue;
                         }
                     }
@@ -123,7 +123,8 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                     ParseResultType resultType = node.matchedElements == 0 ? NO_MATCH : FULL_MATCH;
                     return stepOut(node, context, resultType);
                 }
-                node.incrementIndex(builder.getOffset());
+                node.elementIndex++;
+                node.currentOffset = builder.getOffset();
             }
         }
 
@@ -131,7 +132,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
     }
 
     private boolean isWeakMatch(ParserNode node) {
-        return node.matchedElements < 2 && node.matchedTokens < 3 && node.cursorPosition > 1 && ignoreFirstMatch();
+        return node.matchedElements < 2 && node.matchedTokens < 3 && node.elementIndex > 1 && ignoreFirstMatch();
     }
 
     @Deprecated // ambiguous
@@ -145,7 +146,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
     }
 
     private int advanceLexerToNextLandmark(ParserNode node, ParserContext context) {
-        int siblingPosition = node.cursorPosition;
+        int siblingPosition = node.elementIndex;
         ParserBuilder builder = context.builder;
         PsiBuilder.Marker marker = builder.mark();
         Set<TokenType> possibleTokens = elementType.getFirstPossibleTokensFromIndex(context, siblingPosition);
@@ -189,7 +190,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
             while (parseNode != null) {
                 ElementType elementType = parseNode.element;
                 if (elementType instanceof SequenceElementType sequenceElementType) {
-                    if ( sequenceElementType.containsLandmarkTokenFromIndex(tokenType, parseNode.cursorPosition + 1)) {
+                    if ( sequenceElementType.containsLandmarkTokenFromIndex(tokenType, parseNode.elementIndex + 1)) {
                         return -1;
                     }
                 } else  if (elementType instanceof IterationElementType iterationElementType) {

@@ -36,13 +36,13 @@ public class ExecVariableElementTypeParser extends ElementTypeParser<ExecVariabl
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) {
         ParserBuilder builder = context.builder;
+
         TokenType token = builder.getToken();
-        Marker marker = null;
         if (token != null && token.isVariable()) {
-            marker = builder.markAndAdvance();
+            Marker marker = builder.markAndAdvance();
             return stepOut(marker, context, FULL_MATCH, 1);
         }
-        return stepOut(marker, context, NO_MATCH, 0);
+        return stepOut(null, context, NO_MATCH, 0);
     }
 
 }

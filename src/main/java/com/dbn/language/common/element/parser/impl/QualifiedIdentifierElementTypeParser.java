@@ -66,7 +66,8 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
                     if (result.type == NO_MATCH) break;
                     node.matchedTokens++;
                 }
-                node.incrementIndex(builder.getOffset());
+                node.elementIndex++;
+                node.currentOffset = builder.getOffset();
             }
 
             if (node.matchedTokens > 0) {

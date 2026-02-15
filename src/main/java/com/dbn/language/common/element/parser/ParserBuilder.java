@@ -20,8 +20,8 @@ import com.dbn.code.common.completion.CodeCompletionContributor;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
-import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.TokenPairTemplate;
+import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.path.ParserNode;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
@@ -147,7 +147,7 @@ public final class ParserBuilder {
     }
 
     public Marker mark(ParserNode node){
-        tokenPairMonitor.consumeBeginTokens(node);
+        tokenPairMonitor.consumeBeginTokens(node.element);
         return builder.mark();
     }
 
@@ -168,15 +168,11 @@ public final class ParserBuilder {
         cache.reset();
     }
 
-    public void markerDone(Marker marker, ElementType elementType) {
-        markerDone(marker, elementType, null);
-    }
-
-    public void markerDone(Marker marker, ElementType elementType, @Nullable ParserNode node) {
+    public void markerDone(Marker marker, ElementTypeBase elementType) {
         if (marker == null) return;
 
-        tokenPairMonitor.consumeEndTokens(node);
-        marker.done((IElementType) elementType);
+        tokenPairMonitor.consumeEndTokens(elementType);
+        marker.done(elementType);
     }
 
     public void markerDrop(Marker marker) {

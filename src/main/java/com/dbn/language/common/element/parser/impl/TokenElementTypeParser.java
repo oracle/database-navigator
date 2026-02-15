@@ -43,18 +43,17 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) {
         ParserBuilder builder = context.builder;
-        Marker marker = null;
         if (context.isSurrogateFor(elementType)) {
             if (elementType.isSurrogate()) {
-                return stepOut(marker, context, FULL_MATCH, 0);
+                return stepOut(null, context, FULL_MATCH, 0);
             } else {
-                marker = builder.markAndAdvance();
+                Marker marker = builder.markAndAdvance();
                 return stepOut(marker, context, SURROGATE_MATCH, 1);
             }
         }
 
         if (builder.tokenMonitor.isSurrogateConsumed()) {
-            return stepOut(marker, context, SURROGATE_MATCH, 1);
+            return stepOut(null, context, SURROGATE_MATCH, 1);
         }
 
 
@@ -63,14 +62,14 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
 
         if (token == elementType.tokenType) {
             if (elementType.isSurrogate()) {
-                return stepOut(marker, context, FULL_MATCH, 0);
+                return stepOut(null, context, FULL_MATCH, 0);
             }
         }
 
         if (token == elementType.tokenType || builder.isDummyToken()) {
             String text = elementType.getText();
             if (Strings.isNotEmpty(text) && Strings.equalsIgnoreCase(builder.getTokenText(), text)) {
-                marker = builder.markAndAdvance();
+                Marker marker = builder.markAndAdvance();
                 return stepOut(marker, context, FULL_MATCH, 1);
             }
 
@@ -82,17 +81,17 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
                 TokenType nextTokenType = builder.getNextToken();
                 if (nextTokenType == dot && !elementType.isNextPossibleToken(dot, parentNode, context)) {
                     context.setWavedTokenType(token);
-                    return stepOut(marker, context, NO_MATCH, 0);
+                    return stepOut(null, context, NO_MATCH, 0);
                 }
                 if (token.isFunction() && elementType.getFlavor() == null) {
                     if (nextTokenType != leftParenthesis && elementType.isNextRequiredToken(leftParenthesis, parentNode, context)) {
                         context.setWavedTokenType(token);
-                        return stepOut(marker, context, NO_MATCH, 0);
+                        return stepOut(null, context, NO_MATCH, 0);
                     }
                 }
             }
 
-            marker = builder.markAndAdvance();
+            Marker marker = builder.markAndAdvance();
             return stepOut(marker, context, FULL_MATCH, 1);
         }
         return NO_MATCH_RESULT;

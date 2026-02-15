@@ -257,7 +257,6 @@
             <one-of id="00118">
                 <token type-id="STRING" original-name="literal" id="00119" />
                 <element ref-id="expr" />
-                <element ref-id="wrapped_expr" />
             </one-of>
         </sequence>
         <sequence optional="true" id="00120">
@@ -266,10 +265,7 @@
                 <token type-id="KW_DELETE" id="00123" />
                 <token type-id="KW_UPDATE" id="00124" />
             </one-of>
-            <one-of id="00125">
-                <element ref-id="expr" />
-                <element ref-id="wrapped_expr" />
-            </one-of>
+            <element ref-id="expr" />
         </sequence>
         <one-of optional="true" id="00126">
             <token type-id="KW_VISIBLE" id="00127" />
@@ -1326,7 +1322,7 @@
             </iteration>
         </one-of>
     </element-def>
-    <element-def description="" id="export_options">
+    <element-def description="Export options" id="export_options">
         <sequence id="00751" optional="true">
             <one-of id="00752">
                 <token id="00753" type-id="KW_FIELDS" />
@@ -1422,7 +1418,7 @@
     </element-def>
 
 
-    <element-def description="Expression" id="expr">
+    <element-def description="Expression" id="expr" optional-wrapping="PARENTHESES">
         <one-of id="00801">
             <element ref-id="compound_expression" />
             <element ref-id="case_expression" />
@@ -1682,7 +1678,7 @@
                     <token id="00929" type-id="FN_UNIX_TIMESTAMP" />
                     <token id="00930" type-id="FN_LAST_INSERT_ID" />
                 </one-of>
-                <wrapper id="00931" template="PARENTHESES">
+                <wrapper id="00931" template="PARENTHESES" optional="true">
                     <element optional="true" ref-id="expr" />
                 </wrapper>
             </sequence>

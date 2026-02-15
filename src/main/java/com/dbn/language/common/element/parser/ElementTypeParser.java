@@ -51,11 +51,7 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
     }
 
     public ParseResult stepOut(ParserNode node, ParserContext context, ParseResultType resultType) {
-        return stepOut(node, context, resultType, node == null ? 0 : node.matchedTokens);
-    }
-
-    public ParseResult stepOut(ParserNode node, ParserContext context, ParseResultType resultType, int matchedTokens) {
-        return stepOut(null, node, context, resultType, matchedTokens);
+        return stepOut(null, node, context, resultType, node == null ? 0 : node.matchedTokens);
     }
 
     public ParseResult stepOut(Marker marker, ParserContext context, ParseResultType resultType, int matchedTokens) {
@@ -77,7 +73,7 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
             } else {
                 if (elementType instanceof BlockElementType)
                     builder.markerDrop(marker); else
-                    builder.markerDone(marker, elementType, node);
+                    builder.markerDone(marker, elementType);
             }
 
 

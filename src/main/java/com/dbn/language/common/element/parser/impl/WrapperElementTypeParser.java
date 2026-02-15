@@ -94,7 +94,7 @@ public class WrapperElementTypeParser extends ElementTypeParser<WrapperElementTy
 
     private static boolean isParentWrapping(ParserNode node, TokenType tokenType) {
         ParserNode parent = (ParserNode) node.parent;
-        while (parent != null && parent.cursorPosition == 0) {
+        while (parent != null && parent.elementIndex == 0) {
             WrappingDefinition parentWrapping = parent.element.wrapping;
             if (parentWrapping != null && parentWrapping.beginElement.tokenType == tokenType) {
                 return true;

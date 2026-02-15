@@ -22,7 +22,6 @@ import com.dbn.language.common.element.impl.ElementTypeRef;
 import com.dbn.language.common.element.impl.OneOfElementType;
 import com.dbn.language.common.element.parser.ElementTypeParser;
 import com.dbn.language.common.element.parser.ParseResult;
-import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
 
@@ -37,8 +36,7 @@ public class OneOfElementTypeParser extends ElementTypeParser<OneOfElementType> 
 
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) throws ParseException {
-        ParserBuilder builder = context.builder;
-        TokenType token = builder.getToken();
+        TokenType token = context.builder.getToken();
         if (token == null) return NO_MATCH_RESULT;
 
         ParserNode node = stepIn(parentNode, context);
@@ -49,11 +47,12 @@ public class OneOfElementTypeParser extends ElementTypeParser<OneOfElementType> 
                 ParseResult result = element.elementType.parser.parse(node, context);
 
                 if (result.type != NO_MATCH) {
-                    return stepOut(node, context, result.type, result.matchedTokens);
+                    node.matchedTokens = result.matchedTokens;
+                    return stepOut(node, context, result.type);
                 }
             }
             element = element.next;
         }
-        return stepOut(node, context, NO_MATCH, 0);
+        return stepOut(node, context, NO_MATCH);
     }
 }

@@ -169,15 +169,15 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
     }
 
     private boolean isNextToken(TokenType tokenType, ParserNode pathNode, ParserContext context, boolean required) {
-        int position = -1;
+        int index = -1;
         while (pathNode != null) {
             ElementType elementType = pathNode.element;
 
             if (elementType instanceof SequenceElementType sequenceElementType) {
 
                 int elementsCount = sequenceElementType.children.length;
-                if (position == -1) {
-                    position = pathNode.cursorPosition + 1;
+                if (index == -1) {
+                    index = pathNode.elementIndex + 1;
                 }
 
                 //int position = sequenceElementType.indexOf(this) + 1;
@@ -187,8 +187,8 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                     position++;
                 }
 */
-                if (position < elementsCount) {
-                    ElementTypeRef element = sequenceElementType.children[position];
+                if (index < elementsCount) {
+                    ElementTypeRef element = sequenceElementType.children[index];
                     while (element != null) {
                         ElementTypeLookupCache lookupCache = element.elementType.cache;
                         if (required) {
@@ -234,7 +234,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                 }
             }
 
-            position = pathNode.getIndexInParent() + 1;
+            index = pathNode.getIndexInParent() + 1;
             pathNode = (ParserNode) pathNode.parent;
         }
         return false;

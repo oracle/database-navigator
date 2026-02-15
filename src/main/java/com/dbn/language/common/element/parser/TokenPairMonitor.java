@@ -23,7 +23,6 @@ import com.dbn.language.common.element.TokenPairTemplate;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.impl.WrappingDefinition;
-import com.dbn.language.common.element.path.ParserNode;
 import com.intellij.lang.PsiBuilder.Marker;
 import org.jetbrains.annotations.Nullable;
 
@@ -71,10 +70,8 @@ public class TokenPairMonitor extends ParserBuilderExtension {
         return false;
     }
 
-    protected void consumeBeginTokens(@Nullable ParserNode node) {
-        if (node == null) return;
-
-        WrappingDefinition wrapping = node.element.wrapping;
+    protected void consumeBeginTokens(ElementTypeBase elementType) {
+        WrappingDefinition wrapping = elementType.wrapping;
         if (wrapping == null) return;
 
         TokenElementType beginElement = wrapping.beginElement;
@@ -88,10 +85,8 @@ public class TokenPairMonitor extends ParserBuilderExtension {
         }
     }
 
-    protected void consumeEndTokens(@Nullable ParserNode node) {
-        if (node == null) return;
-
-        WrappingDefinition wrapping = node.element.wrapping;
+    protected void consumeEndTokens(ElementTypeBase elementType) {
+        WrappingDefinition wrapping = elementType.wrapping;
         if (wrapping == null) return;
 
         TokenElementType endElement = wrapping.endElement;
