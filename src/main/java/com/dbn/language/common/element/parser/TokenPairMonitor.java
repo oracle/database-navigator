@@ -78,7 +78,7 @@ public class TokenPairMonitor extends ParserBuilderExtension {
         TokenType beginToken = beginElement.tokenType;
         while(builder.getToken() == beginToken) {
             Marker beginTokenMarker = builder.mark();
-            acknowledge(false);
+            acknowledge(elementType, beginToken, false);
             builder.advanceInternally();
             builder.tokenMonitor.markResolved(beginElement);
             beginTokenMarker.done(beginElement);
@@ -93,31 +93,30 @@ public class TokenPairMonitor extends ParserBuilderExtension {
         TokenType endToken = endElement.tokenType;
         while (builder.getToken() == endToken && !isExplicitRange(endToken)) {
             Marker endTokenMarker = builder.mark();
-            acknowledge(false);
+            acknowledge(elementType, endToken, false);
             builder.advanceInternally();
             builder.tokenMonitor.markResolved(endElement);
             endTokenMarker.done(endElement);
         }
     }
 
-    protected void acknowledge(boolean explicit) {
-        TokenType token = builder.getToken();
+    protected void acknowledge(ElementTypeBase element, TokenType token, boolean explicit) {
         TokenPairStack tokenPairStack = getStack(token);
-        if (tokenPairStack != null) {
-            tokenPairStack.acknowledge(explicit);
-        }
+        if (tokenPairStack == null) return;
+
+        tokenPairStack.acknowledge(element, token, explicit);
     }
 
-    public void cleanup() {
+    public void reset() {
         for (TokenPairStack tokenPairStack : stacks.values()) {
-            tokenPairStack.cleanup(true);
+            tokenPairStack.reset();
         }
 
     }
 
-    public void rollback() {
+    public void rollback(ElementTypeBase element) {
         for (TokenPairStack tokenPairStack : stacks.values()) {
-            tokenPairStack.rollback();
+            tokenPairStack.rollback(element);
         }
     }
 

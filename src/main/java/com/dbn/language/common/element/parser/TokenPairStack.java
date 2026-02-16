@@ -21,21 +21,22 @@ import com.dbn.language.common.SimpleTokenType;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.common.element.TokenPairTemplate;
+import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.intellij.util.containers.Stack;
 
 public class TokenPairStack {
     private int stackSize = 0;
-    private final Stack<TokenPairMarker> markersStack = new Stack<>();
+    private final Stack<TokenPairMarker> markers = new Stack<>();
     private final ParserBuilder builder;
 
     private final SimpleTokenType beginToken;
     private final SimpleTokenType endToken;
 
 
-    public TokenPairStack(ParserBuilder builder, DBLanguageDialect languageDialect, TokenPairTemplate template) {
+    public TokenPairStack(ParserBuilder builder, DBLanguageDialect language, TokenPairTemplate template) {
         this.builder = builder;
 
-        TokenTypeBundle parserTokenTypes = languageDialect.getParserTokenTypes();
+        TokenTypeBundle parserTokenTypes = language.getParserTokenTypes();
         beginToken = parserTokenTypes.getTokenType(template.getBeginToken());
         endToken = parserTokenTypes.getTokenType(template.getEndToken());
     }
@@ -43,12 +44,12 @@ public class TokenPairStack {
     /**
      * cleanup all markers registered after the builder offset (remained dirty after a marker rollback)
      */
-    public void rollback() {
+    public void rollback(ElementTypeBase element) {
         int builderOffset = builder.getOffset();
-        while (!markersStack.isEmpty()) {
-            TokenPairMarker lastMarker = markersStack.peek();
+        while (!markers.isEmpty()) {
+            TokenPairMarker lastMarker = markers.peek();
             if (lastMarker.offset >= builderOffset) {
-                markersStack.pop();
+                markers.pop();
                 if (stackSize > 0) stackSize--;
             } else {
                 break;
@@ -56,62 +57,55 @@ public class TokenPairStack {
         }
     }
 
-    public void acknowledge(boolean explicit) {
-        TokenType tokenType = builder.getToken();
-        if (tokenType == beginToken) {
+    public void acknowledge(ElementTypeBase element, TokenType token, boolean explicit) {
+        if (token == beginToken) {
             stackSize++;
-            TokenPairMarker marker = new TokenPairMarker(builder.getOffset(), explicit);
-            markersStack.push(marker);
-        } else if (tokenType == endToken) {
+            TokenPairMarker marker = new TokenPairMarker(element, builder.getOffset(), explicit);
+            markers.push(marker);
+        } else if (token == endToken) {
             if (stackSize > 0) stackSize--;
-            if (!markersStack.isEmpty()) {
-/*
-                NestedRangeMarker marker = markersStack.peek();
-                ParsePathNode markerNode = marker.getParseNode();
-                if (markerNode == node) {
-
-                } else if (markerNode.isSiblingOf(node)) {
-
-                } else if (node.isSiblingOf(markerNode)) {
-                    WrappingDefinition childWrapping = node.getElementType().getWrapping();
-                    WrappingDefinition parentWrapping = markerNode.getElementType().getWrapping();
-                    if (childWrapping != null && childWrapping.equals(parentWrapping)) {
-
-                    }
-                }
-*/
-                cleanup(false);
+            if (!markers.isEmpty()) {
+                conclude(element);
             }
         }
     }
 
-    public void cleanup(boolean force) {
-        if (force) stackSize = 0;
-        while(markersStack.size() > stackSize) {
-            markersStack.pop();
+    public void conclude(ElementTypeBase element) {
+        while(markers.size() > stackSize) {
+            TokenPairMarker marker = markers.pop();
+            if (marker.owner != element && element != null) {
+                System.out.println();
+            }
         }
     }
 
-    public boolean isExplicitRange() {
-        if (markersStack.isEmpty()) return false;
+    public void reset() {
+        stackSize = 0;
+        markers.clear();
+    }
 
-        TokenPairMarker marker = markersStack.peek();
+    public boolean isExplicitRange() {
+        if (markers.isEmpty()) return false;
+
+        TokenPairMarker marker = markers.peek();
         return marker.explicit;
 
     }
 
     public void setExplicitRange(boolean value) {
-        if (!markersStack.isEmpty()) {
-            TokenPairMarker marker = markersStack.peek();
+        if (!markers.isEmpty()) {
+            TokenPairMarker marker = markers.peek();
             marker.explicit = value;
         }
     }
 
     public static class TokenPairMarker {
+        private final ElementTypeBase owner;
         private final int offset;
         private boolean explicit;
 
-        public TokenPairMarker(int offset, boolean explicit) {
+        public TokenPairMarker(ElementTypeBase owner, int offset, boolean explicit) {
+            this.owner = owner;
             this.offset = offset;
             this.explicit = explicit;
         }

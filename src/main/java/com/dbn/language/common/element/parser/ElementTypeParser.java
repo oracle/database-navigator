@@ -69,7 +69,7 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
             }
 
             if (resultType == NO_MATCH) {
-                builder.markerRollbackTo(marker);
+                builder.markerRollbackTo(marker, elementType);
             } else {
                 if (elementType instanceof BlockElementType)
                     builder.markerDrop(marker); else

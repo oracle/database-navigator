@@ -41,7 +41,7 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
             if (elementType.isSurrogate()) {
                 return stepOut(null, context, FULL_MATCH, 0);
             } else {
-                Marker marker = builder.markAndAdvance();
+                Marker marker = builder.markAndAdvance(parentNode.element);
                 return stepOut(marker, context, SURROGATE_MATCH, 1);
             }
         }
@@ -55,7 +55,7 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
                 return stepOut(null, context, FULL_MATCH, 0);
             }
 
-            Marker marker = builder.markAndAdvance();
+            Marker marker = builder.markAndAdvance(parentNode.element);
             return stepOut(marker, context, FULL_MATCH, 1);
         }
 

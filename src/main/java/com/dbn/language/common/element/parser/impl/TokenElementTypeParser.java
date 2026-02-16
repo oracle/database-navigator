@@ -47,7 +47,7 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
             if (elementType.isSurrogate()) {
                 return stepOut(null, context, FULL_MATCH, 0);
             } else {
-                Marker marker = builder.markAndAdvance();
+                Marker marker = builder.markAndAdvance(parentNode.element);
                 return stepOut(marker, context, SURROGATE_MATCH, 1);
             }
         }
@@ -69,7 +69,7 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
         if (token == elementType.tokenType || builder.isDummyToken()) {
             String text = elementType.getText();
             if (Strings.isNotEmpty(text) && Strings.equalsIgnoreCase(builder.getTokenText(), text)) {
-                Marker marker = builder.markAndAdvance();
+                Marker marker = builder.markAndAdvance(parentNode.element);
                 return stepOut(marker, context, FULL_MATCH, 1);
             }
 
@@ -91,7 +91,7 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
                 }
             }
 
-            Marker marker = builder.markAndAdvance();
+            Marker marker = builder.markAndAdvance(parentNode.element);
             return stepOut(marker, context, FULL_MATCH, 1);
         }
         return NO_MATCH_RESULT;
