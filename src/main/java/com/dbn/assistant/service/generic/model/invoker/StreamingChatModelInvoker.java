@@ -55,8 +55,7 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
     }
 
     private void initTokenStream(TokenStream tokenStream, AssistantResponseConsumer consumer) {
-        if (tokenStream instanceof AiServiceTokenStream) {
-            AiServiceTokenStream aiTokenStream = (AiServiceTokenStream) tokenStream;
+        if (tokenStream instanceof AiServiceTokenStream aiTokenStream) {
             aiTokenStream.beforeToolExecution(e -> {
                 ToolExecutionRequest request = e.request();
                 normalizeRequest(request);

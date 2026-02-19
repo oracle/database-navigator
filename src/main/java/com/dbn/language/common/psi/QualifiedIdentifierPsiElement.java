@@ -66,8 +66,7 @@ public class QualifiedIdentifierPsiElement extends SequencePsiElement<QualifiedI
         int index = 0;
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) child;
+            if (child instanceof IdentifierPsiElement identifierPsiElement) {
                 if (identifierPsiElement.elementType == identifierElementType) {
                     return index;
                 } else {
@@ -173,8 +172,7 @@ public class QualifiedIdentifierPsiElement extends SequencePsiElement<QualifiedI
         int count = 0;
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof LeafPsiElement) {
-                LeafPsiElement leafPsiElement = (LeafPsiElement) child;
+            if (child instanceof LeafPsiElement leafPsiElement) {
                 if (leafPsiElement.elementType != elementType.getSeparatorToken() ) {
                     count++;
                 }

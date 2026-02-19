@@ -51,8 +51,7 @@ public class ConsoleEditorToolImpl extends AssistantToolBase implements ConsoleE
         FileEditor selectedEditor = editorManager.getSelectedEditor();
         if (selectedEditor == null) return NO_CONSOLE_SELECTED;
 
-        if (selectedEditor instanceof SQLConsoleEditor) {
-            SQLConsoleEditor sqlConsoleEditor = (SQLConsoleEditor) selectedEditor;
+        if (selectedEditor instanceof SQLConsoleEditor sqlConsoleEditor) {
             VirtualFile consoleFile = sqlConsoleEditor.getFile();
             if (consoleFile == null) return NO_CONSOLE_SELECTED;
 

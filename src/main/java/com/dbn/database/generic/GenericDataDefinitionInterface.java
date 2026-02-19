@@ -21,7 +21,8 @@ import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.DBContentType;
-import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.factory.model.DBMethodSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
@@ -73,8 +74,12 @@ public class GenericDataDefinitionInterface extends DatabaseDataDefinitionInterf
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(MethodFactoryInput method, DBNConnection connection) throws SQLException {
+    public void createMethod(DBMethodSpec method, DBNConnection connection) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
 
+    @Override
+    public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

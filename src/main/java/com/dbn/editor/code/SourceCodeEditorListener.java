@@ -39,8 +39,7 @@ public class SourceCodeEditorListener extends DBNFileEditorManagerListener {
 
         FileEditor[] fileEditors = source.getEditors(file);
         for (FileEditor fileEditor : fileEditors) {
-            if (fileEditor instanceof SourceCodeEditor) {
-                SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) fileEditor;
+            if (fileEditor instanceof SourceCodeEditor sourceCodeEditor) {
                 SourceCodeEditorToolbarForm actionsPanel = new SourceCodeEditorToolbarForm(sourceCodeEditor);
                 Editors.addEditorToolbar(fileEditor, actionsPanel);
             }

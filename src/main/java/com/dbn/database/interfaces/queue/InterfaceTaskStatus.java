@@ -27,11 +27,11 @@ public enum InterfaceTaskStatus implements Status{
     CANCELLED;
 
     public Status getPair() {
-        switch (this) {
-            case DEQUEUED: return QUEUED;
-            case FINISHED: return STARTED;
-            default: return null;
-        }
+        return switch (this) {
+            case DEQUEUED -> QUEUED;
+            case FINISHED -> STARTED;
+            default -> null;
+        };
     }
 
     @Override

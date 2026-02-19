@@ -173,7 +173,7 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
                 expression = event.getDocument().getText();
                 verifyExpression();
             }
-        });
+        }, this);
 
         Editors.updateEditorScrollPane(editor);
 

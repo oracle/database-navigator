@@ -26,13 +26,11 @@ import static com.dbn.common.exception.Exceptions.unsupported;
 @NonNls
 public interface WrapperNamingProvider {
     default String getJavaWrapperName(DBObject sourceObject) {
-        if (sourceObject instanceof DBJavaClass) {
-            DBJavaClass javaClass = (DBJavaClass) sourceObject;
+        if (sourceObject instanceof DBJavaClass javaClass) {
             return getJavaWrapperName(javaClass);
         }
 
-        if (sourceObject instanceof DBJavaMethod) {
-            DBJavaMethod javaMethod = (DBJavaMethod) sourceObject;
+        if (sourceObject instanceof DBJavaMethod javaMethod) {
             return getJavaWrapperName(javaMethod);
         }
 
@@ -40,13 +38,11 @@ public interface WrapperNamingProvider {
     }
 
     default String getSqlWrapperName(DBObject sourceObject) {
-        if (sourceObject instanceof DBJavaClass) {
-            DBJavaClass javaClass = (DBJavaClass) sourceObject;
+        if (sourceObject instanceof DBJavaClass javaClass) {
             return getSqlWrapperName(javaClass);
         }
 
-        if (sourceObject instanceof DBJavaMethod) {
-            DBJavaMethod javaMethod = (DBJavaMethod) sourceObject;
+        if (sourceObject instanceof DBJavaMethod javaMethod) {
             return getSqlWrapperName(javaMethod);
         }
 

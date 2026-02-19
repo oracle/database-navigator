@@ -24,8 +24,7 @@ import static com.dbn.common.util.Unsafe.cast;
 
 public interface Constant<T extends Constant<T>> extends Serializable, Comparable<T> {
     default String id() {
-        if (this instanceof Enum) {
-            Enum enumeration = (Enum) this;
+        if (this instanceof Enum enumeration) {
             return enumeration.name();
         }
         throw new AbstractMethodError();
@@ -49,8 +48,7 @@ public interface Constant<T extends Constant<T>> extends Serializable, Comparabl
     int ordinal();
 
     default T next() {
-        if (this instanceof Enum) {
-            Enum enumeration = (Enum) this;
+        if (this instanceof Enum enumeration) {
             int index = enumeration.ordinal();
             T[] enumValues = cast(enumeration.getDeclaringClass().getEnumConstants());
 

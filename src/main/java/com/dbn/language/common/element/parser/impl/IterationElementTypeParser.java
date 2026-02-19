@@ -164,8 +164,7 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
 
                 ParserNode parseNode = parentNode;
                 while (parseNode != null) {
-                    if (parseNode.element instanceof SequenceElementType) {
-                        SequenceElementType sequenceElementType = (SequenceElementType) parseNode.element;
+                    if (parseNode.element instanceof SequenceElementType sequenceElementType) {
                         int index = parseNode.cursorPosition;
                         if (!iteratedElementType.cache.containsToken(token) && sequenceElementType.containsLandmarkTokenFromIndex(token, index + 1)) {
                             if (advanced || !lenient) {

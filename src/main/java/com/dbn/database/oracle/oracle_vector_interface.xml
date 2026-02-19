@@ -96,67 +96,71 @@
 <!--        </statement>-->
 <!--    </statement-execution-processor>-->
 
-    <statement-execution-processor id="load-onnx-model-from-object-storage" timeout="120">
+    <statement-execution-processor id="create-model-from-storage" timeout="120">
         <statement>
-            BEGIN
+            begin
                 DBMS_VECTOR.LOAD_ONNX_MODEL_CLOUD(
-                    model_name => {#0},
-                    credential => {#1},
-                    uri        => {#2});
-            END;
+                    MODEL_NAME => {#0},
+                    CREDENTIAL => {#1},
+                    URI        => {#2});
+            end;
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="drop-embed-model" timeout="120">
+    <statement-execution-processor id="create-model-from-file" timeout="12000">
+        <statement>
+            begin
+                DBMS_VECTOR.LOAD_ONNX_MODEL(
+                    MODEL_NAME => {#0},
+                    MODEL_DATA => {#1});
+            end;
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="drop-model" timeout="120">
         <statement>
             begin
                 DBMS_VECTOR.DROP_ONNX_MODEL(
-                        model_name => {#0});
+                        MODEL_NAME => {#0});
             end;
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="create-embedding-table" timeout="120" >
         <statement>
-            CREATE TABLE IF NOT EXISTS {0}.{1} (
-                {2} VARCHAR(4000) PRIMARY KEY,
-                {3} CLOB,
-                {4} VECTOR(*, FLOAT32) NOT NULL,
-                {5} JSON
-            )
+            begin
+                execute immediate '
+                    create table {0}.{1} (
+                        {2} varchar(4000) primary key,
+                        {3} clob,
+                        {4} vector(*, float32) not null,
+                        {5} json)
+                ';
+
+                -- Create index for efficient deduplication lookups
+                execute immediate '
+                    create index {0}.{1}_SOURCE_IDX on {0}.{1} (
+                        json_value({5}, ''$.embedding_source.source_id'')
+                    )
+                ';
+            end;
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="ensure-documents-table" timeout="120000">
+    <statement-execution-processor id="create-file-store-entry">
         <statement>
-            DECLARE
-            table_already_exists EXCEPTION;
-            PRAGMA EXCEPTION_INIT(table_already_exists, -955);
-            BEGIN
-                EXECUTE IMMEDIATE '
-                        CREATE TABLE {0}.{1} (
-                        id VARCHAR2(50) NOT NULL PRIMARY KEY,
-                        file_content BLOB,
-                        metadata JSON,
-                        file_hash VARCHAR2(32) NOT NULL,
-                        file_size NUMBER(19) NOT NULL,
-                        CONSTRAINT uk_file_identity UNIQUE (file_hash, file_size)
-                        ) LOB(file_content) STORE AS SECUREFILE (NOCACHE FILESYSTEM_LIKE_LOGGING)
-                        ';
-
-                RAISE_APPLICATION_ERROR(-20001, 'TABLE_CREATED');
-
-                EXCEPTION
-                WHEN table_already_exists THEN
-                    RAISE_APPLICATION_ERROR(-20002, 'TABLE_EXISTS');
-            END;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="insert-empty-document-row">
-        <statement>
-            INSERT INTO {0}
-            (id, file_content, metadata,file_hash,file_size)
-            VALUES ({#1}, EMPTY_BLOB(), {#2},{#3},{#4})
+            insert into {0}.{1}(
+                ID,
+                FILE_CONTENT,
+                METADATA,
+                FILE_HASH,
+                FILE_SIZE)
+            values (
+                {#2},
+                empty_blob(),
+                {#3},
+                {#4},
+                {#5})
         </statement>
     </statement-execution-processor>
 
@@ -166,19 +170,30 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="select-document-id-by-hash">
+    <statement-execution-processor id="load-file-store-metadata">
         <statement>
-            SELECT id, metadata FROM {0} WHERE file_hash = {#1} and file_size = {#2} and rownum = 1
+            select ID, METADATA from {0}.{1} where FILE_HASH = {#2} and FILE_SIZE = {#3} and ROWNUM = 1
         </statement>
     </statement-execution-processor>
 
-
-
-    <statement-execution-processor id="stream-file-content-to-blob" timeout="120000">
+    <statement-execution-processor id="is-content-embedded">
         <statement>
-            UPDATE {0}
-            SET file_content = {#1}
-            WHERE id = {#2}
+            select case
+                when exists (
+                    select 1
+                    from {0}.{1}
+                    where json_value({2}, '$.embedding_source.source_id') = {#3})
+                then 'Y'
+                else 'N'
+            end as value
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="upload_file_store_content" timeout="120000">
+        <statement>
+            UPDATE {0}.{1}
+            SET file_content = {#2}
+            WHERE id = {#3}
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="insert-vector-embeddings-from-table" timeout="120000">
@@ -192,7 +207,7 @@
                         {#11},
                         JSON_OBJECT(
                             KEY 'embedding_id' VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50)),
-                            KEY 'embedding_source' VALUE JSON_OBJECT('primary_key' VALUE src.{7})
+                            KEY 'embedding_source' VALUE JSON_OBJECT('source_id' VALUE src.{7})
                         ) RETURNING VARCHAR2
                     )
                 FROM {5}.{6} src,
@@ -206,44 +221,69 @@
                     ) t;
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="insert-vector-embeddings-from-table-batch" timeout="120000">
+        <statement>
+            insert into {0}.{1} (id, {2}, {3}, {4})
+                select
+                    sys_guid(),
+                    json_value(t.COLUMN_VALUE, '$.embed_data' returning clob),
+                    to_vector(json_value(t.COLUMN_VALUE, '$.embed_vector' returning clob)),
+                    json_mergepatch(
+                        {#11},
+                        json_object(
+                            key 'embedding_id' value json_value(t.COLUMN_VALUE, '$.embed_id' returning varchar2(50)),
+                            key 'embedding_source' value json_object('source_id' VALUE src.{7})
+                        ) returning varchar2
+                    )
+                from (
+                    select * from {5}.{6}
+                    where not exists (
+                        select 1 from {0}.{1} tgt
+                        where json_value(tgt.{4}, '$.embedding_source.source_id') = to_char({7})
+                    )
+                    fetch first {12} rows only
+                ) src,
+                table(
+                        DBMS_VECTOR.UTL_TO_EMBEDDINGS(
+                                DATA   => DBMS_VECTOR.UTL_TO_CHUNKS(
+                                                DATA   => src.{8},
+                                                PARAMS => json({#9})),
+                                PARAMS => json({#10}))) t
+        </statement>
+    </statement-execution-processor>
         <statement-execution-processor id="insert-vector-embeddings-from-filesystem" timeout="120000">
         <statement>
-            INSERT INTO {0}.{1} (id, {2}, {3}, {4})
-                SELECT
+            insert into {0}.{1} (id, {2}, {3}, {4})
+                select
                     SYS_GUID(),
-                    jt.embed_data,
-                    TO_VECTOR(jt.embed_vector),
-                    JSON_MERGEPATCH(
-                        {#9},
-                        JSON_OBJECT(
-                            KEY 'embedding_id' VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50))
-                        ) RETURNING VARCHAR2
+                    jt.EMBED_DATA,
+                    to_vector(jt.EMBED_VECTOR),
+                    json_mergepatch(
+                        {#10},
+                        json_object(
+                            key 'embedding_id' value json_value(t.COLUMN_VALUE, '$.embed_id' returning varchar2(50))
+                        ) returning varchar2
                     )
-                FROM TABLE(
+                from table(
                     DBMS_VECTOR.UTL_TO_EMBEDDINGS(
-                        data   => DBMS_VECTOR.UTL_TO_CHUNKS(
-                                        data   => DBMS_VECTOR_CHAIN.UTL_TO_TEXT(
-                                                        data   => (select file_content from {5} where id = {#6} ),
-                                                        params => json(json_object('plaintext' VALUE true))),
-                                        params => json({#7})),
-                        params => json({#8})
+                        DATA   => DBMS_VECTOR.UTL_TO_CHUNKS(
+                                        DATA   => DBMS_VECTOR_CHAIN.UTL_TO_TEXT(
+                                                        DATA   => (select FILE_CONTENT from {5}.{6} where ID = {#7}
+                                                                   and not exists (
+                                                                        select 1 from {0}.{1} tgt
+                                                                        where json_value(tgt.{4}, '$.embedding_source.source_id') = {#7})),
+                                                        PARAMS => json(json_object('plaintext' value true))),
+                                        PARAMS => json({#8})),
+                        PARAMS => json({#9})
                     )
                 ) t,
-                JSON_TABLE(
+                json_table(
                     t.COLUMN_VALUE, '$'
-                        COLUMNS (
+                        columns (
                             embed_data   CLOB PATH '$.embed_data',
                             embed_vector CLOB PATH '$.embed_vector'
                         )
-                ) jt;
-        </statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="load-onnx-model-through-jdbc" timeout="12000">
-        <statement>
-            BEGIN
-                DBMS_VECTOR.LOAD_ONNX_MODEL({#0}, {#1});
-            END;
+                ) jt
         </statement>
     </statement-execution-processor>
 

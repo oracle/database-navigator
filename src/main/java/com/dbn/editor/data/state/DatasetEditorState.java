@@ -25,7 +25,6 @@ import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -84,7 +83,7 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
 
         Element contentTypesElement = newElement(element, "content-types");
         if (contentTypesMap != null && !contentTypesMap.isEmpty()) {
-            for (val entry : contentTypesMap.entrySet()) {
+            for (var entry : contentTypesMap.entrySet()) {
                 String columnName = entry.getKey();
                 String contentTypeName = entry.getValue();
 

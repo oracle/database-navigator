@@ -114,8 +114,7 @@ public final class WrapperElementType extends ElementTypeBase {
         if (getBeginTokenElement().tokenType.isReservedWord()) {
             return true;
         }
-        if (parent instanceof SequenceElementType) {
-            SequenceElementType sequenceElementType = (SequenceElementType) parent;
+        if (parent instanceof SequenceElementType sequenceElementType) {
             int index = sequenceElementType.indexOf(this);
 
             ElementTypeRef child = sequenceElementType.children[index];

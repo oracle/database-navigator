@@ -16,6 +16,7 @@
 
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.data.DatasetEditor;
@@ -34,6 +35,7 @@ import javax.swing.JComponent;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.nls.NlsResources.txt;
 
+@BackgroundUpdate
 public class DatasetFiltersSelectAction extends ComboBoxAction {
 
     @Override

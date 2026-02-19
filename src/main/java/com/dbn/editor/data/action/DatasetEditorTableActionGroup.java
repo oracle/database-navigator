@@ -92,8 +92,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         // the join is AND, and the column is not already present
         DatasetFilterManager filterManager = DatasetFilterManager.getInstance(table.getDataset().getProject());
         DatasetFilter activeFilter = filterManager.getActiveFilter(table.getDataset());
-        if (activeFilter instanceof DatasetBasicFilter) {
-            DatasetBasicFilter basicFilter = (DatasetBasicFilter) activeFilter;
+        if (activeFilter instanceof DatasetBasicFilter basicFilter) {
             if (basicFilter.getJoinType() == ConditionJoinType.AND &&
                     !basicFilter.containsConditionForColumn(columnInfo.getName())) {
                 filterActionGroup.addSeparator();
@@ -148,7 +147,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
     private static String getClipboardContent(int maxLength) {
         try {
             CopyPasteManager copyPasteManager = CopyPasteManager.getInstance();
-            Transferable transferable = copyPasteManager.getContents();;
+            Transferable transferable = copyPasteManager.getContents();
             if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                 String text = (String) transferable.getTransferData(DataFlavor.stringFlavor);
                 if (text == null) {

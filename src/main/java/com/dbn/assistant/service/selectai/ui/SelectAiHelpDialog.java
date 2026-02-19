@@ -30,7 +30,6 @@ public class SelectAiHelpDialog extends DBNDialog<SelectAiHelpForm> {
   public SelectAiHelpDialog(ConnectionHandler connection) {
     super(connection.getProject(), "Select AI Help", true);
     this.connection = ConnectionRef.of(connection);
-    renameAction(getCancelAction(), "Close");
 
     setResizable(false);
     init();
@@ -38,8 +37,9 @@ public class SelectAiHelpDialog extends DBNDialog<SelectAiHelpForm> {
 
   @NotNull
   @Override
-  protected Action[] createActions() {
-    return new Action[]{getCancelAction()};
+  protected Action[] initializeActions() {
+    renameAction(getCancelAction(), "Close");
+    return actions(getCancelAction());
   }
 
   public ConnectionHandler getConnection() {

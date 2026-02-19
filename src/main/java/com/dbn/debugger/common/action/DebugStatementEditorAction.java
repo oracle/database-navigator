@@ -54,8 +54,7 @@ public class DebugStatementEditorAction extends ProjectAction {
         if (editor != null) {
             VirtualFile virtualFile = Documents.getVirtualFile(editor);
             ExecutablePsiElement executablePsiElement = null;
-            if (virtualFile instanceof DBConsoleVirtualFile) {
-                DBConsoleVirtualFile consoleVirtualFile = (DBConsoleVirtualFile) virtualFile;
+            if (virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile) {
                 if (consoleVirtualFile.getType() == DBConsoleType.DEBUG) {
                     PsiFile file = Documents.getFile(editor);
                     if (file != null) {

@@ -20,7 +20,6 @@ import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
-import lombok.val;
 import org.jdom.Element;
 
 import java.util.HashMap;
@@ -93,7 +92,7 @@ public class ExecutionVariableHistory implements PersistentStateElement, Connect
     public void writeState(Element element) {
         Element variablesCacheElement = newElement(element, "execution-variables-cache");
 
-        for (val entry : executionVariables.entrySet()) {
+        for (var entry : executionVariables.entrySet()) {
             ConnectionId connectionId = entry.getKey();
             Element connectionElement = newElement(variablesCacheElement, "connection");
             connectionElement.setAttribute("connection-id", connectionId.id());

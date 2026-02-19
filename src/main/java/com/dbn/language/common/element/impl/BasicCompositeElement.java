@@ -35,8 +35,7 @@ public class BasicCompositeElement extends CompositeElement {
     @Override
     protected PsiElement createPsiNoLock() {
         IElementType elementType = getElementType();
-        if (elementType instanceof ElementType) {
-            ElementType et = (ElementType) elementType;
+        if (elementType instanceof ElementType et) {
             return et.createPsiElement(this);
         }
         return super.createPsiNoLock();

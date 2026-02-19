@@ -38,8 +38,7 @@ public class DatabaseFileViewProviderFactory implements FileViewProviderFactory{
                 file instanceof DBSourceCodeVirtualFile ||
                 ((file instanceof DBVirtualFile || file instanceof LightVirtualFile) && file.getFileType() instanceof DBLanguageFileType)) {
 
-            if (file instanceof DBVirtualFile) {
-                DBVirtualFile virtualFile = (DBVirtualFile) file;
+            if (file instanceof DBVirtualFile virtualFile) {
 
                 DatabaseFileViewProvider viewProvider = virtualFile.getCachedViewProvider();
                 if (viewProvider != null) return viewProvider;

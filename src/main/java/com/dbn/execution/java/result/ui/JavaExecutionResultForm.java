@@ -217,14 +217,12 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         for (int index = 0; index < outputTabs.getTabCount(); index++) {
             DBNForm content = outputTabs.getContentAt(index);
 
-            if (content instanceof JavaExecutionCursorResultForm) {
-                JavaExecutionCursorResultForm cursorResultForm = (JavaExecutionCursorResultForm) content;
+            if (content instanceof JavaExecutionCursorResultForm cursorResultForm) {
                 if (cursorResultForm.getParameter().equals(parameter)) {
                     outputTabs.setSelectedIndex(index);
                     break;
                 }
-            } else if (content instanceof JavaExecutionLargeValueResultForm) {
-                JavaExecutionLargeValueResultForm largeValueResultForm = (JavaExecutionLargeValueResultForm) content;
+            } else if (content instanceof JavaExecutionLargeValueResultForm largeValueResultForm) {
                 if (largeValueResultForm.getParameter().equals(parameter)) {
                     outputTabs.setSelectedIndex(index);
                     break;

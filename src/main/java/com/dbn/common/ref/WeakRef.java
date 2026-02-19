@@ -73,16 +73,14 @@ public class WeakRef<T> extends WeakReference<T> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof WeakRef) {
-            WeakRef<?> that = (WeakRef<?>) obj;
+        if (obj instanceof WeakRef<?> that) {
             return Commons.match(this, that, ref -> ref.get());
         }
         return false;
     }
 
     public static <T> T unwrap(Object object) {
-        if (object instanceof WeakRef) {
-            WeakRef weakRef = (WeakRef) object;
+        if (object instanceof WeakRef weakRef) {
             return cast(weakRef.get());
         }
         return cast(object);

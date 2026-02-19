@@ -47,8 +47,7 @@ public abstract class DBLanguageBraceMatcher implements PairedBraceMatcher {
 
     @Override
     public boolean isPairedBracesAllowedBeforeType(@NotNull IElementType iElementType, @Nullable IElementType iElementType1) {
-        if (iElementType1 instanceof SimpleTokenType) {
-            SimpleTokenType simpleTokenType = (SimpleTokenType) iElementType1;
+        if (iElementType1 instanceof SimpleTokenType simpleTokenType) {
             SharedTokenTypeBundle tt = language.getSharedTokenTypes();
             return simpleTokenType == tt.getWhiteSpace() ||
                     simpleTokenType == tt.getChrDot() ||

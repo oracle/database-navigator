@@ -45,12 +45,10 @@ public class SQLStructureViewElement extends DBLanguageStructureViewElement<SQLS
         return new ItemPresentation() {
             @Override
             public String getPresentableText() {
-                if (psiElement instanceof DBLanguagePsiFile) {
-                    DBLanguagePsiFile file = (DBLanguagePsiFile) psiElement;
+                if (psiElement instanceof DBLanguagePsiFile file) {
                     return file.getName();
                 }
-                if (psiElement instanceof ChameleonPsiElement) {
-                    ChameleonPsiElement chameleonPsiElement = (ChameleonPsiElement) psiElement;
+                if (psiElement instanceof ChameleonPsiElement chameleonPsiElement) {
                     //return chameleonPsiElement.getLanguage().getName() + " block";
                     // todo make this dynamic
                     return "PL/SQL block";

@@ -132,12 +132,12 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     }
 
     public List<Chat> getSavedChats() {
-        return chats.
-                values().
-                stream().
-                sorted(Comparator.comparing(c -> ((Chat) c).getTimestamp()).reversed()).
-                filter(c -> c.isPersisted()).
-                collect(Collectors.toList());
+        return chats
+                .values()
+                .stream()
+                .sorted(Comparator.comparing(c -> ((Chat) c).getTimestamp()).reversed())
+                .filter(c -> c.isPersisted())
+                .toList();
     }
 
     public Chat createChat(ChatContext chatContext) {

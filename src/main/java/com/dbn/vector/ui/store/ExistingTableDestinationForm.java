@@ -2,7 +2,6 @@ package com.dbn.vector.ui.store;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
-import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
@@ -10,6 +9,7 @@ import com.dbn.data.type.GenericDataType;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
+import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.vector.model.store.StoreConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
@@ -23,36 +23,66 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isValid;
-import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.object.type.DBObjectType.COLUMN;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
+import static com.dbn.object.type.DBObjectType.TABLE;
 
 public class ExistingTableDestinationForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
-  private DBNComboBox<DBSchema> schemaComboBox;
-  private DBNComboBox<DBTable> tableComboBox;
-  private DBNComboBox<DBColumn> dataColumnComboBox;
-  private DBNComboBox<DBColumn> embeddingColumnComboBox;
-  private DBNComboBox<DBColumn> metadataColumnComboBox;
   private JLabel schemaLabel;
   private JLabel tableLabel;
   private JLabel dataColumnLabel;
   private JLabel embeddingColumnLabel;
   private JLabel metadataColumnLabel;
+  private DBObjectSelector<DBSchema> schemaComboBox;
+  private DBObjectSelector<DBTable> tableComboBox;
+  private DBObjectSelector<DBColumn> dataColumnComboBox;
+  private DBObjectSelector<DBColumn> embeddingColumnComboBox;
+  private DBObjectSelector<DBColumn> metadataColumnComboBox;
 
   public ExistingTableDestinationForm(@Nullable Disposable parent, @NotNull ConnectionHandler connection) {
     super(parent, connection);
-    initComboBoxes();
   }
 
   private void initComboBoxes() {
-    schemaComboBox.set(HIDE_DESCRIPTION, true);
-    tableComboBox.set(HIDE_DESCRIPTION, true);
-    dataColumnComboBox.set(HIDE_DESCRIPTION, true);
-    embeddingColumnComboBox.set(HIDE_DESCRIPTION, true);
-    metadataColumnComboBox.set(HIDE_DESCRIPTION, true);
+    StoreConfig config = getConfig();
+    schemaComboBox
+            .initialize(this, SCHEMA)
+            .withConnectionContext(() -> getConnection())
+            .withValueLoader(() -> loadSchemas())
+            .withValuePreselector(() -> config.getSchemaName())
+            .triggerLoad();
 
-    updateFieldAvailability();
+    tableComboBox
+            .initialize(this, TABLE)
+            .withConnectionContext(() -> getConnection())
+            .withSchemaContext(() -> getSelectedSchema())
+            .withValueLoader(() -> loadTables())
+            .withValuePreselector(() -> config.getTableName())
+            .triggerLoad();
+
+    dataColumnComboBox
+            .initialize(this, COLUMN)
+            .withConnectionContext(() -> getConnection())
+            .withValueLoader(() -> loadDataColumns())
+            .withValuePreselector(() -> config.getTextColumnName())
+            .triggerLoad();
+
+    embeddingColumnComboBox
+            .initialize(this, COLUMN)
+            .withConnectionContext(() -> getConnection())
+            .withValueLoader(() -> loadEmbeddingColumns())
+            .withValuePreselector(() -> config.getEmbeddingColumnName())
+            .triggerLoad();
+
+    metadataColumnComboBox
+            .initialize(this, COLUMN)
+            .withConnectionContext(() -> getConnection())
+            .withValueLoader(() -> loadMetadataColumns())
+            .withValuePreselector(() -> config.getMetadataColumnName())
+            .triggerLoad();
   }
 
   protected void initEventListeners() {
@@ -149,12 +179,7 @@ public class ExistingTableDestinationForm extends VectorToolboxFormBase {
 
   @Override
   public void resetFormChanges() {
-    StoreConfig config = getConfig();
-    schemaComboBox.init(() -> loadSchemas(), o -> matchesObjectName(o, config.getSchemaName()));
-    tableComboBox.init(() -> loadTables(), o -> matchesObjectName(o, config.getTableName()));
-    dataColumnComboBox.init(() -> loadDataColumns(), o -> matchesObjectName(o, config.getTextColumnName()));
-    embeddingColumnComboBox.init(() -> loadEmbeddingColumns(), o -> matchesObjectName(o, config.getEmbeddingColumnName()));
-    metadataColumnComboBox.init(() -> loadMetadataColumns(), o -> matchesObjectName(o, config.getMetadataColumnName()));
+    initComboBoxes();
   }
 
   @Override

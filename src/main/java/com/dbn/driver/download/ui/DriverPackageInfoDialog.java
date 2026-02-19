@@ -21,9 +21,7 @@ import com.dbn.driver.download.metadata.DriverPackage;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
-import java.awt.event.ActionEvent;
 
 public class DriverPackageInfoDialog extends DBNDialog<DriverPackageInfoForm> {
     DriverPackage driverPackage;
@@ -41,14 +39,8 @@ public class DriverPackageInfoDialog extends DBNDialog<DriverPackageInfoForm> {
 
     @NotNull
     @Override
-    protected Action [] createActions() {
-        return new Action[]{
-                new AbstractAction("Close") {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        close(OK_EXIT_CODE);
-                    }
-                }
-        };
+    protected Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(getCancelAction());
     }
 }

@@ -16,9 +16,7 @@
 
 package com.dbn.browser.action;
 
-import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.browser.ui.DatabaseBrowserTree;
-import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -27,14 +25,12 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class BrowserNavigateBackAction extends ProjectAction {
+public class BrowserNavigateBackAction extends AbstractBrowserAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        DatabaseBrowserTree activeTree = browserManager.getActiveBrowserTree();
-        boolean enabled = activeTree != null && activeTree.getNavigationHistory().hasPrevious();
+        DatabaseBrowserTree browserTree = getActiveBrowserTree(project);
+        boolean enabled = browserTree != null && browserTree.getNavigationHistory().hasPrevious();
 
         Presentation presentation = e.getPresentation();
         presentation.setText(txt("app.browser.action.NavigateBack"));
@@ -44,10 +40,9 @@ public class BrowserNavigateBackAction extends ProjectAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();
-        if (activeBrowserTree != null) {
-            activeBrowserTree.navigateBack();
+        DatabaseBrowserTree browserTree = getActiveBrowserTree(project);
+        if (browserTree != null) {
+            browserTree.navigateBack();
         }
     }
 }

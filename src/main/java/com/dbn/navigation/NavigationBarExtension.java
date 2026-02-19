@@ -40,8 +40,7 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 public class NavigationBarExtension extends AbstractNavBarModelExtension {
     @Override
     public String getPresentableText(Object object) {
-        if (object instanceof DBObject) {
-            DBObject dbObject = (DBObject) object;
+        if (object instanceof DBObject dbObject) {
             return dbObject.getName();
         }
         return null;
@@ -68,8 +67,7 @@ public class NavigationBarExtension extends AbstractNavBarModelExtension {
     }
 
     private static PsiElement adjusted(@NotNull PsiElement psiElement) {
-        if (psiElement instanceof DBLanguagePsiFile) {
-            DBLanguagePsiFile databaseFile = (DBLanguagePsiFile) psiElement;
+        if (psiElement instanceof DBLanguagePsiFile databaseFile) {
             VirtualFile virtualFile = databaseFile.getVirtualFile();
             if (virtualFile instanceof DBVirtualFileBase) {
                 DBObject object = databaseFile.getUnderlyingObject();

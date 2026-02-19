@@ -74,8 +74,7 @@ public class MethodExecutionResult extends ExecutionResultBase<MethodExecutionRe
         ValueHolder<Object> valueStore = ValueHolder.basic(value);
         ArgumentValue argumentValue = new ArgumentValue(argument, valueStore);
         argumentValues.add(argumentValue);
-        if (value instanceof DBNResultSet) {
-            DBNResultSet resultSet = (DBNResultSet) value;
+        if (value instanceof DBNResultSet resultSet) {
             if (cursorModels == null) {
                 cursorModels = new HashMap<>();
             }

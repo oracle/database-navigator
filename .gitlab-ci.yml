@@ -1,3 +1,11 @@
+default:
+  cache:
+    key: "gradle-shared-cache"
+    policy: pull-push
+    paths:
+      - .gradle/caches/
+      - .gradle/wrapper/
+
 image: localhost/jdk17-gradle8
 
 workflow:
@@ -10,7 +18,7 @@ workflow:
 
 before_script:
   # caching rely on this to be defined, otherwise it goes to user home
-  - GRADLE_USER_HOME="$(pwd)/.gradle"
+  - GRADLE_USER_HOME=".gradle"
   - export GRADLE_USER_HOME
   - export ORACLE_HTTP_PROXY_PORT=www-proxy-hqdc.us.oracle.com
   - export ORACLE_HTTP_PROXY_PORT=80
@@ -32,14 +40,8 @@ build-job:       # This job runs in the build stage, which runs first.
   stage: build
   script:
     - ./gradlew --build-cache clean build -x buildSearchableOptions -PexcludeTests="**/*DatabaseInterfaceQueueTest*;**/*ObjectPoolBaseTest*"
-    - ls -altr build/distributions
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    policy: push
-    paths:
-      - build
-      - .gradle
-  
+    - ls -altr build/distributions || true
+
 #deploy-to-artifactory:
 #    stage: deploy
 #    before_script:

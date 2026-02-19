@@ -21,7 +21,9 @@ import org.jetbrains.annotations.NonNls;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.dbn.common.util.TimeUtil.Millis.*;
+import static com.dbn.common.util.TimeUtil.Millis.ONE_HOUR;
+import static com.dbn.common.util.TimeUtil.Millis.ONE_MINUTE;
+import static com.dbn.common.util.TimeUtil.Millis.ONE_SECOND;
 
 @UtilityClass
 public class TimeUtil {
@@ -87,13 +89,13 @@ public class TimeUtil {
     }
 
     private static String presentableDuration(long value, @NonNls String unit, boolean compact) {
-        String unitToken = "";
-        switch (unit) {
-            case "hour": unitToken = compact ? "h" : (value > 1 ? unit + "s" : unit); break;
-            case "minute": unitToken = compact ? "m" : (value > 1 ? unit + "s" : unit); break;
-            case "second": unitToken = compact ? "s" : (value > 1 ? unit + "s" : unit); break;
-            case "millisecond": unitToken = "ms"; break;
-        }
+        String unitToken = switch (unit) {
+            case "hour" -> compact ? "h" : (value > 1 ? unit + "s" : unit);
+            case "minute" -> compact ? "m" : (value > 1 ? unit + "s" : unit);
+            case "second" -> compact ? "s" : (value > 1 ? unit + "s" : unit);
+            case "millisecond" -> "ms";
+            default -> "";
+        };
         String valueToken = value > 1 ? Long.toString(value) : (compact ? "1" : "one");
         String separatorToken = compact ? "" : " ";
         return valueToken + separatorToken + unitToken;

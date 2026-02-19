@@ -450,13 +450,12 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     @Override
     protected int getTabLabelShiftY(int tabPlacement, int tabIndex, boolean isSelected) {
         int delta = SELECTION_HEIGHT.get() - getOffset();
-        switch (tabPlacement) {
-            case RIGHT:
-            case LEFT: return 0;
-            case BOTTOM: return delta / 2;
+        return switch (tabPlacement) {
+            case RIGHT, LEFT -> 0;
+            case BOTTOM -> delta / 2;
             //case TOP,
-            default: return -delta / 2;
-        }
+            default -> -delta / 2;
+        };
     }
 
     @Override
@@ -470,13 +469,12 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     @Override
     protected int getTabLabelShiftX(int tabPlacement, int tabIndex, boolean isSelected) {
         int delta = SELECTION_HEIGHT.get() - getOffset();
-        switch (tabPlacement) {
-            case TOP:
-            case BOTTOM: return 0;
-            case LEFT: return -delta / 2;
+        return switch (tabPlacement) {
+            case TOP, BOTTOM -> 0;
+            case LEFT -> -delta / 2;
             //case RIGHT,
-            default: return delta / 2;
-        }
+            default -> delta / 2;
+        };
     }
 
     @Override

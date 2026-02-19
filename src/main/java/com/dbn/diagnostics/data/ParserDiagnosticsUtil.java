@@ -91,11 +91,9 @@ public final class ParserDiagnosticsUtil {
             public void visitElement(@NotNull PsiElement element) {
                 if (element instanceof PsiWhiteSpace || element instanceof PsiComment) {
                     // ignore
-                } else if (element instanceof LeafPsiElement && element.getParent() instanceof DBLanguagePsiFile) {
-                    LeafPsiElement leafPsiElement = (LeafPsiElement) element;
+                } else if (element instanceof LeafPsiElement leafPsiElement && element.getParent() instanceof DBLanguagePsiFile) {
                     IElementType elementType = leafPsiElement.getElementType();
-                    if (elementType instanceof com.dbn.language.common.TokenType) {
-                        com.dbn.language.common.TokenType tokenType = (TokenType) elementType;
+                    if (elementType instanceof TokenType tokenType) {
 
                         if (!tokenType.isCharacter() && !tokenType.isChameleon()) {
                             count.incrementAndGet();

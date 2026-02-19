@@ -8,24 +8,28 @@ import com.dbn.vector.model.PipelineStep;
 import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.common.FileContent;
+import com.dbn.vector.model.staging.StagingConfig;
+import com.dbn.vector.model.store.StoreConfig;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.dbn.vector.model.sourceconfig.SourceType.FILE_SYSTEM;
+import static com.dbn.vector.DatabaseVectorManager.ENGINE_VERSION;
+import static com.dbn.vector.model.source.SourceType.FILE_SYSTEM;
 
 @Slf4j
 public class FileProcessingService {
-    public static final String FILES_TABLE = "document_files";
 
-    public String checkFileExists(
+    public String resolveFileStoreId(
             @NotNull DBNConnection connection,
+            @NotNull VectorEmbeddingRequest request,
             @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull FileContent fileContent,
             @NotNull FileResult fileResult) {
@@ -33,23 +37,21 @@ public class FileProcessingService {
         StepResult step = fileResult.startStep(PipelineStep.CHECK_CRC);
 
         try {
-            String fileHash = fileContent.getHash();
-            long fileSize = fileContent.getFileSize();
-
             // Query database: does file with this hash and size exist?
-            ResultSet rs = vectorInterface.selectDocumentIdByHashIfExists(
+            StagingConfig stagingConfig = request.getStagingConfig();
+            ResultSet rs = vectorInterface.loadFileStoreMetadata(
                     connection,
-                    FILES_TABLE,
-                    fileHash,
-                    fileSize
-            );
+                    stagingConfig.getSchemaName(),
+                    stagingConfig.getTableName(),
+                    fileContent.getFileHash(),
+                    fileContent.getFileSize());
 
             if (rs.next()) {
-                String existingDocId = rs.getString("id");
+                String fileStoreId = rs.getString("id");
                 String metadata = rs.getString("metadata");
                 fileContent.setMetadata(Json.readAsMap(metadata));
                 step.markSuccess();
-                return existingDocId;
+                return fileStoreId;
             }
 
             step.markSuccess();
@@ -64,9 +66,10 @@ public class FileProcessingService {
 
     public void uploadFile(
             @NotNull DBNConnection connection,
+            @NotNull VectorEmbeddingRequest request,
             @NotNull DatabaseVectorInterface vectorInterface,
             @NotNull FileContent fileContent,
-            @NotNull String documentId,
+            @NotNull String fileStoreId,
             @NotNull FileResult fileResult) {
 
         StepResult step = fileResult.startStep(PipelineStep.UPLOADING_FILE);
@@ -74,25 +77,29 @@ public class FileProcessingService {
         try {
             // Extract metadata from FileContent and connection
             String metadataJson = buildFileMetadata(connection, fileContent);
+            StagingConfig stagingConfig = request.getStagingConfig();
 
             // Step 1: Insert row with metadata and hash
-            vectorInterface.insertEmptyDocumentRow(
+            vectorInterface.createFileStoreEntry(
                     connection,
-                    FILES_TABLE,
-                    documentId,
-                    metadataJson,
-                    fileContent.getHash(),  // From FileContent (no re-computation)
-                    fileContent.getFileSize()   // From FileContent (no re-reading)
-            );
+                    stagingConfig.getSchemaName(),
+                    stagingConfig.getTableName(),
+                    fileStoreId,
+                    metadataJson,   // From FileContent (no re-computation)
+                    fileContent.getFileHash(),   // From FileContent (no re-reading)
+                    fileContent.getFileSize());
 
             // Step 2: Write file bytes to BLOB column
             // NOTE: Pass bytes directly, not JDBC Blob
-            vectorInterface.writeBlobContent(
+          try (InputStream inputStream = fileContent.getInputStream()) {
+            vectorInterface.uploadFileStoreContent(
                     connection,
-                    FILES_TABLE,
-                    documentId,
-                    fileContent.getBytes()  // Cached bytes from FileContent
-            );
+                    stagingConfig.getSchemaName(),
+                    stagingConfig.getTableName(),
+                    fileStoreId,   // Cached bytes from FileContent
+                    inputStream);
+          }
+
 
             step.markSuccess();
         } catch (Exception e) {
@@ -111,6 +118,24 @@ public class FileProcessingService {
         StepResult step = fileResult.startStep(PipelineStep.EMBED);
 
         try {
+            // Check if embeddings already exist for this document
+            StoreConfig storeConfig = request.getStoreConfig();
+
+            boolean alreadyEmbedded = vectorInterface.isContentEmbedded(
+                    connection,
+                    storeConfig.getSchemaName(),
+                    storeConfig.getTableName(),
+                    storeConfig.getMetadataColumnName(),
+                    documentId
+            );
+
+            if (alreadyEmbedded) {
+                step.markSuccess();
+                fileResult.setExisted(true);
+                fileResult.finishSuccess(0);  // 0 new rows - already existed
+                return;
+            }
+
             String rowMetadata = buildRowMetadata(request, fileContent.getMetadata());
             String chunkConfigJson = request.getChunkConfig().getConfigJson();
             String embedConfigJson = request.getEmbedConfig().getConfigJson();
@@ -121,10 +146,10 @@ public class FileProcessingService {
                     connection,
                     chunkConfigJson,
                     embedConfigJson,
-                    request.getStoreConfig(),
-                    documentId,              // ← ID instead of Blob!
-                    rowMetadata
-            );
+                    request.getStagingConfig(),
+                    storeConfig,
+                    documentId,
+                    rowMetadata);
 
             step.markSuccess();
             fileResult.finishSuccess(embeddedRows);
@@ -145,6 +170,7 @@ public class FileProcessingService {
         @NonNls
         Map<String, Object> metadata = new LinkedHashMap<>();
 
+        metadata.put("source_id", fileContent.getFileStoreId());
         metadata.put("file_name", file.getName());
         metadata.put("file_path", file.getPath());
         metadata.put("file_size", fileContent.getFileSize());
@@ -161,6 +187,7 @@ public class FileProcessingService {
         sourceMetadata.putAll(fileMetadata);
 
         Map<String, Object> metadata = new LinkedHashMap<>();
+        metadata.put("engine_version", ENGINE_VERSION);
         metadata.put("embedding_source", sourceMetadata);
         metadata.put("embedding_config", request.getEmbedConfig().getConfigMap());
         metadata.put("chunking_config", request.getChunkConfig().getConfigMap());

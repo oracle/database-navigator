@@ -17,15 +17,18 @@
 package com.dbn.assistant.profile.ui;
 
 
+import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.assistant.credential.AssistantCredentialSettings;
 import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.assistant.profile.AssistantProfileSettings;
 import com.dbn.assistant.profile.DeclaredAssistantProfile;
+import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
@@ -124,10 +127,23 @@ public class AssistantProfilesSettingsForm extends ConfigurationEditorForm<Assis
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
+        AssistantProfileSettings configuration = getConfiguration();
         AssistantProfilesTableModel model = profilesTable.getModel();
         model.validate();
-
         model.applyChanges();
+
+        if (configuration.isModified()) {
+            refreshAssistantStates();
+        }
+    }
+
+    private void refreshAssistantStates() {
+        // notify after setting changes are applied
+        SettingsChangeNotifier.register(() -> {
+            Project project = ensureProject();
+            DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
+            assistantManager.notifyConfigChanges();
+        });
     }
 
     @Override

@@ -21,6 +21,8 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -176,6 +178,8 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
 
     public static boolean isIndex(@Nullable String string) {
         if (string == null) return false;
+        if (string.length() > 3) return false; // practical limit for index inputs (e.g. column at index #)
+
         for (int i = 0; i < string.length(); i++) {
             char chr = string.charAt(i);
             if (chr < '0' || chr > '9') return false;
@@ -225,6 +229,13 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
             return buffer.toString();
         }
         return content;
+    }
+
+
+    public static String removeHtmlTags(String content) {
+        if (content == null) return "";
+        content = Jsoup.clean(content, Safelist.none());
+        return content.replaceAll("\\s+", " ").trim();
     }
 
     public static @NotNull String trim(@Nullable String message) {

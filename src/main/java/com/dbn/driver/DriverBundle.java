@@ -23,7 +23,6 @@ import com.intellij.openapi.Disposable;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,7 +63,7 @@ public class DriverBundle implements Disposable {
         if (driverClass == null) return null;
 
         // cached driver instances seem to work better (at least for oracle)
-        val cache = this.instances.computeIfAbsent(connectionId, id -> new ConcurrentHashMap<>());
+        var cache = this.instances.computeIfAbsent(connectionId, id -> new ConcurrentHashMap<>());
         return cache.computeIfAbsent(driverClass, c -> createDriver(c));
 
         // return createDriver(driver);

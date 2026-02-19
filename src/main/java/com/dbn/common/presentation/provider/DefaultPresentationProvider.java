@@ -32,13 +32,11 @@ public class DefaultPresentationProvider implements PresentationProvider<Object>
 
     @Override
     public String getName(Object object) {
-        if (object instanceof Named) {
-            Named presentable = (Named) object;
+        if (object instanceof Named presentable) {
             return presentable.getName();
         }
 
-        if (object instanceof ItemPresentation) {
-            ItemPresentation itemPresentation = (ItemPresentation) object;
+        if (object instanceof ItemPresentation itemPresentation) {
             return itemPresentation.getPresentableText();
         }
 
@@ -52,8 +50,7 @@ public class DefaultPresentationProvider implements PresentationProvider<Object>
 
     @Override
     public String getDescription(Object object) {
-        if (object instanceof Presentable) {
-            Presentable presentable = (Presentable) object;
+        if (object instanceof Presentable presentable) {
             return presentable.getDescription();
         }
         return null;
@@ -61,13 +58,11 @@ public class DefaultPresentationProvider implements PresentationProvider<Object>
 
     @Override
     public Icon getIcon(Object object) {
-        if (object instanceof Presentable) {
-            Presentable presentable = (Presentable) object;
+        if (object instanceof Presentable presentable) {
             return presentable.getIcon();
         }
 
-        if (object instanceof ItemPresentation) {
-            ItemPresentation itemPresentation = (ItemPresentation) object;
+        if (object instanceof ItemPresentation itemPresentation) {
             return itemPresentation.getIcon(false);
         }
 

@@ -123,28 +123,22 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
     }
 
     private <C extends JComponent> void initEventValidation(C component) {
-        if (component instanceof JTextComponent) {
-            JTextComponent textField = (JTextComponent) component;
+        if (component instanceof JTextComponent textField) {
             addValidationListeners(textField);
 
-        } else if (component instanceof CheckBoxList) {
-            CheckBoxList checkBoxList = (CheckBoxList) component;
+        } else if (component instanceof CheckBoxList checkBoxList) {
             addValidationListeners(checkBoxList);
 
-        } else if (component instanceof JTable) {
-            JTable table = (JTable) component;
+        } else if (component instanceof JTable table) {
             addValidationListeners(table);
 
-        } else if (component instanceof JList) {
-            JList list = (JList) component;
+        } else if (component instanceof JList list) {
             addValidationListeners(list);
 
-        } else if (component instanceof JComboBox) {
-            JComboBox comboBox = (JComboBox) component;
+        } else if (component instanceof JComboBox comboBox) {
             addValidationListeners(comboBox);
 
-        } else if (component instanceof JSpinner) {
-            JSpinner spinner = (JSpinner) component;
+        } else if (component instanceof JSpinner spinner) {
             addValidationListeners(spinner);
         }
         // ...
@@ -190,8 +184,7 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
 
     private void addFocusValidationListeners(JComponent component) {
         JComponent focusComponent = component;
-        if (component instanceof JSpinner) {
-            JSpinner spinner = (JSpinner) component;
+        if (component instanceof JSpinner spinner) {
             focusComponent = TextFields.getTextField(spinner);
             if (focusComponent == null) focusComponent = spinner;
         }
@@ -207,9 +200,8 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
                 if (focusCause == Cause.ACTIVATION) return;
 
                 Component oppositeComponent = e.getOppositeComponent();
-                if (oppositeComponent instanceof JButton) {
+                if (oppositeComponent instanceof JButton button) {
                     // ignore validation if cancel button is pressed
-                    JButton button = (JButton) oppositeComponent;
 
                     DBNDialog dialog = getDialog();
                     if (dialog.isCancelButton(button) && focusCause == Cause.MOUSE_EVENT) return;
@@ -326,18 +318,15 @@ public final class DBNFormValidatorImpl extends WeakRefWrapper<DBNDialog> implem
         if (component == null) return false;
         if (VISITED.is(component)) return true;
 
-        if (component instanceof JTextComponent) {
-            JTextComponent textComponent = (JTextComponent) component;
+        if (component instanceof JTextComponent textComponent) {
             return Strings.isNotEmptyOrSpaces(getText(textComponent));
         }
 
-        if (component instanceof JComboBox) {
-            JComboBox comboBox = (JComboBox) component;
+        if (component instanceof JComboBox comboBox) {
             return comboBox.getSelectedItem() != null;
         }
 
-        if (component instanceof CheckBoxList) {
-            CheckBoxList checkBoxList = (CheckBoxList) component;
+        if (component instanceof CheckBoxList checkBoxList) {
             return checkBoxList.hasSelection();
         }
         return false;

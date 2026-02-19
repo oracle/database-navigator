@@ -53,8 +53,7 @@ public class DBJdbcDebugStackFrame extends DBDebugStackFrame<DBJdbcDebugProcess,
         int lineNumber = runtimeInfo.getLineNumber();
         if (runtimeInfo.getOwnerName() == null) {
             ExecutionInput executionInput = debugProcess.getExecutionInput();
-            if (executionInput instanceof StatementExecutionInput) {
-                StatementExecutionInput statementExecutionInput = (StatementExecutionInput) executionInput;
+            if (executionInput instanceof StatementExecutionInput statementExecutionInput) {
                 lineNumber += statementExecutionInput.getExecutableLineNumber();
             }
         }

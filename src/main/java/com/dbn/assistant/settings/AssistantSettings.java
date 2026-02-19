@@ -21,6 +21,7 @@ import com.dbn.assistant.profile.AssistantProfileSettings;
 import com.dbn.assistant.settings.ui.AssistantSettingsForm;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
+import com.dbn.help.HelpTopic;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.TopLevelConfig;
@@ -30,6 +31,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Commons.array;
+import static com.dbn.help.HelpTopic.ASSISTANT_CONFIG;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)
@@ -68,8 +70,8 @@ public class AssistantSettings
   }
 
   @Override
-  public String getHelpTopic() {
-    return "aiProvidersSettings";
+  public HelpTopic getConfigHelpTopic() {
+    return ASSISTANT_CONFIG;
   }
 
   @Override

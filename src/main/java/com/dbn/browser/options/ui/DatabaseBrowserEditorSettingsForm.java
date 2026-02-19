@@ -143,39 +143,39 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
 
         @Override
         public String getColumnName(int columnIndex) {
-            switch (columnIndex) {
-                case 0: return "Object Type";
-                case 1: return "Default Editor";
-            }
-            return null;
+            return switch (columnIndex) {
+                case 0 -> "Object Type";
+                case 1 -> "Default Editor";
+                default -> null;
+            };
         }
 
         @Override
         public Class<?> getColumnClass(int columnIndex) {
-            switch (columnIndex) {
-                case 0: return DBObjectType.class;
-                case 1: return DefaultEditorType.class;
-            }
-            return null;
+            return switch (columnIndex) {
+                case 0 -> DBObjectType.class;
+                case 1 -> DefaultEditorType.class;
+                default -> null;
+            };
         }
 
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {
-            switch (columnIndex) {
-                case 0: return false;
-                case 1: return true;
-            }
-            return false;
+            return switch (columnIndex) {
+                case 0 -> false;
+                case 1 -> true;
+                default -> false;
+            };
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             DefaultEditorOption option = options.get(rowIndex);
-            switch (columnIndex) {
-                case 0: return option.getObjectType();
-                case 1: return option.getEditorType();
-            }
-            return null;
+            return switch (columnIndex) {
+                case 0 -> option.getObjectType();
+                case 1 -> option.getEditorType();
+                default -> null;
+            };
         }
 
         @Override

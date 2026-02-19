@@ -26,12 +26,13 @@ import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.ui.DBObjectSelector;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.sync.java.upload.JavaUploadBatch;
 import com.dbn.sync.java.upload.JavaUploadInput;
 import com.dbn.sync.java.upload.JavaUploadManager;
 import com.dbn.sync.java.upload.JavaUploadTask;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -42,7 +43,6 @@ import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
-import static com.dbn.common.ui.util.ComboBoxes.setEmptyOptionsText;
 import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
 import static java.util.Collections.emptyList;
 
@@ -52,28 +52,31 @@ public class JavaUploadInputForm extends DBNFormBase {
     private JPanel hintPanel;
     private JPanel targetLocationPanel;
     private DBNComboBox<ConnectionHandler> connectionComboBox;
-    private DBNComboBox<DBSchema> schemaComboBox;
-    private CheckBoxList<JavaUploadTask> dependenciesCheckBoxList;
-    private JPanel schemaLoadPanel;
+    private DBObjectSelector<DBSchema> schemaComboBox;
+    private CheckBoxList<JavaUploadTask> contentList;
+    private JPanel contentPanel;
 
     public JavaUploadInputForm(JavaUploaderInputDialog dialog) {
         super(dialog);
-		JavaUploadInput input = dialog.getBatch().getInput();
 
-        initHeaderPanel(input);
         initHintPanel();
-
         initConnectionSelector();
         initSchemaSelectors();
+        initDependenciesSelector();
+    }
 
-        dependenciesCheckBoxList.setElements(input.getTasks());
+    private void initDependenciesSelector() {
+        JavaUploadInput input = getInput();
+        contentList = new CheckBoxList<>();
+        contentList.setElements(input.getTasks());
+        contentPanel.add(contentList.withSelectorActions());
     }
 
     @Override
     protected void initValidation() {
         addSelectionValidation(connectionComboBox, "Please select the target connection");
         addSelectionValidation(schemaComboBox, "Please select the target schema");
-        addSelectionValidation(dependenciesCheckBoxList, "Please select at least one resource to upload");
+        addSelectionValidation(contentList, "Please select at least one resource to upload");
     }
 
     private void initHintPanel() {
@@ -85,18 +88,13 @@ public class JavaUploadInputForm extends DBNFormBase {
         hintPanel.add(hintForm.getComponent());
     }
 
-    private void initHeaderPanel(JavaUploadInput input) {
-/*
-        // TODO no database context available yet (remove header ??)
-        VirtualFile rootFile = input.getRootFile();
-        DBNHeaderForm headerForm = new DBNHeaderForm(this, rootFile);
-        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
-*/
-    }
-
-    JavaUploadBatch getBatch() {
+    private JavaUploadBatch getBatch() {
         JavaUploaderInputDialog dialog = ensureParentComponent();
         return dialog.getBatch();
+    }
+
+    private JavaUploadInput getInput() {
+        return getBatch().getInput();
     }
 
     @Override
@@ -122,15 +120,13 @@ public class JavaUploadInputForm extends DBNFormBase {
     }
 
     private void initSchemaSelectors() {
-        schemaLoadPanel.add(new AsyncProcessIcon("Loading schemas"));
-        schemaLoadPanel.setVisible(false);
-        setEmptyOptionsText(schemaComboBox, "Schemas not loaded");
-        //initLadingHint(schemaComboBox, "Loading schemas...");
+        schemaComboBox
+                .initialize(this, DBObjectType.SCHEMA)
+                .withConnectionContext(() -> getSelectedConnection())
+                .withValueLoader(() -> loadSchemas())
+                .triggerLoad();
 
-        whenShown(() -> {
-            schemaComboBox.init(() -> loadSchemas(), null);
-            onSelectionChange(connectionComboBox, s -> schemaComboBox.reloadValues());
-        });
+        onSelectionChange(connectionComboBox, s -> schemaComboBox.reloadValues());
     }
 
     private List<DBSchema> loadSchemas() {
@@ -147,7 +143,7 @@ public class JavaUploadInputForm extends DBNFormBase {
         JavaUploadInput input = getBatch().getInput();
         input.setTargetConnection(getSelectedConnection());
         input.setTargetSchema(getSelectedSchema());
-        dependenciesCheckBoxList.applyChanges();
+        contentList.applyChanges();
     }
 
     @Nullable

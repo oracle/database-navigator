@@ -42,14 +42,12 @@ public class SelectionListCellRenderer<T> extends ColoredListCellRenderer<T> {
     private String getText(Object value) {
         if (value == null) return "";
 
-        if (value instanceof ItemPresentation) {
-            ItemPresentation presentation = (ItemPresentation) value;
+        if (value instanceof ItemPresentation presentation) {
             String text = presentation.getPresentableText();
             if (isNotEmpty(text)) return text;
         }
 
-        if (value instanceof Presentable) {
-            Presentable presentable = (Presentable) value;
+        if (value instanceof Presentable presentable) {
             String text = presentable.getName();
             if (isNotEmpty(text)) return text;
         }
@@ -60,14 +58,12 @@ public class SelectionListCellRenderer<T> extends ColoredListCellRenderer<T> {
     private @Nullable Icon getIcon(Object value) {
         if (value == null) return null;
 
-        if (value instanceof Presentable) {
-            Presentable presentable = (Presentable) value;
+        if (value instanceof Presentable presentable) {
             Icon icon = presentable.getIcon();
             if (icon != null) return icon;
         }
 
-        if (value instanceof ItemPresentation) {
-            ItemPresentation presentation = (ItemPresentation) value;
+        if (value instanceof ItemPresentation presentation) {
             return presentation.getIcon(false);
         }
 

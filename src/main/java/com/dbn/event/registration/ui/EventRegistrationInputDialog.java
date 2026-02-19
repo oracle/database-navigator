@@ -18,12 +18,15 @@ package com.dbn.event.registration.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.event.registration.EventRegistrationManager;
+import com.dbn.help.HelpTopic;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import javax.swing.Action;
 
 public class EventRegistrationInputDialog extends DBNDialog<EventRegistrationInputForm> {
   private final DBObjectRef<DBTable> table;
@@ -50,11 +53,18 @@ public class EventRegistrationInputDialog extends DBNDialog<EventRegistrationInp
   }
 
   @Override
-  public void doCancelAction() {
-    super.doCancelAction();
+  protected HelpTopic getHelpTopic() {
+    return HelpTopic.EVENTS_REGISTRATION;
   }
 
-  //todo add validation layer
+  @Override
+  protected Action[] initializeActions() {
+    return actions(
+            getOKAction(),
+            getCancelAction());
+  }
+
+//todo add validation layer
   /*
   at least one operation should be selected .
    */

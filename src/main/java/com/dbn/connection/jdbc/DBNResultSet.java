@@ -73,16 +73,14 @@ public class DBNResultSet extends DBNResource<ResultSet> implements ResultSet, C
     }
 
     public static String getIdentifier(ResultSet resultSet) {
-        if (resultSet instanceof DBNResultSet) {
-            DBNResultSet dbnResultSet = (DBNResultSet) resultSet;
+        if (resultSet instanceof DBNResultSet dbnResultSet) {
             return dbnResultSet.getIdentifier();
         }
         return "UNKNOWN";
     }
 
     public static boolean setIdentifier(ResultSet resultSet, String identifier) {
-        if (resultSet instanceof DBNResultSet) {
-            DBNResultSet dbnResultSet = (DBNResultSet) resultSet;
+        if (resultSet instanceof DBNResultSet dbnResultSet) {
             dbnResultSet.setIdentifier(identifier);
             return true;
         }
@@ -151,8 +149,7 @@ public class DBNResultSet extends DBNResource<ResultSet> implements ResultSet, C
     }
 
     public static ResultSet getInner(ResultSet resultSet) {
-        if (resultSet instanceof DBNResultSet) {
-            DBNResultSet dbnResultSet = (DBNResultSet) resultSet;
+        if (resultSet instanceof DBNResultSet dbnResultSet) {
             return dbnResultSet.getInner();
         }
         return resultSet;

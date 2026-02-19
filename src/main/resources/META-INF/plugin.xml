@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.7.0.0</version>
+    <version>3.7.2.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -27,7 +27,7 @@
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
     <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
     <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
-    <idea-version since-build="201.6668.113" until-build="253.*"/>
+    <idea-version since-build="201.6668.113" until-build="261.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
             <b>Database Development and Management Tool</b><br></br>
@@ -53,6 +53,16 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.7.2</b>
+            <ul>
+                <li>Support for latest ide EAP versions
+                <li>Bug fixes
+            </ul>
+            <li><b>3.7.1</b>
+            <ul>
+                <li>Online documentation integration
+                <li>Bug fixes and performance improvements
+            </ul>
             <li><b>3.7.0</b>
             <ul>
                 <li>DB assistant (an AI-powered assistant with database and workspace integration)
@@ -254,7 +264,8 @@
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
     </extensions>
     <extensionPoints>
-        <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterFactory" dynamic="true"/>
+        <extensionPoint name="objectFactoryAdapter" qualifiedName="com.dbn.objectFactoryAdapter" interface="com.dbn.object.factory.ObjectFactoryAdapter" dynamic="true"/>
+        <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterExtension" dynamic="true"/>
 
         <extensionPoint name="assistantAdapter" qualifiedName="com.dbn.assistantAdapter" interface="com.dbn.assistant.adapter.AssistantAdapter" dynamic="true"/>
         <extensionPoint name="assistantModelFactory" qualifiedName="com.dbn.assistantModelFactory" interface="com.dbn.assistant.service.generic.model.AssistantModelFactory" dynamic="true"/>
@@ -265,6 +276,16 @@
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
     </extensionPoints>
     <extensions defaultExtensionNs="com.dbn">
+        <!--object factory adapters-->
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBAIModelFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBJavaClassFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBFunctionFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBProcedureFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBArgumentFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBTableFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBColumnFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBCredentialFactoryAdapter"/>
+
         <!--object management adapters-->
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBCredentialManagementAdapter"/>
@@ -797,6 +818,8 @@
         <listener topic="com.intellij.openapi.actionSystem.ex.AnActionListener" class="com.dbn.execution.statement.action.ExecuteStatementEditorAction$ShortcutInterceptor"/>
     </projectListeners>
     <extensions defaultExtensionNs="com.intellij">
+        <webHelpProvider implementation="com.dbn.help.PluginHelpProvider"/>
+
         <notificationGroup id="DBNavigator.NotificationGroup.Default" displayType="BALLOON" key="ntf.shared.title.DBNavigator"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Browser" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorBrowser" toolWindowId="DB Browser"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Execution" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorExecution" toolWindowId="DB Execution Console"/>

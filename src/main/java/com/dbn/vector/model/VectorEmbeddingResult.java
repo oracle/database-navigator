@@ -2,19 +2,19 @@ package com.dbn.vector.model;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
-import com.dbn.vector.model.sourceconfig.FileSystemSourceConfig;
-import com.dbn.vector.model.sourceconfig.SourceConfig;
-import com.dbn.vector.model.sourceconfig.SourceType;
+import com.dbn.vector.model.source.DBTableSourceConfig;
+import com.dbn.vector.model.source.FileSystemSourceConfig;
+import com.dbn.vector.model.source.SourceConfig;
+import com.dbn.vector.model.source.SourceType;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Arrays;
 
 import static com.dbn.common.util.Unsafe.cast;
 
@@ -81,9 +81,7 @@ public class VectorEmbeddingResult {
 
   /** Mark the job finished and compute aggregated status. */
   public void finish() {
-    // i guess we need to init the result set before trying to iterate them
-    // then get each one by ket and update the state .
-    // this is because sometimes the pipeline will fail before even instantiate the resource
+
     boolean anySuccess = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.SUCCESS);
     boolean anyFailed = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.FAILED);
     boolean anySkipped = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.SKIPPED);

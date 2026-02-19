@@ -32,9 +32,8 @@ public class DBSyntaxHighlighterProvider implements SyntaxHighlighterProvider {
     @Nullable
     public SyntaxHighlighter create(@NotNull FileType fileType, @Nullable Project project, @Nullable VirtualFile file) {
         if (isNotValid(project)) return null;
-        if (!(fileType instanceof DBLanguageFileType)) return null;
+        if (!(fileType instanceof DBLanguageFileType dbFileType)) return null;
 
-        DBLanguageFileType dbFileType = (DBLanguageFileType) fileType;
         DBLanguage language = (DBLanguage) dbFileType.getLanguage();
 
         DBLanguageDialect languageDialect = DBLanguageDialect.get(language, file, project);

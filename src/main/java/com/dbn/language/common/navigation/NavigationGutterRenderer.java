@@ -56,8 +56,7 @@ public class NavigationGutterRenderer extends GutterIconRenderer {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof NavigationGutterRenderer) {
-            NavigationGutterRenderer renderer = (NavigationGutterRenderer) obj;
+        if (obj instanceof NavigationGutterRenderer renderer) {
             return action.equals(renderer.action);
         }
         return false;

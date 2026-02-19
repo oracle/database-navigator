@@ -21,11 +21,15 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.execution.java.JavaExecutionInput;
+import com.dbn.help.HelpTopic;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
+
+import static com.dbn.help.HelpTopic.JAVA_DEBUGGING;
+import static com.dbn.help.HelpTopic.JAVA_EXECUTION;
 
 public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> {
     private final JavaExecutionInput executionInput;
@@ -50,13 +54,18 @@ public class JavaExecutionInputDialog extends DBNDialog<JavaExecutionInputForm> 
     }
 
     @Override
+    protected HelpTopic getHelpTopic() {
+        return debuggerType.isDebug() ?
+                JAVA_DEBUGGING :
+                JAVA_EXECUTION;
+    }
+
+    @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 new ExecuteAction(),
-                getCancelAction(),
-                getHelpAction()
-        };
+                getCancelAction());
     }
 
     @Override

@@ -343,70 +343,58 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
         try {
             ConnectionId connectionId = virtualFile.getConnectionId();
 
-            if (virtualFile instanceof DBConsoleVirtualFile) {
-                DBConsoleVirtualFile file = (DBConsoleVirtualFile) virtualFile;
+            if (virtualFile instanceof DBConsoleVirtualFile file) {
                 return connectionId + PSS + CONSOLES + file.getName();
             }
 
-            if (virtualFile instanceof DBConnectionVirtualFile) {
-                DBConnectionVirtualFile file = (DBConnectionVirtualFile) virtualFile;
+            if (virtualFile instanceof DBConnectionVirtualFile file) {
                 return file.getConnectionId() + "";
             }
 
-            if (virtualFile instanceof DBObjectVirtualFile) {
-                DBObjectVirtualFile<?> file = (DBObjectVirtualFile<?>) virtualFile;
+            if (virtualFile instanceof DBObjectVirtualFile<?> file) {
                 DBObjectRef<?> objectRef = file.getObjectRef();
                 return createObjectPath(objectRef);
             }
 
-            if (virtualFile instanceof DBContentVirtualFile) {
-                DBContentVirtualFile file = (DBContentVirtualFile) virtualFile;
+            if (virtualFile instanceof DBContentVirtualFile file) {
                 DBObjectRef<?> objectRef = file.getObjectRef();
                 DBContentType contentType = file.getContentType();
                 return objectRef.getConnectionId() + PSS + OBJECT_CONTENTS + contentType.name() + PS + objectRef.serialize();
             }
 
-            if (virtualFile instanceof DBObjectListVirtualFile) {
-                DBObjectListVirtualFile<?> file = (DBObjectListVirtualFile<?>) virtualFile;
+            if (virtualFile instanceof DBObjectListVirtualFile<?> file) {
                 DBObjectList<?> objectList = file.getObjectList();
                 DatabaseEntity parentElement = objectList.getParentEntity();
                 String listName = objectList.getObjectType().getListName();
-                if (parentElement instanceof DBObject) {
-                    DBObject object = (DBObject) parentElement;
+                if (parentElement instanceof DBObject object) {
                     DBObjectRef<?> objectRef = object.ref();
                     return connectionId + PSS + objectRef.serialize() + PSS + listName;
                 } else {
                     return connectionId + PSS + listName; }
             }
 
-            if (virtualFile instanceof DBDatasetFilterVirtualFile) {
-                DBDatasetFilterVirtualFile file = (DBDatasetFilterVirtualFile) virtualFile;
+            if (virtualFile instanceof DBDatasetFilterVirtualFile file) {
                 return connectionId + PSS + DATASET_FILTERS + file.getDataset().ref().serialize();
             }
 
-            if (virtualFile instanceof DBSessionBrowserVirtualFile) {
-                DBSessionBrowserVirtualFile file = (DBSessionBrowserVirtualFile) virtualFile;
+            if (virtualFile instanceof DBSessionBrowserVirtualFile file) {
                 return connectionId + PSS + SESSION_BROWSERS + file.getName();
 
             }
 
-            if (virtualFile instanceof DBSessionStatementVirtualFile) {
-                DBSessionStatementVirtualFile file = (DBSessionStatementVirtualFile) virtualFile;
+            if (virtualFile instanceof DBSessionStatementVirtualFile file) {
                 return connectionId + PSS + SESSION_STATEMENTS + file.getName();
             }
 
-            if (virtualFile instanceof DBObjectFilterExpressionFile) {
-                DBObjectFilterExpressionFile file = (DBObjectFilterExpressionFile) virtualFile;
+            if (virtualFile instanceof DBObjectFilterExpressionFile file) {
                 return connectionId + PSS + FILTER_EXPRESSIONS + file.getName();
             }
 
-            if (virtualFile instanceof DBObjectContentVirtualFile) {
-                DBObjectContentVirtualFile file = (DBObjectContentVirtualFile) virtualFile;
+            if (virtualFile instanceof DBObjectContentVirtualFile file) {
                 return connectionId + PSS + LOOSE_CONTENTS + DBObjectRef.serialised(file.getObject());
             }
 
-            if (virtualFile instanceof DBLooseContentVirtualFile) {
-                DBLooseContentVirtualFile file = (DBLooseContentVirtualFile) virtualFile;
+            if (virtualFile instanceof DBLooseContentVirtualFile file) {
                 return connectionId + PSS + LOOSE_CONTENTS + file.getName();
             }
 

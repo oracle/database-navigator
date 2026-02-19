@@ -21,15 +21,19 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
+import com.dbn.common.util.Json;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.editor.text.TextContentType;
+import com.dbn.data.editor.text.TextContentTypeOwner;
 import com.dbn.data.editor.text.actions.TextContentTypeComboBoxAction;
 import com.dbn.data.editor.ui.DataEditorComponent;
 import com.dbn.data.editor.ui.UserValueHolder;
 import com.dbn.data.type.GenericDataType;
+import com.dbn.data.value.JsonValue;
 import com.dbn.data.value.LargeObjectValue;
+import com.dbn.data.value.XmlTypeValue;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguageFileType;
@@ -52,13 +56,18 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
+import java.util.function.Predicate;
 
+import static com.dbn.common.file.FileTypes.getDtdFileType;
+import static com.dbn.common.file.FileTypes.getJsonFileType;
+import static com.dbn.common.file.FileTypes.getTextFileType;
+import static com.dbn.common.file.FileTypes.getXmlFileType;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 
-public class TextEditorForm extends DBNFormBase {
+public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner {
     private JPanel mainPanel;
     private JPanel editorPanel;
     private JPanel actionsPanel;
@@ -109,14 +118,12 @@ public class TextEditorForm extends DBNFormBase {
         Project project = ensureProject();
         VirtualFile virtualFile = null;
         FileType fileType = userValueHolder.getContentType().getFileType();
-        if (fileType instanceof LanguageFileType) {
-            LanguageFileType languageFileType = (LanguageFileType) fileType;
+        if (fileType instanceof LanguageFileType languageFileType) {
 
             virtualFile = new LightVirtualFile("text_editor_file." + fileType.getDefaultExtension(), fileType, text);
             virtualFile.putUserData(UserDataKeys.HAS_CONNECTIVITY_CONTEXT, false);
 
-            if (fileType instanceof DBLanguageFileType) {
-                DBLanguageFileType dbLanguageFileType = (DBLanguageFileType) fileType;
+            if (fileType instanceof DBLanguageFileType dbLanguageFileType) {
                 DBLanguage dbLanguage = cast(dbLanguageFileType.getLanguage());
 
                 ConnectionHandler connection = userValueHolder.getConnection();
@@ -132,13 +139,12 @@ public class TextEditorForm extends DBNFormBase {
 
         document = nvl(document, () -> Documents.createDocument(text));
 
-        document.addDocumentListener(documentListener);
+        document.addDocumentListener(documentListener, this);
         editor = Editors.createEditor(document, project, virtualFile, fileType);
         editor.setEmbeddedIntoDialogWrapper(true);
         editor.getContentComponent().setFocusTraversalKeysEnabled(false);
 
-        if (fileType instanceof DBLanguageFileType) {
-            DBLanguageFileType dbFileType = (DBLanguageFileType) fileType;
+        if (fileType instanceof DBLanguageFileType dbFileType) {
             DBLanguage language = (DBLanguage) dbFileType.getLanguage();
             Editors.initEditorHighlighter(editor, language, (ConnectionHandler) null);
         }
@@ -154,10 +160,37 @@ public class TextEditorForm extends DBNFormBase {
     }
 
     public void setContentType(TextContentType contentType){
-        if (userValueHolder.getContentType() != contentType) {
-            userValueHolder.setContentType(contentType);
-            initEditor();
+        if (userValueHolder.getContentType() == contentType) return;
+
+        userValueHolder.setContentType(contentType);
+        initEditor();
+    }
+
+    public TextContentType getContentType() {
+        return userValueHolder.getContentType();
+    }
+
+    @Override
+    public Predicate<TextContentType> getContentTypeFilter() {
+        Object userValue = userValueHolder.getUserValue();
+        if (userValue instanceof JsonValue) {
+            return t -> {
+                FileType fileType = t.getFileType();
+                return fileType == getJsonFileType() ||
+                        fileType == getTextFileType();
+            };
         }
+
+        if (userValue instanceof XmlTypeValue) {
+            return t -> {
+                FileType fileType = t.getFileType();
+                return fileType == getXmlFileType() ||
+                        fileType == getDtdFileType() ||
+                        fileType == getTextFileType();
+            };
+        }
+
+        return TextContentTypeOwner.super.getContentTypeFilter();
     }
 
     @Nullable
@@ -167,8 +200,11 @@ public class TextEditorForm extends DBNFormBase {
             Object userValue = userValueHolder.getUserValue();
             if (userValue instanceof String) {
                 return (String) userValue;
-            } else if (userValue instanceof LargeObjectValue) {
-                LargeObjectValue largeObjectValue = (LargeObjectValue) userValue;
+            } else if (userValue instanceof JsonValue) {
+                JsonValue jsonValue = (JsonValue) userValue;
+                return Json.formatJsonContent(jsonValue.getData());
+
+            } else if (userValue instanceof LargeObjectValue largeObjectValue) {
                 dataType = largeObjectValue.getGenericDataType();
                 return largeObjectValue.read();
             }
@@ -182,10 +218,6 @@ public class TextEditorForm extends DBNFormBase {
     @NotNull
     public String getText() {
         return editor.getDocument().getText();
-    }
-
-    public TextContentType getContentType() {
-        return userValueHolder.getContentType();
     }
 
     @Override

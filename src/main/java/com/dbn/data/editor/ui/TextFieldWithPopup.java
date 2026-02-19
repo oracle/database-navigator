@@ -156,8 +156,7 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
     }
 
     private void addButtonListener(TextFieldPopupProvider popupProvider, JComponent buttonComponent) {
-        if (buttonComponent instanceof JButton) {
-            JButton button = (JButton) buttonComponent;
+        if (buttonComponent instanceof JButton button) {
             button.addActionListener(e -> showPopup(popupProvider));
         } else {
             buttonComponent.addMouseListener(Mouse.listener().onClick(e -> showPopup(popupProvider)));

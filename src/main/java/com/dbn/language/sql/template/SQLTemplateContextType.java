@@ -23,6 +23,7 @@ import com.dbn.language.psql.PSQLLanguage;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.vfs.file.DBDatasetFilterVirtualFile;
 import com.dbn.vfs.file.DBObjectFilterExpressionFile;
+import com.intellij.codeInsight.template.TemplateActionContext;
 import com.intellij.codeInsight.template.TemplateContextType;
 import com.intellij.lang.Language;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
@@ -36,8 +37,10 @@ public class SQLTemplateContextType extends TemplateContextType {
         super("SQL", "SQL (DBN)");
     }
 
-    @Override
-    public boolean isInContext(@NotNull PsiFile file, int offset) {
+    public boolean isInContext(@NotNull TemplateActionContext context) {
+        PsiFile file = context.getFile();
+        int offset = context.getStartOffset();
+
         Language language = file.getLanguage();
         if (language instanceof SQLLanguage) {
             VirtualFile virtualFile = file.getOriginalFile().getVirtualFile();

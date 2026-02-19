@@ -70,8 +70,7 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
         Component selectedComponent = getSelectedComponent();
         if (selectedComponent == null) return false;
 
-        if (selectedComponent instanceof JComponent) {
-            JComponent component = (JComponent) selectedComponent;
+        if (selectedComponent instanceof JComponent component) {
             return hasChildComponent(component, JComponent.class, c -> c.hasFocus());
         }
         return false;
@@ -102,7 +101,7 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
 
     public void setTabTitle(Component component, String title) {
         int index = getTabIndex(component);
-        setTitleAt(index, title);
+        setTitleAt(index, normalizeTitle(title));
     }
 
     public void setTabColor(Component component, Color color) {
@@ -163,4 +162,5 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
             }
         }
     }
+
 }

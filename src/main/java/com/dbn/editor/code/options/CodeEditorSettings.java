@@ -19,6 +19,7 @@ package com.dbn.editor.code.options;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
 import com.dbn.editor.code.options.ui.CodeEditorSettingsForm;
+import com.dbn.help.HelpTopic;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.TopLevelConfig;
@@ -26,6 +27,8 @@ import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.help.HelpTopic.CODE_EDITOR_SETTINGS;
 
 @EqualsAndHashCode(callSuper = false)
 public class CodeEditorSettings extends CompositeProjectConfiguration<ProjectSettings, CodeEditorSettingsForm> implements TopLevelConfig {
@@ -52,8 +55,8 @@ public class CodeEditorSettings extends CompositeProjectConfiguration<ProjectSet
     }
 
     @Override
-    public String getHelpTopic() {
-        return "codeEditor";
+    public HelpTopic getConfigHelpTopic() {
+        return CODE_EDITOR_SETTINGS;
     }
 
     @Override

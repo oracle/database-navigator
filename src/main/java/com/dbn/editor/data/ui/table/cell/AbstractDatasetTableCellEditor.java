@@ -73,8 +73,7 @@ public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor 
 
         table.addPropertyChangeListener(evt -> {
             Object newValue = evt.getNewValue();
-            if (newValue instanceof Font) {
-                Font newFont = (Font) newValue;
+            if (newValue instanceof Font newFont) {
                 getEditorComponent().setFont(newFont);
             }
         });
@@ -122,8 +121,7 @@ public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor 
 
     @Override
     public boolean isCellEditable(EventObject e) {
-        if (e instanceof MouseEvent) {
-            MouseEvent mouseEvent = (MouseEvent) e;
+        if (e instanceof MouseEvent mouseEvent) {
             return mouseEvent.getClickCount() >= clickCountToStart;
         }
         return true;

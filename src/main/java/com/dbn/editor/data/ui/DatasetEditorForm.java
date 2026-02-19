@@ -44,6 +44,7 @@ import com.dbn.editor.data.ui.table.cell.DatasetTableCellEditor;
 import com.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
@@ -63,6 +64,7 @@ import java.util.List;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.help.HelpTopic.TABLE_EDITORS;
 
 public class DatasetEditorForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;
@@ -88,6 +90,7 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
         try {
             this.toolbarPanel.setBorder(Borders.insetBorder(2));
 
+            loadingDataPanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
             datasetTablePanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
             datasetEditorTable = new DatasetEditorTable(this, datasetEditor);
             datasetTableScrollPane.setViewportView(datasetEditorTable);
@@ -96,11 +99,11 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
             setAccessibleName(actionToolbar, txt("app.dataEditor.aria.DatasetEditorActions"));
 
             actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
-            loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
+            loadingIconPanel.add(new AsyncProcessIcon("Loading"));
             hideLoadingHint();
 
             ActionToolbar loadingActionToolbar = Actions.createActionToolbar(actionsPanel, true, new CancelLoadingAction());
-            loadingActionPanel.add(loadingActionToolbar.getComponent(), BorderLayout.CENTER);
+            loadingActionPanel.add(loadingActionToolbar.getComponent());
 
             Disposer.register(this, autoCommitLabel);
         } catch (SQLException e) {
@@ -285,6 +288,7 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
     @Override
     public Object getData(@NotNull String dataId) {
         if (DataKeys.DATASET_EDITOR.is(dataId)) return getDatasetEditor();
+        if (PlatformCoreDataKeys.HELP_ID.is(dataId)) return TABLE_EDITORS.asHelpTopicId();
         return null;
     }
 }

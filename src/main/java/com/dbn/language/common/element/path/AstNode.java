@@ -44,8 +44,8 @@ public class AstNode implements LanguageNode {
     @Override
     public int getIndexInParent() {
         ASTNode parentAstNode = astNode.getTreeParent();
-        if (parentAstNode.getElementType() instanceof SequenceElementType) {
-            SequenceElementType sequenceElementType = (SequenceElementType) parentAstNode.getElementType();
+        IElementType parentElementType = parentAstNode.getElementType();
+        if (parentElementType instanceof SequenceElementType sequenceElementType) {
             int index = 0;
             ASTNode child = parentAstNode.getFirstChildNode();
             while (child != null) {

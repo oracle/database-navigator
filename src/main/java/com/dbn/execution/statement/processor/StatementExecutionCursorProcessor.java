@@ -62,8 +62,7 @@ public class StatementExecutionCursorProcessor extends StatementExecutionBasicPr
                 return executionResult;
             } else {
                 // if executionResult exists, just update it with the new resultSet data
-                if (executionResult instanceof StatementExecutionCursorResult){
-                    StatementExecutionCursorResult executionCursorResult = (StatementExecutionCursorResult) executionResult;
+                if (executionResult instanceof StatementExecutionCursorResult executionCursorResult){
                     executionCursorResult.loadResultSet(resultSet);
                     return executionResult;
                 } else {
@@ -92,8 +91,7 @@ public class StatementExecutionCursorProcessor extends StatementExecutionBasicPr
     @Override
     public void navigateToResult() {
         StatementExecutionResult executionResult = getExecutionResult();
-        if (executionResult instanceof StatementExecutionCursorResult) {
-            StatementExecutionCursorResult executionCursorResult = (StatementExecutionCursorResult) executionResult;
+        if (executionResult instanceof StatementExecutionCursorResult executionCursorResult) {
             executionCursorResult.navigateToResult();
         }
 

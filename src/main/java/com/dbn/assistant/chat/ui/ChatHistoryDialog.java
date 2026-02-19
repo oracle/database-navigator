@@ -46,8 +46,6 @@ public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
 
         getOKAction().setEnabled(false);
         setDefaultSize(600, 300);
-        renameAction(getOKAction(), "Open Chat");
-        renameAction(getCancelAction(), "Close");
         setModal(true);
         init();
     }
@@ -60,11 +58,12 @@ public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
 
     @Override
     @NotNull
-    protected final Action [] createActions() {
-        return new Action[]{
-                getCancelAction(),
-                getOKAction()
-        };
+    protected final Action [] initializeActions() {
+        renameAction(getOKAction(), "Open Chat");
+        renameAction(getCancelAction(), "Close");
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 
     @Override

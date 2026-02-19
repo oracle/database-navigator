@@ -116,7 +116,7 @@ public class ObjectFilter<T extends DBObject> implements Filter<T>, PersistentCo
     public void readConfiguration(Element element) {
         objectType = enumAttribute(element, "object-type", DBObjectType.class);
         active = booleanAttribute(element, "active", active);
-        expression = readCdata(element);
+        expression = patchExpression(readCdata(element));
     }
 
     @Override
@@ -124,6 +124,32 @@ public class ObjectFilter<T extends DBObject> implements Filter<T>, PersistentCo
         setEnumAttribute(element, "object-type", objectType);
         setBooleanAttribute(element, "active", active);
         writeCdata(element, expression);
+    }
+
+    private static String patchExpression(String expression) {
+        // restore issues reported in DBNE-14302
+        expression = expression.replaceAll("(?i)(?:IS_){2,}", "IS_");
+
+        // backward compatibility (replace old boolean attribute names)
+        expression = patchExpression(expression, "USER_SCHEMA");
+        expression = patchExpression(expression, "PUBLIC_SCHEMA");
+        expression = patchExpression(expression, "SYSTEM_SCHEMA");
+        expression = patchExpression(expression, "EMPTY_SCHEMA");
+        expression = patchExpression(expression, "TEMPORARY_TABLE");
+        expression = patchExpression(expression, "SYSTEM_VIEW");
+        expression = patchExpression(expression, "AUDIT_COLUMN");
+        expression = patchExpression(expression, "PSEUDO_COLUMN");
+        expression = patchExpression(expression, "NULLABLE_COLUMN");
+        expression = patchExpression(expression, "IDENTITY_COLUMN");
+        expression = patchExpression(expression, "PRIMARY_KEY");
+        expression = patchExpression(expression, "FOREIGN_KEY");
+        expression = patchExpression(expression, "UNIQUE_KEY");
+        expression = patchExpression(expression, "UNIQUE_INDEX");
+        return expression;
+    }
+
+    private static String patchExpression(String expression, String oldBooleanIdentifier) {
+        return expression.replaceAll("\\b"+oldBooleanIdentifier+"\\b", "IS_" + oldBooleanIdentifier);
     }
 
     public Project getProject() {
