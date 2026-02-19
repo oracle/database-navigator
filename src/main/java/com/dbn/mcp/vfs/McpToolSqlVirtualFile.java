@@ -22,10 +22,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 
 import static com.dbn.common.action.UserDataKeys.LANGUAGE_DIALECT;
 
@@ -40,7 +38,7 @@ public class McpToolSqlVirtualFile extends DBVirtualFileBase implements DBParsea
         super(connection.getProject(), "mcp-tool-query.sql");
         this.connection = connection.ref();
         this.content = content;
-        this.schemaId = connection.getDefaultSchema();
+        this.schemaId = connection.getDefaultSchemaId();
         setCharset(connection.getSettings().getDetailSettings().getCharset());
         putUserData(LANGUAGE_DIALECT, DBLanguageDialect.get(SQLLanguage.INSTANCE, connection));
     }

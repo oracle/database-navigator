@@ -9,6 +9,7 @@ import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Action;
 import java.util.List;
 
 public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
@@ -30,6 +31,13 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
             return new ValidationInfo("Please add at least one tool definition");
         }
         return super.doValidate();
+    }
+
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Build");
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 
     @Override
