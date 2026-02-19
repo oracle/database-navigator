@@ -23,6 +23,7 @@ import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.ElementTypeRef;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.SequenceElementType;
+import com.dbn.language.common.element.impl.SurrogateSequenceElementType;
 
 import java.util.Set;
 
@@ -85,6 +86,10 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, Set<LeafElementType> bucket) {
+        if (element instanceof SurrogateSequenceElementType surrogateSequence) {
+            return surrogateSequence.getMainElementType().cache.captureFirstPossibleLeafs(context, bucket);
+        }
+
         bucket = super.captureFirstPossibleLeafs(context, bucket);
         bucket = initBucket(bucket);
 
@@ -101,6 +106,10 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
 
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, Set<TokenType> bucket) {
+        if (element instanceof SurrogateSequenceElementType surrogateSequence) {
+            return surrogateSequence.getMainElementType().cache.captureFirstPossibleTokens(context, bucket);
+        }
+
         bucket = super.captureFirstPossibleTokens(context, bucket);
         bucket = initBucket(bucket);
 

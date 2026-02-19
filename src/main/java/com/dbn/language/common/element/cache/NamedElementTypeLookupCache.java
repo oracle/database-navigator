@@ -42,19 +42,17 @@ public class NamedElementTypeLookupCache extends SequenceElementTypeLookupCache<
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, Set<LeafElementType> bucket) {
-        if (!context.isScanned(element)) {
-            context.markScanned(element);
-            return super.captureFirstPossibleLeafs(context, bucket);
-        }
-        return bucket;
+        if (context.isScanned(element)) return bucket;
+
+        context.markScanned(element);
+        return super.captureFirstPossibleLeafs(context, bucket);
     }
 
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, Set<TokenType> bucket) {
-        if (!context.isScanned(element)) {
-            context.markScanned(element);
-            return super.captureFirstPossibleTokens(context, bucket);
-        }
-        return bucket;
+        if (context.isScanned(element)) return bucket;
+
+        context.markScanned(element);
+        return super.captureFirstPossibleTokens(context, bucket);
     }
 }
