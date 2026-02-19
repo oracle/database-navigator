@@ -6,11 +6,12 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+
 public class ToolDefinitionCreateDialog extends DBNDialog<ToolDefinitionCreateForm> {
 
     private final ConnectionHandler connection;
 
-    public ToolDefinitionCreateDialog(@Nullable Project project, @Nullable ConnectionHandler connection) {
+    public ToolDefinitionCreateDialog(@Nullable Project project, @NotNull ConnectionHandler connection) {
         super(project, "Create MCP Tool", true);
         this.connection = connection;
         init();

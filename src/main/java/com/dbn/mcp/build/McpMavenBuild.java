@@ -1,7 +1,18 @@
-package com.dbn.mcp;
+package com.dbn.mcp.build;
 
 import com.dbn.common.template.TemplateUtilities;
-import org.apache.maven.shared.invoker.*;
+import com.intellij.openapi.project.Project;
+import com.intellij.credentialStore.Credentials;
+import com.intellij.util.net.ProxyConfiguration;
+import com.intellij.util.net.ProxyCredentialStore;
+import com.intellij.util.net.ProxySettings;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.Invoker;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,20 +23,20 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class MicroBuild {
+@Slf4j
+public final class McpMavenBuild {
     private static final String POM_TEMPLATE = "DBN - MCP Server POM.xml";
     private static final Pattern PKG = Pattern.compile("\\bpackage\\s+([a-zA-Z_][a-zA-Z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z0-9_]*)*)\\s*;");
     private static final Pattern PUB_CLASS = Pattern.compile("\\bpublic\\s+class\\s+([A-Za-z_][A-Za-z0-9_]*)");
     private static final Pattern ANY_CLASS = Pattern.compile("\\bclass\\s+([A-Za-z_][A-Za-z0-9_]*)");
 
-    private MicroBuild() {}
+    private McpMavenBuild() {}
 
-    public static Path buildWithMaven(Path outDir, String sdkCoord, String jdbcCoord, String java, Path props, Consumer<String> log)
+    public static Path buildWithMaven(Project project, Path outDir, String serverName, String sdkCoord, String jdbcCoord, String java, Path props, boolean allowWrapper, Consumer<String> outputHandler)
             throws IOException, MavenInvocationException {
         Coord sdk = Coord.parse(sdkCoord);
         Coord jdbc = Coord.parse(jdbcCoord);
@@ -33,8 +44,8 @@ public final class MicroBuild {
 
         Path projDir = uniqueDir(outDir, info.className);
         setupProject(projDir, java, props, info);
-        writePom(projDir, sdk, jdbc, info.fqn);
-        runMaven(projDir, log);
+        writePom(project, projDir, serverName, sdk, jdbc, info.fqn);
+        runMaven(projDir, allowWrapper, outputHandler);
 
         return copyJar(projDir, outDir);
     }
@@ -68,11 +79,12 @@ public final class MicroBuild {
         Path pkg = info.pkg != null ? src.resolve(info.pkg.replace('.', '/')) : src;
         Files.createDirectories(pkg);
         Files.writeString(pkg.resolve(info.className + ".java"), java);
-        Files.copy(props, res.resolve("mcp-config.properties"), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(props, res.resolve("mcp-config.yaml"), StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private static void writePom(Path dir, Coord sdk, Coord jdbc, String main) throws IOException {
+    private static void writePom(Project project, Path dir, String serverName, Coord sdk, Coord jdbc, String main) throws IOException {
         Properties p = new Properties();
+        p.setProperty("SERVER_NAME", serverName);
         p.setProperty("MCP_SDK_GROUP_ID", sdk.g);
         p.setProperty("MCP_SDK_ARTIFACT_ID", sdk.a);
         p.setProperty("MCP_SDK_VERSION", sdk.v);
@@ -80,49 +92,87 @@ public final class MicroBuild {
         p.setProperty("JDBC_ARTIFACT_ID", jdbc.a);
         p.setProperty("JDBC_VERSION", jdbc.v);
         p.setProperty("MAIN_CLASS_FQ", main);
-        Files.writeString(dir.resolve("pom.xml"), TemplateUtilities.generateCode(null, POM_TEMPLATE, p));
+        Files.writeString(dir.resolve("pom.xml"), TemplateUtilities.generateCode(project, POM_TEMPLATE, p));
     }
 
-    private static void runMaven(Path dir, Consumer<String> log) throws MavenInvocationException, IOException {
+    private static void runMaven(Path dir, boolean allowWrapper, Consumer<String> outputHandler) throws MavenInvocationException, IOException {
         InvocationRequest req = new DefaultInvocationRequest();
         req.setPomFile(dir.resolve("pom.xml").toFile());
         req.addArgs(List.of("clean", "package"));
         req.setBatchMode(true);
-        if (log != null) { req.setOutputHandler(log::accept); req.setErrorHandler(log::accept); }
+        if (outputHandler != null) { req.setOutputHandler(outputHandler::accept); req.setErrorHandler(outputHandler::accept); }
+
+        Properties mavenProps = getIdeProxyProperties();
+        if (!mavenProps.isEmpty()) {
+            req.setProperties(mavenProps);
+        }
 
         Invoker inv = new DefaultInvoker();
-        configureMaven(inv, dir);
+        configureMaven(inv, dir, allowWrapper);
 
-        InvocationResult res = inv.execute(req);
-        if (res.getExitCode() != 0) throw new IllegalStateException("Maven failed: " + res.getExitCode());
+        log.info("POM: {}", dir.resolve("pom.xml"));
+        log.info("Maven home: {}", inv.getMavenHome());
+        log.info("Maven executable: {}", inv.getMavenExecutable());
+        log.info("Working dir: {}", dir);
+
+        try {
+            InvocationResult res = inv.execute(req);
+            log.info("Maven exit code: {}", res.getExitCode());
+            if (res.getExecutionException() != null) {
+                log.error("Maven execution exception", res.getExecutionException());
+            }
+            if (res.getExitCode() != 0) throw new IllegalStateException("Maven failed: " + res.getExitCode());
+        } catch (MavenInvocationException e) {
+            log.error("MavenInvocationException", e);
+            throw e;
+        }
     }
 
-    private static void configureMaven(Invoker inv, Path dir) throws IOException {
+    public static boolean isMavenAvailable() {
+        return findMavenHome() != null || findMavenExe() != null;
+    }
+
+    private static void configureMaven(Invoker inv, Path dir, boolean allowWrapper) throws IOException {
         File home = findMavenHome();
-        if (home != null) { inv.setMavenHome(home); return; }
+        if (home != null) {
+            ensureExecutable(new File(home, "bin/" + (win() ? "mvn.cmd" : "mvn")));
+            inv.setMavenHome(home);
+            return;
+        }
         File exe = findMavenExe();
         if (exe != null) { inv.setMavenExecutable(exe); return; }
+        if (!allowWrapper) throw new IOException("Maven not found");
         inv.setMavenExecutable(installWrapper(dir).toFile());
     }
 
+    private static void ensureExecutable(File file) {
+        if (file.exists() && !file.canExecute()) {
+            log.info("Setting execute permission on: {}", file);
+            boolean ok = file.setExecutable(true);
+            if (!ok) log.warn("Failed to set execute permission on: {}", file);
+        }
+    }
+
     private static Path copyJar(Path proj, Path out) throws IOException {
-        Path jar = Files.list(proj.resolve("target"))
-                .filter(p -> p.toString().endsWith(".jar") && !p.toString().contains("original"))
-                .findFirst().orElseThrow(() -> new IOException("JAR not found"));
+        Path jar;
+        try (var stream = Files.list(proj.resolve("target"))) {
+            jar = stream.filter(p -> p.toString().endsWith(".jar") && !p.toString().contains("original"))
+                    .findFirst().orElseThrow(() -> new IOException("JAR not found"));
+        }
         Files.createDirectories(out);
         Path dest = out.resolve(jar.getFileName());
         Files.copy(jar, dest, StandardCopyOption.REPLACE_EXISTING);
         return dest;
     }
 
-    // Maven discovery
     private static File findMavenHome() {
-        for (String c : new String[]{System.getProperty("maven.home"), System.getenv("MAVEN_HOME"), System.getenv("M2_HOME")}) {
-            if (c != null && !c.isBlank()) {
-                File d = new File(c);
-                if (validHome(d)) return d;
-            }
+        // MAVEN_HOME env var (set by users who installed Maven manually)
+        String mavenHome = System.getenv("MAVEN_HOME");
+        if (mavenHome != null && !mavenHome.isBlank()) {
+            File d = new File(mavenHome);
+            if (validHome(d)) return d;
         }
+        // IntelliJ bundles Maven inside its Maven plugin
         try {
             File d = new File(com.intellij.openapi.application.PathManager.getHomePath() + "/plugins/maven/lib/maven3");
             if (validHome(d)) return d;
@@ -134,9 +184,9 @@ public final class MicroBuild {
         return d.isDirectory() && new File(d, "bin/" + (win() ? "mvn.cmd" : "mvn")).exists();
     }
 
+
+
     private static File findMavenExe() {
-        String prop = System.getProperty("mvn.executable");
-        if (prop != null) { File f = new File(prop); if (f.canExecute()) return f; }
         String path = System.getenv("PATH");
         if (path != null) {
             for (String dir : path.split(File.pathSeparator)) {
@@ -144,13 +194,9 @@ public final class MicroBuild {
                 if (f.canExecute()) return f;
             }
         }
-        for (File f : new File[]{new File("/opt/homebrew/bin/mvn"), new File("/usr/local/bin/mvn")}) {
-            if (f.canExecute()) return f;
-        }
         return null;
     }
 
-    // Maven wrapper
     private static Path installWrapper(Path dir) throws IOException {
         Path wrap = dir.resolve(".mvn/wrapper");
         Files.createDirectories(wrap);
@@ -162,7 +208,7 @@ public final class MicroBuild {
         Files.writeString(unix,
                 "#!/bin/sh\nset -e\nBASE=\"$PWD\"\nJAR=\"$BASE/.mvn/wrapper/maven-wrapper.jar\"\n" +
                 "PROPS=\"$BASE/.mvn/wrapper/maven-wrapper.properties\"\nURL=`sed -n 's/^wrapperUrl=//p' \"$PROPS\"`\n" +
-                "[ -f \"$JAR\" ] || { curl -fsSL -o \"$JAR\" \"$URL\" 2>/dev/null || wget -q -O \"$JAR\" \"$URL\"; }\n" +
+                "[ -f \"$JAR\" ] || { curl --max-time 60 -fsSL -o \"$JAR\" \"$URL\" 2>/dev/null || wget --timeout=60 -q -O \"$JAR\" \"$URL\"; }\n" +
                 "exec java -Dmaven.multiModuleProjectDirectory=\"$BASE\" -cp \"$JAR\" org.apache.maven.wrapper.MavenWrapperMain \"$@\"\n");
         try { Files.setPosixFilePermissions(unix, EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE)); }
         catch (UnsupportedOperationException ignored) {}
@@ -178,6 +224,46 @@ public final class MicroBuild {
     }
 
     private static boolean win() { return System.getProperty("os.name", "").toLowerCase().contains("win"); }
+
+    private static Properties getIdeProxyProperties() {
+        Properties props = new Properties();
+        try {
+            ProxyConfiguration config = ProxySettings.getInstance().getProxyConfiguration();
+            if (!(config instanceof ProxyConfiguration.StaticProxyConfiguration)) return props;
+
+            ProxyConfiguration.StaticProxyConfiguration proxy = (ProxyConfiguration.StaticProxyConfiguration) config;
+            String host = proxy.getHost();
+            if (host == null || host.isEmpty()) return props;
+
+            int port = proxy.getPort();
+            if (proxy.getProtocol() == ProxyConfiguration.ProxyProtocol.SOCKS) {
+                props.setProperty("socksProxyHost", host);
+                props.setProperty("socksProxyPort", String.valueOf(port));
+            } else {
+                props.setProperty("http.proxyHost", host);
+                props.setProperty("http.proxyPort", String.valueOf(port));
+                props.setProperty("https.proxyHost", host);
+                props.setProperty("https.proxyPort", String.valueOf(port));
+            }
+
+            Credentials credentials = ProxyCredentialStore.getInstance().getCredentials(host, port);
+            if (credentials != null) {
+                String login = credentials.getUserName();
+                if (login != null) {
+                    props.setProperty("http.proxyUser", login);
+                    props.setProperty("https.proxyUser", login);
+                }
+                String pwd = credentials.getPasswordAsString();
+                if (pwd != null) {
+                    props.setProperty("http.proxyPassword", pwd);
+                    props.setProperty("https.proxyPassword", pwd);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Could not read IDE proxy settings", e);
+        }
+        return props;
+    }
 
     private static class Coord {
         final String g, a, v;

@@ -6,9 +6,9 @@ import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.language.sql.SQLFileType;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.mcp.McpServerInputForm.ParamRow;
-import com.dbn.mcp.McpServerInputForm.ParamType;
-import com.dbn.mcp.models.ToolDefinitionModel;
+import com.dbn.mcp.model.ParamRow;
+import com.dbn.mcp.model.ParamType;
+import com.dbn.mcp.model.ToolDefinitionModel;
 import com.dbn.mcp.vfs.McpToolSqlVirtualFile;
 import com.dbn.vfs.DatabaseFileViewProvider;
 import com.intellij.openapi.Disposable;
@@ -23,7 +23,15 @@ import com.intellij.psi.PsiFile;
 import com.intellij.ui.components.JBTextArea;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -33,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
+import static com.dbn.common.util.Strings.isWord;
 import static com.dbn.mcp.util.SqlParameterParser.parseOccurrences;
 import static com.dbn.mcp.util.SqlParameterParser.stripColon;
 import static com.dbn.mcp.util.SqlParameterParser.uniqueInOrder;
@@ -43,9 +53,9 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
     private JBTextArea toolDescriptionTextArea;
     private JPanel sqlEditorPanel;
     private JTable paramsTable;
-  private JScrollPane paramsScrollPane;
+    private JScrollPane paramsScrollPane;
 
-  private final ConnectionHandler connection;
+    private final ConnectionHandler connection;
     private ParamTableModel paramsModel;
     private Document document;
     private EditorEx editor;
@@ -57,6 +67,13 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         this.connection = connection;
         initParamsTable();
         whenShown(this::initEditor);
+    }
+
+    @Override
+    protected void initValidation() {
+        addTextValidation(toolName, n -> isNotEmptyOrSpaces(n), "Please enter a tool name");
+        addTextValidation(toolName, n -> isWord(n), "Please enter a valid tool name");
+        addValidation(sqlEditorPanel, c -> getSqlText().isBlank() ? "Please enter a SQL query" : null);
     }
 
     private void initParamsTable() {
@@ -89,7 +106,9 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         document.addDocumentListener(new DocumentListener() {
             @Override
             public void documentChanged(@NotNull DocumentEvent event) {
-                if (!suppressDocEvents) refreshParams();
+                if (suppressDocEvents) return;
+                refreshParams();
+                validateFormFields();
             }
         });
 
@@ -122,7 +141,7 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
             return;
         }
 
-        String name = stripColon(paramsModel.getRows().get(row).name);
+        String name = stripColon(paramsModel.getRows().get(row).getName());
         String newSql = getSqlText().replaceAll(":" + Pattern.quote(name) + "\\b", "");
 
         suppressDocEvents = true;
@@ -139,15 +158,15 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
 
         Map<String, ParamRow> existing = new LinkedHashMap<>();
         for (ParamRow row : paramsModel.getRows()) {
-            existing.put(stripColon(row.name), row);
+            existing.put(stripColon(row.getName()), row);
         }
 
         paramsModel.getRows().clear();
         for (String name : uniqueParams) {
             ParamRow prev = existing.get(name);
             paramsModel.getRows().add(prev != null
-                    ? new ParamRow(":" + name, prev.type, prev.defaultValue)
-                    : new ParamRow(":" + name, ParamType.String, ""));
+                    ? new ParamRow(":" + name, prev.getType(), prev.getDefaultValue(), prev.getDescription(), prev.isRequired())
+                    : new ParamRow(":" + name, ParamType.STRING, ""));
         }
         paramsModel.fireTableDataChanged();
     }
@@ -180,7 +199,7 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         ToolDefinitionModel model = new ToolDefinitionModel(paramsModel);
         model.setName(toolName.getText());
         model.setDescription(toolDescriptionTextArea.getText());
-        model.setSql(getSqlText());
+        model.setStatement(getSqlText());
         return model;
     }
 }

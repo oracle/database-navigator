@@ -5,13 +5,18 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.mcp.models.ToolDefinitionModel;
+import com.dbn.common.util.Messages;
+import com.dbn.mcp.model.ToolDefinitionModel;
 import com.dbn.mcp.ui.ToolDefinitionCreateDialog;
 import com.dbn.mcp.ui.ToolDefinitionListItemForm;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -43,10 +48,16 @@ public class ToolDefinitionListForm extends DBNFormBase {
         addButton = new JButton("Add Tool");
         addButton.addActionListener(e -> {
             ConnectionHandler connection = connectionSupplier.get();
+            if (connection == null) {
+                Messages.showWarningDialog(getProject(), "No Connection", "Please select a database connection first");
+                return;
+            }
             Dialogs.show(() -> new ToolDefinitionCreateDialog(getProject(), connection),
                     (dialog, exitCode) -> {
+                        if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
                         ToolDefinitionModel toolDefinitionModel = dialog.getForm().getToolDefinitionModel();
                         createObjectPanel(toolDefinitionModel);
+                        validateInput();
                     });
         });
     }

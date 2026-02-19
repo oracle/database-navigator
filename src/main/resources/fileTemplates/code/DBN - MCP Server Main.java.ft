@@ -4,58 +4,49 @@ import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.server.transport.StdioServerTransportProvider;
 import io.modelcontextprotocol.spec.McpSchema;
+import oracle.jdbc.OraclePreparedStatement;
+import org.yaml.snakeyaml.Yaml;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.List;
-import oracle.jdbc.OraclePreparedStatement;
 
 public class Main {
+    private static final String SERVER_NAME = "${SERVER_NAME}";
+    private static final String ENV_FILE = SERVER_NAME + ".env";
 
     public static void main(String[] args) throws Exception {
-        Properties cfg = new Properties();
-        try (InputStream in = Main.class.getResourceAsStream("/mcp-config.properties")) {
-            if (in != null) cfg.load(in);
-        }
-        String url = System.getProperty("mcp.url", cfg.getProperty("mcp.url"));
-        String password = System.getProperty("mcp.password", cfg.getProperty("mcp.password"));
-        String user = System.getProperty("mcp.user", cfg.getProperty("mcp.user"));
-        String serverName = System.getProperty("mcp.serverName", cfg.getProperty("mcp.serverName", "mcp-server"));
-        String serverVersion = System.getProperty("mcp.serverVersion", cfg.getProperty("mcp.serverVersion", "1.0.0"));
+        Map<String, String> dotenv = loadDotEnv();
 
-        int toolCount = Integer.parseInt(System.getProperty(
-                "mcp.tools.count",
-                cfg.getProperty("mcp.tools.count", "0")));
-        java.util.List<McpServerFeatures.SyncToolSpecification> specs = new java.util.ArrayList<>();
-        for (int i = 0; i < toolCount; i++) {
-            String p = "mcp.tools." + i + ".";
-            String tName   = System.getProperty(p + "name",   cfg.getProperty(p + "name",   "tool_" + i));
-            String tDesc   = System.getProperty(p + "desc",   cfg.getProperty(p + "desc",   "Parameterized SELECT tool"));
-            String tSql    = System.getProperty(p + "sql",    cfg.getProperty(p + "sql",    "SELECT 1 AS value FROM dual"));
-            String tSchema = System.getProperty(p + "schema", cfg.getProperty(p + "schema", "{\"type\":\"object\",\"additionalProperties\":true}"));
-            specs.add(createTool(tName, tDesc, tSchema, new DbDetails(url, user, password), tSql));
+        ConfigRoot config;
+        try (InputStream in = Main.class.getResourceAsStream("/mcp-config.yaml")) {
+            if (in == null) throw new IllegalStateException("mcp-config.yaml not found on classpath");
+            try (Reader reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
+                config = new Yaml().loadAs(reader, ConfigRoot.class);
+            }
         }
-        if (specs.isEmpty()) {
-            String tName   = System.getProperty("mcp.toolName", cfg.getProperty("mcp.toolName", "run_select"));
-            String tDesc   = System.getProperty("mcp.toolDesc", cfg.getProperty("mcp.toolDesc", "Parameterized SELECT tool"));
-            String tSql    = System.getProperty("tool.sql",    cfg.getProperty("tool.sql",    "SELECT 1 AS value FROM dual"));
-            String tSchema = System.getProperty("tool.schema", cfg.getProperty("tool.schema", "{\"type\":\"object\",\"additionalProperties\":true}"));
-            specs.add(createTool(tName, tDesc, tSchema, new DbDetails(url, user, password), tSql));
+        config.substituteEnvVars(dotenv);
+
+        List<McpServerFeatures.SyncToolSpecification> specs = new ArrayList<>();
+        for (Map.Entry<String, ToolConfig> entry : config.tools.entrySet()) {
+            String toolName = entry.getKey();
+            ToolConfig tc = entry.getValue();
+            String dsKey = tc.dataSource != null ? tc.dataSource : "default";
+            DataSourceConfig ds = config.dataSources.get(dsKey);
+            if (ds == null) throw new IllegalStateException("DataSource '" + dsKey + "' not found for tool: " + toolName);
+            specs.add(createTool(toolName, tc, ds));
         }
 
         StdioServerTransportProvider transport = new StdioServerTransportProvider(new ObjectMapper());
         McpServer.sync(transport)
-                .serverInfo(serverName, serverVersion)
+                .serverInfo(SERVER_NAME, "1.0.0")
                 .capabilities(McpSchema.ServerCapabilities.builder()
                         .tools(true)
                         .logging()
@@ -64,12 +55,13 @@ public class Main {
                 .build();
     }
 
-    private static McpServerFeatures.SyncToolSpecification createTool(String toolName, String toolDesc, String schema, DbDetails db, String sql) {
-        McpSchema.Tool tool = new McpSchema.Tool(toolName, toolDesc, schema);
+    private static McpServerFeatures.SyncToolSpecification createTool(String toolName, ToolConfig tc, DataSourceConfig ds) {
+        String schema = buildSchema(tc);
+        McpSchema.Tool tool = new McpSchema.Tool(toolName, tc.description, schema);
         return new McpServerFeatures.SyncToolSpecification(tool, (e, request) -> {
-            try (Connection conn = DriverManager.getConnection(db.url(), db.user(), db.password());
-                 OraclePreparedStatement ps = (OraclePreparedStatement) conn.prepareStatement(sql)) {
-                // Dynamically bind all provided parameters by name
+            try (Connection conn = DriverManager.getConnection(ds.toJdbcUrl(), ds.user, ds.getPassword());
+                 OraclePreparedStatement ps = (OraclePreparedStatement) conn.prepareStatement(tc.statement)) {
+
                 for (Map.Entry<String, Object> en : request.entrySet()) {
                     ps.setObjectAtName(en.getKey(), en.getValue());
                 }
@@ -96,19 +88,181 @@ public class Main {
         });
     }
 
-    public static class DbDetails {
-        String url;
-        String user;
-        String password;
+    private static String buildSchema(ToolConfig tc) {
+        if (tc.parameters == null || tc.parameters.isEmpty()) {
+            return "{\"type\":\"object\",\"properties\":{}}";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"type\":\"object\",\"properties\":{");
+        List<String> requiredList = new ArrayList<>();
+        for (int i = 0; i < tc.parameters.size(); i++) {
+            ToolParameterConfig p = tc.parameters.get(i);
+            if (i > 0) sb.append(',');
+            sb.append('"').append(escape(p.name)).append("\":{\"type\":\"").append(escape(p.type)).append('"');
+            if (p.description != null && !p.description.isEmpty()) {
+                sb.append(",\"description\":\"").append(escape(p.description)).append('"');
+            }
+            sb.append('}');
+            if (p.required) requiredList.add(p.name);
+        }
+        sb.append('}');
+        if (!requiredList.isEmpty()) {
+            sb.append(",\"required\":[");
+            for (int i = 0; i < requiredList.size(); i++) {
+                if (i > 0) sb.append(',');
+                sb.append('"').append(escape(requiredList.get(i))).append('"');
+            }
+            sb.append(']');
+        }
+        sb.append('}');
+        return sb.toString();
+    }
 
-        public DbDetails(String url, String user, String password) {
-            this.url = url;
-            this.user = user;
-            this.password = password;
+    private static String escape(String s) {
+        return s.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
+
+    private static Path getJarDir() {
+        try {
+            Path jarPath = Paths.get(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            return jarPath.getParent();
+        } catch (Exception e) {
+            return Paths.get("").toAbsolutePath();
+        }
+    }
+
+    private static Map<String, String> loadDotEnv() {
+        Map<String, String> env = new HashMap<>();
+        Path envFile = getJarDir().resolve(ENV_FILE);
+        if (!Files.exists(envFile)) return env;
+        try (BufferedReader br = Files.newBufferedReader(envFile, StandardCharsets.UTF_8)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) continue;
+                int eq = line.indexOf('=');
+                if (eq <= 0) continue;
+                String key = line.substring(0, eq).trim();
+                String value = line.substring(eq + 1).trim();
+                if (value.length() >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
+                    value = value.substring(1, value.length() - 1);
+                }
+                if (value.startsWith("base64:")) {
+                    value = new String(Base64.getDecoder().decode(value.substring(7)), StandardCharsets.UTF_8);
+                }
+                env.put(key, value);
+            }
+        } catch (Exception e) {
+            System.err.println("Warning: could not read .env file: " + e.getMessage());
+        }
+        return env;
+    }
+
+    public static class ConfigRoot {
+        public Map<String, DataSourceConfig> dataSources = new LinkedHashMap<>();
+        public Map<String, ToolConfig> tools = new LinkedHashMap<>();
+
+        public void substituteEnvVars(Map<String, String> dotenv) {
+            if (dataSources != null) {
+                for (DataSourceConfig ds : dataSources.values()) {
+                    if (ds != null) ds.substituteEnvVars(dotenv);
+                }
+            }
+            if (tools != null) {
+                for (ToolConfig tc : tools.values()) {
+                    if (tc != null) tc.substituteEnvVars(dotenv);
+                }
+            }
+        }
+    }
+
+    public static class DataSourceConfig {
+        public String host;
+        public String port;
+        public String database;
+        public String url;
+        public String user;
+        public String password;
+        private transient char[] passwordChars;
+
+        public String toJdbcUrl() {
+            if (url != null) return url;
+            return String.format("jdbc:oracle:thin:@%s:%s/%s", host, port, database);
         }
 
-        String url() { return url; }
-        String user() { return user; }
-        String password() { return password; }
+        public String getPassword() {
+            if (passwordChars == null && password != null) {
+                passwordChars = password.toCharArray();
+                password = null;
+            }
+            return passwordChars != null ? new String(passwordChars) : null;
+        }
+
+        public void substituteEnvVars(Map<String, String> dotenv) {
+            this.host     = EnvSubstitutor.substitute(this.host, dotenv);
+            this.port     = EnvSubstitutor.substitute(this.port, dotenv);
+            this.database = EnvSubstitutor.substitute(this.database, dotenv);
+            this.url      = EnvSubstitutor.substitute(this.url, dotenv);
+            this.user     = EnvSubstitutor.substitute(this.user, dotenv);
+            this.password = EnvSubstitutor.substitute(this.password, dotenv);
+        }
+    }
+
+    public static class ToolConfig {
+        public String name;
+        public String dataSource;
+        public String description;
+        public String statement;
+        public List<ToolParameterConfig> parameters;
+
+        public void substituteEnvVars(Map<String, String> dotenv) {
+            this.name        = EnvSubstitutor.substitute(this.name, dotenv);
+            this.dataSource  = EnvSubstitutor.substitute(this.dataSource, dotenv);
+            this.description = EnvSubstitutor.substitute(this.description, dotenv);
+            this.statement   = EnvSubstitutor.substitute(this.statement, dotenv);
+            if (parameters != null) {
+                for (ToolParameterConfig p : parameters) {
+                    if (p != null) p.substituteEnvVars(dotenv);
+                }
+            }
+        }
+    }
+
+    public static class ToolParameterConfig {
+        public String name;
+        public String type = "string";
+        public String description;
+        public boolean required;
+
+        public void substituteEnvVars(Map<String, String> dotenv) {
+            this.name        = EnvSubstitutor.substitute(this.name, dotenv);
+            this.type        = EnvSubstitutor.substitute(this.type, dotenv);
+            this.description = EnvSubstitutor.substitute(this.description, dotenv);
+        }
+    }
+
+    static class EnvSubstitutor {
+        private static final String PREFIX = "" + (char) 36 + "{";
+
+        static String substitute(String input, Map<String, String> dotenv) {
+            if (input == null) return null;
+            StringBuilder sb = new StringBuilder();
+            int i = 0;
+            while (i < input.length()) {
+                int start = input.indexOf(PREFIX, i);
+                if (start < 0) { sb.append(input, i, input.length()); break; }
+                int end = input.indexOf('}', start + PREFIX.length());
+                if (end < 0) { sb.append(input, i, input.length()); break; }
+                sb.append(input, i, start);
+                String var = input.substring(start + PREFIX.length(), end);
+                String value = dotenv.get(var);
+                if (value == null) value = System.getenv(var);
+                if (value == null) throw new IllegalStateException("Missing variable: " + var + " (not found in .env file or environment)");
+                sb.append(value);
+                i = end + 1;
+            }
+            return sb.toString();
+        }
     }
 }

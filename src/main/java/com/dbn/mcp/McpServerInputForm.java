@@ -9,12 +9,14 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigType;
-import com.dbn.mcp.models.ToolDefinitionModel;
+import com.dbn.mcp.model.ToolDefinitionModel;
 import com.dbn.options.ui.ProjectSettingsDialog;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
+
+import com.intellij.ui.components.JBTextField;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -29,10 +31,12 @@ public class McpServerInputForm extends DBNFormBase {
     private JPanel toolDefinitionPanel;
     private DBNComboBox<ConnectionHandler> connectionComboBox;
     private JButton addConnectionButton;
+    private JBTextField serverNameField;
     private ToolDefinitionListForm toolDefinitionListForm;
 
     public McpServerInputForm(@Nullable Disposable parent) {
         super(parent);
+        serverNameField.setText("mcp-server");
         initHint();
         initConnectionComboBox();
         initAddButton();
@@ -43,12 +47,22 @@ public class McpServerInputForm extends DBNFormBase {
         return mainPanel;
     }
 
+    @Override
+    protected void initValidation() {
+        addSelectionValidation(connectionComboBox, "Please select a database connection");
+        addTextValidation(serverNameField, n -> n != null && !n.trim().isEmpty(), "Please enter a server name");
+    }
+
+    public boolean hasTools() {
+        return !toolDefinitionListForm.getToolDefinitionModelList().isEmpty();
+    }
+
     private void initHint() {
         String html = "<html><div style='font-size:11px;margin:4px 0;'>" +
                 "<b>Build MCP data tool</b> — turn SQL into a ready-to-run MCP server JAR. " +
                 "Use <code>:param</code> placeholders, fill connection + tool info, click <b>Build</b>." +
                 "</div></html>";
-        hintPanel.add(new DBNHintForm(null, TextContent.html(html), null, true).getComponent());
+        hintPanel.add(new DBNHintForm(this, TextContent.html(html), null, true).getComponent());
     }
 
     private void initConnectionComboBox() {
@@ -97,27 +111,11 @@ public class McpServerInputForm extends DBNFormBase {
         return connectionComboBox != null ? connectionComboBox.getSelectedValue() : null;
     }
 
-    public List<ToolDefinitionModel> getTools() {
-        return toolDefinitionListForm.getToolDefinitionModelList();
+    public String getServerName() {
+        return serverNameField.getText().trim();
     }
 
-    // Shared types
-    public enum ParamType { String, Integer, Float, Boolean, Date }
-
-    public static class ParamRow {
-        public String name;
-        public ParamType type;
-        public String defaultValue;
-        public String description;
-
-        public ParamRow(String name) { this(name, ParamType.String, "", ""); }
-        public ParamRow(String name, ParamType type, String defaultValue) { this(name, type, defaultValue, ""); }
-
-        public ParamRow(String name, ParamType type, String defaultValue, String description) {
-            this.name = name;
-            this.type = type != null ? type : ParamType.String;
-            this.defaultValue = defaultValue != null ? defaultValue : "";
-            this.description = description != null ? description : "";
-        }
+    public List<ToolDefinitionModel> getTools() {
+        return toolDefinitionListForm.getToolDefinitionModelList();
     }
 }
