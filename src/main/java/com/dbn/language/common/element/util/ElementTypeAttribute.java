@@ -57,8 +57,12 @@ public enum ElementTypeAttribute implements Property.LongBase {
     SCHEMA_CHANGE("SCHEMA_CHANGE", "Schema change clause"),
     DB_ASSISTANT("DB_ASSISTANT", "Database assistant statement"),
     DB_ASSISTANT_PROMPT("DB_ASSISTANT_PROMPT", "Database assistant prompt"),
-    ITERATION_SEPARATOR("ITERATION_SEPARATOR", "Iterator separator"),
-    WRAPPING_TOKEN("WRAPPING_TOKEN", "Wrapping token"),
+
+    ITERATION_SEPARATOR("ITERATION_SEPARATOR", "Iterator separator token"),
+    OPTIONAL_WRAPPING("OPTIONAL_WRAPPING", "Optional wrapping token"),
+    SURROGATE_LEAD("SURROGATE_LEAD", "Surrogate lead token"),
+    SURROGATE_SEQUENCE("SURROGATE_SEQUENCE", "Surrogate sequence element"),
+    SURROGATE_CONTENT("SURROGATE_CONTENT", "Surrogate content element"),
     ;
 
     public static final ElementTypeAttribute[] VALUES = values();

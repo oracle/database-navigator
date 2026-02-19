@@ -26,8 +26,8 @@ import com.dbn.language.common.element.path.ParserNode;
 import com.intellij.lang.PsiBuilder.Marker;
 
 import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
+import static com.dbn.language.common.element.parser.ParseResultType.BORROWED_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
-import static com.dbn.language.common.element.parser.ParseResultType.SURROGATE_MATCH;
 
 public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierElementType> {
     public IdentifierElementTypeParser(IdentifierElementType elementType) {
@@ -39,10 +39,10 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
         ParserBuilder builder = context.builder;
         if (context.isSurrogateFor(elementType) && parentNode.matchedTokens == 0) {
             if (elementType.isSurrogate()) {
-                return stepOut(null, context, FULL_MATCH, 0);
+                return stepOut(null, context, BORROWED_MATCH, 0);
             } else {
-                Marker marker = builder.markAndAdvance(parentNode.element);
-                return stepOut(marker, context, SURROGATE_MATCH, 1);
+                Marker marker = builder.markAndAdvance();
+                return stepOut(marker, context, FULL_MATCH, 1);
             }
         }
 
@@ -55,7 +55,7 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
                 return stepOut(null, context, FULL_MATCH, 0);
             }
 
-            Marker marker = builder.markAndAdvance(parentNode.element);
+            Marker marker = builder.markAndAdvance();
             return stepOut(marker, context, FULL_MATCH, 1);
         }
 

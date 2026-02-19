@@ -40,7 +40,6 @@ import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT
 import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
-import static com.dbn.language.common.element.parser.ParseResultType.SURROGATE_MATCH;
 
 public class SequenceElementTypeParser<ET extends SequenceElementType> extends ElementTypeParser<ET> {
     public SequenceElementTypeParser(ET elementType) {
@@ -54,7 +53,6 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
 
         if (shouldParseElement(elementType, parentNode, context)) {
             node = stepIn(parentNode, context);
-            boolean surrogateMatch = false;
 
             ElementTypeRef[] elements = elementType.children;
             while (node.elementIndex < elements.length) {
@@ -83,9 +81,6 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                         //node = node.createVariant(builder.getCurrentOffset(), i);
                         result = element.elementType.parser.parse(node, context);
 
-                        if (result.type == SURROGATE_MATCH) {
-                            surrogateMatch = true;
-                        }
                         if (result.type != NO_MATCH) {
                             node.matchedTokens += result.matchedTokens;
                             node.matchedElements++;
@@ -97,7 +92,6 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                         if (element.isFirst() ||
                                 node.matchedElements == 0 ||
                                 node.matchedTokens == 0 ||
-                                (node.matchedTokens == 1 && surrogateMatch) ||
                                 elementType.isExitIndex(index) ||
                                 isWeakMatch(node)) {
                             return stepOut(node, context, NO_MATCH);

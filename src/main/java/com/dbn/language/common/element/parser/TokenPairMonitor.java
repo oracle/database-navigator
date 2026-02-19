@@ -21,6 +21,7 @@ import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.common.element.TokenPairTemplate;
 import com.dbn.language.common.element.impl.ElementTypeBase;
+import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.impl.WrappingDefinition;
 import com.intellij.lang.PsiBuilder.Marker;
@@ -46,14 +47,21 @@ public class TokenPairMonitor extends ParserBuilderExtension {
         for (TokenPairTemplate tokenPairTemplate : tokenPairTemplates) {
             stacks.put(tokenPairTemplate, new TokenPairStack(builder, languageDialect, tokenPairTemplate));
             tokens.add(tokenTypes.getTokenType(tokenPairTemplate.getBeginToken()));
+            tokens.add(tokenTypes.getTokenType(tokenPairTemplate.getEndToken()));
         }
 
     }
 
     public boolean isConsumedMatch(TokenType tokenType) {
+        if (builder.getToken() == tokenType) return false;
         if (builder.getPreviousToken() != tokenType) return false;
         if (!tokens.contains(tokenType)) return false;
-        if (!isExplicitRange(tokenType)) return true;
+
+        TokenPairStack stack = getStack(tokenType);
+        if (stack == null) return false;
+
+        if (tokenType == stack.endToken) return true;
+        if (tokenType == stack.beginToken) return !stack.isExplicitRange();
 
         return false;
     }
@@ -70,53 +78,68 @@ public class TokenPairMonitor extends ParserBuilderExtension {
         return false;
     }
 
-    protected void consumeBeginTokens(ElementTypeBase elementType) {
-        WrappingDefinition wrapping = elementType.wrapping;
+    protected void consumeBeginTokens(ElementTypeBase element) {
+        WrappingDefinition wrapping = element.wrapping;
         if (wrapping == null) return;
+        if (!wrapping.optional) return;
 
         TokenElementType beginElement = wrapping.beginElement;
-        TokenType beginToken = beginElement.tokenType;
-        while(builder.getToken() == beginToken) {
-            Marker beginTokenMarker = builder.mark();
-            acknowledge(elementType, beginToken, false);
-            builder.advanceInternally();
+        while(builder.getToken() == beginElement.tokenType) {
+            if (!acknowledge(beginElement, false)) return;
+
+            Marker beginTokenMarker = builder.markAndAdvance();
             builder.tokenMonitor.markResolved(beginElement);
             beginTokenMarker.done(beginElement);
         }
     }
 
-    protected void consumeEndTokens(ElementTypeBase elementType) {
-        WrappingDefinition wrapping = elementType.wrapping;
+    protected void consumeEndTokens(ElementTypeBase element) {
+        WrappingDefinition wrapping = element.wrapping;
         if (wrapping == null) return;
+        if (!wrapping.optional) return;
 
         TokenElementType endElement = wrapping.endElement;
-        TokenType endToken = endElement.tokenType;
-        while (builder.getToken() == endToken && !isExplicitRange(endToken)) {
-            Marker endTokenMarker = builder.mark();
-            acknowledge(elementType, endToken, false);
-            builder.advanceInternally();
+        while (builder.getToken() == endElement.tokenType) {
+            if (!acknowledge(endElement, false)) return;
+
+            Marker endTokenMarker = builder.markAndAdvance();
             builder.tokenMonitor.markResolved(endElement);
             endTokenMarker.done(endElement);
         }
     }
 
-    protected void acknowledge(ElementTypeBase element, TokenType token, boolean explicit) {
-        TokenPairStack tokenPairStack = getStack(token);
-        if (tokenPairStack == null) return;
+    public boolean acknowledge(LeafElementType leafElement, boolean borrowed) {
+        TokenPairStack stack = getStack(leafElement.tokenType);
+        if (stack == null) return  false;
 
-        tokenPairStack.acknowledge(element, token, explicit);
+        return stack.acknowledge(leafElement, borrowed);
     }
 
     public void reset() {
         for (TokenPairStack tokenPairStack : stacks.values()) {
             tokenPairStack.reset();
         }
-
     }
 
     public void rollback(ElementTypeBase element) {
-        for (TokenPairStack tokenPairStack : stacks.values()) {
-            tokenPairStack.rollback(element);
+        if (element == null) return;
+        if (element.wrapping == null) {
+            Set<TokenType> tokens = element.cache.getFirstPossibleTokens();
+            for (TokenType token : tokens) {
+                TokenPairTemplate tokenPairTemplate = token.getTokenPairTemplate();
+                if (tokenPairTemplate == null) continue;
+
+                TokenPairStack stack = stacks.get(tokenPairTemplate);
+                if (stack == null) continue;
+
+                stack.rollback(element);
+                return;
+            }
+        } else {
+            TokenPairStack stack = stacks.get(element.wrapping.template);
+            if (stack == null) return;
+
+            stack.rollback(element);
         }
     }
 
@@ -133,10 +156,5 @@ public class TokenPairMonitor extends ParserBuilderExtension {
     public boolean isExplicitRange(TokenType tokenType) {
         TokenPairStack stack = getStack(tokenType);
         return stack != null && stack.isExplicitRange();
-    }
-
-    public void setExplicitRange(TokenType tokenType, boolean value) {
-        TokenPairStack stack = getStack(tokenType);
-        if (stack != null) stack.setExplicitRange(value);
     }
 }

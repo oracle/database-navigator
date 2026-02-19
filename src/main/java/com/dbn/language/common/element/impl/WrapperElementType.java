@@ -18,7 +18,6 @@ package com.dbn.language.common.element.impl;
 
 import com.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dbn.common.util.Strings;
-import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.TokenPairTemplate;
 import com.dbn.language.common.element.cache.WrapperElementTypeLookupCache;
@@ -31,12 +30,10 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 public final class WrapperElementType extends ElementTypeBase {
-    public WrappingDefinition wrappingDefinition;
     public ElementTypeBase wrappedElement;
     public boolean wrappedElementOptional;
 
@@ -69,7 +66,7 @@ public final class WrapperElementType extends ElementTypeBase {
             }
         }
 
-        wrappingDefinition = new WrappingDefinition(beginTokenElement, endTokenElement);
+        wrapping = new WrappingDefinition(beginTokenElement, endTokenElement, false);
 
 
         List<Element> children = def.getChildren();
@@ -103,11 +100,11 @@ public final class WrapperElementType extends ElementTypeBase {
     }
 
     public TokenElementType getBeginTokenElement() {
-        return wrappingDefinition.beginElement;
+        return wrapping.beginElement;
     }
 
     public TokenElementType getEndTokenElement() {
-        return wrappingDefinition.endElement;
+        return wrapping.endElement;
     }
 
     public boolean isStrong() {
@@ -136,16 +133,6 @@ public final class WrapperElementType extends ElementTypeBase {
     @Override
     public PsiElement createPsiElement(ASTNode astNode) {
         return new SequencePsiElement<>(astNode, this);
-    }
-
-    public ElementType getWrappedElement() {
-        return wrappedElement;
-    }
-
-    @Override
-    public void collectAnonymousLeafs(Set<LeafElementType> bucket) {
-        bucket.add(getBeginTokenElement());
-        bucket.add(getEndTokenElement());
     }
 
     public void initialize() {

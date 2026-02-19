@@ -54,10 +54,10 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.OPTIONAL_WRAPPING;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_DEMARCATION;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_ISOLATION;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.WRAPPING_TOKEN;
 
 @Slf4j
 @Getter
@@ -220,9 +220,9 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         }
 
         if (beginTokenElement != null) {
-            beginTokenElement.set(WRAPPING_TOKEN, true);
-            endTokenElement.set(WRAPPING_TOKEN, true);
-            wrapping = new WrappingDefinition(beginTokenElement, endTokenElement);
+            beginTokenElement.set(OPTIONAL_WRAPPING, true);
+            endTokenElement.set(OPTIONAL_WRAPPING, true);
+            wrapping = new WrappingDefinition(beginTokenElement, endTokenElement, true);
         }
 
         scopeDemarcation = is(SCOPE_DEMARCATION) || is(STATEMENT);

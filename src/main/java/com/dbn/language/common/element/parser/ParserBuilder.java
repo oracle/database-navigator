@@ -19,7 +19,6 @@ package com.dbn.language.common.element.parser;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
-import com.dbn.language.common.element.TokenPairTemplate;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.path.ParserNode;
 import com.intellij.lang.ASTNode;
@@ -51,30 +50,15 @@ public final class ParserBuilder {
         return builder.getTreeBuilt();
     }
 
-    public Marker markAndAdvance(ElementTypeBase element) {
+    public Marker markAndAdvance() {
         Marker marker = mark();
-        advance(element);
+        advance();
         return marker;
     }
 
     public void advance() {
-        advance(null);
-    }
-
-    public void advance(ElementTypeBase element) {
-        tokenPairMonitor.acknowledge(element, getToken(), true);
-        advanceInternally();
-    }
-
-    public void advanceInternally() {
         builder.advanceLexer();
         cache.reset();
-    }
-
-    @Nullable
-    public TokenPairTemplate getTokenPairTemplate() {
-        TokenType token = getToken();
-        return token == null ? null : token.getTokenPairTemplate();
     }
 
     /****************************************************
@@ -237,5 +221,19 @@ public final class ParserBuilder {
             String tokenText = getTokenText();
             return dummyToken = tokenText != null && tokenText.contains(DUMMY_TOKEN) ? Boolean.TRUE : Boolean.FALSE;
         }
+    }
+
+    public String getCurrentContext() {
+        CharSequence text = builder.getOriginalText();
+        String tokenText = builder.getTokenText();
+        if (tokenText == null) return "";
+
+        int currentOffset = builder.getCurrentOffset();
+        String left = text.subSequence(
+                Math.max(0, currentOffset-20), currentOffset).toString();
+        String right = text.subSequence(
+                currentOffset + tokenText.length(), Math.min(currentOffset + tokenText.length() + 20, text.length()-1)).toString();
+
+        return left + " _____ " + tokenText + " _____ " + right;
     }
 }

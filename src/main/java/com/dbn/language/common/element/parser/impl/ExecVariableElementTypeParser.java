@@ -39,7 +39,7 @@ public class ExecVariableElementTypeParser extends ElementTypeParser<ExecVariabl
 
         TokenType token = builder.getToken();
         if (token != null && token.isVariable()) {
-            Marker marker = builder.markAndAdvance(parentNode.element);
+            Marker marker = builder.markAndAdvance();
             return stepOut(marker, context, FULL_MATCH, 1);
         }
         return stepOut(null, context, NO_MATCH, 0);

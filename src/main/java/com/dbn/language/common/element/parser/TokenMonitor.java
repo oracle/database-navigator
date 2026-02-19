@@ -53,19 +53,6 @@ public class TokenMonitor extends ParserBuilderExtension {
         return true;
     }
 
-    public boolean isSurrogateConsumed() {
-        if (lastLeaf == null) return false;
-
-/*        if (!surrogateStack.isEmpty()) {
-            SurrogateMarker lastSurrogate = surrogateStack.peek();
-            if (lastSurrogate.elementType.surrogateFor.contains(lastLeaf)) return true;
-        }*/
-
-        if (builder.tokenPairMonitor.isConsumedMatch(lastLeaf.tokenType)) return true;
-
-        return false;
-    }
-
     public boolean isSurrogateFor(ElementTypeBase elementType) {
         if (surrogateStack.isEmpty()) return false;
 

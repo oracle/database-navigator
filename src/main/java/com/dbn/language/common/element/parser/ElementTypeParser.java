@@ -33,6 +33,7 @@ import java.util.Set;
 
 import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
 import static com.dbn.language.common.element.parser.ParseResult.match;
+import static com.dbn.language.common.element.parser.ParseResultType.BORROWED_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
 
@@ -87,6 +88,7 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
                 }
                 if (elementType instanceof LeafElementType leafElementType) {
                     builder.tokenMonitor.markResolved(leafElementType);
+                    builder.tokenPairMonitor.acknowledge(leafElementType, resultType == BORROWED_MATCH);
                 }
 
                 return match(resultType, matchedTokens);
@@ -146,7 +148,7 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
         if (elementType.cache.couldStartWithToken(token)) return true;
 
         // TODO this returns true even if context is not surrogate block
-        if (builder.tokenMonitor.isSurrogateConsumed()) return true;
+        //if (builder.tokenMonitor.isSurrogateConsumed()) return true;
         if (builder.tokenMonitor.isSurrogate()) {
             if (builder.tokenMonitor.isSurrogateFor(elementType)) return true;
         }

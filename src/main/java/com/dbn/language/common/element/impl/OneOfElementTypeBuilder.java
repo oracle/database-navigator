@@ -31,7 +31,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.dbn.language.common.element.parser.TokenMonitor.unwrapSurrogates;
-import static com.dbn.language.common.element.util.ElementTypeAttribute.WRAPPING_TOKEN;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.OPTIONAL_WRAPPING;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_SEQUENCE;
 import static java.util.stream.Collectors.toCollection;
 
 public class OneOfElementTypeBuilder {
@@ -61,14 +63,14 @@ public class OneOfElementTypeBuilder {
         List<ElementTypeBase> children = new ArrayList<>(subject.children.length);
         for (PathVariant variant : pathVariants) {
             Set<TokenType> tokens = variant.tokens;
-            Set<ElementTypeBase> elements = variant.elements;
+            Set<ElementTypeBase> elements = variant.mainElements;
 
             if (variant.unambiguous) {
                 children.addAll(elements);
                 continue;
             }
 
-            if (variant.leafs.equals(elements)) {
+            if (variant.leadElements.equals(elements)) {
                 // this only happens on ambiguous "identifier one-of" elements
                 // TODO fix all occurrences of this use-case in the parser definitions and delete this block
                 children.addAll(elements);
@@ -76,54 +78,80 @@ public class OneOfElementTypeBuilder {
             }
 
             // build "sequence (token, one-of)"
-            SequenceElementType sequenceElementType = new SurrogateSequenceElementType(bundle, subject, nextId());
-            children.add(sequenceElementType);
+            SequenceElementType sequenceElement = new SurrogateSequenceElementType(bundle, subject, nextId());
+            sequenceElement.set(SURROGATE_SEQUENCE, true);
+            children.add(sequenceElement);
 
-            ElementTypeBase firstSequenceElement;
-            ElementTypeBase secondSequenceElement;
+            ElementTypeBase leadElement = tokens.size() == 1 ?
+                    createSimpleLeadElement(variant, sequenceElement) :
+                    createCompositeLeadElement(variant, sequenceElement);
 
-            if (tokens.size() > 1) {
-                List<LeafElementType> tokenElementTypes = new ArrayList<>(tokens.size());
-                for (TokenType tokenType : tokens) {
-                    LeafElementType surrogateLeafElementType = tokenType.isIdentifier() ?
-                            new IdentifierElementType(sequenceElementType, nextId()) :
-                            new TokenElementType(sequenceElementType, tokenType, nextId());
-                    surrogateLeafElementType.surrogate = true;
-                    surrogateLeafElementType.surrogateFor = unwrapSurrogates(variant.getLeafs(tokenType));
-                    tokenElementTypes.add(surrogateLeafElementType);
-                }
-                OneOfElementType oneOfElementType = new OneOfElementType(sequenceElementType, nextId());
-                oneOfElementType.setElements(tokenElementTypes);
-                oneOfElementType.surrogate = true;
-                oneOfElementType.sortable = subject.sortable;
-                oneOfElementType.basic = true;
-                firstSequenceElement = oneOfElementType;
+            ElementTypeBase mainElement = elements.size() == 1 ?
+                    createSimpleMainElement(variant, sequenceElement) :
+                    createCompositeMainElement(variant, sequenceElement);
 
-            } else {
-                LeafElementType leafElementType = variant.getFirstLeaf();
-                TokenType tokenType = leafElementType.tokenType;
+            sequenceElement.setElements(List.of(leadElement, mainElement));
+        }
+        subject.setElements(children);
+        subject.sortChildren();
+    }
 
-                LeafElementType surrogateLeafElementType = tokenType.isIdentifier() ?
-                        new IdentifierElementType(sequenceElementType, nextId()) :
-                        new TokenElementType(sequenceElementType, tokenType, nextId());
+    private ElementTypeBase createSimpleLeadElement(PathVariant variant, SequenceElementType parent) {
+        TokenType tokenType = variant.tokens.iterator().next();
 
-                surrogateLeafElementType.surrogate = true;
-                surrogateLeafElementType.surrogateFor = unwrapSurrogates(variant.leafs);
-                firstSequenceElement = surrogateLeafElementType;
+        LeafElementType leadElement = tokenType.isIdentifier() ?
+                new IdentifierElementType(parent, nextId()) :
+                new TokenElementType(parent, tokenType, nextId());
+
+        leadElement.surrogate = true;
+        leadElement.surrogateFor = unwrapSurrogates(variant.leadElements);
+        leadElement.set(SURROGATE_LEAD, true);
+        return leadElement;
+    }
+
+    private ElementTypeBase createCompositeLeadElement(PathVariant variant, SequenceElementType parent) {
+        List<LeafElementType> leadElements = new ArrayList<>(variant.tokens.size());
+        for (TokenType tokenType : variant.tokens) {
+            LeafElementType surrogateLeafElementType = tokenType.isIdentifier() ?
+                    new IdentifierElementType(parent, nextId()) :
+                    new TokenElementType(parent, tokenType, nextId());
+            surrogateLeafElementType.surrogate = true;
+            surrogateLeafElementType.surrogateFor = unwrapSurrogates(variant.getLeafs(tokenType));
+            surrogateLeafElementType.set(SURROGATE_LEAD, true);
+            leadElements.add(surrogateLeafElementType);
+        }
+        OneOfElementType leadElement = new OneOfElementType(parent, nextId());
+        leadElement.setElements(leadElements);
+        leadElement.surrogate = true;
+        leadElement.sortable = subject.sortable;
+        leadElement.basic = true;
+        return leadElement;
+    }
+
+    private static ElementTypeBase createSimpleMainElement(PathVariant variant, SequenceElementType parent) {
+        ElementTypeBase mainElement = variant.mainElements.iterator().next();
+        if (mainElement.wrapping != null && mainElement.wrapping.optional) {
+            parent.wrapping = mainElement.wrapping;
+        }
+
+        //secondSequenceElement.changeParent(subject, sequenceElementType);
+        return mainElement;
+    }
+
+    private ElementTypeBase createCompositeMainElement(PathVariant variant, SequenceElementType parent) {
+        Set<ElementTypeBase> elements = variant.mainElements;
+        ElementTypeBase mainElement;
+        OneOfElementType oneOfElementType = new OneOfElementType(parent, nextId());
+        oneOfElementType.setElements(elements);
+        oneOfElementType.surrogate = true;
+        oneOfElementType.sortable = subject.sortable;
+        oneOfElementType.sortChildren();
+        mainElement = oneOfElementType;
+        for (ElementTypeBase element : elements) {
+            if (element.wrapping != null && element.wrapping.optional) {
+                mainElement.wrapping = element.wrapping;
             }
-
-            if (elements.size() > 1) {
-                OneOfElementType oneOfElementType = new OneOfElementType(sequenceElementType, nextId());
-                oneOfElementType.setElements(elements);
-                oneOfElementType.surrogate = true;
-                oneOfElementType.sortable = subject.sortable;
-                oneOfElementType.sortChildren();
-                secondSequenceElement = oneOfElementType;
-                for (ElementTypeBase element : elements) {
-                    if (element.wrapping != null) {
-                        secondSequenceElement.wrapping = element.wrapping;
-                    }
-                }
+        }
 /*
                 // TODO verify if changing the parents is really needed
                 // Complication: unnamed element types will potentially appear in multiple nodes,
@@ -133,16 +161,7 @@ public class OneOfElementTypeBuilder {
                     element.changeParent(subject, oneOfElementType);
                 }
 */
-            } else {
-                secondSequenceElement = variant.getFirstElement();
-                sequenceElementType.wrapping = secondSequenceElement.wrapping;
-                //secondSequenceElement.changeParent(subject, sequenceElementType);
-            }
-
-            sequenceElementType.setElements(List.of(firstSequenceElement, secondSequenceElement));
-        }
-        subject.setElements(children);
-        subject.sortChildren();
+        return mainElement;
     }
 
     private String nextId() {
@@ -157,7 +176,7 @@ public class OneOfElementTypeBuilder {
         for (ElementTypeRef child : subject.children) {
             Set<LeafElementType> possibleLeafs = child.elementType.cache.getFirstPossibleLeafs();
             for (LeafElementType leaf : possibleLeafs) {
-                if (leaf.is(WRAPPING_TOKEN)) continue;
+                if (leaf.is(OPTIONAL_WRAPPING)) continue;
                 TokenType tokenType = leaf.tokenType;
 
                 PathVariantMappings leafMappings = paths.computeIfAbsent(tokenType, t -> new PathVariantMappings());
@@ -171,7 +190,7 @@ public class OneOfElementTypeBuilder {
         if (ambiguousPaths.isEmpty()) return null;
         Set<ElementTypeBase> ambiguousElements = new HashSet<>();
 
-        // ambiguous paths (one token to many elements)
+        // ambiguous paths (one leading-token to many elements)
         List<PathVariant> pathVariants = new ArrayList<>();
         for (TokenType tokenType : ambiguousPaths.keySet()) {
             PathVariantMappings mappings = ambiguousPaths.get(tokenType);
@@ -193,7 +212,7 @@ public class OneOfElementTypeBuilder {
             leafElementTypes.add(pathVariantMap.firstKey());
         }
 
-        // unambiguous paths (one-to-many keys to one element)
+        // unambiguous paths (many leading-tokens to one element)
         for (ElementTypeBase elementType : groupedPaths.keySet()) {
             Set<LeafElementType> leafElementTypes = groupedPaths.get(elementType);
             PathVariant pathVariant = new PathVariant(leafElementTypes, Set.of(elementType));
@@ -240,30 +259,22 @@ public class OneOfElementTypeBuilder {
     private static class PathVariant {
         private boolean unambiguous;
         private final Set<TokenType> tokens = new LinkedHashSet<>();
-        private final Set<LeafElementType> leafs = new LinkedHashSet<>();
-        private final Set<ElementTypeBase> elements = new LinkedHashSet<>();
+        private final Set<LeafElementType> leadElements = new LinkedHashSet<>();
+        private final Set<ElementTypeBase> mainElements = new LinkedHashSet<>();
 
-        public PathVariant(Collection<LeafElementType> leafs, Collection<ElementTypeBase> elements) {
-            this.leafs.addAll(leafs);
-            this.leafs.forEach(leaf -> tokens.add(leaf.tokenType));
-            this.elements.addAll(elements);
-        }
-
-        public LeafElementType getFirstLeaf() {
-            return leafs.iterator().next();
-        }
-
-        public ElementTypeBase getFirstElement() {
-            return elements.iterator().next();
+        public PathVariant(Collection<LeafElementType> leadElements, Collection<ElementTypeBase> mainElements) {
+            this.leadElements.addAll(leadElements);
+            this.leadElements.forEach(leaf -> tokens.add(leaf.tokenType));
+            this.mainElements.addAll(mainElements);
         }
 
         public Set<LeafElementType> getLeafs(TokenType tokenType) {
-            return leafs.stream().filter(l -> l.tokenType == tokenType).collect(Collectors.toSet());
+            return leadElements.stream().filter(l -> l.tokenType == tokenType).collect(Collectors.toSet());
         }
 
         @Override
         public String toString() {
-            return tokens.toString() + " " + elements.toString();
+            return tokens + " " + mainElements;
         }
     }
 }

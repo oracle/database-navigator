@@ -18,17 +18,13 @@ package com.dbn.language.common.element.parser.impl;
 
 import com.dbn.language.common.ParseException;
 import com.dbn.language.common.element.impl.ElementTypeBase;
-import com.dbn.language.common.element.impl.ElementTypeRef;
 import com.dbn.language.common.element.impl.LeafElementType;
-import com.dbn.language.common.element.impl.OneOfElementType;
 import com.dbn.language.common.element.impl.SurrogateSequenceElementType;
 import com.dbn.language.common.element.parser.ParseResult;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.parser.TokenMonitor;
-import com.dbn.language.common.element.parser.TokenPairMonitor;
 import com.dbn.language.common.element.path.ParserNode;
 
-import static com.dbn.language.common.element.parser.ParseResult.match;
 import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 
@@ -44,12 +40,7 @@ public class SurrogateSequenceElementTypeParser extends SequenceElementTypeParse
         if (shouldParseElement(leadingElement, parentNode, context)) {
             node = stepIn(parentNode, context);
 
-            ParseResult result;
-            if (isConsumedMatch(context, leadingElement)) {
-                result = match(FULL_MATCH, 0);
-            } else {
-                result = leadingElement.parser.parse(node, context);
-            }
+            ParseResult result = leadingElement.parser.parse(node, context);
 
             if (result.type != NO_MATCH) {
                 node.matchedTokens += result.matchedTokens;
@@ -57,6 +48,7 @@ public class SurrogateSequenceElementTypeParser extends SequenceElementTypeParse
 
                 TokenMonitor tokenMonitor = context.builder.tokenMonitor;
                 LeafElementType surrogateLeaf = tokenMonitor.lastLeaf;
+
                 tokenMonitor.enterSurrogateSection(surrogateLeaf);
 
                 ElementTypeBase mainElement = elementType.getMainElementType();
@@ -73,21 +65,4 @@ public class SurrogateSequenceElementTypeParser extends SequenceElementTypeParse
 
         return stepOut(node, context, NO_MATCH);
     }
-
-    private boolean isConsumedMatch(ParserContext context, ElementTypeBase leadingElement) {
-        TokenPairMonitor tokenPairMonitor = context.builder.tokenPairMonitor;
-        if (leadingElement instanceof LeafElementType leafElementType) {
-            return tokenPairMonitor.isConsumedMatch(leafElementType.tokenType);
-        }
-
-        if (leadingElement instanceof OneOfElementType oneOfElementType) {
-            // assumed to contain only leaf element types
-            for (ElementTypeRef child : oneOfElementType.children) {
-                LeafElementType leafElementType = (LeafElementType) child.elementType;
-                if (tokenPairMonitor.isConsumedMatch(leafElementType.tokenType)) return true;
-            }
-        }
-        return false;
-    }
-
 }
