@@ -38,6 +38,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -121,6 +122,20 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
                 ElementTypeLookupCache<?> lookupCache = wrapperElementType.wrappedElement.cache;
                 return lookupCache.captureFirstPossibleLeafs(context.reset());
             }
+        }
+
+        if (surrogatedBy != null) {
+            Set<LeafElementType> nextPossibleLeafs = new HashSet<>();
+            for (LeafElementType surrogatedByElement : surrogatedBy) {
+                ElementTypeBase surrogateParent = surrogatedByElement.parent;
+                if (surrogateParent instanceof SurrogateSequenceElementType surrogateSequence) {
+                    ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
+                    surrogatedElement.cache.captureSurrogateSuccessors(surrogatedByElement, nextPossibleLeafs);
+                } else {
+                    System.out.println();
+                }
+            }
+            return nextPossibleLeafs;
         }
 
         return super.getNextPossibleLeafs(pathNode, context);

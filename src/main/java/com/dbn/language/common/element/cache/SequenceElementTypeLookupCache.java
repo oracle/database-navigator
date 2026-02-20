@@ -123,5 +123,10 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
         }
         return bucket;
     }
+
+    @Override
+    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogatedLead, Set<LeafElementType> bucket) {
+        return super.captureSurrogateSuccessors(surrogatedLead, bucket);
+    }
 }
 

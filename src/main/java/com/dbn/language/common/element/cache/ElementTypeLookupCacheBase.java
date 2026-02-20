@@ -136,4 +136,8 @@ public abstract class ElementTypeLookupCacheBase<T extends ElementTypeBase> impl
         return bucket;
     }
 
+    @Override
+    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogatedLead, Set<LeafElementType> bucket) {
+        return bucket;
+    }
 }

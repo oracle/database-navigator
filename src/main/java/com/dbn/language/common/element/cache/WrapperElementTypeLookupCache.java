@@ -132,4 +132,9 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
     public boolean isFirstRequiredToken(TokenType tokenType) {
         return element.wrapping.beginElement.tokenType == tokenType;
     }
+
+    @Override
+    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogatedLead, Set<LeafElementType> bucket) {
+        return super.captureSurrogateSuccessors(surrogatedLead, bucket);
+    }
 }

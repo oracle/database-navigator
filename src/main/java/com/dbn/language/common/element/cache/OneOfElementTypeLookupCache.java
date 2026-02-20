@@ -73,4 +73,9 @@ public class OneOfElementTypeLookupCache extends ElementTypeLookupCacheIndexed<O
         }
         return bucket;
     }
+
+    @Override
+    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogatedLead, Set<LeafElementType> bucket) {
+        return super.captureSurrogateSuccessors(surrogatedLead, bucket);
+    }
 }

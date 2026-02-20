@@ -125,7 +125,7 @@ public class OneOfElementTypeBuilder {
         leadElement.surrogateFor = unwrapSurrogates(leafs);
         for (LeafElementType surrogateFor : leadElement.surrogateFor) {
             if (surrogateFor.surrogatedBy == null) surrogateFor.surrogatedBy = new LinkedHashSet<>();
-            surrogateFor.surrogatedBy.add(surrogateFor);
+            surrogateFor.surrogatedBy.add(leadElement);
         }
 
         leadElement.set(SURROGATE_LEAD, true);
