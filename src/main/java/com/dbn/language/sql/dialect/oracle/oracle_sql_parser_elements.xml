@@ -3964,13 +3964,10 @@
             <element ref-id="rename_partition_subpart" />
             <element ref-id="truncate_partition_subpart" />
             <element ref-id="set_subpartition_template" />
-            <sequence id="02366">
-                <token id="02367" type-id="KW_DROP" />
-                <one-of id="02368">
-                    <element ref-id="drop_table_partition" />
-                    <element ref-id="drop_table_subpartition" />
-                </one-of>
-            </sequence>
+            <one-of id="02368">
+                <element ref-id="drop_table_partition" />
+                <element ref-id="drop_table_subpartition" />
+            </one-of>
             <sequence id="02369">
                 <token id="02370" type-id="KW_MERGE" />
                 <one-of id="02371">
@@ -4219,6 +4216,7 @@
         </sequence>
     </element-def>
     <element-def description="DROP TABLE PARTITION clause" id="drop_table_partition">
+        <token id="04295" type-id="KW_DROP" />
         <token id="02494" type-id="KW_PARTITION" />
         <object-ref id="02495" type="PARTITION" />
         <sequence id="02496" optional="true">
@@ -4227,6 +4225,7 @@
         </sequence>
     </element-def>
     <element-def description="DROP TABLE SUBPARTITION clause" id="drop_table_subpartition">
+        <token id="04295" type-id="KW_DROP" />
         <token id="02497" type-id="KW_SUBPARTITION" />
         <object-ref id="02498" type="SUBPARTITION" />
         <sequence id="02499" optional="true">
@@ -7517,11 +7516,10 @@
 
 
     <element-def description="DROP statement" id="drop_statement">
-        <token id="04295" type-id="KW_DROP" />
         <one-of id="04296">
             <element ref-id="drop_cluster" />
             <element ref-id="drop_context" />
-            <element ref-id="temp_drop_database_synonym" />
+            <element ref-id="drop_database" />
 
             <element ref-id="drop_database_link" />
             <element ref-id="drop_dimension" />
@@ -7542,6 +7540,7 @@
             <element ref-id="drop_role" />
             <element ref-id="drop_rollback_segment" />
             <element ref-id="drop_sequence" />
+            <element ref-id="drop_synonym" />
 
             <element ref-id="drop_table" />
             <element ref-id="drop_tablespace" />
@@ -7553,30 +7552,19 @@
         </one-of>
     </element-def>
 
-    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP statement" id="temp_drop_database_synonym">
+
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP SYNONYM statement" id="drop_synonym">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04297" optional="true" type-id="KW_PUBLIC" />
-        <one-of id="04298">
-            <sequence id="04299" original-name="drop_database">
-                <token id="04300" type-id="KW_DATABASE" />
-                <token id="04301" type-id="KW_LINK" />
-                <object-ref id="04302" type="DBLINK" />
-            </sequence>
-            <sequence id="04303" original-name="drop_synonym">
-                <token id="04304" type-id="KW_SYNONYM" />
-                <qualified-identifier id="04305" separator="CHR_DOT">
-                    <variant>
-                        <object-ref id="04306" optional="true" type="SCHEMA" />
-                        <object-ref id="04307" type="SYNONYM" />
-                    </variant>
-                </qualified-identifier>
-                <token id="04308" optional="true" type-id="KW_FORCE" />
-            </sequence>
-        </one-of>
+        <token id="04304" type-id="KW_SYNONYM" />
+        <element ref-id="synonym_reference" />
+        <token id="04308" optional="true" type-id="KW_FORCE" />
     </element-def>
 
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP CLUSTER statement" id="drop_cluster">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04309" type-id="KW_CLUSTER" />
         <qualified-identifier id="04310" separator="CHR_DOT">
             <variant>
@@ -7597,6 +7585,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP CONTEXT statement" id="drop_context">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04319" type-id="KW_CONTEXT" />
         <token id="04320" original-name="namespace" type-id="IDENTIFIER" />
     </element-def>
@@ -7604,12 +7593,14 @@
 
 
     <element-def description="DROP DATABASE statement" id="drop_database">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04321" type-id="KW_DATABASE" />
     </element-def>
 
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP DATABASE LINK statement" id="drop_database_link">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04322" optional="true" type-id="KW_PUBLIC" />
         <token id="04323" type-id="KW_DATABASE" />
         <token id="04324" type-id="KW_LINK" />
@@ -7617,8 +7608,8 @@
     </element-def>
 
 
-
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP DIMENSION statement" id="drop_dimension">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04326" type-id="KW_DIMENSION" />
         <qualified-identifier id="04327" separator="CHR_DOT">
             <variant>
@@ -7631,6 +7622,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP DIRECTORY statement" id="drop_directory">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04330" type-id="KW_DIRECTORY" />
         <object-ref type="DIRECTORY" original-name="directory_name" id="04331" />
     </element-def>
@@ -7638,6 +7630,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP DISKGROUP statement" id="drop_diskgroup">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04332" type-id="KW_DISKGROUP" />
         <token id="04333" original-name="diskgroup_name" type-id="IDENTIFIER" />
         <sequence id="04334" optional="true">
@@ -7652,6 +7645,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP FUNCTION statement" id="drop_function">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04339" type-id="KW_FUNCTION" />
         <qualified-identifier id="04340" separator="CHR_DOT">
             <variant>
@@ -7664,6 +7658,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP INDEX statement" id="drop_index">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04343" type-id="KW_INDEX" />
         <qualified-identifier id="04344" separator="CHR_DOT">
             <variant>
@@ -7677,6 +7672,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP INDEXTYPE statement" id="drop_indextype">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04348" type-id="KW_INDEXTYPE" />
         <qualified-identifier id="04349" separator="CHR_DOT">
             <variant>
@@ -7689,6 +7685,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP JAVA statement" id="drop_java">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04353" type-id="KW_JAVA" />
         <one-of id="04354">
             <token id="04355" type-id="KW_SOURCE" />
@@ -7706,6 +7703,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP LIBRARY statement" id="drop_library">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04361" type-id="KW_LIBRARY" />
         <object-ref id="04362" type="LIBRARY" original-name="library_name" />
     </element-def>
@@ -7713,6 +7711,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP MATERIALIZED VIEW statement" id="drop_materialized_view">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04363" type-id="KW_MATERIALIZED" />
         <token id="04364" type-id="KW_VIEW" />
         <one-of id="04365">
@@ -7744,6 +7743,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP OPERATOR statement" id="drop_operator">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04379" type-id="KW_OPERATOR" />
         <qualified-identifier id="04380" separator="CHR_DOT">
             <variant>
@@ -7757,6 +7757,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP OUTLINE statement" id="drop_outline">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04384" type-id="KW_OUTLINE" />
         <object-ref attributes="SUBJECT" id="04385" type="OUTLINE" />
     </element-def>
@@ -7764,6 +7765,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP PACKAGE statement" id="drop_package">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04386" type-id="KW_PACKAGE" />
         <token id="04387" type-id="KW_BODY" />
         <qualified-identifier id="04388" separator="CHR_DOT">
@@ -7775,8 +7777,8 @@
     </element-def>
 
 
-
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP PROCEDURE statement" id="drop_procedure">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04391" type-id="KW_PROCEDURE" />
         <qualified-identifier id="04392" separator="CHR_DOT">
             <variant>
@@ -7787,16 +7789,16 @@
     </element-def>
 
 
-
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP PROFILE statement" id="drop_profile">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04395" type-id="KW_PROFILE" />
         <object-ref attributes="SUBJECT" id="04396" type="PROFILE" />
         <token id="04397" optional="true" type-id="KW_CASCADE" />
     </element-def>
 
 
-
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP ROLE statement" id="drop_role">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04398" type-id="KW_ROLE" />
         <object-ref attributes="SUBJECT" id="04399" type="ROLE" />
     </element-def>
@@ -7804,6 +7806,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP ROLLBACK_SEGMENT statement" id="drop_rollback_segment">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04400" type-id="KW_ROLLBACK" />
         <token id="04401" type-id="KW_SEGMENT" />
         <object-ref attributes="SUBJECT" id="04402" type="ROLLBACK_SEGMENT" />
@@ -7812,6 +7815,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP SEQUENCE statement" id="drop_sequence">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04403" type-id="KW_SEQUENCE" />
         <qualified-identifier id="04404" separator="CHR_DOT">
             <variant>
@@ -7824,6 +7828,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TABLE statement" id="drop_table">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04407" type-id="KW_TABLE" />
         <qualified-identifier id="04408" separator="CHR_DOT">
             <variant>
@@ -7841,6 +7846,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TABLESPACE statement" id="drop_tablespace">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04415" type-id="KW_TABLESPACE" />
         <object-ref attributes="SUBJECT" id="04416" type="TABLESPACE" />
         <sequence id="04417" optional="true">
@@ -7860,6 +7866,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TRIGGER statement" id="drop_trigger">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04426" type-id="KW_TRIGGER" />
         <qualified-identifier id="04427" separator="CHR_DOT">
             <variant>
@@ -7872,6 +7879,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TYPE statement" id="drop_type">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04430" type-id="KW_TYPE" />
         <token id="04431" optional="true" type-id="KW_BODY" />
         <qualified-identifier id="04432" separator="CHR_DOT">
@@ -7888,14 +7896,8 @@
 
 
 
-    <element-def description="DROP SYNONYM statement" id="drop_synonym">
-        <token id="04438" optional="true" type-id="KW_PUBLIC" />
-        <token id="04439" type-id="KW_SYNONYM" />
-        <element ref-id="synonym_reference" />
-    </element-def>
-
-
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP USER statement" id="drop_user">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04440" type-id="KW_USER" />
         <object-ref attributes="SUBJECT" id="04441" type="USER" />
         <token id="04442" optional="true" type-id="KW_CASCADE" />
@@ -7904,6 +7906,7 @@
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP VIEW statement" id="drop_view">
+        <token id="04295" type-id="KW_DROP" />
         <token id="04443" type-id="KW_VIEW" />
         <qualified-identifier id="04444" separator="CHR_DOT">
             <variant>

@@ -27,7 +27,6 @@ import com.dbn.language.common.element.impl.IterationElementType;
 import com.dbn.language.common.element.impl.NamedElementType;
 import com.dbn.language.common.element.impl.SequenceElementType;
 import com.dbn.language.common.element.impl.TokenElementType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -55,7 +54,7 @@ public final class NextTokenResolver {
         return bucket;
     }
 
-    private void visit(@NotNull NamedElementType element) {
+    private void visit(NamedElementType element) {
         if (!visited.contains(element)) {
             visited.add(element);
             for (ElementTypeBase parent : element.parents) {

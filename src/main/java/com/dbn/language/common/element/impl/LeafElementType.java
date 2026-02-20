@@ -47,6 +47,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
     private final int idx;
 
     public Set<LeafElementType> surrogateFor;
+    public Set<LeafElementType> surrogatedBy;
 
     LeafElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);

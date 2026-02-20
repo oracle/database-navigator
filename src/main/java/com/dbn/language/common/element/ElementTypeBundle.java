@@ -46,7 +46,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 
 import java.awt.datatransfer.StringSelection;
 import java.io.StringWriter;
@@ -244,7 +243,6 @@ public class ElementTypeBundle {
     }
 
 
-    @NotNull
     public static DBObjectType resolveObjectType(String name) throws ElementTypeDefinitionException {
         DBObjectType objectType = DBObjectType.get(name);
         if (objectType == null)
