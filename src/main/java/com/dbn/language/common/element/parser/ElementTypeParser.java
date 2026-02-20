@@ -147,14 +147,9 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
         if (builder.isDummyToken()) return true;
         if (elementType.cache.couldStartWithToken(token)) return true;
 
-        // TODO this returns true even if context is not surrogate block
-        //if (builder.tokenMonitor.isSurrogateConsumed()) return true;
+        if (builder.tokenPairMonitor.hasConsumedMatch(elementType)) return true;
         if (builder.tokenMonitor.isSurrogate()) {
             if (builder.tokenMonitor.isSurrogateFor(elementType)) return true;
-        }
-
-        if (elementType.isSurrogate()) {
-            if (builder.tokenPairMonitor.hasConsumedMatch(elementType)) return true;
         }
 
         if (isSuppressibleReservedWord(token, node, context)) return true;

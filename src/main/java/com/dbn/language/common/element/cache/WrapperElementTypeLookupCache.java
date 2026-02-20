@@ -94,7 +94,6 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
     @Override
     public boolean couldStartWithLeaf(LeafElementType elementType) {
         if (this.element.wrapping.beginElement == elementType) return true;
-        if (this.element.wrappedElement.cache.couldStartWithLeaf(elementType)) return true;
         return false;
     }
 
@@ -105,8 +104,7 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
 
     @Override
     public boolean couldStartWithToken(TokenType tokenType) {
-        if (element.wrapping.beginElement.cache.couldStartWithToken(tokenType)) return true;
-        if (element.wrappedElement.cache.couldStartWithToken(tokenType)) return true;
+        if (element.wrapping.beginElement.tokenType == tokenType) return true;
         return false;
     }
 
