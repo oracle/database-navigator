@@ -191,6 +191,7 @@ public class JavaExecutionInputForm extends DBNFormBase {
    }
 
     public void updateExecutionInput() {
+        executionInput.getInputValues().clear();
         parameterForms.forEach(f -> f.updateExecutionInput());
         executionOptionsForm.updateExecutionInput();
     }

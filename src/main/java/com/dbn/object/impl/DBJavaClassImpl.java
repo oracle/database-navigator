@@ -233,6 +233,22 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	}
 
 	@Override
+	public boolean hasPublicDefaultConstructor(){
+		List<DBJavaMethod> methods = getMethods();
+		for (DBJavaMethod method : methods) {
+			if(!(method.getAccessibility() == DBJavaAccessibility.PUBLIC))
+				continue;
+			String methodName = method.getName();
+			methodName = methodName.split("#")[0];
+			if(methodName.equals("<init>") && method.getParameters().isEmpty()){
+				if(method.getSignature().contains("()"))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public List<DBJavaMethod> getMethods() {
 		return getChildObjects(JAVA_METHOD);
 	}
@@ -301,7 +317,9 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 							name,
 							conn);
 				});
+
 	}
+
 
 	/*********************************************************
 	 *                     TreeElement                       *

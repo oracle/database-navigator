@@ -237,6 +237,8 @@ public class Icons {
     public static final Icon DATA_EDITOR_BROWSE                 = load("/img/ButtonBrowse.png");
     public static final Icon DATA_EDITOR_CALENDAR               = load("/img/ButtonCalendar.png");
     public static final Icon DATA_EDITOR_LIST                   = load("/img/ButtonList.png");
+    public static final Icon DATA_EDITOR_CODE                   = load("/img/button/ButtonCode.svg");
+    public static final Icon DATA_EDITOR_INPUTS                 = load("/img/button/ButtonInputs.svg");
 
     public static final Icon DATA_EXPORT =    load("/img/action/DataExport.png");
     public static final Icon DATA_IMPORT =    load("/img/action/DataImport.png");
