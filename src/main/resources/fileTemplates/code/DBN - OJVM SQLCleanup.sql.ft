@@ -7,15 +7,10 @@ DECLARE
         dbms_output.put_line('SQLERRM: ' || SQLERRM);
     END;
 BEGIN
-    execute_immediate('DROP ${TYPE} ${SQL_WRAPPER_NAME}');
+    execute_immediate('DROP ${SQL_WRAPPER_TYPE} ${SQL_WRAPPER_NAME}');
 
-
-    #if (${SQLTYPES} && ${SQLTYPES} != "")
-        #set($sqlTypes = "${SQLTYPES}")
-        #set($types = $sqlTypes.split(","))
-        #foreach($typeObj in $types)
-            execute_immediate('DROP TYPE $typeObj FORCE');
-        #end
+    #foreach($SQL_TYPE_NAME in $SQL_TYPE_NAMES)
+        execute_immediate('DROP TYPE $SQL_TYPE_NAME FORCE');
     #end
 
     execute_immediate('DROP JAVA SOURCE ${JAVA_WRAPPER_NAME}');

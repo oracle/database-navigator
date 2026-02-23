@@ -3,16 +3,11 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="6" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="4" vgap="4">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="19" width="471" height="413"/>
+      <xy x="20" y="19" width="471" height="301"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <vspacer id="263f">
-        <constraints>
-          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </vspacer>
       <grid id="3479e" binding="headerPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -81,11 +76,11 @@
       <vspacer id="fc5a9">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
-            <preferred-size width="-1" height="10"/>
+            <preferred-size width="-1" height="8"/>
           </grid>
         </constraints>
       </vspacer>
-      <grid id="cb0e6" binding="argumentsContainerPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="cb0e6" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -167,7 +162,7 @@
           </scrollpane>
         </children>
       </grid>
-      <grid id="6ea4f" binding="executionOptionsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="6ea4f" binding="optionsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -175,6 +170,11 @@
         <border type="none"/>
         <children/>
       </grid>
+      <vspacer id="263f">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
     </children>
   </grid>
 </form>

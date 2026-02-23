@@ -17,12 +17,15 @@
 package com.dbn.execution.java.wrapper;
 
 import com.dbn.common.util.Lists;
+import com.dbn.common.util.Strings;
 import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection;
 import com.dbn.execution.java.wrapper.model.FieldWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
 import com.dbn.execution.java.wrapper.model.ParameterWrapper;
 import com.dbn.execution.java.wrapper.naming.WrapperNamingProvider;
+import com.dbn.execution.java.wrapper.support.WrapperSupportData;
+import com.dbn.execution.java.wrapper.support.WrapperSupportInfo;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
@@ -41,6 +44,8 @@ import static com.dbn.execution.java.wrapper.TypeMappings.isUnsupportedType;
 import static com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection.IN;
 import static com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection.IN_OUT;
 import static com.dbn.execution.java.wrapper.model.ClassWrapper.ArgumentDirection.OUT;
+import static com.dbn.execution.java.wrapper.support.WrapperSupportEvaluator.evaluateArgumentSupport;
+import static com.dbn.execution.java.wrapper.support.WrapperSupportEvaluator.evaluateReturnArgumentSupport;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static com.dbn.object.type.DBJavaScalarType.isScalar;
@@ -130,14 +135,34 @@ public final class WrapperModelBuilder {
 		for (DBJavaParameter parameter : parameters) {
 			var javaClass = parameter.getJavaClassRef();
 			int arrayDepth = parameter.getArrayDepth();
+
+			String codeInput = getCodeInput(context, parameter);
+
+			//TODO review this
+			if(context.getInput().isTemporary()) {
+				WrapperSupportData supportData = context.getInput().getSupportData();
+				WrapperSupportInfo supportInfo = evaluateArgumentSupport(parameter, supportData);
+				if (!supportInfo.isSupported()) {
+					WrapperModel model = context.getModel();
+					model.addError(supportInfo.getUnsupportedReason());
+				}
+			}
+
 			ParameterWrapper parameterWrapper = createParameterWrapper(
-                    context,
-                    javaClass,
-                    arrayDepth,
-                    IN);
+                    	context,
+                    	javaClass,
+                    	arrayDepth,
+						codeInput,
+						IN);
 
 			methodWrapper.addParameter(parameterWrapper);
 		}
+	}
+
+	private String getCodeInput(WrapperContext context, DBJavaParameter parameter) {
+		WrapperModelInput input = context.getInput();
+		if (!input.isTemporary()) return null;
+		return input.getCodeInputs().get(parameter.getName());
 	}
 
 	/**
@@ -148,11 +173,22 @@ public final class WrapperModelBuilder {
 		if (javaMethod.isReturningVoid()) return;
 
 		var javaClass = javaMethod.getReturnClassRef();
-		int arrayDepth = javaMethod.getReturnArrayDepth();
+		short arrayDepth = javaMethod.getReturnArrayDepth();
+
+		WrapperSupportData supportData = context.getInput().getSupportData();
+		WrapperSupportInfo supportInfo = evaluateReturnArgumentSupport(javaClass, arrayDepth, supportData);
+
+		boolean isIncompatible = !supportInfo.isSupported();
+		if(isIncompatible) {
+			context.getModel().
+					addError(supportInfo.getUnsupportedReason());
+		}
+
 		ParameterWrapper parameterWrapper = createParameterWrapper(
                 context,
                 javaClass,
                 arrayDepth,
+				null,
                 OUT);
 
 		methodWrapper.setReturnParameter(parameterWrapper);
@@ -166,6 +202,7 @@ public final class WrapperModelBuilder {
             WrapperContext context,
 			DBObjectRef<DBJavaClass> javaClass,
 			int arrayDepth,
+			String codeInput,
 			ArgumentDirection direction) {
 
 		String className = getCanonicalName(javaClass);
@@ -173,6 +210,10 @@ public final class WrapperModelBuilder {
 
 		if (arrayDepth == 0 && isSupportedType(className)) {
 			return createSimpleParameterWrapper(context, className);
+		}
+
+		if(Strings.isNotEmpty(codeInput)) {
+			return createCodeParameterWrapper(context, className, arrayDepth, codeInput, direction);
 		}
 
 		// Otherwise, build or retrieve a JavaComplexType
@@ -197,7 +238,9 @@ public final class WrapperModelBuilder {
 	/**
 	 * Builds a simple (non-complex) method attribute with a known SQL type mapping.
 	 */
-	private ParameterWrapper createSimpleParameterWrapper(WrapperContext context, String javaClassName) {
+	private ParameterWrapper createSimpleParameterWrapper(
+			WrapperContext context,
+			String javaClassName) {
         WrapperModel model = context.getModel();
         ParameterWrapper methodAttribute = new ParameterWrapper(model);
 		methodAttribute.setJavaTypeName(javaClassName);
@@ -209,14 +252,40 @@ public final class WrapperModelBuilder {
 	}
 
 	/**
+	 * Builds a simple (non-complex) method attribute with a known SQL type mapping.
+	 */
+	private ParameterWrapper createCodeParameterWrapper(
+			WrapperContext context,
+			String javaClassName,
+			int arrayDepth,
+			String codeInput,
+			ArgumentDirection direction) {
+
+		WrapperModel model = context.getModel();
+		ParameterWrapper parameter = new ParameterWrapper(model);
+		parameter.setJavaTypeName(javaClassName);
+		if(direction == ArgumentDirection.OUT) {
+			parameter.setSqlTypeName(TypeMappings.getSqlTypeName("java.lang.String"));
+		}
+		parameter.setArrayDepth(arrayDepth);
+		parameter.setComplexType(false);
+		parameter.setCodeInput(codeInput);
+		return parameter;
+	}
+
+	/**
 	 * Builds a method attribute that is backed by a {@link ClassWrapper}.
 	 */
-	private ParameterWrapper createComplexParameterWrapper(WrapperContext context, ClassWrapper classWrapper, ArgumentDirection argumentDirection) {
+	private ParameterWrapper createComplexParameterWrapper(
+			WrapperContext context,
+			ClassWrapper classWrapper,
+			ArgumentDirection argumentDirection) {
         WrapperModel model = context.getModel();
         ParameterWrapper methodAttribute = new ParameterWrapper(model);
 		methodAttribute.setArrayDepth(classWrapper.getArrayDepth());
 		methodAttribute.setJavaTypeName(classWrapper.getClassName());
 		methodAttribute.setSqlTypeName(classWrapper.getSqlTypeName());
+		methodAttribute.setSqlType(classWrapper.getSqlType());
 		methodAttribute.setComplexType(true);
 
 		String converterName = argumentDirection == IN ?
