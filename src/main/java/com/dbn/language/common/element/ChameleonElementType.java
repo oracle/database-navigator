@@ -161,11 +161,6 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
     }
 
     @Override
-    public boolean isSurrogate() {
-        return false;
-    }
-
-    @Override
     public boolean isVirtualObject() {
         return false;
     }

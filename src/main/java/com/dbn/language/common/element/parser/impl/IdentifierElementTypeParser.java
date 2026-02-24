@@ -28,6 +28,7 @@ import com.intellij.lang.PsiBuilder.Marker;
 import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
 import static com.dbn.language.common.element.parser.ParseResultType.BORROWED_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
 
 public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierElementType> {
     public IdentifierElementTypeParser(IdentifierElementType elementType) {
@@ -38,7 +39,7 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
     public ParseResult parse(ParserNode parentNode, ParserContext context) {
         ParserBuilder builder = context.builder;
         if (context.isSurrogateFor(elementType) && parentNode.matchedTokens == 0) {
-            if (elementType.isSurrogate()) {
+            if (elementType.is(SURROGATE_LEAD)) {
                 return stepOut(null, context, BORROWED_MATCH, 0);
             } else {
                 Marker marker = builder.markAndAdvance();
@@ -51,7 +52,7 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
 
         // if reserved word, verify if suppressible in this context (i.e. converted to identifier)
         if (token.isIdentifier() || isSuppressibleReservedWord(parentNode, context, token)) {
-            if (elementType.isSurrogate()) {
+            if (elementType.is(SURROGATE_LEAD)) {
                 return stepOut(null, context, FULL_MATCH, 0);
             }
 

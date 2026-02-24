@@ -38,6 +38,7 @@ import java.util.Set;
 
 import static com.dbn.language.common.element.impl.ElementTypeCache.getUnwrappedFirstPossibleLeafs;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
 import static java.util.Collections.disjoint;
 
 public abstract class LeafElementType extends ElementTypeBase implements Indexable {
@@ -64,7 +65,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
     public boolean isSurrogateFor(ElementTypeBase elementType) {
         if (surrogateFor == null) return false;
 
-        if (elementType instanceof LeafElementType leafElementType && !leafElementType.isSurrogate()) {
+        if (elementType instanceof LeafElementType leafElementType && !leafElementType.is(SURROGATE_LEAD)) {
             return surrogateFor.contains(leafElementType);
         }
 

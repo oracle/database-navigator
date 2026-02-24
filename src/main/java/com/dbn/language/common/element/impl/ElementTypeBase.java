@@ -83,8 +83,6 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
 
     public boolean scopeDemarcation;
     public boolean scopeIsolation;
-    @Deprecated // TODO (ambiguous) replace with ElementTypeAttribute SURROGATE_*
-    public boolean surrogate;
     protected transient boolean initialized;
 
 

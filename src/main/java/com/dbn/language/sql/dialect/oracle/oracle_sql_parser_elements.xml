@@ -3951,7 +3951,7 @@
         </one-of>
         <token type-id="PRM_RECORDS_PER_BLOCK" id="02374" />
     </element-def>
-    <element-def attributes="CLAUSE" description="add column clause" id="add_column_clause">
+    <element-def attributes="CLAUSE" description="ADD COLUMN clause" id="add_column_clause">
         <token id="02375" type-id="KW_ADD" />
         <one-of id="02376">
             <element ref-id="column_definition" />

@@ -55,8 +55,6 @@ public interface ElementType extends PropertyHolder<ElementTypeAttribute>{
 
     boolean isLeaf();
 
-    boolean isSurrogate();
-
     boolean isVirtualObject();
 
     PsiElement createPsiElement(ASTNode astNode);

@@ -111,7 +111,6 @@ public class OneOfElementTypeBuilder {
         }
         OneOfElementType leadElement = new OneOfElementType(parent, nextId());
         leadElement.setElements(leadElements);
-        leadElement.surrogate = true;
         leadElement.sortable = subject.sortable;
         leadElement.basic = true;
         return leadElement;
@@ -121,7 +120,6 @@ public class OneOfElementTypeBuilder {
         LeafElementType leadElement = tokenType.isIdentifier() ?
                 new IdentifierElementType(parent, nextId()) :
                 new TokenElementType(parent, tokenType, nextId());
-        leadElement.surrogate = true;
         leadElement.surrogateFor = unwrapSurrogates(leafs);
         for (LeafElementType surrogateFor : leadElement.surrogateFor) {
             if (surrogateFor.surrogatedBy == null) surrogateFor.surrogatedBy = new LinkedHashSet<>();
@@ -146,7 +144,6 @@ public class OneOfElementTypeBuilder {
         Set<ElementTypeBase> elements = variant.mainElements;
         OneOfElementType mainElement = new OneOfElementType(parent, nextId());
         mainElement.setElements(elements);
-        mainElement.surrogate = true;
         mainElement.sortable = subject.sortable;
         mainElement.sortChildren();
         for (ElementTypeBase element : elements) {

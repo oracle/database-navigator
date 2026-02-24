@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 public final class SurrogateSequenceElementType extends SequenceElementType {
     public SurrogateSequenceElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id) {
         super(bundle, parent, id);
-        surrogate = true;
     }
 
     public ElementTypeBase getLeadingElementType() {
