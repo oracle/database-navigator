@@ -541,5 +541,17 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return slices;
     }
 
+    public static String middleEllipsis(String string, int maxLength) {
+        if (string == null) return null;
+        if (maxLength < 5) return string;
+        if (string.length() <= maxLength) return string;
+
+        String ellipsis = "...";
+        int remaining = maxLength - ellipsis.length();
+        int head = (remaining + 1) / 2;
+        int tail = remaining / 2;
+
+        return string.substring(0, head) + ellipsis + string.substring(string.length() - tail);
+    }
 }
 
