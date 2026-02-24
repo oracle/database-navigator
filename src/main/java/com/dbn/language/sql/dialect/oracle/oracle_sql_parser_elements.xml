@@ -4456,10 +4456,75 @@
     </element-def>
     <element-def description="ADD PARTITIONSET" id="add_partitionset">
         <token type-id="KW_ADD" id="02620" />
-        <one-of id="02621">
-            <element ref-id="range_partitionset_clause" />
-            <element ref-id="list_partitionset_clause" />
+        <element ref-id="partitionset_clause" />
+    </element-def>
+    <element-def description="PARTITIONSET clause" id="partitionset_clause" original-name="list_partitionset_clause, range_partitionset_clause">
+        <token type-id="KW_PARTITIONSET"/>
+        <token type-id="KW_BY"/>
+        <one-of>
+            <token type-id="KW_LIST"/>
+            <token type-id="KW_RANGE"/>
         </one-of>
+        <wrapper template="PARENTHESES">
+            <element ref-id="column_list" />
+        </wrapper>
+        <token type-id="KW_PARTITION"/>
+        <token type-id="KW_BY"/>
+        <token type-id="KW_CONSISTENT"/>
+        <token type-id="KW_HASH"/>
+        <wrapper template="PARENTHESES">
+            <element ref-id="column_list" />
+        </wrapper>
+        <sequence optional="true">
+            <token type-id="KW_SUBPARTITION"/>
+            <token type-id="KW_BY"/>
+            <one-of>
+                <sequence>
+                    <one-of>
+                        <token type-id="KW_RANGE"/>
+                        <token type-id="KW_HASH"/>
+                    </one-of>
+                    <wrapper template="PARENTHESES">
+                        <element ref-id="column_list" />
+                    </wrapper>
+                </sequence>
+                <sequence>
+                    <token type-id="KW_LIST"/>
+                    <wrapper template="PARENTHESES">
+                        <object-ref type="COLUMN"/>
+                    </wrapper>
+                </sequence>
+            </one-of>
+            <element ref-id="subpartition_template" optional="true"/>
+        </sequence>
+        <token type-id="KW_PARTITIONS"/>
+        <token type-id="KW_AUTO"/>
+        <wrapper template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <element ref-id="partitionset_desc"/>
+            </iteration>
+        </wrapper>
+    </element-def>
+    <element-def description="PARTITIONSET descriptor" id="partitionset_desc" original-name="list_partitionset_desc, range_partitionset_desc">
+        <token type-id="KW_PARTITIONSET"/>
+        <object-ref type="PARTITION_SET"/>
+        <element ref-id="list_values_clause"/>
+        <sequence optional="true">
+            <token type-id="KW_TABLESPACE"/>
+            <token type-id="KW_SET"/>
+            <object-ref type="TABLESPACE_SET"/>
+        </sequence>
+        <element ref-id="lob_storage_clause" optional="true"/>
+        <sequence optional="true">
+            <token type-id="KW_SUBPARTITIONS"/>
+            <token type-id="KW_STORE"/>
+            <token type-id="KW_IN"/>
+            <wrapper template="PARENTHESES">
+                <iteration separator="CHR_COMMA">
+                    <object-ref type="TABLESPACE_SET"/>
+                </iteration>
+            </wrapper>
+        </sequence>
     </element-def>
     <element-def description="MODIFY PARTITIONSET" id="modify_partitionset">
         <token type-id="KW_MODIFY" id="02622" />
@@ -5673,7 +5738,39 @@
             <token id="03273" type-id="KW_FULL" />
         </one-of>
     </element-def>
-
+    <element-def description="Domain index clause" id="domain_index_clause">
+        <qualified-identifier id="04763" separator="CHR_DOT" original-name="indextype">
+            <variant>
+                <object-ref id="04764" optional="true" type="SCHEMA" />
+                <object-ref attributes="SUBJECT" id="04765" type="INDEXTYPE" />
+            </variant>
+        </qualified-identifier>
+        <element ref-id="local_domain_index_clause" optional="true"/>
+        <element ref-id="parallel_clause" optional="true"/>
+        <sequence optional="true">
+            <token type-id="KW_PARAMETERS"/>
+            <wrapper template="PARENTHESES">
+                <token type-id="STRING" original-name="OCI_parameters"/>
+            </wrapper>
+        </sequence>
+    </element-def>
+    <element-def description="LOCAL domain index clause" id="local_domain_index_clause">
+        <token type-id="KW_LOCAL"/>
+        <wrapper template="PARENTHESES" optional="true">
+            <iteration separator="CHR_COMMA">
+                <sequence>
+                    <token type-id="KW_PARTITION"/>
+                    <object-ref type="PARTITION"/>
+                    <sequence optional="true">
+                        <token type-id="KW_PARAMETERS"/>
+                        <wrapper template="PARENTHESES">
+                            <token type-id="STRING" original-name="OCI_parameters"/>
+                        </wrapper>
+                    </sequence>
+                </sequence>
+            </iteration>
+        </wrapper>
+    </element-def>
 
     <element-def description="CREATE SYNONYM statement" id="create_synonym_statement">
         <token id="03274" type-id="KW_CREATE" />
