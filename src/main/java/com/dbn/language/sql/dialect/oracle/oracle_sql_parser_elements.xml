@@ -156,6 +156,14 @@
             </iteration>
         </wrapper>
     </element-def>
+    <element-def attributes="CLAUSE" description="ROW MOVEMENT clause" id="row_movement_clause">
+        <one-of>
+            <token type-id="KW_ENABLE"/>
+            <token type-id="KW_DISABLE"/>
+        </one-of>
+        <token type-id="KW_ROW"/>
+        <token type-id="KW_MOVEMENT"/>
+    </element-def>
     <element-def attributes="CLAUSE" description="PARALLEL clause" id="parallel_clause">
         <one-of id="00059">
             <token id="00060" type-id="KW_NOPARALLEL" />
@@ -2120,9 +2128,10 @@
                 <token type-id="KW_COMPRESS" id="01193" />
                 <sequence optional="true" id="01194">
                     <token type-id="KW_FOR" id="01195" />
+                    <token type-id="KW_MEMSPEED" id="01195" optional="true"/>
                     <one-of id="01196">
-                        <token type-id="KW_BASIC" id="01197" />
-                        <token type-id="KW_ADVANCED" id="01198" />
+                        <token type-id="KW_QUERY" id="01197" />
+                        <token type-id="KW_ARCHIVE" id="01198" />
                     </one-of>
                     <one-of optional="true" id="01199">
                         <token type-id="KW_LOW" id="01200" />
@@ -2203,10 +2212,10 @@
             <object-ref id="01247" original-name="LOB_item" type="LOB" />
         </wrapper>
         <wrapper id="01248" template="PARENTHESES">
-            <element ref-id="modify_LOB_parameters" />
+            <element ref-id="modify_lob_parameters" />
         </wrapper>
     </element-def>
-    <element-def description="MODIFY LOB parameters" id="modify_LOB_parameters">
+    <element-def description="MODIFY LOB parameters" id="modify_lob_parameters">
         <iteration id="01249">
             <one-of id="01250">
                 <element ref-id="storage_clause" />
@@ -3269,7 +3278,7 @@
             <token id="01925" type-id="PRM_CREATE_STORED_OUTLINES" />
             <token id="01926" type-id="PRM_CURSOR_SHARING" />
             <token id="01927" type-id="PRM_CURSOR_SPACE_FOR_TIME" />
-            <token id="01928" type-id="PRM_DB_nK_CACHE_SIZE" />
+            <token id="01928" type-id="PRM_DB_NK_CACHE_SIZE" />
             <token id="01929" type-id="PRM_DB_BLOCK_CHECKING" />
             <token id="01930" type-id="PRM_DB_BLOCK_CHECKSUM" />
             <token id="01931" type-id="PRM_DB_BLOCK_SIZE" />
@@ -3615,55 +3624,196 @@
         </one-of>
     </element-def>
 
-
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="ALTER TABLE statement" id="alter_table">
         <token id="02196" type-id="KW_ALTER" />
         <token id="02197" type-id="KW_TABLE" />
+        <sequence optional="true">
+            <token id="02197" type-id="KW_IF" />
+            <token id="02197" type-id="KW_EXISTS" />
+        </sequence>
         <qualified-identifier id="02198" separator="CHR_DOT">
             <variant>
                 <object-ref id="02199" optional="true" type="SCHEMA" />
                 <object-ref attributes="SUBJECT" id="02200" referenceable="true" type="TABLE" />
             </variant>
         </qualified-identifier>
+        <element ref-id="memoptimize_clauses" optional="true"/>
         <one-of id="02201" optional="true">
             <element ref-id="alter_table_properties" />
             <element ref-id="column_clauses" />
             <element ref-id="constraint_clauses" />
-            <element ref-id="alter_table_partitioning" />
-            <element ref-id="alter_external_table_clauses" />
-            <element ref-id="move_table_clause" />
-        </one-of>
-    </element-def>
-    <element-def description="Alter table properties" id="alter_table_properties">
-        <iteration id="02202">
-            <one-of id="02203">
-                <element ref-id="physical_attributes_clause" />
-                <element ref-id="logging_clause" />
-                <element ref-id="table_compression" />
-                <element ref-id="supplemental_table_logging" />
-                <element ref-id="allocate_extent_clause" />
-                <element ref-id="deallocate_unused_clause" />
-                <element ref-id="shrink_clause" />
-                <element ref-id="upgrade_table_clause" />
-                <element ref-id="records_per_block_clause" />
-                <element ref-id="parallel_clause" />
-                <element ref-id="row_movement_clause" />
-                <token id="02204" type-id="KW_CACHE" />
-                <token id="02205" type-id="KW_NOCACHE" />
-                <sequence id="02206">
-                    <token id="02207" type-id="KW_RENAME" />
-                    <token id="02208" type-id="KW_TO" />
-                    <object-def id="02209" type="TABLE" />
+            <sequence>
+                <element ref-id="alter_table_partitioning" />
+                <sequence optional="true">
+                    <one-of>
+                        <token type-id="KW_DEFERRED"/>
+                        <token type-id="KW_IMMEDIATE"/>
+                    </one-of>
+                    <token type-id="KW_INVALIDATION"/>
                 </sequence>
-                <sequence id="02210">
-                    <token id="02211" type-id="KW_READ" />
-                    <one-of tokens="KW_ONLY, KW_WRITE" id="02212" />
+            </sequence>
+
+            <element ref-id="alter_table_partitionset" />
+            <element ref-id="alter_external_table" />
+            <element ref-id="move_table_clause" />
+            <element ref-id="modify_to_partitioned" />
+            <element ref-id="modify_opaque_type" />
+            <element ref-id="immutable_table_clauses" />
+            <element ref-id="blockchain_table_clauses" />
+            <element ref-id="duplicated_table_refresh" />
+        </one-of>
+        <iteration optional="true">
+            <one-of>
+                <element ref-id="enable_disable_clause"/>
+                <sequence>
+                    <one-of>
+                        <token type-id="KW_ENABLE"/>
+                        <token type-id="KW_DISABLE"/>
+                    </one-of>
+                    <one-of>
+                        <sequence>
+                            <token type-id="KW_TABLE"/>
+                            <token type-id="KW_LOCK"/>
+                        </sequence>
+                        <sequence>
+                            <token type-id="KW_ALL"/>
+                            <token type-id="KW_TRIGGERS"/>
+                        </sequence>
+                        <token type-id="KW_CONTAINER_MAP"/>
+                        <token type-id="KW_CONTAINERS_DEFAULT"/>
+                    </one-of>
                 </sequence>
             </one-of>
         </iteration>
-        <element optional="true" ref-id="alter_iot_clauses" />
     </element-def>
-    <element-def description="Supplemental table logging" id="supplemental_table_logging">
+    <element-def description="MEMOPTIMIZE clauses" id="memoptimize_clauses" original-name="memoptimize_read_clause, memoptimize_write_clause">
+        <iteration id="02975">
+            <sequence id="02976">
+                <token id="02978" type-id="KW_NO" optional="true"/>
+                <token id="02977" type-id="KW_MEMOPTIMIZE" />
+                <token id="02978" type-id="KW_FOR" />
+                <one-of id="02979">
+                    <token id="02980" type-id="KW_READ" />
+                    <token id="02981" type-id="KW_WRITE" />
+                </one-of>
+            </sequence>
+        </iteration>
+    </element-def>
+
+    <element-def description="Alter table properties" id="alter_table_properties">
+        <one-of>
+            <sequence>
+                <iteration id="02202">
+                    <one-of id="02203">
+                        <element ref-id="physical_attributes_clause" />
+                        <element ref-id="logging_clause" />
+                        <element ref-id="table_compression" />
+                        <element ref-id="inmemory_table_clause" />
+                        <element ref-id="ilm_clause" />
+                        <element ref-id="supplemental_table_logging" />
+                        <element ref-id="allocate_extent_clause" />
+                        <element ref-id="deallocate_unused_clause" />
+                        <element ref-id="result_cache_clause" />
+                        <element ref-id="upgrade_table_clause" />
+                        <element ref-id="records_per_block_clause" />
+                        <element ref-id="parallel_clause" />
+                        <element ref-id="row_movement_clause" />
+                        <element ref-id="logical_replication_clause" />
+                        <element ref-id="flashback_archive_clause" />
+                        <token id="02204" type-id="KW_CACHE" />
+                        <token id="02205" type-id="KW_NOCACHE" />
+                        <sequence id="02206">
+                            <token id="02207" type-id="KW_RENAME" />
+                            <token id="02208" type-id="KW_TO" />
+                            <object-def id="02209" type="TABLE" />
+                        </sequence>
+                    </one-of>
+                </iteration>
+                <element optional="true" ref-id="alter_iot_clauses" />
+                <element optional="true" ref-id="alter_xmlschema_clause" />
+            </sequence>
+            <element ref-id="shrink_clause" />
+            <sequence id="02210">
+                <token id="02211" type-id="KW_READ" />
+                <one-of id="02212" >
+                    <token type-id="KW_ONLY"/>
+                    <token type-id="KW_WRITE"/>
+                </one-of>
+            </sequence>
+            <sequence>
+                <token id="02211" type-id="KW_REKEY" />
+                <element ref-id="encryption_spec"/>
+            </sequence>
+            <sequence>
+                <token type-id="KW_DEFAULT"/>
+                <token type-id="KW_COLLATION"/>
+                <object-ref type="COLLATION" original-name="collation_name"/>
+            </sequence>
+            <sequence>
+                <token type-id="KW_NO" optional="true"/>
+                <token type-id="KW_ROW"/>
+                <token type-id="KW_ARCHIVAL"/>
+            </sequence>
+            <sequence>
+                <token type-id="KW_ADD"/>
+                <element ref-id="attribute_clustering_clause"/>
+            </sequence>
+            <sequence>
+                <token type-id="KW_MODIFY"/>
+                <token type-id="KW_CLUSTERING"/>
+                <element ref-id="clustering_when" optional="true"/>
+                <element ref-id="zonemap_clause" optional="true"/>
+            </sequence>
+            <sequence>
+                <token type-id="KW_DROP"/>
+                <token type-id="KW_CLUSTERING"/>
+            </sequence>
+            <sequence>
+                <token type-id="KW_NOT" optional="true"/>
+                <token type-id="KW_FOR"/>
+                <token type-id="KW_STAGING"/>
+            </sequence>
+            <element ref-id="annotations_clause"/>
+        </one-of>
+    </element-def>
+    <element-def description="ANNOTATIONS clause" id="annotations_clause">
+        <token type-id="KW_ANNOTATIONS"/>
+        <wrapper template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <sequence>
+                    <one-of>
+                        <sequence>
+                            <token type-id="KW_ADD"/>
+                            <one-of optional="true">
+                                <sequence>
+                                    <token type-id="KW_IF"/>
+                                    <token type-id="KW_NOT"/>
+                                    <token type-id="KW_EXISTS"/>
+                                </sequence>
+                                <sequence>
+                                    <token type-id="KW_OR"/>
+                                    <token type-id="KW_REPLACE"/>
+                                </sequence>
+                            </one-of>
+                        </sequence>
+                        <sequence>
+                            <token type-id="KW_DROP"/>
+                            <sequence optional="true">
+                                <token type-id="KW_IF"/>
+                                <token type-id="KW_EXISTS"/>
+                            </sequence>
+                        </sequence>
+                        <token type-id="KW_REPLACE"/>
+                    </one-of>
+                    <sequence original-name="annotation">
+                        <token type-id="IDENTIFIER" original-name="annotation_name"/>
+                        <token type-id="STRING" original-name="annotation_value" optional="true"/>
+                    </sequence>
+                </sequence>
+            </iteration>
+        </wrapper>
+    </element-def>
+    <element-def description="SUPPLEMENTAL table LOGGING" id="supplemental_table_logging">
         <one-of id="02213">
             <sequence id="02214">
                 <token id="02215" type-id="KW_ADD" />
@@ -3676,7 +3826,6 @@
                             <element ref-id="supplemental_id_key_clause" />
                         </one-of>
                     </sequence>
-
                 </iteration>
             </sequence>
             <sequence id="02221">
@@ -3715,9 +3864,27 @@
         <token id="02240" optional="true" type-id="KW_ALWAYS" />
     </element-def>
     <element-def description="COLUMN clauses" id="column_clauses">
-        <one-of id="02241">
-            <element ref-id="add_column_clause" />
+        <one-of>
+            <iteration>
+                <one-of id="02241">
+                    <element ref-id="add_column_clause" />
+                    <element ref-id="modify_column_clauses" />
+                    <element ref-id="drop_column_clause" />
+                    <element ref-id="add_period_clause" />
+                    <element ref-id="drop_period_clause" />
+                </one-of>
+            </iteration>
+            <element ref-id="rename_column_clause" />
+            <element ref-id="modify_collection_retrieval" />
+            <iteration>
+                <element ref-id="modify_lob_storage_clause"/>
+            </iteration>
+            <element ref-id="rename_lob_storage_clause" />
+            <iteration>
+                <element ref-id="alter_varray_col_properties"/>
+            </iteration>
         </one-of>
+
     </element-def>
     <element-def attributes="CLAUSE" description="UPGRADE table clause" id="upgrade_table_clause">
         <token id="02242" type-id="KW_UPGRADE" />
@@ -3728,14 +3895,62 @@
         </sequence>
         <element ref-id="column_properties" />
     </element-def>
+    <element-def attributes="CLAUSE" description="RECORDS PER BLOCK clause" id="records_per_block_clause">
+        <one-of>
+            <token type-id="KW_MINIMIZE"/>
+            <token type-id="KW_NOMINIMIZE"/>
+        </one-of>
+        <token type-id="PRM_RECORDS_PER_BLOCK"/>
+    </element-def>
     <element-def attributes="CLAUSE" description="add column clause" id="add_column_clause">
         <token id="02247" type-id="KW_ADD" />
-        <wrapper id="02248" template="PARENTHESES">
-            <iteration id="02249" separator="CHR_COMMA">
-                <element ref-id="column_definition" />
+        <one-of>
+            <element ref-id="column_definition" />
+            <wrapper id="02248" template="PARENTHESES">
+                <sequence>
+                    <iteration id="02249" separator="CHR_COMMA">
+                        <element ref-id="column_definition" />
+                    </iteration>
+                    <iteration id="02249" separator="CHR_COMMA" optional="true">
+                        <element ref-id="domain_definition" />
+                    </iteration>
+                </sequence>
+            </wrapper>
+        </one-of>
+        <element optional="true" ref-id="column_properties" />
+        <wrapper optional="true" template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <element ref-id="out_of_line_part_storage"/>
             </iteration>
         </wrapper>
-        <element optional="true" ref-id="column_properties" />
+    </element-def>
+    <element-def id="out_of_line_part_storage" description="out_of_line_part_storage">
+        <token type-id="KW_PARTITION"/>
+        <object-ref type="PARTITION"/>
+        <iteration>
+            <one-of>
+                <element ref-id="nested_table_col_properties"/>
+                <element ref-id="lob_storage_clause"/>
+                <element ref-id="varray_col_properties"/>
+            </one-of>
+        </iteration>
+        <wrapper optional="true" template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <sequence>
+                    <sequence>
+                        <token type-id="KW_SUBPARTITION"/>
+                        <object-ref type="SUBPARTITION"/>
+                    </sequence>
+                    <iteration>
+                        <one-of>
+                            <element ref-id="nested_table_col_properties"/>
+                            <element ref-id="lob_storage_clause"/>
+                            <element ref-id="varray_col_properties"/>
+                        </one-of>
+                    </iteration>
+                </sequence>
+            </iteration>
+        </wrapper>
     </element-def>
     <element-def description="COLUMN definition" id="column_definition" original-name="column_definition, virtual_column_definition">
         <object-def type="COLUMN" id="02250" />
@@ -3828,6 +4043,212 @@
             </one-of>
         </sequence>
     </element-def>
+    <element-def description="MODIFY column clauses" id="modify_column_clauses">
+        <token type-id="KW_MODIFY"/>
+        <wrapper template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <sequence>
+                    <object-ref type="COLUMN"/>
+                    <one-of original-name="modify_col_properties, modify_virtcol_properties, modify_col_visibility">
+                        <sequence>
+                            <element ref-id="data_type" original-name="datatype" optional="true"/>
+                            <sequence optional="true">
+                                <token type-id="KW_DOMAIN"/>
+                                <qualified-identifier>
+                                    <variant>
+                                        <object-ref id="04401" optional="true" type="SCHEMA" original-name="domain_owner"/>
+                                        <object-ref attributes="SUBJECT" id="04402" type="DOMAIN" original-name="domain_name" />
+                                    </variant>
+                                </qualified-identifier>
+                            </sequence>
+                            <sequence optional="true">
+                                <token type-id="KW_NOT" optional="true"/>
+                                <token type-id="KW_RESERVABLE"/>
+                            </sequence>
+                            <sequence optional="true">
+                                <token type-id="KW_COLLATE"/>
+                                <element ref-id="column_collation_name"/>
+                            </sequence>
+                            <one-of optional="true">
+                                <element ref-id="default_clause"/>
+                                <element ref-id="identity_clause"/>
+                                <sequence>
+                                    <token type-id="KW_DROP"/>
+                                    <token type-id="KW_IDENTITY"/>
+                                </sequence>
+                            </one-of>
+                            <one-of optional="true">
+                                <sequence>
+                                    <token type-id="KW_ENCRYPT"/>
+                                    <element ref-id="encryption_spec"/>
+                                </sequence>
+                                <token type-id="KW_DECRYPT"/>
+                            </one-of>
+                            <iteration optional="true">
+                                <element ref-id="inline_constraint"/>
+                            </iteration>
+                            <element ref-id="lob_storage_clause" optional="true"/>
+                            <element ref-id="alter_xmlschema_clause" optional="true"/>
+                            <element ref-id="annotations_clause" optional="true"/>
+                        </sequence>
+                        <token type-id="KW_VISIBLE"/>
+                        <token type-id="KW_INVISIBLE"/>
+                    </one-of>
+                </sequence>
+            </iteration>
+        </wrapper>
+    </element-def>
+    <element-def description="DEFAULT clause" id="default_clause">
+        <token type-id="KW_DEFAULT"/>
+        <sequence optional="true">
+            <token type-id="KW_ON"/>
+            <token type-id="KW_NULL"/>
+            <sequence optional="true">
+                <token type-id="KW_FOR"/>
+                <token type-id="KW_INSERT"/>
+                <one-of>
+                    <token type-id="KW_ONLY"/>
+                    <sequence>
+                        <token type-id="KW_AND"/>
+                        <token type-id="KW_UPDATE"/>
+                    </sequence>
+                </one-of>
+            </sequence>
+        </sequence>
+        <element ref-id="expression" original-name="default_expression"/>
+    </element-def>
+    <element-def description="DROP COLUMN clause" id="drop_column_clause">
+        <one-of>
+            <sequence>
+                <token type-id="KW_SET"/>
+                <token type-id="KW_UNUSED"/>
+                <one-of>
+                    <sequence>
+                        <token type-id="KW_COLUMN"/>
+                        <object-ref type="COLUMN"/>
+                    </sequence>
+                    <wrapper template="PARENTHESES">
+                        <iteration separator="CHR_COMMA">
+                            <object-ref type="COLUMN"/>
+                        </iteration>
+                    </wrapper>
+                </one-of>
+                <iteration optional="true">
+                    <one-of>
+                        <sequence>
+                            <token type-id="KW_CASCADE"/>
+                            <token type-id="KW_CONSTRAINTS"/>
+                        </sequence>
+                        <token type-id="KW_INVALIDATE"/>
+                    </one-of>
+                </iteration>
+                <token type-id="KW_ONLINE" optional="true"/>
+            </sequence>
+            <sequence>
+                <token type-id="KW_DROP"/>
+                <one-of>
+                    <sequence>
+                        <token type-id="KW_COLUMN"/>
+                        <object-ref type="COLUMN"/>
+                    </sequence>
+                    <wrapper template="PARENTHESES">
+                        <iteration separator="CHR_COMMA">
+                            <object-ref type="COLUMN"/>
+                        </iteration>
+                    </wrapper>
+                </one-of>
+                <iteration optional="true">
+                    <one-of>
+                        <sequence>
+                            <token type-id="KW_CASCADE"/>
+                            <token type-id="KW_CONSTRAINTS"/>
+                        </sequence>
+                        <token type-id="KW_INVALIDATE"/>
+                    </one-of>
+                </iteration>
+                <sequence optional="true">
+                    <token type-id="KW_CHECKPOINT"/>
+                    <token type-id="INTEGER" optional="true"/>
+                </sequence>
+            </sequence>
+            <sequence>
+                <token type-id="KW_DROP"/>
+                <one-of>
+                    <sequence>
+                        <token type-id="KW_UNUSED"/>
+                        <token type-id="KW_COLUMNS"/>
+                    </sequence>
+                    <sequence>
+                        <token type-id="KW_COLUMNS"/>
+                        <token type-id="KW_CONTINUE"/>
+                    </sequence>
+                </one-of>
+                <sequence optional="true">
+                    <token type-id="KW_CHECKPOINT"/>
+                    <token type-id="INTEGER" optional="true"/>
+                </sequence>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="ADD PERIOD clause" id="add_period_clause">
+        <token type-id="KW_ADD"/>
+        <wrapper template="PARENTHESES">
+            <element ref-id="period_definition"/>
+        </wrapper>
+    </element-def>
+    <element-def description="DROP PERIOD clause" id="drop_period_clause">
+        <token type-id="KW_ADD"/>
+        <wrapper template="PARENTHESES">
+            <sequence>
+                <token type-id="KW_PERIOD"/>
+                <token type-id="KW_FOR"/>
+                <object-ref type="COLUMN" original-name="valid_time_column" id="03210" />
+            </sequence>
+        </wrapper>
+    </element-def>
+    <element-def description="RENAME COLUMN clause" id="rename_column_clause">
+        <token type-id="KW_RENAME"/>
+        <token type-id="KW_COLUMN"/>
+        <object-ref type="COLUMN" original-name="old_name" id="03210" />
+        <token type-id="KW_TO"/>
+        <object-ref type="COLUMN" original-name="new_name" id="03210" />
+    </element-def>
+    <element-def description="MODIFY collection retrieval" id="modify_collection_retrieval">
+        <token type-id="KW_MODIFY"/>
+        <token type-id="KW_NESTED"/>
+        <token type-id="KW_TABLE"/>
+        <token type-id="IDENTIFIER" original-name="collection_item"/>
+        <token type-id="KW_RETURN"/>
+        <token type-id="KW_AS"/>
+        <one-of>
+            <token type-id="KW_LOCATOR"/>
+            <token type-id="KW_VALUE"/>
+        </one-of>
+    </element-def>
+    <element-def description="RENAME LOB storage clause" id="rename_lob_storage_clause">
+        <token type-id="KW_RENAME"/>
+        <token type-id="KW_LOB"/>
+        <object-ref id="01210" original-name="LOB_item" type="LOB" />
+        <element ref-id="lob_rename_parameters"/>
+    </element-def>
+    <element-def description="LOB RENAME parameters" id="lob_rename_parameters">
+        <one-of optional="true">
+            <token type-id="KW_PARTITION"/>
+            <token type-id="KW_SUBPARTITION"/>
+        </one-of>
+        <object-ref id="01210" original-name="old_segment_name" type="LOB" />
+        <token type-id="KW_TO"/>
+        <object-ref id="01210" original-name="new_segment_name" type="LOB" />
+    </element-def>
+    <element-def description="ALTER VARRAY col properties" id="alter_varray_col_properties">
+        <token type-id="KW_MODIFY"/>
+        <token type-id="KW_VARRAY"/>
+        <token type-id="IDENTIFIER" original-name="varray_item"/>
+        <wrapper template="PARENTHESES">
+            <element ref-id="modify_lob_parameters"/>
+        </wrapper>
+    </element-def>
+
     <element-def description="Object properties" id="object_properties">
         <iteration separator="CHR_COMMA" id="02294">
             <one-of id="02295" sortable="true">
@@ -4025,6 +4446,189 @@
         <element optional="true" ref-id="update_index_clause" />
     </element-def>
 
+    <element-def description="ALTER table PARTITIONSET" id="alter_table_partitionset">
+        <one-of>
+            <element ref-id="add_partitionset"/>
+            <element ref-id="modify_partitionset"/>
+            <element ref-id="move_partitionset"/>
+            <element ref-id="split_partitionset"/>
+        </one-of>
+    </element-def>
+    <element-def description="ADD PARTITIONSET" id="add_partitionset">
+        <token type-id="KW_ADD"/>
+        <one-of>
+            <element ref-id="range_partitionset_clause"/>
+            <element ref-id="list_partitionset_clause"/>
+        </one-of>
+    </element-def>
+    <element-def description="MODIFY PARTITIONSET" id="modify_partitionset">
+        <token type-id="KW_MODIFY"/>
+        <token type-id="KW_PARTITIONSET"/>
+        <object-ref type="PARTITION_SET" original-name="partition_set"/>
+        <token type-id="KW_ADD"/>
+        <token type-id="KW_VALUES"/>
+        <iteration separator="CHR_COMMA">
+            <element ref-id="simple_expression" original-name="value"/>
+        </iteration>
+    </element-def>
+    <element-def description="MOVE PARTITIONSET" id="move_partitionset">
+        <token type-id="KW_MOVE"/>
+        <token type-id="KW_PARTITIONSET"/>
+        <object-ref type="PARTITION_SET" original-name="partition_set"/>
+        <token type-id="KW_TABLESPACE"/>
+        <token type-id="KW_SET"/>
+        <object-ref type="TABLESPACE_SET" original-name="tablespace_set"/>
+        <sequence optional="true">
+            <token type-id="KW_SUBPARTITIONS"/>
+            <token type-id="KW_STORE"/>
+            <token type-id="KW_IN"/>
+            <iteration separator="CHR_COMMA">
+                <object-ref type="TABLESPACE_SET" original-name="tablespace_set"/>
+            </iteration>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_LOB"/>
+            <iteration separator="CHR_COMMA">
+                <object-ref type="COLUMN" original-name="lob_column_name"/>
+            </iteration>
+            <token type-id="KW_STORE"/>
+            <token type-id="KW_AS"/>
+            <token type-id="KW_TABLESPACE"/>
+            <token type-id="KW_SET"/>
+            <iteration separator="CHR_COMMA">
+                <object-ref type="TABLESPACE_SET" original-name="tablespace_set"/>
+            </iteration>
+        </sequence>
+    </element-def>
+
+    <element-def description="ALTER external table" id="alter_external_table">
+        <iteration>
+            <one-of>
+                <element ref-id="add_column_clause"/>
+                <element ref-id="modify_column_clauses"/>
+                <element ref-id="drop_column_clause"/>
+                <element ref-id="parallel_clause"/>
+                <element ref-id="external_table_data_props"/>
+                <sequence>
+                    <token type-id="KW_REJECT"/>
+                    <token type-id="KW_LIMIT"/>
+                    <one-of>
+                        <token type-id="INTEGER"/>
+                        <token type-id="KW_UNLIMITED"/>
+                    </one-of>
+                </sequence>
+                <sequence>
+                    <token type-id="KW_PROJECT"/>
+                    <token type-id="KW_COLUMN"/>
+                    <one-of>
+                        <token type-id="KW_ALL"/>
+                        <token type-id="KW_REFERENCED"/>
+                    </one-of>
+                </sequence>
+            </one-of>
+        </iteration>
+    </element-def>
+
+    <element-def description="MOVE table clause" id="move_table_clause">
+        <token type-id="KW_MOVE"/>
+        <element ref-id="filter_condition" optional="true"/>
+        <token type-id="KW_ONLINE" optional="true"/>
+        <element ref-id="segment_attributes_clause" optional="true"/>
+        <element ref-id="table_compression" optional="true"/>
+        <element ref-id="index_org_table_clause" optional="true"/>
+        <iteration optional="true">
+            <one-of>
+                <element ref-id="lob_storage_clause"/>
+                <element ref-id="json_storage_clause"/>
+                <element ref-id="varray_col_properties"/>
+            </one-of>
+        </iteration>
+        <element ref-id="parallel_clause" optional="true"/>
+        <element ref-id="allow_disallow_clustering" optional="true"/>
+        <sequence optional="true">
+            <token type-id="KW_UPDATE"/>
+            <token type-id="KW_INDEXES"/>
+            <wrapper optional="true" template="PARENTHESES">
+                <iteration separator="CHR_COMMA">
+                    <sequence>
+                        <object-ref type="INDEX"/>
+                        <one-of>
+                            <element ref-id="segment_attributes_clause"/>
+                            <element ref-id="update_index_partition"/>
+                        </one-of>
+                    </sequence>
+                </iteration>
+            </wrapper>
+        </sequence>
+    </element-def>
+    <element-def description="Filter condition" id="filter_condition">
+        <token type-id="KW_INCLUDING"/>
+        <token type-id="KW_ROWS"/>
+        <element ref-id="where_clause"/>
+    </element-def>
+    <element-def description="ALLOW DISALLOW CLUSTERING" id="allow_disallow_clustering">
+        <one-of>
+            <token type-id="KW_ALLOW"/>
+            <token type-id="KW_DISALLOW"/>
+        </one-of>
+        <token type-id="KW_CLUSTERING"/>
+    </element-def>
+
+    <element-def description="MODIFY to PARTITIONED" id="modify_to_partitioned">
+        <token type-id="KW_MODIFY"/>
+        <one-of optional="true">
+            <element ref-id="table_partitioning_clauses"/>
+            <token type-id="KW_NONPARTITIONED"/>
+        </one-of>
+        <element ref-id="filter_condition" optional="true"/>
+        <token type-id="KW_ONLINE" optional="true"/>
+        <sequence optional="true">
+            <token type-id="KW_UPDATE"/>
+            <token type-id="KW_INDEXES"/>
+            <wrapper template="PARENTHESES" optional="true">
+                <iteration separator="CHR_COMMA">
+                    <sequence>
+                        <object-ref type="INDEX"/>
+                        <one-of>
+                            <element ref-id="local_partitioned_index"/>
+                            <element ref-id="global_partitioned_index"/>
+                            <token type-id="KW_GLOBAL"/>
+                        </one-of>
+                    </sequence>
+                </iteration>
+            </wrapper>
+        </sequence>
+    </element-def>
+
+    <element-def description="MODIFY OPAQUE TYPE" id="modify_opaque_type">
+        <token type-id="KW_MODIFY"/>
+        <token type-id="KW_OPAQUE"/>
+        <token type-id="KW_TYPE"/>
+        <object-ref type="COLUMN" original-name="anydata_column"/>
+        <token type-id="KW_STORE"/>
+        <wrapper template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <qualified-identifier original-name="type_name">
+                    <variant>
+                        <object-ref type="SCHEMA" optional="true"/>
+                        <object-ref type="TYPE"/>
+                    </variant>
+                </qualified-identifier>
+            </iteration>
+        </wrapper>
+        <token type-id="KW_UNPACKED"/>
+    </element-def>
+
+    <element-def description="Duplicated table REFRESH" id="duplicated_table_refresh">
+        <token type-id="KW_REFRESH"/>
+        <token type-id="DT_INTERVAL" flavor="keyword"/>
+        <token type-id="INTEGER" original-name="refresh_rate"/>
+        <one-of>
+            <token type-id="KW_SECOND"/>
+            <token type-id="KW_MINUTE"/>
+            <token type-id="KW_HOUR"/>
+        </one-of>
+    </element-def>
     <element-def description="COALESCE TABLE PARTITION clause" id="coalesce_table_partition">
         <token id="02383" type-id="KW_COALESCE" />
         <token id="02384" type-id="KW_PARTITION" />
@@ -4177,7 +4781,7 @@
                         <object-ref id="02470" type="VARRAY" />
                     </sequence>
                 </one-of>
-                <element ref-id="modify_LOB_parameters" />
+                <element ref-id="modify_lob_parameters" />
             </sequence>
         </iteration>
     </element-def>
@@ -4386,7 +4990,7 @@
                             <object-ref id="02577" type="VARRAY" />
                         </sequence>
                     </one-of>
-                    <element ref-id="modify_LOB_parameters" />
+                    <element ref-id="modify_lob_parameters" />
                 </sequence>
             </iteration>
         </one-of>
@@ -5134,16 +5738,7 @@
             <element ref-id="object_table" />
             <element ref-id="xml_type_table" />
         </one-of>
-        <iteration optional="true" id="02975">
-            <sequence id="02976">
-                <token id="02977" type-id="KW_MEMOPTIMIZE" />
-                <token id="02978" type-id="KW_FOR" />
-                <one-of id="02979">
-                    <token id="02980" type-id="KW_READ" />
-                    <token id="02981" type-id="KW_WRITE" />
-                </one-of>
-            </sequence>
-        </iteration>
+        <element ref-id="memoptimize_clauses" optional="true"/>
         <sequence optional="true" id="02982">
             <token id="02983" type-id="KW_PARENT" />
             <qualified-identifier id="02984" separator="CHR_DOT">
@@ -5224,7 +5819,7 @@
             <token type-id="KW_NOROWDEPENDENCIES" id="03016" />
         </one-of>
         <iteration optional="true" id="03017">
-            <element ref-id="enable_disable_clauses" />
+            <element ref-id="enable_disable_clause" />
         </iteration>
         <element ref-id="flashback_archive_clause" optional="true" />
         <sequence optional="true" id="03018">
@@ -5375,69 +5970,76 @@
             </one-of>
         </iteration>
     </element-def>
-    <element-def description="ENABLE DISABLE clauses" id="enable_disable_clauses">
+    <element-def description="ENABLE DISABLE clause" id="enable_disable_clause">
         <one-of id="03097">
             <token type-id="KW_ENABLE" id="03098" />
             <token type-id="KW_DISABLE" id="03099" />
         </one-of>
-        <one-of id="03100">
-            <sequence original-name="enable_disable_clause" id="03101">
-                <one-of optional="true" id="03102">
-                    <token type-id="KW_VALIDATE" id="03103" />
-                    <token type-id="KW_NOVALIDATE" id="03104" />
-                </one-of>
-                <one-of id="03105">
-                    <sequence id="03106">
-                        <token type-id="KW_UNIQUE" id="03107" />
-                        <wrapper template="PARENTHESES" id="03108">
-                            <iteration separator="CHR_COMMA" id="03109">
-                                <object-ref type="COLUMN" id="03110" />
-                            </iteration>
-                        </wrapper>
-                    </sequence>
-                    <sequence id="03111">
-                        <token type-id="KW_PRIMARY" id="03112" />
-                        <token type-id="KW_KEY" id="03113" />
-                    </sequence>
-                    <sequence id="03114">
-                        <token type-id="KW_CONSTRAINT" id="03115" />
-                        <object-ref type="CONSTRAINT" id="03116" />
-                    </sequence>
-                </one-of>
-                <element ref-id="using_index_clause" optional="true" />
-                <element ref-id="exceptions_clause" optional="true" />
-                <token type-id="KW_CASCADE" optional="true" id="03117" />
-                <sequence optional="true" id="03118">
-                    <one-of id="03119">
-                        <token type-id="KW_KEEP" id="03120" />
-                        <token type-id="KW_DROP" id="03121" />
-                    </one-of>
-                    <token type-id="KW_INDEX" id="03122" />
-                </sequence>
+        <one-of optional="true" id="03102">
+            <token type-id="KW_VALIDATE" id="03103" />
+            <token type-id="KW_NOVALIDATE" id="03104" />
+        </one-of>
+        <one-of id="03105">
+            <sequence id="03106">
+                <token type-id="KW_UNIQUE" id="03107" />
+                <wrapper template="PARENTHESES" id="03108">
+                    <iteration separator="CHR_COMMA" id="03109">
+                        <object-ref type="COLUMN" id="03110" />
+                    </iteration>
+                </wrapper>
             </sequence>
-            <sequence original-name="row_movement_clause" id="03123">
-                <token type-id="KW_ROW" id="03124" />
-                <token type-id="KW_MOVEMENT" id="03125" />
+            <sequence id="03111">
+                <token type-id="KW_PRIMARY" id="03112" />
+                <token type-id="KW_KEY" id="03113" />
             </sequence>
-            <sequence original-name="logical_replication_clause" id="03126">
-                <token type-id="KW_LOGICAL" id="03127" />
-                <token type-id="KW_REPLICATION" id="03128" />
-                <sequence optional="true" id="03129">
-                    <one-of id="03130">
+            <sequence id="03114">
+                <token type-id="KW_CONSTRAINT" id="03115" />
+                <object-ref type="CONSTRAINT" id="03116" />
+            </sequence>
+        </one-of>
+        <element ref-id="using_index_clause" optional="true" />
+        <element ref-id="exceptions_clause" optional="true" />
+        <token type-id="KW_CASCADE" optional="true" id="03117" />
+        <sequence optional="true" id="03118">
+            <one-of id="03119">
+                <token type-id="KW_KEEP" id="03120" />
+                <token type-id="KW_DROP" id="03121" />
+            </one-of>
+            <token type-id="KW_INDEX" id="03122" />
+        </sequence>
+    </element-def>
+    <element-def description="LOGICAL REPLICATION clause" id="logical_replication_clause">
+        <one-of>
+            <token type-id="KW_ENABLE"/>
+            <token type-id="KW_DISABLE"/>
+        </one-of>
+        <token type-id="KW_LOGICAL" id="03127" />
+        <token type-id="KW_REPLICATION" id="03128" />
+        <iteration optional="true" id="03129">
+            <one-of id="03130">
+                <sequence>
+                    <one-of>
                         <token type-id="KW_ALL" id="03131" />
                         <sequence id="03132">
                             <token type-id="KW_ALLOW" id="03133" />
                             <token type-id="KW_NOVALIDATE" id="03134" />
                         </sequence>
-                        <token type-id="KW_KEYS" id="03135" />
                     </one-of>
+                    <token type-id="KW_KEYS" id="03135" />
                 </sequence>
-            </sequence>
-        </one-of>
+                <sequence>
+                    <token type-id="KW_NO" id="03135" optional="true"/>
+                    <token type-id="KW_PARTIAL" id="03135"/>
+                    <token type-id="KW_JSON" id="03135"/>
+                </sequence>
+            </one-of>
+        </iteration>
+
     </element-def>
     <element-def description="FLASHBACK ARCHIVE clause" id="flashback_archive_clause">
         <one-of id="03136">
             <sequence id="03137">
+                <token type-id="KW_BLOCKCHAIN" id="03138" optional="true"/>
                 <token type-id="KW_FLASHBACK" id="03138" />
                 <token type-id="KW_ARCHIVE" id="03139" />
                 <token type-id="IDENTIFIER" original-name="flashback_archive" id="03140" />
@@ -6482,9 +7084,13 @@
     <element-def description="ILM clause" id="ilm_clause">
         <token type-id="KW_ILM" id="03712" />
         <one-of id="03713">
+            <sequence>
+                <token type-id="KW_ADD" id="03716" />
+                <token type-id="KW_POLICY" id="03720" />
+                <element ref-id="ilm_policy_clause"/>
+            </sequence>
             <sequence id="03714">
                 <one-of id="03715">
-                    <token type-id="KW_ADD" id="03716" />
                     <token type-id="KW_DELETE" id="03717" />
                     <token type-id="KW_ENABLE" id="03718" />
                     <token type-id="KW_DISABLE" id="03719" />
@@ -6497,6 +7103,139 @@
             <token type-id="KW_DISABLE_ALL" id="03724" />
         </one-of>
     </element-def>
+    <element-def description="ILM policy clause" id="ilm_policy_clause">
+        <one-of>
+            <element ref-id="ilm_compression_policy"/>
+            <element ref-id="ilm_tiering_policy"/>
+            <element ref-id="ilm_inmemory_policy"/>
+        </one-of>
+    </element-def>
+    <element-def description="ILM COMPRESS policy" id="ilm_compression_policy">
+        <one-of>
+            <sequence>
+                <element ref-id="table_compression"/>
+                <one-of>
+                    <token type-id="KW_SEGMENT"/>
+                    <token type-id="KW_GROUP"/>
+                </one-of>
+                <one-of>
+                    <element ref-id="ilm_after_period_policy"/>
+                    <sequence>
+                        <token type-id="KW_ON"/>
+                        <element ref-id="function_reference" original-name="function_name"/>
+                    </sequence>
+                </one-of>
+            </sequence>
+            <sequence>
+                <one-of>
+                    <sequence>
+                        <token type-id="KW_ROW"/>
+                        <token type-id="KW_STORE"/>
+                        <token type-id="KW_COMPRESS"/>
+                        <token type-id="KW_ADVANCED"/>
+                    </sequence>
+                    <sequence>
+                        <token type-id="KW_COLUMN"/>
+                        <token type-id="KW_STORE"/>
+                        <token type-id="KW_COMPRESS"/>
+                        <token type-id="KW_FOR"/>
+                        <token type-id="KW_QUERY"/>
+                    </sequence>
+                    <token type-id="KW_ROW"/>
+                    <token type-id="KW_AFTER"/>
+                    <element ref-id="ilm_time_period"/>
+                    <token type-id="KW_OF"/>
+                    <token type-id="KW_NO"/>
+                    <token type-id="KW_MODIFICATION"/>
+                </one-of>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def attributes="CLAUSE" description="ILM TIERING policy" id="ilm_tiering_policy">
+        <token type-id="KW_TIER"/>
+        <token type-id="KW_TO"/>
+        <object-ref type="TABLESPACE"/>
+        <one-of>
+            <sequence>
+                <one-of optional="true">
+                    <token type-id="KW_SEGMENT"/>
+                    <token type-id="KW_GROUP"/>
+                </one-of>
+                <sequence optional="true">
+                    <token type-id="KW_ON"/>
+                    <element ref-id="function_reference" original-name="function_name"/>
+                </sequence>
+            </sequence>
+            <sequence>
+                <token type-id="KW_READ"/>
+                <token type-id="KW_ONLY"/>
+                <one-of optional="true">
+                    <token type-id="KW_SEGMENT"/>
+                    <token type-id="KW_GROUP"/>
+                </one-of>
+                <one-of>
+                    <element ref-id="ilm_after_period_policy"/>
+                    <sequence>
+                        <token type-id="KW_ON"/>
+                        <element ref-id="function_reference" original-name="function_name"/>
+                    </sequence>
+                </one-of>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def attributes="CLAUSE" description="ILM INMEMORY policy" id="ilm_inmemory_policy">
+        <one-of>
+            <sequence>
+                <token type-id="KW_SET"/>
+                <token type-id="KW_INMEMORY"/>
+                <element ref-id="inmemory_attributes" optional="true"/>
+            </sequence>
+            <sequence>
+                <token type-id="KW_MODIFY"/>
+                <token type-id="KW_INMEMORY"/>
+                <element ref-id="inmemory_memcompress"/>
+            </sequence>
+            <sequence>
+                <token type-id="KW_NO"/>
+                <token type-id="KW_INMEMORY"/>
+            </sequence>
+        </one-of>
+        <token type-id="KW_SEGMENT" optional="true"/>
+        <one-of>
+            <element ref-id="ilm_after_period_policy"/>
+            <sequence>
+                <token type-id="KW_ON"/>
+                <element ref-id="function_reference" original-name="function_name"/>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def attributes="CLAUSE" description="ILM AFTER period policy" id="ilm_after_period_policy" custom="true">
+        <token type-id="KW_AFTER"/>
+        <element ref-id="ilm_time_period"/>
+        <token type-id="KW_OF"/>
+        <one-of>
+            <sequence>
+                <token type-id="KW_NO"/>
+                <one-of>
+                    <token type-id="KW_ACCESS"/>
+                    <token type-id="KW_MODIFICATION"/>
+                </one-of>
+            </sequence>
+            <token type-id="KW_CREATION"/>
+        </one-of>
+    </element-def>
+    <element-def description="ILM time period" id="ilm_time_period">
+        <token type-id="INTEGER"/>
+        <one-of>
+            <token type-id="KW_DAY"/>
+            <token type-id="KW_DAYS"/>
+            <token type-id="KW_MONTH"/>
+            <token type-id="KW_MONTHS"/>
+            <token type-id="KW_YEAR"/>
+            <token type-id="KW_YEARS"/>
+        </one-of>
+    </element-def>
+
     <element-def attributes="CLAUSE" description="EXTERNAL TABLE clause" id="external_table_clause">
         <wrapper id="03725" template="PARENTHESES">
             <sequence id="03726">
@@ -6581,21 +7320,14 @@
                 <element ref-id="inmemory_priority" />
                 <element ref-id="inmemory_distribute" />
                 <element ref-id="inmemory_duplicate" />
-                <sequence id="03770">
-                    <token id="03771" type-id="KW_NO" />
-                    <one-of id="03772">
-                        <token id="03773" original-name="inmemory_memcompress" type-id="KW_MEMCOMPRESS" />
-                        <token id="03774" original-name="inmemory_duplicate" type-id="KW_DUPLICATE" />
-                    </one-of>
-                </sequence>
+                <element ref-id="inmemory_spatial" />
             </one-of>
         </iteration>
     </element-def>
     <element-def attributes="CLAUSE" description="INMEMORY MEMCOMPRESS clause" id="inmemory_memcompress">
-        <token id="03775" type-id="KW_MEMCOMPRESS" />
-        <one-of id="03776">
-            <token id="03777" type-id="KW_AUTO" />
-            <sequence id="03778">
+        <one-of>
+            <sequence>
+                <token id="03775" type-id="KW_MEMCOMPRESS" />
                 <token id="03779" type-id="KW_FOR" />
                 <one-of id="03780">
                     <token id="03781" type-id="KW_DML" />
@@ -6604,6 +7336,14 @@
                         <one-of id="03784" optional="true" tokens="KW_HIGH, KW_LOW" />
                     </sequence>
                 </one-of>
+            </sequence>
+            <sequence>
+                <token id="03775" type-id="KW_MEMCOMPRESS" />
+                <token id="03777" type-id="KW_AUTO" />
+            </sequence>
+            <sequence>
+                <token id="03775" type-id="KW_NO" />
+                <token id="03775" type-id="KW_MEMCOMPRESS" />
             </sequence>
         </one-of>
     </element-def>
@@ -6642,8 +7382,20 @@
         </sequence>
     </element-def>
     <element-def attributes="CLAUSE" description="INMEMORY DUPLICATE clause" id="inmemory_duplicate">
-        <token id="03809" type-id="KW_DUPLICATE" />
-        <token id="03810" optional="true" type-id="KW_ALL" />
+        <one-of>
+            <sequence>
+                <token id="03809" type-id="KW_DUPLICATE" />
+                <token id="03810" optional="true" type-id="KW_ALL" />
+            </sequence>
+            <sequence>
+                <token id="03809" type-id="KW_NO" />
+                <token id="03809" type-id="KW_DUPLICATE" />
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def attributes="CLAUSE" description="INMEMORY SPATIAL clause" id="inmemory_spatial">
+        <token id="03809" type-id="KW_SPATIAL" />
+        <object-ref type="COLUMN"/>
     </element-def>
     <element-def attributes="CLAUSE" description="SEGMENT CREATION clause" id="deferred_segment_creation">
         <token id="03811" type-id="KW_SEGMENT" />
@@ -12353,6 +13105,24 @@
                 <object-ref id="06839" optional="true" type="SCHEMA" />
                 <object-ref id="06840" type="TYPE" />
                 <object-ref id="06841" type="TYPE_PROCEDURE" />
+            </variant>
+        </qualified-identifier>
+    </element-def>
+    <element-def description="FUNCTION reference" id="function_reference">
+        <qualified-identifier id="06825" separator="CHR_DOT">
+            <variant>
+                <object-ref id="06826" optional="true" type="SCHEMA" />
+                <object-ref id="06827" type="FUNCTION" />
+            </variant>
+            <variant>
+                <object-ref id="06830" optional="true" type="SCHEMA" />
+                <object-ref id="06831" type="PACKAGE" />
+                <object-ref id="06832" type="PACKAGE_FUNCTION" />
+            </variant>
+            <variant>
+                <object-ref id="06836" optional="true" type="SCHEMA" />
+                <object-ref id="06837" type="TYPE" />
+                <object-ref id="06838" type="TYPE_FUNCTION" />
             </variant>
         </qualified-identifier>
     </element-def>

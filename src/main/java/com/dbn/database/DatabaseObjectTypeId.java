@@ -76,6 +76,7 @@ public enum DatabaseObjectTypeId implements Constant<DatabaseObjectTypeId> {
     PACKAGE_TYPE,
     PACKAGE_BODY,
     PARTITION,
+    PARTITION_SET,
     PRIVILEGE,
     SYSTEM_PRIVILEGE,
     OBJECT_PRIVILEGE,
@@ -91,6 +92,7 @@ public enum DatabaseObjectTypeId implements Constant<DatabaseObjectTypeId> {
     SYNONYM,
     TABLE,
     TABLESPACE,
+    TABLESPACE_SET,
     TRIGGER,
     DATASET_TRIGGER,
     DATABASE_TRIGGER,
@@ -104,6 +106,7 @@ public enum DatabaseObjectTypeId implements Constant<DatabaseObjectTypeId> {
     VARRAY,
     VARRAY_TYPE,
     VIEW,
+    ZONEMAP,
 
 
     XMLTYPE,
