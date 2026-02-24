@@ -77,5 +77,5 @@ public interface ElementTypeLookupCache<T extends ElementTypeBase> {
 
     void registerLeaf(LeafElementType leaf, ElementTypeBase source);
 
-    Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogatedByElement, Set<LeafElementType> bucket);
+    Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket);
 }

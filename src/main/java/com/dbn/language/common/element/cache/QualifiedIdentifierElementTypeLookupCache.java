@@ -74,7 +74,15 @@ public class QualifiedIdentifierElementTypeLookupCache extends ElementTypeLookup
     }
 
     @Override
-    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogatedLead, Set<LeafElementType> bucket) {
-        return super.captureSurrogateSuccessors(surrogatedLead, bucket);
+    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
+        bucket = initBucket(bucket);
+        for (LeafElementType[] elementTypes : element.variants) {
+            if (elementTypes.length <= 1) continue;
+            if (!surrogateLead.isSurrogateFor(elementTypes[0])) continue;
+
+            bucket.add(elementTypes[1]);
+        }
+
+        return bucket;
     }
 }

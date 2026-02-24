@@ -38,7 +38,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -125,17 +124,22 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
         }
 
         if (surrogatedBy != null) {
-            Set<LeafElementType> nextPossibleLeafs = new HashSet<>();
+            Set<LeafElementType> candidates = null;
             for (LeafElementType surrogatedByElement : surrogatedBy) {
-                ElementTypeBase surrogateParent = surrogatedByElement.parent;
-                if (surrogateParent instanceof SurrogateSequenceElementType surrogateSequence) {
-                    ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
-                    surrogatedElement.cache.captureSurrogateSuccessors(surrogatedByElement, nextPossibleLeafs);
-                } else {
-                    System.out.println();
-                }
+                SurrogateSequenceElementType surrogateSequence = (SurrogateSequenceElementType) surrogatedByElement.parent;
+                ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
+                candidates = surrogatedElement.cache.captureSurrogateSuccessors(surrogatedByElement, candidates);
             }
-            return nextPossibleLeafs;
+
+            if (candidates != null) return candidates;
+        }
+
+        if (surrogateFor != null) {
+            SurrogateSequenceElementType surrogateSequence = (SurrogateSequenceElementType) parent;
+            ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
+            Set<LeafElementType> candidates = surrogatedElement.cache.captureSurrogateSuccessors(this, null);
+
+            if (candidates != null) return candidates;
         }
 
         return super.getNextPossibleLeafs(pathNode, context);

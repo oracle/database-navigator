@@ -24,9 +24,11 @@ import com.dbn.language.common.element.parser.ParseResult;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.parser.TokenMonitor;
 import com.dbn.language.common.element.path.ParserNode;
+import com.intellij.lang.PsiBuilder;
 
 import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
 
 public class SurrogateSequenceElementTypeParser extends SequenceElementTypeParser<SurrogateSequenceElementType>{
     public SurrogateSequenceElementTypeParser(SurrogateSequenceElementType elementType) {
@@ -60,9 +62,26 @@ public class SurrogateSequenceElementTypeParser extends SequenceElementTypeParse
                     node.matchedElements++;
                     return stepOut(node, context, FULL_MATCH);
                 }
+
+                // consume leading element as partial match if encountered as first in the chain
+                if (isFirstLeadingElement(node)) {
+                    PsiBuilder.Marker marker = context.builder.markAndAdvance();
+                    marker.done(leadingElement);
+                    return stepOut(node, context, PARTIAL_MATCH);
+                }
             }
         }
 
         return stepOut(node, context, NO_MATCH);
+    }
+
+    private boolean isFirstLeadingElement(ParserNode node) {
+        ParserNode parentNode = (ParserNode) node.parent;
+        while (parentNode != null && parentNode.startOffset == node.startOffset) {
+            if (parentNode.element instanceof SurrogateSequenceElementType) return false;
+            parentNode = (ParserNode) parentNode.parent;
+        }
+
+        return true;
     }
 }

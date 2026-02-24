@@ -96,7 +96,7 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
 
         if (context.isSurrogate()) {
             if (context.isSurrogateFor(elementType)) {
-                if (elementType.isSurrogate()) {
+                if (elementType.is(SURROGATE_LEAD)) {
                     // chained surrogate lead match
                     return stepOut(null, context, FULL_MATCH, 0);
                 }

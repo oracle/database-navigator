@@ -27,6 +27,8 @@ import com.dbn.language.common.element.impl.SurrogateSequenceElementType;
 
 import java.util.Set;
 
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
+
 public class SequenceElementTypeLookupCache<T extends SequenceElementType> extends ElementTypeLookupCacheIndexed<T> {
 
     public SequenceElementTypeLookupCache(T elementType) {
@@ -125,8 +127,31 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
     }
 
     @Override
-    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogatedLead, Set<LeafElementType> bucket) {
-        return super.captureSurrogateSuccessors(surrogatedLead, bucket);
+    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
+        ElementTypeRef leadCandidate = element.getFirstChild();
+
+        while (true) {
+            if (surrogateLead.isSurrogateFor(leadCandidate.elementType)) break;
+            if (!leadCandidate.optional) return bucket;
+            leadCandidate = leadCandidate.next;
+        }
+
+        if (leadCandidate.elementType instanceof LeafElementType) {
+            ElementTypeRef successorCandidate = leadCandidate.next;
+            if (leadCandidate.elementType.is(SURROGATE_LEAD)) {
+                successorCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
+            } else {
+                while (successorCandidate != null) {
+                    bucket = initBucket(bucket);
+                    bucket.addAll(successorCandidate.elementType.cache.getFirstPossibleLeafs());
+                    if (!successorCandidate.optional) break;
+                    successorCandidate = successorCandidate.next;
+                }
+            }
+            return bucket;
+        }
+
+        return leadCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
     }
 }
 

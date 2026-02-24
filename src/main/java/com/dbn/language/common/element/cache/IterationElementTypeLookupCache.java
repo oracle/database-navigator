@@ -115,5 +115,8 @@ public class IterationElementTypeLookupCache extends ElementTypeLookupCacheBase<
         return element.iteratedElement.cache.captureFirstPossibleTokens(context, bucket);
     }
 
-
+    @Override
+    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
+        return element.iteratedElement.cache.captureSurrogateSuccessors(surrogateLead, bucket);
+    }
 }
