@@ -680,7 +680,7 @@
                             <token id="00375" type-id="KW_GROUP" />
                             <token id="00376" type-id="INTEGER" />
                         </sequence>
-                        <element ref-id="redo_logfile_spec" />
+                        <element ref-id="redo_log_file_spec" />
                     </sequence>
                 </iteration>
             </sequence>
@@ -913,7 +913,7 @@
             </sequence>
             <sequence id="00520">
                 <token id="00521" type-id="KW_INITIAL" />
-                <element optional="true" ref-id="scn_value" />
+                <token type-id="IDENTIFIER" optional="true" original-name="scn_value" />
             </sequence>
             <sequence id="00522">
                 <token id="00523" type-id="KW_SKIP" />
@@ -2158,10 +2158,10 @@
         <token id="01218" type-id="KW_AS" />
         <token id="01219" optional="true" original-name="LOB_segname" type-id="IDENTIFIER" />
         <wrapper id="01220" optional="true" template="PARENTHESES">
-            <element ref-id="LOB_parameters" />
+            <element ref-id="lob_parameters" />
         </wrapper>
     </element-def>
-    <element-def description="LOB parameters" id="LOB_parameters">
+    <element-def description="LOB parameters" id="lob_parameters">
         <iteration id="01221">
             <one-of id="01222">
                 <sequence id="01223">
@@ -2254,6 +2254,21 @@
             <element ref-id="alter_overflow_clause" />
             <element ref-id="alter_mapping_table_clause" />
             <token id="01275" type-id="KW_COALESCE" />
+        </one-of>
+    </element-def>
+    <element-def description="ALTER XMLSCHEMA clause" id="alter_xmlschema_clause">
+        <one-of>
+            <sequence>
+                <token type-id="KW_ALLOW"/>
+                <one-of>
+                    <token type-id="KW_ANYSCHEMA"/>
+                    <token type-id="KW_NONSCHEMA"/>
+                </one-of>
+            </sequence>
+            <sequence>
+                <token type-id="KW_DISALLOW"/>
+                <token type-id="KW_NONSCHEMA"/>
+            </sequence>
         </one-of>
     </element-def>
     <element-def description="Index org table clause" id="index_org_table_clause">
@@ -2382,7 +2397,16 @@
             </one-of>
         </iteration>
     </element-def>
-
+    <element-def description="JSON storage clause" id="json_storage_clause">
+        <token type-id="KW_JSON"/>
+        <element ref-id="wrapped_column_list" original-name="json_column"/>
+        <token type-id="KW_STORE"/>
+        <token type-id="KW_AS"/>
+        <token type-id="IDENTIFIER" original-name="lob_segname" optional="true"/>
+        <wrapper template="PARENTHESES">
+            <element ref-id="json_parameters"/>
+        </wrapper>
+    </element-def>
 
 
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="ALTER MATERIALIZED VIEW LOG statement" id="alter_materialized_view_log">
@@ -2472,7 +2496,7 @@
                 <token id="01388" type-id="KW_TO" />
                 <iteration id="01389" separator="CHR_COMMA">
                     <sequence id="01390">
-                        <element ref-id="primary_operator" />
+                        <token type-id="IDENTIFIER" original-name="primary_operator"/>
                         <element ref-id="parameter_type_iteration" />
                     </sequence>
                 </iteration>
@@ -3544,6 +3568,33 @@
             </sequence>
         </one-of>
     </element-def>
+    <element-def description="dependent_handling_clause" id="dependent_handling_clause">
+        <one-of>
+            <token type-id="KW_INVALIDATE"/>
+            <sequence>
+                <token type-id="KW_CASCADE"/>
+                <sequence optional="true">
+                    <one-of>
+                        <sequence>
+                            <token type-id="KW_NOT" optional="true"/>
+                            <token type-id="KW_INCLUDING"/>
+                            <token type-id="KW_TABLE"/>
+                            <token type-id="KW_DATA"/>
+                        </sequence>
+                        <sequence>
+                            <token type-id="FN_CONVERT" flavor="keyword"/>
+                            <token type-id="KW_TO"/>
+                            <token type-id="KW_SUBSTITUTABLE"/>
+                        </sequence>
+                    </one-of>
+                    <sequence optional="true">
+                        <token type-id="KW_FORCE" optional="true"/>
+                        <element ref-id="exceptions_clause"/>
+                    </sequence>
+                </sequence>
+            </sequence>
+        </one-of>
+    </element-def>
     <element-def attributes="CLAUSE" id="type_compile_clause" description="TYPE COMPILE clause">
         <token type-id="KW_COMPILE" id="02159" />
         <token type-id="KW_DEBUG" optional="true" id="02160" />
@@ -3615,9 +3666,7 @@
                     </sequence>
                     <sequence id="02199">
                         <token id="02200" type-id="KW_UNIQUE" />
-                        <wrapper id="02201" template="PARENTHESES">
-                            <element ref-id="column_list" />
-                        </wrapper>
+                        <element ref-id="wrapped_column_list" />
                     </sequence>
                 </one-of>
             </sequence>
@@ -3708,7 +3757,7 @@
                         <element ref-id="physical_attributes_clause" />
                         <element ref-id="logging_clause" />
                         <element ref-id="table_compression" />
-                        <element ref-id="inmemory_table_clause" />
+                        <element ref-id="inmemory_clause" />
                         <element ref-id="ilm_clause" />
                         <element ref-id="supplemental_table_logging" />
                         <element ref-id="allocate_extent_clause" />
@@ -3924,6 +3973,20 @@
             </iteration>
         </wrapper>
     </element-def>
+    <element-def description="DOMAIN definition" id="domain_definition">
+        <token type-id="KW_DOMAIN"/>
+        <qualified-identifier>
+            <variant>
+                <object-ref id="02208" optional="true" type="SCHEMA" original-name="domain_owner"/>
+                <object-ref id="02209" type="DOMAIN" original-name="domain_name"/>
+            </variant>
+        </qualified-identifier>
+        <element ref-id="wrapped_column_list"/>
+        <sequence optional="true">
+            <token type-id="KW_USING"/>
+            <element ref-id="wrapped_column_list"/>
+        </sequence>
+    </element-def>
     <element-def id="out_of_line_part_storage" description="out_of_line_part_storage">
         <token type-id="KW_PARTITION" id="02351" />
         <object-ref type="PARTITION" id="02352" />
@@ -4007,6 +4070,56 @@
             </one-of>
         </iteration>
     </element-def>
+    <element-def description="LOB PARTITION storage" id="lob_partition_storage">
+        <token type-id="KW_PARTITION"/>
+        <object-ref type="PARTITION"/>
+        <iteration>
+            <one-of>
+                <element ref-id="lob_storage_clause"/>
+                <element ref-id="varray_col_properties"/>
+            </one-of>
+        </iteration>
+        <wrapper template="PARENTHESES" optional="true">
+            <sequence>
+                <token type-id="KW_SUBPARTITION"/>
+                <object-ref type="SUBPARTITION"/>
+                <iteration>
+                    <one-of>
+                        <element ref-id="lob_partitioning_storage"/>
+                        <element ref-id="varray_col_properties"/>
+                    </one-of>
+                </iteration>
+            </sequence>
+        </wrapper>
+    </element-def>
+    <element-def description="LOB partitioning storage" id="lob_partitioning_storage">
+        <token type-id="KW_LOB"/>
+        <wrapper template="PARENTHESES">
+            <object-ref id="02519" original-name="LOB_item" type="LOB" />
+        </wrapper>
+        <token type-id="KW_STORE"/>
+        <token type-id="KW_AS"/>
+        <one-of optional="true">
+            <token type-id="KW_BASICFILE"/>
+            <token type-id="KW_SECUREFILE"/>
+        </one-of>
+        <sequence optional="true">
+            <token id="01219" optional="true" original-name="LOB_segname" type-id="IDENTIFIER" />
+            <wrapper template="PARENTHESES">
+                <one-of>
+                    <sequence>
+                        <token type-id="KW_TABLESPACE"/>
+                        <object-ref type="TABLESPACE"/>
+                    </sequence>
+                    <sequence>
+                        <token type-id="KW_TABLESPACE"/>
+                        <token type-id="KW_SET"/>
+                        <object-ref type="TABLESPACE_SET"/>
+                    </sequence>
+                </one-of>
+            </wrapper>
+        </sequence>
+    </element-def>
     <element-def description="Object type col properties" id="object_type_col_properties">
         <token id="02387" type-id="KW_COLUMN" />
         <object-ref id="02388" type="COLUMN" />
@@ -4067,7 +4180,7 @@
                             </sequence>
                             <sequence optional="true" id="02422">
                                 <token type-id="KW_COLLATE" id="02423" />
-                                <element ref-id="column_collation_name" />
+                                <object-ref type="COLLATION" id="02367" original-name="column_collation_name" />
                             </sequence>
                             <one-of optional="true" id="02424">
                                 <element ref-id="default_clause" />
@@ -4311,9 +4424,7 @@
                     </sequence>
                     <sequence id="02564">
                         <token id="02565" type-id="KW_UNIQUE" />
-                        <wrapper id="02566" template="PARENTHESES">
-                            <element ref-id="column_list" />
-                        </wrapper>
+                        <element ref-id="wrapped_column_list"/>
                     </sequence>
                 </one-of>
                 <element ref-id="constraint_state" optional="true" />
@@ -4339,9 +4450,7 @@
                     </sequence>
                     <sequence id="02580">
                         <token id="02581" type-id="KW_UNIQUE" />
-                        <wrapper id="02582" template="PARENTHESES">
-                            <element ref-id="column_list" />
-                        </wrapper>
+                        <element ref-id="wrapped_column_list"/>
                     </sequence>
                 </one-of>
                 <token id="02583" optional="true" type-id="KW_CASCADE" />
@@ -4465,16 +4574,12 @@
             <token type-id="KW_LIST"/>
             <token type-id="KW_RANGE"/>
         </one-of>
-        <wrapper template="PARENTHESES">
-            <element ref-id="column_list" />
-        </wrapper>
+        <element ref-id="wrapped_column_list"/>
         <token type-id="KW_PARTITION"/>
         <token type-id="KW_BY"/>
         <token type-id="KW_CONSISTENT"/>
         <token type-id="KW_HASH"/>
-        <wrapper template="PARENTHESES">
-            <element ref-id="column_list" />
-        </wrapper>
+        <element ref-id="wrapped_column_list"/>
         <sequence optional="true">
             <token type-id="KW_SUBPARTITION"/>
             <token type-id="KW_BY"/>
@@ -4484,9 +4589,7 @@
                         <token type-id="KW_RANGE"/>
                         <token type-id="KW_HASH"/>
                     </one-of>
-                    <wrapper template="PARENTHESES">
-                        <element ref-id="column_list" />
-                    </wrapper>
+                    <element ref-id="wrapped_column_list"/>
                 </sequence>
                 <sequence>
                     <token type-id="KW_LIST"/>
@@ -4525,6 +4628,74 @@
                 </iteration>
             </wrapper>
         </sequence>
+    </element-def>
+    <element-def description="SUBPARTITION TEMPLATE" id="subpartition_template">
+        <token type-id="KW_SUBPARTITION"/>
+        <token type-id="KW_TEMPLATE"/>
+        <one-of>
+            <wrapper template="PARENTHESES">
+                <iteration separator="CHR_COMMA">
+                    <element ref-id="subpartition_desc"/>
+                </iteration>
+            </wrapper>
+            <token type-id="INTEGER" original-name="hash_subpartition_quantity"/>
+        </one-of>
+    </element-def>
+    <element-def description="PARTITION descriptor" id="partition_desc" original-name="range_partition_desc, list_partition_desc">
+        <token type-id="KW_PARTITION"/>
+        <object-ref type="PARTITION"/>
+        <one-of optional="true">
+            <element ref-id="range_values_clause"/>
+            <element ref-id="list_values_clause"/>
+        </one-of>
+        <element ref-id="table_partition_description"/>
+        <one-of>
+            <wrapper template="PARENTHESES">
+                <iteration separator="CHR_COMMA">
+                    <element ref-id="subpartition_desc"/>
+                </iteration>
+            </wrapper>
+            <element ref-id="hash_subparts_by_quantity"/>
+        </one-of>
+    </element-def>
+    <element-def description="Hash subparts by quantity" id="hash_subparts_by_quantity">
+        <token type-id="KW_SUBPARTITIONS"/>
+        <token type-id="INTEGER"/>
+        <element ref-id="store_in_tablespace_clause" optional="true"/>
+    </element-def>
+    <element-def description="SUBPARTITION descriptor" id="subpartition_desc" original-name="range_subpartition_desc, list_subpartition_desc, individual_hash_subparts">
+        <token type-id="KW_SUBPARTITION"/>
+        <object-ref type="SUBPARTITION" optional="true"/>
+        <one-of optional="true">
+            <element ref-id="range_values_clause"/>
+            <element ref-id="list_values_clause"/>
+        </one-of>
+        <element ref-id="read_only_clause" optional="true"/>
+        <element ref-id="indexing_clause" optional="true"/>
+        <element ref-id="partitioning_storage_clause" optional="true"/>
+        <element ref-id="external_part_subpart_data_props" optional="true"/>
+    </element-def>
+    <element-def description="External part-subpart data props" id="external_part_subpart_data_props">
+        <sequence optional="true">
+            <token type-id="KW_DEFAULT"/>
+            <token type-id="KW_DIRECTORY"/>
+            <object-ref type="DIRECTORY"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_LOCATION"/>
+            <wrapper template="PARENTHESES">
+                <iteration separator="CHR_COMMA">
+                    <sequence>
+                        <sequence optional="true">
+                            <object-ref type="DIRECTORY"/>
+                            <token type-id="CHR_COLON"/>
+                        </sequence>
+                        <token type-id="STRING" original-name="location_specifier"/>
+                    </sequence>
+                </iteration>
+            </wrapper>
+        </sequence>
+
     </element-def>
     <element-def description="MODIFY PARTITIONSET" id="modify_partitionset">
         <token type-id="KW_MODIFY" id="02622" />
@@ -4739,15 +4910,18 @@
         <token id="02737" type-id="KW_VALUES" />
         <wrapper id="02738" template="PARENTHESES">
             <one-of id="02739">
-                <iteration id="02740" separator="CHR_COMMA">
-                    <one-of id="02741">
-                        <token id="02742" original-name="literal" type-id="STRING" />
-                        <token id="02743" type-id="KW_NULL" />
-                    </one-of>
-                </iteration>
+                <element ref-id="list_values"/>
                 <token id="02744" type-id="KW_DEFAULT" />
             </one-of>
         </wrapper>
+    </element-def>
+    <element-def description="LIST VALUES" id="list_values">
+        <iteration id="02740" separator="CHR_COMMA" optional-wrapping="PARENTHESES">
+            <one-of id="02741" optional-wrapping="PARENTHESES">
+                <token id="02742" original-name="literal" type-id="STRING" />
+                <token id="02743" type-id="KW_NULL" />
+            </one-of>
+        </iteration>
     </element-def>
     <element-def description="RANGE VALUES clause" id="range_values_clause">
         <token id="02745" type-id="KW_VALUES" />
@@ -4991,29 +5165,41 @@
                     </sequence>
                 </one-of>
                 <wrapper id="02875" template="PARENTHESES">
-                    <element ref-id="LOB_parameters" />
+                    <element ref-id="lob_parameters" />
                 </wrapper>
             </sequence>
         </iteration>
     </element-def>
-    <element-def description="MODIFY TABLE PARTITIONS clause" id="modify_table_partition">
-
+    <element-def description="PARTITION extended name" id="partition_extended_name">
         <token id="02876" type-id="KW_PARTITION" />
-        <object-ref id="02877" type="PARTITION" />
+        <one-of>
+            <object-ref id="02877" type="PARTITION" />
+            <sequence>
+                <token id="02876" type-id="KW_FOR" />
+                <wrapper template="PARENTHESES">
+                    <iteration separator="CHR_COMMA">
+                        <element ref-id="partition_key_values"/>
+                    </iteration>
+                </wrapper>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="SUBPARTITION extended name" id="subpartition_extended_name">
+        <token id="02876" type-id="KW_SUBPARTITION" />
+        <one-of>
+            <object-ref id="02877" type="SUBPARTITION" />
+            <sequence>
+                <token id="02876" type-id="KW_FOR" />
+                <element ref-id="partition_key_values"/>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="MODIFY TABLE PARTITIONS clause" id="modify_table_partition">
+        <element ref-id="partition_extended_name"/>
         <one-of id="02878">
             <element ref-id="partition_attributes" />
-            <sequence id="02879">
-                <token id="02880" type-id="KW_ADD" />
-                <element ref-id="subpartition_spec" />
-                <element optional="true" ref-id="update_index_clause" />
-                <element optional="true" ref-id="parallel_clause" />
-            </sequence>
-            <sequence id="02881">
-                <token id="02882" type-id="KW_COALESCE" />
-                <token id="02883" type-id="KW_SUBPARTITION" />
-                <element optional="true" ref-id="update_index_clause" />
-                <element optional="true" ref-id="parallel_clause" />
-            </sequence>
+            <element ref-id="add_subpartition"/>
+            <element ref-id="coalesce_table_subpartition"/>
             <element ref-id="alter_mapping_table_clause" />
             <sequence id="02884">
                 <token id="02885" optional="true" type-id="KW_REBUILD" />
@@ -5027,18 +5213,28 @@
                     <token id="02892" type-id="KW_DROP" />
                 </one-of>
                 <token exit="true" id="02893" type-id="KW_VALUES" />
-                <wrapper id="02894" template="PARENTHESES">
-                    <iteration id="02895" separator="CHR_COMMA">
-                        <element ref-id="partition_value" />
-                    </iteration>
-                </wrapper>
+                <element ref-id="partition_key_values"/>
             </sequence>
+            <element ref-id="read_only_clause"/>
+            <element ref-id="indexing_clause"/>
         </one-of>
     </element-def>
-    <element-def description="MODIFY TABLE SUBPARTITIONS clause" id="modify_table_subpartition">
-        <token id="02896" type-id="KW_SUBPARTITION" />
-        <object-ref id="02897" type="SUBPARTITION" />
 
+    <element-def description="COALESCE table SUBPARTITION" id="coalesce_table_subpartition">
+        <token id="02882" type-id="KW_COALESCE" />
+        <token id="02883" type-id="KW_SUBPARTITION" />
+        <element optional="true" ref-id="update_index_clause" />
+        <element optional="true" ref-id="parallel_clause" />
+        <element optional="true" ref-id="allow_disallow_clustering" />
+    </element-def>
+    <element-def description="ADD SUBPARTITION" id="add_subpartition" original-name="add_range_subpartition, add_hash_subpartition, add_list_subpartition">
+        <token type-id="KW_ADD"/>
+        <iteration separator="CHR_COMMA">
+            <element ref-id="subpartition_desc"/>
+        </iteration>
+    </element-def>
+    <element-def description="MODIFY TABLE SUBPARTITIONS clause" id="modify_table_subpartition">
+        <element ref-id="subpartition_extended_name"/>
         <one-of id="02898">
             <element ref-id="allocate_extent_clause" />
             <element ref-id="deallocate_unused_clause" />
@@ -5058,6 +5254,19 @@
                     <element ref-id="modify_lob_parameters" />
                 </sequence>
             </iteration>
+            <sequence>
+                <one-of>
+                    <token type-id="KW_ADD"/>
+                    <token type-id="KW_DROP"/>
+                </one-of>
+                <token type-id="KW_VALUES"/>
+                <wrapper template="PARENTHESES">
+                    <element ref-id="list_values"/>
+                </wrapper>
+            </sequence>
+
+            <element ref-id="read_only_clause" />
+            <element ref-id="indexing_clause" />
         </one-of>
     </element-def>
     <element-def description="SPLIT TABLE PARTITIONS clause" id="split_table_partition">
@@ -5257,7 +5466,7 @@
             <token id="03003" type-id="KW_LOB" />
             <token id="03004" optional="true" original-name="LOB_segname" type-id="IDENTIFIER" />
             <wrapper id="03005" optional="true" template="PARENTHESES">
-                <element ref-id="LOB_parameters" />
+                <element ref-id="lob_parameters" />
             </wrapper>
         </sequence>
     </element-def>
@@ -5700,10 +5909,38 @@
                 <token type-id="KW_IS" id="03253" />
                 <one-of id="03254">
                     <element ref-id="domain_index_clause" />
-                    <element ref-id="xml_index_clause" />
+                    <element ref-id="xmlindex_clause" />
                 </one-of>
             </sequence>
         </one-of>
+    </element-def>
+    <element-def description="XMLINDEX clause" id="xmlindex_clause" original-name="XMLIndex_clause">
+        <sequence optional="true">
+            <token type-id="KW_XDB"/>
+            <token type-id="CHR_DOT"/>
+        </sequence>
+        <token type-id="KW_XMLINDEX"/>
+        <element ref-id="local_xmlindex_clause" optional="true"/>
+        <element ref-id="parallel_clause" optional="true"/>
+        <element ref-id="xmlindex_parameters_clause" optional="true"/>
+    </element-def>
+    <element-def description="LOCAL XMLINDEX clause" id="local_xmlindex_clause">
+        <token type-id="KW_LOCAL"/>
+        <wrapper template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <sequence>
+                    <token type-id="KW_PARTITION"/>
+                    <object-ref type="PARTITION"/>
+                    <element ref-id="xmlindex_parameters_clause"/>
+                </sequence>
+            </iteration>
+        </wrapper>
+    </element-def>
+    <element-def description="XMLINDEX parameters clause" id="xmlindex_parameters_clause" original-name="XMLIndex_parameters_clause">
+        <token type-id="KW_PARAMETERS"/>
+        <wrapper template="PARENTHESES">
+            <token type-id="STRING" original-name="XMLIndex_parameters..."/>
+        </wrapper>
     </element-def>
     <element-def description="Index attributes" id="index_attributes">
         <one-of id="03255">
@@ -7008,6 +7245,237 @@
         <element optional="true" ref-id="parallel_clause" />
         <element optional="true" ref-id="build_clause" />
     </element-def>
+    <element-def description="table_partitioning_clauses" id="table_partitioning_clauses">
+        <one-of>
+            <sequence>
+                <token type-id="KW_PARTITION"/>
+                <token type-id="KW_BY"/>
+                <one-of>
+                    <sequence original-name="range_partitions, composite_range_partitions">
+                        <token type-id="KW_RANGE"/>
+                        <element ref-id="partition_column_expressions"/>
+                        <sequence optional="true">
+                            <token type-id="DT_INTERVAL" flavor="keyword"/>
+                            <wrapper template="PARENTHESES">
+                                <element ref-id="expr"/>
+                            </wrapper>
+                            <element ref-id="store_in_tablespace_clause" optional="true"/>
+                        </sequence>
+                        <one-of>
+                            <wrapper template="PARENTHESES">
+                                <iteration separator="CHR_COMMA">
+                                    <sequence>
+                                        <token type-id="KW_PARTITION"/>
+                                        <object-ref type="PARTITION" optional="true"/>
+                                        <element ref-id="range_values_clause"/>
+                                        <element ref-id="table_partition_description"/>
+                                        <element ref-id="external_part_subpart_data_props" optional="true"/>
+                                    </sequence>
+                                </iteration>
+                            </wrapper>
+                            <sequence>
+                                <element ref-id="subpartition_by_clause"/>
+                                <wrapper template="PARENTHESES">
+                                    <iteration separator="CHR_COMMA">
+                                        <element ref-id="partition_desc"/>
+                                    </iteration>
+                                </wrapper>
+                            </sequence>
+                        </one-of>
+                    </sequence>
+                    <sequence original-name="list_partitions, composite_list_partitions">
+                        <token type-id="KW_LIST"/>
+                        <element ref-id="partition_column_expressions"/>
+                        <sequence optional="true">
+                            <token type-id="KW_AUTOMATIC"/>
+                            <element ref-id="store_in_tablespace_clause" optional="true"/>
+                        </sequence>
+                        <one-of>
+                            <wrapper template="PARENTHESES">
+                                <iteration separator="CHR_COMMA">
+                                    <sequence>
+                                        <token type-id="KW_PARTITION"/>
+                                        <object-ref type="PARTITION" optional="true"/>
+                                        <element ref-id="list_values_clause"/>
+                                        <element ref-id="table_partition_description"/>
+                                        <element ref-id="external_part_subpart_data_props" optional="true"/>
+                                    </sequence>
+                                </iteration>
+                            </wrapper>
+                            <sequence>
+                                <element ref-id="subpartition_by_clause"/>
+                                <wrapper template="PARENTHESES">
+                                    <iteration separator="CHR_COMMA">
+                                        <element ref-id="partition_desc"/>
+                                    </iteration>
+                                </wrapper>
+                            </sequence>
+                        </one-of>
+                    </sequence>
+                    <sequence original-name="hash_partitions, composite_hash_partitions">
+                        <token type-id="KW_HASH"/>
+                        <element ref-id="partition_column_expressions"/>
+                        <element ref-id="subpartition_by_clause" optional="true"/>
+                        <one-of>
+                            <element ref-id="individual_hash_partitions"/>
+                            <element ref-id="hash_partitions_by_quantity"/>
+                        </one-of>
+                    </sequence>
+                    <sequence original-name="reference_partitioning">
+                        <token type-id="KW_REFERENCE"/>
+                        <wrapper template="PARENTHESES">
+                            <object-ref type="CONSTRAINT"/>
+                        </wrapper>
+                        <wrapper optional="true" template="PARENTHESES">
+                            <iteration separator="CHR_COMMA">
+                                <element ref-id="reference_partition_desc"/>
+                            </iteration>
+                        </wrapper>
+                    </sequence>
+                    <sequence original-name="system_partitioning">
+                        <token type-id="KW_SYSTEM"/>
+                        <one-of>
+                            <sequence>
+                                <token type-id="KW_PARTITIONS"/>
+                                <token type-id="INTEGER"/>
+                            </sequence>
+                            <iteration separator="CHR_COMMA">
+                                <element ref-id="reference_partition_desc"/>
+                            </iteration>
+                        </one-of>
+                    </sequence>
+                    <sequence original-name="consistent_hash_partitions, consistent_hash_with_subpartitions">
+                        <token type-id="KW_CONSISTENT"/>
+                        <token type-id="KW_HASH"/>
+                        <element ref-id="wrapped_column_list"/>
+                        <element ref-id="subpartition_by_clause" optional="true"/>
+                        <sequence optional="true">
+                            <token type-id="KW_PARTITIONS"/>
+                            <token type-id="KW_AUTO"/>
+                        </sequence>
+                        <sequence optional="true">
+                            <token type-id="KW_TABLESPACE"/>
+                            <token type-id="KW_SET"/>
+                            <object-ref type="TABLESPACE_SET"/>
+                        </sequence>
+                    </sequence>
+                    <sequence original-name="directory_based_partitions, composite_directory_based_partitions">
+                        <token type-id="KW_DIRECTORY"/>
+                        <element ref-id="wrapped_column_list"/>
+                        <wrapper template="PARENTHESES">
+                            <iteration separator="CHR_COMMA">
+                                <sequence>
+                                    <token type-id="KW_PARTITION"/>
+                                    <object-ref type="PARTITION" optional="true"/>
+                                    <element ref-id="table_partition_description"/>
+                                </sequence>
+                            </iteration>
+                        </wrapper>
+                        <element ref-id="subpartition_by_clause" optional="true"/>
+                        <wrapper template="PARENTHESES" optional="true">
+                            <iteration separator="CHR_COMMA">
+                                <element ref-id="directory_partition_desc"/>
+                            </iteration>
+                        </wrapper>
+                        <sequence optional="true">
+                            <token type-id="KW_DIRECTORY"/>
+                            <token type-id="KW_TABLESPACE"/>
+                            <object-ref type="TABLESPACE" original-name="tablespace_name"/>
+                        </sequence>
+                    </sequence>
+                </one-of>
+            </sequence>
+            <element ref-id="partitionset_clauses"/>
+        </one-of>
+    </element-def>
+
+    <element-def description="PARTITIONSET clauses" id="partitionset_clauses" original-name="range_partitionset_clause, list_partitionset_clause">
+        <token type-id="KW_PARTITIONSET"/>
+        <token type-id="KW_BY"/>
+        <one-of>
+            <token type-id="KW_RANGE"/>
+            <token type-id="KW_LIST"/>
+        </one-of>
+        <element ref-id="wrapped_column_list"/>
+        <token type-id="KW_PARTITION"/>
+        <token type-id="KW_BY"/>
+        <token type-id="KW_CONSISTENT"/>
+        <token type-id="KW_HASH"/>
+        <element ref-id="wrapped_column_list"/>
+        <sequence optional="true">
+            <token type-id="KW_SUBPARTITION"/>
+            <token type-id="KW_BY"/>
+            <one-of>
+                <token type-id="KW_RANGE"/>
+                <token type-id="KW_HASH"/>
+                <token type-id="KW_LIST"/>
+            </one-of>
+            <element ref-id="wrapped_column_list"/>
+            <element ref-id="subpartition_template" optional="true"/>
+        </sequence>
+        <token type-id="KW_PARTITIONS"/>
+        <token type-id="KW_AUTO"/>
+        <wrapper template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <element ref-id="partitionset_desc"/>
+            </iteration>
+        </wrapper>
+    </element-def>
+    <element-def description="DIRECTORY partition desc" id="directory_partition_desc">
+        <token type-id="KW_PARTITION"/>
+        <object-ref type="PARTITION" optional="true"/>
+        <element ref-id="table_partition_description"/>
+        <one-of>
+            <wrapper template="PARENTHESES">
+                <iteration separator="CHR_COMMA">
+                    <element ref-id="subpartition_desc"/>
+                </iteration>
+            </wrapper>
+            <element ref-id="hash_subparts_by_quantity"/>
+        </one-of>
+    </element-def>
+    <element-def description="REFERENCE partition desc" id="reference_partition_desc">
+        <token type-id="KW_PARTITION"/>
+        <object-ref type="PARTITION" optional="true"/>
+        <element ref-id="table_partition_description"/>
+    </element-def>
+    <element-def description="Partition column expressions" id="partition_column_expressions">
+        <wrapper template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <one-of>
+                    <object-ref type="COLUMN"/>
+                    <element ref-id="simple_expression"/>
+                </one-of>
+            </iteration>
+        </wrapper>
+    </element-def>
+    <element-def attributes="CLAUSE" description="STORE IN TABLESPACE clause" id="store_in_tablespace_clause" custom="true">
+        <token type-id="KW_STORE"/>
+        <token type-id="KW_IN"/>
+        <wrapper template="PARENTHESES">
+            <iteration separator="CHR_COMMA">
+                <object-ref type="TABLESPACE"/>
+            </iteration>
+        </wrapper>
+    </element-def>
+    <element-def attributes="CLAUSE" description="BUILD clause" id="subpartition_by_clause" original-name="subpartition_by_range, subpartition_by_list, subpartition_by_hash">
+        <token type-id="KW_SUBPARTITION"/>
+        <token type-id="KW_BY"/>
+        <one-of>
+            <token type-id="KW_RANGE"/>
+            <token type-id="KW_LIST"/>
+            <token type-id="KW_HASH"/>
+        </one-of>
+        <element ref-id="wrapped_column_list"/>
+        <one-of>
+            <sequence>
+                <token type-id="KW_SUBPARTITIONS"/>
+                <token type-id="INTEGER"/>
+                <element ref-id="store_in_tablespace_clause" optional="true"/>
+            </sequence>
+            <element ref-id="subpartition_template"/>
+        </one-of>
+    </element-def>
     <element-def attributes="CLAUSE" description="BUILD clause" id="build_clause">
         <token id="03938" type-id="KW_BUILD" />
         <one-of id="03939" tokens="KW_IMMEDIATE, KW_DEFERRED" />
@@ -7177,6 +7645,11 @@
                 </wrapper>
             </sequence>
         </one-of>
+    </element-def>
+    <element-def description="Heap org table clause" id="heap_org_table_clause">
+        <element ref-id="table_compression" optional="true"/>
+        <element ref-id="inmemory_table_clause" optional="true"/>
+        <element ref-id="ilm_clause" optional="true"/>
     </element-def>
     <element-def description="ILM clause" id="ilm_clause">
         <token type-id="KW_ILM" id="04039" />
@@ -7911,18 +8384,14 @@
         <one-of id="04460">
             <sequence id="04461">
                 <token id="04462" type-id="KW_RANGE" />
-                <wrapper id="04463" template="PARENTHESES">
-                    <element ref-id="column_list" />
-                </wrapper>
+                <element ref-id="wrapped_column_list"/>
                 <wrapper id="04464" template="PARENTHESES">
                     <element ref-id="index_partitioning_clause" />
                 </wrapper>
             </sequence>
             <sequence id="04465">
                 <token id="04466" type-id="KW_HASH" />
-                <wrapper id="04467" template="PARENTHESES">
-                    <element ref-id="column_list" />
-                </wrapper>
+                <element ref-id="wrapped_column_list"/>
                 <one-of id="04468">
                     <element ref-id="individual_hash_partitions" />
                     <element ref-id="hash_partitions_by_quantity" />
@@ -7948,40 +8417,32 @@
             <iteration id="04478" separator="CHR_COMMA">
                 <sequence id="04479">
                     <token id="04480" type-id="KW_PARTITION" />
-                    <sequence id="04481" optional="true">
-                        <object-ref id="04482" type="PARTITION" />
-                        <element ref-id="partitioning_storage_clause" />
-                    </sequence>
+                    <object-ref id="04482" type="PARTITION" optional="true"/>
+                    <element ref-id="read_only_clause" optional="true"/>
+                    <element ref-id="indexing_clause" optional="true"/>
+                    <element ref-id="partitioning_storage_clause" optional="true"/>
                 </sequence>
             </iteration>
         </wrapper>
     </element-def>
-    <element-def description="Column list" id="column_list">
-        <iteration id="04483" separator="CHR_COMMA">
-            <object-ref id="04484" type="COLUMN" />
-        </iteration>
+    <element-def description="Wrapped column list" id="wrapped_column_list">
+        <wrapper template="PARENTHESES">
+            <iteration id="04483" separator="CHR_COMMA">
+                <object-ref id="04484" type="COLUMN" />
+            </iteration>
+        </wrapper>
     </element-def>
     <element-def description="HASH PARTITIONS by quantity" id="hash_partitions_by_quantity">
         <token id="04485" type-id="KW_PARTITIONS" />
         <element original-name="hash_partition_quantity" ref-id="number" />
-        <sequence id="04486" optional="true">
-            <token id="04487" type-id="KW_STORE" />
-            <token id="04488" type-id="KW_IN" />
-            <wrapper id="04489" template="PARENTHESES">
-                <iteration id="04490" separator="CHR_COMMA">
-                    <object-ref id="04491" type="TABLESPACE" />
-                </iteration>
-            </wrapper>
-        </sequence>
+        <element ref-id="store_in_tablespace_clause" optional="true"/>
+        <one-of optional="true">
+            <element ref-id="table_compression"/>
+            <element ref-id="index_compression"/>
+        </one-of>
         <sequence id="04492" optional="true">
             <token id="04493" type-id="KW_OVERFLOW" />
-            <token id="04494" type-id="KW_STORE" />
-            <token id="04495" type-id="KW_IN" />
-            <wrapper id="04496" template="PARENTHESES">
-                <iteration id="04497" separator="CHR_COMMA">
-                    <object-ref id="04498" type="TABLESPACE" />
-                </iteration>
-            </wrapper>
+            <element ref-id="store_in_tablespace_clause"/>
         </sequence>
     </element-def>
     <element-def description="LOCAL partitioned index" id="local_partitioned_index">
@@ -9133,7 +9594,7 @@
         </iteration>
         <token id="05103" type-id="KW_INTO" />
         <iteration id="05104" separator="CHR_COMMA">
-            <element ref-id="data_item" />
+            <token type-id="IDENTIFIER" original-name="data_item"/>
         </iteration>
     </element-def>
     <element-def description="Multi table insert" id="multi_table_insert">
@@ -9415,8 +9876,8 @@
         </wrapper>
     </element-def>
     <element-def description="Partition key value" id="partition_key_value">
-        <object-ref id="05242" local="true" type="COLUMN" />
-        <token id="05243" type-id="CHR_EQUAL" />
+        <element ref-id="data_type" optional="true"/>
+        <token id="05243" type-id="CHR_EQUAL" optional="true"/>
         <element ref-id="expression" />
     </element-def>
 
