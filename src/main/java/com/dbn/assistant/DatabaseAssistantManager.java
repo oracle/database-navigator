@@ -32,8 +32,6 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.thread.Background;
-import com.dbn.common.thread.Dispatch;
-import com.dbn.common.util.Modality;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
@@ -174,7 +172,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
         ConnectionHandler connection = connections.get(0);
         ConnectionId connectionId = connection.getConnectionId();
-        Dispatch.run(Modality.nonModal(), () -> showToolWindow(connectionId));
+
+        switchContext(connectionId);
     }
 
     public void initializeAssistant(ConnectionId connectionId, AssistantType assistantType) {
