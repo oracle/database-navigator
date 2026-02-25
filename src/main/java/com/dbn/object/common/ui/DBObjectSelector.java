@@ -44,6 +44,7 @@ import static com.dbn.common.util.Unsafe.cast;
 public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
     private DBObjectType objectType;
     private Supplier<DBObjectSpec> valueFactoryInput;
+    private Supplier<Consumer<String>> valueFactoryNameConsumer;
 
     private Supplier<ConnectionHandler> connectionContext;
     private Supplier<DBSchema> schemaContext;
@@ -106,6 +107,11 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
         return this;
     }
 
+    public DBObjectSelector<T> withValueFactoryNameConsumer(Supplier<Consumer<String>> valueFactoryNameConsumer) {
+        this.valueFactoryNameConsumer = valueFactoryNameConsumer;
+        return this;
+    }
+
     @Nullable
     public ConnectionHandler getConnection() {
         return connectionContext == null ? null : connectionContext.get();
@@ -148,7 +154,15 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
         return null; // async handling
     }
 
-    private @NotNull Consumer<String> reloadConsumer() {
-        return n -> reloadValues(m -> m.getName().equalsIgnoreCase(n));
+    private Consumer<String> reloadConsumer() {
+        return n -> {
+            Consumer<String> nameConsumer = valueFactoryNameConsumer.get();
+            if (nameConsumer != null) {
+                nameConsumer.accept(n);
+            }
+            withValuePreselector(m -> m.getName().equalsIgnoreCase(n));
+            // reload will happen as part of factory notification
+            // reloadValues();
+        };
     }
 }

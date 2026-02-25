@@ -16,17 +16,20 @@
 
 package com.dbn.vector.ui.request;
 
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.common.util.Lists;
-import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
+import com.dbn.object.cache.DBObjectNameCache;
+import com.dbn.object.cache.DBObjectNameCacheListener;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecReader;
+import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.request.EmbeddingStagingConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import org.jetbrains.annotations.NotNull;
@@ -36,12 +39,11 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
+import static com.dbn.object.cache.DBObjectFilterType.EMBEDDING_STAGING_TABLES;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.TABLE;
 
@@ -54,6 +56,18 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
     public EmbeddingStagingConfigForm(@NotNull VectorToolboxFormBase parent) {
         super(parent);
+        ProjectEvents.subscribe(ensureProject(), this, DBObjectNameCacheListener.TOPIC, tableCacheListener());
+    }
+
+    private DBObjectNameCacheListener tableCacheListener() {
+        return (connectionId, schemaId, objectType, filterType) -> {
+            if (objectType != TABLE) return;
+            if (connectionId != getConnectionId()) return;
+            if (schemaId != getSelectedSchemaId()) return;
+            if (filterType != EMBEDDING_STAGING_TABLES) return;
+
+            tableComboBox.reloadValues();
+        };
     }
 
     @Override
@@ -86,6 +100,7 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
                 .withValuePreselector(() -> config.getTableName())
                 .withObjectFactory("New Table...")
                 .withValueFactoryInput(() -> createTableFactoryInput())
+                .withValueFactoryNameConsumer(() -> name -> getStagingTablesCache().addObjectName(getSelectedSchemaId(), name))
                 .triggerLoad();
 
         updateFieldAvailability();
@@ -97,16 +112,13 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
     }
 
     private boolean isStagingTable(DBTable table) {
-        // TODO create generic DBObjectFactoryInput.matchesObject();
+        DBObjectNameCache<DBTable> tablesCache = getStagingTablesCache();
+        return tablesCache.accepts(table);
+    }
 
-        List<DBColumn> columns = table.getColumns();
-        if (columns.size() < 5) return false; // no exact match expected (consider system columns)
-
-        Set<String> columnNames = columns.stream().map(c -> c.getName()).collect(Collectors.toSet());
-        Set<String> expectedColumnNames = Set.of("ID", "FILE_SIZE", "FILE_HASH", "FILE_CONTENT", "METADATA");
-        if (!columnNames.containsAll(expectedColumnNames)) return false;
-
-        return true;
+    private DBObjectNameCache<DBTable> getStagingTablesCache() {
+        DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
+        return vectorManager.getObjectNamesCache(getConnectionId(), EMBEDDING_STAGING_TABLES);
     }
 
     private DBObjectSpec createTableFactoryInput() {

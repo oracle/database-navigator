@@ -77,6 +77,7 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBoxRenderer;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.first;
+import static com.dbn.common.util.Strings.isNotEmpty;
 
 public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<ValueSelectorOption> {
 
@@ -327,12 +328,14 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         return signature == loadSignature.get();
     }
 
-    public void reloadValues(Predicate<T> valuePreselector) {
-        this.valuePreselector = valuePreselector;
-        reloadValues();
-    }
-
     public void reloadValues() {
+        if (valuePreselector == null) {
+            // preserve selection on reload unless the preselector is already specified
+            String selectedValueName = getSelectedValueName();
+            if (isNotEmpty(selectedValueName)) {
+                this.valuePreselector = t -> getValueName(t).equals(selectedValueName);
+            }
+        }
         setValues(Collections.emptyList());
         loadValues();
     }

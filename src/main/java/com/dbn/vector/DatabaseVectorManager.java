@@ -15,6 +15,9 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.execution.ExecutionManager;
+import com.dbn.object.DBTable;
+import com.dbn.object.cache.DBObjectFilterType;
+import com.dbn.object.cache.DBObjectNameCache;
 import com.dbn.vector.model.VectorEmbeddingContext;
 import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
@@ -50,6 +53,7 @@ import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.object.type.DBObjectType.TABLE;
 
 
 @State(
@@ -61,6 +65,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     public static final String ENGINE_VERSION = "1.1.0";
 
     private final Map<ConnectionId, VectorEmbeddingRequest> requestTemplates = new ConcurrentHashMap<>();
+    private final Map<ConnectionId, Map<DBObjectFilterType, DBObjectNameCache<DBTable>>> objectNameCaches = new ConcurrentHashMap<>();
 
     public DatabaseVectorManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -72,10 +77,20 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         return new ConnectionConfigListener() {
             @Override
             public void connectionRemoved(ConnectionId connectionId) {
-                // remove embedding requests when connection configs are deleted
+                // remove embedding requests and table caches when connection configs are deleted
                 requestTemplates.remove(connectionId);
+                objectNameCaches.remove(connectionId);
             }
         };
+    }
+
+    public DBObjectNameCache<DBTable> getObjectNamesCache(ConnectionId connectionId, DBObjectFilterType filterType) {
+        var objectCaches = ensureObjectCaches(connectionId);
+        return objectCaches.computeIfAbsent(filterType, t -> new DBObjectNameCache<>(connectionId, TABLE, t));
+    }
+
+    private Map<DBObjectFilterType, DBObjectNameCache<DBTable>> ensureObjectCaches(ConnectionId connectionId) {
+        return objectNameCaches.computeIfAbsent(connectionId, c -> new ConcurrentHashMap<>());
     }
 
     public static DatabaseVectorManager getInstance(Project project) {
@@ -213,6 +228,14 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
             VectorEmbeddingRequest embeddingRequest = requestTemplates.get(connectionId);
             embeddingRequest.writeState(requestElement);
         }
+
+        Element cachesElement = newElement(element, "object-name-caches");
+        for (ConnectionId connectionId : objectNameCaches.keySet()) {
+            for (DBObjectNameCache<DBTable> cache : this.objectNameCaches.get(connectionId).values()) {
+                Element cacheElement = newElement(cachesElement, "object-name-cache");
+                cache.writeState(cacheElement);
+            }
+        }
         return element;
     }
 
@@ -225,6 +248,17 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
             VectorEmbeddingRequest embeddingRequest = new VectorEmbeddingRequest(connectionId);
             requestTemplates.put(connectionId, embeddingRequest);
             embeddingRequest.readState(requestElement);
+        }
+
+        Element cachesElement = element.getChild("object-name-caches");
+        List<Element> cacheElements = childrenOf(cachesElement, "object-name-cache");
+        for (Element cacheElement : cacheElements) {
+            DBObjectNameCache<DBTable> cache = new DBObjectNameCache<>();
+            cache.readState(cacheElement);
+
+            ConnectionId connectionId = cache.getConnectionId();
+            Map<DBObjectFilterType, DBObjectNameCache<DBTable>> caches = ensureObjectCaches(connectionId);
+            caches.put(cache.getFilterType(), cache);
         }
     }
 }

@@ -16,18 +16,21 @@
 
 package com.dbn.vector.ui.request;
 
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ComboBoxes;
-import com.dbn.data.type.GenericDataType;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
+import com.dbn.object.cache.DBObjectNameCache;
+import com.dbn.object.cache.DBObjectNameCacheListener;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecReader;
+import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.request.EmbeddingDestinationConfig;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import org.jetbrains.annotations.NotNull;
@@ -38,17 +41,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.util.Lists.filter;
-import static com.dbn.data.type.GenericDataType.CLOB;
 import static com.dbn.data.type.GenericDataType.JSON;
-import static com.dbn.data.type.GenericDataType.LITERAL;
 import static com.dbn.data.type.GenericDataType.VECTOR;
+import static com.dbn.object.cache.DBObjectFilterType.EMBEDDING_DESTINATION_TABLES;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.TABLE;
@@ -72,6 +72,18 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
 
     public EmbeddingDestinationConfigForm(@NotNull VectorToolboxFormBase parent) {
         super(parent);
+        ProjectEvents.subscribe(ensureProject(), this, DBObjectNameCacheListener.TOPIC, tableCacheListener());
+    }
+
+    private DBObjectNameCacheListener tableCacheListener() {
+        return (connectionId, schemaId, objectType, filterType) -> {
+            if (objectType != TABLE) return;
+            if (connectionId != getConnectionId()) return;
+            if (schemaId != getSelectedSchemaId()) return;
+            if (filterType != EMBEDDING_DESTINATION_TABLES) return;
+
+            tableComboBox.reloadValues();
+        };
     }
 
     private void initComboBoxes() {
@@ -91,6 +103,7 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
                 .withValuePreselector(() -> config.getTableName())
                 .withObjectFactory("New Table...")
                 .withValueFactoryInput(tableSpec)
+                .withValueFactoryNameConsumer(() -> name -> getDestinationTablesCache().addObjectName(getSelectedSchemaId(), name))
                 .triggerLoad();
 
         keyColumnComboBox
@@ -155,14 +168,13 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
     }
 
     private boolean isDestinationTable(DBTable table) {
-        List<DBColumn> columns = table.getColumns();
-        if (columns.size() < 4) return false; // no exact match expected (consider system columns)
+        DBObjectNameCache<DBTable> tablesCache = getDestinationTablesCache();
+        return tablesCache.accepts(table);
+    }
 
-        Set<GenericDataType> columnTypes = columns.stream().map(c -> c.getDataType().getGenericDataType()).collect(Collectors.toSet());
-        Set<GenericDataType> expectedColumnTypes = Set.of(LITERAL, CLOB, VECTOR, JSON);
-        if (!columnTypes.containsAll(expectedColumnTypes)) return false;
-
-        return true;
+    private DBObjectNameCache<DBTable> getDestinationTablesCache() {
+        DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
+        return vectorManager.getObjectNamesCache(getConnectionId(), EMBEDDING_DESTINATION_TABLES);
     }
 
     private List<DBColumn> loadKeyColumns() {
