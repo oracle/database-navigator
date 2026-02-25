@@ -119,7 +119,7 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
 
         if (tokenType.isFunction() && builder.getNextToken() != leftParenthesis) {
             if (elementType instanceof LeafElementType leafElementType) {
-                return !leafElementType.isNextRequiredToken(leftParenthesis, node, context);
+                return !leafElementType.isNextRequiredToken(leftParenthesis, node);
             }
         }
 
@@ -127,11 +127,11 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
 
         ElementTypeBase namedElementType = ElementTypeUtil.getEnclosingNamedElementType(node);
         if (namedElementType != null && namedElementType.cache.containsToken(tokenType)) {
-            return lastResolvedLeaf != null && !lastResolvedLeaf.isNextPossibleToken(tokenType, node, context);
+            return lastResolvedLeaf != null && !lastResolvedLeaf.isNextPossibleToken(tokenType, node);
         }
 
         if (lastResolvedLeaf != null) {
-            if (lastResolvedLeaf.isNextPossibleToken(tokenType, node, context)) {
+            if (lastResolvedLeaf.isNextPossibleToken(tokenType, node)) {
                 return false;
             }
         }

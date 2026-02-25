@@ -162,15 +162,15 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
         return possibleLeafs;
     }
 
-    public boolean isNextPossibleToken(TokenType tokenType, ParserNode pathNode, ParserContext context) {
-        return isNextToken(tokenType, pathNode, context, false);
+    public boolean isNextPossibleToken(TokenType tokenType, ParserNode pathNode) {
+        return isNextToken(tokenType, pathNode, false);
     }
 
-    public boolean isNextRequiredToken(TokenType tokenType, ParserNode pathNode, ParserContext context) {
-        return isNextToken(tokenType, pathNode, context, true);
+    public boolean isNextRequiredToken(TokenType tokenType, ParserNode pathNode) {
+        return isNextToken(tokenType, pathNode, true);
     }
 
-    private boolean isNextToken(TokenType tokenType, ParserNode pathNode, ParserContext context, boolean required) {
+    private boolean isNextToken(TokenType tokenType, ParserNode pathNode, boolean required) {
         int index = -1;
         while (pathNode != null) {
             ElementType elementType = pathNode.element;

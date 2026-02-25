@@ -68,12 +68,12 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
                 SimpleTokenType dot = sharedTokenTypes.getChrDot();
 
                 TokenType nextTokenType = builder.getNextToken();
-                if (nextTokenType == dot && !elementType.isNextPossibleToken(dot, parentNode, context)) {
+                if (nextTokenType == dot && !elementType.isNextPossibleToken(dot, parentNode)) {
                     context.setWavedTokenType(builderToken);
                     return stepOut(null, context, NO_MATCH, 0);
                 }
                 if (builderToken.isFunction() && elementType.getFlavor() == null) {
-                    if (nextTokenType != leftParenthesis && elementType.isNextRequiredToken(leftParenthesis, parentNode, context)) {
+                    if (nextTokenType != leftParenthesis && elementType.isNextRequiredToken(leftParenthesis, parentNode)) {
                         context.setWavedTokenType(builderToken);
                         return stepOut(null, context, NO_MATCH, 0);
                     }
