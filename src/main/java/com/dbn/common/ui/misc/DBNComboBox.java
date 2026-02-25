@@ -86,7 +86,6 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     private ValueFactory<T> valueFactory;
     private Supplier<List<T>> valueLoader;
     private Predicate<T> valuePreselector;
-    private transient ActionListener[] actionListeners;
 
     private final AtomicInteger loadSignature = new AtomicInteger(0);
     private final Lock loadLock = new ReentrantLock();
@@ -230,7 +229,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
             // block the control
             LOADING.set(this, true);
             disableFormField(this, "TEMPORARY_LOAD");
-            muteActionListeners();
+            ActionListener[] actionListeners = muteActionListeners();
 
             // reset values and selection
             setValues(new ArrayList<>());
@@ -240,7 +239,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
             Background.run(() -> {
                 if (!matchesLoadSignature(signature)) return;
                 try {
-                    List<T> values = valueLoader.get();
+                    List<T> values = performValueLoad();
 
                     if (matchesLoadSignature(signature)) {
                         Dispatch.run(this, () -> {
@@ -253,7 +252,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
                     if (matchesLoadSignature(signature)) {
                         LOADING.set(this, false);
                         enableFormField(this, "TEMPORARY_LOAD");
-                        unmuteActionListeners();
+                        unmuteActionListeners(actionListeners);
                     }
                 }
             });
@@ -261,6 +260,10 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         } finally {
             loadLock.unlock();
         }
+    }
+
+    protected List<T> performValueLoad() {
+        return valueLoader.get();
     }
 
     private void preselectValue() {
@@ -308,16 +311,17 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         }
     }
 
-    private void muteActionListeners() {
-        actionListeners = getActionListeners();
-        if (actionListeners == null) return;
+    private ActionListener[] muteActionListeners() {
+        ActionListener[] actionListeners = getActionListeners();
+        if (actionListeners == null) return null;
 
         for (ActionListener actionListener : actionListeners) {
             removeActionListener(actionListener);
         }
+        return actionListeners;
     }
 
-    private void unmuteActionListeners() {
+    private void unmuteActionListeners(ActionListener[] actionListeners) {
         if (actionListeners == null) return;
         for (ActionListener actionListener : actionListeners) {
             addActionListener(actionListener);

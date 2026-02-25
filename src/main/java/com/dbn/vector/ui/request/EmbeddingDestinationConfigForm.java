@@ -28,6 +28,7 @@ import com.dbn.object.DBTable;
 import com.dbn.object.cache.DBObjectNameCache;
 import com.dbn.object.cache.DBObjectNameCacheListener;
 import com.dbn.object.common.ui.DBObjectSelector;
+import com.dbn.object.common.ui.DBObjectSelectorListener;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecReader;
 import com.dbn.vector.DatabaseVectorManager;
@@ -43,6 +44,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormFields;
+import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormFields;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.util.Lists.filter;
@@ -69,6 +72,11 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
     private DBObjectSelector<DBColumn> metadataColumnComboBox;
 
     private final Latent<DBObjectSpec> tableSpec = Latent.basic(() -> createTableFactoryInput());
+    private final DBObjectSelector<?>[] columnSelectors = new DBObjectSelector[] {
+            keyColumnComboBox,
+            dataColumnComboBox,
+            embeddingColumnComboBox,
+            metadataColumnComboBox};
 
     public EmbeddingDestinationConfigForm(@NotNull VectorToolboxFormBase parent) {
         super(parent);
@@ -104,6 +112,7 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
                 .withObjectFactory("New Table...")
                 .withValueFactoryInput(tableSpec)
                 .withValueFactoryNameConsumer(() -> name -> getDestinationTablesCache().addObjectName(getSelectedSchemaId(), name))
+                .withListener(tableLoadListener())
                 .triggerLoad();
 
         keyColumnComboBox
@@ -134,6 +143,21 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
                 .withValuePreselector(() -> config.getMetadataColumnName())
                 .triggerLoad();
     }
+
+    private @NotNull DBObjectSelectorListener tableLoadListener() {
+        return new DBObjectSelectorListener() {
+            @Override
+            public void valueLoadStarted() {
+                disableFormFields(columnSelectors, "TEMPORARY_LOAD");
+            }
+
+            @Override
+            public void valueLoadEnded() {
+                enableFormFields(columnSelectors, "TEMPORARY_LOAD");
+            }
+        };
+    }
+
 
     protected void initEventListeners() {
         onSelectionChange(schemaComboBox, e -> populateTables());

@@ -20,6 +20,7 @@ import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.util.Listeners;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
@@ -49,6 +50,8 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
     private Supplier<ConnectionHandler> connectionContext;
     private Supplier<DBSchema> schemaContext;
 
+    private final Listeners<DBObjectSelectorListener> listeners = Listeners.create();
+
     public DBObjectSelector() {
         set(HIDE_DESCRIPTION, true);
     }
@@ -70,6 +73,16 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
         }
 
         return this;
+    }
+
+    @Override
+    public List<T> performValueLoad() {
+        try {
+            listeners.notify(l -> l.valueLoadStarted());
+            return super.performValueLoad();
+        } finally {
+            listeners.notify(l -> l.valueLoadEnded());
+        }
     }
 
     @Override
@@ -109,6 +122,11 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
 
     public DBObjectSelector<T> withValueFactoryNameConsumer(Supplier<Consumer<String>> valueFactoryNameConsumer) {
         this.valueFactoryNameConsumer = valueFactoryNameConsumer;
+        return this;
+    }
+
+    public DBObjectSelector<T> withListener(DBObjectSelectorListener listener) {
+        listeners.add(listener);
         return this;
     }
 
