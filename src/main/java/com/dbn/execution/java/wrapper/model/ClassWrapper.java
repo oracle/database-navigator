@@ -74,6 +74,13 @@ public class ClassWrapper extends EntityWrapper {
 		return getCanonicalName(javaClass);
 	}
 
+	public String getClassPackage() {
+		DBJavaClass javaClass = DBObjectRef.get(this.javaClass);
+		if (javaClass == null) return null;
+		return javaClass.getPackageName();
+	}
+
+
 	public String getSqlTypeName() {
 		return sqlType.getObjectName();
 	}

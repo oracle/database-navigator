@@ -238,6 +238,11 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return content.replaceAll("\\s+", " ").trim();
     }
 
+    public static String indentText(String text, int spaces) {
+        String indent = " ".repeat(spaces);
+        return indent + text.replaceAll("\\R", "\n" + indent);
+    }
+
     public static @NotNull String trim(@Nullable String message) {
         return isEmptyOrSpaces(message) ? "" : message.trim();
     }

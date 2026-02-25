@@ -41,7 +41,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import static com.dbn.common.util.Strings.isNotEmpty;
+import static java.util.Collections.emptySet;
 
 
 @Getter
@@ -55,6 +59,7 @@ public class WrapperModel implements DatabaseContextBase {
 
 	private List<MethodWrapper> methods = new ArrayList<>();
     private List<ClassWrapper> classes = new ArrayList<>();
+    private List<String> errors = new ArrayList<>();
     private String signature;
 
     public WrapperModel(WrapperContext context) {
@@ -200,5 +205,41 @@ public class WrapperModel implements DatabaseContextBase {
 
     private boolean exceedsMaxIdentifierLength(String identifier) {
         return identifier != null && identifier.length() > getMaxIdentifierLength();
+    }
+
+    public void addError(String message) {
+        errors.add(message);
+    }
+
+    public boolean hasErrors() {
+        return !errors.isEmpty();
+    }
+
+    public boolean isCodeInput(String parameterName) {
+        return getInput().getCodeInputs().containsKey(parameterName);
+    }
+
+    public Set<String> getJavaImportPackages() {
+        // only relevant for stateless wrappers with code inputs
+        WrapperModelInput input = getInput();
+        if (!input.isTemporary()) return emptySet();
+        if (input.getCodeInputs().isEmpty()) return emptySet();
+
+        Set<String> importPackages = new TreeSet<>();
+        for (ClassWrapper classWrapper : classes) {
+
+            String packageName = classWrapper.getClassPackage();
+            if (isNotEmpty(packageName)) {
+                importPackages.add(packageName);
+            }
+        }
+        for (MethodWrapper method : methods) {
+            String packageName = method.getJavaMethod().getOwnerClass().getPackageName();
+            if (isNotEmpty(packageName)) {
+                importPackages.add(packageName);
+            }
+
+        }
+        return importPackages;
     }
 }

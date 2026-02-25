@@ -25,6 +25,7 @@ import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
+import com.dbn.object.lookup.DBJavaNameCache;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.core.CoreJavaCodeStyleManager;
@@ -121,6 +122,11 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	public DBObjectRef<DBJavaClass> getJavaClassRef() {
 		return javaClass;
 	}
+
+	public String getJavaClassName() {
+		return DBJavaNameCache.getCanonicalName(javaClass);
+	}
+
 
 	@Override
 	public short getPosition() {

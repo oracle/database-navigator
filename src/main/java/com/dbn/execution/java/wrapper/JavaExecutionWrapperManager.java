@@ -23,6 +23,7 @@ import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
+import com.dbn.execution.java.wrapper.support.WrapperSupportData;
 import com.dbn.execution.java.wrapper.ui.WrapperNamesEditorDialog;
 import com.dbn.execution.java.wrapper.ui.WrapperResultDialog;
 import com.dbn.object.DBJavaClass;
@@ -41,6 +42,7 @@ import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.execution.java.wrapper.support.WrapperSupportEvaluator.evaluateWrapperSupport;
 import static com.dbn.nls.NlsResources.txt;
 
 @State(
@@ -59,13 +61,17 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
 		return projectService(project, JavaExecutionWrapperManager.class);
 	}
 
-    public void createExecutionWrappers(DBJavaMethod javaMethod, boolean useFriendlyNames, boolean compileInDebugMode) {
-        WrapperModelInput modelInput = new WrapperModelInput(javaMethod, useFriendlyNames, compileInDebugMode);
+    public void createExecutionWrappers(DBJavaMethod javaMethod) {
+        WrapperSupportData supportData = evaluateWrapperSupport(javaMethod);
+        WrapperModelInput modelInput = new WrapperModelInput(javaMethod);
+        modelInput.setSupportData(supportData);
         createExecutionWrappers(modelInput);
     }
 
-    public void createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> javaMethods, boolean useFriendlyNames, boolean compileInDebugMode) {
-        WrapperModelInput modelInput = new WrapperModelInput(javaClass, javaMethods, useFriendlyNames, compileInDebugMode);
+    public void createExecutionWrappers(DBJavaClass javaClass, List<DBJavaMethod> javaMethods) {
+        WrapperSupportData supportData = evaluateWrapperSupport(javaMethods);
+        WrapperModelInput modelInput = new WrapperModelInput(javaClass, javaMethods);
+        modelInput.setSupportData(supportData);
         createExecutionWrappers(modelInput);
     }
 
@@ -80,7 +86,11 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
                     progress.setText2("Building execution wrapper model");
                     WrapperModelBuilder builder = WrapperModelBuilder.getInstance();
                     WrapperModel model = builder.buildModel(modelInput);
-                    verifyAndCreateExecutionWrappers(model);
+                    if(!model.hasErrors()) {
+                        verifyAndCreateExecutionWrappers(model);
+                    } else {
+                        Messages.showErrorDialog(getProject(), "Wrapper Creation Error", String.join("\n", model.getErrors()));
+                    }
                 });
     }
 
@@ -107,7 +117,7 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
         ProgressMonitor.setProgressDetail("Creating execution wrapper objects");
         try {
             WrapperStatementExecutor.createExecutionWrappers(model);
-            if (model.getInput().isUseFriendlyNames()) {
+            if (!model.getInput().isTemporary()) {
                 showWrapperResult(model);
             }
         } catch (Throwable e) {

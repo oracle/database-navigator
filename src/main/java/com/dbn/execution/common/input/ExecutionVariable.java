@@ -17,77 +17,117 @@
 package com.dbn.execution.common.input;
 
 import com.dbn.common.list.MostRecentStack;
-import com.dbn.common.options.setting.Settings;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
-import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
-import lombok.Data;
+import com.dbn.execution.ExecutionInputMode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.jdom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.readCdata;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.options.setting.Settings.writeCdata;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class ExecutionVariable implements PersistentStateElement, Cloneable<ExecutionVariable>, ValueHolder<String> {
     private String path;
-    private transient MostRecentStack<String> valueHistory = new MostRecentStack<>();
+    private ExecutionInputMode mode = ExecutionInputMode.FIELDS;
+    private MostRecentStack<String> valueHistory = new MostRecentStack<>();
+    private MostRecentStack<String> expressionHistory = new MostRecentStack<>();
+
 
     public ExecutionVariable(String path) {
         this.path = path;
     }
 
-    public ExecutionVariable(Element element) {
-        readState(element);
-    }
-
     public ExecutionVariable(ExecutionVariable source) {
-        path = source.path;
-        valueHistory.setValues(source.valueHistory.values());
+        this.path = source.path;
+        this.mode = source.mode;
+        this.valueHistory.setValues(source.valueHistory.values());
+        this.expressionHistory.setValues(source.expressionHistory.values());
     }
 
     public List<String> getValueHistory() {
         return valueHistory.values();
     }
 
-    @Override
-    public String getValue() {
-        return valueHistory.get();
+    public List<String> getExpressionHistory() {
+        return expressionHistory.values();
     }
 
-    @Override
-    public void setValue(String value) {
-        valueHistory.stack(value);
+    public String getValue() {
+        return getContainer().get();
     }
+
+    public void setValue(String value) {
+        if (value == null) return;
+
+        MostRecentStack<String> container = getContainer();
+        container.stack(value);
+    }
+    
+    public String getValue(ExecutionInputMode mode) {
+        return getContainer(mode).get();
+    }
+
+    private MostRecentStack<String> getContainer() {
+        return getContainer(mode);
+    }
+
+    private MostRecentStack<String> getContainer(ExecutionInputMode mode) {
+        return mode == ExecutionInputMode.CODE ?
+                expressionHistory :
+                valueHistory;
+    }
+
 
     @Override
     public void readState(Element element) {
         path = stringAttribute(element, "path");
+        mode = enumAttribute(element, "mode", mode);
         List<String> values = new ArrayList<>();
-        String value = Commons.nullIfEmpty(element.getAttributeValue("value"));
-        if (Strings.isNotEmpty(value)) {
-            values.add(0, value);
-        }
+        List<String> expressions = new ArrayList<>();
 
-        for (Element child : element.getChildren()) {
-            value = Settings.readCdata(child);
+        for (Element valueElement : element.getChildren("value")) {
+            String value = readCdata(valueElement);
             if (Strings.isNotEmpty(value)) {
                 values.add(value);
             }
         }
+
+        for (Element exprElement : element.getChildren("expression")) {
+            String expr = readCdata(exprElement);
+            if (Strings.isNotEmpty(expr)) {
+                expressions.add(expr);
+            }
+        }
         valueHistory = new MostRecentStack<>(values);
+        expressionHistory = new MostRecentStack<>(expressions);
+
     }
 
     @Override
     public void writeState(Element element) {
-        element.setAttribute("path", path);
+        setStringAttribute(element, "path", path);
+        setEnumAttribute(element, "mode", mode);
         for (String value : valueHistory) {
             Element valueElement = newElement(element, "value");
             writeCdata(valueElement, value, true);
+        }
+        for (String expr : expressionHistory) {
+            Element exprElement = newElement(element, "expression");
+            writeCdata(exprElement, expr, true);
         }
     }
 

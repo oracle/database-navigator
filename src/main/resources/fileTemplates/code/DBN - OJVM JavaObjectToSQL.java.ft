@@ -1,22 +1,15 @@
-public static java.sql.Struct ${CONVERTER_METHOD_NAME}(${JAVA_COMPLEX_TYPE} ${JAVA_OBJECT}) {
-    if (${JAVA_OBJECT} == null)
-        return null;
-
-    java.lang.Object[] ${OBJ_ARRAY} = new java.lang.Object[${TOTAL_FIELDS}];
-    #if($FIELD_ASSIGNMENTS)
-        #foreach($assignment in $FIELD_ASSIGNMENTS)
-            $assignment
-        #end
-    #end
-
-    java.sql.Struct returnObj;
-    try {
-        oracle.jdbc.driver.OracleDriver driverDef = new oracle.jdbc.driver.OracleDriver();
-        java.sql.Connection conn = driverDef.defaultConnection();
-        returnObj = conn.createStruct("${SQL_OBJECT_TYPE}", ${OBJ_ARRAY});
-    } catch (java.sql.SQLException e) {
-        return null;
+    private static java.sql.Struct ${CONVERTER_METHOD_NAME}(${JAVA_COMPLEX_TYPE} javaObj) throws java.sql.SQLException {
+        if (javaObj == null) return null;
+        $BR
+        java.lang.Object[] objArray = new java.lang.Object[${TOTAL_FIELDS}];
+#foreach($FIELD_ASSIGNMENT in $FIELD_ASSIGNMENTS)
+        $FIELD_ASSIGNMENT
+#end
+        $BR
+        oracle.jdbc.driver.OracleDriver driver = new oracle.jdbc.driver.OracleDriver();
+        java.sql.Connection connection = driver.defaultConnection();
+        java.sql.Struct returnObj = connection.createStruct("${SQL_OBJECT_TYPE}", objArray);
+        $BR
+        return returnObj;
     }
-
-    return returnObj;
-}
+    $BR

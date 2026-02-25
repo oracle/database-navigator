@@ -36,6 +36,8 @@ public interface DBJavaField extends DBOrderedObject {
 
 	boolean isStatic();
 
+	boolean isPublic();
+
 	short getArrayDepth();
 
 	DBJavaClass getJavaClass();
