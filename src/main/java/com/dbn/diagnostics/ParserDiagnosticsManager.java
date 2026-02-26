@@ -108,7 +108,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
                 progress.checkCanceled();
                 progress.setText("Running parser diagnostics (" + i + " / " + files.length + " files)");
                 String relativeFilePath = Files.convertToRelativePath(project, filePath);
-                progress.setText2(Strings.middleEllipsis(relativeFilePath, 80));
+                progress.setText2(Strings.truncateWithMiddleEllipsis(relativeFilePath, 80));
                 progress.setFraction(progressOf(i, files.length));
 
                 DBLanguagePsiFile psiFile = ensureFileParsed(file);
