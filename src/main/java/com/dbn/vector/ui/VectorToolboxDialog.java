@@ -16,7 +16,7 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
     super(connection, "Vector Toolbox", true);
     this.request = request;
 
-    setDefaultSize(600, 1000);
+    setDefaultSize(680, 1000);
 
     if (!request.isTemplate()) {
       VectorToolboxForm toolboxForm = getForm();

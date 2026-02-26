@@ -169,7 +169,7 @@ public class EmbeddingSourceInputTableForm extends VectorToolboxFormBase {
                 Collections.emptyList() :
                 table.getColumns();
 
-        return Lists.filter(columns, c -> c.getDataType().isLiteral() && !c.isPrimaryKey());
+        return Lists.filter(columns, c -> c.getDataType().isLiteral() && !c.isPrimaryKey() && !c.isHidden());
     }
 
     protected void initEventListeners() {

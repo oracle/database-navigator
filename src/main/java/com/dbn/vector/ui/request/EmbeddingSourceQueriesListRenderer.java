@@ -16,6 +16,7 @@
 
 package com.dbn.vector.ui.request;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.vector.model.request.EmbeddingSourceQuery;
 import com.intellij.ui.SimpleTextAttributes;
@@ -35,13 +36,13 @@ public class EmbeddingSourceQueriesListRenderer extends ColoredListCellRenderer<
             return;
         }
 
-        String schemaName = value.getSchemaName();
+        SimpleTextAttributes regularAttributes = list.isEnabled() ?
+                REGULAR_ATTRIBUTES :
+                GRAYED_ATTRIBUTES;
 
-        boolean listEnabled = list.isEnabled();
-        SimpleTextAttributes regularAttributes = listEnabled ? REGULAR_ATTRIBUTES : GRAYED_ATTRIBUTES;
+        append(value.getSelectStatementPreview(), regularAttributes);
 
-
-        String selectStatement = value.getSelectStatement();
-        setToolTipText(selectStatement);
+        setIcon(Icons.FILE_SQL);
+        setToolTipText(value.getSelectStatement());
     }
 }

@@ -541,5 +541,34 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return slices;
     }
 
+    /**
+     * Truncates the given string to the specified maximum length, appending "..." if truncation occurs.
+     * Attempts to break at non-alphanumeric characters within a small overflow (up to 5 characters beyond maxLength).
+     * If no suitable break point is found, truncates at maxLength - 3.
+     * If the string is null or its length is less than or equal to maxLength, returns the string unchanged.
+     * If maxLength is less than or equal to 3, returns the substring of the first maxLength characters.
+     *
+     * @param text the string to truncate
+     * @param maxLength the maximum length of the result
+     * @return the truncated string with "..." appended if necessary
+     */
+    public static String truncateWithEllipsis(String text, int maxLength) {
+        if (text == null) return text;
+        if (text.length() <= maxLength) return text;
+        if (maxLength <= 3) return text.substring(0, maxLength);
+
+        int overflow = 5;
+        int searchLimit = Math.min(text.length(), maxLength + overflow);
+
+        for (int i = Math.min(maxLength - 1, searchLimit - 1); i >= 0; i--) {
+            char c = text.charAt(i);
+            if (!Character.isLetterOrDigit(c)) {
+                return text.substring(0, i + 1) + "...";
+            }
+        }
+
+        // No suitable break point found, use simple truncation
+        return text.substring(0, maxLength - 3) + "...";
+    }
 }
 

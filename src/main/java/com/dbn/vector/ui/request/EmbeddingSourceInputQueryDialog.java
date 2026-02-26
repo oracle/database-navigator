@@ -36,7 +36,7 @@ public class EmbeddingSourceInputQueryDialog extends DBNDialog<EmbeddingSourceIn
         super(connection, getDialogTitle(operation), false);
         this.sourceQuery = config;
         this.operation = operation;
-
+        setDefaultSize(920, 600);
         init();
     }
 

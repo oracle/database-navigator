@@ -18,6 +18,7 @@ package com.dbn.vector.model.request;
 
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
+import com.dbn.common.util.UUIDs;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -27,35 +28,47 @@ import static com.dbn.common.options.setting.Settings.readCdata;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.options.setting.Settings.writeCdata;
+import static com.dbn.common.util.Strings.truncateWithEllipsis;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.vector.model.request.EmbeddingSourceType.DATABASE_QUERY;
 
 @Getter
 @Setter
 public class EmbeddingSourceQuery implements EmbeddingSource, PersistentStateElement, Cloneable<EmbeddingSourceQuery> {
+    private String identifier = UUIDs.compact();
     private String schemaName;
     private String selectStatement;
+    private transient String selectStatementPreview;
 
     @Override
     public EmbeddingSourceType getType() {
         return DATABASE_QUERY;
     }
 
-    @Override
-    public String getIdentifier() {
-        return ""; // TODO list of tables selected "from" / UUID ???
+    public String getSelectStatementPreview() {
+        if (selectStatementPreview != null) return selectStatementPreview;
+
+        selectStatementPreview = truncateWithEllipsis(selectStatement.replaceAll("\\s+", " "), 40);
+        return selectStatementPreview;
+    }
+
+    public void setSelectStatement(String selectStatement) {
+        this.selectStatement = selectStatement;
+        this.selectStatementPreview = null;
     }
 
     @Override
     public void readState(Element element) {
         if (element == null) return;
 
+        identifier = stringAttribute(element, "identifier");
         schemaName = stringAttribute(element, "schema");
         selectStatement = readCdata(element);
     }
 
     @Override
     public void writeState(Element element) {
+        setStringAttribute(element, "identifier", identifier);
         setStringAttribute(element, "schema", schemaName);
         writeCdata(element, selectStatement);
     }

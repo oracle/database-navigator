@@ -66,7 +66,7 @@ public class EventNotificationsForm extends DBNFormBase {
         ProjectEvents.subscribe(project, this, EventNotificationListener.TOPIC, createEventNotificationListener());
 
         // start loading when the form is shown
-        whenShown(() -> load());
+        whenFirstShown(() -> load());
     }
 
     private EventNotificationListener createEventNotificationListener() {

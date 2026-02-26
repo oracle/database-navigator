@@ -68,7 +68,7 @@ public class EventRegistrationsForm extends DBNFormBase {
         ProjectEvents.subscribe(project, this, EventRegistrationListener.TOPIC, createEventRegistrationListener());
 
         // start loading when the form is shown
-        whenShown(() -> load());
+        whenFirstShown(() -> load());
     }
 
     private EventRegistrationListener createEventRegistrationListener() {
