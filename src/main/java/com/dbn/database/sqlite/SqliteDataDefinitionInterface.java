@@ -78,6 +78,12 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         super.computeSourceCodeOffsets(content, objectTypeId, objectName);
     }
 
+
+    @Override
+    public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
     /*********************************************************
      *                   CHANGE statements                   *
      *********************************************************/

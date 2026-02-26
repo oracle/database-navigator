@@ -49,6 +49,7 @@ public class PSQLFoldingBuilder extends DBLanguageFoldingBuilder {
                         TextRange textRange = null;
 
                         BasePsiElement firstPsiElement = basePsiElement.findFirstLeafPsiElement();
+                        if (firstPsiElement == null) firstPsiElement = basePsiElement;
                         int firstElementEndOffset = firstPsiElement.getTextOffset() + firstPsiElement.getTextLength();
                         int firstElementLineNumber = document.getLineNumber(firstElementEndOffset);
 

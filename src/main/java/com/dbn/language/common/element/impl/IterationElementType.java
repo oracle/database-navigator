@@ -26,6 +26,7 @@ import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.SequencePsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,10 +35,12 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.ITERATION_SEPARATOR;
 
+@Slf4j
 public final class IterationElementType extends ElementTypeBase {
 
-    public ElementTypeBase iteratedElementType;
+    public ElementTypeBase iteratedElement;
     public TokenElementType[] separatorTokens;
     public int[] elementsCountVariants;
     public int minIterations;
@@ -55,6 +58,14 @@ public final class IterationElementType extends ElementTypeBase {
 
     public IterationElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
+    }
+
+    @Override
+    public void initialize() {
+        if (initialized) return;
+        initialized = true;
+
+        iteratedElement.initialize();
     }
 
     @Override
@@ -77,8 +88,10 @@ public final class IterationElementType extends ElementTypeBase {
             List<TokenElementType> separators = new ArrayList<>();
             while (tokenizer.hasMoreTokens()) {
                 String separatorTokenId = tokenizer.nextToken().trim();
-                TokenElementType separatorToken = new TokenElementType(bundle, this, separatorTokenId, TokenElementType.SEPARATOR);
+                TokenElementType separatorToken = new TokenElementType(this, separatorTokenId, id + ".i");
                         //bundle.getTokenElementType(separatorTokenId);
+
+                separatorToken.set(ITERATION_SEPARATOR, true);
                 separatorToken.setDefaultFormatting(separatorToken.isCharacter() ?
                         FormattingDefinition.NO_SPACE_BEFORE :
                         FormattingDefinition.ONE_SPACE_BEFORE);
@@ -93,7 +106,12 @@ public final class IterationElementType extends ElementTypeBase {
         }
         Element child = children.get(0);
         String type = child.getName();
-        iteratedElementType = bundle.resolveElementDefinition(child, type, this);
+        if (isMarkedOptional(child)) {
+            // not supported - prevent false expectations
+            log.warn("DBN - [{}] iterated element cannot be optional (iteration = {})", getLanguage().getID(), getId());
+        }
+
+        iteratedElement = bundle.resolveElementDefinition(child, type, this);
 
         String elementsCountDef = stringAttribute(def, "elements-count");
         if (elementsCountDef != null) {

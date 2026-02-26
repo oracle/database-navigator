@@ -163,10 +163,6 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
         };
     }
 
-    public ListModel getListModel() {
-        return gutterModel;
-    }
-
     @Override
     public void disposeInner() {
         // Clean up resources if needed.

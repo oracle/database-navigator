@@ -63,7 +63,7 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
                             }
                         }
                     }
-                    if (elementType == iterationElementType.iteratedElementType) {
+                    if (elementType == iterationElementType.iteratedElement) {
                         iteratedPsiElement = (BasePsiElement) paramPsiElement;
                     }
 
@@ -162,7 +162,7 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
             PsiElement paramPsiElement = wrappedPsiElement.getFirstChild();
             while (paramPsiElement != null) {
                 ElementType elementType = PsiUtil.getElementType(paramPsiElement);
-                if (elementType == iterationElementType.iteratedElementType) {
+                if (elementType == iterationElementType.iteratedElement) {
                     if (paramPsiElement == parameter) {
                         context.setCurrentParameter(index);
                         return;
@@ -204,12 +204,12 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
                 PsiElement child = iterationPsiElement.getFirstChild();
                 while (child != null) {
                     if (child instanceof BasePsiElement basePsiElement) {
-                        if (basePsiElement.elementType == iterationElementType.iteratedElementType) {
+                        if (basePsiElement.elementType == iterationElementType.iteratedElement) {
                             boolean highlight = index == currentIndex || (index == 0 && currentIndex == -1);
                             if (highlight) {
                                 highlightStartOffset = text.length();
                             }
-                            if (text.length() > 0) {
+                            if (!text.isEmpty()) {
                                 text.append(", ");
                             }
                             text.append(datatypeCaseOption.format(basePsiElement.getText()));

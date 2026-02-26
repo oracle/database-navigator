@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -95,8 +96,8 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     LOB(DatabaseObjectTypeId.LOB, "lob", "lobs", null, null, null, false),
     MATERIALIZED_VIEW(DatabaseObjectTypeId.MATERIALIZED_VIEW, "materialized view", "materialized views", Icons.DBO_MATERIALIZED_VIEW, null, Icons.DBO_MATERIALIZED_VIEWS, false),
     METHOD(DatabaseObjectTypeId.METHOD, "method", "methods", null, null, null, true),
-//    MODEL(DatabaseObjectTypeId.MODEL, "model", "models", null, null, null, false),
-//    MINING_MODEL(DatabaseObjectTypeId.MINING_MODEL, "mining model", "mining models", null, null, null, false),
+    MODEL(DatabaseObjectTypeId.MODEL, "model", "models", null, null, null, false),
+    MINING_MODEL(DatabaseObjectTypeId.MINING_MODEL, "mining model", "mining models", null, null, null, false),
     NESTED_TABLE(DatabaseObjectTypeId.NESTED_TABLE, "nested table", "nested tables", Icons.DBO_NESTED_TABLE, null, Icons.DBO_NESTED_TABLES, false),
     NESTED_TABLE_COLUMN(DatabaseObjectTypeId.NESTED_TABLE_COLUMN, "nested table column", "nested table columns", null, null, null, false),
     OPERATOR(DatabaseObjectTypeId.OPERATOR, "operator", "operators", null, null, null, false),
@@ -107,6 +108,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     PACKAGE_PROCEDURE(DatabaseObjectTypeId.PACKAGE_PROCEDURE, "package procedure", "procedures", Icons.DBO_PROCEDURE, null, Icons.DBO_PROCEDURES, false),
     PACKAGE_TYPE(DatabaseObjectTypeId.PACKAGE_TYPE, "package type", "types", Icons.DBO_TYPE, null, Icons.DBO_TYPES, false),
     PARTITION(DatabaseObjectTypeId.PARTITION, "partition", "partitions", null, null, null, false),
+    PARTITION_SET(DatabaseObjectTypeId.PARTITION_SET, "partition set", "partition sets", null, null, null, false),
     PRIVILEGE(DatabaseObjectTypeId.PRIVILEGE, "privilege", "privileges", Icons.DBO_PRIVILEGE, null, Icons.DBO_PRIVILEGES, false),
     SYSTEM_PRIVILEGE(DatabaseObjectTypeId.SYSTEM_PRIVILEGE, "system privilege", "system privileges", Icons.DBO_PRIVILEGE, null, Icons.DBO_PRIVILEGES, false),
     OBJECT_PRIVILEGE(DatabaseObjectTypeId.OBJECT_PRIVILEGE, "object privilege", "object privileges", Icons.DBO_PRIVILEGE, null, Icons.DBO_PRIVILEGES, false),
@@ -122,6 +124,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     SYNONYM(DatabaseObjectTypeId.SYNONYM, "synonym", "synonyms", Icons.DBO_SYNONYM, null, Icons.DBO_SYNONYMS, false),
     TABLE(DatabaseObjectTypeId.TABLE, "table", "tables", Icons.DBO_TABLE, null, Icons.DBO_TABLES, false),
     TABLESPACE(DatabaseObjectTypeId.TABLESPACE, "tablespace", "tablespaces", null, null, null, false),
+    TABLESPACE_SET(DatabaseObjectTypeId.TABLESPACE_SET, "tablespace set", "tablespace sets", null, null, null, false),
     TRIGGER(DatabaseObjectTypeId.TRIGGER, "trigger", "triggers", Icons.DBO_TRIGGER, Icons.DBO_TRIGGER_DISABLED, Icons.DBO_TRIGGERS, false),
     DATASET_TRIGGER(DatabaseObjectTypeId.DATASET_TRIGGER, "dataset trigger", "triggers", Icons.DBO_TRIGGER, Icons.DBO_TRIGGER_DISABLED, Icons.DBO_TRIGGERS, false),
     DATABASE_TRIGGER(DatabaseObjectTypeId.DATABASE_TRIGGER, "database trigger", "triggers", Icons.DBO_DATABASE_TRIGGER, Icons.DBO_DATABASE_TRIGGER_DISABLED, Icons.DBO_DATABASE_TRIGGERS, false),
@@ -136,6 +139,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     VARRAY(DatabaseObjectTypeId.VARRAY, "varray", "varrays", null, null, null, false),
     VARRAY_TYPE(DatabaseObjectTypeId.VARRAY_TYPE, "varray type", "varray types", null, null, null, false),
     VIEW(DatabaseObjectTypeId.VIEW, "view", "views", Icons.DBO_VIEW, null, Icons.DBO_VIEWS, false),
+    ZONEMAP(DatabaseObjectTypeId.ZONEMAP, "zonemap", "zonemaps", null, null, Icons.DBO_VIEWS, false),
 
     CURSOR(DatabaseObjectTypeId.CURSOR, "cursor", "cursors", Icons.DBO_CURSOR, null, null, false),
     RECORD(DatabaseObjectTypeId.RECORD, "record", "records", null, null, null, false),
@@ -192,6 +196,38 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     private Map<DBContentType, DDLFileTypeId> ddlFileTypeIds;
 
     private static final Map<String, DBObjectType> CACHE = new ConcurrentHashMap<>(200);
+    public static final Set<DBObjectType> BROWSABLE_TYPES = new LinkedHashSet<>(List.of(
+            DBObjectType.ROLE,
+            DBObjectType.PRIVILEGE,
+            DBObjectType.CHARSET,
+            DBObjectType.TABLE,
+            DBObjectType.VIEW,
+            DBObjectType.JSON_VIEW,
+            DBObjectType.MATERIALIZED_VIEW,
+            DBObjectType.NESTED_TABLE,
+            DBObjectType.COLUMN,
+            DBObjectType.INDEX,
+            DBObjectType.CONSTRAINT,
+            DBObjectType.DATASET_TRIGGER,
+            DBObjectType.DATABASE_TRIGGER,
+            DBObjectType.SYNONYM,
+            DBObjectType.SEQUENCE,
+            DBObjectType.PROCEDURE,
+            DBObjectType.FUNCTION,
+            DBObjectType.PACKAGE,
+            DBObjectType.TYPE,
+            DBObjectType.TYPE_ATTRIBUTE,
+            DBObjectType.ARGUMENT,
+            DBObjectType.JAVA_CLASS,
+            DBObjectType.JAVA_FIELD,
+            DBObjectType.JAVA_METHOD,
+            DBObjectType.JAVA_RESOURCE,
+            DBObjectType.DIMENSION,
+            DBObjectType.CLUSTER,
+            DBObjectType.DBLINK,
+            DBObjectType.CREDENTIAL,
+            DBObjectType.AI_PROFILE,
+            DBObjectType.AI_MODEL));
 
     DBObjectType(DatabaseObjectTypeId typeId, String name, String listName, Icon icon, Icon disabledIcon, Icon listIcon, boolean generic) {
         this.typeId = typeId;
@@ -641,6 +677,10 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         return compatibility.supportsObjectType(getTypeId());
     }
 
+    public boolean isBrowsable() {
+        return BROWSABLE_TYPES.contains(this);
+    }
+
     /*************************************************************************
      *                   Initialization utilities                             *
      *************************************************************************/
@@ -673,6 +713,4 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     private void addTreeChild(DBObjectType child) {
         treeChildren.add(child);
     }
-
-
 }

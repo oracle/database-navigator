@@ -68,4 +68,9 @@
     <statement-execution-processor id="set-session-sql-mode">
         <statement>SET sql_mode='{0}'</statement>
     </statement-execution-processor>
+
+    <statement-execution-processor id="extract-ddl-statement">
+        <statement>show create {0} {1}.{2}</statement>
+    </statement-execution-processor>
+
 </data-dictionary>

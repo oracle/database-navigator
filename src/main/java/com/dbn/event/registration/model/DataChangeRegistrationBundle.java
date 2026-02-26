@@ -172,9 +172,4 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
             case STATUS -> List.of(FILTER_STATUS_LISTENING, FILTER_STATUS_NOT_LISTENING);
         };
     }
-
-    @Override
-    public ListModel getListModel() {
-        return gutterModel;
-    }
 }
