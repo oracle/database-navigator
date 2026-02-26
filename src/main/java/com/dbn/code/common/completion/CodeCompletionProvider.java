@@ -30,6 +30,7 @@ import com.dbn.language.common.element.cache.ElementTypeLookupCache;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.IdentifierElementType;
 import com.dbn.language.common.element.impl.LeafElementType;
+import com.dbn.language.common.element.impl.NamedElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.parser.Branch;
@@ -147,7 +148,13 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         DBLanguagePsiFile file = context.getFile();
 
         ElementTypeBundle elementTypeBundle = file.getElementTypeBundle();
-        ElementTypeLookupCache<?> lookupCache = elementTypeBundle.getRootElementType().cache;
+
+        String parseRootId = file.getParseRootId();
+        NamedElementType rootElementType = parseRootId == null ?
+                elementTypeBundle.getRootElementType() :
+                elementTypeBundle.getNamedElementType(parseRootId);
+
+        ElementTypeLookupCache<?> lookupCache = rootElementType.cache;
         ElementLookupContext lookupContext = new ElementLookupContext(context.getDatabaseVersion());
         Set<LeafElementType> firstPossibleLeafs = lookupCache.captureFirstPossibleLeafs(lookupContext);
 
