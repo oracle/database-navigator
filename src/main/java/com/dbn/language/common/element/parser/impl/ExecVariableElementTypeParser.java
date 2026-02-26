@@ -20,11 +20,13 @@ import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.impl.ExecVariableElementType;
 import com.dbn.language.common.element.parser.ElementTypeParser;
 import com.dbn.language.common.element.parser.ParseResult;
-import com.dbn.language.common.element.parser.ParseResultType;
 import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
 import com.intellij.lang.PsiBuilder.Marker;
+
+import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 
 public class ExecVariableElementTypeParser extends ElementTypeParser<ExecVariableElementType> {
     public ExecVariableElementTypeParser(ExecVariableElementType elementType) {
@@ -34,16 +36,13 @@ public class ExecVariableElementTypeParser extends ElementTypeParser<ExecVariabl
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) {
         ParserBuilder builder = context.builder;
-        TokenType token = builder.getToken();
-        Marker marker = null;
 
-        if (token != null && !token.isChameleon()){
-            if (token.isVariable()) {
-                marker = builder.markAndAdvance();
-                return stepOut(marker, context, ParseResultType.FULL_MATCH, 1);
-            }
+        TokenType token = builder.getToken();
+        if (token != null && token.isVariable()) {
+            Marker marker = builder.markAndAdvance();
+            return stepOut(marker, context, FULL_MATCH, 1);
         }
-        return stepOut(marker, context, ParseResultType.NO_MATCH, 0);
+        return stepOut(null, context, NO_MATCH, 0);
     }
 
 }

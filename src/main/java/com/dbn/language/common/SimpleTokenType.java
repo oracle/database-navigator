@@ -78,8 +78,8 @@ public class SimpleTokenType<T extends SimpleTokenType<T>> extends IElementType 
 
         this.lookupIndex = integerAttribute(element, "index", lookupIndex);
 
-        String type = stringAttribute(element, "type");
-        this.category = TokenTypeCategory.getCategory(type);
+        String category = stringAttribute(element, "category");
+        this.category = TokenTypeCategory.getCategory(category);
         this.suppressibleReservedWord = isReservedWord() && !booleanAttribute(element, "reserved", false);
         this.hashCode = System.identityHashCode(this);
 

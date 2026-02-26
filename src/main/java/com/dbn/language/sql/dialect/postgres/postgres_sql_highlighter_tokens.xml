@@ -18,10 +18,10 @@
 
 <token-def>
     <tokens>
-        <token id="DATA_TYPE"/>
-        <token id="KEYWORD"/>
-        <token id="FUNCTION"/>
-        <token id="PARAMETER"/>
+        <token id="DATA_TYPE" category="datatype"/>
+        <token id="KEYWORD" category="keyword"/>
+        <token id="FUNCTION" category="function"/>
+        <token id="PARAMETER" category="parameter"/>
     </tokens>
 
     <token-sets>

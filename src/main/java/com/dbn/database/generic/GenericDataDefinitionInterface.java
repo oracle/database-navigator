@@ -45,6 +45,11 @@ public class GenericDataDefinitionInterface extends DatabaseDataDefinitionInterf
         throw new UnsupportedOperationException("Not implemented");
     }
 
+    @Override
+    public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
     /*********************************************************
      *                   CHANGE statements                   *
      *********************************************************/

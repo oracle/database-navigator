@@ -22,6 +22,7 @@ import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
@@ -35,6 +36,7 @@ import com.dbn.object.factory.model.DBObjectSpecList;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 
@@ -134,6 +136,19 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
                     content.getOffsets().addGuardedBlock(0, guardedBlockEndOffset);
                 }
             }
+        }
+    }
+
+
+    @Override
+    public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
+        ResultSet resultSet = null;
+        try {
+            resultSet = executeQuery(connection, "extract-ddl-statement", objectType, ownerName, objectName);
+            resultSet.next();
+            return resultSet.getString(1);
+        } finally {
+            Resources.close(resultSet);
         }
     }
 

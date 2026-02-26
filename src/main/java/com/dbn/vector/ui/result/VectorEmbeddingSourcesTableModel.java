@@ -108,10 +108,4 @@ public class VectorEmbeddingSourcesTableModel extends DBNMutableTableModel<Embed
     public void disposeInner() {
         // Clean up if needed (e.g. unregister listeners), but no-op here.
     }
-
-
-    @Override
-    public ListModel getListModel() {
-        return gutterModel;
-    }
 }
