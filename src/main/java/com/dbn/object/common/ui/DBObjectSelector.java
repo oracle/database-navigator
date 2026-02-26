@@ -174,7 +174,7 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
 
     private Consumer<String> reloadConsumer() {
         return n -> {
-            Consumer<String> nameConsumer = valueFactoryNameConsumer.get();
+            Consumer<String> nameConsumer = valueFactoryNameConsumer == null ? null : valueFactoryNameConsumer.get();
             if (nameConsumer != null) {
                 nameConsumer.accept(n);
             }

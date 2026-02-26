@@ -38,6 +38,7 @@ public class FieldAligner {
 
         FieldAlignerMetrics metrics = new FieldAlignerMetrics();
 
+        readMetrics(rootForm, metrics);
         List<DBNForm> forms = rootAlignerData.getAlignableForms();
         for (DBNForm form : forms) {
             FieldAlignerData formAlignerData = getAlignerData(form);
@@ -45,6 +46,7 @@ public class FieldAligner {
             readMetrics(form, metrics);
         }
 
+        adjustMetrics(rootForm, metrics);
         for (DBNForm form : forms) {
             adjustMetrics(form, metrics);
         }

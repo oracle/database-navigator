@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -59,6 +60,18 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
     private DBNComboBox connectionComboBox;
     private DBNComboBox schemaComboBox;
     private JTextField nameTextField;
+
+    private JLabel connectionLabel;
+    private JLabel schemaLabel;
+    private JLabel credentialNameLabel;
+    private JLabel accessTokenLabel;
+    private JLabel userNameLabel;
+    private JLabel passwordLabel;
+    private JLabel userOcidLabel;
+    private JLabel tenancyOcidLabel;
+    private JLabel privateKeyLabel;
+    private JLabel fingerprintLabel;
+    private JLabel credentialTypeLabel;
 
     private JPanel attributesPanel;
     private JPanel passwordCredentialPanel;

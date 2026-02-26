@@ -1,13 +1,10 @@
 package com.dbn.object.factory.ui;
 
-import com.dbn.assistant.service.selectai.credential.ui.CredentialEditDialog;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.FileChoosers;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
@@ -19,18 +16,15 @@ import com.dbn.object.factory.model.DBAIModelSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBAIModelSourceType;
-import com.dbn.object.type.DBCredentialType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.util.List;
-import java.util.Set;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
@@ -72,7 +66,6 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
     private JLabel credentialLabel;
     private JLabel credentialSchemaLabel;
     private JPanel hyperLinkPanel;
-    private JButton credentialAddButton;
 
     private DBObjectSelector<DBSchema> credentialSchemaComboBox;
     private DBObjectSelector<DBCredential> credentialComboBox;
@@ -84,7 +77,6 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
         initComboBoxes();
         initModelFileBrowser();
         initDocumentationLink();
-        initCredentialFields();
     }
 
     private void initModelFileBrowser() {
@@ -175,8 +167,7 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
                         credentialSchemaLabel,
                         credentialSchemaComboBox,
                         credentialLabel,
-                        credentialComboBox,
-                        credentialAddButton));
+                        credentialComboBox));
 
         fieldAdapter.initFieldsAvailability(
                 () -> isValid(getCredentialSchema()), array(credentialComboBox));
@@ -188,15 +179,6 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
         addTextValidation(modelFileTextField.getTextField(), n -> isNotEmptyOrSpaces(n), "Please select a model file");
         addTextValidation(objectUrlTextField, n -> isNotEmptyOrSpaces(n), "Please provide an object URL");
 //    addSelectionValidation(credentialComboBox, "Please select or create a credential");
-    }
-
-    private void initCredentialFields() {
-        credentialAddButton.setIcon(Icons.ACTION_ADD);
-        credentialAddButton.setText(null);
-
-        ConnectionHandler connection = getConnection();
-        List<DBCredentialType> credentialTypes = List.of(TOKEN, PASSWORD);
-        credentialAddButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(connection, null, credentialTypes, Set.of())));
     }
 
     private DBSchema getSchema() {
