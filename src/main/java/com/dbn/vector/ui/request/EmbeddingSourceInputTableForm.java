@@ -31,7 +31,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.vector.model.VectorEmbeddingRequest;
-import com.dbn.vector.model.request.EmbeddingTableSource;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +50,7 @@ import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.TABLE;
 
-public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
+public class EmbeddingSourceInputTableForm extends VectorToolboxFormBase {
     private JPanel mainPanel;
     private JLabel schemaLabel;
     private JLabel tableLabel;
@@ -65,9 +65,9 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
     private JPanel hintPanel;
 
     private final ConnectionRef connection;
-    private final EmbeddingTableSource config;
+    private final EmbeddingSourceTable config;
 
-    public EmbeddingSourceTableForm(@NotNull Disposable parent, ConnectionHandler connection, EmbeddingTableSource config) {
+    public EmbeddingSourceInputTableForm(@NotNull Disposable parent, ConnectionHandler connection, EmbeddingSourceTable config) {
         super(parent);
         this.connection = connection.ref();
         this.config = config;
@@ -208,7 +208,7 @@ public class EmbeddingSourceTableForm extends VectorToolboxFormBase {
         appyFormChanges(config);
     }
 
-    private void appyFormChanges(EmbeddingTableSource config) {
+    private void appyFormChanges(EmbeddingSourceTable config) {
         config.setSchemaName(getSelectedObjectName(schemaComboBox, config.getSchemaName()));
         config.setTableName(getSelectedObjectName(tableComboBox, config.getTableName()));
         config.setKeyColumnName(getSelectedObjectName(keyColumnComboBox, config.getKeyColumnName()));

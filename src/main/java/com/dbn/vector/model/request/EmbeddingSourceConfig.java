@@ -28,10 +28,14 @@ import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 @Setter
 public final class EmbeddingSourceConfig extends EmbeddingRequestConfig {
     private EmbeddingSourceType sourceType = EmbeddingSourceType.DATABASE_TABLE;
-    private final EmbeddingTableSource sourceTable = new EmbeddingTableSource(); // transient single selection
-    private final EmbeddingTableSources sourceTables = new EmbeddingTableSources();
-    private final EmbeddingQuerySources sourceQueries = new EmbeddingQuerySources();
-    private final EmbeddingFileSources sourceFiles = new EmbeddingFileSources();
+
+    // transient single selection configs
+    private final EmbeddingSourceTable sourceTable = new EmbeddingSourceTable(); 
+    private final EmbeddingSourceQuery sourceQuery = new EmbeddingSourceQuery();
+    
+    private final EmbeddingSourceTables sourceTables = new EmbeddingSourceTables();
+    private final EmbeddingSourceQueries sourceQueries = new EmbeddingSourceQueries();
+    private final EmbeddingSourceFiles sourceFiles = new EmbeddingSourceFiles();
 
     @Override
     public void readState(Element element) {
@@ -41,6 +45,8 @@ public final class EmbeddingSourceConfig extends EmbeddingRequestConfig {
         sourceType = enumAttribute(element, "source-type", sourceType);
 
         sourceTable.readState(element.getChild("single-table-source"));
+        sourceQuery.readState(element.getChild("single-query-source"));
+
         sourceTables.readState(element);
         sourceQueries.readState(element);
         sourceFiles.readState(element);
@@ -52,6 +58,8 @@ public final class EmbeddingSourceConfig extends EmbeddingRequestConfig {
         setEnumAttribute(element, "source-type", sourceType);
 
         sourceTable.writeState(newElement(element,  "single-table-source"));
+        sourceQuery.writeState(newElement(element,  "single-query-source"));
+
         sourceQueries.writeState(element);
         sourceTables.writeState(element);
         sourceFiles.writeState(element);

@@ -16,11 +16,11 @@
 
 package com.dbn.vector.model.result;
 
-import com.dbn.vector.model.request.EmbeddingQuerySource;
+import com.dbn.vector.model.request.EmbeddingSourceQuery;
 import org.jetbrains.annotations.NotNull;
 
-public class EmbeddingQueryResult extends EmbeddingResult<EmbeddingQuerySource> {
-    public EmbeddingQueryResult(EmbeddingQuerySource source) {
+public class EmbeddingQueryResult extends EmbeddingResult<EmbeddingSourceQuery> {
+    public EmbeddingQueryResult(EmbeddingSourceQuery source) {
         super(source);
     }
 

@@ -18,7 +18,7 @@ package com.dbn.vector.ui.request;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
-import com.dbn.vector.model.request.EmbeddingTableSource;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,9 +29,9 @@ import static com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.GRAYED_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 
-public class EmbeddingSourceTablesListRenderer extends ColoredListCellRenderer<EmbeddingTableSource> {
+public class EmbeddingSourceTablesListRenderer extends ColoredListCellRenderer<EmbeddingSourceTable> {
     @Override
-    protected void customize(@NotNull JList<? extends EmbeddingTableSource> list, EmbeddingTableSource value, int index, boolean selected, boolean hasFocus) {
+    protected void customize(@NotNull JList<? extends EmbeddingSourceTable> list, EmbeddingSourceTable value, int index, boolean selected, boolean hasFocus) {
         if (value == null) {
             append("(null)", ERROR_ATTRIBUTES);
             return;

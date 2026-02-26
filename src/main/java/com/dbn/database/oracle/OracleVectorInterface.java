@@ -21,8 +21,8 @@ import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.vector.model.request.EmbeddingDestinationConfig;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
 import com.dbn.vector.model.request.EmbeddingStagingConfig;
-import com.dbn.vector.model.request.EmbeddingTableSource;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,7 +58,7 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public int embedTableContent(DBNConnection conn, EmbeddingTableSource tableSource, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException {
+    public int embedTableContent(DBNConnection conn, EmbeddingSourceTable tableSource, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException {
         return executeUpdate(conn,
                 "embed-table-content",
                 destinationConfig.getSchemaName(),

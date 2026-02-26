@@ -31,7 +31,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Setter
 @Getter
-public class EmbeddingFileSources extends EmbeddingSourceList<EmbeddingFileSource> implements PersistentStateElement {
+public class EmbeddingSourceFiles extends EmbeddingSourceList<EmbeddingFileSource> implements PersistentStateElement {
     public List<VirtualFile> getFileSources() {
         return getElements()
                 .stream()

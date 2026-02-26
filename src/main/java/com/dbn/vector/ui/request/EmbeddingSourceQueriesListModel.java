@@ -17,12 +17,12 @@
 package com.dbn.vector.ui.request;
 
 import com.dbn.common.ui.list.MutableObjectListModel;
-import com.dbn.vector.model.request.EmbeddingSourceTable;
+import com.dbn.vector.model.request.EmbeddingSourceQuery;
 
 import java.util.List;
 
-public class EmbeddingSourceTablesListModel extends MutableObjectListModel<EmbeddingSourceTable> {
-  public EmbeddingSourceTablesListModel(List<EmbeddingSourceTable> tables) {
-    super(tables);
+public class EmbeddingSourceQueriesListModel extends MutableObjectListModel<EmbeddingSourceQuery> {
+  public EmbeddingSourceQueriesListModel(List<EmbeddingSourceQuery> queries) {
+    super(queries);
   }
 }

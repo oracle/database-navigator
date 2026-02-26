@@ -7,7 +7,7 @@ import com.dbn.vector.model.VectorEmbeddingContext;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.request.EmbeddingFileSource;
-import com.dbn.vector.model.request.EmbeddingFileSources;
+import com.dbn.vector.model.request.EmbeddingSourceFiles;
 import com.dbn.vector.model.result.EmbeddingFileResult;
 import com.dbn.vector.model.result.PipelineStep;
 import com.dbn.vector.model.result.SourceStatus;
@@ -36,7 +36,7 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
 
         ProgressIndicator progressIndicator = context.getProgressIndicator();
         // Process each file individually
-        EmbeddingFileSources fileConfig = request.getSourceConfig().getSourceFiles();
+        EmbeddingSourceFiles fileConfig = request.getSourceConfig().getSourceFiles();
         List<EmbeddingFileSource> sources = fileConfig.getElements();
         for (int i = 0; i < sources.size(); i++) {
             EmbeddingFileSource source = sources.get(i);

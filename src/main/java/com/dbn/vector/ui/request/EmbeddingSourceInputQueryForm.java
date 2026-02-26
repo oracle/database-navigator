@@ -16,13 +16,24 @@
 
 package com.dbn.vector.ui.request;
 
-import com.dbn.common.ui.list.MutableObjectListModel;
-import com.dbn.vector.model.request.EmbeddingSourceTable;
+import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.vector.model.request.EmbeddingSourceQuery;
+import com.intellij.openapi.Disposable;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 
-public class EmbeddingSourceTablesListModel extends MutableObjectListModel<EmbeddingSourceTable> {
-  public EmbeddingSourceTablesListModel(List<EmbeddingSourceTable> tables) {
-    super(tables);
-  }
+public class EmbeddingSourceInputQueryForm extends DBNFormBase {
+    private JPanel mainPanel;
+
+    public EmbeddingSourceInputQueryForm(@NotNull Disposable parent, ConnectionHandler connection, EmbeddingSourceQuery config) {
+        super(parent);
+    }
+
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
+    }
 }

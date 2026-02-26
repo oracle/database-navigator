@@ -26,14 +26,14 @@ import static com.dbn.common.options.setting.Settings.newElement;
 
 @Getter
 @Setter
-public class EmbeddingQuerySources extends EmbeddingSourceList<EmbeddingQuerySource> implements PersistentStateElement {
+public class EmbeddingSourceTables extends EmbeddingSourceList<EmbeddingSourceTable> implements PersistentStateElement {
     private boolean autoSync;
 
     @Override
     public void readState(Element element) {
-        Element sourcesElement = element.getChild("query-sources");
-        for (Element childElement : childrenOf(sourcesElement, "query")) {
-            EmbeddingQuerySource source = new EmbeddingQuerySource();
+        Element sourcesElement = element.getChild("table-sources");
+        for (Element childElement : childrenOf(sourcesElement, "source")) {
+            EmbeddingSourceTable source = new EmbeddingSourceTable();
             source.readState(childElement);
             addElement(source);
         }
@@ -41,9 +41,9 @@ public class EmbeddingQuerySources extends EmbeddingSourceList<EmbeddingQuerySou
 
     @Override
     public void writeState(Element element) {
-        Element sourcesElement = newElement(element, "query-sources");
-        for (EmbeddingQuerySource source : getElements()) {
-            Element childElement = newElement(sourcesElement, "query");
+        Element sourcesElement = newElement(element, "table-sources");
+        for (EmbeddingSourceTable source : getElements()) {
+            Element childElement = newElement(sourcesElement, "source");
             source.writeState(childElement);
         }
     }

@@ -21,7 +21,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.vector.model.request.EmbeddingTableSource;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +34,7 @@ import java.util.Arrays;
 // TableResult for table-based jobs
 @Getter
 @Setter
-public class EmbeddingTableResult extends EmbeddingResult<EmbeddingTableSource> {
+public class EmbeddingTableResult extends EmbeddingResult<EmbeddingSourceTable> {
     private DBObjectRef<DBTable> table;
     private long rowsScanned;      // number of source rows visited
     private int batchSize;         // batch size used for embedding
@@ -42,13 +42,13 @@ public class EmbeddingTableResult extends EmbeddingResult<EmbeddingTableSource> 
     private String firstKey;    // optional checkpoint keys
     private String lastKey;
 
-    public EmbeddingTableResult(EmbeddingTableSource source, ConnectionId connectionId) {
+    public EmbeddingTableResult(EmbeddingSourceTable source, ConnectionId connectionId) {
         super(source);
         this.table = initTable(source, connectionId);
         initSteps();
     }
 
-    private static DBObjectRef<DBTable> initTable(EmbeddingTableSource source, ConnectionId connectionId) {
+    private static DBObjectRef<DBTable> initTable(EmbeddingSourceTable source, ConnectionId connectionId) {
         String schemaName = source.getSchemaName();
         String tableName = source.getTableName();
         DBObjectRef<DBSchema> schema = new DBObjectRef<>(connectionId, DBObjectType.SCHEMA, schemaName);

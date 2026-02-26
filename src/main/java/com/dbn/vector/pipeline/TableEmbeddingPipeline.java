@@ -5,8 +5,8 @@ import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.vector.model.VectorEmbeddingContext;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
-import com.dbn.vector.model.request.EmbeddingTableSource;
-import com.dbn.vector.model.request.EmbeddingTableSources;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
+import com.dbn.vector.model.request.EmbeddingSourceTables;
 import com.dbn.vector.model.result.EmbeddingTableResult;
 import com.dbn.vector.model.result.PipelineStep;
 import com.dbn.vector.model.result.StepResult;
@@ -32,9 +32,9 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
 
         // remove the PREPARE_DOCUMENT_STORE step from shared steps
         result.deleteStepFfromShared(ENSURE_DOCUMENT_TABLE);
-        EmbeddingTableSources tableConfig = request.getSourceConfig().getSourceTables();
+        EmbeddingSourceTables tableConfig = request.getSourceConfig().getSourceTables();
 
-        for (EmbeddingTableSource tableSource : tableConfig.getElements()) {
+        for (EmbeddingSourceTable tableSource : tableConfig.getElements()) {
             EmbeddingTableResult tableResult = result.getResult(tableSource);
 
             String metadata = tableProcessingService.buildRowMetadata(request, tableSource);

@@ -16,59 +16,52 @@
 
 package com.dbn.vector.ui.request;
 
-import com.dbn.vector.model.request.EmbeddingSourceTables;
+import com.dbn.vector.model.request.EmbeddingSourceQueries;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-public class EmbeddingSourceTablesForm extends VectorToolboxFormBase {
+public class EmbeddingSourceQueriesForm extends VectorToolboxFormBase {
     private JPanel mainPanel;
-    private JPanel tableListPanel;
-    private JCheckBox autoSyncCheckBox;
-    private JPanel autoSyncPanel;
+    private JPanel queryListPanel;
 
-    private EmbeddingSourceTablesListForm tableListForm;
+    private EmbeddingSourceQueriesListForm queryListForm;
 
-    public EmbeddingSourceTablesForm(@NotNull VectorToolboxFormBase parent) {
+    public EmbeddingSourceQueriesForm(@NotNull VectorToolboxFormBase parent) {
         super(parent);
         initTableListForm();
-
-        autoSyncPanel.setVisible(false); // TODO implement the "auto-sync" functionality or cleanup the ui
     }
 
     private void initTableListForm() {
-        tableListForm = new EmbeddingSourceTablesListForm(this);
-        tableListPanel.add(tableListForm.getComponent());
+        queryListForm = new EmbeddingSourceQueriesListForm(this);
+        queryListPanel.add(queryListForm.getComponent());
     }
 
     @Override
     protected void initValidation() {
         addValidation(
-                tableListForm.getTableList(),
+                queryListForm.getQueriesList(),
                 list -> list.getModel().getSize() > 0,
-                "Please specify at least one table"
+                "Please specify at least one query"
         );
     }
 
     @Override
     public void resetFormChanges() {
-        EmbeddingSourceTables config = getConfig();
-        autoSyncCheckBox.setSelected(config.isAutoSync());
-        tableListForm.setTables(config.getElements());
+        EmbeddingSourceQueries config = getConfig();
+        queryListForm.setQueries(config.getElements());
     }
 
     @Override
     public void applyFormChanges() {
-        EmbeddingSourceTables config = getConfig();
-        config.setAutoSync(autoSyncCheckBox.isSelected());
-        config.setElements(tableListForm.getTables());
+        EmbeddingSourceQueries config = getConfig();
+        config.setElements(queryListForm.getQueries());
     }
 
-    public EmbeddingSourceTables getConfig() {
-        return getEmbeddingRequest().getSourceConfig().getSourceTables();
+    public EmbeddingSourceQueries getConfig() {
+        return getEmbeddingRequest().getSourceConfig().getSourceQueries();
     }
 
     @Override
@@ -76,7 +69,7 @@ public class EmbeddingSourceTablesForm extends VectorToolboxFormBase {
         return mainPanel;
     }
 
-    public int getTableCount() {
-        return tableListForm.getTableList().getModel().getSize();
+    public int getQueryCount() {
+        return queryListForm.getQueriesList().getModel().getSize();
     }
 }

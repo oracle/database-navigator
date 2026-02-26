@@ -18,7 +18,7 @@ package com.dbn.vector.ui.request;
 
 import com.dbn.common.ui.file.VirtualFileListForm;
 import com.dbn.common.util.FileChoosers;
-import com.dbn.vector.model.request.EmbeddingFileSources;
+import com.dbn.vector.model.request.EmbeddingSourceFiles;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import org.jetbrains.annotations.NotNull;
@@ -54,11 +54,11 @@ public class EmbeddingSourceFilesForm extends VectorToolboxFormBase {
 
     @Override
     public void applyFormChanges() {
-        EmbeddingFileSources config = getConfig();
+        EmbeddingSourceFiles config = getConfig();
         config.setFilePaths(fileListForm.getFilePaths());
     }
 
-    private EmbeddingFileSources getConfig() {
+    private EmbeddingSourceFiles getConfig() {
         return getEmbeddingRequest().getSourceConfig().getSourceFiles();
     }
 
@@ -67,7 +67,7 @@ public class EmbeddingSourceFilesForm extends VectorToolboxFormBase {
         return mainPanel;
     }
 
-    public int getSelectedFileCount() {
+    public int getFileCount() {
         return fileListForm.getFileList().getModel().getSize();
     }
 }

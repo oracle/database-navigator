@@ -16,7 +16,7 @@
 
 package com.dbn.vector.ui.request;
 
-import com.dbn.vector.model.request.EmbeddingTableSource;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import com.intellij.ui.ToolbarDecorator;
 import lombok.Getter;
@@ -34,7 +34,7 @@ public class EmbeddingSourceTablesListForm extends VectorToolboxFormBase {
   private JPanel component;
   private JPanel listPanel;
 
-  @Getter private EmbeddingSourceTablesList tableList;
+  private final @Getter EmbeddingSourceTablesList tableList;
 
   public EmbeddingSourceTablesListForm(@NotNull VectorToolboxFormBase parent) {
     super(parent);
@@ -76,11 +76,11 @@ public class EmbeddingSourceTablesListForm extends VectorToolboxFormBase {
     return component;
   }
 
-  public List<EmbeddingTableSource> getTables(){
+  public List<EmbeddingSourceTable> getTables(){
     return tableList.getModel().getElements();
   }
 
-  public void setTables(List<EmbeddingTableSource> tables) {
+  public void setTables(List<EmbeddingSourceTable> tables) {
     EmbeddingSourceTablesListModel model = tableList.getModel();
     model.reset(tables);
   }

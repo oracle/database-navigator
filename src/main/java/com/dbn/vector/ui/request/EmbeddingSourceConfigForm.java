@@ -40,6 +40,7 @@ public class EmbeddingSourceConfigForm extends VectorToolboxFormBase implements 
     private JLabel sourceLabel;
     private EmbeddingSourceFilesForm filesForm;
     private EmbeddingSourceTablesForm tablesForm;
+    private EmbeddingSourceQueriesForm queriesForm;
 
     public EmbeddingSourceConfigForm(@NotNull VectorToolboxFormBase parent) {
         super(parent);
@@ -50,6 +51,7 @@ public class EmbeddingSourceConfigForm extends VectorToolboxFormBase implements 
     private void initDataPanel() {
         filesForm = new EmbeddingSourceFilesForm(this);
         tablesForm = new EmbeddingSourceTablesForm(this);
+        queriesForm = new EmbeddingSourceQueriesForm(this);
         updateSourceForm();
     }
 
@@ -67,7 +69,6 @@ public class EmbeddingSourceConfigForm extends VectorToolboxFormBase implements 
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
         alignerData.registerFieldGroup(sourceLabel, sourceComboBox);
-        alignerData.registerForms(tablesForm);
     }
 
     private void updateSourceForm() {
@@ -76,6 +77,7 @@ public class EmbeddingSourceConfigForm extends VectorToolboxFormBase implements 
         switch (sourceType) {
             case FILE_SYSTEM -> dataPanel.add(filesForm.getComponent());
             case DATABASE_TABLE -> dataPanel.add(tablesForm.getComponent());
+            case DATABASE_QUERY -> dataPanel.add(queriesForm.getComponent());
         }
         dataPanel.revalidate();
         dataPanel.repaint();
@@ -90,6 +92,7 @@ public class EmbeddingSourceConfigForm extends VectorToolboxFormBase implements 
         EmbeddingSourceConfig config = getConfig();
 
         setSelection(sourceComboBox, config.getSourceType());
+        queriesForm.resetFormChanges();
         tablesForm.resetFormChanges();
         filesForm.resetFormChanges();
     }
@@ -99,6 +102,7 @@ public class EmbeddingSourceConfigForm extends VectorToolboxFormBase implements 
         EmbeddingSourceConfig config = getConfig();
 
         config.setSourceType(getSelectedSourceType());
+        queriesForm.applyFormChanges();
         tablesForm.applyFormChanges();
         filesForm.applyFormChanges();
     }
@@ -123,13 +127,18 @@ public class EmbeddingSourceConfigForm extends VectorToolboxFormBase implements 
         String sourceTypeName = sourceType == null ? "" : sourceType.getName();
 
         if (sourceType == EmbeddingSourceType.FILE_SYSTEM) {
-            int count = filesForm.getSelectedFileCount();
+            int count = filesForm.getFileCount();
             return sourceTypeName + " - " + count + (count == 1 ? " file" : " files");
         }
 
         if (sourceType == EmbeddingSourceType.DATABASE_TABLE) {
-            int count = tablesForm.getSelectedTablesCount();
+            int count = tablesForm.getTableCount();
             return sourceTypeName + " - " + count + (count == 1 ? " table" : " tables");
+        }
+
+        if (sourceType == EmbeddingSourceType.DATABASE_QUERY) {
+            int count = queriesForm.getQueryCount();
+            return sourceTypeName + " - " + count + (count == 1 ? " query" : " queries");
         }
         return sourceTypeName;
     }

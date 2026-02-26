@@ -2,7 +2,7 @@ package com.dbn.vector.service;
 
 import com.dbn.common.util.Json;
 import com.dbn.vector.model.VectorEmbeddingRequest;
-import com.dbn.vector.model.request.EmbeddingTableSource;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +14,7 @@ import static com.dbn.vector.model.request.EmbeddingSourceType.DATABASE_TABLE;
 
 public class TableProcessingService {
 
-  public String buildRowMetadata(@NotNull VectorEmbeddingRequest request, EmbeddingTableSource sourceTable) {
+  public String buildRowMetadata(@NotNull VectorEmbeddingRequest request, EmbeddingSourceTable sourceTable) {
     @NonNls
     Map<String, Object> sourceMetadata = new LinkedHashMap<>();
     sourceMetadata.put("source_type", DATABASE_TABLE);

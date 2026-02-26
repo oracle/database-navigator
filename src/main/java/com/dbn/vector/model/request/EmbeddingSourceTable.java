@@ -28,12 +28,11 @@ import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.vector.model.request.EmbeddingSourceType.DATABASE_TABLE;
 
 @Data
-public class EmbeddingTableSource implements EmbeddingSource, PersistentStateElement, Cloneable<EmbeddingTableSource> {
+public class EmbeddingSourceTable implements EmbeddingSource, PersistentStateElement, Cloneable<EmbeddingSourceTable> {
     private String schemaName;
     private String tableName;
     private String keyColumnName;
     private String dataColumnName;
-
 
     @Override
     public EmbeddingSourceType getType() {
@@ -65,7 +64,7 @@ public class EmbeddingTableSource implements EmbeddingSource, PersistentStateEle
 
     @Override
     @SneakyThrows
-    public EmbeddingTableSource clone() {
+    public EmbeddingSourceTable clone() {
         return cast(super.clone());
     }
 }
