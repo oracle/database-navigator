@@ -9976,10 +9976,7 @@
         <one-of id="05558">
             <sequence id="05559">
                 <element ref-id="expression" />
-                <sequence id="05560" optional="true">
-                    <token id="05561" optional="true" type-id="KW_AS" />
-                    <alias-def id="05562" optional="true" original-name="c_alias" type="COLUMN" />
-                </sequence>
+                <element ref-id="column_alias_definition" optional="true" original-name="c_alias"/>
             </sequence>
             <qualified-identifier id="05563" separator="CHR_DOT">
                 <variant>
@@ -9998,15 +9995,13 @@
                     <element ref-id="lateral_view_expression" />
                     <sequence attributes="SCOPE_DEMARCATION" id="05570">
                         <element ref-id="query_table_expression" />
-                        <token id="05571" optional="true" type-id="KW_AS" />
-                        <alias-def id="05572" optional="true" original-name="t_alias" type="DATASET" />
+                        <element ref-id="dataset_alias_definition" optional="true" original-name="t_alias"/>
                         <element optional="true" ref-id="flashback_query_clause" />
                         <one-of id="05573" optional="true">
                             <element ref-id="pivot_clause" />
                             <element ref-id="unpivot_clause" />
                         </one-of>
-                        <token id="05574" optional="true" type-id="KW_AS" />
-                        <alias-def id="05575" optional="true" original-name="t_alias" type="DATASET" />
+                        <element ref-id="dataset_alias_definition" optional="true" original-name="t_alias"/>
                     </sequence>
                 </one-of>
                 <iteration id="05576" optional="true">
@@ -10023,8 +10018,7 @@
         <wrapper id="05579" template="PARENTHESES">
             <element ref-id="subquery" />
         </wrapper>
-        <token id="05580" optional="true" type-id="KW_AS" />
-        <alias-def id="05581" optional="true" original-name="t_alias" type="DATASET" />
+        <element ref-id="dataset_alias_definition" optional="true" original-name="t_alias"/>
     </element-def>
     <element-def attributes="SCOPE_DEMARCATION" description="ONLY table reference expression" id="only_table_expression">
         <token id="05582" type-id="KW_ONLY" />
@@ -10032,8 +10026,7 @@
             <element ref-id="query_table_expression" />
         </wrapper>
         <element optional="true" ref-id="flashback_query_clause" />
-        <token id="05584" optional="true" type-id="KW_AS" />
-        <alias-def id="05585" optional="true" original-name="t_alias" type="DATASET" />
+        <element ref-id="dataset_alias_definition" optional="true" original-name="t_alias"/>
     </element-def>
     <element-def attributes="CLAUSE" description="PIVOT clause" id="pivot_clause">
         <token id="05586" type-id="KW_PIVOT" />
@@ -10045,10 +10038,7 @@
                         <sequence id="05592">
                             <element ref-id="aggregate_function" />
                         </sequence>
-                        <sequence id="05593" optional="true">
-                            <token id="05594" optional="true" type-id="KW_AS" />
-                            <alias-def id="05595" type="COLUMN" />
-                        </sequence>
+                        <element ref-id="column_alias_definition" optional="true"/>
                     </sequence>
                 </iteration>
                 <element ref-id="pivot_for_clause" />
@@ -10075,11 +10065,8 @@
                     <sequence id="05606">
                         <iteration id="05607" separator="CHR_COMMA">
                             <element ref-id="expression" />
-                        </iteration>&gt;
-                        <sequence id="05608" optional="true">
-                            <token id="05609" optional="true" type-id="KW_AS" />
-                            <alias-def id="05610" type="COLUMN" />
-                        </sequence>
+                        </iteration>
+                        <element ref-id="column_alias_definition" optional="true"/>
                     </sequence>
                 </iteration>
                 <element ref-id="subquery" />
@@ -10549,10 +10536,7 @@
     </element-def>
     <element-def description="MODEL column" id="model_column">
         <element ref-id="expression" />
-        <sequence id="05825" optional="true">
-            <token id="05826" optional="true" type-id="KW_AS" />
-            <alias-def id="05827" original-name="c_alias" type="COLUMN" />
-        </sequence>
+        <element ref-id="column_alias_definition" optional="true" original-name="c_alias"/>
     </element-def>
     <element-def description="MODEL RULES clause" id="model_rules_clause">
         <sequence id="05828" optional="true">
@@ -13817,6 +13801,15 @@
             <token id="07591" type-id="CHR_DOT" />
             <token id="07592" type-id="IDENTIFIER" />
         </sequence>
+    </element-def>
+
+    <element-def description="Column alias definition" id="column_alias_definition">
+        <token id="05594" optional="true" type-id="KW_AS" />
+        <alias-def id="05595" type="COLUMN" />
+    </element-def>
+    <element-def description="Dataset alias definition" id="dataset_alias_definition">
+        <token id="05594" optional="true" type-id="KW_AS" />
+        <alias-def id="05595" type="DATASET" />
     </element-def>
 
     <element-def description="Unknown identifier" id="custom_undefined">
