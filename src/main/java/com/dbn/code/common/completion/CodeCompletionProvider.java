@@ -166,7 +166,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         DBObject parentObject = null;
         PsiElement parent = element.getParent();
         if (parent instanceof QualifiedIdentifierPsiElement qualifiedIdentifier) {
-            ElementType separator = qualifiedIdentifier.elementType.getSeparatorToken();
+            ElementType separator = qualifiedIdentifier.elementType.separatorToken;
 
             if (element.elementType == separator){
                 BasePsiElement parentPsiElement = element.getPrevElement();

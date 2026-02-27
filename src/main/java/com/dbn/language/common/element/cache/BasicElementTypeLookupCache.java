@@ -17,6 +17,7 @@
 package com.dbn.language.common.element.cache;
 
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.impl.BasicElementType;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
@@ -45,12 +46,14 @@ public class BasicElementTypeLookupCache extends ElementTypeLookupCacheIndexed<B
     }
 
     @Override
-    public boolean startsWithIdentifier() {
+    public boolean startsWith(TokenTypeCategory typeCategory) {
         return false;
     }
 
     @Override
-    public boolean checkStartsWithIdentifier() {return false;}
+    protected boolean checkStartsWith(TokenTypeCategory typeCategory) {
+        return false;
+    }
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, @Nullable Set<LeafElementType> bucket) {

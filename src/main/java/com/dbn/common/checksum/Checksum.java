@@ -23,6 +23,7 @@ import lombok.experimental.UtilityClass;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Formatter;
 
@@ -35,6 +36,18 @@ import java.util.Formatter;
  */
 @UtilityClass
 public class Checksum {
+
+    /**
+     * String content checksum producer
+     * @param content the content to procude checksum for
+     * @param type the {@link ChecksumType} to use
+     * @return the calculated checksum
+     */
+    public static String fromStringContent(String content, ChecksumType type) {
+        MessageDigest digest = type.getMessageDigest();
+        updateDigest(digest, content);
+        return concludeDigest(digest);
+    }
 
     /**
      * Single file content checksum producer
@@ -113,7 +126,7 @@ public class Checksum {
     }
 
     @SneakyThrows
-    static void updateDigest(MessageDigest digest, File file) {
+    private static void updateDigest(MessageDigest digest, File file) {
         try (FileInputStream inputStream = new FileInputStream(file)) {
             byte[] bytes = new byte[1024];
             int length;
@@ -123,6 +136,13 @@ public class Checksum {
             }
         }
     }
+
+    @SneakyThrows
+    private static void updateDigest(MessageDigest digest, String content) {
+        byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
+        digest.update(bytes, 0, bytes.length);
+    }
+
 
     static String concludeDigest(MessageDigest digest) {
         byte[] bytes = digest.digest();

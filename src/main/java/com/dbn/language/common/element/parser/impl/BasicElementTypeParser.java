@@ -22,6 +22,8 @@ import com.dbn.language.common.element.parser.ParseResult;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
 
+import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
+
 public class BasicElementTypeParser extends ElementTypeParser<BasicElementType> {
     public BasicElementTypeParser(BasicElementType elementType) {
         super(elementType);
@@ -29,6 +31,6 @@ public class BasicElementTypeParser extends ElementTypeParser<BasicElementType> 
 
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) {
-        return ParseResult.noMatch();
+        return NO_MATCH_RESULT;
     }
 }

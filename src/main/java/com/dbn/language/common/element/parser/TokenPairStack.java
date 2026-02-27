@@ -21,23 +21,24 @@ import com.dbn.language.common.SimpleTokenType;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.common.element.TokenPairTemplate;
+import com.dbn.language.common.element.impl.ElementTypeBase;
+import com.dbn.language.common.element.impl.LeafElementType;
 import com.intellij.util.containers.Stack;
-import lombok.Getter;
-import lombok.Setter;
 
-public class TokenPairStack {
-    private int stackSize = 0;
-    private final Stack<TokenPairMarker> markersStack = new Stack<>();
-    private final ParserBuilder builder;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.OPTIONAL_WRAPPING;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
 
-    private final SimpleTokenType beginToken;
-    private final SimpleTokenType endToken;
+public class TokenPairStack extends ParserBuilderExtension {
+    private final Stack<TokenPairMarker> markers = new Stack<>();
+
+    public final SimpleTokenType beginToken;
+    public final SimpleTokenType endToken;
 
 
-    public TokenPairStack(ParserBuilder builder, DBLanguageDialect languageDialect, TokenPairTemplate template) {
-        this.builder = builder;
+    public TokenPairStack(ParserBuilder builder, DBLanguageDialect language, TokenPairTemplate template) {
+        super(builder);
 
-        TokenTypeBundle parserTokenTypes = languageDialect.getParserTokenTypes();
+        TokenTypeBundle parserTokenTypes = language.getParserTokenTypes();
         beginToken = parserTokenTypes.getTokenType(template.getBeginToken());
         endToken = parserTokenTypes.getTokenType(template.getEndToken());
     }
@@ -45,85 +46,85 @@ public class TokenPairStack {
     /**
      * cleanup all markers registered after the builder offset (remained dirty after a marker rollback)
      */
-    public void rollback() {
-        int builderOffset = builder.getOffset();
-        while (markersStack.size() > 0) {
-            TokenPairMarker lastMarker = markersStack.peek();
-            if (lastMarker.getOffset() >= builderOffset) {
-                markersStack.pop();
-                if (stackSize > 0) stackSize--;
-            } else {
-                break;
-            }
+    public void rollback(ElementTypeBase element) {
+        while (!markers.isEmpty()) {
+            // strong owner match on rollbacks
+            TokenPairMarker marker = markers.peek();
+            if (marker.owner != element) return;
+
+            markers.pop();
         }
     }
 
-    public void acknowledge(boolean explicit) {
-        TokenType tokenType = builder.getToken();
-        if (tokenType == beginToken) {
-            stackSize++;
-            TokenPairMarker marker = new TokenPairMarker(builder.getOffset(), explicit);
-            markersStack.push(marker);
-        } else if (tokenType == endToken) {
-            if (stackSize > 0) stackSize--;
-            if (markersStack.size() > 0) {
-/*
-                NestedRangeMarker marker = markersStack.peek();
-                ParsePathNode markerNode = marker.getParseNode();
-                if (markerNode == node) {
+    public boolean acknowledge(LeafElementType leafElement, boolean borrowed) {
+        if (leafElement.is(SURROGATE_LEAD)) return false;
 
-                } else if (markerNode.isSiblingOf(node)) {
+        TokenType token = leafElement.tokenType;
+        if (token == beginToken) return acknowledgeBegin(leafElement, borrowed);
+        if (token == endToken) return acknowledgeEnd(leafElement, borrowed);
+        return false;
+    }
 
-                } else if (node.isSiblingOf(markerNode)) {
-                    WrappingDefinition childWrapping = node.getElementType().getWrapping();
-                    WrappingDefinition parentWrapping = markerNode.getElementType().getWrapping();
-                    if (childWrapping != null && childWrapping.equals(parentWrapping)) {
+    private boolean acknowledgeBegin(LeafElementType leafElement, boolean borrowed) {
+        boolean explicit = !leafElement.is(OPTIONAL_WRAPPING);
+        TokenPairMarker marker = new TokenPairMarker(leafElement.parent, builder.getOffset(), explicit, borrowed);
+        markers.push(marker);
+        return true;
+    }
 
-                    }
+    private boolean acknowledgeEnd(LeafElementType leafElement, boolean borrowed) {
+        if (markers.isEmpty()) return false;
+
+        ElementTypeBase parent = leafElement.parent;
+        boolean explicit = !leafElement.is(OPTIONAL_WRAPPING);
+
+        TokenPairMarker marker = markers.peek();
+        if (explicit) {
+            if (marker.explicit && marker.owner == parent) {
+                markers.pop();
+                if (marker.borrowed) {
+                    markers.pop();
                 }
-*/
-                cleanup(false);
+                return true;
             }
-        }
-    }
-
-    public void cleanup(boolean force) {
-        if (force) stackSize = 0;
-        while(markersStack.size() > stackSize) {
-            markersStack.pop();
-        }
-    }
-
-    public boolean isExplicitRange() {
-        if (!markersStack.isEmpty()) {
-            TokenPairMarker marker = markersStack.peek();
-            return marker.isExplicit();
+        } else {
+            if (!marker.explicit) {
+                markers.pop();
+                return true;
+            }
         }
 
         return false;
     }
 
-    public void setExplicitRange(boolean value) {
-        if (!markersStack.isEmpty()) {
-            TokenPairMarker marker = markersStack.peek();
-            marker.setExplicit(value);
-        }
+    public void reset() {
+        markers.clear();
     }
 
-    @Getter
-    @Setter
-    public static class TokenPairMarker {
-        private final int offset;
-        private boolean explicit;
+    public boolean isExplicitRange() {
+        if (markers.isEmpty()) return false;
 
-        public TokenPairMarker(int offset, boolean explicit) {
+        TokenPairMarker marker = markers.peek();
+        return marker.explicit;
+
+    }
+
+    public static class TokenPairMarker {
+        private final ElementTypeBase owner;
+        private final int offset;
+        private final boolean explicit;
+        private final boolean borrowed;
+
+        public TokenPairMarker(ElementTypeBase owner, int offset, boolean explicit, boolean borrowed) {
+            this.owner = owner;
             this.offset = offset;
             this.explicit = explicit;
+            this.borrowed = borrowed;
         }
 
         @Override
         public String toString() {
-            return offset + " " + explicit;
+            return offset + ": " + owner + " - " + explicit;
         }
     }
 }

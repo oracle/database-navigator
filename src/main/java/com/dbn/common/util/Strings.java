@@ -238,6 +238,11 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return content.replaceAll("\\s+", " ").trim();
     }
 
+    public static String indentText(String text, int spaces) {
+        String indent = " ".repeat(spaces);
+        return indent + text.replaceAll("\\R", "\n" + indent);
+    }
+
     public static @NotNull String trim(@Nullable String message) {
         return isEmptyOrSpaces(message) ? "" : message.trim();
     }
@@ -536,5 +541,17 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return slices;
     }
 
+    public static String middleEllipsis(String string, int maxLength) {
+        if (string == null) return null;
+        if (maxLength < 5) return string;
+        if (string.length() <= maxLength) return string;
+
+        String ellipsis = "...";
+        int remaining = maxLength - ellipsis.length();
+        int head = (remaining + 1) / 2;
+        int tail = remaining / 2;
+
+        return string.substring(0, head) + ellipsis + string.substring(string.length() - tail);
+    }
 }
 

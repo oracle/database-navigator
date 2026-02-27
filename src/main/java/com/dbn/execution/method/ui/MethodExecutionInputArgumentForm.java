@@ -18,6 +18,7 @@ package com.dbn.execution.method.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
@@ -49,8 +50,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.event.DocumentListener;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
@@ -128,7 +129,7 @@ public class MethodExecutionInputArgumentForm extends DBNFormBase {
 
                 inputField.setPreferredSize(new JBDimension(240, -1));
                 inputTextField = inputField.getTextField();
-                inputFieldPanel.add(inputField, BorderLayout.CENTER);
+                inputFieldPanel.add(inputField);
             } else {
                 TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
                 inputField.setPreferredSize(new JBDimension(240, -1));
@@ -139,14 +140,22 @@ public class MethodExecutionInputArgumentForm extends DBNFormBase {
                 inputField.createValuesListPopup(createValuesProvider(), argument, true);
                 inputTextField = inputField.getTextField();
                 inputTextField.setText(value);
-                inputFieldPanel.add(inputField, BorderLayout.CENTER);
+                inputFieldPanel.add(inputField);
             }
 
             argumentLabel.setLabelFor(inputTextField);
             inputTextField.setDisabledTextColor(inputTextField.getForeground());
             setAccessibleUnit(inputTextField, argumentTypeLabel.getText());
         } else {
-            inputFieldPanel.setVisible(false);
+            // alternative location of argument-type label for non-scalar arguments
+            JLabel typeLabel = new JLabel(
+                    argumentTypeLabel.getText(),
+                    argumentTypeLabel.getIcon(),
+                    SwingConstants.LEFT);
+            typeLabel.setForeground(argumentTypeLabel.getForeground());
+            typeLabel.setBorder(Borders.insetBorder(4, 0, 4, 0));
+            inputFieldPanel.add(typeLabel);
+            argumentTypeLabel.setVisible(false);
         }
     }
 

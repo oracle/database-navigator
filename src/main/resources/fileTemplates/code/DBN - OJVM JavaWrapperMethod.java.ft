@@ -1,4 +1,10 @@
-public static ${METHOD_RETURN_TYPE} ${METHOD_NAME}${METHOD_PARAMETERS}{
-    ${ARGUMENT_CONVERSIONS}
-    ${METHOD_INVOCATION}
-}
+    public static ${METHOD_RETURN_TYPE} ${METHOD_NAME}${METHOD_PARAMETERS} throws java.sql.SQLException {
+#if($ARGUMENT_CONVERSIONS.size() > 0)
+    #foreach($ARGUMENT_CONVERSION in $ARGUMENT_CONVERSIONS)
+        $ARGUMENT_CONVERSION
+    #end
+    $BR
+#end
+        ${METHOD_INVOCATION}
+    }
+    $BR

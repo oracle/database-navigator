@@ -48,7 +48,7 @@ public class DBNTableGutter<T extends DBNTableWithGutter> extends JList implemen
     private final WeakRef<T> table;
 
     public DBNTableGutter(T table) {
-        super(table.getModel().getListModel());
+        super(table.getModel().getGutterModel());
         this.table = WeakRef.of(table);
         int rowHeight = table.getRowHeight();
         if (rowHeight != 0) setFixedCellHeight(rowHeight);
@@ -115,7 +115,7 @@ public class DBNTableGutter<T extends DBNTableWithGutter> extends JList implemen
 
         if (this.table != null) {
             // only after initialization
-            ListModel<?> delegate = getTable().getModel().getListModel();
+            ListModel<?> delegate = getTable().getModel().getGutterModel();
             if (delegate != null && delegate != current) {
                 setModel(delegate);
             }

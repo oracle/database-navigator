@@ -17,7 +17,6 @@
 package com.dbn.language.common.element;
 
 import com.dbn.common.index.IndexRegistry;
-import com.dbn.common.thread.Background;
 import com.dbn.common.util.Measured;
 import com.dbn.common.util.Unsafe;
 import com.dbn.language.common.DBLanguage;
@@ -37,7 +36,6 @@ import com.dbn.language.common.element.impl.SequenceElementType;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.impl.UnknownElementType;
 import com.dbn.language.common.element.impl.WrapperElementType;
-import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.element.util.ElementTypeDefinition;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.object.type.DBObjectType;
@@ -48,18 +46,19 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 
 import java.awt.datatransfer.StringSelection;
 import java.io.StringWriter;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Lists.forEach;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.ROOT;
 
 @Slf4j
 @Getter
@@ -79,8 +78,8 @@ public class ElementTypeBundle {
 
 
     private static class Builder {
-        private final Set<LeafElementType> leafElementTypes = new HashSet<>();
-        private final Set<ElementTypeBase> allElementTypes = new HashSet<>();
+        private final Set<LeafElementType> leafElementTypes = new LinkedHashSet<>();
+        private final Set<ElementTypeBase> rootElementTypes = new LinkedHashSet<>();
         private boolean rewriteIds;
     }
 
@@ -108,17 +107,9 @@ public class ElementTypeBundle {
                 createNamedElementType(child);
             }
 
-            NamedElementType unknown = namedElementTypes.get("custom_undefined");
-            for(NamedElementType namedElementType : namedElementTypes.values()){
-                if (!namedElementType.isDefinitionLoaded()) {
-                    namedElementType.update(unknown);
-                    log.warn("DBN - [{}] undefined element type: {}", this.languageDialect.getID(), namedElementType.getId());
-                }
-            }
-
-            for (LeafElementType leafElementType: builder.leafElementTypes) {
-                leafElementType.registerLeaf();
-            }
+            notifyMissingDefinitions();
+            registerLeafElements();
+            initializeRootElements();
 
             if (builder.rewriteIds) {
                 Unsafe.warned(() -> {
@@ -141,21 +132,29 @@ public class ElementTypeBundle {
                 });
             }
 
-            Set<ElementTypeBase> allElementTypes = builder.allElementTypes;
             builder = null;
-            Background.run(() -> Measured.run(
-                    "initializing element-type lookup cache for " + this.languageDialect.getID(),
-                    () -> {
-                        for (ElementTypeBase elementType : allElementTypes) {
-                            elementType.cache.initialize();
-                        }
-                    }));
-
-            //warnAmbiguousBranches();
         } catch (Exception e) {
             conditionallyLog(e);
             log.error("[DBN] Failed to build element-type bundle for {}", languageDialect.getID(), e);
         }
+    }
+
+    private void notifyMissingDefinitions() {
+        NamedElementType unknown = namedElementTypes.get("custom_undefined");
+        for(NamedElementType namedElementType : namedElementTypes.values()){
+            if (!namedElementType.isDefinitionLoaded()) {
+                namedElementType.update(unknown);
+                log.warn("DBN - [{}] undefined element type: {}", this.languageDialect.getID(), namedElementType.getId());
+            }
+        }
+    }
+
+    private void registerLeafElements() {
+        forEach(builder.leafElementTypes, e -> e.registerLeaf());
+    }
+
+    private void initializeRootElements() {
+        forEach(builder.rootElementTypes, e -> e.initialize());
     }
 
     public short nextIndex() {
@@ -172,7 +171,9 @@ public class ElementTypeBundle {
         String languageId = stringAttribute(def, "language");
         NamedElementType elementType = getNamedElementType(id, null);
         elementType.loadDefinition(def);
-        if (elementType.is(ElementTypeAttribute.ROOT)) {
+        registerElementType(elementType);
+
+        if (elementType.is(ROOT)) {
             DBLanguage language = DBLanguage.getLanguage(languageId);
             if (language == languageDialect.getBaseLanguage()) {
                 if (rootElementType == null) {
@@ -236,13 +237,12 @@ public class ElementTypeBundle {
             throw new ElementTypeDefinitionException("Could not resolve element definition '" + type + '\'');
         }
 
-        result.collectLeafElements(builder.leafElementTypes);
-        builder.allElementTypes.add(result);
+        result.collectAnonymousLeafs(builder.leafElementTypes);
+        registerElementType(result);
         return result;
     }
 
 
-    @NotNull
     public static DBObjectType resolveObjectType(String name) throws ElementTypeDefinitionException {
         DBObjectType objectType = DBObjectType.get(name);
         if (objectType == null)
@@ -262,14 +262,25 @@ public class ElementTypeBundle {
     }*/
 
     private NamedElementType getNamedElementType(String id, ElementTypeBase parent) {
-        NamedElementType elementType = namedElementTypes.computeIfAbsent(id, i -> {
-            NamedElementType namedElementType = new NamedElementType(this, i);
-            builder.allElementTypes.add(namedElementType);
-            return namedElementType;
-        });
+        NamedElementType elementType = namedElementTypes.computeIfAbsent(id,
+                i -> createNamedElementType(i));
 
-        if (parent != null) elementType.addParent(parent);
+        if (parent != null) {
+            elementType.parents.add(parent);
+        }
         return elementType;
+    }
+
+    private NamedElementType createNamedElementType(String id) {
+        NamedElementType namedElementType = new NamedElementType(this, id);
+        registerElementType(namedElementType);
+        return namedElementType;
+    }
+
+    private void registerElementType(ElementTypeBase elementType) {
+        if (elementType.is(ROOT)) {
+            builder.rootElementTypes.add(elementType);
+        }
     }
 
     public NamedElementType getNamedElementType(String id) {

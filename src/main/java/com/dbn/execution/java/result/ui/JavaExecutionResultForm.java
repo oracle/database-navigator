@@ -30,6 +30,7 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SessionId;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
+import com.dbn.execution.common.input.CodeBlocks;
 import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
@@ -55,6 +56,7 @@ import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.dbn.common.util.Commons.nvl;
 
@@ -159,42 +161,56 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         JavaExecutionInput executionInput = executionResult.getExecutionInput();
         Map<String, ExecutionValue<String>> inputValues = executionInput.getInputValues();
 
-        for (Map.Entry<String, ExecutionValue<String>> entry : inputValues.entrySet()) {
-            String key = entry.getKey();
-            ExecutionValue<String> value = entry.getValue();
+        DBJavaMethod method = executionResult.getMethod();
+        for (String parameterName : inputValues.keySet()) {
+            ExecutionValue<String> inputValue = inputValues.get(parameterName);
+            DBJavaParameter parameter = method.getParameter(parameterName);
+            if (parameter == null) continue;
 
-            if (value.isArrayObject()) {
-                List<String> elements = Data.arrayStringToList((String) value.getValue(), String.class);
-                ExecutionValue executionValue = new ExecutionValue<>(key, ValueHolder.basic(elements));
-                executionValue.setArrayObject(true);
+            String parameterValue = inputValue.getValue();
+            if (CodeBlocks.isCodeBlock(parameterValue)) {
+                DBNForm argumentForm = new JavaExecutionCodeResultForm(this, inputValue);
+                addDetailTab(parameter, argumentForm);
+                continue;
+            }
+
+            if (parameter.isArray()) {
+                List<String> elements = Data.arrayStringToList(parameterValue, String.class);
+                ExecutionValue executionValue = new ExecutionValue<>(parameterName, ValueHolder.basic(elements));
                 DBNForm argumentForm = new JavaExecutionArrayResultForm(this, executionValue);
-                addOutputTab(key, argumentForm);
+                addDetailTab(parameter, argumentForm);
+
             }
         }
     }
 
     private void addOutputArgumentTabs(JavaExecutionResult executionResult) {
         List<ExecutionValue> fieldValues = executionResult.getFieldValues();
+
+        DBJavaMethod method = executionResult.getMethod();
         for (ExecutionValue fieldValue : fieldValues) {
-            if (fieldValue.isArrayObject()) {
-                DBNForm argumentForm = new JavaExecutionArrayResultForm(this, fieldValue);
-                addOutputTab(fieldValue.getPath(), argumentForm);
-            }
-            DBJavaParameter parameter = null;  // TODO inputValue.getArgument();
+            String fieldPath = fieldValue.getPath();
+            DBJavaParameter parameter = method.getParameter(fieldPath);
             if (parameter == null) continue;
+
+            if (parameter.isArray()) {
+                DBNForm argumentForm = new JavaExecutionArrayResultForm(this, fieldValue);
+                addDetailTab(parameter, argumentForm);
+                continue;
+            }
 
             if (fieldValue.isCursor()) {
                 DBNForm argumentForm = new JavaExecutionCursorResultForm(this, executionResult, parameter);
-                addOutputTab(parameter, argumentForm);
+                addDetailTab(parameter, argumentForm);
 
             } else if (fieldValue.isLargeObject() || fieldValue.isLargeValue()) {
                 DBNForm argumentForm = new JavaExecutionLargeValueResultForm(this, parameter, fieldValue);
-                addOutputTab(parameter, argumentForm);
+                addDetailTab(parameter, argumentForm);
             }
         }
     }
 
-    private void addOutputTab(DBJavaParameter parameter, DBNForm form) {
+    private void addDetailTab(DBJavaParameter parameter, DBNForm form) {
         boolean select = outputTabs.getTabCount() == 0;
         String title = parameter.getName();
         JComponent component = form.getComponent();
@@ -204,26 +220,23 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         if (select) outputTabs.setSelectedIndex(0);
     }
 
-    private void addOutputTab(String parameter, DBNForm form) {
-        boolean select = outputTabs.getTabCount() == 0;
-        JComponent component = form.getComponent();
-        DBNTabs.initTabComponent(component, Icons.getIcon("DBO_ARGUMENT_IN_OUT"), null, form);
-
-        outputTabs.addTab(parameter, component);
-        if (select) outputTabs.setSelectedIndex(0);
-    }
-
     void selectArgumentOutputTab(DBJavaParameter parameter) {
         for (int index = 0; index < outputTabs.getTabCount(); index++) {
             DBNForm content = outputTabs.getContentAt(index);
 
+            if (content instanceof JavaExecutionResultDetailForm detailForm) {
+                if (Objects.equals(detailForm.getValuePath(), parameter.getName())) {
+                    outputTabs.setSelectedIndex(index);
+                    break;
+                }
+            }
             if (content instanceof JavaExecutionCursorResultForm cursorResultForm) {
-                if (cursorResultForm.getParameter().equals(parameter)) {
+                if (Objects.equals(cursorResultForm.getParameter(), parameter)) {
                     outputTabs.setSelectedIndex(index);
                     break;
                 }
             } else if (content instanceof JavaExecutionLargeValueResultForm largeValueResultForm) {
-                if (largeValueResultForm.getParameter().equals(parameter)) {
+                if (Objects.equals(largeValueResultForm.getParameter(), parameter)) {
                     outputTabs.setSelectedIndex(index);
                     break;
                 }

@@ -27,7 +27,7 @@ import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
-import com.dbn.data.editor.ui.UserValueHolderImpl;
+import com.dbn.execution.ExecutionInputMode;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
@@ -39,8 +39,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.event.DocumentListener;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.List;
 import java.util.Objects;
@@ -63,8 +63,6 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 	private JPanel inputFieldPanel;
 
 	private JTextField inputTextField;
-	private UserValueHolderImpl<String> userValueHolder;
-
 	private final DBObjectRef<DBJavaField> field;
 	private final List<JavaExecutionInputFieldForm> fieldForms = DisposableContainers.list(this);
 
@@ -73,16 +71,36 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 	JavaExecutionInputFieldForm(DBNForm parentForm, DBJavaField field) {
 		super(parentForm);
 		this.field = DBObjectRef.of(field);
+		this.fieldPath = buildFieldPath();
+
+		intiFieldLabel();
+		initFieldTypeLabel();
+
+		initPlainField();
+		initClassField();
+	}
+
+	private void intiFieldLabel() {
+		DBJavaField field = getField();
 		fieldLabel.setText(field.getName());
 		//fieldLabel.setIcon(field.getIcon());
 		fieldLabel.setBorder(Borders.insetBorder(4, computeIndent(), 4, 0));
-		fieldPath = buildFieldPath();
+	}
 
-		if (field.isScalar()) {
-			initPlainField();
+	private void initFieldTypeLabel() {
+		DBJavaField field = getField();
+
+		if (field.isClass()) {
+			DBObjectRef<DBJavaClass> javaClass = field.getJavaClassRef();
+			String className = getCanonicalName(javaClass);
+			fieldTypeLabel.setText(className);
+			fieldTypeLabel.setIcon(/*field.getFieldClass().getIcon()*/Icons.DBO_JAVA_CLASS); // TODO do not force loading the field class
 		} else {
-			initClassField();
+			String javaClassName = field.getJavaClassName();
+			fieldTypeLabel.setText(javaClassName);
 		}
+
+		fieldTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 	}
 
 	@Override
@@ -126,23 +144,13 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 
 	private void initPlainField() {
 		DBJavaField field = getField();
+		if (!field.isScalar()) return;
 
-		if (field.isClass()) {
-			DBObjectRef<DBJavaClass> javaClass = field.getJavaClassRef();
-			String className = getCanonicalName(javaClass);
-			fieldTypeLabel.setText(className);
-			fieldTypeLabel.setIcon(/*field.getFieldClass().getIcon()*/Icons.DBO_JAVA_CLASS); // TODO do not force loading the field class
-		} else {
-			String javaClassName = field.getJavaClassName();
-			fieldTypeLabel.setText(javaClassName);
-		}
-
-		fieldTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 		fieldsPanel.setVisible(false);
 
 		Project project = field.getProject();
 		JavaExecutionInput executionInput = getExecutionInput();
-		String value = executionInput.ensureInputValue(fieldPath);
+		String value = executionInput.getInputValue(fieldPath, ExecutionInputMode.FIELDS);
 
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
@@ -160,18 +168,12 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 
 	private void initClassField() {
 		DBJavaField field = getField();
-		DBObjectRef<DBJavaClass> fieldClass = field.getJavaClassRef();
+		if (field.isScalar()) return;
 
-		DBJavaClass javaClass = field.getJavaClass();
-		fieldTypeLabel.setText("");
-		fieldTypeLabel.setVisible(false);
-
-		JLabel classLabel = new JLabel(getCanonicalName(fieldClass));
-		classLabel.setIcon(javaClass == null ? Icons.DBO_JAVA_CLASS : javaClass.getIcon());
-		classLabel.setForeground(UIUtil.getInactiveTextColor());
-		inputFieldPanel.add(classLabel, BorderLayout.WEST);
+		moveTypeLabel();
 
 		verticalBoxLayout(fieldsPanel);
+		DBJavaClass javaClass = field.getJavaClass();
 		List<DBJavaField> fields = javaClass == null ? emptyList() : javaClass.getFields();
 		fields = sortedCopy(fields, POSITION_COMPARATOR);
 
@@ -180,6 +182,21 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 		// TODO what about indirect reference chains? (e.g. Node references Path, while Path references Node)
 		fields = filter(fields, f -> !Objects.equals(f.getJavaClass(), javaClass));
 		fields.forEach(f -> addFieldPanel(f));
+	}
+
+	private void moveTypeLabel() {
+		// alternative location of field-type label for non-scalar fields
+		JLabel typeLabel = new JLabel(
+				fieldTypeLabel.getText(),
+				fieldTypeLabel.getIcon(),
+				SwingConstants.LEFT);
+		typeLabel.setForeground(fieldTypeLabel.getForeground());
+		typeLabel.setBorder(Borders.insetBorder(4, 0, 4, 0));
+		inputFieldPanel.add(typeLabel);
+
+		fieldTypeLabel.setVisible(false);
+		//fieldTypeLabel.setText("");
+		//fieldTypeLabel.setIcon(null);
 	}
 
 	@NotNull
@@ -228,17 +245,21 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 
 		if (fieldForms.isEmpty()) {
 			JavaExecutionInput executionInput = getExecutionInput();
-			if (userValueHolder != null) {
-				String value = userValueHolder.getUserValue();
-				executionInput.setInputValue(fieldPath, value);
-			} else {
-				String value = Commons.nullIfEmpty(getText(inputTextField));
-				executionInput.setInputValue(fieldPath, value);
-			}
+			String value = Commons.nullIfEmpty(getText(inputTextField));
+			executionInput.setInputValue(fieldPath, value);
 		} else {
 			fieldForms.forEach(f -> f.updateExecutionInput());
 		}
     }
+
+	public void removeExecutionInput() {
+		if (fieldForms.isEmpty()) {
+			JavaExecutionInput executionInput = getExecutionInput();
+			executionInput.removeInput(fieldPath);
+		} else{
+			fieldForms.forEach(f -> f.removeExecutionInput());
+		}
+	}
 
 	public void addDocumentListener(DocumentListener documentListener) {
 		TextFields.addDocumentListener(inputTextField, documentListener);

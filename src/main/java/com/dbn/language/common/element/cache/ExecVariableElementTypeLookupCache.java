@@ -18,9 +18,9 @@ package com.dbn.language.common.element.cache;
 
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.impl.ExecVariableElementType;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class ExecVariableElementTypeLookupCache extends LeafElementTypeLookupCache<ExecVariableElementType>{
@@ -38,16 +38,6 @@ public class ExecVariableElementTypeLookupCache extends LeafElementTypeLookupCac
         return tokenType.isVariable();
     }
 
-
-    @Override
-    public Set<TokenType> getFirstPossibleTokens() {
-        Set<TokenType> firstPossibleTokens = new HashSet<>(1);
-        SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
-        TokenType variable = sharedTokenTypes.getVariable();
-        firstPossibleTokens.add(variable);
-        return firstPossibleTokens;
-    }
-
     @Override
     public void captureFirstPossibleTokens(Set<TokenType> bucket) {
         bucket.add(getSharedTokenTypes().getVariable());
@@ -60,7 +50,7 @@ public class ExecVariableElementTypeLookupCache extends LeafElementTypeLookupCac
     }
 
     @Override
-    public boolean startsWithIdentifier() {
-        return false;
+    public boolean startsWith(TokenTypeCategory typeCategory) {
+        return typeCategory == TokenTypeCategory.VARIABLE;
     }
 }

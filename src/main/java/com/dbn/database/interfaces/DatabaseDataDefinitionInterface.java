@@ -37,6 +37,8 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     boolean includesTypeAndNameInSourceContent(DatabaseObjectTypeId objectTypeId);
 
+    String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
+
     /*********************************************************
      *                   CREATE statements                   *
      *********************************************************/
