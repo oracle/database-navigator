@@ -41,7 +41,6 @@ import java.util.Set;
 
 import static com.dbn.common.Linked.linkElements;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.util.Unsafe.cast;
 
 public class SequenceElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
@@ -222,7 +221,7 @@ public class SequenceElementType extends ElementTypeBase {
         if (!basic) return;
 
         for (ElementTypeRef child : children) {
-            bucket.add(cast(child.elementType));
+            bucket.add((LeafElementType) child.elementType);
         }
     }
 

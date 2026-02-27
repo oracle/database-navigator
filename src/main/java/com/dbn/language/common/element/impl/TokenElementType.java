@@ -126,18 +126,23 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
         if (surrogatedBy != null) {
             Set<LeafElementType> candidates = null;
             for (LeafElementType surrogatedByElement : surrogatedBy) {
-                SurrogateSequenceElementType surrogateSequence = (SurrogateSequenceElementType) surrogatedByElement.parent;
-                ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
-                candidates = surrogatedElement.cache.captureSurrogateSuccessors(surrogatedByElement, candidates);
+                SurrogateSequenceElementType surrogateSequence = surrogatedByElement.findParent(SurrogateSequenceElementType.class);
+                if (surrogateSequence != null) {
+                    ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
+                    candidates = surrogatedElement.cache.captureSurrogateSuccessors(surrogatedByElement, candidates);
+                }
             }
 
             if (candidates != null) return candidates;
         }
 
         if (surrogateFor != null) {
-            SurrogateSequenceElementType surrogateSequence = (SurrogateSequenceElementType) parent;
-            ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
-            Set<LeafElementType> candidates = surrogatedElement.cache.captureSurrogateSuccessors(this, null);
+            Set<LeafElementType> candidates = null;
+            SurrogateSequenceElementType surrogateSequence = findParent(SurrogateSequenceElementType.class);
+            if (surrogateSequence != null) {
+                ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
+                candidates = surrogatedElement.cache.captureSurrogateSuccessors(this, null);
+            }
 
             if (candidates != null) return candidates;
         }
