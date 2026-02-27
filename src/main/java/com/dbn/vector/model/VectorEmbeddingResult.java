@@ -4,6 +4,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.vector.model.request.EmbeddingSource;
 import com.dbn.vector.model.request.EmbeddingSourceConfig;
+import com.dbn.vector.model.request.EmbeddingSourceType;
 import com.dbn.vector.model.result.EmbeddingFileResult;
 import com.dbn.vector.model.result.EmbeddingQueryResult;
 import com.dbn.vector.model.result.EmbeddingResult;
@@ -14,6 +15,7 @@ import com.dbn.vector.model.result.StepResult;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -27,6 +29,10 @@ import static com.dbn.common.util.Unsafe.cast;
 public class VectorEmbeddingResult {
     private final VectorEmbeddingRequest request;
     private final Map<String, EmbeddingResult> results = new LinkedHashMap<>();
+
+    public EmbeddingSourceType getSourceType() {
+        return request.getSourceConfig().getSourceType();
+    }
 
     public enum Status {RUNNING, SUCCESS, PARTIAL, FAILED}
 
@@ -99,8 +105,8 @@ public class VectorEmbeddingResult {
         return results.values().stream().filter(f -> f.getStatus() == SourceStatus.SUCCESS).count();
     }
 
-    public long getDuration() {
-        return results.values().stream().mapToLong(EmbeddingResult::getDurationMs).sum();
+    public Duration getDuration() {
+        return Duration.ofMillis(results.values().stream().mapToLong(r -> r.getDuration().toMillis()).sum());
     }
 
     public long getTotalInsertedRows() {

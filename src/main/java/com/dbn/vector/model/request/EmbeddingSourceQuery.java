@@ -61,7 +61,7 @@ public class EmbeddingSourceQuery implements EmbeddingSource, PersistentStateEle
     public void readState(Element element) {
         if (element == null) return;
 
-        identifier = stringAttribute(element, "identifier");
+        identifier = stringAttribute(element, "identifier", identifier);
         schemaName = stringAttribute(element, "schema");
         selectStatement = readCdata(element);
     }

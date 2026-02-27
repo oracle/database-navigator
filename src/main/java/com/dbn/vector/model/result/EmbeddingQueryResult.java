@@ -16,12 +16,24 @@
 
 package com.dbn.vector.model.result;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.vector.model.request.EmbeddingSourceQuery;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.Icon;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class EmbeddingQueryResult extends EmbeddingResult<EmbeddingSourceQuery> {
     public EmbeddingQueryResult(EmbeddingSourceQuery source) {
         super(source);
+        initSteps();
+    }
+
+    private void initSteps() {
+        setSteps(new ArrayList<>(Arrays.asList(
+                new StepResult(PipelineStep.EMBED)
+        )));
     }
 
     @Override
@@ -35,8 +47,19 @@ public class EmbeddingQueryResult extends EmbeddingResult<EmbeddingSourceQuery> 
     }
 
     @Override
-    public @NotNull String getName() {
-        return "";
+    public String getName() {
+        return getSource().getSelectStatementPreview();
+    }
+
+    @Nullable
+    @Override
+    public Icon getIcon() {
+        return Icons.FILE_SQL;
+    }
+
+    @Override
+    public String getTooltip() {
+        return getSource().getSelectStatement();
     }
 
     public String getSelectStatement() {

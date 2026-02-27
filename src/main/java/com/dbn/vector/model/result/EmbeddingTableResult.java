@@ -36,11 +36,6 @@ import java.util.Arrays;
 @Setter
 public class EmbeddingTableResult extends EmbeddingResult<EmbeddingSourceTable> {
     private DBObjectRef<DBTable> table;
-    private long rowsScanned;      // number of source rows visited
-    private int batchSize;         // batch size used for embedding
-    private long rowsFailed;
-    private String firstKey;    // optional checkpoint keys
-    private String lastKey;
 
     public EmbeddingTableResult(EmbeddingSourceTable source, ConnectionId connectionId) {
         super(source);

@@ -78,6 +78,11 @@ public class EmbeddingFileResult extends EmbeddingResult<EmbeddingFileSource> {
     }
 
     @Override
+    public String getTooltip() {
+        return getSource().getFilePath();
+    }
+
+    @Override
     public String getIdentifier() {
         return getFile().getPath();
     }

@@ -216,14 +216,14 @@
                         {#8},
                         json_object(
                             key 'embedding_id' value json_value(t.COLUMN_VALUE, '$.embed_id' returning varchar2(50)),
-                            key 'embedding_source' value json_object('source_hash' VALUE standard_hash(src.TEXT, 'SHA256'))
+                            key 'embedding_source' value json_object('source_hash' VALUE rawtohex(standard_hash(src.TEXT, 'SHA256')))
                         ) returning varchar2
                     )
                 from (
-                    select 1 as TEXT from ({5}) s
+                    select TEXT from ({5}) s
                     where not exists (
                         select 1 from {0}.{1} t
-                        where json_value(t.{4}, '$.embedding_source.source_hash') = standard_hash(s.TEXT, 'SHA256')
+                        where json_value(t.{4}, '$.embedding_source.source_hash') = rawtohex(standard_hash(s.TEXT, 'SHA256'))
                     )
                     fetch first {9} rows only
                 ) src,

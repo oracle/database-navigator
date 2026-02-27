@@ -17,9 +17,11 @@
 package com.dbn.vector.ui.result;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Naming;
+import com.dbn.common.util.TimeUtil;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
@@ -33,6 +35,7 @@ import com.dbn.vector.model.result.SourceStatus;
 import com.dbn.vector.model.result.StepResult;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.ui.SimpleColoredComponent;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,7 +52,6 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 
 public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<VectorEmbeddingExecutionResult> {
-  private final VectorEmbeddingResult result;
   private JPanel mainPanel;
   private JPanel headerPanel;
   private JPanel sourceDataPanel;
@@ -59,14 +61,16 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
   private JLabel titleLabel;
   private JLabel statusBadge;
   private JPanel metricsPanel;
-  private com.intellij.ui.SimpleColoredComponent metricsComponents;
   private JPanel pipelinePanel;
   private JPanel pipelineHeaderPanel;
   private JSplitPane contentSplitPane;
-  private com.dbn.common.ui.link.DBNHyperlinkLabel sourceName;
   private JPanel sourceStatusPanel;
   private JPanel actionsPanel;
-  private VectorEmbeddingSourcesTable sourceDataTable;
+  private SimpleColoredComponent metricsComponents;
+  private DBNHyperlinkLabel sourceName;
+  private VectorEmbeddingResultsTable sourceDataTable;
+
+  private final VectorEmbeddingResult result;
 
   public VectorEmbeddingExecutionResultForm(@NotNull VectorEmbeddingExecutionResult executionResult) {
     super(executionResult);
@@ -111,7 +115,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     statusBadge.setText("");
 
     metricsComponents.append("Duration: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-    metricsComponents.append(String.format("%.1f",(double)result.getDuration()/1000)+"s", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+    metricsComponents.append(TimeUtil.presentableDuration(result.getDuration(), true), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
     metricsComponents.append(" • ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
     metricsComponents.append("Total Rows: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
     metricsComponents.append(String.valueOf(result.getTotalInsertedRows()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
@@ -126,8 +130,8 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
 
   private void initializeTable() {
 
-    VectorEmbeddingSourcesTableModel sourceDataModel = new VectorEmbeddingSourcesTableModel(result.getResults());
-    sourceDataTable = new VectorEmbeddingSourcesTable(this, sourceDataModel);
+    VectorEmbeddingResultsTableModel sourceDataModel = new VectorEmbeddingResultsTableModel(result);
+    sourceDataTable = new VectorEmbeddingResultsTable(this, sourceDataModel);
     sourceDataScrollPane.setViewportView(sourceDataTable);
 
     // Add selection listener to handle row selection and show pipeline/details
@@ -138,8 +142,8 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
         if (viewRow < 0) return;
 
         int modelRow = sourceDataTable.convertRowIndexToModel(viewRow);
-        VectorEmbeddingSourcesTableModel model = sourceDataTable.getModel();
-        EmbeddingResult sr = model.getEmbeddingResults().get(modelRow);
+        VectorEmbeddingResultsTableModel model = sourceDataTable.getModel();
+        EmbeddingResult sr = model.getData(modelRow);
         String sourceN = Naming.shortenFileName(sr.getName(), 50);
 
         // Update source name and icon
@@ -256,7 +260,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     if (viewRow < 0) return null;
 
     int modelRow = sourceDataTable.convertRowIndexToModel(viewRow);
-    VectorEmbeddingSourcesTableModel model = sourceDataTable.getModel();
-    return model.getEmbeddingResults().get(modelRow);
+    VectorEmbeddingResultsTableModel model = sourceDataTable.getModel();
+    return model.getData(modelRow);
   }
 }

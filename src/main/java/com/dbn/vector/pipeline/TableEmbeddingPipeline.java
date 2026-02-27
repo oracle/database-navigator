@@ -14,8 +14,8 @@ import com.dbn.vector.service.TableProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.SQLException;
-
+import static com.dbn.connection.Resources.commit;
+import static com.dbn.connection.Resources.rollbackSilently;
 import static com.dbn.vector.model.result.PipelineStep.ENSURE_DOCUMENT_TABLE;
 
 
@@ -28,7 +28,7 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
     protected void executeSourceSpecificPipeline(
             @NotNull VectorEmbeddingContext context,
             @NotNull VectorEmbeddingRequest request,
-            @NotNull VectorEmbeddingResult result) throws Exception {
+            @NotNull VectorEmbeddingResult result) {
 
         // remove the PREPARE_DOCUMENT_STORE step from shared steps
         result.deleteStepFfromShared(ENSURE_DOCUMENT_TABLE);
@@ -42,10 +42,7 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
             context.getProgressIndicator().setText2("Processing table " + tableResult.getName());
 
             // Execute the embedding with batching
-            embedTableDataInBatches(
-                    context, request,
-                    tableResult
-            );
+            embedTableDataInBatches(context, request, tableResult);
         }
 
     }
@@ -57,60 +54,54 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
     private void embedTableDataInBatches(
             @NotNull VectorEmbeddingContext context,
             @NotNull VectorEmbeddingRequest request,
-            @NotNull EmbeddingTableResult result) throws SQLException {
+            @NotNull EmbeddingTableResult result) {
 
         StepResult embedStep = result.startStep(PipelineStep.EMBED);
         DBNConnection connection = context.getConnection();
         ProgressIndicator progressIndicator = context.getProgressIndicator();
 
         try {
-            int totalProcessed = 0;
-            int batchCount;
+            int totalRowsEmbedded = 0;
             int batchNumber = 0;
 
             connection.setAutoCommit(false);
-            do {
-                // Check for cancellation
-                if (progressIndicator.isCanceled()) {
-                    break;
-                }
+            while (true) {
+                if (progressIndicator.isCanceled()) break;
 
                 batchNumber++;
-                progressIndicator.setText2("Processing table " + result.getName() + " (batch " + batchNumber + " / rows embedded " + totalProcessed + ")");
+                progressIndicator.setText2("Processing table " + result.getName() + " (batch " + batchNumber + " / rows embedded " + totalRowsEmbedded + ")");
 
                 // Process one batch
                 DatabaseVectorInterface vectorInterface = request.getConnection().getVectorInterface();
-                batchCount = vectorInterface.embedTableContent(
+                int rowsEmbedded = vectorInterface.embedTableContent(
                         connection,
                         result.getSource(),
                         request.getChunkConfig().getConfigJson(),
                         request.getModelConfig().getConfigJson(),
                         request.getDestinationConfig(),
                         result.getMetadata(),
-                        DEFAULT_BATCH_SIZE
-                );
+                        DEFAULT_BATCH_SIZE);
 
                 // Commit after each batch - this is the recovery point
-                connection.commit();
+                commit(connection);
 
-                totalProcessed += batchCount;
-
-            } while (batchCount > 0);
+                totalRowsEmbedded += rowsEmbedded;
+                if (rowsEmbedded == 0) break;
+            }
 
             if (progressIndicator.isCanceled()) {
                 embedStep.markSuccess();
-                result.finishSuccess(totalProcessed);
+                result.finishSuccess(totalRowsEmbedded);
             } else {
                 embedStep.markSuccess();
-                result.finishSuccess(totalProcessed);
+                result.finishSuccess(totalRowsEmbedded);
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             // Rollback only the current failed batch
-            connection.rollback();
+            rollbackSilently(connection);
             embedStep.markFailed("EMBED_ERROR", e.getMessage());
             result.finishFailed("EMBED_ERROR", e.getMessage());
-            throw e;
         }
     }
 }

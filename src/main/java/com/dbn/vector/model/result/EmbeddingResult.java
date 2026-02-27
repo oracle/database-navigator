@@ -21,6 +21,7 @@ import com.dbn.vector.model.request.EmbeddingSource;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Duration;
 import java.util.List;
 
 @Getter
@@ -31,7 +32,7 @@ public abstract class EmbeddingResult<T extends EmbeddingSource> implements Pres
     private SourceStatus status = SourceStatus.FAILED;
     private List<StepResult> steps;
     private long rowsInserted = 0L;
-    private long durationMs = 0L;
+    private Duration duration;
     private String displayName;
     private String metadata;
 
@@ -70,7 +71,7 @@ public abstract class EmbeddingResult<T extends EmbeddingSource> implements Pres
     }
 
     public void finishFailed(String errorCode, String errorMessage) {
-        this.durationMs = steps.stream().mapToLong(StepResult::getDuration).sum();
+        this.duration = Duration.ofMillis(steps.stream().mapToLong(StepResult::getDuration).sum());
         this.status = SourceStatus.FAILED;
         //todo clean up??
     }
@@ -85,7 +86,11 @@ public abstract class EmbeddingResult<T extends EmbeddingSource> implements Pres
 
     public void finishSuccess(long rowsInserted) {
         this.rowsInserted = rowsInserted;
-        this.durationMs = steps.stream().mapToLong(StepResult::getDuration).sum();
+        this.duration = Duration.ofMillis(steps.stream().mapToLong(StepResult::getDuration).sum());
         this.status = SourceStatus.SUCCESS;
+    }
+
+    public String getTooltip() {
+        return null;
     }
 }
