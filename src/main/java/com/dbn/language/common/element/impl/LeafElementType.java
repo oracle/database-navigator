@@ -36,12 +36,19 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.dbn.language.common.element.impl.ElementTypeCache.getUnwrappedFirstPossibleLeafs;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
+import static java.util.Collections.disjoint;
 
 public abstract class LeafElementType extends ElementTypeBase implements Indexable {
     public TokenType tokenType;
+
     public boolean optional;
     private final int idx;
+
+    public Set<LeafElementType> surrogateFor;
+    public Set<LeafElementType> surrogatedBy;
 
     LeafElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -49,10 +56,21 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
         bundle.registerElement(this);
     }
 
-    LeafElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, String description) {
-        super(bundle, parent, id, description);
+    LeafElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id) {
+        super(bundle, parent, id);
         idx = bundle.nextIndex();
         bundle.registerElement(this);
+    }
+
+    public boolean isSurrogateFor(ElementTypeBase elementType) {
+        if (surrogateFor == null) return false;
+
+        if (elementType instanceof LeafElementType leafElementType && !leafElementType.is(SURROGATE_LEAD)) {
+            return surrogateFor.contains(leafElementType);
+        }
+
+        Set<LeafElementType> firstPossibleLeafs = getUnwrappedFirstPossibleLeafs(elementType);
+        return !disjoint(surrogateFor, firstPossibleLeafs);
     }
 
     @Override
@@ -63,6 +81,12 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
     public void registerLeaf() {
         parent.cache.registerLeaf(this, this);
     }
+
+    @Override
+    public TokenType getTokenType() {
+        return tokenType;
+    }
+
 
     public abstract boolean isSameAs(LeafElementType elementType);
 
@@ -116,11 +140,11 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                 TokenElementType[] separatorTokens = iterationElementType.separatorTokens;
                 if (separatorTokens != null) possibleLeafs.addAll(Arrays.asList(separatorTokens));
 
-                ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElementType.cache;
+                ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElement.cache;
                 lookupCache.captureFirstPossibleLeafs(context.reset(), possibleLeafs);
 
             } else if (elementType instanceof QualifiedIdentifierElementType qualifiedIdentifierElementType) {
-                if (this == qualifiedIdentifierElementType.getSeparatorToken()) break;
+                if (this == qualifiedIdentifierElementType.separatorToken) break;
 
             } else if (elementType instanceof ChameleonElementType chameleonElementType) {
                 ElementTypeBundle elementTypeBundle = chameleonElementType.getParentLanguage().getParserDefinition().getParser().getElementTypes();
@@ -138,24 +162,24 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
         return possibleLeafs;
     }
 
-    public boolean isNextPossibleToken(TokenType tokenType, ParserNode pathNode, ParserContext context) {
-        return isNextToken(tokenType, pathNode, context, false);
+    public boolean isNextPossibleToken(TokenType tokenType, ParserNode pathNode) {
+        return isNextToken(tokenType, pathNode, false);
     }
 
-    public boolean isNextRequiredToken(TokenType tokenType, ParserNode pathNode, ParserContext context) {
-        return isNextToken(tokenType, pathNode, context, true);
+    public boolean isNextRequiredToken(TokenType tokenType, ParserNode pathNode) {
+        return isNextToken(tokenType, pathNode, true);
     }
 
-    private boolean isNextToken(TokenType tokenType, ParserNode pathNode, ParserContext context, boolean required) {
-        int position = -1;
+    private boolean isNextToken(TokenType tokenType, ParserNode pathNode, boolean required) {
+        int index = -1;
         while (pathNode != null) {
             ElementType elementType = pathNode.element;
 
             if (elementType instanceof SequenceElementType sequenceElementType) {
 
                 int elementsCount = sequenceElementType.children.length;
-                if (position == -1) {
-                    position = pathNode.cursorPosition + 1;
+                if (index == -1) {
+                    index = pathNode.elementIndex + 1;
                 }
 
                 //int position = sequenceElementType.indexOf(this) + 1;
@@ -165,8 +189,8 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                     position++;
                 }
 */
-                if (position < elementsCount) {
-                    ElementTypeRef element = sequenceElementType.children[position];
+                if (index < elementsCount) {
+                    ElementTypeRef element = sequenceElementType.children[index];
                     while (element != null) {
                         ElementTypeLookupCache lookupCache = element.elementType.cache;
                         if (required) {
@@ -188,7 +212,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
             } else if (elementType instanceof IterationElementType iterationElementType) {
                 TokenElementType[] separatorTokens = iterationElementType.separatorTokens;
                 if (separatorTokens == null) {
-                    ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElementType.cache;
+                    ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElement.cache;
                     if (required ?
                             lookupCache.isFirstRequiredToken(tokenType) :
                             lookupCache.isFirstPossibleToken(tokenType)) {
@@ -196,14 +220,23 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                     }
                 }
             } else if (elementType instanceof QualifiedIdentifierElementType qualifiedIdentifierElementType) {
-                if (this == qualifiedIdentifierElementType.getSeparatorToken()) {
+                if (this == qualifiedIdentifierElementType.separatorToken) {
                     break;
                 }
-            } else if (elementType instanceof WrapperElementType wrapperElementType) {
+            }
+
+            if (elementType instanceof WrapperElementType wrapperElementType) {
                 return wrapperElementType.getEndTokenElement().tokenType == tokenType;
             }
 
-            position = pathNode.getIndexInParent() + 1;
+            if (elementType instanceof OneOfElementType oneOfElementType && !required) {
+                ElementTypeLookupCache<?> lookupCache = oneOfElementType.cache;
+                if (lookupCache.isFirstPossibleToken(tokenType)) {
+                    return true;
+                }
+            }
+
+            index = pathNode.getIndexInParent() + 1;
             pathNode = (ParserNode) pathNode.parent;
         }
         return false;
@@ -240,8 +273,8 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
     }
 
     @Override
-    public void collectLeafElements(Set<LeafElementType> bucket) {
-        super.collectLeafElements(bucket);
+    public void collectAnonymousLeafs(Set<LeafElementType> bucket) {
+        super.collectAnonymousLeafs(bucket);
         bucket.add(this);
     }
 }

@@ -46,11 +46,11 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
     private final IElementType dataType;
 
     private static final Set<String> GENERIC_TOKENS = new HashSet<>(Arrays.asList("INTEGER", "NUMBER", "STRING", "OPERATOR", "KEYWORD", "FUNCTION", "VARIABLE", "PARAMETER", "EXCEPTION", "DATA_TYPE"));
+    private final Set<String> undefinedTokens = new HashSet<>();
 
     public TokenTypeBundle(DBLanguageDialect languageDialect, Document document) {
         super(languageDialect, document);
         this.baseLanguage = languageDialect.getBaseLanguage();
-        initIndex(getSharedTokenTypes().size());
 
         this.integer   = getTokenType("INTEGER");
         this.number    = getTokenType("NUMBER");
@@ -64,9 +64,15 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
         this.dataType  = getTokenType("DATA_TYPE");
     }
 
-    public TokenType getTokenType(short index) {
+    @Override
+    protected int getInitialIndex() {
+        DBLanguage baseLanguage = getLanguageDialect().getBaseLanguage();
+        return baseLanguage.getSharedTokenTypes().size();
+    }
+
+    public TokenType getTokenType(int index) {
         TokenType tokenType = super.getTokenType(index);
-        if (tokenType == null ){
+        if (tokenType == null) {
             return getSharedTokenTypes().getTokenType(index);
         }
         return tokenType;
@@ -99,7 +105,8 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
         if (tokenType != null) return tokenType;
 
 
-        if (!GENERIC_TOKENS.contains(id)) {
+        if (!GENERIC_TOKENS.contains(id) && !undefinedTokens.contains(id)) {
+            undefinedTokens.add(id);
             log.warn("DBN - [{}] undefined token type: {}", getLanguage().getID(), id);
         }
         //log.info("[DBN-WARNING] Undefined token type: " + id);

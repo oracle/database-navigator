@@ -21,10 +21,9 @@ import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.Set;
 
-public abstract class LeafElementTypeLookupCache<T extends LeafElementType> extends ElementTypeLookupCache<T> {
+public abstract class LeafElementTypeLookupCache<T extends LeafElementType> extends ElementTypeLookupCacheBase<T> {
     public LeafElementTypeLookupCache(T elementType) {
         super(elementType);
     }
@@ -32,17 +31,17 @@ public abstract class LeafElementTypeLookupCache<T extends LeafElementType> exte
     @Override
     @Deprecated
     public boolean couldStartWithLeaf(LeafElementType elementType) {
-        return this.elementType == elementType;
+        return this.element == elementType;
     }
 
     @Override
     public boolean shouldStartWithLeaf(LeafElementType elementType) {
-        return this.elementType == elementType;
+        return this.element == elementType;
     }
 
     @Override
     public Set<LeafElementType> getFirstPossibleLeafs() {
-        return Collections.singleton(elementType);
+        return Set.of(element);
     }
 
     @Override
@@ -51,29 +50,29 @@ public abstract class LeafElementTypeLookupCache<T extends LeafElementType> exte
     }
 
     @Override
-    public boolean isFirstPossibleLeaf(LeafElementType elementType) {
-        return this.elementType == elementType;
+    public Set<TokenType> getAllPossibleTokens() {
+        return Set.of(element.tokenType);
     }
 
     @Override
-    public boolean isFirstRequiredLeaf(LeafElementType elementType) {
-        return isFirstPossibleLeaf(elementType);
+    public Set<TokenType> getFirstPossibleTokens() {
+        return getAllPossibleTokens();
     }
 
     @Override
     public Set<TokenType> getFirstRequiredTokens() {
-        return getFirstPossibleTokens();
+        return getAllPossibleTokens();
     }
 
     @Override
     public boolean couldStartWithToken(TokenType tokenType) {
-        return elementType.tokenType == tokenType;
+        return element.tokenType == tokenType;
     }
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, @Nullable Set<LeafElementType> bucket) {
         bucket = initBucket(bucket);
-        bucket.add(elementType);
+        bucket.add(element);
         return bucket;
     }
 
@@ -82,11 +81,6 @@ public abstract class LeafElementTypeLookupCache<T extends LeafElementType> exte
         bucket = initBucket(bucket);
         captureFirstPossibleTokens(bucket);
         return bucket;
-    }
-
-    @Override
-    public boolean containsLeaf(LeafElementType elementType) {
-        return this.elementType == elementType;
     }
 
     @Override

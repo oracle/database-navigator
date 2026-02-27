@@ -25,6 +25,7 @@ import com.dbn.common.thread.Read;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Files;
 import com.dbn.common.util.Lists;
+import com.dbn.common.util.Strings;
 import com.dbn.diagnostics.data.DiagnosticCategory;
 import com.dbn.diagnostics.data.ParserDiagnosticsFilter;
 import com.dbn.diagnostics.data.ParserDiagnosticsResult;
@@ -106,7 +107,8 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
 
                 progress.checkCanceled();
                 progress.setText("Running parser diagnostics (" + i + " / " + files.length + " files)");
-                progress.setText2(Files.convertToRelativePath(project, filePath));
+                String relativeFilePath = Files.convertToRelativePath(project, filePath);
+                progress.setText2(Strings.middleEllipsis(relativeFilePath, 80));
                 progress.setFraction(progressOf(i, files.length));
 
                 DBLanguagePsiFile psiFile = ensureFileParsed(file);

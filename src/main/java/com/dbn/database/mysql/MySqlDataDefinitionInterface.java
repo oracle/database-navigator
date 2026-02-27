@@ -21,6 +21,8 @@ import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.Resources;
+import com.dbn.connection.ResultSets;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
@@ -36,7 +38,9 @@ import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBConstraintType;
 import com.intellij.openapi.project.Project;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.common.util.Strings.isEmpty;
@@ -100,6 +104,25 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
     public void setSessionSqlMode(String sqlMode, DBNConnection connection) throws SQLException {
         if (sqlMode != null) {
             executeCall(connection, null, "set-session-sql-mode", sqlMode);
+        }
+    }
+
+    @Override
+    public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
+        ResultSet resultSet = null;
+        try {
+            resultSet = executeQuery(connection, "extract-ddl-statement", objectType, ownerName, objectName);
+            resultSet.next();
+            List<String> columnNames = ResultSets.getColumnNames(resultSet);
+            for (String columnName : columnNames) {
+                if (columnName.equalsIgnoreCase("create " + objectType)) {
+                    return resultSet.getString(columnName);
+                }
+
+            }
+            throw new SQLException("Cannot extract DDL statement");
+        } finally {
+            Resources.close(resultSet);
         }
     }
 

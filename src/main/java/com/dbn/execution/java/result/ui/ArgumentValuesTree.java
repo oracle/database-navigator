@@ -21,13 +21,13 @@ import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.util.TextAttributes;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
 import com.dbn.execution.common.input.ExecutionValue;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import java.awt.Color;
-import java.sql.ResultSet;
 import java.util.List;
 
 class ArgumentValuesTree extends DBNTree{
@@ -60,13 +60,14 @@ class ArgumentValuesTree extends DBNTree{
 
             Object userValue = treeNode.getValue();
             if (userValue instanceof ExecutionValue fieldValue) {
-                DBJavaParameter argument = null; // TODO inputValue.getArgument();
-                if (argument == null) return;
+                JavaExecutionResultForm resultForm = getParentForm();
+                DBJavaMethod method = resultForm.getMethod();
+                if (method == null) return;
 
-                Object value = fieldValue.getValue();
-                if (value instanceof ResultSet || fieldValue.isLargeObject() || fieldValue.isLargeValue()) {
-                    getParentForm().selectArgumentOutputTab(argument);
-                }
+                DBJavaParameter parameter = method.getParameter(fieldValue.getPath());
+                if (parameter == null) return;
+
+                resultForm.selectArgumentOutputTab(parameter);
             }
         };
     }

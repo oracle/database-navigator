@@ -23,6 +23,7 @@ import com.dbn.execution.ExecutionOptions;
 import com.dbn.execution.java.wrapper.WrapperModel;
 import com.dbn.execution.java.wrapper.WrapperModelBuilder;
 import com.dbn.execution.java.wrapper.WrapperModelInput;
+import com.dbn.execution.java.wrapper.WrapperProperty;
 import com.dbn.execution.java.wrapper.WrapperStatementExecutor;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.lookup.DBObjectRef;
@@ -53,12 +54,20 @@ public class JavaExecutionContext extends ExecutionContext<JavaExecutionInput> {
     }
 
     public synchronized WrapperModel initWrapperModel() {
-        String signature = getInput().getMethodSignature();
-        if (wrapperModel != null && wrapperModel.matchesSignature(signature)) return wrapperModel;
+        JavaExecutionInput executionInput = getInput();
+        String signature = executionInput.getMethodSignature();
+        if (wrapperModel != null && wrapperModel.matchesSignature(signature)){
+            return wrapperModel;
+        }
+
 
         // use technical names during anonymous execution
         WrapperModelBuilder modelBuilder = WrapperModelBuilder.getInstance();
-        WrapperModelInput wrapperModelInput = new WrapperModelInput(getMethod(), false, true);
+        WrapperModelInput wrapperModelInput = new WrapperModelInput(getMethod());
+        wrapperModelInput.set(WrapperProperty.TEMPORARY, true);
+        wrapperModelInput.set(WrapperProperty.DEBUG_MODE, getDebuggerType().isDebug());
+        wrapperModelInput.setSupportData(executionInput.getWrapperSupportData());
+        wrapperModelInput.setCodeInputs(executionInput.getCodeInputs());
 
         wrapperModel = modelBuilder.buildModel(wrapperModelInput);
         wrapperModel.setSignature(signature);

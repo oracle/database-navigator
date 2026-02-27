@@ -40,7 +40,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 import static com.dbn.common.component.Components.applicationService;
+import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.options.setting.Settings.setString;
 
 @Slf4j
 @Getter
@@ -56,6 +58,8 @@ public class DatabaseNavigator extends ApplicationComponentBase implements Persi
     public static final PluginId DBN_PLUGIN_ID = PluginId.getId("DBN");
 
     private String clientId = UUIDs.compact();
+    private String configVersion;
+    private final String pluginVersion = loadPluginVersion();
 
     public DatabaseNavigator() {
         super(COMPONENT_NAME);
@@ -91,6 +95,12 @@ public class DatabaseNavigator extends ApplicationComponentBase implements Persi
         return Objects.requireNonNull(PluginManagerCore.getPlugin(DBN_PLUGIN_ID));
     }
 
+    private static String loadPluginVersion() {
+        IdeaPluginDescriptor pluginDescriptor = getPluginDescriptor();
+        String version = pluginDescriptor.getVersion();
+        return version.substring(0, version.lastIndexOf(".")); // remove the compatibility qualifier
+    }
+
     public String getName() {
         return null;
     }
@@ -104,7 +114,8 @@ public class DatabaseNavigator extends ApplicationComponentBase implements Persi
         Element element = newStateElement();
         Element diagnosticsElement = Settings.newElement(element, "diagnostics");
         Diagnostics.writeState(diagnosticsElement);
-        Settings.setString(element, "client-id", clientId);
+        setString(element, "client-id", clientId);
+        setString(element, "config-version", pluginVersion); // always save as current version
         return element;
     }
 
@@ -112,7 +123,8 @@ public class DatabaseNavigator extends ApplicationComponentBase implements Persi
     public void loadComponentState(@NotNull Element element) {
         Element diagnosticsElement = element.getChild("diagnostics");
         Diagnostics.readState(diagnosticsElement);
-        clientId = Settings.getString(element, "client-id", clientId);
+        clientId = getString(element, "client-id", clientId);
+        configVersion = getString(element, "config-version", "");
 
     }
 }

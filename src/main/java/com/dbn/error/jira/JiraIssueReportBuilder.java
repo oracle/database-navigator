@@ -43,11 +43,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.dbn.DatabaseNavigator.DBN_PLUGIN_ID;
+import static com.dbn.common.checksum.Checksum.fromStringContent;
+import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Classes.className;
 
 public class JiraIssueReportBuilder implements IssueReportBuilder {
     private static final String LINE_DELIMITER = "\n__________________________________________________________________\n";
+    public static final String PLUGIN_ID_CHECKSUM = "84dd76d6695f237f4ef7f8814c0b716b66a54704a922ee74c8578d52d0e4c30c";
 
     @Nullable
     @Override
@@ -70,7 +72,9 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
     }
 
     private static boolean verifyPlugin(IdeaPluginDescriptor plugin) {
-        return Objects.equals(plugin.getPluginId(), DBN_PLUGIN_ID);
+        String pluginId = plugin.getPluginId().getIdString();
+        String pluginIdChecksum = fromStringContent(pluginId, SHA_256);
+        return Objects.equals(pluginIdChecksum, PLUGIN_ID_CHECKSUM);
     }
 
     private static void initEnvironmentInfo(IssueReport report) {
@@ -124,10 +128,10 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
     }
 
     private static void buildEnvironmentInfo(IssueReport report, StringBuilder description) {
+        addEnvironmentInfo(description, "Plugin Version", report.getPluginVersion());
+        addEnvironmentInfo(description, "IDE Version", report.getIdeVersion());
         addEnvironmentInfo(description, "Java Version", report.getJavaVersion());
         addEnvironmentInfo(description, "Operating System", report.getOsVersion());
-        addEnvironmentInfo(description, "IDE Version", report.getIdeVersion());
-        addEnvironmentInfo(description, "Plugin Version", report.getPluginVersion());
         addEnvironmentInfo(description, "Database Type", report.getDatabaseType());
         addEnvironmentInfo(description, "Database Name", report.getDatabaseName());
         addEnvironmentInfo(description, "Database Version", report.getDatabaseVersion());

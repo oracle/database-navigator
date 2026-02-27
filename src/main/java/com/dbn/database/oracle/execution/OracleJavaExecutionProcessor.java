@@ -18,6 +18,7 @@
 package com.dbn.database.oracle.execution;
 
 import com.dbn.common.data.Data;
+import com.dbn.common.exception.Exceptions;
 import com.dbn.common.util.Java;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
@@ -26,6 +27,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
 import com.dbn.database.oracle.OracleTypes;
+import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.java.wrapper.WrapperModel;
@@ -39,6 +41,7 @@ import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
@@ -49,6 +52,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -85,20 +89,20 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	public String buildExecutionCommand(JavaExecutionInput executionInput, WrapperModel wrapperModel) {
 		boolean procedure = isProcedure();
 		String wrapperName = wrapperModel.getSqlWrapperName();
-		List<DBJavaParameter> arguments = getArguments();
+		List<DBJavaParameter> parameters = getParameters();
 
 		@NonNls
 		StringBuilder buffer = new StringBuilder();
 		StringBuilder methodCallPrepare = new StringBuilder();
 
-		for (DBJavaParameter argument : arguments) {
-			methodCallPrepare.append("?");
-
-			boolean isLast = arguments.indexOf(argument) == arguments.size() - 1;
-			if (!isLast) {
-				methodCallPrepare.append(", ");
+		List<String> inputPlaceHolders = new ArrayList<>();
+		for (DBJavaParameter parameter : parameters) {
+			String parameterName = parameter.getName();
+			if (!wrapperModel.isCodeInput(parameterName)) {
+				inputPlaceHolders.add("?");
 			}
 		}
+		methodCallPrepare.append(String.join(", ", inputPlaceHolders));
 
 		buffer.append("declare\n");
 
@@ -118,9 +122,9 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			if(!methodCallPrepare.toString().isEmpty()) {
 				buffer.append("(")
 					.append(methodCallPrepare)
-					.append(");");
+					.append(")");
 			}
-			buffer.append("\n");
+			buffer.append(";\n");
 		} else {
 			buffer.append("output_arg :=")
 					.append(wrapperName)
@@ -133,22 +137,26 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		return buffer.toString();
 	}
 
-	@SneakyThrows
 	@Override
-	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement statement, WrapperModel wrapperModel) {
+	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement statement, WrapperModel wrapperModel) throws SQLException {
 		// bind input variables
 		int parameterIndex = 1;
 		MethodWrapper methodWrapper = wrapperModel.getMethods().get(0);
-		for (DBJavaParameter parameter : getArguments()) {
-
+		List<DBJavaParameter> parameters = getParameters();
+		for (int i=0; i<parameters.size(); i++) {
+			DBJavaParameter parameter = parameters.get(i);
 			String parameterName = parameter.getName();
+			if (wrapperModel.isCodeInput(parameterName)) continue;
+
+
+			ParameterWrapper parameterWrapper = methodWrapper.getParameters().get(i);
 			if (parameter.isArray()) {
-				String objectName = methodWrapper.getParameters().get(parameterIndex - 1).getSqlTypeName();
+				String objectName = parameterWrapper.getSqlType().getQualifiedName();
 				Array arrObj = getArrayObject(executionInput, parameter.getJavaClassRef(), wrapperModel, objectName, parameterName);
 				statement.setArray(parameterIndex, arrObj);
 
 			} else if (!parameter.isScalar()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
-				String objectName = methodWrapper.getParameters().get(parameterIndex - 1).getSqlTypeName();
+				String objectName = parameterWrapper.getSqlType().getQualifiedName();
 				Object structObj = getStructObject(executionInput, parameter.getJavaClass().getFields(), wrapperModel, objectName, parameterName);
 				statement.setObject(parameterIndex, structObj);
 
@@ -189,9 +197,9 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
     }
 
 	@Override
-	public void loadValues(JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
+	public void loadValues(JavaExecutionContext context, JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
 		if (preparedStatement instanceof CallableStatement callableStatement) {
-			int outputIndex = getArgumentsCount() + 1;
+			int outputIndex = getArgumentsCount(context) + 1;
             Object result = getResult(callableStatement, outputIndex);
 			executionResult.addArgumentValue("return", result);
 		}
@@ -205,25 +213,17 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		DBNConnection conn = connection.getConnection(targetSessionId, targetSchemaId);
 
 		fields = sortedCopy(fields, POSITION_COMPARATOR);
-		Object[] customTypeAttributes = new Object[fields.size()];
+		Object[] attributes = new Object[fields.size()];
 		int i = 0;
 		for (DBJavaField field : fields) {
 			String newFieldPath = fieldPath + "." + field.getName();
 
 			String value = executionInput.getInputValue(newFieldPath);
-			customTypeAttributes[i] = parseValue(executionInput, wrapperModel, field, newFieldPath, value);
+			attributes[i] = parseValue(executionInput, wrapperModel, field, newFieldPath, value);
 			i++;
 		}
 
-		ClassLoader cl =  conn.getInner().getClass().getClassLoader();
-		Class<?> structDescriptorClass = Class.forName("oracle.sql.StructDescriptor",true, cl);
-		Method createDescriptorMethod = structDescriptorClass.getMethod("createDescriptor", String.class, Connection.class);
-		Object structDescriptor =  createDescriptorMethod.invoke(null, objectName.toUpperCase(), conn.getInner());
-
-		Class<?> structClass = Class.forName("oracle.sql.STRUCT", true, cl);
-		Constructor<?> structCtr = structClass.getConstructor(structDescriptorClass, Connection.class, Object[].class);
-
-		return structCtr.newInstance(structDescriptor, conn.getInner(), customTypeAttributes);
+		return createStructObject(objectName, conn, attributes);
 	}
 
 	@SneakyThrows
@@ -240,17 +240,45 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			clazz = Class.forName(className);
 		}
 		List<?> values = Data.arrayStringToList(fieldValue, clazz);
-		Object[] customTypeAttributes = values.toArray();
+		Object[] attributes = values == null ? new Object[0] : values.toArray();
 
-		ClassLoader cl =  conn.getInner().getClass().getClassLoader();
-		Class<?> structDescriptorClass = Class.forName("oracle.sql.ArrayDescriptor",true, cl);
-		Method createDescriptorMethod = structDescriptorClass.getMethod("createDescriptor", String.class, Connection.class);
-		Object structDescriptor =  createDescriptorMethod.invoke(null, objectName, conn.getInner());
+		return createArrayObject(objectName, conn, attributes);
+	}
 
-		Class<?> structClass = Class.forName("oracle.sql.ARRAY", true, cl);
-		Constructor<?> structCtr = structClass.getConstructor(structDescriptorClass, Connection.class, Object.class);
+	@NotNull
+	private static Object createStructObject(String objectName, DBNConnection conn, Object[] attributes) throws SQLException {
+		try {
+			Connection connection = conn.getInner();
+			ClassLoader cl = connection.getClass().getClassLoader();
+			Class<?> structDescriptorClass = Class.forName("oracle.sql.StructDescriptor", true, cl);
+			Method createDescriptorMethod = structDescriptorClass.getMethod("createDescriptor", String.class, Connection.class);
+			Object structDescriptor = createDescriptorMethod.invoke(null, objectName, connection);
 
-		return (Array) structCtr.newInstance(structDescriptor, conn.getInner(), customTypeAttributes);
+			Class<?> structClass = Class.forName("oracle.sql.STRUCT", true, cl);
+			Constructor<?> structCtr = structClass.getConstructor(structDescriptorClass, Connection.class, Object[].class);
+
+			return structCtr.newInstance(structDescriptor, connection, attributes);
+		} catch (Throwable e) {
+			throw Exceptions.toSqlException(e);
+		}
+	}
+
+	@NotNull
+	private static Array createArrayObject(String objectName, DBNConnection conn, Object[] attributes) throws SQLException {
+		try {
+			Connection connection = conn.getInner();
+			ClassLoader cl = connection.getClass().getClassLoader();
+			Class<?> structDescriptorClass = Class.forName("oracle.sql.ArrayDescriptor", true, cl);
+			Method createDescriptorMethod = structDescriptorClass.getMethod("createDescriptor", String.class, Connection.class);
+			Object structDescriptor = createDescriptorMethod.invoke(null, objectName, connection);
+
+			Class<?> structClass = Class.forName("oracle.sql.ARRAY", true, cl);
+			Constructor<?> structCtr = structClass.getConstructor(structDescriptorClass, Connection.class, Object.class);
+
+			return (Array) structCtr.newInstance(structDescriptor, connection, attributes);
+		} catch (Throwable e) {
+			throw Exceptions.toSqlException(e);
+		}
 	}
 
 	@Nullable

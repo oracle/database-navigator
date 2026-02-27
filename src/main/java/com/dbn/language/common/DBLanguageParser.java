@@ -120,7 +120,7 @@ public abstract class DBLanguageParser implements PsiParser {
                 advanced = true;
             }
         } catch (StackOverflowError e) {
-            builder.markerRollbackTo(marker);
+            builder.markerRollbackTo(marker, null);
             marker = builder.mark();
             while (!builder.eof()) {
                 builder.advance();

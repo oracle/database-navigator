@@ -125,7 +125,7 @@ public class MethodParameterInfoHandler implements ParameterInfoHandler<BasePsiE
                         }
                     }
                 }
-                if (elementType == iterationElementType.iteratedElementType) {
+                if (elementType == iterationElementType.iteratedElement) {
                     iteratedPsiElement = (BasePsiElement) paramPsiElement;
                     paramIndex++;
                 }
@@ -165,7 +165,7 @@ public class MethodParameterInfoHandler implements ParameterInfoHandler<BasePsiE
         PsiElement paramPsiElement = iterationPsiElement.getFirstChild();
         while (paramPsiElement != null) {
             ElementType elementType = PsiUtil.getElementType(paramPsiElement);
-            if (elementType == iterationElementType.iteratedElementType) {
+            if (elementType == iterationElementType.iteratedElement) {
                 if (paramPsiElement == parameter) {
                     context.setCurrentParameter(index);
                     return;
