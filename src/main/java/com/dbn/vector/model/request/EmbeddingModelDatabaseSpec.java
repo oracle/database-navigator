@@ -34,6 +34,10 @@ public class EmbeddingModelDatabaseSpec implements PersistentStateElement {
   private String schemaName;
   private String modelName;
 
+  public String getQualifiedModelName() {
+    return schemaName + "." + modelName;
+  }
+
   public String getConfigJson() {
     Map params = getConfigMap();
     return Json.writeAsString(params);

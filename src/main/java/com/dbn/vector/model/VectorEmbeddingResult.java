@@ -1,5 +1,7 @@
 package com.dbn.vector.model;
 
+import com.dbn.common.message.MessageType;
+import com.dbn.common.message.TitledMessage;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.vector.model.request.EmbeddingSource;
@@ -131,6 +133,31 @@ public class VectorEmbeddingResult {
 
     public void deleteStepFfromShared(PipelineStep pipelineStep) {
         sharedSteps.removeIf((step) -> step.getStep().equals(pipelineStep));
+    }
+
+    public TitledMessage getSummaryMessage() {
+        MessageType messageType = switch (status) {
+            case SUCCESS -> MessageType.SUCCESS;
+            case PARTIAL -> MessageType.WARNING;
+            case FAILED -> MessageType.ERROR;
+            default -> MessageType.INFO;
+        };
+
+        String title = switch (status) {
+            case SUCCESS -> "Embedding successful";
+            case PARTIAL -> "Embedding partially successful";
+            case FAILED -> "Embedding failed";
+            default -> "";
+        };
+
+        String message = switch (status) {
+            case SUCCESS -> "Successfully embedded contents from " + getResourcesCount() + " sources";
+            case PARTIAL -> "Embedded contents from " + getSourceSucceedCount() + " out of " + getResourcesCount() + " sources";
+            case FAILED -> "Embedding failed for all given sources";
+            default -> "";
+        };
+
+        return new TitledMessage(messageType, title, message);
     }
 }
 

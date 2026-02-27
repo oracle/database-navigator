@@ -29,6 +29,10 @@ public class EmbeddingStagingConfig extends EmbeddingRequestConfig {
     private String schemaName;
     private String tableName;
 
+    public String getQualifiedTableName() {
+        return schemaName + "." + tableName;
+    }
+
     @Override
     public void readState(Element element) {
         if (element == null) return;

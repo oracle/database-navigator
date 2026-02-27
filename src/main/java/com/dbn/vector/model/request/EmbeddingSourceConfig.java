@@ -37,6 +37,14 @@ public final class EmbeddingSourceConfig extends EmbeddingRequestConfig {
     private final EmbeddingSourceQueries sourceQueries = new EmbeddingSourceQueries();
     private final EmbeddingSourceFiles sourceFiles = new EmbeddingSourceFiles();
 
+    public int getSourceCount() {
+        return switch (sourceType) {
+            case DATABASE_TABLE -> sourceTables.size();
+            case DATABASE_QUERY -> sourceQueries.size();
+            case FILE_SYSTEM ->  sourceFiles.size();
+        };
+    }
+
     @Override
     public void readState(Element element) {
         if (element == null) return;

@@ -16,12 +16,8 @@
 
 package com.dbn.vector.ui.result;
 
-import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Naming;
-import com.dbn.common.util.TimeUtil;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
@@ -30,63 +26,39 @@ import com.dbn.object.DBTable;
 import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.result.EmbeddingResult;
-import com.dbn.vector.model.result.EmbeddingTableResult;
-import com.dbn.vector.model.result.SourceStatus;
-import com.dbn.vector.model.result.StepResult;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.ui.SimpleColoredComponent;
-import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import java.util.ArrayList;
-import java.util.List;
 
-import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
-import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 
-public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<VectorEmbeddingExecutionResult> {
+public class EmbeddingResultForm extends ExecutionResultFormBase<VectorEmbeddingExecutionResult> {
   private JPanel mainPanel;
-  private JPanel headerPanel;
-  private JPanel sourceDataPanel;
-  private JPanel embeddingDetailsPanel;
   private DBNScrollPane sourceDataScrollPane;
-  private JPanel titleBar;
-  private JLabel titleLabel;
-  private JLabel statusBadge;
-  private JPanel metricsPanel;
-  private JPanel pipelinePanel;
-  private JPanel pipelineHeaderPanel;
-  private JSplitPane contentSplitPane;
-  private JPanel sourceStatusPanel;
   private JPanel actionsPanel;
-  private SimpleColoredComponent metricsComponents;
-  private DBNHyperlinkLabel sourceName;
+  private JPanel summaryPanel;
   private VectorEmbeddingResultsTable sourceDataTable;
 
   private final VectorEmbeddingResult result;
 
-  public VectorEmbeddingExecutionResultForm(@NotNull VectorEmbeddingExecutionResult executionResult) {
+  public EmbeddingResultForm(@NotNull VectorEmbeddingExecutionResult executionResult) {
     super(executionResult);
     this.result = getExecutionResult().getVectorEmbeddingResult();
-    verticalBoxLayout(pipelinePanel);
     initializeComponents();
-    setSplitPaneProportion(contentSplitPane, 0.4);
   }
 
   private void initializeComponents() {
-    pipelineHeaderPanel.setVisible(false);
-
     initializeTable();
-    initializeHeader();
+    initializeSummary();
     createActionsPanel();
   }
+
+    private void initializeSummary() {
+        EmbeddingResultSummaryForm summaryForm = new EmbeddingResultSummaryForm(this, result);
+        summaryPanel.add(summaryForm.getComponent());
+    }
 
   private void createActionsPanel() {
     ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.VectorEmbeddingResult");
@@ -94,26 +66,8 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     actionsPanel.add(actionToolbar.getComponent());
   }
 
+/*
   private void initializeHeader() {
-    switch (result.getStatus()){
-      case SUCCESS:
-        statusBadge.setIcon(Icons.COMMON_STATUS_SUCCESS);
-        statusBadge.setToolTipText(String.format("All %d sources embedded successfully",
-                result.size()));
-        break;
-      case FAILED:
-        statusBadge.setIcon(Icons.COMMON_STATUS_ERROR);
-        statusBadge.setToolTipText(String.format("Embedding failed - 0 of %d sources processed",
-                result.size()));
-        break;
-      case PARTIAL:
-        statusBadge.setIcon(Icons.COMMON_WARNING);
-        statusBadge.setToolTipText(String.format("Partial success - %d of %d sources embedded",
-                result.getSourceSucceedCount(),  result.size()));
-        break;
-    }
-    statusBadge.setText("");
-
     metricsComponents.append("Duration: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
     metricsComponents.append(TimeUtil.presentableDuration(result.getDuration(), true), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
     metricsComponents.append(" • ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
@@ -125,8 +79,8 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     metricsComponents.append(" • ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
     metricsComponents.append("Success Rate: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
     metricsComponents.append(result.getSuccessRate()+"%", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-
   }
+*/
 
   private void initializeTable() {
 
@@ -135,7 +89,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     sourceDataScrollPane.setViewportView(sourceDataTable);
 
     // Add selection listener to handle row selection and show pipeline/details
-    sourceDataTable.getSelectionModel().addListSelectionListener(e -> {
+/*    sourceDataTable.getSelectionModel().addListSelectionListener(e -> {
       if (!e.getValueIsAdjusting()) {
         pipelineHeaderPanel.setVisible(true);
         int viewRow = sourceDataTable.getSelectedRow();
@@ -165,7 +119,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
         updateStepStatus(sr);
         showPipelineDetails(sr);
       }
-    });
+    });*/
   }
 
   private void openTableInEditor(EmbeddingResult embeddingResult) {
@@ -196,7 +150,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     editorManager.connectAndOpenEditor(table, null, true, true);
   }
 
-  private void updateStepStatus(EmbeddingResult sr) {
+/*  private void updateStepStatus(EmbeddingResult sr) {
     SourceStatus status = sr.getStatus();
     Icon icon = null;
     if (status == SourceStatus.FAILED) {
@@ -244,7 +198,7 @@ public class VectorEmbeddingExecutionResultForm extends ExecutionResultFormBase<
     pipelinePanel.revalidate();
     pipelinePanel.repaint();
   }
-
+*/
 
   @Override
   protected JComponent getMainComponent() {

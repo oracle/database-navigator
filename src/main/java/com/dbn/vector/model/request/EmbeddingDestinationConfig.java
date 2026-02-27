@@ -19,6 +19,8 @@ package com.dbn.vector.model.request;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -32,6 +34,11 @@ public class EmbeddingDestinationConfig extends EmbeddingRequestConfig {
   private String textColumnName = "TEXT";
   private String embeddingColumnName = "EMBEDDING";
   private String metadataColumnName = "METADATA";
+
+  public @Nullable @Nls String getQualifiedTableName() {
+    return schemaName + "." + tableName;
+  }
+
 
   @Override
   public void readState(Element element) {

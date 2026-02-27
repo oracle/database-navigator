@@ -67,7 +67,7 @@ public class PipelineStepForm extends DBNFormBase  {
 
   private final StepResult stepResult;
 
-  public PipelineStepForm(@Nullable VectorEmbeddingExecutionResultForm parent, StepResult stepResult, int order) {
+  public PipelineStepForm(@Nullable EmbeddingResultForm parent, StepResult stepResult, int order) {
     super(parent);
     this.stepResult = stepResult;
     Color greyContent = Colors.faded(UIUtil.getLabelForeground());
@@ -106,7 +106,7 @@ public class PipelineStepForm extends DBNFormBase  {
   }
 
   private void handleTableLinkClick() {
-    VectorEmbeddingExecutionResultForm parentForm = getParentComponent();
+    EmbeddingResultForm parentForm = getParentComponent();
     if (parentForm == null) return;
 
     ConnectionHandler connection = parentForm.getResult().getConnection();

@@ -28,8 +28,8 @@ public class DBNDynamicTableCellRenderer<T> extends DBNColoredTableCellRenderer 
         Icon icon = model.getIcon(value, column);
         setIcon(icon);
 
-        String tooltip = model.getTooltip(value, column);
-        setToolTipText(tooltip);
+        //String tooltip = model.getTooltip(value, column);
+        //setToolTipText(tooltip);
 
         SimpleTextAttributes textAttributes = model.getAttributes(value, column);
         String presentableValue = model.getPresentableValue(value, column);
