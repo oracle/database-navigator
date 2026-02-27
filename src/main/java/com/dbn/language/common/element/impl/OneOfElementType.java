@@ -40,7 +40,6 @@ import java.util.Set;
 
 import static com.dbn.common.Linked.linkElements;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
-import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.language.common.TokenTypeCategory.CHARACTER;
 import static com.dbn.language.common.TokenTypeCategory.IDENTIFIER;
 import static com.dbn.language.common.element.impl.OneOfElementTypeBuilder.rebuildAmbiguousPaths;
@@ -184,7 +183,7 @@ public final class OneOfElementType extends ElementTypeBase {
         if (!basic) return;
 
         for (ElementTypeRef child : children) {
-            bucket.add(cast(child.elementType));
+            bucket.add((LeafElementType) child.elementType);
         }
     }
 

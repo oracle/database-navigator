@@ -46,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.util.HashSet;
@@ -312,5 +313,15 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
 
     public void changeParent(ElementTypeBase oldParent, ElementTypeBase newParent) {
         this.parent = newParent;
+    }
+
+    @Nullable
+    public <P extends ElementTypeBase> P findParent(Class<P> type) {
+        ElementTypeBase parent = this.parent;
+        while (parent != null) {
+            if (type.isAssignableFrom(parent.getClass())) return (P) parent;
+            parent = parent.parent;
+        }
+        return null;
     }
 }
