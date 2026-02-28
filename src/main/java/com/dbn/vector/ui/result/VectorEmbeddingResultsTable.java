@@ -23,7 +23,6 @@ import com.dbn.common.ui.table.DBNTableTransferHandler;
 import com.dbn.common.ui.table.DBNTableWithGutter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.ListSelectionModel;
 import javax.swing.table.TableModel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
@@ -32,7 +31,7 @@ public class VectorEmbeddingResultsTable extends DBNTableWithGutter<VectorEmbedd
 
     public VectorEmbeddingResultsTable(@NotNull DBNComponent parent, VectorEmbeddingResultsTableModel sources) {
         super(parent, sources, true);
-        setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        setCellSelectionEnabled(true);
         setDefaultRenderer(Object.class, new DBNDynamicTableCellRenderer());
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
         initTableSorter();
