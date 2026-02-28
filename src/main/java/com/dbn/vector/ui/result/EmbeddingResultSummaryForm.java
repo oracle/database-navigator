@@ -23,13 +23,16 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.messages.DBNMessageForm;
-import com.dbn.object.DBAIModel;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
+import com.dbn.vector.model.request.EmbeddingDestinationConfig;
 import com.dbn.vector.model.request.EmbeddingModelConfig;
 import com.dbn.vector.model.request.EmbeddingModelDatabaseSpec;
 import com.dbn.vector.model.request.EmbeddingSourceConfig;
+import com.dbn.vector.model.request.EmbeddingStagingConfig;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,15 +85,26 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
         stagingTableInfoLabel.setContent(html(this, "info/embedding_staging_table_info.html.ft"));
         embeddingsTableInfoLabel.setContent(html(this, "info/embedding_destination_table_info.html.ft"));
 
+        EmbeddingStagingConfig stagingConfig = request.getStagingConfig();
+        stagingTableHyperlinkLabel.setIcon(Icons.DBO_TABLE);
         stagingTableHyperlinkLabel.setHyperlinkText(request.getStagingConfig().getQualifiedTableName());
-        embeddingTableHyperlinkLabel.setHyperlinkText(request.getDestinationConfig().getQualifiedTableName());
+        stagingTableHyperlinkLabel.addHyperlinkListener(e -> navigateToObject(
+                stagingConfig.getSchemaName(),
+                stagingConfig.getTableName(),
+                DBObjectType.TABLE));
+
+
+        EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
+        embeddingTableHyperlinkLabel.setIcon(Icons.DBO_TABLE);
+        embeddingTableHyperlinkLabel.setHyperlinkText(destinationConfig.getQualifiedTableName());
+        embeddingTableHyperlinkLabel.addHyperlinkListener(e -> navigateToObject(
+                destinationConfig.getSchemaName(),
+                destinationConfig.getTableName(),
+                DBObjectType.TABLE));
+
+        embeddingModelHyperlinkLabel.setIcon(Icons.DBO_AI_MODEL);
         embeddingModelHyperlinkLabel.setHyperlinkText(request.getModelConfig().getDatabaseModelConfig().getQualifiedModelName());
         embeddingModelHyperlinkLabel.addHyperlinkListener(e -> navigateToModel());
-
-
-        stagingTableHyperlinkLabel.setIcon(Icons.DBO_TABLE);
-        embeddingTableHyperlinkLabel.setIcon(Icons.DBO_TABLE);
-        embeddingModelHyperlinkLabel.setIcon(Icons.DBO_AI_MODEL);
     }
 
     private void navigateToModel() {
@@ -98,17 +112,23 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
         if (modelConfig.getModelLocation() != IN_DATABASE_MODEL) return;
 
         EmbeddingModelDatabaseSpec databaseModelConfig = modelConfig.getDatabaseModelConfig();
+        navigateToObject(
+                databaseModelConfig.getSchemaName(),
+                databaseModelConfig.getModelName(),
+                DBObjectType.AI_MODEL);
+    }
 
-        String schemaName = databaseModelConfig.getSchemaName();
+    private void navigateToObject(String schemaName, String objectName, DBObjectType objectType) {
+        if (schemaName == null) return;
+        if (objectName == null) return;
+
         DBSchema schema = result.getConnection().getObjectBundle().getSchema(schemaName);
         if (schema == null) return;
 
-        String modelName = databaseModelConfig.getModelName();
-        DBAIModel model = schema.getAIModel(modelName);
-        if (model == null) return;
+        DBObject object = schema.getChildObject(objectType, objectName);
+        if (object == null) return;
 
-        model.navigate(true);
-
+        object.navigate(true);
     }
 
     private void initMessagePanel() {
