@@ -35,7 +35,6 @@ import com.dbn.object.DBTable;
 import com.dbn.vector.model.result.EmbeddingFileResult;
 import com.dbn.vector.model.result.EmbeddingResult;
 import com.dbn.vector.model.result.EmbeddingTableResult;
-import com.dbn.vector.model.result.PipelineStep;
 import com.dbn.vector.model.result.StepResult;
 import com.intellij.icons.AllIcons;
 import com.intellij.util.ui.JBUI;
@@ -114,10 +113,7 @@ public class PipelineStepForm extends DBNFormBase  {
     if (table == null) return;
 
     EmbeddingResult selectedSource = parentForm.getSelectedSource();
-    boolean shouldFilter = stepResult.getStep() == PipelineStep.ENSURE_DESTINATION
-            && selectedSource != null;
-
-    openTableEditor(connection, table, selectedSource, shouldFilter);
+    openTableEditor(connection, table, selectedSource, false);
   }
 
   @Nullable

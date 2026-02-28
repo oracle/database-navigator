@@ -20,15 +20,6 @@ import lombok.Getter;
 
 @Getter
 public enum PipelineStep {
-  @Deprecated // TODO cleanup (no longer a pipeline step)
-  ENSURE_DESTINATION(
-          "Prepare Vector Table",
-          "Create or verify the destination vector table used to store chunk embeddings."),
-
-  @Deprecated // TODO cleanup (no longer a pipeline step)
-  ENSURE_DOCUMENT_TABLE(
-          "Prepare Document Store",
-          "Create or verify the document table used to persist original files (LOBs) and metadata."),
   CHECK_CRC(
           "Check for Duplicated File",
           "Compute and look up the file checksum to detect previously uploaded files. If a match is found, " +

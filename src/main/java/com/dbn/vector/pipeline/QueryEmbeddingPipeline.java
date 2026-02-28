@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.connection.Resources.commit;
 import static com.dbn.connection.Resources.rollbackSilently;
-import static com.dbn.vector.model.result.PipelineStep.ENSURE_DOCUMENT_TABLE;
 
 
 public class QueryEmbeddingPipeline extends EmbeddingPipeline {
@@ -30,10 +29,7 @@ public class QueryEmbeddingPipeline extends EmbeddingPipeline {
             @NotNull VectorEmbeddingRequest request,
             @NotNull VectorEmbeddingResult result) {
 
-        // remove the PREPARE_DOCUMENT_STORE step from shared steps
-        result.deleteStepFfromShared(ENSURE_DOCUMENT_TABLE);
         EmbeddingSourceQueries sources = request.getSourceConfig().getSourceQueries();
-
         for (EmbeddingSourceQuery source : sources.getElements()) {
             EmbeddingQueryResult queryResult = result.getResult(source);
 

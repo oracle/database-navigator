@@ -11,15 +11,12 @@ import com.dbn.vector.model.result.EmbeddingFileResult;
 import com.dbn.vector.model.result.EmbeddingQueryResult;
 import com.dbn.vector.model.result.EmbeddingResult;
 import com.dbn.vector.model.result.EmbeddingTableResult;
-import com.dbn.vector.model.result.PipelineStep;
 import com.dbn.vector.model.result.SourceStatus;
-import com.dbn.vector.model.result.StepResult;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,20 +36,6 @@ public class VectorEmbeddingResult {
     public enum Status {RUNNING, SUCCESS, PARTIAL, FAILED}
 
     private Status status;
-    protected final List<StepResult> sharedSteps = new ArrayList<>(Arrays.asList(
-            new StepResult(PipelineStep.ENSURE_DESTINATION),
-            new StepResult(PipelineStep.ENSURE_DOCUMENT_TABLE)
-    ));
-
-
-    public StepResult getstep(PipelineStep step) {
-        for (StepResult stepResult : sharedSteps) {
-            if (stepResult.getStep().equals(step)) {
-                return stepResult;
-            }
-        }
-        return null;
-    }
 
     public VectorEmbeddingResult(VectorEmbeddingRequest request) {
         this.request = request;
@@ -128,11 +111,6 @@ public class VectorEmbeddingResult {
                 .filter(f -> f.getStatus() == SourceStatus.SUCCESS || f.getStatus() == SourceStatus.SKIPPED)
                 .count();
         return getResourcesCount() > 0 ? (double) successedSr / getResourcesCount() * 100 : 0;
-    }
-
-
-    public void deleteStepFfromShared(PipelineStep pipelineStep) {
-        sharedSteps.removeIf((step) -> step.getStep().equals(pipelineStep));
     }
 
     public TitledMessage getSummaryMessage() {

@@ -11,7 +11,6 @@ import com.dbn.vector.model.request.EmbeddingSourceFiles;
 import com.dbn.vector.model.result.EmbeddingFileResult;
 import com.dbn.vector.model.result.PipelineStep;
 import com.dbn.vector.model.result.SourceStatus;
-import com.dbn.vector.model.result.StepResult;
 import com.dbn.vector.service.FileProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -29,10 +28,6 @@ public class FileEmbeddingPipeline extends EmbeddingPipeline {
             @NotNull VectorEmbeddingContext context,
             @NotNull VectorEmbeddingRequest request,
             @NotNull VectorEmbeddingResult result) {
-
-        // ensure documents table exists (shared step for all files)
-        StepResult step = result.getstep(PipelineStep.ENSURE_DOCUMENT_TABLE);
-        ensureDocumentsTableStep(request, step);
 
         ProgressIndicator progressIndicator = context.getProgressIndicator();
         // Process each file individually
