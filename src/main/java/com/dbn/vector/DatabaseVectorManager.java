@@ -177,7 +177,6 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     /**
      * Execute the embedding pipeline for the given request.
      */
-    @SneakyThrows
     private VectorEmbeddingResult executePipeline(
             @NotNull VectorEmbeddingRequest request,
             @NotNull DBNConnection connection,

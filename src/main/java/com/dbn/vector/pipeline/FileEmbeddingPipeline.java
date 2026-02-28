@@ -19,12 +19,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 
-public class FileEmbeddingPipeline extends EmbeddingPipeline {
+public class FileEmbeddingPipeline implements EmbeddingPipeline {
 
     private final FileProcessingService fileService = new FileProcessingService();
 
     @Override
-    protected void executeSourceSpecificPipeline(
+    public void execute(
             @NotNull VectorEmbeddingContext context,
             @NotNull VectorEmbeddingRequest request,
             @NotNull VectorEmbeddingResult result) {

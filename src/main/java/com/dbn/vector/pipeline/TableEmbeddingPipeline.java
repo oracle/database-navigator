@@ -18,13 +18,13 @@ import static com.dbn.connection.Resources.commit;
 import static com.dbn.connection.Resources.rollbackSilently;
 
 
-public class TableEmbeddingPipeline extends EmbeddingPipeline {
+public class TableEmbeddingPipeline implements EmbeddingPipeline {
     private static final int DEFAULT_BATCH_SIZE = 100;
 
     private final TableProcessingService tableProcessingService = new TableProcessingService();
 
     @Override
-    protected void executeSourceSpecificPipeline(
+    public void execute(
             @NotNull VectorEmbeddingContext context,
             @NotNull VectorEmbeddingRequest request,
             @NotNull VectorEmbeddingResult result) {

@@ -6,23 +6,13 @@ import com.dbn.vector.model.VectorEmbeddingResult;
 import org.jetbrains.annotations.NotNull;
 
 
-public abstract class EmbeddingPipeline {
+public interface EmbeddingPipeline {
 
     /**
      * Execute the complete embedding pipeline.
      */
-    public void execute(
+    void execute(
             @NotNull VectorEmbeddingContext context,
             @NotNull VectorEmbeddingRequest request,
-            @NotNull VectorEmbeddingResult result) throws Exception {
-        executeSourceSpecificPipeline(context, request, result);
-    }
-
-    /**
-     * Execute source-specific embedding logic.
-     */
-    protected abstract void executeSourceSpecificPipeline(
-            @NotNull VectorEmbeddingContext context,
-            @NotNull VectorEmbeddingRequest request,
-            @NotNull VectorEmbeddingResult result) throws Exception;
+            @NotNull VectorEmbeddingResult result);
 }

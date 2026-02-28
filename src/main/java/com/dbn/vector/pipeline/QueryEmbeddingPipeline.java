@@ -18,13 +18,13 @@ import static com.dbn.connection.Resources.commit;
 import static com.dbn.connection.Resources.rollbackSilently;
 
 
-public class QueryEmbeddingPipeline extends EmbeddingPipeline {
+public class QueryEmbeddingPipeline implements EmbeddingPipeline {
     private static final int DEFAULT_BATCH_SIZE = 100;
 
     private final QueryProcessingService queryProcessingService = new QueryProcessingService();
 
     @Override
-    protected void executeSourceSpecificPipeline(
+    public void execute(
             @NotNull VectorEmbeddingContext context,
             @NotNull VectorEmbeddingRequest request,
             @NotNull VectorEmbeddingResult result) {
