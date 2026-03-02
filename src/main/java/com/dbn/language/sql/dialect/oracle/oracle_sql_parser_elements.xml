@@ -2778,7 +2778,7 @@
         <qualified-identifier id="01564" separator="CHR_DOT">
             <variant>
                 <object-ref id="01565" optional="true" type="SCHEMA" />
-                <object-def attributes="SUBJECT" id="01566" type="SEQUENCE" />
+                <object-ref attributes="SUBJECT" id="01566" type="SEQUENCE" />
             </variant>
         </qualified-identifier>
         <iteration id="01567">
