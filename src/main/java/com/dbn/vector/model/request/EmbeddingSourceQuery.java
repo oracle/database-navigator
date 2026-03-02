@@ -48,7 +48,7 @@ public class EmbeddingSourceQuery implements EmbeddingSource, PersistentStateEle
     public String getSelectStatementPreview() {
         if (selectStatementPreview != null) return selectStatementPreview;
 
-        selectStatementPreview = truncateWithEllipsis(selectStatement.replaceAll("\\s+", " "), 40);
+        selectStatementPreview = truncateWithEllipsis(selectStatement.replaceAll("\\s+", " "), 60);
         return selectStatementPreview;
     }
 

@@ -13805,7 +13805,7 @@
 
     <element-def description="Column alias definition" id="column_alias_definition">
         <token id="07573" optional="true" type-id="KW_AS" />
-        <alias-def id="07574" type="COLUMN" />
+        <alias-def id="07574" type="COLUMN" attributes="ALIAS_DEFINITION"/>
     </element-def>
     <element-def description="Dataset alias definition" id="dataset_alias_definition">
         <token id="07575" optional="true" type-id="KW_AS" />

@@ -107,6 +107,14 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
         initialize(userSchema);
     }
 
+    public String getChunkConfigJson() {
+        return chunkConfig.getConfigJson();
+    }
+
+    public String getModelConfigJson() {
+        return modelConfig.getConfigJson();
+    }
+
     @Override
     public void readState(Element element) {
         if (element == null) return;

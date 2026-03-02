@@ -134,8 +134,8 @@ public class FileProcessingService {
             }
 
             String rowMetadata = buildRowMetadata(request, Json.readAsMap(result.getMetadata()));
-            String chunkConfigJson = request.getChunkConfig().getConfigJson();
-            String embedConfigJson = request.getModelConfig().getConfigJson();
+            String chunkConfigJson = request.getChunkConfigJson();
+            String embedConfigJson = request.getModelConfigJson();
 
             // Call embedFileContent with documentId
             // It will SELECT the BLOB from database and process it

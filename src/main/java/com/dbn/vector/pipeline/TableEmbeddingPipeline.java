@@ -72,8 +72,8 @@ public class TableEmbeddingPipeline implements EmbeddingPipeline {
                 int rowsEmbedded = vectorInterface.embedTableContent(
                         connection,
                         result.getSource(),
-                        request.getChunkConfig().getConfigJson(),
-                        request.getModelConfig().getConfigJson(),
+                        request.getChunkConfigJson(),
+                        request.getModelConfigJson(),
                         request.getDestinationConfig(),
                         result.getMetadata(),
                         DEFAULT_BATCH_SIZE);

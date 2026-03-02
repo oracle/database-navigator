@@ -40,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 
@@ -181,6 +182,11 @@ public abstract class LeafPsiElement<T extends LeafElementType> extends BasePsiE
             return this;
         }
         return null;
+    }
+
+    @Override
+    public BasePsiElement findFirstPsiElement(Predicate<BasePsiElement> predicate) {
+        return predicate.test(this) ? this : null;
     }
 
     @Override
