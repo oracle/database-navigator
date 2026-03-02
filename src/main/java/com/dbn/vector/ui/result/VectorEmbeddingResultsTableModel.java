@@ -46,7 +46,7 @@ public class VectorEmbeddingResultsTableModel extends DBNDynamicTableModel<Embed
 
         if (sourceType == EmbeddingSourceType.FILE_SYSTEM) {
             addColumn("Source size", r -> r.getPresentableSize());
-            addColumn("File store id", r -> ((EmbeddingFileResult) r).getFileStoreId());
+            addColumn("File store ID", r -> ((EmbeddingFileResult) r).getFileStoreId());
         }
 
         addColumn("Rows embedded", r -> r.getRowsInserted());
