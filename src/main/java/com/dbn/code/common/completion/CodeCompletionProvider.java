@@ -33,6 +33,7 @@ import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.NamedElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dbn.language.common.element.impl.TokenElementType;
+import com.dbn.language.common.element.impl.WrapperElementType;
 import com.dbn.language.common.element.parser.Branch;
 import com.dbn.language.common.element.path.AstNode;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
@@ -203,9 +204,12 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         } else if (parent instanceof BasePsiElement basePsiElement) {
             ElementTypeBase elementType = basePsiElement.elementType;
             if (elementType.isWrappingBegin((LeafElementType) element.elementType)) {
-                Set<LeafElementType> candidates = elementType.cache.getFirstPossibleLeafs();
-                for (LeafElementType candidate : candidates) {
-                    context.addCompletionCandidate(candidate);
+                if (elementType instanceof WrapperElementType wrapperElementType) {
+                    var completionCandidates = wrapperElementType.wrappedElement.cache.getFirstPossibleLeafs();
+                    context.addCompletionCandidates(completionCandidates);
+                } else {
+                    var candidates = elementType.cache.getFirstPossibleLeafs();
+                    context.addCompletionCandidates(candidates);
                 }
             }
         }
@@ -217,10 +221,8 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
             if (!context.isNewLine()) {
                 lookupContext.addBreakOnAttribute(ElementTypeAttribute.STATEMENT);
             }
-            Set<LeafElementType> candidates = elementType.getNextPossibleLeafs(node, lookupContext);
-            for (LeafElementType candidate : candidates) {
-                context.addCompletionCandidate(candidate);
-            }
+            var candidates = elementType.getNextPossibleLeafs(node, lookupContext);
+            context.addCompletionCandidates(candidates);
         }
 
         context.setParentIdentifierPsiElement(parentIdentifierPsiElement);
