@@ -11392,6 +11392,7 @@
             <element ref-id="json_query_function" />
             <element ref-id="json_serialize_function" />
             <element ref-id="xml_function" />
+            <element ref-id="vector_function" />
         </one-of>
     </element-def>
     <element-def description="Numeric function" id="numeric_function">
@@ -12343,6 +12344,230 @@
         </one-of>
     </element-def>
 
+    <element-def description="VECTOR function" id="vector_function">
+        <one-of>
+            <sequence>
+                <token type-id="FN_VECTOR_DISTANCE"/>
+                <wrapper template="PARENTHESES">
+                    <sequence>
+                        <element ref-id="expr" original-name="expr1"/>
+                        <token type-id="CHR_COMMA"/>
+                        <element ref-id="expr" original-name="expr2"/>
+                        <sequence optional="true">
+                            <token type-id="CHR_COMMA"/>
+                            <element ref-id="expr" original-name="metric"/>
+                        </sequence>
+                    </sequence>
+                </wrapper>
+            </sequence>
+            <sequence>
+                <one-of>
+                    <token type-id="FN_L1_DISTANCE"/>
+                    <token type-id="FN_L2_DISTANCE"/>
+                    <token type-id="FN_COSINE_DISTANCE"/>
+                    <token type-id="FN_INNER_PRODUCT"/>
+                </one-of>
+                <wrapper template="PARENTHESES">
+                    <sequence>
+                        <element ref-id="expr" original-name="expr1"/>
+                        <token type-id="CHR_COMMA"/>
+                        <element ref-id="expr" original-name="expr2"/>
+                    </sequence>
+                </wrapper>
+            </sequence>
+            <sequence>
+                <one-of>
+                    <token type-id="FN_TO_VECTOR"/>
+                    <token type-id="DT_VECTOR" flavor="function"/>
+                </one-of>
+                <wrapper template="PARENTHESES">
+                    <sequence>
+                        <element ref-id="expr"/>
+                        <sequence optional="true">
+                            <token type-id="CHR_COMMA"/>
+                            <token type-id="INTEGER"/>
+                            <sequence optional="true">
+                                <token type-id="CHR_COMMA"/>
+                                <one-of original-name="format">
+                                    <token type-id="DT_INT8"/>
+                                    <token type-id="DT_FLOAT32"/>
+                                    <token type-id="DT_FLOAT64"/>
+                                    <token type-id="KW_BINARY" flavor="datatype"/>
+                                    <token type-id="CHR_STAR"/>
+                                </one-of>
+                                <sequence optional="true">
+                                    <token type-id="CHR_COMMA"/>
+                                    <one-of original-name="storage_format">
+                                        <token type-id="KW_DENSE"/>
+                                        <token type-id="KW_SPARSE"/>
+                                        <token type-id="CHR_STAR"/>
+                                    </one-of>
+                                </sequence>
+                            </sequence>
+
+                        </sequence>
+                    </sequence>
+                </wrapper>
+            </sequence>
+            <sequence>
+                <one-of>
+                    <token type-id="FN_FROM_VECTOR"/>
+                    <token type-id="FN_VECTOR_SERIALIZE"/>
+                </one-of>
+                <wrapper template="PARENTHESES">
+                    <sequence>
+                        <element ref-id="expr"/>
+                        <sequence optional="true">
+                            <token type-id="KW_RETURNING"/>
+                            <one-of>
+                                <token type-id="DT_CLOB"/>
+                                <sequence>
+                                    <token type-id="DT_VARCHAR2"/>
+                                    <wrapper template="PARENTHESES" optional="true">
+                                        <sequence>
+                                            <token type-id="INTEGER" original-name="size"/>
+                                            <one-of optional="true">
+                                                <token type-id="DT_BYTE"/>
+                                                <token type-id="DT_CHAR"/>
+                                            </one-of>
+                                        </sequence>
+                                    </wrapper>
+                                </sequence>
+                                <token type-id="KW_FORMAT"/>
+                                <one-of optional="true">
+                                    <token type-id="KW_SPARSE"/>
+                                    <token type-id="KW_DENSE"/>
+                                </one-of>
+                            </one-of>
+                        </sequence>
+
+                    </sequence>
+                </wrapper>
+            </sequence>
+            <sequence>
+                <token type-id="FN_VECTOR_CHUNKS"/>
+                <wrapper template="PARENTHESES">
+                    <element ref-id="chunks_table_arguments"/>
+                </wrapper>
+            </sequence>
+            <sequence>
+                <one-of>
+                    <token type-id="FN_VECTOR_DIMS"/>
+                    <token type-id="FN_VECTOR_DIMENSION_COUNT"/>
+                    <token type-id="FN_VECTOR_DIMENSION_FORMAT"/>
+                    <token type-id="FN_VECTOR_NORM"/>
+                </one-of>
+                <wrapper template="PARENTHESES">
+                    <element ref-id="expr"/>
+                </wrapper>
+            </sequence>
+            <sequence>
+                <token type-id="FN_VECTOR_EMBEDDING"/>
+                <wrapper template="PARENTHESES">
+                    <sequence>
+                        <qualified-identifier>
+                            <variant>
+                                <object-ref id="07364" optional="true" type="SCHEMA" />
+                                <object-ref id="07365" type="AI_MODEL" original-name="model_name"/>
+                            </variant>
+                        </qualified-identifier>
+                        <token type-id="KW_USING"/>
+                        <one-of original-name="mining_attribute_clause">
+                            <token type-id="CHR_STAR"/>
+                            <iteration separator="CHR_COMMA">
+                                <one-of>
+                                    <qualified-identifier>
+                                        <variant>
+                                            <object-ref id="07364" optional="true" type="SCHEMA" />
+                                            <object-ref id="07365" type="TABLE"/>
+                                            <token type-id="CHR_STAR"/>
+                                        </variant>
+                                    </qualified-identifier>
+                                    <sequence>
+                                        <element ref-id="expr"/>
+                                        <sequence optional="true">
+                                            <token type-id="KW_AS" optional="true"/>
+                                            <alias-def type="COLUMN"/>
+                                        </sequence>
+                                    </sequence>
+                                </one-of>
+                            </iteration>
+                        </one-of>
+                    </sequence>
+                </wrapper>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="Chunks table arguments" id="chunks_table_arguments">
+        <element ref-id="expr" original-name="text_document"/>
+        <element ref-id="chunking_spec" optional="true"/>
+    </element-def>
+    <element-def description="Chunking spec" id="chunking_spec">
+        <sequence optional="true">
+            <token type-id="KW_BY"/>
+            <element ref-id="chunking_mode"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="FN_MAX" flavor="keyword"/>
+            <element ref-id="expr" original-name="integer_literal"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_SPLIT"/>
+            <token type-id="KW_BY" optional="true"/>
+            <element ref-id="split_characters_list"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_LANGUAGE"/>
+            <element ref-id="expr" original-name="language_name"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_NORMALIZE"/>
+            <element ref-id="normalization_spec"/>
+        </sequence>
+        <token type-id="KW_EXTENDED" optional="true"/>
+    </element-def>
+    <element-def description="SPLIT characters list" id="split_characters_list">
+        <one-of>
+            <token type-id="KW_NONE"/>
+            <token type-id="KW_BLANKLINE"/>
+            <token type-id="KW_NEWLINE"/>
+            <token type-id="KW_SPACE"/>
+            <token type-id="KW_RECURSIVELY"/>
+            <token type-id="KW_SENTENCE"/>
+            <sequence>
+                <token type-id="KW_CUSTOM"/>
+                <wrapper template="PARENTHESES" original-name="custom_split_characters_list">
+                    <iteration separator="CHR_COMMA">
+                        <element ref-id="expr" original-name="string_literal"/>
+                    </iteration>
+                </wrapper>
+            </sequence>
+        </one-of>
+    </element-def>
+    <element-def description="Normalization spec" id="normalization_spec">
+        <one-of>
+            <token type-id="KW_NONE"/>
+            <token type-id="KW_ALL"/>
+            <wrapper template="PARENTHESES" original-name="custom_normalization_spec">
+                <iteration separator="CHR_COMMA">
+                    <one-of original-name="normalization_mode">
+                        <token type-id="KW_WHITESPACE"/>
+                        <token type-id="KW_PUNCTUATION"/>
+                        <token type-id="KW_WIDECHAR"/>
+                    </one-of>
+                </iteration>
+            </wrapper>
+        </one-of>
+    </element-def>
+    <element-def description="Chunking mode" id="chunking_mode">
+        <token type-id="KW_WORDS"/>
+        <token type-id="KW_CHARS"/>
+        <token type-id="KW_CHARACTERS"/>
+        <sequence>
+            <token type-id="KW_VOCABULARY"/>
+            <element ref-id="expr" original-name="vocabulary_name"/>
+        </sequence>
+    </element-def>
 
     <element-def description="JSON_OBJECT function" id="json_object_function">
         <token id="06792" type-id="FN_JSON_OBJECT" />
