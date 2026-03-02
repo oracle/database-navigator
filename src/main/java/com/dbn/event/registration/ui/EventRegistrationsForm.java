@@ -44,7 +44,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.List;
 
-import static com.dbn.common.ui.util.ClientProperty.NO_BORDER;
+import static com.dbn.common.ui.util.Borderless.markBorderless;
 import static com.dbn.common.util.Conditional.when;
 
 public class EventRegistrationsForm extends DBNFormBase {
@@ -94,7 +94,7 @@ public class EventRegistrationsForm extends DBNFormBase {
     private void initTable(DataChangeRegistrationBundle listeners) {
         registrationsTable = new EventRegistrationsTable(this, listeners);
         listenersScrollPane.setViewportView(registrationsTable);
-        NO_BORDER.set(registrationsTable, true);
+        markBorderless(registrationsTable);
     }
 
     public void refresh() {
