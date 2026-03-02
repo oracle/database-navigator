@@ -78,7 +78,7 @@ public class QueryEmbeddingPipeline implements EmbeddingPipeline {
 
             ConnectionHandler connection = request.getConnection();
             String selectStatement = result.getSelectStatement();
-            selectStatement = getAdjustedSelectStatement(connection, selectStatement);
+            selectStatement = adjustSelectStatement(connection, selectStatement);
 
             while (true) {
                 if (progressIndicator.isCanceled()) break;
@@ -127,7 +127,7 @@ public class QueryEmbeddingPipeline implements EmbeddingPipeline {
      *  - remove tailing semicolons
      *  - identify first select-item and make sure it has an alias named "TEXT"
      */
-    private String getAdjustedSelectStatement(
+    private String adjustSelectStatement(
             @NotNull ConnectionHandler connection,
             @NotNull String selectStatement) {
         DBLanguageDialect languageDialect = nd(connection.getLanguageDialect(SQLLanguage.INSTANCE));
