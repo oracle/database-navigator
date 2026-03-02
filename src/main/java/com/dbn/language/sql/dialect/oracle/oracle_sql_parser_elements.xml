@@ -1904,7 +1904,7 @@
         <qualified-identifier id="01081" separator="CHR_DOT">
             <variant>
                 <object-ref id="01082" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="01083" type="JAVA_OBJECT" />
+                <object-ref attributes="SUBJECT" id="01083" type="JAVA_CLASS" />
             </variant>
         </qualified-identifier>
         <sequence id="01084" optional="true">
@@ -9005,7 +9005,7 @@
         <qualified-identifier id="05052" separator="CHR_DOT">
             <variant>
                 <object-ref id="05053" optional="true" type="SCHEMA" />
-                <object-ref attributes="SUBJECT" id="05054" type="JAVA_OBJECT" />
+                <object-ref attributes="SUBJECT" id="05054" type="JAVA_CLASS" />
             </variant>
         </qualified-identifier>
     </element-def>
