@@ -1,6 +1,7 @@
 package com.dbn.vector.service;
 
 import com.dbn.common.util.Json;
+import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.vector.model.VectorEmbeddingRequest;
@@ -33,20 +34,21 @@ public class FileProcessingService {
 
         StepResult step = result.startStep(PipelineStep.CHECK_CRC);
         DatabaseVectorInterface vectorInterface = request.getVectorInterface();
+        ResultSet resultSet = null;
 
         try {
             // Query database: does file with this hash and size exist?
             EmbeddingStagingConfig stagingConfig = request.getStagingConfig();
-            ResultSet rs = vectorInterface.loadFileStoreMetadata(
+            resultSet = vectorInterface.loadFileStoreMetadata(
                     connection,
                     stagingConfig.getSchemaName(),
                     stagingConfig.getTableName(),
                     result.getFileHash(),
                     result.getFileSize());
 
-            if (rs.next()) {
-                String fileStoreId = rs.getString("id");
-                String metadata = rs.getString("metadata");
+            if (resultSet.next()) {
+                String fileStoreId = resultSet.getString("id");
+                String metadata = resultSet.getString("metadata");
                 result.setMetadata(metadata);
                 step.markSuccess();
                 return fileStoreId;
@@ -57,6 +59,8 @@ public class FileProcessingService {
         } catch (Exception e) {
             step.markFailed("CRC_ERROR", e);
             result.finishFailed("CRC_ERROR", e);
+        } finally {
+            Resources.close(resultSet);
         }
         return null;
     }
@@ -128,8 +132,7 @@ public class FileProcessingService {
 
             if (alreadyEmbedded) {
                 step.markSuccess();
-                result.setSkipped(true);
-                result.finishSuccess(0);  // 0 new rows - already existed
+                result.finishSkipped();  // 0 new rows - already embedded
                 return;
             }
 

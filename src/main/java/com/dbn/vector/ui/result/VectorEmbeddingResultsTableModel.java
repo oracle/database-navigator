@@ -22,11 +22,13 @@ import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.request.EmbeddingSourceType;
 import com.dbn.vector.model.result.EmbeddingFileResult;
 import com.dbn.vector.model.result.EmbeddingResult;
+import com.intellij.ui.SimpleTextAttributes;
 import lombok.Getter;
 
-import static com.dbn.common.task.TaskStatus.FAILED;
+import static com.dbn.common.task.TaskStatus.SKIPPED;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 
 @Getter
@@ -42,19 +44,38 @@ public class VectorEmbeddingResultsTableModel extends DBNDynamicTableModel<Embed
         };
 
         addColumn(sourceName, r -> r.getName()).withIcon(r -> r.getIcon()).
-                withTooltip(r -> r.getSourceTooltip());
+                withTooltip(r -> r.getSourceTooltip()).
+                withAttributes(r -> attributes(r));
 
         if (sourceType == EmbeddingSourceType.FILE_SYSTEM) {
-            addColumn("Source size", r -> r.getPresentableSize());
-            addColumn("File store ID", r -> ((EmbeddingFileResult) r).getFileStoreId());
+            addColumn("Source size", r -> r.getPresentableSize()).
+                    withAttributes(r -> attributes(r));
+            addColumn("File store ID", r -> ((EmbeddingFileResult) r).getFileStoreId()).
+                    withAttributes(r -> attributes(r));
         }
 
-        addColumn("Rows embedded", r -> r.getRowsInserted());
-        addColumn("Task duration", r -> presentableDuration(r.getDuration(), true));
+        addColumn("Rows embedded", r -> r.getRowsInserted()).
+                withAttributes(r -> attributes(r));
+
+        addColumn("Task duration", r -> presentableDuration(r.getDuration(), true)).
+                withAttributes(r -> attributes(r));
+
         addColumn("Status", r -> r.getStatus()).
-                withAttributes(r -> r.getStatus() == FAILED ?
-                        ERROR_ATTRIBUTES :
-                        REGULAR_ATTRIBUTES).
+                withAttributes(r -> statusAttributes(r)).
                 withTooltip(r -> r.getStatusTooltip());
+
+        addColumn("Status message", r -> r.getStatusMessage()).
+                withAttributes(r -> attributes(r));
+    }
+
+    private static SimpleTextAttributes attributes(EmbeddingResult r) {
+        return r.getStatus() == SKIPPED ? GRAY_ATTRIBUTES : REGULAR_ATTRIBUTES;
+    }
+    private static SimpleTextAttributes statusAttributes(EmbeddingResult r) {
+        return switch (r.getStatus()) {
+            case SKIPPED -> GRAY_ATTRIBUTES;
+            case FAILED -> ERROR_ATTRIBUTES;
+            default -> REGULAR_ATTRIBUTES;
+        };
     }
 }

@@ -16,6 +16,7 @@
 
 package com.dbn.vector.model.result;
 
+import com.dbn.common.task.Task;
 import com.dbn.common.task.TaskStatus;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.NonNls;
 
 @Getter
 @Setter
-public class StepResult {
+public class StepResult implements Task {
   private final PipelineStep step;
 
   private TaskStatus status = TaskStatus.NEW;

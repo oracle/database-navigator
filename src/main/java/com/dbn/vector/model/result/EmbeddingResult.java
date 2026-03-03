@@ -16,6 +16,7 @@
 
 package com.dbn.vector.model.result;
 
+import com.dbn.common.task.Task;
 import com.dbn.common.task.TaskStatus;
 import com.dbn.common.ui.Presentable;
 import com.dbn.vector.model.request.EmbeddingSource;
@@ -23,20 +24,18 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
-public abstract class EmbeddingResult<T extends EmbeddingSource> implements Presentable {
+public abstract class EmbeddingResult<T extends EmbeddingSource> implements Presentable, Task {
     private final T source;
     private TaskStatus status = TaskStatus.NEW;
 
     private final List<StepResult> steps;
     private long rowsInserted = 0L;
-    private Duration duration;
-    private String displayName;
+    private long duration;
     private String metadata;
 
     @NonNls
@@ -82,10 +81,27 @@ public abstract class EmbeddingResult<T extends EmbeddingSource> implements Pres
     }
 
     public void finishFailed(@NonNls String errorCode, Throwable exception) {
-        this.duration = Duration.ofMillis(steps.stream().mapToLong(StepResult::getDuration).sum());
-        this.status = TaskStatus.FAILED;
+        finish(TaskStatus.FAILED);
         this.errorCode = errorCode;
         this.exception = exception;
+    }
+
+    public void finishSkipped() {
+        finish(TaskStatus.SKIPPED);
+    }
+
+    public void finishSuccess(long rowsInserted) {
+        finish(TaskStatus.FINISHED);
+        this.rowsInserted = rowsInserted;
+    }
+
+    private void finish(TaskStatus failed) {
+        this.status = failed;
+        this.duration = calculateDuration();
+    }
+
+    private long calculateDuration() {
+        return steps.stream().mapToLong(StepResult::getDuration).sum();
     }
 
     public String getErrorMessage() {
@@ -96,18 +112,16 @@ public abstract class EmbeddingResult<T extends EmbeddingSource> implements Pres
                 .orElse(null);
     }
 
-    public void finishSuccess(long rowsInserted) {
-        this.rowsInserted = rowsInserted;
-        this.duration = Duration.ofMillis(steps.stream().mapToLong(StepResult::getDuration).sum());
-        this.status = TaskStatus.FINISHED;
-    }
-
     public String getSourceTooltip() {
         return null;
     }
 
     public String getStatusTooltip() {
-        return null;
+        return exception == null ? null : "<html>" + exception.getMessage().replace("\n", "<br>") + "</html>";
+    }
+
+    public String getStatusMessage() {
+        return exception == null ? null : exception.getMessage();
     }
 
 }

@@ -19,6 +19,7 @@ package com.dbn.vector.model.result;
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
 import com.dbn.common.file.util.VirtualFiles;
+import com.dbn.common.task.TaskStatus;
 import com.dbn.vector.model.request.EmbeddingFileSource;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -79,6 +80,18 @@ public class EmbeddingFileResult extends EmbeddingResult<EmbeddingFileSource> {
     @Override
     public String getSourceTooltip() {
         return getSource().getFilePath();
+    }
+
+    @Override
+    public String getStatusTooltip() {
+        if (getStatus() == TaskStatus.SKIPPED) return "File content already embedded in the given destination";
+        return super.getStatusTooltip();
+    }
+
+    @Override
+    public String getStatusMessage() {
+        if (getStatus() == TaskStatus.SKIPPED) return "File content already embedded";
+        return super.getStatusMessage();
     }
 
     @Override

@@ -36,7 +36,8 @@ public class VectorEmbeddingResultsTable extends DBNTableWithGutter<VectorEmbedd
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
         initTableSorter();
 
-
+        setProportionalColumnWidth(0, 20);
+        setProportionalColumnWidth(getModel().getColumnCount() -1, 30); // status message
         setAccessibleName(this, "Data change listener registrations");
     }
 

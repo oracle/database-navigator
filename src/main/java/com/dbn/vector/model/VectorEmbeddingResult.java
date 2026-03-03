@@ -15,7 +15,6 @@ import com.dbn.vector.model.result.EmbeddingTableResult;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -90,8 +89,8 @@ public class VectorEmbeddingResult {
         return results.values().stream().filter(f -> f.getStatus() == TaskStatus.FINISHED).count();
     }
 
-    public Duration getDuration() {
-        return Duration.ofMillis(results.values().stream().mapToLong(r -> r.getDuration().toMillis()).sum());
+    public long getDuration() {
+        return results.values().stream().mapToLong(r -> r.getDuration()).sum();
     }
 
     public long getTotalInsertedRows() {

@@ -121,12 +121,6 @@ public class FileEmbeddingPipeline implements EmbeddingPipeline {
                     connection,
                     request,
                     result);
-
-            // Add visual indicator if file was reused
-            if (result.isSkipped() && result.getStatus() == TaskStatus.FINISHED) {
-                result.setDisplayName(file.getName() + " (reused)");
-            }
-
         } catch (Exception e) {
             result.finishFailed("UNEXPECTED_ERROR", e);
         }
