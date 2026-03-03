@@ -16,6 +16,7 @@
 
 package com.dbn.vector.ui.result;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.ui.table.DBNDynamicTableModel;
 import com.dbn.common.ui.table.DBNTableWithGutterModel;
 import com.dbn.vector.model.VectorEmbeddingResult;
@@ -30,6 +31,7 @@ import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.STYLE_PLAIN;
 
 @Getter
 public class VectorEmbeddingResultsTableModel extends DBNDynamicTableModel<EmbeddingResult> implements DBNTableWithGutterModel<EmbeddingResult> {
@@ -75,6 +77,7 @@ public class VectorEmbeddingResultsTableModel extends DBNDynamicTableModel<Embed
         return switch (r.getStatus()) {
             case SKIPPED -> GRAY_ATTRIBUTES;
             case FAILED -> ERROR_ATTRIBUTES;
+            case DONE -> new SimpleTextAttributes(STYLE_PLAIN, Colors.SUCCESS_COLOR);
             default -> REGULAR_ATTRIBUTES;
         };
     }

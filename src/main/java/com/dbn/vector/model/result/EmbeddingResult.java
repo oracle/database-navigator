@@ -91,7 +91,7 @@ public abstract class EmbeddingResult<T extends EmbeddingSource> implements Pres
     }
 
     public void finishSuccess(long rowsInserted) {
-        finish(TaskStatus.FINISHED);
+        finish(TaskStatus.DONE);
         this.rowsInserted = rowsInserted;
     }
 

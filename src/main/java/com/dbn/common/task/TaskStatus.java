@@ -18,9 +18,9 @@ package com.dbn.common.task;
 
 public enum TaskStatus {
     NEW,
+    DONE,
     RUNNING,
-    FINISHED,
     CANCELLED,
-    FAILED,
-    SKIPPED
+    SKIPPED,
+    FAILED
 }

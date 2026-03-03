@@ -41,7 +41,7 @@ public class StepResult implements Task {
   }
 
   public void markSuccess() {
-    this.status = TaskStatus.FINISHED;
+    this.status = TaskStatus.DONE;
     this.endTime = System.currentTimeMillis();
   }
 

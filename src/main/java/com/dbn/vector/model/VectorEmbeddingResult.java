@@ -74,7 +74,7 @@ public class VectorEmbeddingResult {
      */
     public void finish() {
 
-        boolean anySuccess = results.values().stream().anyMatch(f -> f.getStatus() == TaskStatus.FINISHED);
+        boolean anySuccess = results.values().stream().anyMatch(f -> f.getStatus() == TaskStatus.DONE);
         boolean anyFailed = results.values().stream().anyMatch(f -> f.getStatus() == TaskStatus.FAILED);
         boolean anySkipped = results.values().stream().anyMatch(f -> f.getStatus() == TaskStatus.SKIPPED);
 
@@ -86,7 +86,7 @@ public class VectorEmbeddingResult {
     }
 
     public long getSourceSucceedCount() {
-        return results.values().stream().filter(f -> f.getStatus() == TaskStatus.FINISHED).count();
+        return results.values().stream().filter(f -> f.getStatus() == TaskStatus.DONE).count();
     }
 
     public long getDuration() {
@@ -106,10 +106,10 @@ public class VectorEmbeddingResult {
     }
 
     public double getSuccessRate() {
-        long successedSr = results.values().stream()
-                .filter(f -> f.getStatus() == TaskStatus.FINISHED || f.getStatus() == TaskStatus.SKIPPED)
+        long successCount = results.values().stream()
+                .filter(f -> f.getStatus() == TaskStatus.DONE || f.getStatus() == TaskStatus.SKIPPED)
                 .count();
-        return getResourcesCount() > 0 ? (double) successedSr / getResourcesCount() * 100 : 0;
+        return getResourcesCount() > 0 ? (double) successCount / getResourcesCount() * 100 : 0;
     }
 
     public TitledMessage getSummaryMessage() {
