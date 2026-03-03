@@ -27,8 +27,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class BasicElementType extends ElementTypeBase {
 
-    protected BasicElementType(ElementTypeBundle bundle, String id, String description) {
-        super(bundle, null, id, description);
+    protected BasicElementType(ElementTypeBundle bundle, String id) {
+        super(bundle, null, id);
     }
 
     @Override

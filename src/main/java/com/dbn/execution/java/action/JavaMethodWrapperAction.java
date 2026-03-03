@@ -40,7 +40,7 @@ public class JavaMethodWrapperAction extends AnObjectAction<DBJavaMethod> {
     private static void createExecutionWrappers(@NotNull DBJavaMethod method) {
         Project project = method.getProject();
         JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(project);
-        wrapperManager.createExecutionWrappers(method, true, false);
+        wrapperManager.createExecutionWrappers(method);
     }
 
     @Override

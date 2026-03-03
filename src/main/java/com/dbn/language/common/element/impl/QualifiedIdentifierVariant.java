@@ -21,8 +21,6 @@ import com.dbn.language.common.psi.QualifiedIdentifierPsiElement;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.util.Unsafe.cast;
-
 public class QualifiedIdentifierVariant implements Comparable{
     private LeafElementType[] leafs;
     /**@deprecated*/
@@ -120,13 +118,11 @@ public class QualifiedIdentifierVariant implements Comparable{
     }
 
     public boolean matchesPsiElement(QualifiedIdentifierPsiElement psiElement) {
-        TokenElementType separatorToken = psiElement.elementType.getSeparatorToken();
+        TokenElementType separatorToken = psiElement.elementType.separatorToken;
         PsiElement child = psiElement.getFirstChild();
         int index = 0;
         while (child != null) {
-            if (child instanceof LeafPsiElement) {
-                LeafPsiElement leafPsiElement = cast(child);
-
+            if (child instanceof LeafPsiElement leafPsiElement) {
                 if (leafPsiElement.elementType == separatorToken){
                     index++;
                 } else {
@@ -136,7 +132,7 @@ public class QualifiedIdentifierVariant implements Comparable{
                     }
 
                     PsiElement reference = leafPsiElement.resolve();
-                    LeafElementType leafElementType = cast(leafPsiElement.elementType);
+                    LeafElementType leafElementType = (LeafElementType) leafPsiElement.elementType;
                     if (reference == null) {
                         if (!(leafElementType.isIdentifier() && leafs[index].isIdentifier()) ||
                                 !leafElementType.isSameAs(leafs[index])) {

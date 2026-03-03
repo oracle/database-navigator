@@ -16,17 +16,27 @@
 
 package com.dbn.editor.json.schema;
 
+/*
 import com.intellij.openapi.vfs.VirtualFile;
+import com.jetbrains.jsonSchema.extension.JsonSchemaFileProvider;
 import com.jetbrains.jsonSchema.extension.JsonSchemaFileProvider;
 import com.jetbrains.jsonSchema.extension.SchemaType;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+*/
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class JsonViewSchemaProvider implements JsonSchemaFileProvider {
+/**
+ * Attempt to provide json schema support for json-view database object editors.
+ * This does not provide dynamic support though. (each json view has its own json schema definition)
+ * Workaround implemented in {@link JsonDataSchemaManager} and its reflection alternative {@link JsonDataSchemaCustomManager}
+ * TODO check if there is a way to make this dynamic (thread local context??)
+ */
+public class JsonViewSchemaProvider /*implements JsonSchemaFileProvider*/ {
+/*
     private final Map<String, VirtualFile> schemaFiles = new ConcurrentHashMap<>();
 
     @Override
@@ -48,4 +58,5 @@ public class JsonViewSchemaProvider implements JsonSchemaFileProvider {
     public @NotNull SchemaType getSchemaType() {
         return SchemaType.userSchema;
     }
+*/
 }

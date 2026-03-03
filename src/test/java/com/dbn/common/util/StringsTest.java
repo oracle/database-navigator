@@ -117,4 +117,12 @@ public class StringsTest extends TestCase {
                 """);
         assertEquals("Sample Page Welcome to The Test Page This is a sample paragraph.Here is a line break. Javascript is disabled. One Two (second) Text outside tags.", content);
     }
+
+    public void testIndentText() {
+        String indented = Strings.indentText("""
+                Line1
+                Line2
+                Line3""", 4);
+        assertEquals("    Line1\n    Line2\n    Line3", indented);
+    }
 }

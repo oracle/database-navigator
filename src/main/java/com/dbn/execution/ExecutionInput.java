@@ -55,7 +55,7 @@ public abstract class ExecutionInput extends StatefulDisposableBase implements S
         return cast(executionContext.get());
     }
 
-    protected void resetExecutionContext() {
+    public void resetExecutionContext() {
         executionContext.reset();
     }
 

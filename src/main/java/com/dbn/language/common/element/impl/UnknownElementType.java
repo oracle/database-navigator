@@ -22,7 +22,8 @@ import com.dbn.language.common.element.cache.VoidElementTypeLookupCache;
 
 public final class UnknownElementType extends BasicElementType{
     public UnknownElementType(ElementTypeBundle bundle) {
-        super(bundle, "UNKNOWN", "Unidentified element type.");
+        super(bundle, "UNKNOWN");
+        description = "Unidentified element type";
     }
 
     @Override

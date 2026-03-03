@@ -17,6 +17,7 @@
 package com.dbn.language.common.element.cache;
 
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.ElementTypeRef;
 import com.dbn.language.common.element.impl.LeafElementType;
@@ -42,9 +43,9 @@ public class OneOfElementTypeLookupCache extends ElementTypeLookupCacheIndexed<O
     }
 
     @Override
-    public boolean checkStartsWithIdentifier() {
-        for(ElementTypeRef child : elementType.children){
-            if (child.elementType.cache.startsWithIdentifier()) return true;
+    protected boolean checkStartsWith(TokenTypeCategory typeCategory) {
+        for (ElementTypeRef child : element.children) {
+            if (child.elementType.cache.startsWith(typeCategory)) return true;
         }
         return false;
     }
@@ -52,7 +53,7 @@ public class OneOfElementTypeLookupCache extends ElementTypeLookupCacheIndexed<O
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, Set<LeafElementType> bucket) {
         bucket = super.captureFirstPossibleLeafs(context, bucket);
-        ElementTypeRef[] elementTypeRefs = elementType.children;
+        ElementTypeRef[] elementTypeRefs = element.children;
         for (ElementTypeRef child : elementTypeRefs) {
             if (context.check(child)) {
                 bucket = child.elementType.cache.captureFirstPossibleLeafs(context, bucket);
@@ -64,11 +65,21 @@ public class OneOfElementTypeLookupCache extends ElementTypeLookupCacheIndexed<O
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, Set<TokenType> bucket) {
         bucket = super.captureFirstPossibleTokens(context, bucket);
-        ElementTypeRef[] elementTypeRefs = elementType.children;
+        ElementTypeRef[] elementTypeRefs = element.children;
         for (ElementTypeRef child : elementTypeRefs) {
             if (context.check(child)) {
                 bucket = child.elementType.cache.captureFirstPossibleTokens(context, bucket);
             }
+        }
+        return bucket;
+    }
+
+    @Override
+    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
+        ElementTypeRef leadCandidate = element.getFirstChild();
+        while (leadCandidate != null) {
+            leadCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
+            leadCandidate = leadCandidate.next;
         }
         return bucket;
     }

@@ -27,6 +27,7 @@ import com.dbn.language.common.psi.RootPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,6 +37,7 @@ import java.util.Set;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 
 @Getter
+@Slf4j
 public final class NamedElementType extends SequenceElementType {
     public final Set<ElementTypeBase> parents;
     private boolean definitionLoaded;
@@ -66,6 +68,10 @@ public final class NamedElementType extends SequenceElementType {
 
     @Override
     public void loadDefinition(Element def) throws ElementTypeDefinitionException {
+        if (definitionLoaded) {
+            log.error("[{}] duplicate definition for element \"{}\"", getLanguageDialect().getID(), getId());
+        }
+
         super.loadDefinition(def);
         String description = ElementTypeBundle.determineMandatoryAttribute(def, "description", "Invalid definition of complex element '" + getId() + "'.");
         setDescription(description);
@@ -80,13 +86,15 @@ public final class NamedElementType extends SequenceElementType {
         definitionLoaded = true;
     }
 
+    @Override
+    public void changeParent(ElementTypeBase oldParent, ElementTypeBase newParent) {
+        parents.remove(oldParent);
+        parents.add(newParent);
+    }
+
     @NotNull
     @Override
     public String getName() {
         return cachedUpperCase(getId());
-    }
-
-    public void addParent(ElementTypeBase parent) {
-        parents.add(parent);
     }
 }

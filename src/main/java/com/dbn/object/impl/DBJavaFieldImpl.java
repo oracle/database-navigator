@@ -27,6 +27,7 @@ import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
+import com.dbn.object.lookup.DBJavaNameCache;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBObjectType;
@@ -108,6 +109,11 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	}
 
 	@Override
+	public boolean isPublic() {
+		return getAccessibility() == DBJavaAccessibility.PUBLIC;
+	}
+
+	@Override
 	public boolean isFinal() {
 		return is(FINAL);
 	}
@@ -143,7 +149,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 
 	@Override
 	public String getJavaClassName() {
-		return javaClass.getObjectName();
+		return DBJavaNameCache.getCanonicalName(javaClass);
 	}
 
 	@Override

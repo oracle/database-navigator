@@ -23,6 +23,8 @@ import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
 
+import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
+
 public class NamedElementTypeParser extends SequenceElementTypeParser<NamedElementType>{
     public NamedElementTypeParser(NamedElementType elementType) {
         super(elementType);
@@ -32,7 +34,7 @@ public class NamedElementTypeParser extends SequenceElementTypeParser<NamedEleme
     public ParseResult parse(ParserNode parentNode, ParserContext context) throws ParseException {
         ParserBuilder builder = context.builder;
         if (isRecursive(parentNode, builder.getOffset())) {
-            return ParseResult.noMatch();
+            return NO_MATCH_RESULT;
         }
         return super.parse(parentNode, context);
     }

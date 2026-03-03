@@ -50,7 +50,6 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.OBJECT_D
 import static com.dbn.language.common.element.util.ElementTypeAttribute.OBJECT_SPECIFICATION;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.ROOT;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SUBJECT;
-import static com.intellij.lang.annotation.HighlightSeverity.ERROR;
 
 public class PSQLLanguageAnnotator extends DBLanguageAnnotator {
 
@@ -76,12 +75,15 @@ public class PSQLLanguageAnnotator extends DBLanguageAnnotator {
             } else if (basePsiElement instanceof IdentifierPsiElement) {
                 annotateIdentifier(cast(psiElement), holder);
 
-            } else if (basePsiElement instanceof NamedPsiElement namedPsiElement) {
+            }
+            /*
+            // TODO cleanup (intrusive error highlighting)
+                else if (basePsiElement instanceof NamedPsiElement namedPsiElement) {
                 if (namedPsiElement.hasErrors()) {
                     String message = "Invalid " + namedPsiElement.elementType.getDescription();
                     createAnnotation(holder, namedPsiElement, ERROR, null, message);
                 }
-            }
+            }*/
 
             if (basePsiElement instanceof ExecutablePsiElement) {
                 annotateExecutable(cast(psiElement), holder);

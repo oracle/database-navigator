@@ -20,11 +20,15 @@ import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.impl.IdentifierElementType;
 import com.dbn.language.common.element.parser.ElementTypeParser;
 import com.dbn.language.common.element.parser.ParseResult;
-import com.dbn.language.common.element.parser.ParseResultType;
 import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
 import com.intellij.lang.PsiBuilder.Marker;
+
+import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
+import static com.dbn.language.common.element.parser.ParseResultType.BORROWED_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
 
 public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierElementType> {
     public IdentifierElementTypeParser(IdentifierElementType elementType) {
@@ -34,30 +38,36 @@ public class IdentifierElementTypeParser extends ElementTypeParser<IdentifierEle
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) {
         ParserBuilder builder = context.builder;
-        TokenType token = builder.getToken();
-        Marker marker = null;
-
-        if (token != null && !token.isChameleon()){
-            if (token.isIdentifier()) {
-                marker = builder.markAndAdvance();
-                return stepOut(marker, context, ParseResultType.FULL_MATCH, 1);
-            }
-            else if (isSuppressibleReservedWord(parentNode, context, token)) {
-                marker = builder.markAndAdvance();
-                return stepOut(marker, context, ParseResultType.FULL_MATCH, 1);
+        if (context.isSurrogateFor(elementType) && parentNode.matchedTokens == 0) {
+            if (elementType.is(SURROGATE_LEAD)) {
+                return stepOut(null, context, BORROWED_MATCH, 0);
+            } else {
+                Marker marker = builder.markAndAdvance();
+                return stepOut(marker, context, FULL_MATCH, 1);
             }
         }
-        return stepOut(marker, context, ParseResultType.NO_MATCH, 0);
+
+        TokenType token = builder.getToken();
+        if (token == null) return NO_MATCH_RESULT;
+
+        // if reserved word, verify if suppressible in this context (i.e. converted to identifier)
+        if (token.isIdentifier() || isSuppressibleReservedWord(parentNode, context, token)) {
+            if (elementType.is(SURROGATE_LEAD)) {
+                return stepOut(null, context, FULL_MATCH, 0);
+            }
+
+            Marker marker = builder.markAndAdvance();
+            return stepOut(marker, context, FULL_MATCH, 1);
+        }
+
+        return NO_MATCH_RESULT;
     }
 
     private boolean isSuppressibleReservedWord(ParserNode parentNode, ParserContext context, TokenType tokenType) {
-        if (tokenType.isSuppressibleReservedWord()) {
-            if (context.isWavedTokenType(tokenType)) {
-                return true;
-            }
+        if (!tokenType.isSuppressibleReservedWord()) return false;
+        if (context.isWavedTokenType(tokenType)) return true;
+        if (elementType.isDefinition() && !elementType.isAlias()) return true;
 
-            return (elementType.isDefinition() && !elementType.isAlias()) || isSuppressibleReservedWord(tokenType, parentNode, context);
-        }
-        return false;
+        return isSuppressibleReservedWord(tokenType, parentNode, context);
     }
 }

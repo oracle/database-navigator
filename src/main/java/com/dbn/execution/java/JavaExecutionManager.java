@@ -115,6 +115,7 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 
 	private void promptExecutionDialog(@NotNull DBJavaMethod method, @NotNull DBDebuggerType debuggerType, Runnable callback) {
 		JavaExecutionInput executionInput = getExecutionInput(method);
+        executionInput.resetExecutionContext();
 		promptExecutionDialog(executionInput, debuggerType, callback);
 	}
 

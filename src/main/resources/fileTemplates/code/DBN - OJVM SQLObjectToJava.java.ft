@@ -1,19 +1,12 @@
-public static ${JAVA_COMPLEX_TYPE} ${CONVERTER_METHOD_NAME}(java.sql.Struct obj) {
+    private static ${JAVA_COMPLEX_TYPE} ${CONVERTER_METHOD_NAME}(java.sql.Struct obj) throws java.sql.SQLException {
         if (obj == null) return null;
-
-        Object[] ${OBJ_ARRAY};
-        try {
-                ${OBJ_ARRAY} = obj.getAttributes();
-        } catch (java.sql.SQLException e) {
-                return null;
-        }
-
-        ${JAVA_COMPLEX_TYPE} ${JAVA_OBJECT} = new ${JAVA_COMPLEX_TYPE}();
-    #if($FIELD_ASSIGNMENTS)
-        #foreach($assignment in $FIELD_ASSIGNMENTS)
-            $assignment
-        #end
-    #end
-
+        Object[] objArray = obj.getAttributes();
+        $BR
+        ${JAVA_COMPLEX_TYPE} javaObj = new ${JAVA_COMPLEX_TYPE}();
+#foreach($FIELD_ASSIGNMENT in $FIELD_ASSIGNMENTS)
+        $FIELD_ASSIGNMENT
+#end
+        $BR
         return javaObj;
-}
+    }
+    $BR

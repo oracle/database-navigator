@@ -36,7 +36,7 @@ public class BlockElementTypeParser extends SequenceElementTypeParser<BlockEleme
         Marker marker = builder.mark();
         ParseResult result = super.parse(parentNode, context);
 
-        if (result.getType() == ParseResultType.NO_MATCH) {
+        if (result.type == ParseResultType.NO_MATCH) {
             builder.markerDrop(marker);
         } else {
             builder.markerDone(marker, elementType);
