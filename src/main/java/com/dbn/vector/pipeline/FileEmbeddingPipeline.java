@@ -1,5 +1,6 @@
 package com.dbn.vector.pipeline;
 
+import com.dbn.common.task.TaskStatus;
 import com.dbn.common.util.Naming;
 import com.dbn.common.util.UUIDs;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -10,7 +11,6 @@ import com.dbn.vector.model.request.EmbeddingFileSource;
 import com.dbn.vector.model.request.EmbeddingSourceFiles;
 import com.dbn.vector.model.result.EmbeddingFileResult;
 import com.dbn.vector.model.result.PipelineStep;
-import com.dbn.vector.model.result.SourceStatus;
 import com.dbn.vector.service.FileProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -66,7 +66,7 @@ public class FileEmbeddingPipeline implements EmbeddingPipeline {
             try {
                 result.initSource();
             } catch (Exception e) {
-                result.finishFailed("FILE_READ_ERROR", e.getMessage());
+                result.finishFailed("FILE_READ_ERROR", e);
                 return;
             }
 
@@ -79,7 +79,7 @@ public class FileEmbeddingPipeline implements EmbeddingPipeline {
                     request,
                     result);
 
-            if (!result.getStatus().equals(SourceStatus.RUNNING)) {
+            if (!result.getStatus().equals(TaskStatus.RUNNING)) {
                 return;  // Check failed
             }
 
@@ -108,7 +108,7 @@ public class FileEmbeddingPipeline implements EmbeddingPipeline {
                         result);
             }
 
-            if (!result.getStatus().equals(SourceStatus.RUNNING)) {
+            if (!result.getStatus().equals(TaskStatus.RUNNING)) {
                 return; // Upload failed
             }
 
@@ -123,12 +123,12 @@ public class FileEmbeddingPipeline implements EmbeddingPipeline {
                     result);
 
             // Add visual indicator if file was reused
-            if (result.isSkipped() && result.getStatus() == SourceStatus.SUCCESS) {
+            if (result.isSkipped() && result.getStatus() == TaskStatus.FINISHED) {
                 result.setDisplayName(file.getName() + " (reused)");
             }
 
         } catch (Exception e) {
-            result.finishFailed("UNEXPECTED_ERROR", e.getMessage());
+            result.finishFailed("UNEXPECTED_ERROR", e);
         }
     }
 }

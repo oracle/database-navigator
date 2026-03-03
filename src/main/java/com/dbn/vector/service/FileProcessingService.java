@@ -55,8 +55,8 @@ public class FileProcessingService {
             step.markSuccess();
 
         } catch (Exception e) {
-            step.markFailed("CRC_ERROR", e.getMessage());
-            result.finishFailed("CRC_ERROR", e.getMessage());
+            step.markFailed("CRC_ERROR", e);
+            result.finishFailed("CRC_ERROR", e);
         }
         return null;
     }
@@ -101,8 +101,8 @@ public class FileProcessingService {
 
             step.markSuccess();
         } catch (Exception e) {
-            step.markFailed("UPLOAD_ERROR", e.getMessage());
-            result.finishFailed("UPLOAD_ERROR", e.getMessage());
+            step.markFailed("UPLOAD_ERROR", e);
+            result.finishFailed("UPLOAD_ERROR", e);
         }
     }
 
@@ -152,8 +152,8 @@ public class FileProcessingService {
             result.finishSuccess(embeddedRows);
 
         } catch (Throwable e) {
-            step.markFailed("EMBED_ERROR", e.getMessage());
-            result.finishFailed("EMBED_ERROR", e.getMessage());
+            step.markFailed("EMBED_ERROR", e);
+            result.finishFailed("EMBED_ERROR", e);
         }
     }
 

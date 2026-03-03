@@ -24,8 +24,8 @@ import com.dbn.vector.model.result.EmbeddingFileResult;
 import com.dbn.vector.model.result.EmbeddingResult;
 import lombok.Getter;
 
+import static com.dbn.common.task.TaskStatus.FAILED;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
-import static com.dbn.vector.model.result.SourceStatus.FAILED;
 import static com.intellij.ui.SimpleTextAttributes.ERROR_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 
@@ -42,7 +42,7 @@ public class VectorEmbeddingResultsTableModel extends DBNDynamicTableModel<Embed
         };
 
         addColumn(sourceName, r -> r.getName()).withIcon(r -> r.getIcon()).
-                withTooltip(r -> r.getTooltip());
+                withTooltip(r -> r.getSourceTooltip());
 
         if (sourceType == EmbeddingSourceType.FILE_SYSTEM) {
             addColumn("Source size", r -> r.getPresentableSize());
@@ -54,6 +54,7 @@ public class VectorEmbeddingResultsTableModel extends DBNDynamicTableModel<Embed
         addColumn("Status", r -> r.getStatus()).
                 withAttributes(r -> r.getStatus() == FAILED ?
                         ERROR_ATTRIBUTES :
-                        REGULAR_ATTRIBUTES);
+                        REGULAR_ATTRIBUTES).
+                withTooltip(r -> r.getStatusTooltip());
     }
 }

@@ -28,8 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 // TableResult for table-based jobs
 @Getter
@@ -40,7 +39,6 @@ public class EmbeddingTableResult extends EmbeddingResult<EmbeddingSourceTable> 
     public EmbeddingTableResult(EmbeddingSourceTable source, ConnectionId connectionId) {
         super(source);
         this.table = initTable(source, connectionId);
-        initSteps();
     }
 
     private static DBObjectRef<DBTable> initTable(EmbeddingSourceTable source, ConnectionId connectionId) {
@@ -50,10 +48,9 @@ public class EmbeddingTableResult extends EmbeddingResult<EmbeddingSourceTable> 
         return new DBObjectRef<>(schema, DBObjectType.TABLE, tableName);
     }
 
-    private void initSteps() {
-        setSteps(new ArrayList<>(Arrays.asList(
-                new StepResult(PipelineStep.EMBED)
-        )));
+    @Override
+    protected List<StepResult> initSteps() {
+        return List.of(new StepResult(PipelineStep.EMBED));
     }
 
     @NotNull

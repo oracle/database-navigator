@@ -96,8 +96,8 @@ public class TableEmbeddingPipeline implements EmbeddingPipeline {
         } catch (Exception e) {
             // Rollback only the current failed batch
             rollbackSilently(connection);
-            embedStep.markFailed("EMBED_ERROR", e.getMessage());
-            result.finishFailed("EMBED_ERROR", e.getMessage());
+            embedStep.markFailed("EMBED_ERROR", e);
+            result.finishFailed("EMBED_ERROR", e);
         }
     }
 }

@@ -21,19 +21,16 @@ import com.dbn.vector.model.request.EmbeddingSourceQuery;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 public class EmbeddingQueryResult extends EmbeddingResult<EmbeddingSourceQuery> {
     public EmbeddingQueryResult(EmbeddingSourceQuery source) {
         super(source);
-        initSteps();
     }
 
-    private void initSteps() {
-        setSteps(new ArrayList<>(Arrays.asList(
-                new StepResult(PipelineStep.EMBED)
-        )));
+    @Override
+    protected List<StepResult> initSteps() {
+        return List.of(new StepResult(PipelineStep.EMBED));
     }
 
     @Override
@@ -58,7 +55,7 @@ public class EmbeddingQueryResult extends EmbeddingResult<EmbeddingSourceQuery> 
     }
 
     @Override
-    public String getTooltip() {
+    public String getSourceTooltip() {
         return getSource().getSelectStatement();
     }
 

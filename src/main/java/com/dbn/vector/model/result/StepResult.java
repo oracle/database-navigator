@@ -16,55 +16,44 @@
 
 package com.dbn.vector.model.result;
 
+import com.dbn.common.task.TaskStatus;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
 
-import javax.swing.Icon;
-
 @Getter
 @Setter
 public class StepResult {
+  private final PipelineStep step;
 
-
-  public enum STEP_STATUS {
-    NOT_STARTED,
-    RUNNING,
-    FAILED,
-    SUCCEEDED
-  }
-  private STEP_STATUS status = STEP_STATUS.NOT_STARTED;
-  private PipelineStep step;
-  private String errorCode;
-  private String errorMessage;
+  private TaskStatus status = TaskStatus.NEW;
   private long startTime;
   private long endTime;
-  private Icon icon ;
-  private String link ="";
+
+  @NonNls
+  private String errorCode;
+  private Throwable exception;
+
 
   public StepResult(PipelineStep step) {
     this.step = step;
   }
 
   public void markSuccess() {
-    this.status = STEP_STATUS.SUCCEEDED;
+    this.status = TaskStatus.FINISHED;
     this.endTime = System.currentTimeMillis();
   }
 
   public void start() {
-    this.status = STEP_STATUS.RUNNING;
-    startTime = System.currentTimeMillis();
+    this.status = TaskStatus.RUNNING;
+    this.startTime = System.currentTimeMillis();
   }
 
-  public void markFailed(@NonNls String ensureDestError, String message) {
-    this.status = STEP_STATUS.FAILED;
-    this.errorCode = ensureDestError;
-    this.errorMessage = message;
+  public void markFailed(@NonNls String errorCode, Throwable exception) {
+    this.status = TaskStatus.FAILED;
+    this.errorCode = errorCode;
+    this.exception = exception;
     this.endTime = System.currentTimeMillis();
-  }
-
-  public boolean isOk() {
-    return errorCode == null;
   }
 
   public long getDuration() {

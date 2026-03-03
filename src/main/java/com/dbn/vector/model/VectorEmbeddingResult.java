@@ -2,6 +2,7 @@ package com.dbn.vector.model;
 
 import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
+import com.dbn.common.task.TaskStatus;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.vector.model.request.EmbeddingSource;
@@ -11,7 +12,6 @@ import com.dbn.vector.model.result.EmbeddingFileResult;
 import com.dbn.vector.model.result.EmbeddingQueryResult;
 import com.dbn.vector.model.result.EmbeddingResult;
 import com.dbn.vector.model.result.EmbeddingTableResult;
-import com.dbn.vector.model.result.SourceStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -75,9 +75,9 @@ public class VectorEmbeddingResult {
      */
     public void finish() {
 
-        boolean anySuccess = results.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.SUCCESS);
-        boolean anyFailed = results.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.FAILED);
-        boolean anySkipped = results.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.SKIPPED);
+        boolean anySuccess = results.values().stream().anyMatch(f -> f.getStatus() == TaskStatus.FINISHED);
+        boolean anyFailed = results.values().stream().anyMatch(f -> f.getStatus() == TaskStatus.FAILED);
+        boolean anySkipped = results.values().stream().anyMatch(f -> f.getStatus() == TaskStatus.SKIPPED);
 
         if (anySuccess && anyFailed) status = Status.PARTIAL;
         else if (anySuccess) status = Status.SUCCESS;
@@ -87,7 +87,7 @@ public class VectorEmbeddingResult {
     }
 
     public long getSourceSucceedCount() {
-        return results.values().stream().filter(f -> f.getStatus() == SourceStatus.SUCCESS).count();
+        return results.values().stream().filter(f -> f.getStatus() == TaskStatus.FINISHED).count();
     }
 
     public Duration getDuration() {
@@ -108,7 +108,7 @@ public class VectorEmbeddingResult {
 
     public double getSuccessRate() {
         long successedSr = results.values().stream()
-                .filter(f -> f.getStatus() == SourceStatus.SUCCESS || f.getStatus() == SourceStatus.SKIPPED)
+                .filter(f -> f.getStatus() == TaskStatus.FINISHED || f.getStatus() == TaskStatus.SKIPPED)
                 .count();
         return getResourcesCount() > 0 ? (double) successedSr / getResourcesCount() * 100 : 0;
     }

@@ -28,8 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 @Getter
 @Setter
@@ -43,7 +42,6 @@ public class EmbeddingFileResult extends EmbeddingResult<EmbeddingFileSource> {
 
     public EmbeddingFileResult(EmbeddingFileSource source) {
         super(source);
-        initSteps();
     }
 
     public void initSource() {
@@ -57,12 +55,13 @@ public class EmbeddingFileResult extends EmbeddingResult<EmbeddingFileSource> {
         return getSource().getFile();
     }
 
-    private void initSteps() {
-        setSteps(
-            new ArrayList<>(Arrays.asList(
+
+    @Override
+    protected List<StepResult> initSteps() {
+        return List.of(
             new StepResult(PipelineStep.CHECK_CRC),
             new StepResult(PipelineStep.UPLOADING_FILE),
-            new StepResult(PipelineStep.EMBED))));
+            new StepResult(PipelineStep.EMBED));
     }
 
     @NotNull
@@ -78,7 +77,7 @@ public class EmbeddingFileResult extends EmbeddingResult<EmbeddingFileSource> {
     }
 
     @Override
-    public String getTooltip() {
+    public String getSourceTooltip() {
         return getSource().getFilePath();
     }
 

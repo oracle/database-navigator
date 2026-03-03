@@ -16,29 +16,40 @@
 
 package com.dbn.vector.model.result;
 
+import com.dbn.common.task.TaskStatus;
 import com.dbn.common.ui.Presentable;
 import com.dbn.vector.model.request.EmbeddingSource;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 public abstract class EmbeddingResult<T extends EmbeddingSource> implements Presentable {
     private final T source;
+    private TaskStatus status = TaskStatus.NEW;
 
-    private SourceStatus status = SourceStatus.FAILED;
-    private List<StepResult> steps;
+    private final List<StepResult> steps;
     private long rowsInserted = 0L;
     private Duration duration;
     private String displayName;
     private String metadata;
 
+    @NonNls
+    private String errorCode;
+    private Throwable exception;
+
+
     protected EmbeddingResult(T source) {
         this.source = source;
+        this.steps = new ArrayList<>(initSteps());
     }
+
+    protected abstract List<StepResult> initSteps();
 
     public abstract String getPresentableSize();
 
@@ -47,7 +58,7 @@ public abstract class EmbeddingResult<T extends EmbeddingSource> implements Pres
     public StepResult startStep(PipelineStep stepType) {
         StepResult step = getStep(stepType);
         step.start();
-        this.status = SourceStatus.RUNNING;
+        this.status = TaskStatus.RUNNING;
         return step;
     }
 
@@ -70,27 +81,33 @@ public abstract class EmbeddingResult<T extends EmbeddingSource> implements Pres
         return null;
     }
 
-    public void finishFailed(String errorCode, String errorMessage) {
+    public void finishFailed(@NonNls String errorCode, Throwable exception) {
         this.duration = Duration.ofMillis(steps.stream().mapToLong(StepResult::getDuration).sum());
-        this.status = SourceStatus.FAILED;
-        //todo clean up??
+        this.status = TaskStatus.FAILED;
+        this.errorCode = errorCode;
+        this.exception = exception;
     }
 
     public String getErrorMessage() {
         return steps.stream()
-                .filter(s -> s.getStatus() == StepResult.STEP_STATUS.FAILED)
+                .filter(s -> s.getStatus() == TaskStatus.FAILED)
                 .findFirst()
-                .map(StepResult::getErrorMessage)
+                .map(r -> r.getException().getMessage())
                 .orElse(null);
     }
 
     public void finishSuccess(long rowsInserted) {
         this.rowsInserted = rowsInserted;
         this.duration = Duration.ofMillis(steps.stream().mapToLong(StepResult::getDuration).sum());
-        this.status = SourceStatus.SUCCESS;
+        this.status = TaskStatus.FINISHED;
     }
 
-    public String getTooltip() {
+    public String getSourceTooltip() {
         return null;
     }
+
+    public String getStatusTooltip() {
+        return null;
+    }
+
 }

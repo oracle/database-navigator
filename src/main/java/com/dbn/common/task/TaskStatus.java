@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.vector.model.result;
+package com.dbn.common.task;
 
-public enum SourceStatus {PENDING, RUNNING, SUCCESS, FAILED, SKIPPED}
+public enum TaskStatus {
+    NEW,
+    RUNNING,
+    FINISHED,
+    CANCELLED,
+    FAILED,
+    SKIPPED
+}
