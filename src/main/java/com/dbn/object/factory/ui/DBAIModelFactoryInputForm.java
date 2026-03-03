@@ -1,13 +1,10 @@
 package com.dbn.object.factory.ui;
 
-import com.dbn.assistant.service.selectai.credential.ui.CredentialEditDialog;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.FileChoosers;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
@@ -18,19 +15,16 @@ import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.factory.model.DBAIModelSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBCredentialType;
-import com.dbn.vector.common.ModelSourceType;
+import com.dbn.object.type.DBAIModelSourceType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.util.List;
-import java.util.Set;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
@@ -44,12 +38,12 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.FileChoosers.extensionFilter;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
+import static com.dbn.object.type.DBAIModelSourceType.MODEL_FILE;
+import static com.dbn.object.type.DBAIModelSourceType.OBJECT_STORAGE;
 import static com.dbn.object.type.DBCredentialType.PASSWORD;
 import static com.dbn.object.type.DBCredentialType.TOKEN;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
-import static com.dbn.vector.common.ModelSourceType.MODEL_FILE;
-import static com.dbn.vector.common.ModelSourceType.OBJECT_STORAGE;
 import static java.util.Collections.emptyList;
 
 public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIModelSpec> {
@@ -63,7 +57,7 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
     private DBNComboBox<ConnectionHandler> connectionComboBox;
     private DBNComboBox<SchemaId> schemaComboBox;
 
-    private DBNComboBox<ModelSourceType> sourceComboBox;
+    private DBNComboBox<DBAIModelSourceType> sourceComboBox;
     private JTextField nameTextField;
     private TextFieldWithBrowseButton modelFileTextField;
     private JTextField objectUrlTextField;
@@ -72,7 +66,6 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
     private JLabel credentialLabel;
     private JLabel credentialSchemaLabel;
     private JPanel hyperLinkPanel;
-    private JButton credentialAddButton;
 
     private DBObjectSelector<DBSchema> credentialSchemaComboBox;
     private DBObjectSelector<DBCredential> credentialComboBox;
@@ -84,7 +77,6 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
         initComboBoxes();
         initModelFileBrowser();
         initDocumentationLink();
-        initCredentialFields();
     }
 
     private void initModelFileBrowser() {
@@ -115,7 +107,7 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
         schemaComboBox.setEnabled(false); // TODO support connection switch
 
         // model source combo-box
-        initComboBox(sourceComboBox, ModelSourceType.values());
+        initComboBox(sourceComboBox, DBAIModelSourceType.values());
         setSelection(sourceComboBox, MODEL_FILE);
         onSelectionChange(sourceComboBox, e -> updateFieldAvailability());
 
@@ -175,8 +167,7 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
                         credentialSchemaLabel,
                         credentialSchemaComboBox,
                         credentialLabel,
-                        credentialComboBox,
-                        credentialAddButton));
+                        credentialComboBox));
 
         fieldAdapter.initFieldsAvailability(
                 () -> isValid(getCredentialSchema()), array(credentialComboBox));
@@ -188,15 +179,6 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
         addTextValidation(modelFileTextField.getTextField(), n -> isNotEmptyOrSpaces(n), "Please select a model file");
         addTextValidation(objectUrlTextField, n -> isNotEmptyOrSpaces(n), "Please provide an object URL");
 //    addSelectionValidation(credentialComboBox, "Please select or create a credential");
-    }
-
-    private void initCredentialFields() {
-        credentialAddButton.setIcon(Icons.ACTION_ADD);
-        credentialAddButton.setText(null);
-
-        ConnectionHandler connection = getConnection();
-        List<DBCredentialType> credentialTypes = List.of(TOKEN, PASSWORD);
-        credentialAddButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(connection, null, credentialTypes, Set.of())));
     }
 
     private DBSchema getSchema() {
@@ -257,12 +239,12 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
         modelFileTextField.setText(input.getSourceLocation());
     }
 
-    private ModelSourceType getModelSourceType() {
+    private DBAIModelSourceType getModelSourceType() {
         return getSelection(sourceComboBox);
     }
 
     private String getModelSourceLocation() {
-        ModelSourceType sourceType = getModelSourceType();
+        DBAIModelSourceType sourceType = getModelSourceType();
         return sourceType == MODEL_FILE ?
                 modelFileTextField.getText() :
                 objectUrlTextField.getText();

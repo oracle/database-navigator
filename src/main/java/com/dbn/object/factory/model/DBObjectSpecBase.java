@@ -23,13 +23,18 @@ import com.dbn.object.DBSchema;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter
 public class DBObjectSpecBase {
-    private DBObjectSpec parent;
+    private final DBObjectSpec parent;
     private ConnectionId connectionId;
     private SchemaId schemaId;
+
+    public DBObjectSpecBase(@Nullable DBObjectSpec parent) {
+        this.parent = parent;
+    }
 
     public ConnectionHandler getConnection() {
         return parent == null ?

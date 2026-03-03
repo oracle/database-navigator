@@ -18,7 +18,7 @@ package com.dbn.language.common.parameter;
 
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
-import com.dbn.code.psql.style.PSQLCodeStyle;
+import com.dbn.code.sql.style.SQLCodeStyle;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.IterationElementType;
 import com.dbn.language.common.element.impl.TokenElementType;
@@ -187,7 +187,7 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
     public void updateUI(BasePsiElement handlerPsiElement, @NotNull ParameterInfoUIContext context) {
         if (handlerPsiElement.isValid()) {
             Project project = handlerPsiElement.getProject();
-            CodeStyleCaseSettings caseSettings = PSQLCodeStyle.caseSettings(project);
+            CodeStyleCaseSettings caseSettings = SQLCodeStyle.caseSettings(project);
             CodeStyleCaseOption datatypeCaseOption = caseSettings.getDatatypeCaseOption();
             CodeStyleCaseOption objectCaseOption = caseSettings.getObjectCaseOption();
 

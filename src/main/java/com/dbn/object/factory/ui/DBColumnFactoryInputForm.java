@@ -20,7 +20,6 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.data.type.ui.DataTypeEditor;
-import com.dbn.object.factory.model.DBObjectAttribute;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
@@ -38,6 +37,10 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
+import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_NOT_NULL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_PRIMARY_KEY;
+import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_NAME;
 
 public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBObjectSpec> {
     private JPanel mainPanel;
@@ -64,11 +67,10 @@ public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBObjectS
     @Override
     protected void initFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
-        fieldAdapter.initFieldsAvailability(() -> !isReadonly(), array(
-                nameTextField,
-                dataTypeEditor,
-                notNullCheckBox,
-                primaryKeyCheckBox));
+        fieldAdapter.initFieldsAvailability(() -> !isReadonlyAttribute(OBJECT_NAME), array(nameTextField));
+        fieldAdapter.initFieldsAvailability(() -> !isReadonlyAttribute(DATA_TYPE), array(dataTypeEditor));
+        fieldAdapter.initFieldsAvailability(() -> !isReadonlyAttribute(IS_NOT_NULL), array(notNullCheckBox));
+        fieldAdapter.initFieldsAvailability(() -> !isReadonlyAttribute(IS_PRIMARY_KEY), array(primaryKeyCheckBox));
     }
 
     @Override
@@ -117,17 +119,17 @@ public class DBColumnFactoryInputForm extends DBObjectFactoryInputForm<DBObjectS
     @Override
     public void applyFormChanges() {
         input.setObjectName(getText(nameTextField));
-        input.setAttribute(DBObjectAttribute.DATA_TYPE, dataTypeEditor.getDataTypeRepresentation());
-        input.setAttribute(DBObjectAttribute.IS_NOT_NULL, notNullCheckBox.isSelected());
-        input.setAttribute(DBObjectAttribute.IS_PRIMARY_KEY, primaryKeyCheckBox.isSelected());
+        input.setAttributeValue(DATA_TYPE, dataTypeEditor.getDataTypeRepresentation());
+        input.setAttributeValue(IS_NOT_NULL, notNullCheckBox.isSelected());
+        input.setAttributeValue(IS_PRIMARY_KEY, primaryKeyCheckBox.isSelected());
     }
 
     @Override
     public void resetFormChanges() {
         nameTextField.setText(input.getObjectName());
-        dataTypeEditor.setText(input.getAttribute(DBObjectAttribute.DATA_TYPE));
-        notNullCheckBox.setSelected(input.getBooleanAttribute(DBObjectAttribute.IS_NOT_NULL));
-        primaryKeyCheckBox.setSelected(input.getBooleanAttribute(DBObjectAttribute.IS_PRIMARY_KEY));
+        dataTypeEditor.setText(DATA_TYPE.of(input));
+        notNullCheckBox.setSelected(IS_NOT_NULL.is(input));
+        primaryKeyCheckBox.setSelected(IS_PRIMARY_KEY.is(input));
     }
 
     @Override

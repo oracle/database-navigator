@@ -464,6 +464,11 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
+    public DBAIModel getAIModel(String name) {
+        return getChildObject(AI_MODEL, name);
+    }
+
+    @Override
     public DBDatabaseLink getDatabaseLink(String name) {
         return getChildObject(DBLINK, name);
     }

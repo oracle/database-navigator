@@ -20,35 +20,36 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.util.Strings;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.ObjectFactoryAdapter;
-import com.dbn.object.factory.model.DBArgumentSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.DBArgumentFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
 
-public class DBArgumentFactoryAdapter implements ObjectFactoryAdapter<DBArgumentSpec, DBArgumentFactoryInputForm> {
+public class DBArgumentFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec, DBArgumentFactoryInputForm> {
 
     @Override
     public DBObjectType getObjectType() {
         return ARGUMENT;
     }
 
-    public DBArgumentSpec createInput(DBSchema schema) {
+    public DBObjectSpec createInput(DBSchema schema) {
         //return new DBArgumentFactoryInput(schema);
         return null; // TODO
     }
 
-    public DBArgumentFactoryInputForm createInputForm(DBNComponent parent, DBArgumentSpec input) {
+    public DBArgumentFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec input) {
         return new DBArgumentFactoryInputForm(parent, input);
     }
 
     @Override
-    public void validateInput(DBArgumentSpec input, List<String> errors) {
-        String objectName = input.getObjectName();
-        int position = input.getIndex();
+    public void validateInput(DBObjectSpec argumentSpec, List<String> errors) {
+        String objectName = argumentSpec.getObjectName();
+        int position = argumentSpec.getIndex();
         if (objectName.isEmpty()) {
             errors.add("argument name is not specified at index " + position);
 
@@ -56,7 +57,8 @@ public class DBArgumentFactoryAdapter implements ObjectFactoryAdapter<DBArgument
             errors.add("invalid argument name specified at index " + position + ": \"" + objectName + "\"");
         }
 
-        if (Strings.isEmptyOrSpaces(input.getDataType())){
+        String dataType = DATA_TYPE.of(argumentSpec);
+        if (Strings.isEmptyOrSpaces(dataType)){
             if (objectName.length() > 0) {
                 errors.add("missing data type for argument \"" + objectName + "\"");
             } else {
@@ -66,7 +68,7 @@ public class DBArgumentFactoryAdapter implements ObjectFactoryAdapter<DBArgument
     }
 
     @Override
-    public void createObject(DBArgumentSpec input) throws SQLException {
+    public void createObject(DBObjectSpec input) throws SQLException {
         // child object - created as part of the parent
     }
 }

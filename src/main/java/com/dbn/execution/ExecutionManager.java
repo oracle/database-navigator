@@ -37,7 +37,7 @@ import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
 import com.dbn.execution.statement.result.StatementExecutionResult;
-import com.dbn.vector.result.VectorEmbeddingExecutionResult;
+import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;

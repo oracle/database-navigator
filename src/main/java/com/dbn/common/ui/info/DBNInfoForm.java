@@ -38,7 +38,7 @@ public class DBNInfoForm extends DBNFormBase {
         infoTextPane.setContentType(content.getTypeId());
         infoTextPane.setText(content.getText());
         infoTextPane.setForeground(UIUtil.getToolTipForeground());
-        whenShown( () -> {
+        whenFirstShown( () -> {
             infoTextPane.revalidate();
             Dialogs.resizeToFitContent(mainPanel);
         });

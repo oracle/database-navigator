@@ -64,7 +64,7 @@ public class FileConnectionMappingTableModel extends DBNMutableTableModel<FileCo
     }
 
     @Override
-    public final Object getValueAt(int rowIndex, int columnIndex) {
+    public final FileConnectionContext getValueAt(int rowIndex, int columnIndex) {
         return mappings.get(rowIndex);
     }
 

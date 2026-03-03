@@ -45,8 +45,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
-import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
-
 public class ProjectSettingsForm extends CompositeConfigurationEditorForm<ProjectSettings> {
     private JPanel mainPanel;
     private JPanel tabsPanel;
@@ -124,7 +122,7 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         ConfigurationEditorForm<?> settingsEditor = configuration.getSettingsEditor();
         if (settingsEditor == null) return;
 
-        whenFirstShown(configurationTabs, () -> configurationTabs.selectTab(settingsEditor));
+        whenFirstShown(() -> configurationTabs.selectTab(settingsEditor));
     }
 
 

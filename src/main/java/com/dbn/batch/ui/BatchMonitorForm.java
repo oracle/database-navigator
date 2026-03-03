@@ -70,7 +70,7 @@ public class BatchMonitorForm extends DBNFormBase implements BatchEventListener 
         initProgressActions();
         initMessagePanel();
         initTasksPanel();
-        whenShown(() -> batch.start());
+        whenFirstShown(() -> batch.start());
     }
 
     private void initTasksPanel() {

@@ -2,7 +2,7 @@ package com.dbn.vector.action;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.execution.ExecutionManager;
-import com.dbn.vector.result.VectorEmbeddingExecutionResult;
+import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;

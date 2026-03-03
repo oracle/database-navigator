@@ -19,6 +19,7 @@ package com.dbn.code.common.completion.options.filter;
 import com.dbn.code.common.completion.options.filter.ui.CheckedTreeNodeProvider;
 import com.dbn.code.common.completion.options.filter.ui.CodeCompletionFilterTreeNode;
 import com.dbn.common.options.PersistentConfiguration;
+import com.dbn.common.util.Lists;
 import com.intellij.ui.CheckedTreeNode;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,7 +28,6 @@ import org.jdom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 
@@ -47,27 +47,22 @@ public class CodeCompletionFilterOptionBundle implements CheckedTreeNodeProvider
 
     @Override
     public void readConfiguration(Element element) {
-        for (Element child: element.getChildren()) {
+        for (Element child: element.getChildren("filter-element")) {
             CodeCompletionFilterOption option = new CodeCompletionFilterOption(filterSettings);
-            if (Objects.equals(child.getName(), "filter-element")){
-                option.readConfiguration(child);
-                CodeCompletionFilterOption local = findOption(option);
-                if (local == null) {
+            option.readConfiguration(child);
+            CodeCompletionFilterOption localOption = findOption(option);
+            if (localOption == null) {
+                if (!option.isUndefined()) {
                     options.add(option);
-                } else {
-                    local.readConfiguration(child);
                 }
+            } else {
+                localOption.readConfiguration(child);
             }
         }
     }
 
     private CodeCompletionFilterOption findOption(CodeCompletionFilterOption option) {
-        for (CodeCompletionFilterOption o : options) {
-            if (o.getObjectType() == option.getObjectType() && o.getTokenTypeCategory() == option.getTokenTypeCategory()) {
-                return o;
-            }
-        }
-        return null;
+        return Lists.first(options, o -> o.matches(option));
     }
 
     @Override

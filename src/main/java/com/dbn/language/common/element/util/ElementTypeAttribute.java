@@ -57,6 +57,7 @@ public enum ElementTypeAttribute implements Property.LongBase {
     SCHEMA_CHANGE("SCHEMA_CHANGE", "Schema change clause"),
     DB_ASSISTANT("DB_ASSISTANT", "Database assistant statement"),
     DB_ASSISTANT_PROMPT("DB_ASSISTANT_PROMPT", "Database assistant prompt"),
+    ALIAS_DEFINITION("ALIAS_DEFINITION", "Alias definition element"),
 
     ITERATION_SEPARATOR("ITERATION_SEPARATOR", "Iterator separator token"),
     OPTIONAL_WRAPPING("OPTIONAL_WRAPPING", "Optional wrapping token"),

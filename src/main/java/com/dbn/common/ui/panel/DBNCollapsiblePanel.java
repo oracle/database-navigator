@@ -17,13 +17,16 @@
 package com.dbn.common.ui.panel;
 
 import com.dbn.common.event.ToggleListener;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.util.Strings;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -42,6 +45,9 @@ public class DBNCollapsiblePanel extends DBNFormBase {
     private JLabel toggleDetailLabel;
     private DBNButtonPanel togglePanel;
     private JPanel contentRootPanel;
+    private JPanel infoPanel;
+
+    private TextContent infoContent;
     private boolean expanded;
     private final DBNCollapsibleForm contentForm;
 
@@ -61,6 +67,7 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         this.toggleDetailLabel.setForeground(UIUtil.getLabelDisabledForeground());
         NON_DISABLEABLE.set(toggleLabel, true);
         NON_DISABLEABLE.set(toggleDetailLabel, true);
+        setInfoContent(null);
 
         togglePanel.setActionConsumer(e -> toggleVisibility(e));
         updateComponents();
@@ -86,6 +93,16 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         listeners.notify(l -> l.toggled(expanded));
     }
 
+    public void setInfoContent(@Nullable TextContent infoContent) {
+        this.infoContent = infoContent;
+        infoPanel.setVisible(infoContent != null && expanded);
+        if (infoContent != null) {
+            DBNInfoLabel infoLabel = new DBNInfoLabel();
+            infoLabel.setContent(infoContent);
+            infoPanel.add(infoLabel);
+        }
+    }
+
     private static String getStateName(boolean expanded) {
         return expanded ? "expanded" : "collapsed";
     }
@@ -94,6 +111,7 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         toggleLabel.setIcon(expanded ? UIUtil.getTreeExpandedIcon() : UIUtil.getTreeCollapsedIcon());
         toggleLabel.setText(contentForm.getFormTitle());
 
+        infoPanel.setVisible(expanded && infoContent != null);
         contentRootPanel.setVisible(expanded);
         toggleDetailLabel.setVisible(!expanded);
 
