@@ -143,9 +143,10 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="select-empty-blob-file">
+    <statement-execution-processor id="load-destination-model-metadata">
         <statement>
-            SELECT file_content FROM {0} WHERE id = {#1} FOR UPDATE;
+            select json_query(t.METADATA, '$.embedding_config' returning varchar2) AS embedding_config_json
+            from {0}.{1} t where rownum = 1
         </statement>
     </statement-execution-processor>
 

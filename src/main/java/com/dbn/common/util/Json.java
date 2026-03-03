@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NonNls;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +67,7 @@ public class Json {
     @SneakyThrows
     @SuppressWarnings("Convert2Diamond") // needed for deserialization
     public static Map<String, Object> readAsMap(String json) {
+        if (isEmpty(json)) return Collections.emptyMap();
         return OBJECT_MAPPER.readValue(json, new TypeReference<Map<String, Object>>(){});
     }
 

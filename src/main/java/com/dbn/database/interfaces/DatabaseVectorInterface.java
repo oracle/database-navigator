@@ -47,6 +47,8 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
 
   ResultSet loadFileStoreMetadata(DBNConnection conn, String ownerName, String tableName, String fileHash, long fileSize) throws SQLException;
 
+  String loadDestinationModelMetadata(DBNConnection conn, String ownerName, String tableName) throws SQLException;
+
   void uploadFileStoreContent(@NotNull DBNConnection connection, String ownerName, String tableName, @NotNull String fileStoreId, InputStream inputStream) throws SQLException;
 
   boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String sourceId) throws SQLException;

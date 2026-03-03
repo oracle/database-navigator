@@ -127,6 +127,11 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
+    public String loadDestinationModelMetadata(DBNConnection conn, String ownerName, String tableName) throws SQLException {
+        return getSingleValue(conn, "load-destination-model-metadata", ownerName, tableName);
+    }
+
+    @Override
     public boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String sourceId) throws SQLException {
         return getBooleanValue(conn, "is-content-embedded", schemaName, tableName, metadataColumnName, sourceId);
     }

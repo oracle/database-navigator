@@ -1,10 +1,12 @@
 package com.dbn.vector.ui;
 
+import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.help.HelpTopic;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
+import com.dbn.vector.service.VectorEmbeddingRequestVerifier;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
@@ -62,10 +64,19 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
       form.saveRequestTemplate(true);
     }
 
+    verifyAndSubmit();
+  }
 
-    super.doOKAction();
-    DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
-    vectorManager.createEmbeddings(request, getConnection());
+  private void verifyAndSubmit() {
+    Progress.modal(ensureProject(), request.getConnection(), true, "Verifying Request", "Verifying embedding request", i -> {
+        if (!VectorEmbeddingRequestVerifier.verifyRequest(request, i)) return;
+
+        dispatch(() -> {
+          super.doOKAction();
+          DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
+          vectorManager.createEmbeddings(request);
+        });
+    });
   }
 
   @Override

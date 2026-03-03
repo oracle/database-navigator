@@ -150,21 +150,22 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     }
 
     @SneakyThrows
-    public void createEmbeddings(VectorEmbeddingRequest request, ConnectionHandler handler) {
+    public void createEmbeddings(VectorEmbeddingRequest request) {
         request.setTemplate(false); // no longer a template after used for embedding
+        ConnectionHandler connection = request.getConnection();
 
         EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
         Progress.prompt(
                 getProject(),
-                handler.getSchema(), true,
+                connection.getSchema(), true,
                 "Embedding Data",
                 "Embedding data into \"" + destinationConfig.getSchemaName() + "\".\"" + destinationConfig.getTableName() + "\"",
                 p -> DatabaseInterfaceInvoker.execute(MEDIUM,
                         p.getText(),
                         p.getText2(),
-                        handler.getProject(),
-                        handler.getConnectionId(),
-                        handler.getSchemaId(),
+                        connection.getProject(),
+                        connection.getConnectionId(),
+                        connection.getSchemaId(),
                         conn -> {
                             VectorEmbeddingResult result = executePipeline(request, conn, p);
                             result.finish();
