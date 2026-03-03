@@ -1,0 +1,47 @@
+#set($h2 = '##')
+# ${SERVER_NAME}
+
+A standalone MCP server that connects to an Oracle database and exposes SQL queries as tools
+over STDIO transport. Designed to work with MCP clients such as Claude Desktop.
+
+$h2 Tools
+
+#foreach($tool in $TOOLS)
+- **${tool.name}** — ${tool.description}
+#end
+
+$h2 Running
+
+```
+java -jar ${JAR_NAME}
+```
+
+The `${ENV_NAME}` file must be in the same directory as the JAR.
+
+$h2 Security
+
+The `${ENV_NAME}` file contains your database credentials:
+
+```
+${ENV_PREFIX}_DB_USER=...
+${ENV_PREFIX}_DB_PASSWORD=...
+```
+
+- Do **not** commit this file to version control — add it to `.gitignore`
+- Restrict file permissions: `chmod 600 ${ENV_NAME}`
+- The password is Base64-encoded (prefixed with `base64:`) — it is **not** encrypted
+
+$h2 Claude Desktop
+
+Add the following to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "${SERVER_NAME}": {
+      "command": "java",
+      "args": ["-jar", "/absolute/path/to/${JAR_NAME}"]
+    }
+  }
+}
+```

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class McpBuildManager {
@@ -145,6 +146,7 @@ public class McpBuildManager {
             try {
                 Path jar = McpMavenBuild.buildWithMaven(project, cfg.getDir().resolve(DIST), serverName, MCP_SDK, JDBC, template, cfg.getFile(), useWrapper, logger(indicator));
                 writeEnvFile(jar.getParent());
+                writeReadme(jar.getParent());
                 showResult(cfg, jar);
             } catch (Exception e) {
                 log.error("MCP build failed", e);
@@ -163,6 +165,24 @@ public class McpBuildManager {
             Files.writeString(dir.resolve(serverName + ".env"), content, StandardCharsets.UTF_8);
         } catch (IOException e) {
             log.error("Failed to write .env file", e);
+        }
+    }
+
+    private void writeReadme(Path dir) {
+        try {
+            List<Map<String, String>> toolList = tools.stream()
+                    .map(t -> Map.of("name", safe(t.getName(), "tool"), "description", safe(t.getDescription(), "SQL tool")))
+                    .collect(Collectors.toList());
+            Map<String, Object> context = new LinkedHashMap<>();
+            context.put("SERVER_NAME", serverName);
+            context.put("JAR_NAME", serverName + ".jar");
+            context.put("ENV_NAME", serverName + ".env");
+            context.put("ENV_PREFIX", toEnvPrefix(serverName));
+            context.put("TOOLS", toolList);
+            String content = TemplateUtilities.generateCode(project, "DBN - MCP Server README", context);
+            Files.writeString(dir.resolve("README.md"), content, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("Failed to write README", e);
         }
     }
 
