@@ -433,8 +433,8 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "against" {return tt.ftt(6);}
 "ascii" {return tt.ftt(7);}
 "asin" {return tt.ftt(8);}
-"atan2" {return tt.ftt(9);}
-"atan" {return tt.ftt(10);}
+"atan" {return tt.ftt(9);}
+"atan2" {return tt.ftt(10);}
 "avg" {return tt.ftt(11);}
 "benchmark" {return tt.ftt(12);}
 "bin" {return tt.ftt(13);}
@@ -517,9 +517,9 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "localtime" {return tt.ftt(90);}
 "localtimestamp" {return tt.ftt(91);}
 "locate" {return tt.ftt(92);}
-"log10" {return tt.ftt(93);}
-"log2" {return tt.ftt(94);}
-"log" {return tt.ftt(95);}
+"log" {return tt.ftt(93);}
+"log10" {return tt.ftt(94);}
+"log2" {return tt.ftt(95);}
 "lower" {return tt.ftt(96);}
 "lpad" {return tt.ftt(97);}
 "ltrim" {return tt.ftt(98);}
@@ -564,9 +564,9 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "second_microsecond" {return tt.ftt(137);}
 "sec_to_time" {return tt.ftt(138);}
 "session_user" {return tt.ftt(139);}
-"sha1" {return tt.ftt(140);}
-"sha2" {return tt.ftt(141);}
-"sha" {return tt.ftt(142);}
+"sha" {return tt.ftt(140);}
+"sha1" {return tt.ftt(141);}
+"sha2" {return tt.ftt(142);}
 "sign" {return tt.ftt(143);}
 "sin" {return tt.ftt(144);}
 "sleep" {return tt.ftt(145);}

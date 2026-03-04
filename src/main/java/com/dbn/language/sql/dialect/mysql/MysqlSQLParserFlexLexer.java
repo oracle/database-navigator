@@ -5,8 +5,8 @@ package com.dbn.language.sql.dialect.mysql;
 
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenTypeBundle;
-import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.lexer.FlexLexer;
 
 
 public final class MysqlSQLParserFlexLexer implements FlexLexer {
@@ -4728,7 +4728,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 637: break;
           case 75:
-            { return tt.ftt(95);
+            { return tt.ftt(93);
             }
           // fall through
           case 638: break;
@@ -4793,7 +4793,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 650: break;
           case 88:
-            { return tt.ftt(142);
+            { return tt.ftt(140);
             }
           // fall through
           case 651: break;
@@ -4848,7 +4848,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 661: break;
           case 99:
-            { return tt.ftt(10);
+            { return tt.ftt(9);
             }
           // fall through
           case 662: break;
@@ -5048,7 +5048,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 701: break;
           case 139:
-            { return tt.ftt(94);
+            { return tt.ftt(95);
             }
           // fall through
           case 702: break;
@@ -5113,12 +5113,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 714: break;
           case 152:
-            { return tt.ftt(140);
+            { return tt.ftt(141);
             }
           // fall through
           case 715: break;
           case 153:
-            { return tt.ftt(141);
+            { return tt.ftt(142);
             }
           // fall through
           case 716: break;
@@ -5218,7 +5218,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 735: break;
           case 173:
-            { return tt.ftt(9);
+            { return tt.ftt(10);
             }
           // fall through
           case 736: break;
@@ -5353,7 +5353,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 762: break;
           case 200:
-            { return tt.ftt(93);
+            { return tt.ftt(94);
             }
           // fall through
           case 763: break;

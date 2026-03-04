@@ -347,8 +347,8 @@
         <token index="6" id="FN_AGAINST" value="against" category="function"/>
         <token index="7" id="FN_ASCII" value="ascii" category="function"/>
         <token index="8" id="FN_ASIN" value="asin" category="function"/>
-        <token index="9" id="FN_ATAN2" value="atan2" category="function"/>
-        <token index="10" id="FN_ATAN" value="atan" category="function"/>
+        <token index="9" id="FN_ATAN" value="atan" category="function"/>
+        <token index="10" id="FN_ATAN2" value="atan2" category="function"/>
         <token index="11" id="FN_AVG" value="avg" category="function"/>
         <token index="12" id="FN_BENCHMARK" value="benchmark" category="function"/>
         <token index="13" id="FN_BIN" value="bin" category="function"/>
@@ -431,9 +431,9 @@
         <token index="90" id="FN_LOCALTIME" value="localtime" category="function"/>
         <token index="91" id="FN_LOCALTIMESTAMP" value="localtimestamp" category="function"/>
         <token index="92" id="FN_LOCATE" value="locate" category="function"/>
-        <token index="93" id="FN_LOG10" value="log10" category="function"/>
-        <token index="94" id="FN_LOG2" value="log2" category="function"/>
-        <token index="95" id="FN_LOG" value="log" category="function"/>
+        <token index="93" id="FN_LOG" value="log" category="function"/>
+        <token index="94" id="FN_LOG10" value="log10" category="function"/>
+        <token index="95" id="FN_LOG2" value="log2" category="function"/>
         <token index="96" id="FN_LOWER" value="lower" category="function"/>
         <token index="97" id="FN_LPAD" value="lpad" category="function"/>
         <token index="98" id="FN_LTRIM" value="ltrim" category="function"/>
@@ -478,9 +478,9 @@
         <token index="137" id="FN_SECOND_MICROSECOND" value="second_microsecond" category="function"/>
         <token index="138" id="FN_SEC_TO_TIME" value="sec_to_time" category="function"/>
         <token index="139" id="FN_SESSION_USER" value="session_user" category="function"/>
-        <token index="140" id="FN_SHA1" value="sha1" category="function"/>
-        <token index="141" id="FN_SHA2" value="sha2" category="function"/>
-        <token index="142" id="FN_SHA" value="sha" category="function"/>
+        <token index="140" id="FN_SHA" value="sha" category="function"/>
+        <token index="141" id="FN_SHA1" value="sha1" category="function"/>
+        <token index="142" id="FN_SHA2" value="sha2" category="function"/>
         <token index="143" id="FN_SIGN" value="sign" category="function"/>
         <token index="144" id="FN_SIN" value="sin" category="function"/>
         <token index="145" id="FN_SLEEP" value="sleep" category="function"/>
