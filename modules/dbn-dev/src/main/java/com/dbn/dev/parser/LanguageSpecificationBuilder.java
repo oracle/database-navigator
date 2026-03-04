@@ -41,9 +41,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.dbn.language.common.TokenTypeCategory.DATATYPE;
+import static com.dbn.language.common.TokenTypeCategory.EXCEPTION;
 import static com.dbn.language.common.TokenTypeCategory.FUNCTION;
 import static com.dbn.language.common.TokenTypeCategory.KEYWORD;
 import static com.dbn.language.common.TokenTypeCategory.PARAMETER;
+import static java.util.Collections.emptyList;
 
 @NonNls
 public class LanguageSpecificationBuilder {
@@ -52,8 +54,9 @@ public class LanguageSpecificationBuilder {
     private static DBLanguage language;
     private static Operation operation;
 
-    private static String databaseIdentifier;
-    private static String languageIdentifier;
+    private static String databaseId; // database path & file identifier
+    private static String languagePid; // language path identifier
+    private static String languageFid; // language file identifier
     private static final Map<TokenTypeCategory, List<TokenDefinition>> tokenDefinitions = new HashMap<>();
 
     private static final Map<String, DatabaseType> databaseOptions = new LinkedHashMap<>();
@@ -74,12 +77,13 @@ public class LanguageSpecificationBuilder {
 
     public static void main(String[] args) {
         database = selectOption("database", databaseOptions);
-        databaseIdentifier = database.name().toLowerCase();
+        databaseId = database.name().toLowerCase();
         System.out.println("Selected database type: " + database);
 
 
         language = selectOption("language", languageOptions);
-        languageIdentifier = language == SQLLanguage.INSTANCE ? "sql" : "psql";
+        languagePid = language == SQLLanguage.INSTANCE ? "sql" : "psql";
+        languageFid = language == SQLLanguage.INSTANCE ? "sql" : database == DatabaseType.ORACLE ? "plsql" : "psql";
         System.out.println("Selected language: " + language);
 
         operation = selectOption("operation", operationOptions);
@@ -104,6 +108,7 @@ public class LanguageSpecificationBuilder {
         content = updateParserLexerDefinition(FUNCTION, content);
         content = updateParserLexerDefinition(DATATYPE, content);
         content = updateParserLexerDefinition(PARAMETER, content);
+        content = updateParserLexerDefinition(EXCEPTION, content);
 
         System.out.println("Writing " + filePath);
         Files.write(filePath, content);
@@ -121,6 +126,7 @@ public class LanguageSpecificationBuilder {
         content = updateParserTokensDefinition(FUNCTION, content);
         content = updateParserTokensDefinition(DATATYPE, content);
         content = updateParserTokensDefinition(PARAMETER, content);
+        content = updateParserTokensDefinition(EXCEPTION, content);
 
         System.out.println("Writing " + filePath);
         Files.write(filePath, content);
@@ -138,6 +144,7 @@ public class LanguageSpecificationBuilder {
         content = updateHighlighterLexerDefinition(FUNCTION, content);
         content = updateHighlighterLexerDefinition(DATATYPE, content);
         content = updateHighlighterLexerDefinition(PARAMETER, content);
+        content = updateHighlighterLexerDefinition(EXCEPTION, content);
 
         System.out.println("Reading " + filePath);
         Files.write(filePath, content);
@@ -168,7 +175,7 @@ public class LanguageSpecificationBuilder {
         List<TokenDefinition> tokens = getTokenDefinitions(category);
         String tokenString = tokens.stream().map(tokenDefinition ->  tokenDefinition.toLexerToken()).collect(Collectors.joining("|"));
 
-        String lineBegin = languageIdentifier.toUpperCase() + "_" + category;
+        String lineBegin = languageFid.toUpperCase() + "_" + category;
         return replaceLine(content, lineBegin, lineBegin + " = " + tokenString);
     }
 
@@ -181,16 +188,16 @@ public class LanguageSpecificationBuilder {
     }
 
     private static String getDefinitionFilePath() {
-        return "src/main/java/com/dbn/language/" + languageIdentifier + "/dialect/" + databaseIdentifier + "/";
+        return "src/main/java/com/dbn/language/" + languagePid + "/dialect/" + databaseId + "/";
     }
 
     private static String getDefinitionFilePrefix() {
-        return databaseIdentifier + "_" + languageIdentifier;
+        return databaseId + "_" + languageFid;
     }
 
     private static File getHighlighterLexerFile() {
         String commonLexerPath = "src/main/java/com/dbn/language/common/lexer/";
-        File file = new File(getProjectPath(), commonLexerPath + "shared_elements_" + databaseIdentifier + "_" + languageIdentifier + ".flext");
+        File file = new File(getProjectPath(), commonLexerPath + "shared_elements_" + databaseId + "_" + languageFid + ".flext");
         if (file.exists()) return file;
 
         file = new File(getProjectPath(), getDefinitionFilePath() + getDefinitionFilePrefix() + "_highlighter.flex");
@@ -209,8 +216,10 @@ public class LanguageSpecificationBuilder {
     private static List<TokenDefinition> loadTokenDefinitions(TokenTypeCategory category) {
         String categoryIdentifier = getCategoryIdentifier(category);
 
-        String filePath = "/language/" + databaseIdentifier + "/" + databaseIdentifier + "_" + languageIdentifier + "_" + categoryIdentifier + ".txt";
+        String filePath = "/language/" + databaseId + "/" + databaseId + "_" + languageFid + "_" + categoryIdentifier + ".txt";
         URL fileUrl = LanguageSpecificationBuilder.class.getResource(filePath);
+        if (fileUrl == null) return emptyList();
+
         String tokens = Files.readString(Path.of(fileUrl.getPath()));
         String[] tokenEntries = tokens.split("\n");
         AtomicInteger index = new AtomicInteger(0);
@@ -221,7 +230,9 @@ public class LanguageSpecificationBuilder {
         return category == KEYWORD ? "keywords" :
                 category == FUNCTION ? "functions" :
                 category == PARAMETER ? "parameters" :
-                category == DATATYPE ? "datatypes" : "undefined";
+                category == DATATYPE ? "datatypes" :
+                category == EXCEPTION ? "exceptions" :
+                "undefined";
     }
 
     private static List<String> createLexerEntries(List<TokenDefinition> tokens) {
@@ -233,12 +244,12 @@ public class LanguageSpecificationBuilder {
     }
 
     private static String presentableOptions(Map<String, ?> options) {
-        return options.keySet().stream().map(k -> k + " = " + options.get(k)).collect(Collectors.joining("\n"));
+        return options.keySet().stream().map(k -> k + " " + options.get(k)).collect(Collectors.joining("\n"));
     }
 
     private static <T> T selectOption(String name, Map<String, T> options) {
         System.out.println("_______________________________________");
-        System.out.print("Select " + name + "\n" + presentableOptions(options) + "\nx = EXIT\n");
+        System.out.print("Select " + name + " (x to exit)\n" + presentableOptions(options) + "\n");
         String s = SCANNER.next();
 
         T option = options.get(s.toLowerCase());
@@ -328,6 +339,7 @@ public class LanguageSpecificationBuilder {
                 case FUNCTION -> idToken + " {return tt.ftt("+ index + ");}";
                 case PARAMETER -> idToken + " {return tt.ptt("+ index + ");}";
                 case DATATYPE -> idToken + " {return tt.dtt("+ index + ");}";
+                case EXCEPTION -> idToken + " {return tt.ett("+ index + ");}";
                 default -> throw new UnsupportedOperationException("Unexpected value: " + category);
             };
         }
@@ -344,6 +356,7 @@ public class LanguageSpecificationBuilder {
                 case FUNCTION -> "FN_" + idToken;
                 case PARAMETER -> "PRM_" + idToken;
                 case DATATYPE -> "DT_" + idToken;
+                case EXCEPTION -> "EX_" + idToken;
                 default -> throw new UnsupportedOperationException("Unexpected value: " + category);
             };
 

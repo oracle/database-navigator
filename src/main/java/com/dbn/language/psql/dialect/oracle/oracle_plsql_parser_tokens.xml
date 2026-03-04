@@ -204,7 +204,7 @@
         <token index="130" id="KW_EXCEPTION" value="exception" category="keyword" reserved="true"/>
         <token index="131" id="KW_EXCEPTION_INIT" value="exception_init" category="keyword"/>
         <token index="132" id="KW_EXCEPTIONS" value="exceptions" category="keyword"/>
-        <token index="133" id="KW_EXCLUDE" value="exclude" category="keyword" reserved="true"/>
+        <token index="133" id="KW_EXCLUDE" value="exclude" category="keyword"/>
         <token index="134" id="KW_EXCLUSIVE" value="exclusive" category="keyword" reserved="true"/>
         <token index="135" id="KW_EXECUTE" value="execute" category="keyword"/>
         <token index="136" id="KW_EXISTS" value="exists" category="keyword" reserved="true"/>

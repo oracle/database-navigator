@@ -25,7 +25,7 @@ import com.intellij.psi.tree.IElementType;
 
 %include ../../../common/lexer/shared_elements.flext
 %include ../../../common/lexer/shared_elements_oracle.flext
-%include ../../../common/lexer/shared_elements_oracle_psql.flext
+%include ../../../common/lexer/shared_elements_oracle_plsql.flext
 
 VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 SQLP_VARIABLE = "&""&"?{IDENTIFIER}
@@ -55,7 +55,7 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 {PLSQL_FUNCTION}     { return tt.getFunction();}
 {PLSQL_PARAMETER}    { return tt.getParameter();}
 {PLSQL_EXCEPTION}    { return tt.getException();}
-{PLSQL_DATA_TYPE}    { return tt.getDataType(); }
+{PLSQL_DATATYPE}     { return tt.getDataType(); }
 {PLSQL_KEYWORD}      { return tt.getKeyword(); }
 
 {OPERATOR}           { return tt.getOperator(); }

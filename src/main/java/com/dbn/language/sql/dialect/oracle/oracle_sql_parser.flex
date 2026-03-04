@@ -220,7 +220,7 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 // MARKER_END_DATATYPES
 
 // MARKER_BEGIN_KEYWORDS
-"a"{ws}"set" {return tt.ktt(0);}
+"a set" {return tt.ktt(0);}
 "abort" {return tt.ktt(1);}
 "absent" {return tt.ktt(2);}
 "access" {return tt.ktt(3);}

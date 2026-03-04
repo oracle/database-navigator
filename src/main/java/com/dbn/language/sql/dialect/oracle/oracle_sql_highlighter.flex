@@ -30,7 +30,7 @@ SELECT_AI_START = "select"{ws}"ai"
 %include ../../../common/lexer/shared_elements.flext
 %include ../../../common/lexer/shared_elements_oracle.flext
 %include ../../../common/lexer/shared_elements_oracle_sql.flext
-%include ../../../common/lexer/shared_elements_oracle_psql.flext
+%include ../../../common/lexer/shared_elements_oracle_plsql.flext
 
 VARIABLE = ":"({IDENTIFIER}|{INTEGER})
 SQLP_VARIABLE = "&""&"?({IDENTIFIER}|{INTEGER})
