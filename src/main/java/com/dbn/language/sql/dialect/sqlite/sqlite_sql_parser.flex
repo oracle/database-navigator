@@ -323,8 +323,8 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "total_changes" {return tt.ftt(47);}
 "trim" {return tt.ftt(48);}
 "typeof" {return tt.ftt(49);}
-"unlikely" {return tt.ftt(50);}
-"unicode" {return tt.ftt(51);}
+"unicode" {return tt.ftt(50);}
+"unlikely" {return tt.ftt(51);}
 "upper" {return tt.ftt(52);}
 "zeroblob" {return tt.ftt(53);}
 // MARKER_END_FUNCTIONS
@@ -332,8 +332,8 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 
 // MARKER_BEGIN_PARAMETERS
 "application_id" {return tt.ptt(0);}
-"auto_vacuum" {return tt.ptt(1);}
-"automatic_index" {return tt.ptt(2);}
+"automatic_index" {return tt.ptt(1);}
+"auto_vacuum" {return tt.ptt(2);}
 "busy_timeout" {return tt.ptt(3);}
 "cache_size" {return tt.ptt(4);}
 "cache_spill" {return tt.ptt(5);}
@@ -343,19 +343,19 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "collation_list" {return tt.ptt(9);}
 "compile_options" {return tt.ptt(10);}
 "count_changes" {return tt.ptt(11);}
-"data_store_directory" {return tt.ptt(12);}
-"data_version" {return tt.ptt(13);}
-"database_list" {return tt.ptt(14);}
+"database_list" {return tt.ptt(12);}
+"data_store_directory" {return tt.ptt(13);}
+"data_version" {return tt.ptt(14);}
 "default_cache_size" {return tt.ptt(15);}
 "defer_foreign_keys" {return tt.ptt(16);}
 "empty_result_callbacks" {return tt.ptt(17);}
 "encoding" {return tt.ptt(18);}
-"foreign_key_check" {return tt.ptt(19);}
-"foreign_key_list" {return tt.ptt(20);}
-"foreign_keys" {return tt.ptt(21);}
+"foreign_keys" {return tt.ptt(19);}
+"foreign_key_check" {return tt.ptt(20);}
+"foreign_key_list" {return tt.ptt(21);}
 "freelist_count" {return tt.ptt(22);}
-"full_column_names" {return tt.ptt(23);}
-"fullfsync" {return tt.ptt(24);}
+"fullfsync" {return tt.ptt(23);}
+"full_column_names" {return tt.ptt(24);}
 "ignore_check_constraints" {return tt.ptt(25);}
 "incremental_vacuum" {return tt.ptt(26);}
 "index_info" {return tt.ptt(27);}

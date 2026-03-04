@@ -234,8 +234,8 @@
         <token index="47" id="FN_TOTAL_CHANGES" value="total_changes" category="function"/>
         <token index="48" id="FN_TRIM" value="trim" category="function"/>
         <token index="49" id="FN_TYPEOF" value="typeof" category="function"/>
-        <token index="50" id="FN_UNLIKELY" value="unlikely" category="function"/>
-        <token index="51" id="FN_UNICODE" value="unicode" category="function"/>
+        <token index="50" id="FN_UNICODE" value="unicode" category="function"/>
+        <token index="51" id="FN_UNLIKELY" value="unlikely" category="function"/>
         <token index="52" id="FN_UPPER" value="upper" category="function"/>
         <token index="53" id="FN_ZEROBLOB" value="zeroblob" category="function"/>
         <!-- MARKER_END_FUNCTIONS -->
@@ -243,8 +243,8 @@
 
         <!-- MARKER_BEGIN_PARAMETERS -->
         <token index="0" id="PRM_APPLICATION_ID" value="application_id" category="parameter"/>
-        <token index="1" id="PRM_AUTO_VACUUM" value="auto_vacuum" category="parameter"/>
-        <token index="2" id="PRM_AUTOMATIC_INDEX" value="automatic_index" category="parameter"/>
+        <token index="1" id="PRM_AUTOMATIC_INDEX" value="automatic_index" category="parameter"/>
+        <token index="2" id="PRM_AUTO_VACUUM" value="auto_vacuum" category="parameter"/>
         <token index="3" id="PRM_BUSY_TIMEOUT" value="busy_timeout" category="parameter"/>
         <token index="4" id="PRM_CACHE_SIZE" value="cache_size" category="parameter"/>
         <token index="5" id="PRM_CACHE_SPILL" value="cache_spill" category="parameter"/>
@@ -254,19 +254,19 @@
         <token index="9" id="PRM_COLLATION_LIST" value="collation_list" category="parameter"/>
         <token index="10" id="PRM_COMPILE_OPTIONS" value="compile_options" category="parameter"/>
         <token index="11" id="PRM_COUNT_CHANGES" value="count_changes" category="parameter"/>
-        <token index="12" id="PRM_DATA_STORE_DIRECTORY" value="data_store_directory" category="parameter"/>
-        <token index="13" id="PRM_DATA_VERSION" value="data_version" category="parameter"/>
-        <token index="14" id="PRM_DATABASE_LIST" value="database_list" category="parameter"/>
+        <token index="12" id="PRM_DATABASE_LIST" value="database_list" category="parameter"/>
+        <token index="13" id="PRM_DATA_STORE_DIRECTORY" value="data_store_directory" category="parameter"/>
+        <token index="14" id="PRM_DATA_VERSION" value="data_version" category="parameter"/>
         <token index="15" id="PRM_DEFAULT_CACHE_SIZE" value="default_cache_size" category="parameter"/>
         <token index="16" id="PRM_DEFER_FOREIGN_KEYS" value="defer_foreign_keys" category="parameter"/>
         <token index="17" id="PRM_EMPTY_RESULT_CALLBACKS" value="empty_result_callbacks" category="parameter"/>
         <token index="18" id="PRM_ENCODING" value="encoding" category="parameter"/>
-        <token index="19" id="PRM_FOREIGN_KEY_CHECK" value="foreign_key_check" category="parameter"/>
-        <token index="20" id="PRM_FOREIGN_KEY_LIST" value="foreign_key_list" category="parameter"/>
-        <token index="21" id="PRM_FOREIGN_KEYS" value="foreign_keys" category="parameter"/>
+        <token index="19" id="PRM_FOREIGN_KEYS" value="foreign_keys" category="parameter"/>
+        <token index="20" id="PRM_FOREIGN_KEY_CHECK" value="foreign_key_check" category="parameter"/>
+        <token index="21" id="PRM_FOREIGN_KEY_LIST" value="foreign_key_list" category="parameter"/>
         <token index="22" id="PRM_FREELIST_COUNT" value="freelist_count" category="parameter"/>
-        <token index="23" id="PRM_FULL_COLUMN_NAMES" value="full_column_names" category="parameter"/>
-        <token index="24" id="PRM_FULLFSYNC" value="fullfsync" category="parameter"/>
+        <token index="23" id="PRM_FULLFSYNC" value="fullfsync" category="parameter"/>
+        <token index="24" id="PRM_FULL_COLUMN_NAMES" value="full_column_names" category="parameter"/>
         <token index="25" id="PRM_IGNORE_CHECK_CONSTRAINTS" value="ignore_check_constraints" category="parameter"/>
         <token index="26" id="PRM_INCREMENTAL_VACUUM" value="incremental_vacuum" category="parameter"/>
         <token index="27" id="PRM_INDEX_INFO" value="index_info" category="parameter"/>
