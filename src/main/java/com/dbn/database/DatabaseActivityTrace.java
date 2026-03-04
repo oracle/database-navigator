@@ -44,16 +44,12 @@ public class DatabaseActivityTrace {
         if (unsupported) this.supported = false;
     }
 
-    public void release() {
-        if (exception == null) reset();
-    }
-
     public boolean canExecute() {
         // do not allow more than three attempts per retry-interval
         return failedAttempts < 3 || retryIntervalLapsed();
     }
 
-    private void reset() {
+    public void reset() {
         supported = true;
         exception = null;
         failedAttempts = 0;

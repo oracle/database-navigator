@@ -20,7 +20,6 @@ import com.dbn.common.outcome.DialogCloseOutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBCredential;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBCredentialType;
@@ -33,15 +32,13 @@ import java.util.Set;
 
 public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
 
-  private final ConnectionRef connection;
   private final DBObjectRef<DBCredential> credential;
   private final List<DBCredentialType> credentialTypes;
   private final Set<String> usedCredentialNames;
 
 
   public CredentialEditDialog(ConnectionHandler connection, @Nullable DBCredential credential, @Nullable List<DBCredentialType> credentialTypes, @NotNull Set<String> usedCredentialNames) {
-    super(connection.getProject(), getDialogTitle(credential), true);
-    this.connection = ConnectionRef.of(connection);
+    super(connection, getDialogTitle(credential), true);
     this.credential = DBObjectRef.of(credential);
     this.credentialTypes = credentialTypes;
     this.usedCredentialNames = usedCredentialNames;
@@ -83,9 +80,6 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
             getCancelAction());
   }
 
-  public ConnectionHandler getConnection() {
-    return connection.ensure();
-  }
   @Override
   protected @NotNull CredentialEditForm createForm() {
     return new CredentialEditForm(this, DBObjectRef.get(credential), credentialTypes, usedCredentialNames);

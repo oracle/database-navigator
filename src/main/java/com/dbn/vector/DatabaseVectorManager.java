@@ -15,15 +15,20 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.execution.ExecutionManager;
+import com.dbn.object.DBTable;
+import com.dbn.object.cache.DBObjectFilterType;
+import com.dbn.object.cache.DBObjectNameCache;
+import com.dbn.vector.model.VectorEmbeddingContext;
+import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
-import com.dbn.vector.model.chunk.ChunkConfig;
-import com.dbn.vector.model.source.SourceType;
-import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.vector.model.request.EmbeddingChunkingConfig;
+import com.dbn.vector.model.request.EmbeddingDestinationConfig;
+import com.dbn.vector.model.request.EmbeddingSourceType;
 import com.dbn.vector.pipeline.EmbeddingPipeline;
 import com.dbn.vector.pipeline.FileEmbeddingPipeline;
+import com.dbn.vector.pipeline.QueryEmbeddingPipeline;
 import com.dbn.vector.pipeline.TableEmbeddingPipeline;
-import com.dbn.vector.result.VectorEmbeddingExecutionResult;
 import com.dbn.vector.ui.VectorToolboxDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -48,6 +53,7 @@ import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
+import static com.dbn.object.type.DBObjectType.TABLE;
 
 
 @State(
@@ -56,9 +62,10 @@ import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 )
 public class DatabaseVectorManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseVectorManager";
-    public static final String ENGINE_VERSION = "1.0.0";
+    public static final String ENGINE_VERSION = "1.1.0";
 
     private final Map<ConnectionId, VectorEmbeddingRequest> requestTemplates = new ConcurrentHashMap<>();
+    private final Map<ConnectionId, Map<DBObjectFilterType, DBObjectNameCache<DBTable>>> objectNameCaches = new ConcurrentHashMap<>();
 
     public DatabaseVectorManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -70,11 +77,22 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         return new ConnectionConfigListener() {
             @Override
             public void connectionRemoved(ConnectionId connectionId) {
-                // remove embedding requests when connection configs are deleted
+                // remove embedding requests and table caches when connection configs are deleted
                 requestTemplates.remove(connectionId);
+                objectNameCaches.remove(connectionId);
             }
         };
     }
+
+    public DBObjectNameCache<DBTable> getObjectNamesCache(ConnectionId connectionId, DBObjectFilterType filterType) {
+        var objectCaches = ensureObjectCaches(connectionId);
+        return objectCaches.computeIfAbsent(filterType, t -> new DBObjectNameCache<>(connectionId, TABLE, t));
+    }
+
+    private Map<DBObjectFilterType, DBObjectNameCache<DBTable>> ensureObjectCaches(ConnectionId connectionId) {
+        return objectNameCaches.computeIfAbsent(connectionId, c -> new ConcurrentHashMap<>());
+    }
+
     public static DatabaseVectorManager getInstance(Project project) {
         return Components.projectService(project, DatabaseVectorManager.class);
     }
@@ -115,7 +133,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         Dialogs.show(() -> new VectorToolboxDialog(connection, request));
     }
 
-    public ResultSet chunkTextContent(ConnectionHandler connection, ChunkConfig config, String text) throws SQLException {
+    public ResultSet chunkTextContent(ConnectionHandler connection, EmbeddingChunkingConfig config, String text) throws SQLException {
         return DatabaseInterfaceInvoker.load(MEDIUM,
                 "Chunking Data",
                 "Chunking text content",
@@ -132,75 +150,67 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
     }
 
     @SneakyThrows
-    public void createEmbeddings(VectorEmbeddingRequest request, ConnectionHandler handler)  {
+    public void createEmbeddings(VectorEmbeddingRequest request) {
         request.setTemplate(false); // no longer a template after used for embedding
+        ConnectionHandler connection = request.getConnection();
 
-        StoreConfig storeConfig = request.getStoreConfig();
+        EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
         Progress.prompt(
                 getProject(),
-                handler.getSchema(), true,
+                connection.getSchema(), true,
                 "Embedding Data",
-                "Embedding data into \"" + storeConfig.getSchemaName() + "\".\"" + storeConfig.getTableName() + "\"",
-                 p -> {
-                     DatabaseInterfaceInvoker.execute(MEDIUM,
-                                p.getText(),
-                                p.getText2(),
-                                handler.getProject(),
-                                handler.getConnectionId(),
-                                handler.getSchemaId(),
-                                conn -> {
-                                  VectorEmbeddingResult result = null;
-                                  try {
-                                    result = executePipeline(request, handler, conn, p);
-                                  } catch (Exception e) {
-                                    throw new RuntimeException(e);
-                                  }
-                                  result.finish();
-                                  showResultDialog(result);
+                "Embedding data into \"" + destinationConfig.getSchemaName() + "\".\"" + destinationConfig.getTableName() + "\"",
+                p -> DatabaseInterfaceInvoker.execute(MEDIUM,
+                        p.getText(),
+                        p.getText2(),
+                        connection.getProject(),
+                        connection.getConnectionId(),
+                        connection.getSchemaId(),
+                        conn -> {
+                            VectorEmbeddingResult result = executePipeline(request, conn, p);
+                            result.finish();
+                            showResultDialog(result);
 //                                  callbackInfo.run();
 
-                                });
-                });
+                        }));
     }
+
     /**
      * Execute the embedding pipeline for the given request.
      */
-    @SneakyThrows
     private VectorEmbeddingResult executePipeline(
             @NotNull VectorEmbeddingRequest request,
-            @NotNull ConnectionHandler handler,
             @NotNull DBNConnection connection,
-            @NotNull ProgressIndicator progressIndicator) throws Exception {
-        
+            @NotNull ProgressIndicator progressIndicator) {
 
         VectorEmbeddingResult result = new VectorEmbeddingResult(request);
-        result.setSourceType(request.getSourceConfig().getSourceType());
-        
+        VectorEmbeddingContext context = new VectorEmbeddingContext(progressIndicator, connection);
 
         EmbeddingPipeline pipeline = createPipeline(request.getSourceConfig().getSourceType());
-        pipeline.execute(request, handler, connection, progressIndicator, result);
-        
+        pipeline.execute(context, request, result);
+
         return result;
     }
 
     /**
      * Factory method to create the appropriate pipeline based on source type.
      */
-    private EmbeddingPipeline createPipeline(@NotNull SourceType sourceType) {
+    private EmbeddingPipeline createPipeline(@NotNull EmbeddingSourceType sourceType) {
         return switch (sourceType) {
             case DATABASE_TABLE -> new TableEmbeddingPipeline();
+            case DATABASE_QUERY -> new QueryEmbeddingPipeline();
             case FILE_SYSTEM -> new FileEmbeddingPipeline();
         };
     }
 
 
-  private void showResultDialog(VectorEmbeddingResult result) {
-    ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
-    Set<String> names = executionManager.getExecutionResultNames(VectorEmbeddingExecutionResult.class);
-    String name = Naming.nextNumberedIdentifier("Embedding Result",true,()->names);
-    VectorEmbeddingExecutionResult executionResult = new VectorEmbeddingExecutionResult(result,name);
-    executionManager.addExecutionResult(executionResult);
-  }
+    private void showResultDialog(VectorEmbeddingResult result) {
+        ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
+        Set<String> names = executionManager.getExecutionResultNames(VectorEmbeddingExecutionResult.class);
+        String name = Naming.nextNumberedIdentifier("Embedding Result", true, () -> names);
+        VectorEmbeddingExecutionResult executionResult = new VectorEmbeddingExecutionResult(result, name);
+        executionManager.addExecutionResult(executionResult);
+    }
 
 
     /****************************************
@@ -218,6 +228,14 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
             VectorEmbeddingRequest embeddingRequest = requestTemplates.get(connectionId);
             embeddingRequest.writeState(requestElement);
         }
+
+        Element cachesElement = newElement(element, "object-name-caches");
+        for (ConnectionId connectionId : objectNameCaches.keySet()) {
+            for (DBObjectNameCache<DBTable> cache : this.objectNameCaches.get(connectionId).values()) {
+                Element cacheElement = newElement(cachesElement, "object-name-cache");
+                cache.writeState(cacheElement);
+            }
+        }
         return element;
     }
 
@@ -230,6 +248,17 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
             VectorEmbeddingRequest embeddingRequest = new VectorEmbeddingRequest(connectionId);
             requestTemplates.put(connectionId, embeddingRequest);
             embeddingRequest.readState(requestElement);
+        }
+
+        Element cachesElement = element.getChild("object-name-caches");
+        List<Element> cacheElements = childrenOf(cachesElement, "object-name-cache");
+        for (Element cacheElement : cacheElements) {
+            DBObjectNameCache<DBTable> cache = new DBObjectNameCache<>();
+            cache.readState(cacheElement);
+
+            ConnectionId connectionId = cache.getConnectionId();
+            Map<DBObjectFilterType, DBObjectNameCache<DBTable>> caches = ensureObjectCaches(connectionId);
+            caches.put(cache.getFilterType(), cache);
         }
     }
 }

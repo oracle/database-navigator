@@ -139,7 +139,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
         if (leadCandidate.elementType instanceof LeafElementType) {
             ElementTypeRef successorCandidate = leadCandidate.next;
             if (leadCandidate.elementType.is(SURROGATE_LEAD)) {
-                successorCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
+                bucket = successorCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
             } else {
                 while (successorCandidate != null) {
                     bucket = initBucket(bucket);

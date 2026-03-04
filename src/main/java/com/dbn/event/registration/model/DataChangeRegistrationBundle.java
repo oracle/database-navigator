@@ -93,7 +93,7 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
     }
 
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    public DataChangeRegistration getValueAt(int rowIndex, int columnIndex) {
         if (isInBounds(registrations, rowIndex)) {
             return registrations.get(rowIndex);
         }

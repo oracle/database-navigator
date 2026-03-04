@@ -59,6 +59,16 @@ public class CodeCompletionFilterOption implements CheckedTreeNodeProvider, Pers
         return objectType == null ? null : objectType.getIcon();
     }
 
+    public boolean matches(CodeCompletionFilterOption that) {
+        if (this.objectType != that.objectType) return false;
+        if (this.tokenTypeCategory != that.tokenTypeCategory) return false;
+        return true;
+    }
+
+    public boolean isUndefined() {
+        return objectType == DBObjectType.UNKNOWN && tokenTypeCategory == TokenTypeCategory.UNKNOWN;
+    }
+
     @Override
     public void readConfiguration(Element element) {
         if (element != null) {

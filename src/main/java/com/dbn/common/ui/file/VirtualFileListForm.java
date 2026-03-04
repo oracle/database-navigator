@@ -16,11 +16,9 @@
 
 package com.dbn.common.ui.file;
 
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.vector.model.source.SourceType;
-import com.dbn.vector.ui.source.EmbeddingSourceFilesForm;
-import com.dbn.vector.ui.source.EmbeddingSourceForm;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ToolbarDecorator;
 import lombok.Getter;
@@ -30,6 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
@@ -53,29 +52,29 @@ public class VirtualFileListForm extends DBNFormBase {
         listPanel.add(initListComponent());
     }
 
-    @Override
-    protected void initValidation() {
-        addValidation(component,l-> {
-            // get the sourceForm to get which source type is selected .
-            EmbeddingSourceForm parentForm = ((EmbeddingSourceFilesForm)getParentComponent()).getParentComponent();
-            if (SourceType.DATABASE_TABLE.equals(parentForm.getSelectedSourceType())){
-                return true;
-            };
-            return !getFileList().getModel().getFiles().isEmpty();
-        },"Please select a file ");
-    }
-
     private JPanel initListComponent() {
         ToolbarDecorator decorator = createToolbarDecorator(fileList);
         decorator.setAddAction(b -> fileList.insertRows());
-        decorator.setRemoveAction(b -> fileList.removeRow());
+        decorator.setRemoveAction(b -> fileList.removeRows());
         decorator.setMoveUpAction(b -> fileList.moveRowsUp());
         decorator.setMoveDownAction(b -> fileList.moveRowsDown());
 
         return createToolbarDecoratorComponent(decorator, fileList);
     }
 
-  @NotNull
+    public void initFileData(Supplier<List<VirtualFile>> supplier) {
+        Dispatch.async(fileList, () -> {
+            boolean enabled = fileList.isEnabled();
+            try {
+                return supplier.get();
+            } finally {
+                fileList.setEnabled(enabled);
+            }
+
+        }, l -> setFiles(l));
+    }
+
+    @NotNull
     @Override
     public JPanel getMainComponent() {
         return component;
@@ -86,7 +85,7 @@ public class VirtualFileListForm extends DBNFormBase {
     }
 
     public List<VirtualFile> getFiles() {
-        return fileList.getModel().getFiles();
+        return fileList.getFiles();
     }
 
     public void setFiles(List<VirtualFile> files) {

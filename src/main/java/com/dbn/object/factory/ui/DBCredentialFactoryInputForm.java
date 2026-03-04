@@ -19,7 +19,6 @@ package com.dbn.object.factory.ui;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
-import com.dbn.object.factory.model.DBObjectAttribute;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBCredentialType;
 import com.intellij.openapi.options.ConfigurationException;
@@ -29,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -45,6 +45,13 @@ import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Strings.isAlphanumericWithUnderscore;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Strings.startsWith;
+import static com.dbn.object.factory.model.DBObjectAttributeType.CREDENTIAL_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.FINGERPRINT;
+import static com.dbn.object.factory.model.DBObjectAttributeType.PASSWORD;
+import static com.dbn.object.factory.model.DBObjectAttributeType.PRIVATE_KEY;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TENANCY_OCID;
+import static com.dbn.object.factory.model.DBObjectAttributeType.USER_NAME;
+import static com.dbn.object.factory.model.DBObjectAttributeType.USER_OCID;
 
 @Getter
 public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBObjectSpec> {
@@ -53,6 +60,18 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
     private DBNComboBox connectionComboBox;
     private DBNComboBox schemaComboBox;
     private JTextField nameTextField;
+
+    private JLabel connectionLabel;
+    private JLabel schemaLabel;
+    private JLabel credentialNameLabel;
+    private JLabel accessTokenLabel;
+    private JLabel userNameLabel;
+    private JLabel passwordLabel;
+    private JLabel userOcidLabel;
+    private JLabel tenancyOcidLabel;
+    private JLabel privateKeyLabel;
+    private JLabel fingerprintLabel;
+    private JLabel credentialTypeLabel;
 
     private JPanel attributesPanel;
     private JPanel passwordCredentialPanel;
@@ -142,25 +161,25 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
     public void resetFormChanges() {
         super.resetFormChanges();
 
-        DBCredentialType credentialType = input.getAttribute(DBObjectAttribute.CREDENTIAL_TYPE);
+        DBCredentialType credentialType = CREDENTIAL_TYPE.of(input);
         setSelection(credentialTypeComboBox, credentialType);
 
         if (credentialType == null) return;
 
         switch (credentialType) {
             case PASSWORD -> {
-                setText(passwordCredentialUserField, input.getAttribute(DBObjectAttribute.USER_NAME));
-                setPassword(passwordCredentialPasswordField, input.getAttribute(DBObjectAttribute.PASSWORD));
+                setText(passwordCredentialUserField, USER_NAME.of(input));
+                setPassword(passwordCredentialPasswordField, PASSWORD.of(input));
             }
             case TOKEN -> {
                 // special case of credentials created for the vector framework
-                setPassword(tokenCredentialPasswordField, input.getAttribute(DBObjectAttribute.PASSWORD));
+                setPassword(tokenCredentialPasswordField, PASSWORD.of(input));
             }
             case OCI -> {
-                setText(ociCredentialUserOcidField, input.getAttribute(DBObjectAttribute.USER_OCID));
-                setText(ociCredentialTenancyOcidField, input.getAttribute(DBObjectAttribute.TENANCY_OCID));
-                setText(ociCredentialPrivateKeyField, input.getAttribute(DBObjectAttribute.PRIVATE_KEY));
-                setText(ociCredentialFingerprintField, input.getAttribute(DBObjectAttribute.FINGERPRINT));
+                setText(ociCredentialUserOcidField, USER_OCID.of(input));
+                setText(ociCredentialTenancyOcidField, TENANCY_OCID.of(input));
+                setText(ociCredentialPrivateKeyField, PRIVATE_KEY.of(input));
+                setText(ociCredentialFingerprintField, FINGERPRINT.of(input));
             }
         }
 
@@ -171,24 +190,24 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
         super.applyFormChanges();
 
         DBCredentialType credentialType = getCredentialType();
-        input.setAttribute(DBObjectAttribute.CREDENTIAL_TYPE, credentialType);
+        input.setAttributeValue(CREDENTIAL_TYPE, credentialType);
 
         if (credentialType == null) return;
         switch (credentialType) {
             case PASSWORD -> {
-                input.setAttribute(DBObjectAttribute.USER_NAME, getText(passwordCredentialUserField));
-                input.setAttribute(DBObjectAttribute.PASSWORD, passwordCredentialPasswordField.getPassword());
+                input.setAttributeValue(USER_NAME, getText(passwordCredentialUserField));
+                input.setAttributeValue(PASSWORD, passwordCredentialPasswordField.getPassword());
             }
             case TOKEN -> {
                 // special case of credentials created for the vector framework
-                input.setAttribute(DBObjectAttribute.USER_NAME, "access_token");
-                input.setAttribute(DBObjectAttribute.PASSWORD, tokenCredentialPasswordField.getPassword());
+                input.setAttributeValue(USER_NAME, "access_token");
+                input.setAttributeValue(PASSWORD, tokenCredentialPasswordField.getPassword());
             }
             case OCI -> {
-                input.setAttribute(DBObjectAttribute.USER_OCID, getText(ociCredentialUserOcidField));
-                input.setAttribute(DBObjectAttribute.TENANCY_OCID, getText(ociCredentialTenancyOcidField));
-                input.setAttribute(DBObjectAttribute.PRIVATE_KEY, getText(ociCredentialPrivateKeyField));
-                input.setAttribute(DBObjectAttribute.FINGERPRINT, getText(ociCredentialFingerprintField));
+                input.setAttributeValue(USER_OCID, getText(ociCredentialUserOcidField));
+                input.setAttributeValue(TENANCY_OCID, getText(ociCredentialTenancyOcidField));
+                input.setAttributeValue(PRIVATE_KEY, getText(ociCredentialPrivateKeyField));
+                input.setAttributeValue(FINGERPRINT, getText(ociCredentialFingerprintField));
             }
         }
     }
