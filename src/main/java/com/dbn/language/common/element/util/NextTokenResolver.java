@@ -46,8 +46,8 @@ public final class NextTokenResolver {
     }
 
     public IndexContainer<TokenType> resolve() {
-        if (source instanceof NamedElementType) {
-            visit((NamedElementType) source);
+        if (source instanceof NamedElementType namedElementType) {
+            visit(namedElementType);
         } else {
             visitElement(source.parent, source);
         }
@@ -55,28 +55,32 @@ public final class NextTokenResolver {
     }
 
     private void visit(NamedElementType element) {
-        if (!visited.contains(element)) {
-            visited.add(element);
-            for (ElementTypeBase parent : element.parents) {
-                visitElement(parent, element);
-            }
+        if (visited.contains(element)) return;
+
+        visited.add(element);
+        for (ElementTypeBase parent : element.parents) {
+            visitElement(parent, element);
         }
     }
 
     private void visitElement(ElementTypeBase parent, ElementTypeBase child) {
         while (parent != null) {
-            if (parent instanceof SequenceElementType) {
-                parent = visitSequence((SequenceElementType) parent, child);
+            if (parent instanceof NamedElementType) {
+                if (visited.contains(parent)) return;
+            }
 
-            } else if (parent instanceof IterationElementType) {
-                visitIteration((IterationElementType) parent);
+            if (parent instanceof SequenceElementType sequenceElementType) {
+                parent = visitSequence(sequenceElementType, child);
+
+            } else if (parent instanceof IterationElementType iterationElementType) {
+                visitIteration(iterationElementType);
             }
 
             if (parent != null) {
                 child = parent;
                 parent = child.parent;
-                if (child instanceof NamedElementType) {
-                    visit((NamedElementType) child);
+                if (child instanceof NamedElementType namedElementType) {
+                    visit(namedElementType);
                 }
             }
         }
@@ -84,11 +88,11 @@ public final class NextTokenResolver {
 
     private void visitIteration(IterationElementType parent) {
         TokenElementType[] separatorTokens = parent.separatorTokens;
-        if (separatorTokens != null) {
-            ensureBucket();
-            for (TokenElementType separatorToken : separatorTokens) {
-                bucket.add(separatorToken.tokenType);
-            }
+        if (separatorTokens == null) return;
+
+        ensureBucket();
+        for (TokenElementType separatorToken : separatorTokens) {
+            bucket.add(separatorToken.tokenType);
         }
     }
 
@@ -97,18 +101,18 @@ public final class NextTokenResolver {
         int elementsCount = parent.children.length;
         int index = parent.indexOf(element, 0) + 1;
 
-        if (index < elementsCount) {
-            ElementTypeRef child = parent.children[index];
-            while (child != null) {
-                ensureBucket();
-                ElementTypeLookupCache<?> lookupCache = child.elementType.cache;
-                lookupCache.captureFirstPossibleTokens(bucket);
-                if (!child.optional) {
-                    parent = null;
-                    break;
-                }
-                child = child.next;
+        if (index >= elementsCount) return parent;
+
+        ElementTypeRef child = parent.children[index];
+        while (child != null) {
+            ensureBucket();
+            ElementTypeLookupCache<?> lookupCache = child.elementType.cache;
+            lookupCache.captureFirstPossibleTokens(bucket);
+            if (!child.optional) {
+                parent = null;
+                break;
             }
+            child = child.next;
         }
         return parent;
     }

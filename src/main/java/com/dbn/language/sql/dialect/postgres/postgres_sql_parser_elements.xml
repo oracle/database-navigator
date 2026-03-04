@@ -1525,7 +1525,7 @@
                     </variant>
                 </qualified-identifier>
                 <one-of id="00812" optional="true">
-                    <token id="00813" optional="true" type-id="CHR_STAR" />
+                    <token id="00813" type-id="CHR_STAR" />
                     <wrapper id="00814" template="PARENTHESES">
                         <element ref-id="expression_list" optional="true" />
                     </wrapper>
@@ -1541,7 +1541,7 @@
         </one-of>
         <element optional="true" ref-id="from_item_alias" />
         <iteration id="00818" optional="true">
-            <element optional="true" ref-id="join_clause" />
+            <element ref-id="join_clause" />
         </iteration>
     </element-def>
     <element-def attributes="CLAUSE" description="JOIN clause" id="from_item_alias">
@@ -1667,8 +1667,8 @@
                             <token id="00884" type-id="CHR_DOT" />
                             <object-ref id="00885" type="ANY" />
                         </sequence>
-                        <iteration id="00886" optional="true">
-                            <element optional="true" ref-id="postfix_cast_expression" />
+                        <iteration id="00886">
+                            <element ref-id="postfix_cast_expression" />
                         </iteration>
                     </one-of>
                 </iteration>
@@ -1690,7 +1690,7 @@
             <exec-variable id="00889" />
         </one-of>
         <iteration id="00890" optional="true">
-            <element optional="true" ref-id="postfix_cast_expression" />
+            <element ref-id="postfix_cast_expression" />
         </iteration>
         <token id="00891" optional="true" type-id="KW_NOT" />
         <one-of id="00892" optional="true">
