@@ -23,6 +23,8 @@ import com.dbn.language.common.element.impl.NamedElementType;
 
 import java.util.Set;
 
+import static com.dbn.common.util.Recursion.computeGuarded;
+
 public class NamedElementTypeLookupCache extends SequenceElementTypeLookupCache<NamedElementType>{
 
     public NamedElementTypeLookupCache(NamedElementType elementType) {
@@ -54,5 +56,10 @@ public class NamedElementTypeLookupCache extends SequenceElementTypeLookupCache<
 
         context.markScanned(element);
         return super.captureFirstPossibleTokens(context, bucket);
+    }
+
+    @Override
+    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
+        return computeGuarded("surrogateSuccessorCapture", this, e -> super.captureSurrogateSuccessors(surrogateLead, bucket));
     }
 }
