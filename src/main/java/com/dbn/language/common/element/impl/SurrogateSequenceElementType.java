@@ -17,11 +17,7 @@
 package com.dbn.language.common.element.impl;
 
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.SequenceElementTypeLookupCache;
 import com.dbn.language.common.element.parser.impl.SurrogateSequenceElementTypeParser;
-import com.dbn.language.common.psi.SequencePsiElement;
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
 public final class SurrogateSequenceElementType extends SequenceElementType {
@@ -37,20 +33,10 @@ public final class SurrogateSequenceElementType extends SequenceElementType {
         return children[1].elementType;
     }
 
-    @Override
-    public SequenceElementTypeLookupCache createLookupCache() {
-        return new SequenceElementTypeLookupCache<>(this);
-    }
-
     @NotNull
     @Override
     public SurrogateSequenceElementTypeParser createParser() {
         return new SurrogateSequenceElementTypeParser(this);
-    }
-
-    @Override
-    public PsiElement createPsiElement(ASTNode astNode) {
-        return new SequencePsiElement<>(astNode, this);
     }
 
     @NotNull

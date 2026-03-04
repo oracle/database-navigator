@@ -108,7 +108,7 @@ public class OneOfElementTypeBuilder {
             LeafElementType leadElement = createLeadElement(parent, tokenType, leafs);
             leadElements.add(leadElement);
         }
-        OneOfElementType leadElement = new OneOfElementType(parent, nextId());
+        SurrogateOneOfElementType leadElement = new SurrogateOneOfElementType(parent, nextId());
         leadElement.setElements(leadElements);
         leadElement.sortable = subject.sortable;
         leadElement.basic = true;

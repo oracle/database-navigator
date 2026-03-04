@@ -150,7 +150,7 @@ public class SequenceElementType extends ElementTypeBase {
 
     @Override
     public PsiElement createPsiElement(ASTNode astNode) {
-        return new SequencePsiElement(astNode, this);
+        return new SequencePsiElement<>(astNode, this);
     }
 
     public boolean isExitIndex(int index) {

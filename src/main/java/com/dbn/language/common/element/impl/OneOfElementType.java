@@ -45,7 +45,7 @@ import static com.dbn.language.common.TokenTypeCategory.IDENTIFIER;
 import static com.dbn.language.common.element.impl.OneOfElementTypeBuilder.rebuildAmbiguousPaths;
 
 @Slf4j
-public final class OneOfElementType extends ElementTypeBase {
+public class OneOfElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
     public boolean basic;
     public boolean sortable;

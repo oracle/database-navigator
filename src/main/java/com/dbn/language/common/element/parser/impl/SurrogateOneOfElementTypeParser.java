@@ -19,18 +19,19 @@ package com.dbn.language.common.element.parser.impl;
 import com.dbn.language.common.ParseException;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.impl.ElementTypeRef;
-import com.dbn.language.common.element.impl.OneOfElementType;
-import com.dbn.language.common.element.parser.ElementTypeParser;
+import com.dbn.language.common.element.impl.SurrogateOneOfElementType;
 import com.dbn.language.common.element.parser.ParseResult;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
 
+import java.util.List;
+
 import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 
-public class OneOfElementTypeParser<E extends OneOfElementType> extends ElementTypeParser<E> {
+public class SurrogateOneOfElementTypeParser extends OneOfElementTypeParser<SurrogateOneOfElementType> {
 
-    public OneOfElementTypeParser(E elementType) {
+    public SurrogateOneOfElementTypeParser(SurrogateOneOfElementType elementType) {
         super(elementType);
     }
 
@@ -39,10 +40,14 @@ public class OneOfElementTypeParser<E extends OneOfElementType> extends ElementT
         TokenType token = context.builder.getToken();
         if (token == null) return NO_MATCH_RESULT;
 
-        ParserNode node = stepIn(parentNode, context);
+        List<ElementTypeRef> elements = elementType.getGroupedElements(token);
+        if (elements == null) {
+            // handle consumed tokens not directly matching the grouped elements
+            return super.parse(parentNode, context);
+        }
 
-        ElementTypeRef element = elementType.getFirstChild();
-        while (element != null) {
+        ParserNode node = stepIn(parentNode, context);
+        for (ElementTypeRef element : elements) {
             if (context.check(element) && shouldParseElement(element.elementType, node, context)) {
                 ParseResult result = element.elementType.parser.parse(node, context);
 
@@ -51,7 +56,6 @@ public class OneOfElementTypeParser<E extends OneOfElementType> extends ElementT
                     return stepOut(node, context, result.type);
                 }
             }
-            element = element.next;
         }
         return stepOut(node, context, NO_MATCH);
     }
