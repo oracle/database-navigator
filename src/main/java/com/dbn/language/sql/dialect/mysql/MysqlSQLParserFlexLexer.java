@@ -4568,17 +4568,17 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 605: break;
           case 43:
-            { return tt.ktt(98);
+            { return tt.ktt(99);
             }
           // fall through
           case 606: break;
           case 44:
-            { return tt.ktt(100);
+            { return tt.ktt(101);
             }
           // fall through
           case 607: break;
           case 45:
-            { return tt.ktt(116);
+            { return tt.ktt(117);
             }
           // fall through
           case 608: break;
@@ -4588,22 +4588,22 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 609: break;
           case 47:
-            { return tt.ktt(151);
+            { return tt.ktt(152);
             }
           // fall through
           case 610: break;
           case 48:
-            { return tt.ktt(155);
+            { return tt.ktt(156);
             }
           // fall through
           case 611: break;
           case 49:
-            { return tt.ktt(156);
+            { return tt.ktt(157);
             }
           // fall through
           case 612: break;
           case 50:
-            { return tt.ktt(161);
+            { return tt.ktt(162);
             }
           // fall through
           case 613: break;
@@ -4613,7 +4613,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 614: break;
           case 52:
-            { return tt.ktt(235);
+            { return tt.ktt(236);
             }
           // fall through
           case 615: break;
@@ -4708,7 +4708,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 633: break;
           case 71:
-            { return tt.ktt(85);
+            { return tt.ktt(86);
             }
           // fall through
           case 634: break;
@@ -4723,12 +4723,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 636: break;
           case 74:
-            { return tt.ktt(119);
+            { return tt.ktt(120);
             }
           // fall through
           case 637: break;
           case 75:
-            { return tt.ftt(93);
+            { return tt.ftt(95);
             }
           // fall through
           case 638: break;
@@ -4753,12 +4753,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 642: break;
           case 80:
-            { return tt.ktt(145);
+            { return tt.ktt(146);
             }
           // fall through
           case 643: break;
           case 81:
-            { return tt.ktt(152);
+            { return tt.ktt(153);
             }
           // fall through
           case 644: break;
@@ -4778,7 +4778,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 647: break;
           case 85:
-            { return tt.ktt(163);
+            { return tt.ktt(164);
             }
           // fall through
           case 648: break;
@@ -4788,12 +4788,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 649: break;
           case 87:
-            { return tt.ktt(205);
+            { return tt.ktt(206);
             }
           // fall through
           case 650: break;
           case 88:
-            { return tt.ftt(140);
+            { return tt.ftt(142);
             }
           // fall through
           case 651: break;
@@ -4803,12 +4803,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 652: break;
           case 90:
-            { return tt.ktt(211);
+            { return tt.ktt(212);
             }
           // fall through
           case 653: break;
           case 91:
-            { return tt.ktt(221);
+            { return tt.ktt(222);
             }
           // fall through
           case 654: break;
@@ -4828,12 +4828,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 657: break;
           case 95:
-            { return tt.ktt(248);
+            { return tt.ktt(250);
             }
           // fall through
           case 658: break;
           case 96:
-            { return tt.ktt(262);
+            { return tt.ktt(264);
             }
           // fall through
           case 659: break;
@@ -4848,7 +4848,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 661: break;
           case 99:
-            { return tt.ftt(9);
+            { return tt.ftt(10);
             }
           // fall through
           case 662: break;
@@ -4943,17 +4943,17 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 680: break;
           case 118:
-            { return tt.ktt(88);
+            { return tt.ktt(89);
             }
           // fall through
           case 681: break;
           case 119:
-            { return tt.ktt(89);
+            { return tt.ktt(90);
             }
           // fall through
           case 682: break;
           case 120:
-            { return tt.ktt(95);
+            { return tt.ktt(96);
             }
           // fall through
           case 683: break;
@@ -4963,37 +4963,37 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 684: break;
           case 122:
-            { return tt.ktt(107);
+            { return tt.ktt(108);
             }
           // fall through
           case 685: break;
           case 123:
-            { return tt.ktt(108);
+            { return tt.ktt(109);
             }
           // fall through
           case 686: break;
           case 124:
-            { return tt.ktt(109);
+            { return tt.ktt(110);
             }
           // fall through
           case 687: break;
           case 125:
-            { return tt.ktt(110);
+            { return tt.ktt(111);
             }
           // fall through
           case 688: break;
           case 126:
-            { return tt.ktt(111);
+            { return tt.ktt(112);
             }
           // fall through
           case 689: break;
           case 127:
-            { return tt.ktt(113);
+            { return tt.ktt(114);
             }
           // fall through
           case 690: break;
           case 128:
-            { return tt.ktt(118);
+            { return tt.ktt(119);
             }
           // fall through
           case 691: break;
@@ -5003,62 +5003,62 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 692: break;
           case 130:
-            { return tt.ktt(120);
+            { return tt.ktt(121);
             }
           // fall through
           case 693: break;
           case 131:
-            { return tt.ktt(121);
+            { return tt.ktt(122);
             }
           // fall through
           case 694: break;
           case 132:
-            { return tt.ktt(123);
+            { return tt.ktt(124);
             }
           // fall through
           case 695: break;
           case 133:
-            { return tt.ktt(126);
+            { return tt.ktt(127);
             }
           // fall through
           case 696: break;
           case 134:
-            { return tt.ktt(127);
+            { return tt.ktt(128);
             }
           // fall through
           case 697: break;
           case 135:
-            { return tt.ktt(129);
+            { return tt.ktt(130);
             }
           // fall through
           case 698: break;
           case 136:
-            { return tt.ktt(133);
+            { return tt.ktt(134);
             }
           // fall through
           case 699: break;
           case 137:
-            { return tt.ktt(134);
+            { return tt.ktt(135);
             }
           // fall through
           case 700: break;
           case 138:
-            { return tt.ktt(136);
+            { return tt.ktt(137);
             }
           // fall through
           case 701: break;
           case 139:
-            { return tt.ftt(95);
+            { return tt.ftt(94);
             }
           // fall through
           case 702: break;
           case 140:
-            { return tt.ktt(137);
+            { return tt.ktt(138);
             }
           // fall through
           case 703: break;
           case 141:
-            { return tt.ktt(138);
+            { return tt.ktt(139);
             }
           // fall through
           case 704: break;
@@ -5068,27 +5068,27 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 705: break;
           case 143:
-            { return tt.ktt(146);
+            { return tt.ktt(147);
             }
           // fall through
           case 706: break;
           case 144:
-            { return tt.ktt(150);
+            { return tt.ktt(151);
             }
           // fall through
           case 707: break;
           case 145:
-            { return tt.ktt(153);
+            { return tt.ktt(154);
             }
           // fall through
           case 708: break;
           case 146:
-            { return tt.ktt(157);
+            { return tt.ktt(158);
             }
           // fall through
           case 709: break;
           case 147:
-            { return tt.ktt(172);
+            { return tt.ktt(173);
             }
           // fall through
           case 710: break;
@@ -5098,7 +5098,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 711: break;
           case 149:
-            { return tt.ktt(179);
+            { return tt.ktt(180);
             }
           // fall through
           case 712: break;
@@ -5113,17 +5113,17 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 714: break;
           case 152:
-            { return tt.ftt(141);
+            { return tt.ftt(140);
             }
           // fall through
           case 715: break;
           case 153:
-            { return tt.ftt(142);
+            { return tt.ftt(141);
             }
           // fall through
           case 716: break;
           case 154:
-            { return tt.ktt(207);
+            { return tt.ktt(208);
             }
           // fall through
           case 717: break;
@@ -5143,12 +5143,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 720: break;
           case 158:
-            { return tt.ktt(233);
+            { return tt.ktt(234);
             }
           // fall through
           case 721: break;
           case 159:
-            { return tt.ktt(234);
+            { return tt.ktt(235);
             }
           // fall through
           case 722: break;
@@ -5163,12 +5163,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 724: break;
           case 162:
-            { return tt.ktt(265);
+            { return tt.ktt(240);
             }
           // fall through
           case 725: break;
           case 163:
-            { return tt.ktt(241);
+            { return tt.ktt(243);
             }
           // fall through
           case 726: break;
@@ -5183,7 +5183,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 728: break;
           case 166:
-            { return tt.ktt(254);
+            { return tt.ktt(256);
             }
           // fall through
           case 729: break;
@@ -5193,12 +5193,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 730: break;
           case 168:
-            { return tt.ktt(257);
+            { return tt.ktt(259);
             }
           // fall through
           case 731: break;
           case 169:
-            { return tt.ktt(260);
+            { return tt.ktt(262);
             }
           // fall through
           case 732: break;
@@ -5218,7 +5218,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 735: break;
           case 173:
-            { return tt.ftt(10);
+            { return tt.ftt(9);
             }
           // fall through
           case 736: break;
@@ -5253,12 +5253,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 742: break;
           case 180:
-            { return tt.ktt(264);
+            { return tt.ktt(79);
             }
           // fall through
           case 743: break;
           case 181:
-            { return tt.ktt(79);
+            { return tt.ktt(80);
             }
           // fall through
           case 744: break;
@@ -5268,12 +5268,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 745: break;
           case 183:
-            { return tt.ktt(81);
+            { return tt.ktt(82);
             }
           // fall through
           case 746: break;
           case 184:
-            { return tt.ktt(82);
+            { return tt.ktt(83);
             }
           // fall through
           case 747: break;
@@ -5288,32 +5288,32 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 749: break;
           case 187:
-            { return tt.ktt(86);
+            { return tt.ktt(87);
             }
           // fall through
           case 750: break;
           case 188:
-            { return tt.ktt(92);
+            { return tt.ktt(93);
             }
           // fall through
           case 751: break;
           case 189:
-            { return tt.ktt(93);
+            { return tt.ktt(94);
             }
           // fall through
           case 752: break;
           case 190:
-            { return tt.ktt(101);
+            { return tt.ktt(102);
             }
           // fall through
           case 753: break;
           case 191:
-            { return tt.ktt(103);
+            { return tt.ktt(104);
             }
           // fall through
           case 754: break;
           case 192:
-            { return tt.ktt(104);
+            { return tt.ktt(105);
             }
           // fall through
           case 755: break;
@@ -5328,32 +5328,32 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 757: break;
           case 195:
-            { return tt.ktt(125);
+            { return tt.ktt(126);
             }
           // fall through
           case 758: break;
           case 196:
-            { return tt.ktt(128);
+            { return tt.ktt(129);
             }
           // fall through
           case 759: break;
           case 197:
-            { return tt.ktt(130);
+            { return tt.ktt(131);
             }
           // fall through
           case 760: break;
           case 198:
-            { return tt.ktt(132);
+            { return tt.ktt(133);
             }
           // fall through
           case 761: break;
           case 199:
-            { return tt.ktt(135);
+            { return tt.ktt(136);
             }
           // fall through
           case 762: break;
           case 200:
-            { return tt.ftt(94);
+            { return tt.ftt(93);
             }
           // fall through
           case 763: break;
@@ -5368,12 +5368,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 765: break;
           case 203:
-            { return tt.ktt(139);
+            { return tt.ktt(140);
             }
           // fall through
           case 766: break;
           case 204:
-            { return tt.ktt(142);
+            { return tt.ktt(143);
             }
           // fall through
           case 767: break;
@@ -5383,12 +5383,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 768: break;
           case 206:
-            { return tt.ktt(162);
+            { return tt.ktt(163);
             }
           // fall through
           case 769: break;
           case 207:
-            { return tt.ktt(164);
+            { return tt.ktt(165);
             }
           // fall through
           case 770: break;
@@ -5403,17 +5403,17 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 772: break;
           case 210:
-            { return tt.ktt(175);
+            { return tt.ktt(176);
             }
           // fall through
           case 773: break;
           case 211:
-            { return tt.ktt(176);
+            { return tt.ktt(177);
             }
           // fall through
           case 774: break;
           case 212:
-            { return tt.ktt(177);
+            { return tt.ktt(178);
             }
           // fall through
           case 775: break;
@@ -5423,22 +5423,22 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 776: break;
           case 214:
-            { return tt.ktt(178);
+            { return tt.ktt(179);
             }
           // fall through
           case 777: break;
           case 215:
-            { return tt.ktt(182);
+            { return tt.ktt(181);
             }
           // fall through
           case 778: break;
           case 216:
-            { return tt.ktt(195);
+            { return tt.ktt(196);
             }
           // fall through
           case 779: break;
           case 217:
-            { return tt.ktt(196);
+            { return tt.ktt(197);
             }
           // fall through
           case 780: break;
@@ -5453,7 +5453,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 782: break;
           case 220:
-            { return tt.ktt(206);
+            { return tt.ktt(207);
             }
           // fall through
           case 783: break;
@@ -5468,12 +5468,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 785: break;
           case 223:
-            { return tt.ktt(222);
+            { return tt.ktt(223);
             }
           // fall through
           case 786: break;
           case 224:
-            { return tt.ktt(228);
+            { return tt.ktt(229);
             }
           // fall through
           case 787: break;
@@ -5488,7 +5488,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 789: break;
           case 227:
-            { return tt.ktt(242);
+            { return tt.ktt(244);
             }
           // fall through
           case 790: break;
@@ -5498,32 +5498,32 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 791: break;
           case 229:
-            { return tt.ktt(247);
+            { return tt.ktt(249);
             }
           // fall through
           case 792: break;
           case 230:
-            { return tt.ktt(249);
+            { return tt.ktt(251);
             }
           // fall through
           case 793: break;
           case 231:
-            { return tt.ktt(250);
+            { return tt.ktt(252);
             }
           // fall through
           case 794: break;
           case 232:
-            { return tt.ktt(258);
+            { return tt.ktt(260);
             }
           // fall through
           case 795: break;
           case 233:
-            { return tt.ktt(259);
+            { return tt.ktt(261);
             }
           // fall through
           case 796: break;
           case 234:
-            { return tt.ktt(261);
+            { return tt.ktt(263);
             }
           // fall through
           case 797: break;
@@ -5618,17 +5618,17 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 815: break;
           case 253:
-            { return tt.ktt(80);
+            { return tt.ktt(81);
             }
           // fall through
           case 816: break;
           case 254:
-            { return tt.ktt(83);
+            { return tt.ktt(84);
             }
           // fall through
           case 817: break;
           case 255:
-            { return tt.ktt(84);
+            { return tt.ktt(85);
             }
           // fall through
           case 818: break;
@@ -5638,7 +5638,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 819: break;
           case 257:
-            { return tt.ktt(96);
+            { return tt.ktt(97);
             }
           // fall through
           case 820: break;
@@ -5648,17 +5648,17 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 821: break;
           case 259:
-            { return tt.ktt(99);
+            { return tt.ktt(100);
             }
           // fall through
           case 822: break;
           case 260:
-            { return tt.ktt(102);
+            { return tt.ktt(103);
             }
           // fall through
           case 823: break;
           case 261:
-            { return tt.ktt(106);
+            { return tt.ktt(107);
             }
           // fall through
           case 824: break;
@@ -5668,7 +5668,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 825: break;
           case 263:
-            { return tt.ktt(131);
+            { return tt.ktt(132);
             }
           // fall through
           case 826: break;
@@ -5678,7 +5678,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 827: break;
           case 265:
-            { return tt.ktt(141);
+            { return tt.ktt(142);
             }
           // fall through
           case 828: break;
@@ -5693,67 +5693,67 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 830: break;
           case 268:
-            { return tt.ktt(154);
+            { return tt.ktt(155);
             }
           // fall through
           case 831: break;
           case 269:
-            { return tt.ktt(159);
+            { return tt.ktt(160);
             }
           // fall through
           case 832: break;
           case 270:
-            { return tt.ktt(166);
+            { return tt.ktt(167);
             }
           // fall through
           case 833: break;
           case 271:
-            { return tt.ktt(185);
+            { return tt.ktt(186);
             }
           // fall through
           case 834: break;
           case 272:
-            { return tt.ktt(187);
+            { return tt.ktt(188);
             }
           // fall through
           case 835: break;
           case 273:
-            { return tt.ktt(188);
+            { return tt.ktt(189);
             }
           // fall through
           case 836: break;
           case 274:
-            { return tt.ktt(192);
+            { return tt.ktt(193);
             }
           // fall through
           case 837: break;
           case 275:
-            { return tt.ktt(194);
+            { return tt.ktt(195);
             }
           // fall through
           case 838: break;
           case 276:
-            { return tt.ktt(198);
+            { return tt.ktt(199);
             }
           // fall through
           case 839: break;
           case 277:
-            { return tt.ktt(199);
+            { return tt.ktt(200);
             }
           // fall through
           case 840: break;
           case 278:
-            { return tt.ftt(137);
+            { return tt.ftt(136);
             }
           // fall through
           case 841: break;
           case 279:
-            { return tt.ktt(202);
+            { return tt.ktt(203);
             }
           // fall through
           case 842: break;
           case 280:
-            { return tt.ktt(208);
+            { return tt.ktt(209);
             }
           // fall through
           case 843: break;
@@ -5763,12 +5763,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 844: break;
           case 282:
-            { return tt.ktt(225);
+            { return tt.ktt(226);
             }
           // fall through
           case 845: break;
           case 283:
-            { return tt.ftt(155);
+            { return tt.ftt(154);
             }
           // fall through
           case 846: break;
@@ -5778,22 +5778,22 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 847: break;
           case 285:
-            { return tt.ktt(243);
+            { return tt.ktt(245);
             }
           // fall through
           case 848: break;
           case 286:
-            { return tt.ktt(244);
+            { return tt.ktt(246);
             }
           // fall through
           case 849: break;
           case 287:
-            { return tt.ktt(246);
+            { return tt.ktt(248);
             }
           // fall through
           case 850: break;
           case 288:
-            { return tt.ktt(251);
+            { return tt.ktt(253);
             }
           // fall through
           case 851: break;
@@ -5888,7 +5888,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 869: break;
           case 307:
-            { return tt.ftt(48);
+            { return tt.ftt(44);
             }
           // fall through
           case 870: break;
@@ -5948,12 +5948,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 881: break;
           case 319:
-            { return tt.ktt(87);
+            { return tt.ktt(88);
             }
           // fall through
           case 882: break;
           case 320:
-            { return tt.ktt(94);
+            { return tt.ktt(95);
             }
           // fall through
           case 883: break;
@@ -5963,22 +5963,22 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 884: break;
           case 322:
-            { return tt.ktt(115);
+            { return tt.ktt(116);
             }
           // fall through
           case 885: break;
           case 323:
-            { return tt.ktt(117);
+            { return tt.ktt(118);
             }
           // fall through
           case 886: break;
           case 324:
-            { return tt.ktt(124);
+            { return tt.ktt(125);
             }
           // fall through
           case 887: break;
           case 325:
-            { return tt.ktt(149);
+            { return tt.ktt(150);
             }
           // fall through
           case 888: break;
@@ -5988,12 +5988,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 889: break;
           case 327:
-            { return tt.ktt(165);
+            { return tt.ktt(166);
             }
           // fall through
           case 890: break;
           case 328:
-            { return tt.ktt(167);
+            { return tt.ktt(168);
             }
           // fall through
           case 891: break;
@@ -6003,7 +6003,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 892: break;
           case 330:
-            { return tt.ktt(173);
+            { return tt.ktt(174);
             }
           // fall through
           case 893: break;
@@ -6018,27 +6018,27 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 895: break;
           case 333:
-            { return tt.ktt(186);
+            { return tt.ktt(187);
             }
           // fall through
           case 896: break;
           case 334:
-            { return tt.ktt(189);
+            { return tt.ktt(190);
             }
           // fall through
           case 897: break;
           case 335:
-            { return tt.ktt(190);
+            { return tt.ktt(191);
             }
           // fall through
           case 898: break;
           case 336:
-            { return tt.ktt(193);
+            { return tt.ktt(194);
             }
           // fall through
           case 899: break;
           case 337:
-            { return tt.ktt(200);
+            { return tt.ktt(201);
             }
           // fall through
           case 900: break;
@@ -6048,12 +6048,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 901: break;
           case 339:
-            { return tt.ktt(209);
+            { return tt.ktt(210);
             }
           // fall through
           case 902: break;
           case 340:
-            { return tt.ktt(224);
+            { return tt.ktt(225);
             }
           // fall through
           case 903: break;
@@ -6083,7 +6083,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 908: break;
           case 346:
-            { return tt.ktt(238);
+            { return tt.ktt(239);
             }
           // fall through
           case 909: break;
@@ -6093,12 +6093,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 910: break;
           case 348:
-            { return tt.ktt(253);
+            { return tt.ktt(255);
             }
           // fall through
           case 911: break;
           case 349:
-            { return tt.ftt(184);
+            { return tt.ftt(185);
             }
           // fall through
           case 912: break;
@@ -6108,12 +6108,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 913: break;
           case 351:
-            { return tt.ktt(255);
+            { return tt.ktt(257);
             }
           // fall through
           case 914: break;
           case 352:
-            { return tt.ktt(256);
+            { return tt.ktt(258);
             }
           // fall through
           case 915: break;
@@ -6148,7 +6148,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 921: break;
           case 359:
-            { return tt.ftt(42);
+            { return tt.ftt(39);
             }
           // fall through
           case 922: break;
@@ -6158,17 +6158,17 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 923: break;
           case 361:
-            { return tt.ftt(39);
+            { return tt.ftt(40);
             }
           // fall through
           case 924: break;
           case 362:
-            { return tt.ftt(41);
+            { return tt.ftt(42);
             }
           // fall through
           case 925: break;
           case 363:
-            { return tt.ftt(44);
+            { return tt.ftt(48);
             }
           // fall through
           case 926: break;
@@ -6198,7 +6198,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 931: break;
           case 369:
-            { return tt.ktt(90);
+            { return tt.ktt(91);
             }
           // fall through
           case 932: break;
@@ -6213,12 +6213,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 934: break;
           case 372:
-            { return tt.ktt(112);
+            { return tt.ktt(113);
             }
           // fall through
           case 935: break;
           case 373:
-            { return tt.ktt(122);
+            { return tt.ktt(123);
             }
           // fall through
           case 936: break;
@@ -6238,22 +6238,22 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 939: break;
           case 377:
-            { return tt.ftt(100);
+            { return tt.ftt(99);
             }
           // fall through
           case 940: break;
           case 378:
-            { return tt.ftt(101);
+            { return tt.ftt(100);
             }
           // fall through
           case 941: break;
           case 379:
-            { return tt.ftt(99);
+            { return tt.ftt(101);
             }
           // fall through
           case 942: break;
           case 380:
-            { return tt.ktt(140);
+            { return tt.ktt(141);
             }
           // fall through
           case 943: break;
@@ -6268,12 +6268,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 945: break;
           case 383:
-            { return tt.ktt(147);
+            { return tt.ktt(148);
             }
           // fall through
           case 946: break;
           case 384:
-            { return tt.ktt(148);
+            { return tt.ktt(149);
             }
           // fall through
           case 947: break;
@@ -6283,12 +6283,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 948: break;
           case 386:
-            { return tt.ktt(158);
+            { return tt.ktt(159);
             }
           // fall through
           case 949: break;
           case 387:
-            { return tt.ktt(170);
+            { return tt.ktt(171);
             }
           // fall through
           case 950: break;
@@ -6298,17 +6298,17 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 951: break;
           case 389:
-            { return tt.ktt(191);
+            { return tt.ktt(192);
             }
           // fall through
           case 952: break;
           case 390:
-            { return tt.ktt(197);
+            { return tt.ktt(198);
             }
           // fall through
           case 953: break;
           case 391:
-            { return tt.ktt(201);
+            { return tt.ktt(202);
             }
           // fall through
           case 954: break;
@@ -6318,22 +6318,22 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 955: break;
           case 393:
-            { return tt.ktt(210);
+            { return tt.ktt(211);
             }
           // fall through
           case 956: break;
           case 394:
-            { return tt.ktt(219);
+            { return tt.ktt(214);
             }
           // fall through
           case 957: break;
           case 395:
-            { return tt.ktt(223);
+            { return tt.ktt(224);
             }
           // fall through
           case 958: break;
           case 396:
-            { return tt.ftt(167);
+            { return tt.ftt(165);
             }
           // fall through
           case 959: break;
@@ -6348,17 +6348,17 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 961: break;
           case 399:
-            { return tt.ktt(236);
+            { return tt.ktt(237);
             }
           // fall through
           case 962: break;
           case 400:
-            { return tt.ktt(239);
+            { return tt.ktt(241);
             }
           // fall through
           case 963: break;
           case 401:
-            { return tt.ktt(245);
+            { return tt.ktt(247);
             }
           // fall through
           case 964: break;
@@ -6373,22 +6373,22 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 966: break;
           case 404:
-            { return tt.ftt(186);
+            { return tt.ftt(184);
             }
           // fall through
           case 967: break;
           case 405:
-            { return tt.ftt(185);
+            { return tt.ftt(186);
             }
           // fall through
           case 968: break;
           case 406:
-            { return tt.ftt(193);
+            { return tt.ftt(192);
             }
           // fall through
           case 969: break;
           case 407:
-            { return tt.ktt(263);
+            { return tt.ktt(265);
             }
           // fall through
           case 970: break;
@@ -6428,12 +6428,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 977: break;
           case 415:
-            { return tt.ftt(50);
+            { return tt.ftt(46);
             }
           // fall through
           case 978: break;
           case 416:
-            { return tt.ftt(51);
+            { return tt.ftt(47);
             }
           // fall through
           case 979: break;
@@ -6458,7 +6458,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 983: break;
           case 421:
-            { return tt.ktt(91);
+            { return tt.ktt(92);
             }
           // fall through
           case 984: break;
@@ -6473,7 +6473,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 986: break;
           case 424:
-            { return tt.ktt(114);
+            { return tt.ktt(115);
             }
           // fall through
           case 987: break;
@@ -6493,7 +6493,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 990: break;
           case 428:
-            { return tt.ktt(144);
+            { return tt.ktt(145);
             }
           // fall through
           case 991: break;
@@ -6508,27 +6508,27 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 993: break;
           case 431:
-            { return tt.ktt(168);
+            { return tt.ktt(169);
             }
           // fall through
           case 994: break;
           case 432:
-            { return tt.ktt(171);
+            { return tt.ktt(172);
             }
           // fall through
           case 995: break;
           case 433:
-            { return tt.ktt(174);
+            { return tt.ktt(175);
             }
           // fall through
           case 996: break;
           case 434:
-            { return tt.ktt(180);
+            { return tt.ktt(182);
             }
           // fall through
           case 997: break;
           case 435:
-            { return tt.ktt(183);
+            { return tt.ktt(184);
             }
           // fall through
           case 998: break;
@@ -6538,17 +6538,17 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 999: break;
           case 437:
-            { return tt.ktt(203);
+            { return tt.ktt(204);
             }
           // fall through
           case 1000: break;
           case 438:
-            { return tt.ktt(204);
+            { return tt.ktt(205);
             }
           // fall through
           case 1001: break;
           case 439:
-            { return tt.ktt(214);
+            { return tt.ktt(218);
             }
           // fall through
           case 1002: break;
@@ -6558,12 +6558,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1003: break;
           case 441:
-            { return tt.ktt(230);
+            { return tt.ktt(231);
             }
           // fall through
           case 1004: break;
           case 442:
-            { return tt.ktt(231);
+            { return tt.ktt(232);
             }
           // fall through
           case 1005: break;
@@ -6573,7 +6573,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1006: break;
           case 444:
-            { return tt.ktt(240);
+            { return tt.ktt(242);
             }
           // fall through
           case 1007: break;
@@ -6623,17 +6623,17 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1016: break;
           case 454:
-            { return tt.ftt(49);
+            { return tt.ftt(45);
             }
           // fall through
           case 1017: break;
           case 455:
-            { return tt.ftt(46);
+            { return tt.ftt(50);
             }
           // fall through
           case 1018: break;
           case 456:
-            { return tt.ftt(47);
+            { return tt.ftt(51);
             }
           // fall through
           case 1019: break;
@@ -6693,12 +6693,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1030: break;
           case 468:
-            { return tt.ktt(160);
+            { return tt.ktt(161);
             }
           // fall through
           case 1031: break;
           case 469:
-            { return tt.ktt(169);
+            { return tt.ktt(170);
             }
           // fall through
           case 1032: break;
@@ -6708,12 +6708,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1033: break;
           case 471:
-            { return tt.ktt(181);
+            { return tt.ktt(183);
             }
           // fall through
           case 1034: break;
           case 472:
-            { return tt.ktt(184);
+            { return tt.ktt(185);
             }
           // fall through
           case 1035: break;
@@ -6723,7 +6723,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1036: break;
           case 474:
-            { return tt.ktt(220);
+            { return tt.ktt(215);
             }
           // fall through
           case 1037: break;
@@ -6733,12 +6733,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1038: break;
           case 476:
-            { return tt.ktt(229);
+            { return tt.ktt(230);
             }
           // fall through
           case 1039: break;
           case 477:
-            { return tt.ktt(232);
+            { return tt.ktt(233);
             }
           // fall through
           case 1040: break;
@@ -6758,7 +6758,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1043: break;
           case 481:
-            { return tt.ftt(192);
+            { return tt.ftt(193);
             }
           // fall through
           case 1044: break;
@@ -6773,7 +6773,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1046: break;
           case 484:
-            { return tt.ftt(20);
+            { return tt.ftt(21);
             }
           // fall through
           case 1047: break;
@@ -6783,7 +6783,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1048: break;
           case 486:
-            { return tt.ftt(40);
+            { return tt.ftt(41);
             }
           // fall through
           case 1049: break;
@@ -6818,12 +6818,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1055: break;
           case 493:
-            { return tt.ktt(105);
+            { return tt.ktt(106);
             }
           // fall through
           case 1056: break;
           case 494:
-            { return tt.ktt(143);
+            { return tt.ktt(144);
             }
           // fall through
           case 1057: break;
@@ -6833,7 +6833,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1058: break;
           case 496:
-            { return tt.ftt(136);
+            { return tt.ftt(138);
             }
           // fall through
           case 1059: break;
@@ -6848,7 +6848,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1061: break;
           case 499:
-            { return tt.ftt(154);
+            { return tt.ftt(155);
             }
           // fall through
           case 1062: break;
@@ -6858,17 +6858,17 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1063: break;
           case 501:
-            { return tt.ftt(165);
+            { return tt.ftt(168);
             }
           // fall through
           case 1064: break;
           case 502:
-            { return tt.ftt(166);
+            { return tt.ftt(169);
             }
           // fall through
           case 1065: break;
           case 503:
-            { return tt.ktt(237);
+            { return tt.ktt(238);
             }
           // fall through
           case 1066: break;
@@ -6938,27 +6938,27 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1079: break;
           case 517:
-            { return tt.ktt(218);
+            { return tt.ktt(213);
             }
           // fall through
           case 1080: break;
           case 518:
-            { return tt.ktt(216);
+            { return tt.ktt(220);
             }
           // fall through
           case 1081: break;
           case 519:
-            { return tt.ktt(227);
+            { return tt.ktt(228);
             }
           // fall through
           case 1082: break;
           case 520:
-            { return tt.ftt(168);
+            { return tt.ftt(166);
             }
           // fall through
           case 1083: break;
           case 521:
-            { return tt.ktt(252);
+            { return tt.ktt(254);
             }
           // fall through
           case 1084: break;
@@ -6983,7 +6983,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1088: break;
           case 526:
-            { return tt.ktt(97);
+            { return tt.ktt(98);
             }
           // fall through
           case 1089: break;
@@ -6998,12 +6998,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1091: break;
           case 529:
-            { return tt.ktt(226);
+            { return tt.ktt(227);
             }
           // fall through
           case 1092: break;
           case 530:
-            { return tt.ftt(169);
+            { return tt.ftt(167);
             }
           // fall through
           case 1093: break;
@@ -7043,7 +7043,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1100: break;
           case 538:
-            { return tt.ktt(212);
+            { return tt.ktt(216);
             }
           // fall through
           case 1101: break;
@@ -7058,7 +7058,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1103: break;
           case 541:
-            { return tt.ftt(45);
+            { return tt.ftt(49);
             }
           // fall through
           case 1104: break;
@@ -7083,7 +7083,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1108: break;
           case 546:
-            { return tt.ftt(21);
+            { return tt.ftt(20);
             }
           // fall through
           case 1109: break;
@@ -7098,7 +7098,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1111: break;
           case 549:
-            { return tt.ktt(217);
+            { return tt.ktt(221);
             }
           // fall through
           case 1112: break;
@@ -7113,7 +7113,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1114: break;
           case 552:
-            { return tt.ktt(213);
+            { return tt.ktt(217);
             }
           // fall through
           case 1115: break;
@@ -7138,7 +7138,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1119: break;
           case 557:
-            { return tt.ftt(138);
+            { return tt.ftt(137);
             }
           // fall through
           case 1120: break;
@@ -7148,7 +7148,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 1121: break;
           case 559:
-            { return tt.ktt(215);
+            { return tt.ktt(219);
             }
           // fall through
           case 1122: break;
