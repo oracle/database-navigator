@@ -54,21 +54,23 @@ public class LanguageSpecificationBuilder {
 
     private static String databaseIdentifier;
     private static String languageIdentifier;
-    private static Map<TokenTypeCategory, List<TokenDefinition>> tokenDefinitions = new HashMap<>();
+    private static final Map<TokenTypeCategory, List<TokenDefinition>> tokenDefinitions = new HashMap<>();
 
-    private static final Map<String, DatabaseType> databaseOptions = new LinkedHashMap<>(Map.of(
-            "o", DatabaseType.ORACLE,
-            "m", DatabaseType.MYSQL,
-            "p", DatabaseType.POSTGRES,
-            "l", DatabaseType.SQLITE));
+    private static final Map<String, DatabaseType> databaseOptions = new LinkedHashMap<>();
+    private static final Map<String, DBLanguage> languageOptions = new LinkedHashMap<>();
+    private static final Map<String, Operation> operationOptions = new LinkedHashMap<>();
+    static {
+        databaseOptions.put("o", DatabaseType.ORACLE);
+        databaseOptions.put("m", DatabaseType.MYSQL);
+        databaseOptions.put("p", DatabaseType.POSTGRES);
+        databaseOptions.put("l", DatabaseType.SQLITE);
 
-    private static final Map<String, DBLanguage> languageOptions = new LinkedHashMap<>(Map.of(
-            "s", SQLLanguage.INSTANCE,
-            "p", PSQLLanguage.INSTANCE));
+        languageOptions.put("s", SQLLanguage.INSTANCE);
+        languageOptions.put("p", PSQLLanguage.INSTANCE);
 
-    private static final Map<String, Operation> operationOptions = new LinkedHashMap<>(Map.of(
-            "l", Operation.LEXER_DEFINITION,
-            "p", Operation.PARSER_DEFINITION));
+        operationOptions.put("l", Operation.LEXER_DEFINITION);
+        operationOptions.put("p", Operation.PARSER_DEFINITION);
+    }
 
     public static void main(String[] args) {
         database = selectOption("database", databaseOptions);
@@ -207,7 +209,7 @@ public class LanguageSpecificationBuilder {
     private static List<TokenDefinition> loadTokenDefinitions(TokenTypeCategory category) {
         String categoryIdentifier = getCategoryIdentifier(category);
 
-        String filePath = "/parser/" + databaseIdentifier + "_" + languageIdentifier + "_" + categoryIdentifier + ".txt";
+        String filePath = "/language/" + databaseIdentifier + "_" + languageIdentifier + "_" + categoryIdentifier + ".txt";
         URL fileUrl = LanguageSpecificationBuilder.class.getResource(filePath);
         String tokens = Files.readString(Path.of(fileUrl.getPath()));
         String[] tokenEntries = tokens.split("\n");

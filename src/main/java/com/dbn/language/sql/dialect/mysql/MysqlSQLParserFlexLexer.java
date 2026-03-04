@@ -48,18 +48,19 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
     "\1\u3500\1\u3600\1\u3700\1\u3800\1\u3900\1\u3a00\1\u1100\1\u3b00"+
     "\1\u3c00\1\u3d00\1\u3e00\1\u3f00\1\u4000\1\u4100\1\u4200\1\u4300"+
     "\1\u4400\1\u4500\1\u4600\1\u4700\1\u4800\1\u4900\1\u4a00\1\u4b00"+
-    "\1\u4c00\1\u4d00\1\u4e00\1\u2000\1\u4f00\1\u5000\1\u5100\1\u5200"+
-    "\3\u1100\1\u5300\1\u5400\1\u5500\11\u2000\1\u5600\4\u1100\1\u5700"+
-    "\17\u2000\2\u1100\1\u5800\41\u2000\2\u1100\1\u5900\1\u5a00\2\u2000"+
-    "\1\u5b00\1\u5c00\27\u1100\1\u5d00\4\u1100\1\u5e00\1\u5f00\41\u2000"+
-    "\1\u6000\1\u1100\1\u6100\1\u6200\11\u2000\1\u6300\22\u2000\1\u6400"+
-    "\1\u2000\1\u6500\1\u6600\1\u2000\1\u6700\1\u6800\1\u6900\1\u6a00"+
-    "\2\u2000\1\u6b00\4\u2000\1\u6c00\1\u6d00\1\u6e00\1\u6f00\1\u2000"+
-    "\1\u7000\2\u2000\1\u7100\1\u7200\1\u7300\2\u2000\1\u7400\1\u2000"+
-    "\1\u7500\14\u2000\1\u7600\4\u2000\246\u1100\1\u7700\20\u1100\1\u7800"+
-    "\1\u7900\25\u1100\1\u7a00\34\u1100\1\u7b00\14\u2000\2\u1100\1\u7c00"+
-    "\5\u2000\23\u1100\1\u7d00\17\u1100\1\u7e00\u0adc\u2000\1\u7f00\1\u8000"+
-    "\u02fe\u2000";
+    "\1\u4c00\1\u4d00\1\u4e00\1\u4f00\1\u5000\1\u5100\1\u5200\1\u5300"+
+    "\3\u1100\1\u5400\1\u5500\1\u5600\11\u2000\1\u5700\4\u1100\1\u5800"+
+    "\16\u1100\1\u5900\2\u1100\1\u5a00\32\u2000\1\u5b00\6\u2000\2\u1100"+
+    "\1\u5c00\1\u5d00\1\u2000\1\u5e00\1\u5f00\1\u6000\27\u1100\1\u6100"+
+    "\4\u1100\1\u6200\1\u6300\41\u2000\1\u6400\1\u1100\1\u6500\1\u6600"+
+    "\11\u2000\1\u6700\17\u2000\1\u6800\2\u2000\1\u6900\1\u2000\1\u6a00"+
+    "\1\u6b00\1\u2000\1\u6c00\1\u6d00\1\u6e00\1\u6f00\2\u2000\1\u7000"+
+    "\4\u2000\1\u7100\1\u7200\1\u7300\1\u7400\1\u2000\1\u7500\1\u7600"+
+    "\1\u2000\1\u7700\1\u7800\1\u7900\2\u2000\1\u7a00\1\u2000\1\u7b00"+
+    "\14\u2000\1\u6800\4\u2000\246\u1100\1\u7c00\20\u1100\1\u7d00\1\u7e00"+
+    "\25\u1100\1\u7f00\34\u1100\1\u8000\2\u1100\1\u8100\11\u2000\2\u1100"+
+    "\1\u8200\5\u2000\23\u1100\1\u8300\17\u1100\1\u8400\u0adc\u2000\1\u8500"+
+    "\1\u8600\u02fe\u2000";
 
   private static int [] zzUnpackcmap_top() {
     int [] result = new int[4352];
@@ -118,7 +119,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
     "\2\7\4\4\1\7\2\4\1\0\30\7\4\0\1\7"+
     "\11\0\1\7\3\0\1\7\5\0\22\4\31\7\3\0"+
     "\4\4\13\7\5\4\30\7\1\4\6\7\1\4\2\0"+
-    "\6\4\10\0\52\7\72\0\66\7\3\0\1\7\22\0"+
+    "\5\4\11\0\52\7\72\0\66\7\3\0\1\7\22\0"+
     "\1\7\7\0\12\7\2\0\2\4\12\0\1\4\20\7"+
     "\3\0\1\4\10\7\2\4\2\7\2\4\26\7\1\4"+
     "\7\7\1\4\1\7\3\4\4\7\2\4\1\0\1\7"+
@@ -185,7 +186,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
     "\5\0\57\7\21\0\10\7\3\4\12\0\21\4\11\0"+
     "\14\4\3\0\36\7\15\0\2\7\12\0\54\7\16\0"+
     "\14\4\44\7\24\0\10\4\12\0\3\4\3\7\12\0"+
-    "\44\7\2\4\11\7\7\4\53\7\2\4\3\7\20\4"+
+    "\44\7\2\4\13\7\5\4\53\7\2\4\3\7\20\4"+
     "\3\0\1\4\25\0\4\7\1\0\6\7\1\0\2\7"+
     "\3\0\1\7\5\4\300\7\100\0\26\7\2\4\6\7"+
     "\2\4\46\7\2\4\6\7\2\4\10\7\1\4\1\7"+
@@ -210,8 +211,8 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
     "\21\4\40\7\60\4\320\7\100\4\215\7\103\4\56\7"+
     "\2\4\15\7\3\4\20\7\12\0\2\7\24\4\57\7"+
     "\1\0\4\4\12\0\1\4\37\7\2\0\120\7\2\0"+
-    "\45\4\11\7\2\4\147\7\2\4\100\7\5\4\2\7"+
-    "\1\4\1\7\1\4\5\7\30\4\20\7\1\0\3\7"+
+    "\45\4\11\7\2\4\147\7\2\4\103\7\2\4\2\7"+
+    "\1\4\1\7\1\4\10\7\25\4\20\7\1\0\3\7"+
     "\1\0\4\7\1\0\27\7\5\0\4\4\1\0\13\4"+
     "\1\7\7\4\64\7\14\4\2\0\62\7\22\0\12\4"+
     "\12\0\6\4\22\0\6\7\3\4\1\7\1\4\2\7"+
@@ -243,98 +244,105 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
     "\6\4\44\7\4\4\44\7\4\4\50\7\10\4\64\7"+
     "\14\4\13\7\1\4\17\7\1\4\7\7\1\4\2\7"+
     "\1\4\13\7\1\4\17\7\1\4\7\7\1\4\2\7"+
-    "\103\4\67\7\11\4\26\7\12\4\10\7\30\4\6\7"+
-    "\1\4\52\7\1\4\11\7\105\4\6\7\2\4\1\7"+
-    "\1\4\54\7\1\4\2\7\3\4\1\7\2\4\27\7"+
-    "\12\4\27\7\11\4\37\7\101\4\23\7\1\4\2\7"+
-    "\12\4\26\7\12\4\32\7\106\4\70\7\6\4\2\7"+
-    "\100\4\1\7\3\0\1\4\2\0\5\4\4\0\4\7"+
-    "\1\4\3\7\1\4\35\7\2\4\3\0\4\4\1\0"+
-    "\40\4\35\7\3\4\35\7\43\4\10\7\1\4\34\7"+
-    "\2\0\31\4\66\7\12\4\26\7\12\4\23\7\15\4"+
-    "\22\7\156\4\111\7\67\4\63\7\15\4\63\7\15\4"+
-    "\44\7\4\0\10\4\12\0\u0146\4\52\7\1\4\2\0"+
-    "\3\4\2\7\113\4\3\0\35\7\12\4\1\7\10\4"+
-    "\26\7\13\0\37\4\22\7\4\0\52\4\25\7\33\4"+
-    "\27\7\11\4\3\0\65\7\17\0\37\4\13\0\2\7"+
-    "\2\0\1\7\11\4\4\0\55\7\13\0\2\4\1\0"+
-    "\4\4\1\0\12\4\1\0\2\4\31\7\7\4\12\0"+
-    "\6\4\3\0\44\7\16\0\1\4\12\0\4\4\1\7"+
-    "\2\0\1\7\10\4\43\7\1\0\2\4\1\7\11\4"+
-    "\3\0\60\7\16\0\4\7\4\4\4\0\1\4\14\0"+
-    "\1\7\1\4\1\7\43\4\22\7\1\4\31\7\14\0"+
-    "\6\4\1\0\2\7\1\0\76\4\7\7\1\4\1\7"+
-    "\1\4\4\7\1\4\17\7\1\4\12\7\7\4\57\7"+
-    "\14\0\5\4\12\0\6\4\4\0\1\4\10\7\2\4"+
-    "\2\7\2\4\26\7\1\4\7\7\1\4\2\7\1\4"+
-    "\5\7\1\4\2\0\1\7\7\0\2\4\2\0\2\4"+
-    "\3\0\2\4\1\7\6\4\1\0\5\4\5\7\2\0"+
-    "\2\4\7\0\3\4\5\0\213\4\65\7\22\0\4\7"+
-    "\5\4\12\0\4\4\1\0\3\7\36\4\60\7\24\0"+
-    "\2\7\1\4\1\7\10\4\12\0\246\4\57\7\7\0"+
-    "\2\4\11\0\27\4\4\7\2\0\42\4\60\7\21\0"+
-    "\3\4\1\7\13\4\12\0\46\4\53\7\15\0\1\7"+
-    "\7\4\12\0\66\4\33\7\2\4\17\0\4\4\12\0"+
-    "\6\4\7\7\271\4\54\7\17\0\145\4\100\7\12\0"+
-    "\25\4\10\7\2\4\1\7\2\4\10\7\1\4\2\7"+
-    "\1\4\30\7\6\0\1\4\2\0\2\4\4\0\1\7"+
-    "\1\0\1\7\2\0\14\4\12\0\106\4\10\7\2\4"+
-    "\47\7\7\0\2\4\7\0\1\7\1\4\1\7\1\0"+
-    "\33\4\1\7\12\0\50\7\7\0\1\7\4\0\10\4"+
-    "\1\0\10\4\1\7\13\0\56\7\20\0\3\4\1\7"+
-    "\22\4\111\7\7\4\11\7\1\4\45\7\10\0\1\4"+
-    "\10\0\1\7\17\4\12\0\30\4\36\7\2\4\26\0"+
-    "\1\4\16\0\111\4\7\7\1\4\2\7\1\4\46\7"+
-    "\6\0\3\4\1\0\1\4\2\0\1\4\7\0\1\7"+
-    "\1\0\10\4\12\0\6\4\6\7\1\4\2\7\1\4"+
-    "\40\7\5\0\1\4\2\0\1\4\5\0\1\7\7\4"+
-    "\12\0\u0136\4\23\7\4\0\11\4\2\0\1\7\1\0"+
-    "\15\7\1\4\42\7\7\0\3\4\5\0\15\4\12\0"+
-    "\126\4\1\7\54\4\4\7\37\4\232\7\146\4\157\7"+
-    "\21\4\304\7\u014c\4\141\7\17\4\60\7\21\0\6\7"+
-    "\17\0\252\4\107\7\271\4\71\7\7\4\37\7\1\4"+
-    "\12\0\6\4\117\7\1\4\12\0\6\4\36\7\2\4"+
-    "\5\0\13\4\60\7\7\0\11\4\4\7\14\4\12\0"+
-    "\11\4\25\7\5\4\23\7\260\4\100\7\200\4\113\7"+
-    "\4\4\1\0\1\7\67\0\7\4\4\0\15\7\100\4"+
-    "\2\7\1\4\1\7\1\0\13\4\2\0\16\4\370\7"+
-    "\10\4\326\7\52\4\11\7\u01e7\4\4\7\1\4\7\7"+
-    "\1\4\2\7\1\4\43\7\17\4\1\7\35\4\3\7"+
-    "\2\4\1\7\16\4\4\7\10\4\u018c\7\4\4\153\7"+
-    "\5\4\15\7\3\4\11\7\7\4\12\7\3\4\2\0"+
-    "\1\4\4\0\134\4\56\0\2\4\27\0\u011e\4\5\0"+
-    "\3\4\26\0\2\4\7\0\36\4\4\0\224\4\3\0"+
-    "\273\4\125\7\1\4\107\7\1\4\2\7\2\4\1\7"+
-    "\2\4\2\7\2\4\4\7\1\4\14\7\1\4\1\7"+
-    "\1\4\7\7\1\4\101\7\1\4\4\7\2\4\10\7"+
-    "\1\4\7\7\1\4\34\7\1\4\4\7\1\4\5\7"+
-    "\1\4\1\7\3\4\7\7\1\4\u0154\7\2\4\31\7"+
+    "\3\4\64\7\14\4\67\7\11\4\26\7\12\4\10\7"+
+    "\30\4\6\7\1\4\52\7\1\4\11\7\105\4\6\7"+
+    "\2\4\1\7\1\4\54\7\1\4\2\7\3\4\1\7"+
+    "\2\4\27\7\12\4\27\7\11\4\37\7\101\4\23\7"+
+    "\1\4\2\7\12\4\26\7\12\4\32\7\106\4\70\7"+
+    "\6\4\2\7\100\4\1\7\3\0\1\4\2\0\5\4"+
+    "\4\0\4\7\1\4\3\7\1\4\35\7\2\4\3\0"+
+    "\4\4\1\0\40\4\35\7\3\4\35\7\43\4\10\7"+
+    "\1\4\34\7\2\0\31\4\66\7\12\4\26\7\12\4"+
+    "\23\7\15\4\22\7\156\4\111\7\67\4\63\7\15\4"+
+    "\63\7\15\4\44\7\4\0\10\4\12\0\6\4\12\0"+
+    "\34\7\3\4\5\0\1\4\27\7\372\4\52\7\1\4"+
+    "\2\0\3\4\2\7\20\4\3\7\67\4\4\0\35\7"+
+    "\12\4\1\7\10\4\26\7\13\0\37\4\22\7\4\0"+
+    "\52\4\25\7\33\4\27\7\11\4\3\0\65\7\17\0"+
+    "\37\4\13\0\2\7\2\0\1\7\11\4\4\0\55\7"+
+    "\13\0\2\4\1\0\4\4\1\0\12\4\1\0\2\4"+
+    "\31\7\7\4\12\0\6\4\3\0\44\7\16\0\1\4"+
+    "\12\0\4\4\1\7\2\0\1\7\10\4\43\7\1\0"+
+    "\2\4\1\7\11\4\3\0\60\7\16\0\4\7\4\4"+
+    "\4\0\1\4\14\0\1\7\1\4\1\7\43\4\22\7"+
+    "\1\4\31\7\14\0\6\4\1\0\2\7\1\0\76\4"+
+    "\7\7\1\4\1\7\1\4\4\7\1\4\17\7\1\4"+
+    "\12\7\7\4\57\7\14\0\5\4\12\0\6\4\4\0"+
+    "\1\4\10\7\2\4\2\7\2\4\26\7\1\4\7\7"+
+    "\1\4\2\7\1\4\5\7\1\4\2\0\1\7\7\0"+
+    "\2\4\2\0\2\4\3\0\2\4\1\7\6\4\1\0"+
+    "\5\4\5\7\2\0\2\4\7\0\3\4\5\0\13\4"+
+    "\12\7\1\4\1\7\2\4\1\7\1\4\46\7\1\4"+
+    "\1\7\11\0\1\4\1\0\2\4\1\0\1\4\4\0"+
+    "\1\4\5\0\1\7\1\0\1\7\15\4\2\0\35\4"+
+    "\65\7\22\0\4\7\5\4\12\0\4\4\1\0\3\7"+
+    "\36\4\60\7\24\0\2\7\1\4\1\7\10\4\12\0"+
+    "\246\4\57\7\7\0\2\4\11\0\27\4\4\7\2\0"+
+    "\42\4\60\7\21\0\3\4\1\7\13\4\12\0\46\4"+
+    "\53\7\15\0\1\7\7\4\12\0\6\4\24\0\34\4"+
+    "\33\7\2\4\17\0\4\4\12\0\6\4\7\7\271\4"+
+    "\54\7\17\0\145\4\100\7\12\0\25\4\10\7\2\4"+
+    "\1\7\2\4\10\7\1\4\2\7\1\4\30\7\6\0"+
+    "\1\4\2\0\2\4\4\0\1\7\1\0\1\7\2\0"+
+    "\14\4\12\0\106\4\10\7\2\4\47\7\7\0\2\4"+
+    "\7\0\1\7\1\4\1\7\1\0\33\4\1\7\12\0"+
+    "\50\7\7\0\1\7\4\0\10\4\1\0\10\4\1\7"+
+    "\13\0\56\7\20\0\3\4\1\7\22\4\111\7\307\4"+
+    "\41\7\17\4\12\0\6\4\11\7\1\4\45\7\10\0"+
+    "\1\4\10\0\1\7\17\4\12\0\30\4\36\7\2\4"+
+    "\26\0\1\4\16\0\111\4\7\7\1\4\2\7\1\4"+
+    "\46\7\6\0\3\4\1\0\1\4\2\0\1\4\7\0"+
+    "\1\7\1\0\10\4\12\0\6\4\6\7\1\4\2\7"+
+    "\1\4\40\7\5\0\1\4\2\0\1\4\5\0\1\7"+
+    "\7\4\12\0\u0136\4\23\7\4\0\11\4\2\0\1\7"+
+    "\1\0\15\7\1\4\42\7\7\0\3\4\5\0\15\4"+
+    "\13\0\125\4\1\7\54\4\4\7\37\4\232\7\146\4"+
+    "\157\7\21\4\304\7\u014c\4\141\7\17\4\60\7\21\0"+
+    "\6\7\17\0\12\4\u019b\7\5\4\107\7\271\4\36\7"+
+    "\34\0\306\4\71\7\7\4\37\7\1\4\12\0\6\4"+
+    "\117\7\1\4\12\0\6\4\36\7\2\4\5\0\13\4"+
+    "\60\7\7\0\11\4\4\7\14\4\12\0\11\4\25\7"+
+    "\5\4\23\7\260\4\55\7\3\4\12\0\306\4\100\7"+
+    "\200\4\113\7\4\4\1\0\1\7\67\0\7\4\4\0"+
+    "\15\7\100\4\2\7\1\4\1\7\1\0\13\4\2\0"+
+    "\16\4\370\7\10\4\326\7\51\4\12\7\u01e7\4\4\7"+
+    "\1\4\7\7\1\4\2\7\1\4\43\7\17\4\1\7"+
+    "\35\4\3\7\2\4\1\7\16\4\4\7\10\4\u018c\7"+
+    "\4\4\153\7\5\4\15\7\3\4\11\7\7\4\12\7"+
+    "\3\4\2\0\1\4\4\0\u014c\4\12\0\6\4\56\0"+
+    "\2\4\27\0\u011e\4\5\0\3\4\26\0\2\4\7\0"+
+    "\36\4\4\0\224\4\3\0\273\4\125\7\1\4\107\7"+
+    "\1\4\2\7\2\4\1\7\2\4\2\7\2\4\4\7"+
+    "\1\4\14\7\1\4\1\7\1\4\7\7\1\4\101\7"+
+    "\1\4\4\7\2\4\10\7\1\4\7\7\1\4\34\7"+
+    "\1\4\4\7\1\4\5\7\1\4\1\7\3\4\7\7"+
+    "\1\4\u0154\7\2\4\31\7\1\4\31\7\1\4\37\7"+
     "\1\4\31\7\1\4\37\7\1\4\31\7\1\4\37\7"+
-    "\1\4\31\7\1\4\37\7\1\4\31\7\1\4\37\7"+
-    "\1\4\31\7\1\4\10\7\2\4\151\0\4\4\62\0"+
-    "\10\4\1\0\16\4\1\0\26\4\5\0\1\4\17\0"+
-    "\120\4\37\7\6\4\6\7\325\4\7\0\1\4\21\0"+
-    "\2\4\7\0\1\4\2\0\1\4\5\0\5\4\76\7"+
-    "\41\4\1\0\160\4\55\7\3\4\7\0\7\7\2\4"+
-    "\12\0\4\4\1\7\u0141\4\36\7\1\0\21\4\54\7"+
-    "\16\0\5\4\1\7\320\4\34\7\16\0\346\4\7\7"+
-    "\1\4\4\7\1\4\2\7\1\4\17\7\1\4\305\7"+
-    "\13\4\7\0\51\4\104\7\7\0\1\7\4\4\12\0"+
-    "\u0156\4\1\7\117\4\4\7\1\4\33\7\1\4\2\7"+
-    "\1\4\1\7\2\4\1\7\1\4\12\7\1\4\4\7"+
-    "\1\4\1\7\1\4\1\7\6\4\1\7\4\4\1\7"+
-    "\1\4\1\7\1\4\1\7\1\4\3\7\1\4\2\7"+
-    "\1\4\1\7\2\4\1\7\1\4\1\7\1\4\1\7"+
-    "\1\4\1\7\1\4\1\7\1\4\2\7\1\4\1\7"+
-    "\2\4\4\7\1\4\7\7\1\4\4\7\1\4\4\7"+
-    "\1\4\1\7\1\4\12\7\1\4\21\7\5\4\3\7"+
-    "\1\4\5\7\1\4\21\7\u0134\4\12\0\6\4\340\7"+
-    "\40\4\72\7\6\4\336\7\2\4\u0182\7\16\4\u0131\7"+
-    "\37\4\36\7\342\4\113\7\5\4\u0160\7\121\4\1\0"+
-    "\36\4\140\0\200\4\360\0\20\4";
+    "\1\4\31\7\1\4\37\7\1\4\31\7\1\4\10\7"+
+    "\2\4\151\0\4\4\62\0\10\4\1\0\16\4\1\0"+
+    "\26\4\5\0\1\4\17\0\120\4\37\7\6\4\6\7"+
+    "\325\4\7\0\1\4\21\0\2\4\7\0\1\4\2\0"+
+    "\1\4\5\0\5\4\76\7\41\4\1\0\160\4\55\7"+
+    "\3\4\7\0\7\7\2\4\12\0\4\4\1\7\u0141\4"+
+    "\36\7\1\0\21\4\54\7\16\0\5\4\1\7\320\4"+
+    "\34\7\16\0\326\4\36\7\2\0\1\7\12\0\345\4"+
+    "\7\7\1\4\4\7\1\4\2\7\1\4\17\7\1\4"+
+    "\305\7\13\4\7\0\51\4\104\7\7\0\1\7\4\4"+
+    "\12\0\u0156\4\1\7\117\4\4\7\1\4\33\7\1\4"+
+    "\2\7\1\4\1\7\2\4\1\7\1\4\12\7\1\4"+
+    "\4\7\1\4\1\7\1\4\1\7\6\4\1\7\4\4"+
+    "\1\7\1\4\1\7\1\4\1\7\1\4\3\7\1\4"+
+    "\2\7\1\4\1\7\2\4\1\7\1\4\1\7\1\4"+
+    "\1\7\1\4\1\7\1\4\1\7\1\4\2\7\1\4"+
+    "\1\7\2\4\4\7\1\4\7\7\1\4\4\7\1\4"+
+    "\4\7\1\4\1\7\1\4\12\7\1\4\21\7\5\4"+
+    "\3\7\1\4\5\7\1\4\21\7\104\4\340\7\40\4"+
+    "\72\7\6\4\336\7\2\4\u0182\7\16\4\u0131\7\17\4"+
+    "\156\7\242\4\36\7\342\4\113\7\5\4\u0160\7\121\4"+
+    "\1\0\36\4\140\0\200\4\360\0\20\4";
 
   private static int [] zzUnpackcmap_blocks() {
-    int [] result = new int[33024];
+    int [] result = new int[34560];
     int offset = 0;
     offset = zzUnpackcmap_blocks(ZZ_CMAP_BLOCKS_PACKED_0, offset, result);
     return result;
@@ -4545,67 +4553,67 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 602: break;
           case 40:
-            { return tt.getKeywordTokenType(9);
+            { return tt.ktt(9);
             }
           // fall through
           case 603: break;
           case 41:
-            { return tt.getKeywordTokenType(16);
+            { return tt.ktt(16);
             }
           // fall through
           case 604: break;
           case 42:
-            { return tt.getKeywordTokenType(60);
+            { return tt.ktt(60);
             }
           // fall through
           case 605: break;
           case 43:
-            { return tt.getKeywordTokenType(98);
+            { return tt.ktt(98);
             }
           // fall through
           case 606: break;
           case 44:
-            { return tt.getKeywordTokenType(100);
+            { return tt.ktt(100);
             }
           // fall through
           case 607: break;
           case 45:
-            { return tt.getKeywordTokenType(116);
+            { return tt.ktt(116);
             }
           // fall through
           case 608: break;
           case 46:
-            { return tt.getFunctionTokenType(88);
+            { return tt.ftt(88);
             }
           // fall through
           case 609: break;
           case 47:
-            { return tt.getKeywordTokenType(151);
+            { return tt.ktt(151);
             }
           // fall through
           case 610: break;
           case 48:
-            { return tt.getKeywordTokenType(155);
+            { return tt.ktt(155);
             }
           // fall through
           case 611: break;
           case 49:
-            { return tt.getKeywordTokenType(156);
+            { return tt.ktt(156);
             }
           // fall through
           case 612: break;
           case 50:
-            { return tt.getKeywordTokenType(161);
+            { return tt.ktt(161);
             }
           // fall through
           case 613: break;
           case 51:
-            { return tt.getFunctionTokenType(123);
+            { return tt.ftt(123);
             }
           // fall through
           case 614: break;
           case 52:
-            { return tt.getKeywordTokenType(235);
+            { return tt.ktt(235);
             }
           // fall through
           case 615: break;
@@ -4620,2547 +4628,2547 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 617: break;
           case 55:
-            { return tt.getFunctionTokenType(0);
+            { return tt.ftt(0);
             }
           // fall through
           case 618: break;
           case 56:
-            { return tt.getKeywordTokenType(2);
+            { return tt.ktt(2);
             }
           // fall through
           case 619: break;
           case 57:
-            { return tt.getKeywordTokenType(4);
+            { return tt.ktt(4);
             }
           // fall through
           case 620: break;
           case 58:
-            { return tt.getKeywordTokenType(8);
+            { return tt.ktt(8);
             }
           // fall through
           case 621: break;
           case 59:
-            { return tt.getKeywordTokenType(10);
+            { return tt.ktt(10);
             }
           // fall through
           case 622: break;
           case 60:
-            { return tt.getFunctionTokenType(11);
+            { return tt.ftt(11);
             }
           // fall through
           case 623: break;
           case 61:
-            { return tt.getFunctionTokenType(13);
+            { return tt.ftt(13);
             }
           // fall through
           case 624: break;
           case 62:
-            { return tt.getDataTypeTokenType(2);
+            { return tt.dtt(2);
             }
           // fall through
           case 625: break;
           case 63:
-            { return tt.getFunctionTokenType(30);
+            { return tt.ftt(30);
             }
           // fall through
           case 626: break;
           case 64:
-            { return tt.getFunctionTokenType(31);
+            { return tt.ftt(31);
             }
           // fall through
           case 627: break;
           case 65:
-            { return tt.getFunctionTokenType(43);
+            { return tt.ftt(43);
             }
           // fall through
           case 628: break;
           case 66:
-            { return tt.getDataTypeTokenType(9);
+            { return tt.dtt(9);
             }
           // fall through
           case 629: break;
           case 67:
-            { return tt.getKeywordTokenType(59);
+            { return tt.ktt(59);
             }
           // fall through
           case 630: break;
           case 68:
-            { return tt.getFunctionTokenType(56);
+            { return tt.ftt(56);
             }
           // fall through
           case 631: break;
           case 69:
-            { return tt.getKeywordTokenType(71);
+            { return tt.ktt(71);
             }
           // fall through
           case 632: break;
           case 70:
-            { return tt.getFunctionTokenType(59);
+            { return tt.ftt(59);
             }
           // fall through
           case 633: break;
           case 71:
-            { return tt.getKeywordTokenType(85);
+            { return tt.ktt(85);
             }
           // fall through
           case 634: break;
           case 72:
-            { return tt.getFunctionTokenType(73);
+            { return tt.ftt(73);
             }
           // fall through
           case 635: break;
           case 73:
-            { return tt.getDataTypeTokenType(16);
+            { return tt.dtt(16);
             }
           // fall through
           case 636: break;
           case 74:
-            { return tt.getKeywordTokenType(119);
+            { return tt.ktt(119);
             }
           // fall through
           case 637: break;
           case 75:
-            { return tt.getFunctionTokenType(93);
+            { return tt.ftt(93);
             }
           // fall through
           case 638: break;
           case 76:
-            { return tt.getFunctionTokenType(103);
+            { return tt.ftt(103);
             }
           // fall through
           case 639: break;
           case 77:
-            { return tt.getFunctionTokenType(104);
+            { return tt.ftt(104);
             }
           // fall through
           case 640: break;
           case 78:
-            { return tt.getFunctionTokenType(105);
+            { return tt.ftt(105);
             }
           // fall through
           case 641: break;
           case 79:
-            { return tt.getFunctionTokenType(106);
+            { return tt.ftt(106);
             }
           // fall through
           case 642: break;
           case 80:
-            { return tt.getKeywordTokenType(145);
+            { return tt.ktt(145);
             }
           // fall through
           case 643: break;
           case 81:
-            { return tt.getKeywordTokenType(152);
+            { return tt.ktt(152);
             }
           // fall through
           case 644: break;
           case 82:
-            { return tt.getFunctionTokenType(115);
+            { return tt.ftt(115);
             }
           // fall through
           case 645: break;
           case 83:
-            { return tt.getFunctionTokenType(117);
+            { return tt.ftt(117);
             }
           // fall through
           case 646: break;
           case 84:
-            { return tt.getFunctionTokenType(120);
+            { return tt.ftt(120);
             }
           // fall through
           case 647: break;
           case 85:
-            { return tt.getKeywordTokenType(163);
+            { return tt.ktt(163);
             }
           // fall through
           case 648: break;
           case 86:
-            { return tt.getFunctionTokenType(125);
+            { return tt.ftt(125);
             }
           // fall through
           case 649: break;
           case 87:
-            { return tt.getKeywordTokenType(205);
+            { return tt.ktt(205);
             }
           // fall through
           case 650: break;
           case 88:
-            { return tt.getFunctionTokenType(140);
+            { return tt.ftt(140);
             }
           // fall through
           case 651: break;
           case 89:
-            { return tt.getFunctionTokenType(144);
+            { return tt.ftt(144);
             }
           // fall through
           case 652: break;
           case 90:
-            { return tt.getKeywordTokenType(211);
+            { return tt.ktt(211);
             }
           // fall through
           case 653: break;
           case 91:
-            { return tt.getKeywordTokenType(221);
+            { return tt.ktt(221);
             }
           // fall through
           case 654: break;
           case 92:
-            { return tt.getFunctionTokenType(150);
+            { return tt.ftt(150);
             }
           // fall through
           case 655: break;
           case 93:
-            { return tt.getFunctionTokenType(161);
+            { return tt.ftt(161);
             }
           // fall through
           case 656: break;
           case 94:
-            { return tt.getFunctionTokenType(164);
+            { return tt.ftt(164);
             }
           // fall through
           case 657: break;
           case 95:
-            { return tt.getKeywordTokenType(248);
+            { return tt.ktt(248);
             }
           // fall through
           case 658: break;
           case 96:
-            { return tt.getKeywordTokenType(262);
+            { return tt.ktt(262);
             }
           // fall through
           case 659: break;
           case 97:
-            { return tt.getFunctionTokenType(1);
+            { return tt.ftt(1);
             }
           // fall through
           case 660: break;
           case 98:
-            { return tt.getFunctionTokenType(8);
+            { return tt.ftt(8);
             }
           // fall through
           case 661: break;
           case 99:
-            { return tt.getFunctionTokenType(9);
+            { return tt.ftt(9);
             }
           // fall through
           case 662: break;
           case 100:
-            { return tt.getDataTypeTokenType(3);
+            { return tt.dtt(3);
             }
           // fall through
           case 663: break;
           case 101:
-            { return tt.getDataTypeTokenType(4);
+            { return tt.dtt(4);
             }
           // fall through
           case 664: break;
           case 102:
-            { return tt.getKeywordTokenType(14);
+            { return tt.ktt(14);
             }
           // fall through
           case 665: break;
           case 103:
-            { return tt.getKeywordTokenType(17);
+            { return tt.ktt(17);
             }
           // fall through
           case 666: break;
           case 104:
-            { return tt.getKeywordTokenType(20);
+            { return tt.ktt(20);
             }
           // fall through
           case 667: break;
           case 105:
-            { return tt.getFunctionTokenType(18);
+            { return tt.ftt(18);
             }
           // fall through
           case 668: break;
           case 106:
-            { return tt.getDataTypeTokenType(6);
+            { return tt.dtt(6);
             }
           // fall through
           case 669: break;
           case 107:
-            { return tt.getFunctionTokenType(28);
+            { return tt.ftt(28);
             }
           // fall through
           case 670: break;
           case 108:
-            { return tt.getKeywordTokenType(44);
+            { return tt.ktt(44);
             }
           // fall through
           case 671: break;
           case 109:
-            { return tt.getDataTypeTokenType(7);
+            { return tt.dtt(7);
             }
           // fall through
           case 672: break;
           case 110:
-            { return tt.getKeywordTokenType(52);
+            { return tt.ktt(52);
             }
           // fall through
           case 673: break;
           case 111:
-            { return tt.getKeywordTokenType(56);
+            { return tt.ktt(56);
             }
           // fall through
           case 674: break;
           case 112:
-            { return tt.getKeywordTokenType(61);
+            { return tt.ktt(61);
             }
           // fall through
           case 675: break;
           case 113:
-            { return tt.getKeywordTokenType(62);
+            { return tt.ktt(62);
             }
           // fall through
           case 676: break;
           case 114:
-            { return tt.getKeywordTokenType(66);
+            { return tt.ktt(66);
             }
           // fall through
           case 677: break;
           case 115:
-            { return tt.getKeywordTokenType(67);
+            { return tt.ktt(67);
             }
           // fall through
           case 678: break;
           case 116:
-            { return tt.getDataTypeTokenType(12);
+            { return tt.dtt(12);
             }
           // fall through
           case 679: break;
           case 117:
-            { return tt.getKeywordTokenType(76);
+            { return tt.ktt(76);
             }
           // fall through
           case 680: break;
           case 118:
-            { return tt.getKeywordTokenType(88);
+            { return tt.ktt(88);
             }
           // fall through
           case 681: break;
           case 119:
-            { return tt.getKeywordTokenType(89);
+            { return tt.ktt(89);
             }
           // fall through
           case 682: break;
           case 120:
-            { return tt.getKeywordTokenType(95);
+            { return tt.ktt(95);
             }
           // fall through
           case 683: break;
           case 121:
-            { return tt.getFunctionTokenType(74);
+            { return tt.ftt(74);
             }
           // fall through
           case 684: break;
           case 122:
-            { return tt.getKeywordTokenType(107);
+            { return tt.ktt(107);
             }
           // fall through
           case 685: break;
           case 123:
-            { return tt.getKeywordTokenType(108);
+            { return tt.ktt(108);
             }
           // fall through
           case 686: break;
           case 124:
-            { return tt.getKeywordTokenType(109);
+            { return tt.ktt(109);
             }
           // fall through
           case 687: break;
           case 125:
-            { return tt.getKeywordTokenType(110);
+            { return tt.ktt(110);
             }
           // fall through
           case 688: break;
           case 126:
-            { return tt.getKeywordTokenType(111);
+            { return tt.ktt(111);
             }
           // fall through
           case 689: break;
           case 127:
-            { return tt.getKeywordTokenType(113);
+            { return tt.ktt(113);
             }
           // fall through
           case 690: break;
           case 128:
-            { return tt.getKeywordTokenType(118);
+            { return tt.ktt(118);
             }
           // fall through
           case 691: break;
           case 129:
-            { return tt.getDataTypeTokenType(18);
+            { return tt.dtt(18);
             }
           // fall through
           case 692: break;
           case 130:
-            { return tt.getKeywordTokenType(120);
+            { return tt.ktt(120);
             }
           // fall through
           case 693: break;
           case 131:
-            { return tt.getKeywordTokenType(121);
+            { return tt.ktt(121);
             }
           // fall through
           case 694: break;
           case 132:
-            { return tt.getKeywordTokenType(123);
+            { return tt.ktt(123);
             }
           // fall through
           case 695: break;
           case 133:
-            { return tt.getKeywordTokenType(126);
+            { return tt.ktt(126);
             }
           // fall through
           case 696: break;
           case 134:
-            { return tt.getKeywordTokenType(127);
+            { return tt.ktt(127);
             }
           // fall through
           case 697: break;
           case 135:
-            { return tt.getKeywordTokenType(129);
+            { return tt.ktt(129);
             }
           // fall through
           case 698: break;
           case 136:
-            { return tt.getKeywordTokenType(133);
+            { return tt.ktt(133);
             }
           // fall through
           case 699: break;
           case 137:
-            { return tt.getKeywordTokenType(134);
+            { return tt.ktt(134);
             }
           // fall through
           case 700: break;
           case 138:
-            { return tt.getKeywordTokenType(136);
+            { return tt.ktt(136);
             }
           // fall through
           case 701: break;
           case 139:
-            { return tt.getFunctionTokenType(95);
+            { return tt.ftt(95);
             }
           // fall through
           case 702: break;
           case 140:
-            { return tt.getKeywordTokenType(137);
+            { return tt.ktt(137);
             }
           // fall through
           case 703: break;
           case 141:
-            { return tt.getKeywordTokenType(138);
+            { return tt.ktt(138);
             }
           // fall through
           case 704: break;
           case 142:
-            { return tt.getFunctionTokenType(97);
+            { return tt.ftt(97);
             }
           // fall through
           case 705: break;
           case 143:
-            { return tt.getKeywordTokenType(146);
+            { return tt.ktt(146);
             }
           // fall through
           case 706: break;
           case 144:
-            { return tt.getKeywordTokenType(150);
+            { return tt.ktt(150);
             }
           // fall through
           case 707: break;
           case 145:
-            { return tt.getKeywordTokenType(153);
+            { return tt.ktt(153);
             }
           // fall through
           case 708: break;
           case 146:
-            { return tt.getKeywordTokenType(157);
+            { return tt.ktt(157);
             }
           // fall through
           case 709: break;
           case 147:
-            { return tt.getKeywordTokenType(172);
+            { return tt.ktt(172);
             }
           // fall through
           case 710: break;
           case 148:
-            { return tt.getFunctionTokenType(130);
+            { return tt.ftt(130);
             }
           // fall through
           case 711: break;
           case 149:
-            { return tt.getKeywordTokenType(179);
+            { return tt.ktt(179);
             }
           // fall through
           case 712: break;
           case 150:
-            { return tt.getDataTypeTokenType(31);
+            { return tt.dtt(31);
             }
           // fall through
           case 713: break;
           case 151:
-            { return tt.getFunctionTokenType(134);
+            { return tt.ftt(134);
             }
           // fall through
           case 714: break;
           case 152:
-            { return tt.getFunctionTokenType(141);
+            { return tt.ftt(141);
             }
           // fall through
           case 715: break;
           case 153:
-            { return tt.getFunctionTokenType(142);
+            { return tt.ftt(142);
             }
           // fall through
           case 716: break;
           case 154:
-            { return tt.getKeywordTokenType(207);
+            { return tt.ktt(207);
             }
           // fall through
           case 717: break;
           case 155:
-            { return tt.getFunctionTokenType(143);
+            { return tt.ftt(143);
             }
           // fall through
           case 718: break;
           case 156:
-            { return tt.getFunctionTokenType(149);
+            { return tt.ftt(149);
             }
           // fall through
           case 719: break;
           case 157:
-            { return tt.getDataTypeTokenType(33);
+            { return tt.dtt(33);
             }
           // fall through
           case 720: break;
           case 158:
-            { return tt.getKeywordTokenType(233);
+            { return tt.ktt(233);
             }
           // fall through
           case 721: break;
           case 159:
-            { return tt.getKeywordTokenType(234);
+            { return tt.ktt(234);
             }
           // fall through
           case 722: break;
           case 160:
-            { return tt.getDataTypeTokenType(34);
+            { return tt.dtt(34);
             }
           // fall through
           case 723: break;
           case 161:
-            { return tt.getFunctionTokenType(171);
+            { return tt.ftt(171);
             }
           // fall through
           case 724: break;
           case 162:
-            { return tt.getKeywordTokenType(265);
+            { return tt.ktt(265);
             }
           // fall through
           case 725: break;
           case 163:
-            { return tt.getKeywordTokenType(241);
+            { return tt.ktt(241);
             }
           // fall through
           case 726: break;
           case 164:
-            { return tt.getFunctionTokenType(178);
+            { return tt.ftt(178);
             }
           // fall through
           case 727: break;
           case 165:
-            { return tt.getFunctionTokenType(182);
+            { return tt.ftt(182);
             }
           // fall through
           case 728: break;
           case 166:
-            { return tt.getKeywordTokenType(254);
+            { return tt.ktt(254);
             }
           // fall through
           case 729: break;
           case 167:
-            { return tt.getFunctionTokenType(188);
+            { return tt.ftt(188);
             }
           // fall through
           case 730: break;
           case 168:
-            { return tt.getKeywordTokenType(257);
+            { return tt.ktt(257);
             }
           // fall through
           case 731: break;
           case 169:
-            { return tt.getKeywordTokenType(260);
+            { return tt.ktt(260);
             }
           // fall through
           case 732: break;
           case 170:
-            { return tt.getDataTypeTokenType(41);
+            { return tt.dtt(41);
             }
           // fall through
           case 733: break;
           case 171:
-            { return tt.getKeywordTokenType(5);
+            { return tt.ktt(5);
             }
           // fall through
           case 734: break;
           case 172:
-            { return tt.getFunctionTokenType(7);
+            { return tt.ftt(7);
             }
           // fall through
           case 735: break;
           case 173:
-            { return tt.getFunctionTokenType(10);
+            { return tt.ftt(10);
             }
           // fall through
           case 736: break;
           case 174:
-            { return tt.getKeywordTokenType(15);
+            { return tt.ktt(15);
             }
           // fall through
           case 737: break;
           case 175:
-            { return tt.getKeywordTokenType(24);
+            { return tt.ktt(24);
             }
           // fall through
           case 738: break;
           case 176:
-            { return tt.getKeywordTokenType(26);
+            { return tt.ktt(26);
             }
           // fall through
           case 739: break;
           case 177:
-            { return tt.getFunctionTokenType(32);
+            { return tt.ftt(32);
             }
           // fall through
           case 740: break;
           case 178:
-            { return tt.getFunctionTokenType(33);
+            { return tt.ftt(33);
             }
           // fall through
           case 741: break;
           case 179:
-            { return tt.getKeywordTokenType(41);
+            { return tt.ktt(41);
             }
           // fall through
           case 742: break;
           case 180:
-            { return tt.getKeywordTokenType(264);
+            { return tt.ktt(264);
             }
           // fall through
           case 743: break;
           case 181:
-            { return tt.getKeywordTokenType(79);
+            { return tt.ktt(79);
             }
           // fall through
           case 744: break;
           case 182:
-            { return tt.getFunctionTokenType(62);
+            { return tt.ftt(62);
             }
           // fall through
           case 745: break;
           case 183:
-            { return tt.getKeywordTokenType(81);
+            { return tt.ktt(81);
             }
           // fall through
           case 746: break;
           case 184:
-            { return tt.getKeywordTokenType(82);
+            { return tt.ktt(82);
             }
           // fall through
           case 747: break;
           case 185:
-            { return tt.getDataTypeTokenType(13);
+            { return tt.dtt(13);
             }
           // fall through
           case 748: break;
           case 186:
-            { return tt.getFunctionTokenType(64);
+            { return tt.ftt(64);
             }
           // fall through
           case 749: break;
           case 187:
-            { return tt.getKeywordTokenType(86);
+            { return tt.ktt(86);
             }
           // fall through
           case 750: break;
           case 188:
-            { return tt.getKeywordTokenType(92);
+            { return tt.ktt(92);
             }
           // fall through
           case 751: break;
           case 189:
-            { return tt.getKeywordTokenType(93);
+            { return tt.ktt(93);
             }
           // fall through
           case 752: break;
           case 190:
-            { return tt.getKeywordTokenType(101);
+            { return tt.ktt(101);
             }
           // fall through
           case 753: break;
           case 191:
-            { return tt.getKeywordTokenType(103);
+            { return tt.ktt(103);
             }
           // fall through
           case 754: break;
           case 192:
-            { return tt.getKeywordTokenType(104);
+            { return tt.ktt(104);
             }
           // fall through
           case 755: break;
           case 193:
-            { return tt.getFunctionTokenType(81);
+            { return tt.ftt(81);
             }
           // fall through
           case 756: break;
           case 194:
-            { return tt.getFunctionTokenType(86);
+            { return tt.ftt(86);
             }
           // fall through
           case 757: break;
           case 195:
-            { return tt.getKeywordTokenType(125);
+            { return tt.ktt(125);
             }
           // fall through
           case 758: break;
           case 196:
-            { return tt.getKeywordTokenType(128);
+            { return tt.ktt(128);
             }
           // fall through
           case 759: break;
           case 197:
-            { return tt.getKeywordTokenType(130);
+            { return tt.ktt(130);
             }
           // fall through
           case 760: break;
           case 198:
-            { return tt.getKeywordTokenType(132);
+            { return tt.ktt(132);
             }
           // fall through
           case 761: break;
           case 199:
-            { return tt.getKeywordTokenType(135);
+            { return tt.ktt(135);
             }
           // fall through
           case 762: break;
           case 200:
-            { return tt.getFunctionTokenType(94);
+            { return tt.ftt(94);
             }
           // fall through
           case 763: break;
           case 201:
-            { return tt.getFunctionTokenType(96);
+            { return tt.ftt(96);
             }
           // fall through
           case 764: break;
           case 202:
-            { return tt.getFunctionTokenType(98);
+            { return tt.ftt(98);
             }
           // fall through
           case 765: break;
           case 203:
-            { return tt.getKeywordTokenType(139);
+            { return tt.ktt(139);
             }
           // fall through
           case 766: break;
           case 204:
-            { return tt.getKeywordTokenType(142);
+            { return tt.ktt(142);
             }
           // fall through
           case 767: break;
           case 205:
-            { return tt.getFunctionTokenType(110);
+            { return tt.ftt(110);
             }
           // fall through
           case 768: break;
           case 206:
-            { return tt.getKeywordTokenType(162);
+            { return tt.ktt(162);
             }
           // fall through
           case 769: break;
           case 207:
-            { return tt.getKeywordTokenType(164);
+            { return tt.ktt(164);
             }
           // fall through
           case 770: break;
           case 208:
-            { return tt.getDataTypeTokenType(29);
+            { return tt.dtt(29);
             }
           // fall through
           case 771: break;
           case 209:
-            { return tt.getFunctionTokenType(126);
+            { return tt.ftt(126);
             }
           // fall through
           case 772: break;
           case 210:
-            { return tt.getKeywordTokenType(175);
+            { return tt.ktt(175);
             }
           // fall through
           case 773: break;
           case 211:
-            { return tt.getKeywordTokenType(176);
+            { return tt.ktt(176);
             }
           // fall through
           case 774: break;
           case 212:
-            { return tt.getKeywordTokenType(177);
+            { return tt.ktt(177);
             }
           // fall through
           case 775: break;
           case 213:
-            { return tt.getFunctionTokenType(128);
+            { return tt.ftt(128);
             }
           // fall through
           case 776: break;
           case 214:
-            { return tt.getKeywordTokenType(178);
+            { return tt.ktt(178);
             }
           // fall through
           case 777: break;
           case 215:
-            { return tt.getKeywordTokenType(182);
+            { return tt.ktt(182);
             }
           // fall through
           case 778: break;
           case 216:
-            { return tt.getKeywordTokenType(195);
+            { return tt.ktt(195);
             }
           // fall through
           case 779: break;
           case 217:
-            { return tt.getKeywordTokenType(196);
+            { return tt.ktt(196);
             }
           // fall through
           case 780: break;
           case 218:
-            { return tt.getFunctionTokenType(132);
+            { return tt.ftt(132);
             }
           // fall through
           case 781: break;
           case 219:
-            { return tt.getFunctionTokenType(135);
+            { return tt.ftt(135);
             }
           // fall through
           case 782: break;
           case 220:
-            { return tt.getKeywordTokenType(206);
+            { return tt.ktt(206);
             }
           // fall through
           case 783: break;
           case 221:
-            { return tt.getFunctionTokenType(145);
+            { return tt.ftt(145);
             }
           // fall through
           case 784: break;
           case 222:
-            { return tt.getFunctionTokenType(148);
+            { return tt.ftt(148);
             }
           // fall through
           case 785: break;
           case 223:
-            { return tt.getKeywordTokenType(222);
+            { return tt.ktt(222);
             }
           // fall through
           case 786: break;
           case 224:
-            { return tt.getKeywordTokenType(228);
+            { return tt.ktt(228);
             }
           // fall through
           case 787: break;
           case 225:
-            { return tt.getFunctionTokenType(172);
+            { return tt.ftt(172);
             }
           // fall through
           case 788: break;
           case 226:
-            { return tt.getFunctionTokenType(175);
+            { return tt.ftt(175);
             }
           // fall through
           case 789: break;
           case 227:
-            { return tt.getKeywordTokenType(242);
+            { return tt.ktt(242);
             }
           // fall through
           case 790: break;
           case 228:
-            { return tt.getFunctionTokenType(177);
+            { return tt.ftt(177);
             }
           // fall through
           case 791: break;
           case 229:
-            { return tt.getKeywordTokenType(247);
+            { return tt.ktt(247);
             }
           // fall through
           case 792: break;
           case 230:
-            { return tt.getKeywordTokenType(249);
+            { return tt.ktt(249);
             }
           // fall through
           case 793: break;
           case 231:
-            { return tt.getKeywordTokenType(250);
+            { return tt.ktt(250);
             }
           // fall through
           case 794: break;
           case 232:
-            { return tt.getKeywordTokenType(258);
+            { return tt.ktt(258);
             }
           // fall through
           case 795: break;
           case 233:
-            { return tt.getKeywordTokenType(259);
+            { return tt.ktt(259);
             }
           // fall through
           case 796: break;
           case 234:
-            { return tt.getKeywordTokenType(261);
+            { return tt.ktt(261);
             }
           // fall through
           case 797: break;
           case 235:
-            { return tt.getKeywordTokenType(1);
+            { return tt.ktt(1);
             }
           // fall through
           case 798: break;
           case 236:
-            { return tt.getKeywordTokenType(6);
+            { return tt.ktt(6);
             }
           // fall through
           case 799: break;
           case 237:
-            { return tt.getKeywordTokenType(12);
+            { return tt.ktt(12);
             }
           // fall through
           case 800: break;
           case 238:
-            { return tt.getDataTypeTokenType(0);
+            { return tt.dtt(0);
             }
           // fall through
           case 801: break;
           case 239:
-            { return tt.getDataTypeTokenType(1);
+            { return tt.dtt(1);
             }
           // fall through
           case 802: break;
           case 240:
-            { return tt.getFunctionTokenType(16);
+            { return tt.ftt(16);
             }
           // fall through
           case 803: break;
           case 241:
-            { return tt.getKeywordTokenType(21);
+            { return tt.ktt(21);
             }
           // fall through
           case 804: break;
           case 242:
-            { return tt.getKeywordTokenType(28);
+            { return tt.ktt(28);
             }
           // fall through
           case 805: break;
           case 243:
-            { return tt.getFunctionTokenType(25);
+            { return tt.ftt(25);
             }
           // fall through
           case 806: break;
           case 244:
-            { return tt.getKeywordTokenType(40);
+            { return tt.ktt(40);
             }
           // fall through
           case 807: break;
           case 245:
-            { return tt.getKeywordTokenType(43);
+            { return tt.ktt(43);
             }
           // fall through
           case 808: break;
           case 246:
-            { return tt.getFunctionTokenType(52);
+            { return tt.ftt(52);
             }
           // fall through
           case 809: break;
           case 247:
-            { return tt.getKeywordTokenType(51);
+            { return tt.ktt(51);
             }
           // fall through
           case 810: break;
           case 248:
-            { return tt.getDataTypeTokenType(11);
+            { return tt.dtt(11);
             }
           // fall through
           case 811: break;
           case 249:
-            { return tt.getKeywordTokenType(68);
+            { return tt.ktt(68);
             }
           // fall through
           case 812: break;
           case 250:
-            { return tt.getFunctionTokenType(57);
+            { return tt.ftt(57);
             }
           // fall through
           case 813: break;
           case 251:
-            { return tt.getKeywordTokenType(73);
+            { return tt.ktt(73);
             }
           // fall through
           case 814: break;
           case 252:
-            { return tt.getKeywordTokenType(75);
+            { return tt.ktt(75);
             }
           // fall through
           case 815: break;
           case 253:
-            { return tt.getKeywordTokenType(80);
+            { return tt.ktt(80);
             }
           // fall through
           case 816: break;
           case 254:
-            { return tt.getKeywordTokenType(83);
+            { return tt.ktt(83);
             }
           // fall through
           case 817: break;
           case 255:
-            { return tt.getKeywordTokenType(84);
+            { return tt.ktt(84);
             }
           // fall through
           case 818: break;
           case 256:
-            { return tt.getFunctionTokenType(66);
+            { return tt.ftt(66);
             }
           // fall through
           case 819: break;
           case 257:
-            { return tt.getKeywordTokenType(96);
+            { return tt.ktt(96);
             }
           // fall through
           case 820: break;
           case 258:
-            { return tt.getFunctionTokenType(78);
+            { return tt.ftt(78);
             }
           // fall through
           case 821: break;
           case 259:
-            { return tt.getKeywordTokenType(99);
+            { return tt.ktt(99);
             }
           // fall through
           case 822: break;
           case 260:
-            { return tt.getKeywordTokenType(102);
+            { return tt.ktt(102);
             }
           // fall through
           case 823: break;
           case 261:
-            { return tt.getKeywordTokenType(106);
+            { return tt.ktt(106);
             }
           // fall through
           case 824: break;
           case 262:
-            { return tt.getFunctionTokenType(87);
+            { return tt.ftt(87);
             }
           // fall through
           case 825: break;
           case 263:
-            { return tt.getKeywordTokenType(131);
+            { return tt.ktt(131);
             }
           // fall through
           case 826: break;
           case 264:
-            { return tt.getFunctionTokenType(92);
+            { return tt.ftt(92);
             }
           // fall through
           case 827: break;
           case 265:
-            { return tt.getKeywordTokenType(141);
+            { return tt.ktt(141);
             }
           // fall through
           case 828: break;
           case 266:
-            { return tt.getFunctionTokenType(107);
+            { return tt.ftt(107);
             }
           // fall through
           case 829: break;
           case 267:
-            { return tt.getFunctionTokenType(116);
+            { return tt.ftt(116);
             }
           // fall through
           case 830: break;
           case 268:
-            { return tt.getKeywordTokenType(154);
+            { return tt.ktt(154);
             }
           // fall through
           case 831: break;
           case 269:
-            { return tt.getKeywordTokenType(159);
+            { return tt.ktt(159);
             }
           // fall through
           case 832: break;
           case 270:
-            { return tt.getKeywordTokenType(166);
+            { return tt.ktt(166);
             }
           // fall through
           case 833: break;
           case 271:
-            { return tt.getKeywordTokenType(185);
+            { return tt.ktt(185);
             }
           // fall through
           case 834: break;
           case 272:
-            { return tt.getKeywordTokenType(187);
+            { return tt.ktt(187);
             }
           // fall through
           case 835: break;
           case 273:
-            { return tt.getKeywordTokenType(188);
+            { return tt.ktt(188);
             }
           // fall through
           case 836: break;
           case 274:
-            { return tt.getKeywordTokenType(192);
+            { return tt.ktt(192);
             }
           // fall through
           case 837: break;
           case 275:
-            { return tt.getKeywordTokenType(194);
+            { return tt.ktt(194);
             }
           // fall through
           case 838: break;
           case 276:
-            { return tt.getKeywordTokenType(198);
+            { return tt.ktt(198);
             }
           // fall through
           case 839: break;
           case 277:
-            { return tt.getKeywordTokenType(199);
+            { return tt.ktt(199);
             }
           // fall through
           case 840: break;
           case 278:
-            { return tt.getFunctionTokenType(137);
+            { return tt.ftt(137);
             }
           // fall through
           case 841: break;
           case 279:
-            { return tt.getKeywordTokenType(202);
+            { return tt.ktt(202);
             }
           // fall through
           case 842: break;
           case 280:
-            { return tt.getKeywordTokenType(208);
+            { return tt.ktt(208);
             }
           // fall through
           case 843: break;
           case 281:
-            { return tt.getFunctionTokenType(151);
+            { return tt.ftt(151);
             }
           // fall through
           case 844: break;
           case 282:
-            { return tt.getKeywordTokenType(225);
+            { return tt.ktt(225);
             }
           // fall through
           case 845: break;
           case 283:
-            { return tt.getFunctionTokenType(155);
+            { return tt.ftt(155);
             }
           // fall through
           case 846: break;
           case 284:
-            { return tt.getFunctionTokenType(157);
+            { return tt.ftt(157);
             }
           // fall through
           case 847: break;
           case 285:
-            { return tt.getKeywordTokenType(243);
+            { return tt.ktt(243);
             }
           // fall through
           case 848: break;
           case 286:
-            { return tt.getKeywordTokenType(244);
+            { return tt.ktt(244);
             }
           // fall through
           case 849: break;
           case 287:
-            { return tt.getKeywordTokenType(246);
+            { return tt.ktt(246);
             }
           // fall through
           case 850: break;
           case 288:
-            { return tt.getKeywordTokenType(251);
+            { return tt.ktt(251);
             }
           // fall through
           case 851: break;
           case 289:
-            { return tt.getFunctionTokenType(2);
+            { return tt.ftt(2);
             }
           // fall through
           case 852: break;
           case 290:
-            { return tt.getFunctionTokenType(3);
+            { return tt.ftt(3);
             }
           // fall through
           case 853: break;
           case 291:
-            { return tt.getFunctionTokenType(6);
+            { return tt.ftt(6);
             }
           // fall through
           case 854: break;
           case 292:
-            { return tt.getKeywordTokenType(7);
+            { return tt.ktt(7);
             }
           // fall through
           case 855: break;
           case 293:
-            { return tt.getKeywordTokenType(13);
+            { return tt.ktt(13);
             }
           // fall through
           case 856: break;
           case 294:
-            { return tt.getFunctionTokenType(14);
+            { return tt.ftt(14);
             }
           // fall through
           case 857: break;
           case 295:
-            { return tt.getFunctionTokenType(17);
+            { return tt.ftt(17);
             }
           // fall through
           case 858: break;
           case 296:
-            { return tt.getDataTypeTokenType(5);
+            { return tt.dtt(5);
             }
           // fall through
           case 859: break;
           case 297:
-            { return tt.getKeywordTokenType(18);
+            { return tt.ktt(18);
             }
           // fall through
           case 860: break;
           case 298:
-            { return tt.getFunctionTokenType(19);
+            { return tt.ftt(19);
             }
           // fall through
           case 861: break;
           case 299:
-            { return tt.getKeywordTokenType(23);
+            { return tt.ktt(23);
             }
           // fall through
           case 862: break;
           case 300:
-            { return tt.getKeywordTokenType(27);
+            { return tt.ktt(27);
             }
           // fall through
           case 863: break;
           case 301:
-            { return tt.getKeywordTokenType(29);
+            { return tt.ktt(29);
             }
           // fall through
           case 864: break;
           case 302:
-            { return tt.getKeywordTokenType(30);
+            { return tt.ktt(30);
             }
           // fall through
           case 865: break;
           case 303:
-            { return tt.getKeywordTokenType(31);
+            { return tt.ktt(31);
             }
           // fall through
           case 866: break;
           case 304:
-            { return tt.getKeywordTokenType(39);
+            { return tt.ktt(39);
             }
           // fall through
           case 867: break;
           case 305:
-            { return tt.getFunctionTokenType(34);
+            { return tt.ftt(34);
             }
           // fall through
           case 868: break;
           case 306:
-            { return tt.getFunctionTokenType(38);
+            { return tt.ftt(38);
             }
           // fall through
           case 869: break;
           case 307:
-            { return tt.getFunctionTokenType(48);
+            { return tt.ftt(48);
             }
           // fall through
           case 870: break;
           case 308:
-            { return tt.getDataTypeTokenType(10);
+            { return tt.dtt(10);
             }
           // fall through
           case 871: break;
           case 309:
-            { return tt.getKeywordTokenType(47);
+            { return tt.ktt(47);
             }
           // fall through
           case 872: break;
           case 310:
-            { return tt.getKeywordTokenType(48);
+            { return tt.ktt(48);
             }
           // fall through
           case 873: break;
           case 311:
-            { return tt.getKeywordTokenType(49);
+            { return tt.ktt(49);
             }
           // fall through
           case 874: break;
           case 312:
-            { return tt.getFunctionTokenType(53);
+            { return tt.ftt(53);
             }
           // fall through
           case 875: break;
           case 313:
-            { return tt.getKeywordTokenType(50);
+            { return tt.ktt(50);
             }
           // fall through
           case 876: break;
           case 314:
-            { return tt.getKeywordTokenType(65);
+            { return tt.ktt(65);
             }
           // fall through
           case 877: break;
           case 315:
-            { return tt.getFunctionTokenType(58);
+            { return tt.ftt(58);
             }
           // fall through
           case 878: break;
           case 316:
-            { return tt.getKeywordTokenType(74);
+            { return tt.ktt(74);
             }
           // fall through
           case 879: break;
           case 317:
-            { return tt.getKeywordTokenType(78);
+            { return tt.ktt(78);
             }
           // fall through
           case 880: break;
           case 318:
-            { return tt.getFunctionTokenType(61);
+            { return tt.ftt(61);
             }
           // fall through
           case 881: break;
           case 319:
-            { return tt.getKeywordTokenType(87);
+            { return tt.ktt(87);
             }
           // fall through
           case 882: break;
           case 320:
-            { return tt.getKeywordTokenType(94);
+            { return tt.ktt(94);
             }
           // fall through
           case 883: break;
           case 321:
-            { return tt.getDataTypeTokenType(17);
+            { return tt.dtt(17);
             }
           // fall through
           case 884: break;
           case 322:
-            { return tt.getKeywordTokenType(115);
+            { return tt.ktt(115);
             }
           // fall through
           case 885: break;
           case 323:
-            { return tt.getKeywordTokenType(117);
+            { return tt.ktt(117);
             }
           // fall through
           case 886: break;
           case 324:
-            { return tt.getKeywordTokenType(124);
+            { return tt.ktt(124);
             }
           // fall through
           case 887: break;
           case 325:
-            { return tt.getKeywordTokenType(149);
+            { return tt.ktt(149);
             }
           // fall through
           case 888: break;
           case 326:
-            { return tt.getDataTypeTokenType(28);
+            { return tt.dtt(28);
             }
           // fall through
           case 889: break;
           case 327:
-            { return tt.getKeywordTokenType(165);
+            { return tt.ktt(165);
             }
           // fall through
           case 890: break;
           case 328:
-            { return tt.getKeywordTokenType(167);
+            { return tt.ktt(167);
             }
           // fall through
           case 891: break;
           case 329:
-            { return tt.getDataTypeTokenType(30);
+            { return tt.dtt(30);
             }
           // fall through
           case 892: break;
           case 330:
-            { return tt.getKeywordTokenType(173);
+            { return tt.ktt(173);
             }
           // fall through
           case 893: break;
           case 331:
-            { return tt.getFunctionTokenType(127);
+            { return tt.ftt(127);
             }
           // fall through
           case 894: break;
           case 332:
-            { return tt.getFunctionTokenType(129);
+            { return tt.ftt(129);
             }
           // fall through
           case 895: break;
           case 333:
-            { return tt.getKeywordTokenType(186);
+            { return tt.ktt(186);
             }
           // fall through
           case 896: break;
           case 334:
-            { return tt.getKeywordTokenType(189);
+            { return tt.ktt(189);
             }
           // fall through
           case 897: break;
           case 335:
-            { return tt.getKeywordTokenType(190);
+            { return tt.ktt(190);
             }
           // fall through
           case 898: break;
           case 336:
-            { return tt.getKeywordTokenType(193);
+            { return tt.ktt(193);
             }
           // fall through
           case 899: break;
           case 337:
-            { return tt.getKeywordTokenType(200);
+            { return tt.ktt(200);
             }
           // fall through
           case 900: break;
           case 338:
-            { return tt.getFunctionTokenType(146);
+            { return tt.ftt(146);
             }
           // fall through
           case 901: break;
           case 339:
-            { return tt.getKeywordTokenType(209);
+            { return tt.ktt(209);
             }
           // fall through
           case 902: break;
           case 340:
-            { return tt.getKeywordTokenType(224);
+            { return tt.ktt(224);
             }
           // fall through
           case 903: break;
           case 341:
-            { return tt.getFunctionTokenType(156);
+            { return tt.ftt(156);
             }
           // fall through
           case 904: break;
           case 342:
-            { return tt.getFunctionTokenType(160);
+            { return tt.ftt(160);
             }
           // fall through
           case 905: break;
           case 343:
-            { return tt.getFunctionTokenType(162);
+            { return tt.ftt(162);
             }
           // fall through
           case 906: break;
           case 344:
-            { return tt.getDataTypeTokenType(37);
+            { return tt.dtt(37);
             }
           // fall through
           case 907: break;
           case 345:
-            { return tt.getFunctionTokenType(170);
+            { return tt.ftt(170);
             }
           // fall through
           case 908: break;
           case 346:
-            { return tt.getKeywordTokenType(238);
+            { return tt.ktt(238);
             }
           // fall through
           case 909: break;
           case 347:
-            { return tt.getDataTypeTokenType(40);
+            { return tt.dtt(40);
             }
           // fall through
           case 910: break;
           case 348:
-            { return tt.getKeywordTokenType(253);
+            { return tt.ktt(253);
             }
           // fall through
           case 911: break;
           case 349:
-            { return tt.getFunctionTokenType(184);
+            { return tt.ftt(184);
             }
           // fall through
           case 912: break;
           case 350:
-            { return tt.getFunctionTokenType(187);
+            { return tt.ftt(187);
             }
           // fall through
           case 913: break;
           case 351:
-            { return tt.getKeywordTokenType(255);
+            { return tt.ktt(255);
             }
           // fall through
           case 914: break;
           case 352:
-            { return tt.getKeywordTokenType(256);
+            { return tt.ktt(256);
             }
           // fall through
           case 915: break;
           case 353:
-            { return tt.getFunctionTokenType(189);
+            { return tt.ftt(189);
             }
           // fall through
           case 916: break;
           case 354:
-            { return tt.getKeywordTokenType(19);
+            { return tt.ktt(19);
             }
           // fall through
           case 917: break;
           case 355:
-            { return tt.getKeywordTokenType(25);
+            { return tt.ktt(25);
             }
           // fall through
           case 918: break;
           case 356:
-            { return tt.getFunctionTokenType(24);
+            { return tt.ftt(24);
             }
           // fall through
           case 919: break;
           case 357:
-            { return tt.getKeywordTokenType(38);
+            { return tt.ktt(38);
             }
           // fall through
           case 920: break;
           case 358:
-            { return tt.getKeywordTokenType(45);
+            { return tt.ktt(45);
             }
           // fall through
           case 921: break;
           case 359:
-            { return tt.getFunctionTokenType(42);
+            { return tt.ftt(42);
             }
           // fall through
           case 922: break;
           case 360:
-            { return tt.getDataTypeTokenType(8);
+            { return tt.dtt(8);
             }
           // fall through
           case 923: break;
           case 361:
-            { return tt.getFunctionTokenType(39);
+            { return tt.ftt(39);
             }
           // fall through
           case 924: break;
           case 362:
-            { return tt.getFunctionTokenType(41);
+            { return tt.ftt(41);
             }
           // fall through
           case 925: break;
           case 363:
-            { return tt.getFunctionTokenType(44);
+            { return tt.ftt(44);
             }
           // fall through
           case 926: break;
           case 364:
-            { return tt.getKeywordTokenType(53);
+            { return tt.ktt(53);
             }
           // fall through
           case 927: break;
           case 365:
-            { return tt.getKeywordTokenType(57);
+            { return tt.ktt(57);
             }
           // fall through
           case 928: break;
           case 366:
-            { return tt.getKeywordTokenType(63);
+            { return tt.ktt(63);
             }
           // fall through
           case 929: break;
           case 367:
-            { return tt.getKeywordTokenType(69);
+            { return tt.ktt(69);
             }
           // fall through
           case 930: break;
           case 368:
-            { return tt.getKeywordTokenType(72);
+            { return tt.ktt(72);
             }
           // fall through
           case 931: break;
           case 369:
-            { return tt.getKeywordTokenType(90);
+            { return tt.ktt(90);
             }
           // fall through
           case 932: break;
           case 370:
-            { return tt.getDataTypeTokenType(14);
+            { return tt.dtt(14);
             }
           // fall through
           case 933: break;
           case 371:
-            { return tt.getFunctionTokenType(71);
+            { return tt.ftt(71);
             }
           // fall through
           case 934: break;
           case 372:
-            { return tt.getKeywordTokenType(112);
+            { return tt.ktt(112);
             }
           // fall through
           case 935: break;
           case 373:
-            { return tt.getKeywordTokenType(122);
+            { return tt.ktt(122);
             }
           // fall through
           case 936: break;
           case 374:
-            { return tt.getFunctionTokenType(84);
+            { return tt.ftt(84);
             }
           // fall through
           case 937: break;
           case 375:
-            { return tt.getDataTypeTokenType(20);
+            { return tt.dtt(20);
             }
           // fall through
           case 938: break;
           case 376:
-            { return tt.getDataTypeTokenType(21);
+            { return tt.dtt(21);
             }
           // fall through
           case 939: break;
           case 377:
-            { return tt.getFunctionTokenType(100);
+            { return tt.ftt(100);
             }
           // fall through
           case 940: break;
           case 378:
-            { return tt.getFunctionTokenType(101);
+            { return tt.ftt(101);
             }
           // fall through
           case 941: break;
           case 379:
-            { return tt.getFunctionTokenType(99);
+            { return tt.ftt(99);
             }
           // fall through
           case 942: break;
           case 380:
-            { return tt.getKeywordTokenType(140);
+            { return tt.ktt(140);
             }
           // fall through
           case 943: break;
           case 381:
-            { return tt.getParameterTokenType(11);
+            { return tt.ptt(11);
             }
           // fall through
           case 944: break;
           case 382:
-            { return tt.getParameterTokenType(12);
+            { return tt.ptt(12);
             }
           // fall through
           case 945: break;
           case 383:
-            { return tt.getKeywordTokenType(147);
+            { return tt.ktt(147);
             }
           // fall through
           case 946: break;
           case 384:
-            { return tt.getKeywordTokenType(148);
+            { return tt.ktt(148);
             }
           // fall through
           case 947: break;
           case 385:
-            { return tt.getFunctionTokenType(113);
+            { return tt.ftt(113);
             }
           // fall through
           case 948: break;
           case 386:
-            { return tt.getKeywordTokenType(158);
+            { return tt.ktt(158);
             }
           // fall through
           case 949: break;
           case 387:
-            { return tt.getKeywordTokenType(170);
+            { return tt.ktt(170);
             }
           // fall through
           case 950: break;
           case 388:
-            { return tt.getFunctionTokenType(124);
+            { return tt.ftt(124);
             }
           // fall through
           case 951: break;
           case 389:
-            { return tt.getKeywordTokenType(191);
+            { return tt.ktt(191);
             }
           // fall through
           case 952: break;
           case 390:
-            { return tt.getKeywordTokenType(197);
+            { return tt.ktt(197);
             }
           // fall through
           case 953: break;
           case 391:
-            { return tt.getKeywordTokenType(201);
+            { return tt.ktt(201);
             }
           // fall through
           case 954: break;
           case 392:
-            { return tt.getDataTypeTokenType(32);
+            { return tt.dtt(32);
             }
           // fall through
           case 955: break;
           case 393:
-            { return tt.getKeywordTokenType(210);
+            { return tt.ktt(210);
             }
           // fall through
           case 956: break;
           case 394:
-            { return tt.getKeywordTokenType(219);
+            { return tt.ktt(219);
             }
           // fall through
           case 957: break;
           case 395:
-            { return tt.getKeywordTokenType(223);
+            { return tt.ktt(223);
             }
           // fall through
           case 958: break;
           case 396:
-            { return tt.getFunctionTokenType(167);
+            { return tt.ftt(167);
             }
           // fall through
           case 959: break;
           case 397:
-            { return tt.getDataTypeTokenType(36);
+            { return tt.dtt(36);
             }
           // fall through
           case 960: break;
           case 398:
-            { return tt.getDataTypeTokenType(38);
+            { return tt.dtt(38);
             }
           // fall through
           case 961: break;
           case 399:
-            { return tt.getKeywordTokenType(236);
+            { return tt.ktt(236);
             }
           // fall through
           case 962: break;
           case 400:
-            { return tt.getKeywordTokenType(239);
+            { return tt.ktt(239);
             }
           // fall through
           case 963: break;
           case 401:
-            { return tt.getKeywordTokenType(245);
+            { return tt.ktt(245);
             }
           // fall through
           case 964: break;
           case 402:
-            { return tt.getFunctionTokenType(179);
+            { return tt.ftt(179);
             }
           // fall through
           case 965: break;
           case 403:
-            { return tt.getFunctionTokenType(180);
+            { return tt.ftt(180);
             }
           // fall through
           case 966: break;
           case 404:
-            { return tt.getFunctionTokenType(186);
+            { return tt.ftt(186);
             }
           // fall through
           case 967: break;
           case 405:
-            { return tt.getFunctionTokenType(185);
+            { return tt.ftt(185);
             }
           // fall through
           case 968: break;
           case 406:
-            { return tt.getFunctionTokenType(193);
+            { return tt.ftt(193);
             }
           // fall through
           case 969: break;
           case 407:
-            { return tt.getKeywordTokenType(263);
+            { return tt.ktt(263);
             }
           // fall through
           case 970: break;
           case 408:
-            { return tt.getKeywordTokenType(3);
+            { return tt.ktt(3);
             }
           // fall through
           case 971: break;
           case 409:
-            { return tt.getFunctionTokenType(12);
+            { return tt.ftt(12);
             }
           // fall through
           case 972: break;
           case 410:
-            { return tt.getKeywordTokenType(22);
+            { return tt.ktt(22);
             }
           // fall through
           case 973: break;
           case 411:
-            { return tt.getFunctionTokenType(23);
+            { return tt.ftt(23);
             }
           // fall through
           case 974: break;
           case 412:
-            { return tt.getFunctionTokenType(26);
+            { return tt.ftt(26);
             }
           // fall through
           case 975: break;
           case 413:
-            { return tt.getKeywordTokenType(35);
+            { return tt.ktt(35);
             }
           // fall through
           case 976: break;
           case 414:
-            { return tt.getKeywordTokenType(46);
+            { return tt.ktt(46);
             }
           // fall through
           case 977: break;
           case 415:
-            { return tt.getFunctionTokenType(50);
+            { return tt.ftt(50);
             }
           // fall through
           case 978: break;
           case 416:
-            { return tt.getFunctionTokenType(51);
+            { return tt.ftt(51);
             }
           // fall through
           case 979: break;
           case 417:
-            { return tt.getKeywordTokenType(55);
+            { return tt.ktt(55);
             }
           // fall through
           case 980: break;
           case 418:
-            { return tt.getKeywordTokenType(64);
+            { return tt.ktt(64);
             }
           // fall through
           case 981: break;
           case 419:
-            { return tt.getKeywordTokenType(77);
+            { return tt.ktt(77);
             }
           // fall through
           case 982: break;
           case 420:
-            { return tt.getFunctionTokenType(68);
+            { return tt.ftt(68);
             }
           // fall through
           case 983: break;
           case 421:
-            { return tt.getKeywordTokenType(91);
+            { return tt.ktt(91);
             }
           // fall through
           case 984: break;
           case 422:
-            { return tt.getFunctionTokenType(79);
+            { return tt.ftt(79);
             }
           // fall through
           case 985: break;
           case 423:
-            { return tt.getFunctionTokenType(80);
+            { return tt.ftt(80);
             }
           // fall through
           case 986: break;
           case 424:
-            { return tt.getKeywordTokenType(114);
+            { return tt.ktt(114);
             }
           // fall through
           case 987: break;
           case 425:
-            { return tt.getFunctionTokenType(89);
+            { return tt.ftt(89);
             }
           // fall through
           case 988: break;
           case 426:
-            { return tt.getFunctionTokenType(90);
+            { return tt.ftt(90);
             }
           // fall through
           case 989: break;
           case 427:
-            { return tt.getDataTypeTokenType(23);
+            { return tt.dtt(23);
             }
           // fall through
           case 990: break;
           case 428:
-            { return tt.getKeywordTokenType(144);
+            { return tt.ktt(144);
             }
           // fall through
           case 991: break;
           case 429:
-            { return tt.getFunctionTokenType(111);
+            { return tt.ftt(111);
             }
           // fall through
           case 992: break;
           case 430:
-            { return tt.getParameterTokenType(14);
+            { return tt.ptt(14);
             }
           // fall through
           case 993: break;
           case 431:
-            { return tt.getKeywordTokenType(168);
+            { return tt.ktt(168);
             }
           // fall through
           case 994: break;
           case 432:
-            { return tt.getKeywordTokenType(171);
+            { return tt.ktt(171);
             }
           // fall through
           case 995: break;
           case 433:
-            { return tt.getKeywordTokenType(174);
+            { return tt.ktt(174);
             }
           // fall through
           case 996: break;
           case 434:
-            { return tt.getKeywordTokenType(180);
+            { return tt.ktt(180);
             }
           // fall through
           case 997: break;
           case 435:
-            { return tt.getKeywordTokenType(183);
+            { return tt.ktt(183);
             }
           // fall through
           case 998: break;
           case 436:
-            { return tt.getFunctionTokenType(133);
+            { return tt.ftt(133);
             }
           // fall through
           case 999: break;
           case 437:
-            { return tt.getKeywordTokenType(203);
+            { return tt.ktt(203);
             }
           // fall through
           case 1000: break;
           case 438:
-            { return tt.getKeywordTokenType(204);
+            { return tt.ktt(204);
             }
           // fall through
           case 1001: break;
           case 439:
-            { return tt.getKeywordTokenType(214);
+            { return tt.ktt(214);
             }
           // fall through
           case 1002: break;
           case 440:
-            { return tt.getFunctionTokenType(158);
+            { return tt.ftt(158);
             }
           // fall through
           case 1003: break;
           case 441:
-            { return tt.getKeywordTokenType(230);
+            { return tt.ktt(230);
             }
           // fall through
           case 1004: break;
           case 442:
-            { return tt.getKeywordTokenType(231);
+            { return tt.ktt(231);
             }
           // fall through
           case 1005: break;
           case 443:
-            { return tt.getDataTypeTokenType(35);
+            { return tt.dtt(35);
             }
           // fall through
           case 1006: break;
           case 444:
-            { return tt.getKeywordTokenType(240);
+            { return tt.ktt(240);
             }
           // fall through
           case 1007: break;
           case 445:
-            { return tt.getDataTypeTokenType(39);
+            { return tt.dtt(39);
             }
           // fall through
           case 1008: break;
           case 446:
-            { return tt.getKeywordTokenType(0);
+            { return tt.ktt(0);
             }
           // fall through
           case 1009: break;
           case 447:
-            { return tt.getKeywordTokenType(11);
+            { return tt.ktt(11);
             }
           // fall through
           case 1010: break;
           case 448:
-            { return tt.getFunctionTokenType(15);
+            { return tt.ftt(15);
             }
           // fall through
           case 1011: break;
           case 449:
-            { return tt.getKeywordTokenType(32);
+            { return tt.ktt(32);
             }
           // fall through
           case 1012: break;
           case 450:
-            { return tt.getKeywordTokenType(34);
+            { return tt.ktt(34);
             }
           // fall through
           case 1013: break;
           case 451:
-            { return tt.getKeywordTokenType(36);
+            { return tt.ktt(36);
             }
           // fall through
           case 1014: break;
           case 452:
-            { return tt.getKeywordTokenType(37);
+            { return tt.ktt(37);
             }
           // fall through
           case 1015: break;
           case 453:
-            { return tt.getFunctionTokenType(29);
+            { return tt.ftt(29);
             }
           // fall through
           case 1016: break;
           case 454:
-            { return tt.getFunctionTokenType(49);
+            { return tt.ftt(49);
             }
           // fall through
           case 1017: break;
           case 455:
-            { return tt.getFunctionTokenType(46);
+            { return tt.ftt(46);
             }
           // fall through
           case 1018: break;
           case 456:
-            { return tt.getFunctionTokenType(47);
+            { return tt.ftt(47);
             }
           // fall through
           case 1019: break;
           case 457:
-            { return tt.getKeywordTokenType(70);
+            { return tt.ktt(70);
             }
           // fall through
           case 1020: break;
           case 458:
-            { return tt.getFunctionTokenType(60);
+            { return tt.ftt(60);
             }
           // fall through
           case 1021: break;
           case 459:
-            { return tt.getFunctionTokenType(67);
+            { return tt.ftt(67);
             }
           // fall through
           case 1022: break;
           case 460:
-            { return tt.getFunctionTokenType(70);
+            { return tt.ftt(70);
             }
           // fall through
           case 1023: break;
           case 461:
-            { return tt.getDataTypeTokenType(19);
+            { return tt.dtt(19);
             }
           // fall through
           case 1024: break;
           case 462:
-            { return tt.getParameterTokenType(8);
+            { return tt.ptt(8);
             }
           // fall through
           case 1025: break;
           case 463:
-            { return tt.getDataTypeTokenType(22);
+            { return tt.dtt(22);
             }
           // fall through
           case 1026: break;
           case 464:
-            { return tt.getDataTypeTokenType(24);
+            { return tt.dtt(24);
             }
           // fall through
           case 1027: break;
           case 465:
-            { return tt.getDataTypeTokenType(26);
+            { return tt.dtt(26);
             }
           // fall through
           case 1028: break;
           case 466:
-            { return tt.getFunctionTokenType(112);
+            { return tt.ftt(112);
             }
           // fall through
           case 1029: break;
           case 467:
-            { return tt.getFunctionTokenType(114);
+            { return tt.ftt(114);
             }
           // fall through
           case 1030: break;
           case 468:
-            { return tt.getKeywordTokenType(160);
+            { return tt.ktt(160);
             }
           // fall through
           case 1031: break;
           case 469:
-            { return tt.getKeywordTokenType(169);
+            { return tt.ktt(169);
             }
           // fall through
           case 1032: break;
           case 470:
-            { return tt.getFunctionTokenType(121);
+            { return tt.ftt(121);
             }
           // fall through
           case 1033: break;
           case 471:
-            { return tt.getKeywordTokenType(181);
+            { return tt.ktt(181);
             }
           // fall through
           case 1034: break;
           case 472:
-            { return tt.getKeywordTokenType(184);
+            { return tt.ktt(184);
             }
           // fall through
           case 1035: break;
           case 473:
-            { return tt.getParameterTokenType(15);
+            { return tt.ptt(15);
             }
           // fall through
           case 1036: break;
           case 474:
-            { return tt.getKeywordTokenType(220);
+            { return tt.ktt(220);
             }
           // fall through
           case 1037: break;
           case 475:
-            { return tt.getFunctionTokenType(152);
+            { return tt.ftt(152);
             }
           // fall through
           case 1038: break;
           case 476:
-            { return tt.getKeywordTokenType(229);
+            { return tt.ktt(229);
             }
           // fall through
           case 1039: break;
           case 477:
-            { return tt.getKeywordTokenType(232);
+            { return tt.ktt(232);
             }
           // fall through
           case 1040: break;
           case 478:
-            { return tt.getFunctionTokenType(173);
+            { return tt.ftt(173);
             }
           // fall through
           case 1041: break;
           case 479:
-            { return tt.getFunctionTokenType(183);
+            { return tt.ftt(183);
             }
           // fall through
           case 1042: break;
           case 480:
-            { return tt.getFunctionTokenType(190);
+            { return tt.ftt(190);
             }
           // fall through
           case 1043: break;
           case 481:
-            { return tt.getFunctionTokenType(192);
+            { return tt.ftt(192);
             }
           // fall through
           case 1044: break;
           case 482:
-            { return tt.getFunctionTokenType(4);
+            { return tt.ftt(4);
             }
           // fall through
           case 1045: break;
           case 483:
-            { return tt.getFunctionTokenType(5);
+            { return tt.ftt(5);
             }
           // fall through
           case 1046: break;
           case 484:
-            { return tt.getFunctionTokenType(20);
+            { return tt.ftt(20);
             }
           // fall through
           case 1047: break;
           case 485:
-            { return tt.getKeywordTokenType(33);
+            { return tt.ktt(33);
             }
           // fall through
           case 1048: break;
           case 486:
-            { return tt.getFunctionTokenType(40);
+            { return tt.ftt(40);
             }
           // fall through
           case 1049: break;
           case 487:
-            { return tt.getFunctionTokenType(54);
+            { return tt.ftt(54);
             }
           // fall through
           case 1050: break;
           case 488:
-            { return tt.getFunctionTokenType(55);
+            { return tt.ftt(55);
             }
           // fall through
           case 1051: break;
           case 489:
-            { return tt.getKeywordTokenType(58);
+            { return tt.ktt(58);
             }
           // fall through
           case 1052: break;
           case 490:
-            { return tt.getFunctionTokenType(63);
+            { return tt.ftt(63);
             }
           // fall through
           case 1053: break;
           case 491:
-            { return tt.getFunctionTokenType(76);
+            { return tt.ftt(76);
             }
           // fall through
           case 1054: break;
           case 492:
-            { return tt.getFunctionTokenType(77);
+            { return tt.ftt(77);
             }
           // fall through
           case 1055: break;
           case 493:
-            { return tt.getKeywordTokenType(105);
+            { return tt.ktt(105);
             }
           // fall through
           case 1056: break;
           case 494:
-            { return tt.getKeywordTokenType(143);
+            { return tt.ktt(143);
             }
           // fall through
           case 1057: break;
           case 495:
-            { return tt.getFunctionTokenType(122);
+            { return tt.ftt(122);
             }
           // fall through
           case 1058: break;
           case 496:
-            { return tt.getFunctionTokenType(136);
+            { return tt.ftt(136);
             }
           // fall through
           case 1059: break;
           case 497:
-            { return tt.getFunctionTokenType(147);
+            { return tt.ftt(147);
             }
           // fall through
           case 1060: break;
           case 498:
-            { return tt.getFunctionTokenType(153);
+            { return tt.ftt(153);
             }
           // fall through
           case 1061: break;
           case 499:
-            { return tt.getFunctionTokenType(154);
+            { return tt.ftt(154);
             }
           // fall through
           case 1062: break;
           case 500:
-            { return tt.getFunctionTokenType(163);
+            { return tt.ftt(163);
             }
           // fall through
           case 1063: break;
           case 501:
-            { return tt.getFunctionTokenType(165);
+            { return tt.ftt(165);
             }
           // fall through
           case 1064: break;
           case 502:
-            { return tt.getFunctionTokenType(166);
+            { return tt.ftt(166);
             }
           // fall through
           case 1065: break;
           case 503:
-            { return tt.getKeywordTokenType(237);
+            { return tt.ktt(237);
             }
           // fall through
           case 1066: break;
           case 504:
-            { return tt.getFunctionTokenType(22);
+            { return tt.ftt(22);
             }
           // fall through
           case 1067: break;
           case 505:
-            { return tt.getFunctionTokenType(35);
+            { return tt.ftt(35);
             }
           // fall through
           case 1068: break;
           case 506:
-            { return tt.getFunctionTokenType(36);
+            { return tt.ftt(36);
             }
           // fall through
           case 1069: break;
           case 507:
-            { return tt.getKeywordTokenType(42);
+            { return tt.ktt(42);
             }
           // fall through
           case 1070: break;
           case 508:
-            { return tt.getFunctionTokenType(72);
+            { return tt.ftt(72);
             }
           // fall through
           case 1071: break;
           case 509:
-            { return tt.getFunctionTokenType(82);
+            { return tt.ftt(82);
             }
           // fall through
           case 1072: break;
           case 510:
-            { return tt.getFunctionTokenType(83);
+            { return tt.ftt(83);
             }
           // fall through
           case 1073: break;
           case 511:
-            { return tt.getParameterTokenType(9);
+            { return tt.ptt(9);
             }
           // fall through
           case 1074: break;
           case 512:
-            { return tt.getDataTypeTokenType(27);
+            { return tt.dtt(27);
             }
           // fall through
           case 1075: break;
           case 513:
-            { return tt.getFunctionTokenType(118);
+            { return tt.ftt(118);
             }
           // fall through
           case 1076: break;
           case 514:
-            { return tt.getFunctionTokenType(119);
+            { return tt.ftt(119);
             }
           // fall through
           case 1077: break;
           case 515:
-            { return tt.getFunctionTokenType(131);
+            { return tt.ftt(131);
             }
           // fall through
           case 1078: break;
           case 516:
-            { return tt.getFunctionTokenType(139);
+            { return tt.ftt(139);
             }
           // fall through
           case 1079: break;
           case 517:
-            { return tt.getKeywordTokenType(218);
+            { return tt.ktt(218);
             }
           // fall through
           case 1080: break;
           case 518:
-            { return tt.getKeywordTokenType(216);
+            { return tt.ktt(216);
             }
           // fall through
           case 1081: break;
           case 519:
-            { return tt.getKeywordTokenType(227);
+            { return tt.ktt(227);
             }
           // fall through
           case 1082: break;
           case 520:
-            { return tt.getFunctionTokenType(168);
+            { return tt.ftt(168);
             }
           // fall through
           case 1083: break;
           case 521:
-            { return tt.getKeywordTokenType(252);
+            { return tt.ktt(252);
             }
           // fall through
           case 1084: break;
           case 522:
-            { return tt.getParameterTokenType(3);
+            { return tt.ptt(3);
             }
           // fall through
           case 1085: break;
           case 523:
-            { return tt.getFunctionTokenType(27);
+            { return tt.ftt(27);
             }
           // fall through
           case 1086: break;
           case 524:
-            { return tt.getKeywordTokenType(54);
+            { return tt.ktt(54);
             }
           // fall through
           case 1087: break;
           case 525:
-            { return tt.getFunctionTokenType(69);
+            { return tt.ftt(69);
             }
           // fall through
           case 1088: break;
           case 526:
-            { return tt.getKeywordTokenType(97);
+            { return tt.ktt(97);
             }
           // fall through
           case 1089: break;
           case 527:
-            { return tt.getParameterTokenType(6);
+            { return tt.ptt(6);
             }
           // fall through
           case 1090: break;
           case 528:
-            { return tt.getFunctionTokenType(109);
+            { return tt.ftt(109);
             }
           // fall through
           case 1091: break;
           case 529:
-            { return tt.getKeywordTokenType(226);
+            { return tt.ktt(226);
             }
           // fall through
           case 1092: break;
           case 530:
-            { return tt.getFunctionTokenType(169);
+            { return tt.ftt(169);
             }
           // fall through
           case 1093: break;
           case 531:
-            { return tt.getFunctionTokenType(181);
+            { return tt.ftt(181);
             }
           // fall through
           case 1094: break;
           case 532:
-            { return tt.getFunctionTokenType(191);
+            { return tt.ftt(191);
             }
           // fall through
           case 1095: break;
           case 533:
-            { return tt.getParameterTokenType(1);
+            { return tt.ptt(1);
             }
           // fall through
           case 1096: break;
           case 534:
-            { return tt.getParameterTokenType(2);
+            { return tt.ptt(2);
             }
           // fall through
           case 1097: break;
           case 535:
-            { return tt.getParameterTokenType(7);
+            { return tt.ptt(7);
             }
           // fall through
           case 1098: break;
           case 536:
-            { return tt.getFunctionTokenType(85);
+            { return tt.ftt(85);
             }
           // fall through
           case 1099: break;
           case 537:
-            { return tt.getFunctionTokenType(91);
+            { return tt.ftt(91);
             }
           // fall through
           case 1100: break;
           case 538:
-            { return tt.getKeywordTokenType(212);
+            { return tt.ktt(212);
             }
           // fall through
           case 1101: break;
           case 539:
-            { return tt.getFunctionTokenType(176);
+            { return tt.ftt(176);
             }
           // fall through
           case 1102: break;
           case 540:
-            { return tt.getParameterTokenType(0);
+            { return tt.ptt(0);
             }
           // fall through
           case 1103: break;
           case 541:
-            { return tt.getFunctionTokenType(45);
+            { return tt.ftt(45);
             }
           // fall through
           case 1104: break;
           case 542:
-            { return tt.getParameterTokenType(4);
+            { return tt.ptt(4);
             }
           // fall through
           case 1105: break;
           case 543:
-            { return tt.getFunctionTokenType(102);
+            { return tt.ftt(102);
             }
           // fall through
           case 1106: break;
           case 544:
-            { return tt.getDataTypeTokenType(25);
+            { return tt.dtt(25);
             }
           // fall through
           case 1107: break;
           case 545:
-            { return tt.getFunctionTokenType(159);
+            { return tt.ftt(159);
             }
           // fall through
           case 1108: break;
           case 546:
-            { return tt.getFunctionTokenType(21);
+            { return tt.ftt(21);
             }
           // fall through
           case 1109: break;
           case 547:
-            { return tt.getParameterTokenType(5);
+            { return tt.ptt(5);
             }
           // fall through
           case 1110: break;
           case 548:
-            { return tt.getFunctionTokenType(75);
+            { return tt.ftt(75);
             }
           // fall through
           case 1111: break;
           case 549:
-            { return tt.getKeywordTokenType(217);
+            { return tt.ktt(217);
             }
           // fall through
           case 1112: break;
           case 550:
-            { return tt.getParameterTokenType(18);
+            { return tt.ptt(18);
             }
           // fall through
           case 1113: break;
           case 551:
-            { return tt.getFunctionTokenType(37);
+            { return tt.ftt(37);
             }
           // fall through
           case 1114: break;
           case 552:
-            { return tt.getKeywordTokenType(213);
+            { return tt.ktt(213);
             }
           // fall through
           case 1115: break;
           case 553:
-            { return tt.getParameterTokenType(17);
+            { return tt.ptt(17);
             }
           // fall through
           case 1116: break;
           case 554:
-            { return tt.getDataTypeTokenType(15);
+            { return tt.dtt(15);
             }
           // fall through
           case 1117: break;
           case 555:
-            { return tt.getFunctionTokenType(108);
+            { return tt.ftt(108);
             }
           // fall through
           case 1118: break;
           case 556:
-            { return tt.getParameterTokenType(13);
+            { return tt.ptt(13);
             }
           // fall through
           case 1119: break;
           case 557:
-            { return tt.getFunctionTokenType(138);
+            { return tt.ftt(138);
             }
           // fall through
           case 1120: break;
           case 558:
-            { return tt.getParameterTokenType(19);
+            { return tt.ptt(19);
             }
           // fall through
           case 1121: break;
           case 559:
-            { return tt.getKeywordTokenType(215);
+            { return tt.ktt(215);
             }
           // fall through
           case 1122: break;
           case 560:
-            { return tt.getFunctionTokenType(174);
+            { return tt.ftt(174);
             }
           // fall through
           case 1123: break;
           case 561:
-            { return tt.getFunctionTokenType(65);
+            { return tt.ftt(65);
             }
           // fall through
           case 1124: break;
           case 562:
-            { return tt.getParameterTokenType(16);
+            { return tt.ptt(16);
             }
           // fall through
           case 1125: break;
           case 563:
-            { return tt.getParameterTokenType(10);
+            { return tt.ptt(10);
             }
           // fall through
           case 1126: break;
