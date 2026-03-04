@@ -23,9 +23,7 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseMLInterface;
-import com.dbn.ml.backend.MLBackendType;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
-import com.dbn.ml.backend.model.MLModelHandle;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.result.MLExecutionResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -37,9 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JOptionPane;
 
 /**
- * Action to rename ML model.
- * For DBMS backend: renames model in database using DBMS_DATA_MINING.RENAME_MODEL.
- * For Tribuo backend: only renames the UI tab (model is in-memory).
+ * Action to rename ML model in the database using DBMS_DATA_MINING.RENAME_MODEL.
  *
  * @author ayoub allali
  */
@@ -48,7 +44,7 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MLExecutionResult executionResult) {
         MLResult result = executionResult.getMlResult();
-        MLModelHandle modelHandle = result.getModelHandle();
+        DBMSModelHandle modelHandle = result.getModelHandle();
 
         String currentModelName = getCurrentModelName(result);
         String defaultName = buildDefaultName(result, currentModelName);
@@ -64,13 +60,7 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
 
         if (newName.equals(currentModelName)) return; // No change
 
-        // For DBMS backend, rename in database
-        if (result.getBackendType() == MLBackendType.DBMS_DATA_MINING && modelHandle instanceof DBMSModelHandle dbmsHandle) {
-            renameInDatabase(project, executionResult, dbmsHandle, currentModelName, newName);
-        } else {
-            // For Tribuo (in-memory), just rename the UI tab
-            executionResult.setName(newName, true);
-        }
+        renameInDatabase(project, executionResult, modelHandle, currentModelName, newName);
     }
 
     private void renameInDatabase(Project project, MLExecutionResult executionResult,
@@ -102,11 +92,8 @@ public class MLResultRenameAction extends AbstractMLExecutionResultAction {
     }
 
     private String getCurrentModelName(MLResult result) {
-        MLModelHandle handle = result.getModelHandle();
-        if (handle instanceof DBMSModelHandle dbmsHandle) {
-            return dbmsHandle.getModelName();
-        }
-        return result.getAlgorithmName();
+        DBMSModelHandle handle = result.getModelHandle();
+        return handle != null ? handle.getModelName() : result.getAlgorithmName();
     }
 
     private String buildDefaultName(MLResult result, String currentModelName) {

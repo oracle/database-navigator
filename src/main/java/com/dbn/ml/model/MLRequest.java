@@ -21,8 +21,8 @@ import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
-import com.dbn.ml.model.source.MLSourceConfig;
 import com.dbn.ml.model.feature.MLFeatureConfig;
+import com.dbn.ml.model.source.MLSourceConfig;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,7 +41,6 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
     private MLSourceConfig sourceConfig = new MLSourceConfig();
     private MLFeatureConfig featureConfig = new MLFeatureConfig();
     private MLTrainerConfig trainerConfig = new MLTrainerConfig();
-    private MLBackendConfig backendConfig = new MLBackendConfig();
 
     public MLRequest(ConnectionId connectionId) {
         this.connectionId = connectionId;
@@ -63,7 +62,6 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
         sourceConfig = new MLSourceConfig();
         featureConfig = new MLFeatureConfig();
         trainerConfig = new MLTrainerConfig();
-        backendConfig = new MLBackendConfig();
 
         initialize(userSchema);
     }
@@ -75,12 +73,10 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
         Element sourceConfigElement = element.getChild("source-config");
         Element featureConfigElement = element.getChild("feature-config");
         Element trainerConfigElement = element.getChild("trainer-config");
-        Element backendConfigElement = element.getChild("backend-config");
 
         sourceConfig.readState(sourceConfigElement);
         featureConfig.readState(featureConfigElement);
         trainerConfig.readState(trainerConfigElement);
-        backendConfig.readState(backendConfigElement);
     }
 
     @Override
@@ -88,12 +84,10 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
         Element sourceConfigElement = newElement(element, "source-config");
         Element featureConfigElement = newElement(element, "feature-config");
         Element trainerConfigElement = newElement(element, "trainer-config");
-        Element backendConfigElement = newElement(element, "backend-config");
 
         sourceConfig.writeState(sourceConfigElement);
         featureConfig.writeState(featureConfigElement);
         trainerConfig.writeState(trainerConfigElement);
-        backendConfig.writeState(backendConfigElement);
     }
 
     @Override

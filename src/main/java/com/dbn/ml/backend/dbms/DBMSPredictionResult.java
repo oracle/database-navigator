@@ -16,7 +16,6 @@
 
 package com.dbn.ml.backend.dbms;
 
-import com.dbn.ml.backend.model.MLPredictionResult;
 import com.dbn.ml.model.MLTaskType;
 import lombok.Getter;
 
@@ -26,13 +25,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * DBMS_DATA_MINING implementation of MLPredictionResult.
- * Wraps results from PREDICTION() SQL function.
+ * Prediction result from an Oracle DBMS_DATA_MINING PREDICTION() query.
  *
  * @author Oracle
  */
 @Getter
-public class DBMSPredictionResult implements MLPredictionResult {
+public class DBMSPredictionResult {
 
     private final MLTaskType taskType;
 
@@ -76,17 +74,17 @@ public class DBMSPredictionResult implements MLPredictionResult {
 
     // ==================== Classification Prediction ====================
 
-    @Override
+
     public String getPredictedClass() {
         return predictedClass;
     }
 
-    @Override
+
     public double getConfidence() {
         return confidence;
     }
 
-    @Override
+
     public Map<String, Double> getClassProbabilities() {
         // DBMS_DATA_MINING PREDICTION_PROBABILITY returns probability for predicted class
         // Getting all class probabilities would require separate queries
@@ -99,12 +97,12 @@ public class DBMSPredictionResult implements MLPredictionResult {
 
     // ==================== Regression Prediction ====================
 
-    @Override
+
     public double getPredictedValue() {
         return predictedValue;
     }
 
-    @Override
+
     public Map<String, Double> getPredictedValues() {
         // DBMS_DATA_MINING doesn't support multi-output regression in the same way
         Map<String, Double> values = new HashMap<>();
@@ -114,7 +112,7 @@ public class DBMSPredictionResult implements MLPredictionResult {
 
     // ==================== Common ====================
 
-    @Override
+
     public String getSummaryText() {
         if (taskType == MLTaskType.CLASSIFICATION) {
             return String.format("Predicted: %s (Confidence: %.2f%%)",

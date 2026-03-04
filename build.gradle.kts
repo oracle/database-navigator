@@ -161,16 +161,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.20@jar")
     implementation("org.projectlombok:lombok:1.18.36@jar")
 
-    // Tribuo ML Library (Oracle Labs) and dependencies - using LibSVM only (no ONNX dependency)
-//    implementation("org.tribuo:tribuo-core:4.3.1@jar")
-//    implementation("org.tribuo:tribuo-data:4.3.1@jar")
-//    implementation("org.tribuo:tribuo-math:4.3.1@jar")
-//    implementation("org.tribuo:tribuo-classification-core:4.3.1@jar")
-//    implementation("org.tribuo:tribuo-classification-libsvm:4.3.1@jar")
-//    implementation("org.tribuo:tribuo-common-libsvm:4.3.1@jar")
-//    implementation("tw.edu.ntu.csie:libsvm:3.25@jar")
-//    implementation("com.oracle.labs.olcut:olcut-core:5.2.1@jar")
-    implementation("org.tribuo:tribuo-all:4.3.2") { isTransitive = true } // TODO flat model
 
     implementation(project(":modules:dbn-api"))
     implementation(project(":modules:dbn-spi"))

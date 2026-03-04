@@ -20,7 +20,6 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.ml.backend.MLBackendType;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
 import com.dbn.ml.model.trainer.MLTrainerType;
@@ -79,22 +78,13 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     }
 
     /**
-     * Refreshes available trainers based on selected backend and task type.
-     * Called when backend type changes.
+     * Refreshes available trainers based on task type.
      */
     public void refreshTrainers() {
-        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
-        if (toolboxForm == null) {
-            algorithmComboBox.setValues(MLTrainerType.values());
-            return;
-        }
-
-        MLBackendType backendType = toolboxForm.getMLRequest().getBackendConfig().getBackendType();
-
         // TODO: Get task type from feature config when label column is selected
         MLTaskType taskType = MLTaskType.CLASSIFICATION;
 
-        List<MLTrainerType> availableTrainers = MLTrainerType.getTrainersForBackendAndTask(backendType, taskType);
+        List<MLTrainerType> availableTrainers = MLTrainerType.getTrainersForTask(taskType);
 
         MLTrainerType currentSelection = algorithmComboBox.getSelectedValue();
         algorithmComboBox.setValues(availableTrainers.toArray(new MLTrainerType[0]));

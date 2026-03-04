@@ -17,10 +17,9 @@
 package com.dbn.ml.execution;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.ml.backend.MLBackend;
-import com.dbn.ml.backend.MLBackendFactory;
-import com.dbn.ml.backend.model.MLEvaluationResult;
-import com.dbn.ml.backend.model.MLModelHandle;
+import com.dbn.ml.backend.dbms.DBMSBackend;
+import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
+import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.*;
 import com.dbn.ml.model.source.MLSourceConfig;
@@ -30,9 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 
 /**
- * Executes ML training pipeline.
- * Delegates to backend implementations (Tribuo, DBMS_DATA_MINING).
- * <p>
+ * Executes ML training pipeline using Oracle DBMS_DATA_MINING.
  *
  * @author ayoub allali
  */
@@ -40,7 +37,7 @@ import java.util.ArrayList;
 public class MLPipelineExecutor {
 
     /**
-     * Execute ML training pipeline using the configured backend.
+     * Execute ML training pipeline.
      *
      * @param request MLRequest containing all configuration
      * @param connectionHandler Connection handler for database operations
@@ -48,46 +45,33 @@ public class MLPipelineExecutor {
      * @throws Exception if training fails
      */
     public MLResult execute(MLRequest request, ConnectionHandler connectionHandler) throws Exception {
-        // Build training context
         MLTrainingContext context = buildContext(request);
+        DBMSBackend backend = new DBMSBackend(connectionHandler);
 
-        // Get backend
-        MLBackend backend = MLBackendFactory.createBackend(
-                request.getBackendConfig().getBackendType(),
-                connectionHandler
-        );
-
-        // Prepare result object
         MLResult result = new MLResult();
         result.setTaskType(context.getTaskType());
         result.setConnection(context.getConnection());
-        result.setBackendType(backend.getBackendType());
         result.setAlgorithmName(context.getAlgorithmName());
 
         long startTime = System.currentTimeMillis();
 
         try {
-            // Train model
-            MLModelHandle modelHandle = backend.train(context);
+            DBMSModelHandle modelHandle = backend.train(context);
             result.setModelHandle(modelHandle);
 
-            // Evaluate model
-            MLEvaluationResult evaluation = backend.evaluate(modelHandle, context);
+            DBMSEvaluationResult evaluation = backend.evaluate(modelHandle, context);
             result.setEvaluationResult(evaluation);
 
-            // Populate result metadata from context
             result.setTrainingDataSize(context.getTrainingDataSize());
             result.setTestingDataSize(context.getTestingDataSize());
             result.setFeatureCount(request.getFeatureConfig().getFeatureColumns().size());
 
-            // Set class count or output dimensions based on task type
             if (context.getTaskType() == MLTaskType.CLASSIFICATION) {
                 result.setClassCount(modelHandle.getMetadata().getClassCount());
             } else {
                 result.setOutputDimensions(modelHandle.getMetadata().getOutputDimensions());
             }
 
-            // Store original column names for ONNX metadata
             result.setFeatureColumns(new ArrayList<>(request.getFeatureConfig().getFeatureColumns()));
 
             if (context.getTaskType() == MLTaskType.CLASSIFICATION) {
@@ -96,41 +80,27 @@ public class MLPipelineExecutor {
                 result.setLabelColumns(new ArrayList<>(request.getFeatureConfig().getLabelColumns()));
             }
 
-            // Set source name for default model naming
             result.setSourceName(extractSourceName(request));
-
-            // Record training time
             result.setTrainingTimeMs(System.currentTimeMillis() - startTime);
 
             return result;
 
         } finally {
-            // Cleanup resources (staging tables, etc.)
             try {
                 backend.cleanup(context);
             } catch (Exception e) {
-                // Log cleanup failure but don't fail the entire operation
-                // The training was successful, cleanup is a best-effort operation
                 log.warn("Failed to cleanup backend resources", e);
             }
         }
     }
 
-    /**
-     * Build training context from request.
-     */
     private MLTrainingContext buildContext(MLRequest request) {
         MLTrainingContext context = new MLTrainingContext();
         context.setRequest(request);
-        context.setShouldCleanupStagingTable(request.getBackendConfig().isAutoCleanupStagingTables());
+        context.setShouldCleanupStagingTable(true);
         return context;
     }
 
-    /**
-     * Extract source name from request for default model naming.
-     * For database tables: returns table name
-     * For CSV files: returns file name without extension
-     */
     private String extractSourceName(MLRequest request) {
         MLSourceConfig sourceConfig = request.getSourceConfig();
         MLSourceType sourceType = sourceConfig.getSourceType();
@@ -141,11 +111,9 @@ public class MLPipelineExecutor {
             String filePath = sourceConfig.getFileSourceConfig().getFilePath();
             if (filePath == null || filePath.isEmpty()) return "model";
 
-            // Extract file name without path
             int lastSep = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
             String fileName = lastSep >= 0 ? filePath.substring(lastSep + 1) : filePath;
 
-            // Remove extension
             int dotIndex = fileName.lastIndexOf('.');
             return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
         }

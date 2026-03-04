@@ -22,12 +22,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMLInterface;
-import com.dbn.ml.backend.MLBackend;
-import com.dbn.ml.backend.MLBackendType;
-import com.dbn.ml.backend.model.MLEvaluationResult;
-import com.dbn.ml.backend.model.MLModelHandle;
 import com.dbn.ml.backend.model.MLModelMetadata;
-import com.dbn.ml.backend.model.MLPredictionResult;
 import com.dbn.ml.backend.model.MLTrainingContext;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.source.MLSourceConfig;
@@ -64,7 +59,7 @@ import java.util.stream.Collectors;
  * @author Oracle
  */
 @Slf4j
-public class DBMSBackend implements MLBackend {
+public class DBMSBackend {
 
     private final ConnectionHandler connection;
     private final DBMSDataManager dataManager;
@@ -76,13 +71,7 @@ public class DBMSBackend implements MLBackend {
         this.settingsBuilder = new DBMSSettingsBuilder();
     }
 
-    @Override
-    public MLBackendType getBackendType() {
-        return MLBackendType.DBMS_DATA_MINING;
-    }
-
-    @Override
-    public MLModelHandle train(MLTrainingContext context) throws Exception {
+    public DBMSModelHandle train(MLTrainingContext context) throws Exception {
         log.info("Starting DBMS_DATA_MINING training for task: {}", context.getTaskType());
         context.setTrainingStartTime(System.currentTimeMillis());
 
@@ -173,13 +162,8 @@ public class DBMSBackend implements MLBackend {
         return modelHandle;
     }
 
-    @Override
-    public MLEvaluationResult evaluate(MLModelHandle modelHandle, MLTrainingContext context) throws Exception {
-        if (!(modelHandle instanceof DBMSModelHandle dbmsHandle)) {
-            throw new IllegalArgumentException("Expected DBMSModelHandle, got: " + modelHandle.getClass());
-        }
-
-        log.info("Evaluating model: {} on test data", dbmsHandle.getModelName());
+    public DBMSEvaluationResult evaluate(DBMSModelHandle modelHandle, MLTrainingContext context) throws Exception {
+        log.info("Evaluating model: {} on test data", modelHandle.getModelName());
 
         return DatabaseInterfaceInvoker.load(Priority.HIGH,
                 "Evaluating Model",
@@ -189,20 +173,15 @@ public class DBMSBackend implements MLBackend {
                 conn -> {
                     DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
                     if (context.getTaskType() == MLTaskType.CLASSIFICATION) {
-                        return evaluateClassificationProper(mlInterface, conn, dbmsHandle, context);
+                        return evaluateClassificationProper(mlInterface, conn, modelHandle, context);
                     } else {
-                        return evaluateRegressionProper(mlInterface, conn, dbmsHandle, context);
+                        return evaluateRegressionProper(mlInterface, conn, modelHandle, context);
                     }
                 });
     }
 
-    @Override
-    public MLPredictionResult predict(MLModelHandle modelHandle, Map<String, Double> featureValues) throws Exception {
-        if (!(modelHandle instanceof DBMSModelHandle dbmsHandle)) {
-            throw new IllegalArgumentException("Expected DBMSModelHandle, got: " + modelHandle.getClass());
-        }
-
-        log.info("Making prediction with model: {}", dbmsHandle.getModelName());
+    public DBMSPredictionResult predict(DBMSModelHandle modelHandle, Map<String, Double> featureValues) throws Exception {
+        log.info("Making prediction with model: {}", modelHandle.getModelName());
 
         return DatabaseInterfaceInvoker.load(Priority.HIGH,
                 "Making Prediction",
@@ -210,15 +189,14 @@ public class DBMSBackend implements MLBackend {
                 getProject(),
                 connection.getConnectionId(),
                 conn -> {
-                    if (dbmsHandle.getTaskType() == MLTaskType.CLASSIFICATION) {
-                        return predictClassification(conn, dbmsHandle, featureValues);
+                    if (modelHandle.getTaskType() == MLTaskType.CLASSIFICATION) {
+                        return predictClassification(conn, modelHandle, featureValues);
                     } else {
-                        return predictRegression(conn, dbmsHandle, featureValues);
+                        return predictRegression(conn, modelHandle, featureValues);
                     }
                 });
     }
 
-    @Override
     public List<String> getAvailableAlgorithms(MLTaskType taskType) {
         return DBMSAlgorithmType.getAlgorithmsForTask(taskType)
                 .stream()
@@ -226,7 +204,6 @@ public class DBMSBackend implements MLBackend {
                 .collect(Collectors.toList());
     }
 
-    @Override
     public void cleanup(MLTrainingContext context) throws Exception {
         log.info("Cleaning up DBMS resources");
 
@@ -331,7 +308,7 @@ public class DBMSBackend implements MLBackend {
      * Evaluates classification model using Oracle's COMPUTE_CONFUSION_MATRIX.
      * For binary classification, also computes ROC/AUC.
      */
-    private MLEvaluationResult evaluateClassificationProper(
+    private DBMSEvaluationResult evaluateClassificationProper(
             DatabaseMLInterface mlInterface,
             DBNConnection conn,
             DBMSModelHandle modelHandle,
@@ -422,7 +399,7 @@ public class DBMSBackend implements MLBackend {
     /**
      * Evaluates regression model on test data.
      */
-    private MLEvaluationResult evaluateRegressionProper(
+    private DBMSEvaluationResult evaluateRegressionProper(
             DatabaseMLInterface mlInterface,
             DBNConnection conn,
             DBMSModelHandle modelHandle,
@@ -571,7 +548,7 @@ public class DBMSBackend implements MLBackend {
         }
     }
 
-    private MLPredictionResult predictClassification(
+    private DBMSPredictionResult predictClassification(
             DBNConnection conn,
             DBMSModelHandle modelHandle,
             Map<String, Double> featureValues) throws SQLException {
@@ -610,7 +587,7 @@ public class DBMSBackend implements MLBackend {
         }
     }
 
-    private MLPredictionResult predictRegression(
+    private DBMSPredictionResult predictRegression(
             DBNConnection conn,
             DBMSModelHandle modelHandle,
             Map<String, Double> featureValues) throws SQLException {

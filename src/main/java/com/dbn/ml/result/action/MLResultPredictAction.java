@@ -18,9 +18,6 @@ package com.dbn.ml.result.action;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
-import com.dbn.ml.backend.MLBackendType;
-import com.dbn.ml.backend.dbms.DBMSModelHandle;
-import com.dbn.ml.backend.model.MLModelHandle;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.result.MLExecutionResult;
 import com.dbn.ml.ui.MLPredictDialog;
@@ -43,12 +40,6 @@ public class MLResultPredictAction extends AbstractMLExecutionResultAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MLExecutionResult executionResult) {
         MLResult result = executionResult.getMlResult();
-        MLModelHandle modelHandle = result.getModelHandle();
-
-        if (!(modelHandle instanceof DBMSModelHandle)) {
-            Messages.showWarningDialog(project, "Ad-hoc prediction is only available for DBMS models.", "Not Available");
-            return;
-        }
 
         List<String> featureColumns = result.getFeatureColumns();
         if (featureColumns == null || featureColumns.isEmpty()) {
@@ -66,8 +57,7 @@ public class MLResultPredictAction extends AbstractMLExecutionResultAction {
         presentation.setText("Predict");
         presentation.setIcon(Icons.ACTION_EXECUTE);
 
-        boolean visible = target != null && target.getMlResult().getBackendType() == MLBackendType.DBMS_DATA_MINING;
-        presentation.setVisible(visible);
-        presentation.setEnabled(visible);
+        presentation.setVisible(target != null);
+        presentation.setEnabled(target != null);
     }
 }

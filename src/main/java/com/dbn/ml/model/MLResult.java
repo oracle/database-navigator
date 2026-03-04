@@ -17,18 +17,15 @@
 package com.dbn.ml.model;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.ml.backend.MLBackendType;
-import com.dbn.ml.backend.model.MLEvaluationResult;
-import com.dbn.ml.backend.model.MLModelHandle;
+import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
+import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import lombok.Getter;
 import lombok.Setter;
-import org.tribuo.Model;
 
 import java.util.List;
 
 /**
- * Result of ML training execution.
- * Backend-agnostic, supporting both Tribuo and DBMS_DATA_MINING backends.
+ * Result of ML training execution using Oracle DBMS_DATA_MINING.
  *
  * @author ayoub allali
  */
@@ -37,9 +34,8 @@ import java.util.List;
 public class MLResult {
 
     private MLTaskType taskType;
-    private MLBackendType backendType;
-    private MLModelHandle modelHandle;
-    private MLEvaluationResult evaluationResult;
+    private DBMSModelHandle modelHandle;
+    private DBMSEvaluationResult evaluationResult;
 
     private ConnectionHandler connection;
     private String algorithmName;
@@ -52,7 +48,7 @@ public class MLResult {
 
     private long trainingTimeMs;
 
-    // Column names for ONNX metadata
+    // Column names for prediction UI
     private List<String> featureColumns;
     private String labelColumn;
     private List<String> labelColumns;
@@ -68,24 +64,10 @@ public class MLResult {
     }
 
     /**
-     * Returns the native model object.
-     * For Tribuo: Returns Model<?>
-     * For DBMS: Returns model name (String)
+     * Returns the database model name.
      */
-    public Object getModel() {
-        return modelHandle != null ? modelHandle.getNativeModel() : null;
-    }
-
-    /**
-     * Returns the Tribuo model.
-     * Only valid for Tribuo backend.
-     */
-    @SuppressWarnings("unchecked")
-    public Model<?> getTribuoModel() {
-        if (backendType != MLBackendType.TRIBUO) {
-            throw new IllegalStateException("getTribuoModel() can only be called for Tribuo backend");
-        }
-        return (Model<?>) getModel();
+    public String getModelName() {
+        return modelHandle != null ? modelHandle.getModelName() : null;
     }
 
     // ==================== Metrics (delegated to evaluation result) ====================

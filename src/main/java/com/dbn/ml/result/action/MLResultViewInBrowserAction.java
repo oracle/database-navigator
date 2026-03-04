@@ -19,9 +19,7 @@ package com.dbn.ml.result.action;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.ml.backend.MLBackendType;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
-import com.dbn.ml.backend.model.MLModelHandle;
 import com.dbn.ml.model.MLResult;
 import com.dbn.ml.result.MLExecutionResult;
 import com.dbn.object.DBAIModel;
@@ -43,12 +41,7 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull MLExecutionResult executionResult) {
         MLResult result = executionResult.getMlResult();
-        MLModelHandle modelHandle = result.getModelHandle();
-
-        if (!(modelHandle instanceof DBMSModelHandle dbmsHandle)) {
-            Messages.showWarningDialog(project, "View in database is only available for DBMS models.", "Not Available");
-            return;
-        }
+        DBMSModelHandle dbmsHandle = result.getModelHandle();
 
         String modelName = dbmsHandle.getModelName();
         ConnectionHandler connection = dbmsHandle.getConnection();
@@ -88,8 +81,7 @@ public class MLResultViewInBrowserAction extends AbstractMLExecutionResultAction
         presentation.setText("View in Database");
         presentation.setIcon(Icons.DBO_AI_MODEL);
 
-        boolean visible = target != null && target.getMlResult().getBackendType() == MLBackendType.DBMS_DATA_MINING;
-        presentation.setVisible(visible);
-        presentation.setEnabled(visible);
+        presentation.setVisible(target != null);
+        presentation.setEnabled(target != null);
     }
 }

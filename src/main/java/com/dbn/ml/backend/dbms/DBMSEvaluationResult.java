@@ -16,7 +16,6 @@
 
 package com.dbn.ml.backend.dbms;
 
-import com.dbn.ml.backend.model.MLEvaluationResult;
 import com.dbn.ml.model.MLTaskType;
 import lombok.Getter;
 
@@ -30,14 +29,33 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * DBMS_DATA_MINING implementation of MLEvaluationResult.
- * Parses evaluation metrics from Oracle DM$ views and calculates
+ * Evaluation metrics for an Oracle DBMS_DATA_MINING model.
+ * Parses results from Oracle DM$ views and calculates
  * per-class precision/recall/F1 from confusion matrix data.
  *
  * @author Oracle
  */
 @Getter
-public class DBMSEvaluationResult implements MLEvaluationResult {
+public class DBMSEvaluationResult {
+
+    /**
+     * Per-class metrics for classification.
+     */
+    public interface ClassMetrics {
+        double getPrecision();
+        double getRecall();
+        double getF1Score();
+        int getSupport();
+    }
+
+    /**
+     * Per-output metrics for regression.
+     */
+    public interface RegressionMetrics {
+        double getR2();
+        double getRMSE();
+        double getMAE();
+    }
 
     private final MLTaskType taskType;
     private final int testDataSize;
@@ -208,30 +226,29 @@ public class DBMSEvaluationResult implements MLEvaluationResult {
 
     // ==================== Classification Metrics ====================
 
-    @Override
     public double getAccuracy() {
         return accuracy;
     }
 
-    @Override
+
     public double getPrecision() {
         ensurePerClassMetricsCalculated();
         return macroPrecision;
     }
 
-    @Override
+
     public double getRecall() {
         ensurePerClassMetricsCalculated();
         return macroRecall;
     }
 
-    @Override
+
     public double getF1Score() {
         ensurePerClassMetricsCalculated();
         return macroF1;
     }
 
-    @Override
+
     public String getConfusionMatrix() {
         if (confusionMatrixData.isEmpty()) {
             return "N/A";
@@ -250,7 +267,7 @@ public class DBMSEvaluationResult implements MLEvaluationResult {
         return sb.toString();
     }
 
-    @Override
+
     public Map<String, ClassMetrics> getPerClassMetrics() {
         ensurePerClassMetricsCalculated();
         return perClassMetricsCache;
@@ -365,22 +382,22 @@ public class DBMSEvaluationResult implements MLEvaluationResult {
 
     // ==================== Regression Metrics ====================
 
-    @Override
+
     public double getR2Score() {
         return r2Score;
     }
 
-    @Override
+
     public double getRMSE() {
         return rmse;
     }
 
-    @Override
+
     public double getMAE() {
         return mae;
     }
 
-    @Override
+
     public Map<String, RegressionMetrics> getPerOutputMetrics() {
         // DBMS_DATA_MINING doesn't support multi-output regression in the same way
         return new HashMap<>();
@@ -388,7 +405,7 @@ public class DBMSEvaluationResult implements MLEvaluationResult {
 
     // ==================== Common Metrics ====================
 
-    @Override
+
     public String getSummaryText() {
         StringBuilder sb = new StringBuilder();
 
@@ -426,7 +443,7 @@ public class DBMSEvaluationResult implements MLEvaluationResult {
         return sb.toString();
     }
 
-    @Override
+
     public int getTestDataSize() {
         return testDataSize;
     }

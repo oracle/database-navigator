@@ -20,18 +20,14 @@ import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.Actions;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.dbn.ml.backend.MLBackendType;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
-import com.dbn.ml.backend.model.MLEvaluationResult;
 import com.dbn.ml.model.MLResult;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
-import org.tribuo.Model;
-import org.tribuo.ONNXExportable;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -97,11 +93,8 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 16f));
 
         // Set title with model name
-        if (result.getModelHandle() instanceof DBMSModelHandle dbmsHandle) {
-            titleLabel.setText(dbmsHandle.getModelName());
-        } else {
-            titleLabel.setText("ML Training Result");
-        }
+        String modelName = result.getModelName();
+        titleLabel.setText(modelName != null ? modelName : "ML Training Result");
 
         // Task type
         String taskType = result.isClassification() ? "Classification" : "Regression";
@@ -114,7 +107,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         scoreLabel.setFont(scoreLabel.getFont().deriveFont(Font.BOLD));
 
         // Metrics summary line
-        MLEvaluationResult evalResult = result.getEvaluationResult();
+        DBMSEvaluationResult evalResult = result.getEvaluationResult();
         if (evalResult != null) {
             if (result.isClassification()) {
                 metricsSummary.append("Accuracy: ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
@@ -142,7 +135,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         metricsCardsPanel.setLayout(new GridLayout(1, 0, 12, 0));
         metricsCardsPanel.setBorder(JBUI.Borders.empty(8));
 
-        MLEvaluationResult evalResult = result.getEvaluationResult();
+        DBMSEvaluationResult evalResult = result.getEvaluationResult();
         if (evalResult == null) return;
 
         if (result.isClassification()) {
@@ -151,8 +144,8 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
             metricsCardsPanel.add(createMetricCard("Recall", evalResult.getRecall(), true));
             metricsCardsPanel.add(createMetricCard("F1 Score", evalResult.getF1Score(), true));
 
-            if (evalResult instanceof DBMSEvaluationResult dbmsEval && dbmsEval.getAucRoc() > 0) {
-                metricsCardsPanel.add(createMetricCard("AUC-ROC", dbmsEval.getAucRoc(), true));
+            if (evalResult.getAucRoc() > 0) {
+                metricsCardsPanel.add(createMetricCard("AUC-ROC", evalResult.getAucRoc(), true));
             }
         } else {
             metricsCardsPanel.add(createMetricCard("R\u00B2 Score", evalResult.getR2Score(), true));
@@ -211,8 +204,8 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
         // Try to get confusion matrix data
         Map<String, Integer> confusionData = null;
-        if (result.getBackendType() == MLBackendType.DBMS_DATA_MINING && result.getEvaluationResult() != null) {
-            var dbmsEval = (DBMSEvaluationResult) result.getEvaluationResult();
+        DBMSEvaluationResult dbmsEval = result.getEvaluationResult();
+        if (dbmsEval != null) {
             confusionData = dbmsEval.getConfusionMatrixData();
         }
 
@@ -331,7 +324,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         JPanel chartPanel = new JPanel();
         chartPanel.setLayout(new BoxLayout(chartPanel, BoxLayout.Y_AXIS));
 
-        MLEvaluationResult evalResult = result.getEvaluationResult();
+        DBMSEvaluationResult evalResult = result.getEvaluationResult();
         if (evalResult != null) {
             var perClassMetrics = evalResult.getPerClassMetrics();
             if (perClassMetrics != null && !perClassMetrics.isEmpty()) {
@@ -453,7 +446,6 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         JPanel detailsGrid = new JPanel(new GridLayout(0, 4, 16, 6));
 
         addDetailRow(detailsGrid, "Algorithm", result.getAlgorithmName());
-        addDetailRow(detailsGrid, "Backend", result.getBackendType().getName());
         addDetailRow(detailsGrid, "Features", String.valueOf(result.getFeatureCount()));
         addDetailRow(detailsGrid, "Training Samples", String.valueOf(result.getTrainingDataSize()));
         addDetailRow(detailsGrid, "Test Samples", String.valueOf(result.getTestingDataSize()));
@@ -463,11 +455,6 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
             addDetailRow(detailsGrid, "Classes", String.valueOf(result.getClassCount()));
         } else {
             addDetailRow(detailsGrid, "Output Dimensions", String.valueOf(result.getOutputDimensions()));
-        }
-
-        if (result.getBackendType() == MLBackendType.TRIBUO) {
-            Model<?> model = result.getTribuoModel();
-            addDetailRow(detailsGrid, "ONNX Export", model instanceof ONNXExportable ? "Supported" : "Not Supported");
         }
 
         modelDetailsPanel.add(detailsGrid, BorderLayout.CENTER);
@@ -484,7 +471,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     }
 
     private double calculateOverallScore() {
-        MLEvaluationResult evalResult = result.getEvaluationResult();
+        DBMSEvaluationResult evalResult = result.getEvaluationResult();
         if (evalResult == null) return 0;
 
         if (result.isClassification()) {

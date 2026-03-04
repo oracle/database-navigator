@@ -17,8 +17,6 @@
 package com.dbn.ml.backend.dbms;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.ml.backend.MLBackendType;
-import com.dbn.ml.backend.model.MLModelHandle;
 import com.dbn.ml.backend.model.MLModelMetadata;
 import com.dbn.ml.model.MLTaskType;
 import lombok.Getter;
@@ -27,14 +25,13 @@ import lombok.Setter;
 import java.util.List;
 
 /**
- * DBMS_DATA_MINING implementation of MLModelHandle.
- * Stores reference to a model in the Oracle database along with
- * references to training/test tables for evaluation.
+ * Holds a reference to a trained Oracle DBMS_DATA_MINING model along with
+ * the associated training/test table names.
  *
  * @author Oracle
  */
 @Getter
-public class DBMSModelHandle implements MLModelHandle {
+public class DBMSModelHandle {
 
     @Setter
     private String modelName;
@@ -69,17 +66,6 @@ public class DBMSModelHandle implements MLModelHandle {
         this.metadata = metadata;
         this.dataTableName = dataTableName;
         this.settingsTableName = settingsTableName;
-    }
-
-    @Override
-    public MLBackendType getBackendType() {
-        return MLBackendType.DBMS_DATA_MINING;
-    }
-
-    @Override
-    public Object getNativeModel() {
-        // For DBMS backend, the "native model" is just the model name (String reference)
-        return modelName;
     }
 
     /**

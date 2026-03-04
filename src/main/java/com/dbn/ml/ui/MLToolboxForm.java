@@ -29,7 +29,6 @@ import com.dbn.ml.model.MLRequest;
 import com.dbn.ml.model.feature.MLFeatureConfig;
 import com.dbn.ml.model.source.MLSourceConfig;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
-import com.dbn.ml.ui.backend.MLBackendForm;
 import com.dbn.ml.ui.feature.MLFeatureForm;
 import com.dbn.ml.ui.source.MLSourceForm;
 import com.dbn.ml.ui.trainer.MLTrainerForm;
@@ -42,12 +41,10 @@ public class MLToolboxForm extends MLToolboxFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
-    private JPanel backendPanel;
     private JPanel sourcePanel;
     private JPanel featurePanel;
     private JPanel trainerPanel;
 
-    private MLBackendForm backendForm;
     private MLSourceForm sourceForm;
     private MLFeatureForm featureForm;
     private MLTrainerForm trainerForm;
@@ -68,18 +65,11 @@ public class MLToolboxForm extends MLToolboxFormBase {
     @Override
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
-        alignerData.registerForms(backendForm, sourceForm, featureForm, trainerForm);
+        alignerData.registerForms(sourceForm, featureForm, trainerForm);
     }
 
     private void initForms() {
         ConnectionHandler connection = getConnection();
-
-        // Backend configuration panel
-        com.dbn.ml.model.MLBackendConfig backendConfig = request.getBackendConfig();
-        backendForm = new MLBackendForm(this, connection);
-        DBNCollapsiblePanel backendCollapsiblePanel = new DBNCollapsiblePanel(this, backendForm, true);
-        backendCollapsiblePanel.addToggleListener(expanded -> backendConfig.setExpanded(expanded));
-        backendPanel.add(backendCollapsiblePanel.getComponent());
 
         // Source configuration panel
         MLSourceConfig sourceConfig = request.getSourceConfig();
@@ -112,14 +102,12 @@ public class MLToolboxForm extends MLToolboxFormBase {
     }
 
     public void resetFormChanges() {
-        backendForm.resetFormChanges();
         sourceForm.resetFormChanges();
         featureForm.resetFormChanges();
         trainerForm.resetFormChanges();
     }
 
     public void applyFormChanges() {
-        backendForm.applyFormChanges();
         sourceForm.applyFormChanges();
         featureForm.applyFormChanges();
         trainerForm.applyFormChanges();
@@ -152,12 +140,10 @@ public class MLToolboxForm extends MLToolboxFormBase {
     private void initHintPanel() {
         TextContent hintText = TextContent.plain(
                 "Machine Learning Toolbox\n\n" +
-                "Use this interface to build and train machine learning models. " +
-                "Choose between Tribuo (client-side) or Oracle DBMS_DATA_MINING (in-database) training. " +
+                "Use this interface to build and train machine learning models using Oracle DBMS_DATA_MINING. " +
                 "Select your data source, choose features and a label column, " +
                 "configure the training algorithm, and train your model.\n\n" +
-                "The trained model can be evaluated and used for predictions. " +
-                "Tribuo models can also be exported to ONNX format.");
+                "The trained model will be stored in the database and can be evaluated and used for predictions.");
         DBNHintForm hintForm = new DBNHintForm(null, hintText, null, true);
         hintPanel.add(hintForm.getComponent());
     }
@@ -171,17 +157,6 @@ public class MLToolboxForm extends MLToolboxFormBase {
     public void onSourceChanged() {
         if (featureForm != null) {
             featureForm.refreshColumns();
-        }
-    }
-
-    // Called when backend type changes - refresh available trainers
-    public void onBackendChanged() {
-        // Apply backend changes first so refreshTrainers reads the new value
-        if (backendForm != null) {
-            backendForm.applyFormChanges();
-        }
-        if (trainerForm != null) {
-            trainerForm.refreshTrainers();
         }
     }
 }
