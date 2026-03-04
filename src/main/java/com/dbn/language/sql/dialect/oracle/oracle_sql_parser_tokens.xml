@@ -22,7 +22,7 @@
         <token id="CT_OUTER_JOIN" value="" category="character"/>
         <token id="CT_SIZE_CLAUSE" value="" category="keyword"/>
 
-        <!-- DATA TYPES -->
+        <!-- MARKER_BEGIN_DATATYPES -->
         <token index="0" id="DT_VARCHAR2" value="varchar2" category="datatype"/>
         <token index="1" id="DT_BFILE" value="bfile" category="datatype"/>
         <token index="2" id="DT_BINARY_DOUBLE" value="binary_double" category="datatype"/>
@@ -63,13 +63,11 @@
         <token index="37" id="DT_VARCHAR" value="varchar" category="datatype"/>
         <token index="38" id="DT_WITH_LOCAL_TIME_ZONE" value="with local time zone" category="datatype"/>
         <token index="39" id="DT_WITH_TIME_ZONE" value="with time zone" category="datatype"/>
+        <!-- MARKER_END_DATATYPES -->
 
 
 
-
-
-
-        <!-- KEYWORDS -->
+        <!-- MARKER_BEGIN_KEYWORDS -->
         <token index="0" id="KW_A_SET" value="a set" category="keyword"/>
         <token index="1" id="KW_ABORT" value="abort" category="keyword"/>
         <token index="2" id="KW_ABSENT" value="absent" category="keyword"/>
@@ -850,10 +848,10 @@
         <token index="777" id="KW_ZONEMAP" value="zonemap" category="keyword"/>
         <token index="778" id="KW_FALSE" value="false" category="keyword" reserved="true"/>
         <token index="779" id="KW_TRUE" value="true" category="keyword" reserved="true"/>
+        <!-- MARKER_END_KEYWORDS -->
 
 
-
-        <!-- FUNCTION -->
+        <!-- MARKER_BEGIN_FUNCTIONS -->
         <token index="0" id="FN_ABS" value="abs" category="function"/>
         <token index="1" id="FN_ACOS" value="acos" category="function"/>
         <token index="2" id="FN_ADD_MONTHS" value="add_months" category="function"/>
@@ -1094,14 +1092,11 @@
         <token index="237" id="FN_XMLSERIALIZE" value="xmlserialize" category="function"/>
         <token index="238" id="FN_XMLTABLE" value="xmltable" category="function"/>
         <token index="239" id="FN_XMLTRANSFORM" value="xmltransform" category="function"/>
+        <!-- MARKER_END_FUNCTIONS -->
 
 
 
-
-
-
-
-        <!-- PARAMETERS -->
+        <!-- MARKER_BEGIN_PARAMETERS -->
         <token index="0" id="PRM_AQ_TM_PROCESSES" value="aq_tm_processes" category="parameter"/>
         <token index="1" id="PRM_ARCHIVE_LAG_TARGET" value="archive_lag_target" category="parameter"/>
         <token index="2" id="PRM_AUDIT_FILE_DEST" value="audit_file_dest" category="parameter"/>
@@ -1181,165 +1176,166 @@
         <token index="76" id="PRM_HS_AUTOREGISTER" value="hs_autoregister" category="parameter"/>
         <token index="77" id="PRM_IDLE_TIME" value="idle_time" category="parameter"/>
         <token index="78" id="PRM_IFILE" value="ifile" category="parameter"/>
-        <token index="79" id="PRM_INSTANCE" value="instance" category="parameter"/>
-        <token index="80" id="PRM_INSTANCE_GROUPS" value="instance_groups" category="parameter"/>
-        <token index="81" id="PRM_INSTANCE_NAME" value="instance_name" category="parameter"/>
-        <token index="82" id="PRM_INSTANCE_NUMBER" value="instance_number" category="parameter"/>
-        <token index="83" id="PRM_INSTANCE_TYPE" value="instance_type" category="parameter"/>
-        <token index="84" id="PRM_ISOLATION_LEVEL" value="isolation_level" category="parameter"/>
-        <token index="85" id="PRM_JAVA_MAX_SESSIONSPACE_SIZE" value="java_max_sessionspace_size" category="parameter"/>
-        <token index="86" id="PRM_JAVA_POOL_SIZE" value="java_pool_size" category="parameter"/>
-        <token index="87" id="PRM_JAVA_SOFT_SESSIONSPACE_LIMIT" value="java_soft_sessionspace_limit" category="parameter"/>
-        <token index="88" id="PRM_JOB_QUEUE_PROCESSES" value="job_queue_processes" category="parameter"/>
-        <token index="89" id="PRM_LARGE_POOL_SIZE" value="large_pool_size" category="parameter"/>
-        <token index="90" id="PRM_LDAP_DIRECTORY_ACCESS" value="ldap_directory_access" category="parameter"/>
-        <token index="91" id="PRM_LICENSE_MAX_SESSIONS" value="license_max_sessions" category="parameter"/>
-        <token index="92" id="PRM_LICENSE_MAX_USERS" value="license_max_users" category="parameter"/>
-        <token index="93" id="PRM_LICENSE_SESSIONS_WARNING" value="license_sessions_warning" category="parameter"/>
-        <token index="94" id="PRM_LOCAL_LISTENER" value="local_listener" category="parameter"/>
-        <token index="95" id="PRM_LOCK_SGA" value="lock_sga" category="parameter"/>
-        <token index="96" id="PRM_LOG_ARCHIVE_CONFIG" value="log_archive_config" category="parameter"/>
-        <token index="97" id="PRM_LOG_ARCHIVE_DEST" value="log_archive_dest" category="parameter"/>
-        <token index="98" id="PRM_LOG_ARCHIVE_DEST_n" value="log_archive_dest_n" category="parameter"/>
-        <token index="99" id="PRM_LOG_ARCHIVE_DEST_STATE_n" value="log_archive_dest_state_n" category="parameter"/>
-        <token index="100" id="PRM_LOG_ARCHIVE_DUPLEX_DEST" value="log_archive_duplex_dest" category="parameter"/>
-        <token index="101" id="PRM_LOG_ARCHIVE_FORMAT" value="log_archive_format" category="parameter"/>
-        <token index="102" id="PRM_LOG_ARCHIVE_LOCAL_FIRST" value="log_archive_local_first" category="parameter"/>
-        <token index="103" id="PRM_LOG_ARCHIVE_MAX_PROCESSES" value="log_archive_max_processes" category="parameter"/>
-        <token index="104" id="PRM_LOG_ARCHIVE_MIN_SUCCEED_DEST" value="log_archive_min_succeed_dest" category="parameter"/>
-        <token index="105" id="PRM_LOG_ARCHIVE_TRACE" value="log_archive_trace" category="parameter"/>
-        <token index="106" id="PRM_LOG_BUFFER" value="log_buffer" category="parameter"/>
-        <token index="107" id="PRM_LOG_CHECKPOINT_INTERVAL" value="log_checkpoint_interval" category="parameter"/>
-        <token index="108" id="PRM_LOG_CHECKPOINT_TIMEOUT" value="log_checkpoint_timeout" category="parameter"/>
-        <token index="109" id="PRM_LOG_CHECKPOINTS_TO_ALERT" value="log_checkpoints_to_alert" category="parameter"/>
-        <token index="110" id="PRM_LOG_FILE_NAME_CONVERT" value="log_file_name_convert" category="parameter"/>
-        <token index="111" id="PRM_LOGICAL_READS_PER_CALL" value="logical_reads_per_call" category="parameter"/>
-        <token index="112" id="PRM_LOGICAL_READS_PER_SESSION" value="logical_reads_per_session" category="parameter"/>
-        <token index="113" id="PRM_LOGMNR_MAX_PERSISTENT_SESSIONS" value="logmnr_max_persistent_sessions" category="parameter"/>
-        <token index="114" id="PRM_MAX_COMMIT_PROPAGATION_DELAY" value="max_commit_propagation_delay" category="parameter"/>
-        <token index="115" id="PRM_MAX_DISPATCHERS" value="max_dispatchers" category="parameter"/>
-        <token index="116" id="PRM_MAX_DUMP_FILE_SIZE" value="max_dump_file_size" category="parameter"/>
-        <token index="117" id="PRM_MAX_SHARED_SERVERS" value="max_shared_servers" category="parameter"/>
-        <token index="118" id="PRM_NLS_CALENDAR" value="nls_calendar" category="parameter"/>
-        <token index="119" id="PRM_NLS_COMP" value="nls_comp" category="parameter"/>
-        <token index="120" id="PRM_NLS_CURRENCY" value="nls_currency" category="parameter"/>
-        <token index="121" id="PRM_NLS_DATE_FORMAT" value="nls_date_format" category="parameter"/>
-        <token index="122" id="PRM_NLS_DATE_LANGUAGE" value="nls_date_language" category="parameter"/>
-        <token index="123" id="PRM_NLS_DUAL_CURRENCY" value="nls_dual_currency" category="parameter"/>
-        <token index="124" id="PRM_NLS_ISO_CURRENCY" value="nls_iso_currency" category="parameter"/>
-        <token index="125" id="PRM_NLS_LANGUAGE" value="nls_language" category="parameter"/>
-        <token index="126" id="PRM_NLS_LENGTH_SEMANTICS" value="nls_length_semantics" category="parameter"/>
-        <token index="127" id="PRM_NLS_NCHAR_CONV_EXCP" value="nls_nchar_conv_excp" category="parameter"/>
-        <token index="128" id="PRM_NLS_NUMERIC_CHARACTERS" value="nls_numeric_characters" category="parameter"/>
-        <token index="129" id="PRM_NLS_SORT" value="nls_sort" category="parameter"/>
-        <token index="130" id="PRM_NLS_TERRITORY" value="nls_territory" category="parameter"/>
-        <token index="131" id="PRM_NLS_TIMESTAMP_FORMAT" value="nls_timestamp_format" category="parameter"/>
-        <token index="132" id="PRM_NLS_TIMESTAMP_TZ_FORMAT" value="nls_timestamp_tz_format" category="parameter"/>
-        <token index="133" id="PRM_O7_DICTIONARY_ACCESSIBILITY" value="o7_dictionary_accessibility" category="parameter"/>
-        <token index="134" id="PRM_OBJECT_CACHE_MAX_SIZE_PERCENT" value="object_cache_max_size_percent" category="parameter"/>
-        <token index="135" id="PRM_OBJECT_CACHE_OPTIMAL_SIZE" value="object_cache_optimal_size" category="parameter"/>
-        <token index="136" id="PRM_OLAP_PAGE_POOL_SIZE" value="olap_page_pool_size" category="parameter"/>
-        <token index="137" id="PRM_OPEN_CURSORS" value="open_cursors" category="parameter"/>
-        <token index="138" id="PRM_OPEN_LINKS" value="open_links" category="parameter"/>
-        <token index="139" id="PRM_OPEN_LINKS_PER_INSTANCE" value="open_links_per_instance" category="parameter"/>
-        <token index="140" id="PRM_OPTIMIZER_DYNAMIC_SAMPLING" value="optimizer_dynamic_sampling" category="parameter"/>
-        <token index="141" id="PRM_OPTIMIZER_FEATURES_ENABLE" value="optimizer_features_enable" category="parameter"/>
-        <token index="142" id="PRM_OPTIMIZER_INDEX_CACHING" value="optimizer_index_caching" category="parameter"/>
-        <token index="143" id="PRM_OPTIMIZER_INDEX_COST_ADJ" value="optimizer_index_cost_adj" category="parameter"/>
-        <token index="144" id="PRM_OPTIMIZER_MODE" value="optimizer_mode" category="parameter"/>
-        <token index="145" id="PRM_OS_AUTHENT_PREFIX" value="os_authent_prefix" category="parameter"/>
-        <token index="146" id="PRM_OS_ROLES" value="os_roles" category="parameter"/>
-        <token index="147" id="PRM_OSM_DISKGROUPS" value="osm_diskgroups" category="parameter"/>
-        <token index="148" id="PRM_OSM_DISKSTRING" value="osm_diskstring" category="parameter"/>
-        <token index="149" id="PRM_OSM_POWER_LIMIT" value="osm_power_limit" category="parameter"/>
-        <token index="150" id="PRM_PARALLEL_ADAPTIVE_MULTI_USER" value="parallel_adaptive_multi_user" category="parameter"/>
-        <token index="151" id="PRM_PARALLEL_EXECUTION_MESSAGE_SIZE" value="parallel_execution_message_size" category="parameter"/>
-        <token index="152" id="PRM_PARALLEL_INSTANCE_GROUP" value="parallel_instance_group" category="parameter"/>
-        <token index="153" id="PRM_PARALLEL_MAX_SERVERS" value="parallel_max_servers" category="parameter"/>
-        <token index="154" id="PRM_PARALLEL_MIN_PERCENT" value="parallel_min_percent" category="parameter"/>
-        <token index="155" id="PRM_PARALLEL_MIN_SERVERS" value="parallel_min_servers" category="parameter"/>
-        <token index="156" id="PRM_PARALLEL_THREADS_PER_CPU" value="parallel_threads_per_cpu" category="parameter"/>
-        <token index="157" id="PRM_PASSWORD_GRACE_TIME" value="password_grace_time" category="parameter"/>
-        <token index="158" id="PRM_PASSWORD_LIFE_TIME" value="password_life_time" category="parameter"/>
-        <token index="159" id="PRM_PASSWORD_LOCK_TIME" value="password_lock_time" category="parameter"/>
-        <token index="160" id="PRM_PASSWORD_REUSE_MAX" value="password_reuse_max" category="parameter"/>
-        <token index="161" id="PRM_PASSWORD_REUSE_TIME" value="password_reuse_time" category="parameter"/>
-        <token index="162" id="PRM_PASSWORD_VERIFY_FUNCTION" value="password_verify_function" category="parameter"/>
-        <token index="163" id="PRM_PGA_AGGREGATE_TARGET" value="pga_aggregate_target" category="parameter"/>
-        <token index="164" id="PRM_PLSQL_CODE_TYPE" value="plsql_code_type" category="parameter"/>
-        <token index="165" id="PRM_PLSQL_COMPILER_FLAGS" value="plsql_compiler_flags" category="parameter"/>
-        <token index="166" id="PRM_PLSQL_DEBUG" value="plsql_debug" category="parameter"/>
-        <token index="167" id="PRM_PLSQL_NATIVE_LIBRARY_DIR" value="plsql_native_library_dir" category="parameter"/>
-        <token index="168" id="PRM_PLSQL_NATIVE_LIBRARY_SUBDIR_COUNT" value="plsql_native_library_subdir_count" category="parameter"/>
-        <token index="169" id="PRM_PLSQL_OPTIMIZE_LEVEL" value="plsql_optimize_level" category="parameter"/>
-        <token index="170" id="PRM_PLSQL_V2_COMPATIBILITY" value="plsql_v2_compatibility" category="parameter"/>
-        <token index="171" id="PRM_PLSQL_WARNINGS" value="plsql_warnings" category="parameter"/>
-        <token index="172" id="PRM_PRE_PAGE_SGA" value="pre_page_sga" category="parameter"/>
-        <token index="173" id="PRM_PRIVATE_SGA" value="private_sga" category="parameter"/>
-        <token index="174" id="PRM_PROCESSES" value="processes" category="parameter"/>
-        <token index="175" id="PRM_QUERY_REWRITE_ENABLED" value="query_rewrite_enabled" category="parameter"/>
-        <token index="176" id="PRM_QUERY_REWRITE_INTEGRITY" value="query_rewrite_integrity" category="parameter"/>
-        <token index="177" id="PRM_RDBMS_SERVER_DN" value="rdbms_server_dn" category="parameter"/>
-        <token index="178" id="PRM_READ_ONLY_OPEN_DELAYED" value="read_only_open_delayed" category="parameter"/>
-        <token index="179" id="PRM_RECORDS_PER_BLOCK" value="records_per_block" category="parameter"/>
-        <token index="180" id="PRM_RECOVERY_PARALLELISM" value="recovery_parallelism" category="parameter"/>
-        <token index="181" id="PRM_REMOTE_ARCHIVE_ENABLE" value="remote_archive_enable" category="parameter"/>
-        <token index="182" id="PRM_REMOTE_DEPENDENCIES_MODE" value="remote_dependencies_mode" category="parameter"/>
-        <token index="183" id="PRM_REMOTE_LISTENER" value="remote_listener" category="parameter"/>
-        <token index="184" id="PRM_REMOTE_LOGIN_PASSWORDFILE" value="remote_login_passwordfile" category="parameter"/>
-        <token index="185" id="PRM_REMOTE_OS_AUTHENT" value="remote_os_authent" category="parameter"/>
-        <token index="186" id="PRM_REMOTE_OS_ROLES" value="remote_os_roles" category="parameter"/>
-        <token index="187" id="PRM_REPLICATION_DEPENDENCY_TRACKING" value="replication_dependency_tracking" category="parameter"/>
-        <token index="188" id="PRM_RESOURCE_LIMIT" value="resource_limit" category="parameter"/>
-        <token index="189" id="PRM_RESOURCE_MANAGER_PLAN" value="resource_manager_plan" category="parameter"/>
-        <token index="190" id="PRM_RESUMABLE_TIMEOUT" value="resumable_timeout" category="parameter"/>
-        <token index="191" id="PRM_ROLLBACK_SEGMENTS" value="rollback_segments" category="parameter"/>
-        <token index="192" id="PRM_SERIAL_REUSE" value="serial_reuse" category="parameter"/>
-        <token index="193" id="PRM_SERVICE_NAMES" value="service_names" category="parameter"/>
-        <token index="194" id="PRM_SESSION_CACHED_CURSORS" value="session_cached_cursors" category="parameter"/>
-        <token index="195" id="PRM_SESSION_MAX_OPEN_FILES" value="session_max_open_files" category="parameter"/>
-        <token index="196" id="PRM_SESSIONS" value="sessions" category="parameter"/>
-        <token index="197" id="PRM_SESSIONS_PER_USER" value="sessions_per_user" category="parameter"/>
-        <token index="198" id="PRM_SGA_MAX_SIZE" value="sga_max_size" category="parameter"/>
-        <token index="199" id="PRM_SGA_TARGET" value="sga_target" category="parameter"/>
-        <token index="200" id="PRM_SHADOW_CORE_DUMP" value="shadow_core_dump" category="parameter"/>
-        <token index="201" id="PRM_SHARED_MEMORY_ADDRESS" value="shared_memory_address" category="parameter"/>
-        <token index="202" id="PRM_SHARED_POOL_RESERVED_SIZE" value="shared_pool_reserved_size" category="parameter"/>
-        <token index="203" id="PRM_SHARED_POOL_SIZE" value="shared_pool_size" category="parameter"/>
-        <token index="204" id="PRM_SHARED_SERVER_SESSIONS" value="shared_server_sessions" category="parameter"/>
-        <token index="205" id="PRM_SHARED_SERVERS" value="shared_servers" category="parameter"/>
-        <token index="206" id="PRM_SKIP_UNUSABLE_INDEXES" value="skip_unusable_indexes" category="parameter"/>
-        <token index="207" id="PRM_SMTP_OUT_SERVER" value="smtp_out_server" category="parameter"/>
-        <token index="208" id="PRM_SORT_AREA_RETAINED_SIZE" value="sort_area_retained_size" category="parameter"/>
-        <token index="209" id="PRM_SORT_AREA_SIZE" value="sort_area_size" category="parameter"/>
-        <token index="210" id="PRM_SPFILE" value="spfile" category="parameter"/>
-        <token index="211" id="PRM_SQL_TRACE" value="sql_trace" category="parameter"/>
-        <token index="212" id="PRM_SQL92_SECURITY" value="sql92_security" category="parameter"/>
-        <token index="213" id="PRM_SQLTUNE_CATEGORY" value="sqltune_category" category="parameter"/>
-        <token index="214" id="PRM_STANDBY_ARCHIVE_DEST" value="standby_archive_dest" category="parameter"/>
-        <token index="215" id="PRM_STANDBY_FILE_MANAGEMENT" value="standby_file_management" category="parameter"/>
-        <token index="216" id="PRM_STAR_TRANSFORMATION_ENABLED" value="star_transformation_enabled" category="parameter"/>
-        <token index="217" id="PRM_STATEMENT_ID" value="statement_id" category="parameter"/>
-        <token index="218" id="PRM_STATISTICS_LEVEL" value="statistics_level" category="parameter"/>
-        <token index="219" id="PRM_STREAMS_POOL_SIZE" value="streams_pool_size" category="parameter"/>
-        <token index="220" id="PRM_TAPE_ASYNCH_IO" value="tape_asynch_io" category="parameter"/>
-        <token index="221" id="PRM_THREAD" value="thread" category="parameter"/>
-        <token index="222" id="PRM_TIMED_OS_STATISTICS" value="timed_os_statistics" category="parameter"/>
-        <token index="223" id="PRM_TIMED_STATISTICS" value="timed_statistics" category="parameter"/>
-        <token index="224" id="PRM_TRACE_ENABLED" value="trace_enabled" category="parameter"/>
-        <token index="225" id="PRM_TRACEFILE_IDENTIFIER" value="tracefile_identifier" category="parameter"/>
-        <token index="226" id="PRM_TRANSACTIONS" value="transactions" category="parameter"/>
-        <token index="227" id="PRM_TRANSACTIONS_PER_ROLLBACK_SEGMENT" value="transactions_per_rollback_segment" category="parameter"/>
-        <token index="228" id="PRM_UNDO_MANAGEMENT" value="undo_management" category="parameter"/>
-        <token index="229" id="PRM_UNDO_RETENTION" value="undo_retention" category="parameter"/>
-        <token index="230" id="PRM_UNDO_TABLESPACE" value="undo_tablespace" category="parameter"/>
-        <token index="231" id="PRM_USE_INDIRECT_DATA_BUFFERS" value="use_indirect_data_buffers" category="parameter"/>
-        <token index="232" id="PRM_USE_PRIVATE_OUTLINES" value="use_private_outlines" category="parameter"/>
-        <token index="233" id="PRM_USE_STORED_OUTLINES" value="use_stored_outlines" category="parameter"/>
-        <token index="234" id="PRM_USER_DUMP_DEST" value="user_dump_dest" category="parameter"/>
-        <token index="235" id="PRM_UTL_FILE_DIR" value="utl_file_dir" category="parameter"/>
-        <token index="236" id="PRM_WORKAREA_SIZE_POLICY" value="workarea_size_policy" category="parameter"/>
+        <token index="79" id="PRM_INSTANCE_GROUPS" value="instance_groups" category="parameter"/>
+        <token index="80" id="PRM_INSTANCE_NAME" value="instance_name" category="parameter"/>
+        <token index="81" id="PRM_INSTANCE_NUMBER" value="instance_number" category="parameter"/>
+        <token index="82" id="PRM_INSTANCE_TYPE" value="instance_type" category="parameter"/>
+        <token index="83" id="PRM_ISOLATION_LEVEL" value="isolation_level" category="parameter"/>
+        <token index="84" id="PRM_JAVA_MAX_SESSIONSPACE_SIZE" value="java_max_sessionspace_size" category="parameter"/>
+        <token index="85" id="PRM_JAVA_POOL_SIZE" value="java_pool_size" category="parameter"/>
+        <token index="86" id="PRM_JAVA_SOFT_SESSIONSPACE_LIMIT" value="java_soft_sessionspace_limit" category="parameter"/>
+        <token index="87" id="PRM_JOB_QUEUE_PROCESSES" value="job_queue_processes" category="parameter"/>
+        <token index="88" id="PRM_LARGE_POOL_SIZE" value="large_pool_size" category="parameter"/>
+        <token index="89" id="PRM_LDAP_DIRECTORY_ACCESS" value="ldap_directory_access" category="parameter"/>
+        <token index="90" id="PRM_LICENSE_MAX_SESSIONS" value="license_max_sessions" category="parameter"/>
+        <token index="91" id="PRM_LICENSE_MAX_USERS" value="license_max_users" category="parameter"/>
+        <token index="92" id="PRM_LICENSE_SESSIONS_WARNING" value="license_sessions_warning" category="parameter"/>
+        <token index="93" id="PRM_LOCAL_LISTENER" value="local_listener" category="parameter"/>
+        <token index="94" id="PRM_LOCK_SGA" value="lock_sga" category="parameter"/>
+        <token index="95" id="PRM_LOG_ARCHIVE_CONFIG" value="log_archive_config" category="parameter"/>
+        <token index="96" id="PRM_LOG_ARCHIVE_DEST" value="log_archive_dest" category="parameter"/>
+        <token index="97" id="PRM_LOG_ARCHIVE_DEST_n" value="log_archive_dest_n" category="parameter"/>
+        <token index="98" id="PRM_LOG_ARCHIVE_DEST_STATE_n" value="log_archive_dest_state_n" category="parameter"/>
+        <token index="99" id="PRM_LOG_ARCHIVE_DUPLEX_DEST" value="log_archive_duplex_dest" category="parameter"/>
+        <token index="100" id="PRM_LOG_ARCHIVE_FORMAT" value="log_archive_format" category="parameter"/>
+        <token index="101" id="PRM_LOG_ARCHIVE_LOCAL_FIRST" value="log_archive_local_first" category="parameter"/>
+        <token index="102" id="PRM_LOG_ARCHIVE_MAX_PROCESSES" value="log_archive_max_processes" category="parameter"/>
+        <token index="103" id="PRM_LOG_ARCHIVE_MIN_SUCCEED_DEST" value="log_archive_min_succeed_dest" category="parameter"/>
+        <token index="104" id="PRM_LOG_ARCHIVE_TRACE" value="log_archive_trace" category="parameter"/>
+        <token index="105" id="PRM_LOG_BUFFER" value="log_buffer" category="parameter"/>
+        <token index="106" id="PRM_LOG_CHECKPOINT_INTERVAL" value="log_checkpoint_interval" category="parameter"/>
+        <token index="107" id="PRM_LOG_CHECKPOINT_TIMEOUT" value="log_checkpoint_timeout" category="parameter"/>
+        <token index="108" id="PRM_LOG_CHECKPOINTS_TO_ALERT" value="log_checkpoints_to_alert" category="parameter"/>
+        <token index="109" id="PRM_LOG_FILE_NAME_CONVERT" value="log_file_name_convert" category="parameter"/>
+        <token index="110" id="PRM_LOGICAL_READS_PER_CALL" value="logical_reads_per_call" category="parameter"/>
+        <token index="111" id="PRM_LOGICAL_READS_PER_SESSION" value="logical_reads_per_session" category="parameter"/>
+        <token index="112" id="PRM_LOGMNR_MAX_PERSISTENT_SESSIONS" value="logmnr_max_persistent_sessions" category="parameter"/>
+        <token index="113" id="PRM_MAX_COMMIT_PROPAGATION_DELAY" value="max_commit_propagation_delay" category="parameter"/>
+        <token index="114" id="PRM_MAX_DISPATCHERS" value="max_dispatchers" category="parameter"/>
+        <token index="115" id="PRM_MAX_DUMP_FILE_SIZE" value="max_dump_file_size" category="parameter"/>
+        <token index="116" id="PRM_MAX_SHARED_SERVERS" value="max_shared_servers" category="parameter"/>
+        <token index="117" id="PRM_NLS_CALENDAR" value="nls_calendar" category="parameter"/>
+        <token index="118" id="PRM_NLS_COMP" value="nls_comp" category="parameter"/>
+        <token index="119" id="PRM_NLS_CURRENCY" value="nls_currency" category="parameter"/>
+        <token index="120" id="PRM_NLS_DATE_FORMAT" value="nls_date_format" category="parameter"/>
+        <token index="121" id="PRM_NLS_DATE_LANGUAGE" value="nls_date_language" category="parameter"/>
+        <token index="122" id="PRM_NLS_DUAL_CURRENCY" value="nls_dual_currency" category="parameter"/>
+        <token index="123" id="PRM_NLS_ISO_CURRENCY" value="nls_iso_currency" category="parameter"/>
+        <token index="124" id="PRM_NLS_LANGUAGE" value="nls_language" category="parameter"/>
+        <token index="125" id="PRM_NLS_LENGTH_SEMANTICS" value="nls_length_semantics" category="parameter"/>
+        <token index="126" id="PRM_NLS_NCHAR_CONV_EXCP" value="nls_nchar_conv_excp" category="parameter"/>
+        <token index="127" id="PRM_NLS_NUMERIC_CHARACTERS" value="nls_numeric_characters" category="parameter"/>
+        <token index="128" id="PRM_NLS_SORT" value="nls_sort" category="parameter"/>
+        <token index="129" id="PRM_NLS_TERRITORY" value="nls_territory" category="parameter"/>
+        <token index="130" id="PRM_NLS_TIMESTAMP_FORMAT" value="nls_timestamp_format" category="parameter"/>
+        <token index="131" id="PRM_NLS_TIMESTAMP_TZ_FORMAT" value="nls_timestamp_tz_format" category="parameter"/>
+        <token index="132" id="PRM_O7_DICTIONARY_ACCESSIBILITY" value="o7_dictionary_accessibility" category="parameter"/>
+        <token index="133" id="PRM_OBJECT_CACHE_MAX_SIZE_PERCENT" value="object_cache_max_size_percent" category="parameter"/>
+        <token index="134" id="PRM_OBJECT_CACHE_OPTIMAL_SIZE" value="object_cache_optimal_size" category="parameter"/>
+        <token index="135" id="PRM_OLAP_PAGE_POOL_SIZE" value="olap_page_pool_size" category="parameter"/>
+        <token index="136" id="PRM_OPEN_CURSORS" value="open_cursors" category="parameter"/>
+        <token index="137" id="PRM_OPEN_LINKS" value="open_links" category="parameter"/>
+        <token index="138" id="PRM_OPEN_LINKS_PER_INSTANCE" value="open_links_per_instance" category="parameter"/>
+        <token index="139" id="PRM_OPTIMIZER_DYNAMIC_SAMPLING" value="optimizer_dynamic_sampling" category="parameter"/>
+        <token index="140" id="PRM_OPTIMIZER_FEATURES_ENABLE" value="optimizer_features_enable" category="parameter"/>
+        <token index="141" id="PRM_OPTIMIZER_INDEX_CACHING" value="optimizer_index_caching" category="parameter"/>
+        <token index="142" id="PRM_OPTIMIZER_INDEX_COST_ADJ" value="optimizer_index_cost_adj" category="parameter"/>
+        <token index="143" id="PRM_OPTIMIZER_MODE" value="optimizer_mode" category="parameter"/>
+        <token index="144" id="PRM_OS_AUTHENT_PREFIX" value="os_authent_prefix" category="parameter"/>
+        <token index="145" id="PRM_OS_ROLES" value="os_roles" category="parameter"/>
+        <token index="146" id="PRM_OSM_DISKGROUPS" value="osm_diskgroups" category="parameter"/>
+        <token index="147" id="PRM_OSM_DISKSTRING" value="osm_diskstring" category="parameter"/>
+        <token index="148" id="PRM_OSM_POWER_LIMIT" value="osm_power_limit" category="parameter"/>
+        <token index="149" id="PRM_PARALLEL_ADAPTIVE_MULTI_USER" value="parallel_adaptive_multi_user" category="parameter"/>
+        <token index="150" id="PRM_PARALLEL_EXECUTION_MESSAGE_SIZE" value="parallel_execution_message_size" category="parameter"/>
+        <token index="151" id="PRM_PARALLEL_INSTANCE_GROUP" value="parallel_instance_group" category="parameter"/>
+        <token index="152" id="PRM_PARALLEL_MAX_SERVERS" value="parallel_max_servers" category="parameter"/>
+        <token index="153" id="PRM_PARALLEL_MIN_PERCENT" value="parallel_min_percent" category="parameter"/>
+        <token index="154" id="PRM_PARALLEL_MIN_SERVERS" value="parallel_min_servers" category="parameter"/>
+        <token index="155" id="PRM_PARALLEL_THREADS_PER_CPU" value="parallel_threads_per_cpu" category="parameter"/>
+        <token index="156" id="PRM_PASSWORD_GRACE_TIME" value="password_grace_time" category="parameter"/>
+        <token index="157" id="PRM_PASSWORD_LIFE_TIME" value="password_life_time" category="parameter"/>
+        <token index="158" id="PRM_PASSWORD_LOCK_TIME" value="password_lock_time" category="parameter"/>
+        <token index="159" id="PRM_PASSWORD_REUSE_MAX" value="password_reuse_max" category="parameter"/>
+        <token index="160" id="PRM_PASSWORD_REUSE_TIME" value="password_reuse_time" category="parameter"/>
+        <token index="161" id="PRM_PASSWORD_VERIFY_FUNCTION" value="password_verify_function" category="parameter"/>
+        <token index="162" id="PRM_PGA_AGGREGATE_TARGET" value="pga_aggregate_target" category="parameter"/>
+        <token index="163" id="PRM_PLSQL_CODE_TYPE" value="plsql_code_type" category="parameter"/>
+        <token index="164" id="PRM_PLSQL_COMPILER_FLAGS" value="plsql_compiler_flags" category="parameter"/>
+        <token index="165" id="PRM_PLSQL_DEBUG" value="plsql_debug" category="parameter"/>
+        <token index="166" id="PRM_PLSQL_NATIVE_LIBRARY_DIR" value="plsql_native_library_dir" category="parameter"/>
+        <token index="167" id="PRM_PLSQL_NATIVE_LIBRARY_SUBDIR_COUNT" value="plsql_native_library_subdir_count" category="parameter"/>
+        <token index="168" id="PRM_PLSQL_OPTIMIZE_LEVEL" value="plsql_optimize_level" category="parameter"/>
+        <token index="169" id="PRM_PLSQL_V2_COMPATIBILITY" value="plsql_v2_compatibility" category="parameter"/>
+        <token index="170" id="PRM_PLSQL_WARNINGS" value="plsql_warnings" category="parameter"/>
+        <token index="171" id="PRM_PRE_PAGE_SGA" value="pre_page_sga" category="parameter"/>
+        <token index="172" id="PRM_PRIVATE_SGA" value="private_sga" category="parameter"/>
+        <token index="173" id="PRM_PROCESSES" value="processes" category="parameter"/>
+        <token index="174" id="PRM_QUERY_REWRITE_ENABLED" value="query_rewrite_enabled" category="parameter"/>
+        <token index="175" id="PRM_QUERY_REWRITE_INTEGRITY" value="query_rewrite_integrity" category="parameter"/>
+        <token index="176" id="PRM_RDBMS_SERVER_DN" value="rdbms_server_dn" category="parameter"/>
+        <token index="177" id="PRM_READ_ONLY_OPEN_DELAYED" value="read_only_open_delayed" category="parameter"/>
+        <token index="178" id="PRM_RECORDS_PER_BLOCK" value="records_per_block" category="parameter"/>
+        <token index="179" id="PRM_RECOVERY_PARALLELISM" value="recovery_parallelism" category="parameter"/>
+        <token index="180" id="PRM_REMOTE_ARCHIVE_ENABLE" value="remote_archive_enable" category="parameter"/>
+        <token index="181" id="PRM_REMOTE_DEPENDENCIES_MODE" value="remote_dependencies_mode" category="parameter"/>
+        <token index="182" id="PRM_REMOTE_LISTENER" value="remote_listener" category="parameter"/>
+        <token index="183" id="PRM_REMOTE_LOGIN_PASSWORDFILE" value="remote_login_passwordfile" category="parameter"/>
+        <token index="184" id="PRM_REMOTE_OS_AUTHENT" value="remote_os_authent" category="parameter"/>
+        <token index="185" id="PRM_REMOTE_OS_ROLES" value="remote_os_roles" category="parameter"/>
+        <token index="186" id="PRM_REPLICATION_DEPENDENCY_TRACKING" value="replication_dependency_tracking" category="parameter"/>
+        <token index="187" id="PRM_RESOURCE_LIMIT" value="resource_limit" category="parameter"/>
+        <token index="188" id="PRM_RESOURCE_MANAGER_PLAN" value="resource_manager_plan" category="parameter"/>
+        <token index="189" id="PRM_RESUMABLE_TIMEOUT" value="resumable_timeout" category="parameter"/>
+        <token index="190" id="PRM_ROLLBACK_SEGMENTS" value="rollback_segments" category="parameter"/>
+        <token index="191" id="PRM_SERIAL_REUSE" value="serial_reuse" category="parameter"/>
+        <token index="192" id="PRM_SERVICE_NAMES" value="service_names" category="parameter"/>
+        <token index="193" id="PRM_SESSION_CACHED_CURSORS" value="session_cached_cursors" category="parameter"/>
+        <token index="194" id="PRM_SESSION_MAX_OPEN_FILES" value="session_max_open_files" category="parameter"/>
+        <token index="195" id="PRM_SESSIONS" value="sessions" category="parameter"/>
+        <token index="196" id="PRM_SESSIONS_PER_USER" value="sessions_per_user" category="parameter"/>
+        <token index="197" id="PRM_SGA_MAX_SIZE" value="sga_max_size" category="parameter"/>
+        <token index="198" id="PRM_SGA_TARGET" value="sga_target" category="parameter"/>
+        <token index="199" id="PRM_SHADOW_CORE_DUMP" value="shadow_core_dump" category="parameter"/>
+        <token index="200" id="PRM_SHARED_MEMORY_ADDRESS" value="shared_memory_address" category="parameter"/>
+        <token index="201" id="PRM_SHARED_POOL_RESERVED_SIZE" value="shared_pool_reserved_size" category="parameter"/>
+        <token index="202" id="PRM_SHARED_POOL_SIZE" value="shared_pool_size" category="parameter"/>
+        <token index="203" id="PRM_SHARED_SERVER_SESSIONS" value="shared_server_sessions" category="parameter"/>
+        <token index="204" id="PRM_SHARED_SERVERS" value="shared_servers" category="parameter"/>
+        <token index="205" id="PRM_SKIP_UNUSABLE_INDEXES" value="skip_unusable_indexes" category="parameter"/>
+        <token index="206" id="PRM_SMTP_OUT_SERVER" value="smtp_out_server" category="parameter"/>
+        <token index="207" id="PRM_SORT_AREA_RETAINED_SIZE" value="sort_area_retained_size" category="parameter"/>
+        <token index="208" id="PRM_SORT_AREA_SIZE" value="sort_area_size" category="parameter"/>
+        <token index="209" id="PRM_SQL_TRACE" value="sql_trace" category="parameter"/>
+        <token index="210" id="PRM_SQL92_SECURITY" value="sql92_security" category="parameter"/>
+        <token index="211" id="PRM_SQLTUNE_CATEGORY" value="sqltune_category" category="parameter"/>
+        <token index="212" id="PRM_STANDBY_ARCHIVE_DEST" value="standby_archive_dest" category="parameter"/>
+        <token index="213" id="PRM_STANDBY_FILE_MANAGEMENT" value="standby_file_management" category="parameter"/>
+        <token index="214" id="PRM_STAR_TRANSFORMATION_ENABLED" value="star_transformation_enabled" category="parameter"/>
+        <token index="215" id="PRM_STATEMENT_ID" value="statement_id" category="parameter"/>
+        <token index="216" id="PRM_STATISTICS_LEVEL" value="statistics_level" category="parameter"/>
+        <token index="217" id="PRM_STREAMS_POOL_SIZE" value="streams_pool_size" category="parameter"/>
+        <token index="218" id="PRM_TAPE_ASYNCH_IO" value="tape_asynch_io" category="parameter"/>
+        <token index="219" id="PRM_TIMED_OS_STATISTICS" value="timed_os_statistics" category="parameter"/>
+        <token index="220" id="PRM_TIMED_STATISTICS" value="timed_statistics" category="parameter"/>
+        <token index="221" id="PRM_TRACE_ENABLED" value="trace_enabled" category="parameter"/>
+        <token index="222" id="PRM_TRACEFILE_IDENTIFIER" value="tracefile_identifier" category="parameter"/>
+        <token index="223" id="PRM_TRANSACTIONS" value="transactions" category="parameter"/>
+        <token index="224" id="PRM_TRANSACTIONS_PER_ROLLBACK_SEGMENT" value="transactions_per_rollback_segment" category="parameter"/>
+        <token index="225" id="PRM_UNDO_MANAGEMENT" value="undo_management" category="parameter"/>
+        <token index="226" id="PRM_UNDO_RETENTION" value="undo_retention" category="parameter"/>
+        <token index="227" id="PRM_UNDO_TABLESPACE" value="undo_tablespace" category="parameter"/>
+        <token index="228" id="PRM_USE_INDIRECT_DATA_BUFFERS" value="use_indirect_data_buffers" category="parameter"/>
+        <token index="229" id="PRM_USE_PRIVATE_OUTLINES" value="use_private_outlines" category="parameter"/>
+        <token index="230" id="PRM_USE_STORED_OUTLINES" value="use_stored_outlines" category="parameter"/>
+        <token index="231" id="PRM_USER_DUMP_DEST" value="user_dump_dest" category="parameter"/>
+        <token index="232" id="PRM_UTL_FILE_DIR" value="utl_file_dir" category="parameter"/>
+        <token index="233" id="PRM_WORKAREA_SIZE_POLICY" value="workarea_size_policy" category="parameter"/>
+        <!-- MARKER_END_PARAMETERS -->
 
+
+        <!-- MARKER_BEGIN_EXCEPTIONS -->
+        <!-- MARKER_END_EXCEPTIONS -->
 
 
         <!-- OBJECTS -->

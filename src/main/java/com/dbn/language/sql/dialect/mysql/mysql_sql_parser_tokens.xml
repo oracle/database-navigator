@@ -21,7 +21,7 @@
         <token id="UNKNOWN" value="" category="unknown"/>
         <token id="CT_OUTER_JOIN" value="" category="custom"/>
 
-         <!-- DATA TYPES -->
+        <!-- MARKER_BEGIN_DATATYPES -->
         <token index="0" id="DT_BIGINT" value="bigint" category="datatype" reserved="true"/>
         <token index="1" id="DT_BINARY" value="binary" category="datatype" reserved="true"/>
         <token index="2" id="DT_BIT" value="bit" category="datatype" reserved="true"/>
@@ -64,9 +64,10 @@
         <token index="39" id="DT_VARBINARY" value="varbinary" category="datatype"/>
         <token index="40" id="DT_VARCHAR" value="varchar" category="datatype" reserved="true"/>
         <token index="41" id="DT_YEAR" value="year" category="datatype" reserved="true"/>
+        <!-- MARKER_END_DATATYPES -->
 
 
-        <!-- KEYWORDS -->
+        <!-- MARKER_BEGIN_KEYWORDS -->
         <token index="0" id="KW_ACCESSIBLE" value="accessible" category="keyword"/>
         <token index="1" id="KW_ACTION" value="action" category="keyword"/>
         <token index="2" id="KW_ADD" value="add" category="keyword" reserved="true"/>
@@ -333,10 +334,10 @@
         <token index="263" id="KW_ZEROFILL" value="zerofill" category="keyword"/>
         <token index="264" id="KW_FALSE" value="false" category="keyword" reserved="true"/>
         <token index="265" id="KW_TRUE" value="true" category="keyword" reserved="true"/>
+        <!-- MARKER_END_KEYWORDS -->
 
 
-
-         <!-- FUNCTIONS -->
+        <!-- MARKER_BEGIN_FUNCTIONS -->
         <token index="0" id="FN_ABS" value="abs" category="function"/>
         <token index="1" id="FN_ACOS" value="acos" category="function"/>
         <token index="2" id="FN_ADDDATE" value="adddate" category="function"/>
@@ -531,9 +532,10 @@
         <token index="191" id="FN_WEIGHT_STRING" value="weight_string" category="function"/>
         <token index="192" id="FN_YEAR_MONTH" value="year_month" category="function"/>
         <token index="193" id="FN_YEARWEEK" value="yearweek" category="function"/>
+        <!-- MARKER_END_FUNCTIONS -->
 
 
-        <!-- PARAMETERS -->
+        <!-- MARKER_BEGIN_PARAMETERS -->
         <token index="0" id="PRM_AUTOEXTEND_SIZE" value="autoextend_size" category="parameter"/>
         <token index="1" id="PRM_AUTO_INCREMENT" value="auto_increment" category="parameter"/>
         <token index="2" id="PRM_AVG_ROW_LENGTH" value="avg_row_length" category="parameter"/>
@@ -554,6 +556,11 @@
         <token index="17" id="PRM_STATS_AUTO_RECALC" value="stats_auto_recalc" category="parameter"/>
         <token index="18" id="PRM_STATS_PERSISTENT" value="stats_persistent" category="parameter"/>
         <token index="19" id="PRM_STATS_SAMPLE_PAGES" value="stats_sample_pages" category="parameter"/>
+        <!-- MARKER_END_PARAMETERS -->
+
+        <!-- MARKER_BEGIN_EXCEPTIONS -->
+        <!-- MARKER_END_EXCEPTIONS -->
+
     </tokens>
 
     <token-sets>

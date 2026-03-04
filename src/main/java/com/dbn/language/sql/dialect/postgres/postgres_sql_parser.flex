@@ -126,7 +126,7 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 //    "~" {return tt.getCharacterTokenType(23);}
 
 
-
+// MARKER_BEGIN_DATATYPES
     "array" {return tt.getDataTypeTokenType(0);}
     "bigint" {return tt.getDataTypeTokenType(1);}
     "bigserial" {return tt.getDataTypeTokenType(2);}
@@ -180,11 +180,11 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
     "xid" {return tt.getDataTypeTokenType(50);}
     "xml" {return tt.getDataTypeTokenType(51);}
     "yaml" {return tt.getDataTypeTokenType(52);}
+// MARKER_END_DATATYPES
 
 
 
-
-
+// MARKER_BEGIN_KEYWORDS
     "a" {return tt.getKeywordTokenType(0);}
     "abort" {return tt.getKeywordTokenType(1);}
     "absent" {return tt.getKeywordTokenType(2);}
@@ -863,12 +863,12 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
     "year" {return tt.getKeywordTokenType(675);}
     "yes" {return tt.getKeywordTokenType(676);}
     "zone" {return tt.getKeywordTokenType(677);}
+// MARKER_END_KEYWORDS
 
 
 
 
-
-
+// MARKER_BEGIN_FUNCTIONS
     "abbrev" {return tt.getFunctionTokenType(0);}
     "abs" {return tt.getFunctionTokenType(1);}
     "acos" {return tt.getFunctionTokenType(2);}
@@ -1208,12 +1208,17 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
     "xml_is_well_formed" {return tt.getFunctionTokenType(336);}
     "xpath" {return tt.getFunctionTokenType(337);}
     "xpath_exists" {return tt.getFunctionTokenType(338);}
+// MARKER_END_FUNCTIONS
 
 
-
-
+// MARKER_BEGIN_PARAMETERS
     "check_option" {return tt.getParameterTokenType(0);}
     "security_barrier" {return tt.getParameterTokenType(1);}
+// MARKER_END_PARAMETERS
+
+
+// MARKER_BEGIN_EXCEPTIONS
+// MARKER_END_EXCEPTIONS
 
 
     {IDENTIFIER}           {return stt.getIdentifier(); }

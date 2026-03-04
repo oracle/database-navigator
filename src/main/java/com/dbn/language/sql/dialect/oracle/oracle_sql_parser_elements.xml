@@ -3026,7 +3026,7 @@
                     </one-of>
                 </sequence>
                 <sequence id="01761">
-                    <token id="01762" type-id="PRM_INSTANCE" />
+                    <token id="01762" type-id="KW_INSTANCE"/>
                     <token id="01763" type-id="CHR_EQUAL" />
                     <token id="01764" type-id="INTEGER" />
                 </sequence>
@@ -3464,7 +3464,7 @@
             <token id="02109" type-id="PRM_SMTP_OUT_SERVER" />
             <token id="02110" type-id="PRM_SORT_AREA_RETAINED_SIZE" />
             <token id="02111" type-id="PRM_SORT_AREA_SIZE" />
-            <token id="02112" type-id="PRM_SPFILE" />
+            <token id="02112" type-id="KW_SPFILE" flavor="parameter"/>
             <token id="02113" type-id="PRM_SQL_TRACE" />
             <token id="02114" type-id="PRM_SQL92_SECURITY" />
             <token id="02115" type-id="PRM_SQLTUNE_CATEGORY" />
@@ -3474,7 +3474,7 @@
             <token id="02119" type-id="PRM_STATISTICS_LEVEL" />
             <token id="02120" type-id="PRM_STREAMS_POOL_SIZE" />
             <token id="02121" type-id="PRM_TAPE_ASYNCH_IO" />
-            <token id="02122" type-id="PRM_THREAD" />
+            <token id="02122" type-id="KW_THREAD" flavor="parameter"/>
             <token id="02123" type-id="PRM_TIMED_OS_STATISTICS" />
             <token id="02124" type-id="PRM_TIMED_STATISTICS" />
             <token id="02125" type-id="PRM_TRACE_ENABLED" />

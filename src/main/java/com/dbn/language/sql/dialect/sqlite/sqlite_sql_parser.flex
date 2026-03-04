@@ -106,7 +106,7 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 
 
 
-
+// MARKER_BEGIN_DATATYPES
 "bigint" {return tt.getDataTypeTokenType(0);}
 "blob" {return tt.getDataTypeTokenType(1);}
 "boolean" {return tt.getDataTypeTokenType(2);}
@@ -135,12 +135,12 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "unsigned"{ws}"big"{ws}"int" {return tt.getDataTypeTokenType(25);}
 "varchar" {return tt.getDataTypeTokenType(26);}
 "varying"{ws}"character" {return tt.getDataTypeTokenType(27);}
+// MARKER_END_DATATYPES
 
 
 
 
-
-
+// MARKER_BEGIN_KEYWORDS
 "abort" {return tt.getKeywordTokenType(0);}
 "action" {return tt.getKeywordTokenType(1);}
 "add" {return tt.getKeywordTokenType(2);}
@@ -267,11 +267,11 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "where" {return tt.getKeywordTokenType(123);}
 "with" {return tt.getKeywordTokenType(124);}
 "without" {return tt.getKeywordTokenType(125);}
+// MARKER_END_KEYWORDS
 
 
 
-
-
+// MARKER_BEGIN_FUNCTIONS
 "abs" {return tt.getFunctionTokenType(0);}
 "avg" {return tt.getFunctionTokenType(1);}
 "changes" {return tt.getFunctionTokenType(2);}
@@ -326,10 +326,10 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "unicode" {return tt.getFunctionTokenType(51);}
 "upper" {return tt.getFunctionTokenType(52);}
 "zeroblob" {return tt.getFunctionTokenType(53);}
+// MARKER_END_FUNCTIONS
 
 
-
-
+// MARKER_BEGIN_PARAMETERS
 "application_id" {return tt.getParameterTokenType(0);}
 "auto_vacuum" {return tt.getParameterTokenType(1);}
 "automatic_index" {return tt.getParameterTokenType(2);}
@@ -394,9 +394,11 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "wal_autocheckpoint" {return tt.getParameterTokenType(61);}
 "wal_checkpoint" {return tt.getParameterTokenType(62);}
 "writable_schema" {return tt.getParameterTokenType(63);}
+// MARKER_END_PARAMETERS
 
 
-
+// MARKER_BEGIN_EXCEPTIONS
+// MARKER_END_EXCEPTIONS
 
 
 {IDENTIFIER}           { return stt.getIdentifier(); }

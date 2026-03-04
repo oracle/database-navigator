@@ -21,7 +21,7 @@
         <token id="UNKNOWN" value="" category="unknown"/>
         <token id="CT_OUTER_JOIN" value="" category="custom"/>
 
-         <!-- DATA TYPES -->
+        <!-- MARKER_BEGIN_DATATYPES -->
         <token index="0" id="DT_ARRAY" value="array" category="datatype"/>
         <token index="1" id="DT_BIGINT" value="bigint" category="datatype"/>
         <token index="2" id="DT_BIGSERIAL" value="bigserial" category="datatype"/>
@@ -75,12 +75,12 @@
         <token index="50" id="DT_XID" value="xid" category="datatype"/>
         <token index="51" id="DT_XML" value="xml" category="datatype"/>
         <token index="52" id="DT_YAML" value="yaml" category="datatype"/>
+        <!-- MARKER_END_DATATYPES -->
 
 
 
 
-
-        <!-- KEYWORDS -->
+        <!-- MARKER_BEGIN_KEYWORDS -->
         <token index="0" id="KW_A" value="a" category="keyword"/>
         <token index="1" id="KW_ABORT" value="abort" category="keyword"/>
         <token index="2" id="KW_ABSENT" value="absent" category="keyword"/>
@@ -759,11 +759,11 @@
         <token index="675" id="KW_YEAR" value="year" category="keyword"/>
         <token index="676" id="KW_YES" value="yes" category="keyword"/>
         <token index="677" id="KW_ZONE" value="zone" category="keyword"/>
+        <!-- MARKER_END_KEYWORDS -->
 
 
 
-
-         <!-- FUNCTIONS -->
+        <!-- MARKER_END_FUNCTIONS -->
         <token index="0" id="FN_ABBREV" value="abbrev" category="function"/>
         <token index="1" id="FN_ABS" value="abs" category="function"/>
         <token index="2" id="FN_ACOS" value="acos" category="function"/>
@@ -1103,13 +1103,17 @@
         <token index="336" id="FN_XML_IS_WELL_FORMED" value="xml_is_well_formed" category="function"/>
         <token index="337" id="FN_XPATH" value="xpath" category="function"/>
         <token index="338" id="FN_XPATH_EXISTS" value="xpath_exists" category="function"/>
+        <!-- MARKER_END_FUNCTIONS -->
 
 
-
-        <!-- PARAMETERS -->
+        <!-- MARKER_BEGIN_PARAMETERS -->
         <token index="0" id="PRM_CHECK_OPTION" value="check_option" category="parameter"/>
         <token index="1" id="PRM_SECURITY_BARRIER" value="security_barrier" category="parameter"/>
+        <!-- MARKER_END_PARAMETERS -->
 
+
+        <!-- MARKER_BEGIN_EXCEPTIONS -->
+        <!-- MARKER_END_EXCEPTIONS -->
     </tokens>
 
     <token-sets>

@@ -98,7 +98,7 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 
 
 
-
+// MARKER_BEGIN_DATATYPES
 "varchar2" {return tt.getDataTypeTokenType(0);}
 "bfile" {return tt.getDataTypeTokenType(1);}
 "binary_double" {return tt.getDataTypeTokenType(2);}
@@ -141,11 +141,11 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 "varchar" {return tt.getDataTypeTokenType(39);}
 "with"{ws}"local"{ws}"time"{ws}"zone" {return tt.getDataTypeTokenType(40);}
 "with"{ws}"time"{ws}"zone" {return tt.getDataTypeTokenType(41);}
+// MARKER_END_DATATYPES
 
 
 
-
-
+// MARKER_BEGIN_KEYWORDS
 //"$if" {return tt.getKeywordTokenType(0);}
 //"$else" {return tt.getKeywordTokenType(1);}
 //"$elsif" {return tt.getKeywordTokenType(2);}
@@ -604,15 +604,11 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 "zone" {return tt.getKeywordTokenType(455);}
 "false" {return tt.getKeywordTokenType(456);}
 "true" {return tt.getKeywordTokenType(457);}
+// MARKER_END_KEYWORDS
 
 
 
-
-
-
-
-
-
+// MARKER_BEGIN_FUNCTIONS
 "abs" {return tt.getFunctionTokenType(0);}
 "acos" {return tt.getFunctionTokenType(1);}
 "add_months" {return tt.getFunctionTokenType(2);}
@@ -851,16 +847,11 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 "xmlserialize" {return tt.getFunctionTokenType(235);}
 "xmltable" {return tt.getFunctionTokenType(236);}
 "xmltransform" {return tt.getFunctionTokenType(237);}
+// MARKER_END_FUNCTIONS
 
 
 
-
-
-
-
-
-
-
+// MARKER_BEGIN_PARAMETERS
 "access_into_null" {return tt.getExceptionTokenType(0);}
 "case_not_found" {return tt.getExceptionTokenType(1);}
 "collection_is_null" {return tt.getExceptionTokenType(2);}
@@ -882,8 +873,10 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 "too_many_rows" {return tt.getExceptionTokenType(18);}
 "value_error" {return tt.getExceptionTokenType(19);}
 "zero_divide" {return tt.getExceptionTokenType(20);}
+// MARKER_END_PARAMETERS
 
-
+// MARKER_BEGIN_EXCEPTIONS
+// MARKER_END_EXCEPTIONS
 
 {IDENTIFIER}           { return stt.getIdentifier(); }
 {QUOTED_IDENTIFIER}    { return stt.getQuotedIdentifier(); }

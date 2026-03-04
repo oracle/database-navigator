@@ -106,7 +106,7 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 
 
 
-
+// MARKER_BEGIN_DATATYPES
 "bigint" {return tt.getDataTypeTokenType(0);}
 "binary" {return tt.getDataTypeTokenType(1);}
 "bit" {return tt.getDataTypeTokenType(2);}
@@ -149,8 +149,10 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "varbinary" {return tt.getDataTypeTokenType(39);}
 "varchar" {return tt.getDataTypeTokenType(40);}
 "year" {return tt.getDataTypeTokenType(41);}
+// MARKER_END_DATATYPES
 
 
+// MARKER_BEGIN_KEYWORDS
 "accessible" {return tt.getKeywordTokenType(0);}
 "action" {return tt.getKeywordTokenType(1);}
 "add" {return tt.getKeywordTokenType(2);}
@@ -417,11 +419,11 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "zerofill" {return tt.getKeywordTokenType(263);}
 "false" {return tt.getKeywordTokenType(264);}
 "true" {return tt.getKeywordTokenType(265);}
+// MARKER_END_KEYWORDS
 
 
 
-
-
+// MARKER_BEGIN_FUNCTIONS
 "abs" {return tt.getFunctionTokenType(0);}
 "acos" {return tt.getFunctionTokenType(1);}
 "adddate" {return tt.getFunctionTokenType(2);}
@@ -616,10 +618,10 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "weight_string" {return tt.getFunctionTokenType(191);}
 "year_month" {return tt.getFunctionTokenType(192);}
 "yearweek" {return tt.getFunctionTokenType(193);}
+// MARKER_END_FUNCTIONS
 
 
-
-
+// MARKER_BEGIN_PARAMETERS
 "autoextend_size" {return tt.getParameterTokenType(0);}
 "auto_increment" {return tt.getParameterTokenType(1);}
 "avg_row_length" {return tt.getParameterTokenType(2);}
@@ -640,7 +642,11 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "stats_auto_recalc" {return tt.getParameterTokenType(17);}
 "stats_persistent" {return tt.getParameterTokenType(18);}
 "stats_sample_pages" {return tt.getParameterTokenType(19);}
+// MARKER_END_PARAMETERS
 
+
+// MARKER_BEGIN_EXCEPTIONS
+// MARKER_END_EXCEPTIONS
 
 {IDENTIFIER}           { return stt.getIdentifier(); }
 {QUOTED_IDENTIFIER}    { return stt.getQuotedIdentifier(); }

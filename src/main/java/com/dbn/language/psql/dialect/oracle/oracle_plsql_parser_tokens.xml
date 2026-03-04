@@ -22,7 +22,7 @@
         <token id="CT_OUTER_JOIN" value="" category="character"/>
         <token id="CT_SIZE_CLAUSE" value="" category="keyword"/>
 
-        <!-- DATA TYPES -->
+        <!-- MARKER_BEGIN_DATATYPES -->
         <token index="0" id="DT_VARCHAR2" value="varchar2" category="datatype" reserved="true"/>
         <token index="1" id="DT_BFILE" value="bfile" category="datatype"/>
         <token index="2" id="DT_BINARY_DOUBLE" value="binary_double" category="datatype"/>
@@ -65,12 +65,12 @@
         <token index="39" id="DT_VARCHAR" value="varchar" category="datatype" reserved="true"/>
         <token index="40" id="DT_WITH_LOCAL_TIME_ZONE" value="with local time zone" category="datatype"/>
         <token index="41" id="DT_WITH_TIME_ZONE" value="with time zone" category="datatype"/>
+        <!-- MARKER_END_DATATYPES -->
 
 
 
 
-
-        <!-- KEYWORDS -->
+        <!-- MARKER_BEGIN_KEYWORDS -->
         <token index="0" id="KW_$IF" value="$if" category="keyword" reserved="true"/>
         <token index="1" id="KW_$ELSE" value="$else" category="keyword" reserved="true"/>
         <token index="2" id="KW_$ELSIF" value="$elsif" category="keyword" reserved="true"/>
@@ -529,17 +529,10 @@
         <token index="455" id="KW_ZONE" value="zone" category="keyword"/>
         <token index="456" id="KW_FALSE" value="false" category="keyword" reserved="true"/>
         <token index="457" id="KW_TRUE" value="true" category="keyword" reserved="true"/>
+        <!-- MARKER_END_KEYWORDS -->
 
 
-
-
-
-
-
-
-
-
-        <!-- FUNCTIONS -->
+        <!-- MARKER_BEGIN_FUNCTIONS -->
         <token index="0" id="FN_ABS" value="abs" category="function"/>
         <token index="1" id="FN_ACOS" value="acos" category="function"/>
         <token index="2" id="FN_ADD_MONTHS" value="add_months" category="function"/>
@@ -778,18 +771,15 @@
         <token index="235" id="FN_XMLSERIALIZE" value="xmlserialize" category="function"/>
         <token index="236" id="FN_XMLTABLE" value="xmltable" category="function"/>
         <token index="237" id="FN_XMLTRANSFORM" value="xmltransform" category="function"/>
+        <!-- MARKER_END_FUNCTIONS -->
 
 
+        <!-- MARKER_BEGIN_PARAMETERS -->
+        <token index="0" id="PRM_USING_NLS_COMP" value="using_nls_comp" category="parameter"/>
+        <!-- MARKER_END_PARAMETERS -->
 
 
-
-
-
-
-
-
-
-        <!-- EXCEPTIONS -->
+        <!-- MARKER_BEGIN_EXCEPTIONS -->
         <token index="0" id="EX_ACCESS_INTO_NULL" value="access_into_null" category="exception"/>
         <token index="1" id="EX_CASE_NOT_FOUND" value="case_not_found" category="exception"/>
         <token index="2" id="EX_COLLECTION_IS_NULL" value="collection_is_null" category="exception"/>
@@ -811,11 +801,8 @@
         <token index="18" id="EX_TOO_MANY_ROWS" value="too_many_rows" category="exception"/>
         <token index="19" id="EX_VALUE_ERROR" value="value_error" category="exception"/>
         <token index="20" id="EX_ZERO_DIVIDE" value="zero_divide" category="exception"/>
+        <!-- MARKER_END_EXCEPTIONS -->
 
-
-
-        <!-- PARAMETERS -->
-        <token index="0" id="PRM_USING_NLS_COMP" value="using_nls_comp" category="parameter"/>
 
     </tokens>
 

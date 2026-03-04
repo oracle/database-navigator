@@ -176,7 +176,7 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 "|" {return tt.getCharacterTokenType(21);}
 
 
-
+// MARKER_BEGIN_DATATYPES
 "varchar2" {return tt.dtt(0);}
 "bfile" {return tt.dtt(1);}
 "binary_double" {return tt.dtt(2);}
@@ -217,10 +217,10 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 "varchar" {return tt.dtt(37);}
 "with"{ws}"local"{ws}"time"{ws}"zone" {return tt.dtt(38);}
 "with"{ws}"time"{ws}"zone" {return tt.dtt(39);}
+// MARKER_END_DATATYPES
 
-
-
-"a set" {return tt.ktt(0);}
+// MARKER_BEGIN_KEYWORDS
+"a"{ws}"set" {return tt.ktt(0);}
 "abort" {return tt.ktt(1);}
 "absent" {return tt.ktt(2);}
 "access" {return tt.ktt(3);}
@@ -1000,9 +1000,10 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 "zonemap" {return tt.ktt(777);}
 "false" {return tt.ktt(778);}
 "true" {return tt.ktt(779);}
+// MARKER_END_KEYWORDS
 
 
-
+// MARKER_BEGIN_FUNCTIONS
 "abs" {return tt.ftt(0);}
 "acos" {return tt.ftt(1);}
 "add_months" {return tt.ftt(2);}
@@ -1243,11 +1244,11 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 "xmlserialize" {return tt.ftt(237);}
 "xmltable" {return tt.ftt(238);}
 "xmltransform" {return tt.ftt(239);}
+// MARKER_END_FUNCTIONS
 
 
 
-
-
+// MARKER_BEGIN_PARAMETERS
 "aq_tm_processes" {return tt.ptt(0);}
 "archive_lag_target" {return tt.ptt(1);}
 "audit_file_dest" {return tt.ptt(2);}
@@ -1268,7 +1269,7 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 "connect_time" {return tt.ptt(17);}
 "control_file_record_keep_time" {return tt.ptt(18);}
 "control_files" {return tt.ptt(19);}
-"core_dump_dest"{wso}"=" { yybegin(YYINITIAL); yypushback(1); return tt.ptt(20);}
+"core_dump_dest" {return tt.ptt(20);}
 "cpu_count" {return tt.ptt(21);}
 "cpu_per_call" {return tt.ptt(22);}
 "cpu_per_session" {return tt.ptt(23);}
@@ -1327,106 +1328,106 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 "hs_autoregister" {return tt.ptt(76);}
 "idle_time" {return tt.ptt(77);}
 "ifile" {return tt.ptt(78);}
-"instance"{wso}"=" { yybegin(YYINITIAL); yypushback(1); return tt.ptt(79);}
-"instance_groups" {return tt.ptt(80);}
-"instance_name" {return tt.ptt(81);}
-"instance_number" {return tt.ptt(82);}
-"instance_type" {return tt.ptt(83);}
-"isolation_level" {return tt.ptt(84);}
-"java_max_sessionspace_size" {return tt.ptt(85);}
-"java_pool_size" {return tt.ptt(86);}
-"java_soft_sessionspace_limit" {return tt.ptt(87);}
-"job_queue_processes" {return tt.ptt(88);}
-"large_pool_size" {return tt.ptt(89);}
-"ldap_directory_access" {return tt.ptt(90);}
-"license_max_sessions" {return tt.ptt(91);}
-"license_max_users" {return tt.ptt(92);}
-"license_sessions_warning" {return tt.ptt(93);}
-"local_listener" {return tt.ptt(94);}
-"lock_sga" {return tt.ptt(95);}
-"log_archive_config" {return tt.ptt(96);}
-"log_archive_dest" {return tt.ptt(97);}
-"log_archive_dest_"{digit}+ {return tt.ptt(98);}
-"log_archive_dest_state_"{digit}+ {return tt.ptt(99);}
-"log_archive_duplex_dest" {return tt.ptt(100);}
-"log_archive_format" {return tt.ptt(101);}
-"log_archive_local_first" {return tt.ptt(102);}
-"log_archive_max_processes" {return tt.ptt(103);}
-"log_archive_min_succeed_dest" {return tt.ptt(104);}
-"log_archive_trace" {return tt.ptt(105);}
-"log_buffer" {return tt.ptt(106);}
-"log_checkpoint_interval" {return tt.ptt(107);}
-"log_checkpoint_timeout" {return tt.ptt(108);}
-"log_checkpoints_to_alert" {return tt.ptt(109);}
-"log_file_name_convert" {return tt.ptt(110);}
-"logical_reads_per_call" {return tt.ptt(111);}
-"logical_reads_per_session" {return tt.ptt(112);}
-"logmnr_max_persistent_sessions" {return tt.ptt(113);}
-"max_commit_propagation_delay" {return tt.ptt(114);}
-"max_dispatchers" {return tt.ptt(115);}
-"max_dump_file_size" {return tt.ptt(116);}
-"max_shared_servers" {return tt.ptt(117);}
-"nls_calendar" {return tt.ptt(118);}
-"nls_comp" {return tt.ptt(119);}
-"nls_currency" {return tt.ptt(120);}
-"nls_date_format" {return tt.ptt(121);}
-"nls_date_language" {return tt.ptt(122);}
-"nls_dual_currency" {return tt.ptt(123);}
-"nls_iso_currency" {return tt.ptt(124);}
-"nls_language" {return tt.ptt(125);}
-"nls_length_semantics" {return tt.ptt(126);}
-"nls_nchar_conv_excp" {return tt.ptt(127);}
-"nls_numeric_characters" {return tt.ptt(128);}
-"nls_sort" {return tt.ptt(129);}
-"nls_territory" {return tt.ptt(130);}
-"nls_timestamp_format" {return tt.ptt(131);}
-"nls_timestamp_tz_format" {return tt.ptt(132);}
-"o7_dictionary_accessibility" {return tt.ptt(133);}
-"object_cache_max_size_percent" {return tt.ptt(134);}
-"object_cache_optimal_size" {return tt.ptt(135);}
-"olap_page_pool_size" {return tt.ptt(136);}
-"open_cursors" {return tt.ptt(137);}
-"open_links" {return tt.ptt(138);}
-"open_links_per_instance" {return tt.ptt(139);}
-"optimizer_dynamic_sampling" {return tt.ptt(140);}
-"optimizer_features_enable" {return tt.ptt(141);}
-"optimizer_index_caching" {return tt.ptt(142);}
-"optimizer_index_cost_adj" {return tt.ptt(143);}
-"optimizer_mode" {return tt.ptt(144);}
-"os_authent_prefix" {return tt.ptt(145);}
-"os_roles" {return tt.ptt(146);}
-"osm_diskgroups" {return tt.ptt(147);}
-"osm_diskstring" {return tt.ptt(148);}
-"osm_power_limit" {return tt.ptt(149);}
-"parallel_adaptive_multi_user" {return tt.ptt(150);}
-"parallel_execution_message_size" {return tt.ptt(151);}
-"parallel_instance_group" {return tt.ptt(152);}
-"parallel_max_servers" {return tt.ptt(153);}
-"parallel_min_percent" {return tt.ptt(154);}
-"parallel_min_servers" {return tt.ptt(155);}
-"parallel_threads_per_cpu" {return tt.ptt(156);}
-"password_grace_time" {return tt.ptt(157);}
-"password_life_time" {return tt.ptt(158);}
-"password_lock_time" {return tt.ptt(159);}
-"password_reuse_max" {return tt.ptt(160);}
-"password_reuse_time" {return tt.ptt(161);}
-"password_verify_function" {return tt.ptt(162);}
-"pga_aggregate_target" {return tt.ptt(163);}
-"plsql_code_type" {return tt.ptt(164);}
-"plsql_compiler_flags" {return tt.ptt(165);}
-"plsql_debug" {return tt.ptt(166);}
-"plsql_native_library_dir" {return tt.ptt(167);}
-"plsql_native_library_subdir_count" {return tt.ptt(168);}
-"plsql_optimize_level" {return tt.ptt(169);}
-"plsql_v2_compatibility" {return tt.ptt(170);}
-"plsql_warnings" {return tt.ptt(171);}
-"pre_page_sga" {return tt.ptt(172);}
-"private_sga" {return tt.ptt(173);}
-"processes" {return tt.ptt(174);}
-"query_rewrite_enabled" {return tt.ptt(175);}
-"query_rewrite_integrity" {return tt.ptt(176);}
-"rdbms_server_dn" {return tt.ptt(177);}
-"read_only_open_delayed" {return tt.ptt(178);}
+"instance_groups" {return tt.ptt(79);}
+"instance_name" {return tt.ptt(80);}
+"instance_number" {return tt.ptt(81);}
+"instance_type" {return tt.ptt(82);}
+"isolation_level" {return tt.ptt(83);}
+"java_max_sessionspace_size" {return tt.ptt(84);}
+"java_pool_size" {return tt.ptt(85);}
+"java_soft_sessionspace_limit" {return tt.ptt(86);}
+"job_queue_processes" {return tt.ptt(87);}
+"large_pool_size" {return tt.ptt(88);}
+"ldap_directory_access" {return tt.ptt(89);}
+"license_max_sessions" {return tt.ptt(90);}
+"license_max_users" {return tt.ptt(91);}
+"license_sessions_warning" {return tt.ptt(92);}
+"local_listener" {return tt.ptt(93);}
+"lock_sga" {return tt.ptt(94);}
+"log_archive_config" {return tt.ptt(95);}
+"log_archive_dest" {return tt.ptt(96);}
+"log_archive_dest_"{digit}+ {return tt.ptt(97);}
+"log_archive_dest_state_"{digit}+ {return tt.ptt(98);}
+"log_archive_duplex_dest" {return tt.ptt(99);}
+"log_archive_format" {return tt.ptt(100);}
+"log_archive_local_first" {return tt.ptt(101);}
+"log_archive_max_processes" {return tt.ptt(102);}
+"log_archive_min_succeed_dest" {return tt.ptt(103);}
+"log_archive_trace" {return tt.ptt(104);}
+"log_buffer" {return tt.ptt(105);}
+"log_checkpoint_interval" {return tt.ptt(106);}
+"log_checkpoint_timeout" {return tt.ptt(107);}
+"log_checkpoints_to_alert" {return tt.ptt(108);}
+"log_file_name_convert" {return tt.ptt(109);}
+"logical_reads_per_call" {return tt.ptt(110);}
+"logical_reads_per_session" {return tt.ptt(111);}
+"logmnr_max_persistent_sessions" {return tt.ptt(112);}
+"max_commit_propagation_delay" {return tt.ptt(113);}
+"max_dispatchers" {return tt.ptt(114);}
+"max_dump_file_size" {return tt.ptt(115);}
+"max_shared_servers" {return tt.ptt(116);}
+"nls_calendar" {return tt.ptt(117);}
+"nls_comp" {return tt.ptt(118);}
+"nls_currency" {return tt.ptt(119);}
+"nls_date_format" {return tt.ptt(120);}
+"nls_date_language" {return tt.ptt(121);}
+"nls_dual_currency" {return tt.ptt(122);}
+"nls_iso_currency" {return tt.ptt(123);}
+"nls_language" {return tt.ptt(124);}
+"nls_length_semantics" {return tt.ptt(125);}
+"nls_nchar_conv_excp" {return tt.ptt(126);}
+"nls_numeric_characters" {return tt.ptt(127);}
+"nls_sort" {return tt.ptt(128);}
+"nls_territory" {return tt.ptt(129);}
+"nls_timestamp_format" {return tt.ptt(130);}
+"nls_timestamp_tz_format" {return tt.ptt(131);}
+"o7_dictionary_accessibility" {return tt.ptt(132);}
+"object_cache_max_size_percent" {return tt.ptt(133);}
+"object_cache_optimal_size" {return tt.ptt(134);}
+"olap_page_pool_size" {return tt.ptt(135);}
+"open_cursors" {return tt.ptt(136);}
+"open_links" {return tt.ptt(137);}
+"open_links_per_instance" {return tt.ptt(138);}
+"optimizer_dynamic_sampling" {return tt.ptt(139);}
+"optimizer_features_enable" {return tt.ptt(140);}
+"optimizer_index_caching" {return tt.ptt(141);}
+"optimizer_index_cost_adj" {return tt.ptt(142);}
+"optimizer_mode" {return tt.ptt(143);}
+"os_authent_prefix" {return tt.ptt(144);}
+"os_roles" {return tt.ptt(145);}
+"osm_diskgroups" {return tt.ptt(146);}
+"osm_diskstring" {return tt.ptt(147);}
+"osm_power_limit" {return tt.ptt(148);}
+"parallel_adaptive_multi_user" {return tt.ptt(149);}
+"parallel_execution_message_size" {return tt.ptt(150);}
+"parallel_instance_group" {return tt.ptt(151);}
+"parallel_max_servers" {return tt.ptt(152);}
+"parallel_min_percent" {return tt.ptt(153);}
+"parallel_min_servers" {return tt.ptt(154);}
+"parallel_threads_per_cpu" {return tt.ptt(155);}
+"password_grace_time" {return tt.ptt(156);}
+"password_life_time" {return tt.ptt(157);}
+"password_lock_time" {return tt.ptt(158);}
+"password_reuse_max" {return tt.ptt(159);}
+"password_reuse_time" {return tt.ptt(160);}
+"password_verify_function" {return tt.ptt(161);}
+"pga_aggregate_target" {return tt.ptt(162);}
+"plsql_code_type" {return tt.ptt(163);}
+"plsql_compiler_flags" {return tt.ptt(164);}
+"plsql_debug" {return tt.ptt(165);}
+"plsql_native_library_dir" {return tt.ptt(166);}
+"plsql_native_library_subdir_count" {return tt.ptt(167);}
+"plsql_optimize_level" {return tt.ptt(168);}
+"plsql_v2_compatibility" {return tt.ptt(169);}
+"plsql_warnings" {return tt.ptt(170);}
+"pre_page_sga" {return tt.ptt(171);}
+"private_sga" {return tt.ptt(172);}
+"processes" {return tt.ptt(173);}
+"query_rewrite_enabled" {return tt.ptt(174);}
+"query_rewrite_integrity" {return tt.ptt(175);}
+"rdbms_server_dn" {return tt.ptt(176);}
+"read_only_open_delayed" {return tt.ptt(177);}
+"records_per_block" {return tt.ptt(178);}
 "recovery_parallelism" {return tt.ptt(179);}
 "remote_archive_enable" {return tt.ptt(180);}
 "remote_dependencies_mode" {return tt.ptt(181);}
@@ -1457,34 +1458,36 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 "smtp_out_server" {return tt.ptt(206);}
 "sort_area_retained_size" {return tt.ptt(207);}
 "sort_area_size" {return tt.ptt(208);}
-"spfile"{wso}"=" { yybegin(YYINITIAL); yypushback(1); return tt.ptt(209);}
-"sql_trace" {return tt.ptt(210);}
-"sql92_security" {return tt.ptt(211);}
-"sqltune_category" {return tt.ptt(212);}
-"standby_archive_dest" {return tt.ptt(213);}
-"standby_file_management" {return tt.ptt(214);}
-"star_transformation_enabled" {return tt.ptt(215);}
-"statement_id" {return tt.ptt(216);}
-"statistics_level" {return tt.ptt(217);}
-"streams_pool_size" {return tt.ptt(218);}
-"tape_asynch_io" {return tt.ptt(219);}
-"thread"{wso}"=" { yybegin(YYINITIAL); yypushback(1); return tt.ptt(220);}
-"timed_os_statistics" {return tt.ptt(221);}
-"timed_statistics" {return tt.ptt(222);}
-"trace_enabled" {return tt.ptt(223);}
-"tracefile_identifier" {return tt.ptt(224);}
-"transactions" {return tt.ptt(225);}
-"transactions_per_rollback_segment" {return tt.ptt(226);}
-"undo_management" {return tt.ptt(227);}
-"undo_retention" {return tt.ptt(228);}
-"undo_tablespace" {return tt.ptt(229);}
-"use_indirect_data_buffers" {return tt.ptt(230);}
-"use_private_outlines" {return tt.ptt(231);}
-"use_stored_outlines" {return tt.ptt(232);}
-"user_dump_dest" {return tt.ptt(233);}
-"utl_file_dir" {return tt.ptt(234);}
-"workarea_size_policy" {return tt.ptt(235);}
+"sql_trace" {return tt.ptt(209);}
+"sql92_security" {return tt.ptt(210);}
+"sqltune_category" {return tt.ptt(211);}
+"standby_archive_dest" {return tt.ptt(212);}
+"standby_file_management" {return tt.ptt(213);}
+"star_transformation_enabled" {return tt.ptt(214);}
+"statement_id" {return tt.ptt(215);}
+"statistics_level" {return tt.ptt(216);}
+"streams_pool_size" {return tt.ptt(217);}
+"tape_asynch_io" {return tt.ptt(218);}
+"timed_os_statistics" {return tt.ptt(219);}
+"timed_statistics" {return tt.ptt(220);}
+"trace_enabled" {return tt.ptt(221);}
+"tracefile_identifier" {return tt.ptt(222);}
+"transactions" {return tt.ptt(223);}
+"transactions_per_rollback_segment" {return tt.ptt(224);}
+"undo_management" {return tt.ptt(225);}
+"undo_retention" {return tt.ptt(226);}
+"undo_tablespace" {return tt.ptt(227);}
+"use_indirect_data_buffers" {return tt.ptt(228);}
+"use_private_outlines" {return tt.ptt(229);}
+"use_stored_outlines" {return tt.ptt(230);}
+"user_dump_dest" {return tt.ptt(231);}
+"utl_file_dir" {return tt.ptt(232);}
+"workarea_size_policy" {return tt.ptt(233);}
+// MARKER_END_PARAMETERS
 
+
+// MARKER_BEGIN_EXCEPTIONS
+// MARKER_END_EXCEPTIONS
 
 {CT_SIZE_CLAUSE} {return tt.getTokenType("CT_SIZE_CLAUSE");}
 

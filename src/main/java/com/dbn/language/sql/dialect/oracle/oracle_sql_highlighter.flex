@@ -58,7 +58,7 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 
     {SQL_FUNCTION}        { return tt.getFunction();}
     {SQL_PARAMETER}       { return tt.getParameter();}
-    {SQL_DATA_TYPE}       { return tt.getDataType(); }
+    {SQL_DATATYPE}        { return tt.getDataType(); }
     {SQL_KEYWORD}         { return tt.getKeyword(); }
 
     {OPERATOR}            { return tt.getOperator(); }
@@ -92,7 +92,7 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
     {PLSQL_FUNCTION}      { return tt.getFunction();}
     {PLSQL_PARAMETER}     { return tt.getParameter();}
     {PLSQL_EXCEPTION}     { return tt.getException();}
-    {PLSQL_DATA_TYPE}     { return tt.getDataType(); }
+    {PLSQL_DATATYPE}      { return tt.getDataType(); }
     {PLSQL_KEYWORD}       { return tt.getKeyword(); }
 
     {OPERATOR}            { return tt.getOperator(); }

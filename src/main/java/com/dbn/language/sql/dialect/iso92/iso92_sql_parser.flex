@@ -95,7 +95,7 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 
 
 
-
+// MARKER_BEGIN_DATATYPES
 "bit" {return tt.getDataTypeTokenType(0);}
 "tinyint" {return tt.getDataTypeTokenType(1);}
 "bool" {return tt.getDataTypeTokenType(2);}
@@ -131,9 +131,10 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "longblob" {return tt.getDataTypeTokenType(32);}
 "longtext" {return tt.getDataTypeTokenType(33);}
 "enum" {return tt.getDataTypeTokenType(34);}
+// MARKER_END_DATATYPES
 
 
-
+// MARKER_BEGIN_KEYWORDS
 "accessible" {return tt.getKeywordTokenType(0);}
 "add" {return tt.getKeywordTokenType(1);}
 "all" {return tt.getKeywordTokenType(2);}
@@ -350,10 +351,10 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "zerofill" {return tt.getKeywordTokenType(213);}
 "false" {return tt.getKeywordTokenType(214);}
 "true" {return tt.getKeywordTokenType(215);}
+// MARKER_END_KEYWORDS
 
 
-
-
+// MARKER_BEGIN_FUNCTIONS
 "abs" {return tt.getFunctionTokenType(0);}
 "acos" {return tt.getFunctionTokenType(1);}
 "adddate" {return tt.getFunctionTokenType(2);}
@@ -577,8 +578,15 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "year"{wso}"(" { yypushback(1); return tt.getFunctionTokenType(220);}
 "year_month" {return tt.getFunctionTokenType(221);}
 "yearweek" {return tt.getFunctionTokenType(222);}
+// MARKER_END_FUNCTIONS
 
 
+// MARKER_BEGIN_PARAMETERS
+// MARKER_END_PARAMETERS
+
+
+// MARKER_BEGIN_EXCEPTIONS
+// MARKER_END_EXCEPTIONS
 
 {IDENTIFIER}           { return stt.getIdentifier(); }
 {QUOTED_IDENTIFIER}    { return stt.getQuotedIdentifier(); }
