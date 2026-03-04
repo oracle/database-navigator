@@ -6678,7 +6678,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 884: break;
           case 84:
-            { return tt.ftt(113);
+            { return tt.ftt(112);
             }
           // fall through
           case 885: break;
@@ -6783,7 +6783,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 905: break;
           case 105:
-            { return tt.ftt(8);
+            { return tt.ftt(7);
             }
           // fall through
           case 906: break;
@@ -6973,7 +6973,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 943: break;
           case 143:
-            { return tt.ktt(204);
+            { return tt.ktt(202);
             }
           // fall through
           case 944: break;
@@ -6983,7 +6983,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 945: break;
           case 145:
-            { return tt.dtt(19);
+            { return tt.dtt(17);
             }
           // fall through
           case 946: break;
@@ -7033,7 +7033,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 955: break;
           case 155:
-            { return tt.ftt(112);
+            { return tt.ftt(113);
             }
           // fall through
           case 956: break;
@@ -7283,7 +7283,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1005: break;
           case 205:
-            { return tt.ftt(7);
+            { return tt.ftt(8);
             }
           // fall through
           case 1006: break;
@@ -7418,7 +7418,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1032: break;
           case 232:
-            { return tt.ftt(61);
+            { return tt.ftt(59);
             }
           // fall through
           case 1033: break;
@@ -7433,12 +7433,12 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1035: break;
           case 235:
-            { return tt.ktt(202);
+            { return tt.ktt(203);
             }
           // fall through
           case 1036: break;
           case 236:
-            { return tt.ktt(203);
+            { return tt.ktt(204);
             }
           // fall through
           case 1037: break;
@@ -7503,7 +7503,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1049: break;
           case 249:
-            { return tt.dtt(25);
+            { return tt.dtt(24);
             }
           // fall through
           case 1050: break;
@@ -7808,12 +7808,12 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1110: break;
           case 310:
-            { return tt.ftt(59);
+            { return tt.ftt(60);
             }
           // fall through
           case 1111: break;
           case 311:
-            { return tt.ftt(60);
+            { return tt.ftt(61);
             }
           // fall through
           case 1112: break;
@@ -7833,7 +7833,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1115: break;
           case 315:
-            { return tt.ftt(81);
+            { return tt.ftt(79);
             }
           // fall through
           case 1116: break;
@@ -8033,7 +8033,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1155: break;
           case 355:
-            { return tt.ftt(170);
+            { return tt.ftt(168);
             }
           // fall through
           case 1156: break;
@@ -8273,12 +8273,12 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1203: break;
           case 403:
-            { return tt.ftt(79);
+            { return tt.ftt(80);
             }
           // fall through
           case 1204: break;
           case 404:
-            { return tt.ftt(80);
+            { return tt.ftt(81);
             }
           // fall through
           case 1205: break;
@@ -8428,12 +8428,12 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1234: break;
           case 434:
-            { return tt.ftt(168);
+            { return tt.ftt(169);
             }
           // fall through
           case 1235: break;
           case 435:
-            { return tt.ftt(169);
+            { return tt.ftt(170);
             }
           // fall through
           case 1236: break;
@@ -8503,7 +8503,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1249: break;
           case 449:
-            { return tt.dtt(39);
+            { return tt.dtt(38);
             }
           // fall through
           case 1250: break;
@@ -8683,7 +8683,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1285: break;
           case 485:
-            { return tt.dtt(17);
+            { return tt.dtt(18);
             }
           // fall through
           case 1286: break;
@@ -8888,7 +8888,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1326: break;
           case 526:
-            { return tt.dtt(38);
+            { return tt.dtt(39);
             }
           // fall through
           case 1327: break;
@@ -8968,7 +8968,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1342: break;
           case 542:
-            { return tt.dtt(9);
+            { return tt.dtt(8);
             }
           // fall through
           case 1343: break;
@@ -9633,7 +9633,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1475: break;
           case 675:
-            { return tt.dtt(18);
+            { return tt.dtt(19);
             }
           // fall through
           case 1476: break;
@@ -9743,12 +9743,12 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1497: break;
           case 697:
-            { return tt.dtt(21);
+            { return tt.dtt(20);
             }
           // fall through
           case 1498: break;
           case 698:
-            { return tt.dtt(24);
+            { return tt.dtt(25);
             }
           // fall through
           case 1499: break;
@@ -10108,7 +10108,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1570: break;
           case 770:
-            { return tt.dtt(8);
+            { return tt.dtt(9);
             }
           // fall through
           case 1571: break;
@@ -10133,7 +10133,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1575: break;
           case 775:
-            { return tt.dtt(23);
+            { return tt.dtt(22);
             }
           // fall through
           case 1576: break;
@@ -10228,7 +10228,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1594: break;
           case 794:
-            { return tt.dtt(20);
+            { return tt.dtt(21);
             }
           // fall through
           case 1595: break;
@@ -10258,7 +10258,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1600: break;
           case 800:
-            { return tt.dtt(22);
+            { return tt.dtt(23);
             }
           // fall through
           case 1601: break;

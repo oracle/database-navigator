@@ -31,8 +31,8 @@
         <token index="5" id="DT_BOOLEAN" value="boolean" category="datatype"/>
         <token index="6" id="DT_BYTE" value="byte" category="datatype"/>
         <token index="7" id="DT_CHAR" value="char" category="datatype" reserved="true"/>
-        <token index="8" id="DT_CHARACTER_VARYING" value="character varying" category="datatype"/>
-        <token index="9" id="DT_CHARACTER" value="character" category="datatype"/>
+        <token index="8" id="DT_CHARACTER" value="character" category="datatype"/>
+        <token index="9" id="DT_CHARACTER_VARYING" value="character varying" category="datatype"/>
         <token index="10" id="DT_CLOB" value="clob" category="datatype"/>
         <token index="11" id="DT_DATE" value="date" category="datatype" reserved="true"/>
         <token index="12" id="DT_DECIMAL" value="decimal" category="datatype" reserved="true"/>
@@ -40,15 +40,15 @@
         <token index="14" id="DT_FLOAT" value="float" category="datatype" reserved="true"/>
         <token index="15" id="DT_INT" value="int" category="datatype"/>
         <token index="16" id="DT_INTEGER" value="integer" category="datatype"/>
-        <token index="17" id="DT_LONG_RAW" value="long raw" category="datatype"/>
-        <token index="18" id="DT_LONG_VARCHAR" value="long varchar" category="datatype"/>
-        <token index="19" id="DT_LONG" value="long" category="datatype" reserved="true"/>
-        <token index="20" id="DT_NATIONAL_CHAR_VARYING" value="national char varying" category="datatype"/>
-        <token index="21" id="DT_NATIONAL_CHAR" value="national char" category="datatype"/>
-        <token index="22" id="DT_NATIONAL_CHARACTER_VARYING" value="national character varying" category="datatype"/>
-        <token index="23" id="DT_NATIONAL_CHARACTER" value="national character" category="datatype"/>
-        <token index="24" id="DT_NCHAR_VARYING" value="nchar varying" category="datatype"/>
-        <token index="25" id="DT_NCHAR" value="nchar" category="datatype"/>
+        <token index="17" id="DT_LONG" value="long" category="datatype" reserved="true"/>
+        <token index="18" id="DT_LONG_RAW" value="long raw" category="datatype"/>
+        <token index="19" id="DT_LONG_VARCHAR" value="long varchar" category="datatype"/>
+        <token index="20" id="DT_NATIONAL_CHAR" value="national char" category="datatype"/>
+        <token index="21" id="DT_NATIONAL_CHAR_VARYING" value="national char varying" category="datatype"/>
+        <token index="22" id="DT_NATIONAL_CHARACTER" value="national character" category="datatype"/>
+        <token index="23" id="DT_NATIONAL_CHARACTER_VARYING" value="national character varying" category="datatype"/>
+        <token index="24" id="DT_NCHAR" value="nchar" category="datatype"/>
+        <token index="25" id="DT_NCHAR_VARYING" value="nchar varying" category="datatype"/>
         <token index="26" id="DT_NCLOB" value="nclob" category="datatype"/>
         <token index="27" id="DT_NUMBER" value="number" category="datatype" reserved="true"/>
         <token index="28" id="DT_NUMERIC" value="numeric" category="datatype"/>
@@ -61,8 +61,8 @@
         <token index="35" id="DT_STRING" value="string" category="datatype"/>
         <token index="36" id="DT_TIMESTAMP" value="timestamp" category="datatype"/>
         <token index="37" id="DT_UROWID" value="urowid" category="datatype"/>
-        <token index="38" id="DT_VARCHAR2" value="varchar2" category="datatype" reserved="true"/>
-        <token index="39" id="DT_VARCHAR" value="varchar" category="datatype" reserved="true"/>
+        <token index="38" id="DT_VARCHAR" value="varchar" category="datatype" reserved="true"/>
+        <token index="39" id="DT_VARCHAR2" value="varchar2" category="datatype" reserved="true"/>
         <token index="40" id="DT_WITH_LOCAL_TIME_ZONE" value="with local time zone" category="datatype"/>
         <token index="41" id="DT_WITH_TIME_ZONE" value="with time zone" category="datatype"/>
         <!-- MARKER_END_DATATYPES -->
@@ -273,9 +273,9 @@
         <token index="199" id="KW_LEFT" value="left" category="keyword"/>
         <token index="200" id="KW_LEVEL" value="level" category="keyword" reserved="true"/>
         <token index="201" id="KW_LIBRARY" value="library" category="keyword"/>
-        <token index="202" id="KW_LIKE2" value="like2" category="keyword"/>
-        <token index="203" id="KW_LIKE4" value="like4" category="keyword"/>
-        <token index="204" id="KW_LIKE" value="like" category="keyword" reserved="true"/>
+        <token index="202" id="KW_LIKE" value="like" category="keyword" reserved="true"/>
+        <token index="203" id="KW_LIKE2" value="like2" category="keyword"/>
+        <token index="204" id="KW_LIKE4" value="like4" category="keyword"/>
         <token index="205" id="KW_LIKEC" value="likec" category="keyword"/>
         <token index="206" id="KW_LIMIT" value="limit" category="keyword"/>
         <token index="207" id="KW_LIMITED" value="limited" category="keyword"/>
@@ -541,8 +541,8 @@
         <token index="4" id="FN_ASCII" value="ascii" category="function"/>
         <token index="5" id="FN_ASCIISTR" value="asciistr" category="function"/>
         <token index="6" id="FN_ASIN" value="asin" category="function"/>
-        <token index="7" id="FN_ATAN2" value="atan2" category="function"/>
-        <token index="8" id="FN_ATAN" value="atan" category="function"/>
+        <token index="7" id="FN_ATAN" value="atan" category="function"/>
+        <token index="8" id="FN_ATAN2" value="atan2" category="function"/>
         <token index="9" id="FN_AVG" value="avg" category="function"/>
         <token index="10" id="FN_BFILENAME" value="bfilename" category="function"/>
         <token index="11" id="FN_BIN_TO_NUM" value="bin_to_num" category="function"/>
@@ -593,9 +593,9 @@
         <token index="56" id="FN_INSERTCHILDXMLBEFORE" value="insertchildxmlbefore" category="function"/>
         <token index="57" id="FN_INSERTXMLAFTER" value="insertxmlafter" category="function"/>
         <token index="58" id="FN_INSERTXMLBEFORE" value="insertxmlbefore" category="function"/>
-        <token index="59" id="FN_INSTR2" value="instr2" category="function"/>
-        <token index="60" id="FN_INSTR4" value="instr4" category="function"/>
-        <token index="61" id="FN_INSTR" value="instr" category="function"/>
+        <token index="59" id="FN_INSTR" value="instr" category="function"/>
+        <token index="60" id="FN_INSTR2" value="instr2" category="function"/>
+        <token index="61" id="FN_INSTR4" value="instr4" category="function"/>
         <token index="62" id="FN_INSTRB" value="instrb" category="function"/>
         <token index="63" id="FN_INSTRC" value="instrc" category="function"/>
         <token index="64" id="FN_ITERATION_NUMBER" value="iteration_number" category="function"/>
@@ -613,9 +613,9 @@
         <token index="76" id="FN_LATERAL" value="lateral" category="function"/>
         <token index="77" id="FN_LEAD" value="lead" category="function"/>
         <token index="78" id="FN_LEAST" value="least" category="function"/>
-        <token index="79" id="FN_LENGTH2" value="length2" category="function"/>
-        <token index="80" id="FN_LENGTH4" value="length4" category="function"/>
-        <token index="81" id="FN_LENGTH" value="length" category="function"/>
+        <token index="79" id="FN_LENGTH" value="length" category="function"/>
+        <token index="80" id="FN_LENGTH2" value="length2" category="function"/>
+        <token index="81" id="FN_LENGTH4" value="length4" category="function"/>
         <token index="82" id="FN_LENGTHB" value="lengthb" category="function"/>
         <token index="83" id="FN_LENGTHC" value="lengthc" category="function"/>
         <token index="84" id="FN_LISTAGG" value="listagg" category="function"/>
@@ -646,8 +646,8 @@
         <token index="109" id="FN_NULLIF" value="nullif" category="function"/>
         <token index="110" id="FN_NUMTODSINTERVAL" value="numtodsinterval" category="function"/>
         <token index="111" id="FN_NUMTOYMINTERVAL" value="numtoyminterval" category="function"/>
-        <token index="112" id="FN_NVL2" value="nvl2" category="function"/>
-        <token index="113" id="FN_NVL" value="nvl" category="function"/>
+        <token index="112" id="FN_NVL" value="nvl" category="function"/>
+        <token index="113" id="FN_NVL2" value="nvl2" category="function"/>
         <token index="114" id="FN_ORA_HASH" value="ora_hash" category="function"/>
         <token index="115" id="FN_PERCENTILE_CONT" value="percentile_cont" category="function"/>
         <token index="116" id="FN_PERCENTILE_DISC" value="percentile_disc" category="function"/>
@@ -702,9 +702,9 @@
         <token index="165" id="FN_STDDEV" value="stddev" category="function"/>
         <token index="166" id="FN_STDDEV_POP" value="stddev_pop" category="function"/>
         <token index="167" id="FN_STDDEV_SAMP" value="stddev_samp" category="function"/>
-        <token index="168" id="FN_SUBSTR2" value="substr2" category="function"/>
-        <token index="169" id="FN_SUBSTR4" value="substr4" category="function"/>
-        <token index="170" id="FN_SUBSTR" value="substr" category="function"/>
+        <token index="168" id="FN_SUBSTR" value="substr" category="function"/>
+        <token index="169" id="FN_SUBSTR2" value="substr2" category="function"/>
+        <token index="170" id="FN_SUBSTR4" value="substr4" category="function"/>
         <token index="171" id="FN_SUBSTRB" value="substrb" category="function"/>
         <token index="172" id="FN_SUBSTRC" value="substrc" category="function"/>
         <token index="173" id="FN_SUM" value="sum" category="function"/>
