@@ -5,6 +5,7 @@ package com.dbn.language.sql.dialect.sqlite;
 
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenTypeBundle;
+import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
 
