@@ -324,7 +324,7 @@ public class LanguageSpecificationBuilder {
         private final boolean reserved;
 
         public TokenDefinition(TokenTypeCategory category, String identifier, int index) {
-            String[] split = identifier.split(":");
+            String[] split = identifier.split(" - ");
             this.category = category;
             this.id = split[0];
             this.index = index;

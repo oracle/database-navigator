@@ -451,11 +451,11 @@
         <token index="367" id="KW_NOCREATEUSER" value="nocreateuser" category="keyword"/>
         <token index="368" id="KW_NOINHERIT" value="noinherit" category="keyword"/>
         <token index="369" id="KW_NOLOGIN" value="nologin" category="keyword"/>
-        <token index="370" id="KW_NOSUPERUSER" value="nosuperuser" category="keyword"/>
+        <token index="370" id="KW_NONE" value="none" category="keyword"/>
         <token index="371" id="KW_NOREPLICATION" value="noreplication" category="keyword"/>
-        <token index="372" id="KW_NONE" value="none" category="keyword"/>
-        <token index="373" id="KW_NORMALIZE" value="normalize" category="keyword"/>
-        <token index="374" id="KW_NORMALIZED" value="normalized" category="keyword"/>
+        <token index="372" id="KW_NORMALIZE" value="normalize" category="keyword"/>
+        <token index="373" id="KW_NORMALIZED" value="normalized" category="keyword"/>
+        <token index="374" id="KW_NOSUPERUSER" value="nosuperuser" category="keyword"/>
         <token index="375" id="KW_NOT" value="not" category="keyword" reserved="true"/>
         <token index="376" id="KW_NOTHING" value="nothing" category="keyword"/>
         <token index="377" id="KW_NOTIFY" value="notify" category="keyword"/>

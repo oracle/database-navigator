@@ -555,11 +555,11 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "nocreateuser" {return tt.ktt(367);}
 "noinherit" {return tt.ktt(368);}
 "nologin" {return tt.ktt(369);}
-"nosuperuser" {return tt.ktt(370);}
+"none" {return tt.ktt(370);}
 "noreplication" {return tt.ktt(371);}
-"none" {return tt.ktt(372);}
-"normalize" {return tt.ktt(373);}
-"normalized" {return tt.ktt(374);}
+"normalize" {return tt.ktt(372);}
+"normalized" {return tt.ktt(373);}
+"nosuperuser" {return tt.ktt(374);}
 "not" {return tt.ktt(375);}
 "nothing" {return tt.ktt(376);}
 "notify" {return tt.ktt(377);}

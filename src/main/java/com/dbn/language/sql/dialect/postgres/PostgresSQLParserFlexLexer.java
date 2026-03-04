@@ -10192,7 +10192,7 @@ public final class PostgresSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1319: break;
           case 196:
-            { return tt.ktt(372);
+            { return tt.ktt(370);
             }
           // fall through
           case 1320: break;
@@ -12782,7 +12782,7 @@ public final class PostgresSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1837: break;
           case 714:
-            { return tt.ktt(373);
+            { return tt.ktt(372);
             }
           // fall through
           case 1838: break;
@@ -13157,7 +13157,7 @@ public final class PostgresSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1912: break;
           case 789:
-            { return tt.ktt(374);
+            { return tt.ktt(373);
             }
           // fall through
           case 1913: break;
@@ -13407,7 +13407,7 @@ public final class PostgresSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1962: break;
           case 839:
-            { return tt.ktt(370);
+            { return tt.ktt(374);
             }
           // fall through
           case 1963: break;
