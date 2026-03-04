@@ -209,7 +209,7 @@ public class LanguageSpecificationBuilder {
     private static List<TokenDefinition> loadTokenDefinitions(TokenTypeCategory category) {
         String categoryIdentifier = getCategoryIdentifier(category);
 
-        String filePath = "/language/" + databaseIdentifier + "_" + languageIdentifier + "_" + categoryIdentifier + ".txt";
+        String filePath = "/language/" + databaseIdentifier + "/" + databaseIdentifier + "_" + languageIdentifier + "_" + categoryIdentifier + ".txt";
         URL fileUrl = LanguageSpecificationBuilder.class.getResource(filePath);
         String tokens = Files.readString(Path.of(fileUrl.getPath()));
         String[] tokenEntries = tokens.split("\n");
