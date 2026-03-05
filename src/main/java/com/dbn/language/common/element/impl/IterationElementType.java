@@ -17,7 +17,6 @@
 package com.dbn.language.common.element.impl;
 
 import com.dbn.code.common.style.formatting.FormattingDefinition;
-import com.dbn.common.latent.Latent;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.IterationElementTypeCache;
@@ -45,16 +44,7 @@ public final class IterationElementType extends ElementTypeBase {
     public int[] elementsCountVariants;
     public int minIterations;
 
-    private final Latent<Boolean> followedBySeparator = Latent.basic(() -> {
-        if (separatorTokens != null) {
-            for (TokenElementType separatorToken : separatorTokens) {
-                if (cache.isNextPossibleToken(separatorToken.tokenType)) {
-                    return Boolean.TRUE;
-                }
-            }
-        }
-        return Boolean.FALSE;
-    });
+    private Boolean followedBySeparator;
 
     public IterationElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -160,24 +150,38 @@ public final class IterationElementType extends ElementTypeBase {
     }
 
     public boolean isSeparator(TokenElementType tokenElementType) {
-        if (separatorTokens != null) {
-            for (TokenElementType separatorToken: separatorTokens) {
-                if (separatorToken == tokenElementType) return true;
-            }
+        if (separatorTokens == null) return false;
+
+        for (TokenElementType separatorToken: separatorTokens) {
+            if (separatorToken == tokenElementType) return true;
         }
         return false;
     }
 
     public boolean isSeparator(TokenType tokenType) {
-        if (separatorTokens != null) {
-            for (TokenElementType separatorToken: separatorTokens) {
-                if (separatorToken.tokenType == tokenType) return true;
-            }
+        if (separatorTokens == null) return false;
+
+        for (TokenElementType separatorToken: separatorTokens) {
+            if (separatorToken.tokenType == tokenType) return true;
         }
         return false;
     }
 
     public boolean isFollowedBySeparator() {
-        return followedBySeparator.get() == Boolean.TRUE;
+        if (followedBySeparator == null) {
+            followedBySeparator = evaluateFollowedBySeparator();
+        }
+        return followedBySeparator;
+    }
+
+    private boolean evaluateFollowedBySeparator() {
+        if (separatorTokens == null) return false;
+
+        for (TokenElementType separatorToken : separatorTokens) {
+            if (cache.isNextPossibleToken(separatorToken.tokenType)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -34,14 +34,18 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static com.dbn.language.common.element.impl.ElementTypeCache.getUnwrappedFirstPossibleLeafs;
+import static com.dbn.language.common.element.parser.TokenMonitor.unwrapSurrogates;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
 import static java.util.Collections.disjoint;
 
 public abstract class LeafElementType extends ElementTypeBase implements Indexable {
+    public static final Map<LeafElementType, Map<ElementTypeBase, Boolean>> surrogateForFlags = new ConcurrentHashMap<>();
+
     public TokenType tokenType;
 
     public boolean optional;
@@ -69,7 +73,12 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
             return surrogateFor.contains(leafElementType);
         }
 
-        Set<LeafElementType> firstPossibleLeafs = getUnwrappedFirstPossibleLeafs(elementType);
+        var flags = surrogateForFlags.computeIfAbsent(this, e -> new ConcurrentHashMap<>());
+        return flags.computeIfAbsent(elementType, e -> evaluateSurrogateFor(e));
+    }
+
+    private boolean evaluateSurrogateFor(ElementTypeBase elementType) {
+        Set<LeafElementType> firstPossibleLeafs = unwrapSurrogates(elementType.cache.getFirstPossibleLeafs());
         return !disjoint(surrogateFor, firstPossibleLeafs);
     }
 
