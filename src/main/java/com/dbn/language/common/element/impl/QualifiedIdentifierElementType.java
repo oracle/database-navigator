@@ -17,7 +17,7 @@
 package com.dbn.language.common.element.impl;
 
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.QualifiedIdentifierElementTypeLookupCache;
+import com.dbn.language.common.element.cache.QualifiedIdentifierElementCache;
 import com.dbn.language.common.element.parser.impl.QualifiedIdentifierElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.QualifiedIdentifierPsiElement;
@@ -59,8 +59,8 @@ public final class QualifiedIdentifierElementType extends ElementTypeBase {
     }
 
     @Override
-    public QualifiedIdentifierElementTypeLookupCache createLookupCache() {
-        return new QualifiedIdentifierElementTypeLookupCache(this);
+    public QualifiedIdentifierElementCache createLookupCache() {
+        return new QualifiedIdentifierElementCache(this);
     }
 
     @NotNull

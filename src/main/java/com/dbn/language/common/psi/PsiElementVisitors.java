@@ -17,7 +17,6 @@
 package com.dbn.language.common.psi;
 
 import com.intellij.psi.PsiElementVisitor;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +31,7 @@ public class PsiElementVisitors {
         this.supportedNames = Arrays.asList(supportedNames);
     }
 
-    public boolean isSupported(@NotNull PsiElementVisitor visitor) {
+    public boolean isSupported(PsiElementVisitor visitor) {
         Boolean supported = this.supported.computeIfAbsent(visitor.getClass(), c -> evaluateSupported(c));
         return supported == Boolean.TRUE;
     }

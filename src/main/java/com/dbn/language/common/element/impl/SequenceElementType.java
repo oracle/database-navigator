@@ -22,9 +22,9 @@ import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
-import com.dbn.language.common.element.cache.ElementTypeLookupCacheIndexed;
-import com.dbn.language.common.element.cache.SequenceElementTypeLookupCache;
+import com.dbn.language.common.element.cache.ElementTypeCache;
+import com.dbn.language.common.element.cache.ElementTypeIndexedCache;
+import com.dbn.language.common.element.cache.SequenceElementTypeCache;
 import com.dbn.language.common.element.parser.BranchCheck;
 import com.dbn.language.common.element.parser.impl.SequenceElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
@@ -78,14 +78,14 @@ public class SequenceElementType extends ElementTypeBase {
 
     @SuppressWarnings("unchecked")
     private void initLookupCache() {
-        ElementTypeLookupCacheIndexed cache = (ElementTypeLookupCacheIndexed) this.cache;
+        ElementTypeIndexedCache cache = (ElementTypeIndexedCache) this.cache;
         for (ElementTypeRef child : children) {
             ElementTypeBase elementType = child.elementType;
-            ElementTypeLookupCache<?> elementTypeCache = elementType.cache;
+            ElementTypeCache<?> elementTypeCache = elementType.cache;
             cache.allPossibleTokens.addAll(elementTypeCache.getAllPossibleTokens());
         }
 
-        ElementTypeLookupCache<?> elementTypeCache = children[0].elementType.cache;
+        ElementTypeCache<?> elementTypeCache = children[0].elementType.cache;
         cache.firstPossibleLeafs.addAll(elementTypeCache.getFirstPossibleLeafs());
         cache.firstRequiredLeafs.addAll(elementTypeCache.getFirstRequiredLeafs());
         cache.firstPossibleTokens.addAll(elementTypeCache.getFirstPossibleTokens());
@@ -94,8 +94,8 @@ public class SequenceElementType extends ElementTypeBase {
     }
 
     @Override
-    public SequenceElementTypeLookupCache createLookupCache() {
-        return new SequenceElementTypeLookupCache<>(this);
+    public SequenceElementTypeCache createLookupCache() {
+        return new SequenceElementTypeCache<>(this);
     }
 
     @NotNull
@@ -181,13 +181,13 @@ public class SequenceElementType extends ElementTypeBase {
         if (children[index].optional) {
             Set<TokenType> tokenTypes = new HashSet<>();
             for (int i=index; i< children.length; i++) {
-                ElementTypeLookupCache<?> lookupCache = children[i].elementType.cache;
+                ElementTypeCache<?> lookupCache = children[i].elementType.cache;
                 lookupCache.captureFirstPossibleTokens(context.reset(), tokenTypes);
                 if (!children[i].optional) break;
             }
             return tokenTypes;
         } else {
-            ElementTypeLookupCache<?> lookupCache = children[index].elementType.cache;
+            ElementTypeCache<?> lookupCache = children[index].elementType.cache;
             return lookupCache.captureFirstPossibleTokens(context.reset());
         }
     }

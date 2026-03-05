@@ -56,23 +56,23 @@ public class TokenElementTypeParser extends ElementTypeParser<TokenElementType> 
 
 
         if (isTokenMatch(builder) || builder.isDummyToken()) {
-            String text = elementType.getText();
-            if (Strings.isNotEmpty(text) && Strings.equalsIgnoreCase(builder.getTokenText(), text)) {
+            String text = elementType.text;
+            if (text != null && Strings.equalsIgnoreCase(builder.getTokenText(), text)) {
                 Marker marker = builder.markAndAdvance();
                 return stepOut(marker, context, FULL_MATCH, 1);
             }
 
             if (builderToken.isSuppressibleReservedWord()) {
                 SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
-                SimpleTokenType leftParenthesis = sharedTokenTypes.getChrLeftParenthesis();
-                SimpleTokenType dot = sharedTokenTypes.getChrDot();
+                SimpleTokenType leftParenthesis = sharedTokenTypes.chrLeftParenthesis;
+                SimpleTokenType dot = sharedTokenTypes.chrDot;
 
                 TokenType nextTokenType = builder.getNextToken();
                 if (nextTokenType == dot && !elementType.isNextPossibleToken(dot, parentNode)) {
                     context.setWavedTokenType(builderToken);
                     return stepOut(null, context, NO_MATCH, 0);
                 }
-                if (builderToken.isFunction() && elementType.getFlavor() == null) {
+                if (builderToken.isFunction() && elementType.flavor == null) {
                     if (nextTokenType != leftParenthesis && elementType.isNextRequiredToken(leftParenthesis, parentNode)) {
                         context.setWavedTokenType(builderToken);
                         return stepOut(null, context, NO_MATCH, 0);

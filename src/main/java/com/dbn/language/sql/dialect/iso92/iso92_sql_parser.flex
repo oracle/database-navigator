@@ -2,6 +2,7 @@ package com.dbn.language.sql.dialect.iso92;
 
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenTypeBundle;
+import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
 %%
@@ -56,15 +57,15 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 %state DIV
 %%
 
-{WHITE_SPACE}+     { return stt.getWhiteSpace(); }
+{WHITE_SPACE}+     { return stt.whiteSpace; }
 
-{BLOCK_COMMENT}    { return stt.getBlockComment(); }
-{LINE_COMMENT}     { return stt.getLineComment(); }
+{BLOCK_COMMENT}    { return stt.blockComment; }
+{LINE_COMMENT}     { return stt.lineComment; }
 
-{VARIABLE}         { return stt.getVariable(); }
-{INTEGER}          { return stt.getInteger(); }
-{NUMBER}           { return stt.getNumber(); }
-{STRING}           { return stt.getString(); }
+{VARIABLE}         { return stt.variable; }
+{INTEGER}          { return stt.integer; }
+{NUMBER}           { return stt.number; }
+{STRING}           { return stt.string; }
 
 "("{wso}"+"{wso}")"  {return tt.getTokenType("CT_OUTER_JOIN");}
 
@@ -588,7 +589,7 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 // MARKER_BEGIN_EXCEPTIONS
 // MARKER_END_EXCEPTIONS
 
-{IDENTIFIER}           { return stt.getIdentifier(); }
-{QUOTED_IDENTIFIER}    { return stt.getQuotedIdentifier(); }
-.                      { return stt.getIdentifier(); }
+{IDENTIFIER}           { return stt.identifier; }
+{QUOTED_IDENTIFIER}    { return stt.quotedIdentifier; }
+.                      { return stt.identifier; }
 

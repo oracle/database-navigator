@@ -23,25 +23,25 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
-public abstract class LeafElementTypeLookupCache<T extends LeafElementType> extends ElementTypeLookupCacheBase<T> {
-    public LeafElementTypeLookupCache(T elementType) {
+public abstract class LeafElementTypeCache<T extends LeafElementType> extends ElementTypeCacheBase<T> {
+    public LeafElementTypeCache(T elementType) {
         super(elementType);
     }
 
     @Override
     @Deprecated
     public boolean couldStartWithLeaf(LeafElementType elementType) {
-        return this.element == elementType;
+        return this.elementType == elementType;
     }
 
     @Override
     public boolean shouldStartWithLeaf(LeafElementType elementType) {
-        return this.element == elementType;
+        return this.elementType == elementType;
     }
 
     @Override
     public Set<LeafElementType> getFirstPossibleLeafs() {
-        return Set.of(element);
+        return Set.of(elementType);
     }
 
     @Override
@@ -51,7 +51,7 @@ public abstract class LeafElementTypeLookupCache<T extends LeafElementType> exte
 
     @Override
     public Set<TokenType> getAllPossibleTokens() {
-        return Set.of(element.tokenType);
+        return Set.of(elementType.tokenType);
     }
 
     @Override
@@ -66,13 +66,13 @@ public abstract class LeafElementTypeLookupCache<T extends LeafElementType> exte
 
     @Override
     public boolean couldStartWithToken(TokenType tokenType) {
-        return element.tokenType == tokenType;
+        return elementType.tokenType == tokenType;
     }
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, @Nullable Set<LeafElementType> bucket) {
         bucket = initBucket(bucket);
-        bucket.add(element);
+        bucket.add(elementType);
         return bucket;
     }
 

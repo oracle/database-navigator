@@ -23,8 +23,8 @@ import com.dbn.language.common.element.impl.IdentifierElementType;
 
 import java.util.Set;
 
-public class IdentifierElementTypeLookupCache extends LeafElementTypeLookupCache<IdentifierElementType>{
-    public IdentifierElementTypeLookupCache(IdentifierElementType elementType) {
+public class IdentifierElementTypeCache extends LeafElementTypeCache<IdentifierElementType> {
+    public IdentifierElementTypeCache(IdentifierElementType elementType) {
         super(elementType);
     }
 
@@ -36,13 +36,13 @@ public class IdentifierElementTypeLookupCache extends LeafElementTypeLookupCache
     @Override
     public boolean containsToken(TokenType tokenType) {
         SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
-        return sharedTokenTypes.getIdentifier() == tokenType || sharedTokenTypes.getQuotedIdentifier() == tokenType;
+        return sharedTokenTypes.identifier == tokenType || sharedTokenTypes.quotedIdentifier == tokenType;
     }
 
     @Override
     public Set<TokenType> getAllPossibleTokens() {
         SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
-        return sharedTokenTypes.getIdentifierTokens();
+        return sharedTokenTypes.identifierTokens;
     }
 
     @Override
@@ -68,8 +68,8 @@ public class IdentifierElementTypeLookupCache extends LeafElementTypeLookupCache
     @Override
     public void captureFirstPossibleTokens(Set<TokenType> bucket) {
         SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
-        bucket.add(sharedTokenTypes.getIdentifier());
-        bucket.add(sharedTokenTypes.getQuotedIdentifier());
+        bucket.add(sharedTokenTypes.identifier);
+        bucket.add(sharedTokenTypes.quotedIdentifier);
     }
 
     @Override

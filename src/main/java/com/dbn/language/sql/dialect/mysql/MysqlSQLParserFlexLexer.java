@@ -5,8 +5,8 @@ package com.dbn.language.sql.dialect.mysql;
 
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenTypeBundle;
-import com.intellij.psi.tree.IElementType;
 import com.intellij.lexer.FlexLexer;
+import com.intellij.psi.tree.IElementType;
 
 
 public final class MysqlSQLParserFlexLexer implements FlexLexer {
@@ -4358,12 +4358,12 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { return stt.getIdentifier();
+            { return stt.identifier;
             }
           // fall through
           case 564: break;
           case 2:
-            { return stt.getWhiteSpace();
+            { return stt.whiteSpace;
             }
           // fall through
           case 565: break;
@@ -4373,7 +4373,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 566: break;
           case 4:
-            { return stt.getLineComment();
+            { return stt.lineComment;
             }
           // fall through
           case 567: break;
@@ -4383,7 +4383,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 568: break;
           case 6:
-            { return stt.getString();
+            { return stt.string;
             }
           // fall through
           case 569: break;
@@ -4428,7 +4428,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 577: break;
           case 15:
-            { return stt.getInteger();
+            { return stt.integer;
             }
           // fall through
           case 578: break;
@@ -4473,7 +4473,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 586: break;
           case 24:
-            { return stt.getQuotedIdentifier();
+            { return stt.quotedIdentifier;
             }
           // fall through
           case 587: break;
@@ -4503,17 +4503,17 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 592: break;
           case 30:
-            { return stt.getNumber();
+            { return stt.number;
             }
           // fall through
           case 593: break;
           case 31:
-            { return stt.getBlockComment();
+            { return stt.blockComment;
             }
           // fall through
           case 594: break;
           case 32:
-            { return stt.getVariable();
+            { return stt.variable;
             }
           // fall through
           case 595: break;

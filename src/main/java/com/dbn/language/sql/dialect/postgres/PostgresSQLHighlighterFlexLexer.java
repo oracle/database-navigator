@@ -5328,37 +5328,37 @@ public final class PostgresSQLHighlighterFlexLexer extends DBLanguageLexerBase {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { return stt.getIdentifier();
+            { return stt.identifier;
             }
           // fall through
           case 19: break;
           case 2:
-            { return stt.getWhiteSpace();
+            { return stt.whiteSpace;
             }
           // fall through
           case 20: break;
           case 3:
-            { return stt.getQuotedIdentifier();
+            { return stt.quotedIdentifier;
             }
           // fall through
           case 21: break;
           case 4:
-            { return stt.getString();
+            { return stt.string;
             }
           // fall through
           case 22: break;
           case 5:
-            { return stt.getChrLeftParenthesis();
+            { return stt.chrLeftParenthesis;
             }
           // fall through
           case 23: break;
           case 6:
-            { return stt.getChrRightParenthesis();
+            { return stt.chrRightParenthesis;
             }
           // fall through
           case 24: break;
           case 7:
-            { return stt.getInteger();
+            { return stt.integer;
             }
           // fall through
           case 25: break;
@@ -5373,27 +5373,27 @@ public final class PostgresSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 27: break;
           case 10:
-            { return stt.getChrLeftBracket();
+            { return stt.chrLeftBracket;
             }
           // fall through
           case 28: break;
           case 11:
-            { return stt.getChrRightBracket();
+            { return stt.chrRightBracket;
             }
           // fall through
           case 29: break;
           case 12:
-            { return stt.getLineComment();
+            { return stt.lineComment;
             }
           // fall through
           case 30: break;
           case 13:
-            { return stt.getNumber();
+            { return stt.number;
             }
           // fall through
           case 31: break;
           case 14:
-            { return stt.getBlockComment();
+            { return stt.blockComment;
             }
           // fall through
           case 32: break;

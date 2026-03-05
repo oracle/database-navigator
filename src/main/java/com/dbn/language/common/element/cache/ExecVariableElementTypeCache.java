@@ -23,8 +23,8 @@ import com.dbn.language.common.element.impl.ExecVariableElementType;
 
 import java.util.Set;
 
-public class ExecVariableElementTypeLookupCache extends LeafElementTypeLookupCache<ExecVariableElementType>{
-    public ExecVariableElementTypeLookupCache(ExecVariableElementType elementType) {
+public class ExecVariableElementTypeCache extends LeafElementTypeCache<ExecVariableElementType> {
+    public ExecVariableElementTypeCache(ExecVariableElementType elementType) {
         super(elementType);
     }
 
@@ -40,13 +40,13 @@ public class ExecVariableElementTypeLookupCache extends LeafElementTypeLookupCac
 
     @Override
     public void captureFirstPossibleTokens(Set<TokenType> bucket) {
-        bucket.add(getSharedTokenTypes().getVariable());
+        bucket.add(getSharedTokenTypes().variable);
     }
 
     @Override
     public boolean containsToken(TokenType tokenType) {
         SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
-        return sharedTokenTypes.getVariable() == tokenType;
+        return sharedTokenTypes.variable == tokenType;
     }
 
     @Override

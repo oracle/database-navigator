@@ -11486,17 +11486,17 @@ final class OracleSQLHighlighterFlexLexer extends DBLanguageLexerBase {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { return stt.getIdentifier();
+            { return stt.identifier;
             }
           // fall through
           case 30: break;
           case 2:
-            { return stt.getWhiteSpace();
+            { return stt.whiteSpace;
             }
           // fall through
           case 31: break;
           case 3:
-            { return stt.getQuotedIdentifier();
+            { return stt.quotedIdentifier;
             }
           // fall through
           case 32: break;
@@ -11506,12 +11506,12 @@ final class OracleSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 33: break;
           case 5:
-            { return stt.getChrLeftParenthesis();
+            { return stt.chrLeftParenthesis;
             }
           // fall through
           case 34: break;
           case 6:
-            { return stt.getChrRightParenthesis();
+            { return stt.chrRightParenthesis;
             }
           // fall through
           case 35: break;
@@ -11526,22 +11526,22 @@ final class OracleSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 37: break;
           case 9:
-            { return stt.getChrLeftBracket();
+            { return stt.chrLeftBracket;
             }
           // fall through
           case 38: break;
           case 10:
-            { return stt.getChrRightBracket();
+            { return stt.chrRightBracket;
             }
           // fall through
           case 39: break;
           case 11:
-            { return stt.getChrLeftBrace();
+            { return stt.chrLeftBrace;
             }
           // fall through
           case 40: break;
           case 12:
-            { return stt.getChrRightBrace();
+            { return stt.chrRightBrace;
             }
           // fall through
           case 41: break;
@@ -11551,37 +11551,37 @@ final class OracleSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 42: break;
           case 14:
-            { return stt.getString();
+            { return stt.string;
             }
           // fall through
           case 43: break;
           case 15:
-            { yybegin(YYINITIAL); return stt.getWhiteSpace();
+            { yybegin(YYINITIAL); return stt.whiteSpace;
             }
           // fall through
           case 44: break;
           case 16:
-            { yybegin(YYINITIAL); return stt.getString();
+            { yybegin(YYINITIAL); return stt.string;
             }
           // fall through
           case 45: break;
           case 17:
-            { yybegin(YYINITIAL); return stt.getChrSlash();
+            { yybegin(YYINITIAL); return stt.chrSlash;
             }
           // fall through
           case 46: break;
           case 18:
-            { yybegin(YYINITIAL); return stt.getChrSemicolon();
+            { yybegin(YYINITIAL); return stt.chrSemicolon;
             }
           // fall through
           case 47: break;
           case 19:
-            { return stt.getVariable();
+            { return stt.variable;
             }
           // fall through
           case 48: break;
           case 20:
-            { return stt.getLineComment();
+            { return stt.lineComment;
             }
           // fall through
           case 49: break;
@@ -11591,7 +11591,7 @@ final class OracleSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 50: break;
           case 22:
-            { return stt.getBlockComment();
+            { return stt.blockComment;
             }
           // fall through
           case 51: break;
@@ -11606,7 +11606,7 @@ final class OracleSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 53: break;
           case 25:
-            { yybegin(YYINITIAL); return stt.getIdentifier();
+            { yybegin(YYINITIAL); return stt.identifier;
             }
           // fall through
           case 54: break;

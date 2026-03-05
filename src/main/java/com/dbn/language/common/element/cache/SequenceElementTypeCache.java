@@ -29,9 +29,9 @@ import java.util.Set;
 
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
 
-public class SequenceElementTypeLookupCache<T extends SequenceElementType> extends ElementTypeLookupCacheIndexed<T> {
+public class SequenceElementTypeCache<T extends SequenceElementType> extends ElementTypeIndexedCache<T> {
 
-    public SequenceElementTypeLookupCache(T elementType) {
+    public SequenceElementTypeCache(T elementType) {
         super(elementType);
     }
 
@@ -53,7 +53,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
     }
 
     private boolean couldStartWithElement(ElementType elementType) {
-        ElementTypeRef child = this.element.getFirstChild();
+        ElementTypeRef child = this.elementType.getFirstChild();
         while (child != null) {
             if (child.optional) {
                 if (elementType == child.elementType) return true;
@@ -66,7 +66,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
     }
 
     private boolean shouldStartWithElement(ElementType elementType) {
-        ElementTypeRef child = this.element.getFirstChild();
+        ElementTypeRef child = this.elementType.getFirstChild();
         while (child != null) {
             if (!child.optional) {
                 return child.elementType == elementType;
@@ -78,7 +78,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
 
     @Override
     protected boolean checkStartsWith(TokenTypeCategory typeCategory) {
-        ElementTypeRef child = this.element.getFirstChild();
+        ElementTypeRef child = this.elementType.getFirstChild();
         while (child != null) {
             if (child.elementType.cache.startsWith(typeCategory)) return true;
             if (!child.optional) return false;
@@ -88,14 +88,14 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, Set<LeafElementType> bucket) {
-        if (element instanceof SurrogateSequenceElementType surrogateSequence) {
+        if (elementType instanceof SurrogateSequenceElementType surrogateSequence) {
             return surrogateSequence.getMainElementType().cache.captureFirstPossibleLeafs(context, bucket);
         }
 
         bucket = super.captureFirstPossibleLeafs(context, bucket);
         bucket = initBucket(bucket);
 
-        ElementTypeRef child = this.element.getFirstChild();
+        ElementTypeRef child = this.elementType.getFirstChild();
         while (child != null) {
             if (context.check(child)) {
                 child.elementType.cache.captureFirstPossibleLeafs(context, bucket);
@@ -108,14 +108,14 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
 
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, Set<TokenType> bucket) {
-        if (element instanceof SurrogateSequenceElementType surrogateSequence) {
+        if (elementType instanceof SurrogateSequenceElementType surrogateSequence) {
             return surrogateSequence.getMainElementType().cache.captureFirstPossibleTokens(context, bucket);
         }
 
         bucket = super.captureFirstPossibleTokens(context, bucket);
         bucket = initBucket(bucket);
 
-        ElementTypeRef child = this.element.getFirstChild();
+        ElementTypeRef child = this.elementType.getFirstChild();
         while (child != null) {
             if (context.check(child)) {
                 child.elementType.cache.captureFirstPossibleTokens(context, bucket);
@@ -128,7 +128,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
 
     @Override
     public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
-        ElementTypeRef leadCandidate = element.getFirstChild();
+        ElementTypeRef leadCandidate = elementType.getFirstChild();
 
         while (true) {
             if (surrogateLead.isSurrogateFor(leadCandidate.elementType)) break;

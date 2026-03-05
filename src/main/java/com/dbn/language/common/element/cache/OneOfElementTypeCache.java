@@ -25,8 +25,8 @@ import com.dbn.language.common.element.impl.OneOfElementType;
 
 import java.util.Set;
 
-public class OneOfElementTypeLookupCache extends ElementTypeLookupCacheIndexed<OneOfElementType> {
-    public OneOfElementTypeLookupCache(OneOfElementType elementType) {
+public class OneOfElementTypeCache extends ElementTypeIndexedCache<OneOfElementType> {
+    public OneOfElementTypeCache(OneOfElementType elementType) {
         super(elementType);
     }
 
@@ -44,7 +44,7 @@ public class OneOfElementTypeLookupCache extends ElementTypeLookupCacheIndexed<O
 
     @Override
     protected boolean checkStartsWith(TokenTypeCategory typeCategory) {
-        for (ElementTypeRef child : element.children) {
+        for (ElementTypeRef child : elementType.children) {
             if (child.elementType.cache.startsWith(typeCategory)) return true;
         }
         return false;
@@ -53,7 +53,7 @@ public class OneOfElementTypeLookupCache extends ElementTypeLookupCacheIndexed<O
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, Set<LeafElementType> bucket) {
         bucket = super.captureFirstPossibleLeafs(context, bucket);
-        ElementTypeRef[] elementTypeRefs = element.children;
+        ElementTypeRef[] elementTypeRefs = elementType.children;
         for (ElementTypeRef child : elementTypeRefs) {
             if (context.check(child)) {
                 bucket = child.elementType.cache.captureFirstPossibleLeafs(context, bucket);
@@ -65,7 +65,7 @@ public class OneOfElementTypeLookupCache extends ElementTypeLookupCacheIndexed<O
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, Set<TokenType> bucket) {
         bucket = super.captureFirstPossibleTokens(context, bucket);
-        ElementTypeRef[] elementTypeRefs = element.children;
+        ElementTypeRef[] elementTypeRefs = elementType.children;
         for (ElementTypeRef child : elementTypeRefs) {
             if (context.check(child)) {
                 bucket = child.elementType.cache.captureFirstPossibleTokens(context, bucket);
@@ -76,7 +76,7 @@ public class OneOfElementTypeLookupCache extends ElementTypeLookupCacheIndexed<O
 
     @Override
     public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
-        ElementTypeRef leadCandidate = element.getFirstChild();
+        ElementTypeRef leadCandidate = elementType.getFirstChild();
         while (leadCandidate != null) {
             bucket = leadCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
             leadCandidate = leadCandidate.next;

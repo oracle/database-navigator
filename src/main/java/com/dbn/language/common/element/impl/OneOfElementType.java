@@ -19,9 +19,9 @@ package com.dbn.language.common.element.impl;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
-import com.dbn.language.common.element.cache.ElementTypeLookupCacheIndexed;
-import com.dbn.language.common.element.cache.OneOfElementTypeLookupCache;
+import com.dbn.language.common.element.cache.ElementTypeCache;
+import com.dbn.language.common.element.cache.ElementTypeIndexedCache;
+import com.dbn.language.common.element.cache.OneOfElementTypeCache;
 import com.dbn.language.common.element.parser.BranchCheck;
 import com.dbn.language.common.element.parser.impl.OneOfElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
@@ -73,10 +73,10 @@ public class OneOfElementType extends ElementTypeBase {
 
     @SuppressWarnings("unchecked")
     private void initLookupCache() {
-        ElementTypeLookupCacheIndexed cache = (ElementTypeLookupCacheIndexed) this.cache;
+        ElementTypeIndexedCache cache = (ElementTypeIndexedCache) this.cache;
         for (ElementTypeRef child : children) {
             ElementTypeBase elementType = child.elementType;
-            ElementTypeLookupCache<?> elementTypeCache = elementType.cache;
+            ElementTypeCache<?> elementTypeCache = elementType.cache;
             cache.firstPossibleLeafs.addAll(elementTypeCache.getFirstPossibleLeafs());
             cache.firstRequiredLeafs.addAll(elementTypeCache.getFirstRequiredLeafs());
             cache.allPossibleTokens.addAll(elementTypeCache.getAllPossibleTokens());
@@ -130,8 +130,8 @@ public class OneOfElementType extends ElementTypeBase {
     }
 
     @Override
-    protected OneOfElementTypeLookupCache createLookupCache() {
-        return new OneOfElementTypeLookupCache(this);
+    protected OneOfElementTypeCache createLookupCache() {
+        return new OneOfElementTypeCache(this);
     }
 
     @NotNull

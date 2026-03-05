@@ -3260,12 +3260,12 @@ public final class SqliteSQLParserFlexLexer implements FlexLexer {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { return stt.getIdentifier();
+            { return stt.identifier;
             }
           // fall through
           case 315: break;
           case 2:
-            { return stt.getWhiteSpace();
+            { return stt.whiteSpace;
             }
           // fall through
           case 316: break;
@@ -3275,7 +3275,7 @@ public final class SqliteSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 317: break;
           case 4:
-            { return stt.getQuotedIdentifier();
+            { return stt.quotedIdentifier;
             }
           // fall through
           case 318: break;
@@ -3290,7 +3290,7 @@ public final class SqliteSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 320: break;
           case 7:
-            { return stt.getString();
+            { return stt.string;
             }
           // fall through
           case 321: break;
@@ -3335,7 +3335,7 @@ public final class SqliteSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 329: break;
           case 16:
-            { return stt.getInteger();
+            { return stt.integer;
             }
           // fall through
           case 330: break;
@@ -3400,7 +3400,7 @@ public final class SqliteSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 342: break;
           case 29:
-            { return stt.getLineComment();
+            { return stt.lineComment;
             }
           // fall through
           case 343: break;
@@ -3410,17 +3410,17 @@ public final class SqliteSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 344: break;
           case 31:
-            { return stt.getNumber();
+            { return stt.number;
             }
           // fall through
           case 345: break;
           case 32:
-            { return stt.getBlockComment();
+            { return stt.blockComment;
             }
           // fall through
           case 346: break;
           case 33:
-            { return stt.getVariable();
+            { return stt.variable;
             }
           // fall through
           case 347: break;

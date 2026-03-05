@@ -226,7 +226,6 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
 
     public abstract int approximateLength();
 
-    @NotNull
     public DBLanguagePsiFile getFile() {
         PsiElement parent = getParent();
         while (parent != null) {
@@ -261,7 +260,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
     }
 
     @Override
-    public void acceptChildren(@NotNull PsiElementVisitor visitor) {
+    public void acceptChildren(PsiElementVisitor visitor) {
         PsiElement psiChild = getFirstChild();
         if (psiChild == null) return;
 
@@ -282,7 +281,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
     }
 
     @Override
-    public void accept(@NotNull PsiElementVisitor visitor) {
+    public void accept(PsiElementVisitor visitor) {
         if (visitors.isSupported(visitor)) {
             super.accept(visitor);
         }

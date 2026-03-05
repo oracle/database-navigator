@@ -28,7 +28,7 @@ import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.TokenPairTemplate;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
+import com.dbn.language.common.element.cache.ElementTypeCache;
 import com.dbn.language.common.element.parser.Branch;
 import com.dbn.language.common.element.parser.BranchCheck;
 import com.dbn.language.common.element.parser.ElementTypeParser;
@@ -74,7 +74,7 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
     public Branch branch;
     public FormattingDefinition formatting;
 
-    public ElementTypeLookupCache<?> cache = createLookupCache();
+    public ElementTypeCache<?> cache = createLookupCache();
     public final ElementTypeParser parser = createParser();
     public final ElementTypeBundle bundle;
     public ElementTypeBase parent;
@@ -157,7 +157,7 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         return wrapping != null && wrapping.endElement.tokenType == tokenType;
     }
 
-    protected abstract ElementTypeLookupCache<?> createLookupCache();
+    protected abstract ElementTypeCache<?> createLookupCache();
 
     @NotNull
     protected abstract ElementTypeParser createParser();

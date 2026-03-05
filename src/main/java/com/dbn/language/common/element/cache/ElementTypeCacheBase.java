@@ -17,12 +17,12 @@
 package com.dbn.language.common.element.cache;
 
 import com.dbn.common.index.IndexContainer;
-import com.dbn.common.latent.Latent;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.common.element.ElementTypeBundle;
+import com.dbn.language.common.element.TokenPairTemplate;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.WrappingDefinition;
@@ -33,12 +33,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class ElementTypeLookupCacheBase<T extends ElementTypeBase> implements ElementTypeLookupCache<T> {
-    private final Latent<IndexContainer<TokenType>> nextPossibleTokens = Latent.basic(() -> computeNextPossibleTokens());
-    protected final T element;
+public abstract class ElementTypeCacheBase<T extends ElementTypeBase> implements ElementTypeCache<T> {
+    private IndexContainer<TokenType> nextPossibleTokens;
+    private Set<TokenPairTemplate> firstPossibleTokenPairs;
 
-    ElementTypeLookupCacheBase(T element) {
-        this.element = element;
+    protected final T elementType;
+
+    ElementTypeCacheBase(T elementType) {
+        this.elementType = elementType;
     }
 
     /**
@@ -50,8 +52,10 @@ public abstract class ElementTypeLookupCacheBase<T extends ElementTypeBase> impl
      */
     @Override
     public Set<TokenType> getNextPossibleTokens() {
-        IndexContainer<TokenType> nextPossibleTokens = this.nextPossibleTokens.get();
-        TokenTypeBundle tokenTypes = element.getLanguageDialect().getParserTokenTypes();
+        if (nextPossibleTokens == null) {
+            nextPossibleTokens = computeNextPossibleTokens();
+        }
+        TokenTypeBundle tokenTypes = elementType.getLanguageDialect().getParserTokenTypes();
         return nextPossibleTokens == null ?
                 Collections.emptySet() :
                 nextPossibleTokens.elements(index -> tokenTypes.getTokenType(index));
@@ -59,23 +63,29 @@ public abstract class ElementTypeLookupCacheBase<T extends ElementTypeBase> impl
 
     @Override
     public boolean isNextPossibleToken(TokenType tokenType) {
-        IndexContainer<TokenType> nextPossibleTokens = this.nextPossibleTokens.get();
+        if (nextPossibleTokens == null) {
+            nextPossibleTokens = computeNextPossibleTokens();
+        }
         return nextPossibleTokens != null && nextPossibleTokens.contains(tokenType);
     }
 
     @Nullable
     private IndexContainer<TokenType> computeNextPossibleTokens() {
-        return NextTokenResolver.from(this.element).resolve();
+        return NextTokenResolver.from(this.elementType).resolve();
+    }
+
+    private Set<TokenPairTemplate> computeFirstPossibleTokenPairs() {
+        return Set.of(getFirstPossibleTokens().stream().map(t -> t.getTokenPairTemplate()).filter(t -> t != null).toArray(TokenPairTemplate[]::new));
     }
 
     @Override
     public DBLanguage getLanguage() {
-        return element.getLanguage();
+        return elementType.getLanguage();
     }
 
     @Override
     public ElementTypeBundle getElementTypeBundle() {
-        return element.bundle;
+        return elementType.bundle;
     }
 
     @Override
@@ -86,6 +96,14 @@ public abstract class ElementTypeLookupCacheBase<T extends ElementTypeBase> impl
     @Override
     public void captureFirstPossibleTokens(Set<TokenType> bucket) {
         bucket.addAll(getFirstPossibleTokens());
+    }
+
+    @Override
+    public Set<TokenPairTemplate> getFirstPossibleTokenPairs() {
+        if (firstPossibleTokenPairs == null) {
+            firstPossibleTokenPairs = computeFirstPossibleTokenPairs();
+        }
+        return firstPossibleTokenPairs;
     }
 
     @Override
@@ -105,7 +123,7 @@ public abstract class ElementTypeLookupCacheBase<T extends ElementTypeBase> impl
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, @Nullable Set<LeafElementType> bucket) {
-        WrappingDefinition wrapping = element.wrapping;
+        WrappingDefinition wrapping = elementType.wrapping;
         if (wrapping == null) return bucket;
 
         bucket = initBucket(bucket);
@@ -115,7 +133,7 @@ public abstract class ElementTypeLookupCacheBase<T extends ElementTypeBase> impl
 
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, @Nullable Set<TokenType> bucket) {
-        WrappingDefinition wrapping = element.wrapping;
+        WrappingDefinition wrapping = elementType.wrapping;
         if (wrapping == null) return bucket;
 
         bucket = initBucket(bucket);
@@ -125,10 +143,10 @@ public abstract class ElementTypeLookupCacheBase<T extends ElementTypeBase> impl
 
     @Override
     public void registerLeaf(LeafElementType leaf, ElementTypeBase source) {
-        ElementTypeBase parent = element.parent;
+        ElementTypeBase parent = elementType.parent;
         if (parent == null) return;
 
-        parent.cache.registerLeaf(leaf, element);
+        parent.cache.registerLeaf(leaf, elementType);
     }
 
     <E> Set<E> initBucket(Set<E> bucket) {

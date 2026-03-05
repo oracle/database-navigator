@@ -42,12 +42,12 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 %%
 
 <YYINITIAL, NON_PSQL_BLOCK> {
-    {BLOCK_COMMENT}       { return stt.getBlockComment(); }
-    {LINE_COMMENT}        { return stt.getLineComment(); }
+    {BLOCK_COMMENT}       { return stt.blockComment; }
+    {LINE_COMMENT}        { return stt.lineComment; }
 
-    {VARIABLE}            { return stt.getVariable(); }
-    {VARIABLE_IDENTIFIER} { return stt.getIdentifier(); }
-    {SQLP_VARIABLE}       { return stt.getVariable(); }
+    {VARIABLE}            { return stt.variable; }
+    {VARIABLE_IDENTIFIER} { return stt.identifier; }
+    {SQLP_VARIABLE}       { return stt.variable; }
 
     {PLSQL_BLOCK_START}   { yybegin(PSQL_BLOCK); return tt.getKeyword();}
     {SELECT_AI_START}     { yybegin(SELECT_AI); yypushback(yylength());}
@@ -62,28 +62,28 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
     {SQL_KEYWORD}         { return tt.getKeyword(); }
 
     {OPERATOR}            { return tt.getOperator(); }
-    {IDENTIFIER}          { return stt.getIdentifier(); }
-    {QUOTED_IDENTIFIER}   { return stt.getQuotedIdentifier(); }
+    {IDENTIFIER}          { return stt.identifier; }
+    {QUOTED_IDENTIFIER}   { return stt.quotedIdentifier; }
 
-    "("                   { return stt.getChrLeftParenthesis(); }
-    ")"                   { return stt.getChrRightParenthesis(); }
-    "["                   { return stt.getChrLeftBracket(); }
-    "]"                   { return stt.getChrRightBracket(); }
-    "{"                   { return stt.getChrLeftBrace(); }
-    "}"                   { return stt.getChrRightBrace(); }
+    "("                   { return stt.chrLeftParenthesis; }
+    ")"                   { return stt.chrRightParenthesis; }
+    "["                   { return stt.chrLeftBracket; }
+    "]"                   { return stt.chrRightBracket; }
+    "{"                   { return stt.chrLeftBrace; }
+    "}"                   { return stt.chrRightBrace; }
 
 
-    {WHITE_SPACE}         { return stt.getWhiteSpace(); }
-    .                     { return stt.getIdentifier(); }
+    {WHITE_SPACE}         { return stt.whiteSpace; }
+    .                     { return stt.identifier; }
 }
 
 <PSQL_BLOCK> {
-    {BLOCK_COMMENT}       { return stt.getBlockComment(); }
-    {LINE_COMMENT}        { return stt.getLineComment(); }
-//  {VARIABLE}            { return stt.getVariable(); }
-    {SQLP_VARIABLE}       { return stt.getVariable(); }
+    {BLOCK_COMMENT}       { return stt.blockComment; }
+    {LINE_COMMENT}        { return stt.lineComment; }
+//  {VARIABLE}            { return stt.variable; }
+    {SQLP_VARIABLE}       { return stt.variable; }
 
-    {PLSQL_BLOCK_END}     { yybegin(YYINITIAL); return stt.getIdentifier(); }
+    {PLSQL_BLOCK_END}     { yybegin(YYINITIAL); return stt.identifier; }
 
     {INTEGER}             { return tt.getInteger(); }
     {NUMBER}              { return tt.getNumber(); }
@@ -96,18 +96,18 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
     {PLSQL_KEYWORD}       { return tt.getKeyword(); }
 
     {OPERATOR}            { return tt.getOperator(); }
-    {IDENTIFIER}          { return stt.getIdentifier(); }
-    {QUOTED_IDENTIFIER}   { return stt.getQuotedIdentifier(); }
+    {IDENTIFIER}          { return stt.identifier; }
+    {QUOTED_IDENTIFIER}   { return stt.quotedIdentifier; }
 
-    "("                   { return stt.getChrLeftParenthesis(); }
-    ")"                   { return stt.getChrRightParenthesis(); }
-    "["                   { return stt.getChrLeftBracket(); }
-    "]"                   { return stt.getChrRightBracket(); }
-    "{"                   { return stt.getChrLeftBrace(); }
-    "}"                   { return stt.getChrRightBrace(); }
+    "("                   { return stt.chrLeftParenthesis; }
+    ")"                   { return stt.chrRightParenthesis; }
+    "["                   { return stt.chrLeftBracket; }
+    "]"                   { return stt.chrRightBracket; }
+    "{"                   { return stt.chrLeftBrace; }
+    "}"                   { return stt.chrRightBrace; }
 
-    {WHITE_SPACE}         { return stt.getWhiteSpace(); }
-    .                     { return stt.getIdentifier(); }
+    {WHITE_SPACE}         { return stt.whiteSpace; }
+    .                     { return stt.identifier; }
 }
 
 <SELECT_AI> {
@@ -119,11 +119,11 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
     "executesql"       { return tt.getKeyword(); }
     "narrate"          { return tt.getKeyword(); }
     "chat"             { return tt.getKeyword(); }
-    {STRING}           { yybegin(YYINITIAL); return stt.getString(); }    // string is allowed to have eols
-    {eol}              { yybegin(YYINITIAL); return stt.getWhiteSpace();} // end of line -> exit the SELECT_AI block
-    ";"                { yybegin(YYINITIAL); return stt.getChrSemicolon();}
-    "/"                { yybegin(YYINITIAL); return stt.getChrSlash();}
-    [^\r\n\t\f ;/]+    { return stt.getString();}
-    {wsc}+             { return stt.getWhiteSpace(); }
+    {STRING}           { yybegin(YYINITIAL); return stt.string; }    // string is allowed to have eols
+    {eol}              { yybegin(YYINITIAL); return stt.whiteSpace;} // end of line -> exit the SELECT_AI block
+    ";"                { yybegin(YYINITIAL); return stt.chrSemicolon;}
+    "/"                { yybegin(YYINITIAL); return stt.chrSlash;}
+    [^\r\n\t\f ;/]+    { return stt.string;}
+    {wsc}+             { return stt.whiteSpace; }
 }
 

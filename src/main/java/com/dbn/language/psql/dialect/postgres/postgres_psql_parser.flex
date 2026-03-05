@@ -2,6 +2,7 @@ package com.dbn.language.psql.dialect.postgres;
 
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenTypeBundle;
+import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
 %%
@@ -52,14 +53,14 @@ NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 %state DIV
 %%
 
-{WHITE_SPACE}+     { return stt.getWhiteSpace(); }
+{WHITE_SPACE}+     { return stt.whiteSpace; }
 
-{BLOCK_COMMENT}    { return stt.getBlockComment(); }
-{LINE_COMMENT}     { return stt.getLineComment(); }
+{BLOCK_COMMENT}    { return stt.blockComment; }
+{LINE_COMMENT}     { return stt.lineComment; }
 
-{INTEGER}          { return stt.getInteger(); }
-{NUMBER}           { return stt.getNumber(); }
-{STRING}           { return stt.getString(); }
+{INTEGER}          { return stt.integer; }
+{NUMBER}           { return stt.number; }
+{STRING}           { return stt.string; }
 
 "="{wso}"="        { return tt.getOperatorTokenType(0); }
 "|"{wso}"|"        { return tt.getOperatorTokenType(1); }
@@ -98,6 +99,6 @@ NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 "|" {return tt.getCharacterTokenType(21);}
 
 
-{IDENTIFIER}           { return stt.getIdentifier(); }
-{QUOTED_IDENTIFIER}    { return stt.getQuotedIdentifier(); }
-.                      { return stt.getIdentifier(); }
+{IDENTIFIER}           { return stt.identifier; }
+{QUOTED_IDENTIFIER}    { return stt.quotedIdentifier; }
+.                      { return stt.identifier; }

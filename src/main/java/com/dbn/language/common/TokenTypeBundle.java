@@ -110,7 +110,7 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
             log.warn("DBN - [{}] undefined token type: {}", getLanguage().getID(), id);
         }
         //log.info("[DBN-WARNING] Undefined token type: " + id);
-        return getSharedTokenTypes().getIdentifier();
+        return getSharedTokenTypes().identifier;
     }
 
     @Override
@@ -129,15 +129,15 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
     }
 
     public SimpleTokenType getIdentifier() {
-        return getSharedTokenTypes().getIdentifier();
+        return getSharedTokenTypes().identifier;
     }
 
     public SimpleTokenType getVariable() {
-        return getSharedTokenTypes().getVariable();
+        return getSharedTokenTypes().variable;
     }
 
     public SimpleTokenType getString() {
-        return getSharedTokenTypes().getString();
+        return getSharedTokenTypes().string;
     }
 
 

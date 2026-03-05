@@ -23,7 +23,6 @@ import com.dbn.code.common.lookup.IdentifierLookupItemBuilder;
 import com.dbn.code.common.lookup.LookupItemBuilder;
 import com.dbn.code.common.lookup.VariableLookupItemBuilder;
 import com.dbn.common.consumer.CancellableConsumer;
-import com.dbn.common.util.Strings;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
@@ -64,8 +63,8 @@ public class CodeCompletionLookupConsumer implements CancellableConsumer<Object>
                 lookupItemBuilder = objectPsiElement.ensureObject().getLookupItemBuilder(language);
 
             } else if (object instanceof TokenElementType tokenElementType) {
-                String text = tokenElementType.getText();
-                if (Strings.isNotEmpty(text)) {
+                String text = tokenElementType.text;
+                if (text != null) {
                     lookupItemBuilder = tokenElementType.getLookupItemBuilder(language);
                 } else {
                     CodeCompletionFilterSettings filterSettings = context.getCodeCompletionFilterSettings();

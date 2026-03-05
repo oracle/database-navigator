@@ -6263,17 +6263,17 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { return stt.getLineComment();
+            { return stt.lineComment;
             }
           // fall through
           case 802: break;
           case 2:
-            { return stt.getIdentifier();
+            { return stt.identifier;
             }
           // fall through
           case 803: break;
           case 3:
-            { return stt.getWhiteSpace();
+            { return stt.whiteSpace;
             }
           // fall through
           case 804: break;
@@ -6283,7 +6283,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 805: break;
           case 5:
-            { return stt.getQuotedIdentifier();
+            { return stt.quotedIdentifier;
             }
           // fall through
           case 806: break;
@@ -6298,7 +6298,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 808: break;
           case 8:
-            { return stt.getString();
+            { return stt.string;
             }
           // fall through
           case 809: break;
@@ -6343,7 +6343,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 817: break;
           case 17:
-            { return stt.getInteger();
+            { return stt.integer;
             }
           // fall through
           case 818: break;
@@ -6413,7 +6413,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 831: break;
           case 31:
-            { return stt.getVariable();
+            { return stt.variable;
             }
           // fall through
           case 832: break;
@@ -6423,12 +6423,12 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 833: break;
           case 33:
-            { return stt.getNumber();
+            { return stt.number;
             }
           // fall through
           case 834: break;
           case 34:
-            { return stt.getBlockComment();
+            { return stt.blockComment;
             }
           // fall through
           case 835: break;

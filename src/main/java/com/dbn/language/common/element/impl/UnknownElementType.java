@@ -17,8 +17,8 @@
 package com.dbn.language.common.element.impl;
 
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
-import com.dbn.language.common.element.cache.VoidElementTypeLookupCache;
+import com.dbn.language.common.element.cache.ElementTypeCache;
+import com.dbn.language.common.element.cache.VoidElementTypeCache;
 
 public final class UnknownElementType extends BasicElementType{
     public UnknownElementType(ElementTypeBundle bundle) {
@@ -27,7 +27,7 @@ public final class UnknownElementType extends BasicElementType{
     }
 
     @Override
-    public ElementTypeLookupCache createLookupCache() {
-        return new VoidElementTypeLookupCache<>(this);
+    public ElementTypeCache createLookupCache() {
+        return new VoidElementTypeCache<>(this);
     }
 }

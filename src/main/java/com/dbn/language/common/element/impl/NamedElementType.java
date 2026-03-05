@@ -17,7 +17,7 @@
 package com.dbn.language.common.element.impl;
 
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.NamedElementTypeLookupCache;
+import com.dbn.language.common.element.cache.NamedElementTypeCache;
 import com.dbn.language.common.element.parser.impl.NamedElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
@@ -49,8 +49,8 @@ public final class NamedElementType extends SequenceElementType {
     }
 
     @Override
-    public NamedElementTypeLookupCache createLookupCache() {
-        return new NamedElementTypeLookupCache(this);
+    public NamedElementTypeCache createLookupCache() {
+        return new NamedElementTypeCache(this);
     }
 
     @NotNull

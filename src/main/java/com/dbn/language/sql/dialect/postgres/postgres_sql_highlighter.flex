@@ -63,14 +63,14 @@ SQL_PARAMETER = "check_option"|"security_barrier"
 
 {VARIABLE}          { return tt.getTokenType("VARIABLE"); }
 
-{WHITE_SPACE}+      { return stt.getWhiteSpace(); }
+{WHITE_SPACE}+      { return stt.whiteSpace; }
 
-{BLOCK_COMMENT}     { return stt.getBlockComment(); }
-{LINE_COMMENT}      { return stt.getLineComment(); }
+{BLOCK_COMMENT}     { return stt.blockComment; }
+{LINE_COMMENT}      { return stt.lineComment; }
 
-{INTEGER}           { return stt.getInteger(); }
-{NUMBER}            { return stt.getNumber(); }
-{STRING}            { return stt.getString(); }
+{INTEGER}           { return stt.integer; }
+{NUMBER}            { return stt.number; }
+{STRING}            { return stt.string; }
 
 {SQL_FUNCTION}      { return tt.getTokenType("FUNCTION");}
 {SQL_PARAMETER}     { return tt.getTokenType("PARAMETER");}
@@ -79,13 +79,13 @@ SQL_PARAMETER = "check_option"|"security_barrier"
 
 {OPERATOR}          { return tt.getTokenType("OPERATOR"); }
 
-{IDENTIFIER}        { return stt.getIdentifier(); }
-{QUOTED_IDENTIFIER} { return stt.getQuotedIdentifier(); }
+{IDENTIFIER}        { return stt.identifier; }
+{QUOTED_IDENTIFIER} { return stt.quotedIdentifier; }
 
 
-"("                 { return stt.getChrLeftParenthesis(); }
-")"                 { return stt.getChrRightParenthesis(); }
-"["                 { return stt.getChrLeftBracket(); }
-"]"                 { return stt.getChrRightBracket(); }
+"("                 { return stt.chrLeftParenthesis; }
+")"                 { return stt.chrRightParenthesis; }
+"["                 { return stt.chrLeftBracket; }
+"]"                 { return stt.chrRightBracket; }
 
-.                   { return stt.getIdentifier(); }
+.                   { return stt.identifier; }

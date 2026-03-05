@@ -36,6 +36,7 @@ import java.util.function.Supplier;
 @Getter
 public abstract class DBLanguageParserDefinition implements ParserDefinition {
     private final Supplier<DBLanguageParser> parser;
+    //public final SharedTokenTypeBundle sharedTokenTypes;
 
     public DBLanguageParserDefinition(Supplier<DBLanguageParser> parser) {
         this.parser = parser;
@@ -43,10 +44,10 @@ public abstract class DBLanguageParserDefinition implements ParserDefinition {
 
     public DBLanguageParserDefinition(DBLanguageParser parser) {
         this.parser = () -> parser;
+        //sharedTokenTypes = getParser().getTokenTypes().getSharedTokenTypes()
     }
 
     @Override
-    @NotNull
     public PsiElement createElement(ASTNode astNode) {
         IElementType et = astNode.getElementType();
         if(et instanceof ElementType elementType) {
@@ -76,19 +77,19 @@ public abstract class DBLanguageParserDefinition implements ParserDefinition {
     @Override
     @NotNull
     public TokenSet getWhitespaceTokens() {
-        return getParser().getTokenTypes().getSharedTokenTypes().getWhitespaceTokens();
+        return getParser().getTokenTypes().getSharedTokenTypes().whitespaceTokens;
     }
 
     @Override
     @NotNull
     public TokenSet getCommentTokens() {
-        return getParser().getTokenTypes().getSharedTokenTypes().getCommentTokens();
+        return getParser().getTokenTypes().getSharedTokenTypes().commentTokens;
     }
 
     @Override
     @NotNull
     public TokenSet getStringLiteralElements() {
-        return getParser().getTokenTypes().getSharedTokenTypes().getStringTokens();
+        return getParser().getTokenTypes().getSharedTokenTypes().stringTokens;
     }
 
     @NotNull

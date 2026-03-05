@@ -120,22 +120,22 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
     "executesql"       { return tt.getTokenType("KW_EXECUTESQL"); }
     "narrate"          { return tt.getTokenType("KW_NARRATE"); }
     "chat"             { return tt.getTokenType("KW_CHAT"); }
-    {STRING}           { yybegin(YYINITIAL); return stt.getString(); }   // string is allowed to have eols
-    {eol}              { yybegin(YYINITIAL); return stt.getWhiteSpace();} // end of line -> exit the SELECT_AI block
-    ";"                { yybegin(YYINITIAL); return stt.getChrSemicolon();}
-    "/"                { yybegin(YYINITIAL); return stt.getChrSlash();}
-    [^\r\n\t\f ;/]+     { return stt.getIdentifier();}
-    {wsc}+             { return stt.getWhiteSpace(); }
+    {STRING}           { yybegin(YYINITIAL); return stt.string; }   // string is allowed to have eols
+    {eol}              { yybegin(YYINITIAL); return stt.whiteSpace;} // end of line -> exit the SELECT_AI block
+    ";"                { yybegin(YYINITIAL); return stt.chrSemicolon;}
+    "/"                { yybegin(YYINITIAL); return stt.chrSlash;}
+    [^\r\n\t\f ;/]+    { return stt.identifier; }
+    {wsc}+             { return stt.whiteSpace; }
 }
 
 <YYINITIAL, NON_PSQL_BLOCK> {
 
-{BLOCK_COMMENT}        { return stt.getBlockComment(); }
-{LINE_COMMENT}         { return stt.getLineComment(); }
+{BLOCK_COMMENT}        { return stt.blockComment; }
+{LINE_COMMENT}         { return stt.lineComment; }
 
-{VARIABLE}             { return stt.getVariable(); }
-{VARIABLE_IDENTIFIER}  { return stt.getIdentifier(); }
-{SQLP_VARIABLE}        { return stt.getVariable(); }
+{VARIABLE}             { return stt.variable; }
+{VARIABLE_IDENTIFIER}  { return stt.identifier; }
+{SQLP_VARIABLE}        { return stt.variable; }
 
 "("{wso}"+"{wso}")"  {return tt.getTokenType("CT_OUTER_JOIN");}
 
@@ -1526,13 +1526,13 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 
 {CT_SIZE_CLAUSE} {return tt.getTokenType("CT_SIZE_CLAUSE");}
 
-{INTEGER}     { return stt.getInteger(); }
-{NUMBER}      { return stt.getNumber(); }
-{STRING}      { return stt.getString(); }
+{INTEGER}     { return stt.integer; }
+{NUMBER}      { return stt.number; }
+{STRING}      { return stt.string; }
 
-{IDENTIFIER}         { return stt.getIdentifier(); }
-{QUOTED_IDENTIFIER}  { return stt.getQuotedIdentifier(); }
+{IDENTIFIER}         { return stt.identifier; }
+{QUOTED_IDENTIFIER}  { return stt.quotedIdentifier; }
 
-{WHITE_SPACE}        { return stt.getWhiteSpace(); }
-.                    { return stt.getIdentifier(); }
+{WHITE_SPACE}        { return stt.whiteSpace; }
+.                    { return stt.identifier; }
 }

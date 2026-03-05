@@ -22,13 +22,14 @@ import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.ElementTypeBundle;
+import com.dbn.language.common.element.TokenPairTemplate;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
-public interface ElementTypeLookupCache<T extends ElementTypeBase> {
+public interface ElementTypeCache<T extends ElementTypeBase> {
     Set<TokenType> getNextPossibleTokens();
 
     boolean isNextPossibleToken(TokenType tokenType);
@@ -44,6 +45,8 @@ public interface ElementTypeLookupCache<T extends ElementTypeBase> {
     Set<TokenType> getAllPossibleTokens();
 
     Set<TokenType> getFirstPossibleTokens();
+
+    Set<TokenPairTemplate> getFirstPossibleTokenPairs();
 
     Set<TokenType> getFirstRequiredTokens();
 

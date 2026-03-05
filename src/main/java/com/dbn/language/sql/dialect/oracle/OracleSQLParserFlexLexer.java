@@ -14042,12 +14042,12 @@ final class OracleSQLParserFlexLexer extends DBLanguageCompoundLexerBase {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { return stt.getIdentifier();
+            { return stt.identifier;
             }
           // fall through
           case 1397: break;
           case 2:
-            { return stt.getWhiteSpace();
+            { return stt.whiteSpace;
             }
           // fall through
           case 1398: break;
@@ -14057,7 +14057,7 @@ final class OracleSQLParserFlexLexer extends DBLanguageCompoundLexerBase {
           // fall through
           case 1399: break;
           case 4:
-            { return stt.getQuotedIdentifier();
+            { return stt.quotedIdentifier;
             }
           // fall through
           case 1400: break;
@@ -14072,7 +14072,7 @@ final class OracleSQLParserFlexLexer extends DBLanguageCompoundLexerBase {
           // fall through
           case 1402: break;
           case 7:
-            { return stt.getString();
+            { return stt.string;
             }
           // fall through
           case 1403: break;
@@ -14117,7 +14117,7 @@ final class OracleSQLParserFlexLexer extends DBLanguageCompoundLexerBase {
           // fall through
           case 1411: break;
           case 16:
-            { return stt.getInteger();
+            { return stt.integer;
             }
           // fall through
           case 1412: break;
@@ -14187,22 +14187,22 @@ final class OracleSQLParserFlexLexer extends DBLanguageCompoundLexerBase {
           // fall through
           case 1425: break;
           case 30:
-            { yybegin(YYINITIAL); return stt.getWhiteSpace();
+            { yybegin(YYINITIAL); return stt.whiteSpace;
             }
           // fall through
           case 1426: break;
           case 31:
-            { yybegin(YYINITIAL); return stt.getString();
+            { yybegin(YYINITIAL); return stt.string;
             }
           // fall through
           case 1427: break;
           case 32:
-            { yybegin(YYINITIAL); return stt.getChrSlash();
+            { yybegin(YYINITIAL); return stt.chrSlash;
             }
           // fall through
           case 1428: break;
           case 33:
-            { yybegin(YYINITIAL); return stt.getChrSemicolon();
+            { yybegin(YYINITIAL); return stt.chrSemicolon;
             }
           // fall through
           case 1429: break;
@@ -14212,12 +14212,12 @@ final class OracleSQLParserFlexLexer extends DBLanguageCompoundLexerBase {
           // fall through
           case 1430: break;
           case 35:
-            { return stt.getVariable();
+            { return stt.variable;
             }
           // fall through
           case 1431: break;
           case 36:
-            { return stt.getLineComment();
+            { return stt.lineComment;
             }
           // fall through
           case 1432: break;
@@ -14227,12 +14227,12 @@ final class OracleSQLParserFlexLexer extends DBLanguageCompoundLexerBase {
           // fall through
           case 1433: break;
           case 38:
-            { return stt.getNumber();
+            { return stt.number;
             }
           // fall through
           case 1434: break;
           case 39:
-            { return stt.getBlockComment();
+            { return stt.blockComment;
             }
           // fall through
           case 1435: break;

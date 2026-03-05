@@ -20,7 +20,7 @@ import com.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dbn.common.latent.Latent;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.IterationElementTypeLookupCache;
+import com.dbn.language.common.element.cache.IterationElementTypeCache;
 import com.dbn.language.common.element.parser.impl.IterationElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.SequencePsiElement;
@@ -69,8 +69,8 @@ public final class IterationElementType extends ElementTypeBase {
     }
 
     @Override
-    protected IterationElementTypeLookupCache createLookupCache() {
-        return new IterationElementTypeLookupCache(this);
+    protected IterationElementTypeCache createLookupCache() {
+        return new IterationElementTypeCache(this);
     }
 
     @NotNull

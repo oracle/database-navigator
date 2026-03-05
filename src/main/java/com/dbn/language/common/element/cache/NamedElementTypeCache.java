@@ -25,36 +25,36 @@ import java.util.Set;
 
 import static com.dbn.common.util.Recursion.computeGuarded;
 
-public class NamedElementTypeLookupCache extends SequenceElementTypeLookupCache<NamedElementType>{
+public class NamedElementTypeCache extends SequenceElementTypeCache<NamedElementType> {
 
-    public NamedElementTypeLookupCache(NamedElementType elementType) {
+    public NamedElementTypeCache(NamedElementType elementType) {
         super(elementType);
     }
 
     @Override
     protected void registerLeafInParent(LeafElementType leaf) {
         // walk the tree up for all potential parents
-        Set<ElementTypeBase> parents = element.parents;
+        Set<ElementTypeBase> parents = elementType.parents;
         if (parents == null) return;
 
         for (ElementTypeBase parentElementType: parents) {
-            parentElementType.cache.registerLeaf(leaf, element);
+            parentElementType.cache.registerLeaf(leaf, elementType);
         }
     }
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, Set<LeafElementType> bucket) {
-        if (context.isScanned(element)) return bucket;
+        if (context.isScanned(elementType)) return bucket;
 
-        context.markScanned(element);
+        context.markScanned(elementType);
         return super.captureFirstPossibleLeafs(context, bucket);
     }
 
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, Set<TokenType> bucket) {
-        if (context.isScanned(element)) return bucket;
+        if (context.isScanned(elementType)) return bucket;
 
-        context.markScanned(element);
+        context.markScanned(elementType);
         return super.captureFirstPossibleTokens(context, bucket);
     }
 

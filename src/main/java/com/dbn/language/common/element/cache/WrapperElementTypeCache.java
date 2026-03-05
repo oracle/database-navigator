@@ -25,9 +25,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class WrapperElementTypeLookupCache extends ElementTypeLookupCacheBase<WrapperElementType> {
+public class WrapperElementTypeCache extends ElementTypeCacheBase<WrapperElementType> {
 
-    public WrapperElementTypeLookupCache(WrapperElementType elementType) {
+    public WrapperElementTypeCache(WrapperElementType elementType) {
         super(elementType);
     }
 
@@ -53,7 +53,7 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, @Nullable Set<LeafElementType> bucket) {
         bucket = super.captureFirstPossibleLeafs(context, bucket);
         bucket = initBucket(bucket);
-        bucket.add(element.wrapping.beginElement);
+        bucket.add(elementType.wrapping.beginElement);
         return bucket;
     }
 
@@ -61,23 +61,23 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, @Nullable Set<TokenType> bucket) {
         bucket = super.captureFirstPossibleTokens(context, bucket);
         bucket = initBucket(bucket);
-        bucket.add(element.wrapping.beginElement.tokenType);
+        bucket.add(elementType.wrapping.beginElement.tokenType);
         return bucket;
     }
 
     @Override
     public boolean containsToken(TokenType tokenType) {
-        return element.wrapping.beginElement.tokenType == tokenType ||
-                element.wrapping.endElement.tokenType == tokenType ||
-                element.wrappedElement.cache.containsToken(tokenType);
+        return elementType.wrapping.beginElement.tokenType == tokenType ||
+                elementType.wrapping.endElement.tokenType == tokenType ||
+                elementType.wrappedElement.cache.containsToken(tokenType);
     }
 
     @Override
     public Set<TokenType> getAllPossibleTokens() {
         Set<TokenType> tokenTypes = new HashSet<>();
-        tokenTypes.add(element.wrapping.beginElement.tokenType);
-        tokenTypes.add(element.wrapping.endElement.tokenType);
-        tokenTypes.addAll(element.wrappedElement.cache.getAllPossibleTokens());
+        tokenTypes.add(elementType.wrapping.beginElement.tokenType);
+        tokenTypes.add(elementType.wrapping.endElement.tokenType);
+        tokenTypes.addAll(elementType.wrappedElement.cache.getAllPossibleTokens());
         return tokenTypes;
     }
 
@@ -88,23 +88,23 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
 
     @Override
     public Set<TokenType> getFirstRequiredTokens() {
-        return element.wrapping.beginElement.cache.getFirstRequiredTokens();
+        return elementType.wrapping.beginElement.cache.getFirstRequiredTokens();
     }
 
     @Override
     public boolean couldStartWithLeaf(LeafElementType elementType) {
-        if (this.element.wrapping.beginElement == elementType) return true;
+        if (this.elementType.wrapping.beginElement == elementType) return true;
         return false;
     }
 
     @Override
     public boolean shouldStartWithLeaf(LeafElementType leafElementType) {
-        return element.wrapping.beginElement == leafElementType;
+        return elementType.wrapping.beginElement == leafElementType;
     }
 
     @Override
     public boolean couldStartWithToken(TokenType tokenType) {
-        if (element.wrapping.beginElement.tokenType == tokenType) return true;
+        if (elementType.wrapping.beginElement.tokenType == tokenType) return true;
         return false;
     }
 
@@ -115,12 +115,12 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
 
     @Override
     public Set<LeafElementType> getFirstRequiredLeafs() {
-        return Set.of(element.wrapping.beginElement);
+        return Set.of(elementType.wrapping.beginElement);
     }
 
     @Override
     public boolean startsWith(TokenTypeCategory typeCategory) {
-        return element.wrapping.beginElement.tokenType.getCategory() == typeCategory;
+        return elementType.wrapping.beginElement.tokenType.getCategory() == typeCategory;
     }
 
     @Override
@@ -130,7 +130,7 @@ wrappedTokenLC.couldStartWithLeaf(leaf));
 
     @Override
     public boolean isFirstRequiredToken(TokenType tokenType) {
-        return element.wrapping.beginElement.tokenType == tokenType;
+        return elementType.wrapping.beginElement.tokenType == tokenType;
     }
 
     @Override

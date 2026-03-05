@@ -33,16 +33,16 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 %%
 
 <WRAPPED> {
-    {WHITE_SPACE}   { return stt.getWhiteSpace(); }
-    .*              { return stt.getLineComment(); }
-    .               { return stt.getLineComment(); }
+    {WHITE_SPACE}   { return stt.whiteSpace; }
+    .*              { return stt.lineComment; }
+    .               { return stt.lineComment; }
 }
 <CONDITIONAL> {
     "$end"          { yybegin(YYINITIAL); }
 }
 
-{BLOCK_COMMENT}  { return stt.getBlockComment(); }
-{LINE_COMMENT}   { return stt.getLineComment(); }
+{BLOCK_COMMENT}  { return stt.blockComment; }
+{LINE_COMMENT}   { return stt.lineComment; }
 
 "wrapped"          { yybegin(WRAPPED); return tt.getTokenType("KW_WRAPPED");}
 "$if"(~"$then")    { yybegin(CONDITIONAL);}
@@ -50,13 +50,13 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 "$else"            { }
 "$then"            { }
 
-{VARIABLE}       { return stt.getVariable(); }
-{SQLP_VARIABLE}  { return stt.getVariable(); }
+{VARIABLE}       { return stt.variable; }
+{SQLP_VARIABLE}  { return stt.variable; }
 
 
-{INTEGER}     { return stt.getInteger(); }
-{NUMBER}      { return stt.getNumber(); }
-{STRING}      { return stt.getString(); }
+{INTEGER}     { return stt.integer; }
+{NUMBER}      { return stt.number; }
+{STRING}      { return stt.string; }
 
 "("{wso}"+"{wso}")"  {return tt.getTokenType("CT_OUTER_JOIN");}
 
@@ -880,9 +880,9 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 "zero_divide" {return tt.ett(20);}
 // MARKER_END_EXCEPTIONS
 
-{IDENTIFIER}           { return stt.getIdentifier(); }
-{QUOTED_IDENTIFIER}    { return stt.getQuotedIdentifier(); }
-{WHITE_SPACE}          { return stt.getWhiteSpace(); }
-.                      { return stt.getIdentifier(); }
+{IDENTIFIER}           { return stt.identifier; }
+{QUOTED_IDENTIFIER}    { return stt.quotedIdentifier; }
+{WHITE_SPACE}          { return stt.whiteSpace; }
+.                      { return stt.identifier; }
 
 

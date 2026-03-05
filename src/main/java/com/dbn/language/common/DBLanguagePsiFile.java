@@ -187,7 +187,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     }
 
     @Override
-    public void accept(@NotNull PsiElementVisitor visitor) {
+    public void accept(PsiElementVisitor visitor) {
         if (visitors.isSupported(visitor)) {
             visitor.visitFile(this);
         }
@@ -302,7 +302,6 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
         }
     }
 
-    @NotNull
     @Override
     public Language getLanguage() {
         return language;
@@ -343,7 +342,6 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     }
 
     @Override
-    @NotNull
     public DBLanguageFileType getFileType() {
         return fileType;
     }

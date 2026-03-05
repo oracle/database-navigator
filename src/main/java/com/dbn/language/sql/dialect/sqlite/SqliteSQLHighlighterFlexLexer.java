@@ -2610,37 +2610,37 @@ public final class SqliteSQLHighlighterFlexLexer implements FlexLexer {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { return stt.getIdentifier();
+            { return stt.identifier;
             }
           // fall through
           case 17: break;
           case 2:
-            { return stt.getWhiteSpace();
+            { return stt.whiteSpace;
             }
           // fall through
           case 18: break;
           case 3:
-            { return stt.getQuotedIdentifier();
+            { return stt.quotedIdentifier;
             }
           // fall through
           case 19: break;
           case 4:
-            { return stt.getString();
+            { return stt.string;
             }
           // fall through
           case 20: break;
           case 5:
-            { return stt.getChrLeftParenthesis();
+            { return stt.chrLeftParenthesis;
             }
           // fall through
           case 21: break;
           case 6:
-            { return stt.getChrRightParenthesis();
+            { return stt.chrRightParenthesis;
             }
           // fall through
           case 22: break;
           case 7:
-            { return stt.getInteger();
+            { return stt.integer;
             }
           // fall through
           case 23: break;
@@ -2650,17 +2650,17 @@ public final class SqliteSQLHighlighterFlexLexer implements FlexLexer {
           // fall through
           case 24: break;
           case 9:
-            { return stt.getLineComment();
+            { return stt.lineComment;
             }
           // fall through
           case 25: break;
           case 10:
-            { return stt.getNumber();
+            { return stt.number;
             }
           // fall through
           case 26: break;
           case 11:
-            { return stt.getBlockComment();
+            { return stt.blockComment;
             }
           // fall through
           case 27: break;

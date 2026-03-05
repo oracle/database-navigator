@@ -94,8 +94,8 @@ import static com.dbn.object.type.DBObjectType.DATASET;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
-    private static final PsiLookupAdapter CHR_STAR_LOOKUP_ADAPTER = new TokenTypeLookupAdapter(element -> element.getLanguage().getSharedTokenTypes().getChrStar());
-    private static final PsiLookupAdapter COL_INDEX_LOOKUP_ADAPTER = new TokenTypeLookupAdapter(element -> element.getLanguage().getSharedTokenTypes().getInteger());
+    private static final PsiLookupAdapter CHR_STAR_LOOKUP_ADAPTER = new TokenTypeLookupAdapter(element -> element.getLanguage().getSharedTokenTypes().chrStar);
+    private static final PsiLookupAdapter COL_INDEX_LOOKUP_ADAPTER = new TokenTypeLookupAdapter(element -> element.getLanguage().getSharedTokenTypes().integer);
     private static final ObjectReferenceLookupAdapter DATASET_LOOKUP_ADAPTER = new ObjectReferenceLookupAdapter(null, DATASET, null);
 
     private static final WeakRefCache<DBVirtualObject, BasePsiElement> underlyingPsiElements = WeakRefCache.weakKey();

@@ -20,7 +20,7 @@ import com.dbn.common.index.IndexContainer;
 import com.dbn.common.util.Commons;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementType;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
+import com.dbn.language.common.element.cache.ElementTypeCache;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.ElementTypeRef;
 import com.dbn.language.common.element.impl.IterationElementType;
@@ -106,7 +106,7 @@ public final class NextTokenResolver {
         ElementTypeRef child = parent.children[index];
         while (child != null) {
             ensureBucket();
-            ElementTypeLookupCache<?> lookupCache = child.elementType.cache;
+            ElementTypeCache<?> lookupCache = child.elementType.cache;
             lookupCache.captureFirstPossibleTokens(bucket);
             if (!child.optional) {
                 parent = null;

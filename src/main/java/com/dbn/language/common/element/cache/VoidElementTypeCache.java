@@ -23,8 +23,8 @@ import com.dbn.language.common.element.impl.LeafElementType;
 
 import java.util.Set;
 
-public class VoidElementTypeLookupCache<T extends ElementTypeBase> extends ElementTypeLookupCacheBase<T> {
-    public VoidElementTypeLookupCache(T elementType) {
+public class VoidElementTypeCache<T extends ElementTypeBase> extends ElementTypeCacheBase<T> {
+    public VoidElementTypeCache(T elementType) {
         super(elementType);
     }
 

@@ -34,23 +34,23 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 %%
 
 <WRAPPED> {
-    {WHITE_SPACE}    { return stt.getWhiteSpace(); }
-    .*               { return stt.getLineComment(); }
-    .                { return stt.getLineComment(); }
+    {WHITE_SPACE}    { return stt.whiteSpace; }
+    .*               { return stt.lineComment; }
+    .                { return stt.lineComment; }
 }
 
 
-//{VARIABLE}           {return stt.getVariable(); }
-{SQLP_VARIABLE}      { return stt.getVariable(); }
+//{VARIABLE}           {return stt.variable; }
+{SQLP_VARIABLE}      { return stt.variable; }
 
-{BLOCK_COMMENT}      { return stt.getBlockComment(); }
-{LINE_COMMENT}       { return stt.getLineComment(); }
+{BLOCK_COMMENT}      { return stt.blockComment; }
+{LINE_COMMENT}       { return stt.lineComment; }
 
 "wrapped"            { yybegin(WRAPPED); return tt.getKeyword();}
 
-{INTEGER}            { return stt.getInteger(); }
-{NUMBER}             { return stt.getNumber(); }
-{STRING}             { return stt.getString(); }
+{INTEGER}            { return stt.integer; }
+{NUMBER}             { return stt.number; }
+{STRING}             { return stt.string; }
 
 {PLSQL_FUNCTION}     { return tt.getFunction();}
 {PLSQL_PARAMETER}    { return tt.getParameter();}
@@ -59,14 +59,14 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 {PLSQL_KEYWORD}      { return tt.getKeyword(); }
 
 {OPERATOR}           { return tt.getOperator(); }
-{IDENTIFIER}         { return stt.getIdentifier(); }
-{QUOTED_IDENTIFIER}  { return stt.getQuotedIdentifier(); }
+{IDENTIFIER}         { return stt.identifier; }
+{QUOTED_IDENTIFIER}  { return stt.quotedIdentifier; }
 
-"("                  { return stt.getChrLeftParenthesis(); }
-")"                  { return stt.getChrRightParenthesis(); }
-"["                  { return stt.getChrLeftBracket(); }
-"]"                  { return stt.getChrRightBracket(); }
+"("                  { return stt.chrLeftParenthesis; }
+")"                  { return stt.chrRightParenthesis; }
+"["                  { return stt.chrLeftBracket; }
+"]"                  { return stt.chrRightBracket; }
 
-{WHITE_SPACE}        { return stt.getWhiteSpace(); }
-.                    { return stt.getIdentifier(); }
+{WHITE_SPACE}        { return stt.whiteSpace; }
+.                    { return stt.identifier; }
 
