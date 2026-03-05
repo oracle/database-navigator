@@ -33,6 +33,7 @@ import java.util.Set;
 @NonNls
 public class TokenTypeBundle extends TokenTypeBundleBase {
     private final DBLanguage baseLanguage;
+    private final SharedTokenTypeBundle sharedTokenTypes;
 
     private final IElementType integer;
     private final IElementType number;
@@ -51,6 +52,7 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
     public TokenTypeBundle(DBLanguageDialect languageDialect, Document document) {
         super(languageDialect, document);
         this.baseLanguage = languageDialect.getBaseLanguage();
+        this.sharedTokenTypes = languageDialect.getSharedTokenTypes();
 
         this.integer   = getTokenType("INTEGER");
         this.number    = getTokenType("NUMBER");
@@ -73,13 +75,9 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
     public TokenType getTokenType(int index) {
         TokenType tokenType = super.getTokenType(index);
         if (tokenType == null) {
-            return getSharedTokenTypes().getTokenType(index);
+            return sharedTokenTypes.getTokenType(index);
         }
         return tokenType;
-    }
-
-    public SharedTokenTypeBundle getSharedTokenTypes() {
-        return baseLanguage.getSharedTokenTypes();
     }
 
     public DBLanguageDialect getLanguageDialect() {
@@ -88,12 +86,12 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
 
     @Override
     public SimpleTokenType getCharacterTokenType(int index) {
-        return getSharedTokenTypes().getCharacterTokenType(index);
+        return sharedTokenTypes.getCharacterTokenType(index);
     }
 
     @Override
     public SimpleTokenType getOperatorTokenType(int index) {
-        return getSharedTokenTypes().getOperatorTokenType(index);
+        return sharedTokenTypes.getOperatorTokenType(index);
     }
 
     @Override
@@ -101,7 +99,7 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
         SimpleTokenType tokenType = super.getTokenType(id);
         if (tokenType != null) return tokenType;
 
-        tokenType = getSharedTokenTypes().getTokenType(id);
+        tokenType = sharedTokenTypes.getTokenType(id);
         if (tokenType != null) return tokenType;
 
 
@@ -110,7 +108,7 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
             log.warn("DBN - [{}] undefined token type: {}", getLanguage().getID(), id);
         }
         //log.info("[DBN-WARNING] Undefined token type: " + id);
-        return getSharedTokenTypes().identifier;
+        return sharedTokenTypes.identifier;
     }
 
     @Override
@@ -118,7 +116,7 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
         TokenSet tokenSet = super.getTokenSet(id);
         if (tokenSet != null) return tokenSet;
 
-        tokenSet = getSharedTokenTypes().getTokenSet(id);
+        tokenSet = sharedTokenTypes.getTokenSet(id);
         if (tokenSet != null) return tokenSet;
 
 
@@ -129,15 +127,15 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
     }
 
     public SimpleTokenType getIdentifier() {
-        return getSharedTokenTypes().identifier;
+        return sharedTokenTypes.identifier;
     }
 
     public SimpleTokenType getVariable() {
-        return getSharedTokenTypes().variable;
+        return sharedTokenTypes.variable;
     }
 
     public SimpleTokenType getString() {
-        return getSharedTokenTypes().string;
+        return sharedTokenTypes.string;
     }
 
 

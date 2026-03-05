@@ -61,22 +61,22 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_IS
 import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
 
 @Slf4j
-@Getter
 @Setter
 public abstract class ElementTypeBase extends IElementType implements ElementType, ICompositeElementType {
     private static final FormattingDefinition STATEMENT_FORMATTING = new FormattingDefinition(null, IndentDefinition.NORMAL, SpacingDefinition.MIN_LINE_BREAK, null);
 
     private final int hashCode;
 
-    public final String id;
-    public String description;
-    public Icon icon;
-    public Branch branch;
-    public FormattingDefinition formatting;
+    public @Getter final String id;
+    public @Getter String description;
+    public @Getter Icon icon;
+    public @Getter FormattingDefinition formatting;
 
-    public ElementTypeCache<?> cache = createLookupCache();
-    public final ElementTypeParser parser = createParser();
+    public final ElementTypeCache<?> cache;
+    public final ElementTypeParser parser;
     public final ElementTypeBundle bundle;
+
+    public Branch branch;
     public ElementTypeBase parent;
     public DBObjectType virtualObjectType;
     public WrappingDefinition wrapping;
@@ -98,6 +98,8 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         this.hashCode = System.identityHashCode(this);
         this.bundle = bundle;
         this.parent = parent;
+        this.cache = createLookupCache();
+        this.parser = createParser();
     }
 
     ElementTypeBase(@NotNull ElementTypeBundle bundle, ElementTypeBase parent, String id, @NotNull Element def) throws ElementTypeDefinitionException {
@@ -112,6 +114,8 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         this.id = defId.intern();
         this.bundle = bundle;
         this.parent = parent;
+        this.cache = createLookupCache();
+        this.parser = createParser();
         if (Strings.isNotEmpty(stringAttribute(def,"exit")) && !(parent instanceof SequenceElementType)) {
             log.warn('[' + getLanguageDialect().getID() + "] Invalid element attribute 'exit'. (id=" + this.id + "). Attribute is only allowed for direct child of sequence element");
         }

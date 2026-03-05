@@ -134,11 +134,11 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
     }
 
     public FormattingAttributes getFormattingAttributes() {
-        FormattingDefinition formatting = elementType.getFormatting();
+        FormattingDefinition formatting = elementType.formatting;
         if (formatting == null) return null;
 
         return formattingAttributesCache.get(this, e -> {
-            FormattingAttributes attributes = e.elementType.getFormatting().getAttributes();
+            FormattingAttributes attributes = e.elementType.formatting.getAttributes();
             return FormattingAttributes.copy(attributes);
         });
     }
