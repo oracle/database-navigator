@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.dev.parser;
+package com.dbn.dev.language;
 
+import com.dbn.dev.language.LanguageSpecificationBuilderInput.Operation;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
-
-import static com.dbn.dev.parser.LanguageSpecificationBuilderInput.Operation.LEXER_DEFINITION;
 
 @NonNls
 public class LanguageSpecificationBuilder {
@@ -32,11 +31,16 @@ public class LanguageSpecificationBuilder {
     public static void main(String[] args) {
         input.setDatabase(selectOption("database", LanguageSpecificationBuilderInput.DATABASE_OPTIONS));
         input.setLanguage(selectOption("language", LanguageSpecificationBuilderInput.LANGUAGE_OPTIONS));
-        input.setOperation(selectOption("operation", LanguageSpecificationBuilderInput.OPERATION_OPTIONS));
 
-        if (input.operation == LEXER_DEFINITION) {
+
+        Operation operation = selectOption("operation", LanguageSpecificationBuilderInput.OPERATION_OPTIONS);
+
+        if (operation == Operation.LEXER_DEFINITION) {
             LanguageSpecificationLexerBuilder lexerBuilder = new LanguageSpecificationLexerBuilder(input);
             lexerBuilder.build();
+        } else if (operation == Operation.PARSER_DEFINITION) {
+            LanguageSpecificationParserBuilder parserBuilder = new LanguageSpecificationParserBuilder(input);
+            parserBuilder.build();
         }
     }
 

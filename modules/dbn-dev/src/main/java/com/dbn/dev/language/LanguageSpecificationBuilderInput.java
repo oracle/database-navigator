@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.dev.parser;
+package com.dbn.dev.language;
 
 import com.dbn.connection.DatabaseType;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.psql.PSQLLanguage;
 import com.dbn.language.sql.SQLLanguage;
-import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,12 +28,10 @@ import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@Setter
 @NonNls
 public class LanguageSpecificationBuilderInput {
     public DatabaseType database;
     public DBLanguage language;
-    public Operation operation;
 
     public String databaseId; // database path & file identifier
     public String languagePid; // language path identifier
@@ -43,7 +40,6 @@ public class LanguageSpecificationBuilderInput {
     public static final Map<String, DatabaseType> DATABASE_OPTIONS = new LinkedHashMap<>();
     public static final Map<String, DBLanguage> LANGUAGE_OPTIONS = new LinkedHashMap<>();
     public static final Map<String, Operation> OPERATION_OPTIONS = new LinkedHashMap<>();
-
     static {
         DATABASE_OPTIONS.put("o", DatabaseType.ORACLE);
         DATABASE_OPTIONS.put("m", DatabaseType.MYSQL);

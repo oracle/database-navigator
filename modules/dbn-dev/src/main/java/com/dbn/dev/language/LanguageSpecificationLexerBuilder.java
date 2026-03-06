@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.dev.parser;
+package com.dbn.dev.language;
 
 import com.dbn.language.common.TokenTypeCategory;
 import lombok.SneakyThrows;

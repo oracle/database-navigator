@@ -25,7 +25,7 @@ public class SqliteSQLParser extends SQLParser {
         super(languageDialect, "sqlite_sql_parser_tokens.xml", "sqlite_sql_parser_elements.xml", parseRootId);
     }
 
-    SqliteSQLParser(DBLanguageDialect languageDialect) {
+    public SqliteSQLParser(DBLanguageDialect languageDialect) {
         this(languageDialect, "sql_block");
     }
 }
