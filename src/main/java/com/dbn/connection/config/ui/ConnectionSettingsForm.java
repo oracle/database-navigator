@@ -63,6 +63,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     private JPanel headerPanel;
     private JButton infoButton;
     private JButton testButton;
+    private JButton jsonButton;
     private DBNTabbedPane tabbedPane;
     private DBNHeaderForm headerForm;
 
@@ -125,8 +126,13 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         headerForm = new DBNHeaderForm(this, name, icon, color);
         testButton = new JButton(txt("cfg.connection.button.TestConnection"));
         infoButton = new JButton(txt("cfg.connection.button.Info"));
+        jsonButton = new JButton(txt("cfg.connection.button.Json"));
         headerForm.addButton(testButton);
         headerForm.addButton(infoButton);
+        headerForm.addButton(jsonButton);
+        registerComponent(jsonButton);
+
+        jsonButton.setVisible(databaseSettings.getDatabaseType() == DatabaseType.ORACLE);
 
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
@@ -198,6 +204,17 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
                     Messages.showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), e1.getMessage());
                 }
             }
+            if (source == jsonButton){
+                Project project = ensureProject();
+                try{
+                    ConnectionSettings tmp = getTemporaryConfig();
+                    exportJsonAction(project,tmp);
+                }catch (ConfigurationException ex) {
+                    conditionallyLog(ex);
+                    Messages.showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), ex.getMessage());
+                }
+                return;
+            }
         };
     }
 
@@ -240,6 +257,12 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
                 DBNHeaderForm header = headerForm;
                 if (header == null) return;
 
+                /* Update visibility when the user switches the database type
+                if (jsonButton != null && databaseType != null) {
+                    jsonButton.setVisible(databaseType == DatabaseType.ORACLE);
+                    headerPanel.revalidate();
+                    headerPanel.repaint();
+                }*/
                 if (name != null) header.setTitle(name);
                 if (icon != null) header.setIcon(icon);
                 if (color != null) header.setBackground(color); else header.setBackground(Colors.getPanelBackground());
@@ -259,5 +282,48 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
 
     @Override
     public void applyFormChanges(ConnectionSettings configuration) throws ConfigurationException {
+    }
+
+    private void exportJsonAction(Project project, ConnectionSettings tmp) {
+        var auth = tmp.getDatabaseSettings().getAuthenticationInfo();
+        boolean passwordEligible =
+                auth != null && auth.getType() == com.dbn.connection.AuthenticationType.USER_PASSWORD;
+
+        OracleJsonExportDialog dialog = new OracleJsonExportDialog(project, passwordEligible);
+        if (!dialog.showAndGet()) return;
+
+        try {
+            var cfg = com.dbn.connection.config.io.OracleConnectionJsonMapper.from(tmp);
+
+            if (cfg.getConnectDescriptor() == null || cfg.getConnectDescriptor().isBlank()) {
+                Messages.showErrorDialog(project, "Export JSON",
+                        "connect_descriptor is required.\nFix URL/Host/Port/Service(SID) or select a TNS profile.");
+                return;
+            }
+
+            if (dialog.isIncludePassword()) {
+                char[] pwd = auth == null ? null : auth.getPassword();
+                var pwRef = com.dbn.connection.config.io.OracleSecretRefFactory.base64Password(pwd);
+                if (pwRef != null) cfg.setPassword(pwRef);
+                else Messages.showWarningDialog(project, "Password not available",
+                        "Password is not available to export (credential manager / not entered).");
+            }
+
+            if (dialog.isIncludeWallet()) {
+                var walletPath = dialog.getWalletFile();
+                if (walletPath != null) {
+                    var walletRef = com.dbn.connection.config.io.OracleSecretRefFactory.base64Wallet(walletPath);
+                    cfg.setWalletLocation(walletRef);
+                }
+            }
+
+            com.dbn.connection.config.io.OracleConnectionJsonExporter.exportConfig(
+                    cfg, dialog.getOutputFile(), dialog.getKeyOrNull());
+
+            Messages.showInfoDialog(project, "JSON exported successfully", "Export JSON");
+        } catch (Exception ex) {
+            conditionallyLog(ex);
+            Messages.showErrorDialog(project, "Export failed", ex.getMessage());
+        }
     }
 }
