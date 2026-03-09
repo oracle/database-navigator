@@ -111,7 +111,7 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
         if (isIterationSeparator()) {
             if (parent instanceof IterationElementType iterationElementType) {
                 ElementTypeCache<?> lookupCache = iterationElementType.iteratedElement.cache;
-                return lookupCache.captureFirstPossibleLeafs(context.reset());
+                return lookupCache.captureFirstPossibleLeafs(context);
             } else if (parent instanceof QualifiedIdentifierElementType){
                 return super.getNextPossibleLeafs(pathNode, context);
             }
@@ -119,7 +119,7 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
         if (parent instanceof WrapperElementType wrapperElementType) {
             if (this.equals(wrapperElementType.getBeginTokenElement())) {
                 ElementTypeCache<?> lookupCache = wrapperElementType.wrappedElement.cache;
-                return lookupCache.captureFirstPossibleLeafs(context.reset());
+                return lookupCache.captureFirstPossibleLeafs(context);
             }
         }
 

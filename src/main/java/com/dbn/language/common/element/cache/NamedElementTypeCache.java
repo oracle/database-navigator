@@ -17,6 +17,7 @@
 package com.dbn.language.common.element.cache;
 
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.NamedElementType;
@@ -44,22 +45,21 @@ public class NamedElementTypeCache extends SequenceElementTypeCache<NamedElement
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, Set<LeafElementType> bucket) {
-        if (context.isScanned(elementType)) return bucket;
-
-        context.markScanned(elementType);
-        return super.captureFirstPossibleLeafs(context, bucket);
+        return computeGuarded("firstPossibleLeafsCapture", bucket, bucket, b -> super.captureFirstPossibleLeafs(context, b));
     }
 
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, Set<TokenType> bucket) {
-        if (context.isScanned(elementType)) return bucket;
-
-        context.markScanned(elementType);
-        return super.captureFirstPossibleTokens(context, bucket);
+        return computeGuarded("firstPossibleTokensCapture", bucket, bucket, b -> super.captureFirstPossibleTokens(context, b));
     }
 
     @Override
     public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
-        return computeGuarded("surrogateSuccessorCapture", this, e -> super.captureSurrogateSuccessors(surrogateLead, bucket));
+        return computeGuarded("surrogateSuccessorCapture", bucket, bucket, b -> super.captureSurrogateSuccessors(surrogateLead, b));
+    }
+
+    @Override
+    protected boolean checkStartsWith(TokenTypeCategory typeCategory) {
+        return computeGuarded("startsWithCheck" + typeCategory, false, typeCategory, c -> super.checkStartsWith(c));
     }
 }

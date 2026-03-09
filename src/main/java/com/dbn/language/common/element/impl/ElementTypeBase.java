@@ -109,7 +109,7 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         if (!Objects.equals(id, defId)) {
             defId = id;
             def.setAttribute("id", defId);
-            bundle.markIdsDirty();
+            bundle.getBuilder().setDirty(true);
         }
         this.id = defId.intern();
         this.bundle = bundle;

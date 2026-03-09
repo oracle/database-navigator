@@ -182,13 +182,13 @@ public class SequenceElementType extends ElementTypeBase {
             Set<TokenType> tokenTypes = new HashSet<>();
             for (int i=index; i< children.length; i++) {
                 ElementTypeCache<?> lookupCache = children[i].elementType.cache;
-                lookupCache.captureFirstPossibleTokens(context.reset(), tokenTypes);
+                lookupCache.captureFirstPossibleTokens(context, tokenTypes);
                 if (!children[i].optional) break;
             }
             return tokenTypes;
         } else {
             ElementTypeCache<?> lookupCache = children[index].elementType.cache;
-            return lookupCache.captureFirstPossibleTokens(context.reset());
+            return lookupCache.captureFirstPossibleTokens(context);
         }
     }
 

@@ -18,6 +18,7 @@ package com.dbn.language.sql.dialect.sqlite;
 
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.sql.SQLParser;
+import com.dbn.language.sql.dialect.SQLLanguageDialect;
 import org.jetbrains.annotations.NonNls;
 
 public class SqliteSQLParser extends SQLParser {
@@ -25,7 +26,7 @@ public class SqliteSQLParser extends SQLParser {
         super(languageDialect, "sqlite_sql_parser_tokens.xml", "sqlite_sql_parser_elements.xml", parseRootId);
     }
 
-    public SqliteSQLParser(DBLanguageDialect languageDialect) {
+    public SqliteSQLParser(SQLLanguageDialect languageDialect) {
         this(languageDialect, "sql_block");
     }
 }

@@ -18,6 +18,8 @@ package com.dbn.language.common.element.impl;
 
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementTypeBundle;
+import com.dbn.language.common.element.ElementTypeBundle.Builder;
+import org.jdom.Element;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,12 +51,31 @@ public class OneOfElementTypeBuilder {
 
     private void rebuildAmbiguousPaths() {
         if (subject.basic) return; // all elements are distinct tokens
+        if (!subject.ambiguous && !Builder.rebuilding) return;
 
         List<PathVariant> paths = findAmbiguousPaths();
-        if (paths == null) return;
-        if (paths.isEmpty()) return;
+        if (paths == null || paths.isEmpty()) {
+            updateDefinition(false);
+            return;
+        }
 
+        updateDefinition(true);
         rebuildAmbiguousPaths(paths);
+    }
+
+    private void updateDefinition(boolean ambiguous) {
+        if (subject.ambiguous == ambiguous) return;
+        if (!Builder.rebuilding) return;
+
+        subject.ambiguous = ambiguous;
+        Builder builder = subject.bundle.getBuilder();
+        builder.setDirty(true);
+        Element definition = builder.getDefinition(subject);
+        if (ambiguous) {
+            definition.setAttribute("ambiguous", "true");
+        } else {
+            definition.removeAttribute("ambiguous");
+        }
     }
 
     private void rebuildAmbiguousPaths(List<PathVariant> pathVariants) {
@@ -64,7 +85,7 @@ public class OneOfElementTypeBuilder {
             Set<TokenType> tokens = variant.tokens;
             Set<ElementTypeBase> elements = variant.mainElements;
 
-            if (variant.unambiguous) {
+            if (!variant.ambiguous) {
                 children.addAll(elements);
                 continue;
             }
@@ -195,6 +216,7 @@ public class OneOfElementTypeBuilder {
             Set<ElementTypeBase> elements = mappings.elements();
 
             PathVariant pathVariant = ambiguousPathVariants.computeIfAbsent(elements, e -> new PathVariant(e));
+            pathVariant.ambiguous = true;
             pathVariant.addLeafs(leafs);
 
             paths.remove(tokenType);
@@ -210,7 +232,7 @@ public class OneOfElementTypeBuilder {
             pathVariant.addLeaf(mappings.firstKey());
 
             // paths where leading token does not appear more than once, nor does the one-of child element
-            pathVariant.unambiguous = !ambiguousElements.contains(element);
+            pathVariant.ambiguous = ambiguousElements.contains(element);
         }
 
         List<PathVariant> pathVariants = new ArrayList<>(ambiguousPathVariants.size() + unambiguousPathVariants.size());
@@ -251,7 +273,7 @@ public class OneOfElementTypeBuilder {
     }
 
     private static class PathVariant {
-        private boolean unambiguous;
+        private boolean ambiguous;
         private final Set<TokenType> tokens = new LinkedHashSet<>();
         private final Set<LeafElementType> leadElements = new LinkedHashSet<>();
         private final Set<ElementTypeBase> mainElements = new LinkedHashSet<>();

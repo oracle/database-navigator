@@ -21,6 +21,7 @@ import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguageDialectIdentifier;
 import com.dbn.language.common.DBLanguageParser;
+import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.psql.PSQLLanguage;
 import com.dbn.language.psql.dialect.PSQLLanguageDialect;
 import com.dbn.language.psql.dialect.oracle.OraclePLSQLParser;
@@ -84,9 +85,12 @@ public class LanguageSpecificationParserBuilder {
         var dialects = DIALECTS.get(input.database);
         var dialect = dialects.get(input.language);
 
+        ElementTypeBundle.Builder.rebuilding = true;
         DBLanguageDialect languageDialect = input.language.getLanguageDialect(dialect);
         var constructor = parser.getConstructor(getDialectClass());
-        constructor.newInstance(languageDialect);
+        DBLanguageParser languageParser = constructor.newInstance(languageDialect);
+        ElementTypeBundle elementTypes = languageParser.getElementTypes();
+        // TODO write element-type-definition if marked dirty
     }
 
     private Class<? extends DBLanguageDialect> getDialectClass() {

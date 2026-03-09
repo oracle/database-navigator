@@ -49,6 +49,7 @@ public class OneOfElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
     public boolean basic;
     public boolean sortable;
+    public boolean ambiguous;
 
     public OneOfElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -120,6 +121,7 @@ public class OneOfElementType extends ElementTypeBase {
                 this.children[i] = new ElementTypeRef(elementType, false, version, branchChecks);
             }
             sortable = getBooleanAttribute(def, "sortable");
+            ambiguous = getBooleanAttribute(def, "ambiguous");
         }
 
         if (children == null || children.length == 0) {

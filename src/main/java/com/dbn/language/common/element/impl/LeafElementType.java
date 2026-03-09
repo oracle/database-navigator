@@ -134,7 +134,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                     ElementTypeRef element = sequenceElementType.children[position];
                     while (element != null) {
                         if (context.check(element)) {
-                            element.elementType.cache.captureFirstPossibleLeafs(context.reset(), possibleLeafs);
+                            element.elementType.cache.captureFirstPossibleLeafs(context, possibleLeafs);
                             if (!element.optional) {
                                 pathNode = null;
                                 break;
@@ -150,7 +150,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                 if (separatorTokens != null) possibleLeafs.addAll(Arrays.asList(separatorTokens));
 
                 ElementTypeCache<?> lookupCache = iterationElementType.iteratedElement.cache;
-                lookupCache.captureFirstPossibleLeafs(context.reset(), possibleLeafs);
+                lookupCache.captureFirstPossibleLeafs(context, possibleLeafs);
 
             } else if (elementType instanceof QualifiedIdentifierElementType qualifiedIdentifierElementType) {
                 if (this == qualifiedIdentifierElementType.separatorToken) break;

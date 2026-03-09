@@ -56,7 +56,7 @@ public class LanguageSpecificationBuilder {
         }
 
         if (s.equalsIgnoreCase("x")) {
-            System.out.print("Bye bye!");
+            System.out.println("Bye bye!");
             System.exit(0);
             return null;
         }

@@ -113,12 +113,12 @@ public abstract class ElementTypeCacheBase<T extends ElementTypeBase> implements
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context) {
-        return captureFirstPossibleLeafs(context.reset(), null);
+        return captureFirstPossibleLeafs(context, null);
     }
 
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context) {
-        return captureFirstPossibleTokens(context.reset(), null);
+        return captureFirstPossibleTokens(context, null);
     }
 
     @Override
