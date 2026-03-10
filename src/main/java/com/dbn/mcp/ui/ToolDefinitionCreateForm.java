@@ -66,7 +66,7 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         super(parent);
         this.connection = connection;
         initParamsTable();
-        whenShown(this::initEditor);
+        whenFirstShown(this::initEditor);
     }
 
     @Override
