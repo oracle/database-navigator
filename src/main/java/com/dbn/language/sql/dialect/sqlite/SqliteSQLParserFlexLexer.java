@@ -3275,7 +3275,7 @@ public final class SqliteSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 317: break;
           case 4:
-            { return stt.quotedIdentifier;
+            { return stt.identifier;
             }
           // fall through
           case 318: break;

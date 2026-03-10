@@ -57,7 +57,6 @@ public class SimpleTokenType<T extends SimpleTokenType<T>> extends IElementType 
     private static final AtomicInteger REGISTERED_COUNT = new AtomicInteger();
     private TextAttributesKey[] textAttributesKeys;
     private Boolean variable;
-    private Boolean quotedIdentifier;
 
     public SimpleTokenType(@NotNull @NonNls String debugName, @Nullable Language language) {
         super(debugName, language, false);
@@ -136,14 +135,6 @@ public class SimpleTokenType<T extends SimpleTokenType<T>> extends IElementType 
         }
 
         return variable;
-    }
-
-    @Override
-    public boolean isQuotedIdentifier() {
-        if (quotedIdentifier == null) {
-            quotedIdentifier = this == getSharedTokenTypes().quotedIdentifier;
-        }
-        return quotedIdentifier;
     }
 
     @Override

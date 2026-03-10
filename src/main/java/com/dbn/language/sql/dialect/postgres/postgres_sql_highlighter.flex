@@ -80,7 +80,7 @@ SQL_PARAMETER = "check_option"|"security_barrier"
 {OPERATOR}          { return tt.getTokenType("OPERATOR"); }
 
 {IDENTIFIER}        { return stt.identifier; }
-{QUOTED_IDENTIFIER} { return stt.quotedIdentifier; }
+{QUOTED_IDENTIFIER} { return stt.identifier; }
 
 
 "("                 { return stt.chrLeftParenthesis; }

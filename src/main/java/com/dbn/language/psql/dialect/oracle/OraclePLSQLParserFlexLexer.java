@@ -6283,7 +6283,7 @@ final class OraclePLSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 805: break;
           case 5:
-            { return stt.quotedIdentifier;
+            { return stt.identifier;
             }
           // fall through
           case 806: break;

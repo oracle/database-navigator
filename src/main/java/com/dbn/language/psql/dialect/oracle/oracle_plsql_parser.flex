@@ -881,7 +881,7 @@ SQLP_VARIABLE = "&""&"?{IDENTIFIER}
 // MARKER_END_EXCEPTIONS
 
 {IDENTIFIER}           { return stt.identifier; }
-{QUOTED_IDENTIFIER}    { return stt.quotedIdentifier; }
+{QUOTED_IDENTIFIER}    { return stt.identifier; }
 {WHITE_SPACE}          { return stt.whiteSpace; }
 .                      { return stt.identifier; }
 

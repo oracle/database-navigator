@@ -14057,7 +14057,7 @@ final class OracleSQLParserFlexLexer extends DBLanguageCompoundLexerBase {
           // fall through
           case 1399: break;
           case 4:
-            { return stt.quotedIdentifier;
+            { return stt.identifier;
             }
           // fall through
           case 1400: break;

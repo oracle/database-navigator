@@ -9232,7 +9232,7 @@ public final class PostgresSQLParserFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 1127: break;
           case 4:
-            { return stt.quotedIdentifier;
+            { return stt.identifier;
             }
           // fall through
           case 1128: break;

@@ -22,6 +22,7 @@ import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.ElementTypeRef;
 import com.dbn.language.common.element.impl.LeafElementType;
+import com.dbn.language.common.element.impl.OneOfElementType;
 import com.dbn.language.common.element.impl.SequenceElementType;
 import com.dbn.language.common.element.impl.SurrogateSequenceElementType;
 
@@ -134,6 +135,7 @@ public class SequenceElementTypeCache<T extends SequenceElementType> extends Ele
             if (surrogateLead.isSurrogateFor(leadCandidate.elementType)) break;
             if (!leadCandidate.optional) return bucket;
             leadCandidate = leadCandidate.next;
+            if (leadCandidate == null) return bucket;
         }
 
         if (leadCandidate.elementType instanceof LeafElementType) {
@@ -149,6 +151,17 @@ public class SequenceElementTypeCache<T extends SequenceElementType> extends Ele
                 }
             }
             return bucket;
+        }
+
+        if (leadCandidate.elementType instanceof OneOfElementType) {
+            bucket = leadCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
+            ElementTypeRef successorCandidate = leadCandidate.next;
+            while (successorCandidate != null) {
+                bucket = initBucket(bucket);
+                bucket.addAll(successorCandidate.elementType.cache.getFirstPossibleLeafs());
+                if (!successorCandidate.optional) break;
+                successorCandidate = successorCandidate.next;
+            }
         }
 
         return leadCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);

@@ -4473,7 +4473,7 @@ public final class MysqlSQLParserFlexLexer implements FlexLexer {
           // fall through
           case 586: break;
           case 24:
-            { return stt.quotedIdentifier;
+            { return stt.identifier;
             }
           // fall through
           case 587: break;

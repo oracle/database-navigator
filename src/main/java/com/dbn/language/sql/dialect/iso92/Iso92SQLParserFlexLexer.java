@@ -3948,7 +3948,7 @@ public final class Iso92SQLParserFlexLexer implements FlexLexer {
           // fall through
           case 529: break;
           case 24:
-            { return stt.quotedIdentifier;
+            { return stt.identifier;
             }
           // fall through
           case 530: break;

@@ -139,7 +139,6 @@ public abstract class ElementTypeIndexedCache<T extends ElementTypeBase> extends
             if (leaf instanceof IdentifierElementType) {
                 SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
                 allPossibleTokens.add(sharedTokenTypes.identifier);
-                allPossibleTokens.add(sharedTokenTypes.quotedIdentifier);
             } else {
                 allPossibleTokens.add(leaf.tokenType);
             }

@@ -21,13 +21,11 @@ import com.intellij.psi.tree.TokenSet;
 import lombok.SneakyThrows;
 import org.jdom.Document;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class SharedTokenTypeBundle extends TokenTypeBundleBase {
     public final SimpleTokenType whiteSpace;
     public final SimpleTokenType identifier;
-    public final SimpleTokenType quotedIdentifier;
     public final SimpleTokenType variable;
     public final SimpleTokenType string;
     public final SimpleTokenType number;
@@ -59,7 +57,6 @@ public class SharedTokenTypeBundle extends TokenTypeBundleBase {
         super(language, loadDefinition());
         whiteSpace = getTokenType("WHITE_SPACE");
         identifier = getTokenType("IDENTIFIER");
-        quotedIdentifier = getTokenType("QUOTED_IDENTIFIER");
         variable = getTokenType("VARIABLE");
         string = getTokenType("STRING");
         number = getTokenType("NUMBER");
@@ -86,9 +83,7 @@ public class SharedTokenTypeBundle extends TokenTypeBundleBase {
         commentTokens = getTokenSet("COMMENTS");
         stringTokens = getTokenSet("STRINGS");
 
-        identifierTokens = new HashSet<>(2);
-        identifierTokens.add(identifier);
-        identifierTokens.add(quotedIdentifier);
+        identifierTokens = Set.of(identifier);
     }
 
     @SneakyThrows
@@ -98,7 +93,7 @@ public class SharedTokenTypeBundle extends TokenTypeBundleBase {
 
 
     public boolean isIdentifier(TokenType tokenType) {
-        return tokenType == identifier || tokenType == quotedIdentifier;
+        return tokenType == identifier;
     }
 
     public boolean isVariable(TokenType tokenType) {

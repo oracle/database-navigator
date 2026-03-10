@@ -28,7 +28,6 @@ public abstract class PSQLSyntaxHighlighter extends DBLanguageSyntaxHighlighter 
         TokenTypeBundle tt = getTokenTypes();
         SharedTokenTypeBundle stt = tt.getSharedTokenTypes();
         colors.put(stt.identifier,                  PSQLTextAttributesKeys.IDENTIFIER);
-        colors.put(stt.quotedIdentifier,            PSQLTextAttributesKeys.QUOTED_IDENTIFIER);
         colors.put(tt.getTokenType("LINE_COMMENT"),      PSQLTextAttributesKeys.LINE_COMMENT);
         colors.put(tt.getTokenType("BLOCK_COMMENT"),     PSQLTextAttributesKeys.BLOCK_COMMENT);
         colors.put(tt.getTokenType("STRING"),            PSQLTextAttributesKeys.STRING);

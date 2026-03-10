@@ -36,7 +36,7 @@ public class IdentifierElementTypeCache extends LeafElementTypeCache<IdentifierE
     @Override
     public boolean containsToken(TokenType tokenType) {
         SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
-        return sharedTokenTypes.identifier == tokenType || sharedTokenTypes.quotedIdentifier == tokenType;
+        return sharedTokenTypes.identifier == tokenType;
     }
 
     @Override
@@ -69,7 +69,6 @@ public class IdentifierElementTypeCache extends LeafElementTypeCache<IdentifierE
     public void captureFirstPossibleTokens(Set<TokenType> bucket) {
         SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
         bucket.add(sharedTokenTypes.identifier);
-        bucket.add(sharedTokenTypes.quotedIdentifier);
     }
 
     @Override

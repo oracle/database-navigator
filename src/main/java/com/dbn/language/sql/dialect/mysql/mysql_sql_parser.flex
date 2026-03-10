@@ -649,5 +649,5 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 // MARKER_END_EXCEPTIONS
 
 {IDENTIFIER}           { return stt.identifier; }
-{QUOTED_IDENTIFIER}    { return stt.quotedIdentifier; }
+{QUOTED_IDENTIFIER}    { return stt.identifier; }
 .                      { return stt.identifier; }

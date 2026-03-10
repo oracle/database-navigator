@@ -2620,7 +2620,7 @@ public final class SqliteSQLHighlighterFlexLexer implements FlexLexer {
           // fall through
           case 18: break;
           case 3:
-            { return stt.quotedIdentifier;
+            { return stt.identifier;
             }
           // fall through
           case 19: break;

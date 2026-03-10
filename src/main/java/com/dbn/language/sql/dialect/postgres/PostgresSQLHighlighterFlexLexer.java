@@ -5338,7 +5338,7 @@ public final class PostgresSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 20: break;
           case 3:
-            { return stt.quotedIdentifier;
+            { return stt.identifier;
             }
           // fall through
           case 21: break;

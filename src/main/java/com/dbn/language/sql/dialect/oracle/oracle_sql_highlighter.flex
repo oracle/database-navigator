@@ -63,7 +63,7 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 
     {OPERATOR}            { return tt.getOperator(); }
     {IDENTIFIER}          { return stt.identifier; }
-    {QUOTED_IDENTIFIER}   { return stt.quotedIdentifier; }
+    {QUOTED_IDENTIFIER}   { return stt.identifier; }
 
     "("                   { return stt.chrLeftParenthesis; }
     ")"                   { return stt.chrRightParenthesis; }
@@ -97,7 +97,7 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 
     {OPERATOR}            { return tt.getOperator(); }
     {IDENTIFIER}          { return stt.identifier; }
-    {QUOTED_IDENTIFIER}   { return stt.quotedIdentifier; }
+    {QUOTED_IDENTIFIER}   { return stt.identifier; }
 
     "("                   { return stt.chrLeftParenthesis; }
     ")"                   { return stt.chrRightParenthesis; }

@@ -3024,7 +3024,7 @@ public final class MysqlSQLHighlighterFlexLexer implements FlexLexer {
           // fall through
           case 28: break;
           case 11:
-            { return stt.quotedIdentifier;
+            { return stt.identifier;
             }
           // fall through
           case 29: break;

@@ -11496,7 +11496,7 @@ final class OracleSQLHighlighterFlexLexer extends DBLanguageLexerBase {
           // fall through
           case 31: break;
           case 3:
-            { return stt.quotedIdentifier;
+            { return stt.identifier;
             }
           // fall through
           case 32: break;

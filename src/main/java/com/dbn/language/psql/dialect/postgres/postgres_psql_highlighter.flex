@@ -94,7 +94,7 @@ DATA_TYPE = "array"|"bigint"|"bigserial"|"bit"{ws}"varying"|"bool"|"boolean"|"bo
 
 
 {IDENTIFIER}         { return stt.identifier; }
-{QUOTED_IDENTIFIER}  { return stt.quotedIdentifier; }
+{QUOTED_IDENTIFIER}  { return stt.identifier; }
 
 
 "("                  { return stt.chrLeftParenthesis; }

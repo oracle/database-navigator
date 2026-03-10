@@ -91,7 +91,7 @@ SQL_DATATYPE = "bit"|"tinyint"|"bool"|"boolean"|"smallint"|"mediumint"|"int"|"in
 
 
 {IDENTIFIER}        { return stt.identifier; }
-{QUOTED_IDENTIFIER} { return stt.quotedIdentifier; }
+{QUOTED_IDENTIFIER} { return stt.identifier; }
 
 
 "("                 { return stt.chrLeftParenthesis; }
