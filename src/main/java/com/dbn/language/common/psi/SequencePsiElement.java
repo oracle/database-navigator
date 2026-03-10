@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElement<T> {
     public SequencePsiElement(ASTNode astNode, T elementType) {
@@ -176,36 +177,23 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
 
     @Override
     public BasePsiElement findFirstPsiElement(ElementTypeAttribute attribute) {
-        if (elementType.is(attribute)) {
-            return this;
-        }
-
-        PsiElement child = getFirstChild();
-        while (child != null) {
-            if (child instanceof BasePsiElement basePsiElement) {
-                BasePsiElement firstElement = basePsiElement.findFirstPsiElement(attribute);
-                if (firstElement != null) {
-                    return firstElement;
-                }
-            }
-            child = child.getNextSibling();
-        }
-        return null;
+        return findFirstPsiElement(e -> e.elementType.is(attribute));
     }
 
     @Override
     public BasePsiElement findFirstPsiElement(Class<? extends ElementType> clazz) {
-        if (clazz.isAssignableFrom(elementType.getClass())) {
-            return this;
-        }
+        return findFirstPsiElement(e -> clazz.isAssignableFrom(e.elementType.getClass()));
+    }
+
+    @Override
+    public BasePsiElement findFirstPsiElement(Predicate<BasePsiElement> predicate) {
+        if (predicate.test(this)) return this;
 
         PsiElement child = getFirstChild();
         while (child != null) {
             if (child instanceof BasePsiElement basePsiElement) {
-                BasePsiElement firstElement = basePsiElement.findFirstPsiElement(clazz);
-                if (firstElement != null) {
-                    return firstElement;
-                }
+                BasePsiElement firstElement = basePsiElement.findFirstPsiElement(predicate);
+                if (firstElement != null) return firstElement;
             }
             child = child.getNextSibling();
         }

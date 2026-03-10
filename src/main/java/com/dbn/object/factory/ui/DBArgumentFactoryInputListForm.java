@@ -22,8 +22,7 @@ import com.dbn.code.psql.style.PSQLCodeStyle;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Lists;
 import com.dbn.data.type.DataTypeDefinition;
-import com.dbn.object.factory.model.DBArgumentSpec;
-import com.dbn.object.factory.model.DBMethodSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputListForm;
@@ -33,7 +32,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class DBArgumentFactoryInputListForm extends DBObjectFactoryInputListForm<DBArgumentSpec> {
+import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
+
+public class DBArgumentFactoryInputListForm extends DBObjectFactoryInputListForm<DBObjectSpec> {
 
     @Getter(lazy = true)
     private final List<Presentable> objectDetailOptions = initObjectDetailOptions();
@@ -43,27 +44,27 @@ public class DBArgumentFactoryInputListForm extends DBObjectFactoryInputListForm
     }
 
     @Override
-    protected DBObjectSpecList<DBArgumentSpec> getChildInputs() {
-        return getMethodInput().getArguments();
+    protected DBObjectSpecList<DBObjectSpec> getChildInputs() {
+        return getMethodInput().getChildren(DBObjectType.ARGUMENT);
     }
 
     @Override
-    protected DBArgumentSpec createChildInput(Presentable detail) {
-        DBMethodSpec methodInput = getMethodInput();
+    protected DBObjectSpec createChildInput(Presentable detail) {
+        DBObjectSpec methodInput = getMethodInput();
 
-        DBArgumentSpec argumentInput = new DBArgumentSpec(methodInput);
+        DBObjectSpec argumentInput = new DBObjectSpec(methodInput, DBObjectType.ARGUMENT);
         String dataType = detail == null ? null : detail.getName();
-        argumentInput.setDataType(dataType);
+        argumentInput.setAttributeValue(DATA_TYPE, dataType);
         return argumentInput;
     }
 
-    private DBMethodSpec getMethodInput() {
+    private DBObjectSpec getMethodInput() {
         DBMethodFactoryInputForm methodInputForm = ensureParentComponent();
         return methodInputForm.getInput();
     }
 
     @Override
-    public DBObjectFactoryInputForm<DBArgumentSpec> createChildInputForm(DBArgumentSpec input) {
+    public DBObjectFactoryInputForm<DBObjectSpec> createChildInputForm(DBObjectSpec input) {
         return new DBArgumentFactoryInputForm(this, input);
     }
 

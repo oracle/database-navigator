@@ -160,6 +160,10 @@ public class CodeCompletionContext {
         queue.cancel();
     }
 
+    public void addCompletionCandidates(Collection<LeafElementType> leafElementTypes) {
+        leafElementTypes.forEach(leafElementType -> addCompletionCandidate(leafElementType));
+    }
+
     public void addCompletionCandidate(@Nullable LeafElementType leafElementType) {
         if (leafElementType == null) return;
 

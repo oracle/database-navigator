@@ -28,6 +28,7 @@ import static com.dbn.object.type.DBJavaClassType.EXCEPTION;
 
 @Getter
 @Setter
+@Deprecated // TODO convert to generic DBObjectSpec using DBObjectAttribute
 public class DBJavaClassSpec extends DBObjectSpec {
     private DBJavaClassType classType;
     private String packageName;

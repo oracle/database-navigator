@@ -76,8 +76,8 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
     private transient int popupTabIndex = -1;
 
     private JPanel hiddenTabsActionPanel;
-    protected final Listeners<DBNTabsSelectionListener> selectionListeners = new Listeners<>();
-    protected final Listeners<DBNTabsUpdateListener> updateListeners = new Listeners<>();
+    protected final Listeners<DBNTabsSelectionListener> selectionListeners = Listeners.create(this);
+    protected final Listeners<DBNTabsUpdateListener> updateListeners = Listeners.create(this);
     private final Latent<Boolean> hasTooltips  = Latent.mutable(
             () -> getTabCount(),
             () -> evaluateHasTooltips());

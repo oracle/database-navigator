@@ -20,6 +20,7 @@ import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.ValueFactory;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.util.Listeners;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
@@ -44,9 +45,12 @@ import static com.dbn.common.util.Unsafe.cast;
 public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
     private DBObjectType objectType;
     private Supplier<DBObjectSpec> valueFactoryInput;
+    private Supplier<Consumer<String>> valueFactoryNameConsumer;
 
     private Supplier<ConnectionHandler> connectionContext;
     private Supplier<DBSchema> schemaContext;
+
+    private final Listeners<DBObjectSelectorListener> listeners = Listeners.create();
 
     public DBObjectSelector() {
         set(HIDE_DESCRIPTION, true);
@@ -69,6 +73,24 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
         }
 
         return this;
+    }
+
+    @Override
+    public List<T> performValueLoad() {
+        try {
+            listeners.notify(l -> l.valueLoadStarted());
+            return super.performValueLoad();
+        } finally {
+            listeners.notify(l -> l.valueLoadEnded());
+        }
+    }
+
+    @Override
+    protected String getHint() {
+        int size = getModelSize();
+        if (size < 10) return null;
+
+        return "Start typing to filter the " + getObjectType().getListName() + "...";
     }
 
     public DBObjectSelector<T> withConnectionContext(Supplier<ConnectionHandler> connectionContext) {
@@ -95,6 +117,16 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
 
     public DBObjectSelector<T> withValueFactoryInput(Supplier<DBObjectSpec> initialFactoryInput) {
         this.valueFactoryInput = initialFactoryInput;
+        return this;
+    }
+
+    public DBObjectSelector<T> withValueFactoryNameConsumer(Supplier<Consumer<String>> valueFactoryNameConsumer) {
+        this.valueFactoryNameConsumer = valueFactoryNameConsumer;
+        return this;
+    }
+
+    public DBObjectSelector<T> withListener(DBObjectSelectorListener listener) {
+        listeners.add(listener);
         return this;
     }
 
@@ -140,7 +172,15 @@ public class DBObjectSelector<T extends DBObject> extends DBNComboBox<T> {
         return null; // async handling
     }
 
-    private @NotNull Consumer<String> reloadConsumer() {
-        return n -> reloadValues(m -> m.getName().equalsIgnoreCase(n));
+    private Consumer<String> reloadConsumer() {
+        return n -> {
+            Consumer<String> nameConsumer = valueFactoryNameConsumer == null ? null : valueFactoryNameConsumer.get();
+            if (nameConsumer != null) {
+                nameConsumer.accept(n);
+            }
+            withValuePreselector(m -> m.getName().equalsIgnoreCase(n));
+            // reload will happen as part of factory notification
+            // reloadValues();
+        };
     }
 }

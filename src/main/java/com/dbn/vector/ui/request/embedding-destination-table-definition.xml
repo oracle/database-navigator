@@ -1,0 +1,56 @@
+<!--
+  ~ Copyright 2025 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<definition>
+    <attribute name="OBJECT_TYPE" value="TABLE"/>
+    <attribute name="OBJECT_NAME" value="VECTOR_EMBEDDINGS" id="TABLE_NAME"/>
+    <children readonly="Y">
+        <definition>
+            <attribute name="OBJECT_TYPE"      value="COLUMN"/>
+            <attribute name="OBJECT_NAME"      value="ID"/>
+            <attribute name="DATA_TYPE"        value="varchar2(50)" readonly="Y"/>
+            <attribute name="IS_NOT_NULL"      value="Y" readonly="Y"/>
+            <attribute name="IS_PRIMARY_KEY"   value="Y" readonly="Y"/>
+        </definition>
+        <definition>
+            <attribute name="OBJECT_TYPE"      value="COLUMN"/>
+            <attribute name="OBJECT_NAME"      value="TEXT"/>
+            <attribute name="DATA_TYPE"        value="clob" readonly="Y"/>
+            <attribute name="IS_NOT_NULL"      value="Y" readonly="Y"/>
+        </definition>
+        <definition>
+            <attribute name="OBJECT_TYPE"      value="COLUMN"/>
+            <attribute name="OBJECT_NAME"      value="EMBEDDING"/>
+            <attribute name="DATA_TYPE"        value="vector(*, float32)" readonly="Y"/>
+            <attribute name="IS_NOT_NULL"      value="Y" readonly="Y"/>
+        </definition>
+        <definition>
+            <attribute name="OBJECT_TYPE"      value="COLUMN"/>
+            <attribute name="OBJECT_NAME"      value="METADATA" id="METADATA_COLUMN_NAME"/>
+            <attribute name="DATA_TYPE"        value="json" readonly="Y"/>
+        </definition>
+        <definition readonly="Y">
+            <attribute name="OBJECT_TYPE"      value="INDEX"/>
+            <attribute name="OBJECT_NAME"      value="${TABLE_NAME}_SOURCE_IDX"/>
+            <attribute name="INDEX_DEFINITION" value="json_value(${METADATA_COLUMN_NAME}, '$.embedding_source.source_id')"/>
+        </definition>
+        <definition readonly="Y">
+            <attribute name="OBJECT_TYPE"      value="INDEX"/>
+            <attribute name="OBJECT_NAME"      value="${TABLE_NAME}_SOURCE_HASH"/>
+            <attribute name="INDEX_DEFINITION" value="json_value(${METADATA_COLUMN_NAME}, '$.embedding_source.source_hash')"/>
+        </definition>
+    </children>
+</definition>

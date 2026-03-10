@@ -123,6 +123,10 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
         return null;
     }
 
+    public String getElementId() {
+        return elementType.getId();
+    }
+
     @Override
     public PsiElement getParent() {
         ASTNode parentNode = getNode().getTreeParent();
@@ -252,12 +256,8 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
     }
 
     public String toString() {
-        //return elementType.is(ElementTypeAttribute.SCOPE_DEMARCATION);
-        return hasErrors() ?
-                "[INVALID] " + elementType.getName() :
-                elementType.getName() +
-                        (elementType.scopeDemarcation ? " SCOPE_DEMARCATION" : "") +
-                        (elementType.scopeIsolation ? " SCOPE_ISOLATION" : "");
+        String name = elementType.getName();
+        return hasErrors() ? "[INVALID] " + name : name;
     }
 
     @Override
@@ -492,6 +492,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
     }
 
     public abstract NamedPsiElement findNamedPsiElement(String id);
+    public abstract BasePsiElement findFirstPsiElement(Predicate<BasePsiElement> predicate);
     public abstract BasePsiElement findFirstPsiElement(ElementTypeAttribute attribute);
     public abstract BasePsiElement findFirstPsiElement(Class<? extends ElementType> clazz);
     public abstract BasePsiElement findFirstLeafPsiElement();
@@ -544,7 +545,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
     }
 
     @Nullable
-    public <E extends BasePsiElement> E findEnclosingElement(boolean includeThis, Predicate<BasePsiElement<?>> predicate) {
+    public <E extends BasePsiElement> E findEnclosingElement(boolean includeThis, Predicate<BasePsiElement> predicate) {
         PsiElement element = includeThis ? this : getParent();
         while (element != null) {
             if (element instanceof PsiFile) break;

@@ -78,7 +78,7 @@ public class OneOfElementTypeLookupCache extends ElementTypeLookupCacheIndexed<O
     public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
         ElementTypeRef leadCandidate = element.getFirstChild();
         while (leadCandidate != null) {
-            leadCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
+            bucket = leadCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
             leadCandidate = leadCandidate.next;
         }
         return bucket;

@@ -19,7 +19,6 @@ package com.dbn.connection.transaction.ui;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dbn.connection.transaction.TransactionAction;
@@ -35,13 +34,11 @@ import static com.dbn.connection.transaction.TransactionAction.COMMIT;
 import static com.dbn.connection.transaction.TransactionAction.ROLLBACK;
 
 public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactionsDetailForm> {
-    private final ConnectionRef connection;
     private final TransactionAction additionalOperation;
     private final boolean showActions;
 
     public PendingTransactionsDetailDialog(ConnectionHandler connection, TransactionAction additionalOperation, boolean showActions) {
-        super(connection.getProject(), "Open transactions", true);
-        this.connection = connection.ref();
+        super(connection, "Open transactions", true);
         this.additionalOperation = additionalOperation;
         this.showActions = showActions;
         setModal(false);
@@ -53,11 +50,6 @@ public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactio
     @Override
     protected PendingTransactionsDetailForm createForm() {
         return new PendingTransactionsDetailForm(this, getConnection(), additionalOperation, showActions);
-    }
-
-    @NotNull
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     @Override
