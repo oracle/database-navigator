@@ -38,7 +38,7 @@ public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
         init();
     }
 
-    private ConnectionHandler getConnection() {
+    public ConnectionHandler getConnection() {
         return connection.ensure();
     }
 
