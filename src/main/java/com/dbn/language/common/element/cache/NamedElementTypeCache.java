@@ -45,21 +45,21 @@ public class NamedElementTypeCache extends SequenceElementTypeCache<NamedElement
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, Set<LeafElementType> bucket) {
-        return computeGuarded("firstPossibleLeafsCapture", bucket, bucket, b -> super.captureFirstPossibleLeafs(context, b));
+        return computeGuarded("firstPossibleLeafsCapture", bucket, this, c -> super.captureFirstPossibleLeafs(context, bucket));
     }
 
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, Set<TokenType> bucket) {
-        return computeGuarded("firstPossibleTokensCapture", bucket, bucket, b -> super.captureFirstPossibleTokens(context, b));
+        return computeGuarded("firstPossibleTokensCapture", bucket, this, c -> super.captureFirstPossibleTokens(context, bucket));
     }
 
     @Override
     public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
-        return computeGuarded("surrogateSuccessorCapture", bucket, bucket, b -> super.captureSurrogateSuccessors(surrogateLead, b));
+        return computeGuarded("surrogateSuccessorCapture", bucket, this, c -> super.captureSurrogateSuccessors(surrogateLead, bucket));
     }
 
     @Override
     protected boolean checkStartsWith(TokenTypeCategory typeCategory) {
-        return computeGuarded("startsWithCheck" + typeCategory, false, typeCategory, c -> super.checkStartsWith(c));
+        return computeGuarded("startsWithCheck" + typeCategory, false, this, c -> super.checkStartsWith(typeCategory));
     }
 }
