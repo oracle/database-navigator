@@ -106,7 +106,7 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
     }
 
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    public DataChangeNotification getValueAt(int rowIndex, int columnIndex) {
         if (isInBounds(notifications, rowIndex)) {
             return notifications.get(rowIndex);
         }
@@ -161,10 +161,6 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
             case TABLE -> getTableIdentifiers();
             case OPERATION -> List.of("INSERT", "UPDATE", "DELETE");
         };
-    }
-
-    public ListModel getListModel() {
-        return gutterModel;
     }
 
     @Override

@@ -64,7 +64,7 @@ public class BasicDataModel<
 
     private final Listeners<TableModelListener> tableModelListeners = Listeners.create(this);
     private final Listeners<DataModelListener> dataModelListeners = Listeners.create(this);
-    private final Latent<BasicDataGutterModel> listModel = Latent.basic(() -> new BasicDataGutterModel(BasicDataModel.this));
+    private final Latent<BasicDataGutterModel> gutterModel = Latent.basic(() -> new BasicDataGutterModel(BasicDataModel.this));
     private final Latent<DataSearchResult> searchResult = Latent.basic(() -> new DataSearchResult());
 
 
@@ -92,8 +92,8 @@ public class BasicDataModel<
     }
 
     @Override
-    public ListModel getListModel() {
-        return listModel.get();
+    public ListModel getGutterModel() {
+        return gutterModel.get();
     }
 
     @NotNull
@@ -281,7 +281,7 @@ public class BasicDataModel<
     protected void notifyListeners(@Nullable ListDataEvent listDataEvent, @Nullable TableModelEvent modelEvent) {
         Dispatch.run(() -> {
             if (listDataEvent != null) {
-                BasicDataGutterModel gutterModel = listModel.value();
+                BasicDataGutterModel gutterModel = this.gutterModel.value();
                 if (gutterModel != null) {
                     gutterModel.notifyListeners(listDataEvent);
                 }

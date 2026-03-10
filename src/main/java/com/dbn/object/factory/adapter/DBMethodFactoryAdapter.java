@@ -28,8 +28,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.ObjectFactoryAdapters;
-import com.dbn.object.factory.model.DBArgumentSpec;
-import com.dbn.object.factory.model.DBMethodSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.DBMethodFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 
@@ -40,18 +39,18 @@ import java.util.Set;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
-import static com.dbn.object.type.DBObjectType.FUNCTION;
-import static com.dbn.object.type.DBObjectType.PROCEDURE;
 
-public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter<DBMethodSpec, DBMethodFactoryInputForm> {
+public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec, DBMethodFactoryInputForm> {
 
-    public DBMethodFactoryInputForm createInputForm(DBNComponent parent, DBMethodSpec input) {
+    public DBMethodFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec input) {
         return new DBMethodFactoryInputForm(parent, input);
     }
 
     @Override
-    public void validateInput(DBMethodSpec input, List<String> errors) {
+    public void validateInput(DBObjectSpec input, List<String> errors) {
         String objectName = input.getObjectName();
         if (objectName.isEmpty()) {
             String hint = input.getParent() == null ? "" : " at index " + input.getIndex();
@@ -62,14 +61,17 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter<DBM
         }
 
 
-        if (input.getReturnArgument() != null) {
-            if (input.getReturnArgument().getDataType().isEmpty())
+        DBObjectSpec returnArgument = RETURN_ARGUMENT.of(input);
+        if (returnArgument != null) {
+            String dataType = DATA_TYPE.of(returnArgument);
+            if (Strings.isEmpty(dataType)){
                 errors.add("missing data type for return argument");
+            }
         }
 
         DBArgumentFactoryAdapter argumentAdapter = ObjectFactoryAdapters.get(ARGUMENT);
         Set<String> argumentNames = new HashSet<>();
-        for (DBArgumentSpec argumentInput : input.getArguments()) {
+        for (DBObjectSpec argumentInput : input.getChildren(ARGUMENT)) {
             argumentAdapter.validateInput(argumentInput, errors);
             String argumentName = argumentInput.getObjectName();
             if (Strings.isEmptyOrSpaces(argumentName)) continue; // already covered by field validator
@@ -83,8 +85,8 @@ public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter<DBM
     }
 
     @Override
-    public void createObject(DBMethodSpec input) throws SQLException {
-        DBObjectType objectType = input.isFunction() ? FUNCTION : PROCEDURE;
+    public void createObject(DBObjectSpec input) throws SQLException {
+        DBObjectType objectType = input.getObjectType();
         String objectName = input.getObjectName();
         DBSchema schema = input.getSchema();
 

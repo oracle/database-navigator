@@ -18,6 +18,7 @@ package com.dbn.language.common.element.cache;
 
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.impl.IdentifierElementType;
 
 import java.util.Set;
@@ -39,9 +40,19 @@ public class IdentifierElementTypeLookupCache extends LeafElementTypeLookupCache
     }
 
     @Override
-    public Set<TokenType> getFirstPossibleTokens() {
+    public Set<TokenType> getAllPossibleTokens() {
         SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
         return sharedTokenTypes.getIdentifierTokens();
+    }
+
+    @Override
+    public Set<TokenType> getFirstPossibleTokens() {
+        return getAllPossibleTokens();
+    }
+
+    @Override
+    public Set<TokenType> getFirstRequiredTokens() {
+        return getAllPossibleTokens();
     }
 
     @Override
@@ -62,10 +73,7 @@ public class IdentifierElementTypeLookupCache extends LeafElementTypeLookupCache
     }
 
     @Override
-    public boolean startsWithIdentifier() {
-        return true;
+    public boolean startsWith(TokenTypeCategory typeCategory) {
+        return typeCategory == TokenTypeCategory.IDENTIFIER;
     }
-
-
-
 }

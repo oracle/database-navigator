@@ -24,6 +24,7 @@ import com.dbn.common.util.Strings;
 import com.intellij.lang.Language;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -47,7 +48,8 @@ public abstract class TokenTypeBundleBase {
     private final AtomicInteger tokenIndexer = new AtomicInteger();
     private final IndexRegistry<TokenType> tokenRegistry = new IndexRegistry<>();
 
-    private final Language language;
+    private final @Getter Language language;
+
     private SimpleTokenType[] keywords;
     private SimpleTokenType[] functions;
     private SimpleTokenType[] parameters;
@@ -65,24 +67,17 @@ public abstract class TokenTypeBundleBase {
     private Map<String, SimpleTokenType> charactersMap;
     private Map<String, SimpleTokenType> operatorsMap;
 
-    private final Map<String, SimpleTokenType> tokenTypes = new HashMap<>();
-    private final Map<String, TokenSet> tokenSets = new HashMap<>();
-
-    public Map<String, SimpleTokenType> getTokenTypes() {
-        return tokenTypes;
-    }
+    private final @Getter Map<String, SimpleTokenType> tokenTypes = new HashMap<>();
+    private final @Getter Map<String, TokenSet> tokenSets = new HashMap<>();
 
     public TokenTypeBundleBase(Language language, Document document) {
         this.language = language;
+        tokenIndexer.set(getInitialIndex());
         loadDefinition(language, document);
     }
 
-    public Language getLanguage() {
-        return language;
-    }
-
-    protected void initIndex(int index) {
-        tokenIndexer.set(index);
+    protected int getInitialIndex() {
+        return 0;
     }
 
     protected int size() {

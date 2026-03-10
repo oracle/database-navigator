@@ -37,7 +37,8 @@ public enum TokenTypeCategory {
     WHITESPACE("whitespace"),
     COMMENT("comment"),
     NUMERIC("numeric"),
-    LITERAL("literal")
+    LITERAL("literal"),
+    VARIABLE("variable")
     ;
 
     private final String name;
@@ -46,9 +47,9 @@ public enum TokenTypeCategory {
         this.name = name;
     }
 
-    public static TokenTypeCategory getCategory(String categoryName) {
+    public static TokenTypeCategory getCategory(String name) {
         for (TokenTypeCategory identifier : TokenTypeCategory.values()) {
-            if (Objects.equals(identifier.name, categoryName)) return identifier;
+            if (Objects.equals(identifier.name, name)) return identifier;
         }
         return UNKNOWN;
     }

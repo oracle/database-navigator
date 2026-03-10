@@ -39,4 +39,6 @@ public interface DBNComponent extends StatefulDisposable, ProjectSupplier {
     JComponent getComponent();
 
 
+
+
 }

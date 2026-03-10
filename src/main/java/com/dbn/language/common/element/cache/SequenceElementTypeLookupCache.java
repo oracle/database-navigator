@@ -17,13 +17,17 @@
 package com.dbn.language.common.element.cache;
 
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.ElementTypeRef;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.SequenceElementType;
+import com.dbn.language.common.element.impl.SurrogateSequenceElementType;
 
 import java.util.Set;
+
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
 
 public class SequenceElementTypeLookupCache<T extends SequenceElementType> extends ElementTypeLookupCacheIndexed<T> {
 
@@ -49,7 +53,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
     }
 
     private boolean couldStartWithElement(ElementType elementType) {
-        ElementTypeRef child = this.elementType.getFirstChild();
+        ElementTypeRef child = this.element.getFirstChild();
         while (child != null) {
             if (child.optional) {
                 if (elementType == child.elementType) return true;
@@ -62,7 +66,7 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
     }
 
     private boolean shouldStartWithElement(ElementType elementType) {
-        ElementTypeRef child = this.elementType.getFirstChild();
+        ElementTypeRef child = this.element.getFirstChild();
         while (child != null) {
             if (!child.optional) {
                 return child.elementType == elementType;
@@ -73,27 +77,25 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
     }
 
     @Override
-    public boolean checkStartsWithIdentifier() {
-        ElementTypeRef child = this.elementType.getFirstChild();
+    protected boolean checkStartsWith(TokenTypeCategory typeCategory) {
+        ElementTypeRef child = this.element.getFirstChild();
         while (child != null) {
-            if (child.elementType.cache.startsWithIdentifier()) {
-                return true;
-            }
-
-            if (!child.optional) {
-                return false;
-            }
+            if (child.elementType.cache.startsWith(typeCategory)) return true;
+            if (!child.optional) return false;
             child = child.next;
         }
-        return false;
-    }
+        return false;    }
 
     @Override
     public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, Set<LeafElementType> bucket) {
+        if (element instanceof SurrogateSequenceElementType surrogateSequence) {
+            return surrogateSequence.getMainElementType().cache.captureFirstPossibleLeafs(context, bucket);
+        }
+
         bucket = super.captureFirstPossibleLeafs(context, bucket);
         bucket = initBucket(bucket);
 
-        ElementTypeRef child = this.elementType.getFirstChild();
+        ElementTypeRef child = this.element.getFirstChild();
         while (child != null) {
             if (context.check(child)) {
                 child.elementType.cache.captureFirstPossibleLeafs(context, bucket);
@@ -106,10 +108,14 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
 
     @Override
     public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, Set<TokenType> bucket) {
+        if (element instanceof SurrogateSequenceElementType surrogateSequence) {
+            return surrogateSequence.getMainElementType().cache.captureFirstPossibleTokens(context, bucket);
+        }
+
         bucket = super.captureFirstPossibleTokens(context, bucket);
         bucket = initBucket(bucket);
 
-        ElementTypeRef child = this.elementType.getFirstChild();
+        ElementTypeRef child = this.element.getFirstChild();
         while (child != null) {
             if (context.check(child)) {
                 child.elementType.cache.captureFirstPossibleTokens(context, bucket);
@@ -118,6 +124,34 @@ public class SequenceElementTypeLookupCache<T extends SequenceElementType> exten
             child = child.next;
         }
         return bucket;
+    }
+
+    @Override
+    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
+        ElementTypeRef leadCandidate = element.getFirstChild();
+
+        while (true) {
+            if (surrogateLead.isSurrogateFor(leadCandidate.elementType)) break;
+            if (!leadCandidate.optional) return bucket;
+            leadCandidate = leadCandidate.next;
+        }
+
+        if (leadCandidate.elementType instanceof LeafElementType) {
+            ElementTypeRef successorCandidate = leadCandidate.next;
+            if (leadCandidate.elementType.is(SURROGATE_LEAD)) {
+                bucket = successorCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
+            } else {
+                while (successorCandidate != null) {
+                    bucket = initBucket(bucket);
+                    bucket.addAll(successorCandidate.elementType.cache.getFirstPossibleLeafs());
+                    if (!successorCandidate.optional) break;
+                    successorCandidate = successorCandidate.next;
+                }
+            }
+            return bucket;
+        }
+
+        return leadCandidate.elementType.cache.captureSurrogateSuccessors(surrogateLead, bucket);
     }
 }
 

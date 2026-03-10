@@ -16,15 +16,21 @@
 
 package com.dbn.language.common.element.impl;
 
+import com.dbn.language.common.element.TokenPairTemplate;
+
 import java.util.Objects;
 
 public class WrappingDefinition {
-    public final TokenElementType beginElementType;
-    public final TokenElementType endElementType;
+    public final TokenElementType beginElement;
+    public final TokenElementType endElement;
+    public final boolean optional;
+    public final TokenPairTemplate template;
 
-    public WrappingDefinition(TokenElementType beginElementType, TokenElementType endElementType) {
-        this.beginElementType = beginElementType;
-        this.endElementType = endElementType;
+    public WrappingDefinition(TokenElementType beginElement, TokenElementType endElement, boolean optional) {
+        this.beginElement = beginElement;
+        this.endElement = endElement;
+        this.optional = optional;
+        this.template = beginElement.tokenType.getTokenPairTemplate();
     }
 
     @Override
@@ -33,14 +39,16 @@ public class WrappingDefinition {
         if (getClass() != o.getClass()) return false;
 
         WrappingDefinition that = (WrappingDefinition) o;
-        return Objects.equals(beginElementType.tokenType, that.beginElementType.tokenType) &&
-                Objects.equals(endElementType.tokenType, that.endElementType.tokenType);
+        return this.optional == that.optional &&
+                this.beginElement.tokenType == that.beginElement.tokenType &&
+                this.endElement.tokenType == that.endElement.tokenType;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
-                beginElementType.tokenType,
-                endElementType.tokenType);
+                optional,
+                beginElement.tokenType,
+                endElement.tokenType);
     }
 }

@@ -22,6 +22,7 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.util.UserInterface;
 import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.PopupBorder;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +33,7 @@ import javax.swing.JRootPane;
 import javax.swing.border.Border;
 import java.awt.Point;
 import java.awt.Window;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDialogs;
@@ -111,6 +113,14 @@ public class Dialogs {
         Point location = window.getLocation();
         location.move(location.x - (delta / 2), location.y);
         window.setLocation(location);
+    }
+
+    public static <T extends DBNDialog<?>> DialogCallback<T> whenOk(Consumer<T> runnable) {
+        return (dialog, exitCode) -> {
+            if (exitCode == DialogWrapper.OK_EXIT_CODE) {
+                runnable.accept(dialog);
+            }
+        };
     }
 
 

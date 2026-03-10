@@ -55,6 +55,10 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.OPTIONAL_WRAPPING;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_DEMARCATION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.SCOPE_ISOLATION;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
 
 @Slf4j
 @Getter
@@ -62,35 +66,36 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 public abstract class ElementTypeBase extends IElementType implements ElementType, ICompositeElementType {
     private static final FormattingDefinition STATEMENT_FORMATTING = new FormattingDefinition(null, IndentDefinition.NORMAL, SpacingDefinition.MIN_LINE_BREAK, null);
 
-    private final String id;
     private final int hashCode;
-    private String description;
-    private Icon icon;
+
+    public final String id;
+    public String description;
+    public Icon icon;
     public Branch branch;
     public FormattingDefinition formatting;
 
-    public final ElementTypeLookupCache<?> cache = createLookupCache();
+    public ElementTypeLookupCache<?> cache = createLookupCache();
     public final ElementTypeParser parser = createParser();
     public final ElementTypeBundle bundle;
-    public final ElementTypeBase parent;
+    public ElementTypeBase parent;
     public DBObjectType virtualObjectType;
     public WrappingDefinition wrapping;
     private ElementTypeAttributeHolder attributes;
 
     public boolean scopeDemarcation;
     public boolean scopeIsolation;
+    protected transient boolean initialized;
 
 
     @Override
-    public @NotNull ASTNode createCompositeNode() {
+    public ASTNode createCompositeNode() {
         return new BasicCompositeElement(this);
     }
 
-    ElementTypeBase(@NotNull ElementTypeBundle bundle, ElementTypeBase parent, String id, @Nullable String description) {
+    ElementTypeBase(@NotNull ElementTypeBundle bundle, ElementTypeBase parent, String id) {
         super(id, bundle.getLanguageDialect(), false);
         this.id = id.intern();
         this.hashCode = System.identityHashCode(this);
-        this.description = description;
         this.bundle = bundle;
         this.parent = parent;
     }
@@ -126,22 +131,30 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         return branches;
     }
 
+    public void initialize() {
+        this.initialized = true;
+    }
+
+    public String nextChildId() {
+        return ElementTypeIdCache.nextId(this);
+    }
+
     public boolean isWrappingBegin(LeafElementType elementType) {
-        return wrapping != null && wrapping.beginElementType == elementType;
+        return wrapping != null && wrapping.beginElement == elementType;
     }
 
     @Override
     public boolean isWrappingBegin(TokenType tokenType) {
-        return wrapping != null && wrapping.beginElementType.tokenType == tokenType;
+        return wrapping != null && wrapping.beginElement.tokenType == tokenType;
     }
 
     public boolean isWrappingEnd(LeafElementType elementType) {
-        return wrapping != null && wrapping.endElementType == elementType;
+        return wrapping != null && wrapping.endElement == elementType;
     }
 
     @Override
     public boolean isWrappingEnd(TokenType tokenType) {
-        return wrapping != null && wrapping.endElementType.tokenType == tokenType;
+        return wrapping != null && wrapping.endElement.tokenType == tokenType;
     }
 
     protected abstract ElementTypeLookupCache<?> createLookupCache();
@@ -165,7 +178,7 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
             virtualObjectType = ElementTypeBundle.resolveObjectType(objectTypeName);
         }
         formatting = FormattingDefinitionFactory.loadDefinition(def);
-        if (is(ElementTypeAttribute.STATEMENT)) {
+        if (is(STATEMENT)) {
             setDefaultFormatting(STATEMENT_FORMATTING);
         }
 
@@ -189,15 +202,15 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
             String endTokenId = stringAttribute(def, "wrapping-end-token");
 
             if (Strings.isNotEmpty(beginTokenId) && Strings.isNotEmpty(endTokenId)) {
-                beginTokenElement = new TokenElementType(bundle, this, beginTokenId, id);
-                endTokenElement = new TokenElementType(bundle, this, endTokenId, id);
+                beginTokenElement = new TokenElementType(this, beginTokenId, id + ".b");
+                endTokenElement = new TokenElementType(this, endTokenId, id + ".e");
             }
         } else {
             TokenPairTemplate template = TokenPairTemplate.valueOf(optionalWrapping);
             String beginTokenId = template.getBeginToken();
             String endTokenId = template.getEndToken();
-            beginTokenElement = new TokenElementType(bundle, this, beginTokenId, id);
-            endTokenElement = new TokenElementType(bundle, this, endTokenId, id);
+            beginTokenElement = new TokenElementType(this, beginTokenId, id + ".b");
+            endTokenElement = new TokenElementType(this, endTokenId, id + ".e");
 
             if (template.isBlock()) {
                 beginTokenElement.setDefaultFormatting(FormattingDefinition.LINE_BREAK_AFTER);
@@ -207,11 +220,13 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         }
 
         if (beginTokenElement != null) {
-            wrapping = new WrappingDefinition(beginTokenElement, endTokenElement);
+            beginTokenElement.set(OPTIONAL_WRAPPING, true);
+            endTokenElement.set(OPTIONAL_WRAPPING, true);
+            wrapping = new WrappingDefinition(beginTokenElement, endTokenElement, true);
         }
 
-        scopeDemarcation = is(ElementTypeAttribute.SCOPE_DEMARCATION) || is(ElementTypeAttribute.STATEMENT);
-        scopeIsolation = is(ElementTypeAttribute.SCOPE_ISOLATION);
+        scopeDemarcation = is(SCOPE_DEMARCATION) || is(STATEMENT);
+        scopeIsolation = is(SCOPE_ISOLATION);
     }
 
     @Override
@@ -221,7 +236,10 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
 
     @Override
     public boolean set(ElementTypeAttribute attribute, boolean value) {
-        throw new AbstractMethodError("Operation not allowed");
+        if (attributes == null) {
+            attributes =  new ElementTypeAttributeHolder();
+        }
+        return attributes.set(attribute, value);
     }
 
     @Override
@@ -277,15 +295,33 @@ public abstract class ElementTypeBase extends IElementType implements ElementTyp
         return false;
     }
 
+    protected boolean isMarkedOptional(Element element) {
+        return getBooleanAttribute(element, "optional");
+    }
+
     @Override
     public TokenType getTokenType() {
         return null;
     }
 
-    public void collectLeafElements(Set<LeafElementType> bucket) {
-        if (wrapping != null) {
-            bucket.add(wrapping.beginElementType);
-            bucket.add(wrapping.beginElementType);
+    public void collectAnonymousLeafs(Set<LeafElementType> bucket) {
+        if (wrapping == null) return;
+
+        bucket.add(wrapping.beginElement);
+        bucket.add(wrapping.beginElement);
+    }
+
+    public void changeParent(ElementTypeBase oldParent, ElementTypeBase newParent) {
+        this.parent = newParent;
+    }
+
+    @Nullable
+    public <P extends ElementTypeBase> P findParent(Class<P> type) {
+        ElementTypeBase parent = this.parent;
+        while (parent != null) {
+            if (type.isAssignableFrom(parent.getClass())) return (P) parent;
+            parent = parent.parent;
         }
+        return null;
     }
 }

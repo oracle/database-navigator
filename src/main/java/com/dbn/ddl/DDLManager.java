@@ -20,9 +20,8 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.PooledConnection;
-import com.dbn.connection.Resources;
-import com.dbn.connection.jdbc.DBNCallableStatement;
+import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.components.State;
@@ -32,8 +31,8 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
-import java.sql.Types;
 
+import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.object.type.DBObjectType.JSON_VIEW;
@@ -57,7 +56,22 @@ public class DDLManager extends ProjectComponentBase implements PersistentState 
     }
 
     public String extractDDL(DBObject object) throws SQLException {
-        // TODO move to database interface (ORACLE)
+        return DatabaseInterfaceInvoker.load(HIGHEST,
+                "Extracting DDL",
+                "Extracting the DDL of " + object.getQualifiedNameWithType(),
+                getProject(),
+                object.getConnectionId(),
+                conn -> {
+                    ConnectionHandler connection = object.getConnection();
+                    DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
+                    return dataDefinition.extractDDLStatement(
+                            object.getSchemaName(),
+                            object.getName(),
+                            getObjectTypeName(object),
+                            conn);
+                });
+
+/*        // TODO move to database interface (ORACLE)
         ConnectionHandler connection = object.getConnection();
         return PooledConnection.call(connection.createConnectionContext(), conn -> {
             DBNCallableStatement statement = null;
@@ -76,7 +90,7 @@ public class DDLManager extends ProjectComponentBase implements PersistentState 
             } finally {
                 Resources.close(statement);
             }
-        });
+        });*/
     }
 
     private static String getObjectTypeName(DBObject object) {

@@ -52,14 +52,17 @@ public class Exceptions {
     @NotNull
     public static SQLException toSqlException(@NotNull Throwable e) {
         if (e instanceof SQLException) return (SQLException) e;
+
+        e = unwrap(e);
         return new SQLException(throwableMessage(e), e);
     }
 
     @NotNull
     public static SQLException toSqlException(@NotNull Throwable e, String s) {
         if (e instanceof SQLException) return (SQLException) e;
-        String reason = normalizeMessage(e, s);
 
+        e = unwrap(e);
+        String reason = normalizeMessage(e, s);
         return new SQLException(reason, e);
     }
 

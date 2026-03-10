@@ -16,47 +16,53 @@
 
 package com.dbn.execution.java.wrapper;
 
+import com.dbn.common.property.PropertyHolder;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.info.ConnectionInfo;
+import com.dbn.execution.java.wrapper.support.WrapperSupportData;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
-public class WrapperModelInput {
+@Setter
+public class WrapperModelInput implements PropertyHolder<WrapperProperty>{
     private final DBObjectRef sourceObject;
     private final DBObjectRef<DBJavaClass> javaClass;
     private final List<DBObjectRef<DBJavaMethod>> javaMethods;
-    private final boolean useFriendlyNames;
-    private final boolean compileInDebugMode;
     private final int maxIdentifierLength;
+    private Map<String, String> codeInputs;
+    private WrapperSupportData supportData;
 
-    public WrapperModelInput(@NotNull DBJavaMethod targetMethod, boolean useFriendlyNames, boolean compileInDebugMode) {
+    @Delegate
+    private final PropertyHolder<WrapperProperty> properties = new WrapperProperties();
+
+    public WrapperModelInput(@NotNull DBJavaMethod targetMethod) {
+
         this.sourceObject = DBObjectRef.of(targetMethod);
 
         this.javaClass = DBObjectRef.of(targetMethod.getOwnerClass());
         this.javaMethods = DBObjectRef.from(List.of(targetMethod));
-        this.useFriendlyNames = useFriendlyNames;
-        this.compileInDebugMode = compileInDebugMode;
         this.maxIdentifierLength = initMaxIdentifierLength();
     }
 
-    public WrapperModelInput(@Nullable DBJavaClass javaClass, List<DBJavaMethod> methods, boolean useFriendlyNames, boolean compileInDebugMode) {
+    public WrapperModelInput(@Nullable DBJavaClass javaClass, List<DBJavaMethod> methods) {
         this.sourceObject = DBObjectRef.of(javaClass);
 
         this.javaClass = DBObjectRef.of(javaClass);
         this.javaMethods = DBObjectRef.from(methods);
-        this.useFriendlyNames = useFriendlyNames;
-        this.compileInDebugMode = compileInDebugMode;
         this.maxIdentifierLength = initMaxIdentifierLength();
     }
 
@@ -97,5 +103,13 @@ public class WrapperModelInput {
     @NotNull
     public List<DBJavaMethod> getJavaMethods() {
         return DBObjectRef.ensure(javaMethods);
+    }
+
+    public boolean isTemporary() {
+        return is(WrapperProperty.TEMPORARY);
+    }
+
+    public boolean isDebugMode() {
+        return is(WrapperProperty.DEBUG_MODE);
     }
 }

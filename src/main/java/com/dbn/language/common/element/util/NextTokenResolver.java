@@ -18,7 +18,6 @@ package com.dbn.language.common.element.util;
 
 import com.dbn.common.index.IndexContainer;
 import com.dbn.common.util.Commons;
-import com.dbn.common.util.Compactables;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.cache.ElementTypeLookupCache;
@@ -28,7 +27,6 @@ import com.dbn.language.common.element.impl.IterationElementType;
 import com.dbn.language.common.element.impl.NamedElementType;
 import com.dbn.language.common.element.impl.SequenceElementType;
 import com.dbn.language.common.element.impl.TokenElementType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -53,11 +51,10 @@ public final class NextTokenResolver {
         } else {
             visitElement(source.parent, source);
         }
-        Compactables.compact(bucket);
         return bucket;
     }
 
-    private void visit(@NotNull NamedElementType element) {
+    private void visit(NamedElementType element) {
         if (!visited.contains(element)) {
             visited.add(element);
             for (ElementTypeBase parent : element.parents) {
@@ -104,7 +101,7 @@ public final class NextTokenResolver {
             ElementTypeRef child = parent.children[index];
             while (child != null) {
                 ensureBucket();
-                ElementTypeLookupCache lookupCache = child.elementType.cache;
+                ElementTypeLookupCache<?> lookupCache = child.elementType.cache;
                 lookupCache.captureFirstPossibleTokens(bucket);
                 if (!child.optional) {
                     parent = null;

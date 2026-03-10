@@ -1,17 +1,21 @@
 package com.dbn.vector.model;
 
+import com.dbn.common.message.MessageType;
+import com.dbn.common.message.TitledMessage;
+import com.dbn.common.task.TaskStatus;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.vector.model.source.DBTableSourceConfig;
-import com.dbn.vector.model.source.FileSystemSourceConfig;
-import com.dbn.vector.model.source.SourceConfig;
-import com.dbn.vector.model.source.SourceType;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.dbn.vector.model.request.EmbeddingSource;
+import com.dbn.vector.model.request.EmbeddingSourceConfig;
+import com.dbn.vector.model.request.EmbeddingSourceType;
+import com.dbn.vector.model.result.EmbeddingFileResult;
+import com.dbn.vector.model.result.EmbeddingQueryResult;
+import com.dbn.vector.model.result.EmbeddingResult;
+import com.dbn.vector.model.result.EmbeddingTableResult;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,137 +25,116 @@ import static com.dbn.common.util.Unsafe.cast;
 @Getter
 @Setter
 public class VectorEmbeddingResult {
-  private final VectorEmbeddingRequest request;
+    private final VectorEmbeddingRequest request;
+    private final Map<String, EmbeddingResult> results = new LinkedHashMap<>();
+
+    public EmbeddingSourceType getSourceType() {
+        return request.getSourceConfig().getSourceType();
+    }
+
+    public enum Status {RUNNING, SUCCESS, PARTIAL, FAILED}
+
+    private Status status;
+
+    public VectorEmbeddingResult(VectorEmbeddingRequest request) {
+        this.request = request;
+        initResultElements();
+    }
+
+    private void initResultElements() {
+        EmbeddingSourceConfig sourceConfig = request.getSourceConfig();
+
+        switch (sourceConfig.getSourceType()) {
+            case FILE_SYSTEM -> sourceConfig.getSourceFiles().forEach(s -> results.put(s.getIdentifier(), new EmbeddingFileResult(s)));
+            case DATABASE_TABLE -> sourceConfig.getSourceTables().forEach(s -> results.put(s.getIdentifier(), new EmbeddingTableResult(s, getConnectionId())));
+            case DATABASE_QUERY -> sourceConfig.getSourceQueries().forEach(s -> results.put(s.getIdentifier(), new EmbeddingQueryResult(s)));
+        }
+    }
+
+    public <R extends EmbeddingResult> R getResult(EmbeddingSource source) {
+        return cast(results.get(source.getIdentifier()));
+    }
 
     public ConnectionHandler getConnection() {
         return request.getConnection();
     }
 
-
-
-
-  public  enum Status { RUNNING, SUCCESS, PARTIAL, FAILED }
-  private Status status;
-  private SourceType sourceType;
-  private Map<String, SourceResult> sourceResults = new LinkedHashMap<>();
-  protected final List<StepResult> sharedSteps = new ArrayList<>(Arrays.asList(
-          new StepResult(PipelineStep.ENSURE_DESTINATION),
-          new StepResult(PipelineStep.ENSURE_DOCUMENT_TABLE)
-  ));
-
-
-
-  public StepResult getstep(PipelineStep step) {
-    for (StepResult stepResult : sharedSteps) {
-      if (stepResult.getStep().equals(step)) {
-        return stepResult;
-      }
+    public ConnectionId getConnectionId() {
+        return request.getConnectionId();
     }
-    return null;
-  }
 
-  public VectorEmbeddingResult(VectorEmbeddingRequest request) {
-    this.request = request;
-    initSourceResults();
-  }
-
-  private void initSourceResults() {
-    SourceConfig sourceConfig = request.getSourceConfig();
-
-    switch (sourceConfig.getSourceType()) {
-      case FILE_SYSTEM:
-        FileSystemSourceConfig fileConfig = sourceConfig.getFileSourceConfig();
-        List<VirtualFile> files = fileConfig.getFiles();
-        for (int i = 0; i < files.size(); i++) {
-          initFileResult(files.get(i));
-        }
-        break;
-      case DATABASE_TABLE:
-        DBTableSourceConfig tableConfig = sourceConfig.getTableSourceConfig();
-        String tableName = tableConfig.getTableName();
-        String schemaName = tableConfig.getSchemaName();
-        initTableResult(schemaName,tableName);
-        break;
+    public int size() {
+        return results.size();
     }
-  }
 
-  public int size() {
-    return sourceResults.size();
-  }
 
-  /** Mark the job finished and compute aggregated status. */
-  public void finish() {
 
-    boolean anySuccess = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.SUCCESS);
-    boolean anyFailed = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.FAILED);
-    boolean anySkipped = sourceResults.values().stream().anyMatch(f -> f.getStatus() == SourceStatus.SKIPPED);
-    
-    if (anySuccess && anyFailed) status = Status.PARTIAL;
-    else if (anySuccess) status = Status.SUCCESS;
-    else if (anyFailed) status = Status.FAILED;
-    else if (anySkipped) status = Status.SUCCESS; // All skipped means already processed = success
-    else status = Status.SUCCESS;
-  }
+    /**
+     * Mark the job finished and compute aggregated status.
+     */
+    public void finish() {
 
-  public long getSourceSucceedCount(){
-    return sourceResults.values().stream().filter(f -> f.getStatus() == SourceStatus.SUCCESS).count();
-  }
-  public long  getDuration(){
-    return sourceResults.values().stream().mapToLong(SourceResult::getDurationMs).sum();
-  }
+        boolean anySuccess = results.values().stream().anyMatch(f -> f.getStatus() == TaskStatus.DONE);
+        boolean anyFailed = results.values().stream().anyMatch(f -> f.getStatus() == TaskStatus.FAILED);
+        boolean anySkipped = results.values().stream().anyMatch(f -> f.getStatus() == TaskStatus.SKIPPED);
 
-  public long getTotalInsertedRows(){
-    return sourceResults.values().stream().mapToLong(SourceResult::getRowsInserted).sum();
-  }
+        if (anySuccess && anyFailed) status = Status.PARTIAL;
+        else if (anySuccess) status = Status.SUCCESS;
+        else if (anyFailed) status = Status.FAILED;
+        else if (anySkipped) status = Status.SUCCESS; // All skipped means already processed = success
+        else status = Status.SUCCESS;
+    }
 
-  public TableResult initTableResult(String schemaName, String tableName) {
-    ConnectionId connectionId = getConnection().getConnectionId();
-    String key = schemaName + "." + tableName;
-    return cast(sourceResults.computeIfAbsent(key, k ->
-            createTableResult(schemaName, tableName, connectionId)));
-  }
+    public long getSourceSucceedCount() {
+        return results.values().stream().filter(f -> f.getStatus() == TaskStatus.DONE).count();
+    }
 
-  public FileResult initFileResult(VirtualFile file) {
-    String key = file.getPath();
-    return cast(sourceResults.computeIfAbsent(key, k -> createFileResult(file)));
-  }
+    public long getDuration() {
+        return results.values().stream().mapToLong(r -> r.getDuration()).sum();
+    }
 
-  private TableResult createTableResult(String schemaName, String tableName, ConnectionId connectionId) {
-    TableResult tableResult = new TableResult(connectionId, schemaName, tableName);
-    return tableResult;
-  }
+    public long getTotalInsertedRows() {
+        return results.values().stream().mapToLong(EmbeddingResult::getRowsInserted).sum();
+    }
 
-  private FileResult createFileResult(VirtualFile file) {
-    FileResult fileResult = new FileResult(file);
-    return fileResult;
-  }
+    public List<EmbeddingResult> getResults() {
+        return new ArrayList<>(results.values());
+    }
 
-  public List<SourceResult> getSourceResults() {
-    return new ArrayList<>(sourceResults.values());
-  }
+    public long getResourcesCount() {
+        return results.size();
+    }
 
-  public long getResourcesCount(){
-    return sourceResults.size();
-  }
+    public double getSuccessRate() {
+        long successCount = results.values().stream()
+                .filter(f -> f.getStatus() == TaskStatus.DONE || f.getStatus() == TaskStatus.SKIPPED)
+                .count();
+        return getResourcesCount() > 0 ? (double) successCount / getResourcesCount() * 100 : 0;
+    }
 
-  public double getSuccessRate(){
-    long successedSr = sourceResults.values().stream()
-            .filter(f -> f.getStatus() == SourceStatus.SUCCESS || f.getStatus() == SourceStatus.SKIPPED)
-            .count();
-    return getResourcesCount() > 0 ? (double) successedSr / getResourcesCount() * 100 : 0;
-  }
+    public TitledMessage getSummaryMessage() {
+        MessageType messageType = switch (status) {
+            case SUCCESS -> MessageType.SUCCESS;
+            case PARTIAL -> MessageType.WARNING;
+            case FAILED -> MessageType.ERROR;
+            default -> MessageType.INFO;
+        };
 
-  @Deprecated // TODO use lazy result initialization utilities (support multiple table sources)
-  public void addSourceResult(SourceResult sourceResult) {
-    sourceResults.put(sourceResult.getIdentifier(), sourceResult);
-  }
+        String title = switch (status) {
+            case SUCCESS -> "Embedding successful";
+            case PARTIAL -> "Embedding partially successful";
+            case FAILED -> "Embedding failed";
+            default -> "";
+        };
 
-  public void deleteStepFfromShared(PipelineStep pipelineStep) {
-    sharedSteps.removeIf((step) -> step.getStep().equals(pipelineStep));
-  }
-  public void addSharedStep(StepResult stepResult) {
-    sharedSteps.add(stepResult);
-  }
+        String message = switch (status) {
+            case SUCCESS -> "Successfully embedded contents from " + getResourcesCount() + " sources";
+            case PARTIAL -> "Embedded contents from " + getSourceSucceedCount() + " out of " + getResourcesCount() + " sources";
+            case FAILED -> "Embedding failed for all given sources";
+            default -> "";
+        };
 
+        return new TitledMessage(messageType, title, message);
+    }
 }
 

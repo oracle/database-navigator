@@ -25,6 +25,7 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.code.content.GuardedBlockMarker;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.common.QuotePair;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBConstraintType;
 import org.jetbrains.annotations.NonNls;
 
@@ -174,5 +175,24 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
     protected String quoted(String identifier) {
         QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
         return quotes.quote(identifier);
+    }
+
+
+    /*********************************************************
+     *                   CREATE statements                   *
+     *********************************************************/
+    @Override
+    public void createMethod(DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void createIndex(DBObjectSpec indexSpec, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
     }
 }

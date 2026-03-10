@@ -53,6 +53,8 @@ public interface DBJavaClass extends DBJavaEntity {
 
 	boolean isSource();
 
+	boolean hasPublicDefaultConstructor();
+
     List<DBJavaMethod> getMethods();
 
 	List<DBJavaMethod> getStaticMethods();

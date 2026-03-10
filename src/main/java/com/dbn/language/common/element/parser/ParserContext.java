@@ -25,7 +25,6 @@ import com.intellij.lang.PsiBuilder;
 public class ParserContext extends ElementLookupContext {
     public final long timestamp = System.currentTimeMillis();
     public final ParserBuilder builder;
-    public transient LeafElementType lastResolvedLeaf;
     private TokenType wavedTokenType;
     private int wavedTokenTypeOffset;
 
@@ -41,5 +40,13 @@ public class ParserContext extends ElementLookupContext {
     public void setWavedTokenType(TokenType wavedTokenType) {
         this.wavedTokenType = wavedTokenType;
         this.wavedTokenTypeOffset = builder.getOffset();
+    }
+
+    public boolean isSurrogate() {
+        return builder.tokenMonitor.isSurrogate();
+    }
+
+    public boolean isSurrogateFor(LeafElementType leafElementType) {
+        return builder.tokenMonitor.isSurrogateFor(leafElementType);
     }
 }

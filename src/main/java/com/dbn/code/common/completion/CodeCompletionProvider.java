@@ -30,8 +30,10 @@ import com.dbn.language.common.element.cache.ElementTypeLookupCache;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.IdentifierElementType;
 import com.dbn.language.common.element.impl.LeafElementType;
+import com.dbn.language.common.element.impl.NamedElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dbn.language.common.element.impl.TokenElementType;
+import com.dbn.language.common.element.impl.WrapperElementType;
 import com.dbn.language.common.element.parser.Branch;
 import com.dbn.language.common.element.path.AstNode;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
@@ -147,7 +149,13 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         DBLanguagePsiFile file = context.getFile();
 
         ElementTypeBundle elementTypeBundle = file.getElementTypeBundle();
-        ElementTypeLookupCache<?> lookupCache = elementTypeBundle.getRootElementType().cache;
+
+        String parseRootId = file.getParseRootId();
+        NamedElementType rootElementType = parseRootId == null ?
+                elementTypeBundle.getRootElementType() :
+                elementTypeBundle.getNamedElementType(parseRootId);
+
+        ElementTypeLookupCache<?> lookupCache = rootElementType.cache;
         ElementLookupContext lookupContext = new ElementLookupContext(context.getDatabaseVersion());
         Set<LeafElementType> firstPossibleLeafs = lookupCache.captureFirstPossibleLeafs(lookupContext);
 
@@ -166,7 +174,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         DBObject parentObject = null;
         PsiElement parent = element.getParent();
         if (parent instanceof QualifiedIdentifierPsiElement qualifiedIdentifier) {
-            ElementType separator = qualifiedIdentifier.elementType.getSeparatorToken();
+            ElementType separator = qualifiedIdentifier.elementType.separatorToken;
 
             if (element.elementType == separator){
                 BasePsiElement parentPsiElement = element.getPrevElement();
@@ -196,9 +204,12 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         } else if (parent instanceof BasePsiElement basePsiElement) {
             ElementTypeBase elementType = basePsiElement.elementType;
             if (elementType.isWrappingBegin((LeafElementType) element.elementType)) {
-                Set<LeafElementType> candidates = elementType.cache.getFirstPossibleLeafs();
-                for (LeafElementType candidate : candidates) {
-                    context.addCompletionCandidate(candidate);
+                if (elementType instanceof WrapperElementType wrapperElementType) {
+                    var completionCandidates = wrapperElementType.wrappedElement.cache.getFirstPossibleLeafs();
+                    context.addCompletionCandidates(completionCandidates);
+                } else {
+                    var candidates = elementType.cache.getFirstPossibleLeafs();
+                    context.addCompletionCandidates(candidates);
                 }
             }
         }
@@ -210,10 +221,8 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
             if (!context.isNewLine()) {
                 lookupContext.addBreakOnAttribute(ElementTypeAttribute.STATEMENT);
             }
-            Set<LeafElementType> candidates = elementType.getNextPossibleLeafs(node, lookupContext);
-            for (LeafElementType candidate : candidates) {
-                context.addCompletionCandidate(candidate);
-            }
+            var candidates = elementType.getNextPossibleLeafs(node, lookupContext);
+            context.addCompletionCandidates(candidates);
         }
 
         context.setParentIdentifierPsiElement(parentIdentifierPsiElement);

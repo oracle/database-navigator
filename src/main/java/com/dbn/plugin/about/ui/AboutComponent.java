@@ -90,7 +90,7 @@ public class AboutComponent extends DBNFormBase {
 
         versionLabel.setText("Version: " + version);
 
-        whenShown(() -> downloadPageLabel.requestFocus());
+        whenFirstShown(() -> downloadPageLabel.requestFocus());
     }
 
     private void initLinkLabel(JLabel label, String url) {
