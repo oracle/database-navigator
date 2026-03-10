@@ -22,7 +22,6 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.help.HelpTopic;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,11 +37,8 @@ import java.awt.event.ActionEvent;
  */
 public class ProfilesAndCredentialsDialog extends DBNDialog<ProfilesAndCredentialsForm> {
 
-  private final ConnectionRef connection;
-
   public ProfilesAndCredentialsDialog(ConnectionHandler connection) {
-    super(connection.getProject(), "Select AI Profiles and Credentials", true);
-    this.connection = ConnectionRef.of(connection);
+    super(connection, "Select AI Profiles and Credentials", true);
     setDefaultSize(800, 600);
     init();
   }
@@ -73,10 +69,6 @@ public class ProfilesAndCredentialsDialog extends DBNDialog<ProfilesAndCredentia
     public void actionPerformed(ActionEvent e) {
       Dialogs.show(() -> new SelectAiHelpDialog(getConnection()));
     }
-  }
-
-  private ConnectionHandler getConnection() {
-    return connection.ensure();
   }
 
   @Override

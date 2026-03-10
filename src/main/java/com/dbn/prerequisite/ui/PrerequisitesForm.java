@@ -82,7 +82,7 @@ public class PrerequisitesForm extends DBNFormBase implements PrerequisiteEventL
     }
 
     private void scheduleEvaluation() {
-        whenShown(() -> prerequisiteGroup.evaluateAll(true));
+        whenFirstShown(() -> prerequisiteGroup.evaluateAll(true));
     }
 
     private void initAdvicePanel() {

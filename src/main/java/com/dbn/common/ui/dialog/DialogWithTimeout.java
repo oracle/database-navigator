@@ -18,6 +18,7 @@ package com.dbn.common.ui.dialog;
 
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.util.TimeUtil;
+import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,6 +31,11 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 public abstract class DialogWithTimeout extends DBNDialog<DialogWithTimeoutForm>{
     private final Timer timeoutTimer;
     private int secondsLeft;
+
+    public DialogWithTimeout(@NotNull ConnectionHandler connection, String title, boolean canBeParent, int timeoutSeconds) {
+        this(connection.getProject(), title, canBeParent, timeoutSeconds);
+        setConnection(connection);
+    }
 
     protected DialogWithTimeout(Project project, String title, boolean canBeParent, int timeoutSeconds) {
         super(project, title, canBeParent);

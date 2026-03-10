@@ -28,8 +28,6 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.model.DBMethodSpec;
-import com.dbn.object.factory.model.DBObjectSpec;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
@@ -123,18 +121,5 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             createObject(oldCode, connection);
             throw e;
         }
-    }
-
-    /*********************************************************
-     *                   CREATE statements                   *
-     *********************************************************/
-    @Override
-    public void createMethod(DBMethodSpec method, DBNConnection connection) throws SQLException {
-        throw new SQLException("Operation not supported: [create method]");
-    }
-
-    @Override
-    public void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
     }
 }

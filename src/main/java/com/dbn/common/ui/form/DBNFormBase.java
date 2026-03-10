@@ -70,7 +70,6 @@ import static com.dbn.common.ui.util.Accessibility.initComponentGroupsAccessibil
 import static com.dbn.common.ui.util.Accessibility.initCustomComponentAccessibility;
 import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
 import static com.dbn.common.ui.util.UserInterface.hasChildComponent;
-import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.intellij.util.ui.UIUtil.getScrollBarWidth;
 
@@ -127,7 +126,7 @@ public abstract class DBNFormBase
         if (initialized) {
             Dispatch.run(mainComponent, runnable);
         } else {
-            whenFirstShown(mainComponent, () -> Dispatch.run(mainComponent, runnable));
+            UserInterface.whenFirstShown(mainComponent, () -> Dispatch.run(mainComponent, runnable));
         }
     }
 
@@ -138,8 +137,8 @@ public abstract class DBNFormBase
      *
      * @param runnable the task to execute when the form is shown
      */
-    protected final void whenShown(Runnable runnable) {
-        whenFirstShown(getMainComponent(), runnable);
+    protected final void whenFirstShown(Runnable runnable) {
+        UserInterface.whenFirstShown(getMainComponent(), runnable);
     }
 
     protected final void whenSettingsChange(Runnable runnable) {

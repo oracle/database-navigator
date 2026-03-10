@@ -1,58 +1,46 @@
 package com.dbn.vector.pipeline;
 
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
-import com.dbn.vector.model.PipelineStep;
-import com.dbn.vector.model.StepResult;
-import com.dbn.vector.model.TableResult;
+import com.dbn.vector.model.VectorEmbeddingContext;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
-import com.dbn.vector.model.source.DBTableSourceConfig;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
+import com.dbn.vector.model.request.EmbeddingSourceTables;
+import com.dbn.vector.model.result.EmbeddingTableResult;
+import com.dbn.vector.model.result.PipelineStep;
+import com.dbn.vector.model.result.StepResult;
 import com.dbn.vector.service.TableProcessingService;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.SQLException;
+import static com.dbn.connection.Resources.commit;
+import static com.dbn.connection.Resources.rollbackSilently;
 
-import static com.dbn.vector.model.PipelineStep.ENSURE_DOCUMENT_TABLE;
 
-
-public class TableEmbeddingPipeline extends EmbeddingPipeline {
+public class TableEmbeddingPipeline implements EmbeddingPipeline {
     private static final int DEFAULT_BATCH_SIZE = 100;
-    
+
     private final TableProcessingService tableProcessingService = new TableProcessingService();
-    
+
     @Override
-    protected void executeSourceSpecificPipeline(
+    public void execute(
+            @NotNull VectorEmbeddingContext context,
             @NotNull VectorEmbeddingRequest request,
-            @NotNull ConnectionHandler handler,
-            @NotNull DBNConnection connection,
-            @NotNull DatabaseVectorInterface vectorInterface,
-            @NotNull ProgressIndicator progressIndicator,
-            @NotNull VectorEmbeddingResult result) throws Exception {
+            @NotNull VectorEmbeddingResult result) {
 
-        // remove the PREPARE_DOCUMENT_STORE step from shared steps
-        result.deleteStepFfromShared(ENSURE_DOCUMENT_TABLE);
-        DBTableSourceConfig tableConfig = request.getSourceConfig().getTableSourceConfig();
-        
-        TableResult tableResult = result.initTableResult(
-                tableConfig.getSchemaName(),
-                tableConfig.getTableName()
-        );
+        EmbeddingSourceTables tableConfig = request.getSourceConfig().getSourceTables();
+        for (EmbeddingSourceTable tableSource : tableConfig.getElements()) {
+            EmbeddingTableResult tableResult = result.getResult(tableSource);
 
-        String metadata = tableProcessingService.buildRowMetadata(request, tableConfig);
-        progressIndicator.setText2("Embedding table data from " + tableResult.getName());
+            String metadata = tableProcessingService.buildRowMetadata(request, tableSource);
+            tableResult.setMetadata(metadata);
+            context.getProgressIndicator().setText2("Processing table " + tableResult.getName());
 
-        // Execute the embedding with batching
-        embedTableDataInBatches(
-                request,
-                connection,
-                vectorInterface,
-                tableResult,
-                metadata,
-                progressIndicator
-        );
+            // Execute the embedding with batching
+            embedTableDataInBatches(context, request, tableResult);
+        }
+
     }
 
     /**
@@ -60,61 +48,56 @@ public class TableEmbeddingPipeline extends EmbeddingPipeline {
      * Each batch is committed separately, so progress is preserved on failure.
      */
     private void embedTableDataInBatches(
+            @NotNull VectorEmbeddingContext context,
             @NotNull VectorEmbeddingRequest request,
-            @NotNull DBNConnection connection,
-            @NotNull DatabaseVectorInterface vectorInterface,
-            @NotNull TableResult tableResult,
-            @NotNull String metadata,
-            @NotNull ProgressIndicator progressIndicator) throws SQLException {
+            @NotNull EmbeddingTableResult result) {
 
-        StepResult embedStep = tableResult.startStep(PipelineStep.EMBED);
+        StepResult embedStep = result.startStep(PipelineStep.EMBED);
+        DBNConnection connection = context.getConnection();
+        ProgressIndicator progressIndicator = context.getProgressIndicator();
 
         try {
-            int totalProcessed = 0;
-            int batchCount;
+            int totalRowsEmbedded = 0;
             int batchNumber = 0;
+
             connection.setAutoCommit(false);
-            do {
-                // Check for cancellation
-                if (progressIndicator.isCanceled()) {
-                    break;
-                }
+            while (true) {
+                if (progressIndicator.isCanceled()) break;
 
                 batchNumber++;
-                progressIndicator.setText2("Processing batch " + batchNumber + " (total rows: " + totalProcessed + ")");
+                progressIndicator.setText2("Processing table " + result.getName() + " (batch " + batchNumber + " / rows embedded " + totalRowsEmbedded + ")");
 
                 // Process one batch
-                batchCount = vectorInterface.embedDataContent(
+                DatabaseVectorInterface vectorInterface = request.getConnection().getVectorInterface();
+                int rowsEmbedded = vectorInterface.embedTableContent(
                         connection,
-                        request.getSourceConfig().getTableSourceConfig(),
-                        request.getChunkConfig().getConfigJson(),
-                        request.getEmbedConfig().getConfigJson(),
-                        request.getStoreConfig(),
-                        metadata,
-                        DEFAULT_BATCH_SIZE
-                );
+                        result.getSource(),
+                        request.getChunkConfigJson(),
+                        request.getModelConfigJson(),
+                        request.getDestinationConfig(),
+                        result.getMetadata(),
+                        DEFAULT_BATCH_SIZE);
 
                 // Commit after each batch - this is the recovery point
-                connection.commit();
+                commit(connection);
 
-                totalProcessed += batchCount;
-
-            } while (batchCount > 0);
+                totalRowsEmbedded += rowsEmbedded;
+                if (rowsEmbedded == 0) break;
+            }
 
             if (progressIndicator.isCanceled()) {
                 embedStep.markSuccess();
-                tableResult.finishSuccess(totalProcessed);
+                result.finishSuccess(totalRowsEmbedded);
             } else {
                 embedStep.markSuccess();
-                tableResult.finishSuccess(totalProcessed);
+                result.finishSuccess(totalRowsEmbedded);
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             // Rollback only the current failed batch
-            connection.rollback();
-            embedStep.markFailed("EMBED_ERROR", e.getMessage());
-            tableResult.finishFailed("EMBED_ERROR", e.getMessage());
-            throw e;
+            rollbackSilently(connection);
+            embedStep.markFailed("EMBED_ERROR", e);
+            result.finishFailed("EMBED_ERROR", e);
         }
     }
 }

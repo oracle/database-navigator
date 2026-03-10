@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class UnknownPsiElement extends BasePsiElement<ElementTypeBase> {
     public UnknownPsiElement(ASTNode astNode, ElementTypeBase elementType) {
@@ -54,6 +55,7 @@ public class UnknownPsiElement extends BasePsiElement<ElementTypeBase> {
     @Override public NamedPsiElement findNamedPsiElement(String id) {return null;}
     @Override public BasePsiElement findFirstPsiElement(ElementTypeAttribute attribute) {return null;}
     @Override public BasePsiElement findFirstPsiElement(Class<? extends ElementType> clazz) { return null; }
+    @Override public BasePsiElement findFirstPsiElement(Predicate<BasePsiElement> predicate) { return null; }
 
     @Override public BasePsiElement findFirstLeafPsiElement() {return null;}
     @Override public BasePsiElement findPsiElementByAttribute(ElementTypeAttribute attribute) {return null;}

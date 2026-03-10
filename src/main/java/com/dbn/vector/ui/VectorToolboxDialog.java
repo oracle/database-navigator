@@ -1,25 +1,24 @@
 package com.dbn.vector.ui;
 
+import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.help.HelpTopic;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
+import com.dbn.vector.service.VectorEmbeddingRequestVerifier;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
 public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
-  private final ConnectionRef connection;
   private final VectorEmbeddingRequest request;
 
   public VectorToolboxDialog(ConnectionHandler connection, VectorEmbeddingRequest request) {
-    super(connection.getProject(), "Vector Toolbox", true);
-    this.connection = connection.ref();
+    super(connection, "Vector Toolbox", true);
     this.request = request;
 
-    setDefaultSize(600, 1000);
+    setDefaultSize(680, 1000);
 
     if (!request.isTemplate()) {
       VectorToolboxForm toolboxForm = getForm();
@@ -34,13 +33,9 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
     return HelpTopic.VECTOR_TOOLBOX;
   }
 
-  private ConnectionHandler getConnection() {
-    return connection.ensure();
-  }
-
   @Override
   protected @NotNull VectorToolboxForm createForm() {
-    return new VectorToolboxForm(this, getConnection(), request);
+    return new VectorToolboxForm(this, request);
   }
 
   @Override
@@ -69,10 +64,19 @@ public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
       form.saveRequestTemplate(true);
     }
 
+    verifyAndSubmit();
+  }
 
-    super.doOKAction();
-    DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
-    vectorManager.createEmbeddings(request, getConnection());
+  private void verifyAndSubmit() {
+    Progress.modal(ensureProject(), request.getConnection(), true, "Verifying Request", "Verifying embedding request", i -> {
+        if (!VectorEmbeddingRequestVerifier.verifyRequest(request, i)) return;
+
+        dispatch(() -> {
+          super.doOKAction();
+          DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
+          vectorManager.createEmbeddings(request);
+        });
+    });
   }
 
   @Override

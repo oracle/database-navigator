@@ -18,11 +18,10 @@ package com.dbn.object.factory.ui;
 
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
-import com.dbn.code.psql.style.PSQLCodeStyle;
+import com.dbn.code.sql.style.SQLCodeStyle;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Lists;
 import com.dbn.data.type.DataTypeDefinition;
-import com.dbn.object.factory.model.DBObjectAttribute;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
@@ -33,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 
 public class DBColumnFactoryInputListForm extends DBObjectFactoryInputListForm {
@@ -51,12 +51,10 @@ public class DBColumnFactoryInputListForm extends DBObjectFactoryInputListForm {
     @Override
     protected DBObjectSpec createChildInput(Presentable detail) {
         DBObjectSpec tableSpec = getTableInput();
-
-        DBObjectSpec columnSpec = new DBObjectSpec(COLUMN);
-        columnSpec.setParent(tableSpec);
+        DBObjectSpec columnSpec = new DBObjectSpec(tableSpec, COLUMN);
 
         String dataType = detail == null ? null : detail.getName();
-        columnSpec.setAttribute(DBObjectAttribute.DATA_TYPE, dataType);
+        columnSpec.setAttributeValue(DATA_TYPE, dataType);
         return columnSpec;
     }
 
@@ -78,7 +76,7 @@ public class DBColumnFactoryInputListForm extends DBObjectFactoryInputListForm {
     private @NotNull List<Presentable> initObjectDetailOptions() {
         List<DataTypeDefinition> nativeDataTypes = getConnection().getInterfaces().getNativeDataTypes().list();
 
-        CodeStyleCaseSettings caseSettings = PSQLCodeStyle.caseSettings(getProject());
+        CodeStyleCaseSettings caseSettings = SQLCodeStyle.caseSettings(getProject());
         CodeStyleCaseOption caseOption = caseSettings.getObjectCaseOption();
 
         return Lists.convert(nativeDataTypes, d -> Presentable.basic(caseOption.format(d.getName())));

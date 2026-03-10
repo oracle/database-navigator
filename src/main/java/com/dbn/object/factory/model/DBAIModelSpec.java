@@ -19,15 +19,16 @@ package com.dbn.object.factory.model;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBAIModelSourceType;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.vector.common.ModelSourceType;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Deprecated // TODO convert to generic DBObjectSpec using DBObjectAttribute
 public class DBAIModelSpec extends DBObjectSpec {
-  private ModelSourceType sourceType;
+  private DBAIModelSourceType sourceType;
   private String sourceLocation;
   private DBObjectRef<DBCredential> credential;
 

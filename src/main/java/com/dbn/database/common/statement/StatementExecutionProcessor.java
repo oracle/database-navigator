@@ -131,60 +131,61 @@ public class StatementExecutionProcessor {
         DatabaseCompatibility compatibility = ConnectionHandler.local().getCompatibility();
         DatabaseActivityTrace activityTrace = compatibility.getActivityTrace(definition.getId());
 
-        if (force || activityTrace.canExecute()) {
-            return StatementExecutor.execute(context,
-                    () -> {
-                        String statementText = definition.prepareStatementText(arguments);
-                        if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
-
-                        DBNPreparedStatement statement = null;
-                        ResultSet resultSet = null;
-                        try {
-                            activityTrace.init();
-                            DBNConnection connection = context.getConnection();
-                            statement = definition.prepareStatement(connection, arguments);
-                            context.setStatement(statement);
-
-                            statement.setQueryTimeout(timeout);
-                            resultSet = statement.executeQuery();
-
-                            context.log("FETCH_BLOCK", false, false, resultSet.getFetchSize());
-                            DBNResultSet.setIdentifier(resultSet, context.getIdentifier());
-
-                            return resultSet;
-                        } catch (SQLException e) {
-                            conditionallyLog(e);
-                            Resources.close(statement);
-                            String message = e.getMessage();
-                            if (isDatabaseAccessDebug())
-                                log.warn("[DBN] Error executing statement: {}\nCause: {}", statementText, message);
-
-                            boolean unsupported = interfaces.getMessageParserInterface().isModelException(e);
-                            String traceMessage = unsupported ?
-                                    "Model exception received while executing query '" + id +"'. " + message :
-                                    "Too many failed attempts of executing query '" + id +"'. " + message;
-
-                            SQLException traceException = new SQLException(traceMessage, e.getSQLState(), e.getErrorCode(), e);
-
-                            activityTrace.fail(traceException, unsupported);
-                            throw e;
-                        } finally {
-                            activityTrace.release();
-                            if (resultSet == null && statement != null) {
-                                if (statement.isCached()) {
-                                    statement.park();
-                                } else {
-                                    Resources.close(statement);
-                                }
-
-                            }
-                        }
-                    });
-        } else {
+        boolean canExecute = force || activityTrace.canExecute();
+        if (!canExecute) {
             throw Commons.nvl(
                     activityTrace.getException(),
                     () -> new SQLException("Too many failed attempts of executing query '" + id + "'."));
         }
+
+        return StatementExecutor.execute(context,
+                () -> {
+                    String statementText = definition.prepareStatementText(arguments);
+                    if (isDatabaseAccessDebug()) log.info("[DBN] Executing statement: {}", statementText);
+
+                    DBNPreparedStatement statement = null;
+                    ResultSet resultSet = null;
+                    try {
+                        activityTrace.init();
+                        DBNConnection connection = context.getConnection();
+                        statement = definition.prepareStatement(connection, arguments);
+                        context.setStatement(statement);
+
+                        statement.setQueryTimeout(timeout);
+                        resultSet = statement.executeQuery();
+
+                        context.log("FETCH_BLOCK", false, false, resultSet.getFetchSize());
+                        DBNResultSet.setIdentifier(resultSet, context.getIdentifier());
+
+                        activityTrace.reset();
+                        return resultSet;
+                    } catch (SQLException e) {
+                        conditionallyLog(e);
+                        Resources.close(statement);
+                        String message = e.getMessage();
+                        if (isDatabaseAccessDebug())
+                            log.warn("[DBN] Error executing statement: {}\nCause: {}", statementText, message);
+
+                        boolean unsupported = interfaces.getMessageParserInterface().isModelException(e);
+                        String traceMessage = unsupported ?
+                                "Model exception received while executing query '" + id +"'. " + message :
+                                "Too many failed attempts of executing query '" + id +"'. " + message;
+
+                        SQLException traceException = new SQLException(traceMessage, e.getSQLState(), e.getErrorCode(), e);
+
+                        activityTrace.fail(traceException, unsupported);
+                        throw e;
+                    } finally {
+                        if (resultSet == null && statement != null) {
+                            if (statement.isCached()) {
+                                statement.park();
+                            } else {
+                                Resources.close(statement);
+                            }
+
+                        }
+                    }
+                });
     }
 
     public <T extends CallableStatementOutput> T executeCall(

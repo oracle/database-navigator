@@ -77,6 +77,7 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBoxRenderer;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.first;
+import static com.dbn.common.util.Strings.isNotEmpty;
 
 public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<ValueSelectorOption> {
 
@@ -85,7 +86,6 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     private ValueFactory<T> valueFactory;
     private Supplier<List<T>> valueLoader;
     private Predicate<T> valuePreselector;
-    private transient ActionListener[] actionListeners;
 
     private final AtomicInteger loadSignature = new AtomicInteger(0);
     private final Lock loadLock = new ReentrantLock();
@@ -149,6 +149,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         popup = Popups.popupBuilder(actionGroup, this).
                 withTitle(title).
                 withTitleVisible(false).
+                withHint(getHint()).
                 withMaxRowCount(10).
                 withSpeedSearch().
                 withDisposeCallback(() -> disposePopup()).
@@ -159,23 +160,21 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         Popups.showUnderneathOf(popup, this, 3, 200);
     }
 
+    protected String getHint() {
+        return null;
+    }
+
     private ActionGroup createActionGroup() {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         List<T> values = getModel().getItems();
 
-        boolean valueFactoryFirst = values.size() > 5;
-        if (valueFactoryFirst && valueFactory != null) {
+        if (valueFactory != null) {
             actionGroup.add(new AddValueAction());
             actionGroup.add(Actions.SEPARATOR);
         }
 
         for (T value : values) {
             actionGroup.add(new SelectValueAction(value));
-        }
-
-        if (!valueFactoryFirst && valueFactory != null) {
-            actionGroup.add(Actions.SEPARATOR);
-            actionGroup.add(new AddValueAction());
         }
 
         if (values.isEmpty() && valueFactory == null) {
@@ -230,7 +229,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
             // block the control
             LOADING.set(this, true);
             disableFormField(this, "TEMPORARY_LOAD");
-            muteActionListeners();
+            ActionListener[] actionListeners = muteActionListeners();
 
             // reset values and selection
             setValues(new ArrayList<>());
@@ -240,7 +239,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
             Background.run(() -> {
                 if (!matchesLoadSignature(signature)) return;
                 try {
-                    List<T> values = valueLoader.get();
+                    List<T> values = performValueLoad();
 
                     if (matchesLoadSignature(signature)) {
                         Dispatch.run(this, () -> {
@@ -253,7 +252,7 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
                     if (matchesLoadSignature(signature)) {
                         LOADING.set(this, false);
                         enableFormField(this, "TEMPORARY_LOAD");
-                        unmuteActionListeners();
+                        unmuteActionListeners(actionListeners);
                     }
                 }
             });
@@ -263,24 +262,29 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         }
     }
 
+    protected List<T> performValueLoad() {
+        return valueLoader.get();
+    }
+
     private void preselectValue() {
         DBNComboBoxModel<T> model = getModel();
         if (model.isEmpty()) return;
 
         Predicate<T> valuePreselector = this.valuePreselector;
 
-        if (valuePreselector == null) {
-            if (model.getSize() == 1) {
-                // preselect if only one option available
-                T firstElement = model.getElementAt(0);
-                selectValue(firstElement);
-            }
-        } else {
+        if (valuePreselector != null) {
             T selectedValue = first(model.getItems(), valuePreselector);
             if (selectedValue != null) {
                 this.valuePreselector = null; // one-time selection
                 selectValue(selectedValue);
+                return;
             }
+        }
+
+        if (model.getSize() == 1) {
+            // preselect if only one option available
+            T firstElement = model.getElementAt(0);
+            selectValue(firstElement);
         }
     }
 
@@ -307,16 +311,17 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         }
     }
 
-    private void muteActionListeners() {
-        actionListeners = getActionListeners();
-        if (actionListeners == null) return;
+    private ActionListener[] muteActionListeners() {
+        ActionListener[] actionListeners = getActionListeners();
+        if (actionListeners == null) return null;
 
         for (ActionListener actionListener : actionListeners) {
             removeActionListener(actionListener);
         }
+        return actionListeners;
     }
 
-    private void unmuteActionListeners() {
+    private void unmuteActionListeners(ActionListener[] actionListeners) {
         if (actionListeners == null) return;
         for (ActionListener actionListener : actionListeners) {
             addActionListener(actionListener);
@@ -327,12 +332,14 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
         return signature == loadSignature.get();
     }
 
-    public void reloadValues(Predicate<T> valuePreselector) {
-        this.valuePreselector = valuePreselector;
-        reloadValues();
-    }
-
     public void reloadValues() {
+        if (valuePreselector == null) {
+            // preserve selection on reload unless the preselector is already specified
+            String selectedValueName = getSelectedValueName();
+            if (isNotEmpty(selectedValueName)) {
+                this.valuePreselector = t -> getValueName(t).equals(selectedValueName);
+            }
+        }
         setValues(Collections.emptyList());
         loadValues();
     }
@@ -466,6 +473,10 @@ public class DBNComboBox<T> extends JComboBox<T> implements PropertyHolder<Value
     @Override
     public DBNComboBoxModel<T> getModel() {
         return (DBNComboBoxModel<T>) super.getModel();
+    }
+
+    protected int getModelSize() {
+        return getModel().getSize();
     }
 
     @Override

@@ -58,7 +58,6 @@ public enum DatabaseObjectTypeId implements Constant<DatabaseObjectTypeId> {
     JAVA_CLASS,
     JAVA_RESOURCE,
     JAVA_PRIMITIVE,
-    JAVA_OBJECT,
     JSON_VIEW,
     LIBRARY,
     LOB,
