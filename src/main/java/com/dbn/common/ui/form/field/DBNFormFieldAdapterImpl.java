@@ -22,6 +22,7 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.data.editor.ui.TextFieldWithButtons;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.HyperlinkLabel;
 import com.intellij.util.containers.WeakList;
 import org.jetbrains.annotations.Nullable;
 
@@ -147,6 +148,7 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
         if (component instanceof TextFieldWithBrowseButton) return component;
         if (component instanceof TextFieldWithButtons) return component;
         if (component instanceof AbstractButton) return component;
+        if (component instanceof HyperlinkLabel) return component;
         if (component instanceof JPanel) return component;
         // TODO....
 

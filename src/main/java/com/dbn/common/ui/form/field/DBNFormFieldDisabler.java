@@ -32,6 +32,18 @@ import static com.dbn.common.ui.util.ClientProperty.FIELD_DISABLED_REASONS;
  */
 @UtilityClass
 public class DBNFormFieldDisabler {
+    public static void disableFormFields(JComponent[] components, @NonNls String reason) {
+        for (JComponent component : components) {
+            disableFormField(component, reason);
+        }
+    }
+
+    public static void enableFormFields(JComponent[] components, @NonNls String reason) {
+        for (JComponent component : components) {
+            enableFormField(component, reason);
+        }
+    }
+
     public static void disableFormField(JComponent component, @NonNls String reason) {
         Set<String> disabledReasons = getDisabledReasons(component);
         disabledReasons.add(reason);

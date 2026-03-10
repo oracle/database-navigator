@@ -43,6 +43,7 @@ import com.dbn.vfs.file.DBObjectListVirtualFile;
 import com.dbn.vfs.file.DBObjectVirtualFile;
 import com.dbn.vfs.file.DBSessionBrowserVirtualFile;
 import com.dbn.vfs.file.DBSessionStatementVirtualFile;
+import com.dbn.vfs.file.DBSingleQueryVirtualFile;
 import com.intellij.openapi.components.NamedComponent;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
@@ -73,6 +74,7 @@ import static com.dbn.vfs.DatabaseFileSystem.FilePathType.OBJECTS;
 import static com.dbn.vfs.DatabaseFileSystem.FilePathType.OBJECT_CONTENTS;
 import static com.dbn.vfs.DatabaseFileSystem.FilePathType.SESSION_BROWSERS;
 import static com.dbn.vfs.DatabaseFileSystem.FilePathType.SESSION_STATEMENTS;
+import static com.dbn.vfs.DatabaseFileSystem.FilePathType.SINGLE_QUERIES;
 
 @NonNls
 @Slf4j
@@ -107,6 +109,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
         SESSION_STATEMENTS("session_statements", "session statements"),
         FILTER_EXPRESSIONS("filter_expressions", "filter expressions"),
         DATASET_FILTERS("dataset_filters", "dataset filters"),
+        SINGLE_QUERIES("single_queries", "single queries"),
         JSON_SCHEMAS("json_schemas", "json schemas"),
         JSON_CONTENTS("json_contents", "json contents"),
         LOOSE_CONTENTS("loose_contents", "loose contents");
@@ -374,6 +377,10 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
 
             if (virtualFile instanceof DBDatasetFilterVirtualFile file) {
                 return connectionId + PSS + DATASET_FILTERS + file.getDataset().ref().serialize();
+            }
+
+            if (virtualFile instanceof DBSingleQueryVirtualFile file) {
+                return connectionId + PSS + SINGLE_QUERIES + file.getName();
             }
 
             if (virtualFile instanceof DBSessionBrowserVirtualFile file) {

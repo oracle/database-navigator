@@ -22,6 +22,7 @@ import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
+import com.dbn.common.util.Safe;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -90,7 +91,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         openFactoryInputDialog(schema, objectType, initialInput,
                 (d, c) -> when(
                         c == DialogWrapper.OK_EXIT_CODE,
-                        () -> objectNameConsumer.accept(d.getObjectName())));
+                        () -> Safe.run(objectNameConsumer, nc -> nc.accept(d.getObjectName().toUpperCase()))));
     }
 
     private void openFactoryInputDialog(

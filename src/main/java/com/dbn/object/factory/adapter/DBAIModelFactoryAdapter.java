@@ -31,8 +31,8 @@ import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
 import com.dbn.object.factory.model.DBAIModelSpec;
 import com.dbn.object.factory.ui.DBAIModelFactoryInputForm;
+import com.dbn.object.type.DBAIModelSourceType;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.vector.common.ModelSourceType;
 import com.intellij.openapi.progress.ProgressIndicator;
 
 import java.io.File;
@@ -72,7 +72,7 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelSp
 
     @Override
     public void createObject(DBAIModelSpec input) throws SQLException {
-        ModelSourceType modelSourceType = input.getSourceType();
+        DBAIModelSourceType modelSourceType = input.getSourceType();
         DBSchema schema = input.getSchema();
 
         ConnectionId connectionId = schema.getConnectionId();
@@ -87,14 +87,14 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelSp
                 connectionId,
                 conn -> {
                     DatabaseVectorInterface dataDefinition = schema.getVectorInterface();
-                    if (modelSourceType == ModelSourceType.OBJECT_STORAGE) {
+                    if (modelSourceType == DBAIModelSourceType.OBJECT_STORAGE) {
                         dataDefinition.createModelFromStorage(conn,
                                 input.getSchemaName(true),
                                 input.getObjectName(true),
                                 input.getSourceLocation(),
                                 input.getCredentialName());
 
-                    } else if (modelSourceType == ModelSourceType.MODEL_FILE) {
+                    } else if (modelSourceType == DBAIModelSourceType.MODEL_FILE) {
                         // Look for Oracle metadata sidecar JSON file
                         File modelFile = new File(input.getSourceLocation());
                         String oracleMetadata = null;
@@ -104,7 +104,7 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelSp
                             Diagnostics.conditionallyLog(e);
                             // Continue without metadata - will use default
                         }
-                        
+
                         Blob modelBlob = uploadOnnxModel(conn, input, progress);
                         dataDefinition.createModelFromFile(conn,
                                 input.getSchemaName(true),

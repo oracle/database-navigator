@@ -28,6 +28,7 @@ import com.dbn.common.project.ModuleRef;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.thread.Synchronized;
 import com.dbn.common.ui.form.DBNForm;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.mapping.FileConnectionContext;
 import com.dbn.diagnostics.data.DiagnosticCategory;
 import com.dbn.event.ui.EventMonitorForm;
@@ -48,6 +49,7 @@ public class UserDataKeys {
     public static final Key<String> ACTION_PLACE = Key.create("DBNavigator.ActionPlace");
     public static final Key<Boolean> PROJECT_SETTINGS_LOADED = Key.create("DBNavigator.ProjectSettingsLoaded");
     public static final Key<ProjectRef> PROJECT_REF = Key.create("DBNavigator.ProjectRef");
+    public static final Key<ConnectionRef> CONNECTION_REF = Key.create("DBNavigator.ConnectionRef");
     public static final Key<ModuleRef> MODULE_REF = Key.create("DBNavigator.ModuleRef");
     public static final Key<List<StatementExecutionProcessor>> STATEMENT_EXECUTION_PROCESSORS = Key.create("DBNavigator.StatementExecutionProcessors");
     public static final Key<FileConnectionContext> FILE_CONNECTION_MAPPING = Key.create("DBNavigator.FileConnectionMapping");

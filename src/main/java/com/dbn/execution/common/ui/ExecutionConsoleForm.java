@@ -58,7 +58,7 @@ import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.execution.statement.result.StatementExecutionResult;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.ml.result.MLExecutionResult;
-import com.dbn.vector.result.VectorEmbeddingExecutionResult;
+import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;

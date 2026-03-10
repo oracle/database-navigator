@@ -75,6 +75,7 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     DBCluster getCluster(String name);
     DBCredential getCredential(String name);
     DBCredential getAIProfile(String name);
+    DBAIModel getAIModel(String name);
     DBDatabaseLink getDatabaseLink(String name);
     DBJavaClass getJavaPrimitive(String name);
     DBJavaClass getJavaClass(String name);

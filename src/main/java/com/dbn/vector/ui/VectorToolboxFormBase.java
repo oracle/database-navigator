@@ -21,7 +21,6 @@ import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
@@ -29,25 +28,23 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.intellij.openapi.Disposable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
 
 public abstract class VectorToolboxFormBase extends DBNFormBase {
-    private final ConnectionRef connection;
-
-    public VectorToolboxFormBase(@Nullable Disposable parent, ConnectionHandler connection) {
+    public VectorToolboxFormBase(@NotNull Disposable parent) {
         super(parent);
-        this.connection = connection.ref();
     }
 
     public ConnectionHandler getConnection() {
-        return connection.ensure();
+        return getEmbeddingRequest().getConnection();
     }
 
     public ConnectionId getConnectionId() {
-        return connection.getId();
+        return getConnection().getConnectionId();
     }
 
     protected VectorEmbeddingRequest getEmbeddingRequest() {

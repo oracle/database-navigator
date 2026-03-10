@@ -137,7 +137,18 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
 
     @Override
     public String getToolTipText(@NotNull MouseEvent e) {
-        return null;
+        Point point = e.getPoint();
+        int rowIndex = rowAtPoint(point);
+        if (rowIndex == -1) return null;
+
+        int columnIndex = columnAtPoint(point);
+        if (columnIndex == -1) return null;
+
+        T model = getModel();
+        Object row = model.getValueAt(rowIndex, columnIndex);
+        if (row == null) return null;
+
+        return model.getTooltip(row, columnIndex);
     }
 
     @Override

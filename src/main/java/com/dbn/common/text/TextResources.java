@@ -21,6 +21,7 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Unsafe;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -31,16 +32,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TextResources {
     private final Map<Pair<Class, String>, String> RESOURCES = new ConcurrentHashMap<>();
 
-    public static String get(Object object, String resourceName) {
+    public static String get(Object object, @NonNls String resourceName) {
         return get(object.getClass(), resourceName);
     }
 
-    public static String get(Class clazz, String resourceName) {
+    public static String get(Class clazz, @NonNls String resourceName) {
         return RESOURCES.computeIfAbsent(Pair.of(clazz, resourceName), k -> readResource(clazz, resourceName));
     }
 
     @NotNull
-    private static String readResource(Class clazz, String resourceName) {
+    private static String readResource(Class clazz, @NonNls String resourceName) {
         return Unsafe.logged("", () -> Commons.readInputStream(clazz.getResourceAsStream(resourceName)));
     }
 

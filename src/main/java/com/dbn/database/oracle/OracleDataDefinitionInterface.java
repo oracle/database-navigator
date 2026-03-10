@@ -20,6 +20,7 @@ import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -30,11 +31,10 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.model.DBArgumentSpec;
-import com.dbn.object.factory.model.DBMethodSpec;
 import com.dbn.object.factory.model.DBObjectSpec;
-import com.dbn.object.type.DBObjectType;
+import com.dbn.object.factory.model.DBObjectSpecList;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -51,12 +51,21 @@ import static com.dbn.database.DatabaseObjectTypeId.JSON_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.TRIGGER;
 import static com.dbn.database.DatabaseObjectTypeId.VIEW;
-import static com.dbn.object.factory.model.DBObjectAttribute.CONSTRAINT_COLUMNS;
-import static com.dbn.object.factory.model.DBObjectAttribute.CONSTRAINT_TYPE;
-import static com.dbn.object.factory.model.DBObjectAttribute.DATA_TYPE;
-import static com.dbn.object.factory.model.DBObjectAttribute.IS_NOT_NULL;
-import static com.dbn.object.factory.model.DBObjectAttribute.IS_PRIMARY_KEY;
-import static com.dbn.object.factory.model.DBObjectAttribute.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.CONSTRAINT_COLUMNS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.CONSTRAINT_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.INDEX_COLUMNS;
+import static com.dbn.object.factory.model.DBObjectAttributeType.INDEX_DEFINITION;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_NOT_NULL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_PRIMARY_KEY;
+import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_DETAIL;
+import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
+import static com.dbn.object.type.DBObjectType.ARGUMENT;
+import static com.dbn.object.type.DBObjectType.COLUMN;
+import static com.dbn.object.type.DBObjectType.CONSTRAINT;
+import static com.dbn.object.type.DBObjectType.FUNCTION;
 
 public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
     public OracleDataDefinitionInterface(DatabaseInterfaces provider) {
@@ -215,55 +224,59 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(DBMethodSpec method, DBNConnection connection) throws SQLException {
+    public void createMethod(@NotNull DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
         // TODO SQL-Injection
-        Project project = method.getSchema().getProject();
+        Project project = methodSpec.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();
         CodeStyleCaseOption oco = styleCaseSettings.getObjectCaseOption();
         CodeStyleCaseOption dco = styleCaseSettings.getDatatypeCaseOption();
+        boolean function = methodSpec.getObjectType() == FUNCTION;
 
         StringBuilder buffer = new StringBuilder();
-        String methodType = method.isFunction() ? "function " : "procedure ";
+        String methodType = function ? "function " : "procedure ";
         buffer.append(kco.format(methodType));
-        buffer.append(oco.format(method.getObjectName()));
+        buffer.append(oco.format(methodSpec.getObjectName()));
         buffer.append("(");
         
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        for (DBArgumentSpec argument : method.getArguments()) {
+        DBObjectSpecList<DBObjectSpec> arguments = methodSpec.getChildren(ARGUMENT);
+        for (DBObjectSpec argument : arguments) {
+            boolean in = IS_INPUT.is(argument);
+            boolean out = IS_OUTPUT.is(argument);
             maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
-            maxArgDirectionLength = Math.max(maxArgDirectionLength,
-                    argument.isInput() && argument.isOutput() ? 6 :
-                    argument.isInput() ? 2 :
-                    argument.isOutput() ? 3 : 0);
+            maxArgDirectionLength = Math.max(maxArgDirectionLength, in && out ? 6 : in ? 2 : out ? 3 : 0);
         }
 
+        for (DBObjectSpec argument : arguments) {
+            boolean in = IS_INPUT.is(argument);
+            boolean out = IS_OUTPUT.is(argument);
 
-        for (DBArgumentSpec argument : method.getArguments()) {
             buffer.append("\n    ");
             buffer.append(oco.format(argument.getObjectName()));
             buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
             String direction =
-                    argument.isInput() && argument.isOutput() ? kco.format("in out") :
-                    argument.isInput() ? kco.format("in") :
-                    argument.isOutput() ? kco.format("out") : "";
+                    in && out ? kco.format("in out") :
+                    in ? kco.format("in") :
+                    out ? kco.format("out") : "";
             buffer.append(direction);
             buffer.append(Strings.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
-            buffer.append(dco.format(argument.getDataType()));
-            if (argument != method.getArguments().get(method.getArguments().size() -1)) {
+            buffer.append(dco.format(DATA_TYPE.of(argument)));
+            if (argument != Lists.lastElement(arguments)) {
                 buffer.append(",");
             }
         }
 
         buffer.append(")\n");
-        if (method.isFunction()) {
+        if (function) {
+            DBObjectSpec returnArgument = RETURN_ARGUMENT.of(methodSpec);
             buffer.append(kco.format("return "));
-            buffer.append(dco.format(method.getReturnArgument().getDataType()));
+            buffer.append(dco.format(DATA_TYPE.of(returnArgument)));
             buffer.append("\n");
         }
         buffer.append(kco.format("is\nbegin\n\n"));
-        if (method.isFunction()) buffer.append(kco.format("    return null;\n\n"));
+        if (function) buffer.append(kco.format("    return null;\n\n"));
         buffer.append("end;");
         createObject(buffer.toString(), connection);
     }
@@ -278,7 +291,8 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         builder.append(" (\n");
 
         boolean first = true;
-        for (DBObjectSpec columnSpec : tableSpec.getChildren(DBObjectType.COLUMN)) {
+        DBObjectSpecList<DBObjectSpec> columnSpecs = tableSpec.getChildren(COLUMN);
+        for (DBObjectSpec columnSpec : columnSpecs) {
             if (first) {
                 first = false;
             } else {
@@ -287,24 +301,62 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             builder.append("    ");
             builder.append(columnSpec.getObjectName(true));
             builder.append(" ");
-            builder.append(columnSpec.getAttribute(DATA_TYPE));
-            builder.append(columnSpec.getBooleanAttribute(IS_NOT_NULL) ? " not null" : "");
-            builder.append(columnSpec.getBooleanAttribute(IS_PRIMARY_KEY) ? " primary key" : "");
+            builder.append(DATA_TYPE.of(columnSpec));
+            builder.append(IS_NOT_NULL.is(columnSpec) ? " not null" : "");
+            builder.append(IS_PRIMARY_KEY.is(columnSpec) ? " primary key" : "");
         }
 
-        for (DBObjectSpec constraint : tableSpec.getChildren(DBObjectType.CONSTRAINT)) {
+        DBObjectSpecList<DBObjectSpec> constraintSpecs = tableSpec.getChildren(CONSTRAINT);
+        for (DBObjectSpec constraintSpec : constraintSpecs) {
+            String constraintType = CONSTRAINT_TYPE.of(constraintSpec);
+            String[] constraintColumns = CONSTRAINT_COLUMNS.of(constraintSpec);
+
             builder.append(",\n");
             builder.append("    ");
-            builder.append(constraint.getAttribute(CONSTRAINT_TYPE));
+            builder.append(constraintType);
             builder.append(" ");
-            builder.append(nvl(constraint.getObjectName(), ""));
+            builder.append(nvl(constraintSpec.getObjectName(), ""));
             builder.append("(");
-            builder.append(toCsv(Arrays.asList(constraint.getAttribute(CONSTRAINT_COLUMNS)),s -> s));
+            builder.append(toCsv(Arrays.asList(constraintColumns), s -> s));
             builder.append(")");
         }
 
         builder.append(")\n");
-        builder.append(tableSpec.getAttribute(OBJECT_DETAIL));
+        builder.append(nvl(OBJECT_DETAIL.of(tableSpec), ""));
+
+        createObject(builder.toString(), connection);
+    }
+
+    @Override
+    public void createIndex(DBObjectSpec indexSpec, DBNConnection connection) throws SQLException {
+        DBObjectSpec tableSpec = indexSpec.getParent();
+        String schemaName = tableSpec.getSchemaName(true);
+        String indexName = indexSpec.getObjectName(true);
+        String tableName = tableSpec.getObjectName(true);
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("index ");
+
+        builder.append(schemaName);
+        builder.append(".");
+        builder.append(indexName);
+        builder.append("\n");
+
+        builder.append("on ");
+        builder.append(schemaName);
+        builder.append(".");
+        builder.append(tableName);
+        builder.append("\n(");
+
+        String indexDefinition = INDEX_DEFINITION.of(indexSpec);
+        String[] indexColumns = INDEX_COLUMNS.of(indexSpec);
+        if (Strings.isNotEmpty(indexDefinition)) {
+            builder.append(indexDefinition);
+        } else if (indexColumns != null) {
+            builder.append(toCsv(Arrays.asList(indexColumns), s -> s));
+        }
+
+        builder.append(")\n");
 
         createObject(builder.toString(), connection);
     }
