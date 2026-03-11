@@ -158,13 +158,13 @@ public class DBBreakpointType extends XLineBreakpointType<XBreakpointProperties>
         return "unknown";
     }
 
-    private static XBreakpointProperties createBreakpointProperties(ConnectionHandler connection) {
+    public static XBreakpointProperties createBreakpointProperties(ConnectionHandler connection) {
         if (DBDebuggerType.JDWP.isSupported()) {
             try {
                 Class propertiesClass = Class.forName("com.dbn.debugger.jdwp.DBJdwpBreakpointProperties");
                 Constructor constructor = propertiesClass.getConstructor(ConnectionHandler.class);
                 return (XBreakpointProperties) constructor.newInstance(connection);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 conditionallyLog(e);
                 log.error("Error creating JDWP breakpoints properties", e);
             }
