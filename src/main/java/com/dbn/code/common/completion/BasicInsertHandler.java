@@ -50,7 +50,7 @@ public class BasicInsertHandler implements InsertHandler<CodeCompletionLookupIte
                     if (completionChar == '\t' || completionChar == '\u0000' || completionChar == '\n') */
 
                 if (tokenType.isFunction()) {
-                    SimpleTokenType leftParenthesis = tokenElementType.getLanguage().getSharedTokenTypes().getChrLeftParenthesis();
+                    SimpleTokenType leftParenthesis = tokenElementType.getLanguage().getSharedTokenTypes().chrLeftParenthesis;
                     if (tokenElementType.cache.isNextPossibleToken(leftParenthesis)) {
                         addParenthesis(insertionContext);
                         shiftCaret(insertionContext, 1);
@@ -90,7 +90,7 @@ public class BasicInsertHandler implements InsertHandler<CodeCompletionLookupIte
         boolean addWhiteSpace = !isInlineSpace(insertionContext, tailOffset);
 
         LeafPsiElement leafAtOffset = PsiUtil.lookupLeafAtOffset(file, tailOffset);
-        if (leafAtOffset == null || !leafAtOffset.isToken(leafAtOffset.getLanguage().getSharedTokenTypes().getChrLeftParenthesis())) {
+        if (leafAtOffset == null || !leafAtOffset.isToken(leafAtOffset.getLanguage().getSharedTokenTypes().chrLeftParenthesis)) {
             insertionContext.getDocument().insertString(tailOffset, addWhiteSpace ? "() " : "()");
         }
     }

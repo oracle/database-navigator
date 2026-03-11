@@ -35,7 +35,6 @@ import com.intellij.openapi.project.Project;
 
 import javax.swing.Icon;
 
-import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.common.util.Strings.toUpperCase;
@@ -60,9 +59,9 @@ public class TokenLookupItemBuilder extends LookupItemBuilder {
 
     @Override
     public CharSequence getText(CodeCompletionContext completionContext) {
-        String text = tokenElementType.getText();
+        String text = tokenElementType.text;
         TokenType tokenType = tokenElementType.tokenType;
-        if (isEmpty(text)) {
+        if (text == null) {
             text = tokenType.getValue();
         }
         Project project = completionContext.getParameters().getOriginalFile().getProject();
