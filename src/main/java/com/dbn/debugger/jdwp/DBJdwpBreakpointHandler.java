@@ -112,25 +112,6 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
         DBBreakpointUtil.registerBreakpoint(contentFile, 0, true, true);
     }
 
-/*    private void registerBreakpoint(DBContentVirtualFile contentFile, int line) {
-        Read.run(() -> {
-            Project project = getProject();
-            ConnectionHandler connection = contentFile.getConnection();
-
-            DBJdwpBreakpointProperties breakpointProperties = new DBJdwpBreakpointProperties(connection);
-            registerBreakpoint(contentFile, line, breakpointProperties);
-        });
-    }
-
-    public static void registerBreakpoint(DBContentVirtualFile contentFile, int line, DBJdwpBreakpointProperties properties) {
-        String fileUrl = contentFile.getUrl();
-        Project project = contentFile.getProject();
-        XBreakpointManager breakpointManager = getBreakpointManager(project);
-
-        DBBreakpointType breakpointType = DBBreakpointType.get();
-        breakpointManager.addLineBreakpoint(breakpointType, fileUrl, line, properties, true);
-    }*/
-
     @Override
     public void unregisterDefaultBreakpoint() {
 
