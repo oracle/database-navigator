@@ -47,6 +47,7 @@ import java.util.Objects;
 import static com.dbn.common.action.UserDataKeys.BREAKPOINT_FILE;
 import static com.dbn.common.action.UserDataKeys.BREAKPOINT_ID;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.debugger.common.breakpoint.DBBreakpointType.createBreakpointProperties;
 
 public class DBBreakpointUtil {
 
@@ -189,5 +190,21 @@ public class DBBreakpointUtil {
     public static @NotNull XBreakpointManager getBreakpointManager(Project project) {
         XDebuggerManager debuggerManager = XDebuggerManager.getInstance(project);
         return debuggerManager.getBreakpointManager();
+    }
+
+    public static void registerBreakpoint(DBContentVirtualFile contentFile, int line, boolean enabled, boolean temporary) {
+        Read.run(() -> {
+            ConnectionHandler connection = contentFile.getConnection();
+
+            String fileUrl = contentFile.getUrl();
+            Project project = contentFile.getProject();
+
+            XBreakpointProperties properties = createBreakpointProperties(connection);
+            DBBreakpointType breakpointType = DBBreakpointType.get();
+
+            XBreakpointManager breakpointManager = getBreakpointManager(project);
+            XLineBreakpoint<XBreakpointProperties> breakpoint = breakpointManager.addLineBreakpoint(breakpointType, fileUrl, line, properties, temporary);
+            breakpoint.setEnabled(enabled);
+        });
     }
 }
