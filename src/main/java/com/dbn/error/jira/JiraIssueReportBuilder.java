@@ -17,7 +17,9 @@
 package com.dbn.error.jira;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
+import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
@@ -42,9 +44,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.checksum.Checksum.fromStringContent;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.util.Classes.className;
+import static java.util.Collections.emptyList;
 
 public class JiraIssueReportBuilder implements IssueReportBuilder {
     private static final String LINE_DELIMITER = "\n__________________________________________________________________\n";
@@ -169,8 +173,7 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
     }
 
     private static void buildAttachmentInfo(IssueReport report, StringBuilder description) {
-        IdeaLoggingEvent event = report.getEvent();
-        List<Attachment> attachments = event.getAttachments();
+        List<Attachment> attachments = getIncludedAttachments(report);
         if (attachments.isEmpty()) return;
 
         Set<String> attachmentTexts = new HashSet<>();
@@ -189,6 +192,15 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         }
 
         description.append(LINE_DELIMITER);
+    }
+
+    private static List<Attachment> getIncludedAttachments(IssueReport report) {
+        IdeaLoggingEvent event = report.getEvent();
+        List<Attachment> attachments = Unsafe.silent(null, event, e -> invokeMethod(e, "getAttachments"));
+        if (attachments != null) return Lists.filter(attachments, a -> a.isIncluded());
+
+        Object data = event.getData();
+        return Unsafe.silent(emptyList(), data, e -> invokeMethod(e, "getIncludedAttachments"));
     }
 
     @Nullable
