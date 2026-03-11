@@ -19,12 +19,10 @@ package com.dbn.debugger.jdwp;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Documents;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.debugger.DBDebugConsoleLogger;
 import com.dbn.debugger.DBDebugUtil;
 import com.dbn.debugger.common.breakpoint.DBBreakpointHandler;
 import com.dbn.debugger.common.breakpoint.DBBreakpointProperties;
-import com.dbn.debugger.common.breakpoint.DBBreakpointType;
 import com.dbn.debugger.common.breakpoint.DBBreakpointUtil;
 import com.dbn.debugger.jdwp.process.DBJdwpDebugProcess;
 import com.dbn.editor.DBContentType;
@@ -49,7 +47,6 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.xdebugger.XDebugSession;
-import com.intellij.xdebugger.breakpoints.XBreakpointManager;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.sun.jdi.Location;
@@ -66,7 +63,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.util.Commons.nvl;
-import static com.dbn.debugger.common.breakpoint.DBBreakpointUtil.getBreakpointManager;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.NORMAL;
 
@@ -101,7 +97,7 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
         DBObjectRef<DBSchemaObject> schemaObject = DBDebugUtil.getMainDatabaseObject(method);
         if (schemaObject == null) return;
 
-        registerBreakpoint(sourceCodeFile, line);
+        DBBreakpointUtil.registerBreakpoint(sourceCodeFile, line, true, true);
     }
 
     public void registerWrapperBreakpoint(DBObjectRef<DBMethod> wrapperMethod) {
@@ -113,10 +109,10 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
         if (contentFile == null) return;
 
         UserDataKeys.WRAPPER_FILE.set(contentFile, true);
-        registerBreakpoint(contentFile, 0);
+        DBBreakpointUtil.registerBreakpoint(contentFile, 0, true, true);
     }
 
-    private void registerBreakpoint(DBContentVirtualFile contentFile, int line) {
+/*    private void registerBreakpoint(DBContentVirtualFile contentFile, int line) {
         Read.run(() -> {
             Project project = getProject();
             ConnectionHandler connection = contentFile.getConnection();
@@ -133,7 +129,7 @@ public class DBJdwpBreakpointHandler extends DBBreakpointHandler<DBJdwpDebugProc
 
         DBBreakpointType breakpointType = DBBreakpointType.get();
         breakpointManager.addLineBreakpoint(breakpointType, fileUrl, line, properties, true);
-    }
+    }*/
 
     @Override
     public void unregisterDefaultBreakpoint() {
