@@ -19,9 +19,9 @@ package com.dbn.language.common.element.impl;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
-import com.dbn.language.common.element.cache.ElementTypeLookupCacheIndexed;
-import com.dbn.language.common.element.cache.OneOfElementTypeLookupCache;
+import com.dbn.language.common.element.cache.ElementTypeCache;
+import com.dbn.language.common.element.cache.ElementTypeIndexedCache;
+import com.dbn.language.common.element.cache.OneOfElementTypeCache;
 import com.dbn.language.common.element.parser.BranchCheck;
 import com.dbn.language.common.element.parser.impl.OneOfElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
@@ -45,10 +45,11 @@ import static com.dbn.language.common.TokenTypeCategory.IDENTIFIER;
 import static com.dbn.language.common.element.impl.OneOfElementTypeBuilder.rebuildAmbiguousPaths;
 
 @Slf4j
-public final class OneOfElementType extends ElementTypeBase {
+public class OneOfElementType extends ElementTypeBase {
     public ElementTypeRef[] children;
     public boolean basic;
     public boolean sortable;
+    public boolean ambiguous;
 
     public OneOfElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -73,10 +74,10 @@ public final class OneOfElementType extends ElementTypeBase {
 
     @SuppressWarnings("unchecked")
     private void initLookupCache() {
-        ElementTypeLookupCacheIndexed cache = (ElementTypeLookupCacheIndexed) this.cache;
+        ElementTypeIndexedCache cache = (ElementTypeIndexedCache) this.cache;
         for (ElementTypeRef child : children) {
             ElementTypeBase elementType = child.elementType;
-            ElementTypeLookupCache<?> elementTypeCache = elementType.cache;
+            ElementTypeCache<?> elementTypeCache = elementType.cache;
             cache.firstPossibleLeafs.addAll(elementTypeCache.getFirstPossibleLeafs());
             cache.firstRequiredLeafs.addAll(elementTypeCache.getFirstRequiredLeafs());
             cache.allPossibleTokens.addAll(elementTypeCache.getAllPossibleTokens());
@@ -120,6 +121,7 @@ public final class OneOfElementType extends ElementTypeBase {
                 this.children[i] = new ElementTypeRef(elementType, false, version, branchChecks);
             }
             sortable = getBooleanAttribute(def, "sortable");
+            ambiguous = getBooleanAttribute(def, "ambiguous");
         }
 
         if (children == null || children.length == 0) {
@@ -130,8 +132,8 @@ public final class OneOfElementType extends ElementTypeBase {
     }
 
     @Override
-    protected OneOfElementTypeLookupCache createLookupCache() {
-        return new OneOfElementTypeLookupCache(this);
+    protected OneOfElementTypeCache createLookupCache() {
+        return new OneOfElementTypeCache(this);
     }
 
     @NotNull

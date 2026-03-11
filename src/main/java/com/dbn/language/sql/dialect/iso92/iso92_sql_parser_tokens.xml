@@ -21,7 +21,7 @@
         <token id="UNKNOWN" value="" category="unknown"/>
         <token id="CT_OUTER_JOIN" value="" category="custom"/>
 
-         <!-- DATA TYPES -->
+        <!-- MARKER_BEGIN_DATATYPES -->
         <token index="0" id="DT_BIT" value="bit" category="datatype"/>
         <token index="1" id="DT_TINYINT" value="tinyint" category="datatype"/>
         <token index="2" id="DT_BOOL" value="bool" category="datatype"/>
@@ -57,9 +57,10 @@
         <token index="32" id="DT_LONGBLOB" value="longblob" category="datatype"/>
         <token index="33" id="DT_LONGTEXT" value="longtext" category="datatype"/>
         <token index="34" id="DT_ENUM" value="enum" category="datatype"/>
+        <!-- MARKER_END_DATATYPES -->
 
 
-        <!-- KEYWORDS -->
+        <!-- MARKER_BEGIN_KEYWORDS -->
         <token index="0" id="KW_ACCESSIBLE" value="accessible" category="keyword"/>
         <token index="1" id="KW_ADD" value="add" category="keyword"/>
         <token index="2" id="KW_ALL" value="all" category="keyword"/>
@@ -276,11 +277,11 @@
         <token index="213" id="KW_ZEROFILL" value="zerofill" category="keyword"/>
         <token index="214" id="KW_FALSE" value="false" category="keyword"/>
         <token index="215" id="KW_TRUE" value="true" category="keyword"/>
+        <!-- MARKER_END_KEYWORDS -->
 
 
 
-
-         <!-- FUNCTIONS -->
+        <!-- MARKER_BEGIN_FUNCTIONS -->
         <token index="0" id="FN_ABS" value="abs" category="function"/>
         <token index="1" id="FN_ACOS" value="acos" category="function"/>
         <token index="2" id="FN_ADDDATE" value="adddate" category="function"/>
@@ -504,9 +505,15 @@
         <token index="220" id="FN_YEAR" value="year" category="function"/>
         <token index="221" id="FN_YEAR_MONTH" value="year_month" category="function"/>
         <token index="222" id="FN_YEARWEEK" value="yearweek" category="function"/>
+        <!-- MARKER_END_FUNCTIONS -->
 
-        <!-- PARAMETERS -->
-        
+
+        <!-- MARKER_BEGIN_PARAMETERS -->
+        <!-- MARKER_END_PARAMETERS -->
+
+
+        <!-- MARKER_BEGIN_EXCEPTIONS -->
+        <!-- MARKER_END_EXCEPTIONS -->
     </tokens>
 
     <token-sets>

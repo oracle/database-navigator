@@ -24,7 +24,7 @@ import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
+import com.dbn.language.common.element.cache.ElementTypeCache;
 import com.dbn.language.common.element.cache.TokenElementTypeLookupCache;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.parser.impl.TokenElementTypeParser;
@@ -46,8 +46,8 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.ITERATIO
 
 public class TokenElementType extends LeafElementType implements LookupItemBuilderProvider {
     private final TokenLookupItemBuilder lookupItemBuilder = new TokenLookupItemBuilder(this);
-    private TokenTypeCategory flavor;
-    private String text;
+    public TokenTypeCategory flavor;
+    public String text;
 
     public TokenElementType(ElementTypeBundle bundle, ElementTypeBase parent, @NonNls String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -110,16 +110,16 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
     public Set<LeafElementType> getNextPossibleLeafs(LanguageNode pathNode, @NotNull ElementLookupContext context) {
         if (isIterationSeparator()) {
             if (parent instanceof IterationElementType iterationElementType) {
-                ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElement.cache;
-                return lookupCache.captureFirstPossibleLeafs(context.reset());
+                ElementTypeCache<?> lookupCache = iterationElementType.iteratedElement.cache;
+                return lookupCache.captureFirstPossibleLeafs(context);
             } else if (parent instanceof QualifiedIdentifierElementType){
                 return super.getNextPossibleLeafs(pathNode, context);
             }
         }
         if (parent instanceof WrapperElementType wrapperElementType) {
             if (this.equals(wrapperElementType.getBeginTokenElement())) {
-                ElementTypeLookupCache<?> lookupCache = wrapperElementType.wrappedElement.cache;
-                return lookupCache.captureFirstPossibleLeafs(context.reset());
+                ElementTypeCache<?> lookupCache = wrapperElementType.wrappedElement.cache;
+                return lookupCache.captureFirstPossibleLeafs(context);
             }
         }
 
@@ -198,10 +198,6 @@ public class TokenElementType extends LeafElementType implements LookupItemBuild
     @Override
     public TokenLookupItemBuilder getLookupItemBuilder(DBLanguage language) {
         return lookupItemBuilder;
-    }
-
-    public TokenTypeCategory getFlavor() {
-        return flavor;
     }
 
     public TokenTypeCategory getTokenTypeCategory() {

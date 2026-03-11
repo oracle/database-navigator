@@ -23,7 +23,6 @@ import com.dbn.common.ref.WeakRefCache;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Lists;
-import com.dbn.common.util.Recursion;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.connection.ConnectionHandler;
@@ -83,6 +82,7 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Documents.getDocument;
 import static com.dbn.common.util.Documents.getEditors;
 import static com.dbn.common.util.Lists.convert;
+import static com.dbn.common.util.Recursion.computeGuarded;
 import static com.dbn.common.util.Strings.toUpperCase;
 import static com.dbn.language.common.psi.lookup.LookupAdapters.aliasDefinition;
 import static com.dbn.language.common.psi.lookup.LookupAdapters.aliasReference;
@@ -94,8 +94,8 @@ import static com.dbn.object.type.DBObjectType.DATASET;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
-    private static final PsiLookupAdapter CHR_STAR_LOOKUP_ADAPTER = new TokenTypeLookupAdapter(element -> element.getLanguage().getSharedTokenTypes().getChrStar());
-    private static final PsiLookupAdapter COL_INDEX_LOOKUP_ADAPTER = new TokenTypeLookupAdapter(element -> element.getLanguage().getSharedTokenTypes().getInteger());
+    private static final PsiLookupAdapter CHR_STAR_LOOKUP_ADAPTER = new TokenTypeLookupAdapter(element -> element.getLanguage().getSharedTokenTypes().chrStar);
+    private static final PsiLookupAdapter COL_INDEX_LOOKUP_ADAPTER = new TokenTypeLookupAdapter(element -> element.getLanguage().getSharedTokenTypes().integer);
     private static final ObjectReferenceLookupAdapter DATASET_LOOKUP_ADAPTER = new ObjectReferenceLookupAdapter(null, DATASET, null);
 
     private static final WeakRefCache<DBVirtualObject, BasePsiElement> underlyingPsiElements = WeakRefCache.weakKey();
@@ -252,12 +252,12 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
 
     @Override
     public DBObject getChildObject(DBObjectType type, String name, short overload, boolean lookupHidden) {
-        return Recursion.computeGuarded("childObjectLookup", this,
+        return computeGuarded("childObjectLookup", null, this,
                 o -> findChildObject(type, name, overload, lookupHidden));
     }
 
     @Nullable
-    private  DBObject findChildObject(DBObjectType type, String name, short overload, boolean lookupHidden) {
+    private DBObject findChildObject(DBObjectType type, String name, short overload, boolean lookupHidden) {
         if (isDisposed()) return null;
         DBObjectList<DBObject> childObjectList = getChildObjectList(type);
         if (childObjectList != null) {

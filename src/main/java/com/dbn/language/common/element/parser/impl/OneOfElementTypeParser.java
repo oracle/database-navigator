@@ -28,9 +28,9 @@ import com.dbn.language.common.element.path.ParserNode;
 import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 
-public class OneOfElementTypeParser extends ElementTypeParser<OneOfElementType> {
+public class OneOfElementTypeParser<E extends OneOfElementType> extends ElementTypeParser<E> {
 
-    public OneOfElementTypeParser(OneOfElementType elementType) {
+    public OneOfElementTypeParser(E elementType) {
         super(elementType);
     }
 

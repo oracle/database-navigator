@@ -16,7 +16,6 @@
 
 package com.dbn.language.sql.dialect;
 
-import com.dbn.common.latent.Latent;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguageDialectIdentifier;
 import com.dbn.language.common.element.ChameleonElementType;
@@ -28,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class SQLLanguageDialect extends DBLanguageDialect {
-    private final Latent<ChameleonElementType> psqlChameleonElementType = Latent.basic(() -> createPsqlChameleonElementType());
+    private ChameleonElementType psqlChameleonElementType;
 
     @Nullable
     private ChameleonElementType createPsqlChameleonElementType() {
@@ -51,7 +50,10 @@ public abstract class SQLLanguageDialect extends DBLanguageDialect {
     @Override
     public final ChameleonElementType getChameleonTokenType(DBLanguageDialectIdentifier dialectIdentifier) {
         if (dialectIdentifier == getChameleonDialectIdentifier()) {
-            return psqlChameleonElementType.get();
+            if (psqlChameleonElementType == null) {
+                psqlChameleonElementType = createPsqlChameleonElementType();
+            }
+            return psqlChameleonElementType;
         }
         return super.getChameleonTokenType(dialectIdentifier);
     }
