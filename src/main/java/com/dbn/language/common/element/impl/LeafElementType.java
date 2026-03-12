@@ -22,7 +22,7 @@ import com.dbn.language.common.element.ChameleonElementType;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
+import com.dbn.language.common.element.cache.ElementTypeCache;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.LanguageNode;
 import com.dbn.language.common.element.path.LanguageNodeBase;
@@ -34,14 +34,18 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static com.dbn.language.common.element.impl.ElementTypeCache.getUnwrappedFirstPossibleLeafs;
+import static com.dbn.language.common.element.parser.TokenMonitor.unwrapSurrogates;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMENT;
 import static com.dbn.language.common.element.util.ElementTypeAttribute.SURROGATE_LEAD;
 import static java.util.Collections.disjoint;
 
 public abstract class LeafElementType extends ElementTypeBase implements Indexable {
+    public static final Map<LeafElementType, Map<ElementTypeBase, Boolean>> surrogateForFlags = new ConcurrentHashMap<>();
+
     public TokenType tokenType;
 
     public boolean optional;
@@ -69,7 +73,12 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
             return surrogateFor.contains(leafElementType);
         }
 
-        Set<LeafElementType> firstPossibleLeafs = getUnwrappedFirstPossibleLeafs(elementType);
+        var flags = surrogateForFlags.computeIfAbsent(this, e -> new ConcurrentHashMap<>());
+        return flags.computeIfAbsent(elementType, e -> evaluateSurrogateFor(e));
+    }
+
+    private boolean evaluateSurrogateFor(ElementTypeBase elementType) {
+        Set<LeafElementType> firstPossibleLeafs = unwrapSurrogates(elementType.cache.getFirstPossibleLeafs());
         return !disjoint(surrogateFor, firstPossibleLeafs);
     }
 
@@ -125,7 +134,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                     ElementTypeRef element = sequenceElementType.children[position];
                     while (element != null) {
                         if (context.check(element)) {
-                            element.elementType.cache.captureFirstPossibleLeafs(context.reset(), possibleLeafs);
+                            element.elementType.cache.captureFirstPossibleLeafs(context, possibleLeafs);
                             if (!element.optional) {
                                 pathNode = null;
                                 break;
@@ -140,15 +149,15 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                 TokenElementType[] separatorTokens = iterationElementType.separatorTokens;
                 if (separatorTokens != null) possibleLeafs.addAll(Arrays.asList(separatorTokens));
 
-                ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElement.cache;
-                lookupCache.captureFirstPossibleLeafs(context.reset(), possibleLeafs);
+                ElementTypeCache<?> lookupCache = iterationElementType.iteratedElement.cache;
+                lookupCache.captureFirstPossibleLeafs(context, possibleLeafs);
 
             } else if (elementType instanceof QualifiedIdentifierElementType qualifiedIdentifierElementType) {
                 if (this == qualifiedIdentifierElementType.separatorToken) break;
 
             } else if (elementType instanceof ChameleonElementType chameleonElementType) {
                 ElementTypeBundle elementTypeBundle = chameleonElementType.getParentLanguage().getParserDefinition().getParser().getElementTypes();
-                ElementTypeLookupCache<?> lookupCache = elementTypeBundle.getRootElementType().cache;
+                ElementTypeCache<?> lookupCache = elementTypeBundle.getRootElementType().cache;
                 possibleLeafs.addAll(lookupCache.getFirstPossibleLeafs());
             }
             if (pathNode != null) {
@@ -192,7 +201,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                 if (index < elementsCount) {
                     ElementTypeRef element = sequenceElementType.children[index];
                     while (element != null) {
-                        ElementTypeLookupCache lookupCache = element.elementType.cache;
+                        ElementTypeCache lookupCache = element.elementType.cache;
                         if (required) {
                             if (lookupCache.isFirstRequiredToken(tokenType) && !element.optional) {
                                 return true;
@@ -212,7 +221,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
             } else if (elementType instanceof IterationElementType iterationElementType) {
                 TokenElementType[] separatorTokens = iterationElementType.separatorTokens;
                 if (separatorTokens == null) {
-                    ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElement.cache;
+                    ElementTypeCache<?> lookupCache = iterationElementType.iteratedElement.cache;
                     if (required ?
                             lookupCache.isFirstRequiredToken(tokenType) :
                             lookupCache.isFirstPossibleToken(tokenType)) {
@@ -230,7 +239,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
             }
 
             if (elementType instanceof OneOfElementType oneOfElementType && !required) {
-                ElementTypeLookupCache<?> lookupCache = oneOfElementType.cache;
+                ElementTypeCache<?> lookupCache = oneOfElementType.cache;
                 if (lookupCache.isFirstPossibleToken(tokenType)) {
                     return true;
                 }
@@ -253,7 +262,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
                 ElementTypeRef element = sequenceElementType.children[position + 1];
                 while (element != null) {
                     if (!element.optional) {
-                        ElementTypeLookupCache<?> lookupCache = element.elementType.cache;
+                        ElementTypeCache<?> lookupCache = element.elementType.cache;
                         requiredLeafs.addAll(lookupCache.getFirstRequiredLeafs());
                         pathNode = null;
                         break;

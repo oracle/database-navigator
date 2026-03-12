@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.7.2.0</version>
+    <version>3.7.3.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -53,9 +53,15 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.7.3</b>
+            <ul>
+                <li>Support for latest IDE versions
+                <li>Fixed issue with sqlite database browser
+                <li>Bug fixes
+            </ul>
             <li><b>3.7.2</b>
             <ul>
-                <li>Support for latest ide EAP versions
+                <li>Support for latest IDE EAP versions
                 <li>Bug fixes
             </ul>
             <li><b>3.7.1</b>

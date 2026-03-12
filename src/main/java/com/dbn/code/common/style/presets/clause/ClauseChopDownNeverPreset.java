@@ -44,7 +44,7 @@ public class ClauseChopDownNeverPreset extends ClauseAbstractPreset {
         if (previousPsiElement instanceof TokenPsiElement previousToken) {
             SharedTokenTypeBundle sharedTokenTypes = psiElement.getLanguage().getSharedTokenTypes();
             TokenType tokenType = previousToken.getTokenType();
-            return tokenType ==  sharedTokenTypes.getChrLeftParenthesis() ?
+            return tokenType ==  sharedTokenTypes.chrLeftParenthesis ?
                     SPACING_NO_SPACE :
                     SPACING_ONE_SPACE;
 

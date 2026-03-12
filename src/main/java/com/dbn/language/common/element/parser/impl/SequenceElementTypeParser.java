@@ -41,8 +41,8 @@ import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
 import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
 
-public class SequenceElementTypeParser<ET extends SequenceElementType> extends ElementTypeParser<ET> {
-    public SequenceElementTypeParser(ET elementType) {
+public class SequenceElementTypeParser<E extends SequenceElementType> extends ElementTypeParser<E> {
+    public SequenceElementTypeParser(E elementType) {
         super(elementType);
     }
 

@@ -67,18 +67,18 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 
 <YYINITIAL> {
 
-    {WHITE_SPACE}+   { return stt.getWhiteSpace(); }
+    {WHITE_SPACE}+   { return stt.whiteSpace; }
 
-    {BLOCK_COMMENT}  { return stt.getBlockComment(); }
-    {LINE_COMMENT}   { return stt.getLineComment(); }
+    {BLOCK_COMMENT}  { return stt.blockComment; }
+    {LINE_COMMENT}   { return stt.lineComment; }
 
     "declare" { startPsqlBlock(false); }
     "begin"   { startPsqlBlock(true); }
 
-    {VARIABLE}    { return stt.getVariable(); }
-    {INTEGER}     { return stt.getInteger(); }
-    {NUMBER}      { return stt.getNumber(); }
-    {STRING}      { return stt.getString(); }
+    {VARIABLE}    { return stt.variable; }
+    {INTEGER}     { return stt.integer; }
+    {NUMBER}      { return stt.number; }
+    {STRING}      { return stt.string; }
 
     "="{wso}"=" {return tt.getOperatorTokenType(0);}
     "|"{wso}"|" {return tt.getOperatorTokenType(1);}
@@ -126,1097 +126,1102 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 //    "~" {return tt.getCharacterTokenType(23);}
 
 
-
-    "array" {return tt.getDataTypeTokenType(0);}
-    "bigint" {return tt.getDataTypeTokenType(1);}
-    "bigserial" {return tt.getDataTypeTokenType(2);}
-    "bool" {return tt.getDataTypeTokenType(3);}
-    "boolean" {return tt.getDataTypeTokenType(4);}
-    "box" {return tt.getDataTypeTokenType(5);}
-    "bpchar" {return tt.getDataTypeTokenType(6);}
-    "bytea" {return tt.getDataTypeTokenType(7);}
-    "char" {return tt.getDataTypeTokenType(8);}
-    "character" {return tt.getDataTypeTokenType(9);}
-    "cid" {return tt.getDataTypeTokenType(10);}
-    "cidr" {return tt.getDataTypeTokenType(11);}
-    "circle" {return tt.getDataTypeTokenType(12);}
-    "date" {return tt.getDataTypeTokenType(13);}
-    "decimal" {return tt.getDataTypeTokenType(14);}
-    "double_precision" {return tt.getDataTypeTokenType(15);}
-    "inet" {return tt.getDataTypeTokenType(16);}
-    "int" {return tt.getDataTypeTokenType(17);}
-    "int2" {return tt.getDataTypeTokenType(18);}
-    "int2vector" {return tt.getDataTypeTokenType(19);}
-    "int4" {return tt.getDataTypeTokenType(20);}
-    "int8" {return tt.getDataTypeTokenType(21);}
-    "integer" {return tt.getDataTypeTokenType(22);}
-    "interval" {return tt.getDataTypeTokenType(23);}
-    "json" {return tt.getDataTypeTokenType(24);}
-    "jsonb" {return tt.getDataTypeTokenType(25);}
-    "line" {return tt.getDataTypeTokenType(26);}
-    "lseg" {return tt.getDataTypeTokenType(27);}
-    "macaddr" {return tt.getDataTypeTokenType(28);}
-    "money" {return tt.getDataTypeTokenType(29);}
-    "name" {return tt.getDataTypeTokenType(30);}
-    "numeric" {return tt.getDataTypeTokenType(31);}
-    "oid" {return tt.getDataTypeTokenType(32);}
-    "path" {return tt.getDataTypeTokenType(33);}
-    "point" {return tt.getDataTypeTokenType(34);}
-    "polygon" {return tt.getDataTypeTokenType(35);}
-    "real" {return tt.getDataTypeTokenType(36);}
-    "serial" {return tt.getDataTypeTokenType(37);}
-    "serial8" {return tt.getDataTypeTokenType(38);}
-    "smallint" {return tt.getDataTypeTokenType(39);}
-    "smallserial" {return tt.getDataTypeTokenType(40);}
-    "text" {return tt.getDataTypeTokenType(41);}
-    "tid" {return tt.getDataTypeTokenType(42);}
-    "time" {return tt.getDataTypeTokenType(43);}
-    "timestamp" {return tt.getDataTypeTokenType(44);}
-    "tsquery" {return tt.getDataTypeTokenType(45);}
-    "tsvector" {return tt.getDataTypeTokenType(46);}
-    "uuid" {return tt.getDataTypeTokenType(47);}
-    "varbit" {return tt.getDataTypeTokenType(48);}
-    "varchar" {return tt.getDataTypeTokenType(49);}
-    "xid" {return tt.getDataTypeTokenType(50);}
-    "xml" {return tt.getDataTypeTokenType(51);}
-    "yaml" {return tt.getDataTypeTokenType(52);}
-
-
-
-
-
-    "a" {return tt.getKeywordTokenType(0);}
-    "abort" {return tt.getKeywordTokenType(1);}
-    "absent" {return tt.getKeywordTokenType(2);}
-    "absolute" {return tt.getKeywordTokenType(3);}
-    "access" {return tt.getKeywordTokenType(4);}
-    "according" {return tt.getKeywordTokenType(5);}
-    "action" {return tt.getKeywordTokenType(6);}
-    "ada" {return tt.getKeywordTokenType(7);}
-    "add" {return tt.getKeywordTokenType(8);}
-    "admin" {return tt.getKeywordTokenType(9);}
-    "after" {return tt.getKeywordTokenType(10);}
-    "aggregate" {return tt.getKeywordTokenType(11);}
-    "all" {return tt.getKeywordTokenType(12);}
-    "allocate" {return tt.getKeywordTokenType(13);}
-    "also" {return tt.getKeywordTokenType(14);}
-    "alter" {return tt.getKeywordTokenType(15);}
-    "always" {return tt.getKeywordTokenType(16);}
-    "analyse" {return tt.getKeywordTokenType(17);}
-    "analyze" {return tt.getKeywordTokenType(18);}
-    "and" {return tt.getKeywordTokenType(19);}
-    "any" {return tt.getKeywordTokenType(20);}
-    "are" {return tt.getKeywordTokenType(21);}
-    "array_max_cardinality" {return tt.getKeywordTokenType(22);}
-    "as" {return tt.getKeywordTokenType(23);}
-    "asc" {return tt.getKeywordTokenType(24);}
-    "asensitive" {return tt.getKeywordTokenType(25);}
-    "assertion" {return tt.getKeywordTokenType(26);}
-    "assignment" {return tt.getKeywordTokenType(27);}
-    "asymmetric" {return tt.getKeywordTokenType(28);}
-    "at" {return tt.getKeywordTokenType(29);}
-    "atomic" {return tt.getKeywordTokenType(30);}
-    "attribute" {return tt.getKeywordTokenType(31);}
-    "attributes" {return tt.getKeywordTokenType(32);}
-    "authorization" {return tt.getKeywordTokenType(33);}
-    "backward" {return tt.getKeywordTokenType(34);}
-    "base64" {return tt.getKeywordTokenType(35);}
-    "before" {return tt.getKeywordTokenType(36);}
-    "begin" {return tt.getKeywordTokenType(37);}
-    "begin_frame" {return tt.getKeywordTokenType(38);}
-    "begin_partition" {return tt.getKeywordTokenType(39);}
-    "bernoulli" {return tt.getKeywordTokenType(40);}
-    "between" {return tt.getKeywordTokenType(41);}
-    "binary" {return tt.getKeywordTokenType(42);}
-    "blob" {return tt.getKeywordTokenType(43);}
-    "blocked" {return tt.getKeywordTokenType(44);}
-    "bom" {return tt.getKeywordTokenType(45);}
-    "both" {return tt.getKeywordTokenType(46);}
-    "breadth" {return tt.getKeywordTokenType(47);}
-    "buffers" {return tt.getKeywordTokenType(48);}
-    "by" {return tt.getKeywordTokenType(49);}
-    "bypassrls" {return tt.getKeywordTokenType(50);}
-    "c" {return tt.getKeywordTokenType(51);}
-    "cache" {return tt.getKeywordTokenType(52);}
-    "call" {return tt.getKeywordTokenType(53);}
-    "called" {return tt.getKeywordTokenType(54);}
-    "cardinality" {return tt.getKeywordTokenType(55);}
-    "cascade" {return tt.getKeywordTokenType(56);}
-    "cascaded" {return tt.getKeywordTokenType(57);}
-    "case" {return tt.getKeywordTokenType(58);}
-    "cast" {return tt.getKeywordTokenType(59);}
-    "catalog" {return tt.getKeywordTokenType(60);}
-    "catalog_name" {return tt.getKeywordTokenType(61);}
-    "chain" {return tt.getKeywordTokenType(62);}
-    "characteristics" {return tt.getKeywordTokenType(63);}
-    "characters" {return tt.getKeywordTokenType(64);}
-    "character_length" {return tt.getKeywordTokenType(65);}
-    "character_set_catalog" {return tt.getKeywordTokenType(66);}
-    "character_set_name" {return tt.getKeywordTokenType(67);}
-    "character_set_schema" {return tt.getKeywordTokenType(68);}
-    "check" {return tt.getKeywordTokenType(69);}
-    "checkpoint" {return tt.getKeywordTokenType(70);}
-    "class" {return tt.getKeywordTokenType(71);}
-    "class_origin" {return tt.getKeywordTokenType(72);}
-    "clob" {return tt.getKeywordTokenType(73);}
-    "close" {return tt.getKeywordTokenType(74);}
-    "cluster" {return tt.getKeywordTokenType(75);}
-    "coalesce" {return tt.getKeywordTokenType(76);}
-    "cobol" {return tt.getKeywordTokenType(77);}
-    "collate" {return tt.getKeywordTokenType(78);}
-    "collation" {return tt.getKeywordTokenType(79);}
-    "collation_catalog" {return tt.getKeywordTokenType(80);}
-    "collation_name" {return tt.getKeywordTokenType(81);}
-    "collation_schema" {return tt.getKeywordTokenType(82);}
-    "collect" {return tt.getKeywordTokenType(83);}
-    "column" {return tt.getKeywordTokenType(84);}
-    "columns" {return tt.getKeywordTokenType(85);}
-    "column_name" {return tt.getKeywordTokenType(86);}
-    "command_function" {return tt.getKeywordTokenType(87);}
-    "command_function_code" {return tt.getKeywordTokenType(88);}
-    "comment" {return tt.getKeywordTokenType(89);}
-    "comments" {return tt.getKeywordTokenType(90);}
-    "commit" {return tt.getKeywordTokenType(91);}
-    "committed" {return tt.getKeywordTokenType(92);}
-    "concurrently" {return tt.getKeywordTokenType(93);}
-    "condition" {return tt.getKeywordTokenType(94);}
-    "condition_number" {return tt.getKeywordTokenType(95);}
-    "configuration" {return tt.getKeywordTokenType(96);}
-    "connect" {return tt.getKeywordTokenType(97);}
-    "connection" {return tt.getKeywordTokenType(98);}
-    "connection_name" {return tt.getKeywordTokenType(99);}
-    "constraint" {return tt.getKeywordTokenType(100);}
-    "constraints" {return tt.getKeywordTokenType(101);}
-    "constraint_catalog" {return tt.getKeywordTokenType(102);}
-    "constraint_name" {return tt.getKeywordTokenType(103);}
-    "constraint_schema" {return tt.getKeywordTokenType(104);}
-    "constructor" {return tt.getKeywordTokenType(105);}
-    "contains" {return tt.getKeywordTokenType(106);}
-    "content" {return tt.getKeywordTokenType(107);}
-    "continue" {return tt.getKeywordTokenType(108);}
-    "control" {return tt.getKeywordTokenType(109);}
-    "conversion" {return tt.getKeywordTokenType(110);}
-    "copy" {return tt.getKeywordTokenType(111);}
-    "corr" {return tt.getKeywordTokenType(112);}
-    "corresponding" {return tt.getKeywordTokenType(113);}
-    "cost" {return tt.getKeywordTokenType(114);}
-    "costs" {return tt.getKeywordTokenType(115);}
-    "covar_pop" {return tt.getKeywordTokenType(116);}
-    "covar_samp" {return tt.getKeywordTokenType(117);}
-    "create" {return tt.getKeywordTokenType(118);}
-    "createdb" {return tt.getKeywordTokenType(119);}
-    "createrole" {return tt.getKeywordTokenType(120);}
-    "createuser" {return tt.getKeywordTokenType(121);}
-    "cross" {return tt.getKeywordTokenType(122);}
-    "csv" {return tt.getKeywordTokenType(123);}
-    "cube" {return tt.getKeywordTokenType(124);}
-    "current" {return tt.getKeywordTokenType(125);}
-    "current_default_transform_group" {return tt.getKeywordTokenType(126);}
-    "current_path" {return tt.getKeywordTokenType(127);}
-    "current_role" {return tt.getKeywordTokenType(128);}
-    "current_row" {return tt.getKeywordTokenType(129);}
-    "current_transform_group_for_type" {return tt.getKeywordTokenType(130);}
-    "cursor" {return tt.getKeywordTokenType(131);}
-    "cursor_name" {return tt.getKeywordTokenType(132);}
-    "cycle" {return tt.getKeywordTokenType(133);}
-    "data" {return tt.getKeywordTokenType(134);}
-    "database" {return tt.getKeywordTokenType(135);}
-    "datalink" {return tt.getKeywordTokenType(136);}
-    "datetime_interval_code" {return tt.getKeywordTokenType(137);}
-    "datetime_interval_precision" {return tt.getKeywordTokenType(138);}
-    "day" {return tt.getKeywordTokenType(139);}
-    "db" {return tt.getKeywordTokenType(140);}
-    "deallocate" {return tt.getKeywordTokenType(141);}
-    "dec" {return tt.getKeywordTokenType(142);}
-    "declare" {return tt.getKeywordTokenType(143);}
-    "default" {return tt.getKeywordTokenType(144);}
-    "defaults" {return tt.getKeywordTokenType(145);}
-    "deferrable" {return tt.getKeywordTokenType(146);}
-    "deferred" {return tt.getKeywordTokenType(147);}
-    "defined" {return tt.getKeywordTokenType(148);}
-    "definer" {return tt.getKeywordTokenType(149);}
-    "degree" {return tt.getKeywordTokenType(150);}
-    "delete" {return tt.getKeywordTokenType(151);}
-    "delimiter" {return tt.getKeywordTokenType(152);}
-    "delimiters" {return tt.getKeywordTokenType(153);}
-    "depth" {return tt.getKeywordTokenType(154);}
-    "deref" {return tt.getKeywordTokenType(155);}
-    "derived" {return tt.getKeywordTokenType(156);}
-    "desc" {return tt.getKeywordTokenType(157);}
-    "describe" {return tt.getKeywordTokenType(158);}
-    "descriptor" {return tt.getKeywordTokenType(159);}
-    "deterministic" {return tt.getKeywordTokenType(160);}
-    "diagnostics" {return tt.getKeywordTokenType(161);}
-    "dictionary" {return tt.getKeywordTokenType(162);}
-    "disable" {return tt.getKeywordTokenType(163);}
-    "discard" {return tt.getKeywordTokenType(164);}
-    "disconnect" {return tt.getKeywordTokenType(165);}
-    "dispatch" {return tt.getKeywordTokenType(166);}
-    "distinct" {return tt.getKeywordTokenType(167);}
-    "dlnewcopy" {return tt.getKeywordTokenType(168);}
-    "dlpreviouscopy" {return tt.getKeywordTokenType(169);}
-    "dlurlcomplete" {return tt.getKeywordTokenType(170);}
-    "dlurlcompleteonly" {return tt.getKeywordTokenType(171);}
-    "dlurlcompletewrite" {return tt.getKeywordTokenType(172);}
-    "dlurlpath" {return tt.getKeywordTokenType(173);}
-    "dlurlpathonly" {return tt.getKeywordTokenType(174);}
-    "dlurlpathwrite" {return tt.getKeywordTokenType(175);}
-    "dlurlscheme" {return tt.getKeywordTokenType(176);}
-    "dlurlserver" {return tt.getKeywordTokenType(177);}
-    "dlvalue" {return tt.getKeywordTokenType(178);}
-    "do" {return tt.getKeywordTokenType(179);}
-    "document" {return tt.getKeywordTokenType(180);}
-    "domain" {return tt.getKeywordTokenType(181);}
-    "double" {return tt.getKeywordTokenType(182);}
-    "drop" {return tt.getKeywordTokenType(183);}
-    "dynamic" {return tt.getKeywordTokenType(184);}
-    "dynamic_function" {return tt.getKeywordTokenType(185);}
-    "dynamic_function_code" {return tt.getKeywordTokenType(186);}
-    "each" {return tt.getKeywordTokenType(187);}
-    "element" {return tt.getKeywordTokenType(188);}
-    "else" {return tt.getKeywordTokenType(189);}
-    "empty" {return tt.getKeywordTokenType(190);}
-    "enable" {return tt.getKeywordTokenType(191);}
-    "encoding" {return tt.getKeywordTokenType(192);}
-    "encrypted" {return tt.getKeywordTokenType(193);}
-    "end" {return tt.getKeywordTokenType(194);}
-    "end-exec" {return tt.getKeywordTokenType(195);}
-    "end_frame" {return tt.getKeywordTokenType(196);}
-    "end_partition" {return tt.getKeywordTokenType(197);}
-    "enforced" {return tt.getKeywordTokenType(198);}
-    "enum" {return tt.getKeywordTokenType(199);}
-    "equals" {return tt.getKeywordTokenType(200);}
-    "escape" {return tt.getKeywordTokenType(201);}
-    "event" {return tt.getKeywordTokenType(202);}
-    "except" {return tt.getKeywordTokenType(203);}
-    "exception" {return tt.getKeywordTokenType(204);}
-    "exclude" {return tt.getKeywordTokenType(205);}
-    "excluding" {return tt.getKeywordTokenType(206);}
-    "exclusive" {return tt.getKeywordTokenType(207);}
-    "exec" {return tt.getKeywordTokenType(208);}
-    "execute" {return tt.getKeywordTokenType(209);}
-    "exists" {return tt.getKeywordTokenType(210);}
-    "explain" {return tt.getKeywordTokenType(211);}
-    "expression" {return tt.getKeywordTokenType(212);}
-    "extension" {return tt.getKeywordTokenType(213);}
-    "external" {return tt.getKeywordTokenType(214);}
-    "false" {return tt.getKeywordTokenType(215);}
-    "fetch" {return tt.getKeywordTokenType(216);}
-    "file" {return tt.getKeywordTokenType(217);}
-    "filter" {return tt.getKeywordTokenType(218);}
-    "final" {return tt.getKeywordTokenType(219);}
-    "first" {return tt.getKeywordTokenType(220);}
-    "flag" {return tt.getKeywordTokenType(221);}
-    "float" {return tt.getKeywordTokenType(222);}
-    "following" {return tt.getKeywordTokenType(223);}
-    "for" {return tt.getKeywordTokenType(224);}
-    "force" {return tt.getKeywordTokenType(225);}
-    "foreign" {return tt.getKeywordTokenType(226);}
-    "fortran" {return tt.getKeywordTokenType(227);}
-    "forward" {return tt.getKeywordTokenType(228);}
-    "found" {return tt.getKeywordTokenType(229);}
-    "frame_row" {return tt.getKeywordTokenType(230);}
-    "free" {return tt.getKeywordTokenType(231);}
-    "freeze" {return tt.getKeywordTokenType(232);}
-    "from" {return tt.getKeywordTokenType(233);}
-    "fs" {return tt.getKeywordTokenType(234);}
-    "full" {return tt.getKeywordTokenType(235);}
-    "function" {return tt.getKeywordTokenType(236);}
-    "functions" {return tt.getKeywordTokenType(237);}
-    "fusion" {return tt.getKeywordTokenType(238);}
-    "g" {return tt.getKeywordTokenType(239);}
-    "general" {return tt.getKeywordTokenType(240);}
-    "generated" {return tt.getKeywordTokenType(241);}
-    "get" {return tt.getKeywordTokenType(242);}
-    "global" {return tt.getKeywordTokenType(243);}
-    "go" {return tt.getKeywordTokenType(244);}
-    "goto" {return tt.getKeywordTokenType(245);}
-    "grant" {return tt.getKeywordTokenType(246);}
-    "granted" {return tt.getKeywordTokenType(247);}
-    "greatest" {return tt.getKeywordTokenType(248);}
-    "group" {return tt.getKeywordTokenType(249);}
-    "grouping" {return tt.getKeywordTokenType(250);}
-    "groups" {return tt.getKeywordTokenType(251);}
-    "handler" {return tt.getKeywordTokenType(252);}
-    "having" {return tt.getKeywordTokenType(253);}
-    "header" {return tt.getKeywordTokenType(254);}
-    "hex" {return tt.getKeywordTokenType(255);}
-    "hierarchy" {return tt.getKeywordTokenType(256);}
-    "hold" {return tt.getKeywordTokenType(257);}
-    "hour" {return tt.getKeywordTokenType(258);}
-    "id" {return tt.getKeywordTokenType(259);}
-    "identity" {return tt.getKeywordTokenType(260);}
-    "if" {return tt.getKeywordTokenType(261);}
-    "ignore" {return tt.getKeywordTokenType(262);}
-    "ilike" {return tt.getKeywordTokenType(263);}
-    "immediate" {return tt.getKeywordTokenType(264);}
-    "immediately" {return tt.getKeywordTokenType(265);}
-    "immutable" {return tt.getKeywordTokenType(266);}
-    "implementation" {return tt.getKeywordTokenType(267);}
-    "implicit" {return tt.getKeywordTokenType(268);}
-    "import" {return tt.getKeywordTokenType(269);}
-    "in" {return tt.getKeywordTokenType(270);}
-    "including" {return tt.getKeywordTokenType(271);}
-    "increment" {return tt.getKeywordTokenType(272);}
-    "indent" {return tt.getKeywordTokenType(273);}
-    "index" {return tt.getKeywordTokenType(274);}
-    "indexes" {return tt.getKeywordTokenType(275);}
-    "indicator" {return tt.getKeywordTokenType(276);}
-    "inherit" {return tt.getKeywordTokenType(277);}
-    "inherits" {return tt.getKeywordTokenType(278);}
-    "initially" {return tt.getKeywordTokenType(279);}
-    "inline" {return tt.getKeywordTokenType(280);}
-    "inner" {return tt.getKeywordTokenType(281);}
-    "inout" {return tt.getKeywordTokenType(282);}
-    "input" {return tt.getKeywordTokenType(283);}
-    "insensitive" {return tt.getKeywordTokenType(284);}
-    "insert" {return tt.getKeywordTokenType(285);}
-    "instance" {return tt.getKeywordTokenType(286);}
-    "instantiable" {return tt.getKeywordTokenType(287);}
-    "instead" {return tt.getKeywordTokenType(288);}
-    "integrity" {return tt.getKeywordTokenType(289);}
-    "intersect" {return tt.getKeywordTokenType(290);}
-    "intersection" {return tt.getKeywordTokenType(291);}
-    "into" {return tt.getKeywordTokenType(292);}
-    "invoker" {return tt.getKeywordTokenType(293);}
-    "is" {return tt.getKeywordTokenType(294);}
-    "isnull" {return tt.getKeywordTokenType(295);}
-    "isolation" {return tt.getKeywordTokenType(296);}
-    "join" {return tt.getKeywordTokenType(297);}
-    "k" {return tt.getKeywordTokenType(298);}
-    "key" {return tt.getKeywordTokenType(299);}
-    "key_member" {return tt.getKeywordTokenType(300);}
-    "key_type" {return tt.getKeywordTokenType(301);}
-    "label" {return tt.getKeywordTokenType(302);}
-    "language" {return tt.getKeywordTokenType(303);}
-    "large" {return tt.getKeywordTokenType(304);}
-    "last" {return tt.getKeywordTokenType(305);}
-    "lateral" {return tt.getKeywordTokenType(306);}
-    "lc_collate" {return tt.getKeywordTokenType(307);}
-    "lc_ctype" {return tt.getKeywordTokenType(308);}
-    "leading" {return tt.getKeywordTokenType(309);}
-    "leakproof" {return tt.getKeywordTokenType(310);}
-    "least" {return tt.getKeywordTokenType(311);}
-    "level" {return tt.getKeywordTokenType(312);}
-    "library" {return tt.getKeywordTokenType(313);}
-    "like" {return tt.getKeywordTokenType(314);}
-    "like_regex" {return tt.getKeywordTokenType(315);}
-    "limit" {return tt.getKeywordTokenType(316);}
-    "link" {return tt.getKeywordTokenType(317);}
-    "listen" {return tt.getKeywordTokenType(318);}
-    "load" {return tt.getKeywordTokenType(319);}
-    "local" {return tt.getKeywordTokenType(320);}
-    "location" {return tt.getKeywordTokenType(321);}
-    "locator" {return tt.getKeywordTokenType(322);}
-    "lock" {return tt.getKeywordTokenType(323);}
-    "login" {return tt.getKeywordTokenType(324);}
-    "m" {return tt.getKeywordTokenType(325);}
-    "map" {return tt.getKeywordTokenType(326);}
-    "mapping" {return tt.getKeywordTokenType(327);}
-    "match" {return tt.getKeywordTokenType(328);}
-    "matched" {return tt.getKeywordTokenType(329);}
-    "materialized" {return tt.getKeywordTokenType(330);}
-    "maxvalue" {return tt.getKeywordTokenType(331);}
-    "max_cardinality" {return tt.getKeywordTokenType(332);}
-    "member" {return tt.getKeywordTokenType(333);}
-    "merge" {return tt.getKeywordTokenType(334);}
-    "message_length" {return tt.getKeywordTokenType(335);}
-    "message_octet_length" {return tt.getKeywordTokenType(336);}
-    "message_text" {return tt.getKeywordTokenType(337);}
-    "method" {return tt.getKeywordTokenType(338);}
-    "minute" {return tt.getKeywordTokenType(339);}
-    "minvalue" {return tt.getKeywordTokenType(340);}
-    "mode" {return tt.getKeywordTokenType(341);}
-    "modifies" {return tt.getKeywordTokenType(342);}
-    "module" {return tt.getKeywordTokenType(343);}
-    "month" {return tt.getKeywordTokenType(344);}
-    "more" {return tt.getKeywordTokenType(345);}
-    "move" {return tt.getKeywordTokenType(346);}
-    "multiset" {return tt.getKeywordTokenType(347);}
-    "mumps" {return tt.getKeywordTokenType(348);}
-    "names" {return tt.getKeywordTokenType(349);}
-    "namespace" {return tt.getKeywordTokenType(350);}
-    "national" {return tt.getKeywordTokenType(351);}
-    "natural" {return tt.getKeywordTokenType(352);}
-    "nchar" {return tt.getKeywordTokenType(353);}
-    "nclob" {return tt.getKeywordTokenType(354);}
-    "nesting" {return tt.getKeywordTokenType(355);}
-    "new" {return tt.getKeywordTokenType(356);}
-    "next" {return tt.getKeywordTokenType(357);}
-    "nfc" {return tt.getKeywordTokenType(358);}
-    "nfd" {return tt.getKeywordTokenType(359);}
-    "nfkc" {return tt.getKeywordTokenType(360);}
-    "nfkd" {return tt.getKeywordTokenType(361);}
-    "nil" {return tt.getKeywordTokenType(362);}
-    "no" {return tt.getKeywordTokenType(363);}
-    "nobypassrls" {return tt.getKeywordTokenType(364);}
-    "nocreatedb" {return tt.getKeywordTokenType(365);}
-    "nocreaterole" {return tt.getKeywordTokenType(366);}
-    "nocreateuser" {return tt.getKeywordTokenType(367);}
-    "noinherit" {return tt.getKeywordTokenType(368);}
-    "nologin" {return tt.getKeywordTokenType(369);}
-    "nosuperuser" {return tt.getKeywordTokenType(370);}
-    "noreplication" {return tt.getKeywordTokenType(371);}
-    "none" {return tt.getKeywordTokenType(372);}
-    "normalize" {return tt.getKeywordTokenType(373);}
-    "normalized" {return tt.getKeywordTokenType(374);}
-    "not" {return tt.getKeywordTokenType(375);}
-    "nothing" {return tt.getKeywordTokenType(376);}
-    "notify" {return tt.getKeywordTokenType(377);}
-    "notnull" {return tt.getKeywordTokenType(378);}
-    "nowait" {return tt.getKeywordTokenType(379);}
-    "null" {return tt.getKeywordTokenType(380);}
-    "nullable" {return tt.getKeywordTokenType(381);}
-    "nullif" {return tt.getKeywordTokenType(382);}
-    "nulls" {return tt.getKeywordTokenType(383);}
-    "number" {return tt.getKeywordTokenType(384);}
-    "object" {return tt.getKeywordTokenType(385);}
-    "occurrences_regex" {return tt.getKeywordTokenType(386);}
-    "octets" {return tt.getKeywordTokenType(387);}
-    "of" {return tt.getKeywordTokenType(388);}
-    "off" {return tt.getKeywordTokenType(389);}
-    "offset" {return tt.getKeywordTokenType(390);}
-    "oids" {return tt.getKeywordTokenType(391);}
-    "old" {return tt.getKeywordTokenType(392);}
-    "on" {return tt.getKeywordTokenType(393);}
-    "only" {return tt.getKeywordTokenType(394);}
-    "open" {return tt.getKeywordTokenType(395);}
-    "operator" {return tt.getKeywordTokenType(396);}
-    "option" {return tt.getKeywordTokenType(397);}
-    "options" {return tt.getKeywordTokenType(398);}
-    "or" {return tt.getKeywordTokenType(399);}
-    "order" {return tt.getKeywordTokenType(400);}
-    "ordering" {return tt.getKeywordTokenType(401);}
-    "ordinality" {return tt.getKeywordTokenType(402);}
-    "others" {return tt.getKeywordTokenType(403);}
-    "out" {return tt.getKeywordTokenType(404);}
-    "outer" {return tt.getKeywordTokenType(405);}
-    "output" {return tt.getKeywordTokenType(406);}
-    "over" {return tt.getKeywordTokenType(407);}
-    "overlaps" {return tt.getKeywordTokenType(408);}
-    "overriding" {return tt.getKeywordTokenType(409);}
-    "owned" {return tt.getKeywordTokenType(410);}
-    "owner" {return tt.getKeywordTokenType(411);}
-    "p" {return tt.getKeywordTokenType(412);}
-    "pad" {return tt.getKeywordTokenType(413);}
-    "parameter" {return tt.getKeywordTokenType(414);}
-    "parameter_mode" {return tt.getKeywordTokenType(415);}
-    "parameter_name" {return tt.getKeywordTokenType(416);}
-    "parameter_ordinal_position" {return tt.getKeywordTokenType(417);}
-    "parameter_specific_catalog" {return tt.getKeywordTokenType(418);}
-    "parameter_specific_name" {return tt.getKeywordTokenType(419);}
-    "parameter_specific_schema" {return tt.getKeywordTokenType(420);}
-    "parser" {return tt.getKeywordTokenType(421);}
-    "partial" {return tt.getKeywordTokenType(422);}
-    "partition" {return tt.getKeywordTokenType(423);}
-    "pascal" {return tt.getKeywordTokenType(424);}
-    "passing" {return tt.getKeywordTokenType(425);}
-    "passthrough" {return tt.getKeywordTokenType(426);}
-    "password" {return tt.getKeywordTokenType(427);}
-    "percent" {return tt.getKeywordTokenType(428);}
-    "percentile_cont" {return tt.getKeywordTokenType(429);}
-    "percentile_disc" {return tt.getKeywordTokenType(430);}
-    "period" {return tt.getKeywordTokenType(431);}
-    "permission" {return tt.getKeywordTokenType(432);}
-    "placing" {return tt.getKeywordTokenType(433);}
-    "plans" {return tt.getKeywordTokenType(434);}
-    "pli" {return tt.getKeywordTokenType(435);}
-    "portion" {return tt.getKeywordTokenType(436);}
-    "position_regex" {return tt.getKeywordTokenType(437);}
-    "precedes" {return tt.getKeywordTokenType(438);}
-    "preceding" {return tt.getKeywordTokenType(439);}
-    "precision" {return tt.getKeywordTokenType(440);}
-    "prepare" {return tt.getKeywordTokenType(441);}
-    "prepared" {return tt.getKeywordTokenType(442);}
-    "preserve" {return tt.getKeywordTokenType(443);}
-    "primary" {return tt.getKeywordTokenType(444);}
-    "prior" {return tt.getKeywordTokenType(445);}
-    "privileges" {return tt.getKeywordTokenType(446);}
-    "procedural" {return tt.getKeywordTokenType(447);}
-    "procedure" {return tt.getKeywordTokenType(448);}
-    "program" {return tt.getKeywordTokenType(449);}
-    "public" {return tt.getKeywordTokenType(450);}
-    "quote" {return tt.getKeywordTokenType(451);}
-    "range" {return tt.getKeywordTokenType(452);}
-    "read" {return tt.getKeywordTokenType(453);}
-    "reads" {return tt.getKeywordTokenType(454);}
-    "reassign" {return tt.getKeywordTokenType(455);}
-    "recheck" {return tt.getKeywordTokenType(456);}
-    "recovery" {return tt.getKeywordTokenType(457);}
-    "recursive" {return tt.getKeywordTokenType(458);}
-    "ref" {return tt.getKeywordTokenType(459);}
-    "references" {return tt.getKeywordTokenType(460);}
-    "referencing" {return tt.getKeywordTokenType(461);}
-    "refresh" {return tt.getKeywordTokenType(462);}
-    "regr_avgx" {return tt.getKeywordTokenType(463);}
-    "regr_avgy" {return tt.getKeywordTokenType(464);}
-    "regr_count" {return tt.getKeywordTokenType(465);}
-    "regr_intercept" {return tt.getKeywordTokenType(466);}
-    "regr_r2" {return tt.getKeywordTokenType(467);}
-    "regr_slope" {return tt.getKeywordTokenType(468);}
-    "regr_sxx" {return tt.getKeywordTokenType(469);}
-    "regr_sxy" {return tt.getKeywordTokenType(470);}
-    "regr_syy" {return tt.getKeywordTokenType(471);}
-    "reindex" {return tt.getKeywordTokenType(472);}
-    "relative" {return tt.getKeywordTokenType(473);}
-    "release" {return tt.getKeywordTokenType(474);}
-    "rename" {return tt.getKeywordTokenType(475);}
-    "repeatable" {return tt.getKeywordTokenType(476);}
-    "replica" {return tt.getKeywordTokenType(477);}
-    "replication" {return tt.getKeywordTokenType(478);}
-    "requiring" {return tt.getKeywordTokenType(479);}
-    "reset" {return tt.getKeywordTokenType(480);}
-    "respect" {return tt.getKeywordTokenType(481);}
-    "restart" {return tt.getKeywordTokenType(482);}
-    "restore" {return tt.getKeywordTokenType(483);}
-    "restrict" {return tt.getKeywordTokenType(484);}
-    "result" {return tt.getKeywordTokenType(485);}
-    "return" {return tt.getKeywordTokenType(486);}
-    "returned_cardinality" {return tt.getKeywordTokenType(487);}
-    "returned_length" {return tt.getKeywordTokenType(488);}
-    "returned_octet_length" {return tt.getKeywordTokenType(489);}
-    "returned_sqlstate" {return tt.getKeywordTokenType(490);}
-    "returning" {return tt.getKeywordTokenType(491);}
-    "returns" {return tt.getKeywordTokenType(492);}
-    "revoke" {return tt.getKeywordTokenType(493);}
-    "role" {return tt.getKeywordTokenType(494);}
-    "rollback" {return tt.getKeywordTokenType(495);}
-    "rollup" {return tt.getKeywordTokenType(496);}
-    "routine" {return tt.getKeywordTokenType(497);}
-    "routine_catalog" {return tt.getKeywordTokenType(498);}
-    "routine_name" {return tt.getKeywordTokenType(499);}
-    "routine_schema" {return tt.getKeywordTokenType(500);}
-    "row" {return tt.getKeywordTokenType(501);}
-    "rows" {return tt.getKeywordTokenType(502);}
-    "row_count" {return tt.getKeywordTokenType(503);}
-    "rule" {return tt.getKeywordTokenType(504);}
-    "savepoint" {return tt.getKeywordTokenType(505);}
-    "scale" {return tt.getKeywordTokenType(506);}
-    "schema" {return tt.getKeywordTokenType(507);}
-    "schema_name" {return tt.getKeywordTokenType(508);}
-    "scope" {return tt.getKeywordTokenType(509);}
-    "scope_catalog" {return tt.getKeywordTokenType(510);}
-    "scope_name" {return tt.getKeywordTokenType(511);}
-    "scope_schema" {return tt.getKeywordTokenType(512);}
-    "scroll" {return tt.getKeywordTokenType(513);}
-    "search" {return tt.getKeywordTokenType(514);}
-    "second" {return tt.getKeywordTokenType(515);}
-    "section" {return tt.getKeywordTokenType(516);}
-    "security" {return tt.getKeywordTokenType(517);}
-    "select" {return tt.getKeywordTokenType(518);}
-    "selective" {return tt.getKeywordTokenType(519);}
-    "self" {return tt.getKeywordTokenType(520);}
-    "sensitive" {return tt.getKeywordTokenType(521);}
-    "sequence" {return tt.getKeywordTokenType(522);}
-    "sequences" {return tt.getKeywordTokenType(523);}
-    "serializable" {return tt.getKeywordTokenType(524);}
-    "server" {return tt.getKeywordTokenType(525);}
-    "server_name" {return tt.getKeywordTokenType(526);}
-    "session" {return tt.getKeywordTokenType(527);}
-    "set" {return tt.getKeywordTokenType(528);}
-    "setof" {return tt.getKeywordTokenType(529);}
-    "sets" {return tt.getKeywordTokenType(530);}
-    "share" {return tt.getKeywordTokenType(531);}
-    "show" {return tt.getKeywordTokenType(532);}
-    "similar" {return tt.getKeywordTokenType(533);}
-    "simple" {return tt.getKeywordTokenType(534);}
-    "size" {return tt.getKeywordTokenType(535);}
-    "snapshot" {return tt.getKeywordTokenType(536);}
-    "some" {return tt.getKeywordTokenType(537);}
-    "source" {return tt.getKeywordTokenType(538);}
-    "space" {return tt.getKeywordTokenType(539);}
-    "specific" {return tt.getKeywordTokenType(540);}
-    "specifictype" {return tt.getKeywordTokenType(541);}
-    "specific_name" {return tt.getKeywordTokenType(542);}
-    "sql" {return tt.getKeywordTokenType(543);}
-    "sqlcode" {return tt.getKeywordTokenType(544);}
-    "sqlerror" {return tt.getKeywordTokenType(545);}
-    "sqlexception" {return tt.getKeywordTokenType(546);}
-    "sqlstate" {return tt.getKeywordTokenType(547);}
-    "sqlwarning" {return tt.getKeywordTokenType(548);}
-    "stable" {return tt.getKeywordTokenType(549);}
-    "standalone" {return tt.getKeywordTokenType(550);}
-    "start" {return tt.getKeywordTokenType(551);}
-    "state" {return tt.getKeywordTokenType(552);}
-    "statement" {return tt.getKeywordTokenType(553);}
-    "static" {return tt.getKeywordTokenType(554);}
-    "statistics" {return tt.getKeywordTokenType(555);}
-    "stddev_pop" {return tt.getKeywordTokenType(556);}
-    "stddev_samp" {return tt.getKeywordTokenType(557);}
-    "stdin" {return tt.getKeywordTokenType(558);}
-    "stdout" {return tt.getKeywordTokenType(559);}
-    "storage" {return tt.getKeywordTokenType(560);}
-    "strict" {return tt.getKeywordTokenType(561);}
-    "structure" {return tt.getKeywordTokenType(562);}
-    "style" {return tt.getKeywordTokenType(563);}
-    "subclass_origin" {return tt.getKeywordTokenType(564);}
-    "submultiset" {return tt.getKeywordTokenType(565);}
-    "substring_regex" {return tt.getKeywordTokenType(566);}
-    "succeeds" {return tt.getKeywordTokenType(567);}
-    "superuser" {return tt.getKeywordTokenType(568);}
-    "symmetric" {return tt.getKeywordTokenType(569);}
-    "sysid" {return tt.getKeywordTokenType(570);}
-    "system" {return tt.getKeywordTokenType(571);}
-    "system_time" {return tt.getKeywordTokenType(572);}
-    "system_user" {return tt.getKeywordTokenType(573);}
-    "t" {return tt.getKeywordTokenType(574);}
-    "table" {return tt.getKeywordTokenType(575);}
-    "tables" {return tt.getKeywordTokenType(576);}
-    "tablesample" {return tt.getKeywordTokenType(577);}
-    "tablespace" {return tt.getKeywordTokenType(578);}
-    "table_name" {return tt.getKeywordTokenType(579);}
-    "temp" {return tt.getKeywordTokenType(580);}
-    "template" {return tt.getKeywordTokenType(581);}
-    "temporary" {return tt.getKeywordTokenType(582);}
-    "then" {return tt.getKeywordTokenType(583);}
-    "ties" {return tt.getKeywordTokenType(584);}
-    "timezone_hour" {return tt.getKeywordTokenType(585);}
-    "timezone_minute" {return tt.getKeywordTokenType(586);}
-    "timing" {return tt.getKeywordTokenType(587);}
-    "to" {return tt.getKeywordTokenType(588);}
-    "token" {return tt.getKeywordTokenType(589);}
-    "top_level_count" {return tt.getKeywordTokenType(590);}
-    "trailing" {return tt.getKeywordTokenType(591);}
-    "transaction" {return tt.getKeywordTokenType(592);}
-    "transactions_committed" {return tt.getKeywordTokenType(593);}
-    "transactions_rolled_back" {return tt.getKeywordTokenType(594);}
-    "transaction_active" {return tt.getKeywordTokenType(595);}
-    "transform" {return tt.getKeywordTokenType(596);}
-    "transforms" {return tt.getKeywordTokenType(597);}
-    "translate_regex" {return tt.getKeywordTokenType(598);}
-    "translation" {return tt.getKeywordTokenType(599);}
-    "treat" {return tt.getKeywordTokenType(600);}
-    "trigger" {return tt.getKeywordTokenType(601);}
-    "trigger_catalog" {return tt.getKeywordTokenType(602);}
-    "trigger_name" {return tt.getKeywordTokenType(603);}
-    "trigger_schema" {return tt.getKeywordTokenType(604);}
-    "trim_array" {return tt.getKeywordTokenType(605);}
-    "true" {return tt.getKeywordTokenType(606);}
-    "truncate" {return tt.getKeywordTokenType(607);}
-    "trusted" {return tt.getKeywordTokenType(608);}
-    "type" {return tt.getKeywordTokenType(609);}
-    "types" {return tt.getKeywordTokenType(610);}
-    "uescape" {return tt.getKeywordTokenType(611);}
-    "unbounded" {return tt.getKeywordTokenType(612);}
-    "uncommitted" {return tt.getKeywordTokenType(613);}
-    "under" {return tt.getKeywordTokenType(614);}
-    "unencrypted" {return tt.getKeywordTokenType(615);}
-    "union" {return tt.getKeywordTokenType(616);}
-    "unique" {return tt.getKeywordTokenType(617);}
-    "unknown" {return tt.getKeywordTokenType(618);}
-    "unlink" {return tt.getKeywordTokenType(619);}
-    "unlisten" {return tt.getKeywordTokenType(620);}
-    "unlogged" {return tt.getKeywordTokenType(621);}
-    "unnamed" {return tt.getKeywordTokenType(622);}
-    "until" {return tt.getKeywordTokenType(623);}
-    "untyped" {return tt.getKeywordTokenType(624);}
-    "update" {return tt.getKeywordTokenType(625);}
-    "uri" {return tt.getKeywordTokenType(626);}
-    "usage" {return tt.getKeywordTokenType(627);}
-    "user" {return tt.getKeywordTokenType(628);}
-    "user_defined_type_catalog" {return tt.getKeywordTokenType(629);}
-    "user_defined_type_code" {return tt.getKeywordTokenType(630);}
-    "user_defined_type_name" {return tt.getKeywordTokenType(631);}
-    "user_defined_type_schema" {return tt.getKeywordTokenType(632);}
-    "using" {return tt.getKeywordTokenType(633);}
-    "vacuum" {return tt.getKeywordTokenType(634);}
-    "valid" {return tt.getKeywordTokenType(635);}
-    "validate" {return tt.getKeywordTokenType(636);}
-    "validator" {return tt.getKeywordTokenType(637);}
-    "value" {return tt.getKeywordTokenType(638);}
-    "values" {return tt.getKeywordTokenType(639);}
-    "value_of" {return tt.getKeywordTokenType(640);}
-    "varbinary" {return tt.getKeywordTokenType(641);}
-    "variadic" {return tt.getKeywordTokenType(642);}
-    "varying" {return tt.getKeywordTokenType(643);}
-    "var_pop" {return tt.getKeywordTokenType(644);}
-    "var_samp" {return tt.getKeywordTokenType(645);}
-    "verbose" {return tt.getKeywordTokenType(646);}
-    "versioning" {return tt.getKeywordTokenType(647);}
-    "view" {return tt.getKeywordTokenType(648);}
-    "volatile" {return tt.getKeywordTokenType(649);}
-    "when" {return tt.getKeywordTokenType(650);}
-    "whenever" {return tt.getKeywordTokenType(651);}
-    "where" {return tt.getKeywordTokenType(652);}
-    "whitespace" {return tt.getKeywordTokenType(653);}
-    "window" {return tt.getKeywordTokenType(654);}
-    "with" {return tt.getKeywordTokenType(655);}
-    "within" {return tt.getKeywordTokenType(656);}
-    "without" {return tt.getKeywordTokenType(657);}
-    "work" {return tt.getKeywordTokenType(658);}
-    "wrapper" {return tt.getKeywordTokenType(659);}
-    "write" {return tt.getKeywordTokenType(660);}
-    "xmlattributes" {return tt.getKeywordTokenType(661);}
-    "xmlbinary" {return tt.getKeywordTokenType(662);}
-    "xmlcast" {return tt.getKeywordTokenType(663);}
-    "xmldeclaration" {return tt.getKeywordTokenType(664);}
-    "xmldocument" {return tt.getKeywordTokenType(665);}
-    "xmliterate" {return tt.getKeywordTokenType(666);}
-    "xmlnamespaces" {return tt.getKeywordTokenType(667);}
-    "xmlparse" {return tt.getKeywordTokenType(668);}
-    "xmlquery" {return tt.getKeywordTokenType(669);}
-    "xmlschema" {return tt.getKeywordTokenType(670);}
-    "xmlserialize" {return tt.getKeywordTokenType(671);}
-    "xmltable" {return tt.getKeywordTokenType(672);}
-    "xmltext" {return tt.getKeywordTokenType(673);}
-    "xmlvalidate" {return tt.getKeywordTokenType(674);}
-    "year" {return tt.getKeywordTokenType(675);}
-    "yes" {return tt.getKeywordTokenType(676);}
-    "zone" {return tt.getKeywordTokenType(677);}
+// MARKER_BEGIN_DATATYPES
+"array" {return tt.dtt(0);}
+"bigint" {return tt.dtt(1);}
+"bigserial" {return tt.dtt(2);}
+"bool" {return tt.dtt(3);}
+"boolean" {return tt.dtt(4);}
+"box" {return tt.dtt(5);}
+"bpchar" {return tt.dtt(6);}
+"bytea" {return tt.dtt(7);}
+"char" {return tt.dtt(8);}
+"character" {return tt.dtt(9);}
+"cid" {return tt.dtt(10);}
+"cidr" {return tt.dtt(11);}
+"circle" {return tt.dtt(12);}
+"date" {return tt.dtt(13);}
+"decimal" {return tt.dtt(14);}
+"double_precision" {return tt.dtt(15);}
+"inet" {return tt.dtt(16);}
+"int" {return tt.dtt(17);}
+"int2" {return tt.dtt(18);}
+"int2vector" {return tt.dtt(19);}
+"int4" {return tt.dtt(20);}
+"int8" {return tt.dtt(21);}
+"integer" {return tt.dtt(22);}
+"interval" {return tt.dtt(23);}
+"json" {return tt.dtt(24);}
+"jsonb" {return tt.dtt(25);}
+"line" {return tt.dtt(26);}
+"lseg" {return tt.dtt(27);}
+"macaddr" {return tt.dtt(28);}
+"money" {return tt.dtt(29);}
+"name" {return tt.dtt(30);}
+"numeric" {return tt.dtt(31);}
+"oid" {return tt.dtt(32);}
+"path" {return tt.dtt(33);}
+"point" {return tt.dtt(34);}
+"polygon" {return tt.dtt(35);}
+"real" {return tt.dtt(36);}
+"serial" {return tt.dtt(37);}
+"serial8" {return tt.dtt(38);}
+"smallint" {return tt.dtt(39);}
+"smallserial" {return tt.dtt(40);}
+"text" {return tt.dtt(41);}
+"tid" {return tt.dtt(42);}
+"time" {return tt.dtt(43);}
+"timestamp" {return tt.dtt(44);}
+"tsquery" {return tt.dtt(45);}
+"tsvector" {return tt.dtt(46);}
+"uuid" {return tt.dtt(47);}
+"varbit" {return tt.dtt(48);}
+"varchar" {return tt.dtt(49);}
+"xid" {return tt.dtt(50);}
+"xml" {return tt.dtt(51);}
+"yaml" {return tt.dtt(52);}
+// MARKER_END_DATATYPES
 
 
 
-
-
-
-    "abbrev" {return tt.getFunctionTokenType(0);}
-    "abs" {return tt.getFunctionTokenType(1);}
-    "acos" {return tt.getFunctionTokenType(2);}
-    "age" {return tt.getFunctionTokenType(3);}
-    "area" {return tt.getFunctionTokenType(4);}
-    "array_agg" {return tt.getFunctionTokenType(5);}
-    "array_append" {return tt.getFunctionTokenType(6);}
-    "array_cat" {return tt.getFunctionTokenType(7);}
-    "array_dims" {return tt.getFunctionTokenType(8);}
-    "array_fill" {return tt.getFunctionTokenType(9);}
-    "array_length" {return tt.getFunctionTokenType(10);}
-    "array_lower" {return tt.getFunctionTokenType(11);}
-    "array_ndims" {return tt.getFunctionTokenType(12);}
-    "array_prepend" {return tt.getFunctionTokenType(13);}
-    "array_remove" {return tt.getFunctionTokenType(14);}
-    "array_replace" {return tt.getFunctionTokenType(15);}
-    "array_to_json" {return tt.getFunctionTokenType(16);}
-    "array_to_string" {return tt.getFunctionTokenType(17);}
-    "array_upper" {return tt.getFunctionTokenType(18);}
-    "ascii" {return tt.getFunctionTokenType(19);}
-    "asin" {return tt.getFunctionTokenType(20);}
-    "atan" {return tt.getFunctionTokenType(21);}
-    "atan2" {return tt.getFunctionTokenType(22);}
-    "avg" {return tt.getFunctionTokenType(23);}
-    "bit" {return tt.getFunctionTokenType(24);}
-    "bit_and" {return tt.getFunctionTokenType(25);}
-    "bit_length" {return tt.getFunctionTokenType(26);}
-    "bit_or" {return tt.getFunctionTokenType(27);}
-    "bool_and" {return tt.getFunctionTokenType(28);}
-    "bool_or" {return tt.getFunctionTokenType(29);}
-    "broadcast" {return tt.getFunctionTokenType(30);}
-    "btrim" {return tt.getFunctionTokenType(31);}
-    "cbrt" {return tt.getFunctionTokenType(32);}
-    "ceil" {return tt.getFunctionTokenType(33);}
-    "ceiling" {return tt.getFunctionTokenType(34);}
-    "center" {return tt.getFunctionTokenType(35);}
-    "char_length" {return tt.getFunctionTokenType(36);}
-    "chr" {return tt.getFunctionTokenType(37);}
-    "clock_timestamp" {return tt.getFunctionTokenType(38);}
-    "col_description" {return tt.getFunctionTokenType(39);}
-    "concat" {return tt.getFunctionTokenType(40);}
-    "concat_ws" {return tt.getFunctionTokenType(41);}
-    "convert" {return tt.getFunctionTokenType(42);}
-    "convert_from" {return tt.getFunctionTokenType(43);}
-    "convert_to" {return tt.getFunctionTokenType(44);}
-    "cos" {return tt.getFunctionTokenType(45);}
-    "cot" {return tt.getFunctionTokenType(46);}
-    "count" {return tt.getFunctionTokenType(47);}
-    "cume_dist" {return tt.getFunctionTokenType(48);}
-    "current_catalog" {return tt.getFunctionTokenType(49);}
-    "current_database" {return tt.getFunctionTokenType(50);}
-    "current_date" {return tt.getFunctionTokenType(51);}
-    "current_query" {return tt.getFunctionTokenType(52);}
-    "current_schema" {return tt.getFunctionTokenType(53);}
-    "current_schemas" {return tt.getFunctionTokenType(54);}
-    "current_setting" {return tt.getFunctionTokenType(55);}
-    "current_time" {return tt.getFunctionTokenType(56);}
-    "current_timestamp" {return tt.getFunctionTokenType(57);}
-    "current_user" {return tt.getFunctionTokenType(58);}
-    "currval" {return tt.getFunctionTokenType(59);}
-    "cursor_to_xml" {return tt.getFunctionTokenType(60);}
-    "date_part" {return tt.getFunctionTokenType(61);}
-    "date_trunc" {return tt.getFunctionTokenType(62);}
-    "decode" {return tt.getFunctionTokenType(63);}
-    "degrees" {return tt.getFunctionTokenType(64);}
-    "dense_rank" {return tt.getFunctionTokenType(65);}
-    "diameter" {return tt.getFunctionTokenType(66);}
-    "div" {return tt.getFunctionTokenType(67);}
-    "encode" {return tt.getFunctionTokenType(68);}
-    "enum_first" {return tt.getFunctionTokenType(69);}
-    "enum_last" {return tt.getFunctionTokenType(70);}
-    "enum_range" {return tt.getFunctionTokenType(71);}
-    "every" {return tt.getFunctionTokenType(72);}
-    "exp" {return tt.getFunctionTokenType(73);}
-    "extract" {return tt.getFunctionTokenType(74);}
-    "family" {return tt.getFunctionTokenType(75);}
-    "first_value" {return tt.getFunctionTokenType(76);}
-    "floor" {return tt.getFunctionTokenType(77);}
-    "format" {return tt.getFunctionTokenType(78);}
-    "format_type" {return tt.getFunctionTokenType(79);}
-    "generate_series" {return tt.getFunctionTokenType(80);}
-    "generate_subscripts" {return tt.getFunctionTokenType(81);}
-    "get_bit" {return tt.getFunctionTokenType(82);}
-    "get_byte" {return tt.getFunctionTokenType(83);}
-    "get_current_ts_config" {return tt.getFunctionTokenType(84);}
-    "has_any_column_privilege" {return tt.getFunctionTokenType(85);}
-    "has_column_privilege" {return tt.getFunctionTokenType(86);}
-    "has_database_privilege" {return tt.getFunctionTokenType(87);}
-    "has_foreign_data_wrapper_privilege" {return tt.getFunctionTokenType(88);}
-    "has_function_privilege" {return tt.getFunctionTokenType(89);}
-    "has_language_privilege" {return tt.getFunctionTokenType(90);}
-    "has_schema_privilege" {return tt.getFunctionTokenType(91);}
-    "has_sequence_privilege" {return tt.getFunctionTokenType(92);}
-    "has_server_privilege" {return tt.getFunctionTokenType(93);}
-    "has_tablespace_privilege" {return tt.getFunctionTokenType(94);}
-    "has_table_privilege" {return tt.getFunctionTokenType(95);}
-    "height" {return tt.getFunctionTokenType(96);}
-    "host" {return tt.getFunctionTokenType(97);}
-    "hostmask" {return tt.getFunctionTokenType(98);}
-    "inet_client_addr" {return tt.getFunctionTokenType(99);}
-    "inet_client_port" {return tt.getFunctionTokenType(100);}
-    "inet_server_addr" {return tt.getFunctionTokenType(101);}
-    "inet_server_port" {return tt.getFunctionTokenType(102);}
-    "initcap" {return tt.getFunctionTokenType(103);}
-    "isclosed" {return tt.getFunctionTokenType(104);}
-    "isempty" {return tt.getFunctionTokenType(105);}
-    "isfinite" {return tt.getFunctionTokenType(106);}
-    "isopen" {return tt.getFunctionTokenType(107);}
-    "json_agg" {return tt.getFunctionTokenType(108);}
-    "json_array_elements" {return tt.getFunctionTokenType(109);}
-    "json_array_length" {return tt.getFunctionTokenType(110);}
-    "json_each" {return tt.getFunctionTokenType(111);}
-    "json_each_text" {return tt.getFunctionTokenType(112);}
-    "json_extract_path" {return tt.getFunctionTokenType(113);}
-    "json_extract_path_text" {return tt.getFunctionTokenType(114);}
-    "json_object_keys" {return tt.getFunctionTokenType(115);}
-    "json_populate_record" {return tt.getFunctionTokenType(116);}
-    "json_populate_recordset" {return tt.getFunctionTokenType(117);}
-    "justify_days" {return tt.getFunctionTokenType(118);}
-    "justify_hours" {return tt.getFunctionTokenType(119);}
-    "justify_interval" {return tt.getFunctionTokenType(120);}
-    "lag" {return tt.getFunctionTokenType(121);}
-    "lastval" {return tt.getFunctionTokenType(122);}
-    "last_value" {return tt.getFunctionTokenType(123);}
-    "lead" {return tt.getFunctionTokenType(124);}
-    "left" {return tt.getFunctionTokenType(125);}
-    "length" {return tt.getFunctionTokenType(126);}
-    "ln" {return tt.getFunctionTokenType(127);}
-    "localtime" {return tt.getFunctionTokenType(128);}
-    "localtimestamp" {return tt.getFunctionTokenType(129);}
-    "log" {return tt.getFunctionTokenType(130);}
-    "lower" {return tt.getFunctionTokenType(131);}
-    "lower_inc" {return tt.getFunctionTokenType(132);}
-    "lower_inf" {return tt.getFunctionTokenType(133);}
-    "lpad" {return tt.getFunctionTokenType(134);}
-    "ltrim" {return tt.getFunctionTokenType(135);}
-    "masklen" {return tt.getFunctionTokenType(136);}
-    "max" {return tt.getFunctionTokenType(137);}
-    "md5" {return tt.getFunctionTokenType(138);}
-    "min" {return tt.getFunctionTokenType(139);}
-    "mod" {return tt.getFunctionTokenType(140);}
-    "netmask" {return tt.getFunctionTokenType(141);}
-    "network" {return tt.getFunctionTokenType(142);}
-    "nextval" {return tt.getFunctionTokenType(143);}
-    "now" {return tt.getFunctionTokenType(144);}
-    "npoints" {return tt.getFunctionTokenType(145);}
-    "nth_value" {return tt.getFunctionTokenType(146);}
-    "ntile" {return tt.getFunctionTokenType(147);}
-    "numnode" {return tt.getFunctionTokenType(148);}
-    "obj_description" {return tt.getFunctionTokenType(149);}
-    "octet_length" {return tt.getFunctionTokenType(150);}
-    "overlay" {return tt.getFunctionTokenType(151);}
-    "pclose" {return tt.getFunctionTokenType(152);}
-    "percent_rank" {return tt.getFunctionTokenType(153);}
-    "pg_advisory_lock" {return tt.getFunctionTokenType(154);}
-    "pg_advisory_lock_shared" {return tt.getFunctionTokenType(155);}
-    "pg_advisory_unlock" {return tt.getFunctionTokenType(156);}
-    "pg_advisory_unlock_all" {return tt.getFunctionTokenType(157);}
-    "pg_advisory_unlock_shared" {return tt.getFunctionTokenType(158);}
-    "pg_advisory_xact_lock" {return tt.getFunctionTokenType(159);}
-    "pg_advisory_xact_lock_shared" {return tt.getFunctionTokenType(160);}
-    "pg_backend_pid" {return tt.getFunctionTokenType(161);}
-    "pg_backup_start_time" {return tt.getFunctionTokenType(162);}
-    "pg_cancel_backend" {return tt.getFunctionTokenType(163);}
-    "pg_client_encoding" {return tt.getFunctionTokenType(164);}
-    "pg_collation_is_visible" {return tt.getFunctionTokenType(165);}
-    "pg_column_size" {return tt.getFunctionTokenType(166);}
-    "pg_conf_load_time" {return tt.getFunctionTokenType(167);}
-    "pg_conversion_is_visible" {return tt.getFunctionTokenType(168);}
-    "pg_create_restore_point" {return tt.getFunctionTokenType(169);}
-    "pg_current_xlog_insert_location" {return tt.getFunctionTokenType(170);}
-    "pg_current_xlog_location" {return tt.getFunctionTokenType(171);}
-    "pg_database_size" {return tt.getFunctionTokenType(172);}
-    "pg_describe_object" {return tt.getFunctionTokenType(173);}
-    "pg_export_snapshot" {return tt.getFunctionTokenType(174);}
-    "pg_function_is_visible" {return tt.getFunctionTokenType(175);}
-    "pg_get_constraintdef" {return tt.getFunctionTokenType(176);}
-    "pg_get_expr" {return tt.getFunctionTokenType(177);}
-    "pg_get_functiondef" {return tt.getFunctionTokenType(178);}
-    "pg_get_function_arguments" {return tt.getFunctionTokenType(179);}
-    "pg_get_function_identity_arguments" {return tt.getFunctionTokenType(180);}
-    "pg_get_function_result" {return tt.getFunctionTokenType(181);}
-    "pg_get_indexdef" {return tt.getFunctionTokenType(182);}
-    "pg_get_keywords" {return tt.getFunctionTokenType(183);}
-    "pg_get_ruledef" {return tt.getFunctionTokenType(184);}
-    "pg_get_serial_sequence" {return tt.getFunctionTokenType(185);}
-    "pg_get_triggerdef" {return tt.getFunctionTokenType(186);}
-    "pg_get_userbyid" {return tt.getFunctionTokenType(187);}
-    "pg_get_viewdef" {return tt.getFunctionTokenType(188);}
-    "pg_has_role" {return tt.getFunctionTokenType(189);}
-    "pg_identify_object" {return tt.getFunctionTokenType(190);}
-    "pg_indexes_size" {return tt.getFunctionTokenType(191);}
-    "pg_is_in_backup" {return tt.getFunctionTokenType(192);}
-    "pg_is_in_recovery" {return tt.getFunctionTokenType(193);}
-    "pg_is_other_temp_schema" {return tt.getFunctionTokenType(194);}
-    "pg_is_xlog_replay_paused" {return tt.getFunctionTokenType(195);}
-    "pg_last_xact_replay_timestamp" {return tt.getFunctionTokenType(196);}
-    "pg_last_xlog_receive_location" {return tt.getFunctionTokenType(197);}
-    "pg_last_xlog_replay_location" {return tt.getFunctionTokenType(198);}
-    "pg_listening_channels" {return tt.getFunctionTokenType(199);}
-    "pg_ls_dir" {return tt.getFunctionTokenType(200);}
-    "pg_my_temp_schema" {return tt.getFunctionTokenType(201);}
-    "pg_opclass_is_visible" {return tt.getFunctionTokenType(202);}
-    "pg_operator_is_visible" {return tt.getFunctionTokenType(203);}
-    "pg_opfamily_is_visible" {return tt.getFunctionTokenType(204);}
-    "pg_options_to_table" {return tt.getFunctionTokenType(205);}
-    "pg_postmaster_start_time" {return tt.getFunctionTokenType(206);}
-    "pg_read_binary_file" {return tt.getFunctionTokenType(207);}
-    "pg_read_file" {return tt.getFunctionTokenType(208);}
-    "pg_relation_filenode" {return tt.getFunctionTokenType(209);}
-    "pg_relation_filepath" {return tt.getFunctionTokenType(210);}
-    "pg_relation_size" {return tt.getFunctionTokenType(211);}
-    "pg_reload_conf" {return tt.getFunctionTokenType(212);}
-    "pg_rotate_logfile" {return tt.getFunctionTokenType(213);}
-    "pg_size_pretty" {return tt.getFunctionTokenType(214);}
-    "pg_start_backup" {return tt.getFunctionTokenType(215);}
-    "pg_stat_file" {return tt.getFunctionTokenType(216);}
-    "pg_stop_backup" {return tt.getFunctionTokenType(217);}
-    "pg_switch_xlog" {return tt.getFunctionTokenType(218);}
-    "pg_tablespace_databases" {return tt.getFunctionTokenType(219);}
-    "pg_tablespace_location" {return tt.getFunctionTokenType(220);}
-    "pg_tablespace_size" {return tt.getFunctionTokenType(221);}
-    "pg_table_is_visible" {return tt.getFunctionTokenType(222);}
-    "pg_table_size" {return tt.getFunctionTokenType(223);}
-    "pg_terminate_backend" {return tt.getFunctionTokenType(224);}
-    "pg_total_relation_size" {return tt.getFunctionTokenType(225);}
-    "pg_trigger_depth" {return tt.getFunctionTokenType(226);}
-    "pg_try_advisory_lock" {return tt.getFunctionTokenType(227);}
-    "pg_try_advisory_lock_shared" {return tt.getFunctionTokenType(228);}
-    "pg_try_advisory_xact_lock" {return tt.getFunctionTokenType(229);}
-    "pg_try_advisory_xact_lock_shared" {return tt.getFunctionTokenType(230);}
-    "pg_ts_config_is_visible" {return tt.getFunctionTokenType(231);}
-    "pg_ts_dict_is_visible" {return tt.getFunctionTokenType(232);}
-    "pg_ts_parser_is_visible" {return tt.getFunctionTokenType(233);}
-    "pg_ts_template_is_visible" {return tt.getFunctionTokenType(234);}
-    "pg_typeof" {return tt.getFunctionTokenType(235);}
-    "pg_type_is_visible" {return tt.getFunctionTokenType(236);}
-    "pg_xlogfile_name" {return tt.getFunctionTokenType(237);}
-    "pg_xlogfile_name_offset" {return tt.getFunctionTokenType(238);}
-    "pg_xlog_location_diff" {return tt.getFunctionTokenType(239);}
-    "pg_xlog_replay_pause" {return tt.getFunctionTokenType(240);}
-    "pg_xlog_replay_resume" {return tt.getFunctionTokenType(241);}
-    "pi" {return tt.getFunctionTokenType(242);}
-    "plainto_tsquery" {return tt.getFunctionTokenType(243);}
-    "popen" {return tt.getFunctionTokenType(244);}
-    "position" {return tt.getFunctionTokenType(245);}
-    "power" {return tt.getFunctionTokenType(246);}
-    "querytree" {return tt.getFunctionTokenType(247);}
-    "query_to_xml" {return tt.getFunctionTokenType(248);}
-    "quote_ident" {return tt.getFunctionTokenType(249);}
-    "quote_literal" {return tt.getFunctionTokenType(250);}
-    "quote_nullable" {return tt.getFunctionTokenType(251);}
-    "radians" {return tt.getFunctionTokenType(252);}
-    "radius" {return tt.getFunctionTokenType(253);}
-    "random" {return tt.getFunctionTokenType(254);}
-    "rank" {return tt.getFunctionTokenType(255);}
-    "regexp_matches" {return tt.getFunctionTokenType(256);}
-    "regexp_replace" {return tt.getFunctionTokenType(257);}
-    "regexp_split_to_array" {return tt.getFunctionTokenType(258);}
-    "regexp_split_to_table" {return tt.getFunctionTokenType(259);}
-    "repeat" {return tt.getFunctionTokenType(260);}
-    "replace" {return tt.getFunctionTokenType(261);}
-    "reverse" {return tt.getFunctionTokenType(262);}
-    "right" {return tt.getFunctionTokenType(263);}
-    "round" {return tt.getFunctionTokenType(264);}
-    "row_number" {return tt.getFunctionTokenType(265);}
-    "row_to_json" {return tt.getFunctionTokenType(266);}
-    "rpad" {return tt.getFunctionTokenType(267);}
-    "rtrim" {return tt.getFunctionTokenType(268);}
-    "session_user" {return tt.getFunctionTokenType(269);}
-    "setseed" {return tt.getFunctionTokenType(270);}
-    "setval" {return tt.getFunctionTokenType(271);}
-    "setweight" {return tt.getFunctionTokenType(272);}
-    "set_bit" {return tt.getFunctionTokenType(273);}
-    "set_byte" {return tt.getFunctionTokenType(274);}
-    "set_config" {return tt.getFunctionTokenType(275);}
-    "set_masklen" {return tt.getFunctionTokenType(276);}
-    "shobj_description" {return tt.getFunctionTokenType(277);}
-    "sign" {return tt.getFunctionTokenType(278);}
-    "sin" {return tt.getFunctionTokenType(279);}
-    "split_part" {return tt.getFunctionTokenType(280);}
-    "sqrt" {return tt.getFunctionTokenType(281);}
-    "statement_timestamp" {return tt.getFunctionTokenType(282);}
-    "string_agg" {return tt.getFunctionTokenType(283);}
-    "string_to_array" {return tt.getFunctionTokenType(284);}
-    "strip" {return tt.getFunctionTokenType(285);}
-    "strpos" {return tt.getFunctionTokenType(286);}
-    "substr" {return tt.getFunctionTokenType(287);}
-    "substring" {return tt.getFunctionTokenType(288);}
-    "sum" {return tt.getFunctionTokenType(289);}
-    "table_to_xml" {return tt.getFunctionTokenType(290);}
-    "tan" {return tt.getFunctionTokenType(291);}
-    "timeofday" {return tt.getFunctionTokenType(292);}
-    "to_ascii" {return tt.getFunctionTokenType(293);}
-    "to_char" {return tt.getFunctionTokenType(294);}
-    "to_date" {return tt.getFunctionTokenType(295);}
-    "to_hex" {return tt.getFunctionTokenType(296);}
-    "to_json" {return tt.getFunctionTokenType(297);}
-    "to_number" {return tt.getFunctionTokenType(298);}
-    "to_timestamp" {return tt.getFunctionTokenType(299);}
-    "to_tsquery" {return tt.getFunctionTokenType(300);}
-    "to_tsvector" {return tt.getFunctionTokenType(301);}
-    "transaction_timestamp" {return tt.getFunctionTokenType(302);}
-    "translate" {return tt.getFunctionTokenType(303);}
-    "trim" {return tt.getFunctionTokenType(304);}
-    "trunc" {return tt.getFunctionTokenType(305);}
-    "tsvector_update_trigger" {return tt.getFunctionTokenType(306);}
-    "tsvector_update_trigger_column" {return tt.getFunctionTokenType(307);}
-    "ts_headline" {return tt.getFunctionTokenType(308);}
-    "ts_rank" {return tt.getFunctionTokenType(309);}
-    "ts_rank_cd" {return tt.getFunctionTokenType(310);}
-    "ts_rewrite" {return tt.getFunctionTokenType(311);}
-    "txid_current" {return tt.getFunctionTokenType(312);}
-    "txid_current_snapshot" {return tt.getFunctionTokenType(313);}
-    "txid_snapshot_xip" {return tt.getFunctionTokenType(314);}
-    "txid_snapshot_xmax" {return tt.getFunctionTokenType(315);}
-    "txid_snapshot_xmin" {return tt.getFunctionTokenType(316);}
-    "txid_visible_in_snapshot" {return tt.getFunctionTokenType(317);}
-    "unnest" {return tt.getFunctionTokenType(318);}
-    "upper" {return tt.getFunctionTokenType(319);}
-    "upper_inc" {return tt.getFunctionTokenType(320);}
-    "upper_inf" {return tt.getFunctionTokenType(321);}
-    "version" {return tt.getFunctionTokenType(322);}
-    "width" {return tt.getFunctionTokenType(323);}
-    "width_bucket" {return tt.getFunctionTokenType(324);}
-    "xip_list" {return tt.getFunctionTokenType(325);}
-    "xmax" {return tt.getFunctionTokenType(326);}
-    "xmin" {return tt.getFunctionTokenType(327);}
-    "xmlagg" {return tt.getFunctionTokenType(328);}
-    "xmlcomment" {return tt.getFunctionTokenType(329);}
-    "xmlconcat" {return tt.getFunctionTokenType(330);}
-    "xmlelement" {return tt.getFunctionTokenType(331);}
-    "xmlexists" {return tt.getFunctionTokenType(332);}
-    "xmlforest" {return tt.getFunctionTokenType(333);}
-    "xmlpi" {return tt.getFunctionTokenType(334);}
-    "xmlroot" {return tt.getFunctionTokenType(335);}
-    "xml_is_well_formed" {return tt.getFunctionTokenType(336);}
-    "xpath" {return tt.getFunctionTokenType(337);}
-    "xpath_exists" {return tt.getFunctionTokenType(338);}
+// MARKER_BEGIN_KEYWORDS
+"a" {return tt.ktt(0);}
+"abort" {return tt.ktt(1);}
+"absent" {return tt.ktt(2);}
+"absolute" {return tt.ktt(3);}
+"access" {return tt.ktt(4);}
+"according" {return tt.ktt(5);}
+"action" {return tt.ktt(6);}
+"ada" {return tt.ktt(7);}
+"add" {return tt.ktt(8);}
+"admin" {return tt.ktt(9);}
+"after" {return tt.ktt(10);}
+"aggregate" {return tt.ktt(11);}
+"all" {return tt.ktt(12);}
+"allocate" {return tt.ktt(13);}
+"also" {return tt.ktt(14);}
+"alter" {return tt.ktt(15);}
+"always" {return tt.ktt(16);}
+"analyse" {return tt.ktt(17);}
+"analyze" {return tt.ktt(18);}
+"and" {return tt.ktt(19);}
+"any" {return tt.ktt(20);}
+"are" {return tt.ktt(21);}
+"array_max_cardinality" {return tt.ktt(22);}
+"as" {return tt.ktt(23);}
+"asc" {return tt.ktt(24);}
+"asensitive" {return tt.ktt(25);}
+"assertion" {return tt.ktt(26);}
+"assignment" {return tt.ktt(27);}
+"asymmetric" {return tt.ktt(28);}
+"at" {return tt.ktt(29);}
+"atomic" {return tt.ktt(30);}
+"attribute" {return tt.ktt(31);}
+"attributes" {return tt.ktt(32);}
+"authorization" {return tt.ktt(33);}
+"backward" {return tt.ktt(34);}
+"base64" {return tt.ktt(35);}
+"before" {return tt.ktt(36);}
+"begin" {return tt.ktt(37);}
+"begin_frame" {return tt.ktt(38);}
+"begin_partition" {return tt.ktt(39);}
+"bernoulli" {return tt.ktt(40);}
+"between" {return tt.ktt(41);}
+"binary" {return tt.ktt(42);}
+"blob" {return tt.ktt(43);}
+"blocked" {return tt.ktt(44);}
+"bom" {return tt.ktt(45);}
+"both" {return tt.ktt(46);}
+"breadth" {return tt.ktt(47);}
+"buffers" {return tt.ktt(48);}
+"by" {return tt.ktt(49);}
+"bypassrls" {return tt.ktt(50);}
+"c" {return tt.ktt(51);}
+"cache" {return tt.ktt(52);}
+"call" {return tt.ktt(53);}
+"called" {return tt.ktt(54);}
+"cardinality" {return tt.ktt(55);}
+"cascade" {return tt.ktt(56);}
+"cascaded" {return tt.ktt(57);}
+"case" {return tt.ktt(58);}
+"cast" {return tt.ktt(59);}
+"catalog" {return tt.ktt(60);}
+"catalog_name" {return tt.ktt(61);}
+"chain" {return tt.ktt(62);}
+"characteristics" {return tt.ktt(63);}
+"characters" {return tt.ktt(64);}
+"character_length" {return tt.ktt(65);}
+"character_set_catalog" {return tt.ktt(66);}
+"character_set_name" {return tt.ktt(67);}
+"character_set_schema" {return tt.ktt(68);}
+"check" {return tt.ktt(69);}
+"checkpoint" {return tt.ktt(70);}
+"class" {return tt.ktt(71);}
+"class_origin" {return tt.ktt(72);}
+"clob" {return tt.ktt(73);}
+"close" {return tt.ktt(74);}
+"cluster" {return tt.ktt(75);}
+"coalesce" {return tt.ktt(76);}
+"cobol" {return tt.ktt(77);}
+"collate" {return tt.ktt(78);}
+"collation" {return tt.ktt(79);}
+"collation_catalog" {return tt.ktt(80);}
+"collation_name" {return tt.ktt(81);}
+"collation_schema" {return tt.ktt(82);}
+"collect" {return tt.ktt(83);}
+"column" {return tt.ktt(84);}
+"columns" {return tt.ktt(85);}
+"column_name" {return tt.ktt(86);}
+"command_function" {return tt.ktt(87);}
+"command_function_code" {return tt.ktt(88);}
+"comment" {return tt.ktt(89);}
+"comments" {return tt.ktt(90);}
+"commit" {return tt.ktt(91);}
+"committed" {return tt.ktt(92);}
+"concurrently" {return tt.ktt(93);}
+"condition" {return tt.ktt(94);}
+"condition_number" {return tt.ktt(95);}
+"configuration" {return tt.ktt(96);}
+"connect" {return tt.ktt(97);}
+"connection" {return tt.ktt(98);}
+"connection_name" {return tt.ktt(99);}
+"constraint" {return tt.ktt(100);}
+"constraints" {return tt.ktt(101);}
+"constraint_catalog" {return tt.ktt(102);}
+"constraint_name" {return tt.ktt(103);}
+"constraint_schema" {return tt.ktt(104);}
+"constructor" {return tt.ktt(105);}
+"contains" {return tt.ktt(106);}
+"content" {return tt.ktt(107);}
+"continue" {return tt.ktt(108);}
+"control" {return tt.ktt(109);}
+"conversion" {return tt.ktt(110);}
+"copy" {return tt.ktt(111);}
+"corr" {return tt.ktt(112);}
+"corresponding" {return tt.ktt(113);}
+"cost" {return tt.ktt(114);}
+"costs" {return tt.ktt(115);}
+"covar_pop" {return tt.ktt(116);}
+"covar_samp" {return tt.ktt(117);}
+"create" {return tt.ktt(118);}
+"createdb" {return tt.ktt(119);}
+"createrole" {return tt.ktt(120);}
+"createuser" {return tt.ktt(121);}
+"cross" {return tt.ktt(122);}
+"csv" {return tt.ktt(123);}
+"cube" {return tt.ktt(124);}
+"current" {return tt.ktt(125);}
+"current_default_transform_group" {return tt.ktt(126);}
+"current_path" {return tt.ktt(127);}
+"current_role" {return tt.ktt(128);}
+"current_row" {return tt.ktt(129);}
+"current_transform_group_for_type" {return tt.ktt(130);}
+"cursor" {return tt.ktt(131);}
+"cursor_name" {return tt.ktt(132);}
+"cycle" {return tt.ktt(133);}
+"data" {return tt.ktt(134);}
+"database" {return tt.ktt(135);}
+"datalink" {return tt.ktt(136);}
+"datetime_interval_code" {return tt.ktt(137);}
+"datetime_interval_precision" {return tt.ktt(138);}
+"day" {return tt.ktt(139);}
+"db" {return tt.ktt(140);}
+"deallocate" {return tt.ktt(141);}
+"dec" {return tt.ktt(142);}
+"declare" {return tt.ktt(143);}
+"default" {return tt.ktt(144);}
+"defaults" {return tt.ktt(145);}
+"deferrable" {return tt.ktt(146);}
+"deferred" {return tt.ktt(147);}
+"defined" {return tt.ktt(148);}
+"definer" {return tt.ktt(149);}
+"degree" {return tt.ktt(150);}
+"delete" {return tt.ktt(151);}
+"delimiter" {return tt.ktt(152);}
+"delimiters" {return tt.ktt(153);}
+"depth" {return tt.ktt(154);}
+"deref" {return tt.ktt(155);}
+"derived" {return tt.ktt(156);}
+"desc" {return tt.ktt(157);}
+"describe" {return tt.ktt(158);}
+"descriptor" {return tt.ktt(159);}
+"deterministic" {return tt.ktt(160);}
+"diagnostics" {return tt.ktt(161);}
+"dictionary" {return tt.ktt(162);}
+"disable" {return tt.ktt(163);}
+"discard" {return tt.ktt(164);}
+"disconnect" {return tt.ktt(165);}
+"dispatch" {return tt.ktt(166);}
+"distinct" {return tt.ktt(167);}
+"dlnewcopy" {return tt.ktt(168);}
+"dlpreviouscopy" {return tt.ktt(169);}
+"dlurlcomplete" {return tt.ktt(170);}
+"dlurlcompleteonly" {return tt.ktt(171);}
+"dlurlcompletewrite" {return tt.ktt(172);}
+"dlurlpath" {return tt.ktt(173);}
+"dlurlpathonly" {return tt.ktt(174);}
+"dlurlpathwrite" {return tt.ktt(175);}
+"dlurlscheme" {return tt.ktt(176);}
+"dlurlserver" {return tt.ktt(177);}
+"dlvalue" {return tt.ktt(178);}
+"do" {return tt.ktt(179);}
+"document" {return tt.ktt(180);}
+"domain" {return tt.ktt(181);}
+"double" {return tt.ktt(182);}
+"drop" {return tt.ktt(183);}
+"dynamic" {return tt.ktt(184);}
+"dynamic_function" {return tt.ktt(185);}
+"dynamic_function_code" {return tt.ktt(186);}
+"each" {return tt.ktt(187);}
+"element" {return tt.ktt(188);}
+"else" {return tt.ktt(189);}
+"empty" {return tt.ktt(190);}
+"enable" {return tt.ktt(191);}
+"encoding" {return tt.ktt(192);}
+"encrypted" {return tt.ktt(193);}
+"end" {return tt.ktt(194);}
+"end-exec" {return tt.ktt(195);}
+"end_frame" {return tt.ktt(196);}
+"end_partition" {return tt.ktt(197);}
+"enforced" {return tt.ktt(198);}
+"enum" {return tt.ktt(199);}
+"equals" {return tt.ktt(200);}
+"escape" {return tt.ktt(201);}
+"event" {return tt.ktt(202);}
+"except" {return tt.ktt(203);}
+"exception" {return tt.ktt(204);}
+"exclude" {return tt.ktt(205);}
+"excluding" {return tt.ktt(206);}
+"exclusive" {return tt.ktt(207);}
+"exec" {return tt.ktt(208);}
+"execute" {return tt.ktt(209);}
+"exists" {return tt.ktt(210);}
+"explain" {return tt.ktt(211);}
+"expression" {return tt.ktt(212);}
+"extension" {return tt.ktt(213);}
+"external" {return tt.ktt(214);}
+"false" {return tt.ktt(215);}
+"fetch" {return tt.ktt(216);}
+"file" {return tt.ktt(217);}
+"filter" {return tt.ktt(218);}
+"final" {return tt.ktt(219);}
+"first" {return tt.ktt(220);}
+"flag" {return tt.ktt(221);}
+"float" {return tt.ktt(222);}
+"following" {return tt.ktt(223);}
+"for" {return tt.ktt(224);}
+"force" {return tt.ktt(225);}
+"foreign" {return tt.ktt(226);}
+"fortran" {return tt.ktt(227);}
+"forward" {return tt.ktt(228);}
+"found" {return tt.ktt(229);}
+"frame_row" {return tt.ktt(230);}
+"free" {return tt.ktt(231);}
+"freeze" {return tt.ktt(232);}
+"from" {return tt.ktt(233);}
+"fs" {return tt.ktt(234);}
+"full" {return tt.ktt(235);}
+"function" {return tt.ktt(236);}
+"functions" {return tt.ktt(237);}
+"fusion" {return tt.ktt(238);}
+"g" {return tt.ktt(239);}
+"general" {return tt.ktt(240);}
+"generated" {return tt.ktt(241);}
+"get" {return tt.ktt(242);}
+"global" {return tt.ktt(243);}
+"go" {return tt.ktt(244);}
+"goto" {return tt.ktt(245);}
+"grant" {return tt.ktt(246);}
+"granted" {return tt.ktt(247);}
+"greatest" {return tt.ktt(248);}
+"group" {return tt.ktt(249);}
+"grouping" {return tt.ktt(250);}
+"groups" {return tt.ktt(251);}
+"handler" {return tt.ktt(252);}
+"having" {return tt.ktt(253);}
+"header" {return tt.ktt(254);}
+"hex" {return tt.ktt(255);}
+"hierarchy" {return tt.ktt(256);}
+"hold" {return tt.ktt(257);}
+"hour" {return tt.ktt(258);}
+"id" {return tt.ktt(259);}
+"identity" {return tt.ktt(260);}
+"if" {return tt.ktt(261);}
+"ignore" {return tt.ktt(262);}
+"ilike" {return tt.ktt(263);}
+"immediate" {return tt.ktt(264);}
+"immediately" {return tt.ktt(265);}
+"immutable" {return tt.ktt(266);}
+"implementation" {return tt.ktt(267);}
+"implicit" {return tt.ktt(268);}
+"import" {return tt.ktt(269);}
+"in" {return tt.ktt(270);}
+"including" {return tt.ktt(271);}
+"increment" {return tt.ktt(272);}
+"indent" {return tt.ktt(273);}
+"index" {return tt.ktt(274);}
+"indexes" {return tt.ktt(275);}
+"indicator" {return tt.ktt(276);}
+"inherit" {return tt.ktt(277);}
+"inherits" {return tt.ktt(278);}
+"initially" {return tt.ktt(279);}
+"inline" {return tt.ktt(280);}
+"inner" {return tt.ktt(281);}
+"inout" {return tt.ktt(282);}
+"input" {return tt.ktt(283);}
+"insensitive" {return tt.ktt(284);}
+"insert" {return tt.ktt(285);}
+"instance" {return tt.ktt(286);}
+"instantiable" {return tt.ktt(287);}
+"instead" {return tt.ktt(288);}
+"integrity" {return tt.ktt(289);}
+"intersect" {return tt.ktt(290);}
+"intersection" {return tt.ktt(291);}
+"into" {return tt.ktt(292);}
+"invoker" {return tt.ktt(293);}
+"is" {return tt.ktt(294);}
+"isnull" {return tt.ktt(295);}
+"isolation" {return tt.ktt(296);}
+"join" {return tt.ktt(297);}
+"k" {return tt.ktt(298);}
+"key" {return tt.ktt(299);}
+"key_member" {return tt.ktt(300);}
+"key_type" {return tt.ktt(301);}
+"label" {return tt.ktt(302);}
+"language" {return tt.ktt(303);}
+"large" {return tt.ktt(304);}
+"last" {return tt.ktt(305);}
+"lateral" {return tt.ktt(306);}
+"lc_collate" {return tt.ktt(307);}
+"lc_ctype" {return tt.ktt(308);}
+"leading" {return tt.ktt(309);}
+"leakproof" {return tt.ktt(310);}
+"least" {return tt.ktt(311);}
+"level" {return tt.ktt(312);}
+"library" {return tt.ktt(313);}
+"like" {return tt.ktt(314);}
+"like_regex" {return tt.ktt(315);}
+"limit" {return tt.ktt(316);}
+"link" {return tt.ktt(317);}
+"listen" {return tt.ktt(318);}
+"load" {return tt.ktt(319);}
+"local" {return tt.ktt(320);}
+"location" {return tt.ktt(321);}
+"locator" {return tt.ktt(322);}
+"lock" {return tt.ktt(323);}
+"login" {return tt.ktt(324);}
+"m" {return tt.ktt(325);}
+"map" {return tt.ktt(326);}
+"mapping" {return tt.ktt(327);}
+"match" {return tt.ktt(328);}
+"matched" {return tt.ktt(329);}
+"materialized" {return tt.ktt(330);}
+"maxvalue" {return tt.ktt(331);}
+"max_cardinality" {return tt.ktt(332);}
+"member" {return tt.ktt(333);}
+"merge" {return tt.ktt(334);}
+"message_length" {return tt.ktt(335);}
+"message_octet_length" {return tt.ktt(336);}
+"message_text" {return tt.ktt(337);}
+"method" {return tt.ktt(338);}
+"minute" {return tt.ktt(339);}
+"minvalue" {return tt.ktt(340);}
+"mode" {return tt.ktt(341);}
+"modifies" {return tt.ktt(342);}
+"module" {return tt.ktt(343);}
+"month" {return tt.ktt(344);}
+"more" {return tt.ktt(345);}
+"move" {return tt.ktt(346);}
+"multiset" {return tt.ktt(347);}
+"mumps" {return tt.ktt(348);}
+"names" {return tt.ktt(349);}
+"namespace" {return tt.ktt(350);}
+"national" {return tt.ktt(351);}
+"natural" {return tt.ktt(352);}
+"nchar" {return tt.ktt(353);}
+"nclob" {return tt.ktt(354);}
+"nesting" {return tt.ktt(355);}
+"new" {return tt.ktt(356);}
+"next" {return tt.ktt(357);}
+"nfc" {return tt.ktt(358);}
+"nfd" {return tt.ktt(359);}
+"nfkc" {return tt.ktt(360);}
+"nfkd" {return tt.ktt(361);}
+"nil" {return tt.ktt(362);}
+"no" {return tt.ktt(363);}
+"nobypassrls" {return tt.ktt(364);}
+"nocreatedb" {return tt.ktt(365);}
+"nocreaterole" {return tt.ktt(366);}
+"nocreateuser" {return tt.ktt(367);}
+"noinherit" {return tt.ktt(368);}
+"nologin" {return tt.ktt(369);}
+"none" {return tt.ktt(370);}
+"noreplication" {return tt.ktt(371);}
+"normalize" {return tt.ktt(372);}
+"normalized" {return tt.ktt(373);}
+"nosuperuser" {return tt.ktt(374);}
+"not" {return tt.ktt(375);}
+"nothing" {return tt.ktt(376);}
+"notify" {return tt.ktt(377);}
+"notnull" {return tt.ktt(378);}
+"nowait" {return tt.ktt(379);}
+"null" {return tt.ktt(380);}
+"nullable" {return tt.ktt(381);}
+"nullif" {return tt.ktt(382);}
+"nulls" {return tt.ktt(383);}
+"number" {return tt.ktt(384);}
+"object" {return tt.ktt(385);}
+"occurrences_regex" {return tt.ktt(386);}
+"octets" {return tt.ktt(387);}
+"of" {return tt.ktt(388);}
+"off" {return tt.ktt(389);}
+"offset" {return tt.ktt(390);}
+"oids" {return tt.ktt(391);}
+"old" {return tt.ktt(392);}
+"on" {return tt.ktt(393);}
+"only" {return tt.ktt(394);}
+"open" {return tt.ktt(395);}
+"operator" {return tt.ktt(396);}
+"option" {return tt.ktt(397);}
+"options" {return tt.ktt(398);}
+"or" {return tt.ktt(399);}
+"order" {return tt.ktt(400);}
+"ordering" {return tt.ktt(401);}
+"ordinality" {return tt.ktt(402);}
+"others" {return tt.ktt(403);}
+"out" {return tt.ktt(404);}
+"outer" {return tt.ktt(405);}
+"output" {return tt.ktt(406);}
+"over" {return tt.ktt(407);}
+"overlaps" {return tt.ktt(408);}
+"overriding" {return tt.ktt(409);}
+"owned" {return tt.ktt(410);}
+"owner" {return tt.ktt(411);}
+"p" {return tt.ktt(412);}
+"pad" {return tt.ktt(413);}
+"parameter" {return tt.ktt(414);}
+"parameter_mode" {return tt.ktt(415);}
+"parameter_name" {return tt.ktt(416);}
+"parameter_ordinal_position" {return tt.ktt(417);}
+"parameter_specific_catalog" {return tt.ktt(418);}
+"parameter_specific_name" {return tt.ktt(419);}
+"parameter_specific_schema" {return tt.ktt(420);}
+"parser" {return tt.ktt(421);}
+"partial" {return tt.ktt(422);}
+"partition" {return tt.ktt(423);}
+"pascal" {return tt.ktt(424);}
+"passing" {return tt.ktt(425);}
+"passthrough" {return tt.ktt(426);}
+"password" {return tt.ktt(427);}
+"percent" {return tt.ktt(428);}
+"percentile_cont" {return tt.ktt(429);}
+"percentile_disc" {return tt.ktt(430);}
+"period" {return tt.ktt(431);}
+"permission" {return tt.ktt(432);}
+"placing" {return tt.ktt(433);}
+"plans" {return tt.ktt(434);}
+"pli" {return tt.ktt(435);}
+"portion" {return tt.ktt(436);}
+"position_regex" {return tt.ktt(437);}
+"precedes" {return tt.ktt(438);}
+"preceding" {return tt.ktt(439);}
+"precision" {return tt.ktt(440);}
+"prepare" {return tt.ktt(441);}
+"prepared" {return tt.ktt(442);}
+"preserve" {return tt.ktt(443);}
+"primary" {return tt.ktt(444);}
+"prior" {return tt.ktt(445);}
+"privileges" {return tt.ktt(446);}
+"procedural" {return tt.ktt(447);}
+"procedure" {return tt.ktt(448);}
+"program" {return tt.ktt(449);}
+"public" {return tt.ktt(450);}
+"quote" {return tt.ktt(451);}
+"range" {return tt.ktt(452);}
+"read" {return tt.ktt(453);}
+"reads" {return tt.ktt(454);}
+"reassign" {return tt.ktt(455);}
+"recheck" {return tt.ktt(456);}
+"recovery" {return tt.ktt(457);}
+"recursive" {return tt.ktt(458);}
+"ref" {return tt.ktt(459);}
+"references" {return tt.ktt(460);}
+"referencing" {return tt.ktt(461);}
+"refresh" {return tt.ktt(462);}
+"regr_avgx" {return tt.ktt(463);}
+"regr_avgy" {return tt.ktt(464);}
+"regr_count" {return tt.ktt(465);}
+"regr_intercept" {return tt.ktt(466);}
+"regr_r2" {return tt.ktt(467);}
+"regr_slope" {return tt.ktt(468);}
+"regr_sxx" {return tt.ktt(469);}
+"regr_sxy" {return tt.ktt(470);}
+"regr_syy" {return tt.ktt(471);}
+"reindex" {return tt.ktt(472);}
+"relative" {return tt.ktt(473);}
+"release" {return tt.ktt(474);}
+"rename" {return tt.ktt(475);}
+"repeatable" {return tt.ktt(476);}
+"replica" {return tt.ktt(477);}
+"replication" {return tt.ktt(478);}
+"requiring" {return tt.ktt(479);}
+"reset" {return tt.ktt(480);}
+"respect" {return tt.ktt(481);}
+"restart" {return tt.ktt(482);}
+"restore" {return tt.ktt(483);}
+"restrict" {return tt.ktt(484);}
+"result" {return tt.ktt(485);}
+"return" {return tt.ktt(486);}
+"returned_cardinality" {return tt.ktt(487);}
+"returned_length" {return tt.ktt(488);}
+"returned_octet_length" {return tt.ktt(489);}
+"returned_sqlstate" {return tt.ktt(490);}
+"returning" {return tt.ktt(491);}
+"returns" {return tt.ktt(492);}
+"revoke" {return tt.ktt(493);}
+"role" {return tt.ktt(494);}
+"rollback" {return tt.ktt(495);}
+"rollup" {return tt.ktt(496);}
+"routine" {return tt.ktt(497);}
+"routine_catalog" {return tt.ktt(498);}
+"routine_name" {return tt.ktt(499);}
+"routine_schema" {return tt.ktt(500);}
+"row" {return tt.ktt(501);}
+"rows" {return tt.ktt(502);}
+"row_count" {return tt.ktt(503);}
+"rule" {return tt.ktt(504);}
+"savepoint" {return tt.ktt(505);}
+"scale" {return tt.ktt(506);}
+"schema" {return tt.ktt(507);}
+"schema_name" {return tt.ktt(508);}
+"scope" {return tt.ktt(509);}
+"scope_catalog" {return tt.ktt(510);}
+"scope_name" {return tt.ktt(511);}
+"scope_schema" {return tt.ktt(512);}
+"scroll" {return tt.ktt(513);}
+"search" {return tt.ktt(514);}
+"second" {return tt.ktt(515);}
+"section" {return tt.ktt(516);}
+"security" {return tt.ktt(517);}
+"select" {return tt.ktt(518);}
+"selective" {return tt.ktt(519);}
+"self" {return tt.ktt(520);}
+"sensitive" {return tt.ktt(521);}
+"sequence" {return tt.ktt(522);}
+"sequences" {return tt.ktt(523);}
+"serializable" {return tt.ktt(524);}
+"server" {return tt.ktt(525);}
+"server_name" {return tt.ktt(526);}
+"session" {return tt.ktt(527);}
+"set" {return tt.ktt(528);}
+"setof" {return tt.ktt(529);}
+"sets" {return tt.ktt(530);}
+"share" {return tt.ktt(531);}
+"show" {return tt.ktt(532);}
+"similar" {return tt.ktt(533);}
+"simple" {return tt.ktt(534);}
+"size" {return tt.ktt(535);}
+"snapshot" {return tt.ktt(536);}
+"some" {return tt.ktt(537);}
+"source" {return tt.ktt(538);}
+"space" {return tt.ktt(539);}
+"specific" {return tt.ktt(540);}
+"specifictype" {return tt.ktt(541);}
+"specific_name" {return tt.ktt(542);}
+"sql" {return tt.ktt(543);}
+"sqlcode" {return tt.ktt(544);}
+"sqlerror" {return tt.ktt(545);}
+"sqlexception" {return tt.ktt(546);}
+"sqlstate" {return tt.ktt(547);}
+"sqlwarning" {return tt.ktt(548);}
+"stable" {return tt.ktt(549);}
+"standalone" {return tt.ktt(550);}
+"start" {return tt.ktt(551);}
+"state" {return tt.ktt(552);}
+"statement" {return tt.ktt(553);}
+"static" {return tt.ktt(554);}
+"statistics" {return tt.ktt(555);}
+"stddev_pop" {return tt.ktt(556);}
+"stddev_samp" {return tt.ktt(557);}
+"stdin" {return tt.ktt(558);}
+"stdout" {return tt.ktt(559);}
+"storage" {return tt.ktt(560);}
+"strict" {return tt.ktt(561);}
+"structure" {return tt.ktt(562);}
+"style" {return tt.ktt(563);}
+"subclass_origin" {return tt.ktt(564);}
+"submultiset" {return tt.ktt(565);}
+"substring_regex" {return tt.ktt(566);}
+"succeeds" {return tt.ktt(567);}
+"superuser" {return tt.ktt(568);}
+"symmetric" {return tt.ktt(569);}
+"sysid" {return tt.ktt(570);}
+"system" {return tt.ktt(571);}
+"system_time" {return tt.ktt(572);}
+"system_user" {return tt.ktt(573);}
+"t" {return tt.ktt(574);}
+"table" {return tt.ktt(575);}
+"tables" {return tt.ktt(576);}
+"tablesample" {return tt.ktt(577);}
+"tablespace" {return tt.ktt(578);}
+"table_name" {return tt.ktt(579);}
+"temp" {return tt.ktt(580);}
+"template" {return tt.ktt(581);}
+"temporary" {return tt.ktt(582);}
+"then" {return tt.ktt(583);}
+"ties" {return tt.ktt(584);}
+"timezone_hour" {return tt.ktt(585);}
+"timezone_minute" {return tt.ktt(586);}
+"timing" {return tt.ktt(587);}
+"to" {return tt.ktt(588);}
+"token" {return tt.ktt(589);}
+"top_level_count" {return tt.ktt(590);}
+"trailing" {return tt.ktt(591);}
+"transaction" {return tt.ktt(592);}
+"transactions_committed" {return tt.ktt(593);}
+"transactions_rolled_back" {return tt.ktt(594);}
+"transaction_active" {return tt.ktt(595);}
+"transform" {return tt.ktt(596);}
+"transforms" {return tt.ktt(597);}
+"translate_regex" {return tt.ktt(598);}
+"translation" {return tt.ktt(599);}
+"treat" {return tt.ktt(600);}
+"trigger" {return tt.ktt(601);}
+"trigger_catalog" {return tt.ktt(602);}
+"trigger_name" {return tt.ktt(603);}
+"trigger_schema" {return tt.ktt(604);}
+"trim_array" {return tt.ktt(605);}
+"true" {return tt.ktt(606);}
+"truncate" {return tt.ktt(607);}
+"trusted" {return tt.ktt(608);}
+"type" {return tt.ktt(609);}
+"types" {return tt.ktt(610);}
+"uescape" {return tt.ktt(611);}
+"unbounded" {return tt.ktt(612);}
+"uncommitted" {return tt.ktt(613);}
+"under" {return tt.ktt(614);}
+"unencrypted" {return tt.ktt(615);}
+"union" {return tt.ktt(616);}
+"unique" {return tt.ktt(617);}
+"unknown" {return tt.ktt(618);}
+"unlink" {return tt.ktt(619);}
+"unlisten" {return tt.ktt(620);}
+"unlogged" {return tt.ktt(621);}
+"unnamed" {return tt.ktt(622);}
+"until" {return tt.ktt(623);}
+"untyped" {return tt.ktt(624);}
+"update" {return tt.ktt(625);}
+"uri" {return tt.ktt(626);}
+"usage" {return tt.ktt(627);}
+"user" {return tt.ktt(628);}
+"user_defined_type_catalog" {return tt.ktt(629);}
+"user_defined_type_code" {return tt.ktt(630);}
+"user_defined_type_name" {return tt.ktt(631);}
+"user_defined_type_schema" {return tt.ktt(632);}
+"using" {return tt.ktt(633);}
+"vacuum" {return tt.ktt(634);}
+"valid" {return tt.ktt(635);}
+"validate" {return tt.ktt(636);}
+"validator" {return tt.ktt(637);}
+"value" {return tt.ktt(638);}
+"values" {return tt.ktt(639);}
+"value_of" {return tt.ktt(640);}
+"varbinary" {return tt.ktt(641);}
+"variadic" {return tt.ktt(642);}
+"varying" {return tt.ktt(643);}
+"var_pop" {return tt.ktt(644);}
+"var_samp" {return tt.ktt(645);}
+"verbose" {return tt.ktt(646);}
+"versioning" {return tt.ktt(647);}
+"view" {return tt.ktt(648);}
+"volatile" {return tt.ktt(649);}
+"when" {return tt.ktt(650);}
+"whenever" {return tt.ktt(651);}
+"where" {return tt.ktt(652);}
+"whitespace" {return tt.ktt(653);}
+"window" {return tt.ktt(654);}
+"with" {return tt.ktt(655);}
+"within" {return tt.ktt(656);}
+"without" {return tt.ktt(657);}
+"work" {return tt.ktt(658);}
+"wrapper" {return tt.ktt(659);}
+"write" {return tt.ktt(660);}
+"xmlattributes" {return tt.ktt(661);}
+"xmlbinary" {return tt.ktt(662);}
+"xmlcast" {return tt.ktt(663);}
+"xmldeclaration" {return tt.ktt(664);}
+"xmldocument" {return tt.ktt(665);}
+"xmliterate" {return tt.ktt(666);}
+"xmlnamespaces" {return tt.ktt(667);}
+"xmlparse" {return tt.ktt(668);}
+"xmlquery" {return tt.ktt(669);}
+"xmlschema" {return tt.ktt(670);}
+"xmlserialize" {return tt.ktt(671);}
+"xmltable" {return tt.ktt(672);}
+"xmltext" {return tt.ktt(673);}
+"xmlvalidate" {return tt.ktt(674);}
+"year" {return tt.ktt(675);}
+"yes" {return tt.ktt(676);}
+"zone" {return tt.ktt(677);}
+// MARKER_END_KEYWORDS
 
 
 
 
-    "check_option" {return tt.getParameterTokenType(0);}
-    "security_barrier" {return tt.getParameterTokenType(1);}
+// MARKER_BEGIN_FUNCTIONS
+"abbrev" {return tt.ftt(0);}
+"abs" {return tt.ftt(1);}
+"acos" {return tt.ftt(2);}
+"age" {return tt.ftt(3);}
+"area" {return tt.ftt(4);}
+"array_agg" {return tt.ftt(5);}
+"array_append" {return tt.ftt(6);}
+"array_cat" {return tt.ftt(7);}
+"array_dims" {return tt.ftt(8);}
+"array_fill" {return tt.ftt(9);}
+"array_length" {return tt.ftt(10);}
+"array_lower" {return tt.ftt(11);}
+"array_ndims" {return tt.ftt(12);}
+"array_prepend" {return tt.ftt(13);}
+"array_remove" {return tt.ftt(14);}
+"array_replace" {return tt.ftt(15);}
+"array_to_json" {return tt.ftt(16);}
+"array_to_string" {return tt.ftt(17);}
+"array_upper" {return tt.ftt(18);}
+"ascii" {return tt.ftt(19);}
+"asin" {return tt.ftt(20);}
+"atan" {return tt.ftt(21);}
+"atan2" {return tt.ftt(22);}
+"avg" {return tt.ftt(23);}
+"bit" {return tt.ftt(24);}
+"bit_and" {return tt.ftt(25);}
+"bit_length" {return tt.ftt(26);}
+"bit_or" {return tt.ftt(27);}
+"bool_and" {return tt.ftt(28);}
+"bool_or" {return tt.ftt(29);}
+"broadcast" {return tt.ftt(30);}
+"btrim" {return tt.ftt(31);}
+"cbrt" {return tt.ftt(32);}
+"ceil" {return tt.ftt(33);}
+"ceiling" {return tt.ftt(34);}
+"center" {return tt.ftt(35);}
+"char_length" {return tt.ftt(36);}
+"chr" {return tt.ftt(37);}
+"clock_timestamp" {return tt.ftt(38);}
+"col_description" {return tt.ftt(39);}
+"concat" {return tt.ftt(40);}
+"concat_ws" {return tt.ftt(41);}
+"convert" {return tt.ftt(42);}
+"convert_from" {return tt.ftt(43);}
+"convert_to" {return tt.ftt(44);}
+"cos" {return tt.ftt(45);}
+"cot" {return tt.ftt(46);}
+"count" {return tt.ftt(47);}
+"cume_dist" {return tt.ftt(48);}
+"current_catalog" {return tt.ftt(49);}
+"current_database" {return tt.ftt(50);}
+"current_date" {return tt.ftt(51);}
+"current_query" {return tt.ftt(52);}
+"current_schema" {return tt.ftt(53);}
+"current_schemas" {return tt.ftt(54);}
+"current_setting" {return tt.ftt(55);}
+"current_time" {return tt.ftt(56);}
+"current_timestamp" {return tt.ftt(57);}
+"current_user" {return tt.ftt(58);}
+"currval" {return tt.ftt(59);}
+"cursor_to_xml" {return tt.ftt(60);}
+"date_part" {return tt.ftt(61);}
+"date_trunc" {return tt.ftt(62);}
+"decode" {return tt.ftt(63);}
+"degrees" {return tt.ftt(64);}
+"dense_rank" {return tt.ftt(65);}
+"diameter" {return tt.ftt(66);}
+"div" {return tt.ftt(67);}
+"encode" {return tt.ftt(68);}
+"enum_first" {return tt.ftt(69);}
+"enum_last" {return tt.ftt(70);}
+"enum_range" {return tt.ftt(71);}
+"every" {return tt.ftt(72);}
+"exp" {return tt.ftt(73);}
+"extract" {return tt.ftt(74);}
+"family" {return tt.ftt(75);}
+"first_value" {return tt.ftt(76);}
+"floor" {return tt.ftt(77);}
+"format" {return tt.ftt(78);}
+"format_type" {return tt.ftt(79);}
+"generate_series" {return tt.ftt(80);}
+"generate_subscripts" {return tt.ftt(81);}
+"get_bit" {return tt.ftt(82);}
+"get_byte" {return tt.ftt(83);}
+"get_current_ts_config" {return tt.ftt(84);}
+"has_any_column_privilege" {return tt.ftt(85);}
+"has_column_privilege" {return tt.ftt(86);}
+"has_database_privilege" {return tt.ftt(87);}
+"has_foreign_data_wrapper_privilege" {return tt.ftt(88);}
+"has_function_privilege" {return tt.ftt(89);}
+"has_language_privilege" {return tt.ftt(90);}
+"has_schema_privilege" {return tt.ftt(91);}
+"has_sequence_privilege" {return tt.ftt(92);}
+"has_server_privilege" {return tt.ftt(93);}
+"has_tablespace_privilege" {return tt.ftt(94);}
+"has_table_privilege" {return tt.ftt(95);}
+"height" {return tt.ftt(96);}
+"host" {return tt.ftt(97);}
+"hostmask" {return tt.ftt(98);}
+"inet_client_addr" {return tt.ftt(99);}
+"inet_client_port" {return tt.ftt(100);}
+"inet_server_addr" {return tt.ftt(101);}
+"inet_server_port" {return tt.ftt(102);}
+"initcap" {return tt.ftt(103);}
+"isclosed" {return tt.ftt(104);}
+"isempty" {return tt.ftt(105);}
+"isfinite" {return tt.ftt(106);}
+"isopen" {return tt.ftt(107);}
+"json_agg" {return tt.ftt(108);}
+"json_array_elements" {return tt.ftt(109);}
+"json_array_length" {return tt.ftt(110);}
+"json_each" {return tt.ftt(111);}
+"json_each_text" {return tt.ftt(112);}
+"json_extract_path" {return tt.ftt(113);}
+"json_extract_path_text" {return tt.ftt(114);}
+"json_object_keys" {return tt.ftt(115);}
+"json_populate_record" {return tt.ftt(116);}
+"json_populate_recordset" {return tt.ftt(117);}
+"justify_days" {return tt.ftt(118);}
+"justify_hours" {return tt.ftt(119);}
+"justify_interval" {return tt.ftt(120);}
+"lag" {return tt.ftt(121);}
+"lastval" {return tt.ftt(122);}
+"last_value" {return tt.ftt(123);}
+"lead" {return tt.ftt(124);}
+"left" {return tt.ftt(125);}
+"length" {return tt.ftt(126);}
+"ln" {return tt.ftt(127);}
+"localtime" {return tt.ftt(128);}
+"localtimestamp" {return tt.ftt(129);}
+"log" {return tt.ftt(130);}
+"lower" {return tt.ftt(131);}
+"lower_inc" {return tt.ftt(132);}
+"lower_inf" {return tt.ftt(133);}
+"lpad" {return tt.ftt(134);}
+"ltrim" {return tt.ftt(135);}
+"masklen" {return tt.ftt(136);}
+"max" {return tt.ftt(137);}
+"md5" {return tt.ftt(138);}
+"min" {return tt.ftt(139);}
+"mod" {return tt.ftt(140);}
+"netmask" {return tt.ftt(141);}
+"network" {return tt.ftt(142);}
+"nextval" {return tt.ftt(143);}
+"now" {return tt.ftt(144);}
+"npoints" {return tt.ftt(145);}
+"nth_value" {return tt.ftt(146);}
+"ntile" {return tt.ftt(147);}
+"numnode" {return tt.ftt(148);}
+"obj_description" {return tt.ftt(149);}
+"octet_length" {return tt.ftt(150);}
+"overlay" {return tt.ftt(151);}
+"pclose" {return tt.ftt(152);}
+"percent_rank" {return tt.ftt(153);}
+"pg_advisory_lock" {return tt.ftt(154);}
+"pg_advisory_lock_shared" {return tt.ftt(155);}
+"pg_advisory_unlock" {return tt.ftt(156);}
+"pg_advisory_unlock_all" {return tt.ftt(157);}
+"pg_advisory_unlock_shared" {return tt.ftt(158);}
+"pg_advisory_xact_lock" {return tt.ftt(159);}
+"pg_advisory_xact_lock_shared" {return tt.ftt(160);}
+"pg_backend_pid" {return tt.ftt(161);}
+"pg_backup_start_time" {return tt.ftt(162);}
+"pg_cancel_backend" {return tt.ftt(163);}
+"pg_client_encoding" {return tt.ftt(164);}
+"pg_collation_is_visible" {return tt.ftt(165);}
+"pg_column_size" {return tt.ftt(166);}
+"pg_conf_load_time" {return tt.ftt(167);}
+"pg_conversion_is_visible" {return tt.ftt(168);}
+"pg_create_restore_point" {return tt.ftt(169);}
+"pg_current_xlog_insert_location" {return tt.ftt(170);}
+"pg_current_xlog_location" {return tt.ftt(171);}
+"pg_database_size" {return tt.ftt(172);}
+"pg_describe_object" {return tt.ftt(173);}
+"pg_export_snapshot" {return tt.ftt(174);}
+"pg_function_is_visible" {return tt.ftt(175);}
+"pg_get_constraintdef" {return tt.ftt(176);}
+"pg_get_expr" {return tt.ftt(177);}
+"pg_get_functiondef" {return tt.ftt(178);}
+"pg_get_function_arguments" {return tt.ftt(179);}
+"pg_get_function_identity_arguments" {return tt.ftt(180);}
+"pg_get_function_result" {return tt.ftt(181);}
+"pg_get_indexdef" {return tt.ftt(182);}
+"pg_get_keywords" {return tt.ftt(183);}
+"pg_get_ruledef" {return tt.ftt(184);}
+"pg_get_serial_sequence" {return tt.ftt(185);}
+"pg_get_triggerdef" {return tt.ftt(186);}
+"pg_get_userbyid" {return tt.ftt(187);}
+"pg_get_viewdef" {return tt.ftt(188);}
+"pg_has_role" {return tt.ftt(189);}
+"pg_identify_object" {return tt.ftt(190);}
+"pg_indexes_size" {return tt.ftt(191);}
+"pg_is_in_backup" {return tt.ftt(192);}
+"pg_is_in_recovery" {return tt.ftt(193);}
+"pg_is_other_temp_schema" {return tt.ftt(194);}
+"pg_is_xlog_replay_paused" {return tt.ftt(195);}
+"pg_last_xact_replay_timestamp" {return tt.ftt(196);}
+"pg_last_xlog_receive_location" {return tt.ftt(197);}
+"pg_last_xlog_replay_location" {return tt.ftt(198);}
+"pg_listening_channels" {return tt.ftt(199);}
+"pg_ls_dir" {return tt.ftt(200);}
+"pg_my_temp_schema" {return tt.ftt(201);}
+"pg_opclass_is_visible" {return tt.ftt(202);}
+"pg_operator_is_visible" {return tt.ftt(203);}
+"pg_opfamily_is_visible" {return tt.ftt(204);}
+"pg_options_to_table" {return tt.ftt(205);}
+"pg_postmaster_start_time" {return tt.ftt(206);}
+"pg_read_binary_file" {return tt.ftt(207);}
+"pg_read_file" {return tt.ftt(208);}
+"pg_relation_filenode" {return tt.ftt(209);}
+"pg_relation_filepath" {return tt.ftt(210);}
+"pg_relation_size" {return tt.ftt(211);}
+"pg_reload_conf" {return tt.ftt(212);}
+"pg_rotate_logfile" {return tt.ftt(213);}
+"pg_size_pretty" {return tt.ftt(214);}
+"pg_start_backup" {return tt.ftt(215);}
+"pg_stat_file" {return tt.ftt(216);}
+"pg_stop_backup" {return tt.ftt(217);}
+"pg_switch_xlog" {return tt.ftt(218);}
+"pg_tablespace_databases" {return tt.ftt(219);}
+"pg_tablespace_location" {return tt.ftt(220);}
+"pg_tablespace_size" {return tt.ftt(221);}
+"pg_table_is_visible" {return tt.ftt(222);}
+"pg_table_size" {return tt.ftt(223);}
+"pg_terminate_backend" {return tt.ftt(224);}
+"pg_total_relation_size" {return tt.ftt(225);}
+"pg_trigger_depth" {return tt.ftt(226);}
+"pg_try_advisory_lock" {return tt.ftt(227);}
+"pg_try_advisory_lock_shared" {return tt.ftt(228);}
+"pg_try_advisory_xact_lock" {return tt.ftt(229);}
+"pg_try_advisory_xact_lock_shared" {return tt.ftt(230);}
+"pg_ts_config_is_visible" {return tt.ftt(231);}
+"pg_ts_dict_is_visible" {return tt.ftt(232);}
+"pg_ts_parser_is_visible" {return tt.ftt(233);}
+"pg_ts_template_is_visible" {return tt.ftt(234);}
+"pg_typeof" {return tt.ftt(235);}
+"pg_type_is_visible" {return tt.ftt(236);}
+"pg_xlogfile_name" {return tt.ftt(237);}
+"pg_xlogfile_name_offset" {return tt.ftt(238);}
+"pg_xlog_location_diff" {return tt.ftt(239);}
+"pg_xlog_replay_pause" {return tt.ftt(240);}
+"pg_xlog_replay_resume" {return tt.ftt(241);}
+"pi" {return tt.ftt(242);}
+"plainto_tsquery" {return tt.ftt(243);}
+"popen" {return tt.ftt(244);}
+"position" {return tt.ftt(245);}
+"power" {return tt.ftt(246);}
+"querytree" {return tt.ftt(247);}
+"query_to_xml" {return tt.ftt(248);}
+"quote_ident" {return tt.ftt(249);}
+"quote_literal" {return tt.ftt(250);}
+"quote_nullable" {return tt.ftt(251);}
+"radians" {return tt.ftt(252);}
+"radius" {return tt.ftt(253);}
+"random" {return tt.ftt(254);}
+"rank" {return tt.ftt(255);}
+"regexp_matches" {return tt.ftt(256);}
+"regexp_replace" {return tt.ftt(257);}
+"regexp_split_to_array" {return tt.ftt(258);}
+"regexp_split_to_table" {return tt.ftt(259);}
+"repeat" {return tt.ftt(260);}
+"replace" {return tt.ftt(261);}
+"reverse" {return tt.ftt(262);}
+"right" {return tt.ftt(263);}
+"round" {return tt.ftt(264);}
+"row_number" {return tt.ftt(265);}
+"row_to_json" {return tt.ftt(266);}
+"rpad" {return tt.ftt(267);}
+"rtrim" {return tt.ftt(268);}
+"session_user" {return tt.ftt(269);}
+"setseed" {return tt.ftt(270);}
+"setval" {return tt.ftt(271);}
+"setweight" {return tt.ftt(272);}
+"set_bit" {return tt.ftt(273);}
+"set_byte" {return tt.ftt(274);}
+"set_config" {return tt.ftt(275);}
+"set_masklen" {return tt.ftt(276);}
+"shobj_description" {return tt.ftt(277);}
+"sign" {return tt.ftt(278);}
+"sin" {return tt.ftt(279);}
+"split_part" {return tt.ftt(280);}
+"sqrt" {return tt.ftt(281);}
+"statement_timestamp" {return tt.ftt(282);}
+"string_agg" {return tt.ftt(283);}
+"string_to_array" {return tt.ftt(284);}
+"strip" {return tt.ftt(285);}
+"strpos" {return tt.ftt(286);}
+"substr" {return tt.ftt(287);}
+"substring" {return tt.ftt(288);}
+"sum" {return tt.ftt(289);}
+"table_to_xml" {return tt.ftt(290);}
+"tan" {return tt.ftt(291);}
+"timeofday" {return tt.ftt(292);}
+"to_ascii" {return tt.ftt(293);}
+"to_char" {return tt.ftt(294);}
+"to_date" {return tt.ftt(295);}
+"to_hex" {return tt.ftt(296);}
+"to_json" {return tt.ftt(297);}
+"to_number" {return tt.ftt(298);}
+"to_timestamp" {return tt.ftt(299);}
+"to_tsquery" {return tt.ftt(300);}
+"to_tsvector" {return tt.ftt(301);}
+"transaction_timestamp" {return tt.ftt(302);}
+"translate" {return tt.ftt(303);}
+"trim" {return tt.ftt(304);}
+"trunc" {return tt.ftt(305);}
+"tsvector_update_trigger" {return tt.ftt(306);}
+"tsvector_update_trigger_column" {return tt.ftt(307);}
+"ts_headline" {return tt.ftt(308);}
+"ts_rank" {return tt.ftt(309);}
+"ts_rank_cd" {return tt.ftt(310);}
+"ts_rewrite" {return tt.ftt(311);}
+"txid_current" {return tt.ftt(312);}
+"txid_current_snapshot" {return tt.ftt(313);}
+"txid_snapshot_xip" {return tt.ftt(314);}
+"txid_snapshot_xmax" {return tt.ftt(315);}
+"txid_snapshot_xmin" {return tt.ftt(316);}
+"txid_visible_in_snapshot" {return tt.ftt(317);}
+"unnest" {return tt.ftt(318);}
+"upper" {return tt.ftt(319);}
+"upper_inc" {return tt.ftt(320);}
+"upper_inf" {return tt.ftt(321);}
+"version" {return tt.ftt(322);}
+"width" {return tt.ftt(323);}
+"width_bucket" {return tt.ftt(324);}
+"xip_list" {return tt.ftt(325);}
+"xmax" {return tt.ftt(326);}
+"xmin" {return tt.ftt(327);}
+"xmlagg" {return tt.ftt(328);}
+"xmlcomment" {return tt.ftt(329);}
+"xmlconcat" {return tt.ftt(330);}
+"xmlelement" {return tt.ftt(331);}
+"xmlexists" {return tt.ftt(332);}
+"xmlforest" {return tt.ftt(333);}
+"xmlpi" {return tt.ftt(334);}
+"xmlroot" {return tt.ftt(335);}
+"xml_is_well_formed" {return tt.ftt(336);}
+"xpath" {return tt.ftt(337);}
+"xpath_exists" {return tt.ftt(338);}
+// MARKER_END_FUNCTIONS
 
 
-    {IDENTIFIER}           {return stt.getIdentifier(); }
-    {QUOTED_IDENTIFIER}    {return stt.getQuotedIdentifier(); }
-    .                      {return stt.getIdentifier(); }
+// MARKER_BEGIN_PARAMETERS
+"check_option" {return tt.ptt(0);}
+"security_barrier" {return tt.ptt(1);}
+// MARKER_END_PARAMETERS
+
+
+// MARKER_BEGIN_EXCEPTIONS
+// MARKER_END_EXCEPTIONS
+
+
+    {IDENTIFIER}           {return stt.identifier; }
+    {QUOTED_IDENTIFIER}    {return stt.identifier; }
+    .                      {return stt.identifier; }
 }
