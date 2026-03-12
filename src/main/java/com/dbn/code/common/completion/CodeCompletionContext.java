@@ -160,6 +160,10 @@ public class CodeCompletionContext {
         queue.cancel();
     }
 
+    public void addCompletionCandidates(Collection<LeafElementType> leafElementTypes) {
+        leafElementTypes.forEach(leafElementType -> addCompletionCandidate(leafElementType));
+    }
+
     public void addCompletionCandidate(@Nullable LeafElementType leafElementType) {
         if (leafElementType == null) return;
 
@@ -179,9 +183,9 @@ public class CodeCompletionContext {
 
     private static String getLeafUniqueKey(LeafElementType leaf) {
         if (leaf instanceof TokenElementType tokenElementType) {
-            String text = tokenElementType.getText();
+            String text = tokenElementType.text;
             String id = tokenElementType.tokenType.getId();
-            return Strings.isEmpty(text) ? id : id + text;
+            return text == null ? id : id + text;
 
         } else if (leaf instanceof IdentifierElementType identifierElementType){
             return identifierElementType.getQualifiedObjectTypeName();

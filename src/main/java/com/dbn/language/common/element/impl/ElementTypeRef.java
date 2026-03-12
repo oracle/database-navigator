@@ -23,15 +23,17 @@ import com.dbn.language.common.element.parser.BranchCheck;
 import java.util.Set;
 
 public class ElementTypeRef extends Linked<ElementTypeRef> {
-    public final ElementTypeBase parentElementType;
     public final ElementTypeBase elementType;
-    public final boolean optional;
     public final double version;
+    public boolean optional;
     public final Set<BranchCheck> branchChecks;
 
-    public ElementTypeRef(ElementTypeRef previous, ElementTypeBase parentElementType, ElementTypeBase elementType, boolean optional, double version, Set<BranchCheck> branchChecks) {
-        super(previous);
-        this.parentElementType = parentElementType;
+    public ElementTypeRef(ElementTypeBase elementType) {
+        this(elementType, false, 0, null);
+    }
+
+    public ElementTypeRef(ElementTypeBase elementType, boolean optional, double version, Set<BranchCheck> branchChecks) {
+        super(null);
         this.elementType = elementType;
         this.optional = optional;
         this.version = version;
@@ -110,6 +112,6 @@ public class ElementTypeRef extends Linked<ElementTypeRef> {
 
     @Override
     public String toString() {
-        return elementType.toString();
+        return elementType.getName();
     }
 }

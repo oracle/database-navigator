@@ -47,7 +47,7 @@ import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.prerequisite.ui.PrerequisitesForm;
-import com.dbn.vector.result.VectorEmbeddingExecutionResult;
+import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataKey;
 

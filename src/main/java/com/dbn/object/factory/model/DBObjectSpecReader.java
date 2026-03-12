@@ -23,6 +23,8 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -30,7 +32,6 @@ import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
-import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @UtilityClass
@@ -43,55 +44,58 @@ public class DBObjectSpecReader {
     }
 
     public static DBObjectSpec read(Element element) {
-        return readDefinition(element);
+        return readDefinition(element, null);
     }
 
-    private static DBObjectSpec readDefinition(Element element) {
-        DBObjectType objectType = enumAttribute(element, "type", DBObjectType.class);
-        String objectName = stringAttribute(element, "name");
+    private static DBObjectSpec readDefinition(@NotNull Element element, @Nullable DBObjectSpec parent) {
         boolean readonly = booleanAttribute(element, "readonly", false);
 
-        DBObjectSpec definition = new DBObjectSpec(objectType);
-        definition.setObjectName(objectName);
+        DBObjectSpec definition = new DBObjectSpec(parent);
         definition.setReadonly(readonly);
 
         readAttributes(element, definition);
-        radChildren(element, definition);
+        readChildren(element, definition);
         return definition;
     }
 
-    private static void radChildren(Element element, DBObjectSpec definition) {
+    private static void readChildren(Element element, DBObjectSpec objectSpec) {
         Element childrenElement = element.getChild("children");
         boolean readonly = booleanAttribute(childrenElement, "readonly", false);
 
         Set<DBObjectType> objectTypes = new HashSet<>();
         List<Element> childElements = childrenOf(childrenElement);
         for (Element childElement : childElements) {
-            DBObjectSpec childDefinition = readDefinition(childElement);
-            definition.addChild(childDefinition);
+            DBObjectSpec childSpec = readDefinition(childElement, objectSpec);
+            objectSpec.addChild(childSpec);
 
-            DBObjectType objectType = childDefinition.getObjectType();
+            DBObjectType objectType = childSpec.getObjectType();
             objectTypes.add(objectType);
         }
 
         // TODO child groups in xml definitions (allow individual "readonly" setting)
-        objectTypes.forEach(ot -> definition.setChildrenReadonly(ot, readonly));
+        objectTypes.forEach(ot -> objectSpec.setChildrenReadonly(ot, readonly));
     }
 
     private static void readAttributes(Element element, DBObjectSpec definition) {
-        List<Element> attributeElements = childrenOf(element.getChild("attributes"));
+        List<Element> attributeElements = childrenOf(element, "attribute");
         for (Element attributeElement : attributeElements) {
             readAttribute(attributeElement, definition);
         }
     }
 
     private static void readAttribute(Element element, DBObjectSpec definition) {
-        String name = stringAttribute(element, "name");
-        String stringValue = stringAttribute(element, "value");
-        DBObjectAttribute<Object> attribute = DBObjectAttribute.get(name);
-        Class<Object> type = attribute.getType();
+        var readonly = booleanAttribute(element, "readonly", false);
 
-        Object value = Data.asType(stringValue, type);
-        definition.setAttribute(attribute, value);
+        var attributeId = stringAttribute(element, "id");
+        var attributeName = stringAttribute(element, "name");
+        var attributeValue = stringAttribute(element, "value");
+        var attributeType = DBObjectAttributeType.get(attributeName);
+        var attributeClass = attributeType.getType();
+
+        Object value = Data.asType(attributeValue, attributeClass);
+        DBObjectAttribute attribute = definition.setAttributeValue(attributeType, value);
+
+        attribute.setReadonly(readonly);
+        attribute.setId(attributeId);
     }
 }

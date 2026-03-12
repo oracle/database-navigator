@@ -1,0 +1,62 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.language.common.element.parser.impl;
+
+import com.dbn.language.common.ParseException;
+import com.dbn.language.common.TokenType;
+import com.dbn.language.common.element.impl.ElementTypeRef;
+import com.dbn.language.common.element.impl.SurrogateOneOfElementType;
+import com.dbn.language.common.element.parser.ParseResult;
+import com.dbn.language.common.element.parser.ParserContext;
+import com.dbn.language.common.element.path.ParserNode;
+
+import java.util.List;
+
+import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
+import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
+
+public class SurrogateOneOfElementTypeParser extends OneOfElementTypeParser<SurrogateOneOfElementType> {
+
+    public SurrogateOneOfElementTypeParser(SurrogateOneOfElementType elementType) {
+        super(elementType);
+    }
+
+    @Override
+    public ParseResult parse(ParserNode parentNode, ParserContext context) throws ParseException {
+        TokenType token = context.builder.getToken();
+        if (token == null) return NO_MATCH_RESULT;
+
+        List<ElementTypeRef> elements = elementType.getGroupedElements(token);
+        if (elements == null) {
+            // handle consumed tokens not directly matching the grouped elements
+            return super.parse(parentNode, context);
+        }
+
+        ParserNode node = stepIn(parentNode, context);
+        for (ElementTypeRef element : elements) {
+            if (context.check(element) && shouldParseElement(element.elementType, node, context)) {
+                ParseResult result = element.elementType.parser.parse(node, context);
+
+                if (result.type != NO_MATCH) {
+                    node.matchedTokens = result.matchedTokens;
+                    return stepOut(node, context, result.type);
+                }
+            }
+        }
+        return stepOut(node, context, NO_MATCH);
+    }
+}

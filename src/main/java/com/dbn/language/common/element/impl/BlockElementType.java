@@ -18,7 +18,7 @@ package com.dbn.language.common.element.impl;
 
 import com.dbn.common.options.setting.Settings;
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.BlockElementTypeLookupCache;
+import com.dbn.language.common.element.cache.BlockElementTypeCache;
 import com.dbn.language.common.element.parser.impl.BlockElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.BlockPsiElement;
@@ -40,8 +40,8 @@ public final class BlockElementType extends SequenceElementType {
     }
 
     @Override
-    public BlockElementTypeLookupCache createLookupCache() {
-        return new BlockElementTypeLookupCache(this);
+    public BlockElementTypeCache createLookupCache() {
+        return new BlockElementTypeCache(this);
     }
 
     @NotNull

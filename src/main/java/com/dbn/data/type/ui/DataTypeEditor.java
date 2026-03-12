@@ -18,7 +18,7 @@ package com.dbn.data.type.ui;
 
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
-import com.dbn.code.psql.style.PSQLCodeStyle;
+import com.dbn.code.sql.style.SQLCodeStyle;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.editor.ui.BasicListPopupValuesProvider;
@@ -33,7 +33,7 @@ import java.util.List;
 public class DataTypeEditor extends TextFieldWithPopup {
     public DataTypeEditor(ConnectionHandler connection) {
         super(connection.getProject());
-        CodeStyleCaseSettings caseSettings = PSQLCodeStyle.caseSettings(getProject());
+        CodeStyleCaseSettings caseSettings = SQLCodeStyle.caseSettings(getProject());
         CodeStyleCaseOption caseOption = caseSettings.getObjectCaseOption();
 
         List<DataTypeDefinition> nativeDataTypes = connection.getInterfaces().getNativeDataTypes().list();

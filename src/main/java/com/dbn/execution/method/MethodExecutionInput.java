@@ -250,7 +250,8 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
                 () -> element.getChild("argument-actions")); // TODO temporary backward functionality
         if (argumentsElement != null) {
             for (Element valueElement : argumentsElement.getChildren()) {
-                ExecutionVariable argumentValue = new ExecutionVariable(valueElement);
+                ExecutionVariable argumentValue = new ExecutionVariable();
+                argumentValue.readState(valueElement);
                 argumentValueHistory.put(argumentValue.getPath(), argumentValue);
             }
         }

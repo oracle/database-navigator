@@ -19,6 +19,7 @@ package com.dbn.common.util;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.util.TimeUtil.Millis.ONE_HOUR;
@@ -62,6 +63,10 @@ public class TimeUtil {
 
     public static long secondsSince(long start) {
         return TimeUnit.MILLISECONDS.toSeconds(millisSince(start));
+    }
+
+    public static String presentableDuration(Duration duration, boolean compact) {
+        return presentableDuration(duration.toMillis(), compact);
     }
 
     public static String presentableDuration(long millis, boolean compact) {

@@ -21,12 +21,13 @@ import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
-import com.dbn.vector.model.chunk.ChunkConfig;
-import com.dbn.vector.model.embed.EmbedConfig;
-import com.dbn.vector.model.source.SourceConfig;
-import com.dbn.vector.model.staging.StagingConfig;
-import com.dbn.vector.model.store.DestinationType;
-import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.database.interfaces.DatabaseVectorInterface;
+import com.dbn.vector.model.request.EmbeddingChunkingConfig;
+import com.dbn.vector.model.request.EmbeddingDestinationConfig;
+import com.dbn.vector.model.request.EmbeddingModelConfig;
+import com.dbn.vector.model.request.EmbeddingSourceConfig;
+import com.dbn.vector.model.request.EmbeddingStagingConfig;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -41,14 +42,19 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
     private final ConnectionId connectionId;
     private transient boolean template;
 
-    private SourceConfig sourceConfig = new SourceConfig();
-    private ChunkConfig chunkConfig = new ChunkConfig();
-    private EmbedConfig embedConfig = new EmbedConfig();
-    private StoreConfig storeConfig = new StoreConfig();
-    private StagingConfig stagingConfig = new StagingConfig();
+    private EmbeddingSourceConfig sourceConfig = new EmbeddingSourceConfig();
+    private EmbeddingStagingConfig stagingConfig = new EmbeddingStagingConfig();
+    private EmbeddingChunkingConfig chunkConfig = new EmbeddingChunkingConfig();
+    private EmbeddingModelConfig modelConfig = new EmbeddingModelConfig();
+    private EmbeddingDestinationConfig destinationConfig = new EmbeddingDestinationConfig();
 
     public VectorEmbeddingRequest(ConnectionId connectionId) {
         this.connectionId = connectionId;
+    }
+
+    @NotNull
+    public final Project getProject() {
+        return getConnection().getProject();
     }
 
     @NotNull
@@ -56,15 +62,20 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
         return ConnectionHandler.ensure(connectionId);
     }
 
+    @NotNull
+    public final DatabaseVectorInterface getVectorInterface() {
+        return getConnection().getVectorInterface();
+    }
+
     public void initialize(SchemaId userSchema) {
         if (userSchema == null) return;
 
         // preselect user schema in relevant config blocks
         String schemaName = userSchema.getName();
-        sourceConfig.getTableSourceConfig().setSchemaName(schemaName);
-        embedConfig.getDatabaseModelConfig().setSchemaName(schemaName);
-        embedConfig.getThirdPartyModelConfig().setCredentialSchemaName(schemaName);
-        storeConfig.setSchemaName(schemaName);
+        sourceConfig.getSourceTable().setSchemaName(schemaName);
+        modelConfig.getDatabaseModelConfig().setSchemaName(schemaName);
+        modelConfig.getThirdPartyModelConfig().setCredentialSchemaName(schemaName);
+        destinationConfig.setSchemaName(schemaName);
         stagingConfig.setSchemaName(schemaName);
     }
 
@@ -75,15 +86,11 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
     /**
      * Soft reset, to be used after a request has been executed.
      * <li>clear source files</li>
-     * <li>switch store config to "existing table" assuming it has been created</li>
+     * <li>clear source tables</li>
      */
     public void resetSoft() {
-        sourceConfig.getFileSourceConfig().getFilePaths().clear();
-
-        DestinationType destinationType = storeConfig.getDestinationType();
-        if (destinationType == DestinationType.NEW_TABLE) {
-            storeConfig.setDestinationType(DestinationType.EXISTING_TABLE);
-        }
+        sourceConfig.getSourceFiles().clear();
+        sourceConfig.getSourceTables().clear();
     }
 
     /**
@@ -91,13 +98,21 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
      * (returns the request to its initial state)
      */
     public void resetHard(SchemaId userSchema) {
-        sourceConfig = new SourceConfig();
-        stagingConfig = new StagingConfig();
-        chunkConfig = new ChunkConfig();
-        embedConfig = new EmbedConfig();
-        storeConfig = new StoreConfig();
+        sourceConfig = new EmbeddingSourceConfig();
+        stagingConfig = new EmbeddingStagingConfig();
+        chunkConfig = new EmbeddingChunkingConfig();
+        modelConfig = new EmbeddingModelConfig();
+        destinationConfig = new EmbeddingDestinationConfig();
 
         initialize(userSchema);
+    }
+
+    public String getChunkConfigJson() {
+        return chunkConfig.getConfigJson();
+    }
+
+    public String getModelConfigJson() {
+        return modelConfig.getConfigJson();
     }
 
     @Override
@@ -113,8 +128,8 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
         sourceConfig.readState(sourceConfigElement);
         stagingConfig.readState(stagingConfigElement);
         chunkConfig.readState(chunkConfigElement);
-        embedConfig.readState(embedConfigElement);
-        storeConfig.readState(storeConfigElement);
+        modelConfig.readState(embedConfigElement);
+        destinationConfig.readState(storeConfigElement);
     }
 
     @Override
@@ -128,8 +143,8 @@ public class VectorEmbeddingRequest implements PersistentStateElement, Cloneable
         sourceConfig.writeState(sourceConfigElement);
         stagingConfig.writeState(stagingConfigElement);
         chunkConfig.writeState(chunkConfigElement);
-        embedConfig.writeState(embedConfigElement);
-        storeConfig.writeState(storeConfigElement);
+        modelConfig.writeState(embedConfigElement);
+        destinationConfig.writeState(storeConfigElement);
     }
 
     @Override

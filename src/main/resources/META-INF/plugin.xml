@@ -269,6 +269,7 @@
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
     </extensions>
     <extensionPoints>
+        <extensionPoint name="objectFilter" qualifiedName="com.dbn.objectFilter" interface="com.dbn.object.cache.DBObjectFilter" dynamic="true"/>
         <extensionPoint name="objectFactoryAdapter" qualifiedName="com.dbn.objectFactoryAdapter" interface="com.dbn.object.factory.ObjectFactoryAdapter" dynamic="true"/>
         <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterExtension" dynamic="true"/>
 
@@ -281,6 +282,10 @@
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
     </extensionPoints>
     <extensions defaultExtensionNs="com.dbn">
+        <!--object filters-->
+        <objectFilter implementation="com.dbn.vector.model.request.EmbeddingStagingTableFilter"/>
+        <objectFilter implementation="com.dbn.vector.model.request.EmbeddingDestinationTableFilter"/>
+
         <!--object factory adapters-->
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBAIModelFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBJavaClassFactoryAdapter"/>

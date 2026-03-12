@@ -20,9 +20,9 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
-import com.dbn.vector.model.source.DBTableSourceConfig;
-import com.dbn.vector.model.staging.StagingConfig;
-import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.vector.model.request.EmbeddingDestinationConfig;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
+import com.dbn.vector.model.request.EmbeddingStagingConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,37 +58,18 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public int embedDataContent(DBNConnection conn, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig, @NotNull String metadata) throws SQLException {
+    public int embedTableContent(DBNConnection conn, EmbeddingSourceTable tableSource, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException {
         return executeUpdate(conn,
-                "insert-vector-embeddings-from-table",
-                storeConfig.getSchemaName(),
-                storeConfig.getTableName(),
-                storeConfig.getTextColumnName(),
-                storeConfig.getEmbeddingColumnName(),
-                storeConfig.getMetadataColumnName(),
-                sourceConfig.getSchemaName(),
-                sourceConfig.getTableName(),
-                sourceConfig.getKeyColumnName(),
-                sourceConfig.getDataColumnName(),
-                chunkConfig,
-                embedConfig,
-                metadata
-        );
-    }
-
-    @Override
-    public int embedDataContent(DBNConnection conn, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig, @NotNull String metadata, int batchSize) throws SQLException {
-        return executeUpdate(conn,
-                "insert-vector-embeddings-from-table-batch",
-                storeConfig.getSchemaName(),
-                storeConfig.getTableName(),
-                storeConfig.getTextColumnName(),
-                storeConfig.getEmbeddingColumnName(),
-                storeConfig.getMetadataColumnName(),
-                sourceConfig.getSchemaName(),
-                sourceConfig.getTableName(),
-                sourceConfig.getKeyColumnName(),
-                sourceConfig.getDataColumnName(),
+                "embed-table-content",
+                destinationConfig.getSchemaName(),
+                destinationConfig.getTableName(),
+                destinationConfig.getTextColumnName(),
+                destinationConfig.getEmbeddingColumnName(),
+                destinationConfig.getMetadataColumnName(),
+                tableSource.getSchemaName(),
+                tableSource.getTableName(),
+                tableSource.getKeyColumnName(),
+                tableSource.getDataColumnName(),
                 chunkConfig,
                 embedConfig,
                 metadata,
@@ -97,14 +78,31 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StagingConfig stagingConfig, StoreConfig storeConfig, String fileStoreId, String metadata) throws SQLException {
+    public int embedQueryContent(DBNConnection conn, String selectStatement, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException {
         return executeUpdate(conn,
-                "insert-vector-embeddings-from-filesystem",
-                storeConfig.getSchemaName(),
-                storeConfig.getTableName(),
-                storeConfig.getTextColumnName(),
-                storeConfig.getEmbeddingColumnName(),
-                storeConfig.getMetadataColumnName(),
+                "embed-query-content",
+                destinationConfig.getSchemaName(),
+                destinationConfig.getTableName(),
+                destinationConfig.getTextColumnName(),
+                destinationConfig.getEmbeddingColumnName(),
+                destinationConfig.getMetadataColumnName(),
+                selectStatement,
+                chunkConfig,
+                embedConfig,
+                metadata,
+                batchSize
+        );
+    }
+
+    @Override
+    public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, EmbeddingStagingConfig stagingConfig, EmbeddingDestinationConfig destinationConfig, String fileStoreId, String metadata) throws SQLException {
+        return executeUpdate(conn,
+                "embed-file-content",
+                destinationConfig.getSchemaName(),
+                destinationConfig.getTableName(),
+                destinationConfig.getTextColumnName(),
+                destinationConfig.getEmbeddingColumnName(),
+                destinationConfig.getMetadataColumnName(),
                 stagingConfig.getSchemaName(),
                 stagingConfig.getTableName(),
                 fileStoreId, // id of the blob
@@ -129,13 +127,12 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String sourceId) throws SQLException {
-        return getBooleanValue(conn, "is-content-embedded", schemaName, tableName, metadataColumnName, sourceId);
+    public String loadDestinationModelMetadata(DBNConnection conn, String ownerName, String tableName) throws SQLException {
+        return getSingleValue(conn, "load-destination-model-metadata", ownerName, tableName);
     }
 
-
     @Override
-    public void createEmbeddingTable(DBNConnection conn, String ownerName, String tableName, String keyColumnName, String textColumnName, String embeddingColumnName, String metadataColumnName) throws SQLException {
-        executeUpdate(conn, "create-embedding-table", ownerName, tableName, keyColumnName, textColumnName, embeddingColumnName, metadataColumnName);
+    public boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String sourceId) throws SQLException {
+        return getBooleanValue(conn, "is-content-embedded", schemaName, tableName, metadataColumnName, sourceId);
     }
 }

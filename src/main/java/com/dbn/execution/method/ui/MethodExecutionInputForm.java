@@ -60,8 +60,7 @@ public class MethodExecutionInputForm extends DBNFormBase {
     private JLabel debuggerVersionLabel;
     private JPanel versionPanel;
     private JLabel debuggerTypeLabel;
-    private JPanel executionOptionsPanel;
-    private JPanel argumentsContainerPanel;
+    private JPanel optionsPanel;
     private JPanel loadingArgumentsPanel;
     private JPanel loadingArgumentsIconPanel;
     private DBNScrollPane argumentsScrollPane;
@@ -101,7 +100,7 @@ public class MethodExecutionInputForm extends DBNFormBase {
         DBNCollapsiblePanel collapsiblePanel = new DBNCollapsiblePanel(this, executionOptionsForm, false);
         collapsiblePanel.setExpanded(executionInput.isContextExpanded());
         collapsiblePanel.addToggleListener(expanded -> executionInput.setContextExpanded(expanded));
-        executionOptionsPanel.add(collapsiblePanel.getComponent());
+        optionsPanel.add(collapsiblePanel.getComponent());
 
         if (showHeader) {
             DBNHeaderForm headerForm = new DBNHeaderForm(this, methodRef);

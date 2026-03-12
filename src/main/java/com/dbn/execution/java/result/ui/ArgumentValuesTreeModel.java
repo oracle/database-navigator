@@ -17,6 +17,7 @@
 package com.dbn.execution.java.result.ui;
 
 import com.dbn.common.data.Data;
+import com.dbn.common.util.Unsafe;
 import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.object.DBJavaClass;
@@ -33,6 +34,8 @@ import javax.swing.tree.TreePath;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.common.util.Java.isPrimitive;
+import static com.dbn.execution.common.input.CodeBlocks.isCodeBlock;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static com.dbn.object.type.DBJavaScalarType.isScalar;
 
@@ -101,16 +104,27 @@ public class ArgumentValuesTreeModel implements TreeModel {
         }
     }
 
-    private static void createArgumentValueNodes(DBJavaMethod method, ArgumentValuesTreeNode parentNode, List<ExecutionValue> inputValues) {
+    private static void createArgumentValueNodes(DBJavaMethod method,
+                                                 ArgumentValuesTreeNode parentNode,
+                                                 List<ExecutionValue> inputValues) {
         for (ExecutionValue fieldValue : inputValues) {
+            String value = (String) fieldValue.getValue();
+            boolean codeInput = isCodeBlock(value);
+
             String[] tokens = fieldValue.getPath().split("\\.");
-            DBJavaParameter parameter = method.getParameter(tokens[0]);
+            String parameterName = tokens[0];
+
+            DBJavaParameter parameter = method.getParameter(parameterName);
+            if(parameter == null) continue;
             String dataType = getCanonicalName(parameter.getJavaClassRef());
 
-            Class dataTypeClass = Data.asPrimitiveClass(dataType);
-            if (parameter.isArray()) {
-                List elementsString = Data.arrayStringToList((String) fieldValue.getValue(), dataTypeClass);
-                Object[] elements = elementsString.toArray();
+            if (parameter.isArray() && !codeInput) {
+                Class dataTypeClass = isPrimitive(dataType) ?
+                        Data.asPrimitiveClass(dataType) :
+                        Unsafe.logged(String.class, () -> Class.forName(dataType));
+
+                List elementsList = Data.arrayStringToList(value, dataTypeClass);
+                Object[] elements = elementsList.toArray();
                 Object[] firstThree = Arrays.copyOfRange(elements, 0, Math.min(3, elements.length));
 
                 String arrayString = Data.listToArrayString(Arrays.asList(firstThree));
@@ -125,11 +139,13 @@ public class ArgumentValuesTreeModel implements TreeModel {
             ArgumentValuesTreeNode argumentNode = parentNode.initChild(parameter);
             DBJavaClass argumentClass = parameter.getJavaClass();
 
-            for (int i = 1; i < tokens.length; i++) {
-                if (argumentClass == null) break;
-                DBJavaField field = getField(argumentClass, tokens[i]);
-                argumentNode = argumentNode.initChild(field);
-                argumentClass = field.getJavaClass();
+            if(!codeInput) {
+                for (int i = 1; i < tokens.length; i++) {
+                    if (argumentClass == null) break;
+                    DBJavaField field = getField(argumentClass, tokens[i]);
+                    argumentNode = argumentNode.initChild(field);
+                    argumentClass = field.getJavaClass();
+                }
             }
             argumentNode.setValue(fieldValue);
         }

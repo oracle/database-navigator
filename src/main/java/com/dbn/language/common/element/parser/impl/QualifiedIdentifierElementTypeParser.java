@@ -19,13 +19,13 @@ package com.dbn.language.common.element.parser.impl;
 import com.dbn.language.common.ParseException;
 import com.dbn.language.common.SharedTokenTypeBundle;
 import com.dbn.language.common.TokenType;
+import com.dbn.language.common.element.cache.QualifiedIdentifierElementCache;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dbn.language.common.element.impl.TokenElementType;
 import com.dbn.language.common.element.parser.ElementTypeParser;
 import com.dbn.language.common.element.parser.ParseResult;
-import com.dbn.language.common.element.parser.ParseResultType;
 import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
@@ -36,7 +36,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
+
 public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<QualifiedIdentifierElementType> {
+
     public QualifiedIdentifierElementTypeParser(QualifiedIdentifierElementType elementType) {
         super(elementType);
     }
@@ -46,8 +51,7 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
         ParserBuilder builder = context.builder;
         ParserNode node = stepIn(parentNode, context);
 
-        TokenElementType separatorToken = elementType.getSeparatorToken();
-        int matchedTokens = 0;
+        TokenElementType separatorToken = elementType.separatorToken;
 
         QualifiedIdentifierVariant variant = getMostProbableParseVariant(builder);
         if (variant != null) {
@@ -55,48 +59,56 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
 
             for (LeafElementType elementType : elementTypes) {
                 ParseResult result = elementType.parser.parse(node, context);
-                if (result.isNoMatch()) break;  else matchedTokens = matchedTokens + result.getMatchedTokens();
+                if (result.type == NO_MATCH) break;
+
+                node.matchedTokens++;
 
                 if (elementType != elementTypes[elementTypes.length -1])  {
                     result = separatorToken.parser.parse(node, context);
-                    if (result.isNoMatch()) break; else matchedTokens = matchedTokens + result.getMatchedTokens();
+                    if (result.type == NO_MATCH) break;
+                    node.matchedTokens++;
                 }
-                node.incrementIndex(builder.getOffset());
+                node.elementIndex++;
+                node.currentOffset = builder.getOffset();
             }
 
-            if (matchedTokens > 0) {
+            if (node.matchedTokens > 0) {
                 if (variant.isIncomplete()) {
                     Set<TokenType> expected = Collections.singleton(separatorToken.tokenType);
                     ParseBuilderErrorHandler.updateBuilderError(expected, context);
-                    return stepOut(node, context, ParseResultType.PARTIAL_MATCH, matchedTokens);
+                    return stepOut(node, context, PARTIAL_MATCH);
                 } else {
-                    return stepOut(node, context, ParseResultType.FULL_MATCH, matchedTokens);
+                    return stepOut(node, context, FULL_MATCH);
                 }
             }
         }
 
-        return stepOut(node, context, ParseResultType.NO_MATCH, matchedTokens);
+        return stepOut(node, context, NO_MATCH);
     }
 
     private QualifiedIdentifierVariant getMostProbableParseVariant(ParserBuilder builder) {
-        TokenType separatorToken = elementType.getSeparatorToken().tokenType;
+        List<TokenType> chain = readTokenChain(builder);
+        return ((QualifiedIdentifierElementCache) elementType.cache).getMostProbableParseVariant(chain);
+    }
+
+    private List<TokenType> readTokenChain(ParserBuilder builder) {
+        TokenType separatorToken = elementType.separatorToken.tokenType;
         SharedTokenTypeBundle sharedTokenTypes = getSharedTokenTypes();
-        TokenType identifier = sharedTokenTypes.getIdentifier();
+        TokenType identifier = sharedTokenTypes.identifier;
 
-
-        List<TokenType> chan = new ArrayList<>();
+        List<TokenType> chain = new ArrayList<>(3); //
         int offset = 0;
         boolean wasSeparator = true;
         TokenType tokenType = builder.lookAhead(offset);
         while (tokenType != null) {
             if (tokenType == separatorToken) {
-                if (wasSeparator) chan.add(identifier);
+                if (wasSeparator) chain.add(identifier);
                 wasSeparator = true;
             } else {
                 if (wasSeparator) {
-                    if (tokenType.isIdentifier() ||  elementType.cache.containsToken(tokenType))
-                        chan.add(tokenType); else
-                        chan.add(identifier);
+                    if (tokenType.isIdentifier() || elementType.cache.containsToken(tokenType))
+                        chain.add(tokenType); else
+                        chain.add(identifier);
                 } else {
                    break;
                 }
@@ -104,28 +116,8 @@ public class QualifiedIdentifierElementTypeParser extends ElementTypeParser<Qual
             }
             offset++;
             tokenType = builder.lookAhead(offset);
-            if (tokenType == null && wasSeparator) chan.add(identifier);
+            if (tokenType == null && wasSeparator) chain.add(identifier);
         }
-
-        QualifiedIdentifierVariant mostProbableVariant = null;
-
-        for (LeafElementType[] elementTypes : elementType.getVariants()) {
-            if (elementTypes.length <= chan.size()) {
-                int matchedTokens = 0;
-                for (int i=0; i<elementTypes.length; i++) {
-                    if (elementTypes[i].tokenType.matches(chan.get(i))) {
-                        matchedTokens++;
-                    }
-                }
-                if (mostProbableVariant == null || mostProbableVariant.getMatchedTokens() < matchedTokens) {
-                    mostProbableVariant = mostProbableVariant == null ?
-                            new QualifiedIdentifierVariant(elementTypes, matchedTokens) :
-                            mostProbableVariant.replace(elementTypes, matchedTokens);
-                }
-
-            }
-        }
-
-        return mostProbableVariant;
+        return chain;
     }
 }

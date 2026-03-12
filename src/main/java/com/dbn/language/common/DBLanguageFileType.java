@@ -56,16 +56,11 @@ public abstract class DBLanguageFileType extends LanguageFileType implements Fil
     }
 
     @Override
-    public boolean isMyFileType(@NotNull VirtualFile file) {
+    public boolean isMyFileType(VirtualFile file) {
         if (file instanceof DBEditableObjectVirtualFile || file instanceof DBSourceCodeVirtualFile) {
-            if (this == file.getFileType()) {
-                return true;
-            }
+            if (this == file.getFileType()) return true;
         }
-
-        if (file instanceof DBConsoleVirtualFile) {
-            return true;
-        }
+        if (file instanceof DBConsoleVirtualFile) return true;
         return false;
     }
 

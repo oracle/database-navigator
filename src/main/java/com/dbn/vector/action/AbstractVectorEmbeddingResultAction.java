@@ -20,7 +20,7 @@ import com.dbn.common.action.ContextAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.ExecutionResult;
-import com.dbn.vector.result.VectorEmbeddingExecutionResult;
+import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;

@@ -46,9 +46,9 @@ public class WrapperContext {
      */
     public WrapperContext(WrapperModelInput input) {
         this.input = input;
-        this.namingProvider = input.isUseFriendlyNames() ?
-                new FriendlyWrapperNamingProvider(input.isCompactNaming()):
-                new TransientWrapperNamingProvider();
+        this.namingProvider = input.isTemporary() ?
+                new TransientWrapperNamingProvider() :
+                new FriendlyWrapperNamingProvider(input.isCompactNaming());
     }
 
     public WrapperContext(WrapperModelInput input, WrapperNamingProvider namingProvider) {
@@ -67,6 +67,5 @@ public class WrapperContext {
         var key = Pair.of(className, arrayDepth);
         return classWrapperCache.get(key);
     }
-
 }
 

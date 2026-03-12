@@ -94,4 +94,13 @@ public class FieldWrapper extends EntityWrapper {
         DBJavaMethod method = DBObjectRef.get(fieldSetter);
         return method == null ? null : method.getSimpleName();
     }
+
+    public boolean isReadable() {
+        return accessible || getGetterName() != null;
+    }
+
+    public boolean isUpdatable() {
+        return accessible || getSetterName() != null;
+    }
+
 }

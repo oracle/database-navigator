@@ -123,4 +123,9 @@ public class IndexCollection{
     public int size() {
         return values.length;
     }
+
+    @Override
+    public String toString() {
+        return values == null ? "[]" : Arrays.toString(values);
+    }
 }

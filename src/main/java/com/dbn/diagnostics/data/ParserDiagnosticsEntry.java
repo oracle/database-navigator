@@ -20,7 +20,6 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -33,17 +32,18 @@ public class ParserDiagnosticsEntry implements Comparable<ParserDiagnosticsEntry
     private final String filePath;
     private final IssueCounter oldIssues;
     private final IssueCounter newIssues;
+    private final VirtualFile file;
+    private final long fileSize;
+
 
     public ParserDiagnosticsEntry(String filePath, IssueCounter oldIssues, IssueCounter newIssues) {
         this.filePath = filePath;
         this.oldIssues = nvl(oldIssues, IssueCounter.EMPTY);
         this.newIssues = nvl(newIssues, IssueCounter.EMPTY);
-    }
 
-    @Nullable
-    public VirtualFile getFile() {
         LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
-        return localFileSystem.findFileByIoFile(new File(filePath));
+        this.file = localFileSystem.findFileByIoFile(new File(filePath));
+        this.fileSize = this.file == null ? 0 : this.file.getLength();
     }
 
     public StateTransition getStateTransition() {

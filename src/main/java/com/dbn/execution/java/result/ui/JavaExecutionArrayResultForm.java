@@ -17,7 +17,6 @@
 package com.dbn.execution.java.result.ui;
 
 import com.dbn.common.data.Data;
-import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.list.EditableStringList;
 import com.dbn.common.ui.list.ListProperty;
 import com.dbn.execution.common.input.ExecutionValue;
@@ -30,20 +29,18 @@ import java.util.List;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 
-public class JavaExecutionArrayResultForm extends DBNFormBase {
+public class JavaExecutionArrayResultForm extends JavaExecutionResultDetailForm {
     private JPanel mainPanel;
     private JPanel resultPanel;
 
-    private EditableStringList stringList;
+    private final EditableStringList stringList;
 
     JavaExecutionArrayResultForm(JavaExecutionResultForm parent, ExecutionValue fieldValue) {
-        super(parent);
-        if (fieldValue.isArrayObject()) {
-            Object value = fieldValue.getValue();
-            List<String> valuesStringList = Data.asStringList(value);
-            stringList = new EditableStringList(this, valuesStringList, ListProperty.INDEXED);
-            resultPanel.add(initListComponent());
-        }
+        super(parent, fieldValue);
+        Object value = fieldValue.getValue();
+        List<String> valuesStringList = Data.asStringList(value);
+        stringList = new EditableStringList(this, valuesStringList, ListProperty.INDEXED);
+        resultPanel.add(initListComponent());
     }
 
     private JPanel initListComponent() {

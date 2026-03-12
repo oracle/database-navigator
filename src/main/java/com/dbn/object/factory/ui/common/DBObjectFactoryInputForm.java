@@ -23,6 +23,8 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.object.factory.model.DBObjectAttribute;
+import com.dbn.object.factory.model.DBObjectAttributeType;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -47,16 +49,19 @@ public abstract class DBObjectFactoryInputForm<T extends DBObjectSpec> extends D
         return input.getIndex();
     }
 
-    public void setIndex(int index) {
-        input.setIndex(index);
-    }
-
     public DBObjectType getObjectType() {
         return input.getObjectType();
     }
 
-    public boolean isReadonly() {
+    public boolean isReadonlyInput() {
         return input.isReadonly();
+    }
+
+    public boolean isReadonlyAttribute(DBObjectAttributeType<?> type) {
+        if (isReadonlyInput()) return true;
+
+        DBObjectAttribute<?> attribute = input.getAttribute(type);
+        return attribute == null || attribute.isReadonly();
     }
 
     @NotNull

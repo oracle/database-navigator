@@ -119,8 +119,8 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         }
         isCustomNamed = filter.isCustomNamed();
 
-        // delay the initialisation of filter editor to force psi write action in the dialog modality state
-        whenShown(() -> updateNameAndPreview());
+        // delay the initialization of filter editor to force psi write action in the dialog modality state
+        whenFirstShown(() -> updateNameAndPreview());
     }
 
     @Override

@@ -31,22 +31,17 @@ import com.intellij.psi.tree.TokenSet;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Supplier;
-
 @Getter
 public abstract class DBLanguageParserDefinition implements ParserDefinition {
-    private final Supplier<DBLanguageParser> parser;
-
-    public DBLanguageParserDefinition(Supplier<DBLanguageParser> parser) {
-        this.parser = parser;
-    }
+    public final DBLanguageParser parser;
+    public final SharedTokenTypeBundle sharedTokenTypes;
 
     public DBLanguageParserDefinition(DBLanguageParser parser) {
-        this.parser = () -> parser;
+        this.parser = parser;
+        this.sharedTokenTypes = parser.getTokenTypes().getSharedTokenTypes();
     }
 
     @Override
-    @NotNull
     public PsiElement createElement(ASTNode astNode) {
         IElementType et = astNode.getElementType();
         if(et instanceof ElementType elementType) {
@@ -55,10 +50,6 @@ public abstract class DBLanguageParserDefinition implements ParserDefinition {
             return psiElement;
         }
         return new ASTWrapperPsiElement(astNode);
-    }
-
-    public DBLanguageParser getParser() {
-        return parser.get();
     }
 
     @Override
@@ -76,19 +67,19 @@ public abstract class DBLanguageParserDefinition implements ParserDefinition {
     @Override
     @NotNull
     public TokenSet getWhitespaceTokens() {
-        return getParser().getTokenTypes().getSharedTokenTypes().getWhitespaceTokens();
+        return sharedTokenTypes.whitespaceTokens;
     }
 
     @Override
     @NotNull
     public TokenSet getCommentTokens() {
-        return getParser().getTokenTypes().getSharedTokenTypes().getCommentTokens();
+        return sharedTokenTypes.commentTokens;
     }
 
     @Override
     @NotNull
     public TokenSet getStringLiteralElements() {
-        return getParser().getTokenTypes().getSharedTokenTypes().getStringTokens();
+        return sharedTokenTypes.stringTokens;
     }
 
     @NotNull

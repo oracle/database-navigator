@@ -148,7 +148,7 @@ public class FormattingBlock implements Block {
                 BasePsiElement parentPsiElement = getParentPsiElement(basePsiElement);
                 if (parentPsiElement != null && parentPsiElement.elementType instanceof WrapperElementType wrapperElementType) {
                     SharedTokenTypeBundle sharedTokenTypes = parentPsiElement.getLanguage().getSharedTokenTypes();
-                    if (wrapperElementType.getBeginTokenElement().tokenType == sharedTokenTypes.getChrLeftParenthesis()) {
+                    if (wrapperElementType.getBeginTokenElement().tokenType == sharedTokenTypes.chrLeftParenthesis) {
                         //FormattingBlock parentStatementBlock = getParentBlock(this, ElementTypeAttribute.STATEMENT);
                         //Indent parentStatementIndent = parentStatementBlock.getIndent();
                         //return Indent.getIndent(Indent.Type.SPACES, -1, false, false);
@@ -228,10 +228,10 @@ public class FormattingBlock implements Block {
 
             // DOT, COMMA spacing
             SharedTokenTypeBundle sharedTokenTypes = language.getSharedTokenTypes();
-            SimpleTokenType chrDot = sharedTokenTypes.getChrDot();
-            SimpleTokenType chrComma = sharedTokenTypes.getChrComma();
-            SimpleTokenType leftParenthesis = sharedTokenTypes.getChrLeftParenthesis();
-            SimpleTokenType rightParenthesis = sharedTokenTypes.getChrRightParenthesis();
+            SimpleTokenType chrDot = sharedTokenTypes.chrDot;
+            SimpleTokenType chrComma = sharedTokenTypes.chrComma;
+            SimpleTokenType leftParenthesis = sharedTokenTypes.chrLeftParenthesis;
+            SimpleTokenType rightParenthesis = sharedTokenTypes.chrRightParenthesis;
 
             if (is(leftPsiElement, chrDot)) return SpacingDefinition.NO_SPACE.getValue();
             if (is(rightPsiElement, chrDot)) return SpacingDefinition.NO_SPACE.getValue();

@@ -79,6 +79,11 @@ public class StatementExecutionBasicResult extends ExecutionResultBase<Statement
     }
 
     @Override
+    public boolean supportsStickyNames() {
+        return true;
+    }
+
+    @Override
     public Icon getIcon() {
         return getExecutionProcessor().isDirty() ?
                 Icons.STMT_EXEC_RESULTSET_ORPHAN :

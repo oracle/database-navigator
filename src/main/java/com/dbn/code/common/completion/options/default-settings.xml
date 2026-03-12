@@ -85,9 +85,14 @@
                 <filter-element type="OBJECT" id="FUNCTION" selected="true"/>
                 <filter-element type="OBJECT" id="PACKAGE" selected="true"/>
                 <filter-element type="OBJECT" id="TYPE" selected="true"/>
+                <filter-element type="OBJECT" id="JAVA_CLASS" selected="true"/>
+                <filter-element type="OBJECT" id="JAVA_RESOURCE" selected="true"/>
                 <filter-element type="OBJECT" id="DIMENSION" selected="true"/>
                 <filter-element type="OBJECT" id="CLUSTER" selected="true"/>
                 <filter-element type="OBJECT" id="DBLINK" selected="true"/>
+                <filter-element type="OBJECT" id="CREDENTIAL" selected="true"/>
+                <filter-element type="OBJECT" id="AI_PROFILE" selected="true"/>
+                <filter-element type="OBJECT" id="AI_MODEL" selected="true"/>
             </user-schema>
             <public-schema>
                 <filter-element type="OBJECT" id="TABLE" selected="false"/>
@@ -103,9 +108,14 @@
                 <filter-element type="OBJECT" id="FUNCTION" selected="false"/>
                 <filter-element type="OBJECT" id="PACKAGE" selected="false"/>
                 <filter-element type="OBJECT" id="TYPE" selected="false"/>
+                <filter-element type="OBJECT" id="JAVA_CLASS" selected="flase"/>
+                <filter-element type="OBJECT" id="JAVA_RESOURCE" selected="false"/>
                 <filter-element type="OBJECT" id="DIMENSION" selected="false"/>
                 <filter-element type="OBJECT" id="CLUSTER" selected="false"/>
                 <filter-element type="OBJECT" id="DBLINK" selected="false"/>
+                <filter-element type="OBJECT" id="CREDENTIAL" selected="false"/>
+                <filter-element type="OBJECT" id="AI_PROFILE" selected="false"/>
+                <filter-element type="OBJECT" id="AI_MODEL" selected="false"/>
             </public-schema>
             <any-schema>
                 <filter-element type="OBJECT" id="TABLE" selected="true"/>
@@ -121,9 +131,14 @@
                 <filter-element type="OBJECT" id="FUNCTION" selected="true"/>
                 <filter-element type="OBJECT" id="PACKAGE" selected="true"/>
                 <filter-element type="OBJECT" id="TYPE" selected="true"/>
+                <filter-element type="OBJECT" id="JAVA_CLASS" selected="true"/>
+                <filter-element type="OBJECT" id="JAVA_RESOURCE" selected="true"/>
                 <filter-element type="OBJECT" id="DIMENSION" selected="true"/>
                 <filter-element type="OBJECT" id="CLUSTER" selected="true"/>
                 <filter-element type="OBJECT" id="DBLINK" selected="true"/>
+                <filter-element type="OBJECT" id="CREDENTIAL" selected="true"/>
+                <filter-element type="OBJECT" id="AI_PROFILE" selected="true"/>
+                <filter-element type="OBJECT" id="AI_MODEL" selected="true"/>
             </any-schema>
         </basic-filter>
         <extended-filter>
@@ -150,9 +165,14 @@
                 <filter-element type="OBJECT" id="FUNCTION" selected="true"/>
                 <filter-element type="OBJECT" id="PACKAGE" selected="true"/>
                 <filter-element type="OBJECT" id="TYPE" selected="true"/>
+                <filter-element type="OBJECT" id="JAVA_CLASS" selected="true"/>
+                <filter-element type="OBJECT" id="JAVA_RESOURCE" selected="true"/>
                 <filter-element type="OBJECT" id="DIMENSION" selected="true"/>
                 <filter-element type="OBJECT" id="CLUSTER" selected="true"/>
                 <filter-element type="OBJECT" id="DBLINK" selected="true"/>
+                <filter-element type="OBJECT" id="CREDENTIAL" selected="true"/>
+                <filter-element type="OBJECT" id="AI_PROFILE" selected="true"/>
+                <filter-element type="OBJECT" id="AI_MODEL" selected="true"/>
             </user-schema>
             <public-schema>
                 <filter-element type="OBJECT" id="TABLE" selected="true"/>
@@ -171,6 +191,9 @@
                 <filter-element type="OBJECT" id="DIMENSION" selected="true"/>
                 <filter-element type="OBJECT" id="CLUSTER" selected="true"/>
                 <filter-element type="OBJECT" id="DBLINK" selected="true"/>
+                <filter-element type="OBJECT" id="CREDENTIAL" selected="true"/>
+                <filter-element type="OBJECT" id="AI_PROFILE" selected="true"/>
+                <filter-element type="OBJECT" id="AI_MODEL" selected="true"/>
             </public-schema>
             <any-schema>
                 <filter-element type="OBJECT" id="TABLE" selected="true"/>
@@ -186,9 +209,14 @@
                 <filter-element type="OBJECT" id="FUNCTION" selected="true"/>
                 <filter-element type="OBJECT" id="PACKAGE" selected="true"/>
                 <filter-element type="OBJECT" id="TYPE" selected="true"/>
+                <filter-element type="OBJECT" id="JAVA_CLASS" selected="true"/>
+                <filter-element type="OBJECT" id="JAVA_RESOURCE" selected="true"/>
                 <filter-element type="OBJECT" id="DIMENSION" selected="true"/>
                 <filter-element type="OBJECT" id="CLUSTER" selected="true"/>
                 <filter-element type="OBJECT" id="DBLINK" selected="true"/>
+                <filter-element type="OBJECT" id="CREDENTIAL" selected="true"/>
+                <filter-element type="OBJECT" id="AI_PROFILE" selected="true"/>
+                <filter-element type="OBJECT" id="AI_MODEL" selected="true"/>
             </any-schema>
         </extended-filter>
     </filters>

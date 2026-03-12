@@ -17,8 +17,8 @@
 package com.dbn.language.common.element.impl;
 
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.BasicElementTypeLookupCache;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
+import com.dbn.language.common.element.cache.BasicElementTypeCache;
+import com.dbn.language.common.element.cache.ElementTypeCache;
 import com.dbn.language.common.element.parser.impl.BasicElementTypeParser;
 import com.dbn.language.common.psi.UnknownPsiElement;
 import com.intellij.lang.ASTNode;
@@ -27,13 +27,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class BasicElementType extends ElementTypeBase {
 
-    protected BasicElementType(ElementTypeBundle bundle, String id, String description) {
-        super(bundle, null, id, description);
+    protected BasicElementType(ElementTypeBundle bundle, String id) {
+        super(bundle, null, id);
     }
 
     @Override
-    public ElementTypeLookupCache<?> createLookupCache() {
-        return new BasicElementTypeLookupCache(this);
+    public ElementTypeCache<?> createLookupCache() {
+        return new BasicElementTypeCache(this);
     }
 
     @NotNull
