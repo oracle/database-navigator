@@ -34,7 +34,6 @@ public class PSQLColorSettingsPage extends DBLColorSettingsPage {
         attributeDescriptors.add(new AttributesDescriptor("Numeric Literal", PSQLTextAttributesKeys.NUMBER));
         attributeDescriptors.add(new AttributesDescriptor("Alias", PSQLTextAttributesKeys.ALIAS));
         attributeDescriptors.add(new AttributesDescriptor("Identifier", PSQLTextAttributesKeys.IDENTIFIER));
-        attributeDescriptors.add(new AttributesDescriptor("Quoted Identifier", PSQLTextAttributesKeys.QUOTED_IDENTIFIER));
         attributeDescriptors.add(new AttributesDescriptor("Keyword", PSQLTextAttributesKeys.KEYWORD));
         attributeDescriptors.add(new AttributesDescriptor("Function", PSQLTextAttributesKeys.FUNCTION));
         attributeDescriptors.add(new AttributesDescriptor("DataType", PSQLTextAttributesKeys.DATA_TYPE));

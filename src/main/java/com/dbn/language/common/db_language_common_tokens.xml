@@ -72,7 +72,6 @@
         <token id="BLOCK_COMMENT" category="comment"/>
 
         <token id="IDENTIFIER" category="identifier"/>
-        <token id="QUOTED_IDENTIFIER" category="identifier"/>
 
         <token id="INTEGER" category="numeric"/>
         <token id="NUMBER" category="numeric"/>
@@ -87,7 +86,7 @@
         <token-set id="BRACKETS">CHR_LEFT_BRACKET, CHR_RIGHT_BRACKET</token-set>
         <token-set id="BRACES">CHR_LEFT_BRACE, CHR_RIGHT_BRACE</token-set>
         <token-set id="COMMENTS">LINE_COMMENT, BLOCK_COMMENT</token-set>
-        <token-set id="IDENTIFIERS">IDENTIFIER, QUOTED_IDENTIFIER</token-set>
+        <token-set id="IDENTIFIERS">IDENTIFIER</token-set>
         <token-set id="NUMBERS">INTEGER, NUMBER</token-set>
         <token-set id="OPERATORS">OPR_CONCATENATION, OPR_ASSIGNMENT, OPR_RANGE_DOTS, OPR_CAST_PREFIX</token-set>
         <token-set id="STRINGS">STRING</token-set>

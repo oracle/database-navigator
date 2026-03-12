@@ -143,7 +143,7 @@ public class IterationElementTypeParser extends ElementTypeParser<IterationEleme
         TokenElementType[] separatorTokens = elementType.separatorTokens;
 
         if (!lenient) {
-            Set<TokenType> expectedTokens = iteratedElementType.cache.captureFirstPossibleTokens(context.reset());
+            Set<TokenType> expectedTokens = iteratedElementType.cache.captureFirstPossibleTokens(context);
             ParseBuilderErrorHandler.updateBuilderError(expectedTokens, context);
         }
         boolean advanced = false;

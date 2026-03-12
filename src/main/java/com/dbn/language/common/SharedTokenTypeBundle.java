@@ -18,50 +18,45 @@ package com.dbn.language.common;
 
 import com.dbn.common.util.XmlContents;
 import com.intellij.psi.tree.TokenSet;
-import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jdom.Document;
 
-import java.util.HashSet;
 import java.util.Set;
 
-@Getter
 public class SharedTokenTypeBundle extends TokenTypeBundleBase {
-    private final SimpleTokenType whiteSpace;
-    private final SimpleTokenType identifier;
-    private final SimpleTokenType quotedIdentifier;
-    private final SimpleTokenType variable;
-    private final SimpleTokenType string;
-    private final SimpleTokenType number;
-    private final SimpleTokenType integer;
-    private final SimpleTokenType lineComment;
-    private final SimpleTokenType blockComment;
+    public final SimpleTokenType whiteSpace;
+    public final SimpleTokenType identifier;
+    public final SimpleTokenType variable;
+    public final SimpleTokenType string;
+    public final SimpleTokenType number;
+    public final SimpleTokenType integer;
+    public final SimpleTokenType lineComment;
+    public final SimpleTokenType blockComment;
 
-    private final SimpleTokenType chrLeftParenthesis;
-    private final SimpleTokenType chrRightParenthesis;
-    private final SimpleTokenType chrLeftBracket;
-    private final SimpleTokenType chrRightBracket;
-    private final SimpleTokenType chrLeftBrace;
-    private final SimpleTokenType chrRightBrace;
+    public final SimpleTokenType chrLeftParenthesis;
+    public final SimpleTokenType chrRightParenthesis;
+    public final SimpleTokenType chrLeftBracket;
+    public final SimpleTokenType chrRightBracket;
+    public final SimpleTokenType chrLeftBrace;
+    public final SimpleTokenType chrRightBrace;
 
-    private final SimpleTokenType chrDot;
-    private final SimpleTokenType chrComma;
-    private final SimpleTokenType chrColon;
-    private final SimpleTokenType chrSemicolon;
-    private final SimpleTokenType chrSlash;
-    private final SimpleTokenType chrStar;
+    public final SimpleTokenType chrDot;
+    public final SimpleTokenType chrComma;
+    public final SimpleTokenType chrColon;
+    public final SimpleTokenType chrSemicolon;
+    public final SimpleTokenType chrSlash;
+    public final SimpleTokenType chrStar;
 
-    private final TokenSet whitespaceTokens;
-    private final TokenSet commentTokens;
-    private final TokenSet stringTokens;
+    public final TokenSet whitespaceTokens;
+    public final TokenSet commentTokens;
+    public final TokenSet stringTokens;
 
-    private final Set<TokenType> identifierTokens;
+    public final Set<TokenType> identifierTokens;
 
     public SharedTokenTypeBundle(DBLanguage language) {
         super(language, loadDefinition());
         whiteSpace = getTokenType("WHITE_SPACE");
         identifier = getTokenType("IDENTIFIER");
-        quotedIdentifier = getTokenType("QUOTED_IDENTIFIER");
         variable = getTokenType("VARIABLE");
         string = getTokenType("STRING");
         number = getTokenType("NUMBER");
@@ -88,9 +83,7 @@ public class SharedTokenTypeBundle extends TokenTypeBundleBase {
         commentTokens = getTokenSet("COMMENTS");
         stringTokens = getTokenSet("STRINGS");
 
-        identifierTokens = new HashSet<>(2);
-        identifierTokens.add(identifier);
-        identifierTokens.add(quotedIdentifier);
+        identifierTokens = Set.of(identifier);
     }
 
     @SneakyThrows
@@ -100,7 +93,7 @@ public class SharedTokenTypeBundle extends TokenTypeBundleBase {
 
 
     public boolean isIdentifier(TokenType tokenType) {
-        return tokenType == identifier || tokenType == quotedIdentifier;
+        return tokenType == identifier;
     }
 
     public boolean isVariable(TokenType tokenType) {

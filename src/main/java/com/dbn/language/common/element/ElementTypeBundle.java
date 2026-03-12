@@ -41,6 +41,7 @@ import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.ide.CopyPasteManager;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -49,6 +50,7 @@ import org.jetbrains.annotations.NonNls;
 
 import java.awt.datatransfer.StringSelection;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -76,12 +78,20 @@ public class ElementTypeBundle {
     private transient Builder builder = new Builder();
     private final Map<String, NamedElementType> namedElementTypes = new ConcurrentHashMap<>();
 
-
-    private static class Builder {
+    @Getter
+    @Setter
+    public static class Builder {
+        public static boolean rebuilding; // set globally by the dev tools
+        private boolean dirty;
         private final Set<LeafElementType> leafElementTypes = new LinkedHashSet<>();
         private final Set<ElementTypeBase> rootElementTypes = new LinkedHashSet<>();
-        private boolean rewriteIds;
+        private final Map<ElementTypeBase, Element> elementDefinitions = new HashMap<>();
+
+        public Element getDefinition(ElementTypeBase elementType) {
+            return elementDefinitions.get(elementType);
+        }
     }
+
 
     public void registerElement(LeafElementType tokenType) {
         leafRegistry.add(tokenType);
@@ -111,7 +121,7 @@ public class ElementTypeBundle {
             registerLeafElements();
             initializeRootElements();
 
-            if (builder.rewriteIds) {
+            if (builder.dirty) {
                 Unsafe.warned(() -> {
 /*
                     ByteArrayOutputStream stringWriter = new ByteArrayOutputStream();
@@ -160,10 +170,6 @@ public class ElementTypeBundle {
     public short nextIndex() {
         int index = leafIndexer.incrementAndGet();
         return (short) index;
-    }
-
-    public void markIdsDirty() {
-        builder.rewriteIds = true;
     }
 
     private void createNamedElementType(Element def) throws ElementTypeDefinitionException {
@@ -239,6 +245,7 @@ public class ElementTypeBundle {
 
         result.collectAnonymousLeafs(builder.leafElementTypes);
         registerElementType(result);
+        builder.elementDefinitions.put(result, def);
         return result;
     }
 

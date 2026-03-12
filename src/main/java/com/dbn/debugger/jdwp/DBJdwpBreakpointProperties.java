@@ -21,17 +21,18 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.debugger.common.breakpoint.DBBreakpointProperties;
 import com.intellij.util.xmlb.annotations.Attribute;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.debugger.breakpoints.properties.JavaBreakpointProperties;
 
+@Getter
+@NoArgsConstructor
 public class DBJdwpBreakpointProperties extends JavaBreakpointProperties<DBJdwpBreakpointProperties> implements DBBreakpointProperties {
     @Attribute(value = "connection-id", converter = ConnectionId.Converter.class)
     private ConnectionId connectionId;
     private ConnectionRef connection;
-
-    public DBJdwpBreakpointProperties() {
-    }
 
     public DBJdwpBreakpointProperties(ConnectionHandler connection) {
         this.connection = ConnectionRef.of(connection);

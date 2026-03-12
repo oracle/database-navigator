@@ -30,7 +30,6 @@ public interface SQLTextAttributesKeys {
     TextAttributesKey DATA_TYPE          = TextAttributesKey.createTextAttributesKey("DBN.Attributes.SQL.DataType",          DefaultLanguageHighlighterColors.CONSTANT);
     TextAttributesKey ALIAS              = TextAttributesKey.createTextAttributesKey("DBN.Attributes.SQL.Alias",             DefaultLanguageHighlighterColors.METADATA);
     TextAttributesKey IDENTIFIER         = TextAttributesKey.createTextAttributesKey("DBN.Attributes.SQL.Identifier",        DefaultLanguageHighlighterColors.IDENTIFIER);
-    TextAttributesKey QUOTED_IDENTIFIER  = TextAttributesKey.createTextAttributesKey("DBN.Attributes.SQL.QuotedIdentifier",  DefaultLanguageHighlighterColors.IDENTIFIER);
     TextAttributesKey KEYWORD            = TextAttributesKey.createTextAttributesKey("DBN.Attributes.SQL.Keyword",           DefaultLanguageHighlighterColors.KEYWORD);
     TextAttributesKey FUNCTION           = TextAttributesKey.createTextAttributesKey("DBN.Attributes.SQL.Function",          DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL);
     TextAttributesKey PARAMETER          = TextAttributesKey.createTextAttributesKey("DBN.Attributes.SQL.Parameter",         TemplateColors.TEMPLATE_VARIABLE_ATTRIBUTES);
