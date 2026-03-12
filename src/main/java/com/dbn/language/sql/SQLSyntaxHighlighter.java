@@ -27,8 +27,7 @@ public abstract class SQLSyntaxHighlighter extends DBLanguageSyntaxHighlighter {
         super(languageDialect, tokenTypesFile);
         TokenTypeBundle tt = getTokenTypes();
         SharedTokenTypeBundle stt = tt.getSharedTokenTypes();
-        colors.put(stt.getIdentifier(),                  SQLTextAttributesKeys.IDENTIFIER);
-        colors.put(stt.getQuotedIdentifier(),            SQLTextAttributesKeys.QUOTED_IDENTIFIER);
+        colors.put(stt.identifier,                  SQLTextAttributesKeys.IDENTIFIER);
         colors.put(tt.getTokenType("LINE_COMMENT"),      SQLTextAttributesKeys.LINE_COMMENT);
         colors.put(tt.getTokenType("BLOCK_COMMENT"),     SQLTextAttributesKeys.BLOCK_COMMENT);
         colors.put(tt.getTokenType("STRING"),            SQLTextAttributesKeys.STRING);

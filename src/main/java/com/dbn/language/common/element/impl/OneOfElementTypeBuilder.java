@@ -18,7 +18,8 @@ package com.dbn.language.common.element.impl;
 
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementTypeBundle;
-import org.jetbrains.annotations.Nullable;
+import com.dbn.language.common.element.ElementTypeBundle.Builder;
+import org.jdom.Element;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,12 +51,31 @@ public class OneOfElementTypeBuilder {
 
     private void rebuildAmbiguousPaths() {
         if (subject.basic) return; // all elements are distinct tokens
+        if (!subject.ambiguous && !Builder.rebuilding) return;
 
         List<PathVariant> paths = findAmbiguousPaths();
-        if (paths == null) return;
-        if (paths.isEmpty()) return;
+        if (paths == null || paths.isEmpty()) {
+            updateDefinition(false);
+            return;
+        }
 
+        updateDefinition(true);
         rebuildAmbiguousPaths(paths);
+    }
+
+    private void updateDefinition(boolean ambiguous) {
+        if (subject.ambiguous == ambiguous) return;
+        if (!Builder.rebuilding) return;
+
+        subject.ambiguous = ambiguous;
+        Builder builder = subject.bundle.getBuilder();
+        builder.setDirty(true);
+        Element definition = builder.getDefinition(subject);
+        if (ambiguous) {
+            definition.setAttribute("ambiguous", "true");
+        } else {
+            definition.removeAttribute("ambiguous");
+        }
     }
 
     private void rebuildAmbiguousPaths(List<PathVariant> pathVariants) {
@@ -65,7 +85,7 @@ public class OneOfElementTypeBuilder {
             Set<TokenType> tokens = variant.tokens;
             Set<ElementTypeBase> elements = variant.mainElements;
 
-            if (variant.unambiguous) {
+            if (!variant.ambiguous) {
                 children.addAll(elements);
                 continue;
             }
@@ -109,7 +129,7 @@ public class OneOfElementTypeBuilder {
             LeafElementType leadElement = createLeadElement(parent, tokenType, leafs);
             leadElements.add(leadElement);
         }
-        OneOfElementType leadElement = new OneOfElementType(parent, nextId());
+        SurrogateOneOfElementType leadElement = new SurrogateOneOfElementType(parent, nextId());
         leadElement.setElements(leadElements);
         leadElement.sortable = subject.sortable;
         leadElement.basic = true;
@@ -167,7 +187,6 @@ public class OneOfElementTypeBuilder {
         return subject.nextChildId();
     }
 
-    @Nullable
     private List<PathVariant> findAmbiguousPaths() {
         Map<TokenType, PathVariantMappings> paths = new LinkedHashMap<>();
         Map<TokenType, PathVariantMappings> ambiguousPaths = new LinkedHashMap<>();
@@ -189,38 +208,36 @@ public class OneOfElementTypeBuilder {
         if (ambiguousPaths.isEmpty()) return null;
         Set<ElementTypeBase> ambiguousElements = new HashSet<>();
 
-        // ambiguous paths (one leading-token to many elements)
-        List<PathVariant> pathVariants = new ArrayList<>();
+        // ambiguous paths (many tokens leading to many elements)
+        Map<Set<ElementTypeBase>, PathVariant> ambiguousPathVariants = new LinkedHashMap<>();
         for (TokenType tokenType : ambiguousPaths.keySet()) {
             PathVariantMappings mappings = ambiguousPaths.get(tokenType);
             Set<LeafElementType> leafs = mappings.leafs();
             Set<ElementTypeBase> elements = mappings.elements();
 
-            PathVariant pathVariant = new PathVariant(leafs, elements);
-            pathVariants.add(pathVariant);
-            paths.remove(tokenType);
+            PathVariant pathVariant = ambiguousPathVariants.computeIfAbsent(elements, e -> new PathVariant(e));
+            pathVariant.ambiguous = true;
+            pathVariant.addLeafs(leafs);
 
+            paths.remove(tokenType);
             ambiguousElements.addAll(elements);
         }
 
-        Map<ElementTypeBase, Set<LeafElementType>> groupedPaths = new LinkedHashMap<>();
+        // unambiguous paths (many tokens leading to one element)
+        Map<ElementTypeBase, PathVariant> unambiguousPathVariants = new LinkedHashMap<>();
         for (TokenType tokenType : paths.keySet()) {
-            PathVariantMappings pathVariantMap = paths.get(tokenType);
-            ElementTypeBase elementType = pathVariantMap.firstValue();
-            Set<LeafElementType> leafElementTypes = groupedPaths.computeIfAbsent(elementType, t -> new LinkedHashSet<>());
-            leafElementTypes.add(pathVariantMap.firstKey());
-        }
-
-        // unambiguous paths (many leading-tokens to one element)
-        for (ElementTypeBase elementType : groupedPaths.keySet()) {
-            Set<LeafElementType> leafElementTypes = groupedPaths.get(elementType);
-            PathVariant pathVariant = new PathVariant(leafElementTypes, Set.of(elementType));
+            PathVariantMappings mappings = paths.get(tokenType);
+            ElementTypeBase element = mappings.firstValue();
+            PathVariant pathVariant = unambiguousPathVariants.computeIfAbsent(element, e -> new PathVariant(e));
+            pathVariant.addLeaf(mappings.firstKey());
 
             // paths where leading token does not appear more than once, nor does the one-of child element
-            pathVariant.unambiguous = !ambiguousElements.contains(elementType);
-            pathVariants.add(pathVariant);
+            pathVariant.ambiguous = ambiguousElements.contains(element);
         }
 
+        List<PathVariant> pathVariants = new ArrayList<>(ambiguousPathVariants.size() + unambiguousPathVariants.size());
+        pathVariants.addAll(ambiguousPathVariants.values());
+        pathVariants.addAll(unambiguousPathVariants.values());
         return pathVariants;
     }
 
@@ -256,14 +273,16 @@ public class OneOfElementTypeBuilder {
     }
 
     private static class PathVariant {
-        private boolean unambiguous;
+        private boolean ambiguous;
         private final Set<TokenType> tokens = new LinkedHashSet<>();
         private final Set<LeafElementType> leadElements = new LinkedHashSet<>();
         private final Set<ElementTypeBase> mainElements = new LinkedHashSet<>();
 
-        public PathVariant(Collection<LeafElementType> leadElements, Collection<ElementTypeBase> mainElements) {
-            this.leadElements.addAll(leadElements);
-            this.leadElements.forEach(leaf -> tokens.add(leaf.tokenType));
+        public PathVariant(ElementTypeBase mainElement) {
+            mainElements.add(mainElement);
+        }
+
+        public PathVariant(Collection<ElementTypeBase> mainElements) {
             this.mainElements.addAll(mainElements);
         }
 
@@ -271,9 +290,18 @@ public class OneOfElementTypeBuilder {
             return leadElements.stream().filter(l -> l.tokenType == tokenType).collect(Collectors.toSet());
         }
 
+        public void addLeafs(Collection<LeafElementType> leafs) {
+            leafs.forEach(leaf -> addLeaf(leaf));
+        }
+        public void addLeaf(LeafElementType leafs) {
+            this.leadElements.add(leafs);
+            this.tokens.add(leafs.tokenType);
+        }
+
         @Override
         public String toString() {
             return tokens + " " + mainElements;
         }
+
     }
 }

@@ -26,13 +26,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 */
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * Attempt to provide json schema support for json-view database object editors.
  * This does not provide dynamic support though. (each json view has its own json schema definition)
- * Workaround implemented in {@link JsonDataSchemaManager} and its reflection alternative {@link JsonDataSchemaCustomManager}
+ * Workaround implemented in {@link JsonDataSchemaManager} and its reflection alternative {@link JsonDataSchemaManager}
  * TODO check if there is a way to make this dynamic (thread local context??)
  */
 public class JsonViewSchemaProvider /*implements JsonSchemaFileProvider*/ {

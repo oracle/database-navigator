@@ -19,7 +19,7 @@ package com.dbn.language.common.element.impl;
 import com.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dbn.code.common.style.formatting.SpacingDefinition;
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.IdentifierElementTypeLookupCache;
+import com.dbn.language.common.element.cache.IdentifierElementTypeCache;
 import com.dbn.language.common.element.parser.impl.IdentifierElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.element.util.ElementTypeDefinition;
@@ -63,8 +63,8 @@ public final class IdentifierElementType extends LeafElementType {
     }
 
     @Override
-    public IdentifierElementTypeLookupCache createLookupCache() {
-        return new IdentifierElementTypeLookupCache(this);
+    public IdentifierElementTypeCache createLookupCache() {
+        return new IdentifierElementTypeCache(this);
     }
 
     @NotNull

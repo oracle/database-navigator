@@ -19,16 +19,21 @@ package com.dbn.common.index;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static java.util.Collections.emptySet;
+
 @Slf4j
 public class IndexContainer<T extends Indexable> {
-    private final IndexCollection INDEX = new IndexCollection();
+    protected final IndexCollection INDEX = new IndexCollection();
 
     public void add(T element) {
         INDEX.add(element.index());
+    }
+
+    public int size() {
+        return INDEX.size();
     }
 
     public boolean isEmpty() {
@@ -40,19 +45,21 @@ public class IndexContainer<T extends Indexable> {
     }
 
     public Set<T> elements(IndexResolver<T> resolver) {
-        if (INDEX.isEmpty()) {
-            return Collections.emptySet();
-        } else {
-            Set<T> elements = new LinkedHashSet<>(INDEX.size());
-            int[] values = INDEX.values();
-            for (int value : values) {
-                T element = resolver.apply(value);
-                if (element != null) {
-                    elements.add(element);
-                }
+        if (INDEX.isEmpty()) return emptySet();
+
+        return buildElements(resolver);
+    }
+
+    protected Set<T> buildElements(IndexResolver<T> resolver) {
+        Set<T> elements = new LinkedHashSet<>(INDEX.size(), 0.75f);
+        int[] values = INDEX.values();
+        for (int value : values) {
+            T element = resolver.apply(value);
+            if (element != null) {
+                elements.add(element);
             }
-            return elements;
         }
+        return elements;
     }
 
     public void addAll(Collection<T> elements) {
@@ -60,7 +67,6 @@ public class IndexContainer<T extends Indexable> {
             INDEX.add(element.index());
         }
     }
-
 
     @FunctionalInterface
     public interface IndexResolver<R> {

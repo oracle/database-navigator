@@ -20,7 +20,7 @@ import com.dbn.language.psql.dialect.PSQLLanguageDialect;
 import com.dbn.language.sql.dialect.sqlite.SqliteSQLParser;
 
 public class SqlitePSQLParser extends SqliteSQLParser {
-    SqlitePSQLParser(PSQLLanguageDialect languageDialect) {
+    public SqlitePSQLParser(PSQLLanguageDialect languageDialect) {
         super(languageDialect, "psql_block");
     }
 

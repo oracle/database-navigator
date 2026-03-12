@@ -29,13 +29,14 @@ import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.common.debug.DebuggerVersionInfo;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.debugger.common.breakpoint.DBBreakpointUpdaterFileEditorListener;
+import com.dbn.debugger.common.breakpoint.DBBreakpointUpdaterListener;
 import com.dbn.debugger.jdbc.process.DBMethodJdbcRunner;
 import com.dbn.debugger.jdbc.process.DBStatementJdbcRunner;
 import com.dbn.debugger.jdwp.process.DBJavaJdwpRunner;
 import com.dbn.debugger.jdwp.process.DBMethodJdwpRunner;
 import com.dbn.debugger.jdwp.process.DBStatementJdwpRunner;
 import com.dbn.editor.code.SourceCodeManager;
+import com.dbn.editor.code.SourceCodeManagerListener;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
@@ -58,7 +59,6 @@ import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
@@ -95,7 +95,8 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
     private DatabaseDebuggerManager(Project project) {
         super(project, COMPONENT_NAME);
 
-        ProjectEvents.subscribe(project, this, FileEditorManagerListener.FILE_EDITOR_MANAGER, new DBBreakpointUpdaterFileEditorListener());
+        //ProjectEvents.subscribe(project, this, FileEditorManagerListener.FILE_EDITOR_MANAGER, new DBBreakpointUpdaterFileEditorListener());
+        ProjectEvents.subscribe(project, this, SourceCodeManagerListener.TOPIC, new DBBreakpointUpdaterListener());
     }
 
     public static DatabaseDebuggerManager getInstance(@NotNull Project project) {
