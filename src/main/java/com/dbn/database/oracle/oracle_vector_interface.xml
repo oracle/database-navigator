@@ -126,27 +126,6 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="create-embedding-table" timeout="120" >
-        <statement>
-            begin
-                execute immediate '
-                    create table {0}.{1} (
-                        {2} varchar(4000) primary key,
-                        {3} clob,
-                        {4} vector(*, float32) not null,
-                        {5} json)
-                ';
-
-                -- Create index for efficient deduplication lookups
-                execute immediate '
-                    create index {0}.{1}_SOURCE_IDX on {0}.{1} (
-                        json_value({5}, ''$.embedding_source.source_id'')
-                    )
-                ';
-            end;
-        </statement>
-    </statement-execution-processor>
-
     <statement-execution-processor id="create-file-store-entry">
         <statement>
             insert into {0}.{1}(
@@ -164,9 +143,10 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="select-empty-blob-file">
+    <statement-execution-processor id="load-destination-model-metadata">
         <statement>
-            SELECT file_content FROM {0} WHERE id = {#1} FOR UPDATE;
+            select json_query(t.METADATA, '$.embedding_config' returning varchar2) AS embedding_config_json
+            from {0}.{1} t where rownum = 1
         </statement>
     </statement-execution-processor>
 
@@ -196,32 +176,7 @@
             WHERE id = {#3}
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="insert-vector-embeddings-from-table" timeout="120000">
-        <statement>
-            INSERT INTO {0}.{1} (id, {2}, {3}, {4})
-                SELECT
-                    SYS_GUID(),
-                    JSON_VALUE(t.COLUMN_VALUE, '$.embed_data' RETURNING CLOB),
-                    TO_VECTOR(JSON_VALUE(t.COLUMN_VALUE, '$.embed_vector' RETURNING CLOB)),
-                    JSON_MERGEPATCH(
-                        {#11},
-                        JSON_OBJECT(
-                            KEY 'embedding_id' VALUE JSON_VALUE(t.COLUMN_VALUE, '$.embed_id' RETURNING VARCHAR2(50)),
-                            KEY 'embedding_source' VALUE JSON_OBJECT('source_id' VALUE src.{7})
-                        ) RETURNING VARCHAR2
-                    )
-                FROM {5}.{6} src,
-                    TABLE(
-                            DBMS_VECTOR.UTL_TO_EMBEDDINGS(
-                                    data   => DBMS_VECTOR.UTL_TO_CHUNKS(
-                                    data   => src.{8},
-                                    params => json({#9})),
-                                    params => json({#10})
-                        )
-                    ) t;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="insert-vector-embeddings-from-table-batch" timeout="120000">
+    <statement-execution-processor id="embed-table-content" timeout="120000">
         <statement>
             insert into {0}.{1} (id, {2}, {3}, {4})
                 select
@@ -236,10 +191,10 @@
                         ) returning varchar2
                     )
                 from (
-                    select * from {5}.{6}
+                    select * from {5}.{6} s
                     where not exists (
-                        select 1 from {0}.{1} tgt
-                        where json_value(tgt.{4}, '$.embedding_source.source_id') = to_char({7})
+                        select 1 from {0}.{1} t
+                        where json_value(t.{4}, '$.embedding_source.source_id') = to_char(s.{7})
                     )
                     fetch first {12} rows only
                 ) src,
@@ -251,7 +206,38 @@
                                 PARAMS => json({#10}))) t
         </statement>
     </statement-execution-processor>
-        <statement-execution-processor id="insert-vector-embeddings-from-filesystem" timeout="120000">
+    <statement-execution-processor id="embed-query-content" timeout="120000">
+        <statement>
+            insert into {0}.{1} (id, {2}, {3}, {4})
+                select
+                    sys_guid(),
+                    json_value(t.COLUMN_VALUE, '$.embed_data' returning clob),
+                    to_vector(json_value(t.COLUMN_VALUE, '$.embed_vector' returning clob)),
+                    json_mergepatch(
+                        {#8},
+                        json_object(
+                            key 'embedding_id' value json_value(t.COLUMN_VALUE, '$.embed_id' returning varchar2(50)),
+                            key 'embedding_source' value json_object('source_hash' VALUE rawtohex(standard_hash(src.TEXT, 'SHA256')))
+                        ) returning varchar2
+                    )
+                from (
+                    select TEXT from ({5}) s
+                    where not exists (
+                        select 1 from {0}.{1} t
+                        where json_value(t.{4}, '$.embedding_source.source_hash') = rawtohex(standard_hash(s.TEXT, 'SHA256'))
+                    )
+                    fetch first {9} rows only
+                ) src,
+                table(
+                        DBMS_VECTOR.UTL_TO_EMBEDDINGS(
+                                DATA   => DBMS_VECTOR.UTL_TO_CHUNKS(
+                                                DATA   => src.TEXT,
+                                                PARAMS => json({#6})),
+                                PARAMS => json({#7}))) t
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="embed-file-content" timeout="120000">
         <statement>
             insert into {0}.{1} (id, {2}, {3}, {4})
                 select

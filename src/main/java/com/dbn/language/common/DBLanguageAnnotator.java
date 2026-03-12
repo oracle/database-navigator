@@ -45,7 +45,7 @@ public abstract class DBLanguageAnnotator implements Annotator {
      * This will adjust text attributes accordingly
      */
     protected static void annotateFlavoredToken(@NotNull TokenPsiElement tokenPsiElement, AnnotationHolder holder) {
-        TokenTypeCategory flavor = tokenPsiElement.elementType.getFlavor();
+        TokenTypeCategory flavor = tokenPsiElement.elementType.flavor;
         if (flavor == null) return;
 
         TextAttributesKey textAttributes = switch (flavor) {

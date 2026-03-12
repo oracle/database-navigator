@@ -33,13 +33,21 @@ public class DBObjectFactoryInputListItemForm extends DBNFormBase {
 
     private final DBObjectFactoryInputForm<?> inputForm;
 
-    DBObjectFactoryInputListItemForm(@NotNull DBObjectFactoryInputListForm<?> parent, DBObjectFactoryInputForm<?> inputForm) {
-        super(parent);
+    DBObjectFactoryInputListItemForm(@NotNull DBObjectFactoryInputListForm<?> listForm, DBObjectFactoryInputForm<?> inputForm) {
+        super(listForm);
         this.inputForm = inputForm;
-        if (!inputForm.isReadonly()) {
-            ActionToolbar actionToolbar = Actions.createActionToolbar(removeActionPanel, true, new RemoveObjectAction());
-            removeActionPanel.add(actionToolbar.getComponent());
-        }
+
+        initActionPanel();
+    }
+
+    private void initActionPanel() {
+        if (inputForm.isReadonlyInput()) return;
+
+        DBObjectFactoryInputListForm<?> listForm = ensureParentComponent();
+        if (listForm.isReadonlyList()) return;
+
+        ActionToolbar actionToolbar = Actions.createActionToolbar(removeActionPanel, true, new RemoveObjectAction());
+        removeActionPanel.add(actionToolbar.getComponent());
     }
 
     @NotNull

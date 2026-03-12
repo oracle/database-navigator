@@ -6,26 +6,27 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
-import com.dbn.vector.model.chunk.ChunkConfig;
-import com.dbn.vector.model.embed.EmbedConfig;
-import com.dbn.vector.model.source.SourceConfig;
-import com.dbn.vector.model.staging.StagingConfig;
-import com.dbn.vector.model.store.StoreConfig;
-import com.dbn.vector.ui.chunk.ChunkConfigForm;
-import com.dbn.vector.ui.embed.EmbedConfigForm;
-import com.dbn.vector.ui.source.EmbeddingSourceForm;
-import com.dbn.vector.ui.staging.EmbeddingStagingConfigForm;
-import com.dbn.vector.ui.store.SaveVectorsForm;
+import com.dbn.vector.model.request.EmbeddingChunkingConfig;
+import com.dbn.vector.model.request.EmbeddingDestinationConfig;
+import com.dbn.vector.model.request.EmbeddingModelConfig;
+import com.dbn.vector.model.request.EmbeddingSourceConfig;
+import com.dbn.vector.model.request.EmbeddingStagingConfig;
+import com.dbn.vector.ui.request.EmbeddingChunkingConfigForm;
+import com.dbn.vector.ui.request.EmbeddingDestinationConfigForm;
+import com.dbn.vector.ui.request.EmbeddingModelConfigForm;
+import com.dbn.vector.ui.request.EmbeddingSourceConfigForm;
+import com.dbn.vector.ui.request.EmbeddingStagingConfigForm;
 import com.intellij.openapi.Disposable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+
+import static com.dbn.common.text.TextContent.html;
 
 public class VectorToolboxForm extends VectorToolboxFormBase {
   private JPanel mainPanel;
@@ -38,16 +39,16 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
   private JPanel hyperlinkPanel;
   private JPanel stagingConfigPanel;
 
-  private EmbeddingSourceForm embeddingSourceForm;
+  private EmbeddingSourceConfigForm embeddingSourceForm;
   private EmbeddingStagingConfigForm stagingConfigForm;
-  private ChunkConfigForm chunkConfigForm;
-  private EmbedConfigForm embedConfigForm;
-  private SaveVectorsForm saveVectorsForm;
+  private EmbeddingChunkingConfigForm chunkingConfigForm;
+  private EmbeddingModelConfigForm modelForm;
+  private EmbeddingDestinationConfigForm destinationForm;
 
   private final VectorEmbeddingRequest request;
 
-  public VectorToolboxForm(Disposable parent, ConnectionHandler connection, VectorEmbeddingRequest request) {
-    super(parent, connection);
+  public VectorToolboxForm(Disposable parent, VectorEmbeddingRequest request) {
+    super(parent);
     this.request = request;
 
     initHeaderPanel();
@@ -60,37 +61,39 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
   }
 
   private void initForms() {
-    ConnectionHandler connection = getConnection();
-
-    SourceConfig sourceConfig = request.getSourceConfig();
-    embeddingSourceForm = new EmbeddingSourceForm(this, connection);
+    EmbeddingSourceConfig sourceConfig = request.getSourceConfig();
+    embeddingSourceForm = new EmbeddingSourceConfigForm(this);
     DBNCollapsiblePanel sourceCollapsiblePanel = new DBNCollapsiblePanel(this, embeddingSourceForm, true /*TODO async sourceConfig.isExpanded()*/);
+    sourceCollapsiblePanel.setInfoContent(html(this, "info/embedding_source_config_info.html.ft"));
     sourceCollapsiblePanel.addToggleListener(expanded -> sourceConfig.setExpanded(expanded));
     sourcePanel.add(sourceCollapsiblePanel.getComponent());
 
-    StagingConfig stagingConfig = request.getStagingConfig();
-    stagingConfigForm = new EmbeddingStagingConfigForm(this, connection);
+    EmbeddingStagingConfig stagingConfig = request.getStagingConfig();
+    stagingConfigForm = new EmbeddingStagingConfigForm(this);
     DBNCollapsiblePanel stagingCollapsiblePanel = new DBNCollapsiblePanel(this, stagingConfigForm, true /*TODO async stagingConfig.isExpanded()*/);
+    stagingCollapsiblePanel.setInfoContent(html(this, "info/embedding_staging_config_info.html.ft"));
     stagingCollapsiblePanel.addToggleListener(expanded -> stagingConfig.setExpanded(expanded));
     stagingConfigPanel.add(stagingCollapsiblePanel.getComponent());
 
-    ChunkConfig chunkConfig = request.getChunkConfig();
-    chunkConfigForm = new ChunkConfigForm(this, connection);
-    DBNCollapsiblePanel chunkCollapsiblePanel = new DBNCollapsiblePanel(this, chunkConfigForm, true /*TODO async chunkConfig.isExpanded()*/);
+    EmbeddingChunkingConfig chunkConfig = request.getChunkConfig();
+    chunkingConfigForm = new EmbeddingChunkingConfigForm(this);
+    DBNCollapsiblePanel chunkCollapsiblePanel = new DBNCollapsiblePanel(this, chunkingConfigForm, true /*TODO async chunkConfig.isExpanded()*/);
+    chunkCollapsiblePanel.setInfoContent(html(this, "info/embedding_chunking_config_info.html.ft"));
     chunkCollapsiblePanel.addToggleListener(expanded -> chunkConfig.setExpanded(expanded));
     chunkConfigPanel.add(chunkCollapsiblePanel.getComponent());
 
-    EmbedConfig embedConfig = request.getEmbedConfig();
-    embedConfigForm = new EmbedConfigForm(this, connection);
-    DBNCollapsiblePanel embedCollapsiblePanel = new DBNCollapsiblePanel(this, embedConfigForm, true /* TODO async embedConfig.isExpanded()*/);
-    embedCollapsiblePanel.addToggleListener(expanded -> embedConfig.setExpanded(expanded));
+    EmbeddingModelConfig modelConfig = request.getModelConfig();
+    modelForm = new EmbeddingModelConfigForm(this);
+    DBNCollapsiblePanel embedCollapsiblePanel = new DBNCollapsiblePanel(this, modelForm, true /* TODO async embedConfig.isExpanded()*/);
+    embedCollapsiblePanel.addToggleListener(expanded -> modelConfig.setExpanded(expanded));
     embedConfigPanel.add(embedCollapsiblePanel.getComponent());
 
-    StoreConfig storeConfig = request.getStoreConfig();
-    saveVectorsForm = new SaveVectorsForm(this, connection);
-    DBNCollapsiblePanel saveCollapsiblePanel = new DBNCollapsiblePanel(this, saveVectorsForm, true /*TODO async storeConfig.isExpanded()*/);
-    saveCollapsiblePanel.addToggleListener(expanded -> storeConfig.setExpanded(expanded));
-    saveDataPanel.add(saveCollapsiblePanel.getComponent());
+    EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
+    destinationForm = new EmbeddingDestinationConfigForm(this);
+    DBNCollapsiblePanel destinationCollapsiblePanel = new DBNCollapsiblePanel(this, destinationForm, true /*TODO async storeConfig.isExpanded()*/);
+    destinationCollapsiblePanel.setInfoContent(html(this, "info/embedding_destination_config_info.html.ft"));
+    destinationCollapsiblePanel.addToggleListener(expanded -> destinationConfig.setExpanded(expanded));
+    saveDataPanel.add(destinationCollapsiblePanel.getComponent());
   }
 
   @Override
@@ -99,9 +102,9 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
     alignerData.registerForms(
             embeddingSourceForm,
             stagingConfigForm,
-            chunkConfigForm,
-            embedConfigForm,
-            saveVectorsForm);
+            chunkingConfigForm,
+            modelForm,
+            destinationForm);
   }
 
   public void setStagingConfigVisible(boolean visible) {
@@ -143,21 +146,26 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
   }
 
   @Override
+  protected VectorToolboxForm getToolboxForm() {
+    return this;
+  }
+
+  @Override
   public void resetFormChanges() {
     embeddingSourceForm.resetFormChanges();
     stagingConfigForm.resetFormChanges();
-    chunkConfigForm.resetFormChanges();
-    embedConfigForm.resetFormChanges();
-    saveVectorsForm.resetFormChanges();
+    chunkingConfigForm.resetFormChanges();
+    modelForm.resetFormChanges();
+    destinationForm.resetFormChanges();
   }
 
   @Override
   public void applyFormChanges() {
     embeddingSourceForm.applyFormChanges();
     stagingConfigForm.applyFormChanges();
-    chunkConfigForm.applyFormChanges();
-    embedConfigForm.applyFormChanges();
-    saveVectorsForm.applyFormChanges();
+    chunkingConfigForm.applyFormChanges();
+    modelForm.applyFormChanges();
+    destinationForm.applyFormChanges();
   }
 
   public void saveRequestTemplate(boolean reset) {

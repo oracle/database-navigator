@@ -52,13 +52,13 @@
     <option name="DBN.DefaultAttributes.DataEditor.ReadonlyData">
         <value>
             <option name="FOREGROUND" value="7A7E85"/>
-            <option name="BACKGROUND" value="191A1C"/>
+            <option name="BACKGROUND" value="1B1C1E"/>
         </value>
     </option>
     <option name="DBN.DefaultAttributes.DataEditor.LoadingData">
         <value>
             <option name="FOREGROUND" value="7A7E85"/>
-            <option name="BACKGROUND" value="2B2D30"/>
+            <option name="BACKGROUND" value="1B1C1E"/>
         </value>
     </option>
     <option name="DBN.DefaultAttributes.DataEditor.UpdatingData">

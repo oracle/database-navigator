@@ -56,8 +56,6 @@ import javax.swing.Icon;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
-import static com.dbn.common.thread.ThreadMonitor.isDispatcherThread;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -445,7 +443,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
     public boolean isPrecededByDot() {
         LeafPsiElement prevLeaf = getPrevLeaf();
         if (prevLeaf instanceof TokenPsiElement tokenPsiElement) {
-            return tokenPsiElement.getTokenType() == tokenPsiElement.getLanguage().getSharedTokenTypes().getChrDot();
+            return tokenPsiElement.getTokenType() == tokenPsiElement.getLanguage().getSharedTokenTypes().chrDot;
         }
         return false;
     }
@@ -512,18 +510,14 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
         ConnectionHandler connection = getConnection();
         if ((connection == null || connection.isVirtual()) && isObject() && isDefinition()) return null;
 
-        ref = nvl(ref, () -> new PsiResolveResult(this));
-
-        if (isDispatchThread()) return ref.getReference();
-        if (isDispatcherThread()) return ref.getReference();
+        if (ref == null) ref = new PsiResolveResult(this);
         if (!ref.isDirty()) return ref.getReference();
-
 
         boolean cancelled = false;
         try {
             ref.preResolve();
             CharSequence text = ref.getText();
-            if (text != null && text.length() > 0) {
+            if (text != null && !text.isEmpty()) {
                 if (getParent() instanceof QualifiedIdentifierPsiElement qualifiedIdentifier) {
                     resolveWithinQualifiedIdentifierElement(qualifiedIdentifier);
                 } else {

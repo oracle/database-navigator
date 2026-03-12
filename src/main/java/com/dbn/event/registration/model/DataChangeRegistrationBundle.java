@@ -93,7 +93,7 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
     }
 
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    public DataChangeRegistration getValueAt(int rowIndex, int columnIndex) {
         if (isInBounds(registrations, rowIndex)) {
             return registrations.get(rowIndex);
         }
@@ -171,10 +171,5 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
             case TABLE -> FilterOption.fromValues(getTableNames());
             case STATUS -> List.of(FILTER_STATUS_LISTENING, FILTER_STATUS_NOT_LISTENING);
         };
-    }
-
-    @Override
-    public ListModel getListModel() {
-        return gutterModel;
     }
 }

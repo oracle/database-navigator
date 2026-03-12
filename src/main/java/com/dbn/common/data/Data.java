@@ -53,6 +53,9 @@ public final class Data {
     public static <T> T asType(@Nullable Object object, Class<T> type) {
         if (object == null) return null;
 
+        Class<?> objectType = object.getClass();
+        if (type.isAssignableFrom(objectType)) return cast(object);
+
         if (type == Boolean.class)    return cast(asBoolean(object));
         if (type == Byte.class)       return cast(asByte(object));
         if (type == Character.class)  return cast(asCharacter(object));
@@ -74,9 +77,10 @@ public final class Data {
         if (type == BigInteger.class) return cast(asBigInteger(object));
         if (type == Object.class)     return cast(object);
 
-        if (type == String[].class) return cast(asStringArray(object));
+        if (type.isEnum())            return cast(asEnum(type, object));
+        if (type == String[].class)   return cast(asStringArray(object));
 
-        throw new UnsupportedOperationException("Cast from " + object.getClass() + " to " + type + " is not implemented");
+        throw new UnsupportedOperationException("Cast from " + objectType + " to " + type + " is not implemented");
         // TODO add more cast logic if required
     }
 
@@ -102,6 +106,15 @@ public final class Data {
                         csvToList(string, String.class) : // assumed csv
                         asList(object, o -> asString(o));
         return strings == null ? new String[0] : strings.toArray(new String[0]);
+    }
+
+    public static Enum asEnum(Class<?> type, Object object) {
+        if (object == null) return null;
+
+        String string = asString(object);
+        if (string == null) return null;
+
+        return Enum.valueOf((Class<Enum>)type, string);
     }
 
     public static Character asCharacter(@Nullable Object object) {

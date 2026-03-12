@@ -205,11 +205,6 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
     }
 
     @Override
-    public boolean isQuotedIdentifier() {
-        return false;
-    }
-
-    @Override
     public boolean isKeyword() {
         return false;
     }

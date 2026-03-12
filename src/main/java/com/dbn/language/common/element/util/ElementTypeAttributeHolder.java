@@ -17,10 +17,12 @@
 package com.dbn.language.common.element.util;
 
 import com.dbn.common.property.PropertyHolderBase;
+import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 import java.util.StringTokenizer;
 
+@NoArgsConstructor
 public class ElementTypeAttributeHolder extends PropertyHolderBase.LongStore<ElementTypeAttribute> {
 
     @Override

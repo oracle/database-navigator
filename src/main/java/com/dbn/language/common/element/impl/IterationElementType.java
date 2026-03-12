@@ -17,15 +17,15 @@
 package com.dbn.language.common.element.impl;
 
 import com.dbn.code.common.style.formatting.FormattingDefinition;
-import com.dbn.common.latent.Latent;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.IterationElementTypeLookupCache;
+import com.dbn.language.common.element.cache.IterationElementTypeCache;
 import com.dbn.language.common.element.parser.impl.IterationElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.SequencePsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,32 +34,33 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.ITERATION_SEPARATOR;
 
+@Slf4j
 public final class IterationElementType extends ElementTypeBase {
 
-    public ElementTypeBase iteratedElementType;
+    public ElementTypeBase iteratedElement;
     public TokenElementType[] separatorTokens;
     public int[] elementsCountVariants;
     public int minIterations;
 
-    private final Latent<Boolean> followedBySeparator = Latent.basic(() -> {
-        if (separatorTokens != null) {
-            for (TokenElementType separatorToken : separatorTokens) {
-                if (cache.isNextPossibleToken(separatorToken.tokenType)) {
-                    return Boolean.TRUE;
-                }
-            }
-        }
-        return Boolean.FALSE;
-    });
+    private Boolean followedBySeparator;
 
     public IterationElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
     }
 
     @Override
-    protected IterationElementTypeLookupCache createLookupCache() {
-        return new IterationElementTypeLookupCache(this);
+    public void initialize() {
+        if (initialized) return;
+        initialized = true;
+
+        iteratedElement.initialize();
+    }
+
+    @Override
+    protected IterationElementTypeCache createLookupCache() {
+        return new IterationElementTypeCache(this);
     }
 
     @NotNull
@@ -77,8 +78,10 @@ public final class IterationElementType extends ElementTypeBase {
             List<TokenElementType> separators = new ArrayList<>();
             while (tokenizer.hasMoreTokens()) {
                 String separatorTokenId = tokenizer.nextToken().trim();
-                TokenElementType separatorToken = new TokenElementType(bundle, this, separatorTokenId, TokenElementType.SEPARATOR);
+                TokenElementType separatorToken = new TokenElementType(this, separatorTokenId, id + ".i");
                         //bundle.getTokenElementType(separatorTokenId);
+
+                separatorToken.set(ITERATION_SEPARATOR, true);
                 separatorToken.setDefaultFormatting(separatorToken.isCharacter() ?
                         FormattingDefinition.NO_SPACE_BEFORE :
                         FormattingDefinition.ONE_SPACE_BEFORE);
@@ -93,7 +96,12 @@ public final class IterationElementType extends ElementTypeBase {
         }
         Element child = children.get(0);
         String type = child.getName();
-        iteratedElementType = bundle.resolveElementDefinition(child, type, this);
+        if (isMarkedOptional(child)) {
+            // not supported - prevent false expectations
+            log.warn("DBN - [{}] iterated element cannot be optional (iteration = {})", getLanguage().getID(), getId());
+        }
+
+        iteratedElement = bundle.resolveElementDefinition(child, type, this);
 
         String elementsCountDef = stringAttribute(def, "elements-count");
         if (elementsCountDef != null) {
@@ -142,24 +150,38 @@ public final class IterationElementType extends ElementTypeBase {
     }
 
     public boolean isSeparator(TokenElementType tokenElementType) {
-        if (separatorTokens != null) {
-            for (TokenElementType separatorToken: separatorTokens) {
-                if (separatorToken == tokenElementType) return true;
-            }
+        if (separatorTokens == null) return false;
+
+        for (TokenElementType separatorToken: separatorTokens) {
+            if (separatorToken == tokenElementType) return true;
         }
         return false;
     }
 
     public boolean isSeparator(TokenType tokenType) {
-        if (separatorTokens != null) {
-            for (TokenElementType separatorToken: separatorTokens) {
-                if (separatorToken.tokenType == tokenType) return true;
-            }
+        if (separatorTokens == null) return false;
+
+        for (TokenElementType separatorToken: separatorTokens) {
+            if (separatorToken.tokenType == tokenType) return true;
         }
         return false;
     }
 
     public boolean isFollowedBySeparator() {
-        return followedBySeparator.get() == Boolean.TRUE;
+        if (followedBySeparator == null) {
+            followedBySeparator = evaluateFollowedBySeparator();
+        }
+        return followedBySeparator;
+    }
+
+    private boolean evaluateFollowedBySeparator() {
+        if (separatorTokens == null) return false;
+
+        for (TokenElementType separatorToken : separatorTokens) {
+            if (cache.isNextPossibleToken(separatorToken.tokenType)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -24,6 +24,8 @@ import com.dbn.execution.java.wrapper.model.ClassWrapper;
 import com.dbn.execution.java.wrapper.model.FieldWrapper;
 import com.dbn.execution.java.wrapper.model.MethodWrapper;
 import com.dbn.execution.java.wrapper.model.ParameterWrapper;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaParameter;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -35,16 +37,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.dbn.common.util.Java.isPrimitive;
+import static com.dbn.common.util.Strings.indentText;
+import static java.util.Collections.emptyList;
 
 @Slf4j
+@NonNls
 public final class WrapperStatementBuilder {
     private final ProjectRef project;
 
@@ -88,31 +91,26 @@ public final class WrapperStatementBuilder {
         return sqlTypes;
     }
 
-    private List<String> createSQLToJava(WrapperModel model) {
-        List<String> javaConverterMethods = new ArrayList<>();
+    private List<String> createSQLToJavaConverters(WrapperModel model) {
+        List<String> converterMethods = new ArrayList<>();
 
-        String objArray = "objArray";
-        String javaObj = "javaObj";
         for (ClassWrapper classWrapper : model.getClasses()) {
             // Skip RETURN attributes and duplicates based on SQL type name.
             if (classWrapper.getArgumentDirection() == ClassWrapper.ArgumentDirection.OUT)
                 continue;
 
+            @NonNls
             Map<String, Object> context = new HashMap<>();
             context.put("JAVA_COMPLEX_TYPE", classWrapper.getClassName());
             context.put("CONVERTER_METHOD_NAME", classWrapper.getSqlToJavaConverterName());
-            context.put("OBJ_ARRAY", objArray);
-            context.put("JAVA_OBJECT", javaObj);
 
             String code;
             if (classWrapper.isArray()) {
                 // For arrays, set typecasting properties
                 String squareBrackets = String.join("", Collections.nCopies(classWrapper.getArrayDepth() - 1, "[]"));
-                String iterator = "i";
-                String iterationCode = buildSqlArrayToJavaAssignmentLine(classWrapper, javaObj, objArray, iterator, model);
+                String iterationCode = buildSqlArrayToJavaAssignmentLine(classWrapper);
 
                 context.put("SQUARE_BRACKETS", squareBrackets);
-                context.put("ITERATOR", iterator);
                 context.put("ITERATION_CODE", iterationCode);
 
                 code = generateCode("DBN - OJVM SQLArrayToJava.java", context);
@@ -120,45 +118,37 @@ public final class WrapperStatementBuilder {
                 List<String> fieldAssignments = new ArrayList<>();
                 if (classWrapper.getFields() != null && !classWrapper.getFields().isEmpty()) {
                     for (FieldWrapper fieldWrapper : classWrapper.getFields()) {
-                        String assignmentLine = buildSqlToJavaAssignmentLine(fieldWrapper, javaObj, objArray, model);
+                        String assignmentLine = buildSqlToJavaAssignmentLine(fieldWrapper);
                         fieldAssignments.add(assignmentLine);
                     }
-                    context.put("FIELD_ASSIGNMENTS", fieldAssignments);
                 }
-
+                context.put("FIELD_ASSIGNMENTS", fieldAssignments);
                 code = generateCode("DBN - OJVM SQLObjectToJava.java", context);
             }
-            javaConverterMethods.add(code);
+            converterMethods.add(code);
         }
-        return javaConverterMethods;
+        return converterMethods;
     }
 
 
-    private List<String> createJavaToSQL(WrapperModel model) {
-        List<String> javaConverterMethods = new ArrayList<>();
-        if (model.getMethods().isEmpty()) return javaConverterMethods;
-
-        String objArray = "objArray";
-        String javaObj = "javaObj";
+    private List<String> createJavaToSQLConverters(WrapperModel model) {
+        List<String> converterMethods = new ArrayList<>();
         for (ClassWrapper classWrapper : model.getClasses()) {
             if (classWrapper.getArgumentDirection() == ClassWrapper.ArgumentDirection.IN) continue;
 
+            @NonNls
             Map<String, Object> context = new HashMap<>();
 
             context.put("JAVA_COMPLEX_TYPE", classWrapper.getClassName());
-            context.put("SQL_OBJECT_TYPE", classWrapper.getSqlTypeName());
+            context.put("SQL_OBJECT_TYPE", classWrapper.getSqlType().getQualifiedName());
             context.put("CONVERTER_METHOD_NAME", classWrapper.getJavaToSqlConverterName());
-            context.put("OBJ_ARRAY", objArray);
-            context.put("JAVA_OBJECT", javaObj);
 
             String code;
             if (classWrapper.isArray()) {
                 String squareBrackets = String.join("", Collections.nCopies(classWrapper.getArrayDepth() - 1, "[]"));
-                String iterator = "i";
-                String iterationCode = buildJavaArrayToSqlAssignmentLine(classWrapper, objArray, javaObj, iterator, model);
+                String iterationCode = buildJavaArrayToSqlAssignmentLine(classWrapper);
 
                 context.put("SQUARE_BRACKETS", squareBrackets);
-                context.put("ITERATOR", iterator);
                 context.put("ITERATION_CODE", iterationCode);
                 code = generateCode("DBN - OJVM JavaArrayToSQL.java", context);
             } else {
@@ -166,17 +156,17 @@ public final class WrapperStatementBuilder {
                 List<String> fieldAssignments = new ArrayList<>();
                 if (classWrapper.getFields() != null && !classWrapper.getFields().isEmpty()) {
                     for (FieldWrapper fieldWrapper : classWrapper.getFields()) {
-                        String assignmentLine = buildJavaToSqlAssignmentLine(fieldWrapper, objArray, javaObj, model);
+                        String assignmentLine = buildJavaToSqlAssignmentLine(fieldWrapper);
                         fieldAssignments.add(assignmentLine);
                     }
-                    context.put("FIELD_ASSIGNMENTS", fieldAssignments);
                 }
+                context.put("FIELD_ASSIGNMENTS", fieldAssignments);
                 code = generateCode("DBN - OJVM JavaObjectToSQL.java", context);
             }
 
-            javaConverterMethods.add(code);
+            converterMethods.add(code);
         }
-        return javaConverterMethods;
+        return converterMethods;
     }
 
     private List<String> createJavaWrapperMethods(WrapperModel model) {
@@ -186,10 +176,11 @@ public final class WrapperStatementBuilder {
         for (MethodWrapper method : model.getMethods()) {
             String methodReturnType = resolveMethodReturnType(method);
             String methodName = method.getSurrogateJavaMethodName();
-            String methodParameters = buildMethodParameters(method, true);
-            String argumentConversions = buildArgumentConversions(method);
+            String methodParameters = buildMethodParameters(method,true);
             String methodInvocation = buildMethodInvocation(method, model.getClassName());
+            List<String> argumentConversions = buildArgumentConversions(method);
 
+            @NonNls
             Map<String, Object> context = new HashMap<>();
             context.put("METHOD_NAME", methodName);
             context.put("METHOD_PARAMETERS", methodParameters);
@@ -207,33 +198,70 @@ public final class WrapperStatementBuilder {
     @NonNls
     @NotNull
     private String createJavaWrapper(WrapperModel model) {
-        List<String> sqlMethods = createSQLToJava(model);
-        List<String> javaMethods = createJavaToSQL(model);
+        List<String> sqlConversionMethods = createSQLToJavaConverters(model);
+        List<String> javaConversionMethods = createJavaToSQLConverters(model);
         List<String> javaWrapperMethods = createJavaWrapperMethods(model);
+        List<String> codeWrapperMethods = createCodeWrapperMethods(model);
 
+        @NonNls
         Map<String, Object> context = new HashMap<>();
 
+        context.put("JAVA_IMPORT_PACKAGES", model.getJavaImportPackages());
         context.put("JAVA_WRAPPER_NAME", model.getJavaWrapperName());
-        context.put("SQL_CONVERSION_METHODS", sqlMethods);
-        context.put("JAVA_CONVERSION_METHODS", javaMethods);
+        context.put("SQL_CONVERSION_METHODS", sqlConversionMethods);
+        context.put("JAVA_CONVERSION_METHODS", javaConversionMethods);
         context.put("JAVA_WRAPPER_METHODS", javaWrapperMethods);
-        context.put("FULLY_QUALIFIED_ORIGINAL_CLASSNAME", model.getClassName());
-
-        context.put("JAVA_CLASS", model.getClassName());
-
-        context.put("WRAPPER_METHODS", model.getMethods());
+        context.put("CODE_WRAPPER_METHODS", codeWrapperMethods);
 
         return generateCode("DBN - OJVM JavaWrapper.java", context);
 
     }
 
+    private List<String> createCodeWrapperMethods(WrapperModel model) {
+        WrapperModelInput modelInput = model.getInput();
+        Map<String, String> codeInputs = modelInput.getCodeInputs();
+        if (codeInputs == null) return emptyList();
+
+        List<String> codeWrappers = new ArrayList<>();
+        for (String paramName : codeInputs.keySet()) {
+
+            DBJavaMethod method = modelInput.getJavaMethods().get(0);
+            DBJavaParameter parameter = method.getParameter(paramName);
+
+            String parameterType = parameter.getJavaClassName();
+            short parameterIndex = parameter.getPosition();
+
+            String codeInput = codeInputs.get(paramName);
+            String codeBlock = indentText(codeInput.trim(), 4);
+            String arrayBrackets = arrayBrackets(parameter.getArrayDepth());
+
+            @NonNls
+            String wrapper = String.format("""
+                    private static %s%s INIT_PARAMETER_%s() {
+                    %s
+                    }
+                    """,
+                    parameterType,
+                    arrayBrackets,
+                    parameterIndex,
+                    codeBlock);
+
+
+            codeWrappers.add(indentText(wrapper, 4));
+        }
+
+        return codeWrappers;
+    }
+
     private String createSQLWrapper(WrapperModel model) {
+        @NonNls
         Map<String, Object> context = new HashMap<>();
         context.put("SQL_WRAPPER_NAME", model.getSqlWrapperName());
         context.put("JAVA_WRAPPER_NAME", model.getJavaWrapperName());
         // Transform each WrapperJavaMethod into a map with precomputed values.
         List<Map<String, Object>> methodList = model.getMethods().stream()
                 .map(method -> {
+                    @NonNls
                     Map<String, Object> m = new HashMap<>();
                     m.put("JAVA_METHOD_NAME", method.getSurrogateJavaMethodName());
                     m.put("SQL_METHOD_NAME", method.getSqlMethodName());
@@ -287,334 +315,234 @@ public final class WrapperStatementBuilder {
     }
 
     public String buildWrapperRemovalStatement(WrapperModel model) {
-        Properties properties = new Properties();
+        @NonNls
+        Map<String, Object> context = new HashMap<>();
 
-        boolean isFunction = model.getMethods().get(0).getReturnParameter() != null
-                && model.getMethods().get(0).getReturnParameter().getJavaTypeName() != null;
-        properties.setProperty("TYPE", isFunction ? "FUNCTION" : "PROCEDURE");
+        ParameterWrapper returnParameter = model.getMethods().get(0).getReturnParameter();
+        boolean isFunction = returnParameter != null && returnParameter.getJavaTypeName() != null;
+        context.put("SQL_WRAPPER_TYPE", isFunction ? "FUNCTION" : "PROCEDURE");
 
         Set<String> sqlTypeNames = model.getSqlTypeNames();
-        String allTypes = String.join(",", sqlTypeNames);
-        properties.setProperty("SQLTYPES", allTypes);
-        properties.setProperty("SQL_WRAPPER_NAME", model.getSqlWrapperName());
-        properties.setProperty("JAVA_WRAPPER_NAME", model.getJavaWrapperName());
-        return generateCode("DBN - OJVM SQLCleanup.sql", properties);
+        context.put("SQL_TYPE_NAMES", sqlTypeNames);
+        context.put("SQL_WRAPPER_NAME", model.getSqlWrapperName());
+        context.put("JAVA_WRAPPER_NAME", model.getJavaWrapperName());
+        return generateCode("DBN - OJVM SQLCleanup.sql", context);
     }
 
-    public String buildSqlToJavaAssignmentLine(FieldWrapper fieldWrapper,
-                                               String targetName, String arrayName,
-                                               WrapperModel model) {
-        StringBuilder line = new StringBuilder();
+    public String buildSqlToJavaAssignmentLine(FieldWrapper fieldWrapper) {
+        if (!fieldWrapper.isUpdatable()) return ""; // TODO will this ever happen?
 
-        // Determine assignment operator and line terminator based on access modifier.
-        String assignmentOperatorStart = "." + fieldWrapper.getName() + "=";
-        String assignmentOperatorEnd = "";
-        String lineTerminator = ";";
+        String fieldName = fieldWrapper.getName();
+        int fieldIndex = fieldWrapper.getIndex();
 
-        if (!isPrimitive(fieldWrapper.getTypeClassName())) {
-            //check if value is not null before accessing it
-            line.append("  if(")
-                    .append(arrayName)
-                    .append("[" + fieldWrapper.getIndex() + "]")
-                    .append(" != null){");
-            lineTerminator = ";}";
-        }
-
-
-        if (!fieldWrapper.isAccessible()) {
-            if (fieldWrapper.getSetterName() == null)
-                targetName = "//" + targetName;
-            else {
-                assignmentOperatorStart = "." + fieldWrapper.getSetterName() + "(";
-                assignmentOperatorEnd = ")";
-            }
-
-        }
+        String valueExpression = "objArray[" + fieldIndex + "]";
 
         // Build conversion expression.
-        String conversionPrefix = "";
-        String conversionSuffix = "";
         if (fieldWrapper.isComplexType()) {
             // For complex types, wrap the SQL element with the proper converter.
+            WrapperModel model = fieldWrapper.getModel();
             ClassWrapper classWrapper = model.getFieldClassWrapper(fieldWrapper);
-            String converterMethod = classWrapper.getSqlToJavaConverterName();
+            String converterName = classWrapper.getSqlToJavaConverterName();
 
-            conversionPrefix = converterMethod + "(" +
-                    (fieldWrapper.isArray() ? "(java.sql.Array)" : "(java.sql.Struct)") + "(";
-            conversionSuffix = "))";
+            String castBlock = fieldWrapper.isArray() ? "(java.sql.Array)" : "(java.sql.Struct)";
+            valueExpression = converterName + "(" + castBlock + " " + valueExpression + ")";
         }
 
-        String typeCastStart = ((fieldWrapper.getTypeCastStart() != null) && (!fieldWrapper.isComplexType())) ?
-                fieldWrapper.getTypeCastStart() : "";
-        String typeCastEnd = ((fieldWrapper.getTypeCastEnd() != null) && (!fieldWrapper.isComplexType())) ?
-                fieldWrapper.getTypeCastEnd() : "";
+        // Type cast
+        String typeCastStart = fieldWrapper.getTypeCastStart();
+        String typeCastEnd = fieldWrapper.getTypeCastEnd();
+        typeCastStart = typeCastStart != null && !fieldWrapper.isComplexType() ? typeCastStart : "";
+        typeCastEnd = typeCastEnd != null && !fieldWrapper.isComplexType() ? typeCastEnd : "";
 
-        // Build the value expression.
-        String valueExpression = (typeCastStart)
-                + conversionPrefix
-                + arrayName + "[" + fieldWrapper.getIndex() + "]"
-                + conversionSuffix
-                + typeCastEnd;
+        valueExpression = typeCastStart + valueExpression + typeCastEnd;
 
-        // Complete the assignment line.
-        line.append(targetName)
-                .append(assignmentOperatorStart)
-                .append(valueExpression)
-                .append(assignmentOperatorEnd)
-                .append(lineTerminator);
+        // Update block
+        boolean accessible = fieldWrapper.isAccessible();
+        String setterName = fieldWrapper.getSetterName();
+        String assignmentStart = accessible ?
+                "." + fieldName + " = " :
+                "." + setterName + "(";
+        String assignmentEnd = accessible ? "" : ")";
+        String assignmentExpr = assignmentStart + valueExpression + assignmentEnd;
 
-        return line.toString();
+        // Assignment line
+        return "if (objArray[" + fieldIndex + "] != null) { javaObj" + assignmentExpr + "; }";
     }
 
 
-    public String buildJavaToSqlAssignmentLine(FieldWrapper fieldWrapper,
-                                               String targetArray, String javaObj,
-                                               WrapperModel model) {
-        StringBuilder line = new StringBuilder();
+    public String buildJavaToSqlAssignmentLine(FieldWrapper fieldWrapper) {
+        if (!fieldWrapper.isReadable()) return ""; // TODO will this ever happen?
 
-        // Determine assignment operator and line terminator based on access modifier.
-        String assignmentOperator = "[" + fieldWrapper.getIndex() + "] =";
-        String lineTerminator = ";";
-        String fieldAccessor = "." + fieldWrapper.getName();
+        String fieldName = fieldWrapper.getName();
+        int fieldIndex = fieldWrapper.getIndex();
 
-        if (!fieldWrapper.isAccessible()) {
-            if (fieldWrapper.getGetterName() == null)
-                targetArray = "//" + targetArray;
-            else
-                fieldAccessor = "." + fieldWrapper.getGetterName() + "()";
-        }
+        boolean accessible = fieldWrapper.isAccessible();
+        String getterName = fieldWrapper.getGetterName();
+        String fieldAccessor = accessible ?
+                "." + fieldName :
+                "." + getterName + "()";
 
-        String conversionStart = "";
-        String conversionEnd = "";
+        String valueExpression = "javaObj" + fieldAccessor;
 
         if (fieldWrapper.isArray() || fieldWrapper.isComplexType()) {
+            WrapperModel model = fieldWrapper.getModel();
             ClassWrapper classWrapper = model.getFieldClassWrapper(fieldWrapper);
             String converterName = classWrapper.getJavaToSqlConverterName();
-            conversionStart = converterName + "(";
-            conversionEnd = ")";
+
+            valueExpression = converterName + "(" +valueExpression + ")";
         }
 
-        // Build the value expression.
-        String valueExpression = conversionStart
-                + javaObj
-                + fieldAccessor
-                + conversionEnd;
-
-        // Complete the assignment line.
-        line.append(targetArray)
-                .append(assignmentOperator)
-                .append(valueExpression)
-                .append(lineTerminator);
-
-        return line.toString();
+        // Assignment line
+        return "objArray[" + fieldIndex + "] = " + valueExpression + ";";
     }
 
-    public String buildSqlArrayToJavaAssignmentLine(ClassWrapper classWrapper,
-                                                    String targetName, String arrayName,
-                                                    String iterator, WrapperModel model) {
-        StringBuilder line = new StringBuilder();
-
-        // Determine assignment operator and line terminator based on access modifier.
-        String assignmentOperator = " = ";
-        String lineTerminator = ";";
-
-        if (!isPrimitive(classWrapper.getClassName())) {
-            //check if value is not null before accessing it
-            line.append("  if(")
-                    .append(arrayName)
-                    .append("[").append(iterator).append("]")
-                    .append(" != null){");
-            lineTerminator = ";}";
-        }
-
-        // Begin the assignment statement.
-        line.append(targetName)
-                .append("[").append(iterator).append("]")
-                .append(assignmentOperator);
-
-        // Build conversion expression.
-        String conversionPrefix = "";
-        String conversionSuffix = "";
-
-        String getValueStart = "";
-        String getValueEnd = "";
+    public String buildSqlArrayToJavaAssignmentLine(ClassWrapper classWrapper) {
+        @NonNls
+        String valueExpression = "objArray[i]";
 
         if (classWrapper.getArrayDepth() <= 1) {
             SqlType sqlType = TypeMappings.getSqlType(classWrapper.getClassName());
 
             if (sqlType != null) {
-                getValueStart = sqlType.getTransformerPrefix();
-                getValueEnd = sqlType.getTransformerSuffix();
+                String transformerPrefix = sqlType.getTransformerPrefix();
+                String transformerSuffix = sqlType.getTransformerSuffix();
+                valueExpression = transformerPrefix + valueExpression + transformerSuffix;
             } else {
-                conversionPrefix = classWrapper.getContainedClassWrapper().getSqlToJavaConverterName() + "((java.sql.Struct)(";
-                conversionSuffix = "))";
+                String converterName = classWrapper.getContainedClassWrapper().getSqlToJavaConverterName();
+                valueExpression = converterName + "((java.sql.Struct) " + valueExpression + ")";
             }
         } else {
             // Multi-dimensional
-            conversionPrefix = classWrapper.getContainedClassWrapper().getSqlToJavaConverterName() + "((java.sql.Array)(";
-            conversionSuffix = "))";
+            String converterName = classWrapper.getContainedClassWrapper().getSqlToJavaConverterName();
+            valueExpression = converterName + "((java.sql.Array) " + valueExpression + ")";
         }
 
-        // Build the value expression.
-        String valueExpression = getValueStart
-                + conversionPrefix
-                + arrayName + "[" + iterator + "]"
-                + conversionSuffix
-                + getValueEnd;
-
-        // Complete the assignment line.
-        line.append(valueExpression).append(lineTerminator);
-
-        return line.toString();
+        return "if (objArray[i] != null) { javaObj[i] = " + valueExpression + "; }";
     }
 
-    public String buildJavaArrayToSqlAssignmentLine(ClassWrapper classWrapper,
-                                                    String targetSqlArray, String javaArrayName,
-                                                    String iterator, WrapperModel model) {
-        StringBuilder line = new StringBuilder();
-
-        // Determine assignment operator
-        String assignmentOperator = " = ";
-        String lineTerminator = ";";
-
-        // Begin the assignment statement.
-        line.append(targetSqlArray)
-                .append("[").append(iterator).append("]")
-                .append(assignmentOperator);
-
-        // Build conversion expression.
-        String conversionPrefix = "";
-        String conversionSuffix = "";
+    public String buildJavaArrayToSqlAssignmentLine(ClassWrapper classWrapper) {
+        @NonNls
+        String valueExpression = "javaObj[i]";
 
         ClassWrapper containedClassWrapper = classWrapper.getContainedClassWrapper();
         if (containedClassWrapper != null) {
             String converterMethodName = containedClassWrapper.getJavaToSqlConverterName();
-            conversionPrefix = converterMethodName + "(";
-            conversionSuffix = ")";
+            valueExpression = converterMethodName + "(" +  valueExpression + ")";
         }
 
-        // Build the value expression.
-        String valueExpression = conversionPrefix
-                + javaArrayName + "[" + iterator + "]"
-                + conversionSuffix;
-
-        // Complete the assignment line.
-        line.append(valueExpression).append(lineTerminator);
-
-        return line.toString();
+        return "objArray[i] = " + valueExpression + ";";
     }
 
     //methods for supporting wrapper creation
 
     public String getSqlParameters(MethodWrapper method) {
         List<ParameterWrapper> parameters = method.getParameters();
-        if (parameters.isEmpty()) return "";
-
+        // Filter out injected parameters
+        List<ParameterWrapper> filtered =
+                parameters.stream()
+                        .filter(e -> !e.isCodeInput())
+                        .toList();
+        if (filtered.isEmpty()) return "";
         AtomicInteger idx = new AtomicInteger(0);
-        return "(" + parameters
+        return "(" + filtered
                 .stream()
                 .map(e -> "arg_" + idx.getAndIncrement() + " " + e.getSqlTypeName())
                 .collect(Collectors.joining(", ")) + ")";
     }
 
     public String buildMethodParameters(MethodWrapper method, boolean includeArgumentNames) {
-        AtomicInteger idx = new AtomicInteger(0);
-        return "(" + method.getParameters()
-                .stream()
-                .map(e -> {
-                            String javaTypeName = e.getJavaTypeName();
-                            return (
-                                    (Objects.equals(javaTypeName, "java.lang.Character") || Objects.equals(javaTypeName, "char")) && !e.isArray() ? "java.lang.String" :
-                                            e.isArray() ? "java.sql.Array" :
-                                            e.isComplexType() ? "java.sql.Struct" :
-                                            javaTypeName)
-                                    + (includeArgumentNames ? " arg" + idx.getAndIncrement() : "");
-                        }
-                )
+        List<ParameterWrapper> params = method.getParameters();
+
+        return "(" + IntStream.range(0, params.size())
+                .filter(i -> !params.get(i).isCodeInput()) // Exclude injected
+                .mapToObj(i -> {
+                    String mappedType = getMappedType(params.get(i));
+                    return mappedType + (includeArgumentNames ? " arg" + i : "");
+                })
                 .collect(Collectors.joining(", ")) + ")";
     }
 
-    public String getArgumentsInJavaCaller(MethodWrapper method) {
+    public String getMappedType(ParameterWrapper parameter) {
+        String javaTypeName = parameter.getJavaTypeName();
+        return ((("java.lang.Character".equals(javaTypeName)
+                || "char".equals(javaTypeName)) && !parameter.isArray()) ? "java.lang.String" :
+                parameter.isArray() ? "java.sql.Array" :
+                parameter.isComplexType() ? "java.sql.Struct" :
+                                javaTypeName);
+    }
 
+    public String getArgumentsInJavaCaller(MethodWrapper method) {
         List<ParameterWrapper> params = method.getParameters();
 
-        return IntStream.range(0, params.size())            // i = 0 … n-1
-                .mapToObj(i -> {
-                    ParameterWrapper p = params.get(i);
-                    StringBuilder name = new StringBuilder("arg").append(i);
-
-                    if (p.isArray() || p.isComplexType()) {
-                        name.append("Java");
-                    } else {
-                        String t = p.getJavaTypeName();
-                        if ("char".equals(t) ||
-                                "java.lang.Character".equals(t)) {
-                            name.append("Char");
-                        }
-                    }
-                    return name.toString();
-                })
+        return IntStream.range(0, params.size())
+                .mapToObj(i -> "param" + i)
                 .collect(Collectors.joining(", "));
     }
 
+    public List<String> buildArgumentConversions(MethodWrapper method) {
+        List<String> argumentConversions = new ArrayList<>();
+        List<ParameterWrapper> parameters = method.getParameters();
 
-    public String buildArgumentConversions(MethodWrapper method) {
-        StringBuilder statements = new StringBuilder();
-        List<ParameterWrapper> methodAttributes = method.getParameters();
-        for (int i = 0; i < methodAttributes.size(); i++) {
-            ParameterWrapper methodAttribute = methodAttributes.get(i);
-            String javaTypeName = methodAttribute.getJavaTypeName();
-            if (methodAttribute.isArray() || methodAttribute.isComplexType()) {
-                // Build the type string with array dimensions if applicable.
-                StringBuilder typeBuilder = new StringBuilder(javaTypeName);
-                if (methodAttribute.isArray())
-                    typeBuilder.append("[]".repeat(Math.max(0, methodAttribute.getArrayDepth())));
+        for (int i = 0; i < parameters.size(); i++) {
+            @NonNls
+            String statement;
 
-                // Construct the conversion statement.
-                statements.append(typeBuilder)
-                        .append(" arg").append(i).append("Java = ")
-                        .append(methodAttribute.getConverterName())
-                        .append("(arg").append(i).append(");")
-                        .append("\n");
+            ParameterWrapper parameter = parameters.get(i);
+            String javaTypeName = parameter.getJavaTypeName();
+            String arrayBrackets = arrayBrackets(parameter.getArrayDepth());
+            if (parameter.isCodeInput()) {
+                statement = String.format(
+                        "%s%s param%d = INIT_PARAMETER_%d();",
+                        javaTypeName, arrayBrackets, i, i);
+
+            } else if (parameter.isArray() || parameter.isComplexType()) {
+                String converterName = parameter.getConverterName();
+                statement = String.format(
+                        "%s%s param%d = %s(arg%d);",
+                        javaTypeName, arrayBrackets, i, converterName, i);
+
             } else if ("char".equals(javaTypeName) || "java.lang.Character".equals(javaTypeName)) {
-                statements.append(
-                        getCharacterArgumentInitialization(javaTypeName, "arg", i)
-                ).append("\n");
+                statement = getCharacterArgumentInitialization(javaTypeName, i);
+
+            } else {
+                statement = String.format(
+                        "%s%s param%d = arg%d;",
+                        javaTypeName, arrayBrackets, i, i);
             }
+
+            argumentConversions.add(statement);
         }
-        return statements.toString();
+        return argumentConversions;
     }
 
-    private String getCharacterArgumentInitialization(String javaTypeName,
-                                                      String originalArgName,
-                                                      int argumentIndex) {
+    private String getCharacterArgumentInitialization(
+            String javaTypeName,
+            int argumentIndex) {
 
-        String srcName = originalArgName + argumentIndex;
-        String destName = "arg" + argumentIndex + "Char";
-        StringBuilder sb = new StringBuilder();
+        String sourceName = "arg" + argumentIndex;
+        String destinationName = "param" + argumentIndex;
+
+        @NonNls
         SqlType sqlType = TypeMappings.getSqlType(javaTypeName);
 
+        String transformerPrefix = sqlType.getTransformerPrefix();
+        String transformerSuffix = sqlType.getTransformerSuffix();
         if ("char".equals(javaTypeName)) {
-            sb.append("char ").append(destName)
-                    .append(" = ")
-                    .append(sqlType.getTransformerPrefix())
-                    .append(srcName)
-                    .append(sqlType.getTransformerSuffix())
-                    .append(";");
+            return String.format("char %s = %s%s%s;",
+                    destinationName,
+                    transformerPrefix,
+                    sourceName,
+                    transformerSuffix);
         } else { // java.lang.Character
-            sb.append("java.lang.Character ").append(destName)
-                    .append(" = null;\n")
-                    .append("if (").append(srcName)
-                    .append(" != null && ").append(srcName).append(".length() > 0) {\n")
-                    .append("    ").append(destName)
-                    .append(" = ")
-                    .append(sqlType.getTransformerPrefix())
-                    .append(srcName)
-                    .append(sqlType.getTransformerSuffix())
-                    .append(";\n")
-                    .append("}");
+            return String.format("java.lang.Character %s = %s == null || %s.length() == 0 ? null : %s%s%s;",
+                    destinationName,
+                    sourceName,
+                    sourceName,
+                    transformerPrefix,
+                    sourceName,
+                    transformerSuffix);
         }
-        return sb.toString();
+
     }
 
 
@@ -637,7 +565,8 @@ public final class WrapperStatementBuilder {
         return returnJavaType;
     }
 
-    public String buildMethodInvocation(MethodWrapper method, String fullyQualifiedOriginalClassName) {
+    public String buildMethodInvocation(MethodWrapper method,
+                                        String fullyQualifiedOriginalClassName) {
         ParameterWrapper returnType = method.getReturnParameter();
         StringBuilder statement = new StringBuilder();
         String converterMethodStart = "";
@@ -665,11 +594,22 @@ public final class WrapperStatementBuilder {
         }
 
         if (returnType != null) {
+            if(returnType.isCodeInput()) { // TODO when will this ever happen?
+                String declaration = returnType.getJavaTypeName() +
+                        arrayBrackets(returnType.getArrayDepth())
+                        + " retStr = new " + statement + ";\n";
+                return declaration +
+                        " if(retStr! = null)\n"
+                        + "   return retStr.toString();"
+                        + "return null;";
+
+            }
             return "return " + statement + ";";
         }
         return statement + ";";
     }
 
+    @NonNls
     private String getCharReturnStatement(String returnCaller, String javaTypeName) {
         if ("char".equals(javaTypeName)) {
             return "return String.valueOf(" + returnCaller + ");";
@@ -682,8 +622,12 @@ public final class WrapperStatementBuilder {
         return TemplateUtilities.generateCode(getProject(), templateName, properties);
     }
 
-    private String generateCode(@NonNls String templateName, Map<String, Object> context) {
+    private String generateCode(@NonNls String templateName, @NonNls Map<String, Object> context) {
         return TemplateUtilities.generateCode(getProject(), templateName, context);
     }
 
+
+    public static String arrayBrackets(int arrayDepth) {
+        return "[]".repeat(Math.max(0, arrayDepth));
+    }
 }

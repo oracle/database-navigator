@@ -19,7 +19,7 @@ package com.dbn.language.common.element.impl;
 import com.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dbn.code.common.style.formatting.SpacingDefinition;
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.IdentifierElementTypeLookupCache;
+import com.dbn.language.common.element.cache.IdentifierElementTypeCache;
 import com.dbn.language.common.element.parser.impl.IdentifierElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.element.util.ElementTypeDefinition;
@@ -50,14 +50,21 @@ public final class IdentifierElementType extends LeafElementType {
     private boolean localReference; // is local reference
 
 
+    public IdentifierElementType(ElementTypeBase parent, String id) {
+        super(parent.bundle, parent, id);
+        tokenType = bundle.getTokenTypeBundle().getIdentifier();
+        objectType = DBObjectType.ANY;
+        identifierType = IdentifierType.OBJECT;
+    }
+
     public IdentifierElementType(ElementTypeBundle bundle, ElementTypeBase parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
         tokenType = bundle.getTokenTypeBundle().getIdentifier();
     }
 
     @Override
-    public IdentifierElementTypeLookupCache createLookupCache() {
-        return new IdentifierElementTypeLookupCache(this);
+    public IdentifierElementTypeCache createLookupCache() {
+        return new IdentifierElementTypeCache(this);
     }
 
     @NotNull
@@ -117,7 +124,7 @@ public final class IdentifierElementType extends LeafElementType {
         String prefix =
                 isObject() ? (isReference() ? "object-ref " : "object-def ") :
                 isAlias() ? (isReference() ? "alias-ref " : "alias-def ") :
-                isVariable() ? (isReference() ? "variable-ref " : "variable-def ") : "unknown";
+                isVariable() ? (isReference() ? "variable-ref " : "variable-def ") : "unknown ";
         return prefix + getObjectTypeName() + " (" + getId() + ")";
     }
 
@@ -150,7 +157,7 @@ public final class IdentifierElementType extends LeafElementType {
     }
 
     public String getObjectTypeName() {
-        return objectType.getName();
+        return objectType == null ? DBObjectType.ANY.getName() : objectType.getName();
     }
 
     public String getQualifiedObjectTypeName() {

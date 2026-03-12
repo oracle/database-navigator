@@ -30,7 +30,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
 import static com.dbn.common.ui.util.TextFields.getText;
@@ -39,7 +38,7 @@ public class RenameExecutionResultForm extends DBNFormBase {
     private JPanel headerPanel;
     private JPanel mainPanel;
     private JPanel hintPanel;
-    private JTextField resultNameTextField;
+    private JTextField nameTextField;
     private JCheckBox stickyCheckBox;
 
     RenameExecutionResultForm(RenameExecutionResultDialog parent, @NotNull ExecutionResult executionResult) {
@@ -49,31 +48,36 @@ public class RenameExecutionResultForm extends DBNFormBase {
                 "Execution result - " + executionResult.getName(),
                 executionResult.getIcon(),
                 executionResult.getConnection().getEnvironmentType().getColor());
-        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
-
-        TextContent hint = plain("Use \"Sticky\" option to retain the name after the result is closed.");
-        DBNHintForm hintForm = new DBNHintForm(this, hint, null, false);
-        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        headerPanel.add(headerForm.getComponent());
 
         String resultName = executionResult.getName();
-        resultNameTextField.setText(resultName);
+        nameTextField.setText(resultName);
 
-        ExecutionManager executionManager = ExecutionManager.getInstance(ensureProject());
-        stickyCheckBox.setSelected(executionManager.isRetainStickyNames());
+        if (executionResult.supportsStickyNames()) {
+            TextContent hint = plain("Use \"Sticky\" option to retain the name after the result is closed.");
+            DBNHintForm hintForm = new DBNHintForm(this, hint, null, false);
+            hintPanel.add(hintForm.getComponent());
+
+            ExecutionManager executionManager = ExecutionManager.getInstance(ensureProject());
+            stickyCheckBox.setSelected(executionManager.isRetainStickyNames());
+        } else {
+            hintPanel.setVisible(false);
+            stickyCheckBox.setVisible(false);
+        }
     }
 
     protected void initValidation() {
-        addTextValidation(resultNameTextField, n -> !Strings.isEmpty(n), "Please specify a result name");
+        addTextValidation(nameTextField, n -> !Strings.isEmpty(n), "Please specify a result name");
     }
 
     @Nullable
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return resultNameTextField;
+        return nameTextField;
     }
 
     public String getResultName() {
-        return getText(resultNameTextField);
+        return getText(nameTextField);
     }
 
     public boolean isStickyResultName() {

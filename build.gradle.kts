@@ -20,12 +20,11 @@ import com.github.jk1.license.render.ReportRenderer
 import com.github.jk1.license.render.TextReportRenderer
 import org.gradle.kotlin.dsl.register
 
-// import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
+// https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.9.20"
-    id("org.jetbrains.intellij") version "1.16.0"
+    id("org.jetbrains.kotlin.jvm") version "2.2.20"
+    id("org.jetbrains.intellij.platform") version "2.11.0"
     id("com.github.jk1.dependency-license-report") version "2.9"
 }
 
@@ -42,9 +41,9 @@ repositories {
     maven(url = uri("../dbn-libraries/_repository"))
     maven(url = uri("lib"))
     mavenCentral()
-    flatDir {
-        dirs("libs")
-    }
+    flatDir { dirs("libs") }
+
+    intellijPlatform { defaultRepositories() }
 }
 
 dependencies {
@@ -52,6 +51,17 @@ dependencies {
 
     annotationProcessor("org.projectlombok:lombok:1.18.36")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
+
+    intellijPlatform {
+        intellijIdea("2024.3.3")
+
+        // https://plugins.jetbrains.com/docs/intellij/plugin-dependencies.html#bundled-and-other-plugins
+        bundledPlugins(
+            "com.intellij.java",
+            "com.intellij.modules.json",
+            "com.intellij.copyright"
+        )
+    }
 
     // ********** DEPENDENCY TREE MODEL **********
 /*
@@ -237,15 +247,23 @@ sourceSets {
         }
     }
 }
+intellijPlatform {
+    pluginConfiguration {
+        ideaVersion {
+            untilBuild = provider { null }
+        }
+    }
 
-// Configure Gradle IntelliJ Plugin
-// Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
-intellij {
-    version.set("2024.3.3")
-    type.set("IC") // Target IDE Platform
-    updateSinceUntilBuild.set(false)
+    buildSearchableOptions = false
+    signing {
+        certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
+        privateKey.set(System.getenv("PRIVATE_KEY"))
+        password.set(System.getenv("PRIVATE_KEY_PASSWORD"))
+    }
 
-    plugins.set(listOf("java", "json", "copyright"))
+    publishing {
+        token.set(System.getenv("PUBLISH_TOKEN"))
+    }
 }
 
 tasks.register("copyBundledJdbcLibs") {
@@ -296,37 +314,23 @@ tasks.prepareSandbox {
 }
 
 tasks {
-    // Set the JVM compatibility versions
     withType<JavaCompile> {
         sourceCompatibility = "17"
         targetCompatibility = "17"
-    }
 
-    /* no kotlin code yet
-    withType<KotlinCompile> {
-      kotlinOptions.jvmTarget = "17"
+        // deprecated api usage is a common thing in DBN given the
+        // wide range of IntelliJ versions we support with few compatibility builds
+        options.compilerArgs.add("-Xlint:-deprecation")
     }
-    */
 
     test {
-        // we are also excluding two ChecksumTest cases if we are on Linux
         if (project.hasProperty("excludeTests")) {
-            var excludeTests: String = project.properties["excludeTests"] as String
+            val excludeTests: String = project.properties["excludeTests"] as String
             excludeTests.replace("\\s", "").split(",", ";").forEach { excluded ->
-                System.out.println("Excluding testcase: " + excluded)
+                    println("Excluding testcase: $excluded")
                 exclude(excluded)
             }
         }
-    }
-
-    signPlugin {
-        certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
-        privateKey.set(System.getenv("PRIVATE_KEY"))
-        password.set(System.getenv("PRIVATE_KEY_PASSWORD"))
-    }
-
-    publishPlugin {
-        token.set(System.getenv("PUBLISH_TOKEN"))
     }
 
     runIde {
@@ -334,9 +338,9 @@ tasks {
         var waitForDebugger = "n"
         if (project.hasProperty("waitForDebugger")) {
             waitForDebugger = "y"
-            System.out.println("runIde is waiting for a debugger to attach")
+            println("runIde is waiting for a debugger to attach")
         }
-        var jvmArgsMutable = mutableListOf(
+        val jvmArgsMutable = mutableListOf(
             "-Xms512m",
             "-Xmx2048m",
             "-agentlib:jdwp=transport=dt_socket,server=y,suspend=$waitForDebugger,address=1044",
@@ -344,13 +348,8 @@ tasks {
 
         if (project.hasProperty("enableAssertions")) {
             jvmArgsMutable.add("-ea")
-            System.out.println("Java Assertions enabled")
+            println("Java Assertions enabled")
         }
-        // make it immutable
         jvmArgs = jvmArgsMutable.toList()
-    }
-
-    buildSearchableOptions {
-        enabled = false
     }
 }

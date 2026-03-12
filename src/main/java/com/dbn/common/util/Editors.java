@@ -446,7 +446,7 @@ public class Editors {
 
         Project project = editor.getProject();
         IdeFocusManager ideFocusManager = IdeFocusManager.getInstance(project);
-        Dispatch.run(() -> ideFocusManager.requestFocus(editor.getContentComponent(), true));
+        Dispatch.run(editor.getComponent(), () -> ideFocusManager.requestFocus(editor.getContentComponent(), true));
     }
 
     public static VirtualFile getSelectedFile(Project project) {

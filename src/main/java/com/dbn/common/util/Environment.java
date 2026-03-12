@@ -16,6 +16,7 @@
 
 package com.dbn.common.util;
 
+import com.dbn.DatabaseNavigator;
 import com.intellij.lang.Language;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.application.ApplicationManager;
@@ -23,6 +24,7 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @UtilityClass
@@ -57,6 +59,12 @@ public class Environment {
         int targetMinor = Integer.parseInt(targetParts[1]);
 
         return currentMinor > targetMinor;
+    }
+
+    public static boolean isVersionUpdate() {
+        // verifies if the configuration is not based on current plugin version
+        DatabaseNavigator dbn = DatabaseNavigator.getInstance();
+        return !Objects.equals(dbn.getPluginVersion(), dbn.getConfigVersion());
     }
 
     @NonNls

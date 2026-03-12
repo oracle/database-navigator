@@ -16,55 +16,51 @@
 
 package com.dbn.object.factory.model;
 
-import com.dbn.common.constant.PseudoConstant;
-import com.dbn.object.type.DBCredentialType;
+import com.dbn.common.data.Data;
 import lombok.Getter;
-import org.jetbrains.annotations.NonNls;
+import lombok.Setter;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Unsafe.cast;
 
-
 @Getter
-@SuppressWarnings("unused")
-public class DBObjectAttribute<T> extends PseudoConstant<DBObjectAttribute<T>> {
+@Setter
+public class DBObjectAttribute<T> {
+    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([^}]+)\\}");
+    private final DBObjectSpec parent;
+    private String id;
+    private T value;
+    private boolean readonly;
 
-    public static final DBObjectAttribute<String> OWNER_NAME = new DBObjectAttribute<>("OWNER_NAME", String.class);
-    public static final DBObjectAttribute<String> OBJECT_DETAIL = new DBObjectAttribute<>("OBJECT_DETAIL", String.class);
-    public static final DBObjectAttribute<String> DATA_TYPE = new DBObjectAttribute<>("DATA_TYPE", String.class);
 
-    public static final DBObjectAttribute<Integer> DATA_LENGTH = new DBObjectAttribute<>("DATA_LENGTH", Integer.class);
-    public static final DBObjectAttribute<Integer> DATA_PRECISION = new DBObjectAttribute<>("DATA_PRECISION", Integer.class);
-
-    public static final DBObjectAttribute<Boolean> IS_INPUT = new DBObjectAttribute<>("IS_INPUT", Boolean.class);
-    public static final DBObjectAttribute<Boolean> IS_OUTPUT = new DBObjectAttribute<>("IS_OUTPUT", Boolean.class);
-    public static final DBObjectAttribute<Boolean> IS_NOT_NULL = new DBObjectAttribute<>("IS_NOT_NULL", Boolean.class);
-    public static final DBObjectAttribute<Boolean> IS_PRIMARY_KEY = new DBObjectAttribute<>("IS_PRIMARY_KEY", Boolean.class);
-
-    public static final DBObjectAttribute<String> CONSTRAINT_TYPE = new DBObjectAttribute<>("CONSTRAINT_TYPE", String.class);
-    public static final DBObjectAttribute<String[]> CONSTRAINT_COLUMNS = new DBObjectAttribute<>("CONSTRAINT_COLUMNS", String[].class);
-
-    public static final DBObjectAttribute<DBCredentialType> CREDENTIAL_TYPE = new DBObjectAttribute<>("CREDENTIAL_TYPE", DBCredentialType.class);
-    public static final DBObjectAttribute<String> USER_NAME = new DBObjectAttribute<>("USER_NAME", String.class);
-    public static final DBObjectAttribute<String> USER_OCID = new DBObjectAttribute<>("USER_OCID", String.class);
-    public static final DBObjectAttribute<String> TENANCY_OCID = new DBObjectAttribute<>("TENANCY_OCID", String.class);
-    public static final DBObjectAttribute<String> PRIVATE_KEY = new DBObjectAttribute<>("PRIVATE_KEY", String.class);
-    public static final DBObjectAttribute<String> FINGERPRINT = new DBObjectAttribute<>("FINGERPRINT", String.class);
-    public static final DBObjectAttribute<char[]> PASSWORD = new DBObjectAttribute<>("PASSWORD", char[].class);
-    public static final DBObjectAttribute<char[]> ACCESS_TOKEN = new DBObjectAttribute<>("ACCESS_TOKEN", char[].class);
-
-    private final Class<T> type;
-
-    public static <T> DBObjectAttribute<T> get(String id) {
-        return PseudoConstant.get(DBObjectAttribute.class, id);
+    public DBObjectAttribute(DBObjectSpec parent) {
+        this.parent = parent;
     }
 
-    private DBObjectAttribute(@NonNls String id) {
-        super(id);
-        this.type = cast(Object.class);
+    public T getValue() {
+        if (value == null) return null;
+        if (!(value instanceof String string)) return value;
+        if (!string.contains("${")) return value;
+
+        DBObjectSpec rootObject = getParent().getRootObject();
+
+        Matcher matcher = PLACEHOLDER_PATTERN.matcher(string);
+        StringBuilder sb = new StringBuilder();
+
+        while (matcher.find()) {
+            String attributeId = matcher.group(1);
+            String attributeValue = findAttributeValue(rootObject, attributeId);
+            matcher.appendReplacement(sb, Matcher.quoteReplacement(attributeValue));
+        }
+        matcher.appendTail(sb);
+        return cast(sb.toString());
+
     }
 
-    private DBObjectAttribute(@NonNls String id, Class<T> type) {
-        super(id);
-        this.type = type;
+    private String findAttributeValue(DBObjectSpec spec, String attributeId) {
+        Object value = spec.getAttributeValue(attributeId);
+        return Data.asString(value);
     }
 }

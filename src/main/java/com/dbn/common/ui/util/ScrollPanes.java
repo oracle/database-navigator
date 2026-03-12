@@ -19,9 +19,11 @@ package com.dbn.common.ui.util;
 import com.intellij.util.ui.ScrollUtil;
 import lombok.experimental.UtilityClass;
 
+import javax.swing.JComponent;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.Timer;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 
 @UtilityClass
@@ -51,5 +53,14 @@ public class ScrollPanes {
             Timer timer = (Timer) e.getSource();
             timer.stop();
         }
+    }
+
+    public static void recalibrateScrollContainer(JComponent component) {
+        JScrollPane scrollPane = UserInterface.getParentOfType(component, JScrollPane.class);
+        if (scrollPane == null) return;
+
+        Dimension preferredSize = scrollPane.getViewport().getPreferredSize();
+        scrollPane.setPreferredSize(preferredSize);
+        UserInterface.repaint(scrollPane.getParent());
     }
 }

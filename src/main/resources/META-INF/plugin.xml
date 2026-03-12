@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.7.2.0</version>
+    <version>3.7.3.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -27,7 +27,7 @@
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
     <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
     <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
-    <idea-version since-build="201.6668.113" until-build="253.*"/>
+    <idea-version since-build="201.6668.113" until-build="261.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
             <b>Database Development and Management Tool</b><br></br>
@@ -53,8 +53,15 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.7.3</b>
+            <ul>
+                <li>Support for latest IDE versions
+                <li>Fixed issue with sqlite database browser
+                <li>Bug fixes
+            </ul>
             <li><b>3.7.2</b>
             <ul>
+                <li>Support for latest IDE EAP versions
                 <li>Bug fixes
             </ul>
             <li><b>3.7.1</b>
@@ -262,6 +269,7 @@
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
     </extensions>
     <extensionPoints>
+        <extensionPoint name="objectFilter" qualifiedName="com.dbn.objectFilter" interface="com.dbn.object.cache.DBObjectFilter" dynamic="true"/>
         <extensionPoint name="objectFactoryAdapter" qualifiedName="com.dbn.objectFactoryAdapter" interface="com.dbn.object.factory.ObjectFactoryAdapter" dynamic="true"/>
         <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterExtension" dynamic="true"/>
 
@@ -274,6 +282,10 @@
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
     </extensionPoints>
     <extensions defaultExtensionNs="com.dbn">
+        <!--object filters-->
+        <objectFilter implementation="com.dbn.vector.model.request.EmbeddingStagingTableFilter"/>
+        <objectFilter implementation="com.dbn.vector.model.request.EmbeddingDestinationTableFilter"/>
+
         <!--object factory adapters-->
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBAIModelFactoryAdapter"/>
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBJavaClassFactoryAdapter"/>

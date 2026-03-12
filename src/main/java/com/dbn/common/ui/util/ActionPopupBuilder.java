@@ -34,6 +34,7 @@ import com.intellij.openapi.util.Condition;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.SwingConstants;
 import java.awt.Component;
 import java.util.List;
 import java.util.function.Consumer;
@@ -57,6 +58,7 @@ public class ActionPopupBuilder {
     private final DataContext dataContext;
 
     private String title;
+    private String hint;
     private JBPopupFactory.ActionSelectionAid selectionAid;
 
     private String actionPlace = ActionPlaces.POPUP;
@@ -91,6 +93,11 @@ public class ActionPopupBuilder {
 
     public ActionPopupBuilder withTitle(String title) {
         this.title = title;
+        return this;
+    }
+
+    public ActionPopupBuilder withHint(String hint) {
+        this.hint = hint;
         return this;
     }
 
@@ -148,6 +155,9 @@ public class ActionPopupBuilder {
         if (title != null && !titleVisible) {
             // set hidden accessibility title to action list
             setAccessibleName(popup, title);
+        }
+        if (hint != null) {
+            popup.setAdText(hint, SwingConstants.LEFT);
         }
         return popup;
     }

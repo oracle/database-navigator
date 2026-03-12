@@ -20,10 +20,11 @@ import com.dbn.code.common.lookup.LookupItemBuilderProvider;
 import com.dbn.code.common.lookup.TokenLookupItemBuilder;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.DBLanguage;
+import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
+import com.dbn.language.common.element.cache.ElementTypeCache;
 import com.dbn.language.common.element.cache.TokenElementTypeLookupCache;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.parser.impl.TokenElementTypeParser;
@@ -37,37 +38,48 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.language.common.TokenTypeCategory.getCategory;
+import static com.dbn.language.common.element.util.ElementTypeAttribute.ITERATION_SEPARATOR;
 
-public final class TokenElementType extends LeafElementType implements LookupItemBuilderProvider {
-    public static final String SEPARATOR = "SEPARATOR";
-
+public class TokenElementType extends LeafElementType implements LookupItemBuilderProvider {
     private final TokenLookupItemBuilder lookupItemBuilder = new TokenLookupItemBuilder(this);
-    private TokenTypeCategory flavor;
-    private String text;
+    public TokenTypeCategory flavor;
+    public String text;
 
     public TokenElementType(ElementTypeBundle bundle, ElementTypeBase parent, @NonNls String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
         String typeId = stringAttribute(def, "type-id");
         text = stringAttribute(def, "text");
-        this.tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
+        tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
         setDefaultFormatting(tokenType.getFormatting());
 
         String flavorName = stringAttribute(def, "flavor");
         if (Strings.isNotEmpty(flavorName)) {
-            flavor = TokenTypeCategory.getCategory(flavorName);
+            flavor = getCategory(flavorName);
         }
 
-        setDescription(tokenType.getValue() + " " + getTokenTypeCategory());
+        description = tokenType.getValue() + " " + getTokenTypeCategory();
     }
 
-    public TokenElementType(ElementTypeBundle bundle, ElementTypeBase parent, @NonNls String typeId, @NonNls String id) {
-        super(bundle, parent, id, (String)null);
+    public TokenElementType(ElementTypeBase parent, @NonNls TokenType tokenType, @NonNls String id) {
+        super(parent.bundle, parent, id);
+        this.tokenType = tokenType;
+        this.description = "";
+
+        setDefaultFormatting(tokenType.getFormatting());
+    }
+
+    public TokenElementType(ElementTypeBase parent, @NonNls String typeId) {
+        this(parent, typeId, parent.nextChildId());
+    }
+
+    public TokenElementType(ElementTypeBase parent, @NonNls String typeId, String id) {
+        super(parent.bundle, parent, id);
         tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
-        setDescription(tokenType.getValue() + " " + getTokenTypeCategory());
+        description = tokenType.getValue() + " " + getTokenTypeCategory();
 
         setDefaultFormatting(tokenType.getFormatting());
     }
@@ -98,17 +110,41 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     public Set<LeafElementType> getNextPossibleLeafs(LanguageNode pathNode, @NotNull ElementLookupContext context) {
         if (isIterationSeparator()) {
             if (parent instanceof IterationElementType iterationElementType) {
-                ElementTypeLookupCache<?> lookupCache = iterationElementType.iteratedElementType.cache;
-                return lookupCache.captureFirstPossibleLeafs(context.reset());
+                ElementTypeCache<?> lookupCache = iterationElementType.iteratedElement.cache;
+                return lookupCache.captureFirstPossibleLeafs(context);
             } else if (parent instanceof QualifiedIdentifierElementType){
                 return super.getNextPossibleLeafs(pathNode, context);
             }
         }
         if (parent instanceof WrapperElementType wrapperElementType) {
             if (this.equals(wrapperElementType.getBeginTokenElement())) {
-                ElementTypeLookupCache<?> lookupCache = wrapperElementType.wrappedElement.cache;
-                return lookupCache.captureFirstPossibleLeafs(context.reset());
+                ElementTypeCache<?> lookupCache = wrapperElementType.wrappedElement.cache;
+                return lookupCache.captureFirstPossibleLeafs(context);
             }
+        }
+
+        if (surrogatedBy != null) {
+            Set<LeafElementType> candidates = null;
+            for (LeafElementType surrogatedByElement : surrogatedBy) {
+                SurrogateSequenceElementType surrogateSequence = surrogatedByElement.findParent(SurrogateSequenceElementType.class);
+                if (surrogateSequence != null) {
+                    ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
+                    candidates = surrogatedElement.cache.captureSurrogateSuccessors(surrogatedByElement, candidates);
+                }
+            }
+
+            if (candidates != null) return candidates;
+        }
+
+        if (surrogateFor != null) {
+            Set<LeafElementType> candidates = null;
+            SurrogateSequenceElementType surrogateSequence = findParent(SurrogateSequenceElementType.class);
+            if (surrogateSequence != null) {
+                ElementTypeBase surrogatedElement = surrogateSequence.getMainElementType();
+                candidates = surrogatedElement.cache.captureSurrogateSuccessors(this, null);
+            }
+
+            if (candidates != null) return candidates;
         }
 
         return super.getNextPossibleLeafs(pathNode, context);
@@ -118,8 +154,10 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     public Set<LeafElementType> getNextRequiredLeafs(LanguageNode pathNode, ParserContext context) {
         if (isIterationSeparator()) {
             if (parent instanceof IterationElementType iterationElementType) {
-                return iterationElementType.iteratedElementType.cache.getFirstRequiredLeafs();
-            } else if (parent instanceof QualifiedIdentifierElementType){
+                return iterationElementType.iteratedElement.cache.getFirstRequiredLeafs();
+            }
+
+            if (parent instanceof QualifiedIdentifierElementType){
                 return super.getNextRequiredLeafs(pathNode, context);
             }
         }
@@ -127,12 +165,7 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     }
 
     public boolean isIterationSeparator() {
-        return Objects.equals(getId(), SEPARATOR);
-    }
-
-    @Override
-    public boolean isLeaf() {
-        return true;
+        return is(ITERATION_SEPARATOR);
     }
 
     @Override
@@ -165,10 +198,6 @@ public final class TokenElementType extends LeafElementType implements LookupIte
     @Override
     public TokenLookupItemBuilder getLookupItemBuilder(DBLanguage language) {
         return lookupItemBuilder;
-    }
-
-    public TokenTypeCategory getFlavor() {
-        return flavor;
     }
 
     public TokenTypeCategory getTokenTypeCategory() {

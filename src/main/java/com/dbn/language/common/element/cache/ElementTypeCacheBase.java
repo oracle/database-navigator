@@ -1,0 +1,161 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.language.common.element.cache;
+
+import com.dbn.common.index.IndexContainer;
+import com.dbn.language.common.DBLanguage;
+import com.dbn.language.common.SharedTokenTypeBundle;
+import com.dbn.language.common.TokenType;
+import com.dbn.language.common.TokenTypeBundle;
+import com.dbn.language.common.element.ElementTypeBundle;
+import com.dbn.language.common.element.TokenPairTemplate;
+import com.dbn.language.common.element.impl.ElementTypeBase;
+import com.dbn.language.common.element.impl.LeafElementType;
+import com.dbn.language.common.element.impl.WrappingDefinition;
+import com.dbn.language.common.element.util.NextTokenResolver;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+public abstract class ElementTypeCacheBase<T extends ElementTypeBase> implements ElementTypeCache<T> {
+    private IndexContainer<TokenType> nextPossibleTokens;
+    private Set<TokenPairTemplate> firstPossibleTokenPairs;
+
+    protected final T elementType;
+
+    ElementTypeCacheBase(T elementType) {
+        this.elementType = elementType;
+    }
+
+    /**
+     * This method returns all possible tokens (optional or not) which may follow current element.
+     *
+     * NOTE: to be used only for limited scope, since the tree walk-up
+     * is done only until first named element is hit.
+     * (named elements do not have parents)
+     */
+    @Override
+    public Set<TokenType> getNextPossibleTokens() {
+        if (nextPossibleTokens == null) {
+            nextPossibleTokens = computeNextPossibleTokens();
+        }
+        TokenTypeBundle tokenTypes = elementType.getLanguageDialect().getParserTokenTypes();
+        return nextPossibleTokens == null ?
+                Collections.emptySet() :
+                nextPossibleTokens.elements(index -> tokenTypes.getTokenType(index));
+    }
+
+    @Override
+    public boolean isNextPossibleToken(TokenType tokenType) {
+        if (nextPossibleTokens == null) {
+            nextPossibleTokens = computeNextPossibleTokens();
+        }
+        return nextPossibleTokens != null && nextPossibleTokens.contains(tokenType);
+    }
+
+    @Nullable
+    private IndexContainer<TokenType> computeNextPossibleTokens() {
+        return NextTokenResolver.from(this.elementType).resolve();
+    }
+
+    private Set<TokenPairTemplate> computeFirstPossibleTokenPairs() {
+        return Set.of(getFirstPossibleTokens().stream().map(t -> t.getTokenPairTemplate()).filter(t -> t != null).toArray(TokenPairTemplate[]::new));
+    }
+
+    @Override
+    public DBLanguage getLanguage() {
+        return elementType.getLanguage();
+    }
+
+    @Override
+    public ElementTypeBundle getElementTypeBundle() {
+        return elementType.bundle;
+    }
+
+    @Override
+    public SharedTokenTypeBundle getSharedTokenTypes() {
+        return getLanguage().getSharedTokenTypes();
+    }
+
+    @Override
+    public void captureFirstPossibleTokens(Set<TokenType> bucket) {
+        bucket.addAll(getFirstPossibleTokens());
+    }
+
+    @Override
+    public Set<TokenPairTemplate> getFirstPossibleTokenPairs() {
+        if (firstPossibleTokenPairs == null) {
+            firstPossibleTokenPairs = computeFirstPossibleTokenPairs();
+        }
+        return firstPossibleTokenPairs;
+    }
+
+    @Override
+    public void captureFirstPossibleTokens(IndexContainer<TokenType> bucket) {
+        bucket.addAll(getFirstPossibleTokens());
+    }
+
+    @Override
+    public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context) {
+        return captureFirstPossibleLeafs(context, null);
+    }
+
+    @Override
+    public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context) {
+        return captureFirstPossibleTokens(context, null);
+    }
+
+    @Override
+    public Set<LeafElementType> captureFirstPossibleLeafs(ElementLookupContext context, @Nullable Set<LeafElementType> bucket) {
+        WrappingDefinition wrapping = elementType.wrapping;
+        if (wrapping == null) return bucket;
+
+        bucket = initBucket(bucket);
+        bucket.add(wrapping.beginElement);
+        return bucket;
+    }
+
+    @Override
+    public Set<TokenType> captureFirstPossibleTokens(ElementLookupContext context, @Nullable Set<TokenType> bucket) {
+        WrappingDefinition wrapping = elementType.wrapping;
+        if (wrapping == null) return bucket;
+
+        bucket = initBucket(bucket);
+        bucket.add(wrapping.beginElement.tokenType);
+        return bucket;
+    }
+
+    @Override
+    public void registerLeaf(LeafElementType leaf, ElementTypeBase source) {
+        ElementTypeBase parent = elementType.parent;
+        if (parent == null) return;
+
+        parent.cache.registerLeaf(leaf, elementType);
+    }
+
+    <E> Set<E> initBucket(Set<E> bucket) {
+        if (bucket == null) bucket = new HashSet<>();
+        return bucket;
+    }
+
+    @Override
+    public Set<LeafElementType> captureSurrogateSuccessors(LeafElementType surrogateLead, Set<LeafElementType> bucket) {
+        return bucket;
+    }
+}

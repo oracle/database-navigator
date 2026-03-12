@@ -1,21 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright 2024 Oracle and/or its affiliates
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~ https://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
-<!--<!DOCTYPE element-defs SYSTEM "/../../../common/definition/language-parser-elements.dtd">--><element-defs language="SQLITE-SQL" version="6.0">
+<element-defs language="SQLITE-SQL" version="6.0">
     <element-def attributes="ROOT, STRUCTURE" description="SQL block" icon="FILE_BLOCK_SQL" id="sql_block" language="SQL">
         <iteration id="00000">
             <element ref-id="sql_statement" />
@@ -25,7 +9,7 @@
         <element ref-id="psql_statement" />
     </element-def>
 
-    <!-- ========= PSQL ========= -->
+
     <element-def attributes="STRUCTURE, EXECUTABLE, STATEMENT, SCOPE_ISOLATION, GENERIC" description="PSQL statement" formatting-indent="ABSOLUTE_NONE" id="psql_statement">
         <one-of id="00001">
             <element ref-id="trigger_definition" />
@@ -43,7 +27,7 @@
     </element-def>
 
 
-    <!-- ========= SQL ========= -->
+
     <element-def attributes="STRUCTURE, EXECUTABLE, STATEMENT, SCOPE_ISOLATION, GENERIC" description="SQL statement" formatting-indent="ABSOLUTE_NONE" id="sql_statement">
         <one-of id="00007">
             <sequence id="00008">
@@ -82,7 +66,7 @@
         </iteration>
     </element-def>
 
-    <!-- ========= SELECT ========= -->
+
     <element-def attributes="DATA_MANIPULATION, QUERY, SCOPE_ISOLATION, SPECIFIC" description="SELECT statement" id="select_statement">
         <element ref-id="subquery" />
     </element-def>
@@ -209,7 +193,7 @@
         </wrapper>
     </element-def>
     <element-def description="table or subquery" id="table_or_subquery">
-        <one-of id="00064">
+        <one-of id="00064" ambiguous="true">
             <sequence id="00065">
                 <qualified-identifier id="00066" separator="CHR_DOT">
                     <variant>
@@ -236,7 +220,7 @@
                 <element optional="true" ref-id="indexed_clause" />
             </sequence>
             <wrapper id="00077" template="PARENTHESES">
-                <one-of id="00078">
+                <one-of id="00078" ambiguous="true">
                     <sequence id="00079">
                         <element ref-id="select_stmt" />
                         <sequence id="00080" optional="true">
@@ -300,7 +284,7 @@
         </one-of>
     </element-def>
 
-    <!-- ========= DELETE ========= -->
+
     <element-def attributes="DATA_MANIPULATION, TRANSACTIONAL, SPECIFIC" description="DELETE statement" id="delete_statement">
         <token id="00110" type-id="KW_DELETE" />
         <token id="00111" type-id="KW_FROM" />
@@ -321,7 +305,7 @@
     </element-def>
 
 
-    <!-- ========= UPDATE ========= -->
+
     <element-def attributes="DATA_MANIPULATION, TRANSACTIONAL, SPECIFIC" description="UPDATE statement" id="update_statement">
         <token id="00116" type-id="KW_UPDATE" />
         <sequence id="00117" optional="true">
@@ -349,7 +333,7 @@
         </iteration>
     </element-def>
 
-    <!-- ========= INSERT ========= -->
+
     <element-def attributes="DATA_MANIPULATION, TRANSACTIONAL, SCOPE_ISOLATION, SPECIFIC" description="INSERT statement" id="insert_statement">
         <one-of id="00130">
             <sequence id="00131">
@@ -382,7 +366,7 @@
                 <object-ref id="00149" type="COLUMN" />
             </iteration>
         </wrapper>
-        <one-of id="00150">
+        <one-of id="00150" ambiguous="true">
             <element ref-id="values_clause" />
             <element ref-id="select_stmt" />
             <sequence id="00151">
@@ -392,7 +376,7 @@
         </one-of>
     </element-def>
 
-    <!-- ========= CREATE ========= -->
+
     <element-def attributes="DATA_DEFINITION" description="CREATE statement" id="create_statement">
         <token id="00154" type-id="KW_CREATE" />
         <one-of id="00155">
@@ -417,7 +401,7 @@
         <token id="00163" type-id="KW_EXISTS" />
     </element-def>
 
-    <!-- ========= CREATE INDEX ========= -->
+
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE INDEX statement" id="create_index_statement">
         <token id="00164" optional="true" type-id="KW_UNIQUE" />
         <token id="00165" type-id="KW_INDEX" />
@@ -454,7 +438,7 @@
         </one-of>
     </element-def>
 
-    <!-- ========= CREATE VIEW ========= -->
+
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE VIEW statement" id="create_view_statement">
         <token id="00181" type-id="KW_VIEW" />
         <element optional="true" ref-id="if_not_exists_clause" />
@@ -473,7 +457,7 @@
         <element ref-id="select_stmt" />
     </element-def>
 
-    <!-- ========= CREATE TRIGGER ========= -->
+
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE TRIGGER statement" id="create_trigger_statement">
         <token id="00189" type-id="KW_TRIGGER" />
         <element optional="true" ref-id="if_not_exists_clause" />
@@ -536,7 +520,7 @@
         </wrapper>
     </element-def>
 
-    <!-- ========= CREATE TABLE ========= -->
+
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE TABLE statement" id="create_table_statement">
         <token id="00223" type-id="KW_TABLE" />
         <element optional="true" ref-id="if_not_exists_clause" />
@@ -727,7 +711,7 @@
         </one-of>
     </element-def>
 
-    <!-- ========= CREATE VIRTUAL TABLE ========= -->
+
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE VIRTUAL TABLE statement" id="create_virtual_table_statement">
         <token id="00331" type-id="KW_VIRTUAL" />
         <token id="00332" type-id="KW_TABLE" />
@@ -747,7 +731,7 @@
         </wrapper>
     </element-def>
 
-    <!-- ========= DROP ========= -->
+
     <element-def attributes="DATA_DEFINITION" description="DROP statement" id="drop_statement">
         <token id="00341" type-id="KW_DROP" />
         <one-of id="00342">
@@ -762,7 +746,7 @@
         <token id="00344" type-id="KW_EXISTS" />
     </element-def>
 
-    <!-- ========= DROP INDEX ========= -->
+
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP INDEX statement" id="drop_index_statement">
         <token id="00345" type-id="KW_INDEX" />
         <element optional="true" ref-id="if_exists_clause" />
@@ -774,7 +758,7 @@
         </qualified-identifier>
     </element-def>
 
-    <!-- ========= DROP TABLE ========= -->
+
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TABLE statement" id="drop_table_statement">
         <token id="00349" type-id="KW_TABLE" />
         <element optional="true" ref-id="if_exists_clause" />
@@ -786,7 +770,7 @@
         </qualified-identifier>
     </element-def>
 
-    <!-- ========= DROP TRIGGER ========= -->
+
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP TRIGGER statement" id="drop_trigger_statement">
         <token id="00353" type-id="KW_TRIGGER" />
         <element optional="true" ref-id="if_exists_clause" />
@@ -798,7 +782,7 @@
         </qualified-identifier>
     </element-def>
 
-    <!-- ========= DROP VIEW ========= -->
+
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="DROP VIEW statement" id="drop_view_statement">
         <token id="00357" type-id="KW_VIEW" />
         <element optional="true" ref-id="if_exists_clause" />
@@ -810,7 +794,7 @@
         </qualified-identifier>
     </element-def>
 
-    <!-- ========= ALTER ========= -->
+
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="ALTER statement" id="alter_statement">
         <token id="00361" type-id="KW_ALTER" />
         <token id="00362" type-id="KW_TABLE" />
@@ -834,7 +818,7 @@
         </one-of>
     </element-def>
 
-    <!-- ========= EXPLAIN ========= -->
+
     <element-def attributes="SPECIFIC, QUERY" description="EXPLAIN statement" id="explain_statement">
         <token id="00374" type-id="KW_EXPLAIN" />
         <sequence id="00375" optional="true">
@@ -868,7 +852,7 @@
     </element-def>
 
 
-    <!-- ========= REINDEX ========= -->
+
     <element-def attributes="SPECIFIC" description="REINDEX statement" id="reindex_statement">
         <token id="00381" type-id="KW_REINDEX" />
         <qualified-identifier id="00382" optional="true" separator="CHR_DOT">
@@ -883,7 +867,7 @@
         </qualified-identifier>
     </element-def>
 
-    <!-- ========= ANALYZE ========= -->
+
     <element-def attributes="SPECIFIC" description="ANALYZE statement" id="analyze_statement">
         <token id="00387" type-id="KW_ANALYZE" />
         <qualified-identifier id="00388" optional="true" separator="CHR_DOT">
@@ -901,25 +885,25 @@
         </qualified-identifier>
     </element-def>
 
-    <!-- ========= VACUUM ========= -->
+
     <element-def attributes="SPECIFIC" description="VACUUM statement" id="vacuum_statement">
         <token id="00394" type-id="KW_VACUUM" />
     </element-def>
 
-    <!-- ========= SAVEPOINT ========= -->
+
     <element-def attributes="SPECIFIC, TRANSACTIONAL" description="SAVEPOINT statement" id="savepoint_statement">
         <token id="00395" type-id="KW_SAVEPOINT" />
         <object-def id="00396" type="SAVEPOINT" />
     </element-def>
 
-    <!-- ========= RELEASE SAVEPOINT ========= -->
+
     <element-def attributes="SPECIFIC, TRANSACTIONAL" description="RELEASE SAVEPOINT statement" id="release_savepoint_statement">
         <token id="00397" type-id="KW_RELEASE" />
         <token id="00398" optional="true" type-id="KW_SAVEPOINT" />
         <object-ref id="00399" type="SAVEPOINT" />
     </element-def>
 
-    <!-- ========= ROLLBACK TRANSACTION ========= -->
+
     <element-def attributes="SPECIFIC, TRANSACTION_CONTROL, DATA_MANIPULATION" description="ROLLBACK TRANSACTION statement" id="rollback_transaction_statement">
         <token id="00400" type-id="KW_ROLLBACK" />
         <token id="00401" optional="true" type-id="KW_TRANSACTION" />
@@ -930,7 +914,7 @@
         </sequence>
     </element-def>
 
-    <!-- ========= COMMIT TRANSACTION ========= -->
+
     <element-def attributes="SPECIFIC, TRANSACTION_CONTROL, DATA_MANIPULATION" description="COMMIT TRANSACTION statement" id="commit_transaction_statement">
         <one-of id="00406">
             <token id="00407" type-id="KW_COMMIT" />
@@ -939,7 +923,7 @@
         <token id="00409" optional="true" type-id="KW_TRANSACTION" />
     </element-def>
 
-    <!-- ========= BEGIN TRANSACTION ========= -->
+
     <element-def attributes="SPECIFIC, TRANSACTION_CONTROL, DATA_MANIPULATION" description="BEGIN TRANSACTION statement" id="begin_transaction_statement">
         <token id="00410" type-id="KW_BEGIN" />
         <one-of id="00411" optional="true">
@@ -950,7 +934,7 @@
         <token id="00415" optional="true" type-id="KW_TRANSACTION" />
     </element-def>
 
-    <!-- ========= ATTACH DATABASE ========= -->
+
     <element-def attributes="SPECIFIC, SCOPE_ISOLATION" description="ATTACH DATABASE statement" id="attach_database_statement">
         <token id="00416" type-id="KW_ATTACH" />
         <token id="00417" optional="true" type-id="KW_DATABASE" />
@@ -959,14 +943,14 @@
         <object-def id="00419" type="SCHEMA" />
     </element-def>
 
-    <!-- ========= DETACH DATABASE ========= -->
+
     <element-def attributes="SPECIFIC, SCOPE_ISOLATION" description="DETACH DATABASE statement" id="detach_database_statement">
         <token id="00420" type-id="KW_DETACH" />
         <token id="00421" optional="true" type-id="KW_DATABASE" />
         <object-ref id="00422" type="SCHEMA" />
     </element-def>
 
-    <!-- ========= PRAGMA ========= -->
+
     <element-def attributes="SPECIFIC, SCOPE_ISOLATION, QUERY" description="PRAGMA statement" id="pragma_statement">
         <token id="00423" type-id="KW_PRAGMA" />
         <sequence id="00424" optional="true">
@@ -1003,7 +987,7 @@
                 <token id="00451" type-id="PRM_AUTO_VACUUM" />
                 <sequence id="00452" optional="true">
                     <token id="00453" type-id="CHR_EQUAL" />
-                    <one-of id="00454">
+                    <one-of id="00454" ambiguous="true">
                         <token id="00455" type-id="INTEGER" />
                         <token id="00456" text="NONE" type-id="IDENTIFIER" />
                         <token id="00457" type-id="KW_FULL" />
@@ -1066,7 +1050,7 @@
                 <token id="00502" type-id="PRM_ENCODING" />
                 <sequence id="00503" optional="true">
                     <token id="00504" type-id="CHR_EQUAL" />
-                    <one-of id="00505">
+                    <one-of id="00505" ambiguous="true">
                         <token id="00506" text="UTF-8" type-id="IDENTIFIER" />
                         <token id="00507" text="UTF-16" type-id="IDENTIFIER" />
                         <token id="00508" text="UTF-16le" type-id="IDENTIFIER" />
@@ -1111,7 +1095,7 @@
                 <token id="00535" type-id="PRM_JOURNAL_MODE" />
                 <sequence id="00536" optional="true">
                     <token id="00537" type-id="CHR_EQUAL" />
-                    <one-of id="00538">
+                    <one-of id="00538" ambiguous="true">
                         <token id="00539" type-id="KW_DELETE" />
                         <token id="00540" text="TRUNCATE" type-id="IDENTIFIER" />
                         <token id="00541" text="PERSIST" type-id="IDENTIFIER" />
@@ -1135,7 +1119,7 @@
                 <token id="00553" type-id="PRM_SYNCHRONOUS" />
                 <sequence id="00554" optional="true">
                     <token id="00555" type-id="CHR_EQUAL" />
-                    <one-of id="00556">
+                    <one-of id="00556" ambiguous="true">
                         <token id="00557" type-id="INTEGER" />
                         <token id="00558" text="OFF" type-id="IDENTIFIER" />
                         <token id="00559" text="NORMAL" type-id="IDENTIFIER" />
@@ -1147,7 +1131,7 @@
                 <token id="00562" type-id="PRM_TEMP_STORE" />
                 <sequence id="00563" optional="true">
                     <token id="00564" type-id="CHR_EQUAL" />
-                    <one-of id="00565">
+                    <one-of id="00565" ambiguous="true">
                         <token id="00566" type-id="INTEGER" />
                         <token id="00567" type-id="KW_DEFAULT" />
                         <token id="00568" text="FILE" type-id="IDENTIFIER" />
@@ -1158,7 +1142,7 @@
             <sequence id="00570">
                 <token id="00571" type-id="PRM_WAL_CHECKPOINT" />
                 <wrapper id="00572" optional="true" template="PARENTHESES">
-                    <one-of id="00573">
+                    <one-of id="00573" ambiguous="true">
                         <token id="00574" text="PASSIVE" type-id="IDENTIFIER" />
                         <token id="00575" type-id="KW_FULL" />
                         <token id="00576" text="RESTART" type-id="IDENTIFIER" />
@@ -1169,7 +1153,7 @@
         </one-of>
     </element-def>
     <element-def description="Boolean value" id="boolean">
-        <one-of id="00578">
+        <one-of id="00578" ambiguous="true">
             <token id="00579" type-id="INTEGER" />
             <token id="00580" text="N" type-id="IDENTIFIER" />
             <token id="00581" text="NO" type-id="IDENTIFIER" />
@@ -1180,15 +1164,15 @@
     </element-def>
 
 
-    <!-- ========= EXPRESSIONS ========= -->
+
     <element-def description="Expression" id="expr">
-        <one-of id="00585">
+        <one-of id="00585" ambiguous="true">
             <element ref-id="compound_expression" />
             <element ref-id="function_expression" />
             <element ref-id="case_expression" />
             <element ref-id="simple_expression" />
             <element ref-id="exists_expression" />
-            <!--<element ref-id="between_expression" />-->
+
             <element ref-id="in_expression" />
             <element ref-id="cast_expression" />
             <element ref-id="raise_function" />
@@ -1196,7 +1180,7 @@
         </one-of>
     </element-def>
     <element-def description="Simple expression" id="simple_expression">
-        <one-of id="00587" sortable="true">
+        <one-of id="00587" sortable="true" ambiguous="true">
             <qualified-identifier id="00588" separator="CHR_DOT">
                 <variant>
                     <object-ref id="00589" local="true" optional="true" type="SCHEMA" />
@@ -1228,7 +1212,7 @@
         </one-of>
     </element-def>
     <element-def description="Compound expression" id="compound_expression">
-        <one-of id="00603">
+        <one-of id="00603" ambiguous="true">
             <sequence id="00604">
                 <element ref-id="unary_operator" />
                 <element ref-id="expr" />
@@ -1243,7 +1227,7 @@
                 </one-of>
             </sequence>
             <wrapper id="00608" template="PARENTHESES">
-                <one-of id="00609">
+                <one-of id="00609" ambiguous="true">
                     <iteration id="00610" separator="CHR_COMMA">
                         <element ref-id="expr" />
                     </iteration>
@@ -1268,7 +1252,7 @@
     </element-def>
     <element-def description="CASE expression" id="case_expression">
         <token id="00621" type-id="KW_CASE" />
-        <one-of id="00622" sortable="true">
+        <one-of id="00622" sortable="true" ambiguous="true">
             <sequence id="00623">
                 <element ref-id="expr" />
                 <iteration exit="true" id="00624">
@@ -1309,9 +1293,9 @@
     </element-def>
     <element-def description="IN expression" id="in_expression">
         <token id="00639" type-id="KW_IN" />
-        <one-of id="00640">
+        <one-of id="00640" ambiguous="true">
             <wrapper id="00641" template="PARENTHESES">
-                <one-of id="00642">
+                <one-of id="00642" ambiguous="true">
                     <element ref-id="select_stmt" />
                     <iteration id="00643" separator="CHR_COMMA">
                         <element ref-id="expr" />
@@ -1366,8 +1350,8 @@
         </one-of>
     </element-def>
 
-    <!-- ========= FUNCTIONS ========= -->
-    <element-def description="Declared function expression" id="declared_function_expression"> <!-- CUSTOM-->
+
+    <element-def description="Declared function expression" id="declared_function_expression">
         <qualified-identifier id="00665" separator="CHR_DOT">
             <variant>
                 <object-ref id="00666" optional="true" type="SCHEMA" />
@@ -1450,7 +1434,7 @@
         </sequence>
     </element-def>
 
-    <!-- ========= DATA TYPES ========= -->
+
     <element-def description="Data type" id="data_type">
         <one-of id="00731">
             <token id="00732" type-id="DT_BIGINT" />
@@ -1498,7 +1482,7 @@
         </wrapper>
     </element-def>
 
-    <!-- ========= OPERATORS ========= -->
+
     <element-def description="UNARY operator" id="unary_operator">
         <token id="00764" type-id="CHR_PLUS" />
         <token id="00765" type-id="CHR_MINUS" />
@@ -1535,7 +1519,7 @@
         </one-of>
     </element-def>
 
-    <!-- ========= OPERATORS ========= -->
+
     <element-def description="COMPARISON operator" id="comparison_operator">
         <one-of id="00790">
             <token id="00791" type-id="CHR_EQUAL" />
@@ -1560,7 +1544,6 @@
     </element-def>
 
 
-    <!-- ========= MISCELLANEOUS ========= -->
     <element-def description="Number" id="number">
         <one-of id="00805" optional="true">
             <token id="00806" type-id="CHR_MINUS" />
