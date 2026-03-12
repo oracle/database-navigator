@@ -43,10 +43,12 @@ import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 
 public class ParserDiagnosticsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -57,6 +59,7 @@ public class ParserDiagnosticsForm extends DBNFormBase {
     private JPanel filtersPanel;
     private JBScrollPane diagnosticsTableScrollPane;
     private JPanel actionsPanel;
+    private JSplitPane resultSplitPane;
 
     @Getter
     private final ParserDiagnosticsManager manager;
@@ -81,6 +84,8 @@ public class ParserDiagnosticsForm extends DBNFormBase {
                 new ParserDiagnosticsStateFilterAction(this),
                 new ParserDiagnosticsFileTypeFilterAction(this));
         filtersPanel.add(filterActionToolbar.getComponent(), BorderLayout.WEST);
+
+        setSplitPaneProportion(resultSplitPane, 0.2);
 
         ClientProperty.BORDER.set(resultsList, Borders.tableBorder(0, 1, 0, 0));
         resultsList.addListSelectionListener(e -> {

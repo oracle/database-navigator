@@ -20,7 +20,7 @@ import com.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dbn.common.util.Strings;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.TokenPairTemplate;
-import com.dbn.language.common.element.cache.WrapperElementTypeLookupCache;
+import com.dbn.language.common.element.cache.WrapperElementTypeCache;
 import com.dbn.language.common.element.parser.impl.WrapperElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.SequencePsiElement;
@@ -84,8 +84,8 @@ public final class WrapperElementType extends ElementTypeBase {
     }
 
     @Override
-    public WrapperElementTypeLookupCache createLookupCache() {
-        return new WrapperElementTypeLookupCache(this);
+    public WrapperElementTypeCache createLookupCache() {
+        return new WrapperElementTypeCache(this);
     }
 
     @NotNull

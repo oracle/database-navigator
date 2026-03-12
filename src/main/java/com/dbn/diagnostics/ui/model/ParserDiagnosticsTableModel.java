@@ -32,8 +32,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.ListModel;
 
 public class ParserDiagnosticsTableModel implements DBNReadonlyTableModel<ParserDiagnosticsEntry>, DBNTableWithGutterModel<ParserDiagnosticsEntry>, Disposable {
-    public static final String[] INITIAL_COLUMNS = {"File", "Errors", "Warnings"};
-    public static final String[] DELTA_COLUMNS = {"File", "Errors (previous / current)", "Warnings (previous / current)", "Transition"};
+    public static final String[] INITIAL_COLUMNS = {"File", "Size", "Errors", "Warnings"};
+    public static final String[] DELTA_COLUMNS = {"File", "Size", "Errors (previous / current)", "Warnings (previous / current)", "Transition"};
 
     private final ParserDiagnosticsDeltaResult deltaResult;
     private final ListModel gutterModel = new DBNTableGutterModel<>(this);
@@ -91,15 +91,17 @@ public class ParserDiagnosticsTableModel implements DBNReadonlyTableModel<Parser
         if (isInitial()) {
             switch (column) {
                 case 0: return row.getFile();
-                case 1: return row.getNewIssues().getErrors();
-                case 2: return row.getNewIssues().getWarnings();
+                case 1: return row.getFileSize();
+                case 2: return row.getNewIssues().getErrors();
+                case 3: return row.getNewIssues().getWarnings();
             }
         } else {
             switch (column) {
                 case 0: return row.getFile();
-                case 1: return row.getOldIssues().getErrors() + " / " + row.getNewIssues().getErrors();
-                case 2: return row.getOldIssues().getWarnings() +  " / " + row.getNewIssues().getWarnings();
-                case 3: return row.getStateTransition();
+                case 1: return row.getFileSize();
+                case 2: return row.getOldIssues().getErrors() + " / " + row.getNewIssues().getErrors();
+                case 3: return row.getOldIssues().getWarnings() +  " / " + row.getNewIssues().getWarnings();
+                case 4: return row.getStateTransition();
             }
         }
         return "";
@@ -115,15 +117,17 @@ public class ParserDiagnosticsTableModel implements DBNReadonlyTableModel<Parser
         if (isInitial()) {
             switch (column) {
                 case 0: return row.getFilePath();
-                case 1: return Integer.toString(row.getNewIssues().getErrors());
-                case 2: return Integer.toString(row.getNewIssues().getWarnings());
+                case 1: return Long.toString(row.getFileSize());
+                case 2: return Integer.toString(row.getNewIssues().getErrors());
+                case 3: return Integer.toString(row.getNewIssues().getWarnings());
             }
         } else {
             switch (column) {
                 case 0: return row.getFilePath();
-                case 1: return row.getOldIssues().getErrors() + " / " + row.getNewIssues().getErrors();
-                case 2: return row.getOldIssues().getWarnings() +  " / " + row.getNewIssues().getWarnings();
-                case 3: return row.getStateTransition().name();
+                case 1: return Long.toString(row.getFileSize());
+                case 2: return row.getOldIssues().getErrors() + " / " + row.getNewIssues().getErrors();
+                case 3: return row.getOldIssues().getWarnings() +  " / " + row.getNewIssues().getWarnings();
+                case 4: return row.getStateTransition().name();
             }
         }
         return "";

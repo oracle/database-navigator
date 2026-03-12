@@ -55,6 +55,7 @@ import com.intellij.injected.editor.VirtualFileWindow;
 import com.intellij.lang.Language;
 import com.intellij.lang.LanguageParserDefinitions;
 import com.intellij.lang.ParserDefinition;
+import com.intellij.lang.injection.InjectedLanguageManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
@@ -70,7 +71,9 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.psi.impl.source.PsiFileImpl;
 import com.intellij.psi.tree.IFileElementType;
+import com.intellij.spellchecker.inspections.SpellCheckingInspection;
 import com.intellij.testFramework.LightVirtualFile;
+import com.maddyhome.idea.copyright.actions.UpdateCopyrightAction;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NonNls;
@@ -91,9 +94,9 @@ import static com.dbn.vfs.DBParseableVirtualFile.PARSE_ROOT_ID_KEY;
 public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseContextBase, Presentable, StatefulDisposable, UnlistedDisposable {
     // TODO: check if any other visitor relevant
     public static final PsiElementVisitors visitors = PsiElementVisitors.create(
-            "SpellCheckingInspection",
-            "InjectedLanguageManager",
-            "UpdateCopyrightAction");
+            SpellCheckingInspection.class.getSimpleName(),
+            InjectedLanguageManager.class.getSimpleName(),
+            UpdateCopyrightAction.class.getSimpleName());
 
     private final Language language;
     private final DBLanguageFileType fileType;
@@ -187,7 +190,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     }
 
     @Override
-    public void accept(@NotNull PsiElementVisitor visitor) {
+    public void accept(PsiElementVisitor visitor) {
         if (visitors.isSupported(visitor)) {
             visitor.visitFile(this);
         }
@@ -302,7 +305,6 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
         }
     }
 
-    @NotNull
     @Override
     public Language getLanguage() {
         return language;
@@ -343,7 +345,6 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     }
 
     @Override
-    @NotNull
     public DBLanguageFileType getFileType() {
         return fileType;
     }

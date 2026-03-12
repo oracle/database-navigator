@@ -26,7 +26,7 @@ import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
+import com.dbn.language.common.element.cache.ElementTypeCache;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.IdentifierElementType;
 import com.dbn.language.common.element.impl.LeafElementType;
@@ -155,7 +155,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
                 elementTypeBundle.getRootElementType() :
                 elementTypeBundle.getNamedElementType(parseRootId);
 
-        ElementTypeLookupCache<?> lookupCache = rootElementType.cache;
+        ElementTypeCache<?> lookupCache = rootElementType.cache;
         ElementLookupContext lookupContext = new ElementLookupContext(context.getDatabaseVersion());
         Set<LeafElementType> firstPossibleLeafs = lookupCache.captureFirstPossibleLeafs(lookupContext);
 
@@ -194,7 +194,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
                     }
                 }
             }
-        } else if (element.elementType.getTokenType() == element.getLanguage().getSharedTokenTypes().getChrDot()) {
+        } else if (element.elementType.getTokenType() == element.getLanguage().getSharedTokenTypes().chrDot) {
             LeafPsiElement parentPsiElement = element.getPrevLeaf();
             if (parentPsiElement != null) {
                 if (parentPsiElement instanceof IdentifierPsiElement || parentPsiElement.isVirtualObject()) {

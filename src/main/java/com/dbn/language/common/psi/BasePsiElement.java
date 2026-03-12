@@ -31,6 +31,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
+import com.dbn.diagnostics.data.ParserDiagnosticsUtil;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.ddl.DDLFileEditor;
 import com.dbn.editor.session.SessionBrowser;
@@ -78,6 +79,8 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.impl.source.tree.FileElement;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
+import com.intellij.spellchecker.inspections.SpellCheckingInspection;
+import com.maddyhome.idea.copyright.actions.UpdateCopyrightAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,9 +99,9 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
 
     // TODO: check if any other visitor relevant
     public static final PsiElementVisitors visitors = PsiElementVisitors.create(
-            "SpellCheckingInspection",
-            "ParserDiagnosticsUtil",
-            "UpdateCopyrightAction");
+            SpellCheckingInspection.class.getSimpleName(),
+            ParserDiagnosticsUtil.class.getSimpleName(),
+            UpdateCopyrightAction.class.getSimpleName());
 
     public T elementType;
 
@@ -134,11 +137,11 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
     }
 
     public FormattingAttributes getFormattingAttributes() {
-        FormattingDefinition formatting = elementType.getFormatting();
+        FormattingDefinition formatting = elementType.formatting;
         if (formatting == null) return null;
 
         return formattingAttributesCache.get(this, e -> {
-            FormattingAttributes attributes = e.elementType.getFormatting().getAttributes();
+            FormattingAttributes attributes = e.elementType.formatting.getAttributes();
             return FormattingAttributes.copy(attributes);
         });
     }
@@ -226,7 +229,6 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
 
     public abstract int approximateLength();
 
-    @NotNull
     public DBLanguagePsiFile getFile() {
         PsiElement parent = getParent();
         while (parent != null) {
@@ -261,7 +263,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
     }
 
     @Override
-    public void acceptChildren(@NotNull PsiElementVisitor visitor) {
+    public void acceptChildren(PsiElementVisitor visitor) {
         PsiElement psiChild = getFirstChild();
         if (psiChild == null) return;
 
@@ -282,7 +284,7 @@ public abstract class BasePsiElement<T extends ElementTypeBase> extends ASTWrapp
     }
 
     @Override
-    public void accept(@NotNull PsiElementVisitor visitor) {
+    public void accept(PsiElementVisitor visitor) {
         if (visitors.isSupported(visitor)) {
             super.accept(visitor);
         }

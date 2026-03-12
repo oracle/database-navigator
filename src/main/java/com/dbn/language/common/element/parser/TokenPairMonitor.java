@@ -68,11 +68,9 @@ public class TokenPairMonitor extends ParserBuilderExtension {
 
     public boolean hasConsumedMatch(ElementTypeBase elementType) {
         for (TokenType token : tokens) {
-            if (isConsumedMatch(token)) {
-                if (elementType.cache.couldStartWithToken(token)) {
-                    return true;
-                }
-            }
+            if (!isConsumedMatch(token)) continue;
+            if (!elementType.cache.couldStartWithToken(token)) continue;
+            return true;
         }
 
         return false;
@@ -124,12 +122,9 @@ public class TokenPairMonitor extends ParserBuilderExtension {
     public void rollback(ElementTypeBase element) {
         if (element == null) return;
         if (element.wrapping == null) {
-            Set<TokenType> tokens = element.cache.getFirstPossibleTokens();
-            for (TokenType token : tokens) {
-                TokenPairTemplate tokenPairTemplate = token.getTokenPairTemplate();
-                if (tokenPairTemplate == null) continue;
-
-                TokenPairStack stack = stacks.get(tokenPairTemplate);
+            Set<TokenPairTemplate> tokenPairs = element.cache.getFirstPossibleTokenPairs();
+            for (TokenPairTemplate tokenPair : tokenPairs) {
+                TokenPairStack stack = stacks.get(tokenPair);
                 if (stack == null) continue;
 
                 stack.rollback(element);
