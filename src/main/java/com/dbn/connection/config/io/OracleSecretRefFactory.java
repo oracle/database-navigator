@@ -1,8 +1,11 @@
 package com.dbn.connection.config.io;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Base64;
 
 public final class OracleSecretRefFactory {
@@ -11,13 +14,21 @@ public final class OracleSecretRefFactory {
     public static OracleConnectionJsonConfig.SecretRef base64Password(char[] password) {
         if (password == null || password.length == 0) return null;
 
-        String plain = new String(password);
-        String b64 = Base64.getEncoder().encodeToString(plain.getBytes(StandardCharsets.UTF_8));
+        byte[] utf8 = null;
+        try {
+            ByteBuffer bb = StandardCharsets.UTF_8.encode(CharBuffer.wrap(password));
+            utf8 = new byte[bb.remaining()];
+            bb.get(utf8);
 
-        OracleConnectionJsonConfig.SecretRef ref = new OracleConnectionJsonConfig.SecretRef();
-        ref .setType("base64");
-        ref.setValue(b64);
-        return ref;
+            String b64 = Base64.getEncoder().encodeToString(utf8);
+
+            return OracleConnectionJsonConfig.SecretRef.builder()
+                    .type("base64")
+                    .value(b64)
+                    .build();
+        } finally {
+            if (utf8 != null) Arrays.fill(utf8, (byte) 0);
+        }
     }
 
     public static OracleConnectionJsonConfig.SecretRef base64Wallet(Path walletFile) throws Exception {
@@ -32,9 +43,9 @@ public final class OracleSecretRefFactory {
         byte[] bytes = Files.readAllBytes(walletFile);
         String b64 = Base64.getEncoder().encodeToString(bytes);
 
-        OracleConnectionJsonConfig.SecretRef ref = new OracleConnectionJsonConfig.SecretRef();
-        ref.setType("base64");
-        ref.setValue(b64);
-        return ref;
+        return OracleConnectionJsonConfig.SecretRef.builder()
+                .type("base64")
+                .value(b64)
+                .build();
     }
 }

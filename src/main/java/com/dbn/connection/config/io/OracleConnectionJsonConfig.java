@@ -2,43 +2,50 @@ package com.dbn.connection.config.io;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.Map;
 
-@Data
+@Value
+@Builder
+@Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OracleConnectionJsonConfig {
     @JsonProperty("connect_descriptor")
-    private String connectDescriptor;
+     String connectDescriptor;
 
-    private String user;
-    private SecretRef password;
+     String user;
+     SecretRef password;
 
     @JsonProperty("wallet_location")
-    private SecretRef walletLocation;
+     SecretRef walletLocation;
 
-    private Map<String,Object> jdbc;
+     Map<String,Object> jdbc;
 
-    @Data
+    @Value
+    @Builder
+    @Jacksonized
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class SecretRef{
-        private String type;
-        private String value;
+         String type;
+         String value;
 
         @JsonProperty("field_name")
-        private String fieldName;
+         String fieldName;
 
-        private Authentication authentication;
+         Authentication authentication;
 
     }
 
-    @Data
+    @Value
+    @Builder
+    @Jacksonized
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Authentication{
 
-        private String method;
-        private Map<String,Object> parameters;
+         String method;
+         Map<String,Object> parameters;
 
 
     }

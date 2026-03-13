@@ -40,6 +40,7 @@ import com.dbn.connection.config.ConnectionFilterSettings;
 import com.dbn.connection.config.ConnectionPropertiesSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
+import com.dbn.connection.config.io.OracleConnectionJsonConfig;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
@@ -293,37 +294,40 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         if (!dialog.showAndGet()) return;
 
         try {
-            var cfg = com.dbn.connection.config.io.OracleConnectionJsonMapper.from(tmp);
-
-            if (cfg.getConnectDescriptor() == null || cfg.getConnectDescriptor().isBlank()) {
-                Messages.showErrorDialog(project, "Export JSON",
-                        "connect_descriptor is required.\nFix URL/Host/Port/Service(SID) or select a TNS profile.");
-                return;
-            }
+            var b = com.dbn.connection.config.io.OracleConnectionJsonMapper.builderFrom(tmp);
 
             if (dialog.isIncludePassword()) {
-                char[] pwd = auth == null ? null : auth.getPassword();
+                char[] pwd = (auth == null) ? null : auth.getPassword();
                 var pwRef = com.dbn.connection.config.io.OracleSecretRefFactory.base64Password(pwd);
-                if (pwRef != null) cfg.setPassword(pwRef);
-                else Messages.showWarningDialog(project, "Password not available",
-                        "Password is not available to export (credential manager / not entered).");
+
+                if (pwRef != null) {
+                    b.password(pwRef);
+                } else {
+                    Messages.showWarningDialog(project, "Password Not Available",
+                            "Password is not available to export (credential manager / not entered).");
+                }
             }
 
             if (dialog.isIncludeWallet()) {
                 var walletPath = dialog.getWalletFile();
                 if (walletPath != null) {
                     var walletRef = com.dbn.connection.config.io.OracleSecretRefFactory.base64Wallet(walletPath);
-                    cfg.setWalletLocation(walletRef);
+                    b.walletLocation(walletRef);
                 }
             }
+
+            OracleConnectionJsonConfig cfg = b.build();
 
             com.dbn.connection.config.io.OracleConnectionJsonExporter.exportConfig(
                     cfg, dialog.getOutputFile(), dialog.getKeyOrNull());
 
-            Messages.showInfoDialog(project, "JSON exported successfully", "Export JSON");
+            Messages.showInfoDialog(project, "JSON Exported Successfully", "Export JSON");
+        } catch (IllegalStateException ex) {
+            Messages.showErrorDialog(project, "Export JSON",
+                    "Connect_descriptor is required.\nfix URL/host/port/service(SID) or select a TNS profile.");
         } catch (Exception ex) {
             conditionallyLog(ex);
-            Messages.showErrorDialog(project, "Export failed", ex.getMessage());
+            Messages.showErrorDialog(project, "Export Failed", ex.getMessage());
         }
     }
 }
