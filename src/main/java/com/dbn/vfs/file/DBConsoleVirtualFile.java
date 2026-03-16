@@ -18,7 +18,6 @@ package com.dbn.vfs.file;
 
 import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -116,10 +115,7 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
     @Nullable
     @Override
     public Icon getIcon() {
-        return switch (getType()) {
-            case STANDARD -> Icons.FILE_SQL_CONSOLE;
-            case DEBUG -> Icons.FILE_SQL_DEBUG_CONSOLE;
-        };
+        return getType().getIcon();
     }
     public void setDatabaseSchema(SchemaId schemaId) {
         connectionContext.setSchemaId(schemaId);

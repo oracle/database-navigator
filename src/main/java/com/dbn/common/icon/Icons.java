@@ -136,6 +136,7 @@ public class Icons {
 
     public static final Icon FILE_SQL_CONSOLE = load("/img/file/SQLConsoleFile.svg");
     public static final Icon FILE_SQL_DEBUG_CONSOLE = load("/img/file/SQLDebugConsole.svg");
+    public static final Icon FILE_SEARCH_CONSOLE = load("/img/file/SearchConsoleFile.svg");
     public static final Icon FILE_SESSION_BROWSER = load("/img/file/SessionBrowserFile.png");
     public static final Icon FILE_SQL = load("/img/file/SQLFile.svg");
     public static final Icon FILE_PLSQL = load("/img/file/PLSQLFile.svg");
@@ -392,6 +393,7 @@ public class Icons {
     public static final Icon DBO_CONSOLE                         = load("/img/object/console/Console.svg");
     public static final Icon DBO_CONSOLES                        = load("/img/object/console/Consoles.svg");
     public static final Icon DBO_CONSOLE_DEBUG                   = load("/img/object/console/ConsoleDebug.svg");
+    public static final Icon DBO_CONSOLE_SEARCH                  = load("/img/object/console/ConsoleSearch.svg");
     public static final Icon DBO_CLUSTER                         = load("/img/object/Cluster.png");
     public static final Icon DBO_CLUSTERS                        = load("/img/object/Clusters.png");
     public static final Icon DBO_COLUMN                          = load("/img/object/column/Column.svg");

@@ -24,7 +24,8 @@ import javax.swing.Icon;
 @Getter
 public enum DBConsoleType {
     STANDARD("SQL Console", Icons.FILE_SQL_CONSOLE),
-    DEBUG("Debug Console", Icons.FILE_SQL_DEBUG_CONSOLE);
+    DEBUG("Debug Console", Icons.FILE_SQL_DEBUG_CONSOLE),
+    SEARCH("Search Console", Icons.FILE_SEARCH_CONSOLE);
 
     private final String name;
     private final Icon icon;

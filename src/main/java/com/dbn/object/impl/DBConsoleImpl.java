@@ -72,6 +72,7 @@ public class DBConsoleImpl extends DBObjectImpl<DBObjectMetadata> implements DBC
         return switch (consoleType) {
             case STANDARD -> Icons.DBO_CONSOLE;
             case DEBUG -> Icons.DBO_CONSOLE_DEBUG;
+            case SEARCH -> Icons.DBO_CONSOLE_SEARCH;
         };
     }
 
