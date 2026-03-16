@@ -135,4 +135,9 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     public boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String sourceId) throws SQLException {
         return getBooleanValue(conn, "is-content-embedded", schemaName, tableName, metadataColumnName, sourceId);
     }
+
+    @Override
+    public ResultSet performSimilaritySearch(DBNConnection conn, String schemaName, String tableName, String queryText, String metric) throws SQLException {
+        return executeQuery(conn, "perform-similarity-search", schemaName, tableName, queryText, metric);
+    }
 }

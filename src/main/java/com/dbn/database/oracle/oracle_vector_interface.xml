@@ -26,75 +26,32 @@
                 prefixes CDATA #IMPLIED>
         ]>
 <data-dictionary>
-    <statement-execution-processor id="ai-generate-rag-example" timeout="60">
+    <statement-execution-processor id="perform-similarity-search" timeout="60">
         <statement>
-            DECLARE
-                v_prompt   CLOB;
-                v_response CLOB;
-            BEGIN
-            WITH ranked AS (
-                SELECT CONTENT
-                    FROM REPORTS_NO_WEEK rnw
-                    ORDER BY vector_distance(
-                                rnw.EMBEDDING_TITLE,
-                                vector_embedding(doc_model
-                                        USING {#0} AS data)
-                    ) ASC
-                FETCH FIRST 5 ROWS ONLY
-            ), prompt_text AS (
-                    SELECT LISTAGG(CONTENT, CHR(10))
-                    WITHIN GROUP (ORDER BY NULL) AS prompt
-                    FROM ranked
-                    )
-            SELECT prompt
-                    INTO v_prompt
-                    FROM prompt_text;
-
-            v_response := DBMS_VECTOR.UTL_TO_GENERATE_TEXT(
-            v_prompt,
-                JSON({#1})
-            );
-
-            ? := v_response;
-            END;
+            with
+                PARAMS_QUERY as (
+                    select
+                        json(json_query(METADATA, '$.embedding_config')) as embedding_config
+                    from {0}.{1} where rownum = 1
+                ),
+                PROMPT_QUERY as (
+                    select
+                        DBMS_VECTOR.UTL_TO_EMBEDDING(
+                                DATA    => {#2},
+                                PARAMS  => (select EMBEDDING_CONFIG from PARAMS_QUERY)
+                        ) as QUERY_VECTOR
+                    from DUAL
+                )
+            select
+                to_char(t.TEXT) as TEXT,
+                vector_distance(t.EMBEDDING, q.QUERY_VECTOR, {3}) as DISTANCE
+            from {0}.{1} t
+            cross join PROMPT_QUERY q
+            where t.EMBEDDING is not null
+            order by DISTANCE
+            fetch first 10 rows only
         </statement>
     </statement-execution-processor>
-
-<!--    <statement-execution-processor id="ai-generate-rag" timeout="60">-->
-<!--        <statement>-->
-<!--            DECLARE-->
-<!--            v_prompt   CLOB;-->
-<!--            v_response CLOB;-->
-<!--            BEGIN-->
-<!--            SELECT LISTAGG(CONTENT, CHR(10)) WITHIN GROUP (ORDER BY NULL)-->
-<!--                INTO v_prompt-->
-<!--                FROM (-->
-<!--                    SELECT {2}-->
-<!--                    FROM {1} rnw-->
-<!--                    ORDER BY vector_distance(-->
-<!--                        rnw.{3},-->
-<!--                        vector_embedding(-->
-<!--                            {4}-->
-<!--                            USING {0} AS data-->
-<!--                            )-->
-<!--                        ) ASC-->
-<!--                FETCH FIRST 5 ROWS ONLY-->
-<!--            );-->
-
-<!--            v_response := DBMS_VECTOR.UTL_TO_GENERATE_TEXT(-->
-<!--                v_prompt,-->
-<!--                JSON('{-->
-<!--                        "provider":        "cohere",-->
-<!--                        "credential_name": "NJHUH",-->
-<!--                        "url":             "https://api.cohere.ai/v1/chat",-->
-<!--                        "model":           "command-r"-->
-<!--                        }')-->
-<!--            );-->
-
-<!--            ? := v_response;-->
-<!--            END;-->
-<!--        </statement>-->
-<!--    </statement-execution-processor>-->
 
     <statement-execution-processor id="create-model-from-storage" timeout="120">
         <statement>

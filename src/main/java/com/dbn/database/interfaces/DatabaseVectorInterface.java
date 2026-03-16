@@ -29,27 +29,29 @@ import java.sql.SQLException;
 
 public interface DatabaseVectorInterface extends DatabaseInterface {
 
-  void createModelFromStorage(DBNConnection conn, String ownerName, String modelName, String modelLocation, String credentialName) throws SQLException;
+    void createModelFromStorage(DBNConnection conn, String ownerName, String modelName, String modelLocation, String credentialName) throws SQLException;
 
-  void dropModel(DBNConnection conn, String modelSchema, String modelName) throws SQLException;
+    void dropModel(DBNConnection conn, String modelSchema, String modelName) throws SQLException;
 
-  void createModelFromFile(DBNConnection conn, String ownerName, String modelName, Blob modelBlob) throws SQLException;
+    void createModelFromFile(DBNConnection conn, String ownerName, String modelName, Blob modelBlob) throws SQLException;
 
-  ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException;
+    ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException;
 
-  int embedTableContent(DBNConnection conn, EmbeddingSourceTable sourceConfig, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException;
+    int embedTableContent(DBNConnection conn, EmbeddingSourceTable sourceConfig, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException;
 
-  int embedQueryContent(DBNConnection conn, String selectStatement, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException;
+    int embedQueryContent(DBNConnection conn, String selectStatement, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException;
 
-  int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, EmbeddingStagingConfig stagingConfig, EmbeddingDestinationConfig destinationConfig, String fileStoreId, String metadata) throws SQLException;
+    int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, EmbeddingStagingConfig stagingConfig, EmbeddingDestinationConfig destinationConfig, String fileStoreId, String metadata) throws SQLException;
 
-  void createFileStoreEntry(DBNConnection conn, String ownerName, String tableName, String fileStoreId, String fileMetadata, String fileHash, long fileSize) throws SQLException;
+    void createFileStoreEntry(DBNConnection conn, String ownerName, String tableName, String fileStoreId, String fileMetadata, String fileHash, long fileSize) throws SQLException;
 
-  ResultSet loadFileStoreMetadata(DBNConnection conn, String ownerName, String tableName, String fileHash, long fileSize) throws SQLException;
+    ResultSet loadFileStoreMetadata(DBNConnection conn, String ownerName, String tableName, String fileHash, long fileSize) throws SQLException;
 
-  String loadDestinationModelMetadata(DBNConnection conn, String ownerName, String tableName) throws SQLException;
+    String loadDestinationModelMetadata(DBNConnection conn, String ownerName, String tableName) throws SQLException;
 
-  void uploadFileStoreContent(@NotNull DBNConnection connection, String ownerName, String tableName, @NotNull String fileStoreId, InputStream inputStream) throws SQLException;
+    void uploadFileStoreContent(@NotNull DBNConnection connection, String ownerName, String tableName, @NotNull String fileStoreId, InputStream inputStream) throws SQLException;
 
-  boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String sourceId) throws SQLException;
+    boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String sourceId) throws SQLException;
+
+    ResultSet performSimilaritySearch(DBNConnection conn, String schemaName, String tableName, String queryText, String metric) throws SQLException;
 }
