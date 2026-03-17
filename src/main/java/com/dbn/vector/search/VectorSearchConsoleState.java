@@ -29,12 +29,16 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
 public class VectorSearchConsoleState implements FileEditorState, PersistentStateElement, Cloneable<VectorSearchConsoleState> {
     private SortableDataModelState modelState = new  SortableDataModelState();
+    private String schemaName;
+    private String tableName;
     private String searchText;
 
     @Override
@@ -44,30 +48,26 @@ public class VectorSearchConsoleState implements FileEditorState, PersistentStat
 
     @Override
     public void readState(@NotNull Element element) {
+        schemaName = stringAttribute(element, "schema");
+        tableName = stringAttribute(element, "table");
+
         Element searchTextElement = element.getChild("search-text");
         searchText = Settings.readCdata(searchTextElement);
 
         Element resultModelElement = element.getChild("result-model");
         modelState.readState(resultModelElement);
-/*
-        rowCount = integerAttribute(element, "row-count", 100);
-        readonly = booleanAttribute(element, "readonly", false);
-        editorVisible = booleanAttribute(element, "editor-visible", false);
-*/
     }
 
     @Override
     public void writeState(Element element) {
+        setStringAttribute(element, "schema", schemaName);
+        setStringAttribute(element, "table", tableName);
+
         Element searchTextElement = newElement(element, "search-text");
         Settings.writeCdata(searchTextElement, searchText);
 
         Element resultModelElement = newElement(element, "result-model");
         modelState.writeState(resultModelElement);
-/*
-        setIntegerAttribute(element, "row-count", rowCount);
-        setBooleanAttribute(element, "readonly", readonly);
-        setBooleanAttribute(element, "editor-visible", editorVisible);
-*/
     }
 
     @Override

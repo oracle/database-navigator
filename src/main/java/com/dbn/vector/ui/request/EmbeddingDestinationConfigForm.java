@@ -188,7 +188,8 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
 
     protected List<DBTable> loadTables() {
         List<DBTable> tables = super.loadTables();
-        return filter(tables, t -> isDestinationTable(t));
+        DBObjectNameCache<DBTable> names = getDestinationTablesCache();
+        return names.filter(tables);
     }
 
     private boolean isDestinationTable(DBTable table) {

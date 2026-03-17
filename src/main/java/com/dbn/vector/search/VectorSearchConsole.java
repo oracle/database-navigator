@@ -28,13 +28,12 @@ import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.data.model.sortable.SortableDataModelState;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBTable;
 import com.dbn.vector.search.ui.VectorSearchForm;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
-import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
-import com.intellij.ide.structureView.StructureViewBuilder;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorLocation;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import com.intellij.openapi.project.Project;
@@ -45,14 +44,16 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import java.beans.PropertyChangeListener;
+import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.util.Strings.isEmpty;
 
 public class VectorSearchConsole extends DisposableUserDataHolderBase implements FileEditor, DatabaseContextBase, DataProvider {
     private final WeakRef<DBConsoleVirtualFile> databaseFile;
 
     private VectorSearchForm searchForm;
-    private VectorSearchConsoleState cachedState;
+    private VectorSearchConsoleState state = new VectorSearchConsoleState();
 
     public VectorSearchConsole(DBConsoleVirtualFile databaseFile) {
         this.databaseFile = WeakRef.of(databaseFile);
@@ -83,6 +84,43 @@ public class VectorSearchConsole extends DisposableUserDataHolderBase implements
         //editorTable.restoreSelection();
     }
 
+    public void setSelectedSchema(@Nullable DBSchema schema) {
+        if (schema == null) {
+            state.setSchemaName(null);
+            state.setTableName(null);
+        } else if (!Objects.equals(schema.getName(), state.getSchemaName())) {
+            state.setSchemaName(schema.getName());
+            state.setTableName(null);
+        }
+    }
+    @Nullable
+    public DBSchema getSelectedSchema() {
+        String schemaName = state.getSchemaName();
+        if (isEmpty(schemaName)) return null;
+
+        return getConnection().getObjectBundle().getSchema(schemaName);
+    }
+
+    public void setSelectedTable(@Nullable DBTable table) {
+        if (table == null) {
+            state.setSchemaName(null);
+            state.setTableName(null);
+        } else {
+            state.setSchemaName(table.getSchemaName());
+            state.setTableName(table.getName());
+        }
+    }
+
+    @Nullable
+    public DBTable getSelectedTable() {
+        String tableName = state.getTableName();
+        if (isEmpty(tableName)) return null;
+
+        DBSchema schema = getSelectedSchema();
+        if (schema == null) return null;
+
+        return schema.getTable(tableName);
+    }
 
     @NotNull
     public DBConsoleVirtualFile getDatabaseFile() {
@@ -116,26 +154,31 @@ public class VectorSearchConsole extends DisposableUserDataHolderBase implements
     @Override
     @NotNull
     public VectorSearchConsoleState getState(@NotNull FileEditorStateLevel level) {
-        if (isDisposed()) return cachedState;
+        if (isDisposed() || level != FileEditorStateLevel.FULL) return state;
 
+        SortableDataModelState modelState = readModelState();
+        state.setModelState(modelState);
+        searchForm.updateState(state);
+        return state;
+    }
+
+    private @NotNull SortableDataModelState readModelState() {
         ResultSetTable editorTable = getSearchResultTable();
         ResultSetDataModel model = editorTable.getModel();
-        SortableDataModelState modelState = model.getState();
-        cachedState = new VectorSearchConsoleState();
-        cachedState.setModelState(modelState);
-        searchForm.updateState(cachedState);
-        return cachedState;
+        return model.getState();
     }
 
     @Override
     public void setState(@NotNull FileEditorState fileEditorState) {
-        if (fileEditorState instanceof VectorSearchConsoleState consoleState) {
+        if (fileEditorState instanceof VectorSearchConsoleState state) {
+            this.state = state;
+
             ResultSetTable editorTable = getSearchResultTable();
             ResultSetDataModel model = editorTable.getModel();
-            model.setState(consoleState.getModelState());
+            model.setState(state.getModelState());
             refreshTable();
 
-            searchForm.applyState(consoleState);
+            searchForm.applyState(state);
         }
     }
 
@@ -150,39 +193,11 @@ public class VectorSearchConsole extends DisposableUserDataHolderBase implements
     }
 
     @Override
-    public void selectNotify() {
-
-    }
-
-    @Override
-    public void deselectNotify() {
-
-    }
-
-    @Override
     public void addPropertyChangeListener(@NotNull PropertyChangeListener listener) {
     }
 
     @Override
     public void removePropertyChangeListener(@NotNull PropertyChangeListener listener) {
-    }
-
-    @Override
-    @Nullable
-    public BackgroundEditorHighlighter getBackgroundHighlighter() {
-        return null;
-    }
-
-    @Override
-    @Nullable
-    public FileEditorLocation getCurrentLocation() {
-        return null;
-    }
-
-    @Override
-    @Nullable
-    public StructureViewBuilder getStructureViewBuilder() {
-        return null;
     }
 
     public int getRowCount() {

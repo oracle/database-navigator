@@ -29,7 +29,7 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Messages;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNResultSet;
@@ -39,8 +39,6 @@ import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.data.record.RecordViewInfo;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
-import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBObjectType;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.search.VectorSearchConsole;
 import com.dbn.vector.search.VectorSearchConsoleState;
@@ -48,8 +46,6 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
-import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
@@ -62,19 +58,16 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import java.sql.ResultSet;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
-import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.help.HelpTopic.VECTOR_SEARCH;
 
 public class VectorSearchForm extends DBNFormBase {
     private JPanel actionsPanel;
     private JPanel mainPanel;
-    private JPanel contentPanel;
-    private JSplitPane contentSplitPanel;
     private DBNScrollPane resultScrollPane;
     private JPanel requestInputPanel;
     private JButton searchButton;
@@ -87,8 +80,6 @@ public class VectorSearchForm extends DBNFormBase {
     public VectorSearchForm(VectorSearchConsole searchConsole) {
         super(searchConsole, searchConsole.getProject());
         this.searchConsole = WeakRef.of(searchConsole);
-        //contentPanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
-        setSplitPaneProportion(contentSplitPanel, 0.2);
 
         initActionToolbar();
         initSpinner();
@@ -115,7 +106,6 @@ public class VectorSearchForm extends DBNFormBase {
         VirtualFile virtualFile = new LightVirtualFile("vector_search_file.txt", fileType, text);
 
         Document document = Documents.createDocument(text);
-        document.addDocumentListener(createRequestListener(), this);
         requestEditor = Editors.createEditor(document, project, virtualFile, fileType);
         requestEditor.setEmbeddedIntoDialogWrapper(false);
         requestEditor.getContentComponent().setFocusTraversalKeysEnabled(false);
@@ -132,15 +122,6 @@ public class VectorSearchForm extends DBNFormBase {
         requestInputPanel.add(requestEditor.getComponent());
         requestInputPanel.setBorder(Borders.insetBorder(8, 8, 8, 8));
         requestInputPanel.setBackground(requestEditor.getBackgroundColor());
-    }
-
-    private DocumentListener createRequestListener() {
-        return new DocumentListener() {
-            @Override
-            public void documentChanged(DocumentEvent event) {
-                searchButton.setEnabled(!event.getDocument().getText().isEmpty());
-            }
-        };
     }
 
     private void initSpinner() {
@@ -161,29 +142,42 @@ public class VectorSearchForm extends DBNFormBase {
         searchButton.addActionListener(e -> {
             Dispatch.async(mainPanel,
                     () -> performSimilaritySearch(),
-                    d -> applyChunkResult(d));
+                    d -> applySearchResult(d));
         });
     }
 
     private ResultSetDataModel performSimilaritySearch() {
-        startActivityNotifier();
-        String query = requestEditor.getDocument().getText().trim();
-
-        ConnectionHandler connection = getSearchConsole().getConnection();
+        VectorSearchConsole searchConsole = getSearchConsole();
+        ConnectionHandler connection = searchConsole.getConnection();
         Project project = connection.getProject();
 
-        DBSchema schema = connection.getSchema(getSelectedSchema());
-        DBObjectRef<DBTable> tableRef = new DBObjectRef<>(schema.ref(), DBObjectType.TABLE, "DCIE_0001");
-        DBTable vectorTable = tableRef.get();
+        DBSchema selectedSchema = searchConsole.getSelectedSchema();
+        if (selectedSchema == null) {
+            showErrorDialog(project, "No Schema Selection", "Please select a schema and a vector table to perform the similarity search on.");
+            return null;
+        }
 
+        DBTable selectedTable = searchConsole.getSelectedTable();
+        if (selectedTable == null) {
+            showErrorDialog(project, "No Table Selection", "Please select a vector table to perform the similarity search on.");
+            return null;
+        }
+
+        String query = requestEditor.getDocument().getText().trim();
+        if (Strings.isEmptyOrSpaces(query)) {
+            showErrorDialog(project, "Empty Query", "Please enter a query text to perform the similarity search for.");
+            return null;
+        }
+
+        startActivityNotifier();
         try {
             DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(project);
-            ResultSet resultSet = vectorManager.performSimilaritySearch(connection, vectorTable, query);
+            ResultSet resultSet = vectorManager.performSimilaritySearch(connection, selectedTable, query);
             ResultSetDataModel dataModel = new ResultSetDataModel((DBNResultSet) resultSet, connection, -1);
             dataModel.fetchNextRecords(1000, false);
             return dataModel;
         } catch (Exception e) {
-            Messages.showErrorDialog(project, "Failed to perform similarity search", e);
+            showErrorDialog(project, "Failed to perform similarity search", e);
             return new ResultSetDataModel(connection);
         } finally {
             stopActivityNotifier();
@@ -196,8 +190,9 @@ public class VectorSearchForm extends DBNFormBase {
         return contextManager.getDatabaseSchema(getSearchConsole().getDatabaseFile());
     }
 
-    private void applyChunkResult(ResultSetDataModel chunkData){
-        searchResultTable.setModel(chunkData);
+    private void applySearchResult(ResultSetDataModel result){
+        if (result == null) return;
+        searchResultTable.setModel(result);
     }
 
     private void startActivityNotifier() {
@@ -224,11 +219,6 @@ public class VectorSearchForm extends DBNFormBase {
     @NotNull
     public VectorSearchConsole getSearchConsole() {
         return searchConsole.ensure();
-    }
-
-    @NotNull
-    private ConnectionHandler getConnectionHandler() {
-        return getSearchConsole().getConnection();
     }
 
     public void updateState(VectorSearchConsoleState state) {

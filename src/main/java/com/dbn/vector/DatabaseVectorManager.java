@@ -10,11 +10,13 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.SchemaId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.execution.ExecutionManager;
+import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.cache.DBObjectFilterType;
 import com.dbn.object.cache.DBObjectNameCache;
@@ -55,6 +57,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.object.type.DBObjectType.TABLE;
+import static java.util.Collections.emptyList;
 
 
 @State(
@@ -277,5 +280,16 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
             Map<DBObjectFilterType, DBObjectNameCache<DBTable>> caches = ensureObjectCaches(connectionId);
             caches.put(cache.getFilterType(), cache);
         }
+    }
+
+    public List<DBTable> getVectorTables(ConnectionId connectionId, SchemaId schemaId) {
+        ConnectionHandler connection = ConnectionHandler.get(connectionId);
+        if (connection == null) return emptyList();
+
+        DBSchema schema = connection.getSchema(schemaId);
+        if (schema == null) return emptyList();
+
+        DBObjectNameCache<DBTable> names = getObjectNamesCache(connectionId, DBObjectFilterType.EMBEDDING_DESTINATION_TABLES);
+        return names.filter(schema.getTables());
     }
 }

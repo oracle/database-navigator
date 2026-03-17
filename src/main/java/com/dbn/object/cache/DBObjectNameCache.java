@@ -19,6 +19,7 @@ package com.dbn.object.cache;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.thread.Background;
+import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
@@ -108,6 +109,10 @@ public class DBObjectNameCache<T extends DBSchemaObject> implements PersistentSt
         }
 
         return objectNames;
+    }
+
+    public List<T> filter(List<T> objects) {
+        return Lists.filter(objects, o -> accepts(o));
     }
 
     private ConnectionHandler getConnection() {

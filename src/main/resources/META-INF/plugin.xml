@@ -574,7 +574,10 @@
             <action id="DBNavigator.Actions.SessionBrowser.OpenSettings" class="com.dbn.editor.session.action.SessionBrowserSettingsAction" text="Session Browser - Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.VectorSearchConsole" text="Vector Search Controls">
-            <action id="DBNavigator.Actions.VectorSearchSchema" class="com.dbn.language.editor.action.SchemaSelectDropdownAction" text="Vector Search - Current Schema"/>
+            <action id="DBNavigator.Actions.VectorSearchSchema" class="com.dbn.vector.search.action.VectorSchemaSelectAction" text="Vector Search - Schema"/>
+            <action id="DBNavigator.Actions.VectorSearchTable" class="com.dbn.vector.search.action.VectorTableSelectAction" text="Vector Search - Table"/>
+            <separator/>
+            <group id="DBNavigator.Actions.VectorConsoleOptions" class="com.dbn.language.editor.action.EditorOptionsAction" text="Vector Search - Settings" icon="AllIcons.General.GearPlain" />
         </group>
         <group id="DBNavigator.ActionGroup.JsonDataEditor" text="JSON Data Editor Controls">
             <action id="DBNavigator.Actions.JsonDataEditor.ToggleEditableStatus" class="com.dbn.editor.json.action.JsonDataEditingLockToggleAction" text="JSON Data Editor - Lock / Unlock Editing"/>
