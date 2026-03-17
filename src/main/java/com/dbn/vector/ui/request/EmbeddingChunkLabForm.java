@@ -17,13 +17,15 @@
 package com.dbn.vector.ui.request;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.file.FileTypes;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.Fonts;
+import com.dbn.common.util.Documents;
+import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
@@ -34,37 +36,47 @@ import com.dbn.data.record.RecordViewInfo;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.request.EmbeddingChunkingConfig;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.components.JBTextArea;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.ui.AsyncProcessIcon;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import java.awt.BorderLayout;
 import java.sql.ResultSet;
 
+import static com.dbn.common.util.Editors.updateEditorScrollPane;
+
 public class EmbeddingChunkLabForm extends DBNFormBase {
 
   private JPanel mainPanel;
-  private JBTextArea inputTextArea;
   private ResultSetTable chunkDataTable;
   private JButton testButton;
   private DBNScrollPane outputScrollPane;
-  private JScrollPane inputScrollPane;
   private JComboBox<String> chunkByComboBox;
-  private JSpinner maxSpinner;
   private JComboBox<String> splitByComboBox;
+  private JSpinner maxSpinner;
   private JSpinner overlapSpinner;
   private JPanel spinPanel;
-  private JPanel inputPanel;
   private JPanel outputPanel;
   private JPanel hintPanel;
+  private JPanel inputPanel;
   private final ConnectionRef connection;
+
+  private EditorEx inputEditor;
+  private int inputLineCount;
 
   public EmbeddingChunkLabForm(@Nullable Disposable parent, ConnectionHandler connection, EmbeddingChunkingConfig config) {
     super(parent, connection.getProject());
@@ -97,14 +109,50 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
   }
 
   private void initInputTextArea() {
-    inputTextArea.getEmptyText().appendLine("Enter your sample text for chunking here");
-    inputTextArea.setBackground(chunkDataTable.getBackground());
-    inputTextArea.setFont(Fonts.regular());
+    Project project = ensureProject();
+    String text = "";
+    PlainTextFileType fileType = FileTypes.getTextFileType();
+    VirtualFile virtualFile = new LightVirtualFile("chunk_lab_input.txt", fileType, text);
+
+    Document document = Documents.createDocument(text);
+    document.addDocumentListener(formLayoutUpdater(), this);
+    inputEditor = Editors.createEditor(document, project, virtualFile, fileType);
+    inputEditor.setEmbeddedIntoDialogWrapper(false);
+    inputEditor.getContentComponent().setFocusTraversalKeysEnabled(false);
+    inputEditor.setPlaceholder("Enter your sample text for chunking here");
+    inputEditor.setBorder(null);
+    inputEditor.getComponent().setBorder(null);
+    updateEditorScrollPane(inputEditor);
+
+    EditorSettings settings = inputEditor.getSettings();
+    settings.setUseSoftWraps(true);
+    settings.setLineMarkerAreaShown(false);
+    settings.setFoldingOutlineShown(false);
+    settings.setLineNumbersShown(false);
+    settings.setRightMarginShown(false);
+    settings.setCaretRowShown(false);
+    settings.setAdditionalLinesCount(2);
+
+
+    inputPanel.add(inputEditor.getComponent());
   }
 
   private void initSpinner() {
     spinPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
     spinPanel.setVisible(false);
+  }
+
+  private @NotNull DocumentListener formLayoutUpdater() {
+    return new DocumentListener() {
+      @Override
+      public void documentChanged(@NotNull DocumentEvent event) {
+        int lineCount = event.getDocument().getLineCount();
+        if (lineCount == inputLineCount) return;
+
+        inputLineCount = lineCount;
+        revalidateForm();
+      }
+    };
   }
 
   private ConnectionHandler getConnection() {
@@ -129,7 +177,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
   private ResultSetDataModel chunkTextContent() {
     startActivityNotifier();
     // todo recheck
-    String query = inputTextArea.getText().replace("'", ""); // TODO prepared statement param binding
+    String query = inputEditor.getDocument().getText().replace("'", ""); // TODO prepared statement param binding
 
     EmbeddingChunkingConfig configuration = getChunkConfiguration();
     ConnectionHandler connection = getConnection();
@@ -156,6 +204,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
   private void startActivityNotifier() {
     spinPanel.setVisible(true);
     testButton.setEnabled(false);
+    chunkDataTable.setLoading(true);
   }
 
   /**
@@ -164,6 +213,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
   private void stopActivityNotifier() {
     spinPanel.setVisible(false);
     testButton.setEnabled(true);
+    chunkDataTable.setLoading(false);
   }
 
   public EmbeddingChunkingConfig getChunkConfiguration() {
@@ -178,5 +228,11 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
   @Override
   protected JComponent getMainComponent() {
     return mainPanel;
+  }
+
+  @Override
+  public void disposeInner() {
+    Editors.releaseEditor(inputEditor);
+    super.disposeInner();
   }
 }

@@ -25,7 +25,6 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
@@ -46,6 +45,8 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
@@ -63,6 +64,7 @@ import java.awt.BorderLayout;
 import java.sql.ResultSet;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.util.Editors.updateEditorScrollPane;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.help.HelpTopic.VECTOR_SEARCH;
 
@@ -77,6 +79,7 @@ public class VectorSearchForm extends DBNFormBase {
 
     private final WeakRef<VectorSearchConsole> searchConsole;
     private EditorEx requestEditor;
+    private int inputLineCount;
 
     @Getter
     private transient boolean searching;
@@ -110,10 +113,14 @@ public class VectorSearchForm extends DBNFormBase {
         VirtualFile virtualFile = new LightVirtualFile("vector_search_file.txt", fileType, text);
 
         Document document = Documents.createDocument(text);
+        document.addDocumentListener(formLayoutUpdater(), this);
+
         requestEditor = Editors.createEditor(document, project, virtualFile, fileType);
         requestEditor.setEmbeddedIntoDialogWrapper(false);
         requestEditor.getContentComponent().setFocusTraversalKeysEnabled(false);
         requestEditor.setPlaceholder("Enter your search text here");
+        updateEditorScrollPane(requestEditor);
+
         EditorSettings settings = requestEditor.getSettings();
         settings.setUseSoftWraps(true);
         settings.setLineMarkerAreaShown(false);
@@ -124,8 +131,19 @@ public class VectorSearchForm extends DBNFormBase {
         settings.setAdditionalLinesCount(2);
 
         requestInputPanel.add(requestEditor.getComponent());
-        requestInputPanel.setBorder(Borders.insetBorder(8, 8, 8, 8));
-        requestInputPanel.setBackground(requestEditor.getBackgroundColor());
+    }
+
+    private @NotNull DocumentListener formLayoutUpdater() {
+        return new DocumentListener() {
+            @Override
+            public void documentChanged(@NotNull DocumentEvent event) {
+                int lineCount = event.getDocument().getLineCount();
+                if (lineCount == inputLineCount) return;
+
+                inputLineCount = lineCount;
+                revalidateForm();
+            }
+        };
     }
 
     private void initSpinner() {
