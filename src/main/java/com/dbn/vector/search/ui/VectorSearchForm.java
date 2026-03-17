@@ -31,14 +31,14 @@ import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNResultSet;
-import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.data.record.RecordViewInfo;
+import com.dbn.data.sorting.SortDirection;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
+import com.dbn.object.type.DBVectorDistanceMetric;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.search.VectorSearchConsole;
 import com.dbn.vector.search.VectorSearchConsoleState;
@@ -53,6 +53,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.ui.AsyncProcessIcon;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,6 +77,9 @@ public class VectorSearchForm extends DBNFormBase {
 
     private final WeakRef<VectorSearchConsole> searchConsole;
     private EditorEx requestEditor;
+
+    @Getter
+    private transient boolean searching;
 
     public VectorSearchForm(VectorSearchConsole searchConsole) {
         super(searchConsole, searchConsole.getProject());
@@ -163,6 +167,12 @@ public class VectorSearchForm extends DBNFormBase {
             return null;
         }
 
+        DBVectorDistanceMetric distanceMetric = searchConsole.getSelectedMetric();
+        if (distanceMetric == null) {
+            showErrorDialog(project, "No Metric Selection", "Please select a vector distance metric to use in the similarity search.");
+            return null;
+        }
+
         String query = requestEditor.getDocument().getText().trim();
         if (Strings.isEmptyOrSpaces(query)) {
             showErrorDialog(project, "Empty Query", "Please enter a query text to perform the similarity search for.");
@@ -172,7 +182,7 @@ public class VectorSearchForm extends DBNFormBase {
         startActivityNotifier();
         try {
             DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(project);
-            ResultSet resultSet = vectorManager.performSimilaritySearch(connection, selectedTable, query);
+            ResultSet resultSet = vectorManager.performSimilaritySearch(connection, selectedTable, query, distanceMetric);
             ResultSetDataModel dataModel = new ResultSetDataModel((DBNResultSet) resultSet, connection, -1);
             dataModel.fetchNextRecords(1000, false);
             return dataModel;
@@ -184,25 +194,26 @@ public class VectorSearchForm extends DBNFormBase {
         }
     }
 
-    private SchemaId getSelectedSchema() {
-        Project project = ensureProject();
-        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-        return contextManager.getDatabaseSchema(getSearchConsole().getDatabaseFile());
-    }
-
     private void applySearchResult(ResultSetDataModel result){
         if (result == null) return;
         searchResultTable.setModel(result);
+        searchResultTable.sort(0, SortDirection.ASCENDING,  true);
     }
 
     private void startActivityNotifier() {
+        searching = true;
         spinPanel.setVisible(true);
         searchButton.setEnabled(false);
+        searchResultTable.setLoading(true);
+        updateActionToolbars();
     }
 
     private void stopActivityNotifier() {
+        searching = false;
         spinPanel.setVisible(false);
         searchButton.setEnabled(true);
+        searchResultTable.setLoading(false);
+        updateActionToolbars();
     }
 
     @NotNull

@@ -17,9 +17,9 @@
 package com.dbn.vector.search.action;
 
 import com.dbn.common.action.BackgroundUpdate;
+import com.dbn.common.action.SelectDropdownAction;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
-import com.dbn.object.action.ObjectSelectDropdownAction;
 import com.dbn.object.cache.DBObjectNameCache;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;
@@ -35,7 +35,7 @@ import static com.dbn.object.cache.DBObjectFilterType.EMBEDDING_DESTINATION_TABL
 import static java.util.Collections.emptyList;
 
 @BackgroundUpdate
-public class VectorTableSelectAction extends ObjectSelectDropdownAction<DBTable> implements VectorActionSupport{
+public class VectorTableSelectAction extends SelectDropdownAction<DBTable> implements VectorActionSupport{
 
     @Override
     protected List<DBTable> getObjects(DataContext dataContext) {
@@ -85,6 +85,8 @@ public class VectorTableSelectAction extends ObjectSelectDropdownAction<DBTable>
         VectorSearchConsole console = getConsole(e);
         if (console == null) return false;
 
+        if (console.isSearching()) return false;
+
         DBSchema schema = console.getSelectedSchema();
         if (schema == null) return false;
 
@@ -96,4 +98,8 @@ public class VectorTableSelectAction extends ObjectSelectDropdownAction<DBTable>
         return "Table";
     }
 
+    @Override
+    protected String getDescription(AnActionEvent e) {
+        return "Vector table";
+    }
 }

@@ -43,8 +43,8 @@
                     from DUAL
                 )
             select
-                to_char(t.TEXT) as TEXT,
-                vector_distance(t.EMBEDDING, q.QUERY_VECTOR, {3}) as DISTANCE
+                vector_distance(t.EMBEDDING, q.QUERY_VECTOR, {3}) as DISTANCE,
+                to_char(t.TEXT) as TEXT
             from {0}.{1} t
             cross join PROMPT_QUERY q
             where t.EMBEDDING is not null

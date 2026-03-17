@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-package com.dbn.object.action;
+package com.dbn.common.action;
 
-import com.dbn.common.action.BackgroundUpdate;
-import com.dbn.common.action.ComboBoxAction;
+import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Actions;
-import com.dbn.object.common.DBObject;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Condition;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import java.util.List;
 
 @BackgroundUpdate
-public abstract class ObjectSelectDropdownAction<T extends DBObject> extends ComboBoxAction implements DumbAware {
+public abstract class SelectDropdownAction<T extends Presentable> extends ComboBoxAction implements DumbAware {
+    private transient T lastSelection;
 
     protected List<T> getObjects(AnActionEvent e) {
         return getObjects(e.getDataContext());
@@ -46,6 +47,10 @@ public abstract class ObjectSelectDropdownAction<T extends DBObject> extends Com
 
     protected String getEmptySelectionText(AnActionEvent e) {
         return "";
+    }
+
+    protected String getDescription(AnActionEvent e) {
+        return null;
     }
 
     protected boolean isVisible(AnActionEvent e) {
@@ -66,14 +71,26 @@ public abstract class ObjectSelectDropdownAction<T extends DBObject> extends Com
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         List<T> objects = getObjects(dataContext);
         for (T object : objects) {
-            actionGroup.add(new ObjectSelectAction(object));
+            actionGroup.add(new ElementSelectAction(object));
         }
         return actionGroup;
     }
 
     @Override
+    protected Condition<AnAction> getPreselectCondition() {
+        return a -> {
+            if (a instanceof SelectDropdownAction.ElementSelectAction selectAction) {
+                return selectAction.element == lastSelection;
+            }
+            return false;
+        };
+    }
+
+    @Override
     public final void update(@NotNull AnActionEvent e) {
         T object = getSelectedObject(e);
+        lastSelection = object;
+
         Presentation presentation = e.getPresentation();
         presentation.setVisible(isVisible(e));
         presentation.setEnabled(isEnabled(e));
@@ -81,32 +98,40 @@ public abstract class ObjectSelectDropdownAction<T extends DBObject> extends Com
         if (object == null) {
             if (isLoading(e)) {
                 presentation.setText("Loading...");
-                presentation.setIcon(null);
                 presentation.setEnabled(false);
             } else {
                 String emptySelectionText = getEmptySelectionText(e);
                 presentation.setText(emptySelectionText);
-                presentation.setIcon(null);
             }
+            presentation.setIcon(null);
         } else {
             presentation.setText(Actions.adjustActionName(object.getName()));
             presentation.setIcon(object.getIcon());
         }
+
+        presentation.setDescription(getDescription(e));
     }
 
     @BackgroundUpdate
-    private class ObjectSelectAction extends AnObjectAction<T> {
-        protected ObjectSelectAction(T object) {
-            super(object);
+    private class ElementSelectAction extends ProjectAction {
+        private final T element;
+        protected ElementSelectAction(T element) {
+            this.element = element;
         }
 
         @Override
-        protected void actionPerformed(
-                @NotNull AnActionEvent e,
-                @NotNull Project project,
-                @NotNull T object) {
+        protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
+            setSelectedObject(e, element);
+        }
 
-            setSelectedObject(e, object);
+        @Override
+        protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+            Presentation presentation = e.getPresentation();
+            String text = Actions.adjustActionName(element.getName());
+
+
+            presentation.setText(text);
+            presentation.setIcon(element.getIcon());
         }
     }
 }

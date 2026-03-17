@@ -30,6 +30,7 @@ import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.data.model.sortable.SortableDataModelState;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
+import com.dbn.object.type.DBVectorDistanceMetric;
 import com.dbn.vector.search.ui.VectorSearchForm;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.intellij.openapi.actionSystem.DataProvider;
@@ -122,6 +123,14 @@ public class VectorSearchConsole extends DisposableUserDataHolderBase implements
         return schema.getTable(tableName);
     }
 
+    public void setSelectedMetric(@Nullable DBVectorDistanceMetric distanceMetric) {
+        state.setDistanceMetric(distanceMetric);
+    }
+
+    public DBVectorDistanceMetric getSelectedMetric() {
+        return state.getDistanceMetric();
+    }
+
     @NotNull
     public DBConsoleVirtualFile getDatabaseFile() {
         return databaseFile.ensure();
@@ -190,6 +199,10 @@ public class VectorSearchConsole extends DisposableUserDataHolderBase implements
     @Override
     public boolean isValid() {
         return true;
+    }
+
+    public boolean isSearching() {
+        return getSearchForm().isSearching();
     }
 
     @Override

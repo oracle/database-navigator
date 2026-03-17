@@ -576,6 +576,7 @@
         <group id="DBNavigator.ActionGroup.VectorSearchConsole" text="Vector Search Controls">
             <action id="DBNavigator.Actions.VectorSearchSchema" class="com.dbn.vector.search.action.VectorSchemaSelectAction" text="Vector Search - Schema"/>
             <action id="DBNavigator.Actions.VectorSearchTable" class="com.dbn.vector.search.action.VectorTableSelectAction" text="Vector Search - Table"/>
+            <action id="DBNavigator.Actions.VectorSearchMetric" class="com.dbn.vector.search.action.VectorMetricSelectAction" text="Vector Search - Distance Metric"/>
             <separator/>
             <group id="DBNavigator.Actions.VectorConsoleOptions" class="com.dbn.language.editor.action.EditorOptionsAction" text="Vector Search - Settings" icon="AllIcons.General.GearPlain" />
         </group>

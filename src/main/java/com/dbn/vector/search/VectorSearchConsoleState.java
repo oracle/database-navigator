@@ -20,6 +20,7 @@ import com.dbn.common.options.setting.Settings;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
 import com.dbn.data.model.sortable.SortableDataModelState;
+import com.dbn.object.type.DBVectorDistanceMetric;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import lombok.Getter;
@@ -28,10 +29,13 @@ import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.object.type.DBVectorDistanceMetric.COSINE;
 
 @Getter
 @Setter
@@ -40,6 +44,7 @@ public class VectorSearchConsoleState implements FileEditorState, PersistentStat
     private String schemaName;
     private String tableName;
     private String searchText;
+    private DBVectorDistanceMetric distanceMetric = COSINE;
 
     @Override
     public boolean canBeMergedWith(@NotNull FileEditorState fileEditorState, @NotNull FileEditorStateLevel fileEditorStateLevel) {
@@ -50,6 +55,7 @@ public class VectorSearchConsoleState implements FileEditorState, PersistentStat
     public void readState(@NotNull Element element) {
         schemaName = stringAttribute(element, "schema");
         tableName = stringAttribute(element, "table");
+        distanceMetric = enumAttribute(element, "metric", COSINE);
 
         Element searchTextElement = element.getChild("search-text");
         searchText = Settings.readCdata(searchTextElement);
@@ -62,6 +68,7 @@ public class VectorSearchConsoleState implements FileEditorState, PersistentStat
     public void writeState(Element element) {
         setStringAttribute(element, "schema", schemaName);
         setStringAttribute(element, "table", tableName);
+        setEnumAttribute(element, "metric", distanceMetric);
 
         Element searchTextElement = newElement(element, "search-text");
         Settings.writeCdata(searchTextElement, searchText);

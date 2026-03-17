@@ -153,7 +153,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
                 });
     }
 
-    public ResultSet performSimilaritySearch(ConnectionHandler connection, DBTable vectorTable, String queryText) throws SQLException {
+    public ResultSet performSimilaritySearch(ConnectionHandler connection, DBTable vectorTable, String queryText, DBVectorDistanceMetric distanceMetric) throws SQLException {
         return DatabaseInterfaceInvoker.load(MEDIUM,
                 "Perform Similarity Search",
                 "Perform similarity search on vector table " + vectorTable.getQualifiedName(true),
@@ -165,7 +165,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
                             vectorTable.getSchemaName(true),
                             vectorTable.getName(true),
                             queryText,
-                            DBVectorDistanceMetric.COSINE.name());
+                            distanceMetric.name());
                 });
     }
 
