@@ -16,6 +16,7 @@
 
 package com.dbn.common.action;
 
+import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -27,18 +28,21 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import java.util.List;
 
 @BackgroundUpdate
 public abstract class SelectDropdownAction<T extends Presentable> extends ComboBoxAction implements DumbAware {
-    private transient T lastSelection;
+    private transient WeakRef<T> lastSelection;
 
+    @Nullable
     protected List<T> getObjects(AnActionEvent e) {
         return getObjects(e.getDataContext());
     }
 
+    @Nullable
     protected abstract List<T> getObjects(DataContext dataContext);
 
     protected abstract T getSelectedObject(AnActionEvent e);
@@ -70,6 +74,8 @@ public abstract class SelectDropdownAction<T extends Presentable> extends ComboB
     protected final DefaultActionGroup createPopupActionGroup(@NotNull JComponent button, @NotNull DataContext dataContext) {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         List<T> objects = getObjects(dataContext);
+        if (objects == null) return actionGroup;
+
         for (T object : objects) {
             actionGroup.add(new ElementSelectAction(object));
         }
@@ -80,7 +86,7 @@ public abstract class SelectDropdownAction<T extends Presentable> extends ComboB
     protected Condition<AnAction> getPreselectCondition() {
         return a -> {
             if (a instanceof SelectDropdownAction.ElementSelectAction selectAction) {
-                return selectAction.element == lastSelection;
+                return selectAction.element == WeakRef.get(lastSelection);
             }
             return false;
         };
@@ -89,7 +95,7 @@ public abstract class SelectDropdownAction<T extends Presentable> extends ComboB
     @Override
     public final void update(@NotNull AnActionEvent e) {
         T object = getSelectedObject(e);
-        lastSelection = object;
+        lastSelection = WeakRef.of(object);
 
         Presentation presentation = e.getPresentation();
         presentation.setVisible(isVisible(e));
