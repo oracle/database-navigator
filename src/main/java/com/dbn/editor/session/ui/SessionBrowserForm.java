@@ -35,7 +35,6 @@ import com.dbn.editor.data.ui.table.cell.DatasetTableCellEditor;
 import com.dbn.editor.session.SessionBrowser;
 import com.dbn.editor.session.model.SessionBrowserModel;
 import com.dbn.editor.session.ui.table.SessionBrowserTable;
-import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.util.text.DateFormatUtil;
@@ -217,7 +216,7 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
 
     @Override
     public void disposeInner() {
-        DataManager.removeDataProvider(actionsPanel);
+        DataProviders.unregister(actionsPanel);
         super.disposeInner();
         browserTable = null;
     }

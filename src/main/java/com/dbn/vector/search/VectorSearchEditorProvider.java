@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.editor.console;
+package com.dbn.vector.search;
 
 import com.dbn.common.editor.BasicTextEditorProvider;
 import com.dbn.editor.EditorProviderId;
 import com.dbn.vfs.DBConsoleType;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorPolicy;
 import com.intellij.openapi.fileEditor.FileEditorState;
@@ -32,25 +31,25 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 
-public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements DumbAware{
+public class VectorSearchEditorProvider extends BasicTextEditorProvider implements DumbAware{
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        return virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile && consoleVirtualFile.getType().isOneOf(DBConsoleType.STANDARD, DBConsoleType.DEBUG);
+        return virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile && consoleVirtualFile.getType() == DBConsoleType.SEARCH;
     }
 
     @Override
     @NotNull
     public FileEditorState readState(@NotNull Element sourceElement, @NotNull Project project, @NotNull VirtualFile virtualFile) {
-        SQLConsoleEditorState editorState = new SQLConsoleEditorState();
-        editorState.readState(sourceElement, project, virtualFile);
-        return editorState;
+        VectorSearchConsoleState consoleState = new VectorSearchConsoleState();
+        consoleState.readState(sourceElement);
+        return consoleState;
     }
 
     @Override
     public void writeState(@NotNull FileEditorState state, @NotNull Project project, @NotNull Element targetElement) {
-        if (state instanceof SQLConsoleEditorState editorState) {
-            editorState.writeState(targetElement, project);
+        if (state instanceof VectorSearchConsoleState searchConsoleState) {
+            searchConsoleState.writeState(targetElement);
         }
     }
 
@@ -58,15 +57,7 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements
     @NotNull
     public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
         DBConsoleVirtualFile consoleVirtualFile = (DBConsoleVirtualFile) file;
-        SQLConsoleEditor editor = new SQLConsoleEditor(project, consoleVirtualFile, "SQL Console", getEditorProviderId());
-
-        Document document = editor.getEditor().getDocument();
-        int documentSignature = document.hashCode();
-        if (document.hashCode() != consoleVirtualFile.getDocumentSignature()) {
-            document.addDocumentListener(consoleVirtualFile, editor);
-            consoleVirtualFile.setDocumentSignature(documentSignature);
-        }
-        return editor;
+        return new VectorSearchConsole(consoleVirtualFile);
     }
 
     @Override
@@ -83,7 +74,7 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements
     @NotNull
     @Override
     public EditorProviderId getEditorProviderId() {
-        return EditorProviderId.CONSOLE;
+        return EditorProviderId.VECTOR_SEARCH;
     }
 
     /*********************************************************
@@ -94,7 +85,7 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements
     @NonNls
     @NotNull
     public String getComponentName() {
-        return "DBNavigator.SQLConsoleEditorProvider";
+        return "DBNavigator.VectorSearchEditorProvider";
     }
 
 }

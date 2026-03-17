@@ -14,62 +14,68 @@
  * limitations under the License.
  */
 
-package com.dbn.editor.json;
+package com.dbn.vector.search;
 
+import com.dbn.common.options.setting.Settings;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
 import com.dbn.data.model.sortable.SortableDataModelState;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.options.setting.Settings.booleanAttribute;
-import static com.dbn.common.options.setting.Settings.integerAttribute;
-import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
-import static com.dbn.common.options.setting.Settings.setIntegerAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = true)
-public class JsonDataEditorState extends SortableDataModelState<JsonDataEditorState> implements FileEditorState, PersistentStateElement {
-    public static final JsonDataEditorState VOID = new JsonDataEditorState();
-
-    private int rowCount;
-    private boolean readonly;
-    private boolean editorVisible;
+public class VectorSearchConsoleState implements FileEditorState, PersistentStateElement, Cloneable<VectorSearchConsoleState> {
+    private SortableDataModelState modelState = new  SortableDataModelState();
+    private String searchText;
 
     @Override
     public boolean canBeMergedWith(@NotNull FileEditorState fileEditorState, @NotNull FileEditorStateLevel fileEditorStateLevel) {
-        return fileEditorState instanceof JsonDataEditorState && fileEditorStateLevel == FileEditorStateLevel.FULL;
+        return fileEditorState instanceof VectorSearchConsoleState && fileEditorStateLevel == FileEditorStateLevel.FULL;
     }
 
     @Override
     public void readState(@NotNull Element element) {
-        super.readState(element);
+        Element searchTextElement = element.getChild("search-text");
+        searchText = Settings.readCdata(searchTextElement);
+
+        Element resultModelElement = element.getChild("result-model");
+        modelState.readState(resultModelElement);
+/*
         rowCount = integerAttribute(element, "row-count", 100);
         readonly = booleanAttribute(element, "readonly", false);
         editorVisible = booleanAttribute(element, "editor-visible", false);
+*/
     }
 
     @Override
     public void writeState(Element element) {
-        super.writeState(element);
+        Element searchTextElement = newElement(element, "search-text");
+        Settings.writeCdata(searchTextElement, searchText);
+
+        Element resultModelElement = newElement(element, "result-model");
+        modelState.writeState(resultModelElement);
+/*
         setIntegerAttribute(element, "row-count", rowCount);
         setBooleanAttribute(element, "readonly", readonly);
         setBooleanAttribute(element, "editor-visible", editorVisible);
+*/
     }
 
     @Override
     @SneakyThrows
-    public JsonDataEditorState clone() {
-        JsonDataEditorState clone = cast(super.clone());
-        clone.sortingState = Cloneable.clone(sortingState);
+    public VectorSearchConsoleState clone() {
+        VectorSearchConsoleState clone = cast(super.clone());
+        clone.modelState = Cloneable.clone(modelState);
+
         return clone;
     }
 }

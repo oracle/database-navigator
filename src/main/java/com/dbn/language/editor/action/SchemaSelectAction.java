@@ -28,6 +28,7 @@ import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -46,10 +47,19 @@ public class SchemaSelectAction extends AnObjectAction<DBSchema> {
             @NotNull Project project,
             @NotNull DBSchema object) {
 
+        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
+        SchemaId schemaId = SchemaId.from(object);
+
         Editor editor = Lookups.getEditor(e);
         if (editor != null) {
-            FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-            contextManager.setDatabaseSchema(editor, SchemaId.from(object));
+            contextManager.setDatabaseSchema(editor, schemaId);
+            return;
+        }
+
+        FileEditor fileEditor = Lookups.getFileEditor(e);
+        if (fileEditor != null) {
+            VirtualFile file = fileEditor.getFile();
+            contextManager.setDatabaseSchema(file, schemaId);
         }
     }
 

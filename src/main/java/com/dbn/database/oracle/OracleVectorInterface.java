@@ -53,7 +53,7 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException {
+    public ResultSet chunkTextContent(DBNConnection conn, String text, String chunkBy, String splitBy, int max, int overlap) throws SQLException {
         return executeQuery(conn, "chunk-text-from-chunk-lab", text, chunkBy, max, overlap, splitBy);
     }
 

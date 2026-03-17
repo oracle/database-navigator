@@ -35,7 +35,7 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
 
     void createModelFromFile(DBNConnection conn, String ownerName, String modelName, Blob modelBlob) throws SQLException;
 
-    ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException;
+    ResultSet chunkTextContent(DBNConnection conn, String text, String chunkBy, String splitBy, int max, int overlap) throws SQLException;
 
     int embedTableContent(DBNConnection conn, EmbeddingSourceTable sourceConfig, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException;
 

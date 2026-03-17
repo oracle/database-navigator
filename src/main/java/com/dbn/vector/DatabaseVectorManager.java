@@ -18,6 +18,7 @@ import com.dbn.execution.ExecutionManager;
 import com.dbn.object.DBTable;
 import com.dbn.object.cache.DBObjectFilterType;
 import com.dbn.object.cache.DBObjectNameCache;
+import com.dbn.object.type.DBVectorDistanceMetric;
 import com.dbn.vector.model.VectorEmbeddingContext;
 import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
@@ -141,11 +142,27 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
                 connection.getConnectionId(),
                 conn -> {
                     DatabaseVectorInterface vectorInterface = connection.getVectorInterface();
-                    return vectorInterface.chunkTextContent(text,
+                    return vectorInterface.chunkTextContent(conn, text,
                             config.getChunkBy(),
                             config.getSplitBy(),
                             config.getMaxSize(),
-                            config.getOverlap(), conn);
+                            config.getOverlap());
+                });
+    }
+
+    public ResultSet performSimilaritySearch(ConnectionHandler connection, DBTable vectorTable, String queryText) throws SQLException {
+        return DatabaseInterfaceInvoker.load(MEDIUM,
+                "Perform Similarity Search",
+                "Perform similarity search on vector table " + vectorTable.getQualifiedName(true),
+                connection.getProject(),
+                connection.getConnectionId(),
+                conn -> {
+                    DatabaseVectorInterface vectorInterface = connection.getVectorInterface();
+                    return vectorInterface.performSimilaritySearch(conn,
+                            vectorTable.getSchemaName(true),
+                            vectorTable.getName(true),
+                            queryText,
+                            DBVectorDistanceMetric.COSINE.name());
                 });
     }
 

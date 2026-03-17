@@ -237,11 +237,11 @@ public class Documents {
     }
 
     public static void setText(@NotNull Document document, CharSequence text) {
-        FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
-        VirtualFile file = fileDocumentManager.getFile(document);
-        if (isNotValid(file)) return;
-
         Write.run(() -> changeText(document, text));
+    }
+
+    public static String getText(@NotNull Document document) {
+        return Read.call(() -> document.getText());
     }
 
     private static void changeText(Document document, CharSequence text) {

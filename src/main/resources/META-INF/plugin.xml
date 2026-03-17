@@ -573,6 +573,9 @@
             <separator/>
             <action id="DBNavigator.Actions.SessionBrowser.OpenSettings" class="com.dbn.editor.session.action.SessionBrowserSettingsAction" text="Session Browser - Settings"/>
         </group>
+        <group id="DBNavigator.ActionGroup.VectorSearchConsole" text="Vector Search Controls">
+            <action id="DBNavigator.Actions.VectorSearchSchema" class="com.dbn.language.editor.action.SchemaSelectDropdownAction" text="Vector Search - Current Schema"/>
+        </group>
         <group id="DBNavigator.ActionGroup.JsonDataEditor" text="JSON Data Editor Controls">
             <action id="DBNavigator.Actions.JsonDataEditor.ToggleEditableStatus" class="com.dbn.editor.json.action.JsonDataEditingLockToggleAction" text="JSON Data Editor - Lock / Unlock Editing"/>
             <action id="DBNavigator.Actions.JsonDataEditor.ToggleContentEditorVisibility" class="com.dbn.editor.json.action.JsonDataContentEditorToggleAction" text="JSON Data Editor - Show / Hide Content Editor"/>
@@ -941,6 +944,7 @@
         <fileEditorProvider implementation="com.dbn.editor.session.SessionBrowserEditorProvider"/>
         <fileEditorProvider implementation="com.dbn.editor.code.SourceCodeSpecEditorProvider"/>
         <fileEditorProvider implementation="com.dbn.editor.console.SQLConsoleEditorProvider"/>
+        <fileEditorProvider implementation="com.dbn.vector.search.VectorSearchEditorProvider"/>
         <!--<fileEditorProvider implementation="com.dbn.common.editor.SQLFileTextEditorProvider"/>-->
 
         <editorNotificationProvider implementation="com.dbn.ddl.DDLMappedNotificationProvider"/>
