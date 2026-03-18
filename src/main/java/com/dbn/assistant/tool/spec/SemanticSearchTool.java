@@ -30,10 +30,11 @@ import java.util.List;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.DATA_PROVIDER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
+import static com.dbn.assistant.tool.AssistantToolType.SEMANTIC_SEARCH;
 
 @ToolSpec(
         category = DATA_PROVIDER,
-        type = "SEMANTIC_SEARCH", //AssistantToolType.SEMANTIC_SEARCH
+        type = SEMANTIC_SEARCH,
         name = "Semantic search",
         description = "Provides semantic search utilities for retrieval‑augmented generation (RAG)")
 public interface SemanticSearchTool extends AssistantTool {

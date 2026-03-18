@@ -16,25 +16,34 @@
 
 package com.dbn.assistant.tool;
 
-import com.dbn.common.constant.PseudoConstant;
-import com.dbn.common.constant.PseudoConstantConverter;
-import org.jetbrains.annotations.NonNls;
+import com.dbn.common.constant.Constant;
 
-public final class AssistantToolType extends PseudoConstant<AssistantToolType> {
-    public static final AssistantToolType USER_PROMPTS = get("USER_PROMPTS");
-    public static final AssistantToolType SEMANTIC_SEARCH = get("SEMANTIC_SEARCH");
+public enum AssistantToolType implements Constant<AssistantToolType> {
+    USER_PROMPTS,
+    SEMANTIC_SEARCH,
+    CONNECTION_INFO,
+    DATABASE_METADATA,
 
-    AssistantToolType(@NonNls String id) {
-        super(id);
-    }
+    SCHEMA_METADATA,
+    TABLE_METADATA,
+    VIEW_METADATA,
+    PROGRAM_METADATA,
 
-    public static AssistantToolType get(@NonNls String id) {
-        return PseudoConstant.get(AssistantToolType.class, id);
-    }
+    VIEW_SOURCE_CODE,
+    PROGRAM_SOURCE_CODE,
 
+    DATASET_EDITORS,
+    SOURCE_CODE_EDITORS,
+
+    SQL_CONSOLE_EDITORS,
+
+    ;
+
+/*
     public static class Converter extends PseudoConstantConverter<AssistantToolType> {
         public Converter() {
             super(AssistantToolType.class);
         }
     }
+*/
 }

@@ -27,10 +27,11 @@ import dev.langchain4j.agent.tool.Tool;
 import static com.dbn.assistant.tool.AssistantToolCategory.USER_INTERACTION;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
 import static com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
+import static com.dbn.assistant.tool.AssistantToolType.USER_PROMPTS;
 
 @ToolSpec(
         category = USER_INTERACTION,
-        type = "USER_PROMPTS", //AssistantToolType.USER_PROMPTS
+        type = USER_PROMPTS,
         name = "User prompts",
         interactive = true,
         description = "Interactive tools for user input via yes/no or multiple-choice prompts")
