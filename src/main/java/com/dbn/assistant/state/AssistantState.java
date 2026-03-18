@@ -89,6 +89,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     private String currentSessionSignature; // the resourceId of the com.dbn.connection.jdbc.Resource
     private String defaultProfileName;
     private ChatContext lastContext;
+    private boolean vectorSearch;
 
     @Delegate
     private final UserDataHolder userData = new UserDataHolderBase();

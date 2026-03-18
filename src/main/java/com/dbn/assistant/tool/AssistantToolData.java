@@ -16,8 +16,11 @@
 
 package com.dbn.assistant.tool;
 
+import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
+import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import dev.langchain4j.agent.tool.Tool;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
@@ -26,24 +29,34 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Unsafe.cast;
 
 public class AssistantToolData {
     private static final List<AssistantToolFactory> factories = AssistantToolFactories.list();
+    private static final List<AssistantToolCategory> categories = categories();
     private static final Map<String, AssistantToolFactory<?>> utilityMappings = new ConcurrentHashMap<>();
     private static final Map<AssistantToolType, AssistantToolFactory> typeMappings = factories();
 
+
+    private static @NotNull List<AssistantToolCategory> categories() {
+        return factories
+                .stream()
+                .map(t -> t.getToolCategory())
+                .distinct()
+                .toList();
+    }
 
     private static Map<AssistantToolType, AssistantToolFactory> factories() {
         return factories.stream().collect(Collectors.toMap(AssistantToolFactory::getToolType, f -> f));
     }
 
-    public static AssistantToolCategory[] getToolCategories() {
-        return factories
-                .stream()
-                .map(t -> t.getToolCategory())
-                .distinct()
-                .toArray(AssistantToolCategory[]::new);
+    public static List<AssistantToolCategory> getToolCategories() {
+        return categories;
+    }
+
+    public static List<AssistantToolCategory> getSupportedToolCategories(AssistantState assistantState) {
+        return filter(getToolCategories(), c -> isSupported(c, assistantState));
     }
 
     public static List<AssistantToolType> getToolTypes(@Nullable AssistantToolCategory category) {
@@ -52,6 +65,34 @@ public class AssistantToolData {
                 .filter(t -> category == null || t.getToolCategory() == category)
                 .map(t -> t.getToolType())
                 .toList();
+    }
+
+    public static List<AssistantToolType> getSupportedToolTypes(AssistantState assistantState, @Nullable AssistantToolCategory category) {
+        List<AssistantToolType> toolTypes = getToolTypes(category);
+
+        return filter(toolTypes, t -> isSupported(t, assistantState));
+    }
+
+    public static boolean isSupported(AssistantToolType toolType, AssistantState assistantState) {
+        DatabaseCompatibilityInterface compatibility = assistantState.getConnection().getCompatibilityInterface();
+        if (!compatibility.isAssistantToolSupported(toolType)) return false;
+
+        AssistantToolCategory toolCategory = getToolCategory(toolType);
+        if (!compatibility.isAssistantToolSupported(toolCategory)) return false;
+
+        if (assistantState.isVectorSearch()) {
+            return toolType.isOneOf(AssistantToolType.SEMANTIC_SEARCH, AssistantToolType.USER_PROMPTS);
+        } else {
+            return toolType != AssistantToolType.SEMANTIC_SEARCH;
+        }
+    }
+
+    public static boolean isSupported(AssistantToolCategory toolCategory, AssistantState assistantState) {
+        DatabaseCompatibilityInterface compatibility = assistantState.getConnection().getCompatibilityInterface();
+        if (!compatibility.isAssistantToolSupported(toolCategory)) return false;
+
+        List<AssistantToolType> toolTypes = getToolTypes(toolCategory);
+        return toolTypes.stream().anyMatch(t -> isSupported(t, assistantState));
     }
 
     public static boolean isInteractiveTool(String utilityName) {

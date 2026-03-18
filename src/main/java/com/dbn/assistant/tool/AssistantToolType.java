@@ -21,6 +21,9 @@ import com.dbn.common.constant.PseudoConstantConverter;
 import org.jetbrains.annotations.NonNls;
 
 public final class AssistantToolType extends PseudoConstant<AssistantToolType> {
+    public static final AssistantToolType USER_PROMPTS = get("USER_PROMPTS");
+    public static final AssistantToolType SEMANTIC_SEARCH = get("SEMANTIC_SEARCH");
+
     AssistantToolType(@NonNls String id) {
         super(id);
     }

@@ -30,7 +30,7 @@ import static com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
 
 @ToolSpec(
         category = USER_INTERACTION,
-        type = "USER_PROMPTS",
+        type = "USER_PROMPTS", //AssistantToolType.USER_PROMPTS
         name = "User prompts",
         interactive = true,
         description = "Interactive tools for user input via yes/no or multiple-choice prompts")

@@ -22,7 +22,6 @@ import com.dbn.common.util.Environment;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.info.ConnectionInfo;
-import com.dbn.database.DatabaseFeature;
 import com.dbn.vector.DatabaseVectorManager;
 import com.intellij.openapi.project.Project;
 
@@ -63,12 +62,5 @@ public class SemanticSearchToolImpl extends AssistantToolBase implements Semanti
             Resources.close(resultSet);
         }
         return searchResults;
-    }
-
-    @Override
-    public boolean isSupported() {
-        ConnectionHandler connection = getConnection();
-        return DatabaseFeature.VECTOR_SEARCH.isSupported(connection);
-        // TODO add prerequisite verification?
     }
 }

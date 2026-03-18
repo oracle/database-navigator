@@ -33,7 +33,7 @@ import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
 
 @ToolSpec(
         category = DATA_PROVIDER,
-        type = "SEMANTIC_SEARCH",
+        type = "SEMANTIC_SEARCH", //AssistantToolType.SEMANTIC_SEARCH
         name = "Semantic search",
         description = "Provides semantic search utilities for retrieval‑augmented generation (RAG)")
 public interface SemanticSearchTool extends AssistantTool {
