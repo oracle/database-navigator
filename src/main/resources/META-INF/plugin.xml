@@ -368,6 +368,7 @@
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ConsoleEditorTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SourceCodeEditorTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.DatasetEditorTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SemanticSearchTool$Factory" />
     </extensions>
 
     <actions>

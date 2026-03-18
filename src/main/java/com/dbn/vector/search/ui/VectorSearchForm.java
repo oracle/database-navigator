@@ -188,7 +188,7 @@ public class VectorSearchForm extends DBNFormBase {
         startActivityNotifier();
         try {
             DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(project);
-            ResultSet resultSet = vectorManager.performSimilaritySearch(connection, selectedTable, query, distanceMetric);
+            ResultSet resultSet = vectorManager.performSimilaritySearch(connection, selectedTable, query, distanceMetric, 10);
             ResultSetDataModel dataModel = new ResultSetDataModel((DBNResultSet) resultSet, connection, -1);
             dataModel.fetchNextRecords(1000, false);
             return dataModel;

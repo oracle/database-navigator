@@ -137,7 +137,7 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public ResultSet performSimilaritySearch(DBNConnection conn, String schemaName, String tableName, String queryText, String metric) throws SQLException {
-        return executeQuery(conn, "perform-similarity-search", schemaName, tableName, queryText, metric);
+    public ResultSet performSimilaritySearch(DBNConnection conn, String schemaName, String tableName, String queryText, String metric, int rows) throws SQLException {
+        return executeQuery(conn, "perform-similarity-search", schemaName, tableName, queryText, metric, rows);
     }
 }

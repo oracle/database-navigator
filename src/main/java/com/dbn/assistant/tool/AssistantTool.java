@@ -34,4 +34,8 @@ public interface AssistantTool {
     boolean isInteractive();
 
     void initialize(ConnectionHandler connection, String name, String description, AssistantToolType type, AssistantToolCategory category,  boolean interactive);
+
+    default boolean isSupported() {
+        return true;
+    }
 }

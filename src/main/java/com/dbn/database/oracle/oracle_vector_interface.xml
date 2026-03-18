@@ -44,12 +44,13 @@
                 )
             select
                 vector_distance(t.EMBEDDING, q.QUERY_VECTOR, {3}) as DISTANCE,
-                to_char(t.TEXT) as TEXT
+                t.ID,
+                to_char(t.TEXT) as CONTENT
             from {0}.{1} t
             cross join PROMPT_QUERY q
             where t.EMBEDDING is not null
             order by DISTANCE
-            fetch first 10 rows only
+            fetch first {4} rows only
         </statement>
     </statement-execution-processor>
 

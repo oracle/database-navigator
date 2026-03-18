@@ -53,5 +53,5 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
 
     boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String sourceId) throws SQLException;
 
-    ResultSet performSimilaritySearch(DBNConnection conn, String schemaName, String tableName, String queryText, String metric) throws SQLException;
+    ResultSet performSimilaritySearch(DBNConnection conn, String schemaName, String tableName, String queryText, String metric, int rows) throws SQLException;
 }

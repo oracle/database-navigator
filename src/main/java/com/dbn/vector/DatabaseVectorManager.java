@@ -153,19 +153,27 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
                 });
     }
 
-    public ResultSet performSimilaritySearch(ConnectionHandler connection, DBTable vectorTable, String queryText, DBVectorDistanceMetric distanceMetric) throws SQLException {
+    public ResultSet performSimilaritySearch(ConnectionHandler connection, DBTable vectorTable, String queryText, DBVectorDistanceMetric distanceMetric, int rows) throws SQLException {
+        String schemaName = vectorTable.getSchemaName(true);
+        String tableName = vectorTable.getName(true);
+        return performSimilaritySearch(connection, schemaName, tableName, queryText, distanceMetric, rows);
+    }
+
+
+    public ResultSet performSimilaritySearch(ConnectionHandler connection, String schemaName, String tableName, String queryText, DBVectorDistanceMetric metric, int rows) throws SQLException {
         return DatabaseInterfaceInvoker.load(MEDIUM,
                 "Perform Similarity Search",
-                "Perform similarity search on vector table " + vectorTable.getQualifiedName(true),
+                "Perform similarity search on vector table " + schemaName + "." + tableName,
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> {
                     DatabaseVectorInterface vectorInterface = connection.getVectorInterface();
                     return vectorInterface.performSimilaritySearch(conn,
-                            vectorTable.getSchemaName(true),
-                            vectorTable.getName(true),
+                            schemaName,
+                            tableName,
                             queryText,
-                            distanceMetric.name());
+                            metric.name(),
+                            rows);
                 });
     }
 
