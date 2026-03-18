@@ -73,15 +73,10 @@ public class VectorSearchConsole extends DisposableUserDataHolderBase implements
         return Failsafe.nn(searchForm);
     }
 
-    @Nullable
-    public ResultSetDataModel getTableModel() {
-        return getSearchResultTable().getModel();
-    }
-
     public void refreshTable() {
-        ResultSetTable editorTable = getSearchResultTable();
-        UserInterface.repaint(editorTable);
-        editorTable.adjustColumnWidths();
+        ResultSetTable resultTable = getSearchResultTable();
+        UserInterface.repaint(resultTable);
+        resultTable.adjustColumnWidths();
         //editorTable.restoreSelection();
     }
 

@@ -18,13 +18,10 @@ package com.dbn.vector.search.ui;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.DataProviders;
-import com.dbn.common.dispose.Disposer;
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.file.FileTypes;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
@@ -33,8 +30,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
-import com.dbn.data.record.RecordViewInfo;
-import com.dbn.data.sorting.SortDirection;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.type.DBVectorDistanceMetric;
@@ -71,13 +66,13 @@ import static com.dbn.help.HelpTopic.VECTOR_SEARCH;
 public class VectorSearchForm extends DBNFormBase {
     private JPanel actionsPanel;
     private JPanel mainPanel;
-    private DBNScrollPane resultScrollPane;
-    private JPanel requestInputPanel;
+    private JPanel inputPanel;
     private JButton searchButton;
     private JPanel spinPanel;
-    private ResultSetTable searchResultTable;
+    private JPanel resultPanel;
 
     private final WeakRef<VectorSearchConsole> searchConsole;
+    private VectorSearchResultForm resultForm;
     private EditorEx requestEditor;
     private int inputLineCount;
 
@@ -91,11 +86,8 @@ public class VectorSearchForm extends DBNFormBase {
         initActionToolbar();
         initSpinner();
         initSearchButton();
-        initResultTable();
+        initResultForm();
         initRequestEditor();
-
-
-        Disposer.register(this, searchResultTable);
     }
 
     private void initActionToolbar() {
@@ -130,7 +122,7 @@ public class VectorSearchForm extends DBNFormBase {
         settings.setCaretRowShown(false);
         settings.setAdditionalLinesCount(2);
 
-        requestInputPanel.add(requestEditor.getComponent());
+        inputPanel.add(requestEditor.getComponent());
     }
 
     private @NotNull DocumentListener formLayoutUpdater() {
@@ -151,13 +143,9 @@ public class VectorSearchForm extends DBNFormBase {
         spinPanel.setVisible(false);
     }
 
-    private void initResultTable() {
-        VectorSearchConsole searchEditor = getSearchConsole();
-        RecordViewInfo recordViewInfo = new RecordViewInfo("Search result", null);
-        ConnectionHandler connection = searchEditor.getConnection();
-        ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
-        searchResultTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
-        resultScrollPane.setViewportView(searchResultTable);
+    private void initResultForm() {
+        resultForm = new VectorSearchResultForm(this);
+        resultPanel.add(resultForm.getComponent());
     }
 
     private void initSearchButton() {
@@ -213,16 +201,15 @@ public class VectorSearchForm extends DBNFormBase {
     }
 
     private void applySearchResult(ResultSetDataModel result){
-        if (result == null) return;
-        searchResultTable.setModel(result);
-        searchResultTable.sort(0, SortDirection.ASCENDING,  true);
+        resultForm.setSearchResult(result);
     }
 
     private void startActivityNotifier() {
         searching = true;
         spinPanel.setVisible(true);
         searchButton.setEnabled(false);
-        searchResultTable.setLoading(true);
+
+        resultForm.setLoading(true);
         updateActionToolbars();
     }
 
@@ -230,7 +217,8 @@ public class VectorSearchForm extends DBNFormBase {
         searching = false;
         spinPanel.setVisible(false);
         searchButton.setEnabled(true);
-        searchResultTable.setLoading(false);
+
+        resultForm.setLoading(false);
         updateActionToolbars();
     }
 
@@ -242,7 +230,7 @@ public class VectorSearchForm extends DBNFormBase {
 
     @NotNull
     public ResultSetTable getSearchResultTable() {
-        return Failsafe.nn(searchResultTable);
+        return resultForm.getResultTable();
     }
 
     @NotNull
