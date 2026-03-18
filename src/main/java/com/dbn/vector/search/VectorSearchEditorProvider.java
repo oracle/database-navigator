@@ -18,8 +18,7 @@ package com.dbn.vector.search;
 
 import com.dbn.common.editor.BasicTextEditorProvider;
 import com.dbn.editor.EditorProviderId;
-import com.dbn.vfs.DBConsoleType;
-import com.dbn.vfs.file.DBConsoleVirtualFile;
+import com.dbn.vfs.file.DBSearchConsoleVirtualFile;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorPolicy;
 import com.intellij.openapi.fileEditor.FileEditorState;
@@ -35,28 +34,23 @@ public class VectorSearchEditorProvider extends BasicTextEditorProvider implemen
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        return virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile && consoleVirtualFile.getType() == DBConsoleType.SEARCH;
+        return virtualFile instanceof DBSearchConsoleVirtualFile;
     }
 
     @Override
     @NotNull
     public FileEditorState readState(@NotNull Element sourceElement, @NotNull Project project, @NotNull VirtualFile virtualFile) {
-        VectorSearchConsoleState consoleState = new VectorSearchConsoleState();
-        consoleState.readState(sourceElement);
-        return consoleState;
+        return FileEditorState.INSTANCE;
     }
 
     @Override
     public void writeState(@NotNull FileEditorState state, @NotNull Project project, @NotNull Element targetElement) {
-        if (state instanceof VectorSearchConsoleState searchConsoleState) {
-            searchConsoleState.writeState(targetElement);
-        }
     }
 
     @Override
     @NotNull
     public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
-        DBConsoleVirtualFile consoleVirtualFile = (DBConsoleVirtualFile) file;
+        DBSearchConsoleVirtualFile consoleVirtualFile = (DBSearchConsoleVirtualFile) file;
         return new VectorSearchConsole(consoleVirtualFile);
     }
 

@@ -17,6 +17,7 @@
 package com.dbn.object.type;
 
 import com.dbn.common.constant.Constant;
+import com.dbn.common.constant.Constants;
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
@@ -40,5 +41,9 @@ public enum DBVectorDistanceMetric implements Constant<DBVectorDistanceMetric>, 
     DBVectorDistanceMetric(String name, String description) {
         this.name = name;
         this.description = description;
+    }
+
+    public static DBVectorDistanceMetric get(String id) {
+        return Constants.get(values(), id, COSINE);
     }
 }

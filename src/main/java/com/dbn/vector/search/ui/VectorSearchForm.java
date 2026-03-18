@@ -35,14 +35,12 @@ import com.dbn.object.DBTable;
 import com.dbn.object.type.DBVectorDistanceMetric;
 import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.search.VectorSearchConsole;
-import com.dbn.vector.search.VectorSearchConsoleState;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.project.Project;
@@ -100,12 +98,12 @@ public class VectorSearchForm extends DBNFormBase {
 
     private void initRequestEditor() {
         Project project = ensureProject();
-        String text = "";
+        String text = getSearchConsole().getConsoleFile().getContentText();
         PlainTextFileType fileType = FileTypes.getTextFileType();
         VirtualFile virtualFile = new LightVirtualFile("vector_search_file.txt", fileType, text);
 
         Document document = Documents.createDocument(text);
-        document.addDocumentListener(formLayoutUpdater(), this);
+        document.addDocumentListener(documentChangeListener(), this);
 
         requestEditor = Editors.createEditor(document, project, virtualFile, fileType);
         requestEditor.setEmbeddedIntoDialogWrapper(false);
@@ -125,11 +123,14 @@ public class VectorSearchForm extends DBNFormBase {
         inputPanel.add(requestEditor.getComponent());
     }
 
-    private @NotNull DocumentListener formLayoutUpdater() {
+    private @NotNull DocumentListener documentChangeListener() {
         return new DocumentListener() {
             @Override
             public void documentChanged(@NotNull DocumentEvent event) {
-                int lineCount = event.getDocument().getLineCount();
+                Document document = event.getDocument();
+                getSearchConsole().getConsoleFile().setContent(document.getText());
+
+                int lineCount = document.getLineCount();
                 if (lineCount == inputLineCount) return;
 
                 inputLineCount = lineCount;
@@ -214,6 +215,7 @@ public class VectorSearchForm extends DBNFormBase {
     }
 
     private void stopActivityNotifier() {
+        checkDisposed();
         searching = false;
         spinPanel.setVisible(false);
         searchButton.setEnabled(true);
@@ -236,21 +238,6 @@ public class VectorSearchForm extends DBNFormBase {
     @NotNull
     public VectorSearchConsole getSearchConsole() {
         return searchConsole.ensure();
-    }
-
-    public void updateState(VectorSearchConsoleState state) {
-        DocumentEx document = requestEditor.getDocument();
-        String searchText = Documents.getText(document);
-
-        state.setSearchText(searchText);
-    }
-
-    public void applyState(VectorSearchConsoleState state) {
-        DocumentEx document = requestEditor.getDocument();
-        String searchText = state.getSearchText();
-
-
-        Documents.setText(document, searchText);
     }
 
     @Nullable

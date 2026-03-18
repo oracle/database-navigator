@@ -26,17 +26,14 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
-import com.dbn.data.model.resultSet.ResultSetDataModel;
-import com.dbn.data.model.sortable.SortableDataModelState;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.type.DBVectorDistanceMetric;
 import com.dbn.vector.search.ui.VectorSearchForm;
-import com.dbn.vfs.file.DBConsoleVirtualFile;
+import com.dbn.vfs.file.DBSearchConsoleVirtualFile;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorState;
-import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NonNls;
@@ -51,13 +48,13 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.util.Strings.isEmpty;
 
 public class VectorSearchConsole extends DisposableUserDataHolderBase implements FileEditor, DatabaseContextBase, DataProvider {
-    private final WeakRef<DBConsoleVirtualFile> databaseFile;
+
+    private final WeakRef<DBSearchConsoleVirtualFile> consoleFile;
 
     private VectorSearchForm searchForm;
-    private VectorSearchConsoleState state = new VectorSearchConsoleState();
 
-    public VectorSearchConsole(DBConsoleVirtualFile databaseFile) {
-        this.databaseFile = WeakRef.of(databaseFile);
+    public VectorSearchConsole(DBSearchConsoleVirtualFile consoleFile) {
+        this.consoleFile = WeakRef.of(consoleFile);
         this.searchForm = new VectorSearchForm(this);
 
         Disposer.register(this, searchForm);
@@ -81,35 +78,44 @@ public class VectorSearchConsole extends DisposableUserDataHolderBase implements
     }
 
     public void setSelectedSchema(@Nullable DBSchema schema) {
+        var file = getConsoleFile();
         if (schema == null) {
-            state.setSchemaName(null);
-            state.setTableName(null);
-        } else if (!Objects.equals(schema.getName(), state.getSchemaName())) {
-            state.setSchemaName(schema.getName());
-            state.setTableName(null);
+            file.setSearchSchema(null);
+            file.setSearchTable(null);
+        } else {
+            String schemaName = schema.getName();
+            String oldSchemaName = file.getSearchSchema();
+            if (!Objects.equals(schemaName, oldSchemaName)) {
+                file.setSearchSchema(schemaName);
+                file.setSearchTable(null);
+            }
         }
     }
+
     @Nullable
     public DBSchema getSelectedSchema() {
-        String schemaName = state.getSchemaName();
+        DBSearchConsoleVirtualFile file = getConsoleFile();
+        String schemaName = file.getSearchSchema();
         if (isEmpty(schemaName)) return null;
 
         return getConnection().getObjectBundle().getSchema(schemaName);
     }
 
     public void setSelectedTable(@Nullable DBTable table) {
+        DBSearchConsoleVirtualFile file = getConsoleFile();
         if (table == null) {
-            state.setSchemaName(null);
-            state.setTableName(null);
+            file.setSearchSchema(null);
+            file.setSearchTable(null);
         } else {
-            state.setSchemaName(table.getSchemaName());
-            state.setTableName(table.getName());
+            file.setSearchSchema(table.getSchemaName());
+            file.setSearchTable(table.getName());
         }
     }
 
     @Nullable
     public DBTable getSelectedTable() {
-        String tableName = state.getTableName();
+        DBSearchConsoleVirtualFile file = getConsoleFile();
+        String tableName = file.getSearchTable();
         if (isEmpty(tableName)) return null;
 
         DBSchema schema = getSelectedSchema();
@@ -119,21 +125,23 @@ public class VectorSearchConsole extends DisposableUserDataHolderBase implements
     }
 
     public void setSelectedMetric(@Nullable DBVectorDistanceMetric distanceMetric) {
-        state.setDistanceMetric(distanceMetric);
+        DBSearchConsoleVirtualFile file = getConsoleFile();
+        file.setDistanceMetric(distanceMetric == null ? null : distanceMetric.id());
     }
 
     public DBVectorDistanceMetric getSelectedMetric() {
-        return state.getDistanceMetric();
+        DBSearchConsoleVirtualFile file = getConsoleFile();
+        return DBVectorDistanceMetric.get(file.getDistanceMetric());
     }
 
     @NotNull
-    public DBConsoleVirtualFile getDatabaseFile() {
-        return databaseFile.ensure();
+    public DBSearchConsoleVirtualFile getConsoleFile() {
+        return consoleFile.ensure();
     }
 
     @NotNull
     public Project getProject() {
-        return getDatabaseFile().getProject();
+        return getConsoleFile().getProject();
     }
 
     @Override
@@ -156,34 +164,7 @@ public class VectorSearchConsole extends DisposableUserDataHolderBase implements
     }
 
     @Override
-    @NotNull
-    public VectorSearchConsoleState getState(@NotNull FileEditorStateLevel level) {
-        if (isDisposed() || level != FileEditorStateLevel.FULL) return state;
-
-        SortableDataModelState modelState = readModelState();
-        state.setModelState(modelState);
-        searchForm.updateState(state);
-        return state;
-    }
-
-    private @NotNull SortableDataModelState readModelState() {
-        ResultSetTable editorTable = getSearchResultTable();
-        ResultSetDataModel model = editorTable.getModel();
-        return model.getState();
-    }
-
-    @Override
     public void setState(@NotNull FileEditorState fileEditorState) {
-        if (fileEditorState instanceof VectorSearchConsoleState state) {
-            this.state = state;
-
-            ResultSetTable editorTable = getSearchResultTable();
-            ResultSetDataModel model = editorTable.getModel();
-            model.setState(state.getModelState());
-            refreshTable();
-
-            searchForm.applyState(state);
-        }
     }
 
     @Override
@@ -214,19 +195,19 @@ public class VectorSearchConsole extends DisposableUserDataHolderBase implements
 
     @Override
     public @Nullable VirtualFile getFile() {
-        return getDatabaseFile();
+        return getConsoleFile();
     }
 
 
     @NotNull
     public ConnectionId getConnectionId() {
-        return getDatabaseFile().getConnectionId();
+        return getConsoleFile().getConnectionId();
     }
 
     @Override
     @NotNull
     public ConnectionHandler getConnection() {
-        return getDatabaseFile().getConnection();
+        return getConsoleFile().getConnection();
     }
 
     /*******************************************************

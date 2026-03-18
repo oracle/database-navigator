@@ -20,6 +20,7 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Write;
 import com.dbn.common.util.Commons;
@@ -55,6 +56,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
+import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,6 +64,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
@@ -72,9 +75,12 @@ import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.readCdata;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.options.setting.Settings.writeCdata;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Naming.nextNumberedIdentifier;
+import static com.dbn.common.util.Strings.isOneOf;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -113,11 +119,13 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
                 new CreateRenameConsoleDialog(connection, console));
     }
 
-    public void createConsole(ConnectionHandler connection, String name, DBConsoleType type) {
-        createConsole(connection, name, "", type);
+    public String getNextConsoleName(ConnectionHandler connection) {
+        Set<String> consoleNames = connection.getConsoleBundle().getConsoleNames();
+        String baseName = connection.getName() + " 1";
+        return nextNumberedIdentifier(baseName, true, () -> consoleNames);
     }
 
-    public void createConsole(ConnectionHandler connection, String name, String content, DBConsoleType type) {
+    public void createConsole(ConnectionHandler connection, String name, String content, DBConsoleType type, @Nullable Consumer<DBConsole> consumer) {
         Project project = connection.getProject();
         Progress.background(project, connection, true,
                 txt("prc.consoles.title.CreatingConsole"),
@@ -128,6 +136,9 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
                     consoleFile.setContent(content);
 
                     reloadConsoles(connection);
+                    if (consumer != null) {
+                        consumer.accept(console);
+                    }
                     Editors.openFileEditor(project, consoleFile, true);
                 });
     }
@@ -250,18 +261,26 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
 
             List<DBConsole> consoles = connection.getConsoleBundle().getConsoles();
             for (DBConsole console : consoles) {
-                DBConsoleVirtualFile virtualFile = console.getVirtualFile();
+                DBConsoleVirtualFile file = console.getVirtualFile();
                 Element consoleElement = newElement(connectionElement, "console");
 
                 DatabaseSession databaseSession = Commons.nvl(
-                        virtualFile.getSession(),
+                        file.getSession(),
                         connection.getSessionBundle().getMainSession());
 
-                consoleElement.setAttribute("name", console.getName());
-                consoleElement.setAttribute("type", console.getConsoleType().name());
-                consoleElement.setAttribute("schema", Commons.nvl(virtualFile.getDatabaseSchemaName(), ""));
-                consoleElement.setAttribute("session", databaseSession.getName());
-                writeCdata(consoleElement, virtualFile.getContent().exportContent());
+                setStringAttribute(consoleElement, "name", console.getName());
+                setStringAttribute(consoleElement, "type", console.getConsoleType().name());
+                setStringAttribute(consoleElement, "schema", file.getDatabaseSchemaName());
+                setStringAttribute(consoleElement, "session", databaseSession.getName());
+
+                Set<String> attributeNames = file.getAttributeNames();
+                for (String attributeName : attributeNames) {
+                    String attributeValue = file.getAttribute(attributeName);
+                    setStringAttribute(consoleElement, attributeName, attributeValue);
+                }
+
+
+                writeCdata(consoleElement, file.getContent().exportContent());
             }
         }
         return element;
@@ -287,17 +306,26 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
                 DatabaseSession databaseSession = Strings.isEmpty(session) ?
                         sessionBundle.getMainSession() :
                         sessionBundle.getSession(session);
-
-
+                // type
                 DBConsoleType consoleType = enumAttribute(consoleElement, "type", DBConsoleType.STANDARD);
+                DBConsole console = consoleBundle.getConsole(consoleName, consoleType, true);
+                DBConsoleVirtualFile file = console.getVirtualFile();
+
+                // attributes
+                for (Attribute attribute : consoleElement.getAttributes()) {
+                    String attributeName = attribute.getName();
+                    if (isOneOf(attributeName, "name", "schema", "session", "type")) continue;
+
+                    String attributeValue = attribute.getValue();
+                    file.setAttribute(attributeName, attributeValue);
+                }
+
 
                 String consoleText = readCdata(consoleElement);
 
-                DBConsole console = consoleBundle.getConsole(consoleName, consoleType, true);
-                DBConsoleVirtualFile virtualFile = console.getVirtualFile();
-                virtualFile.setContent(consoleText);
-                virtualFile.setDatabaseSchemaName(schema);
-                virtualFile.setDatabaseSession(databaseSession);
+                file.setContent(consoleText);
+                file.setDatabaseSchemaName(schema);
+                file.setDatabaseSession(databaseSession);
             }
         }
     }

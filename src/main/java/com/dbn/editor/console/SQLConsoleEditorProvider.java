@@ -18,8 +18,8 @@ package com.dbn.editor.console;
 
 import com.dbn.common.editor.BasicTextEditorProvider;
 import com.dbn.editor.EditorProviderId;
-import com.dbn.vfs.DBConsoleType;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
+import com.dbn.vfs.file.DBSearchConsoleVirtualFile;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorPolicy;
@@ -36,7 +36,8 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        return virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile && consoleVirtualFile.getType().isOneOf(DBConsoleType.STANDARD, DBConsoleType.DEBUG);
+        if (virtualFile instanceof DBSearchConsoleVirtualFile) return false;
+        return virtualFile instanceof DBConsoleVirtualFile;
     }
 
     @Override

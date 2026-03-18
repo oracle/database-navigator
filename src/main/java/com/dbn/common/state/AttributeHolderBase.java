@@ -18,13 +18,25 @@ package com.dbn.common.state;
 
 import org.jetbrains.annotations.NonNls;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
-public interface AttributeHolder{
+public class AttributeHolderBase implements AttributeHolder {
+    private final Map<String, String> attributes = new HashMap<>();
 
-    String getAttribute(@NonNls String name);
+    @Override
+    public final String getAttribute(@NonNls String name) {
+        return attributes.get(name);
+    }
 
-    void setAttribute(@NonNls String name, @NonNls String value);
+    @Override
+    public final void setAttribute(@NonNls String name, @NonNls String value) {
+        attributes.put(name, value);
+    }
 
-    Set<String> getAttributeNames();
+    @Override
+    public final Set<String> getAttributeNames() {
+        return attributes.keySet();
+    }
 }

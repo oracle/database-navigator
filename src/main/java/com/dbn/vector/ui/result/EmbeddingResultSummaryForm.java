@@ -23,6 +23,10 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.messages.DBNMessageForm;
+import com.dbn.common.util.Editors;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.console.DatabaseConsoleManager;
+import com.dbn.object.DBConsole;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
@@ -33,18 +37,26 @@ import com.dbn.vector.model.request.EmbeddingModelConfig;
 import com.dbn.vector.model.request.EmbeddingModelDatabaseSpec;
 import com.dbn.vector.model.request.EmbeddingSourceConfig;
 import com.dbn.vector.model.request.EmbeddingStagingConfig;
+import com.dbn.vfs.file.DBConsoleVirtualFile;
+import com.dbn.vfs.file.DBSearchConsoleVirtualFile;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.util.List;
+import java.util.Objects;
 
 import static com.dbn.common.text.TextContent.html;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
 import static com.dbn.vector.model.request.EmbeddingModelLocation.IN_DATABASE_MODEL;
 import static com.dbn.vector.model.request.EmbeddingSourceType.FILE_SYSTEM;
+import static com.dbn.vfs.DBConsoleType.SEARCH;
 
 public class EmbeddingResultSummaryForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -61,6 +73,8 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
     private DBNHyperlinkLabel embeddingModelHyperlinkLabel;
     private JLabel stagingTableLabel;
     private JLabel embeddingModelLabel;
+    private JButton similaritySearchButton;
+    private JButton databaseAssistantButton;
 
     private final VectorEmbeddingResult result;
 
@@ -70,6 +84,61 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
 
         initMessagePanel();
         initSummaryLabels();
+        initButtons();
+    }
+
+    private void initButtons() {
+        onButtonClick(similaritySearchButton, e -> openSimilaritySearchConsole());
+        onButtonClick(databaseAssistantButton, e -> openDatabaseAssistant());
+    }
+
+    private void openSimilaritySearchConsole() {
+        ConnectionHandler connection = result.getConnection();
+        Project project = ensureProject();
+
+        DBConsole console = getMatchingConsole();
+
+        if (console != null) {
+            DBConsoleVirtualFile consoleFile = console.getVirtualFile();
+            Editors.openFileEditor(project, consoleFile, true);
+        } else {
+            DatabaseConsoleManager consoleManager = DatabaseConsoleManager.getInstance(project);
+            String consoleName = consoleManager.getNextConsoleName(connection);
+            consoleManager.createConsole(connection, consoleName, "", SEARCH, c -> initConsole(c));
+        }
+    }
+
+    private void initConsole(DBConsole c) {
+        DBSearchConsoleVirtualFile consoleFile = (DBSearchConsoleVirtualFile) c.getVirtualFile();
+        EmbeddingDestinationConfig destinationConfig = result.getRequest().getDestinationConfig();
+        consoleFile.setSearchSchema(destinationConfig.getSchemaName());
+        consoleFile.setSearchTable(destinationConfig.getTableName());
+    }
+
+    @Nullable
+    private DBConsole getMatchingConsole() {
+        ConnectionHandler connection = result.getConnection();
+        List<DBConsole> consoles = connection.getConsoleBundle().getConsoles();
+
+        for (DBConsole console : consoles) {
+            if (matchesConsole(console)) return console;
+        }
+        return null;
+    }
+
+    private boolean matchesConsole(DBConsole console) {
+        if (console.getConsoleType() != SEARCH) return false;
+        DBSearchConsoleVirtualFile file = (DBSearchConsoleVirtualFile) console.getVirtualFile();
+        EmbeddingDestinationConfig destinationConfig = result.getRequest().getDestinationConfig();
+
+        if (!Objects.equals(file.getSearchSchema(), destinationConfig.getSchemaName())) return false;
+        if (!Objects.equals(file.getSearchTable(), destinationConfig.getTableName())) return false;
+
+        return true;
+    }
+
+    private void openDatabaseAssistant() {
+
     }
 
     private void initSummaryLabels() {

@@ -25,6 +25,7 @@ import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DBConsoleType;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
+import com.dbn.vfs.file.DBSearchConsoleVirtualFile;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,8 +42,14 @@ public class DBConsoleImpl extends DBObjectImpl<DBObjectMetadata> implements DBC
 
     public DBConsoleImpl(@NotNull ConnectionHandler connection, String name, DBConsoleType consoleType) {
         super(connection, DBObjectType.CONSOLE, name);
-        virtualFile = new DBConsoleVirtualFile(this);
         this.consoleType = consoleType;
+        this.virtualFile = createVirtualFile();
+    }
+
+    private DBConsoleVirtualFile createVirtualFile() {
+        return consoleType == DBConsoleType.SEARCH ?
+                new DBSearchConsoleVirtualFile(this) :
+                new DBConsoleVirtualFile(this);
     }
 
     @Override
