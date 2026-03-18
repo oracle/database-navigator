@@ -62,6 +62,7 @@ public class VectorSearchResultForm extends DBNFormBase implements SearchableDat
         ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
         resultTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
         resultScrollPane.setViewportView(resultTable);
+        resultTable.installValuePopupAddon();
         Disposer.register(this, resultTable);
     }
 
