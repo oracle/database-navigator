@@ -19,31 +19,34 @@ package com.dbn.assistant.tool;
 import com.dbn.common.constant.Constant;
 
 public enum AssistantToolType implements Constant<AssistantToolType> {
-    USER_PROMPTS,
-    SEMANTIC_SEARCH,
-    CONNECTION_INFO,
-    DATABASE_METADATA,
 
+    // USER_INTERACTION
+    USER_PROMPTS,
+
+    // DATA_PROVIDER
+    SEMANTIC_SEARCH,
+
+    // CONFIG_INFO_PROVIDER
+    CONNECTION_INFO,
+
+
+    // METADATA_PROVIDER
+    DATABASE_METADATA,
     SCHEMA_METADATA,
     TABLE_METADATA,
     VIEW_METADATA,
     PROGRAM_METADATA,
 
+    // SOURCE_CODE_PROVIDER
     VIEW_SOURCE_CODE,
     PROGRAM_SOURCE_CODE,
 
+
+    // IDE_ACTION_INVOKER
     DATASET_EDITORS,
     SOURCE_CODE_EDITORS,
-
     SQL_CONSOLE_EDITORS,
 
     ;
 
-/*
-    public static class Converter extends PseudoConstantConverter<AssistantToolType> {
-        public Converter() {
-            super(AssistantToolType.class);
-        }
-    }
-*/
 }
