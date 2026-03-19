@@ -45,18 +45,20 @@ public class Icons {
     public static final Icon DONATE = load("/img/Donate.png");
     public static final Icon DONATE_DISABLED = load("/img/DonateDisabled.png");
 
-    public static final Icon COMMON_INFO          = AllIcons.General.Information;
-    public static final Icon COMMON_INFO_DISABLED = AllIcons.General.Note;
-    public static final Icon COMMON_WARNING       = AllIcons.General.Warning;
-    public static final Icon COMMON_ERROR         = AllIcons.General.Error;
-    public static final Icon COMMON_CHECK         = AllIcons.General.InspectionsOK;
-    public static final Icon COMMON_RIGHT         = load("/img/common/SplitRight.png");
-    public static final Icon COMMON_LEFT          = load("/img/common/SplitLeft.png");
-    public static final Icon COMMON_UP            = load("/img/common/SplitUp.png");
-    public static final Icon COMMON_DOWN          = load("/img/common/SplitDown.png");
-    public static final Icon COMMON_ARROW_DOWN    = load("/img/ComboBoxArrow.png");
-    public static final Icon COMMON_TIMER         = load("/img/Timer.png");
-    public static final Icon COMMON_DATA_GRID     = load("/img/common/DataGrid.png");
+    public static final Icon COMMON_INFO              = load("/img/common/Information.svg");
+    public static final Icon COMMON_ERROR             = load("/img/common/Error.svg");
+    public static final Icon COMMON_WARNING           = load("/img/common/Warning.svg");
+    public static final Icon COMMON_INFO_INACTIVE     = load("/img/common/InformationInactive.svg");
+    public static final Icon COMMON_ERROR_INACTIVE    = load("/img/common/ErrorInactive.svg");
+    public static final Icon COMMON_WARNING_INACTIVE  = load("/img/common/WarningInactive.svg");
+    public static final Icon COMMON_CHECK             = AllIcons.General.InspectionsOK;
+    public static final Icon COMMON_RIGHT             = load("/img/common/SplitRight.png");
+    public static final Icon COMMON_LEFT              = load("/img/common/SplitLeft.png");
+    public static final Icon COMMON_UP                = load("/img/common/SplitUp.png");
+    public static final Icon COMMON_DOWN              = load("/img/common/SplitDown.png");
+    public static final Icon COMMON_ARROW_DOWN        = load("/img/ComboBoxArrow.png");
+    public static final Icon COMMON_TIMER             = load("/img/Timer.png");
+    public static final Icon COMMON_DATA_GRID         = load("/img/common/DataGrid.png");
 
     public static final Icon COMMON_STATUS_SUCCESS   = load("/img/common/StatusSuccess.svg");
     public static final Icon COMMON_STATUS_ERROR     = load("/img/common/StatusError.svg");
@@ -65,6 +67,7 @@ public class Icons {
     public static final Icon COMMON_FILTER_INACTIVE =  AllIcons.Actions.IntentionBulbGrey;
 
     public static final Icon ACTION_ADD                       = AllIcons.General.Add;
+    public static final Icon ACTION_INFO                      = load("/img/action/Info.svg");
     public static final Icon ACTION_COPY                      = AllIcons.Actions.Copy;
     public static final Icon ACTION_CHECK                     = AllIcons.Actions.Checked;
     public static final Icon ACTION_REMOVE                    = AllIcons.General.Remove;
@@ -173,8 +176,8 @@ public class Icons {
     public static final Icon STMT_EXECUTION_RERUN         = ACTION_RERUN;
     public static final Icon STMT_EXECUTION_RESUME        = ACTION_RESUME;
     public static final Icon STMT_EXECUTION_REFRESH       = AllIcons.Actions.Refresh;
-    public static final Icon STMT_EXECUTION_ERROR         = AllIcons.General.Error;
-    public static final Icon STMT_EXECUTION_WARNING       = AllIcons.General.Warning;
+    public static final Icon STMT_EXECUTION_ERROR         = COMMON_ERROR;
+    public static final Icon STMT_EXECUTION_WARNING       = COMMON_WARNING;
     public static final Icon STMT_EXECUTION_ERROR_RERUN   = load("/img/action/ExecutionError.svg");
     public static final Icon STMT_EXECUTION_WARNING_RERUN = load("/img/action/ExecutionWarning.svg");
     public static final Icon STMT_EXECUTION_INFO_RERUN    = load("/img/action/ExecutionInfo.svg");
@@ -280,13 +283,13 @@ public class Icons {
     public static final Icon CALENDAR_PREVIOUS_YEAR = load("/img/CalendarPreviousYear.png");
     public static final Icon CALENDAR_CLEAR_TIME = load("/img/CalendarResetTime.png");
 
-    public static final Icon EXEC_MESSAGES_INFO             = AllIcons.General.Information;
-    public static final Icon EXEC_MESSAGES_INFO_INACTIVE    = AllIcons.General.Note;
-    public static final Icon EXEC_MESSAGES_WARNING          = AllIcons.General.Warning;
-    public static final Icon EXEC_MESSAGES_ERROR            = AllIcons.General.Error;
+    public static final Icon EXEC_MESSAGES_INFO             = COMMON_INFO;
+    public static final Icon EXEC_MESSAGES_ERROR            = COMMON_ERROR;
+    public static final Icon EXEC_MESSAGES_WARNING          = COMMON_WARNING;
+    public static final Icon EXEC_MESSAGES_INFO_INACTIVE    = COMMON_INFO_INACTIVE;
+    public static final Icon EXEC_MESSAGES_ERROR_INACTIVE   = COMMON_ERROR_INACTIVE;
+    public static final Icon EXEC_MESSAGES_WARNING_INACTIVE = COMMON_WARNING_INACTIVE;
     public static final Icon EXEC_MESSAGES_SUCCESS          = load("/img/common/Success.svg");
-    public static final Icon EXEC_MESSAGES_WARNING_INACTIVE = load("/img/common/WarningInactive.svg");
-    public static final Icon EXEC_MESSAGES_ERROR_INACTIVE   = load("/img/common/ErrorInactive.svg");
 
     public static final Icon FILE_CONNECTION_MAPPING = load("/img/FileConnection.png");
     public static final Icon FILE_SCHEMA_MAPPING = load("/img/FileSchema.png");

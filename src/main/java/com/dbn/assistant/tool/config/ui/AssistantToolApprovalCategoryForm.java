@@ -23,12 +23,12 @@ import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.color.Colors;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.ui.util.Fonts;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.UIUtil;
@@ -154,7 +154,7 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
         boolean enabled = categoryStatus.isOneOf(PROMPTED, APPROVED);
         nameLabel.setEnabled(enabled);
 
-        Icon infoIcon = enabled ? AllIcons.General.Note : IconLoader.getDisabledIcon(AllIcons.General.Note);
+        Icon infoIcon = enabled ? Icons.ACTION_INFO : IconLoader.getDisabledIcon(Icons.ACTION_INFO);
         infoLabel.setIcon(infoIcon);
 
         descriptionTextPane.setForeground(enabled ?
