@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.state;
 
+import com.dbn.assistant.AssistantMode;
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.adapter.AssistantAdapter;
 import com.dbn.assistant.adapter.AssistantAdapters;
@@ -83,13 +84,14 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
     private ConnectionId connectionId;
     private AssistantType assistantType;
+    private AssistantMode assistantMode;
     private Map<String, Chat> chats = new LinkedHashMap<>();
 
     private String currentChatId;
     private String currentSessionSignature; // the resourceId of the com.dbn.connection.jdbc.Resource
     private String defaultProfileName;
     private ChatContext lastContext;
-    private boolean vectorSearch;
+
 
     @Delegate
     private final UserDataHolder userData = new UserDataHolderBase();
@@ -263,18 +265,15 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     @Override
     public void readState(Element element) {
         connectionId = connectionIdAttribute(element, "connection-id");
-        assistantType = enumAttribute(element, "assistant-type", AssistantType.SELECT_AI); // default to SELECT AI (backward compatibility)
+        assistantType = enumAttribute(element, "assistant-type", AssistantType.PUBLIC);
+        assistantMode = enumAttribute(element, "assistant-mode", AssistantMode.DEVELOPMENT);
         defaultProfileName = stringAttribute(element, "default-profile-name");
         currentChatId = stringAttribute(element, "selected-chat-id");
-
-        if (currentChatId == null) currentChatId = stringAttribute(element, "selected-conversation-id"); // TODO cleanup (backward compatibility)
 
         availability = enumAttribute(element, "availability", availability);
         acknowledgement = enumAttribute(element, "acknowledgement", acknowledgement);
 
         Element chatsElement = element.getChild("chats");
-        if (chatsElement == null) chatsElement = element.getChild("conversations"); // TODO cleanup (backward compatibility)
-
         List<Element> chatElements = childrenOf(chatsElement);
 
         for (Element chatElement : chatElements) {
@@ -293,6 +292,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     public void writeState(Element element) {
         setStringAttribute(element, "connection-id", connectionId.id());
         setEnumAttribute(element, "assistant-type", assistantType);
+        setEnumAttribute(element, "assistant-mode", assistantMode);
         setStringAttribute(element, "default-profile-name", defaultProfileName);
         setStringAttribute(element, "selected-chat-id", currentChatId);
         setEnumAttribute(element, "availability", availability);

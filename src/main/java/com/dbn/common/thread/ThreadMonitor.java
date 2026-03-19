@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.common.routine.ThrowableRunnable;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,11 +32,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @UtilityClass
 public class ThreadMonitor {
     private static final Map<ThreadProperty, AtomicInteger> PROCESS_COUNTERS = new ConcurrentHashMap<>();
-
-    @Nullable
-    public static Project getProject() {
-        return null; //ThreadInfo.current().getProject();
-    }
 
     public static <E extends Throwable> void surround(
             @Nullable ThreadProperty property,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class AssistantToolFilter extends AssistantStateExtension implements Filt
     @Override
     public int getSignature() {
         AssistantState assistantState = getAssistantState();
-        return getApprovals().getSignature() * (assistantState.isVectorSearch() ? 0 : 100);
+        return getApprovals().getSignature() + assistantState.getAssistantMode().ordinal() * 100;
     }
 
     @Override

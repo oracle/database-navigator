@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectionStatusListener;
+import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -214,7 +215,17 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
     @NotNull
     private AssistantType getSelectedAssistantType(@NotNull ConnectionId connectionId) {
-        return selectedAssistantTypes.computeIfAbsent(connectionId, c -> getPrefferedAssistantType(c));
+        AssistantType assistantType = selectedAssistantTypes.computeIfAbsent(connectionId, c -> getPrefferedAssistantType(c));
+        if (assistantType != AssistantType.SELECT_AI) return assistantType;
+
+        // reset old SELECT_AI mappings against non-oracle connections
+        ConnectionHandler connection = ConnectionHandler.get(connectionId);
+        if (connection == null) return AssistantType.PUBLIC;
+        if (connection.getDatabaseType() != DatabaseType.ORACLE) {
+            assistantType = AssistantType.PUBLIC;
+            selectedAssistantTypes.put(connectionId, assistantType);
+        }
+        return assistantType;
     }
 
     @NotNull
