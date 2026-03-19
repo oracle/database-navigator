@@ -463,6 +463,7 @@
             <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Chat" id="DBNavigator.Actions.Assistant.TypeChat"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantPromptActions" text="Assistant Prompt Actions">
+            <action class="com.dbn.assistant.service.generic.action.AssistantModeInfoAction" id="DBNavigator.Actions.Assistant.AssistantModeInfo" text="Assistant Mode Info"/>
             <action class="com.dbn.assistant.service.generic.action.AssistantModeAction" id="DBNavigator.Actions.Assistant.AssistantMode" text="Assistant Mode"/>
             <separator/>
             <action class="com.dbn.assistant.service.generic.action.ToolSelectionAction" id="DBNavigator.Actions.Assistant.ToolSelection" text="Tools"/>
