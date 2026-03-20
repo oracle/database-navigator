@@ -18,9 +18,10 @@ package com.dbn.vector.search.action;
 
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.SelectDropdownAction;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
-import com.dbn.object.cache.DBObjectNameCache;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
@@ -31,7 +32,6 @@ import com.intellij.openapi.actionSystem.DataContext;
 
 import java.util.List;
 
-import static com.dbn.object.cache.DBObjectFilterType.EMBEDDING_DESTINATION_TABLES;
 import static java.util.Collections.emptyList;
 
 @BackgroundUpdate
@@ -46,10 +46,10 @@ public class VectorTableSelectAction extends SelectDropdownAction<DBTable> imple
         if (selectedSchema == null) return emptyList();
 
         DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(console.getProject());
-        DBObjectNameCache<DBTable> names = vectorManager.getObjectNamesCache(console.getConnectionId(), EMBEDDING_DESTINATION_TABLES);
+        ConnectionId connectionId = console.getConnectionId();
+        SchemaId schemaId = selectedSchema.getSchemaId();
 
-        List<DBTable> tables = selectedSchema.getTables();
-        return names.filter(tables);
+        return vectorManager.getVectorTables(connectionId, schemaId);
     }
 
     @Override

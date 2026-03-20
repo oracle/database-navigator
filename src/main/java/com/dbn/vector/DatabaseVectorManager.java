@@ -5,6 +5,7 @@ import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Naming;
@@ -20,6 +21,9 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.cache.DBObjectFilterType;
 import com.dbn.object.cache.DBObjectNameCache;
+import com.dbn.object.common.ui.DBObjectSelectionDialog;
+import com.dbn.object.common.ui.DBObjectSelectionInput;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.object.type.DBVectorDistanceMetric;
 import com.dbn.vector.model.VectorEmbeddingContext;
 import com.dbn.vector.model.VectorEmbeddingExecutionResult;
@@ -240,6 +244,20 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         executionManager.addExecutionResult(executionResult);
     }
 
+
+    public void selectEmbeddingsTable(ConnectionId connectionId, Consumer<DBTable> consumer) {
+        ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+        DBObjectNameCache<DBTable> names = getObjectNamesCache(connectionId, DBObjectFilterType.EMBEDDING_DESTINATION_TABLES);
+
+        DBObjectSelectionInput<DBTable> input = new DBObjectSelectionInput<DBTable>(connection, DBObjectType.TABLE)
+                .withSchemaFilter(s -> !s.isSystemSchema())
+                .withSchemaPreselector(s -> s.getSchemaId() == connection.getUserSchemaId())
+                .withObjectFilter(names);
+
+
+        Dialogs.show(() -> new DBObjectSelectionDialog<>(input, consumer));
+
+    }
 
     /****************************************
      *       PersistentStateComponent       *
