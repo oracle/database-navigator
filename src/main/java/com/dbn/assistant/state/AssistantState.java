@@ -32,6 +32,8 @@ import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.object.DBTable;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.UserDataHolder;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -94,6 +96,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     private String currentSessionSignature; // the resourceId of the com.dbn.connection.jdbc.Resource
     private String defaultProfileName;
     private ChatContext lastContext;
+    private DBObjectRef<DBTable> embeddingTable;
 
 
     @Delegate
@@ -289,9 +292,14 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         assistantMode = enumAttribute(element, "assistant-mode", AssistantMode.DEVELOPMENT);
         defaultProfileName = stringAttribute(element, "default-profile-name");
         currentChatId = stringAttribute(element, "selected-chat-id");
-
         availability = enumAttribute(element, "availability", availability);
         acknowledgement = enumAttribute(element, "acknowledgement", acknowledgement);
+
+        Element embeddingTableElement = element.getChild("embedding-table");
+        if (embeddingTableElement != null) {
+            embeddingTable = new DBObjectRef<>();
+            embeddingTable.readState(embeddingTableElement);
+        }
 
         Element chatsElement = element.getChild("chats");
         List<Element> chatElements = childrenOf(chatsElement);
@@ -317,6 +325,11 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         setStringAttribute(element, "selected-chat-id", currentChatId);
         setEnumAttribute(element, "availability", availability);
         setEnumAttribute(element, "acknowledgement", acknowledgement);
+
+        if (embeddingTable != null) {
+            Element embeddingTableElement = newElement(element, "embedding-table");
+            embeddingTable.writeState(embeddingTableElement);
+        }
 
         if (!chats.isEmpty()) {
             Element chatsElement = newElement(element, "chats");

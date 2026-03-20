@@ -16,12 +16,15 @@
 
 package com.dbn.assistant.tool.impl;
 
+import com.dbn.assistant.AssistantType;
+import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantToolBase;
 import com.dbn.assistant.tool.spec.SemanticSearchTool;
-import com.dbn.common.util.Environment;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.info.ConnectionInfo;
+import com.dbn.object.DBTable;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vector.DatabaseVectorManager;
 import com.intellij.openapi.project.Project;
 
@@ -29,6 +32,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.assistant.AssistantContextUtil.getAssistantState;
 import static com.dbn.object.type.DBVectorDistanceMetric.COSINE;
 
 public class SemanticSearchToolImpl extends AssistantToolBase implements SemanticSearchTool {
@@ -45,10 +49,16 @@ public class SemanticSearchToolImpl extends AssistantToolBase implements Semanti
         List<SemanticSearchResult> searchResults = new ArrayList<>();
         try {
 
-            // TODO components for selecting RAG repo
-            String schemaName = Environment.getVariable("RAG_SCHEMA_NAME");
-            String tableName = Environment.getVariable("RAG_TABLE_NAME");
+            AssistantState assistantState = getAssistantState(getConnectionId(), AssistantType.PUBLIC);
+            verify(assistantState, "Invalid assistant state");
+
+            DBObjectRef<DBTable> embeddingTable = assistantState.getEmbeddingTable();
+            verify(assistantState, "No embedding table selected");
+
+            String schemaName = embeddingTable.getSchemaName();
+            String tableName = embeddingTable.getObjectName();
             resultSet = vectorManager.performSimilaritySearch(connection, schemaName, tableName, query, COSINE, maxResults);
+
             while (resultSet.next()) {
                 SemanticSearchResult searchResult = new SemanticSearchResult();
                 searchResult.setId(resultSet.getString("ID"));

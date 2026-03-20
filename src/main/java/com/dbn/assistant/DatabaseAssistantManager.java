@@ -41,6 +41,8 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.object.DBTable;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -214,10 +216,11 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         }
     }
 
-    public void startAssistantChat(String sourceId, ConnectionId connectionId, AssistantType assistantType, AssistantMode assistantMode) {
+    public void startAssistantChat(String sourceId, ConnectionId connectionId, AssistantType assistantType, AssistantMode assistantMode, DBObjectRef<DBTable> embeddingTable) {
         switchContext(connectionId, assistantType);
         AssistantState assistantState = getAssistantState(connectionId, assistantType);
         assistantState.setAssistantMode(assistantMode);
+        assistantState.setEmbeddingTable(embeddingTable);
 
         Chat chat = assistantState.getChatForSource(sourceId);
         if (chat == null) {

@@ -467,6 +467,7 @@
             <action class="com.dbn.assistant.service.generic.action.AssistantModeAction" id="DBNavigator.Actions.Assistant.AssistantMode" text="Assistant Mode"/>
             <separator/>
             <action class="com.dbn.assistant.service.generic.action.ToolSelectionAction" id="DBNavigator.Actions.Assistant.ToolSelection" text="Tools"/>
+            <action class="com.dbn.assistant.service.generic.action.EmbeddingTableSelectionAction" id="DBNavigator.Actions.Assistant.EmbeddingTable" text="Embedding Table"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantPromptSubmitActions" text="Assistant Chat-Box Prompt">
             <action class="com.dbn.assistant.chat.window.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Assistant.SubmitPrompt" icon="AllIcons.Actions.Execute">

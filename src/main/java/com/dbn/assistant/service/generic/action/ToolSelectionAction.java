@@ -38,12 +38,6 @@ import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 
 public class ToolSelectionAction extends ComboBoxAction implements AssistantActionSupport {
 
-    ToolSelectionAction(){
-        // TODO only supported in 2024.x or higher
-        //getTemplatePresentation().putClientProperty(SHOW_TEXT_IN_TOOLBAR, true);
-    }
-
-
     @Override
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent component, @NotNull DataContext dataContext) {
@@ -68,17 +62,6 @@ public class ToolSelectionAction extends ComboBoxAction implements AssistantActi
 
         return actionGroup;
     }
-/*
-    @Override
-    @Compatibility
-    public boolean displayTextInToolbar() {
-        return true;
-    }
-
-    @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-
-    }*/
 
     @Override
     public void update(@NotNull AnActionEvent e) {

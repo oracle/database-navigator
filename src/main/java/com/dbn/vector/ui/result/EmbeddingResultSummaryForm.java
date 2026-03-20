@@ -28,11 +28,15 @@ import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.messages.DBNMessageForm;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.console.DatabaseConsoleManager;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBSchema;
+import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
+import com.dbn.vector.DatabaseVectorManager;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
 import com.dbn.vector.model.request.EmbeddingDestinationConfig;
@@ -52,11 +56,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.dbn.common.text.TextContent.html;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.util.TimeUtil.presentableDuration;
+import static com.dbn.object.type.DBObjectType.AI_MODEL;
+import static com.dbn.object.type.DBObjectType.SCHEMA;
+import static com.dbn.object.type.DBObjectType.TABLE;
 import static com.dbn.vector.model.request.EmbeddingModelLocation.IN_DATABASE_MODEL;
 import static com.dbn.vector.model.request.EmbeddingSourceType.FILE_SYSTEM;
 import static com.dbn.vfs.DBConsoleType.SEARCH;
@@ -141,12 +149,27 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
     }
 
     private void openDatabaseAssistant() {
-        DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(ensureProject());
+        Project project = ensureProject();
+        ConnectionId connectionId = result.getConnectionId();
+
+        DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
+        EmbeddingDestinationConfig destinationConfig = result.getRequest().getDestinationConfig();
+        String schemaName = destinationConfig.getSchemaName();
+        String tableName = destinationConfig.getTableName();
+        DBObjectRef<DBSchema> schema = new DBObjectRef<>(connectionId, SCHEMA, schemaName);
+        DBObjectRef<DBTable> table = new DBObjectRef<>(schema, TABLE, tableName);
+
+        // remember as recent selection
+        DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(project);
+        Set<DBObjectRef<DBTable>> embeddingTables = vectorManager.getRecentEmbeddingTables(connectionId);
+        embeddingTables.add(table);
+
         assistantManager.startAssistantChat(
                 result.getId(),
-                result.getConnectionId(),
+                connectionId,
                 AssistantType.PUBLIC,
-                AssistantMode.RAG);
+                AssistantMode.RAG,
+                table);
     }
 
     private void initSummaryLabels() {
@@ -168,7 +191,7 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
         stagingTableHyperlinkLabel.addHyperlinkListener(e -> navigateToObject(
                 stagingConfig.getSchemaName(),
                 stagingConfig.getTableName(),
-                DBObjectType.TABLE));
+                TABLE));
 
 
         EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
@@ -177,7 +200,7 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
         embeddingTableHyperlinkLabel.addHyperlinkListener(e -> navigateToObject(
                 destinationConfig.getSchemaName(),
                 destinationConfig.getTableName(),
-                DBObjectType.TABLE));
+                TABLE));
 
         embeddingModelHyperlinkLabel.setIcon(Icons.DBO_AI_MODEL);
         embeddingModelHyperlinkLabel.setHyperlinkText(request.getModelConfig().getDatabaseModelConfig().getQualifiedModelName());
@@ -192,7 +215,7 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
         navigateToObject(
                 databaseModelConfig.getSchemaName(),
                 databaseModelConfig.getModelName(),
-                DBObjectType.AI_MODEL);
+                AI_MODEL);
     }
 
     private void navigateToObject(String schemaName, String objectName, DBObjectType objectType) {

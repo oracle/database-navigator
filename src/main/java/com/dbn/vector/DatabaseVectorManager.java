@@ -1,6 +1,7 @@
 package com.dbn.vector;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.collections.LeastRecentlyUsedSet;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
@@ -23,6 +24,7 @@ import com.dbn.object.cache.DBObjectFilterType;
 import com.dbn.object.cache.DBObjectNameCache;
 import com.dbn.object.common.ui.DBObjectSelectionDialog;
 import com.dbn.object.common.ui.DBObjectSelectionInput;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.object.type.DBVectorDistanceMetric;
 import com.dbn.vector.model.VectorEmbeddingContext;
@@ -74,6 +76,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
 
     private final Map<ConnectionId, VectorEmbeddingRequest> requestTemplates = new ConcurrentHashMap<>();
     private final Map<ConnectionId, Map<DBObjectFilterType, DBObjectNameCache<DBTable>>> objectNameCaches = new ConcurrentHashMap<>();
+    private final Map<ConnectionId, Set<DBObjectRef<DBTable>>> recentEmbeddingTables = new ConcurrentHashMap<>();
 
     public DatabaseVectorManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -244,19 +247,23 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         executionManager.addExecutionResult(executionResult);
     }
 
+    public Set<DBObjectRef<DBTable>> getRecentEmbeddingTables(ConnectionId connectionId) {
+        return recentEmbeddingTables.computeIfAbsent(connectionId, i -> new LeastRecentlyUsedSet<>(5));
+    }
 
     public void selectEmbeddingsTable(ConnectionId connectionId, Consumer<DBTable> consumer) {
+        DBObjectSelectionInput<DBTable> input = initEmbeddingsTableSelector(connectionId);
+        Dialogs.show(() -> new DBObjectSelectionDialog<>(input, consumer));
+    }
+
+    public DBObjectSelectionInput<DBTable> initEmbeddingsTableSelector(ConnectionId connectionId) {
         ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
         DBObjectNameCache<DBTable> names = getObjectNamesCache(connectionId, DBObjectFilterType.EMBEDDING_DESTINATION_TABLES);
 
-        DBObjectSelectionInput<DBTable> input = new DBObjectSelectionInput<DBTable>(connection, DBObjectType.TABLE)
+        return new DBObjectSelectionInput<DBTable>(connection, DBObjectType.TABLE)
                 .withSchemaFilter(s -> !s.isSystemSchema())
                 .withSchemaPreselector(s -> s.getSchemaId() == connection.getUserSchemaId())
                 .withObjectFilter(names);
-
-
-        Dialogs.show(() -> new DBObjectSelectionDialog<>(input, consumer));
-
     }
 
     /****************************************
@@ -277,11 +284,20 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
 
         Element cachesElement = newElement(element, "object-name-caches");
         for (ConnectionId connectionId : objectNameCaches.keySet()) {
-            for (DBObjectNameCache<DBTable> cache : this.objectNameCaches.get(connectionId).values()) {
+            for (DBObjectNameCache<DBTable> cache : objectNameCaches.get(connectionId).values()) {
                 Element cacheElement = newElement(cachesElement, "object-name-cache");
                 cache.writeState(cacheElement);
             }
         }
+
+        Element embeddingTablesElement = newElement(element, "recent-embedding-tables");
+        for (ConnectionId connectionId : recentEmbeddingTables.keySet()) {
+            for (DBObjectRef<DBTable> table : recentEmbeddingTables.get(connectionId)) {
+                Element cacheElement = newElement(embeddingTablesElement, "embedding-table");
+                table.writeState(cacheElement);
+            }
+        }
+
         return element;
     }
 
@@ -306,6 +322,17 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
             Map<DBObjectFilterType, DBObjectNameCache<DBTable>> caches = ensureObjectCaches(connectionId);
             caches.put(cache.getFilterType(), cache);
         }
+
+        Element embeddingTablesElement = element.getChild("recent-embedding-tables");
+        List<Element> embeddingTableElements = childrenOf(embeddingTablesElement, "embedding-table");
+        for (Element embeddingTableElement : embeddingTableElements) {
+            DBObjectRef<DBTable> tableRef = new DBObjectRef<>();
+            tableRef.readState(embeddingTableElement);
+
+            ConnectionId connectionId = tableRef.getConnectionId();
+            getRecentEmbeddingTables(connectionId).add(tableRef);
+        }
+
     }
 
     public List<DBTable> getVectorTables(ConnectionId connectionId, SchemaId schemaId) {

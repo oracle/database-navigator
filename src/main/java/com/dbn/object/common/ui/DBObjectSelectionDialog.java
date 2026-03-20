@@ -16,7 +16,6 @@
 
 package com.dbn.object.common.ui;
 
-import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.object.common.DBObject;
 import lombok.Getter;
@@ -24,6 +23,7 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
+import java.util.function.Consumer;
 
 @Getter
 public class DBObjectSelectionDialog<T extends DBObject> extends DBNDialog<DBObjectSelectionForm<T>> {
