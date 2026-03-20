@@ -19,6 +19,7 @@ package com.dbn.assistant.tool.approval;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.assistant.tool.AssistantToolType;
+import com.dbn.common.sign.Signed;
 import com.dbn.common.state.PersistentStateElement;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +42,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.util.Commons.nvl;
 
-public class AssistantToolApprovals implements PersistentStateElement {
+public class AssistantToolApprovals implements PersistentStateElement, Signed {
     private final Map<AssistantToolType, AssistantToolApprovalStatus> types = new ConcurrentHashMap<>();
     private final Map<AssistantToolCategory, AssistantToolApprovalStatus> categories = new ConcurrentHashMap<>();
 

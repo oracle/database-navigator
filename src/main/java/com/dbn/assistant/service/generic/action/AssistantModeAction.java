@@ -17,17 +17,20 @@
 package com.dbn.assistant.service.generic.action;
 
 import com.dbn.assistant.AssistantMode;
+import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.SelectDropdownAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static com.dbn.assistant.AssistantMode.DEVELOPMENT;
+import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 
 public class AssistantModeAction extends SelectDropdownAction<AssistantMode> implements AssistantActionSupport {
     @Override
@@ -49,5 +52,10 @@ public class AssistantModeAction extends SelectDropdownAction<AssistantMode> imp
         if (assistantState == null) return;
 
         assistantState.setAssistantMode(object);
+    }
+
+    protected boolean isEnabled(@NotNull AnActionEvent e) {
+        ChatAvailability availability = getChatAvailability(e);
+        return availability == AVAILABLE;
     }
 }

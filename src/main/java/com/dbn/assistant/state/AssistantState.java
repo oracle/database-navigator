@@ -24,6 +24,7 @@ import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
+import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
@@ -31,6 +32,7 @@ import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.UserDataHolder;
 import com.intellij.openapi.util.UserDataHolderBase;
 import lombok.Getter;
@@ -106,6 +108,15 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
             lastContext = new ChatContextImpl(assistantType);
         }
         return lastContext;
+    }
+
+    public AssistantToolSettings getToolSettings() {
+        return AssistantToolSettings.get(this);
+    }
+
+    public AssistantToolApprovals getToolApprovals() {
+        AssistantToolSettings settings = getToolSettings();
+        return settings.getApprovals();
     }
 
     @Override
@@ -283,7 +294,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
             chats.put(chat.getId(), chat);
         }
 
-        AssistantToolSettings toolSettings = AssistantToolSettings.get(this);
+        AssistantToolSettings toolSettings = getToolSettings();
         Element toolsElement = element.getChild("tools");
         toolSettings.readState(toolsElement);
     }
@@ -309,9 +320,12 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         }
 
         Element toolsElement = newElement(element, "tools");
-        AssistantToolSettings toolSettings = AssistantToolSettings.get(this);
+        AssistantToolSettings toolSettings = getToolSettings();
         toolSettings.writeState(toolsElement);
 
     }
 
+    public Project getProject() {
+        return getConnection().getProject();
+    }
 }

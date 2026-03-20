@@ -26,7 +26,6 @@ import com.dbn.assistant.tool.AssistantToolData;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
-import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.assistant.tool.event.AssistantToolStatus;
 import com.dbn.assistant.tool.execution.AssistantPrompt;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
@@ -444,8 +443,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
 
     private AssistantToolApprovals getToolApprovals() {
         AssistantState assistantState = getAssistantState();
-        AssistantToolSettings settings = AssistantToolSettings.get(assistantState);
-        return settings.getApprovals();
+        return assistantState.getToolApprovals();
     }
 
     private AssistantState getAssistantState() {
