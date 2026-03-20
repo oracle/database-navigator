@@ -40,6 +40,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Delegate;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -134,6 +135,14 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
     public Chat getChat(String chatId) {
         return chats.get(chatId);
+    }
+
+    @Nullable
+    public Chat getChatForSource(String sourceId) {
+        for (Chat chat : chats.values()) {
+            if (Objects.equals(chat.getSourceId(), sourceId)) return chat;
+        }
+        return null;
     }
 
     public Set<String> getChatNames() {

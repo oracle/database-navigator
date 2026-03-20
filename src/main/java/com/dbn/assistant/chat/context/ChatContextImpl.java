@@ -36,7 +36,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Getter
 @Setter
-public final class ChatContextImpl implements ChatContext{
+public final class ChatContextImpl implements ChatContext {
     private final AssistantType assistantType;
     private String profileId;
     private AIProviderId providerId;

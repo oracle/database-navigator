@@ -16,6 +16,9 @@
 
 package com.dbn.vector.ui.result;
 
+import com.dbn.assistant.AssistantMode;
+import com.dbn.assistant.AssistantType;
+import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -138,7 +141,12 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
     }
 
     private void openDatabaseAssistant() {
-
+        DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(ensureProject());
+        assistantManager.startAssistantChat(
+                result.getId(),
+                result.getConnectionId(),
+                AssistantType.PUBLIC,
+                AssistantMode.RAG);
     }
 
     private void initSummaryLabels() {

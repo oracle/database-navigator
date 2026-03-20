@@ -20,6 +20,7 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.assistant.adapter.AssistantAdapter;
 import com.dbn.assistant.adapter.AssistantAdapters;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxFormContainer;
 import com.dbn.assistant.state.AssistantSelectionState;
@@ -211,6 +212,30 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         if (initialized) {
             toolWindow.setAvailable(true);
         }
+    }
+
+    public void startAssistantChat(String sourceId, ConnectionId connectionId, AssistantType assistantType, AssistantMode assistantMode) {
+        switchContext(connectionId, assistantType);
+        AssistantState assistantState = getAssistantState(connectionId, assistantType);
+        assistantState.setAssistantMode(assistantMode);
+
+        Chat chat = assistantState.getChatForSource(sourceId);
+        if (chat == null) {
+            ChatContext context = assistantState.getCurrentContext();
+            chat = assistantState.createChat(context);
+            chat.setSourceId(sourceId);
+        } else {
+            assistantState.setCurrentChatId(chat.getId());
+        }
+
+        ToolWindow toolWindow = getToolWindow();
+        if (toolWindow == null) return;
+
+        ChatBoxFormContainer container = getFormContainer();
+        if (container == null) return;
+
+        toolWindow.show(null);
+        container.focusInputField();
     }
 
     @NotNull
