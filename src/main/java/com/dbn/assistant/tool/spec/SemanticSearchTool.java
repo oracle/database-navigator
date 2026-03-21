@@ -52,8 +52,7 @@ public interface SemanticSearchTool extends AssistantTool {
     @UtilitySpec(
             name = "Perform semantic search",
             description = "Performs a similarity search over a vector repository, " +
-                    "returning the most relevant passages/documents related to the query, sorted by similarity score. " +
-                    "Use this when you need domain-specific information that may not be in your training data")
+                    "returning the most relevant passages/documents related to the query, sorted by similarity score.")
     List<SemanticSearchResult> performSemanticSearch(
             @P("Search query") String query,
             @P("Number of results to retrieve (1–20)") int maxResults);

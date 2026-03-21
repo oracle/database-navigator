@@ -51,7 +51,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBOptionButton;
@@ -68,7 +67,6 @@ import javax.swing.JSeparator;
 import javax.swing.JTextPane;
 import javax.swing.border.CompoundBorder;
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Objects;
@@ -103,10 +101,14 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private JSeparator messageSeparator;
     private JPanel processingPanel;
     private JPanel processingIconPanel;
+    private JPanel toolDataPanel;
+    private JTextPane descriptionTextPane;
 
     private final ConnectionRef connection;
     private final ChatMessageToolSection section;
     private final AssistantToolInfoProvider info;
+
+    private AssistantToolDataForm toolDataForm;
 
     ChatMessageToolSectionForm(DBNForm parent, ConnectionHandler connection, ChatMessageToolSection section) {
         super(parent, TOOL);
@@ -123,6 +125,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         initDetailPanel();
         initMessagePanel();
         initProcessingPanel();
+        initToolDataPanel(false);
     }
 
     private void initHeaderPanel() {
@@ -146,6 +149,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         }
 
         toolTypeLabel.setText(info.getToolTypeName());
+        //toolTypeLabel.setForeground(Colors.faded(UIUtil.getLabelForeground()));
 
         toolIconLabel.setIcon(Icons.ASSISTANT_TOOL);
         toolIconLabel.setText("");
@@ -304,6 +308,28 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         //messageButtonsPanel.add(cancelButton);
     }
 
+    public void initToolDataPanel(boolean visible) {
+        if (visible) {
+            if (toolDataForm == null) {
+                toolDataForm = new AssistantToolDataForm(this, info, getToolInvocation());
+                toolDataPanel.add(toolDataForm.getComponent());
+            }
+        }
+
+        Color faded = Colors.faded(UIUtil.getLabelForeground());
+        descriptionTextPane.setText(info.getToolDescription());
+        descriptionTextPane.setForeground(faded);
+
+        descriptionTextPane.setVisible(visible);
+        toolDataPanel.setVisible(visible);
+        toolTypePanel.setVisible(!visible);
+        //toolTypePanel.setVisible(false);
+    }
+
+    public boolean isShowingToolData() {
+        return toolDataPanel != null && toolDataPanel.isVisible();
+    }
+
     public boolean isInteractive() {
         return getTool().isInteractive();
     }
@@ -406,10 +432,8 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         executionMonitor.cancel();
     }
 
-    public void showToolExecutionData(DataContext dataContext) {
-        Point location = getMainComponent().getLocationOnScreen();
-        //Dialogs.show(() -> new AssistantToolDataDialog(getProject(), info, getToolInvocation(), location));
-        AssistantToolDataForm.showPopup(mainPanel, info, getToolInvocation());
+    public void toggleToolExecutionData() {
+        initToolDataPanel(!toolDataPanel.isVisible());
     }
 
     public AssistantToolInvocation getToolInvocation() {
