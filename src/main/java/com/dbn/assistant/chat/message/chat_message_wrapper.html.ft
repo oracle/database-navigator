@@ -23,7 +23,23 @@
         code { ${MONOSPACE_FONT_STYLE} }
         h3 code { font-size: inherit; }
         p { margin-top:0; }
+        ul {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
 
+        table {
+            border-top: 1px solid;
+            border-left: 1px solid;
+            border-spacing: 0;
+        }
+
+        th, td {
+            border-top: none;
+            border-left: none;
+            border-right: 1px solid;
+            border-bottom: 1px solid;
+        }
     </style>
 </head>
     ${BODY_CONTENT}

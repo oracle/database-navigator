@@ -57,7 +57,7 @@ import static com.dbn.common.util.Commons.array;
 public abstract class ChatMessageForm extends DBNFormBase {
     protected interface Backgrounds {
         Color USER_PROMPT = new JBColor(new Color(218, 234, 255), new Color(68, 95, 128));
-        Color AGENT_RESPONSE = Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 3));
+        Color AGENT_RESPONSE = Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 2));
         Color SYSTEM_RESPONSE = Colors.delegate(() -> Colors.lafBrighter(Colors.getPanelBackground(), 2));
     }
     private final ChatMessage message;

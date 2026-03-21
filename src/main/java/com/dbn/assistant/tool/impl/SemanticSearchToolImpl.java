@@ -53,7 +53,7 @@ public class SemanticSearchToolImpl extends AssistantToolBase implements Semanti
             verify(assistantState, "Invalid assistant state");
 
             DBObjectRef<DBTable> embeddingTable = assistantState.getEmbeddingTable();
-            verify(assistantState, "No embedding table selected");
+            verify(embeddingTable, "No embedding table selected");
 
             String schemaName = embeddingTable.getSchemaName();
             String tableName = embeddingTable.getObjectName();
