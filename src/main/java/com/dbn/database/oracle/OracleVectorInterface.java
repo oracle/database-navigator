@@ -20,9 +20,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
-import com.dbn.vector.model.request.EmbeddingDestinationConfig;
 import com.dbn.vector.model.request.EmbeddingSourceTable;
-import com.dbn.vector.model.request.EmbeddingStagingConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,14 +56,11 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public int embedTableContent(DBNConnection conn, EmbeddingSourceTable tableSource, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException {
+    public int embedTableContent(DBNConnection conn, EmbeddingSourceTable tableSource, String chunkConfig, String embedConfig, String destinationSchema, String destinationTable, @NotNull String metadata, int batchSize) throws SQLException {
         return executeUpdate(conn,
                 "embed-table-content",
-                destinationConfig.getSchemaName(),
-                destinationConfig.getTableName(),
-                destinationConfig.getTextColumnName(),
-                destinationConfig.getEmbeddingColumnName(),
-                destinationConfig.getMetadataColumnName(),
+                destinationSchema,
+                destinationTable,
                 tableSource.getSchemaName(),
                 tableSource.getTableName(),
                 tableSource.getKeyColumnName(),
@@ -78,14 +73,11 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public int embedQueryContent(DBNConnection conn, String selectStatement, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException {
+    public int embedQueryContent(DBNConnection conn, String selectStatement, String chunkConfig, String embedConfig, String destinationSchema, String destinationTable, @NotNull String metadata, int batchSize) throws SQLException {
         return executeUpdate(conn,
                 "embed-query-content",
-                destinationConfig.getSchemaName(),
-                destinationConfig.getTableName(),
-                destinationConfig.getTextColumnName(),
-                destinationConfig.getEmbeddingColumnName(),
-                destinationConfig.getMetadataColumnName(),
+                destinationSchema,
+                destinationTable,
                 selectStatement,
                 chunkConfig,
                 embedConfig,
@@ -95,16 +87,13 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, EmbeddingStagingConfig stagingConfig, EmbeddingDestinationConfig destinationConfig, String fileStoreId, String metadata) throws SQLException {
+    public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, String stagingSchema, String stagingTable, String destinationSchema, String destinationTable, String fileStoreId, String metadata) throws SQLException {
         return executeUpdate(conn,
                 "embed-file-content",
-                destinationConfig.getSchemaName(),
-                destinationConfig.getTableName(),
-                destinationConfig.getTextColumnName(),
-                destinationConfig.getEmbeddingColumnName(),
-                destinationConfig.getMetadataColumnName(),
-                stagingConfig.getSchemaName(),
-                stagingConfig.getTableName(),
+                destinationSchema,
+                destinationTable,
+                stagingSchema,
+                stagingSchema,
                 fileStoreId, // id of the blob
                 chunkConfig,
                 embedConfig,
@@ -132,8 +121,8 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String sourceId) throws SQLException {
-        return getBooleanValue(conn, "is-content-embedded", schemaName, tableName, metadataColumnName, sourceId);
+    public boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String sourceId) throws SQLException {
+        return getBooleanValue(conn, "is-content-embedded", schemaName, tableName, sourceId);
     }
 
     @Override

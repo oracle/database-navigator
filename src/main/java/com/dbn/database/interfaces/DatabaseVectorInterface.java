@@ -17,9 +17,7 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.vector.model.request.EmbeddingDestinationConfig;
 import com.dbn.vector.model.request.EmbeddingSourceTable;
-import com.dbn.vector.model.request.EmbeddingStagingConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -37,11 +35,11 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
 
     ResultSet chunkTextContent(DBNConnection conn, String text, String chunkBy, String splitBy, int max, int overlap) throws SQLException;
 
-    int embedTableContent(DBNConnection conn, EmbeddingSourceTable sourceConfig, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException;
+    int embedTableContent(DBNConnection conn, EmbeddingSourceTable sourceConfig, String chunkConfig, String embedConfig, String destinationSchema, String destinationTable, @NotNull String metadata, int batchSize) throws SQLException;
 
-    int embedQueryContent(DBNConnection conn, String selectStatement, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException;
+    int embedQueryContent(DBNConnection conn, String selectStatement, String chunkConfig, String embedConfig, String destinationSchema, String destinationTable, @NotNull String metadata, int batchSize) throws SQLException;
 
-    int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, EmbeddingStagingConfig stagingConfig, EmbeddingDestinationConfig destinationConfig, String fileStoreId, String metadata) throws SQLException;
+    int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, String stagingSchema, String stagingTable, String destinationSchema, String destinationTable, String fileStoreId, String metadata) throws SQLException;
 
     void createFileStoreEntry(DBNConnection conn, String ownerName, String tableName, String fileStoreId, String fileMetadata, String fileHash, long fileSize) throws SQLException;
 
@@ -51,7 +49,7 @@ public interface DatabaseVectorInterface extends DatabaseInterface {
 
     void uploadFileStoreContent(@NotNull DBNConnection connection, String ownerName, String tableName, @NotNull String fileStoreId, InputStream inputStream) throws SQLException;
 
-    boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String sourceId) throws SQLException;
+    boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String sourceId) throws SQLException;
 
     ResultSet performSimilaritySearch(DBNConnection conn, String schemaName, String tableName, String queryText, String metric, int rows) throws SQLException;
 }

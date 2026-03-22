@@ -22,13 +22,11 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ComboBoxes;
-import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.cache.DBObjectNameCache;
 import com.dbn.object.cache.DBObjectNameCacheListener;
 import com.dbn.object.common.ui.DBObjectSelector;
-import com.dbn.object.common.ui.DBObjectSelectorListener;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecReader;
 import com.dbn.vector.DatabaseVectorManager;
@@ -40,19 +38,12 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isValid;
-import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormFields;
-import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormFields;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
-import static com.dbn.common.util.Lists.filter;
-import static com.dbn.data.type.GenericDataType.JSON;
-import static com.dbn.data.type.GenericDataType.VECTOR;
 import static com.dbn.object.cache.DBObjectFilterType.EMBEDDING_DESTINATION_TABLES;
-import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static com.dbn.object.type.DBObjectType.TABLE;
 
@@ -60,23 +51,10 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
     private JPanel mainPanel;
     private JLabel schemaLabel;
     private JLabel tableLabel;
-    private JLabel keyColumnLabel;
-    private JLabel dataColumnLabel;
-    private JLabel embeddingColumnLabel;
-    private JLabel metadataColumnLabel;
     private DBObjectSelector<DBSchema> schemaComboBox;
     private DBObjectSelector<DBTable> tableComboBox;
-    private DBObjectSelector<DBColumn> keyColumnComboBox;
-    private DBObjectSelector<DBColumn> dataColumnComboBox;
-    private DBObjectSelector<DBColumn> embeddingColumnComboBox;
-    private DBObjectSelector<DBColumn> metadataColumnComboBox;
 
     private final Latent<DBObjectSpec> tableSpec = Latent.basic(() -> createTableFactoryInput());
-    private final DBObjectSelector<?>[] columnSelectors = new DBObjectSelector[] {
-            keyColumnComboBox,
-            dataColumnComboBox,
-            embeddingColumnComboBox,
-            metadataColumnComboBox};
 
     public EmbeddingDestinationConfigForm(@NotNull VectorToolboxFormBase parent) {
         super(parent);
@@ -112,50 +90,7 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
                 .withObjectFactory("New Table...")
                 .withValueFactoryInput(tableSpec)
                 .withValueFactoryNameConsumer(() -> name -> getDestinationTablesCache().addObjectName(getSelectedSchemaId(), name))
-                .withListener(tableLoadListener())
                 .triggerLoad();
-
-        keyColumnComboBox
-                .initialize(this, COLUMN)
-                .withConnectionContext(() -> getConnection())
-                .withValueLoader(() -> loadKeyColumns())
-                .withValuePreselector(() -> config.getKeyColumnName())
-                .triggerLoad();
-
-        dataColumnComboBox
-                .initialize(this, COLUMN)
-                .withConnectionContext(() -> getConnection())
-                .withValueLoader(() -> loadDataColumns())
-                .withValuePreselector(() -> config.getTextColumnName())
-                .triggerLoad();
-
-        embeddingColumnComboBox
-                .initialize(this, COLUMN)
-                .withConnectionContext(() -> getConnection())
-                .withValueLoader(() -> loadEmbeddingColumns())
-                .withValuePreselector(() -> config.getEmbeddingColumnName())
-                .triggerLoad();
-
-        metadataColumnComboBox
-                .initialize(this, COLUMN)
-                .withConnectionContext(() -> getConnection())
-                .withValueLoader(() -> loadMetadataColumns())
-                .withValuePreselector(() -> config.getMetadataColumnName())
-                .triggerLoad();
-    }
-
-    private @NotNull DBObjectSelectorListener tableLoadListener() {
-        return new DBObjectSelectorListener() {
-            @Override
-            public void valueLoadStarted() {
-                disableFormFields(columnSelectors, "TEMPORARY_LOAD");
-            }
-
-            @Override
-            public void valueLoadEnded() {
-                enableFormFields(columnSelectors, "TEMPORARY_LOAD");
-            }
-        };
     }
 
 
@@ -168,11 +103,6 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
     protected void initFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
         fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedSchema()), array(tableComboBox));
-        fieldAdapter.initFieldsAvailability(() -> isValid(getSelectedTable()), array(
-                keyColumnComboBox,
-                dataColumnComboBox,
-                embeddingColumnComboBox,
-                metadataColumnComboBox));
     }
 
     @Override
@@ -180,10 +110,6 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
         FieldAlignerData alignerData = getFieldAlignerData();
         alignerData.registerFieldGroup(schemaLabel, schemaComboBox);
         alignerData.registerFieldGroup(tableLabel, tableComboBox);
-        alignerData.registerFieldGroup(keyColumnLabel, keyColumnComboBox);
-        alignerData.registerFieldGroup(dataColumnLabel, dataColumnComboBox);
-        alignerData.registerFieldGroup(embeddingColumnLabel, embeddingColumnComboBox);
-        alignerData.registerFieldGroup(metadataColumnLabel, metadataColumnComboBox);
     }
 
     protected List<DBTable> loadTables() {
@@ -192,55 +118,19 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
         return names.filter(tables);
     }
 
-    private boolean isDestinationTable(DBTable table) {
-        DBObjectNameCache<DBTable> tablesCache = getDestinationTablesCache();
-        return tablesCache.accepts(table);
-    }
-
     private DBObjectNameCache<DBTable> getDestinationTablesCache() {
         DatabaseVectorManager vectorManager = DatabaseVectorManager.getInstance(getProject());
         return vectorManager.getObjectNamesCache(getConnectionId(), EMBEDDING_DESTINATION_TABLES);
     }
 
-    private List<DBColumn> loadKeyColumns() {
-        return filter(getAllColumns(), c -> c.isPrimaryKey());
-    }
-
-    private List<DBColumn> loadDataColumns() {
-        return filter(getAllColumns(), c -> c.getDataType().isLiteral() && !c.isPrimaryKey() && !c.isHidden());
-    }
-
-    private List<DBColumn> loadEmbeddingColumns() {
-        return filter(getAllColumns(), c -> c.getDataType().getGenericDataType() == VECTOR);
-    }
-
-    private List<DBColumn> loadMetadataColumns() {
-        return filter(getAllColumns(), c -> c.getDataType().getGenericDataType() == JSON);
-    }
-
-    private @NotNull List<DBColumn> getAllColumns() {
-        DBTable table = ComboBoxes.getSelection(tableComboBox);
-        return table == null ?
-                Collections.emptyList() :
-                table.getColumns();
-    }
-
-
     @Override
     protected void initValidation() {
         addSelectionValidation(schemaComboBox, "Please select a schema");
         addSelectionValidation(tableComboBox, "Please select a table");
-        addSelectionValidation(dataColumnComboBox, "Please select the primary key column");
-        addSelectionValidation(embeddingColumnComboBox, "Please select a data column");
-        addSelectionValidation(metadataColumnComboBox, "Please select a metadata column");
     }
 
     private void populateColumns() {
         updateFieldAvailability();
-        keyColumnComboBox.reloadValues();
-        dataColumnComboBox.reloadValues();
-        embeddingColumnComboBox.reloadValues();
-        metadataColumnComboBox.reloadValues();
     }
 
     private void populateTables() {
@@ -280,9 +170,6 @@ public class EmbeddingDestinationConfigForm extends VectorToolboxFormBase implem
         EmbeddingDestinationConfig config = getConfig();
         config.setSchemaName(getSelectedObjectName(schemaComboBox, config.getSchemaName()));
         config.setTableName(getSelectedObjectName(tableComboBox, config.getTableName()));
-        config.setTextColumnName(getSelectedObjectName(dataColumnComboBox, config.getTextColumnName()));
-        config.setEmbeddingColumnName(getSelectedObjectName(embeddingColumnComboBox, config.getEmbeddingColumnName()));
-        config.setMetadataColumnName(getSelectedObjectName(metadataColumnComboBox, config.getMetadataColumnName()));
     }
 
     public EmbeddingDestinationConfig getConfig() {
