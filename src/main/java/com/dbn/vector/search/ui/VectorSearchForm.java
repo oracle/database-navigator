@@ -57,6 +57,7 @@ import java.awt.BorderLayout;
 import java.sql.ResultSet;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.help.HelpTopic.VECTOR_SEARCH;
@@ -150,11 +151,10 @@ public class VectorSearchForm extends DBNFormBase {
     }
 
     private void initSearchButton() {
-        searchButton.addActionListener(e -> {
-            Dispatch.async(mainPanel,
+        onButtonClick(searchButton, e ->
+                Dispatch.async(mainPanel,
                     () -> performSimilaritySearch(),
-                    d -> applySearchResult(d));
-        });
+                    d -> applySearchResult(d)));
     }
 
     private ResultSetDataModel performSimilaritySearch() {

@@ -55,6 +55,7 @@ import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
 
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 
 public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
@@ -145,11 +146,10 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     }
 
     private void initVerifyButton() {
-        verifyButton.addActionListener(e -> {
-            Dispatch.async(mainPanel,
+        onButtonClick(verifyButton, e ->
+                Dispatch.async(mainPanel,
                     () -> verifyQuery(),
-                    d -> applyChunkResult(d));
-        });
+                    d -> applyChunkResult(d)));
     }
 
     private void applyChunkResult(ResultSetDataModel data){

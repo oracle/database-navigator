@@ -57,33 +57,53 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
 
     @Override
     public int embedTableContent(DBNConnection conn, EmbeddingSourceTable tableSource, String chunkConfig, String embedConfig, String destinationSchema, String destinationTable, @NotNull String metadata, int batchSize) throws SQLException {
-        return executeUpdate(conn,
-                "embed-table-content",
-                destinationSchema,
-                destinationTable,
-                tableSource.getSchemaName(),
-                tableSource.getTableName(),
-                tableSource.getKeyColumnName(),
-                tableSource.getDataColumnName(),
-                chunkConfig,
-                embedConfig,
-                metadata,
-                batchSize
-        );
+
+        return chunkConfig == null ?
+                executeUpdate(conn,
+                        "embed-table-content-raw",
+                        destinationSchema,
+                        destinationTable,
+                        tableSource.getSchemaName(),
+                        tableSource.getTableName(),
+                        tableSource.getKeyColumnName(),
+                        tableSource.getDataColumnName(),
+                        embedConfig,
+                        metadata,
+                        batchSize) :
+                executeUpdate(conn,
+                        "embed-table-content",
+                        destinationSchema,
+                        destinationTable,
+                        tableSource.getSchemaName(),
+                        tableSource.getTableName(),
+                        tableSource.getKeyColumnName(),
+                        tableSource.getDataColumnName(),
+                        chunkConfig,
+                        embedConfig,
+                        metadata,
+                        batchSize);
     }
 
     @Override
     public int embedQueryContent(DBNConnection conn, String selectStatement, String chunkConfig, String embedConfig, String destinationSchema, String destinationTable, @NotNull String metadata, int batchSize) throws SQLException {
-        return executeUpdate(conn,
-                "embed-query-content",
-                destinationSchema,
-                destinationTable,
-                selectStatement,
-                chunkConfig,
-                embedConfig,
-                metadata,
-                batchSize
-        );
+        return chunkConfig == null ?
+                executeUpdate(conn,
+                        "embed-query-content-raw",
+                        destinationSchema,
+                        destinationTable,
+                        selectStatement,
+                        embedConfig,
+                        metadata,
+                        batchSize) :
+                executeUpdate(conn,
+                        "embed-query-content",
+                        destinationSchema,
+                        destinationTable,
+                        selectStatement,
+                        chunkConfig,
+                        embedConfig,
+                        metadata,
+                        batchSize);
     }
 
     @Override
