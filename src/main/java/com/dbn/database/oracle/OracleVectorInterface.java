@@ -93,7 +93,7 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
                 destinationSchema,
                 destinationTable,
                 stagingSchema,
-                stagingSchema,
+                stagingTable,
                 fileStoreId, // id of the blob
                 chunkConfig,
                 embedConfig,
