@@ -492,6 +492,7 @@ public class Editors {
         if (editor == null) return;
 
         Dispatch.run(true, () -> {
+            if (editor.isDisposed()) return;
             EditorFactory editorFactory = EditorFactory.getInstance();
             editorFactory.releaseEditor(editor);
         });
