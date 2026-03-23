@@ -29,16 +29,16 @@
         }
 
         table {
-            border-top: 1px solid;
-            border-left: 1px solid;
+            border-top: 1px solid ${TABLE_GRID_COLOR};
+            border-left: 1px solid ${TABLE_GRID_COLOR};
             border-spacing: 0;
         }
 
         th, td {
             border-top: none;
             border-left: none;
-            border-right: 1px solid;
-            border-bottom: 1px solid;
+            border-right: 1px solid ${TABLE_GRID_COLOR};
+            border-bottom: 1px solid ${TABLE_GRID_COLOR};
         }
     </style>
 </head>
