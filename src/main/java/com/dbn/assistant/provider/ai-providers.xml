@@ -89,26 +89,30 @@
                 <url type="KEYS">https://cloud.oracle.com/identity/domains/my-profile</url>
             </urls>
             <models>
-                <model id="META_LLAMA_3_1_70B_INSTRUCT"                    api-name="meta.llama-3.1-70b-instruct"                 short-name="llama-3.1-instruct"        base-provider-id="META"   description="High-end coding, deep SQL reasoning"/>
-                <model id="META_LLAMA_3_1_405B_INSTRUCT"                   api-name="meta.llama-3.1-405b-instruct"                short-name="llama-3.1-instruct"        base-provider-id="META"   description="Very deep reasoning, heavy codebases"/>
-                <model id="META_LLAMA_3_2_11B_VISION_INSTRUCT"             api-name="meta.llama-3.2-11b-vision-instruct"          short-name="llama-3.2-vision-instr"    base-provider-id="META"   description="Vision + code, schema diagrams"/>
-                <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"             api-name="meta.llama-3.2-90b-vision-instruct"          short-name="llama-3.2-vision-instr"    base-provider-id="META"   description="Large vision models, complex coding"/>
-                <model id="META_LLAMA_3_3_70B_INSTRUCT"                    api-name="meta.llama-3.3-70b-instruct"                 short-name="llama-3.3-instruct"        base-provider-id="META"   description="Strong logic, structured programming"/>
-                <model id="META_LLAMA_4_MAVERICK_17B_128E_INSTRUCT_FP8"    api-name="meta.llama-4-maverick-17b-128e-instruct-fp8" short-name="llama-4-maverick-instr"    base-provider-id="META"   description="Optimized coding, good SQL throughput"/>
-                <model id="META_LLAMA_4_SCOUT_17B_16E_INSTRUCT"            api-name="meta.llama-4-scout-17b-16e-instruct"         short-name="llama-4-scout-instr"       base-provider-id="META"   description="Fast, accurate coding assistance"/>
+                <model id="META_LLAMA_3_1_70B_INSTRUCT"                  api-name="meta.llama-3.1-70b-instruct"                 short-name="llama-3.1-instruct"     base-provider-id="META"   description="High-end coding, deep SQL reasoning"/>
+                <model id="META_LLAMA_3_1_405B_INSTRUCT"                 api-name="meta.llama-3.1-405b-instruct"                short-name="llama-3.1-instruct"     base-provider-id="META"   description="Very deep reasoning, heavy codebases"/>
+                <model id="META_LLAMA_3_2_11B_VISION_INSTRUCT"           api-name="meta.llama-3.2-11b-vision-instruct"          short-name="llama-3.2-vision-instr" base-provider-id="META"   description="Vision + code, schema diagrams"/>
+                <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"           api-name="meta.llama-3.2-90b-vision-instruct"          short-name="llama-3.2-vision-instr" base-provider-id="META"   description="Large vision models, complex coding"/>
+                <model id="META_LLAMA_3_3_70B_INSTRUCT"                  api-name="meta.llama-3.3-70b-instruct"                 short-name="llama-3.3-instruct"     base-provider-id="META"   description="Strong logic, structured programming"/>
+                <model id="META_LLAMA_4_MAVERICK_17B_128E_INSTRUCT_FP8"  api-name="meta.llama-4-maverick-17b-128e-instruct-fp8" short-name="llama-4-maverick-instr" base-provider-id="META"   description="Optimized coding, good SQL throughput"/>
+                <model id="META_LLAMA_4_SCOUT_17B_16E_INSTRUCT"          api-name="meta.llama-4-scout-17b-16e-instruct"         short-name="llama-4-scout-instr"    base-provider-id="META"   description="Fast, accurate coding assistance"/>
 
-                <model id="COHERE_COMMAND_R_08_2024"                       api-name="cohere.command-r-08-2024"                    short-name="command-r-08"              base-provider-id="COHERE" description="Mid-range coding, SQL logic"/>
-                <model id="COHERE_COMMAND_R_PLUS_08_2024"                  api-name="cohere.command-r-plus-08-2024"               short-name="command-r-plus.08"         base-provider-id="COHERE" description="Complex code tasks, schema reasoning"/>
-                <model id="COHERE_COMMAND_A_03_2025"                       api-name="cohere.command-a-03-2025"                    short-name="command-a-03"              base-provider-id="COHERE" description="Efficient structured code generation"/>
-                <model id="COHERE_COMMAND_LATEST"                          api-name="cohere.command-latest"                       short-name="command-latest"            base-provider-id="COHERE" description="Modern coding support, stable SQL"/>
-                <model id="COHERE_COMMAND_PLUS_LATEST"                     api-name="cohere.command-plus-latest"                  short-name="command-plus-latest"       base-provider-id="COHERE" description="High capability coding, strong SQL support"/>
+                <model id="GOOGLE_GEMINI_2_5_FLASH_LITE"                 api-name="google.gemini-2.5-flash-lite"                short-name="gemini-2.5-flash-lite"  base-provider-id="GOOGLE" description="Quick coding, light SQL"/>
+                <model id="GOOGLE_GEMINI_2_5_FLASH"                      api-name="google.gemini-2.5-flash"                     short-name="gemini-2.5-flash"       base-provider-id="GOOGLE" description="Responsive coding, routine SQL"/>
+                <model id="GOOGLE_GEMINI_2_5_PRO"                        api-name="google.gemini-2.5-pro"                       short-name="gemini-2.5-pro"         base-provider-id="GOOGLE" description="Advanced reasoning, code analysis"/>
 
-                <model id="XAI_GROK_3"                                     api-name="xai.grok-3"                                  short-name="grok-3"                    base-provider-id="X_AI"    description="Fast coding, clear SQL suggestions"/>
-                <model id="XAI_GROK_3_FAST"                                api-name="xai.grok-3-fast"                             short-name="grok-3-fast"               base-provider-id="X_AI"    description="Very fast code outputs"/>
-                <model id="XAI_GROK_3_MINI"                                api-name="xai.grok-3-mini"                             short-name="grok-3-mini"               base-provider-id="X_AI"    description="Light code tasks, tiny SQL edits"/>
-                <model id="XAI_GROK_3_MINI_FAST"                           api-name="xai.grok-3-mini-fast"                        short-name="grok-3-mini-fast"          base-provider-id="X_AI"    description="Instant code responses"/>
-                <model id="XAI_GROK_4"                                     api-name="xai.grok-4"                                  short-name="grok-4"                    base-provider-id="X_AI"    description="Strong reasoning, good coding depth"/>
-                <model id="XAI_GROK_CODE_FAST_1"                           api-name="xai.grok-code-fast-1"                        short-name="grok-code-fast-1"          base-provider-id="X_AI"    description="High-speed coding, rapid SQL edits"/>
+                <model id="COHERE_COMMAND_R_08_2024"                     api-name="cohere.command-r-08-2024"                    short-name="command-r-08"           base-provider-id="COHERE" description="Mid-range coding, SQL logic"/>
+                <model id="COHERE_COMMAND_R_PLUS_08_2024"                api-name="cohere.command-r-plus-08-2024"               short-name="command-r-plus.08"      base-provider-id="COHERE" description="Complex code tasks, schema reasoning"/>
+                <model id="COHERE_COMMAND_A_03_2025"                     api-name="cohere.command-a-03-2025"                    short-name="command-a-03"           base-provider-id="COHERE" description="Efficient structured code generation"/>
+                <model id="COHERE_COMMAND_LATEST"                        api-name="cohere.command-latest"                       short-name="command-latest"         base-provider-id="COHERE" description="Modern coding support, stable SQL"/>
+                <model id="COHERE_COMMAND_PLUS_LATEST"                   api-name="cohere.command-plus-latest"                  short-name="command-plus-latest"    base-provider-id="COHERE" description="High capability coding, strong SQL support"/>
+
+                <model id="XAI_GROK_3"                                   api-name="xai.grok-3"                                  short-name="grok-3"                 base-provider-id="X_AI"   description="Fast coding, clear SQL suggestions"/>
+                <model id="XAI_GROK_3_FAST"                              api-name="xai.grok-3-fast"                             short-name="grok-3-fast"            base-provider-id="X_AI"   description="Very fast code outputs"/>
+                <model id="XAI_GROK_3_MINI"                              api-name="xai.grok-3-mini"                             short-name="grok-3-mini"            base-provider-id="X_AI"   description="Light code tasks, tiny SQL edits"/>
+                <model id="XAI_GROK_3_MINI_FAST"                         api-name="xai.grok-3-mini-fast"                        short-name="grok-3-mini-fast"       base-provider-id="X_AI"   description="Instant code responses"/>
+                <model id="XAI_GROK_4"                                   api-name="xai.grok-4"                                  short-name="grok-4"                 base-provider-id="X_AI"   description="Strong reasoning, good coding depth"/>
+                <model id="XAI_GROK_CODE_FAST_1"                         api-name="xai.grok-code-fast-1"                        short-name="grok-code-fast-1"       base-provider-id="X_AI"   description="High-speed coding, rapid SQL edits"/>
             </models>
         </provider>
 
@@ -345,6 +349,10 @@
                     <model id="META_LLAMA_3_3_70B_INSTRUCT"/>
                     <model id="META_LLAMA_4_MAVERICK_17B_128E_INSTRUCT_FP8"/>
                     <model id="META_LLAMA_4_SCOUT_17B_16E_INSTRUCT"/>
+
+                    <model id="GOOGLE_GEMINI_2_5_FLASH"/>
+                    <model id="GOOGLE_GEMINI_2_5_FLASH_LITE"/>
+                    <model id="GOOGLE_GEMINI_2_5_PRO"/>
 <!--
                     TODO none of the cohere models understand tool specifications
                     <model id="COHERE_COMMAND_R_08_2024"/>
