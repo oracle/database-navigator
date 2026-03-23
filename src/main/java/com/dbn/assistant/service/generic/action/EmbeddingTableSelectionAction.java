@@ -18,6 +18,7 @@ package com.dbn.assistant.service.generic.action;
 
 import com.dbn.assistant.AssistantMode;
 import com.dbn.assistant.chat.ChatAvailability;
+import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.ComboBoxAction;
@@ -70,7 +71,8 @@ public class EmbeddingTableSelectionAction extends ComboBoxAction implements Ass
 
         Consumer<DBTable> selectionConsumer = t -> {
             DBObjectRef<DBTable> ref = DBObjectRef.of(t);
-            assistantState.setEmbeddingTable(ref);
+            ChatContext chatContext = assistantState.getCurrentContext();
+            chatContext.setEmbeddingTable(ref);
             embeddingTables.add(ref);
         };
 
@@ -145,9 +147,9 @@ public class EmbeddingTableSelectionAction extends ComboBoxAction implements Ass
     }
 
     private boolean isVisible(@NotNull AnActionEvent e) {
-        AssistantState assistantState = getAssistantState(e);
-        if (assistantState == null) return false;
+        ChatContext chatContext = getCurrentChatContext(e);
+        if (chatContext == null) return false;
 
-        return assistantState.getAssistantMode() == AssistantMode.RAG;
+        return chatContext.getAssistantMode() == AssistantMode.RAG;
     }
 }

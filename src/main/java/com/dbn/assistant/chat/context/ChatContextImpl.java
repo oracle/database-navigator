@@ -16,19 +16,24 @@
 
 package com.dbn.assistant.chat.context;
 
+import com.dbn.assistant.AssistantMode;
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderData;
 import com.dbn.assistant.provider.AIProviderId;
+import com.dbn.object.DBTable;
+import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 
 import java.util.Objects;
 
+import static com.dbn.assistant.AssistantMode.DEVELOPMENT;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
@@ -38,18 +43,22 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 @Setter
 public final class ChatContextImpl implements ChatContext {
     private final AssistantType assistantType;
+    private AssistantMode assistantMode = DEVELOPMENT;
     private String profileId;
     private AIProviderId providerId;
     private String modelId;
     private String actionId;
     private boolean interactive = true;
 
+    private DBObjectRef<DBTable> embeddingTable;
+
     public ChatContextImpl(AssistantType assistantType) {
         this.assistantType = assistantType;
     }
 
-    public ChatContextImpl(AssistantType assistantType, String profileId, AIProviderId providerId, String modelId, String actionId, boolean interactive) {
+    public ChatContextImpl(AssistantType assistantType, AssistantMode assistantMode, String profileId, AIProviderId providerId, String modelId, String actionId, boolean interactive) {
         this(assistantType);
+        this.assistantMode = assistantMode;
         this.profileId = profileId;
         this.providerId = providerId;
         this.modelId = modelId;
@@ -109,20 +118,34 @@ public final class ChatContextImpl implements ChatContext {
 
     @Override
     public void readState(Element element) {
+        assistantMode = enumAttribute(element, "mode", DEVELOPMENT);
         providerId = enumAttribute(element, "provider", AIProviderId.class);
         profileId = stringAttribute(element, "profile");
         modelId = stringAttribute(element, "model");
         actionId = stringAttribute(element, "action");
         interactive = booleanAttribute(element, "interactive", interactive);
+
+        Element embeddingTableElement = element.getChild("embedding-table");
+        if (embeddingTableElement != null) {
+            embeddingTable = new DBObjectRef<>();
+            embeddingTable.readState(embeddingTableElement);
+        }
     }
 
     @Override
     public void writeState(Element element) {
+        setEnumAttribute(element, "mode", assistantMode);
         setEnumAttribute(element, "provider", providerId);
         setStringAttribute(element, "profile", profileId);
         setStringAttribute(element, "model", modelId);
         setStringAttribute(element, "action", actionId);
         setBooleanAttribute(element, "interactive", interactive);
+
+        if (embeddingTable != null) {
+            Element embeddingTableElement = newElement(element, "embedding-table");
+            embeddingTable.writeState(embeddingTableElement);
+        }
+
     }
 
     public String toString() {

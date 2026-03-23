@@ -66,6 +66,7 @@ public class ProfileSelectAction extends AbstractChatBoxAction {
         ChatContext currentContext = chatBox.getCurrentContext();
         ChatContext targetContext = new ChatContextImpl(
                 currentContext.getAssistantType(),
+                currentContext.getAssistantMode(),
                 profile.getId(),
                 providerId,
                 modelId,

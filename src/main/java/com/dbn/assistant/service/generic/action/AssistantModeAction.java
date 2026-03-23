@@ -18,6 +18,7 @@ package com.dbn.assistant.service.generic.action;
 
 import com.dbn.assistant.AssistantMode;
 import com.dbn.assistant.chat.ChatAvailability;
+import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.SelectDropdownAction;
@@ -51,18 +52,18 @@ public class AssistantModeAction extends SelectDropdownAction<AssistantMode> imp
 
     @Override
     protected AssistantMode getSelectedObject(AnActionEvent e) {
-        AssistantState assistantState = getAssistantState(e);
-        if (assistantState == null) return DEVELOPMENT;
+        ChatContext chatContext = getCurrentChatContext(e);
+        if (chatContext == null) return DEVELOPMENT;
 
-        return assistantState.getAssistantMode();
+        return chatContext.getAssistantMode();
     }
 
     @Override
     protected void setSelectedObject(AnActionEvent e, AssistantMode object) {
-        AssistantState assistantState = getAssistantState(e);
-        if (assistantState == null) return;
+        ChatContext chatContext = getCurrentChatContext(e);
+        if (chatContext == null) return;
 
-        assistantState.setAssistantMode(object);
+        chatContext.setAssistantMode(object);
     }
 
     protected boolean isEnabled(@NotNull AnActionEvent e) {

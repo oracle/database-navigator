@@ -89,14 +89,12 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
     private ConnectionId connectionId;
     private AssistantType assistantType;
-    private AssistantMode assistantMode;
     private Map<String, Chat> chats = new LinkedHashMap<>();
 
     private String currentChatId;
     private String currentSessionSignature; // the resourceId of the com.dbn.connection.jdbc.Resource
     private String defaultProfileName;
     private ChatContext lastContext;
-    private DBObjectRef<DBTable> embeddingTable;
 
 
     @Delegate
@@ -228,6 +226,15 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         lastContext = currentChat.getContext();
     }
 
+
+    public AssistantMode getAssistantMode() {
+        return getCurrentContext().getAssistantMode();
+    }
+
+    public DBObjectRef<DBTable> getEmbeddingTable() {
+        return getCurrentContext().getEmbeddingTable();
+    }
+
     public void setCurrentSessionSignature(String currentSessionSignature) {
         this.currentSessionSignature = currentSessionSignature;
         Chat conversation = getCurrentChat();
@@ -289,17 +296,10 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     public void readState(Element element) {
         connectionId = connectionIdAttribute(element, "connection-id");
         assistantType = enumAttribute(element, "assistant-type", AssistantType.PUBLIC);
-        assistantMode = enumAttribute(element, "assistant-mode", AssistantMode.DEVELOPMENT);
         defaultProfileName = stringAttribute(element, "default-profile-name");
         currentChatId = stringAttribute(element, "selected-chat-id");
         availability = enumAttribute(element, "availability", availability);
         acknowledgement = enumAttribute(element, "acknowledgement", acknowledgement);
-
-        Element embeddingTableElement = element.getChild("embedding-table");
-        if (embeddingTableElement != null) {
-            embeddingTable = new DBObjectRef<>();
-            embeddingTable.readState(embeddingTableElement);
-        }
 
         Element chatsElement = element.getChild("chats");
         List<Element> chatElements = childrenOf(chatsElement);
@@ -320,16 +320,10 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     public void writeState(Element element) {
         setStringAttribute(element, "connection-id", connectionId.id());
         setEnumAttribute(element, "assistant-type", assistantType);
-        setEnumAttribute(element, "assistant-mode", assistantMode);
         setStringAttribute(element, "default-profile-name", defaultProfileName);
         setStringAttribute(element, "selected-chat-id", currentChatId);
         setEnumAttribute(element, "availability", availability);
         setEnumAttribute(element, "acknowledgement", acknowledgement);
-
-        if (embeddingTable != null) {
-            Element embeddingTableElement = newElement(element, "embedding-table");
-            embeddingTable.writeState(embeddingTableElement);
-        }
 
         if (!chats.isEmpty()) {
             Element chatsElement = newElement(element, "chats");

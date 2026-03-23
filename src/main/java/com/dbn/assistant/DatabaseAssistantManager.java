@@ -219,8 +219,6 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     public void startAssistantChat(String sourceId, ConnectionId connectionId, AssistantType assistantType, AssistantMode assistantMode, DBObjectRef<DBTable> embeddingTable) {
         switchContext(connectionId, assistantType);
         AssistantState assistantState = getAssistantState(connectionId, assistantType);
-        assistantState.setAssistantMode(assistantMode);
-        assistantState.setEmbeddingTable(embeddingTable);
 
         Chat chat = assistantState.getChatForSource(sourceId);
         if (chat == null) {
@@ -230,6 +228,10 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         } else {
             assistantState.setCurrentChatId(chat.getId());
         }
+
+        ChatContext chatContext = chat.getContext();
+        chatContext.setAssistantMode(assistantMode);
+        chatContext.setEmbeddingTable(embeddingTable);
 
         ToolWindow toolWindow = getToolWindow();
         if (toolWindow == null) return;

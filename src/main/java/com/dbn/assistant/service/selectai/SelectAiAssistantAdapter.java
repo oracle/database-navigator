@@ -16,7 +16,6 @@
 
 package com.dbn.assistant.service.selectai;
 
-import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.adapter.AssistantAdapterBase;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
@@ -55,6 +54,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.assistant.AssistantMode.DEVELOPMENT;
+import static com.dbn.assistant.AssistantType.SELECT_AI;
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 import static com.dbn.assistant.chat.ChatAvailability.DISABLED_PROFILE_SELECTED;
 import static com.dbn.assistant.chat.ChatAvailability.NOT_INITIALIZED;
@@ -71,7 +72,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
     public static final SelectAiAssistantAdapter INSTANCE = new SelectAiAssistantAdapter();
 
     private SelectAiAssistantAdapter() {
-        super(AssistantType.SELECT_AI);
+        super(SELECT_AI);
     }
 
     public ChatContext createChatContext(ConnectionId connectionId) {
@@ -85,7 +86,8 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         if (action == null) return null;
 
         return new ChatContextImpl(
-                AssistantType.SELECT_AI,
+                SELECT_AI,
+                DEVELOPMENT,
                 profile.getName(),
                 profile.getProviderId(),
                 model.getId(),
@@ -135,7 +137,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
                     // no profiles created yet -> prompt profile creation
                     if (profiles.isEmpty()) {
                         Messages.showQuestionDialog(project,
-                                AssistantType.SELECT_AI.getName(),
+                                SELECT_AI.getName(),
                                 txt("msg.assistant.question.AcknowledgeAndCreateProfile"),
                                 options("Create Profile", "Cancel"), 0,
                                 option -> when(option == 0, () -> ProfileEditionWizard.showWizard(connection, null, Collections.emptySet(), null)));
@@ -147,7 +149,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
         ConnectionHandler connection = getConnection(connectionId);
         Project project = connection.getProject();
         Messages.showQuestionDialog(project,
-                AssistantType.SELECT_AI.getName(),
+                SELECT_AI.getName(),
                 txt("msg.assistant.question.AcknowledgeAndConfigure"),
                 Messages.OPTIONS_CONTINUE_CANCEL, 0,
                 option -> when(option == 0, () -> showToolWindow(connectionId)));
