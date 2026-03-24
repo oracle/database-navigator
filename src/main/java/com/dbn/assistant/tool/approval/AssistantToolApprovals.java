@@ -19,6 +19,7 @@ package com.dbn.assistant.tool.approval;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.assistant.tool.AssistantToolType;
+import com.dbn.common.sign.Signed;
 import com.dbn.common.state.PersistentStateElement;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -36,14 +37,12 @@ import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROV
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
 import static com.dbn.common.options.setting.Settings.childrenOf;
-import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.util.Commons.nvl;
 
-public class AssistantToolApprovals implements PersistentStateElement {
+public class AssistantToolApprovals implements PersistentStateElement, Signed {
     private final Map<AssistantToolType, AssistantToolApprovalStatus> types = new ConcurrentHashMap<>();
     private final Map<AssistantToolCategory, AssistantToolApprovalStatus> categories = new ConcurrentHashMap<>();
 
@@ -146,7 +145,7 @@ public class AssistantToolApprovals implements PersistentStateElement {
         Element typesElement = element.getChild("types");
         List<Element> typeElements = childrenOf(typesElement);
         for (Element typeElement : typeElements) {
-            AssistantToolType toolType = constantAttribute(typeElement, "id", AssistantToolType.class);
+            AssistantToolType toolType = enumAttribute(typeElement, "id", AssistantToolType.class);
             AssistantToolApprovalStatus approvalStatus = enumAttribute(typeElement, "status", AssistantToolApprovalStatus.class);
             types.put(toolType, approvalStatus);
         }
@@ -173,7 +172,7 @@ public class AssistantToolApprovals implements PersistentStateElement {
                 AssistantToolApprovalStatus approvalStatus = types.get(toolType);
 
                 Element typeElement = newElement(typesElement, "type");
-                setConstantAttribute(typeElement, "id", toolType);
+                setEnumAttribute(typeElement, "id", toolType);
                 setEnumAttribute(typeElement, "status", approvalStatus);
             }
         }

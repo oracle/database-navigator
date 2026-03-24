@@ -13,6 +13,7 @@ import com.dbn.language.sql.SQLLanguage;
 import com.dbn.vector.model.VectorEmbeddingContext;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
+import com.dbn.vector.model.request.EmbeddingDestinationConfig;
 import com.dbn.vector.model.request.EmbeddingSourceQueries;
 import com.dbn.vector.model.request.EmbeddingSourceQuery;
 import com.dbn.vector.model.result.EmbeddingQueryResult;
@@ -85,6 +86,7 @@ public class QueryEmbeddingPipeline implements EmbeddingPipeline {
 
                 batchNumber++;
                 progressIndicator.setText2("Processing query " + result.getName() + " (batch " + batchNumber + " / rows embedded " + totalRowsEmbedded + ")");
+                EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
 
                 // Process one batch
                 DatabaseVectorInterface vectorInterface = connection.getVectorInterface();
@@ -93,9 +95,9 @@ public class QueryEmbeddingPipeline implements EmbeddingPipeline {
                         selectStatement,
                         request.getChunkConfigJson(),
                         request.getModelConfigJson(),
-                        request.getDestinationConfig(),
-                        result.getMetadata(),
-                        DEFAULT_BATCH_SIZE);
+                        destinationConfig.getSchemaName(),
+                        destinationConfig.getTableName(),
+                        result.getMetadata(), DEFAULT_BATCH_SIZE);
 
                 // Commit after each batch - this is the recovery point
                 commit(conn);

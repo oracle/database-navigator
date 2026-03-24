@@ -32,7 +32,6 @@ public class MiscellaneousConnectionAction extends AbstractConnectionAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionHandler connection) {
-
     }
 
     @Override

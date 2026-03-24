@@ -165,7 +165,7 @@ public class ChatMessagesForm extends DBNFormBase {
 
     public void scrollDown() {
         scrollAlarm.cancelAllRequests();
-        scrollAlarm.addRequest(() -> ScrollPanes.scrollDown(messagesScrollPanel, false), 10);
+        scrollAlarm.addRequest(() -> ScrollPanes.scrollDown(messagesScrollPanel, false), 5);
     }
 
     public void expandAllMessages() {

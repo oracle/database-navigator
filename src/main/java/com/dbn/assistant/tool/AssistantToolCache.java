@@ -19,9 +19,7 @@ package com.dbn.assistant.tool;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
-import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.approval.AssistantToolFilter;
-import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.list.FilteredList;
 import dev.langchain4j.service.tool.ToolProvider;
@@ -48,10 +46,7 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
         super(assistantState);
         List<AssistantTool> tools = initTools(assistantState);
 
-        AssistantToolSettings settings = AssistantToolSettings.get(assistantState);
-        AssistantToolApprovals approvals = settings.getApprovals();
-
-        AssistantToolFilter filter = new AssistantToolFilter(approvals);
+        AssistantToolFilter filter = new AssistantToolFilter(assistantState);
         this.tools = FilteredList.stateful(filter, tools);
     }
 

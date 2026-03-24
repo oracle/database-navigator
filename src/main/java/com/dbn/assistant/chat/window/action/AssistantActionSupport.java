@@ -110,7 +110,7 @@ public interface AssistantActionSupport {
         AssistantState assistantState = getAssistantState(e);
         if (assistantState == null) return null;
 
-        return AssistantToolSettings.get(assistantState);
+        return assistantState.getToolSettings();
     }
 
     @Nullable

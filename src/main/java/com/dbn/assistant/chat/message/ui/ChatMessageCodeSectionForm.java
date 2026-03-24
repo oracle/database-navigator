@@ -146,7 +146,7 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm {
     private static @Nullable EditorEx createViewer(ConnectionHandler connection, String content, Language language) {
         Project project = connection.getProject();
 
-        VirtualFile file = initPreviewFile(content, language);
+        VirtualFile file = initPreviewFile(content.trim(), language);
         PsiFile psiFile = initPreviewPsiFile(project, file, language);
         if (psiFile == null) return null;
 

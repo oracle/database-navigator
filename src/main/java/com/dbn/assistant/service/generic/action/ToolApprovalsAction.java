@@ -42,7 +42,7 @@ public class ToolApprovalsAction extends AbstractChatBoxAction {
         AssistantState assistantState = getAssistantState(e);
         if (assistantState == null) return;
 
-        AssistantToolSettings settings = AssistantToolSettings.get(assistantState);
+        AssistantToolSettings settings = assistantState.getToolSettings();
         Dialogs.show(() -> new AssistantToolApprovalDialog(project, settings));
     }
 

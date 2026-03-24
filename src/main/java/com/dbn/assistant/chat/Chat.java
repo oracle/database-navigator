@@ -51,6 +51,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 public class Chat implements PersistentStateElement {
     private String id = UUIDs.compact();
     private String title;
+    private String sourceId;
     private ChatContext context;
     private List<ChatMessage> messages = new CopyOnWriteArrayList<>();
     private long timestamp = System.currentTimeMillis();

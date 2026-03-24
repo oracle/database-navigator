@@ -18,9 +18,13 @@ package com.dbn.common.state;
 
 import org.jetbrains.annotations.NonNls;
 
+import java.util.Set;
+
 public interface AttributeHolder{
 
-    String getAttribute(@NonNls String key);
+    String getAttribute(@NonNls String name);
 
-    void setAttribute(@NonNls String key, @NonNls String value);
+    void setAttribute(@NonNls String name, @NonNls String value);
+
+    Set<String> getAttributeNames();
 }

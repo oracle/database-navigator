@@ -1,23 +1,32 @@
 package com.dbn.vector;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.collections.LeastRecentlyUsedSet;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.SchemaId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.execution.ExecutionManager;
+import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.cache.DBObjectFilterType;
 import com.dbn.object.cache.DBObjectNameCache;
+import com.dbn.object.common.ui.DBObjectSelectionDialog;
+import com.dbn.object.common.ui.DBObjectSelectionInput;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
+import com.dbn.object.type.DBVectorDistanceMetric;
 import com.dbn.vector.model.VectorEmbeddingContext;
 import com.dbn.vector.model.VectorEmbeddingExecutionResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
@@ -54,6 +63,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.object.type.DBObjectType.TABLE;
+import static java.util.Collections.emptyList;
 
 
 @State(
@@ -66,6 +76,7 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
 
     private final Map<ConnectionId, VectorEmbeddingRequest> requestTemplates = new ConcurrentHashMap<>();
     private final Map<ConnectionId, Map<DBObjectFilterType, DBObjectNameCache<DBTable>>> objectNameCaches = new ConcurrentHashMap<>();
+    private final Map<ConnectionId, Set<DBObjectRef<DBTable>>> recentEmbeddingTables = new ConcurrentHashMap<>();
 
     public DatabaseVectorManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -141,11 +152,35 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
                 connection.getConnectionId(),
                 conn -> {
                     DatabaseVectorInterface vectorInterface = connection.getVectorInterface();
-                    return vectorInterface.chunkTextContent(text,
+                    return vectorInterface.chunkTextContent(conn, text,
                             config.getChunkBy(),
                             config.getSplitBy(),
                             config.getMaxSize(),
-                            config.getOverlap(), conn);
+                            config.getOverlap());
+                });
+    }
+
+    public ResultSet performSimilaritySearch(ConnectionHandler connection, DBTable vectorTable, String queryText, DBVectorDistanceMetric distanceMetric, int rows) throws SQLException {
+        String schemaName = vectorTable.getSchemaName(true);
+        String tableName = vectorTable.getName(true);
+        return performSimilaritySearch(connection, schemaName, tableName, queryText, distanceMetric, rows);
+    }
+
+
+    public ResultSet performSimilaritySearch(ConnectionHandler connection, String schemaName, String tableName, String queryText, DBVectorDistanceMetric metric, int rows) throws SQLException {
+        return DatabaseInterfaceInvoker.load(MEDIUM,
+                "Perform Similarity Search",
+                "Perform similarity search on vector table " + schemaName + "." + tableName,
+                connection.getProject(),
+                connection.getConnectionId(),
+                conn -> {
+                    DatabaseVectorInterface vectorInterface = connection.getVectorInterface();
+                    return vectorInterface.performSimilaritySearch(conn,
+                            schemaName,
+                            tableName,
+                            queryText,
+                            metric.name(),
+                            rows);
                 });
     }
 
@@ -212,6 +247,24 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         executionManager.addExecutionResult(executionResult);
     }
 
+    public Set<DBObjectRef<DBTable>> getRecentEmbeddingTables(ConnectionId connectionId) {
+        return recentEmbeddingTables.computeIfAbsent(connectionId, i -> new LeastRecentlyUsedSet<>(5));
+    }
+
+    public void selectEmbeddingsTable(ConnectionId connectionId, Consumer<DBTable> consumer) {
+        DBObjectSelectionInput<DBTable> input = initEmbeddingsTableSelector(connectionId);
+        Dialogs.show(() -> new DBObjectSelectionDialog<>(input, consumer));
+    }
+
+    public DBObjectSelectionInput<DBTable> initEmbeddingsTableSelector(ConnectionId connectionId) {
+        ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+        DBObjectNameCache<DBTable> names = getObjectNamesCache(connectionId, DBObjectFilterType.EMBEDDING_DESTINATION_TABLES);
+
+        return new DBObjectSelectionInput<DBTable>(connection, DBObjectType.TABLE)
+                .withSchemaFilter(s -> !s.isSystemSchema())
+                .withSchemaPreselector(s -> s.getSchemaId() == connection.getUserSchemaId())
+                .withObjectFilter(names);
+    }
 
     /****************************************
      *       PersistentStateComponent       *
@@ -231,11 +284,20 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
 
         Element cachesElement = newElement(element, "object-name-caches");
         for (ConnectionId connectionId : objectNameCaches.keySet()) {
-            for (DBObjectNameCache<DBTable> cache : this.objectNameCaches.get(connectionId).values()) {
+            for (DBObjectNameCache<DBTable> cache : objectNameCaches.get(connectionId).values()) {
                 Element cacheElement = newElement(cachesElement, "object-name-cache");
                 cache.writeState(cacheElement);
             }
         }
+
+        Element embeddingTablesElement = newElement(element, "recent-embedding-tables");
+        for (ConnectionId connectionId : recentEmbeddingTables.keySet()) {
+            for (DBObjectRef<DBTable> table : recentEmbeddingTables.get(connectionId)) {
+                Element cacheElement = newElement(embeddingTablesElement, "embedding-table");
+                table.writeState(cacheElement);
+            }
+        }
+
         return element;
     }
 
@@ -260,5 +322,27 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
             Map<DBObjectFilterType, DBObjectNameCache<DBTable>> caches = ensureObjectCaches(connectionId);
             caches.put(cache.getFilterType(), cache);
         }
+
+        Element embeddingTablesElement = element.getChild("recent-embedding-tables");
+        List<Element> embeddingTableElements = childrenOf(embeddingTablesElement, "embedding-table");
+        for (Element embeddingTableElement : embeddingTableElements) {
+            DBObjectRef<DBTable> tableRef = new DBObjectRef<>();
+            tableRef.readState(embeddingTableElement);
+
+            ConnectionId connectionId = tableRef.getConnectionId();
+            getRecentEmbeddingTables(connectionId).add(tableRef);
+        }
+
+    }
+
+    public List<DBTable> getVectorTables(ConnectionId connectionId, SchemaId schemaId) {
+        ConnectionHandler connection = ConnectionHandler.get(connectionId);
+        if (connection == null) return emptyList();
+
+        DBSchema schema = connection.getSchema(schemaId);
+        if (schema == null) return emptyList();
+
+        DBObjectNameCache<DBTable> names = getObjectNamesCache(connectionId, DBObjectFilterType.EMBEDDING_DESTINATION_TABLES);
+        return names.filter(schema.getTables());
     }
 }

@@ -16,12 +16,13 @@
 
 package com.dbn.assistant.tool;
 
+import com.dbn.common.constant.Constant;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 
 @NonNls
 @Getter
-public enum AssistantToolCategory {
+public enum AssistantToolCategory implements Constant<AssistantToolCategory> {
     USER_INTERACTION("User interaction", "Interactive tools for quick user input"),
     CONFIG_INFO_PROVIDER("Config information provider", "Database configuration details"),
     METADATA_PROVIDER("Metadata provider", "Database structure insights"),

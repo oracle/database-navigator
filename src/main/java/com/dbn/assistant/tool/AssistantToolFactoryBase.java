@@ -47,7 +47,7 @@ public abstract class AssistantToolFactoryBase<T extends AssistantTool> implemen
 
     @Override
     public AssistantToolType getToolType() {
-        return AssistantToolType.get(toolSpec.type());
+        return toolSpec.type();
     }
 
     @Override

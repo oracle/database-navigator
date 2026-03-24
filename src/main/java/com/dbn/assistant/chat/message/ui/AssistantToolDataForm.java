@@ -16,40 +16,30 @@
 
 package com.dbn.assistant.chat.message.ui;
 
-import com.dbn.assistant.tool.action.ToolExecutionDataCloseAction;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.info.AssistantToolInfoProvider;
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.action.DefaultActionGroup;
 import com.dbn.common.color.Colors;
-import com.dbn.common.dispose.Disposer;
 import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.util.Fonts;
-import com.dbn.common.util.Actions;
-import com.dbn.common.util.Context;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Languages;
 import com.dbn.common.util.Viewers;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.lang.Language;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
-import com.intellij.openapi.ui.popup.JBPopup;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.file.impl.FileManager;
 import com.intellij.testFramework.LightVirtualFile;
-import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -67,35 +57,21 @@ public class AssistantToolDataForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel requestDataPanel;
     private JPanel responseDataPanel;
-    private JLabel toolLabel;
     private JLabel typeNameLabel;
     private JLabel categoryNameLabel;
     private DBNInfoLabel typeInfoLabel;
     private DBNInfoLabel categoryInfoLabel;
     private JLabel typeLabel;
     private JLabel categoryLabel;
-    private JTextPane descriptionTextPane;
-    private JPanel actionsPanel;
 
     private EditorEx requestViewer;
     private EditorEx responseViewer;
-    private final JComponent owner;
-    private transient JBPopup popup;
 
-    public AssistantToolDataForm(Project project, JComponent owner, AssistantToolInfoProvider info, AssistantToolInvocation invocation) {
-        super(null, project);
-        this.owner = owner;
+    public AssistantToolDataForm(DBNComponent parent, AssistantToolInfoProvider info, AssistantToolInvocation invocation) {
+        super(parent);
 
         initDataHeader(info);
         initDataViewers(invocation);
-        initActionsPanel();
-    }
-
-    private void initActionsPanel() {
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
-        actionGroup.add(new ToolExecutionDataCloseAction());
-        ActionToolbar toolbar = Actions.createActionToolbar(actionsPanel, true, actionGroup);
-        actionsPanel.add(toolbar.getComponent());
     }
 
     private void initDataHeader(AssistantToolInfoProvider info) {
@@ -104,11 +80,6 @@ public class AssistantToolDataForm extends DBNFormBase {
         typeLabel.setFont(Fonts.regular(-1));
         categoryLabel.setForeground(faded);
         categoryLabel.setFont(Fonts.regular(-1));
-
-        toolLabel.setFont(Fonts.regular(2));
-        toolLabel.setText(info.getToolName());
-        descriptionTextPane.setText(info.getToolDescription());
-        descriptionTextPane.setForeground(faded);
 
         typeNameLabel.setText(info.getToolTypeName());
         categoryNameLabel.setText(info.getToolCategoryName());
@@ -122,8 +93,8 @@ public class AssistantToolDataForm extends DBNFormBase {
         String requestContent = invocation.getRequestContent();
         String responseContent = invocation.getResponseContent();
 
-        requestViewer = createViewer(project, owner, "ai_tool_request.json", requestContent);
-        responseViewer = createViewer(project, owner, "ai_tool_response.json", responseContent);
+        requestViewer = createViewer(project, "ai_tool_request.json", requestContent);
+        responseViewer = createViewer(project, "ai_tool_response.json", responseContent);
 
         if (requestViewer != null && responseViewer != null) {
             requestDataPanel.add(requestViewer.getComponent());
@@ -147,7 +118,7 @@ public class AssistantToolDataForm extends DBNFormBase {
         return mainPanel;
     }
 
-    private static @Nullable EditorEx createViewer(Project project, JComponent owner, String fileName, String content) {
+    private static @Nullable EditorEx createViewer(Project project, String fileName, String content) {
         Language language = Languages.getJsonLanguage();
         VirtualFile file =  new LightVirtualFile(fileName, language, content);
 
@@ -157,7 +128,7 @@ public class AssistantToolDataForm extends DBNFormBase {
         Document document = Documents.getDocument(psiFile);
         if (document == null) return null;
 
-        return createViewer(document, owner, project, file);
+        return createViewer(document, project, file);
     }
 
     public static @Nullable PsiFile initPreviewPsiFile(Project project, VirtualFile file, Language language) {
@@ -172,14 +143,14 @@ public class AssistantToolDataForm extends DBNFormBase {
     }
 
 
-    private static @NotNull EditorEx createViewer(Document document, JComponent owner, Project project, VirtualFile file) {
+    private static @NotNull EditorEx createViewer(Document document, Project project, VirtualFile file) {
         EditorEx viewer = Viewers.createViewer(document, project, file, file.getFileType());
         viewer.setEmbeddedIntoDialogWrapper(true);
 
         Editors.updateEditorScrollPane(viewer);
 
         EditorSettings settings = viewer.getSettings();
-        viewer.getComponent().setPreferredSize(new Dimension(owner.getWidth() - 72, 80));
+        viewer.getComponent().setMaximumSize(new Dimension(-1, 200));
 
         settings.setFoldingOutlineShown(false);
         settings.setLineMarkerAreaShown(false);
@@ -194,32 +165,6 @@ public class AssistantToolDataForm extends DBNFormBase {
         settings.setShowIntentionBulb(false);
         settings.setGutterIconsShown(false);
         return viewer;
-    }
-
-    public static void showPopup(JComponent owner, AssistantToolInfoProvider info, AssistantToolInvocation invocation) {
-        Project project = Context.getDataContext(owner).getData(CommonDataKeys.PROJECT);
-        if (project == null) return;
-
-        AssistantToolDataForm dataForm = new AssistantToolDataForm(project, owner, info, invocation);
-        dataForm.showPopup();
-
-    }
-
-    private void showPopup() {
-        JComponent component = getComponent();
-        ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(component, null);
-        popup = popupBuilder.createPopup();
-        Disposer.register(popup, this);
-        RelativePoint point = RelativePoint.getNorthWestOf(owner);
-        popup.show(point);
-
-    }
-
-    public void hidePopup() {
-        JBPopup popup = this.popup;
-        if (popup != null) {
-            popup.cancel();
-        }
     }
 
     @Nullable

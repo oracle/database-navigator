@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.service.generic.action;
 
+import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantToolCategory;
@@ -33,13 +34,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 import java.util.List;
 
+import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
+
 public class ToolSelectionAction extends ComboBoxAction implements AssistantActionSupport {
-
-    ToolSelectionAction(){
-        // TODO only supported in 2024.x or higher
-        //getTemplatePresentation().putClientProperty(SHOW_TEXT_IN_TOOLBAR, true);
-    }
-
 
     @Override
     @NotNull
@@ -51,45 +48,44 @@ public class ToolSelectionAction extends ComboBoxAction implements AssistantActi
 
         actionGroup.add(new ToolApprovalsAction());
 
-        List<AssistantToolType> toolTypes = AssistantToolData.getToolTypes(null);
-        AssistantToolCategory toolCategory = null;
+        List<AssistantToolType> toolTypes = AssistantToolData.getSupportedToolTypes(assistantState, null);
+        AssistantToolCategory previousToolCategory = null;
         for (AssistantToolType toolType : toolTypes) {
-            AssistantToolCategory category = AssistantToolData.getToolCategory(toolType);
-            if (category != toolCategory) {
-                actionGroup.addSeparator(category.getName());
+            AssistantToolCategory toolCategory = AssistantToolData.getToolCategory(toolType);
+
+            if (toolCategory != previousToolCategory) {
+                actionGroup.addSeparator(toolCategory.getName());
             }
-            toolCategory = category;
+            previousToolCategory = toolCategory;
             actionGroup.add(new ToolSelectionToggleAction(toolType));
         }
 
         return actionGroup;
     }
-/*
-    @Override
-    @Compatibility
-    public boolean displayTextInToolbar() {
-        return true;
-    }
-
-    @Override
-    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-
-    }*/
 
     @Override
     public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e));
+        presentation.setEnabled(isEnabled(e));
     }
 
     private @ActionText String getText(@NotNull AnActionEvent e) {
         AssistantToolApprovals approvals = getToolApprovals(e);
         if (approvals == null) return "Tools";
 
-        List<AssistantToolType> toolTypes = AssistantToolData.getToolTypes(null);
+        AssistantState assistantState = getAssistantState(e);
+        if (assistantState == null) return "Tools";
+
+        List<AssistantToolType> toolTypes = AssistantToolData.getSupportedToolTypes(assistantState, null);
         int available = toolTypes.size();
         int blocked = approvals.countBlockedTools(toolTypes);
 
         return "Tools (" + (available - blocked) + "/" + available + ")";
+    }
+
+    private boolean isEnabled(@NotNull AnActionEvent e) {
+        ChatAvailability availability = getChatAvailability(e);
+        return availability == AVAILABLE;
     }
 }

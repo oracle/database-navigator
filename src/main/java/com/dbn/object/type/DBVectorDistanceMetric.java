@@ -1,0 +1,49 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.object.type;
+
+import com.dbn.common.constant.Constant;
+import com.dbn.common.constant.Constants;
+import com.dbn.common.ui.Presentable;
+import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
+
+@NonNls
+@Getter
+public enum DBVectorDistanceMetric implements Constant<DBVectorDistanceMetric>, Presentable {
+    COSINE("COSINE", "Cosine distance; measures angular difference between vectors (ignores magnitude)"),
+    DOT ("DOT", "Negated dot product; lower values mean higher inner-product similarity"),
+    EUCLIDEAN ("EUCLIDEAN", "Straight-line (L2) distance between vectors"),
+    EUCLIDEAN_SQUARED ("EUCLIDEAN_SQUARED", "Squared L2 distance (Euclidean distance without the square root)"),
+    HAMMING ("HAMMING", "Counts positions (dimensions/bits) where the vectors differ"),
+    MANHATTAN ("MANHATTAN", "Sum of absolute coordinate-wise differences (taxicab distance)"),
+    JACCARD ("JACCARD", "Jaccard distance for binary vectors; 1 minus overlap/union of “on” bits")
+
+    ;
+
+    private final String name;
+    private final String description;
+
+    DBVectorDistanceMetric(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
+    public static DBVectorDistanceMetric get(String id) {
+        return Constants.get(values(), id, COSINE);
+    }
+}
