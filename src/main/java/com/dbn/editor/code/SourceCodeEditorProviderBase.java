@@ -106,11 +106,7 @@ abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider impl
 
 
         Document document = editor.getDocument();
-        int documentSignature = document.hashCode();
-        if (document.hashCode() != sourceCodeFile.getDocumentSignature()) {
-            document.addDocumentListener(sourceCodeFile, sourceCodeEditor);
-            sourceCodeFile.setDocumentSignature(documentSignature);
-        }
+        document.addDocumentListener(sourceCodeFile, sourceCodeEditor);
 
         Icon icon = getIcon();
         if (icon != null) {

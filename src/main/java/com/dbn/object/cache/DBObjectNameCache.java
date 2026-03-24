@@ -17,8 +17,10 @@
 package com.dbn.object.cache;
 
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.filter.Filter;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.thread.Background;
+import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
@@ -50,7 +52,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.intellij.util.containers.ContainerUtil.newConcurrentSet;
 
 @NoArgsConstructor
-public class DBObjectNameCache<T extends DBSchemaObject> implements PersistentStateElement {
+public class DBObjectNameCache<T extends DBSchemaObject> implements PersistentStateElement, Filter<T> {
     private @Getter ConnectionId connectionId;
     private @Getter DBObjectType objectType;
     private @Getter DBObjectFilterType filterType;
@@ -108,6 +110,10 @@ public class DBObjectNameCache<T extends DBSchemaObject> implements PersistentSt
         }
 
         return objectNames;
+    }
+
+    public List<T> filter(List<T> objects) {
+        return Lists.filter(objects, o -> accepts(o));
     }
 
     private ConnectionHandler getConnection() {

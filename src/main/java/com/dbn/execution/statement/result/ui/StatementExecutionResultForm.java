@@ -25,7 +25,6 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SessionId;
-import com.dbn.data.find.DataSearchComponent;
 import com.dbn.data.find.SearchableDataComponent;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
@@ -159,41 +158,10 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
         return searchPanel;
     }
 
-    @Override
-    public void showSearchHeader() {
-        getResultTable().clearSelection();
-
-        DataSearchComponent dataSearchComponent = getSearchComponent();
-        dataSearchComponent.initializeFindModel();
-        if (searchPanel.isVisible()) {
-            dataSearchComponent.getSearchField().selectAll();
-        } else {
-            searchPanel.setVisible(true);
-        }
-        dataSearchComponent.getSearchField().requestFocus();
-
-    }
-
-    @Override
-    public void hideSearchHeader() {
-        getSearchComponent().resetFindModel();
-        searchPanel.setVisible(false);
-        UserInterface.repaintAndFocus(getResultTable());
-    }
-
-    @Override
-    public void cancelEditActions() {
-    }
-
     @NotNull
     @Override
     public BasicTable getTable() {
         return getResultTable();
-    }
-
-    @Override
-    public String getSelectedText() {
-        return null;
     }
 
     /********************************************************

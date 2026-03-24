@@ -30,11 +30,12 @@ import java.util.List;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
+import static com.dbn.assistant.tool.AssistantToolType.TABLE_METADATA;
 
 @ToolSpec(
-    type = "TABLE_METADATA",
-    name = "Table metadata",
     category = METADATA_PROVIDER,
+    type = TABLE_METADATA,
+    name = "Table metadata",
     description = "Information about tables in a given schema")
 public interface TableMetadataTool extends AssistantTool {
 

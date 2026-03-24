@@ -25,7 +25,6 @@ import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
-import com.dbn.common.util.Lists;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -55,7 +54,19 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         List<AIModel> models = getModels(dataContext);
 
         DefaultActionGroup actionGroup = new DefaultActionGroup();
-        Lists.forEach(models, m -> actionGroup.add(new ModelSelectAction(m)));
+
+        DefaultActionGroup moreActionGroup = new DefaultActionGroup("More...", true);
+        for (AIModel model : models) {
+            if (model.isDeprecated()) {
+                moreActionGroup.add(new ModelSelectAction(model));
+            } else {
+                actionGroup.add(new ModelSelectAction(model));
+            }
+        }
+        if (moreActionGroup.getChildrenCount() > 0) {
+            actionGroup.addSeparator();
+            actionGroup.add(moreActionGroup);
+        }
 
         return actionGroup;
     }

@@ -18,26 +18,26 @@
     <attribute name="OBJECT_TYPE" value="TABLE"/>
     <attribute name="OBJECT_NAME" value="VECTOR_EMBEDDINGS" id="TABLE_NAME"/>
     <children readonly="Y">
-        <definition>
+        <definition readonly="Y">
             <attribute name="OBJECT_TYPE"      value="COLUMN"/>
             <attribute name="OBJECT_NAME"      value="ID"/>
             <attribute name="DATA_TYPE"        value="varchar2(50)" readonly="Y"/>
             <attribute name="IS_NOT_NULL"      value="Y" readonly="Y"/>
             <attribute name="IS_PRIMARY_KEY"   value="Y" readonly="Y"/>
         </definition>
-        <definition>
+        <definition readonly="Y">
             <attribute name="OBJECT_TYPE"      value="COLUMN"/>
             <attribute name="OBJECT_NAME"      value="TEXT"/>
             <attribute name="DATA_TYPE"        value="clob" readonly="Y"/>
             <attribute name="IS_NOT_NULL"      value="Y" readonly="Y"/>
         </definition>
-        <definition>
+        <definition readonly="Y">
             <attribute name="OBJECT_TYPE"      value="COLUMN"/>
             <attribute name="OBJECT_NAME"      value="EMBEDDING"/>
             <attribute name="DATA_TYPE"        value="vector(*, float32)" readonly="Y"/>
             <attribute name="IS_NOT_NULL"      value="Y" readonly="Y"/>
         </definition>
-        <definition>
+        <definition readonly="Y">
             <attribute name="OBJECT_TYPE"      value="COLUMN"/>
             <attribute name="OBJECT_NAME"      value="METADATA" id="METADATA_COLUMN_NAME"/>
             <attribute name="DATA_TYPE"        value="json" readonly="Y"/>

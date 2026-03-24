@@ -17,12 +17,11 @@
 package com.dbn.assistant.tool.action;
 
 import com.dbn.assistant.chat.message.ui.ChatMessageToolSectionForm;
+import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-
-import static com.intellij.icons.AllIcons.General.LayoutEditorOnly;
 
 public class ToolExecutionDataAction extends AssistantToolAction {
     @Override
@@ -30,15 +29,20 @@ public class ToolExecutionDataAction extends AssistantToolAction {
         ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
         if (toolSectionForm == null) return;
 
-        toolSectionForm.showToolExecutionData(e.getDataContext());
+        toolSectionForm.toggleToolExecutionData();
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
+        if (toolSectionForm == null) return;
+
 
         Presentation presentation = e.getPresentation();
-        presentation.setText("Tool Data");
-        presentation.setIcon(LayoutEditorOnly);
+        presentation.setText("Tool Details");
+        presentation.setIcon(toolSectionForm.isShowingToolData() ?
+                Icons.ACTION_CONTENT_COLLAPSE :
+                Icons.ACTION_CONTENT_EXPAND);
         presentation.setVisible(isVisible(e));
     }
 

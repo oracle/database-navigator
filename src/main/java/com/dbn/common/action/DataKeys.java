@@ -48,6 +48,7 @@ import com.dbn.object.DBArgument;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.prerequisite.ui.PrerequisitesForm;
 import com.dbn.vector.model.VectorEmbeddingExecutionResult;
+import com.dbn.vector.search.VectorSearchConsole;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.DataKey;
 
@@ -57,6 +58,7 @@ public interface DataKeys {
     DataKey<MessagesTree> MESSAGES_TREE = DataKey.create("DBNavigator.MessagesTree");
     DataKey<ConnectionBundleSettingsForm> CONNECTION_BUNDLE_SETTINGS = DataKey.create("DBNavigator.ConnectionSettingsEditor");
     DataKey<SessionBrowser> SESSION_BROWSER = DataKey.create("DBNavigator.SessionBrowser");
+    DataKey<VectorSearchConsole> VECTOR_SEARCH_CONSOLE = DataKey.create("DBNavigator.VectorSearchConsole");
     DataKey<StatementExecutionCursorResult> STATEMENT_EXECUTION_CURSOR_RESULT = DataKey.create("DBNavigator.StatementExecutionCursorResult");
     DataKey<MethodExecutionResult> METHOD_EXECUTION_RESULT = DataKey.create("DBNavigator.MethodExecutionResult");
     DataKey<JavaExecutionResult> JAVA_EXECUTION_RESULT = DataKey.create("DBNavigator.JavaExecutionResult");

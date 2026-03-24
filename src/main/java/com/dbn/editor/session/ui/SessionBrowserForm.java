@@ -25,17 +25,13 @@ import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.data.find.DataSearchComponent;
 import com.dbn.data.find.SearchableDataComponent;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
-import com.dbn.editor.data.ui.table.cell.DatasetTableCellEditor;
 import com.dbn.editor.session.SessionBrowser;
 import com.dbn.editor.session.model.SessionBrowserModel;
 import com.dbn.editor.session.ui.table.SessionBrowserTable;
-import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.util.text.DateFormatUtil;
@@ -46,8 +42,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.table.TableCellEditor;
-import javax.swing.text.JTextComponent;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
@@ -165,42 +159,6 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
         return searchPanel;
     }
 
-    @Override
-    public void showSearchHeader() {
-        getBrowserTable().clearSelection();
-
-        DataSearchComponent dataSearchComponent = getSearchComponent();
-        dataSearchComponent.initializeFindModel();
-        JTextComponent searchField = dataSearchComponent.getSearchField();
-        if (searchPanel.isVisible()) {
-            searchField.selectAll();
-        } else {
-            searchPanel.setVisible(true);    
-        }
-        searchField.requestFocus();
-
-    }
-
-    @Override
-    public void hideSearchHeader() {
-        getSearchComponent().resetFindModel();
-        searchPanel.setVisible(false);
-        SessionBrowserTable editorTable = getBrowserTable();
-        UserInterface.repaintAndFocus(editorTable);
-    }
-
-    @Override
-    public void cancelEditActions() {}
-
-    @Override
-    public String getSelectedText() {
-        TableCellEditor cellEditor = getBrowserTable().getCellEditor();
-        if (cellEditor instanceof DatasetTableCellEditor tableCellEditor) {
-            return tableCellEditor.getTextField().getSelectedText();
-        }
-        return null;
-    }
-
     @NotNull
     @Override
     public BasicTable getTable() {
@@ -217,7 +175,7 @@ public class SessionBrowserForm extends DBNFormBase implements SearchableDataCom
 
     @Override
     public void disposeInner() {
-        DataManager.removeDataProvider(actionsPanel);
+        DataProviders.unregister(actionsPanel);
         super.disposeInner();
         browserTable = null;
     }

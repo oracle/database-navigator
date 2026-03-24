@@ -119,6 +119,7 @@ public class FileProcessingService {
 
         try {
             // Check if embeddings already exist for this document
+            EmbeddingStagingConfig stagingConfig = request.getStagingConfig();
             EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
             DatabaseVectorInterface vectorInterface = request.getVectorInterface();
 
@@ -126,9 +127,7 @@ public class FileProcessingService {
                     connection,
                     destinationConfig.getSchemaName(),
                     destinationConfig.getTableName(),
-                    destinationConfig.getMetadataColumnName(),
-                    result.getFileStoreId()
-            );
+                    result.getFileStoreId());
 
             if (alreadyEmbedded) {
                 step.markSuccess();
@@ -146,10 +145,11 @@ public class FileProcessingService {
                     connection,
                     chunkConfigJson,
                     embedConfigJson,
-                    request.getStagingConfig(),
-                    destinationConfig,
-                    result.getFileStoreId(),
-                    rowMetadata);
+                    stagingConfig.getSchemaName(),
+                    stagingConfig.getTableName(),
+                    destinationConfig.getSchemaName(),
+                    destinationConfig.getTableName(),
+                    result.getFileStoreId(), rowMetadata);
 
             step.markSuccess();
             result.finishSuccess(embeddedRows);

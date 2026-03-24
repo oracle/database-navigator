@@ -1,0 +1,63 @@
+<!--
+  ~ Copyright 2024 Oracle and/or its affiliates
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="en">
+<head>
+    <title>Staging table</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+    </style>
+</head>
+<body>
+    <h3>Operating Mode</h3>
+    <p>Choose how the assistant operates. Select the most appropriate mode for your use case:</p>
+
+    <ul>
+        <li>
+            <strong>DEVELOPMENT</strong> – For database and code-focused work.
+            <ul>
+                <li>Use database, schema, table, view, and program metadata to explore structures</li>
+                <li>Inspect view and program source code to understand existing logic</li>
+                <li>Work in dataset, source code, and SQL console editors to draft and refine code</li>
+            </ul>
+        </li>
+
+        <li>
+            <strong>ANALYTICS</strong> – For data exploration and querying.
+            <ul>
+                <li>Use database, schema, table, and view metadata to understand your data model</li>
+                <li>Review view definitions to see how analytic layers are built</li>
+                <li>Shape datasets and refine read-focused queries using dataset and SQL console editors</li>
+            </ul>
+        </li>
+
+        <li>
+            <strong>RAG (Retrieval-Augmented Generation)</strong> – For semantic search–based answers.
+            <ul>
+                <li>Ask natural language questions over your indexed content</li>
+                <li>Retrieve and summarize relevant information using semantic search</li>
+                <li>Receive concise answers grounded in the retrieved material</li>
+            </ul>
+        </li>
+    </ul>
+</body>
+</html>
+
+
