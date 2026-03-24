@@ -29,6 +29,8 @@ import dev.langchain4j.service.AiServiceTokenStream;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.TokenStream;
 
+import java.util.regex.Pattern;
+
 import static com.dbn.assistant.service.generic.model.AssistantModelType.STREAMING_CHAT;
 
 public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingChatModel> implements AssistantComponent {
@@ -55,6 +57,7 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
     }
 
     private void initTokenStream(TokenStream tokenStream, AssistantResponseConsumer consumer) {
+        StringBuilder buffer = new StringBuilder();
         if (tokenStream instanceof AiServiceTokenStream aiTokenStream) {
             aiTokenStream.beforeToolExecution(e -> {
                 ToolExecutionRequest request = e.request();
@@ -74,10 +77,18 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
             });
 
             aiTokenStream.onPartialResponse(t -> {
-                consumer.acceptToken(t);
+                // avoid scroll flickering on incomplete markdown structures
+                // (buffer consecutive tokens containing formating elements)
+                Pattern pattern = Pattern.compile("[#*_`~\\[\\]()>+\\-!=|]");
+                buffer.append(t);
+                if (!pattern.matcher(t).matches()) {
+                    consumeBuffer(buffer, consumer);
+                }
             });
 
             aiTokenStream.onCompleteResponse(r -> {
+                consumeBuffer(buffer, consumer);
+
                 consumer.acceptMessage(r.aiMessage().text());
                 consumer.acceptCompletion();
             });
@@ -102,6 +113,11 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
 
             wrapped(() -> tokenStream.start());
         }
+    }
+
+    private static void consumeBuffer(StringBuilder buffer, AssistantResponseConsumer consumer) {
+        consumer.acceptToken(buffer.toString());
+        buffer.delete(0, buffer.length());
     }
 
     @Workaround

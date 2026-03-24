@@ -30,11 +30,12 @@ import java.sql.SQLException;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.SOURCE_CODE_PROVIDER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
+import static com.dbn.assistant.tool.AssistantToolType.VIEW_SOURCE_CODE;
 
 @ToolSpec(
-    type = "VIEW_SOURCE_CODE",
-    name = "View source-code",
     category = SOURCE_CODE_PROVIDER,
+    type = VIEW_SOURCE_CODE,
+    name = "View source-code",
     description = "Source code for views, materialized views or json relational duality views")
 public interface ViewSourceCodeTool extends AssistantTool {
 

@@ -25,6 +25,7 @@
           <model>
             <item value="CHARACTERS"/>
             <item value="WORDS"/>
+            <item value="NONE"/>
           </model>
         </properties>
       </component>

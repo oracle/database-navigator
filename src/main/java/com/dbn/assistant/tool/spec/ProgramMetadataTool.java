@@ -28,10 +28,11 @@ import java.util.List;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
+import static com.dbn.assistant.tool.AssistantToolType.PROGRAM_METADATA;
 
 @ToolSpec(
         category = METADATA_PROVIDER,
-        type = "PROGRAM_METADATA",
+        type = PROGRAM_METADATA,
         name = "Program metadata",
         description = "Information about program units (functions, stored procedures, packages, declared types) in a given schema")
 public interface ProgramMetadataTool extends AssistantTool {

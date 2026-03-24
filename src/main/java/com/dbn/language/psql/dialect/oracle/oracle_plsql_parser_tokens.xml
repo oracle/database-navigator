@@ -38,33 +38,37 @@
         <token index="12" id="DT_DECIMAL" value="decimal" category="datatype" reserved="true"/>
         <token index="13" id="DT_DOUBLE_PRECISION" value="double precision" category="datatype"/>
         <token index="14" id="DT_FLOAT" value="float" category="datatype" reserved="true"/>
-        <token index="15" id="DT_INT" value="int" category="datatype"/>
-        <token index="16" id="DT_INTEGER" value="integer" category="datatype"/>
-        <token index="17" id="DT_LONG" value="long" category="datatype" reserved="true"/>
-        <token index="18" id="DT_LONG_RAW" value="long raw" category="datatype"/>
-        <token index="19" id="DT_LONG_VARCHAR" value="long varchar" category="datatype"/>
-        <token index="20" id="DT_NATIONAL_CHAR" value="national char" category="datatype"/>
-        <token index="21" id="DT_NATIONAL_CHAR_VARYING" value="national char varying" category="datatype"/>
-        <token index="22" id="DT_NATIONAL_CHARACTER" value="national character" category="datatype"/>
-        <token index="23" id="DT_NATIONAL_CHARACTER_VARYING" value="national character varying" category="datatype"/>
-        <token index="24" id="DT_NCHAR" value="nchar" category="datatype"/>
-        <token index="25" id="DT_NCHAR_VARYING" value="nchar varying" category="datatype"/>
-        <token index="26" id="DT_NCLOB" value="nclob" category="datatype"/>
-        <token index="27" id="DT_NUMBER" value="number" category="datatype" reserved="true"/>
-        <token index="28" id="DT_NUMERIC" value="numeric" category="datatype"/>
-        <token index="29" id="DT_NVARCHAR2" value="nvarchar2" category="datatype"/>
-        <token index="30" id="DT_PLS_INTEGER" value="pls_integer" category="datatype"/>
-        <token index="31" id="DT_RAW" value="raw" category="datatype" reserved="true"/>
-        <token index="32" id="DT_REAL" value="real" category="datatype"/>
-        <token index="33" id="DT_ROWID" value="rowid" category="datatype" reserved="true"/>
-        <token index="34" id="DT_SMALLINT" value="smallint" category="datatype" reserved="true"/>
-        <token index="35" id="DT_STRING" value="string" category="datatype"/>
-        <token index="36" id="DT_TIMESTAMP" value="timestamp" category="datatype"/>
-        <token index="37" id="DT_UROWID" value="urowid" category="datatype"/>
-        <token index="38" id="DT_VARCHAR" value="varchar" category="datatype" reserved="true"/>
-        <token index="39" id="DT_VARCHAR2" value="varchar2" category="datatype" reserved="true"/>
-        <token index="40" id="DT_WITH_LOCAL_TIME_ZONE" value="with local time zone" category="datatype"/>
-        <token index="41" id="DT_WITH_TIME_ZONE" value="with time zone" category="datatype"/>
+        <token index="15" id="DT_FLOAT32" value="float32" category="datatype"/>
+        <token index="16" id="DT_FLOAT64" value="float64" category="datatype"/>
+        <token index="17" id="DT_INT" value="int" category="datatype"/>
+        <token index="18" id="DT_INT8" value="int8" category="datatype"/>
+        <token index="19" id="DT_INTEGER" value="integer" category="datatype"/>
+        <token index="20" id="DT_LONG" value="long" category="datatype" reserved="true"/>
+        <token index="21" id="DT_LONG_RAW" value="long raw" category="datatype"/>
+        <token index="22" id="DT_LONG_VARCHAR" value="long varchar" category="datatype"/>
+        <token index="23" id="DT_NATIONAL_CHAR" value="national char" category="datatype"/>
+        <token index="24" id="DT_NATIONAL_CHAR_VARYING" value="national char varying" category="datatype"/>
+        <token index="25" id="DT_NATIONAL_CHARACTER" value="national character" category="datatype"/>
+        <token index="26" id="DT_NATIONAL_CHARACTER_VARYING" value="national character varying" category="datatype"/>
+        <token index="27" id="DT_NCHAR" value="nchar" category="datatype"/>
+        <token index="28" id="DT_NCHAR_VARYING" value="nchar varying" category="datatype"/>
+        <token index="29" id="DT_NCLOB" value="nclob" category="datatype"/>
+        <token index="30" id="DT_NUMBER" value="number" category="datatype" reserved="true"/>
+        <token index="31" id="DT_NUMERIC" value="numeric" category="datatype"/>
+        <token index="32" id="DT_NVARCHAR2" value="nvarchar2" category="datatype"/>
+        <token index="33" id="DT_PLS_INTEGER" value="pls_integer" category="datatype"/>
+        <token index="34" id="DT_RAW" value="raw" category="datatype" reserved="true"/>
+        <token index="35" id="DT_REAL" value="real" category="datatype"/>
+        <token index="36" id="DT_ROWID" value="rowid" category="datatype" reserved="true"/>
+        <token index="37" id="DT_SMALLINT" value="smallint" category="datatype" reserved="true"/>
+        <token index="38" id="DT_STRING" value="string" category="datatype"/>
+        <token index="39" id="DT_TIMESTAMP" value="timestamp" category="datatype"/>
+        <token index="40" id="DT_UROWID" value="urowid" category="datatype"/>
+        <token index="41" id="DT_VARCHAR" value="varchar" category="datatype" reserved="true"/>
+        <token index="42" id="DT_VARCHAR2" value="varchar2" category="datatype" reserved="true"/>
+        <token index="43" id="DT_VECTOR" value="vector" category="datatype"/>
+        <token index="44" id="DT_WITH_LOCAL_TIME_ZONE" value="with local time zone" category="datatype"/>
+        <token index="45" id="DT_WITH_TIME_ZONE" value="with time zone" category="datatype"/>
         <!-- MARKER_END_DATATYPES -->
 
 

@@ -16,7 +16,6 @@
 
 package com.dbn.assistant.service.selectai.action;
 
-import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
@@ -27,6 +26,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.assistant.AssistantMode.DEVELOPMENT;
+import static com.dbn.assistant.AssistantType.SELECT_AI;
 
 /**
  * Action for selecting one individual AI-assistant profile
@@ -48,11 +50,13 @@ public class ProfileSelectAction extends AbstractChatBoxAction {
         DBAIProfile profile = getProfile();
         ChatContext currentContext = chatBox.getCurrentContext();
         ChatContext targetContext = new ChatContextImpl(
-                AssistantType.SELECT_AI,
+                SELECT_AI,
+                DEVELOPMENT,
                 profile.getName(),
                 profile.getProviderId(),
                 profile.getModelId(),
                 currentContext.getActionId(),
+                currentContext.getEmbeddingTable(),
                 profile.isInteractive());
 
         chatBox.attemptContextSwitch(targetContext);

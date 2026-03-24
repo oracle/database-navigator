@@ -198,13 +198,15 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
         GenericDataType dataType = GenericDataType.LITERAL;
         try {
             Object userValue = userValueHolder.getUserValue();
-            if (userValue instanceof String) {
-                return (String) userValue;
-            } else if (userValue instanceof JsonValue) {
-                JsonValue jsonValue = (JsonValue) userValue;
-                return Json.formatJsonContent(jsonValue.getData());
+            if (userValue instanceof String stringUserValue) {
+                return stringUserValue;
+            }
 
-            } else if (userValue instanceof LargeObjectValue largeObjectValue) {
+            if (userValue instanceof JsonValue jsonValue) {
+                return Json.formatJsonContent(jsonValue.getData());
+            }
+
+            if (userValue instanceof LargeObjectValue largeObjectValue) {
                 dataType = largeObjectValue.getGenericDataType();
                 return largeObjectValue.read();
             }

@@ -25,19 +25,19 @@ import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-public class SessionBrowserState extends SortableDataModelState implements FileEditorState, PersistentStateElement, Cloneable<SessionBrowserState> {
-    public static final SessionBrowserState VOID = new SessionBrowserState();
-
+public class SessionBrowserState extends SortableDataModelState<SessionBrowserState> implements FileEditorState, PersistentStateElement {
     private SessionBrowserFilter filterState = new SessionBrowserFilter();
     private int refreshInterval = 0;
 
@@ -48,10 +48,8 @@ public class SessionBrowserState extends SortableDataModelState implements FileE
 
     @Override
     public void readState(@NotNull Element element) {
+        super.readState(element);
         refreshInterval = Settings.getInteger(element, "refresh-interval", refreshInterval);
-
-        Element sortingElement = element.getChild("sorting");
-        sortingState.readState(sortingElement);
 
         Element filterElement = element.getChild("filter");
         if (filterElement != null) {
@@ -63,10 +61,8 @@ public class SessionBrowserState extends SortableDataModelState implements FileE
 
     @Override
     public void writeState(Element element) {
+        super.writeState(element);
         Settings.setInteger(element, "refresh-interval", refreshInterval);
-
-        Element sortingElement = newElement(element, "sorting");
-        sortingState.writeState(sortingElement);
 
         Element filterElement = newElement(element, "filter");
         Settings.setString(filterElement, "user", filterState.getFilterValue(SessionBrowserFilterType.USER));
@@ -75,17 +71,11 @@ public class SessionBrowserState extends SortableDataModelState implements FileE
     }
 
     @Override
+    @SneakyThrows
     public SessionBrowserState clone() {
-        SessionBrowserState clone = new SessionBrowserState();
-        clone.refreshInterval = refreshInterval;
-        clone.setReadonly(isReadonly());
-        clone.setRowCount(getRowCount());
-        clone.setSortingState(getSortingState().clone());
-        clone.filterState = filterState.clone();
-        if (contentTypesMap != null) {
-            clone.contentTypesMap = new HashMap<>(contentTypesMap);
-        }
-
+        SessionBrowserState clone = cast(super.clone());
+        clone.filterState = Cloneable.clone(filterState);
+        clone.contentTypes = new HashMap<>(contentTypes);
         return clone;
     }
 }

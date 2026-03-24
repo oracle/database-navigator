@@ -106,7 +106,7 @@ public class DBSessionBrowserVirtualFile extends DBVirtualFileBase implements Co
     @NotNull
     public byte[] contentsToByteArray() throws IOException {
         Charset charset = getCharset();
-        return content.toString().getBytes(charset.name());
+        return content.toString().getBytes(charset);
     }
 
     @Override

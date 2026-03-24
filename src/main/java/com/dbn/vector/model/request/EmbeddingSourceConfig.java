@@ -30,6 +30,7 @@ public final class EmbeddingSourceConfig extends EmbeddingRequestConfig {
     private EmbeddingSourceType sourceType = EmbeddingSourceType.DATABASE_TABLE;
 
     // transient single selection configs
+    // (used during creation of new source entries / get reset )
     private final EmbeddingSourceTable sourceTable = new EmbeddingSourceTable(); 
     private final EmbeddingSourceQuery sourceQuery = new EmbeddingSourceQuery();
     

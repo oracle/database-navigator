@@ -126,6 +126,7 @@ public class ChatBoxForm extends DBNFormBase {
     private AssistantStateListener createStateListener() {
         return (project, connectionId) -> {
             if (!Objects.equals(connectionId, getConnectionId())) return;
+            updateActionToolbars();
 
             AssistantState state = getAssistantState();
             if (Objects.equals(currentChatId, state.getCurrentChatId())) return;

@@ -42,6 +42,8 @@ import com.dbn.vfs.file.DBSingleQueryVirtualFile;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
@@ -51,11 +53,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
 
-import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 
 public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private JPanel mainPanel;
@@ -65,7 +66,6 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private JButton verifyButton;
     private JPanel spinPanel;
     private DBNScrollPane outputScrollPane;
-    private JSplitPane splitPane;
 
     private final ConnectionRef connection;
     private final EmbeddingSourceQuery config;
@@ -74,15 +74,12 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private Document document;
     private EditorEx editor;
     private String statement;
-
-
-
+    private int inputLineCount;
 
     public EmbeddingSourceInputQueryForm(@NotNull Disposable parent, ConnectionHandler connection, EmbeddingSourceQuery config) {
         super(parent);
         this.connection = ConnectionRef.of(connection);
         this.config = config;
-        setSplitPaneProportion(splitPane, 0.30);
 
         initHeaderPanel();
         initSpinner();
@@ -107,6 +104,7 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         PsiFile queryPsiFile = queryFile.initializePsiFile(viewProvider, SQLLanguage.INSTANCE);
 
         document = Documents.ensureDocument(queryPsiFile);
+        document.addDocumentListener(formLayoutUpdater(), this);
         editor = Editors.createEditor(document, project, queryFile, SQLFileType.INSTANCE);
         Editors.initEditorHighlighter(editor, SQLLanguage.INSTANCE, connection);
 
@@ -128,6 +126,20 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         Editors.focusEditor(editor);
     }
 
+
+    private @NotNull DocumentListener formLayoutUpdater() {
+        return new DocumentListener() {
+            @Override
+            public void documentChanged(@NotNull DocumentEvent event) {
+                int lineCount = event.getDocument().getLineCount();
+                if (lineCount == inputLineCount) return;
+
+                inputLineCount = lineCount;
+                revalidateForm();
+            }
+        };
+    }
+
     private void initSpinner() {
         spinPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
         spinPanel.setVisible(false);
@@ -145,11 +157,10 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     }
 
     private void initVerifyButton() {
-        verifyButton.addActionListener(e -> {
-            Dispatch.async(mainPanel,
+        onButtonClick(verifyButton, e ->
+                Dispatch.async(mainPanel,
                     () -> verifyQuery(),
-                    d -> applyChunkResult(d));
-        });
+                    d -> applyChunkResult(d)));
     }
 
     private void applyChunkResult(ResultSetDataModel data){

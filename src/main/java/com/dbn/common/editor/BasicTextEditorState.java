@@ -37,9 +37,9 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.options.setting.Settings.floatAttribute;
 import static com.dbn.common.options.setting.Settings.integerAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Data
@@ -61,7 +61,7 @@ public class BasicTextEditorState implements FileEditorState {
         column = integerAttribute(sourceElement, "column", 0);
         selectionStart = integerAttribute(sourceElement, "selection-start", 0);
         selectionEnd = integerAttribute(sourceElement, "selection-end", 0);
-        verticalScrollProportion = Float.parseFloat(stringAttribute(sourceElement, "vertical-scroll-proportion"));
+        verticalScrollProportion = floatAttribute(sourceElement, "vertical-scroll-proportion", 0);
 
         // TODO read/write deadlock - defer folding state update
         //readFoldingState(sourceElement, project, virtualFile);

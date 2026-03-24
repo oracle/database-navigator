@@ -73,8 +73,8 @@ public class CreateRenameConsoleDialog extends DBNDialog<CreateRenameConsoleForm
         if (console == null) {
             databaseConsoleManager.createConsole(
                     component.getConnection(),
-                    component.getConsoleName(),
-                    component.getConsoleType());
+                    component.getConsoleName(),"",
+                    component.getConsoleType(), null);
         } else {
             databaseConsoleManager.renameConsole(console, component.getConsoleName());
         }

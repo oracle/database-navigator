@@ -27,19 +27,15 @@ import java.util.Map;
 @Setter
 @EqualsAndHashCode
 public class DataModelState {
-    protected Map<String, String> contentTypesMap;
+    protected Map<String, String> contentTypes = new HashMap<>();
     private boolean readonly;
     private int rowCount;
 
-    public void setTextContentType(String columnName, String contentTypeName) {
-        if (contentTypesMap == null) contentTypesMap = new HashMap<>();
-        contentTypesMap.put(columnName, contentTypeName);
+    public void setContentType(String columnName, String contentTypeName) {
+        contentTypes.put(columnName, contentTypeName);
     }
 
-    public String getTextContentTypeName(String columnName) {
-        if (contentTypesMap != null) {
-            return contentTypesMap.get(columnName);
-        }
-        return null;
+    public String getContentTypeName(String columnName) {
+        return contentTypes.get(columnName);
     }
 }
