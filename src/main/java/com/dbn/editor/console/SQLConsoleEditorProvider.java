@@ -58,15 +58,12 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements
     @Override
     @NotNull
     public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
-        DBConsoleVirtualFile consoleVirtualFile = (DBConsoleVirtualFile) file;
-        SQLConsoleEditor editor = new SQLConsoleEditor(project, consoleVirtualFile, "SQL Console", getEditorProviderId());
+        DBConsoleVirtualFile consoleFile = (DBConsoleVirtualFile) file;
+        SQLConsoleEditor editor = new SQLConsoleEditor(project, consoleFile, "SQL Console", getEditorProviderId());
 
         Document document = editor.getEditor().getDocument();
-        int documentSignature = document.hashCode();
-        if (document.hashCode() != consoleVirtualFile.getDocumentSignature()) {
-            document.addDocumentListener(consoleVirtualFile, editor);
-            consoleVirtualFile.setDocumentSignature(documentSignature);
-        }
+        document.addDocumentListener(consoleFile, editor);
+
         return editor;
     }
 
