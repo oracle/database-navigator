@@ -30,7 +30,6 @@ import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SessionId;
-import com.dbn.data.find.DataSearchComponent;
 import com.dbn.data.find.SearchableDataComponent;
 import com.dbn.data.grid.options.DataGridAuditColumnSettings;
 import com.dbn.data.grid.options.DataGridSettings;
@@ -54,7 +53,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.table.TableColumn;
-import javax.swing.text.JTextComponent;
 import java.awt.BorderLayout;
 import java.awt.DefaultFocusTraversalPolicy;
 import java.sql.SQLException;
@@ -222,44 +220,11 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
     }
 
     @Override
-    public void showSearchHeader() {
-        DatasetEditorTable editorTable = getEditorTable();
-        editorTable.cancelEditing();
-        editorTable.clearSelection();
-
-        DataSearchComponent dataSearchComponent = getSearchComponent();
-        dataSearchComponent.initializeFindModel();
-
-        JTextComponent searchField = dataSearchComponent.getSearchField();
-        if (searchPanel.isVisible()) {
-            searchField.selectAll();
-        } else {
-            searchPanel.setVisible(true);    
-        }
-        dispatch(() -> searchField.requestFocus());
-    }
-
-    @Override
-    public void hideSearchHeader() {
-        getSearchComponent().resetFindModel();
-        searchPanel.setVisible(false);
-        DatasetEditorTable editorTable = getEditorTable();
-
-        UserInterface.repaintAndFocus(editorTable);
-    }
-
-    @Override
-    public void cancelEditActions() {
-        getEditorTable().cancelEditing();
-    }
-
-    @Override
     public String getSelectedText() {
         DatasetTableCellEditor cellEditor = getEditorTable().getCellEditor();
-        if (cellEditor != null) {
-            return cellEditor.getTextField().getSelectedText();
-        }
-        return null;
+        if (cellEditor == null) return null;
+
+        return cellEditor.getTextField().getSelectedText();
     }
 
     @NotNull

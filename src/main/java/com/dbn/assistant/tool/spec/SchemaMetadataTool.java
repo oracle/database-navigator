@@ -28,10 +28,11 @@ import dev.langchain4j.agent.tool.Tool;
 import java.util.List;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
+import static com.dbn.assistant.tool.AssistantToolType.SCHEMA_METADATA;
 
 @ToolSpec(
         category = METADATA_PROVIDER,
-        type = "SCHEMA_METADATA",
+        type = SCHEMA_METADATA,
         name = "Schema metadata",
         description = "Information about database schemas and catalogs")
 public interface SchemaMetadataTool extends AssistantTool {

@@ -30,11 +30,12 @@ import java.sql.SQLException;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.SOURCE_CODE_PROVIDER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
+import static com.dbn.assistant.tool.AssistantToolType.PROGRAM_SOURCE_CODE;
 
 @ToolSpec(
-    type = "PROGRAM_SOURCE_CODE",
-    name = "Program source-code",
     category = SOURCE_CODE_PROVIDER,
+    type = PROGRAM_SOURCE_CODE,
+    name = "Program source-code",
     description = "Source code for program units (stored procedures, functions, packages, triggers, declared types)")
 public interface ProgramSourceCodeTool extends AssistantTool {
 

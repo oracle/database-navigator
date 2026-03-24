@@ -20,9 +20,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
-import com.dbn.vector.model.request.EmbeddingDestinationConfig;
 import com.dbn.vector.model.request.EmbeddingSourceTable;
-import com.dbn.vector.model.request.EmbeddingStagingConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,58 +62,69 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException {
+    public ResultSet chunkTextContent(DBNConnection conn, String text, String chunkBy, String splitBy, int max, int overlap) throws SQLException {
         return executeQuery(conn, "chunk-text-from-chunk-lab", text, chunkBy, max, overlap, splitBy);
     }
 
     @Override
-    public int embedTableContent(DBNConnection conn, EmbeddingSourceTable tableSource, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException {
-        return executeUpdate(conn,
-                "embed-table-content",
-                destinationConfig.getSchemaName(),
-                destinationConfig.getTableName(),
-                destinationConfig.getTextColumnName(),
-                destinationConfig.getEmbeddingColumnName(),
-                destinationConfig.getMetadataColumnName(),
-                tableSource.getSchemaName(),
-                tableSource.getTableName(),
-                tableSource.getKeyColumnName(),
-                tableSource.getDataColumnName(),
-                chunkConfig,
-                embedConfig,
-                metadata,
-                batchSize
-        );
+    public int embedTableContent(DBNConnection conn, EmbeddingSourceTable tableSource, String chunkConfig, String embedConfig, String destinationSchema, String destinationTable, @NotNull String metadata, int batchSize) throws SQLException {
+
+        return chunkConfig == null ?
+                executeUpdate(conn,
+                        "embed-table-content-raw",
+                        destinationSchema,
+                        destinationTable,
+                        tableSource.getSchemaName(),
+                        tableSource.getTableName(),
+                        tableSource.getKeyColumnName(),
+                        tableSource.getDataColumnName(),
+                        embedConfig,
+                        metadata,
+                        batchSize) :
+                executeUpdate(conn,
+                        "embed-table-content",
+                        destinationSchema,
+                        destinationTable,
+                        tableSource.getSchemaName(),
+                        tableSource.getTableName(),
+                        tableSource.getKeyColumnName(),
+                        tableSource.getDataColumnName(),
+                        chunkConfig,
+                        embedConfig,
+                        metadata,
+                        batchSize);
     }
 
     @Override
-    public int embedQueryContent(DBNConnection conn, String selectStatement, String chunkConfig, String embedConfig, EmbeddingDestinationConfig destinationConfig, @NotNull String metadata, int batchSize) throws SQLException {
-        return executeUpdate(conn,
-                "embed-query-content",
-                destinationConfig.getSchemaName(),
-                destinationConfig.getTableName(),
-                destinationConfig.getTextColumnName(),
-                destinationConfig.getEmbeddingColumnName(),
-                destinationConfig.getMetadataColumnName(),
-                selectStatement,
-                chunkConfig,
-                embedConfig,
-                metadata,
-                batchSize
-        );
+    public int embedQueryContent(DBNConnection conn, String selectStatement, String chunkConfig, String embedConfig, String destinationSchema, String destinationTable, @NotNull String metadata, int batchSize) throws SQLException {
+        return chunkConfig == null ?
+                executeUpdate(conn,
+                        "embed-query-content-raw",
+                        destinationSchema,
+                        destinationTable,
+                        selectStatement,
+                        embedConfig,
+                        metadata,
+                        batchSize) :
+                executeUpdate(conn,
+                        "embed-query-content",
+                        destinationSchema,
+                        destinationTable,
+                        selectStatement,
+                        chunkConfig,
+                        embedConfig,
+                        metadata,
+                        batchSize);
     }
 
     @Override
-    public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, EmbeddingStagingConfig stagingConfig, EmbeddingDestinationConfig destinationConfig, String fileStoreId, String metadata) throws SQLException {
+    public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, String stagingSchema, String stagingTable, String destinationSchema, String destinationTable, String fileStoreId, String metadata) throws SQLException {
         return executeUpdate(conn,
                 "embed-file-content",
-                destinationConfig.getSchemaName(),
-                destinationConfig.getTableName(),
-                destinationConfig.getTextColumnName(),
-                destinationConfig.getEmbeddingColumnName(),
-                destinationConfig.getMetadataColumnName(),
-                stagingConfig.getSchemaName(),
-                stagingConfig.getTableName(),
+                destinationSchema,
+                destinationTable,
+                stagingSchema,
+                stagingTable,
                 fileStoreId, // id of the blob
                 chunkConfig,
                 embedConfig,
@@ -143,7 +152,12 @@ public class OracleVectorInterface extends DatabaseInterfaceBase implements Data
     }
 
     @Override
-    public boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String metadataColumnName, String sourceId) throws SQLException {
-        return getBooleanValue(conn, "is-content-embedded", schemaName, tableName, metadataColumnName, sourceId);
+    public boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String sourceId) throws SQLException {
+        return getBooleanValue(conn, "is-content-embedded", schemaName, tableName, sourceId);
+    }
+
+    @Override
+    public ResultSet performSimilaritySearch(DBNConnection conn, String schemaName, String tableName, String queryText, String metric, int rows) throws SQLException {
+        return executeQuery(conn, "perform-similarity-search", schemaName, tableName, queryText, metric, rows);
     }
 }

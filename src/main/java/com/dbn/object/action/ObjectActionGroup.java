@@ -51,7 +51,6 @@ import com.dbn.object.dependency.action.ObjectDependencyTreeAction;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.sync.java.action.JavaObjectDownloadAction;
 import com.dbn.sync.java.action.JavaResourceDownloadAction;
-import com.dbn.vfs.DBConsoleType;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.project.DumbAware;
@@ -65,6 +64,7 @@ import static com.dbn.database.DatabaseFeature.OBJECT_DEPENDENCIES;
 import static com.dbn.database.DatabaseFeature.OBJECT_DISABLING;
 import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
+import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
 import static com.dbn.editor.DBContentType.CODE;
 import static com.dbn.editor.DBContentType.CODE_AND_DATA;
 import static com.dbn.editor.DBContentType.CODE_SPEC_AND_BODY;
@@ -74,6 +74,9 @@ import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.vfs.DBConsoleType.DEBUG;
+import static com.dbn.vfs.DBConsoleType.SEARCH;
+import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
@@ -218,9 +221,12 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
             add(new ConsoleRenameAction(console));
             add(new ConsoleDeleteAction(console));
             addSeparator();
-            add(new ConsoleCreateAction(connection, DBConsoleType.STANDARD));
+            add(new ConsoleCreateAction(connection, STANDARD));
             if (DEBUGGING.isSupported(connection)) {
-                add(new ConsoleCreateAction(connection, DBConsoleType.DEBUG));
+                add(new ConsoleCreateAction(connection, DEBUG));
+            }
+            if (VECTOR_SEARCH.isSupported(connection)) {
+                add(new ConsoleCreateAction(connection, SEARCH));
             }
         }
     }

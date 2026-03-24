@@ -16,15 +16,20 @@
 
 package com.dbn.assistant.chat.context;
 
+import com.dbn.assistant.AssistantMode;
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.object.DBTable;
+import com.dbn.object.lookup.DBObjectRef;
 
 public interface ChatContext extends PersistentStateElement {
 
     AssistantType getAssistantType();
+
+    AssistantMode getAssistantMode();
 
     AIProvider getProvider();
 
@@ -40,7 +45,11 @@ public interface ChatContext extends PersistentStateElement {
 
     String getActionId();
 
+    DBObjectRef<DBTable> getEmbeddingTable();
 
+
+
+    void setAssistantMode(AssistantMode assistantMode);
 
     void setProviderId(AIProviderId providerId);
 
@@ -51,6 +60,8 @@ public interface ChatContext extends PersistentStateElement {
     void setActionId(String actionId);
 
     void setInteractive(boolean interactive);
+
+    void setEmbeddingTable(DBObjectRef<DBTable> embeddingTable);
 
 
 

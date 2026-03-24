@@ -21,7 +21,6 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ComboBoxes;
-import com.dbn.common.util.Lists;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.cache.DBObjectNameCache;
@@ -108,12 +107,8 @@ public class EmbeddingStagingConfigForm extends VectorToolboxFormBase implements
 
     protected List<DBTable> loadTables() {
         List<DBTable> tables = super.loadTables();
-        return Lists.filter(tables, t -> isStagingTable(t));
-    }
-
-    private boolean isStagingTable(DBTable table) {
-        DBObjectNameCache<DBTable> tablesCache = getStagingTablesCache();
-        return tablesCache.accepts(table);
+        DBObjectNameCache<DBTable> names = getStagingTablesCache();
+        return names.filter(tables);
     }
 
     private DBObjectNameCache<DBTable> getStagingTablesCache() {

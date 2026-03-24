@@ -596,9 +596,10 @@ public class ExecutionConsoleForm extends DBNFormBase {
         return executionResultForms
                 .values()
                 .stream()
-                .map(ExecutionResultForm::getExecutionResult)
-                .filter(result->resultType.isAssignableFrom(result.getClass()))
-                .map(ExecutionResult::getName)
+                .filter(f -> !f.isDisposed())
+                .map(f -> f.getExecutionResult())
+                .filter(r -> resultType.isAssignableFrom(r.getClass()))
+                .map(r -> r.getName())
                 .collect(Collectors.toSet());
     }
 }

@@ -53,7 +53,7 @@ public class EmbeddingChunkingConfig extends EmbeddingRequestConfig implements C
     }
 
     public String getConfigJson() {
-        return Json.writeAsString(getConfigMap());
+        return "NONE".equals(chunkBy) ? null : Json.writeAsString(getConfigMap());
     }
 
     @NotNull

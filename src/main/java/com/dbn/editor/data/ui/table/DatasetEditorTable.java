@@ -409,15 +409,6 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         Dispatch.run(true, () -> cancelEditing());
     }
 
-    public void cancelEditing() {
-        if (!isEditing()) return;
-
-        TableCellEditor cellEditor = getCellEditor();
-        if (cellEditor == null) return;
-
-        cellEditor.cancelCellEditing();
-    }
-
     @Override
     protected void regionalSettingsChanged() {
         cancelEditing();

@@ -18,6 +18,7 @@ package com.dbn.common.util;
 
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Read;
 import com.dbn.common.thread.Write;
 import com.dbn.connection.ConnectionHandler;
@@ -86,8 +87,10 @@ public class Documents {
             List<VirtualFile> files = Collections.singletonList(file.getVirtualFile());
             FileContentUtil.reparseFiles(project, files, true);
 
-            CodeFoldingManager codeFoldingManager = CodeFoldingManager.getInstance(project);
-            codeFoldingManager.updateFoldRegionsAsync(editor, false);
+            Background.run(() -> Read.run(() -> {
+                CodeFoldingManager codeFoldingManager = CodeFoldingManager.getInstance(project);
+                codeFoldingManager.updateFoldRegionsAsync(editor, false);
+            }));
         }
         refreshEditorAnnotations(file);
     }
@@ -237,11 +240,11 @@ public class Documents {
     }
 
     public static void setText(@NotNull Document document, CharSequence text) {
-        FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
-        VirtualFile file = fileDocumentManager.getFile(document);
-        if (isNotValid(file)) return;
-
         Write.run(() -> changeText(document, text));
+    }
+
+    public static String getText(@NotNull Document document) {
+        return Read.call(() -> document.getText());
     }
 
     private static void changeText(Document document, CharSequence text) {

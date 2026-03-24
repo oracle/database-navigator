@@ -26,75 +26,33 @@
                 prefixes CDATA #IMPLIED>
         ]>
 <data-dictionary>
-    <statement-execution-processor id="ai-generate-rag-example" timeout="60">
+    <statement-execution-processor id="perform-similarity-search" timeout="60">
         <statement>
-            DECLARE
-                v_prompt   CLOB;
-                v_response CLOB;
-            BEGIN
-            WITH ranked AS (
-                SELECT CONTENT
-                    FROM REPORTS_NO_WEEK rnw
-                    ORDER BY vector_distance(
-                                rnw.EMBEDDING_TITLE,
-                                vector_embedding(doc_model
-                                        USING {#0} AS data)
-                    ) ASC
-                FETCH FIRST 5 ROWS ONLY
-            ), prompt_text AS (
-                    SELECT LISTAGG(CONTENT, CHR(10))
-                    WITHIN GROUP (ORDER BY NULL) AS prompt
-                    FROM ranked
-                    )
-            SELECT prompt
-                    INTO v_prompt
-                    FROM prompt_text;
-
-            v_response := DBMS_VECTOR.UTL_TO_GENERATE_TEXT(
-            v_prompt,
-                JSON({#1})
-            );
-
-            ? := v_response;
-            END;
+            with
+                PARAMS_QUERY as (
+                    select
+                        json(json_query(METADATA, '$.embedding_config')) as embedding_config
+                    from {0}.{1} where rownum = 1
+                ),
+                PROMPT_QUERY as (
+                    select
+                        DBMS_VECTOR.UTL_TO_EMBEDDING(
+                                DATA    => {#2},
+                                PARAMS  => (select EMBEDDING_CONFIG from PARAMS_QUERY)
+                        ) as QUERY_VECTOR
+                    from DUAL
+                )
+            select
+                vector_distance(t.EMBEDDING, q.QUERY_VECTOR, {3}) as DISTANCE,
+                t.ID,
+                to_char(t.TEXT) as CONTENT
+            from {0}.{1} t
+            cross join PROMPT_QUERY q
+            where t.EMBEDDING is not null
+            order by DISTANCE
+            fetch first {4} rows only
         </statement>
     </statement-execution-processor>
-
-<!--    <statement-execution-processor id="ai-generate-rag" timeout="60">-->
-<!--        <statement>-->
-<!--            DECLARE-->
-<!--            v_prompt   CLOB;-->
-<!--            v_response CLOB;-->
-<!--            BEGIN-->
-<!--            SELECT LISTAGG(CONTENT, CHR(10)) WITHIN GROUP (ORDER BY NULL)-->
-<!--                INTO v_prompt-->
-<!--                FROM (-->
-<!--                    SELECT {2}-->
-<!--                    FROM {1} rnw-->
-<!--                    ORDER BY vector_distance(-->
-<!--                        rnw.{3},-->
-<!--                        vector_embedding(-->
-<!--                            {4}-->
-<!--                            USING {0} AS data-->
-<!--                            )-->
-<!--                        ) ASC-->
-<!--                FETCH FIRST 5 ROWS ONLY-->
-<!--            );-->
-
-<!--            v_response := DBMS_VECTOR.UTL_TO_GENERATE_TEXT(-->
-<!--                v_prompt,-->
-<!--                JSON('{-->
-<!--                        "provider":        "cohere",-->
-<!--                        "credential_name": "NJHUH",-->
-<!--                        "url":             "https://api.cohere.ai/v1/chat",-->
-<!--                        "model":           "command-r"-->
-<!--                        }')-->
-<!--            );-->
-
-<!--            ? := v_response;-->
-<!--            END;-->
-<!--        </statement>-->
-<!--    </statement-execution-processor>-->
 
     <statement-execution-processor id="create-model-from-storage" timeout="120">
         <statement>
@@ -175,7 +133,7 @@
                 when exists (
                     select 1
                     from {0}.{1}
-                    where json_value({2}, '$.embedding_source.source_id') = {#3})
+                    where json_value(METADATA, '$.embedding_source.source_id') = {#2})
                 then 'Y'
                 else 'N'
             end as value
@@ -191,37 +149,7 @@
     </statement-execution-processor>
     <statement-execution-processor id="embed-table-content" timeout="120000">
         <statement>
-            insert into {0}.{1} (id, {2}, {3}, {4})
-                select
-                    sys_guid(),
-                    json_value(t.COLUMN_VALUE, '$.embed_data' returning clob),
-                    to_vector(json_value(t.COLUMN_VALUE, '$.embed_vector' returning clob)),
-                    json_mergepatch(
-                        {#11},
-                        json_object(
-                            key 'embedding_id' value json_value(t.COLUMN_VALUE, '$.embed_id' returning varchar2(50)),
-                            key 'embedding_source' value json_object('source_id' VALUE src.{7})
-                        ) returning varchar2
-                    )
-                from (
-                    select * from {5}.{6} s
-                    where not exists (
-                        select 1 from {0}.{1} t
-                        where json_value(t.{4}, '$.embedding_source.source_id') = to_char(s.{7})
-                    )
-                    fetch first {12} rows only
-                ) src,
-                table(
-                        DBMS_VECTOR.UTL_TO_EMBEDDINGS(
-                                DATA   => DBMS_VECTOR.UTL_TO_CHUNKS(
-                                                DATA   => src.{8},
-                                                PARAMS => json({#9})),
-                                PARAMS => json({#10}))) t
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="embed-query-content" timeout="120000">
-        <statement>
-            insert into {0}.{1} (id, {2}, {3}, {4})
+            insert into {0}.{1} (ID, TEXT, EMBEDDING, METADATA)
                 select
                     sys_guid(),
                     json_value(t.COLUMN_VALUE, '$.embed_data' returning clob),
@@ -230,35 +158,122 @@
                         {#8},
                         json_object(
                             key 'embedding_id' value json_value(t.COLUMN_VALUE, '$.embed_id' returning varchar2(50)),
-                            key 'embedding_source' value json_object('source_hash' VALUE rawtohex(standard_hash(src.TEXT, 'SHA256')))
+                            key 'embedding_source' value json_object('source_id' VALUE src.{4})
                         ) returning varchar2
                     )
                 from (
-                    select TEXT from ({5}) s
+                    select * from {2}.{3} s
                     where not exists (
                         select 1 from {0}.{1} t
-                        where json_value(t.{4}, '$.embedding_source.source_hash') = rawtohex(standard_hash(s.TEXT, 'SHA256'))
+                        where json_value(t.METADATA, '$.embedding_source.source_id') = to_char(s.{4})
                     )
                     fetch first {9} rows only
                 ) src,
                 table(
                         DBMS_VECTOR.UTL_TO_EMBEDDINGS(
                                 DATA   => DBMS_VECTOR.UTL_TO_CHUNKS(
-                                                DATA   => src.TEXT,
+                                                DATA   => src.{5},
                                                 PARAMS => json({#6})),
                                 PARAMS => json({#7}))) t
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="embed-table-content-raw" timeout="120000">
+        <statement>
+            insert into {0}.{1} (ID, TEXT, EMBEDDING, METADATA)
+                select
+                    sys_guid(),
+                    json_value(t.COLUMN_VALUE, '$.embed_data' returning clob),
+                    to_vector(json_value(t.COLUMN_VALUE, '$.embed_vector' returning clob)),
+                    json_mergepatch(
+                        {#7},
+                        json_object(
+                            key 'embedding_id' value json_value(t.COLUMN_VALUE, '$.embed_id' returning varchar2(50)),
+                            key 'embedding_source' value json_object('source_id' VALUE src.{4})
+                        ) returning varchar2
+                    )
+                from (
+                    select * from {2}.{3} s
+                    where not exists (
+                        select 1 from {0}.{1} t
+                        where json_value(t.METADATA, '$.embedding_source.source_id') = to_char(s.{4})
+                    )
+                    fetch first {8} rows only
+                ) src,
+                table(
+                        DBMS_VECTOR.UTL_TO_EMBEDDINGS(
+                                DATA   => src.{5},
+                                PARAMS => json({#6}))) t
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="embed-query-content" timeout="120000">
+        <statement>
+            insert into {0}.{1} (ID, TEXT, EMBEDDING, METADATA)
+                select
+                    sys_guid(),
+                    json_value(t.COLUMN_VALUE, '$.embed_data' returning clob),
+                    to_vector(json_value(t.COLUMN_VALUE, '$.embed_vector' returning clob)),
+                    json_mergepatch(
+                        {#5},
+                        json_object(
+                            key 'embedding_id' value json_value(t.COLUMN_VALUE, '$.embed_id' returning varchar2(50)),
+                            key 'embedding_source' value json_object('source_hash' VALUE rawtohex(standard_hash(src.TEXT, 'SHA256')))
+                        ) returning varchar2
+                    )
+                from (
+                    select TEXT from ({2}) s
+                    where not exists (
+                        select 1 from {0}.{1} t
+                        where json_value(t.METADATA, '$.embedding_source.source_hash') = rawtohex(standard_hash(s.TEXT, 'SHA256'))
+                    )
+                    fetch first {6} rows only
+                ) src,
+                table(
+                        DBMS_VECTOR.UTL_TO_EMBEDDINGS(
+                                DATA   => DBMS_VECTOR.UTL_TO_CHUNKS(
+                                                DATA   => src.TEXT,
+                                                PARAMS => json({#3})),
+                                PARAMS => json({#4}))) t
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="embed-query-content-raw" timeout="120000">
+        <statement>
+            insert into {0}.{1} (ID, TEXT, EMBEDDING, METADATA)
+                select
+                    sys_guid(),
+                    json_value(t.COLUMN_VALUE, '$.embed_data' returning clob),
+                    to_vector(json_value(t.COLUMN_VALUE, '$.embed_vector' returning clob)),
+                    json_mergepatch(
+                        {#4},
+                        json_object(
+                            key 'embedding_id' value json_value(t.COLUMN_VALUE, '$.embed_id' returning varchar2(50)),
+                            key 'embedding_source' value json_object('source_hash' VALUE rawtohex(standard_hash(src.TEXT, 'SHA256')))
+                        ) returning varchar2
+                    )
+                from (
+                    select TEXT from ({2}) s
+                    where not exists (
+                        select 1 from {0}.{1} t
+                        where json_value(t.METADATA, '$.embedding_source.source_hash') = rawtohex(standard_hash(s.TEXT, 'SHA256'))
+                    )
+                    fetch first {5} rows only
+                ) src,
+                table(
+                        DBMS_VECTOR.UTL_TO_EMBEDDINGS(
+                                DATA   => src.TEXT,
+                                PARAMS => json({#3}))) t
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="embed-file-content" timeout="120000">
         <statement>
-            insert into {0}.{1} (id, {2}, {3}, {4})
+            insert into {0}.{1} (ID, TEXT, EMBEDDING, METADATA)
                 select
                     SYS_GUID(),
                     jt.EMBED_DATA,
                     to_vector(jt.EMBED_VECTOR),
                     json_mergepatch(
-                        {#10},
+                        {#7},
                         json_object(
                             key 'embedding_id' value json_value(t.COLUMN_VALUE, '$.embed_id' returning varchar2(50))
                         ) returning varchar2
@@ -267,13 +282,13 @@
                     DBMS_VECTOR.UTL_TO_EMBEDDINGS(
                         DATA   => DBMS_VECTOR.UTL_TO_CHUNKS(
                                         DATA   => DBMS_VECTOR_CHAIN.UTL_TO_TEXT(
-                                                        DATA   => (select FILE_CONTENT from {5}.{6} where ID = {#7}
+                                                        DATA   => (select FILE_CONTENT from {2}.{3} where ID = {#4}
                                                                    and not exists (
                                                                         select 1 from {0}.{1} tgt
-                                                                        where json_value(tgt.{4}, '$.embedding_source.source_id') = {#7})),
+                                                                        where json_value(tgt.METADATA, '$.embedding_source.source_id') = {#4})),
                                                         PARAMS => json(json_object('plaintext' value true))),
-                                        PARAMS => json({#8})),
-                        PARAMS => json({#9})
+                                        PARAMS => json({#5})),
+                        PARAMS => json({#6})
                     )
                 ) t,
                 json_table(

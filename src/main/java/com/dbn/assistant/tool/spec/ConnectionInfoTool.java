@@ -29,10 +29,11 @@ import lombok.Data;
 import java.util.Map;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.CONFIG_INFO_PROVIDER;
+import static com.dbn.assistant.tool.AssistantToolType.CONNECTION_INFO;
 
 @ToolSpec(
         category = CONFIG_INFO_PROVIDER,
-        type = "CONNECTION_INFO",
+        type = CONNECTION_INFO,
         name = "Connection information",
         description =
                 "Information about the database connection (such as database host, port, name, jdbc driver, authentication type, etc.). " +
