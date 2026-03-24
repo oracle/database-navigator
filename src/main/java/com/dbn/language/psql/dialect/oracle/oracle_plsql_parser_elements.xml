@@ -6508,6 +6508,26 @@
             <token id="03406" type-id="DT_INTEGER" />
             <token id="03407" type-id="DT_SMALLINT" />
             <token id="03408" type-id="DT_PLS_INTEGER" />
+            <sequence>
+                <token type-id="DT_VECTOR"/>
+                <wrapper id="07556" optional="true" template="PARENTHESES">
+                    <sequence id="07557">
+                        <one-of>
+                            <token type-id="CHR_STAR"/>
+                            <token type-id="INTEGER"/>
+                        </one-of>
+                        <sequence optional="true">
+                            <token type-id="CHR_COMMA"/>
+                            <one-of>
+                                <token type-id="CHR_STAR"/>
+                                <token type-id="DT_INT8"/>
+                                <token type-id="DT_FLOAT32"/>
+                                <token type-id="DT_FLOAT64"/>
+                            </one-of>
+                        </sequence>
+                    </sequence>
+                </wrapper>
+            </sequence>
             <sequence id="03409">
                 <qualified-identifier id="03410" separator="CHR_DOT">
                     <variant>
