@@ -66,6 +66,7 @@ public class SelectAiEditorAdapter {
                 profile.getProviderId(),
                 profile.getModelId(),
                 action.getId(),
+                null,
                 false);
         SelectAiEditorPromptUtil.generate(connectionId, prompt, context, message -> Dispatch.run(editor.getComponent(), () -> appendMessage(project, editor, message)));
     }

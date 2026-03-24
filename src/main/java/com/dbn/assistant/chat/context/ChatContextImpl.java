@@ -56,7 +56,7 @@ public final class ChatContextImpl implements ChatContext {
         this.assistantType = assistantType;
     }
 
-    public ChatContextImpl(AssistantType assistantType, AssistantMode assistantMode, String profileId, AIProviderId providerId, String modelId, String actionId, boolean interactive) {
+    public ChatContextImpl(AssistantType assistantType, AssistantMode assistantMode, String profileId, AIProviderId providerId, String modelId, String actionId, DBObjectRef<DBTable> embeddingTable, boolean interactive) {
         this(assistantType);
         this.assistantMode = assistantMode;
         this.profileId = profileId;
@@ -64,6 +64,7 @@ public final class ChatContextImpl implements ChatContext {
         this.modelId = modelId;
         this.actionId = actionId;
         this.interactive = interactive;
+        this.embeddingTable = embeddingTable;
     }
 
     @Override

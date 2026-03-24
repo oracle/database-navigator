@@ -91,7 +91,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
                 profile.getName(),
                 profile.getProviderId(),
                 model.getId(),
-                action.getId(),
+                action.getId(), null,
                 profile.isInteractive());
     }
 

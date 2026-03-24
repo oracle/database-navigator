@@ -56,6 +56,7 @@ public class ProfileSelectAction extends AbstractChatBoxAction {
                 profile.getProviderId(),
                 profile.getModelId(),
                 currentContext.getActionId(),
+                currentContext.getEmbeddingTable(),
                 profile.isInteractive());
 
         chatBox.attemptContextSwitch(targetContext);

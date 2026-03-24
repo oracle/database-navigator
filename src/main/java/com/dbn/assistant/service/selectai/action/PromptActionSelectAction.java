@@ -112,6 +112,7 @@ public class PromptActionSelectAction extends ToggleAction implements AssistantA
                 currentContext.getProviderId(),
                 currentContext.getModelId(),
                 action.getId(),
+                currentContext.getEmbeddingTable(),
                 currentContext.isInteractive());
 
         chatBox.attemptContextSwitch(targetContext);

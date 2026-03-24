@@ -56,6 +56,7 @@ public class ModelSelectAction extends AbstractChatBoxAction {
                 providerId,
                 model.getId(),
                 currentContext.getActionId(),
+                currentContext.getEmbeddingTable(),
                 currentContext.isInteractive());
 
         chatBox.attemptContextSwitch(targetContext);
