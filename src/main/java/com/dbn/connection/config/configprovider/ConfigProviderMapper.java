@@ -1,43 +1,52 @@
-package com.dbn.connection.config.io;
+package com.dbn.connection.config.configprovider;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
+import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionPropertiesSettings;
 import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.configprovider.ConfigProviderPayload;
 
+import java.nio.file.Path;
 import java.util.Map;
 
-public final class OracleConnectionJsonMapper {
-    private OracleConnectionJsonMapper() {}
+public class ConfigProviderMapper {
+    private ConfigProviderMapper(){}
 
-    public static OracleConnectionJsonConfig from(ConnectionSettings settings) {
-
+    public static ConfigProviderPayload map(ConnectionSettings settings, ConfigProviderExportRequest request) throws Exception{
         ConnectionDatabaseSettings db = settings.getDatabaseSettings();
         DatabaseInfo info = db.getDatabaseInfo();
         AuthenticationInfo auth = db.getAuthenticationInfo();
         ConnectionPropertiesSettings props = settings.getPropertiesSettings();
 
-        return OracleConnectionJsonConfig.builder()
-                .connectDescriptor(resolveConnectDescriptor(info))
-                .user(auth == null || auth.getUser() == null || auth.getUser().isBlank() ? null : auth.getUser())
-                .jdbc(resolveJdbc(props))
-                .password(null)
-                .walletLocation(null)
+        String connectDescriptor = resolveConnectDescriptor(info);
+        String user = auth == null ? null : trim(auth.getUser());
+        Map<String, Object> jdbc = resolveJdbc(props);
+
+        SecretRef passwordRef = null;
+        SecretRef walletRef = null;
+
+        if (request != null && request.isIncludePassword()) {
+            // Only export password for USER_PASSWORD auth
+            if (auth != null && auth.getType() == AuthenticationType.USER_PASSWORD) {
+                passwordRef = SecretRefFactory.base64Password(auth.getPassword());
+            }
+        }
+
+        if (request != null && request.isIncludeWallet()) {
+            Path walletFile = request.getWalletFile();
+            walletRef = SecretRefFactory.base64Wallet(walletFile);
+        }
+
+        return ConfigProviderPayload.builder()
+                .connectDescriptor(connectDescriptor)
+                .user(user)
+                .jdbc(jdbc)
+                .password(passwordRef)
+                .walletLocation(walletRef)
                 .build();
-    }
-
-    public static OracleConnectionJsonConfig.OracleConnectionJsonConfigBuilder builderFrom(ConnectionSettings settings) {
-        ConnectionDatabaseSettings db = settings.getDatabaseSettings();
-        DatabaseInfo info = db.getDatabaseInfo();
-        AuthenticationInfo auth = db.getAuthenticationInfo();
-        ConnectionPropertiesSettings props = settings.getPropertiesSettings();
-
-        return OracleConnectionJsonConfig.builder()
-                .connectDescriptor(resolveConnectDescriptor(info))  // required
-                .user(auth == null || auth.getUser() == null || auth.getUser().isBlank() ? null : auth.getUser())
-                .jdbc(resolveJdbc(props));
     }
 
     private static String resolveConnectDescriptor(DatabaseInfo info) {
@@ -85,9 +94,6 @@ public final class OracleConnectionJsonMapper {
 
             // case: jdbc:oracle:thin:@?TNS_ADMIN=...  -> no connect descriptor
             if (remainder.startsWith("?")) return null;
-
-            // case: jdbc:oracle:thin:@(description=...) -> keep as-is
-            if (startsLikeDescriptor(remainder)) return sanitize(remainder);
 
             // default: drop query params (e.g. TNS_ADMIN) and return base
             String base = beforeQuery(remainder);
@@ -170,5 +176,4 @@ public final class OracleConnectionJsonMapper {
         String v = trim(s);
         return v != null && v.regionMatches(true, 0, "(description=", 0, "(description=".length());
     }
-
 }
