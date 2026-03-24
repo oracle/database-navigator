@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -47,6 +48,7 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
 
     private static final Map<String, String> UPPER_CASE_STRINGS = new ConcurrentHashMap<>();
     private static final Map<String, String> LOWER_CASE_STRINGS = new ConcurrentHashMap<>();
+    private static final Set<Character> VOWELS = Set.of('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U');
 
     @NotNull
     public static List<String> tokenize(@Nullable String string, @NotNull String separator) {
@@ -583,6 +585,14 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
 
         // No suitable break point found, use simple truncation
         return text.substring(0, maxLength - 3) + "...";
+    }
+
+    public static boolean startsWithVowel(String input) {
+        if (input == null) return false;
+        if (input.isEmpty()) return false;
+
+        char firstChar = input.charAt(0);
+        return VOWELS.contains(firstChar);
     }
 }
 

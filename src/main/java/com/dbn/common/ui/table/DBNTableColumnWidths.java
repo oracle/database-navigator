@@ -161,7 +161,8 @@ public class DBNTableColumnWidths {
             return;
         }
 
-        Integer percentage = proportionalWidths.get(columnIndex);
+        int modelColumnIndex = column.getModelIndex();
+        Integer percentage = proportionalWidths.get(modelColumnIndex);
         if (percentage != null) {
             int tableWidth = table.getWidth();
             int width = (tableWidth * percentage) / 100;
@@ -187,16 +188,15 @@ public class DBNTableColumnWidths {
         }
 
         // rows
-        String columnName = model.getColumnName(columnIndex);
+        String columnName = model.getColumnName(modelColumnIndex);
         int rowCount = model.getRowCount();
-        for (int r = 0; r < rowCount; r++) {
+        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             if (preferredWidth >= maxWidth) break;
 
-            int c = column.getModelIndex();
-            Object value = model.getValueAt(r, c);
+            Object value = model.getValueAt(rowIndex, modelColumnIndex);
             if (value == null) continue;
 
-            String displayValue = model.getPresentableValue(value, c);
+            String displayValue = model.getPresentableValue(value, modelColumnIndex);
             if (displayValue == null || displayValue.length() >= 100) continue;
 
             int cellWidth = metricsCache.getTextWidth(columnName, displayValue);

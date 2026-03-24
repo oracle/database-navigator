@@ -5,6 +5,7 @@ import com.dbn.database.interfaces.DatabaseVectorInterface;
 import com.dbn.vector.model.VectorEmbeddingContext;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.VectorEmbeddingResult;
+import com.dbn.vector.model.request.EmbeddingDestinationConfig;
 import com.dbn.vector.model.request.EmbeddingSourceTable;
 import com.dbn.vector.model.request.EmbeddingSourceTables;
 import com.dbn.vector.model.result.EmbeddingTableResult;
@@ -69,14 +70,15 @@ public class TableEmbeddingPipeline implements EmbeddingPipeline {
 
                 // Process one batch
                 DatabaseVectorInterface vectorInterface = request.getConnection().getVectorInterface();
+                EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
                 int rowsEmbedded = vectorInterface.embedTableContent(
                         connection,
                         result.getSource(),
                         request.getChunkConfigJson(),
                         request.getModelConfigJson(),
-                        request.getDestinationConfig(),
-                        result.getMetadata(),
-                        DEFAULT_BATCH_SIZE);
+                        destinationConfig.getSchemaName(),
+                        destinationConfig.getTableName(),
+                        result.getMetadata(), DEFAULT_BATCH_SIZE);
 
                 // Commit after each batch - this is the recovery point
                 commit(connection);

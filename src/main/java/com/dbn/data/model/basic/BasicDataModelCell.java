@@ -67,7 +67,8 @@ public class BasicDataModelCell<
     @Override
     public TextContentType getContentType() {
         DataModelState state = getModel().getState();
-        String contentTypeName = state.getTextContentTypeName(getColumnInfo().getName());
+        String columnName = getColumnInfo().getName();
+        String contentTypeName = state.getContentTypeName(columnName);
         if (contentTypeName == null) {
             DBDataType dataType = getColumnInfo().getDataType();
             if (dataType.isNative()) {
@@ -81,7 +82,8 @@ public class BasicDataModelCell<
     @Override
     public void setContentType(TextContentType contentType) {
         DataModelState state = getModel().getState();
-        state.setTextContentType(getColumnInfo().getName(), contentType.getName());
+        String columnName = getColumnInfo().getName();
+        state.setContentType(columnName, contentType.getName());
     }
 
     @Override

@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2025 Oracle and/or its affiliates
+  ~ Copyright 2026 Oracle and/or its affiliates
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -368,6 +368,7 @@
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ConsoleEditorTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SourceCodeEditorTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.DatasetEditorTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SemanticSearchTool$Factory" />
     </extensions>
 
     <actions>
@@ -462,7 +463,11 @@
             <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Chat" id="DBNavigator.Actions.Assistant.TypeChat"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantPromptActions" text="Assistant Prompt Actions">
+            <action class="com.dbn.assistant.service.generic.action.AssistantModeInfoAction" id="DBNavigator.Actions.Assistant.AssistantModeInfo" text="Assistant Mode Info"/>
+            <action class="com.dbn.assistant.service.generic.action.AssistantModeAction" id="DBNavigator.Actions.Assistant.AssistantMode" text="Assistant Mode"/>
+            <separator/>
             <action class="com.dbn.assistant.service.generic.action.ToolSelectionAction" id="DBNavigator.Actions.Assistant.ToolSelection" text="Tools"/>
+            <action class="com.dbn.assistant.service.generic.action.EmbeddingTableSelectionAction" id="DBNavigator.Actions.Assistant.EmbeddingTable" text="Embedding Table"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantPromptSubmitActions" text="Assistant Chat-Box Prompt">
             <action class="com.dbn.assistant.chat.window.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Assistant.SubmitPrompt" icon="AllIcons.Actions.Execute">
@@ -572,6 +577,13 @@
             <action id="DBNavigator.Actions.SessionBrowser.KillSessions" class="com.dbn.editor.session.action.KillSessionsAction" text="Session Browser - Kill Sessions" icon="com.dbn.common.icon.Icons.ACTION_KILL_SESSION"/>
             <separator/>
             <action id="DBNavigator.Actions.SessionBrowser.OpenSettings" class="com.dbn.editor.session.action.SessionBrowserSettingsAction" text="Session Browser - Settings"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.VectorSearchConsole" text="Vector Search Controls">
+            <action id="DBNavigator.Actions.VectorSearchSchema" class="com.dbn.vector.search.action.VectorSchemaSelectAction" text="Vector Search - Schema"/>
+            <action id="DBNavigator.Actions.VectorSearchTable" class="com.dbn.vector.search.action.VectorTableSelectAction" text="Vector Search - Table"/>
+            <action id="DBNavigator.Actions.VectorSearchMetric" class="com.dbn.vector.search.action.VectorMetricSelectAction" text="Vector Search - Distance Metric"/>
+            <separator/>
+            <group id="DBNavigator.Actions.VectorConsoleOptions" class="com.dbn.language.editor.action.EditorOptionsAction" text="Vector Search - Settings" icon="AllIcons.General.GearPlain" />
         </group>
         <group id="DBNavigator.ActionGroup.JsonDataEditor" text="JSON Data Editor Controls">
             <action id="DBNavigator.Actions.JsonDataEditor.ToggleEditableStatus" class="com.dbn.editor.json.action.JsonDataEditingLockToggleAction" text="JSON Data Editor - Lock / Unlock Editing"/>
@@ -941,6 +953,7 @@
         <fileEditorProvider implementation="com.dbn.editor.session.SessionBrowserEditorProvider"/>
         <fileEditorProvider implementation="com.dbn.editor.code.SourceCodeSpecEditorProvider"/>
         <fileEditorProvider implementation="com.dbn.editor.console.SQLConsoleEditorProvider"/>
+        <fileEditorProvider implementation="com.dbn.vector.search.VectorSearchEditorProvider"/>
         <!--<fileEditorProvider implementation="com.dbn.common.editor.SQLFileTextEditorProvider"/>-->
 
         <editorNotificationProvider implementation="com.dbn.ddl.DDLMappedNotificationProvider"/>

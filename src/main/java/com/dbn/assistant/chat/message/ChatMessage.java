@@ -96,7 +96,7 @@ public class ChatMessage implements PersistentStateElement {
     public ChatMessage(AssistantType assistantType, MessageType type, String content, AuthorType author, ChatContext context) {
         this.assistantType = assistantType;
         this.type = type;
-        this.content = removeCodeBlockIndents(content.trim());
+        this.content = removeCodeBlockIndents(content);
         this.author = author;
         this.context = context;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,73 @@
 
 package com.dbn.assistant.tool;
 
-import com.dbn.common.constant.PseudoConstant;
-import com.dbn.common.constant.PseudoConstantConverter;
-import org.jetbrains.annotations.NonNls;
+import com.dbn.assistant.AssistantMode;
+import com.dbn.common.constant.Constant;
 
-public final class AssistantToolType extends PseudoConstant<AssistantToolType> {
-    AssistantToolType(@NonNls String id) {
-        super(id);
-    }
+import java.util.Map;
+import java.util.Set;
 
-    public static AssistantToolType get(@NonNls String id) {
-        return PseudoConstant.get(AssistantToolType.class, id);
-    }
+public enum AssistantToolType implements Constant<AssistantToolType> {
 
-    public static class Converter extends PseudoConstantConverter<AssistantToolType> {
-        public Converter() {
-            super(AssistantToolType.class);
-        }
-    }
+    // USER_INTERACTION
+    USER_PROMPTS,
+
+    // DATA_PROVIDER
+    SEMANTIC_SEARCH,
+
+    // CONFIG_INFO_PROVIDER
+    CONNECTION_INFO,
+
+
+    // METADATA_PROVIDER
+    DATABASE_METADATA,
+    SCHEMA_METADATA,
+    TABLE_METADATA,
+    VIEW_METADATA,
+    PROGRAM_METADATA,
+
+    // SOURCE_CODE_PROVIDER
+    VIEW_SOURCE_CODE,
+    PROGRAM_SOURCE_CODE,
+
+
+    // IDE_ACTION_INVOKER
+    DATASET_EDITORS,
+    SOURCE_CODE_EDITORS,
+    SQL_CONSOLE_EDITORS,
+
+    ;
+
+    public static final Map<AssistantMode, Set<AssistantToolType>> SUPPORT = Map.of(
+            // code development
+            AssistantMode.DEVELOPMENT, Set.of(
+                USER_PROMPTS,
+                CONNECTION_INFO,
+                DATABASE_METADATA,
+                SCHEMA_METADATA,
+                TABLE_METADATA,
+                VIEW_METADATA,
+                PROGRAM_METADATA,
+                VIEW_SOURCE_CODE,
+                PROGRAM_SOURCE_CODE,
+                DATASET_EDITORS,
+                SOURCE_CODE_EDITORS,
+                SQL_CONSOLE_EDITORS),
+
+            // data analytics
+            AssistantMode.ANALYTICS, Set.of(
+                USER_PROMPTS,
+                DATABASE_METADATA,
+                SCHEMA_METADATA,
+                TABLE_METADATA,
+                VIEW_METADATA,
+                VIEW_SOURCE_CODE,
+                DATASET_EDITORS,
+                SQL_CONSOLE_EDITORS),
+
+            // semantic search
+            AssistantMode.RAG, Set.of(
+                USER_PROMPTS,
+                SEMANTIC_SEARCH));
+
 }

@@ -16,17 +16,19 @@
 
 package com.dbn.assistant.tool.config.ui;
 
+import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
+import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.color.Colors;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.ui.util.Fonts;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.UIUtil;
@@ -40,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.USER_INTERACTION;
+import static com.dbn.assistant.tool.AssistantToolData.getSupportedToolTypes;
 import static com.dbn.assistant.tool.AssistantToolData.getToolTypes;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
@@ -105,13 +108,20 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
 
     private void initToolTypesPanel() {
         Layouts.verticalBoxLayout(toolTypesPanel);
+        AssistantState assistantState = getAssistantState();
 
-        List<AssistantToolType> toolTypes = getToolTypes(category);
+        List<AssistantToolType> toolTypes = getSupportedToolTypes(assistantState, category);
         for (AssistantToolType toolType : toolTypes) {
             AssistantToolApprovalTypeForm toolTypeForm = new AssistantToolApprovalTypeForm(this, toolType);
             toolTypeForms.put(toolType, toolTypeForm);
             toolTypesPanel.add(toolTypeForm.getComponent());
         }
+    }
+
+    private AssistantState getAssistantState() {
+        AssistantToolApprovalForm approvalForm = ensureParentComponent();
+        AssistantToolSettings settings = approvalForm.getSettings();
+        return settings.getAssistantState();
     }
 
     @Override
@@ -144,7 +154,7 @@ public class AssistantToolApprovalCategoryForm extends AssistantToolApprovalItem
         boolean enabled = categoryStatus.isOneOf(PROMPTED, APPROVED);
         nameLabel.setEnabled(enabled);
 
-        Icon infoIcon = enabled ? AllIcons.General.Note : IconLoader.getDisabledIcon(AllIcons.General.Note);
+        Icon infoIcon = enabled ? Icons.ACTION_INFO : IconLoader.getDisabledIcon(Icons.ACTION_INFO);
         infoLabel.setIcon(infoIcon);
 
         descriptionTextPane.setForeground(enabled ?

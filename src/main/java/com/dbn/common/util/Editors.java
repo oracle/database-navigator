@@ -492,6 +492,7 @@ public class Editors {
         if (editor == null) return;
 
         Dispatch.run(true, () -> {
+            if (editor.isDisposed()) return;
             EditorFactory editorFactory = EditorFactory.getInstance();
             editorFactory.releaseEditor(editor);
         });
@@ -622,7 +623,7 @@ public class Editors {
 
     public static void updateEditorScrollPane(EditorEx viewer, Border border) {
         JScrollPane scrollPane = viewer.getScrollPane();
-        scrollPane.setViewportBorder(Borders.lineBorder(Colors.delegate(() -> viewer.getBackgroundColor()), 8));
+        scrollPane.setViewportBorder(Borders.lineBorder(Colors.delegate(() -> viewer.getBackgroundColor()), 6));
         scrollPane.getVerticalScrollBar().setOpaque(false);
         scrollPane.getHorizontalScrollBar().setOpaque(false);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);

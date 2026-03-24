@@ -26,7 +26,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.console.DatabaseConsoleManager;
-import com.dbn.database.DatabaseFeature;
 import com.dbn.object.DBConsole;
 import com.dbn.vfs.DBConsoleType;
 import com.intellij.openapi.actionSystem.ActionGroup;
@@ -43,7 +42,12 @@ import java.util.List;
 
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
+import static com.dbn.database.DatabaseFeature.DEBUGGING;
+import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.vfs.DBConsoleType.DEBUG;
+import static com.dbn.vfs.DBConsoleType.SEARCH;
+import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 public class SQLConsoleOpenAction extends ProjectAction {
 
@@ -102,10 +106,15 @@ public class SQLConsoleOpenAction extends ProjectAction {
                 actions.add(new SelectConsoleAction(console));
             }
             actions.add(Separator.getInstance());
-            actions.add(new SelectConsoleAction(connection, DBConsoleType.STANDARD));
-            if (DatabaseFeature.DEBUGGING.isSupported(connection)) {
-                actions.add(new SelectConsoleAction(connection, DBConsoleType.DEBUG));
+            actions.add(new SelectConsoleAction(connection, STANDARD));
+
+            if (DEBUGGING.isSupported(connection)) {
+                actions.add(new SelectConsoleAction(connection, DEBUG));
             }
+            if (VECTOR_SEARCH.isSupported(connection)) {
+                actions.add(new SelectConsoleAction(connection, SEARCH));
+            }
+
 
             return actions.toArray(new AnAction[0]);
         }

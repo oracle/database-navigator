@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.data.type.GenericDataType.BLOB;
 import static com.dbn.data.type.GenericDataType.CLOB;
 import static com.dbn.data.type.GenericDataType.JSON;
@@ -93,7 +94,7 @@ public class ResultSetDataModel<
     }
 
     protected R createRow(int resultSetRowIndex) throws SQLException {
-        return (R) new ResultSetDataModelRow(this, getResultSet(), resultSetRowIndex);
+        return cast(new ResultSetDataModelRow(this, getResultSet(), resultSetRowIndex));
     }
 
     @NotNull

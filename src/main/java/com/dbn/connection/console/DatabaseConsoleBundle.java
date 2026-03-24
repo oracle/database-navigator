@@ -43,13 +43,10 @@ public class DatabaseConsoleBundle extends ConnectionComponentBase {
         super(connection);
     }
 
-    public List<DBConsole> getConsoles() {
+    public synchronized List<DBConsole> getConsoles() {
         if (consoles.isEmpty()) {
-            synchronized (this) {
-                if (consoles.isEmpty()) {
-                    createConsole(getConnection().getName(), DBConsoleType.STANDARD);
-                }
-            }
+            String consoleName = getConnection().getName();
+            createConsole(consoleName, DBConsoleType.STANDARD);
         }
         return consoles;
     }
@@ -89,15 +86,10 @@ public class DatabaseConsoleBundle extends ConnectionComponentBase {
         return nd(console);
     }
 
-    public DBConsole getConsole(String name, DBConsoleType type, boolean create) {
+    public synchronized DBConsole getConsole(String name, DBConsoleType type, boolean create) {
         DBConsole console = getConsole(name);
         if (console == null && create) {
-            synchronized (this) {
-                console = getConsole(name);
-                if (console == null) {
-                    return createConsole(name, type);
-                }
-            }
+            return createConsole(name, type);
         }
         return console;
     }

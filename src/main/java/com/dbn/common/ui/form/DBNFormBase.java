@@ -32,7 +32,6 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.options.general.GeneralProjectSettings;
-import com.intellij.ide.DataManager;
 import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.Disposable;
@@ -351,7 +350,7 @@ public abstract class DBNFormBase
     @Override
     public void disposeInner() {
         JComponent component = getComponent();
-        DataManager.removeDataProvider(component);
+        DataProviders.unregister(component);
         ComponentDisposer.dispose(component);
         nullify();
     }

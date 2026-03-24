@@ -105,12 +105,18 @@ public class OneOfElementType extends ElementTypeBase {
         } else {
             List<Element> children = def.getChildren();
             this.children = new ElementTypeRef[children.size()];
+            String languageId = getLanguage().getID();
+            if (this.children.length == 0) {
+                log.warn("DBN - [{}] empty one-of element (one-of = {})", languageId, getId());
+            } else if  (this.children.length == 1) {
+                log.warn("DBN - [{}] single-child one-of element (one-of = {})", languageId, getId());
+            }
 
             for (int i=0; i<children.size(); i++) {
                 Element child = children.get(i);
                 if (isMarkedOptional(child)) {
                     // not supported - prevent false expectations
-                    log.warn("DBN - [{}] one-of element cannot be optional (one-of = {})", getLanguage().getID(), getId());
+                    log.warn("DBN - [{}] one-of element cannot be optional (one-of = {})", languageId, getId());
                 }
 
                 String type = child.getName();
