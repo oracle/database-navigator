@@ -43,7 +43,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import static com.dbn.common.ui.util.ClientProperty.NO_BORDER;
+import static com.dbn.common.ui.util.Borderless.markBorderless;
 import static com.dbn.common.util.Conditional.when;
 
 public class EventNotificationsForm extends DBNFormBase {
@@ -66,7 +66,7 @@ public class EventNotificationsForm extends DBNFormBase {
         ProjectEvents.subscribe(project, this, EventNotificationListener.TOPIC, createEventNotificationListener());
 
         // start loading when the form is shown
-        whenShown(() -> load());
+        whenFirstShown(() -> load());
     }
 
     private EventNotificationListener createEventNotificationListener() {
@@ -92,7 +92,7 @@ public class EventNotificationsForm extends DBNFormBase {
     private void initTable(DataChangeNotificationBundle notifications) {
         notificationsTable = new EventNotificationsTable(this, notifications);
         notificationsScrollPane.setViewportView(notificationsTable);
-        NO_BORDER.set(notificationsTable, true);
+        markBorderless(notificationsTable);
     }
 
     public void applyTableFilter(DBTable table) {

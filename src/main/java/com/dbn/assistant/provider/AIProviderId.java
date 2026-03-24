@@ -30,6 +30,7 @@ public enum AIProviderId implements Constant<AIProviderId> {
     OCI_GEN_AI,
     OLLAMA,
     OPEN_AI,
+    VERTEX_AI,
     X_AI,
     ;
 

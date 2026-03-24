@@ -140,7 +140,7 @@ public abstract class TextFieldPopupProviderForm extends DBNFormBase implements 
         if (editorComponent.isShowing()) {
             Point location = editorComponent.getLocationOnScreen();
             location.setLocation(location.getX() + 4, location.getY() + editorComponent.getHeight() + 4);
-            dispatch(() -> popup.showInScreenCoordinates(editorComponent, location));
+            Dispatch.run(editorComponent, () -> popup.showInScreenCoordinates(editorComponent, location));
             //cellEditor.highlight(TextCellEditor.HIGHLIGHT_TYPE_POPUP);
         }
     }
@@ -149,7 +149,7 @@ public abstract class TextFieldPopupProviderForm extends DBNFormBase implements 
     public void hidePopup() {
         if (!isShowingPopup()) return;
 
-        Dispatch.run(true, () -> {
+        Dispatch.run(getEditorComponent(), () -> {
             if (isShowingPopup()) {
                 popup.cancel();
                 popup = null;

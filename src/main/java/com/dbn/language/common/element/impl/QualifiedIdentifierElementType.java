@@ -17,7 +17,7 @@
 package com.dbn.language.common.element.impl;
 
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.QualifiedIdentifierElementTypeLookupCache;
+import com.dbn.language.common.element.cache.QualifiedIdentifierElementCache;
 import com.dbn.language.common.element.parser.impl.QualifiedIdentifierElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.QualifiedIdentifierPsiElement;
@@ -35,8 +35,8 @@ import java.util.Set;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 public final class QualifiedIdentifierElementType extends ElementTypeBase {
-    private final TokenElementType separatorToken;
-    private final List<LeafElementType[]> variants = new ArrayList<>();
+    public final TokenElementType separatorToken;
+    public final List<LeafElementType[]> variants = new ArrayList<>();
     private final Set<DBObjectType> objectTypeCache = EnumSet.noneOf(DBObjectType.class);
     private int maxLength;
 
@@ -54,23 +54,19 @@ public final class QualifiedIdentifierElementType extends ElementTypeBase {
             }
             variants.addAll(childVariants);
         }
-        String separatorId = stringAttribute(def, "separator");
-        separatorToken = new TokenElementType(bundle, this, separatorId, TokenElementType.SEPARATOR);
+        String separatorId = stringAttribute(def, "separator", "CHR_DOT");
+        separatorToken = new TokenElementType(this, separatorId, id + ".s");
     }
 
     @Override
-    public QualifiedIdentifierElementTypeLookupCache createLookupCache() {
-        return new QualifiedIdentifierElementTypeLookupCache(this);
+    public QualifiedIdentifierElementCache createLookupCache() {
+        return new QualifiedIdentifierElementCache(this);
     }
 
     @NotNull
     @Override
     public QualifiedIdentifierElementTypeParser createParser() {
         return new QualifiedIdentifierElementTypeParser(this);
-    }
-
-    public List<LeafElementType[]> getVariants() {
-        return variants;
     }
 
     private List<LeafElementType[]> createVariants(Element element) throws ElementTypeDefinitionException {
@@ -144,10 +140,6 @@ public final class QualifiedIdentifierElementType extends ElementTypeBase {
     @Override
     public boolean isLeaf() {
         return false;
-    }
-
-    public TokenElementType getSeparatorToken() {
-        return separatorToken;
     }
 
     public boolean containsObjectType(DBObjectType objectType) {

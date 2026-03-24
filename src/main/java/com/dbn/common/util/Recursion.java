@@ -18,7 +18,6 @@ package com.dbn.common.util;
 
 import com.dbn.common.routine.ParametricCallable;
 import com.dbn.common.routine.ParametricRunnable;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,11 +29,10 @@ import static com.dbn.common.util.Unsafe.cast;
 public class Recursion {
     private static final ThreadLocal<Map<String, Set<?>>> TRACES = new ThreadLocal<>();
 
-    @Nullable
-    public static <T, S, E extends Throwable> T computeGuarded(String taskName, S subject, ParametricCallable<S, T, E> callable) throws E{
+    public static <T, S, E extends Throwable> T computeGuarded(String taskName, T defaultValue, S subject, ParametricCallable<S, T, E> callable) throws E{
         Set<S> traces = ensureTraces(taskName);
         try {
-            if (traces.contains(subject)) return null;
+            if (traces.contains(subject)) return defaultValue;
 
             traces.add(subject);
             return callable.call(subject);

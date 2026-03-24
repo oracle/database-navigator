@@ -107,7 +107,7 @@ public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
 
 			Project project = javaClass.getProject();
             JavaExecutionWrapperManager wrapperManager = JavaExecutionWrapperManager.getInstance(project);
-            wrapperManager.createExecutionWrappers(javaClass, methods, true, false);
+            wrapperManager.createExecutionWrappers(javaClass, methods);
         };
 	}
 }

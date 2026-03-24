@@ -33,7 +33,6 @@ import java.util.Set;
 
 public class ElementLookupContext {
     public static final double MAX_DB_VERSION = 9999;
-    private final Set<NamedElementType> scannedElements = new HashSet<>();
     private final Set<ElementTypeAttribute> breakOnAttributes = new HashSet<>();
     private final Map<Branch, NamedElementType> branchMarkers = new HashMap<>();
     protected Set<Branch> branches;
@@ -117,18 +116,6 @@ public class ElementLookupContext {
     }
 
 
-    public ElementLookupContext reset() {
-        scannedElements.clear();
-        return this;
-    }
-
-    boolean isScanned(NamedElementType elementType) {
-        return scannedElements.contains(elementType);
-    }
-
-    void markScanned(NamedElementType elementType) {
-        scannedElements.add(elementType);
-    }
 
     public boolean isBreakOnAttribute(ElementTypeAttribute attribute) {
         return breakOnAttributes.contains(attribute);

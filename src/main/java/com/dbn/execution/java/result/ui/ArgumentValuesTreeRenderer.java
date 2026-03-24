@@ -19,6 +19,7 @@ package com.dbn.execution.java.result.ui;
 import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.util.Strings;
+import com.dbn.execution.common.input.CodeBlocks;
 import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
@@ -30,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+import static com.dbn.execution.common.input.CodeBlocks.extractCodeBlock;
+import static com.dbn.execution.java.wrapper.WrapperStatementBuilder.arrayBrackets;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
@@ -76,21 +79,29 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
         Object userValue = treeNode.getValue();
         if (userValue instanceof ExecutionValue fieldValue) {
             String stringValue = Objects.toString(fieldValue.getValue());
-            append(" = ", REGULAR_ATTRIBUTES);
-            append(stringValue, REGULAR_BOLD_ATTRIBUTES);
+            if (CodeBlocks.isCodeBlock(stringValue)) {
+                append(" = [CODE]", REGULAR_ATTRIBUTES);
+                String content = extractCodeBlock(stringValue);
+                setToolTipText("<html><pre>" + content + "</pre></html>");
+            } else {
+                append(" = ", REGULAR_ATTRIBUTES);
+                append(stringValue, REGULAR_BOLD_ATTRIBUTES);
+            }
         }
     }
 
     private void renderDataType(DBObject object) {
         if (object instanceof DBJavaParameter parameter) {
             String dataType = getCanonicalName(parameter.getJavaClassRef());
+            String arrayBrackets = arrayBrackets(parameter.getArrayDepth());
 
-            append(" (" + dataType + ")", GRAY_ATTRIBUTES);
+            append(" (" + dataType + arrayBrackets + ")", GRAY_ATTRIBUTES);
             setIcon(object.getIcon());
         } else if (object instanceof DBJavaField field) {
             String dataType = getCanonicalName(field.getJavaClassRef());
+            String arrayBrackets = arrayBrackets(field.getArrayDepth());
 
-            append(" (" + dataType + ")", GRAY_ATTRIBUTES);
+            append(" (" + dataType + arrayBrackets + ")", GRAY_ATTRIBUTES);
             setIcon(object.getIcon());
         } else if (object instanceof DBJavaClass javaClass) {
             append(" (" + javaClass.getCanonicalName() + ")", GRAY_ATTRIBUTES);

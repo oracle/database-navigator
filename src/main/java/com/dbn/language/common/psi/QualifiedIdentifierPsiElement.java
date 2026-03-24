@@ -98,7 +98,7 @@ public class QualifiedIdentifierPsiElement extends SequencePsiElement<QualifiedI
 
     private List<QualifiedIdentifierVariant> buildParseVariants() {
         List<QualifiedIdentifierVariant> parseVariants = new ArrayList<>();
-        for (LeafElementType[] elementTypes : elementType.getVariants()) {
+        for (LeafElementType[] elementTypes : elementType.variants) {
 
             ParseResultType resultType = ParseResultType.FULL_MATCH;
             for (int i=0; i< elementTypes.length; i++) {
@@ -173,7 +173,7 @@ public class QualifiedIdentifierPsiElement extends SequencePsiElement<QualifiedI
         PsiElement child = getFirstChild();
         while (child != null) {
             if (child instanceof LeafPsiElement leafPsiElement) {
-                if (leafPsiElement.elementType != elementType.getSeparatorToken() ) {
+                if (leafPsiElement.elementType != elementType.separatorToken ) {
                     count++;
                 }
             }

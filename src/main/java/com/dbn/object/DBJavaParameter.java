@@ -32,4 +32,6 @@ public interface DBJavaParameter extends DBOrderedObject {
     DBJavaClass getJavaClass();
 
     DBObjectRef<DBJavaClass> getJavaClassRef();
+
+    String getJavaClassName();
 }

@@ -66,7 +66,6 @@ import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.frame.XSuspendContext;
-import com.intellij.xdebugger.impl.XDebugSessionImpl;
 import com.intellij.xdebugger.ui.XDebugTabLayouter;
 import lombok.Getter;
 import lombok.Setter;
@@ -155,9 +154,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     public void sessionInitialized() {
         Project project = getProject();
         XDebugSession session = getSession();
-        if (session instanceof XDebugSessionImpl sessionImpl) {
-            sessionImpl.getSessionData().setBreakpointsMuted(false);
-        }
+        session.setBreakpointMuted(false);
+
         Progress.background(project, getConnection(), true,
                 txt("prc.debugger.title.InitializingDebugEnvironment"),
                 txt("prc.debugger.text.StartingDebugger"),

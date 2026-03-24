@@ -16,6 +16,7 @@
 
 package com.dbn.object.factory.adapter;
 
+import com.dbn.common.data.Data;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
@@ -24,7 +25,6 @@ import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
-import com.dbn.object.factory.model.DBObjectAttribute;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.DBCredentialFactoryInputForm;
 import com.dbn.object.type.DBCredentialType;
@@ -35,6 +35,13 @@ import java.util.List;
 
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.CREDENTIAL_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.FINGERPRINT;
+import static com.dbn.object.factory.model.DBObjectAttributeType.PASSWORD;
+import static com.dbn.object.factory.model.DBObjectAttributeType.PRIVATE_KEY;
+import static com.dbn.object.factory.model.DBObjectAttributeType.TENANCY_OCID;
+import static com.dbn.object.factory.model.DBObjectAttributeType.USER_NAME;
+import static com.dbn.object.factory.model.DBObjectAttributeType.USER_OCID;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
 public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec, DBCredentialFactoryInputForm> {
@@ -45,9 +52,9 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObject
     }
 
     public DBObjectSpec createInput(DBSchema schema) {
-        DBObjectSpec definition = new DBObjectSpec(schema, CREDENTIAL);
-        definition.setAttribute(DBObjectAttribute.CREDENTIAL_TYPE, DBCredentialType.PASSWORD);
-        return definition;
+        DBObjectSpec credentialSpec = new DBObjectSpec(schema, CREDENTIAL);
+        credentialSpec.setAttributeValue(CREDENTIAL_TYPE, DBCredentialType.PASSWORD);
+        return credentialSpec;
     }
 
     public DBCredentialFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec input) {
@@ -71,21 +78,22 @@ public class DBCredentialFactoryAdapter implements ObjectFactoryAdapter<DBObject
                 schemaId,
                 conn -> {
                     DatabaseAssistantInterface assistantInterface = input.getConnection().getAssistantInterface();
-                    DBCredentialType credentialType = input.getAttribute(DBObjectAttribute.CREDENTIAL_TYPE);
+                    DBCredentialType credentialType = CREDENTIAL_TYPE.of(input);
 
                     if (credentialType == DBCredentialType.OCI) {
                         assistantInterface.createOciCredential(
                                 conn,
                                 input.getObjectName(true),
-                                input.getAttribute(DBObjectAttribute.USER_OCID),
-                                input.getAttribute(DBObjectAttribute.TENANCY_OCID),
-                                input.getAttribute(DBObjectAttribute.PRIVATE_KEY), input.getAttribute(DBObjectAttribute.FINGERPRINT));
+                                USER_OCID.of(input),
+                                TENANCY_OCID.of(input),
+                                PRIVATE_KEY.of(input),
+                                FINGERPRINT.of(input));
                     } else if (credentialType == DBCredentialType.PASSWORD) {
                         assistantInterface.createPwdCredential(
                                 conn,
                                 input.getObjectName(true),
-                                input.getAttribute(DBObjectAttribute.USER_NAME),
-                                input.getStringAttribute(DBObjectAttribute.PASSWORD)
+                                USER_NAME.of(input),
+                                Data.asString(PASSWORD.of(input))
                         );
                     }
                 });

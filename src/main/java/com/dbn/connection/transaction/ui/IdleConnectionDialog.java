@@ -20,7 +20,6 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.dialog.DialogWithTimeout;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.ResourceStatus;
 import com.dbn.connection.transaction.DatabaseTransactionManager;
@@ -40,31 +39,25 @@ import static com.dbn.connection.transaction.TransactionAction.KEEP_ALIVE;
 import static com.dbn.connection.transaction.TransactionAction.ROLLBACK_IDLE;
 
 public class IdleConnectionDialog extends DialogWithTimeout {
-    private final IdleConnectionDialogForm idleConnectionDialogForm;
-    private final ConnectionRef connection;
+    private final IdleConnectionDialogForm form;
     private final DBNConnection conn;
 
     public IdleConnectionDialog(ConnectionHandler targetConnection, DBNConnection conn) {
-        super(targetConnection.getProject(), "Idle connection", true, TimeUtil.getSeconds(5));
-        this.connection = targetConnection.ref();
+        super(targetConnection, "Idle connection", true, TimeUtil.getSeconds(5));
         this.conn = conn;
-        idleConnectionDialogForm = new IdleConnectionDialogForm(this, targetConnection, conn, 5);
+        this.form = new IdleConnectionDialogForm(this, targetConnection, conn, 5);
         setModal(false);
         init();
     }
 
     @Override
     protected JComponent createContentComponent() {
-        return idleConnectionDialogForm.getComponent();
+        return form.getComponent();
     }
 
     @Override
     public void doDefaultAction() {
         rollback();
-    }
-
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     @Override

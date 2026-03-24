@@ -24,6 +24,8 @@ import com.intellij.psi.PsiElement;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.ref.Reference;
+
 @UtilityClass
 public final class Checks {
 
@@ -67,6 +69,10 @@ public final class Checks {
 
         if (object instanceof PsiElement psiElement) {
             return psiElement.isValid();
+        }
+
+        if (object instanceof Reference<?> reference) {
+            return reference.get() != null;
         }
 
         return true;

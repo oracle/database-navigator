@@ -215,12 +215,12 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
     @Override
     public DBLanguagePsiFile getPsiFile() {
         DBLanguagePsiFile psiFile = this.psiFile.get();
-        if (psiFile == null) {
-            ExecutablePsiElement executablePsiElement = WeakRef.get(cachedExecutable);
-            if (executablePsiElement != null && executablePsiElement.isValid()) {
-                psiFile = executablePsiElement.getFile();
-                this.psiFile = PsiFileRef.of(psiFile);
-            }
+        if (psiFile != null) return psiFile;
+
+        ExecutablePsiElement executablePsiElement = WeakRef.get(cachedExecutable);
+        if (executablePsiElement != null && executablePsiElement.isValid()) {
+            psiFile = executablePsiElement.getFile();
+            this.psiFile = PsiFileRef.of(psiFile);
         }
         return psiFile;
     }
