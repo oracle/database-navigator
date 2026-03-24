@@ -69,6 +69,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
     private JLabel delimiterLabel;
     private JLabel hasHeaderLabel;
     private JTextField uriField;
+    private JCheckBox noCredentialCheckBox;
     private DBObjectSelector<DBSchema> credentialSchemaComboBox;
     private DBObjectSelector<DBCredential> credentialComboBox;
     private JTextField delimiterField;
@@ -119,13 +120,18 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
     protected void initFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
         fieldAdapter.initFieldsAvailability(
-                () -> isValid(getSelectedCredentialSchema()), array(credentialComboBox));
+                () -> !noCredentialCheckBox.isSelected() && isValid(getSelectedCredentialSchema()),
+                array(credentialComboBox));
+        fieldAdapter.initFieldsAvailability(
+                () -> !noCredentialCheckBox.isSelected(),
+                array(credentialSchemaComboBox, credentialSchemaLabel, credentialLabel));
     }
 
     @Override
     protected void initEventListeners() {
         onSelectionChange(credentialSchemaComboBox, s -> populateCredentials());
         onTextChange(uriField, e -> notifySourceChanged());
+        noCredentialCheckBox.addActionListener(e -> updateFieldAvailability());
         loadColumnsButton.addActionListener(e -> loadColumnsFromCloud());
     }
 
@@ -166,6 +172,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
     }
 
     public @Nullable String getSelectedCredential() {
+        if (noCredentialCheckBox.isSelected()) return null;
         DBCredential credential = getSelection(credentialComboBox);
         return credential == null ? null : credential.getName();
     }
@@ -291,6 +298,7 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
     public void resetFormChanges() {
         CloudSourceConfig config = getConfig();
         uriField.setText(config.getFileUri() != null ? config.getFileUri() : "");
+        noCredentialCheckBox.setSelected(config.isNoCredential());
         delimiterField.setText(config.getDelimiter() != null ? config.getDelimiter() : ",");
         hasHeaderCheckBox.setSelected(config.isHasHeader());
         initCredentialComboBoxes();
@@ -300,8 +308,9 @@ public class MLSourceCloudForm extends MLToolboxFormBase {
     public void applyFormChanges() {
         CloudSourceConfig config = getConfig();
         config.setFileUri(uriField.getText().trim());
-        config.setCredentialSchemaName(getSelectedObjectName(credentialSchemaComboBox, config.getCredentialSchemaName()));
-        config.setCredentialName(getSelectedObjectName(credentialComboBox, config.getCredentialName()));
+        config.setNoCredential(noCredentialCheckBox.isSelected());
+        config.setCredentialSchemaName(noCredentialCheckBox.isSelected() ? null : getSelectedObjectName(credentialSchemaComboBox, config.getCredentialSchemaName()));
+        config.setCredentialName(noCredentialCheckBox.isSelected() ? null : getSelectedObjectName(credentialComboBox, config.getCredentialName()));
         config.setDelimiter(delimiterField.getText());
         config.setHasHeader(hasHeaderCheckBox.isSelected());
         config.setDiscoveredColumns(new ArrayList<>(discoveredColumns));

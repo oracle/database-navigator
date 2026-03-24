@@ -29,7 +29,6 @@
 
     <!-- ==================== MODEL CREATION ==================== -->
 
-    <!-- Create ML Model using DBMS_DATA_MINING -->
     <statement-execution-processor id="create-ml-model" timeout="300000">
         <statement>
             BEGIN

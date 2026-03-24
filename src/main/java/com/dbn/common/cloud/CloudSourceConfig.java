@@ -37,6 +37,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 @Setter
 public class CloudSourceConfig implements PersistentStateElement {
     private String fileUri;
+    private boolean noCredential = false;
     private String credentialSchemaName;
     private String credentialName;
     private String delimiter = ",";
@@ -49,6 +50,7 @@ public class CloudSourceConfig implements PersistentStateElement {
         if (element == null) return;
 
         fileUri = stringAttribute(element, "file-uri");
+        noCredential = Boolean.parseBoolean(stringAttribute(element, "no-credential", "false"));
         credentialSchemaName = stringAttribute(element, "credential-schema");
         credentialName = stringAttribute(element, "credential");
         delimiter = stringAttribute(element, "delimiter", delimiter);
@@ -58,6 +60,7 @@ public class CloudSourceConfig implements PersistentStateElement {
     @Override
     public void writeState(Element element) {
         setStringAttribute(element, "file-uri", fileUri);
+        setStringAttribute(element, "no-credential", String.valueOf(noCredential));
         setStringAttribute(element, "credential-schema", credentialSchemaName);
         setStringAttribute(element, "credential", credentialName);
         setStringAttribute(element, "delimiter", delimiter);

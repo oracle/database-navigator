@@ -38,42 +38,49 @@ public enum DBMSAlgorithmType {
             MLTaskType.CLASSIFICATION,
             "Decision Tree",
             "ALGO_DECISION_TREE",
-            "Tree-based classification algorithm"
+            "Builds a tree of binary splits on attribute values"
     ),
 
     NAIVE_BAYES(
             MLTaskType.CLASSIFICATION,
             "Naive Bayes",
             "ALGO_NAIVE_BAYES",
-            "Probabilistic classifier based on Bayes theorem"
+            "Probabilistic classifier based on Bayes theorem with feature independence assumption"
     ),
 
     RANDOM_FOREST(
             MLTaskType.CLASSIFICATION,
             "Random Forest",
             "ALGO_RANDOM_FOREST",
-            "Ensemble of decision trees"
+            "Ensemble of decision trees trained on random subsets of data and features"
     ),
 
     SVM_CLASSIFICATION(
             MLTaskType.CLASSIFICATION,
             "Support Vector Machine",
             "ALGO_SUPPORT_VECTOR_MACHINES",
-            "Support Vector Machine for classification"
+            "Finds the optimal hyperplane to separate classes in high-dimensional space"
     ),
 
     LOGISTIC_REGRESSION(
             MLTaskType.CLASSIFICATION,
             "Logistic Regression",
             "ALGO_GENERALIZED_LINEAR_MODEL",
-            "Generalized Linear Model for classification"
+            "Generalized Linear Model that models class membership probability"
     ),
 
     NEURAL_NETWORK_CLASSIFICATION(
             MLTaskType.CLASSIFICATION,
             "Neural Network",
             "ALGO_NEURAL_NETWORK",
-            "Neural network for classification"
+            "Multi-layer perceptron for non-linear classification via backpropagation"
+    ),
+
+    XGBOOST_CLASSIFICATION(
+            MLTaskType.CLASSIFICATION,
+            "XGBoost",
+            "ALGO_XGBOOST",
+            "Extreme Gradient Boosting — sequential ensemble of trees with high accuracy on structured data"
     ),
 
     // ==================== Regression Algorithms ====================
@@ -82,25 +89,29 @@ public enum DBMSAlgorithmType {
             MLTaskType.REGRESSION,
             "Linear Regression",
             "ALGO_GENERALIZED_LINEAR_MODEL",
-            "Generalized Linear Model for regression"
+            "Generalized Linear Model for numeric target prediction"
     ),
 
     SVM_REGRESSION(
             MLTaskType.REGRESSION,
             "SVM Regression",
             "ALGO_SUPPORT_VECTOR_MACHINES",
-            "Support Vector Machine for regression"
+            "Support Vector Machine using epsilon-insensitive loss for numeric prediction"
     ),
 
     NEURAL_NETWORK_REGRESSION(
             MLTaskType.REGRESSION,
             "Neural Network Regression",
             "ALGO_NEURAL_NETWORK",
-            "Neural network for regression"
-    );
+            "Multi-layer perceptron trained to predict continuous numeric values"
+    ),
 
-    // Note: Clustering, Feature Extraction, Anomaly Detection, and Association Rules
-    // are not included in initial implementation as they require different workflows
+    XGBOOST_REGRESSION(
+            MLTaskType.REGRESSION,
+            "XGBoost Regression",
+            "ALGO_XGBOOST",
+            "Extreme Gradient Boosting for numeric prediction with high predictive accuracy"
+    );
 
     private final MLTaskType taskType;
     private final String displayName;

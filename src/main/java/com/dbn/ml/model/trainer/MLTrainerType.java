@@ -34,37 +34,43 @@ public enum MLTrainerType implements Presentable {
 
     LOGISTIC_REGRESSION(
             "Logistic Regression",
-            "Generalized Linear Model classifier.",
+            "Generalized Linear Model that estimates the probability of class membership using a logistic function.",
             MLTaskType.CLASSIFICATION
     ),
 
     SVM_CLASSIFICATION(
             "Support Vector Machine",
-            "Support Vector Machine classifier with linear kernel.",
+            "Finds the optimal hyperplane to separate classes. Works well for high-dimensional data and binary or multiclass problems.",
             MLTaskType.CLASSIFICATION
     ),
 
     DECISION_TREE(
             "Decision Tree",
-            "Tree-based classification algorithm.",
+            "Builds a tree of binary splits on attribute values. Easy to interpret and visualize.",
             MLTaskType.CLASSIFICATION
     ),
 
     NAIVE_BAYES(
             "Naive Bayes",
-            "Probabilistic classifier based on Bayes theorem.",
+            "Probabilistic classifier based on Bayes theorem, assuming independence between features. Fast and effective for text and categorical data.",
             MLTaskType.CLASSIFICATION
     ),
 
     RANDOM_FOREST(
             "Random Forest",
-            "Ensemble of decision trees.",
+            "Ensemble of decision trees trained on random subsets of data and features. Provides variable importance ranking.",
             MLTaskType.CLASSIFICATION
     ),
 
     NEURAL_NETWORK_CLASSIFICATION(
             "Neural Network",
-            "Neural network for classification.",
+            "Multi-layer perceptron that learns non-linear patterns through backpropagation. Suitable for complex classification problems.",
+            MLTaskType.CLASSIFICATION
+    ),
+
+    XGBOOST_CLASSIFICATION(
+            "XGBoost",
+            "Extreme Gradient Boosting — builds an ensemble of trees sequentially, each correcting errors of the previous. High accuracy on structured data.",
             MLTaskType.CLASSIFICATION
     ),
 
@@ -72,19 +78,25 @@ public enum MLTrainerType implements Presentable {
 
     LINEAR_REGRESSION(
             "Linear Regression",
-            "Generalized Linear Model for regression.",
+            "Generalized Linear Model that predicts a numeric target as a linear combination of input features.",
             MLTaskType.REGRESSION
     ),
 
     SVM_REGRESSION(
             "SVM Regression",
-            "Support Vector Machine regression with linear kernel.",
+            "Support Vector Machine using epsilon-insensitive loss to predict numeric target values.",
             MLTaskType.REGRESSION
     ),
 
     NEURAL_NETWORK_REGRESSION(
             "Neural Network Regression",
-            "Neural network for regression.",
+            "Multi-layer perceptron trained to predict continuous numeric values from input features.",
+            MLTaskType.REGRESSION
+    ),
+
+    XGBOOST_REGRESSION(
+            "XGBoost Regression",
+            "Extreme Gradient Boosting for numeric prediction. Combines multiple weak learners for high predictive accuracy.",
             MLTaskType.REGRESSION
     );
 
@@ -109,9 +121,11 @@ public enum MLTrainerType implements Presentable {
             case NAIVE_BAYES -> "Naive Bayes";
             case RANDOM_FOREST -> "Random Forest";
             case NEURAL_NETWORK_CLASSIFICATION -> "Neural Network";
+            case XGBOOST_CLASSIFICATION -> "XGBoost";
             case LINEAR_REGRESSION -> "Linear Regression";
             case SVM_REGRESSION -> "SVM Regression";
             case NEURAL_NETWORK_REGRESSION -> "Neural Network Regression";
+            case XGBOOST_REGRESSION -> "XGBoost Regression";
         };
     }
 

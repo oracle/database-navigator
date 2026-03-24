@@ -92,7 +92,7 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelSp
                                 input.getSourceLocation(),
                                 input.getCredentialName());
 
-                    } else if (modelSourceType == ModelSourceType.MODEL_FILE) {
+                    } else if (modelSourceType == DBAIModelSourceType.MODEL_FILE) {
                         File modelFile = new File(input.getSourceLocation());
                         Blob modelBlob = uploadOnnxModel(conn, input, progress);
                         // TODO: support Oracle metadata sidecar JSON file (e.g. model.json next to model.onnx)

@@ -20,6 +20,7 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -36,6 +37,7 @@ import com.intellij.openapi.Disposable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import java.awt.BorderLayout;
 
 public class MLToolboxForm extends MLToolboxFormBase {
     private JPanel mainPanel;
@@ -145,7 +147,13 @@ public class MLToolboxForm extends MLToolboxFormBase {
                 "configure the training algorithm, and train your model.\n\n" +
                 "The trained model will be stored in the database and can be evaluated and used for predictions.");
         DBNHintForm hintForm = new DBNHintForm(null, hintText, null, true);
-        hintPanel.add(hintForm.getComponent());
+        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+
+        HyperLinkForm hyperLinkForm = HyperLinkForm.create(
+                "Powered by",
+                "Oracle DBMS_DATA_MINING",
+                "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmapi/DBMS_DATA_MINING.html");
+        hintPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
     }
 
     @Override

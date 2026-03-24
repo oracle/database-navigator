@@ -21,6 +21,7 @@ import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
@@ -137,11 +138,12 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
 
                     } catch (Exception e) {
                         log.warn("Model training failed", e);
-                        Messages.showErrorDialog(
+                        String message = e.getMessage();
+                        Dispatch.run(() -> Messages.showErrorDialog(
                                 getProject(),
                                 "Model Training Failed",
-                                "An error occurred during training:\n" + e.getMessage()
-                        );
+                                "An error occurred during training:\n" + message
+                        ));
                     }
                 });
     }
