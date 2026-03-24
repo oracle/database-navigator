@@ -13696,9 +13696,7 @@
                 </wrapper>
             </sequence>
             <sequence id="07539">
-                <one-of id="07540">
-                    <token id="07541" type-id="DT_UROWID" />
-                </one-of>
+                <token id="07541" type-id="DT_UROWID" />
                 <wrapper id="07542" optional="true" template="PARENTHESES">
                     <token id="07543" original-name="size" type-id="INTEGER" />
                 </wrapper>
@@ -13782,6 +13780,26 @@
                             <token id="07603" type-id="DT_BYTE" />
                             <token id="07604" type-id="DT_CHAR" />
                         </one-of>
+                    </sequence>
+                </wrapper>
+            </sequence>
+            <sequence>
+                <token type-id="DT_VECTOR"/>
+                <wrapper id="07556" optional="true" template="PARENTHESES">
+                    <sequence id="07557">
+                        <one-of>
+                            <token type-id="CHR_STAR"/>
+                            <token type-id="INTEGER"/>
+                        </one-of>
+                        <sequence optional="true">
+                            <token type-id="CHR_COMMA"/>
+                            <one-of>
+                                <token type-id="CHR_STAR"/>
+                                <token type-id="DT_INT8"/>
+                                <token type-id="DT_FLOAT32"/>
+                                <token type-id="DT_FLOAT64"/>
+                            </one-of>
+                        </sequence>
                     </sequence>
                 </wrapper>
             </sequence>
