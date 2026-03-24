@@ -20,9 +20,16 @@ import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.Actions;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.dbn.ml.backend.dbms.DBMSAlgorithmType;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
+import com.dbn.ml.model.MLModelDetails;
 import com.dbn.ml.model.MLResult;
+import com.dbn.ml.result.detail.AlgorithmDetailBuilder;
+import com.dbn.ml.result.detail.DecisionTreeDetailBuilder;
+import com.dbn.ml.result.detail.GLMDetailBuilder;
+import com.dbn.ml.result.detail.NaiveBayesDetailBuilder;
+import com.dbn.ml.result.detail.SVMDetailBuilder;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.table.JBTable;
@@ -34,6 +41,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -49,6 +57,12 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
     private static final int BAR_HEIGHT = 4;
 
+    private static final List<AlgorithmDetailBuilder> DETAIL_BUILDERS = List.of(
+            new GLMDetailBuilder(),
+            new SVMDetailBuilder(),
+            new DecisionTreeDetailBuilder(),
+            new NaiveBayesDetailBuilder());
+
     // Form bindings
     private JPanel mainPanel;
     private JPanel actionsPanel;
@@ -60,10 +74,14 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     private com.intellij.ui.SimpleColoredComponent metricsSummary;
     private DBNScrollPane contentScrollPane;
     private JPanel contentPanel;
+    private JPanel alertsPanel;
     private JPanel metricsCardsPanel;
     private JPanel confusionMatrixPanel;
     private JPanel perClassPanel;
     private JPanel modelDetailsPanel;
+    private JPanel variableImportancePanel;
+    private JPanel algorithmDetailsPanel;
+    private JPanel modelInsightsPanel;
 
     // Data
     private final MLResult result;
@@ -76,10 +94,14 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
     private void initializeComponents() {
         initializeHeader();
+        initializeBuildAlerts();
         initializeMetricsCards();
         initializeConfusionMatrix();
         initializePerClassMetrics();
         initializeModelDetails();
+        initializeVariableImportance();
+        initializeAlgorithmDetails();
+        initializeModelInsights();
         createActionsPanel();
     }
 
@@ -139,51 +161,19 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         if (evalResult == null) return;
 
         if (result.isClassification()) {
-            metricsCardsPanel.add(createMetricCard("Accuracy", evalResult.getAccuracy(), true));
-            metricsCardsPanel.add(createMetricCard("Precision", evalResult.getPrecision(), true));
-            metricsCardsPanel.add(createMetricCard("Recall", evalResult.getRecall(), true));
-            metricsCardsPanel.add(createMetricCard("F1 Score", evalResult.getF1Score(), true));
+            metricsCardsPanel.add(new MLMetricCardPanel("Accuracy", evalResult.getAccuracy(), true));
+            metricsCardsPanel.add(new MLMetricCardPanel("Precision", evalResult.getPrecision(), true));
+            metricsCardsPanel.add(new MLMetricCardPanel("Recall", evalResult.getRecall(), true));
+            metricsCardsPanel.add(new MLMetricCardPanel("F1 Score", evalResult.getF1Score(), true));
 
             if (evalResult.getAucRoc() > 0) {
-                metricsCardsPanel.add(createMetricCard("AUC-ROC", evalResult.getAucRoc(), true));
+                metricsCardsPanel.add(new MLMetricCardPanel("AUC-ROC", evalResult.getAucRoc(), true));
             }
         } else {
-            metricsCardsPanel.add(createMetricCard("R\u00B2 Score", evalResult.getR2Score(), true));
-            metricsCardsPanel.add(createMetricCard("RMSE", evalResult.getRMSE(), false));
-            metricsCardsPanel.add(createMetricCard("MAE", evalResult.getMAE(), false));
+            metricsCardsPanel.add(new MLMetricCardPanel("R\u00B2 Score", evalResult.getR2Score(), true));
+            metricsCardsPanel.add(new MLMetricCardPanel("RMSE", evalResult.getRMSE(), false));
+            metricsCardsPanel.add(new MLMetricCardPanel("MAE", evalResult.getMAE(), false));
         }
-    }
-
-    private JPanel createMetricCard(String name, double value, boolean isRatio) {
-        JPanel card = new JPanel();
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        //
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(JBColor.border(), 1),
-                JBUI.Borders.empty(12)
-        ));
-
-        JLabel nameLabel = new JLabel(name);
-        nameLabel.setFont(nameLabel.getFont().deriveFont(11f));
-        nameLabel.setForeground(JBColor.gray);
-        nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        card.add(nameLabel);
-        card.add(Box.createVerticalStrut(4));
-
-        String valueStr = isRatio ? String.format("%.1f%%", value * 100) : String.format("%.4f", value);
-        JLabel valueLabel = new JLabel(valueStr);
-        valueLabel.setFont(valueLabel.getFont().deriveFont(Font.BOLD, 18f));
-        valueLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        card.add(valueLabel);
-
-        if (isRatio) {
-            card.add(Box.createVerticalStrut(6));
-            JPanel bar = createProgressBar((int) (value * 100), BAR_HEIGHT);
-            bar.setAlignmentX(Component.LEFT_ALIGNMENT);
-            card.add(bar);
-        }
-
-        return card;
     }
 
     private void initializeConfusionMatrix() {
@@ -192,15 +182,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
             return;
         }
 
-        confusionMatrixPanel.setLayout(new BorderLayout(8, 8));
-        confusionMatrixPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(JBColor.border(), 1),
-                JBUI.Borders.empty(12)
-        ));
-
-        JLabel titleLabel = new JLabel("Confusion Matrix");
-        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
-        confusionMatrixPanel.add(titleLabel, BorderLayout.NORTH);
+        MLResultPanelHelper.initSection(confusionMatrixPanel, "Confusion Matrix");
 
         // Try to get confusion matrix data
         Map<String, Integer> confusionData = null;
@@ -311,15 +293,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
             return;
         }
 
-        perClassPanel.setLayout(new BorderLayout(8, 8));
-        perClassPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(JBColor.border(), 1),
-                JBUI.Borders.empty(12)
-        ));
-
-        JLabel titleLabel = new JLabel("Per-Class Performance");
-        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
-        perClassPanel.add(titleLabel, BorderLayout.NORTH);
+        MLResultPanelHelper.initSection(perClassPanel, "Per-Class Performance");
 
         JPanel chartPanel = new JPanel();
         chartPanel.setLayout(new BoxLayout(chartPanel, BoxLayout.Y_AXIS));
@@ -330,7 +304,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
             if (perClassMetrics != null && !perClassMetrics.isEmpty()) {
                 for (var entry : perClassMetrics.entrySet()) {
                     var m = entry.getValue();
-                    chartPanel.add(createClassRow(entry.getKey(), m.getPrecision(), m.getRecall(), m.getF1Score(), m.getSupport()));
+                    chartPanel.add(new MLClassRowPanel(entry.getKey(), m.getPrecision(), m.getRecall(), m.getF1Score(), m.getSupport()));
                     chartPanel.add(Box.createVerticalStrut(8));
                 }
             }
@@ -343,105 +317,8 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         perClassPanel.add(chartPanel, BorderLayout.CENTER);
     }
 
-    private JPanel createClassRow(String className, double precision, double recall, double f1, int support) {
-        JPanel row = new JPanel(new BorderLayout(12, 0));
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 24));
-
-        // Left: class name and support
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-        JLabel nameLabel = new JLabel(className);
-        nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 12f));
-        leftPanel.add(nameLabel);
-        JLabel supportLabel = new JLabel("(n=" + support + ")");
-        supportLabel.setForeground(JBColor.gray);
-        supportLabel.setFont(supportLabel.getFont().deriveFont(10f));
-        leftPanel.add(supportLabel);
-        leftPanel.setPreferredSize(new Dimension(180, 24));
-        row.add(leftPanel, BorderLayout.WEST);
-
-        // Center: metrics spread across available width
-        JPanel metricsPanel = new JPanel(new GridLayout(1, 3, 20, 0));
-        metricsPanel.add(createMetricBar("P", precision));
-        metricsPanel.add(createMetricBar("R", recall));
-        metricsPanel.add(createMetricBar("F1", f1));
-        row.add(metricsPanel, BorderLayout.CENTER);
-
-        return row;
-    }
-
-    private JPanel createMetricBar(String label, double value) {
-        JPanel panel = new JPanel(new BorderLayout(6, 0));
-
-        // Label on left
-        JLabel labelComp = new JLabel(label);
-        labelComp.setFont(labelComp.getFont().deriveFont(11f));
-        labelComp.setForeground(JBColor.gray);
-        labelComp.setPreferredSize(new Dimension(20, 16));
-        panel.add(labelComp, BorderLayout.WEST);
-
-        // Bar in center - wrap to keep fixed height
-        JPanel barWrapper = new JPanel(new GridBagLayout());
-        barWrapper.setOpaque(false);
-        JPanel bar = createProgressBar((int) (value * 100), BAR_HEIGHT);
-        barWrapper.add(bar, new GridBagConstraints() {{
-            fill = GridBagConstraints.HORIZONTAL;
-            weightx = 1.0;
-        }});
-        panel.add(barWrapper, BorderLayout.CENTER);
-
-        // Value on right
-        JLabel valueLabel = new JLabel(String.format("%.0f%%", value * 100));
-        valueLabel.setFont(valueLabel.getFont().deriveFont(11f));
-        valueLabel.setPreferredSize(new Dimension(40, 16));
-        valueLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        panel.add(valueLabel, BorderLayout.EAST);
-
-        return panel;
-    }
-
-    private JPanel createProgressBar(int percentage, int height) {
-        return new JPanel() {
-            {
-                setPreferredSize(new Dimension(60, height));
-                setMinimumSize(new Dimension(30, height));
-                setOpaque(false);
-            }
-
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                int width = getWidth();
-                int h = getHeight();
-                int fillWidth = (int) (width * percentage / 100.0);
-
-                // Background track
-                g2.setColor(JBColor.border());
-                g2.fillRoundRect(0, 0, width, h, h, h);
-
-                // Filled portion
-                if (fillWidth > 0) {
-                    g2.setColor(new JBColor(new Color(130, 130, 130), new Color(160, 160, 160)));
-                    g2.fillRoundRect(0, 0, fillWidth, h, h, h);
-                }
-
-                g2.dispose();
-            }
-        };
-    }
-
     private void initializeModelDetails() {
-        modelDetailsPanel.setLayout(new BorderLayout(8, 8));
-        modelDetailsPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(JBColor.border(), 1),
-                JBUI.Borders.empty(12)
-        ));
-
-        JLabel titleLabel = new JLabel("Model Details");
-        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
-        modelDetailsPanel.add(titleLabel, BorderLayout.NORTH);
+        MLResultPanelHelper.initSection(modelDetailsPanel, "Model Details");
 
         JPanel detailsGrid = new JPanel(new GridLayout(0, 4, 16, 6));
 
@@ -458,6 +335,163 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         }
 
         modelDetailsPanel.add(detailsGrid, BorderLayout.CENTER);
+    }
+
+    private void initializeVariableImportance() {
+        MLModelDetails details = result.getModelDetails();
+        if (details == null || !details.hasVariableImportance()) {
+            variableImportancePanel.setVisible(false);
+            return;
+        }
+
+        MLResultPanelHelper.initSection(variableImportancePanel, "Variable Importance");
+
+        JPanel barsPanel = new JPanel();
+        barsPanel.setLayout(new BoxLayout(barsPanel, BoxLayout.Y_AXIS));
+        barsPanel.setBorder(JBUI.Borders.emptyTop(8));
+
+        List<MLModelDetails.VariableImportance> items = details.getVariableImportance();
+        double maxImportance = items.stream().mapToDouble(MLModelDetails.VariableImportance::getImportance).max().orElse(1.0);
+
+        for (MLModelDetails.VariableImportance item : items) {
+            barsPanel.add(createImportanceRow(item.getAttributeName(), item.getImportance(), maxImportance));
+            barsPanel.add(Box.createVerticalStrut(6));
+        }
+
+        variableImportancePanel.add(barsPanel, BorderLayout.CENTER);
+    }
+
+    private JPanel createImportanceRow(String name, double importance, double maxImportance) {
+        JPanel row = new JPanel(new BorderLayout(8, 0));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
+        row.setOpaque(false);
+
+        JLabel nameLabel = new JLabel(name);
+        nameLabel.setFont(nameLabel.getFont().deriveFont(12f));
+        nameLabel.setPreferredSize(new Dimension(180, 16));
+        row.add(nameLabel, BorderLayout.WEST);
+
+        int pct = maxImportance > 0 ? (int) (importance / maxImportance * 100) : 0;
+        row.add(new MLProgressBarPanel(pct, BAR_HEIGHT), BorderLayout.CENTER);
+
+        JLabel valLabel = new JLabel(String.format("%.3f", importance));
+        valLabel.setFont(valLabel.getFont().deriveFont(Font.BOLD, 12f));
+        valLabel.setPreferredSize(new Dimension(50, 16));
+        valLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        row.add(valLabel, BorderLayout.EAST);
+
+        return row;
+    }
+
+    private void initializeBuildAlerts() {
+        MLModelDetails details = result.getModelDetails();
+        if (details == null || !details.hasBuildAlerts()) {
+            alertsPanel.setVisible(false);
+            return;
+        }
+
+        alertsPanel.setLayout(new BorderLayout(8, 4));
+        alertsPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new JBColor(new Color(200, 140, 0), new Color(180, 130, 0)), 1),
+                JBUI.Borders.empty(10)
+        ));
+        alertsPanel.setBackground(new JBColor(new Color(255, 248, 220), new Color(60, 50, 20)));
+        alertsPanel.setOpaque(true);
+
+        JLabel warningLabel = new JLabel("Build Warnings (" + details.getBuildAlerts().size() + ")");
+        warningLabel.setFont(warningLabel.getFont().deriveFont(Font.BOLD, 13f));
+        warningLabel.setForeground(new JBColor(new Color(160, 100, 0), new Color(220, 170, 60)));
+        alertsPanel.add(warningLabel, BorderLayout.NORTH);
+
+        JPanel alertsList = new JPanel();
+        alertsList.setLayout(new BoxLayout(alertsList, BoxLayout.Y_AXIS));
+        alertsList.setOpaque(false);
+        alertsList.setBorder(JBUI.Borders.emptyTop(4));
+        for (String alert : details.getBuildAlerts()) {
+            JLabel alertLabel = new JLabel("\u26A0 " + alert);
+            alertLabel.setFont(alertLabel.getFont().deriveFont(11f));
+            alertLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            alertsList.add(alertLabel);
+            alertsList.add(Box.createVerticalStrut(2));
+        }
+        alertsPanel.add(alertsList, BorderLayout.CENTER);
+    }
+
+    private void initializeAlgorithmDetails() {
+        MLModelDetails details = result.getModelDetails();
+        if (details == null) {
+            algorithmDetailsPanel.setVisible(false);
+            return;
+        }
+
+        DBMSAlgorithmType algorithmType = null;
+        try {
+            algorithmType = DBMSAlgorithmType.fromDisplayName(result.getAlgorithmName());
+        } catch (Exception ignored) {}
+
+        DBMSAlgorithmType finalAlgorithmType = algorithmType;
+        for (AlgorithmDetailBuilder builder : DETAIL_BUILDERS) {
+            if (builder.canHandle(details, finalAlgorithmType)) {
+                builder.build(algorithmDetailsPanel, details);
+                return;
+            }
+        }
+        algorithmDetailsPanel.setVisible(false);
+    }
+
+    private void initializeModelInsights() {
+        MLModelDetails details = result.getModelDetails();
+        if (details == null || (!details.hasGlobalStats() && !details.hasComputedSettings())) {
+            modelInsightsPanel.setVisible(false);
+            return;
+        }
+
+        modelInsightsPanel.setLayout(new GridLayout(1, details.hasGlobalStats() && details.hasComputedSettings() ? 2 : 1, 16, 0));
+        modelInsightsPanel.setBorder(JBUI.Borders.empty(0));
+
+        if (details.hasGlobalStats()) {
+            modelInsightsPanel.add(buildInsightCard("Global Statistics", details.getGlobalStats()));
+        }
+
+        if (details.hasComputedSettings()) {
+            // Filter to the most relevant settings (exclude verbose ones)
+            Map<String, String> filteredSettings = new LinkedHashMap<>();
+            details.getComputedSettings().forEach((k, v) -> {
+                if (!k.startsWith("ODMS_DETAILS") && !k.equals("PREP_AUTO")) {
+                    filteredSettings.put(k, v);
+                }
+            });
+            if (!filteredSettings.isEmpty()) {
+                modelInsightsPanel.add(buildInsightCard("Computed Settings", filteredSettings));
+            }
+        }
+    }
+
+    private JPanel buildInsightCard(String title, Map<String, String> data) {
+        JPanel card = new JPanel(new BorderLayout(8, 6));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(JBColor.border(), 1),
+                JBUI.Borders.empty(12)
+        ));
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
+        card.add(titleLabel, BorderLayout.NORTH);
+
+        JPanel grid = new JPanel(new GridLayout(0, 2, 8, 4));
+        grid.setBorder(JBUI.Borders.emptyTop(6));
+        data.forEach((k, v) -> {
+            JLabel keyLabel = new JLabel(k);
+            keyLabel.setForeground(JBColor.gray);
+            keyLabel.setFont(keyLabel.getFont().deriveFont(11f));
+            grid.add(keyLabel);
+
+            JLabel valLabel = new JLabel(v);
+            valLabel.setFont(valLabel.getFont().deriveFont(Font.BOLD, 11f));
+            grid.add(valLabel);
+        });
+        card.add(grid, BorderLayout.CENTER);
+        return card;
     }
 
     private void addDetailRow(JPanel panel, String label, String value) {
