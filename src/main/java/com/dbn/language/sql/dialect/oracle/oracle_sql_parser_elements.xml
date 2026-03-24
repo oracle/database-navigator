@@ -5776,6 +5776,7 @@
             <element ref-id="create_user" />
             <element ref-id="create_role" />
             <element ref-id="create_table" />
+            <element ref-id="create_vector_index" />
         </one-of>
     </element-def>
 
@@ -6040,7 +6041,6 @@
         </qualified-identifier>
         <element optional="true" ref-id="dblink_qualifier" />
     </element-def>
-
 
     <element-def description="CREATE TABLE statement" id="create_table_statement">
         <token id="03464" type-id="KW_CREATE" />
@@ -6974,6 +6974,141 @@
             </variant>
         </qualified-identifier>
     </element-def>
+
+    <element-def description="CREATE VECTOR INDEX statement" id="create_vector_index_statement">
+        <token id="03464" type-id="KW_CREATE" />
+        <element ref-id="create_vector_index" />
+    </element-def>
+    <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE VECTOR INDEX statement" id="create_vector_index">
+        <token type-id="DT_VECTOR" exit="keyword"/>
+        <token type-id="KW_INDEX"/>
+        <object-def type="INDEX" original-name="vector_index_name"/>
+        <token type-id="KW_ON"/>
+        <qualified-identifier>
+            <variant>
+                <object-ref type="SCHEMA" optional="true"/>
+                <object-ref type="TABLE" original-name="table_name"/>
+            </variant>
+        </qualified-identifier>
+        <wrapper template="PARENTHESES">
+            <object-ref type="COLUMN" original-name="vector_column"/>
+        </wrapper>
+        <sequence optional="true">
+            <token type-id="KW_INCLUDE"/>
+            <wrapper template="PARENTHESES">
+                <iteration separator="CHR_COMMA">
+                    <object-ref type="COLUMN" original-name="covering_column"/>
+                </iteration>
+            </wrapper>
+        </sequence>
+        <token type-id="KW_GLOBAL" optional="true"/>
+        <element ref-id="vector_index_organization_clause"/>
+        <sequence optional="true">
+            <token type-id="KW_QUANTIZATION"/>
+            <token type-id="KW_SCALAR" original-name="quantization_type"/>
+            <token type-id="KW_COMPRESSION"/>
+            <token type-id="KW_RATIO"/>
+            <token type-id="INTEGER" original-name="compression_ratio"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="KW_WITH"/>
+            <token type-id="KW_TARGET"/>
+            <token type-id="KW_ACCURACY"/>
+            <token type-id="INTEGER" original-name="percentage_value"/>
+        </sequence>
+        <element ref-id="vector_index_parameters_clause" optional="true"/>
+        <element ref-id="vector_index_hnsw_replication_clause" optional="true"/>
+        <sequence optional="true">
+            <token type-id="KW_PARALLEL"/>
+            <token type-id="INTEGER" original-name="degree_of_parallelism"/>
+        </sequence>
+        <token type-id="KW_ONLINE" optional="true"/>
+    </element-def>
+    <element-def attributes="CLAUSE" description="VECTOR INDEX ORGANIZATION clause" id="vector_index_organization_clause">
+        <token type-id="KW_ORGANIZATION"/>
+        <one-of>
+            <sequence>
+                <token type-id="KW_INMEMORY"/>
+                <token type-id="KW_NEIGHBOR" optional="true"/>
+                <token type-id="KW_GRAPH"/>
+            </sequence>
+            <sequence>
+                <token type-id="KW_NEIGHBOR" optional="true"/>
+                <token type-id="KW_PARTITIONS"/>
+            </sequence>
+        </one-of>
+        <token type-id="KW_WITH" optional="true"/>
+        <sequence optional="true">
+            <token type-id="KW_DISTANCE"/>
+            <element ref-id="vector_distance_metric" original-name="metric_name"/>
+        </sequence>
+    </element-def>
+    <element-def description="Vector distance METRIC name" id="vector_distance_metric">
+        <one-of>
+            <token type-id="PRM_EUCLIDEAN"/>
+            <token type-id="PRM_L2_SQUARED"/>
+            <token type-id="PRM_EUCLIDEAN_SQUARED"/>
+            <token type-id="PRM_COSINE"/>
+            <token type-id="PRM_DOT"/>
+            <token type-id="PRM_MANHATTAN"/>
+            <token type-id="PRM_HAMMING"/>
+        </one-of>
+    </element-def>
+    <element-def attributes="CLAUSE" description="VECTOR INDEX PARAMETERS clause" id="vector_index_parameters_clause">
+        <token type-id="KW_PARAMETERS"/>
+        <wrapper template="PARENTHESES">
+            <one-of>
+                <element ref-id="vector_index_parameters_hnsw_clause"/>
+                <element ref-id="vector_index_parameters_ivf_clause"/>
+            </one-of>
+        </wrapper>
+    </element-def>
+    <element-def attributes="CLAUSE" description="VECTOR INDEX PARAMETERS HNSW clause" id="vector_index_parameters_hnsw_clause">
+        <token type-id="KW_TYPE"/>
+        <token type-id="KW_HNSW"/>
+        <token type-id="CHR_COMMA"/>
+        <one-of optional="true">
+            <token type-id="KW_NEIGHBORS"/>
+            <token type-id="KW_M"/>
+        </one-of>
+        <token type-id="INTEGER" original-name="max_closest_vectors_connected"/>
+        <token type-id="CHR_COMMA"/>
+        <token type-id="KW_EFCONSTRUCTION" optional="true"/>
+        <token type-id="INTEGER" original-name="max_candidates_to_consider"/>
+        <sequence optional="true">
+            <token type-id="CHR_COMMA"/>
+            <token type-id="KW_RESCORE" exit="true"/>
+            <token type-id="KW_FACTOR"/>
+            <token type-id="INTEGER" original-name="rescore_factor"/>
+        </sequence>
+        <sequence optional="true">
+            <token type-id="CHR_COMMA"/>
+            <token type-id="KW_ALGORITHM" exit="true"/>
+            <token type-id="KW_SCALAR" original-name="quantization_algorithm"/>
+        </sequence>
+    </element-def>
+    <element-def attributes="CLAUSE" description="VECTOR INDEX PARAMETERS IVF clause" id="vector_index_parameters_ivf_clause">
+        <token type-id="KW_TYPE"/>
+        <token type-id="KW_IVF"/>
+        <token type-id="CHR_COMMA"/>
+        <one-of>
+            <sequence>
+                <token type-id="KW_NEIGHBOR"/>
+                <token type-id="KW_PARTITIONS"/>
+                <token type-id="INTEGER" original-name="number_of_partitions"/>
+            </sequence>
+            <sequence>
+                <token type-id="PRM_SAMPLES_PER_PARTITION"/>
+                <token type-id="INTEGER" original-name="number_of_samples"/>
+            </sequence>
+            <sequence>
+                <token type-id="PRM_MIN_VECTORS_PER_PARTITION"/>
+                <token type-id="INTEGER" original-name="min_number_of_vectors_per_partition"/>
+            </sequence>
+        </one-of>
+
+    </element-def>
+
 
     <element-def description="CREATE VIEW statement" id="create_view_statement">
         <token id="03962" type-id="KW_CREATE" />
