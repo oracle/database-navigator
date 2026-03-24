@@ -334,6 +334,144 @@
         </statement>
     </statement-execution-processor>
 
+    <!-- Read CSV header line from cloud object storage using DBMS_CLOUD.GET_OBJECT -->
+    <!-- Returns a single row with HEADER_LINE containing the first line of the CSV file -->
+    <!-- Parameters: 0=credential_name, 1=file_uri -->
+    <statement-execution-processor id="get-cloud-csv-header" timeout="30000">
+        <statement>
+            SELECT UTL_RAW.CAST_TO_VARCHAR2(
+                       DBMS_LOB.SUBSTR(
+                           DBMS_CLOUD.GET_OBJECT(
+                               credential_name => {#0},
+                               object_uri      => {#1}
+                           ),
+                           4000,
+                           1
+                       )
+                   ) AS FILE_HEAD
+            FROM DUAL
+        </statement>
+    </statement-execution-processor>
+
+    <!-- ==================== MODEL DETAIL VIEWS ==================== -->
+
+    <!-- Query Global Statistics view (DM$VG) for a model -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-global-stats" timeout="10000">
+        <statement>
+            SELECT NAME, NUMERIC_VALUE, STRING_VALUE
+            FROM DM$VG{0}
+            ORDER BY NAME
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Query Attribute Details view (DM$VA) for a model -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-attribute-details" timeout="10000">
+        <statement>
+            SELECT *
+            FROM DM$VA{0}
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Query variable importance from DM$VA (Random Forest, EM, MDL algorithms) -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-variable-importance" timeout="10000">
+        <statement>
+            SELECT ATTRIBUTE_NAME, ATTRIBUTE_IMPORTANCE
+            FROM DM$VA{0}
+            ORDER BY ATTRIBUTE_IMPORTANCE DESC NULLS LAST
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Query Computed Settings view (DM$VS) for a model -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-computed-settings" timeout="10000">
+        <statement>
+            SELECT SETTING_NAME, SETTING_VALUE
+            FROM DM$VS{0}
+            ORDER BY SETTING_NAME
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Query Build Alerts view (DM$VW) for a model — all algorithms -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-alerts" timeout="10000">
+        <statement>
+            SELECT ERROR_NUMBER, ERROR_TEXT FROM DM$VW{0} ORDER BY ERROR_NUMBER
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Query GLM Coefficients view (DM$VD) — Logistic Regression, Linear Regression -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-glm-coefficients" timeout="10000">
+        <statement>
+            SELECT ATTRIBUTE_NAME, ATTRIBUTE_VALUE, COEFFICIENT, STD_ERROR, TEST_STATISTIC, P_VALUE, VIF
+            FROM DM$VD{0}
+            ORDER BY ABS(COEFFICIENT) DESC NULLS LAST
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Query SVM Linear Coefficients view (DM$VL) — SVM Classification, SVM Regression -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-svm-coefficients" timeout="10000">
+        <statement>
+            SELECT ATTRIBUTE_NAME, ATTRIBUTE_VALUE, CLASS, COEFFICIENT
+            FROM DM$VL{0}
+            ORDER BY CLASS, ABS(COEFFICIENT) DESC NULLS LAST
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Query Decision Tree Splits view (DM$VP) — Decision Tree only -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-tree-splits" timeout="10000">
+        <statement>
+            SELECT NODE, PARENT, ATTRIBUTE_NAME, OPERATOR, VALUE
+            FROM DM$VP{0}
+            WHERE SPLIT_TYPE = 'MAIN'
+            ORDER BY NODE
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Query Naive Bayes class priors (DM$VP) — Naive Bayes only -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-nb-priors" timeout="10000">
+        <statement>
+            SELECT TARGET_VALUE, PRIOR_PROBABILITY, COUNT
+            FROM DM$VP{0}
+            ORDER BY PRIOR_PROBABILITY DESC
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Query Naive Bayes top conditional probabilities (DM$VV) — Naive Bayes only -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-nb-conditionals" timeout="10000">
+        <statement>
+            SELECT TARGET_VALUE, ATTRIBUTE_NAME, ATTRIBUTE_VALUE, CONDITIONAL_PROBABILITY
+            FROM DM$VV{0}
+            ORDER BY CONDITIONAL_PROBABILITY DESC
+            FETCH FIRST 50 ROWS ONLY
+        </statement>
+    </statement-execution-processor>
+
+    <!-- ==================== CLOUD OBJECT STORAGE ==================== -->
+
+    <!-- Create External Table over Cloud Object Storage using DBMS_CLOUD -->
+    <!-- Parameters: 0=table_name, 1=credential_name, 2=file_uri, 3=delimiter, 4=skip_headers, 5=column_list -->
+    <statement-execution-processor id="create-cloud-external-table" timeout="120000">
+        <statement>
+            BEGIN
+                DBMS_CLOUD.CREATE_EXTERNAL_TABLE(
+                    table_name      => {#0},
+                    credential_name => {#1},
+                    file_uri_list   => {#2},
+                    format          => JSON_OBJECT('type' VALUE 'csv', 'delimiter' VALUE {#3}, 'skipheaders' VALUE {#4}),
+                    column_list     => {#5}
+                );
+            END;
+        </statement>
+    </statement-execution-processor>
+
     <!-- ==================== UTILITY OPERATIONS ==================== -->
 
     <!-- Create Staging Table -->

@@ -267,6 +267,119 @@ public interface DatabaseMLInterface extends DatabaseInterface {
             String dataTableName
     ) throws SQLException;
 
+    // ==================== MODEL DETAIL VIEWS ====================
+
+    /**
+     * Queries the global statistics view (DM$VG) for a model.
+     * Returns general model information: convergence, iterations, row count, etc.
+     *
+     * @return ResultSet with columns: NAME, NUMERIC_VALUE, STRING_VALUE
+     */
+    ResultSet getModelGlobalStats(DBNConnection conn, String modelName) throws SQLException;
+
+    /**
+     * Queries the attribute importance / detail view (DM$VA) for a model.
+     * Returns variable importance for algorithms that support it (RF, EM, NMF, etc.)
+     * or model-specific attribute details (GLM coefficients, NN weights, etc.).
+     *
+     * @return ResultSet with algorithm-specific columns
+     */
+    ResultSet getModelAttributeDetails(DBNConnection conn, String modelName) throws SQLException;
+
+    /**
+     * Queries variable importance from DM$VA (ATTRIBUTE_NAME, ATTRIBUTE_IMPORTANCE).
+     * Supported by Random Forest, MDL/Attribute Importance, and EM algorithms.
+     * Throws SQLException for algorithms that don't support this view structure.
+     *
+     * @return ResultSet with columns: ATTRIBUTE_NAME, ATTRIBUTE_IMPORTANCE
+     */
+    ResultSet getModelVariableImportance(DBNConnection conn, String modelName) throws SQLException;
+
+    /**
+     * Queries the computed settings view (DM$VS) for a model.
+     * Returns the actual settings used to build the model.
+     *
+     * @return ResultSet with columns: SETTING_NAME, SETTING_VALUE
+     */
+    ResultSet getModelComputedSettings(DBNConnection conn, String modelName) throws SQLException;
+
+    /**
+     * Queries the build alerts view (DM$VW) for a model — all algorithms.
+     *
+     * @return ResultSet with columns: ERROR_NUMBER, ERROR_TEXT
+     */
+    ResultSet getModelAlerts(DBNConnection conn, String modelName) throws SQLException;
+
+    /**
+     * Queries GLM coefficients (DM$VD) — Logistic Regression and Linear Regression.
+     *
+     * @return ResultSet with columns: ATTRIBUTE_NAME, ATTRIBUTE_VALUE, COEFFICIENT, STD_ERROR, TEST_STATISTIC, P_VALUE, VIF
+     */
+    ResultSet getModelGLMCoefficients(DBNConnection conn, String modelName) throws SQLException;
+
+    /**
+     * Queries SVM linear coefficients (DM$VL) — SVM Classification and SVM Regression.
+     *
+     * @return ResultSet with columns: ATTRIBUTE_NAME, ATTRIBUTE_VALUE, COEFFICIENT
+     */
+    ResultSet getModelSVMCoefficients(DBNConnection conn, String modelName) throws SQLException;
+
+    /**
+     * Queries Decision Tree splits (DM$VP) — Decision Tree only.
+     *
+     * @return ResultSet with columns: NODE, PARENT, ATTRIBUTE_NAME, OPERATOR, VALUE
+     */
+    ResultSet getModelTreeSplits(DBNConnection conn, String modelName) throws SQLException;
+
+    /**
+     * Queries Naive Bayes class priors (DM$VP) — Naive Bayes only.
+     *
+     * @return ResultSet with columns: TARGET_VALUE, PRIOR_PROBABILITY, COUNT
+     */
+    ResultSet getModelNaiveBayesPriors(DBNConnection conn, String modelName) throws SQLException;
+
+    /**
+     * Queries Naive Bayes top conditional probabilities (DM$VV) — Naive Bayes only.
+     *
+     * @return ResultSet with columns: TARGET_VALUE, ATTRIBUTE_NAME, ATTRIBUTE_VALUE, CONDITIONAL_PROBABILITY
+     */
+    ResultSet getModelNaiveBayesConditionals(DBNConnection conn, String modelName) throws SQLException;
+
+    // ==================== CLOUD OBJECT STORAGE ====================
+
+    /**
+     * Creates an external table over a cloud object storage CSV file using DBMS_CLOUD.
+     *
+     * @param conn Database connection
+     * @param tableName Name for the external table
+     * @param credentialName DB credential name (null for PAR/presigned URLs)
+     * @param fileUri Cloud file URI (https://)
+     * @param delimiter CSV delimiter
+     * @param skipHeaders "1" to skip header row, "0" otherwise
+     * @param columnList  DDL-style column definitions e.g. "COL1 VARCHAR2(4000), COL2 VARCHAR2(4000)"
+     */
+    void createCloudExternalTable(
+            DBNConnection conn,
+            String tableName,
+            String credentialName,
+            String fileUri,
+            String delimiter,
+            String skipHeaders,
+            String columnList
+    ) throws SQLException;
+
+    /**
+     * Reads the first bytes of a cloud CSV file using DBMS_CLOUD.GET_OBJECT
+     * and returns the raw text head (up to 4000 chars).
+     * The caller is responsible for extracting the first line and splitting by delimiter.
+     *
+     * @param conn Database connection
+     * @param credentialName DB credential name
+     * @param fileUri Cloud file URI (https://)
+     * @return The first portion of the file as a string
+     */
+    String getCloudCsvHeader(DBNConnection conn, String credentialName, String fileUri) throws SQLException;
+
     // ==================== UTILITY OPERATIONS ====================
 
     /**

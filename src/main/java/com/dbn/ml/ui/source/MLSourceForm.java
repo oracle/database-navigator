@@ -32,6 +32,8 @@ import com.intellij.openapi.Disposable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.util.Collections;
+import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 
@@ -51,6 +53,7 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
     // Child forms
     private MLSourceTableForm tableForm;
     private MLSourceFileForm fileForm;
+    private MLSourceCloudForm cloudForm;
 
     public MLSourceForm(Disposable parent, ConnectionHandler connection) {
         super(parent, connection);
@@ -67,6 +70,7 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
         ConnectionHandler connection = getConnection();
         tableForm = new MLSourceTableForm(this, connection);
         fileForm = new MLSourceFileForm(this, connection);
+        cloudForm = new MLSourceCloudForm(this, connection);
         updateSourceForm();
     }
 
@@ -76,6 +80,7 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
         alignerData.registerFieldGroup(sourceTypeLabel, sourceTypeComboBox);
         alignerData.registerForms(tableForm);
         alignerData.registerForms(fileForm);
+        alignerData.registerForms(cloudForm);
     }
 
     @Override
@@ -91,6 +96,8 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
             dataPanel.add(fileForm.getComponent());
         } else if (sourceType == MLSourceType.DATABASE_TABLE) {
             dataPanel.add(tableForm.getComponent());
+        } else if (sourceType == MLSourceType.OBJECT_STORAGE) {
+            dataPanel.add(cloudForm.getComponent());
         }
         
         dataPanel.revalidate();
@@ -124,10 +131,35 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
     }
 
     /**
-     * Get selected delimiter (only valid for FILE_SYSTEM source type)
+     * Get selected delimiter (only valid for FILE_SYSTEM or OBJECT_STORAGE source type)
      */
     public String getSelectedDelimiter() {
+        MLSourceType sourceType = getSelectedSourceType();
+        if (sourceType == MLSourceType.OBJECT_STORAGE) {
+            return cloudForm != null ? cloudForm.getSelectedDelimiter() : ",";
+        }
         return fileForm != null ? fileForm.getSelectedDelimiter() : ",";
+    }
+
+    /**
+     * Get selected cloud URI (only valid for OBJECT_STORAGE source type)
+     */
+    public String getSelectedCloudUri() {
+        return cloudForm != null ? cloudForm.getSelectedUri() : null;
+    }
+
+    /**
+     * Get selected credential name (only valid for OBJECT_STORAGE source type)
+     */
+    public String getSelectedCredential() {
+        return cloudForm != null ? cloudForm.getSelectedCredential() : null;
+    }
+
+    /**
+     * Get discovered column names from cloud source (only valid for OBJECT_STORAGE source type)
+     */
+    public List<String> getCloudDiscoveredColumns() {
+        return cloudForm != null ? cloudForm.getDiscoveredColumns() : Collections.emptyList();
     }
 
     private MLSourceConfig getConfig() {
@@ -142,6 +174,7 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
         ComboBoxes.setSelection(sourceTypeComboBox, config.getSourceType());
         tableForm.resetFormChanges();
         fileForm.resetFormChanges();
+        cloudForm.resetFormChanges();
         updateSourceForm();
     }
 
@@ -151,6 +184,7 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
         config.setSourceType(getSelectedSourceType());
         tableForm.applyFormChanges();
         fileForm.applyFormChanges();
+        cloudForm.applyFormChanges();
     }
 
     @Override
@@ -185,7 +219,19 @@ public class MLSourceForm extends MLToolboxFormBase implements DBNCollapsibleFor
                 return sourceTypeName + " - " + schema.getName() + "." + table.getName();
             }
         }
-        
+
+        if (sourceType == MLSourceType.OBJECT_STORAGE) {
+            String uri = getSelectedCloudUri();
+            if (uri != null && !uri.isEmpty()) {
+                int lastSlash = uri.lastIndexOf('/');
+                String objectName = lastSlash >= 0 ? uri.substring(lastSlash + 1) : uri;
+                if (objectName.length() > 40) {
+                    objectName = "..." + objectName.substring(objectName.length() - 37);
+                }
+                return sourceTypeName + " - " + objectName;
+            }
+        }
+
         return sourceTypeName;
     }
 }

@@ -288,6 +288,99 @@ public class OracleMLInterface extends DatabaseInterfaceBase implements Database
         return executeQuery(conn, "get-regression-metrics", modelName, targetColumn, dataTableName);
     }
 
+    // ==================== MODEL DETAIL VIEWS ====================
+
+    @Override
+    public ResultSet getModelGlobalStats(DBNConnection conn, String modelName) throws SQLException {
+        log.debug("Querying model global stats (DM$VG) for: {}", modelName);
+        return executeQuery(conn, "get-model-global-stats", modelName);
+    }
+
+    @Override
+    public ResultSet getModelAttributeDetails(DBNConnection conn, String modelName) throws SQLException {
+        log.debug("Querying model attribute details (DM$VA) for: {}", modelName);
+        return executeQuery(conn, "get-model-attribute-details", modelName);
+    }
+
+    @Override
+    public ResultSet getModelVariableImportance(DBNConnection conn, String modelName) throws SQLException {
+        log.debug("Querying variable importance (DM$VA) for: {}", modelName);
+        return executeQuery(conn, "get-model-variable-importance", modelName);
+    }
+
+    @Override
+    public ResultSet getModelComputedSettings(DBNConnection conn, String modelName) throws SQLException {
+        log.debug("Querying model computed settings (DM$VS) for: {}", modelName);
+        return executeQuery(conn, "get-model-computed-settings", modelName);
+    }
+
+    @Override
+    public ResultSet getModelAlerts(DBNConnection conn, String modelName) throws SQLException {
+        log.debug("Querying model build alerts (DM$VW) for: {}", modelName);
+        return executeQuery(conn, "get-model-alerts", modelName);
+    }
+
+    @Override
+    public ResultSet getModelGLMCoefficients(DBNConnection conn, String modelName) throws SQLException {
+        log.debug("Querying GLM coefficients (DM$VD) for: {}", modelName);
+        return executeQuery(conn, "get-model-glm-coefficients", modelName);
+    }
+
+    @Override
+    public ResultSet getModelSVMCoefficients(DBNConnection conn, String modelName) throws SQLException {
+        log.debug("Querying SVM coefficients (DM$VL) for: {}", modelName);
+        return executeQuery(conn, "get-model-svm-coefficients", modelName);
+    }
+
+    @Override
+    public ResultSet getModelTreeSplits(DBNConnection conn, String modelName) throws SQLException {
+        log.debug("Querying Decision Tree splits (DM$VP) for: {}", modelName);
+        return executeQuery(conn, "get-model-tree-splits", modelName);
+    }
+
+    @Override
+    public ResultSet getModelNaiveBayesPriors(DBNConnection conn, String modelName) throws SQLException {
+        log.debug("Querying Naive Bayes priors (DM$VP) for: {}", modelName);
+        return executeQuery(conn, "get-model-nb-priors", modelName);
+    }
+
+    @Override
+    public ResultSet getModelNaiveBayesConditionals(DBNConnection conn, String modelName) throws SQLException {
+        log.debug("Querying Naive Bayes conditionals (DM$VV) for: {}", modelName);
+        return executeQuery(conn, "get-model-nb-conditionals", modelName);
+    }
+
+    // ==================== CLOUD OBJECT STORAGE ====================
+
+    @Override
+    public void createCloudExternalTable(
+            DBNConnection conn,
+            String tableName,
+            String credentialName,
+            String fileUri,
+            String delimiter,
+            String skipHeaders,
+            String columnList
+    ) throws SQLException {
+        log.debug("Creating cloud external table: {} from URI: {}", tableName, fileUri);
+        executeUpdate(conn, "create-cloud-external-table",
+                tableName, credentialName, fileUri, delimiter, skipHeaders, columnList);
+    }
+
+    @Override
+    public String getCloudCsvHeader(DBNConnection conn, String credentialName, String fileUri) throws SQLException {
+        log.debug("Reading cloud CSV header from URI: {}", fileUri);
+        ResultSet rs = executeQuery(conn, "get-cloud-csv-header", credentialName, fileUri);
+        try {
+            if (rs.next()) {
+                return rs.getString("FILE_HEAD");
+            }
+            return null;
+        } finally {
+            rs.close();
+        }
+    }
+
     // ==================== UTILITY OPERATIONS ====================
 
     @Override

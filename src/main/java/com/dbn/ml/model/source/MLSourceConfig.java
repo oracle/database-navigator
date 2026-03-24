@@ -16,6 +16,7 @@
 
 package com.dbn.ml.model.source;
 
+import com.dbn.common.cloud.CloudSourceConfig;
 import com.dbn.ml.model.MLConfig;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,6 +36,7 @@ public class MLSourceConfig extends MLConfig {
     private MLSourceType sourceType = MLSourceType.DATABASE_TABLE;
     private final MLTableSourceConfig tableSourceConfig = new MLTableSourceConfig();
     private final MLFileSourceConfig fileSourceConfig = new MLFileSourceConfig();
+    private final CloudSourceConfig cloudSourceConfig = new CloudSourceConfig();
 
     @Override
     public void readState(Element element) {
@@ -45,8 +47,10 @@ public class MLSourceConfig extends MLConfig {
         
         Element tableSourceElement = element.getChild("table-source");
         Element fileSourceElement = element.getChild("file-source");
+        Element cloudSourceElement = element.getChild("cloud-source");
         tableSourceConfig.readState(tableSourceElement);
         fileSourceConfig.readState(fileSourceElement);
+        cloudSourceConfig.readState(cloudSourceElement);
     }
 
     @Override
@@ -57,7 +61,9 @@ public class MLSourceConfig extends MLConfig {
         
         Element tableSourceElement = newElement(element, "table-source");
         Element fileSourceElement = newElement(element, "file-source");
+        Element cloudSourceElement = newElement(element, "cloud-source");
         tableSourceConfig.writeState(tableSourceElement);
         fileSourceConfig.writeState(fileSourceElement);
+        cloudSourceConfig.writeState(cloudSourceElement);
     }
 }

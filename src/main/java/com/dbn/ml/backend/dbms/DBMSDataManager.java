@@ -60,11 +60,12 @@ public class DBMSDataManager {
         String schemaName = getSchemaName(connection, context);
 
         // Read CSV and detect column types
+        List<String> partitionColumns = context.getTrainerConfig().getPartitionColumns();
         CSVParseResult parseResult = parseCSVFile(fileConfig, featureColumns,
-                context.getFeatureConfig().getLabelColumns());
+                context.getFeatureConfig().getLabelColumns(), partitionColumns);
 
         // Create table with detected types
-        createStagingTable(connection, schemaName, tableName, context, parseResult.numericFeatures);
+        createStagingTable(connection, schemaName, tableName, context, parseResult.numericFeatures, parseResult.numericPartitions);
 
         // Load CSV data
         int rowCount = loadCSVData(connection, tableName, context, parseResult);
@@ -86,7 +87,9 @@ public class DBMSDataManager {
         List<String[]> dataRows = new ArrayList<>();
         int[] featureIndices;
         int[] labelIndices;
+        int[] partitionIndices;
         boolean[] numericFeatures;
+        boolean[] numericPartitions;
     }
 
     /**
@@ -95,7 +98,8 @@ public class DBMSDataManager {
      */
     private CSVParseResult parseCSVFile(MLFileSourceConfig fileConfig,
                                          List<String> featureColumns,
-                                         List<String> labelColumns) throws Exception {
+                                         List<String> labelColumns,
+                                         List<String> partitionColumns) throws Exception {
         CSVParseResult result = new CSVParseResult();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(fileConfig.getFilePath()))) {
@@ -106,7 +110,9 @@ public class DBMSDataManager {
             String[] headers = headerLine.split(fileConfig.getDelimiter());
             result.featureIndices = findColumnIndices(headers, featureColumns);
             result.labelIndices = findColumnIndices(headers, labelColumns);
+            result.partitionIndices = findColumnIndices(headers, partitionColumns);
             result.numericFeatures = new boolean[featureColumns.size()];
+            result.numericPartitions = new boolean[partitionColumns.size()];
 
             // Read all data rows
             String line;
@@ -114,9 +120,14 @@ public class DBMSDataManager {
                 result.dataRows.add(line.split(fileConfig.getDelimiter()));
             }
 
-            // Detect numeric vs categorical for each feature column
+            // Detect numeric vs categorical for feature columns
             for (int i = 0; i < result.featureIndices.length; i++) {
                 result.numericFeatures[i] = isNumericColumn(result.dataRows, result.featureIndices[i]);
+            }
+
+            // Detect numeric vs categorical for partition columns
+            for (int i = 0; i < result.partitionIndices.length; i++) {
+                result.numericPartitions[i] = isNumericColumn(result.dataRows, result.partitionIndices[i]);
             }
         }
 
@@ -180,9 +191,10 @@ public class DBMSDataManager {
 
     private void createStagingTable(ConnectionHandler connection, String schemaName,
                                     String tableName, MLTrainingContext context,
-                                    boolean[] numericFeatures) throws SQLException {
+                                    boolean[] numericFeatures, boolean[] numericPartitions) throws SQLException {
         List<String> featureColumns = context.getFeatureConfig().getFeatureColumns();
         List<String> labelColumns = context.getFeatureConfig().getLabelColumns();
+        List<String> partitionColumns = context.getTrainerConfig().getPartitionColumns();
         boolean isClassification = context.getTaskType() == MLTaskType.CLASSIFICATION;
 
         // Build column definitions with auto-detected types
@@ -195,6 +207,11 @@ public class DBMSDataManager {
         for (String labelColumn : labelColumns) {
             columnDefs.append(", ").append(labelColumn);
             columnDefs.append(isClassification ? " VARCHAR2(100)" : " NUMBER");
+        }
+        // Partition columns must be present in the input table for ODMS_PARTITION_COLUMNS
+        for (int i = 0; i < partitionColumns.size(); i++) {
+            columnDefs.append(", ").append(partitionColumns.get(i));
+            columnDefs.append(numericPartitions[i] ? " NUMBER" : " VARCHAR2(255)");
         }
 
         // Execute create table
@@ -216,10 +233,11 @@ public class DBMSDataManager {
                             MLTrainingContext context, CSVParseResult parseResult) throws Exception {
         List<String> featureColumns = context.getFeatureConfig().getFeatureColumns();
         List<String> labelColumns = context.getFeatureConfig().getLabelColumns();
+        List<String> partitionColumns = context.getTrainerConfig().getPartitionColumns();
         boolean isClassification = context.getTaskType() == MLTaskType.CLASSIFICATION;
 
         // Build INSERT statement
-        String insertSql = buildInsertSql(tableName, featureColumns, labelColumns);
+        String insertSql = buildInsertSql(tableName, featureColumns, labelColumns, partitionColumns);
 
         return DatabaseInterfaceInvoker.load(Priority.HIGH,
                 "Loading Data",
@@ -234,7 +252,8 @@ public class DBMSDataManager {
                     try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
                         for (String[] values : parseResult.dataRows) {
                             bindValues(stmt, values, parseResult.featureIndices, parseResult.labelIndices,
-                                    parseResult.numericFeatures, isClassification);
+                                    parseResult.partitionIndices, parseResult.numericFeatures,
+                                    parseResult.numericPartitions, isClassification);
                             stmt.addBatch();
                             batchSize++;
                             rowCount++;
@@ -269,7 +288,8 @@ public class DBMSDataManager {
         return indices;
     }
 
-    private String buildInsertSql(String tableName, List<String> featureColumns, List<String> labelColumns) {
+    private String buildInsertSql(String tableName, List<String> featureColumns,
+                                   List<String> labelColumns, List<String> partitionColumns) {
         StringBuilder sql = new StringBuilder("INSERT INTO ").append(tableName).append(" (");
 
         for (int i = 0; i < featureColumns.size(); i++) {
@@ -279,9 +299,12 @@ public class DBMSDataManager {
         for (String label : labelColumns) {
             sql.append(", ").append(label);
         }
+        for (String partition : partitionColumns) {
+            sql.append(", ").append(partition);
+        }
 
         sql.append(") VALUES (");
-        int totalColumns = featureColumns.size() + labelColumns.size();
+        int totalColumns = featureColumns.size() + labelColumns.size() + partitionColumns.size();
         for (int i = 0; i < totalColumns; i++) {
             if (i > 0) sql.append(", ");
             sql.append("?");
@@ -292,8 +315,9 @@ public class DBMSDataManager {
     }
 
     private void bindValues(PreparedStatement stmt, String[] values,
-                           int[] featureIndices, int[] labelIndices,
-                           boolean[] numericFeatures, boolean isClassification) throws SQLException {
+                           int[] featureIndices, int[] labelIndices, int[] partitionIndices,
+                           boolean[] numericFeatures, boolean[] numericPartitions,
+                           boolean isClassification) throws SQLException {
         int paramIndex = 1;
 
         // Bind feature values based on detected types
@@ -314,6 +338,17 @@ public class DBMSDataManager {
                 stmt.setString(paramIndex++, value);
             } else {
                 stmt.setDouble(paramIndex++, Double.parseDouble(value));
+            }
+        }
+
+        // Bind partition column values
+        for (int i = 0; i < partitionIndices.length; i++) {
+            int idx = partitionIndices[i];
+            String value = values[idx].trim();
+            if (numericPartitions[i]) {
+                stmt.setDouble(paramIndex++, value.isEmpty() ? 0.0 : Double.parseDouble(value));
+            } else {
+                stmt.setString(paramIndex++, value);
             }
         }
     }

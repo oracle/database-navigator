@@ -24,8 +24,11 @@ import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMLInterface;
 import com.dbn.ml.backend.model.MLModelMetadata;
 import com.dbn.ml.backend.model.MLTrainingContext;
+import com.dbn.ml.model.MLModelDetails;
 import com.dbn.ml.model.MLTaskType;
+import com.dbn.common.cloud.CloudSourceConfig;
 import com.dbn.ml.model.source.MLSourceConfig;
+import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.model.source.MLSourceType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
 import com.dbn.object.DBSchema;
@@ -41,6 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -94,6 +98,19 @@ public class DBMSBackend {
         // Step 5: Get mining function and target column
         String miningFunction = DBMSAlgorithmType.getMiningFunction(context.getTaskType());
         String targetColumn = context.getFeatureConfig().getLabelColumns().get(0);
+
+        // Step 5b: Pre-training validation
+        DBMSAlgorithmType algorithmType = DBMSAlgorithmType.fromDisplayName(context.getAlgorithmName());
+        if (context.getTaskType() == MLTaskType.CLASSIFICATION && algorithmType == DBMSAlgorithmType.LOGISTIC_REGRESSION) {
+            int classCount = getDistinctClassCount(trainTableName, targetColumn);
+            if (classCount > 2) {
+                throw new IllegalArgumentException(
+                        "Logistic Regression supports binary classification only. " +
+                        "Target column '" + targetColumn + "' has " + classCount + " distinct values. " +
+                        "Use Random Forest, Decision Tree, Naive Bayes, SVM, or Neural Network for multi-class problems."
+                );
+            }
+        }
 
         // Step 6: Create the model using DBMS_DATA_MINING on TRAINING data only
         log.info("Creating model: {} using algorithm: {} on training table: {}",
@@ -340,9 +357,6 @@ public class DBMSBackend {
         double accuracy = mlInterface.getAccuracy(conn, confusionMatrixTable);
         log.info("Test accuracy: {}%", accuracy);
 
-        // Step 4: Get confusion matrix data
-        ResultSet confusionRs = mlInterface.getConfusionMatrixResults(conn, confusionMatrixTable);
-
         // Step 5: For binary classification, compute AUC and Lift
         Double auc = null;
         ResultSet liftRs = null;
@@ -376,18 +390,16 @@ public class DBMSBackend {
             }
         }
 
-        // Build and return evaluation result
-        DBMSEvaluationResult evalResult = DBMSEvaluationResult.fromOracleEvaluation(
-                accuracy,
-                confusionRs,
-                auc,
-                context.getTestingDataSize()
-        );
+        // Step 4 + Build: Get confusion matrix data and build result
+        DBMSEvaluationResult evalResult;
+        try (ResultSet confusionRs = mlInterface.getConfusionMatrixResults(conn, confusionMatrixTable)) {
+            evalResult = DBMSEvaluationResult.fromOracleEvaluation(accuracy, confusionRs, auc, context.getTestingDataSize());
+        }
 
         // Add lift data if available
         if (liftRs != null) {
-            try {
-                evalResult.populateLiftData(liftRs);
+            try (ResultSet lr = liftRs) {
+                evalResult.populateLiftData(lr);
             } catch (Exception e) {
                 log.warn("Failed to parse lift data: {}", e.getMessage());
             }
@@ -411,20 +423,63 @@ public class DBMSBackend {
 
         // Get regression metrics on TEST data (not training data)
         log.info("Computing regression metrics on test table: {}", testTableName);
-        ResultSet metricsRs = mlInterface.getRegressionMetrics(conn, modelName, targetColumn, testTableName);
-
-        return DBMSEvaluationResult.fromRegression(metricsRs, context.getTestingDataSize());
+        try (ResultSet metricsRs = mlInterface.getRegressionMetrics(conn, modelName, targetColumn, testTableName)) {
+            return DBMSEvaluationResult.fromRegression(metricsRs, context.getTestingDataSize());
+        }
     }
 
     // ==================== Private Helper Methods ====================
 
     private String prepareDataSource(MLTrainingContext context) throws Exception {
-        if (context.getSourceConfig().getSourceType() == MLSourceType.FILE_SYSTEM) {
-            log.info("Preparing CSV data source");
-            return dataManager.createAndLoadStagingTable(context);
-        } else {
-            return context.getSourceConfig().getTableSourceConfig().getTableName();
+        MLSourceType sourceType = context.getSourceConfig().getSourceType();
+        switch (sourceType) {
+            case FILE_SYSTEM:
+                log.info("Preparing CSV data source");
+                return dataManager.createAndLoadStagingTable(context);
+            case OBJECT_STORAGE:
+                log.info("Preparing cloud object storage data source");
+                return createCloudExternalTable(context);
+            default:
+                return context.getSourceConfig().getTableSourceConfig().getTableName();
         }
+    }
+
+    private String createCloudExternalTable(MLTrainingContext context) throws Exception {
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String extTableName = "ML_EXT_" + timestamp;
+        CloudSourceConfig cloudConfig = context.getSourceConfig().getCloudSourceConfig();
+
+        List<String> columns = cloudConfig.getDiscoveredColumns();
+        if (columns == null || columns.isEmpty())
+            throw new IllegalStateException("No columns discovered for cloud source. Please click 'Load Columns' before training.");
+
+        java.util.Set<String> numericCols = cloudConfig.getNumericColumns();
+        String columnList = columns.stream()
+                .map(col -> col + (numericCols.contains(col) ? " NUMBER" : " VARCHAR2(4000)"))
+                .collect(java.util.stream.Collectors.joining(", "));
+
+        DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                "Creating External Table",
+                "Creating external table from cloud storage",
+                getProject(),
+                connection.getConnectionId(),
+                conn -> {
+                    DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
+                    mlInterface.createCloudExternalTable(
+                            conn,
+                            extTableName,
+                            cloudConfig.getCredentialName(),
+                            cloudConfig.getFileUri(),
+                            cloudConfig.getDelimiter(),
+                            cloudConfig.isHasHeader() ? "1" : "0",
+                            columnList
+                    );
+                });
+
+        context.setStagingTableName(extTableName);
+        context.setShouldCleanupStagingTable(true);
+        log.info("Created cloud external table: {}", extTableName);
+        return extTableName;
     }
 
     private String createSettingsTable(MLTrainingContext context, String timestamp) throws SQLException {
@@ -457,6 +512,12 @@ public class DBMSBackend {
     }
 
     private String generateModelName(MLTrainingContext context, String timestamp) {
+        // Use user-specified model name if provided
+        String userModelName = context.getTrainerConfig().getModelName();
+        if (userModelName != null && !userModelName.trim().isEmpty()) {
+            return userModelName.trim().toUpperCase();
+        }
+
         String baseName;
         String sourceName = extractSourceName(context);
         if (sourceName != null && !sourceName.isEmpty()) {
@@ -478,13 +539,10 @@ public class DBMSBackend {
                     conn -> {
                         Set<String> names = new HashSet<>();
                         DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
-                        ResultSet rs = mlInterface.getExistingModelNames(conn);
-                        try {
+                        try (ResultSet rs = mlInterface.getExistingModelNames(conn)) {
                             while (rs.next()) {
                                 names.add(rs.getString("MODEL_NAME").toUpperCase());
                             }
-                        } finally {
-                            rs.close();
                         }
                         return names;
                     });
@@ -495,22 +553,7 @@ public class DBMSBackend {
     }
 
     private String extractSourceName(MLTrainingContext context) {
-        MLSourceConfig sourceConfig = context.getRequest().getSourceConfig();
-        MLSourceType sourceType = sourceConfig.getSourceType();
-
-        if (sourceType == MLSourceType.DATABASE_TABLE) {
-            return sourceConfig.getTableSourceConfig().getTableName();
-        } else if (sourceType == MLSourceType.FILE_SYSTEM) {
-            String filePath = sourceConfig.getFileSourceConfig().getFilePath();
-            if (filePath == null || filePath.isEmpty()) return null;
-
-            int lastSep = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
-            String fileName = lastSep >= 0 ? filePath.substring(lastSep + 1) : filePath;
-
-            int dotIndex = fileName.lastIndexOf('.');
-            return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
-        }
-        return null;
+        return MLSourceNames.extractBaseName(context.getRequest().getSourceConfig());
     }
 
     private int getDistinctClassCount(String tableName, String columnName) throws SQLException {
@@ -530,11 +573,11 @@ public class DBMSBackend {
                 conn -> {
                     List<String> values = new ArrayList<>();
                     DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
-                    ResultSet rs = mlInterface.getClassValues(conn, columnName, tableName);
-                    while (rs.next()) {
-                        values.add(rs.getString("CLASS_VALUE"));
+                    try (ResultSet rs = mlInterface.getClassValues(conn, columnName, tableName)) {
+                        while (rs.next()) {
+                            values.add(rs.getString("CLASS_VALUE"));
+                        }
                     }
-                    rs.close();
                     return values;
                 });
     }
@@ -582,8 +625,9 @@ public class DBMSBackend {
                 }
             }
 
-            ResultSet rs = stmt.executeQuery();
-            return DBMSPredictionResult.fromClassification(rs);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return DBMSPredictionResult.fromClassification(rs);
+            }
         }
     }
 
@@ -610,8 +654,189 @@ public class DBMSBackend {
                 stmt.setDouble(paramIndex++, value);
             }
 
-            ResultSet rs = stmt.executeQuery();
-            return DBMSPredictionResult.fromRegression(rs);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return DBMSPredictionResult.fromRegression(rs);
+            }
+        }
+    }
+
+    /**
+     * Loads model internals from Oracle Model Detail Views.
+     * Universal views (DM$VG, DM$VS, DM$VW) are queried for all algorithms.
+     * Algorithm-specific views (DM$VD, DM$VL, DM$VP, DM$VV) are queried conditionally.
+     * Each query is attempted independently — failures are silently ignored.
+     */
+    public MLModelDetails loadModelDetails(String modelName, DBMSAlgorithmType algorithmType) {
+        MLModelDetails details = new MLModelDetails();
+
+        // Universal views
+        Map<String, String> stats = loadModelView(modelName, "Global stats",
+                (ml, conn) -> ml.getModelGlobalStats(conn, modelName), rs -> {
+                    Map<String, String> map = new LinkedHashMap<>();
+                    while (rs.next()) {
+                        String name = rs.getString("NAME");
+                        String stringVal = rs.getString("STRING_VALUE");
+                        double numericVal = rs.getDouble("NUMERIC_VALUE");
+                        String display = (stringVal != null && !stringVal.isEmpty())
+                                ? stringVal : String.valueOf((long) numericVal);
+                        if (name != null) map.put(name, display);
+                    }
+                    return map;
+                });
+        if (stats != null) details.setGlobalStats(stats);
+
+        Map<String, String> settings = loadModelView(modelName, "Computed settings",
+                (ml, conn) -> ml.getModelComputedSettings(conn, modelName), rs -> {
+                    Map<String, String> map = new LinkedHashMap<>();
+                    while (rs.next()) {
+                        String name = rs.getString("SETTING_NAME");
+                        String value = rs.getString("SETTING_VALUE");
+                        if (name != null) map.put(name, value != null ? value : "");
+                    }
+                    return map;
+                });
+        if (settings != null) details.setComputedSettings(settings);
+
+        List<String> alerts = loadModelView(modelName, "Build alerts",
+                (ml, conn) -> ml.getModelAlerts(conn, modelName), rs -> {
+                    List<String> list = new ArrayList<>();
+                    while (rs.next()) {
+                        String text = rs.getString("ERROR_TEXT");
+                        if (text != null) list.add(text);
+                    }
+                    return list;
+                });
+        if (alerts != null && !alerts.isEmpty()) details.setBuildAlerts(alerts);
+
+        if (algorithmType == null) return details;
+
+        switch (algorithmType) {
+            case RANDOM_FOREST:
+                List<MLModelDetails.VariableImportance> importance = loadModelView(modelName, "Variable importance",
+                        (ml, conn) -> ml.getModelVariableImportance(conn, modelName), rs -> {
+                            List<MLModelDetails.VariableImportance> list = new ArrayList<>();
+                            while (rs.next()) {
+                                String name = rs.getString("ATTRIBUTE_NAME");
+                                double score = rs.getDouble("ATTRIBUTE_IMPORTANCE");
+                                if (name != null) list.add(new MLModelDetails.VariableImportance(name, score));
+                            }
+                            return list;
+                        });
+                if (importance != null && !importance.isEmpty()) details.setVariableImportance(importance);
+                break;
+
+            case LOGISTIC_REGRESSION:
+            case LINEAR_REGRESSION:
+                List<MLModelDetails.GLMCoefficient> glmCoefs = loadModelView(modelName, "GLM coefficients",
+                        (ml, conn) -> ml.getModelGLMCoefficients(conn, modelName), rs -> {
+                            List<MLModelDetails.GLMCoefficient> list = new ArrayList<>();
+                            while (rs.next()) {
+                                String attrName = rs.getString("ATTRIBUTE_NAME");
+                                String attrValue = rs.getString("ATTRIBUTE_VALUE");
+                                double coef = rs.getDouble("COEFFICIENT");
+                                double stdErr = rs.getDouble("STD_ERROR");
+                                double pVal = rs.getDouble("P_VALUE");
+                                if (attrName != null) list.add(new MLModelDetails.GLMCoefficient(attrName, attrValue, coef, stdErr, pVal));
+                            }
+                            return list;
+                        });
+                if (glmCoefs != null && !glmCoefs.isEmpty()) details.setGlmCoefficients(glmCoefs);
+                break;
+
+            case SVM_CLASSIFICATION:
+            case SVM_REGRESSION:
+                List<MLModelDetails.SVMCoefficient> svmCoefs = loadModelView(modelName, "SVM coefficients",
+                        (ml, conn) -> ml.getModelSVMCoefficients(conn, modelName), rs -> {
+                            List<MLModelDetails.SVMCoefficient> list = new ArrayList<>();
+                            while (rs.next()) {
+                                String attrName = rs.getString("ATTRIBUTE_NAME");
+                                String attrValue = rs.getString("ATTRIBUTE_VALUE");
+                                String className = rs.getString("CLASS");
+                                double coef = rs.getDouble("COEFFICIENT");
+                                if (attrName != null) list.add(new MLModelDetails.SVMCoefficient(attrName, attrValue, className, coef));
+                            }
+                            return list;
+                        });
+                if (svmCoefs != null && !svmCoefs.isEmpty()) details.setSvmCoefficients(svmCoefs);
+                break;
+
+            case DECISION_TREE:
+                List<MLModelDetails.TreeSplit> splits = loadModelView(modelName, "Tree splits",
+                        (ml, conn) -> ml.getModelTreeSplits(conn, modelName), rs -> {
+                            List<MLModelDetails.TreeSplit> list = new ArrayList<>();
+                            while (rs.next()) {
+                                int node = rs.getInt("NODE");
+                                int parent = rs.getInt("PARENT");
+                                String attrName = rs.getString("ATTRIBUTE_NAME");
+                                String operator = rs.getString("OPERATOR");
+                                String value = rs.getString("VALUE");
+                                list.add(new MLModelDetails.TreeSplit(node, parent, attrName, operator, value));
+                            }
+                            return list;
+                        });
+                if (splits != null && !splits.isEmpty()) details.setTreeSplits(splits);
+                break;
+
+            case NAIVE_BAYES:
+                List<MLModelDetails.NaiveBayesPrior> priors = loadModelView(modelName, "Naive Bayes priors",
+                        (ml, conn) -> ml.getModelNaiveBayesPriors(conn, modelName), rs -> {
+                            List<MLModelDetails.NaiveBayesPrior> list = new ArrayList<>();
+                            while (rs.next()) {
+                                String targetVal = rs.getString("TARGET_VALUE");
+                                double prob = rs.getDouble("PRIOR_PROBABILITY");
+                                int count = rs.getInt("COUNT");
+                                if (targetVal != null) list.add(new MLModelDetails.NaiveBayesPrior(targetVal, prob, count));
+                            }
+                            return list;
+                        });
+                if (priors != null && !priors.isEmpty()) details.setNbPriors(priors);
+
+                List<MLModelDetails.NaiveBayesConditional> conditionals = loadModelView(modelName, "Naive Bayes conditionals",
+                        (ml, conn) -> ml.getModelNaiveBayesConditionals(conn, modelName), rs -> {
+                            List<MLModelDetails.NaiveBayesConditional> list = new ArrayList<>();
+                            while (rs.next()) {
+                                String targetVal = rs.getString("TARGET_VALUE");
+                                String attrName = rs.getString("ATTRIBUTE_NAME");
+                                String attrValue = rs.getString("ATTRIBUTE_VALUE");
+                                double condProb = rs.getDouble("CONDITIONAL_PROBABILITY");
+                                list.add(new MLModelDetails.NaiveBayesConditional(targetVal, attrName, attrValue, condProb));
+                            }
+                            return list;
+                        });
+                if (conditionals != null && !conditionals.isEmpty()) details.setNbConditionals(conditionals);
+                break;
+
+            default:
+                // NEURAL_NETWORK_CLASSIFICATION, NEURAL_NETWORK_REGRESSION — weights not human-interpretable, skip
+                break;
+        }
+
+        return details;
+    }
+
+    @FunctionalInterface
+    private interface ResultSetQuery {
+        ResultSet query(DatabaseMLInterface ml, DBNConnection conn) throws SQLException;
+    }
+
+    @FunctionalInterface
+    private interface ResultSetMapper<T> {
+        T map(ResultSet rs) throws SQLException;
+    }
+
+    /** Runs a single model-view query; silently returns null on failure. */
+    private <T> T loadModelView(String modelName, String viewLabel, ResultSetQuery query, ResultSetMapper<T> mapper) {
+        try {
+            return DatabaseInterfaceInvoker.load(Priority.LOW, getProject(),
+                    connection.getConnectionId(), conn -> {
+                        DatabaseMLInterface ml = connection.getInterfaces().getMLInterface();
+                        try (ResultSet rs = query.query(ml, conn)) {
+                            return mapper.map(rs);
+                        }
+                    });
+        } catch (Exception e) {
+            log.debug("{} not available for model {}: {}", viewLabel, modelName, e.getMessage());
+            return null;
         }
     }
 
