@@ -20,6 +20,7 @@ import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -49,6 +50,12 @@ public class DBMSSettingsBuilder {
 
         // Automatic data preparation
         settings.put("PREP_AUTO", "ON");
+
+        // Partitioned model support
+        List<String> partitionColumns = trainerConfig.getPartitionColumns();
+        if (partitionColumns != null && !partitionColumns.isEmpty()) {
+            settings.put("ODMS_PARTITION_COLUMNS", String.join(",", partitionColumns));
+        }
 
         // Add algorithm-specific settings
         switch (algorithmName) {

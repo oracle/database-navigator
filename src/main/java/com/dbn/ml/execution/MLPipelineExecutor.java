@@ -17,13 +17,15 @@
 package com.dbn.ml.execution;
 
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.ml.backend.dbms.DBMSAlgorithmType;
 import com.dbn.ml.backend.dbms.DBMSBackend;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
 import com.dbn.ml.backend.model.MLTrainingContext;
+import com.dbn.ml.model.MLModelDetails;
 import com.dbn.ml.model.*;
 import com.dbn.ml.model.source.MLSourceConfig;
-import com.dbn.ml.model.source.MLSourceType;
+import com.dbn.ml.model.source.MLSourceNames;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -62,6 +64,10 @@ public class MLPipelineExecutor {
             DBMSEvaluationResult evaluation = backend.evaluate(modelHandle, context);
             result.setEvaluationResult(evaluation);
 
+            // Load model detail views (universal + algorithm-specific)
+            DBMSAlgorithmType algorithmType = resolveAlgorithmType(context.getAlgorithmName());
+            result.setModelDetails(backend.loadModelDetails(modelHandle.getModelName(), algorithmType));
+
             result.setTrainingDataSize(context.getTrainingDataSize());
             result.setTestingDataSize(context.getTestingDataSize());
             result.setFeatureCount(request.getFeatureConfig().getFeatureColumns().size());
@@ -94,6 +100,16 @@ public class MLPipelineExecutor {
         }
     }
 
+    private DBMSAlgorithmType resolveAlgorithmType(String algorithmName) {
+        if (algorithmName == null) return null;
+        try {
+            return DBMSAlgorithmType.fromDisplayName(algorithmName);
+        } catch (IllegalArgumentException e) {
+            log.warn("Could not resolve algorithm type for: {}", algorithmName);
+            return null;
+        }
+    }
+
     private MLTrainingContext buildContext(MLRequest request) {
         MLTrainingContext context = new MLTrainingContext();
         context.setRequest(request);
@@ -102,22 +118,7 @@ public class MLPipelineExecutor {
     }
 
     private String extractSourceName(MLRequest request) {
-        MLSourceConfig sourceConfig = request.getSourceConfig();
-        MLSourceType sourceType = sourceConfig.getSourceType();
-
-        if (sourceType == MLSourceType.DATABASE_TABLE) {
-            return sourceConfig.getTableSourceConfig().getTableName();
-        } else if (sourceType == MLSourceType.FILE_SYSTEM) {
-            String filePath = sourceConfig.getFileSourceConfig().getFilePath();
-            if (filePath == null || filePath.isEmpty()) return "model";
-
-            int lastSep = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
-            String fileName = lastSep >= 0 ? filePath.substring(lastSep + 1) : filePath;
-
-            int dotIndex = fileName.lastIndexOf('.');
-            return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
-        }
-
-        return "model";
+        String name = MLSourceNames.extractBaseName(request.getSourceConfig());
+        return name != null ? name : "model";
     }
 }

@@ -34,6 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import java.util.List;
 
@@ -41,6 +42,8 @@ import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 
 public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleForm {
     private JPanel mainPanel;
+    private JLabel modelNameLabel;
+    private JTextField modelNameField;
     private JLabel algorithmLabel;
     private DBNComboBox<MLTrainerType> algorithmComboBox;
     private JTextArea descriptionTextArea;
@@ -57,6 +60,7 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     }
 
     private void initComponents() {
+        modelNameField.putClientProperty("JTextField.placeholderText", "Auto-generated if empty");
         splitSlider.setMinimum(10);
         splitSlider.setMaximum(90);
         seedSpinner.setModel(new SpinnerNumberModel(1L, 0L, Long.MAX_VALUE, 1L));
@@ -65,6 +69,7 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     @Override
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerFieldGroup(modelNameLabel, modelNameField);
         alignerData.registerFieldGroup(algorithmLabel, algorithmComboBox);
         alignerData.registerFieldGroup(splitLabel, splitSlider);
         alignerData.registerFieldGroup(seedLabel, seedSpinner);
@@ -127,6 +132,8 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     public void resetFormChanges() {
         MLTrainerConfig config = getConfig();
 
+        modelNameField.setText(config.getModelName() != null ? config.getModelName() : "");
+
         MLTrainerType trainerType = config.getTrainerType();
         if (trainerType == null) trainerType = MLTrainerType.SVM_CLASSIFICATION;
 
@@ -144,6 +151,8 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     @Override
     public void applyFormChanges() {
         MLTrainerConfig config = getConfig();
+        String name = modelNameField.getText().trim();
+        config.setModelName(name.isEmpty() ? null : name);
         config.setTrainerType(algorithmComboBox.getSelectedValue());
         config.setTrainTestSplitRatio(splitSlider.getValue() / 100.0);
         config.setUseFixedSeed(useFixedSeedCheckBox.isSelected());

@@ -26,6 +26,7 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.execution.ExecutionManager;
@@ -145,27 +146,8 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
                 });
     }
 
-    /**
-     * Gets a display name for the data source.
-     */
     private String getSourceDisplayName(MLRequest request) {
-        var sourceConfig = request.getSourceConfig();
-        var sourceType = sourceConfig.getSourceType();
-        
-        return switch (sourceType) {
-            case DATABASE_TABLE -> {
-                var tableConfig = sourceConfig.getTableSourceConfig();
-                yield tableConfig.getSchemaName() + "." + tableConfig.getTableName();
-            }
-            case FILE_SYSTEM -> {
-                var fileConfig = sourceConfig.getFileSourceConfig();
-                String path = fileConfig.getFilePath();
-                if (path == null || path.isEmpty()) yield "CSV File";
-                int lastSep = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
-                yield lastSep >= 0 ? path.substring(lastSep + 1) : path;
-            }
-            case OBJECT_STORAGE -> "Object Storage";
-        };
+        return MLSourceNames.getDisplayName(request.getSourceConfig());
     }
 
     /**

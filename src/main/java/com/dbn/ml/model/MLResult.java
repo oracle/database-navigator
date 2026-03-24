@@ -56,6 +56,9 @@ public class MLResult {
     // Source name for default model naming (table name or CSV file name)
     private String sourceName;
 
+    // Model internals from Oracle Model Detail Views (DM$V*)
+    private MLModelDetails modelDetails;
+
     /**
      * Returns true if this is a multi-output regression (2+ labels)
      */
