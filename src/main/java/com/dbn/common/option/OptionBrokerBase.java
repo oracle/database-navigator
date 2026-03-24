@@ -78,7 +78,8 @@ public abstract class OptionBrokerBase<T> implements OptionBroker<T> {
 
     @Override
     public boolean shouldSaveOptionsOnCancel() {
-        return false;
+        // index of "cancel" option may not match the DialogWrapper#CANCEL_EXIT_CODE
+        return true;
     }
 
     protected abstract boolean canSelectOption(T option);
