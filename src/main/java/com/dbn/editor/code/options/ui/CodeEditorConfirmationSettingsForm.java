@@ -34,12 +34,18 @@ public class CodeEditorConfirmationSettingsForm extends ConfigurationEditorForm<
     private JPanel mainPanel;
     private JCheckBox confirmSaveCheckBox;
     private JCheckBox confirmRevertCheckBox;
-    private JComboBox<CodeEditorChangesOption> disconnectSessionComboBox;
+    private JComboBox<CodeEditorChangesOption> editorWithChangesComboBox;
+    private JComboBox<CodeEditorChangesOption> temporaryConsoleComboBox;
 
     public CodeEditorConfirmationSettingsForm(CodeEditorConfirmationSettings settings) {
         super(settings);
 
-        initComboBox(disconnectSessionComboBox,
+        initComboBox(editorWithChangesComboBox,
+                CodeEditorChangesOption.ASK,
+                CodeEditorChangesOption.SAVE,
+                CodeEditorChangesOption.DISCARD);
+
+        initComboBox(temporaryConsoleComboBox,
                 CodeEditorChangesOption.ASK,
                 CodeEditorChangesOption.SAVE,
                 CodeEditorChangesOption.DISCARD);
@@ -59,7 +65,8 @@ public class CodeEditorConfirmationSettingsForm extends ConfigurationEditorForm<
         CodeEditorConfirmationSettings settings = getConfiguration();
         settings.getSaveChanges().setConfirm(confirmSaveCheckBox.isSelected());
         settings.getRevertChanges().setConfirm(confirmRevertCheckBox.isSelected());
-        settings.getExitOnChanges().selectOption(getSelection(disconnectSessionComboBox));
+        settings.getExitOnChanges().selectOption(getSelection(editorWithChangesComboBox));
+        settings.getTemporaryConsole().selectOption(getSelection(temporaryConsoleComboBox));
     }
 
     @Override
@@ -67,6 +74,7 @@ public class CodeEditorConfirmationSettingsForm extends ConfigurationEditorForm<
         CodeEditorConfirmationSettings settings = getConfiguration();
         confirmSaveCheckBox.setSelected(settings.getSaveChanges().isConfirm());
         confirmRevertCheckBox.setSelected(settings.getRevertChanges().isConfirm());
-        setSelection(disconnectSessionComboBox, settings.getExitOnChanges().getOption());
+        setSelection(editorWithChangesComboBox, settings.getExitOnChanges().getOption());
+        setSelection(temporaryConsoleComboBox, settings.getTemporaryConsole().getOption());
     }
 }

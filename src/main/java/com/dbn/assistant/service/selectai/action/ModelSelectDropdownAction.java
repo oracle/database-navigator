@@ -20,6 +20,7 @@ import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.provider.AIModel;
+import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.service.selectai.SelectAiContextUtil;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
@@ -70,7 +71,8 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements Assista
         DBAIProfile profile = SelectAiContextUtil.getSelectedProfile(connectionId);
         if (profile == null) return emptyList();
 
-        return profile.getProvider().getModels();
+        AIProvider provider = profile.getProvider();
+        return provider.getModels();
     }
 
     @Override

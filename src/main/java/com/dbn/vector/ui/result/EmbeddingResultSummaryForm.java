@@ -119,11 +119,13 @@ public class EmbeddingResultSummaryForm extends DBNFormBase {
         }
     }
 
-    private void initConsole(DBConsole c) {
-        DBSearchConsoleVirtualFile consoleFile = (DBSearchConsoleVirtualFile) c.getVirtualFile();
+    private void initConsole(DBConsole console) {
+        DBSearchConsoleVirtualFile consoleFile = (DBSearchConsoleVirtualFile) console.getVirtualFile();
         EmbeddingDestinationConfig destinationConfig = result.getRequest().getDestinationConfig();
         consoleFile.setSearchSchema(destinationConfig.getSchemaName());
         consoleFile.setSearchTable(destinationConfig.getTableName());
+        console.setTemporary(true);
+        console.setSource("Vector Toolbox");
     }
 
     @Nullable

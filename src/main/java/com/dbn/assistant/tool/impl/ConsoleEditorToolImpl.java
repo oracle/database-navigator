@@ -95,7 +95,10 @@ public class ConsoleEditorToolImpl extends AssistantToolBase implements ConsoleE
 
         DatabaseConsoleManager consoleManager = DatabaseConsoleManager.getInstance(getProject());
         String consoleName = consoleManager.getNextConsoleName(connection);
-        consoleManager.createConsole(connection, consoleName, consoleContent, DBConsoleType.STANDARD, null);
+        consoleManager.createConsole(connection, consoleName, consoleContent, DBConsoleType.STANDARD, c -> {
+            c.setTemporary(true);
+            c.setSource("DB Assistant");
+        });
         return consoleName;
     }
 }

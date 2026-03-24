@@ -27,6 +27,7 @@ import com.dbn.vfs.DBConsoleType;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.dbn.vfs.file.DBSearchConsoleVirtualFile;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,9 +37,12 @@ import java.sql.SQLException;
 import static com.dbn.common.dispose.Failsafe.nd;
 
 @Getter
+@Setter
 public class DBConsoleImpl extends DBObjectImpl<DBObjectMetadata> implements DBConsole {
     private final DBConsoleVirtualFile virtualFile;
     private final DBConsoleType consoleType;
+    private boolean temporary;
+    private String source;
 
     public DBConsoleImpl(@NotNull ConnectionHandler connection, String name, DBConsoleType consoleType) {
         super(connection, DBObjectType.CONSOLE, name);
