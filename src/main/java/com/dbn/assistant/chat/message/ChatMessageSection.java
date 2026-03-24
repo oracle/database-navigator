@@ -42,7 +42,7 @@ public class ChatMessageSection {
     private TextRange contentRange;
 
     public ChatMessageSection(String content, TextRange contentRange, @Nullable @NonNls String languageId) {
-        this.content = content.trim();
+        this.content = content;
         this.contentRange = contentRange;
         this.languageId = languageId;
     }

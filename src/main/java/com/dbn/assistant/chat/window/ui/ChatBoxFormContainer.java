@@ -45,6 +45,17 @@ public class ChatBoxFormContainer extends JPanel {
         addBlankCard(this);
     }
 
+    public void focusInputField() {
+        String identifier = visibleCardId(this);
+        Component component = CardLayouts.getCard(this, identifier);
+        if (component == null) return;
+
+        ChatBoxForm chatBoxForm = DBNFormBinding.getForm(component);
+        if (chatBoxForm == null) return;
+
+        chatBoxForm.focusInputField();
+    }
+
     public void showBlankCard() {
         CardLayouts.showBlankCard(this);
     }

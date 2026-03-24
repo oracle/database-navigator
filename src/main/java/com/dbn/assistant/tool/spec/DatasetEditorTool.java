@@ -26,10 +26,11 @@ import dev.langchain4j.agent.tool.Tool;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.IDE_ACTION_INVOKER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
+import static com.dbn.assistant.tool.AssistantToolType.DATASET_EDITORS;
 
 @ToolSpec(
         category = IDE_ACTION_INVOKER,
-        type = "DATASET_EDITORS",
+        type = DATASET_EDITORS,
         name = "Dataset editors",
         description = "IDE actions for viewing and editing datasets (such as tables, views, materialized views)")
 public interface DatasetEditorTool extends AssistantTool {

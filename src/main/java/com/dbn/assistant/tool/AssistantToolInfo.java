@@ -29,13 +29,13 @@ public interface AssistantToolInfo {
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
     @interface ToolSpec {
-        String type();
+        AssistantToolType type();
+
+        AssistantToolCategory category();
 
         String name();
 
         String description();
-
-        AssistantToolCategory category();
 
         boolean interactive() default false;
     }

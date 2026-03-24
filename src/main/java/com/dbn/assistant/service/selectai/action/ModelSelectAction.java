@@ -47,10 +47,12 @@ public class ModelSelectAction extends AbstractChatBoxAction {
         ChatContext currentContext = chatBox.getCurrentContext();
         ChatContext targetContext = new ChatContextImpl(
                 chatBox.getAssistantType(),
+                currentContext.getAssistantMode(),
                 currentContext.getProfileId(),
                 currentContext.getProviderId(),
                 model.getId(),
                 currentContext.getActionId(),
+                currentContext.getEmbeddingTable(),
                 currentContext.isInteractive());
 
         chatBox.attemptContextSwitch(targetContext);

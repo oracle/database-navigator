@@ -3,6 +3,7 @@ package com.dbn.vector.model;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.task.TaskStatus;
+import com.dbn.common.util.UUIDs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.vector.model.request.EmbeddingSource;
@@ -25,6 +26,7 @@ import static com.dbn.common.util.Unsafe.cast;
 @Getter
 @Setter
 public class VectorEmbeddingResult {
+    private final String id = UUIDs.compact();
     private final VectorEmbeddingRequest request;
     private final Map<String, EmbeddingResult> results = new LinkedHashMap<>();
 

@@ -16,12 +16,12 @@
 
 package com.dbn.common.ui.info;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.DBNTooltip;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
-import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeTooltipManager;
 import lombok.Setter;
 
@@ -38,7 +38,7 @@ public class DBNInfoLabel extends JLabel {
     private TextContent content;
 
     public DBNInfoLabel() {
-        super("", AllIcons.General.Note, JLabel.LEFT);
+        super("", Icons.ACTION_INFO, JLabel.LEFT);
         setCursor(Cursors.handCursor());
 
         Mouse.onMousePress(this, MouseEvent.BUTTON1, e -> showTooltip());

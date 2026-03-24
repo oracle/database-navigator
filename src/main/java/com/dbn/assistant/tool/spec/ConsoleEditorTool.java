@@ -28,10 +28,11 @@ import java.util.List;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.IDE_ACTION_INVOKER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
+import static com.dbn.assistant.tool.AssistantToolType.SQL_CONSOLE_EDITORS;
 
 @ToolSpec(
         category = IDE_ACTION_INVOKER,
-        type = "SQL_CONSOLE_EDITORS",
+        type = SQL_CONSOLE_EDITORS,
         name = "SQL console editors",
         description = "IDE actions for opening and changing SQL consoles (terminals)")
 public interface ConsoleEditorTool extends AssistantTool {

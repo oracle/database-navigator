@@ -18,6 +18,7 @@ package com.dbn.vector.ui.request;
 
 import com.dbn.common.ui.list.MutableObjectList;
 import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.UUIDs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.dbn.vector.model.request.EmbeddingSourceQuery;
@@ -42,17 +43,23 @@ public class EmbeddingSourceQueriesList extends MutableObjectList<EmbeddingSourc
     }
 
     public void insertRow() {
-        EmbeddingSourceQuery sourceQuery = embeddingRequest.getSourceConfig().getSourceQuery();
         ConnectionHandler connection = embeddingRequest.getConnection();
-        EmbeddingSourceQueriesListModel model = getModel();
-
+        EmbeddingSourceQuery sourceQuery = embeddingRequest.getSourceConfig().getSourceQuery();
         Dialogs.show(
                 () -> new EmbeddingSourceInputQueryDialog(connection, sourceQuery, CREATE),
-                whenOk(d -> {
-                    model.add(sourceQuery.clone());
-                    // reset
-                    sourceQuery.setSelectStatement(null);
-                }));
+                whenOk(d -> createSourceQuery()));
+    }
+
+    private void createSourceQuery() {
+        // clone the transient source query
+        EmbeddingSourceQuery sourceQuery = embeddingRequest.getSourceConfig().getSourceQuery();
+        EmbeddingSourceQueriesListModel model = getModel();
+        EmbeddingSourceQuery sourceQueryClone = sourceQuery.clone();
+        model.add(sourceQueryClone);
+
+        // reset
+        sourceQueryClone.setIdentifier(UUIDs.compact());
+        sourceQuery.setSelectStatement(null);
     }
 
     public void updateRow() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.assistant.adapter.AssistantAdapter;
 import com.dbn.assistant.adapter.AssistantAdapters;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxFormContainer;
 import com.dbn.assistant.state.AssistantSelectionState;
@@ -36,9 +37,12 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectionStatusListener;
+import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.object.DBTable;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -212,9 +216,46 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         }
     }
 
+    public void startAssistantChat(String sourceId, ConnectionId connectionId, AssistantType assistantType, AssistantMode assistantMode, DBObjectRef<DBTable> embeddingTable) {
+        switchContext(connectionId, assistantType);
+        AssistantState assistantState = getAssistantState(connectionId, assistantType);
+
+        Chat chat = assistantState.getChatForSource(sourceId);
+        if (chat == null) {
+            ChatContext context = assistantState.getCurrentContext();
+            chat = assistantState.createChat(context);
+            chat.setSourceId(sourceId);
+        } else {
+            assistantState.setCurrentChatId(chat.getId());
+        }
+
+        ChatContext chatContext = chat.getContext();
+        chatContext.setAssistantMode(assistantMode);
+        chatContext.setEmbeddingTable(embeddingTable);
+
+        ToolWindow toolWindow = getToolWindow();
+        if (toolWindow == null) return;
+
+        ChatBoxFormContainer container = getFormContainer();
+        if (container == null) return;
+
+        toolWindow.show(null);
+        container.focusInputField();
+    }
+
     @NotNull
     private AssistantType getSelectedAssistantType(@NotNull ConnectionId connectionId) {
-        return selectedAssistantTypes.computeIfAbsent(connectionId, c -> getPrefferedAssistantType(c));
+        AssistantType assistantType = selectedAssistantTypes.computeIfAbsent(connectionId, c -> getPrefferedAssistantType(c));
+        if (assistantType != AssistantType.SELECT_AI) return assistantType;
+
+        // reset old SELECT_AI mappings against non-oracle connections
+        ConnectionHandler connection = ConnectionHandler.get(connectionId);
+        if (connection == null) return AssistantType.PUBLIC;
+        if (connection.getDatabaseType() != DatabaseType.ORACLE) {
+            assistantType = AssistantType.PUBLIC;
+            selectedAssistantTypes.put(connectionId, assistantType);
+        }
+        return assistantType;
     }
 
     @NotNull

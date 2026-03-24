@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.object.type.DBObjectType.COLUMN;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
@@ -223,10 +224,10 @@ public class TableSelectionForm extends VectorToolboxFormBase {
         onSelectionChange(schemaComboBox, v -> populateAvailableTables());
 
         // Button actions
-        addButton.addActionListener(e -> moveSelectedToRight());
-        removeButton.addActionListener(e -> moveSelectedToLeft());
-        addAllButton.addActionListener(e -> moveAllToRight());
-        removeAllButton.addActionListener(e -> moveAllToLeft());
+        onButtonClick(addButton, e -> moveSelectedToRight());
+        onButtonClick(removeButton, e -> moveSelectedToLeft());
+        onButtonClick(addAllButton, e -> moveAllToRight());
+        onButtonClick(removeAllButton, e -> moveAllToLeft());
 
         // Selected table change → update column config
         selectedTablesList.addListSelectionListener(e -> {

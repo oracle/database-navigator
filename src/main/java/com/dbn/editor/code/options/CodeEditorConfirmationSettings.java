@@ -46,11 +46,22 @@ public class CodeEditorConfirmationSettings extends BasicConfiguration<CodeEdito
             new InteractiveOptionBroker<>(
                     "exit-on-changes",
                     "Unsaved Changes",
-                    "You are about to close the editor for {0} and you have unsaved changes.\nPlease choose whether to save or discard the changes." + REMEMBER_OPTION_HINT,
+                    "You are about to close the editor for \"{0}\" and you have unsaved changes.\n\nPlease choose whether to save or discard the changes." + REMEMBER_OPTION_HINT,
                     CodeEditorChangesOption.ASK,
                     CodeEditorChangesOption.SAVE,
                     CodeEditorChangesOption.DISCARD,
                     CodeEditorChangesOption.SHOW,
+                    CodeEditorChangesOption.CANCEL);
+
+
+    private final InteractiveOptionBroker<CodeEditorChangesOption> temporaryConsole =
+            new InteractiveOptionBroker<>(
+                    "close-temporary-console",
+                    "Temporary Console",
+                    "You are about to close the temporary console \"{0}\" created by {1}.\n\nPlease choose whether to save or discard the console." + REMEMBER_OPTION_HINT,
+                    CodeEditorChangesOption.ASK,
+                    CodeEditorChangesOption.SAVE,
+                    CodeEditorChangesOption.DISCARD,
                     CodeEditorChangesOption.CANCEL);
 
 
@@ -82,6 +93,7 @@ public class CodeEditorConfirmationSettings extends BasicConfiguration<CodeEdito
         saveChanges.readConfiguration(element);
         revertChanges.readConfiguration(element);
         exitOnChanges.readConfiguration(element);
+        temporaryConsole.readConfiguration(element);
     }
 
     @Override
@@ -89,5 +101,6 @@ public class CodeEditorConfirmationSettings extends BasicConfiguration<CodeEdito
         saveChanges.writeConfiguration(element);
         revertChanges.writeConfiguration(element);
         exitOnChanges.writeConfiguration(element);
+        temporaryConsole.writeConfiguration(element);
     }
 }

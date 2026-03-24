@@ -21,6 +21,7 @@ import com.dbn.vector.ui.request.EmbeddingModelConfigForm;
 import com.dbn.vector.ui.request.EmbeddingSourceConfigForm;
 import com.dbn.vector.ui.request.EmbeddingStagingConfigForm;
 import com.intellij.openapi.Disposable;
+import lombok.Getter;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -39,11 +40,11 @@ public class VectorToolboxForm extends VectorToolboxFormBase {
   private JPanel hyperlinkPanel;
   private JPanel stagingConfigPanel;
 
-  private EmbeddingSourceConfigForm embeddingSourceForm;
-  private EmbeddingStagingConfigForm stagingConfigForm;
-  private EmbeddingChunkingConfigForm chunkingConfigForm;
-  private EmbeddingModelConfigForm modelForm;
-  private EmbeddingDestinationConfigForm destinationForm;
+  private @Getter EmbeddingSourceConfigForm embeddingSourceForm;
+  private @Getter EmbeddingStagingConfigForm stagingConfigForm;
+  private @Getter EmbeddingChunkingConfigForm chunkingConfigForm;
+  private @Getter EmbeddingModelConfigForm modelForm;
+  private @Getter EmbeddingDestinationConfigForm destinationForm;
 
   private final VectorEmbeddingRequest request;
 

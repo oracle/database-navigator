@@ -77,6 +77,10 @@ public abstract class AssistantToolBase extends ConnectionComponent implements A
         if (object == null) throw new IllegalArgumentException(objectType.getTitleCasedName() + " not found: " + objectName);
     }
 
+    protected static void verify(Object object, String message) {
+        if (object == null) throw new IllegalStateException(message);
+    }
+
     protected static <T extends DBObject> T undisposed(T object) {
         DBObjectRef<T> ref = DBObjectRef.of(object);
         return ref.get();

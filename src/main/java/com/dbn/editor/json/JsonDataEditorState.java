@@ -24,6 +24,7 @@ import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,11 +32,12 @@ import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.integerAttribute;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setIntegerAttribute;
+import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-public class JsonDataEditorState extends SortableDataModelState implements FileEditorState, PersistentStateElement, Cloneable<JsonDataEditorState> {
+public class JsonDataEditorState extends SortableDataModelState<JsonDataEditorState> implements FileEditorState, PersistentStateElement {
     public static final JsonDataEditorState VOID = new JsonDataEditorState();
 
     private int rowCount;
@@ -49,6 +51,7 @@ public class JsonDataEditorState extends SortableDataModelState implements FileE
 
     @Override
     public void readState(@NotNull Element element) {
+        super.readState(element);
         rowCount = integerAttribute(element, "row-count", 100);
         readonly = booleanAttribute(element, "readonly", false);
         editorVisible = booleanAttribute(element, "editor-visible", false);
@@ -56,17 +59,17 @@ public class JsonDataEditorState extends SortableDataModelState implements FileE
 
     @Override
     public void writeState(Element element) {
+        super.writeState(element);
         setIntegerAttribute(element, "row-count", rowCount);
         setBooleanAttribute(element, "readonly", readonly);
         setBooleanAttribute(element, "editor-visible", editorVisible);
     }
 
     @Override
+    @SneakyThrows
     public JsonDataEditorState clone() {
-        JsonDataEditorState clone = new JsonDataEditorState();
-        clone.setRowCount(rowCount);
-        clone.setReadonly(readonly);
-        clone.setEditorVisible(editorVisible);
+        JsonDataEditorState clone = cast(super.clone());
+        clone.sortingState = Cloneable.clone(sortingState);
         return clone;
     }
 }

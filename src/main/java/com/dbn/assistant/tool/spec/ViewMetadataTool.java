@@ -30,11 +30,12 @@ import java.util.List;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
+import static com.dbn.assistant.tool.AssistantToolType.VIEW_METADATA;
 
 @ToolSpec(
-    type = "VIEW_METADATA",
-    name = "View metadata",
     category = METADATA_PROVIDER,
+    type = VIEW_METADATA,
+    name = "View metadata",
     description = "Information about views in a given schema")
 public interface ViewMetadataTool extends AssistantTool {
 

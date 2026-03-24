@@ -252,8 +252,15 @@ public class DBVirtualObject extends DBRootObjectImpl implements PsiReference {
 
     @Override
     public DBObject getChildObject(DBObjectType type, String name, short overload, boolean lookupHidden) {
-        return computeGuarded("childObjectLookup", null, this,
-                o -> findChildObject(type, name, overload, lookupHidden));
+        DBObjectType parent = getObjectType();
+        Set<DBObjectType> parents = type.getParents();
+        if (parents.contains(parent)) {
+            // TODO check if recursivity guard is still required after parent check was introduced
+            return computeGuarded("childObjectLookup", null, this,
+                    o -> findChildObject(type, name, overload, lookupHidden));
+        }
+        return null;
+
     }
 
     @Nullable
