@@ -16,23 +16,16 @@
 
 package com.dbn.object.navigation;
 
-import com.dbn.common.extension.ExtensionPointCache;
+import com.dbn.object.common.extension.DBObjectExtensionPointCache;
 import com.dbn.object.type.DBObjectType;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Unsafe.cast;
 
-public class DBObjectNavigationInfoProviderCache extends ExtensionPointCache<DBObjectType, DBObjectNavigationInfoProvider> {
+public class DBObjectNavigationInfoProviderCache extends DBObjectExtensionPointCache<DBObjectNavigationInfoProvider> {
     private static final DBObjectNavigationInfoProviderCache INSTANCE = new DBObjectNavigationInfoProviderCache();
 
     private DBObjectNavigationInfoProviderCache() {
-        super(DBObjectNavigationInfoProvider.EP, p -> p.getObjectType());
-    }
-
-    @Override
-    protected @Nullable DBObjectType alternativeKey(DBObjectType objectType) {
-        DBObjectType genericType = objectType.getGenericType();
-        return genericType == objectType ? DBObjectType.ANY : genericType;
+        super(DBObjectNavigationInfoProvider.EP);
     }
 
     public static <P extends DBObjectNavigationInfoProvider> P get(DBObjectType objectType) {
