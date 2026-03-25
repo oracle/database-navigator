@@ -24,7 +24,7 @@ import com.dbn.common.ui.util.Borderless;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Keyboard.Key;
 import com.dbn.common.ui.util.Mouse;
-import com.dbn.object.properties.PresentableProperty;
+import com.dbn.object.properties.DBObjectProperty;
 import com.intellij.pom.Navigatable;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +41,7 @@ public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Bo
     ObjectPropertiesTable(DBNForm parent, DBNTableModel tableModel) {
         super(parent, tableModel, false);
         setDefaultRenderer(String.class, cellRenderer);
-        setDefaultRenderer(PresentableProperty.class, cellRenderer);
+        setDefaultRenderer(DBObjectProperty.class, cellRenderer);
         setCellSelectionEnabled(true);
 
         addMouseListener(createMouseListener());
@@ -80,11 +80,11 @@ public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Bo
     private void navigateInBrowser() {
         int rowIndex = getSelectedRow();
         int columnIndex = getSelectedColumn();
-        if (columnIndex == 1) {
-            PresentableProperty presentableProperty = (PresentableProperty) getModel().getValueAt(rowIndex, 1);
-            Navigatable navigatable = presentableProperty.getNavigatable();
-            if (navigatable != null) navigatable.navigate(true);
-        }
+        if (columnIndex != 1) return;
+
+        DBObjectProperty property = (DBObjectProperty) getModel().getValueAt(rowIndex, 1);
+        Navigatable navigatable = property.getNavigatable();
+        if (navigatable != null) navigatable.navigate(true);
     }
 
 
@@ -100,7 +100,7 @@ public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Bo
 
     private boolean isNavigableCellAtMousePosition() {
         Object value = getValueAtMouseLocation();
-        if (value instanceof PresentableProperty property) {
+        if (value instanceof DBObjectProperty property) {
             return property.getNavigatable() != null;
         }
         return false;
@@ -109,7 +109,7 @@ public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Bo
     private final TableCellRenderer cellRenderer = new DBNColoredTableCellRenderer() {
         @Override
         protected void customizeCellRenderer(DBNTable table, @Nullable Object value, boolean selected, boolean hasFocus, int row, int column) {
-            PresentableProperty property = (PresentableProperty) value;
+            DBObjectProperty property = (DBObjectProperty) value;
             if (property == null) return;
 
             if (column == 0) {

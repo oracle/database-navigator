@@ -41,8 +41,6 @@ import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.properties.DBDataTypePresentableProperty;
-import com.dbn.object.properties.PresentableProperty;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -185,16 +183,6 @@ class DBTypeImpl
 
         }
         return null;
-    }
-
-    @Override
-    public List<PresentableProperty> getPresentableProperties() {
-        List<PresentableProperty> properties = super.getPresentableProperties();
-        DBDataType collectionElementType = getCollectionElementType();
-        if (collectionElementType != null) {
-            properties.add(0, new DBDataTypePresentableProperty("Collection element type", collectionElementType));
-        }
-        return properties;
     }
 
     @Override

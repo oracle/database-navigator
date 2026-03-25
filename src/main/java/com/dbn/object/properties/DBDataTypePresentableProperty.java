@@ -28,7 +28,7 @@ import javax.swing.Icon;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class DBDataTypePresentableProperty extends PresentableProperty{
+public class DBDataTypePresentableProperty extends DBObjectPropertyBase {
     private final DBDataType dataType;
     private String name = "Data type";
 

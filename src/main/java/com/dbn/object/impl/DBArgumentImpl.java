@@ -28,9 +28,6 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.property.DBObjectProperty;
-import com.dbn.object.properties.DBDataTypePresentableProperty;
-import com.dbn.object.properties.PresentableProperty;
-import com.dbn.object.properties.SimplePresentableProperty;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -107,14 +104,6 @@ class DBArgumentImpl extends DBObjectImpl<DBArgumentMetadata> implements DBArgum
     @Override
     public String getPresentableTextConditionalDetails() {
         return dataType.getQualifiedName();
-    }
-
-    @Override
-    public List<PresentableProperty> getPresentableProperties() {
-        List<PresentableProperty> properties = super.getPresentableProperties();
-        properties.add(0, new DBDataTypePresentableProperty(dataType));
-        properties.add(0, new SimplePresentableProperty("Argument type", isInput() && isOutput() ? "IN / OUT" : isInput() ? "IN" : "OUT"));
-        return properties;
     }
 
     @Override

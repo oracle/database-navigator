@@ -31,9 +31,6 @@ import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.list.DBObjectRelationList;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.properties.DBObjectPresentableProperty;
-import com.dbn.object.properties.PresentableProperty;
-import com.dbn.object.properties.SimplePresentableProperty;
 import com.dbn.object.type.DBConstraintType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -220,28 +217,6 @@ class DBConstraintImpl extends DBSchemaObjectImpl<DBConstraintMetadata> implemen
 
         ttb.createEmptyRow();
         super.buildToolTip(ttb);
-    }
-
-    @Override
-    public List<PresentableProperty> getPresentableProperties() {
-        List<PresentableProperty> properties = super.getPresentableProperties();
-        switch (constraintType) {
-            case CHECK:
-                properties.add(0, new SimplePresentableProperty("Check condition", checkCondition));
-                properties.add(0, new SimplePresentableProperty("Constraint type", "Check"));
-                break;
-            case PRIMARY_KEY: properties.add(0, new SimplePresentableProperty("Constraint type", "Primary Key")); break;
-            case FOREIGN_KEY:
-                DBConstraint foreignKeyConstraint = getForeignKeyConstraint();
-                if (foreignKeyConstraint != null) {
-                    properties.add(0, new DBObjectPresentableProperty(foreignKeyConstraint));
-                    properties.add(0, new SimplePresentableProperty("Constraint type", "Foreign Key"));
-                }
-                break;
-            case UNIQUE_KEY: properties.add(0, new SimplePresentableProperty("Constraint type", "Unique")); break;
-        }
-
-        return properties;
     }
 
     @Override

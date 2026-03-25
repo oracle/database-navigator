@@ -54,9 +54,6 @@ import com.dbn.object.common.property.DBObjectProperties;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.properties.ConnectionPresentableProperty;
-import com.dbn.object.properties.DBObjectPresentableProperty;
-import com.dbn.object.properties.PresentableProperty;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBObjectVirtualFile;
 import com.intellij.navigation.ItemPresentation;
@@ -69,7 +66,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -651,19 +647,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     protected ObjectTypeFilterSettings getObjectTypeFilterSettings() {
         return getConnection().getSettings().getFilterSettings().getObjectTypeFilterSettings();
-    }
-
-    @Override
-    public List<PresentableProperty> getPresentableProperties() {
-        List<PresentableProperty> properties = new ArrayList<>();
-        DBObject parent = getParentObject();
-        while (parent != null) {
-            properties.add(new DBObjectPresentableProperty(parent));
-            parent = parent.getParentObject();
-        }
-        properties.add(new ConnectionPresentableProperty(this.getConnection()));
-
-        return properties;
     }
 
     @Override

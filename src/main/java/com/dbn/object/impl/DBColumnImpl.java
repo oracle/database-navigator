@@ -37,10 +37,6 @@ import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.list.DBObjectRelationList;
 import com.dbn.object.common.list.ObjectListProvider;
-import com.dbn.object.properties.DBDataTypePresentableProperty;
-import com.dbn.object.properties.DBObjectPresentableProperty;
-import com.dbn.object.properties.PresentableProperty;
-import com.dbn.object.properties.SimplePresentableProperty;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -327,31 +323,6 @@ class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
     @Override
     public String getPresentableTextConditionalDetails() {
         return dataType.getQualifiedName();
-    }
-
-    @Override
-    public List<PresentableProperty> getPresentableProperties() {
-        List<PresentableProperty> properties = super.getPresentableProperties();
-
-        if (isForeignKey()) {
-            DBColumn foreignKeyColumn = getForeignKeyColumn();
-            if (foreignKeyColumn != null) {
-                properties.add(0, new DBObjectPresentableProperty("Foreign key column", foreignKeyColumn, true));
-            }
-        }
-
-        StringBuilder attributes  = new StringBuilder();
-        if (isIdentity()) attributes.append("IDENTITY");
-        if (isPrimaryKey()) attributes.append(" PK");
-        if (isForeignKey()) attributes.append(" FK");
-        if (!isPrimaryKey() && !isNullable()) attributes.append(" not null");
-
-        if (attributes.length() > 0) {
-            properties.add(0, new SimplePresentableProperty("Attributes", attributes.toString().trim()));
-        }
-        properties.add(0, new DBDataTypePresentableProperty(dataType));
-
-        return properties;
     }
 
     /*********************************************************

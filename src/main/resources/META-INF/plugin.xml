@@ -283,6 +283,7 @@
     </extensions>
     <extensionPoints>
         <extensionPoint name="objectFilter" qualifiedName="com.dbn.objectFilter" interface="com.dbn.object.cache.DBObjectFilter" dynamic="true"/>
+        <extensionPoint name="objectPropertiesProvider" qualifiedName="com.dbn.objectPropertiesProvider" interface="com.dbn.object.properties.DBObjectPropertiesProvider" dynamic="true"/>
         <extensionPoint name="objectFactoryAdapter" qualifiedName="com.dbn.objectFactoryAdapter" interface="com.dbn.object.factory.ObjectFactoryAdapter" dynamic="true"/>
         <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterExtension" dynamic="true"/>
 
@@ -298,6 +299,17 @@
         <!--object filters-->
         <objectFilter implementation="com.dbn.vector.model.request.EmbeddingStagingTableFilter"/>
         <objectFilter implementation="com.dbn.vector.model.request.EmbeddingDestinationTableFilter"/>
+
+        <!--object property providers-->
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBGenericObjectPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBColumnPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBConstraintPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBArgumentPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTablePropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTriggerPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBSynonymPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTypePropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTypeAttributePropertiesProvider"/>
 
         <!--object factory adapters-->
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBAIModelFactoryAdapter"/>
