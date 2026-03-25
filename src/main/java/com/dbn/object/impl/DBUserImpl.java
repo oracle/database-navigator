@@ -33,7 +33,6 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.DBRootObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.type.DBObjectRelationType;
@@ -43,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -115,12 +113,6 @@ class DBUserImpl extends DBRootObjectImpl<DBUserMetadata> implements DBUser {
                (isLocked() ? Icons.DBO_USER_LOCKED : Icons.DBO_USER);
     }
 
-    @Nullable
-    @Override
-    public DBObject getDefaultNavigationObject() {
-        return getSchema();
-    }
-
     @Override
     public List<DBGrantedPrivilege> getPrivileges() {
         return getChildObjects(DBObjectType.GRANTED_PRIVILEGE);
@@ -173,17 +165,6 @@ class DBUserImpl extends DBRootObjectImpl<DBUserMetadata> implements DBUser {
 
         ttb.createEmptyRow();
         super.buildToolTip(ttb);
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        DBSchema schema = getSchema();
-        if(schema != null) {
-            List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-            navigationLists.add(DBObjectNavigationList.create("Schema", schema));
-            return navigationLists;
-        }
-        return null;
     }
 
     /*********************************************************

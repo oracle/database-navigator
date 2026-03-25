@@ -27,10 +27,7 @@ import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
-import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.list.DBObjectNavigationList;
-import com.dbn.object.common.list.ObjectListProvider;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBObjectType;
@@ -40,8 +37,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.nd;
@@ -110,16 +105,6 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 		return getName().split("#")[0];
 	}
 
-	@Nullable
-	private DBObjectList<DBJavaParameter> initParameterList() {
-		DBObjectList<DBJavaParameter> parameterList = getChildObjectList(DBObjectType.JAVA_PARAMETER);
-		if (parameterList == null) return null;
-		if (parameterList.isLoaded()) return parameterList;
-
-		if (!parameterList.isLoading()) parameterList.loadInBackground();
-		return null;
-	}
-
 	@Override
 	@Nullable
 	public Icon getIcon() {
@@ -183,39 +168,6 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	@Override
 	public boolean isReturningVoid() {
 		return Java.isVoid(returnClass.getObjectName());
-	}
-
-	@Override
-	protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-		List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-		DBObjectList<DBJavaParameter> parameterList = initParameterList();
-		if (parameterList != null) {
-			if (parameterList.isLoaded()) {
-				List<DBJavaParameter> parameters = getParameters();
-				if (!parameters.isEmpty()) navigationLists.add(DBObjectNavigationList.create("Parameters", parameters));
-            } else {
-				ObjectListProvider<DBJavaParameter> provider = () -> getParameters();
-				navigationLists.add(DBObjectNavigationList.create("Parameters", provider)); // lazy
-			}
-		}
-
-		if (returnClass != null) {
-			String returnClassName = returnClass.getObjectName();
-			if (!Java.isScalar(returnClassName) &&
-					!Java.isVoid(returnClassName)) {
-				if (returnClass.isLoaded()) {
-					navigationLists.add(DBObjectNavigationList.create("Return Type", getReturnClass()));
-				} else {
-					ObjectListProvider<DBJavaClass> provider = () -> {
-						DBJavaClass returnClass = getReturnClass();
-						return returnClass == null ? Collections.emptyList() : List.of(returnClass);
-					};
-					navigationLists.add(DBObjectNavigationList.create("Return Type", provider));
-				}
-			}
-		}
-
-		return navigationLists;
 	}
 
 	/*********************************************************

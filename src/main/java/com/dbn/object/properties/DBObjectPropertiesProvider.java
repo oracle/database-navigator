@@ -22,10 +22,20 @@ import com.intellij.openapi.extensions.ExtensionPointName;
 
 import java.util.List;
 
+/**
+ * Extension point for providing additional presentable properties of given {@link DBObject} implementations
+ * The extension is used in components rendering detailed object information (e.g. browser object info view)
+ * @param <T> the type of the object being extended
+ */
 public interface DBObjectPropertiesProvider<T extends DBObject> {
     ExtensionPointName<DBObjectPropertiesProvider> EP = ExtensionPointName.create("com.dbn.objectPropertiesProvider");
 
     DBObjectType getObjectType();
 
+    /**
+     * Returns a list of presentable properties for the given object
+     * @param object the object to prepare properties for
+     * @return a list of {@link DBObjectProperty} elements
+     */
     List<DBObjectProperty> getProperties(T object);
 }

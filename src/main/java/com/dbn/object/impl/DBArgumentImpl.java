@@ -26,7 +26,6 @@ import com.dbn.object.DBFunction;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -35,8 +34,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
 
 @Getter
 class DBArgumentImpl extends DBObjectImpl<DBArgumentMetadata> implements DBArgument {
@@ -104,16 +101,6 @@ class DBArgumentImpl extends DBObjectImpl<DBArgumentMetadata> implements DBArgum
     @Override
     public String getPresentableTextConditionalDetails() {
         return dataType.getQualifiedName();
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        if (dataType.isDeclared()) {
-            List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-            navigationLists.add(DBObjectNavigationList.create("Type", dataType.getDeclaredType()));
-            return navigationLists;
-        }
-        return null;
     }
 
     @Nullable

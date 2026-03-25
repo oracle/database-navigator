@@ -24,14 +24,10 @@ import com.dbn.object.DBType;
 import com.dbn.object.DBTypeAttribute;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 
 class DBTypeAttributeImpl extends DBObjectImpl<DBTypeAttributeMetadata> implements DBTypeAttribute {
@@ -85,16 +81,6 @@ class DBTypeAttributeImpl extends DBObjectImpl<DBTypeAttributeMetadata> implemen
     @Override
     public String getPresentableTextConditionalDetails() {
         return dataType.getQualifiedName();
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        if (dataType.isDeclared()) {
-            List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-            navigationLists.add(DBObjectNavigationList.create("Type", dataType.getDeclaredType()));
-            return navigationLists;
-        }
-        return null;
     }
 
     @Override
