@@ -23,7 +23,7 @@ import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.database.common.metadata.def.DBProfileMetadata;
+import com.dbn.database.common.metadata.def.DBAIProfileMetadata;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
@@ -56,7 +56,7 @@ import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 
 @Getter
-public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> implements DBAIProfile {
+public class DBAIProfileImpl extends DBSchemaObjectImpl<DBAIProfileMetadata> implements DBAIProfile {
     private static final Gson GSON = new GsonBuilder().create();
     private String description;
     private DBObjectRef<DBCredential> credential;
@@ -87,7 +87,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
             double temperature,
             boolean interactive,
             boolean enabled) throws SQLException {
-        super(parent, DBProfileMetadata.Record
+        super(parent, DBAIProfileMetadata.Record
                 .builder()
                 .profileName(name)
                 .credentialName(credentialName)
@@ -106,12 +106,12 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
                 .build());
     }
 
-    DBAIProfileImpl(DBSchema parent, DBProfileMetadata metadata) throws SQLException {
+    DBAIProfileImpl(DBSchema parent, DBAIProfileMetadata metadata) throws SQLException {
         super(parent, metadata);
     }
 
     @Override
-    protected String initObject(ConnectionHandler connection, DBObject parentObject, DBProfileMetadata metadata) throws SQLException {
+    protected String initObject(ConnectionHandler connection, DBObject parentObject, DBAIProfileMetadata metadata) throws SQLException {
         String name = metadata.getProfileName();
         credential = new DBObjectRef<>(parentObject.ref(), DBObjectType.CREDENTIAL, metadata.getCredentialName());
         region = metadata.getRegion();
@@ -164,7 +164,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     }
 
     @Override
-    public void initStatus(DBProfileMetadata metadata) throws SQLException {
+    public void initStatus(DBAIProfileMetadata metadata) throws SQLException {
         boolean enabled = metadata.isEnabled();
         getStatus().set(DBObjectStatus.ENABLED, enabled);
     }

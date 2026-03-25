@@ -33,8 +33,8 @@ public class DBAIProfilePropertiesProvider extends DBGenericObjectPropertiesProv
     @Override
     public List<DBObjectProperty> getProperties(DBAIProfile profile) {
         List<DBObjectProperty> properties = super.getProperties(profile);
-        properties.add(0, new SimplePresentableProperty("AI Provider", profile.getProvider()));
-        properties.add(1, new SimplePresentableProperty("AI Model", profile.getModel()));
+        properties.add(0, new SimplePresentableProperty("AI provider", profile.getProvider()));
+        properties.add(1, new SimplePresentableProperty("AI model", profile.getModel()));
         properties.add(2, new SimplePresentableProperty("Enabled", profile.isEnabled()));
         properties.add(3, new SimplePresentableProperty("Interactive", profile.isInteractive()));
         properties.add(4, new SimplePresentableProperty("Temperature", profile.getTemperature()));
