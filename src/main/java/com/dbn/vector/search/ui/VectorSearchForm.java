@@ -40,7 +40,6 @@ import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.project.Project;
@@ -58,6 +57,9 @@ import java.sql.ResultSet;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
+import static com.dbn.common.util.Documents.onDocumentChanged;
+import static com.dbn.common.util.Editors.installFormLayoutUpdater;
+import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.help.HelpTopic.VECTOR_SEARCH;
@@ -73,7 +75,6 @@ public class VectorSearchForm extends DBNFormBase {
     private final WeakRef<VectorSearchConsole> searchConsole;
     private VectorSearchResultForm resultForm;
     private EditorEx requestEditor;
-    private int inputLineCount;
 
     @Getter
     private transient boolean searching;
@@ -104,13 +105,15 @@ public class VectorSearchForm extends DBNFormBase {
         VirtualFile virtualFile = new LightVirtualFile("vector_search_file.txt", fileType, text);
 
         Document document = Documents.createDocument(text);
-        document.addDocumentListener(documentChangeListener(), this);
+        onDocumentChanged(document, this, e -> updateConsoleFile(e));
 
         requestEditor = Editors.createEditor(document, project, virtualFile, fileType);
         requestEditor.setEmbeddedIntoDialogWrapper(false);
         requestEditor.getContentComponent().setFocusTraversalKeysEnabled(false);
         requestEditor.setPlaceholder("Enter your search text here");
         updateEditorScrollPane(requestEditor);
+        installFormLayoutUpdater(requestEditor, this);
+        restrictEditorHeight(requestEditor, this, 300);
 
         EditorSettings settings = requestEditor.getSettings();
         settings.setUseSoftWraps(true);
@@ -124,20 +127,9 @@ public class VectorSearchForm extends DBNFormBase {
         inputPanel.add(requestEditor.getComponent());
     }
 
-    private @NotNull DocumentListener documentChangeListener() {
-        return new DocumentListener() {
-            @Override
-            public void documentChanged(@NotNull DocumentEvent event) {
-                Document document = event.getDocument();
-                getSearchConsole().getConsoleFile().setContent(document.getText());
-
-                int lineCount = document.getLineCount();
-                if (lineCount == inputLineCount) return;
-
-                inputLineCount = lineCount;
-                revalidateForm();
-            }
-        };
+    private void updateConsoleFile(@NotNull DocumentEvent event) {
+        Document document = event.getDocument();
+        getSearchConsole().getConsoleFile().setContent(document.getText());
     }
 
     private void initSpinner() {
