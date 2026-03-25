@@ -42,8 +42,6 @@ import com.dbn.vfs.file.DBSingleQueryVirtualFile;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
-import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
@@ -57,6 +55,10 @@ import java.awt.BorderLayout;
 import java.sql.SQLException;
 
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
+import static com.dbn.common.util.Editors.initEditorHighlighter;
+import static com.dbn.common.util.Editors.installFormLayoutUpdater;
+import static com.dbn.common.util.Editors.restrictEditorHeight;
+import static com.dbn.common.util.Editors.updateEditorScrollPane;
 
 public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private JPanel mainPanel;
@@ -74,7 +76,6 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private Document document;
     private EditorEx editor;
     private String statement;
-    private int inputLineCount;
 
     public EmbeddingSourceInputQueryForm(@NotNull Disposable parent, ConnectionHandler connection, EmbeddingSourceQuery config) {
         super(parent);
@@ -104,12 +105,16 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         PsiFile queryPsiFile = queryFile.initializePsiFile(viewProvider, SQLLanguage.INSTANCE);
 
         document = Documents.ensureDocument(queryPsiFile);
-        document.addDocumentListener(formLayoutUpdater(), this);
+
         editor = Editors.createEditor(document, project, queryFile, SQLFileType.INSTANCE);
-        Editors.initEditorHighlighter(editor, SQLLanguage.INSTANCE, connection);
+        initEditorHighlighter(editor, SQLLanguage.INSTANCE, connection);
+        installFormLayoutUpdater(editor, this);
+        restrictEditorHeight(editor, this, 200);
+        updateEditorScrollPane(editor);
 
         editor.setEmbeddedIntoDialogWrapper(true);
-        Editors.updateEditorScrollPane(editor);
+
+
 
         EditorSettings settings = editor.getSettings();
         settings.setFoldingOutlineShown(false);
@@ -124,20 +129,6 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
 
         queryPanel.add(editor.getComponent());
         Editors.focusEditor(editor);
-    }
-
-
-    private @NotNull DocumentListener formLayoutUpdater() {
-        return new DocumentListener() {
-            @Override
-            public void documentChanged(@NotNull DocumentEvent event) {
-                int lineCount = event.getDocument().getLineCount();
-                if (lineCount == inputLineCount) return;
-
-                inputLineCount = lineCount;
-                revalidateForm();
-            }
-        };
     }
 
     private void initSpinner() {
