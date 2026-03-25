@@ -303,8 +303,10 @@
 
         <!--object property providers-->
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBGenericObjectPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBAIProfilePropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBColumnPropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBConstraintPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBCredentialPropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBArgumentPropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTablePropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTriggerPropertiesProvider"/>
