@@ -26,7 +26,7 @@ import javax.swing.Icon;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)
-public class DBObjectPresentableProperty extends PresentableProperty{
+public class DBObjectPresentableProperty extends DBObjectPropertyBase {
     private final DBObjectRef objectRef;
     private final boolean qualified;
     private final String name;

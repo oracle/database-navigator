@@ -31,8 +31,6 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
-import com.dbn.object.properties.PresentableProperty;
-import com.dbn.object.properties.SimplePresentableProperty;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -202,14 +200,5 @@ class DBTableImpl extends DBDatasetImpl<DBTableMetadata> implements DBTable {
             settings.isVisible(INDEX) ||
             settings.isVisible(DATASET_TRIGGER) ||
             settings.isVisible(NESTED_TABLE);
-    }
-
-    @Override
-    public List<PresentableProperty> getPresentableProperties() {
-        List<PresentableProperty> properties = super.getPresentableProperties();
-        if (isTemporary()) {
-            properties.add(0, new SimplePresentableProperty("Attributes", "temporary"));
-        }
-        return properties;
     }
 }

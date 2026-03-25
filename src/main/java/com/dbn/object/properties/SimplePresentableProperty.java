@@ -24,7 +24,7 @@ import javax.swing.Icon;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)
-public class SimplePresentableProperty extends PresentableProperty{
+public class SimplePresentableProperty extends DBObjectPropertyBase {
     private final String name;
     private final String value;
     private final Icon icon;

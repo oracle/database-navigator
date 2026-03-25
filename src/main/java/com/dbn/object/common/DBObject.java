@@ -39,7 +39,6 @@ import com.dbn.object.common.list.DBObjectListVisitor;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.properties.PresentableProperty;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBObjectVirtualFile;
 import org.jetbrains.annotations.NotNull;
@@ -146,8 +145,6 @@ public interface DBObject extends
 
     @NotNull
     DBObjectVirtualFile getVirtualFile();
-
-    List<PresentableProperty> getPresentableProperties();
 
     @Override
     DBObjectRef ref();

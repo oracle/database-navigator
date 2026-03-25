@@ -28,8 +28,6 @@ import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.properties.DBObjectPresentableProperty;
-import com.dbn.object.properties.PresentableProperty;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -152,16 +150,6 @@ class DBSynonymImpl extends DBSchemaObjectImpl<DBSynonymMetadata> implements DBS
         ttb.append(false, getObjectType().getName(), true);
         ttb.createEmptyRow();
         super.buildToolTip(ttb);
-    }
-
-    @Override
-    public List<PresentableProperty> getPresentableProperties() {
-        List<PresentableProperty> properties = super.getPresentableProperties();
-        DBObject underlyingObject = getUnderlyingObject();
-        if (underlyingObject != null) {
-            properties.add(0, new DBObjectPresentableProperty("Underlying object", underlyingObject, true));
-        }
-        return properties;
     }
 
     /*********************************************************

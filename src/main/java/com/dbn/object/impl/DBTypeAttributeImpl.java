@@ -25,8 +25,6 @@ import com.dbn.object.DBTypeAttribute;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.common.list.DBObjectNavigationList;
-import com.dbn.object.properties.DBDataTypePresentableProperty;
-import com.dbn.object.properties.PresentableProperty;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -82,13 +80,6 @@ class DBTypeAttributeImpl extends DBObjectImpl<DBTypeAttributeMetadata> implemen
 
         ttb.createEmptyRow();
         super.buildToolTip(ttb);            
-    }
-
-    @Override
-    public List<PresentableProperty> getPresentableProperties() {
-        List<PresentableProperty> properties = super.getPresentableProperties();
-        properties.add(0, new DBDataTypePresentableProperty(dataType));
-        return properties;
     }
 
     @Override
