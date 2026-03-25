@@ -105,6 +105,7 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm {
         EditorEx codeViewer = createViewer(connection, section);
         if (codeViewer == null) return null;
 
+        Editors.installFormLayoutUpdater(codeViewer, parent);
         return new ChatMessageCodeSectionForm(parent, connection, codeViewer, section);
     }
 

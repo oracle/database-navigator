@@ -646,19 +646,30 @@ public class Editors {
     public static void restrictEditorHeight(Editor editor, Disposable parentDisposable, int maxHeight) {
         // workaround for odd layout issues with editors,
         // not constrained by the max height of the parent containers
+
+        AtomicInteger previousLineCount = new AtomicInteger(0);
+        updateEditorHeight(editor, maxHeight, previousLineCount);
+
+        onDocumentChanged(editor.getDocument(), parentDisposable, e ->
+                updateEditorHeight(editor, maxHeight, previousLineCount));
+    }
+
+    private static void updateEditorHeight(Editor editor, int maxHeight, AtomicInteger previousLineCount) {
+        Document document = editor.getDocument();
+        int lineCount = Math.max(document.getLineCount(), 1);
+        if (lineCount == previousLineCount.get()) return;
+
+        previousLineCount.set(lineCount);
+
         JComponent component = editor.getComponent();
         Dimension preferredSize = component.getPreferredSize();
         int lineHeight = editor.getLineHeight();
         int additionalLines = editor.getSettings().getAdditionalLinesCount();
 
+        int lines = lineCount + additionalLines;
+        int height = Math.min(lineHeight * lines, maxHeight) + 12 /**/;
 
-        Document document = editor.getDocument();
-        onDocumentChanged(document, parentDisposable, e -> {
-            int lines = e.getDocument().getLineCount() + additionalLines;
-            int height = Math.min(lineHeight * lines, maxHeight);
-
-            component.setPreferredSize(new Dimension(preferredSize.width, height));
-        });
+        component.setPreferredSize(new Dimension(preferredSize.width, height));
     }
 
     public static void installFormLayoutUpdater(EditorEx editor, DBNForm form) {
