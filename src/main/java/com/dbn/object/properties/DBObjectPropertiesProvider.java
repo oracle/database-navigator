@@ -17,7 +17,7 @@
 package com.dbn.object.properties;
 
 import com.dbn.object.common.DBObject;
-import com.dbn.object.type.DBObjectType;
+import com.dbn.object.common.extension.DBObjectExtensionPoint;
 import com.intellij.openapi.extensions.ExtensionPointName;
 
 import java.util.List;
@@ -27,10 +27,8 @@ import java.util.List;
  * The extension is used in components rendering detailed object information (e.g. browser object info view)
  * @param <T> the type of the object being extended
  */
-public interface DBObjectPropertiesProvider<T extends DBObject> {
+public interface DBObjectPropertiesProvider<T extends DBObject> extends DBObjectExtensionPoint {
     ExtensionPointName<DBObjectPropertiesProvider> EP = ExtensionPointName.create("com.dbn.objectPropertiesProvider");
-
-    DBObjectType getObjectType();
 
     /**
      * Returns a list of presentable properties for the given object

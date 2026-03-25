@@ -17,6 +17,7 @@
 package com.dbn.object.navigation.impl;
 
 import com.dbn.object.common.DBObject;
+import com.dbn.object.common.extension.DBObjectExtensionPointBase;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
 import com.dbn.object.type.DBObjectType;
@@ -26,11 +27,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 @Getter
-public class DBObjectNavigationInfoProviderBase<T extends DBObject> implements DBObjectNavigationInfoProvider<T> {
-    private final DBObjectType objectType;
-
+public class DBObjectNavigationInfoProviderBase<T extends DBObject> extends DBObjectExtensionPointBase implements DBObjectNavigationInfoProvider<T> {
     public DBObjectNavigationInfoProviderBase(DBObjectType objectType) {
-        this.objectType = objectType;
+        super(objectType);
     }
 
     public DBObjectNavigationInfoProviderBase() {

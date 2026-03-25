@@ -16,23 +16,16 @@
 
 package com.dbn.object.properties;
 
-import com.dbn.common.extension.ExtensionPointCache;
+import com.dbn.object.common.extension.DBObjectExtensionPointCache;
 import com.dbn.object.type.DBObjectType;
-import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Unsafe.cast;
 
-public class DBObjectPropertiesProviderCache extends ExtensionPointCache<DBObjectType, DBObjectPropertiesProvider> {
+public class DBObjectPropertiesProviderCache extends DBObjectExtensionPointCache<DBObjectPropertiesProvider> {
     private static final DBObjectPropertiesProviderCache INSTANCE = new DBObjectPropertiesProviderCache();
 
     private DBObjectPropertiesProviderCache() {
-        super(DBObjectPropertiesProvider.EP, p -> p.getObjectType());
-    }
-
-    @Override
-    protected @Nullable DBObjectType alternativeKey(DBObjectType objectType) {
-        DBObjectType genericType = objectType.getGenericType();
-        return genericType == objectType ? DBObjectType.ANY : genericType;
+        super(DBObjectPropertiesProvider.EP);
     }
 
     public static <P extends DBObjectPropertiesProvider> P get(DBObjectType objectType) {

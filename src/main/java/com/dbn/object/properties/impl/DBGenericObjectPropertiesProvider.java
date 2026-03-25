@@ -17,22 +17,19 @@
 package com.dbn.object.properties.impl;
 
 import com.dbn.object.common.DBObject;
+import com.dbn.object.common.extension.DBObjectExtensionPointBase;
 import com.dbn.object.properties.ConnectionPresentableProperty;
 import com.dbn.object.properties.DBObjectPresentableProperty;
 import com.dbn.object.properties.DBObjectPropertiesProvider;
 import com.dbn.object.properties.DBObjectProperty;
 import com.dbn.object.type.DBObjectType;
-import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-public class DBGenericObjectPropertiesProvider<T extends DBObject> implements DBObjectPropertiesProvider<T> {
-    private final DBObjectType objectType;
-
+public class DBGenericObjectPropertiesProvider<T extends DBObject> extends DBObjectExtensionPointBase implements DBObjectPropertiesProvider<T> {
     public DBGenericObjectPropertiesProvider(DBObjectType objectType) {
-        this.objectType = objectType;
+        super(objectType);
     }
 
     public DBGenericObjectPropertiesProvider() {

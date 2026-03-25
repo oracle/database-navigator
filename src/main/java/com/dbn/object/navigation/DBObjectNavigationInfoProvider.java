@@ -17,8 +17,8 @@
 package com.dbn.object.navigation;
 
 import com.dbn.object.common.DBObject;
+import com.dbn.object.common.extension.DBObjectExtensionPoint;
 import com.dbn.object.common.list.DBObjectNavigationList;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,10 +28,8 @@ import java.util.List;
  * Extension point for adding navigation features to given {@link DBObject} implementations
  * @param <T> the type of the object being extended
  */
-public interface DBObjectNavigationInfoProvider<T extends DBObject> {
+public interface DBObjectNavigationInfoProvider<T extends DBObject> extends DBObjectExtensionPoint {
     ExtensionPointName<DBObjectNavigationInfoProvider> EP = ExtensionPointName.create("com.dbn.objectNavigationInfoProvider");
-
-    DBObjectType getObjectType();
 
     /**
      * Returns the tooltip presented when a navigable instance of the object is accessed (e.g. in the editor)
