@@ -197,7 +197,6 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         settings.setLineNumbersShown(false);
         settings.setVirtualSpace(false);
         settings.setDndEnabled(false);
-        settings.setAdditionalLinesCount(1);
         settings.setRightMarginShown(false);
         settings.setCaretRowShown(false);
         settings.setUseSoftWraps(true);
