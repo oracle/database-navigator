@@ -32,7 +32,8 @@ public class DBCredentialPropertiesProvider extends DBGenericObjectPropertiesPro
     public List<DBObjectProperty> getProperties(DBCredential credential) {
         List<DBObjectProperty> properties = super.getProperties(credential);
         properties.add(0, new SimplePresentableProperty("Credential type", credential.getType()));
-        properties.add(1, new SimplePresentableProperty("Enabled", credential.isEnabled()));
+        properties.add(1, new SimplePresentableProperty("User name", credential.getUserName()));
+        properties.add(2, new SimplePresentableProperty("Enabled", credential.isEnabled()));
         return properties;
     }
 }

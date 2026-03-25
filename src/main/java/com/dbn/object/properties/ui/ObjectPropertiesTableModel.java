@@ -23,7 +23,7 @@ import com.dbn.object.properties.DBObjectProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ObjectPropertiesTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel {
+public class ObjectPropertiesTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<DBObjectProperty> {
     private List<DBObjectProperty> properties = new ArrayList<>();
 
     ObjectPropertiesTableModel() {}
@@ -54,6 +54,13 @@ public class ObjectPropertiesTableModel extends StatefulDisposableBase implement
     }
     @Override public Object getValueAt(int rowIndex, int columnIndex) {
         return properties.get(rowIndex);
+    }
+
+    @Override
+    public String getPresentableValue(DBObjectProperty property, int columnIndex) {
+        return
+            columnIndex == 0 ? property.getName() :
+            columnIndex == 1 ? property.getValue() : null;
     }
 
     @Override
