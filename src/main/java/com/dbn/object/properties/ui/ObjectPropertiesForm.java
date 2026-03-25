@@ -162,6 +162,8 @@ public class ObjectPropertiesForm extends DBNFormBase {
 
                 ObjectPropertiesTableModel oldTableModel = (ObjectPropertiesTableModel) objectPropertiesTable.getModel();
                 objectPropertiesTable.setModel(tableModel);
+                objectPropertiesTable.adjustColumnWidths();
+
 
                 UserInterface.repaint(mainPanel);
                 Disposer.dispose(oldTableModel);

@@ -46,6 +46,8 @@ public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Bo
 
         addMouseListener(createMouseListener());
         addKeyListener(createKeyListener());
+        setProportionalColumnWidth(0, 30);
+        setProportionalColumnWidth(1, 70);
 
         setAccessibleName(this, "Object Properties");
     }
