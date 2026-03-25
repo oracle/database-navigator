@@ -29,7 +29,6 @@ import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -43,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -203,14 +201,6 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     @Override
     public <T extends DBObject> List<T> getChildObjects(DBObjectType objectType) {
         return super.getChildObjects(objectType);
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-        navigationLists.add(DBObjectNavigationList.create("Profile objects", getObjects()));
-        navigationLists.add(DBObjectNavigationList.create("Credential", getCredential()));
-        return navigationLists;
     }
 
     private String getQuotedCredentialName() {

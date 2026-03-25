@@ -38,7 +38,11 @@ import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
 import com.dbn.object.action.NavigateToObjectAction;
 import com.dbn.object.action.ObjectNavigationListActionGroup;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectNavigationList;
+import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
+import com.dbn.object.navigation.DBObjectNavigationInfoProviderCache;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ide.CopyPasteManager;
 import lombok.extern.slf4j.Slf4j;
@@ -133,11 +137,16 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
 
         DefaultActionGroup columnPropertiesActionGroup = new DefaultActionGroup(txt("app.dataEditor.action.ColumnInfo"), true);
         columnPropertiesActionGroup.add(new NavigateToObjectAction(column));
-        for (DBObjectNavigationList navigationList : column.getNavigationLists()) {
-            if (!navigationList.isLazy()) {
-                add(new ObjectNavigationListActionGroup(column, navigationList, true));
+
+        DBObjectNavigationInfoProvider<DBObject> infoProvider = DBObjectNavigationInfoProviderCache.get(DBObjectType.COLUMN);
+        if (infoProvider != null) {
+            for (DBObjectNavigationList navigationList : infoProvider.createNavigationTargets(column)) {
+                if (!navigationList.isLazy()) {
+                    add(new ObjectNavigationListActionGroup(column, navigationList, true));
+                }
             }
         }
+
         add(columnPropertiesActionGroup);
         addSeparator();
 

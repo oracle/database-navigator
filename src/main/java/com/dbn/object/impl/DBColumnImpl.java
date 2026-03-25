@@ -28,15 +28,12 @@ import com.dbn.object.DBConstraint;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBIndex;
 import com.dbn.object.DBSchema;
-import com.dbn.object.DBTable;
 import com.dbn.object.DBType;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.list.DBObjectRelationList;
-import com.dbn.object.common.list.ObjectListProvider;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -45,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -113,15 +109,6 @@ class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
     @Override
     public DBObjectType getObjectType() {
         return COLUMN;
-    }
-
-    @Override
-    @Nullable
-    public DBObject getDefaultNavigationObject() {
-        if (isForeignKey()) {
-            return getForeignKeyColumn();
-        }
-        return null;
     }
 
     @Override
@@ -286,38 +273,6 @@ class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
             }
         }
         return list;
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-
-        if (dataType.isDeclared()) {
-            navigationLists.add(DBObjectNavigationList.create("Type", dataType.getDeclaredType()));
-        }
-
-        List<DBConstraint> constraints = getConstraints();
-        if (constraints.size() > 0) {
-            navigationLists.add(DBObjectNavigationList.create("Constraints", constraints));
-        }
-
-        if (getParentObject() instanceof DBTable) {
-            List<DBIndex> indexes = getIndexes();
-            if (indexes.size() > 0) {
-                navigationLists.add(DBObjectNavigationList.create("Indexes", indexes));
-            }
-
-            if (isForeignKey()) {
-                DBColumn foreignKeyColumn = getForeignKeyColumn();
-                navigationLists.add(DBObjectNavigationList.create("Referenced column", foreignKeyColumn));
-            }
-        }
-
-        if (isPrimaryKey()) {
-            ObjectListProvider<DBColumn> objectListProvider = () -> getReferencingColumns();
-            navigationLists.add(DBObjectNavigationList.create("Foreign-key columns", objectListProvider));
-        }
-        return navigationLists;
     }
 
     @Override

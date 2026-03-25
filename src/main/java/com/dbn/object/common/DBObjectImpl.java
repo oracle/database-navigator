@@ -49,7 +49,6 @@ import com.dbn.object.DBUser;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectListVisitor;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.property.DBObjectProperties;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
@@ -175,12 +174,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    @Nullable
-    public DBObject getDefaultNavigationObject() {
-        return null;
-    }
-
-    @Override
     public boolean isSchemaObject() {
         return is(SCHEMA_OBJECT);
     }
@@ -275,18 +268,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     @Override
     public Icon getOriginalIcon() {
         return getIcon();
-    }
-
-    @Override
-    public String getNavigationTooltipText() {
-        DBObject parentObject = getParentObject();
-        if (parentObject == null) {
-            return getTypeName();
-        } else {
-            return getTypeName() + " (" +
-                    parentObject.getTypeName() + ' ' +
-                    parentObject.getName() + ')';
-        }
     }
 
     @Override
@@ -476,17 +457,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     public <T extends DBObject> DBObjectList<T> getChildObjectList(DBObjectType objectType) {
         DBObjectListContainer objects = getChildObjects();
         return objects == null ? null : objects.getObjectList(objectType);
-    }
-
-    @Override
-    public List<DBObjectNavigationList> getNavigationLists() {
-        // todo consider caching;
-        return createNavigationLists();
-    }
-
-    @Nullable
-    protected List<DBObjectNavigationList> createNavigationLists() {
-        return null;
     }
 
     @Override

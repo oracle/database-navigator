@@ -48,6 +48,8 @@ import com.dbn.object.common.list.action.HideAuditColumnsToggleAction;
 import com.dbn.object.common.list.action.HideEmptySchemasToggleAction;
 import com.dbn.object.common.list.action.HidePseudoColumnsToggleAction;
 import com.dbn.object.dependency.action.ObjectDependencyTreeAction;
+import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
+import com.dbn.object.navigation.DBObjectNavigationInfoProviderCache;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.sync.java.action.JavaObjectDownloadAction;
 import com.dbn.sync.java.action.JavaResourceDownloadAction;
@@ -200,7 +202,11 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     }
 
     private void addNavigationActions(DBObject object) {
-        List<DBObjectNavigationList> navigationLists = object.getNavigationLists();
+        DBObjectType objectType = object.getObjectType();
+        DBObjectNavigationInfoProvider<DBObject> infoProvider = DBObjectNavigationInfoProviderCache.get(objectType);
+        if (infoProvider == null) return;
+
+        List<DBObjectNavigationList<?>> navigationLists = infoProvider.createNavigationTargets(object);
         if (navigationLists != null && !navigationLists.isEmpty()) {
             if (object.isNot(REFERENCEABLE)) addSeparator();
             //add(new DbsGoToActionGroup(linkLists));

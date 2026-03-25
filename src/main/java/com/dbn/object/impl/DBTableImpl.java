@@ -29,7 +29,6 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +38,6 @@ import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.dbn.object.common.property.DBObjectProperty.TEMPORARY;
@@ -163,18 +161,6 @@ class DBTableImpl extends DBDatasetImpl<DBTableMetadata> implements DBTable {
     @Override
     public boolean isEditable(DBContentType contentType) {
         return contentType == DBContentType.DATA;
-    }
-
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-        List<DBIndex> indexes = getChildObjects(INDEX);
-        if (indexes != null && indexes.size() > 0) {
-            navigationLists.add(DBObjectNavigationList.create("Indexes", indexes));
-        }
-
-        return navigationLists;
     }
 
     /*********************************************************

@@ -36,7 +36,6 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectTreeNodeBase;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
@@ -47,7 +46,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -173,19 +171,6 @@ class DBTypeImpl
     }
 
     @Override
-    @Nullable
-    public DBObject getDefaultNavigationObject() {
-        if (isCollection()) {
-            DBDataType dataType = getCollectionElementType();
-            if (dataType != null && dataType.isDeclared()) {
-                return dataType.getDeclaredType();
-            }
-
-        }
-        return null;
-    }
-
-    @Override
     public DBNativeDataType getNativeDataType() {
         return nativeDataType;
     }
@@ -247,30 +232,5 @@ class DBTypeImpl
             }
         }
         return super.compareTo(o);
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-
-        DBType superType = getSuperType();
-        if (superType != null) {
-            navigationLists.add(DBObjectNavigationList.create("Super Type", superType));
-        }
-        List<DBObject> types = getChildObjects(DBObjectType.TYPE_TYPE);
-        if (!types.isEmpty()) {
-            navigationLists.add(DBObjectNavigationList.create("Sub Types", types));
-        }
-        if (isCollection()) {
-            DBDataType dataType = getCollectionElementType();
-            if (dataType != null && dataType.isDeclared()) {
-                DBType collectionElementType = dataType.getDeclaredType();
-                if (collectionElementType != null) {
-                    navigationLists.add(DBObjectNavigationList.create("Collection element type", collectionElementType));
-                }
-            }
-        }
-
-        return navigationLists;
     }
 }

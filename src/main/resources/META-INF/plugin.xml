@@ -272,6 +272,7 @@
     <extensionPoints>
         <extensionPoint name="objectFilter" qualifiedName="com.dbn.objectFilter" interface="com.dbn.object.cache.DBObjectFilter" dynamic="true"/>
         <extensionPoint name="objectPropertiesProvider" qualifiedName="com.dbn.objectPropertiesProvider" interface="com.dbn.object.properties.DBObjectPropertiesProvider" dynamic="true"/>
+        <extensionPoint name="objectNavigationInfoProvider" qualifiedName="com.dbn.objectNavigationInfoProvider" interface="com.dbn.object.navigation.DBObjectNavigationInfoProvider" dynamic="true"/>
         <extensionPoint name="objectFactoryAdapter" qualifiedName="com.dbn.objectFactoryAdapter" interface="com.dbn.object.factory.ObjectFactoryAdapter" dynamic="true"/>
         <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterExtension" dynamic="true"/>
 
@@ -298,6 +299,28 @@
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBSynonymPropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTypePropertiesProvider"/>
         <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTypeAttributePropertiesProvider"/>
+
+        <!--object navigation info providers-->
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBObjectNavigationInfoProviderBase"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBAIProfileNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBArgumentNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBColumnNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBConstraintNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBGrantedPrivilegeNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBGrantedRoleNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBIndexNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBJavaMethodNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBJsonViewNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBPrivilegeNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBRoleNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBSchemaNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBSynonymNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTableNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTypeNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTypeAttributeNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBUserNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBViewNavigationInfoProvider"/>
+
 
         <!--object factory adapters-->
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBAIModelFactoryAdapter"/>
