@@ -162,6 +162,16 @@ public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> imple
         }
     }
 
+
+    public void cancelEditing() {
+        if (!isEditing()) return;
+
+        TableCellEditor cellEditor = getCellEditor();
+        if (cellEditor == null) return;
+
+        cellEditor.cancelCellEditing();
+    }
+
     protected void initTableSorter() {
         setRowSorter(new DBNTableSorter(getModel()));
         JTableHeader tableHeader = getTableHeader();

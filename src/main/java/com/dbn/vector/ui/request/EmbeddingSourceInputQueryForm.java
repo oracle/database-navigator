@@ -51,11 +51,14 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
 
-import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
+import static com.dbn.common.util.Editors.initEditorHighlighter;
+import static com.dbn.common.util.Editors.installFormLayoutUpdater;
+import static com.dbn.common.util.Editors.restrictEditorHeight;
+import static com.dbn.common.util.Editors.updateEditorScrollPane;
 
 public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private JPanel mainPanel;
@@ -65,7 +68,6 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private JButton verifyButton;
     private JPanel spinPanel;
     private DBNScrollPane outputScrollPane;
-    private JSplitPane splitPane;
 
     private final ConnectionRef connection;
     private final EmbeddingSourceQuery config;
@@ -75,14 +77,10 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private EditorEx editor;
     private String statement;
 
-
-
-
     public EmbeddingSourceInputQueryForm(@NotNull Disposable parent, ConnectionHandler connection, EmbeddingSourceQuery config) {
         super(parent);
         this.connection = ConnectionRef.of(connection);
         this.config = config;
-        setSplitPaneProportion(splitPane, 0.30);
 
         initHeaderPanel();
         initSpinner();
@@ -107,11 +105,16 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         PsiFile queryPsiFile = queryFile.initializePsiFile(viewProvider, SQLLanguage.INSTANCE);
 
         document = Documents.ensureDocument(queryPsiFile);
+
         editor = Editors.createEditor(document, project, queryFile, SQLFileType.INSTANCE);
-        Editors.initEditorHighlighter(editor, SQLLanguage.INSTANCE, connection);
+        initEditorHighlighter(editor, SQLLanguage.INSTANCE, connection);
+        installFormLayoutUpdater(editor, this);
+        restrictEditorHeight(editor, this, 200);
+        updateEditorScrollPane(editor);
 
         editor.setEmbeddedIntoDialogWrapper(true);
-        Editors.updateEditorScrollPane(editor);
+
+
 
         EditorSettings settings = editor.getSettings();
         settings.setFoldingOutlineShown(false);
@@ -145,11 +148,10 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     }
 
     private void initVerifyButton() {
-        verifyButton.addActionListener(e -> {
-            Dispatch.async(mainPanel,
+        onButtonClick(verifyButton, e ->
+                Dispatch.async(mainPanel,
                     () -> verifyQuery(),
-                    d -> applyChunkResult(d));
-        });
+                    d -> applyChunkResult(d)));
     }
 
     private void applyChunkResult(ResultSetDataModel data){

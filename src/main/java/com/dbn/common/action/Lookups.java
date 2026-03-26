@@ -76,11 +76,18 @@ public class Lookups {
         return PlatformDataKeys.FILE_EDITOR.getData(dataContext);
     }
 
+    @Nullable
     public static Project getProject(Component component){
         DataContext dataContext = Context.getDataContext(component);
+        return getProject(dataContext);
+    }
+
+    @Nullable
+    public static Project getProject(DataContext dataContext) {
         return PlatformDataKeys.PROJECT.getData(dataContext);
     }
 
+    @Nullable
     public static Component getComponent(DataContext dataContext){
         return PlatformDataKeys.CONTEXT_COMPONENT.getData(dataContext);
     }

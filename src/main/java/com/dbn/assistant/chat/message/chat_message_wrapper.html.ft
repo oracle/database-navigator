@@ -23,7 +23,23 @@
         code { ${MONOSPACE_FONT_STYLE} }
         h3 code { font-size: inherit; }
         p { margin-top:0; }
+        ul {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
 
+        table {
+            border-top: 1px solid ${TABLE_GRID_COLOR};
+            border-left: 1px solid ${TABLE_GRID_COLOR};
+            border-spacing: 0;
+        }
+
+        th, td {
+            border-top: none;
+            border-left: none;
+            border-right: 1px solid ${TABLE_GRID_COLOR};
+            border-bottom: 1px solid ${TABLE_GRID_COLOR};
+        }
     </style>
 </head>
     ${BODY_CONTENT}

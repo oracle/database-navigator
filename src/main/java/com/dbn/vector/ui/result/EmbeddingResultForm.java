@@ -35,12 +35,13 @@ public class EmbeddingResultForm extends ExecutionResultFormBase<VectorEmbedding
     private JPanel actionsPanel;
     private JPanel summaryPanel;
 
-    private final VectorEmbeddingResult result;
-
     public EmbeddingResultForm(@NotNull VectorEmbeddingExecutionResult executionResult) {
         super(executionResult);
-        this.result = getExecutionResult().getVectorEmbeddingResult();
         initializeComponents();
+    }
+
+    private VectorEmbeddingResult getEmbeddingResult() {
+        return getExecutionResult().getVectorEmbeddingResult();
     }
 
     private void initializeComponents() {
@@ -50,6 +51,7 @@ public class EmbeddingResultForm extends ExecutionResultFormBase<VectorEmbedding
     }
 
     private void initializeSummary() {
+        VectorEmbeddingResult result = getEmbeddingResult();
         EmbeddingResultSummaryForm summaryForm = new EmbeddingResultSummaryForm(this, result);
         summaryPanel.add(summaryForm.getComponent());
     }
@@ -61,6 +63,7 @@ public class EmbeddingResultForm extends ExecutionResultFormBase<VectorEmbedding
     }
 
     private void initializeTable() {
+        VectorEmbeddingResult result = getEmbeddingResult();
         VectorEmbeddingResultsTableModel sourceDataModel = new VectorEmbeddingResultsTableModel(result);
         VectorEmbeddingResultsTable sourceDataTable = new VectorEmbeddingResultsTable(this, sourceDataModel);
         sourceDataScrollPane.setViewportView(sourceDataTable);

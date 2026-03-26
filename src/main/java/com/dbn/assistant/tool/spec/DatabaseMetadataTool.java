@@ -27,10 +27,11 @@ import lombok.Data;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.METADATA_PROVIDER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
+import static com.dbn.assistant.tool.AssistantToolType.DATABASE_METADATA;
 
 @ToolSpec(
         category = METADATA_PROVIDER,
-        type = "DATABASE_METADATA",
+        type = DATABASE_METADATA,
         name = "Database metadata",
         description = "Information about the database type, name, and version")
 public interface DatabaseMetadataTool extends AssistantTool {

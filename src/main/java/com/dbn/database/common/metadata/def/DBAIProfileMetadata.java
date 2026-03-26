@@ -23,7 +23,7 @@ import lombok.Data;
 
 import java.sql.SQLException;
 
-public interface DBProfileMetadata extends DBObjectMetadata {
+public interface DBAIProfileMetadata extends DBObjectMetadata {
 
     @ObjectIdentifier
     String getProfileName() throws SQLException;
@@ -57,7 +57,7 @@ public interface DBProfileMetadata extends DBObjectMetadata {
 
     @Data
     @Builder
-    class Record implements DBProfileMetadata {
+    class Record implements DBAIProfileMetadata {
         private final String profileName;
         private final String credentialName;
         private final String region;

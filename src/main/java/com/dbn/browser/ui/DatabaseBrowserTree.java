@@ -50,7 +50,11 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.action.ObjectListActionGroup;
 import com.dbn.object.common.property.DBObjectProperty;
+import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
+import com.dbn.object.navigation.DBObjectNavigationInfoProviderCache;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.tree.TreeUtil;
 import lombok.Getter;
@@ -275,19 +279,25 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
                 Progress.prompt(project, object, true,
                         txt("prc.databaseBrowser.title.LoadingObjectReferences"),
                         txt("prc.databaseBrowser.text.LoadingReferencesOf", object.getQualifiedNameWithType()),
-                        progress -> {
-                            DBObject navigationObject = object.getDefaultNavigationObject();
-                            if (navigationObject != null) {
-                                progress.checkCanceled();
-                                Dispatch.run(() -> navigationObject.navigate(true));
-                            }
-                        });
+                        progress -> navigateToObject(object, progress));
             }
         } else if (lastPathEntity instanceof DBObjectBundle objectBundle) {
             ConnectionHandler connection = objectBundle.getConnection();
             DBConsole defaultConsole = connection.getConsoleBundle().getDefaultConsole();
             editorManager.openDatabaseConsole(defaultConsole, false, deliberate);
         }
+    }
+
+    private void navigateToObject(DBObject object, ProgressIndicator progress) {
+        DBObjectType objectType = object.getObjectType();
+        DBObjectNavigationInfoProvider<DBObject> infoProvider = DBObjectNavigationInfoProviderCache.get(objectType);
+        if  (infoProvider == null) return;
+
+        DBObject navigationObject = infoProvider.getDefaultNavigationTarget(object);
+        if (navigationObject == null) return;
+
+        progress.checkCanceled();
+        Dispatch.run(this, () -> navigationObject.navigate(true));
     }
 
     /********************************************************

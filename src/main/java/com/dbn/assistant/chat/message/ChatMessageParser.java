@@ -23,6 +23,7 @@ import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Unsafe;
 import com.intellij.openapi.util.TextRange;
+import kotlin.jvm.functions.Function3;
 import lombok.experimental.UtilityClass;
 import org.intellij.markdown.IElementType;
 import org.intellij.markdown.MarkdownElementTypes;
@@ -155,7 +156,7 @@ public class ChatMessageParser {
         ASTNode rootNode = parseMarkdownContent(content);
 
         HtmlGenerator htmlGenerator = new HtmlGenerator(content, rootNode, flavourDescriptor, false);
-        HtmlGenerator.TagRenderer tagRenderer = new HtmlGenerator.DefaultTagRenderer((n, s, cs) -> cs, false);
+        HtmlGenerator.TagRenderer tagRenderer = new CustomTagTenderer((n, s, cs) -> cs, false);
         String body = htmlGenerator.generateHtml(tagRenderer);
 
         String wrapperContent = TextResources.get(ChatMessageParser.class, "chat_message_wrapper.html.ft");
@@ -192,5 +193,19 @@ public class ChatMessageParser {
 
         html = document.html();
         return html;
+    }
+
+    private static final class CustomTagTenderer extends HtmlGenerator.DefaultTagRenderer {
+        public CustomTagTenderer(@NotNull Function3<? super ASTNode, ? super CharSequence, ? super Iterable<? extends CharSequence>, ? extends Iterable<? extends CharSequence>> customizer, boolean includeSrcPositions) {
+            super(customizer, includeSrcPositions);
+        }
+
+        @Override
+        public @NotNull CharSequence openTag(@NotNull ASTNode node, @NotNull CharSequence tagName, @NotNull CharSequence[] attributes, boolean autoClose) {
+            if (tagName.equals("table")) {
+                return "<table cellspacing='0' cellpadding='4'>";
+            }
+            return super.openTag(node, tagName, attributes, autoClose);
+        }
     }
 }

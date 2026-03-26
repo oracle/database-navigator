@@ -105,6 +105,7 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm {
         EditorEx codeViewer = createViewer(connection, section);
         if (codeViewer == null) return null;
 
+        Editors.installFormLayoutUpdater(codeViewer, parent);
         return new ChatMessageCodeSectionForm(parent, connection, codeViewer, section);
     }
 
@@ -146,7 +147,7 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm {
     private static @Nullable EditorEx createViewer(ConnectionHandler connection, String content, Language language) {
         Project project = connection.getProject();
 
-        VirtualFile file = initPreviewFile(content, language);
+        VirtualFile file = initPreviewFile(content.trim(), language);
         PsiFile psiFile = initPreviewPsiFile(project, file, language);
         if (psiFile == null) return null;
 

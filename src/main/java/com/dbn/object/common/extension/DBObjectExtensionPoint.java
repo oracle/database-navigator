@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.object.properties;
+package com.dbn.object.common.extension;
 
-import com.intellij.pom.Navigatable;
+import com.dbn.object.type.DBObjectType;
 
-import javax.swing.Icon;
-
-import static com.dbn.common.dispose.Failsafe.guarded;
-
-public abstract class PresentableProperty {
-    public abstract String getName();
-
-    public abstract String getValue();
-
-    public abstract Icon getIcon();
-
-    public String toString() {
-        return guarded("DISPOSED", this, p -> p.getName() + ": " + p.getValue());
-    }
-
-    public abstract Navigatable getNavigatable();
+public interface DBObjectExtensionPoint {
+    DBObjectType getObjectType();
 }

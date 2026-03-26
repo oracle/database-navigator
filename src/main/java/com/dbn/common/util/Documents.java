@@ -18,6 +18,7 @@ package com.dbn.common.util;
 
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Read;
 import com.dbn.common.thread.Write;
 import com.dbn.connection.ConnectionHandler;
@@ -27,9 +28,12 @@ import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.codeInsight.folding.CodeFoldingManager;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.DocumentBulkUpdateListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -45,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
@@ -86,8 +91,10 @@ public class Documents {
             List<VirtualFile> files = Collections.singletonList(file.getVirtualFile());
             FileContentUtil.reparseFiles(project, files, true);
 
-            CodeFoldingManager codeFoldingManager = CodeFoldingManager.getInstance(project);
-            codeFoldingManager.updateFoldRegionsAsync(editor, false);
+            Background.run(() -> Read.run(() -> {
+                CodeFoldingManager codeFoldingManager = CodeFoldingManager.getInstance(project);
+                codeFoldingManager.updateFoldRegionsAsync(editor, false);
+            }));
         }
         refreshEditorAnnotations(file);
     }
@@ -237,11 +244,11 @@ public class Documents {
     }
 
     public static void setText(@NotNull Document document, CharSequence text) {
-        FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
-        VirtualFile file = fileDocumentManager.getFile(document);
-        if (isNotValid(file)) return;
-
         Write.run(() -> changeText(document, text));
+    }
+
+    public static String getText(@NotNull Document document) {
+        return Read.call(() -> document.getText());
     }
 
     private static void changeText(Document document, CharSequence text) {
@@ -270,5 +277,14 @@ public class Documents {
     public static void cacheDocument(VirtualFile file) {
         Document document = getDocument(file);
         file.putUserData(HARD_REF_TO_DOCUMENT_KEY, document);
+    }
+
+    public static void onDocumentChanged(@NotNull Document document, Disposable parentDisposable, Consumer<DocumentEvent> consumer) {
+        document.addDocumentListener(new DocumentListener() {
+            @Override
+            public void documentChanged(@NotNull DocumentEvent event) {
+                consumer.accept(event);
+            }
+        }, parentDisposable);
     }
 }

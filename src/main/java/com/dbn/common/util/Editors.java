@@ -29,6 +29,7 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Read;
 import com.dbn.common.thread.ThreadProperty;
 import com.dbn.common.thread.ThreadPropertyGate;
+import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNToolbarForm;
 import com.dbn.common.ui.util.Borderless;
 import com.dbn.common.ui.util.Borders;
@@ -53,6 +54,7 @@ import com.dbn.vfs.file.DBEditableObjectVirtualFile;
 import com.dbn.vfs.file.DBJsonDataVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.ide.highlighter.HighlighterFactory;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -96,6 +98,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -103,6 +106,7 @@ import java.util.stream.Collectors;
 import static com.dbn.browser.DatabaseBrowserUtils.markSkipBrowserAutoscroll;
 import static com.dbn.browser.DatabaseBrowserUtils.unmarkSkipBrowserAutoscroll;
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.util.Documents.onDocumentChanged;
 import static com.intellij.openapi.editor.EditorModificationUtil.setReadOnlyHint;
 
 @Slf4j
@@ -492,6 +496,7 @@ public class Editors {
         if (editor == null) return;
 
         Dispatch.run(true, () -> {
+            if (editor.isDisposed()) return;
             EditorFactory editorFactory = EditorFactory.getInstance();
             editorFactory.releaseEditor(editor);
         });
@@ -622,7 +627,7 @@ public class Editors {
 
     public static void updateEditorScrollPane(EditorEx viewer, Border border) {
         JScrollPane scrollPane = viewer.getScrollPane();
-        scrollPane.setViewportBorder(Borders.lineBorder(Colors.delegate(() -> viewer.getBackgroundColor()), 8));
+        scrollPane.setViewportBorder(Borders.lineBorder(Colors.delegate(() -> viewer.getBackgroundColor()), 6));
         scrollPane.getVerticalScrollBar().setOpaque(false);
         scrollPane.getHorizontalScrollBar().setOpaque(false);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -635,5 +640,46 @@ public class Editors {
 
     public static void updateEditorScrollPane(EditorEx viewer) {
         updateEditorScrollPane(viewer, Borders.COMPONENT_OUTLINE_BORDER);
+    }
+
+    @Workaround
+    public static void restrictEditorHeight(Editor editor, Disposable parentDisposable, int maxHeight) {
+        // workaround for odd layout issues with editors,
+        // not constrained by the max height of the parent containers
+
+        AtomicInteger previousLineCount = new AtomicInteger(0);
+        updateEditorHeight(editor, maxHeight, previousLineCount);
+
+        onDocumentChanged(editor.getDocument(), parentDisposable, e ->
+                updateEditorHeight(editor, maxHeight, previousLineCount));
+    }
+
+    private static void updateEditorHeight(Editor editor, int maxHeight, AtomicInteger previousLineCount) {
+        Document document = editor.getDocument();
+        int lineCount = Math.max(document.getLineCount(), 1);
+        if (lineCount == previousLineCount.get()) return;
+
+        previousLineCount.set(lineCount);
+
+        JComponent component = editor.getComponent();
+        Dimension preferredSize = component.getPreferredSize();
+        int lineHeight = editor.getLineHeight();
+        int additionalLines = editor.getSettings().getAdditionalLinesCount();
+
+        int lines = lineCount + additionalLines;
+        int height = Math.min(lineHeight * lines, maxHeight) + 12 /**/;
+
+        component.setPreferredSize(new Dimension(preferredSize.width, height));
+    }
+
+    public static void installFormLayoutUpdater(EditorEx editor, DBNForm form) {
+        AtomicInteger inputLineCount = new AtomicInteger(0);
+        onDocumentChanged(editor.getDocument(), form, e -> {
+            int lineCount = e.getDocument().getLineCount();
+            if (lineCount == inputLineCount.get()) return;
+
+            inputLineCount.set(lineCount);
+            form.revalidateForm();
+        });
     }
 }
