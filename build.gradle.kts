@@ -105,12 +105,12 @@ dependencies {
 
 
     // ********** DEPENDENCY FLAT MODEL **********
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.20@jar")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.20.0@jar")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.20.0@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.0@jar")
-    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.20.0@jar")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0@jar")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.21@jar")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.21.1@jar")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.1@jar")
+    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.21.1@jar")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.76.1@jar")
