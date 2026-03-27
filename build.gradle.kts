@@ -214,7 +214,7 @@ dependencies {
     bundledJdbcMysql("com.mysql:mysql-connector-j:9.5.0@jar")
 
     // PostgreSQL
-    bundledJdbcPostgres("org.postgresql:postgresql:42.7.8@jar")
+    bundledJdbcPostgres("org.postgresql:postgresql:42.7.10@jar")
 
     // SQLite
     bundledJdbcSqlite("org.xerial:sqlite-jdbc:3.51.1.0@jar")
