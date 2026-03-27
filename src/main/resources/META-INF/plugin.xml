@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.7.3.0</version>
+    <version>4.0.0.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -53,6 +53,19 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>4.0.0</b>
+            <ul>
+                <li>Vector Toolbox enhancements<ul>
+                    <li>Additional content sources (multiple tables, user defined queries)
+                    <li>Similarity search console
+                    <li>DB Assistant integration (RAG)
+                </ul>
+                <li>Oracle OJVM module enhancements<ul>
+                    <li>Support for java expressions as inputs to execution engine
+                    <li>DB Assistant integration (tools)
+                </ul>
+                <li>Bug fixes and performance improvements
+            </ul>
             <li><b>3.7.3</b>
             <ul>
                 <li>Support for latest IDE versions
