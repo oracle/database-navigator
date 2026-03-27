@@ -34,7 +34,7 @@ val bundledJdbcPostgres: Configuration by configurations.creating
 val bundledJdbcSqlite: Configuration by configurations.creating
 
 group = "com.dbn"
-version = "3.7.2.0"
+version = "4.0.0.0"
 
 repositories {
     // locally built 3rd party dependencies
