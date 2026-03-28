@@ -16,9 +16,11 @@
 
 package com.dbn.object.factory.ui;
 
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBCredentialType;
 import com.dbn.oci.config.OciConfig;
@@ -39,6 +41,7 @@ import javax.swing.JTextField;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
@@ -118,6 +121,14 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
         setText(ociCredentialPrivateKeyField, config.getPrivateKeyFile());
         setText(ociCredentialFingerprintField, config.getFingerprint());
         ociCredentialUserOcidField.requestFocus();
+    }
+
+    protected void initStatePersistence() {
+        Project project = ensureProject();
+        ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
+
+        StateAttributes state = factoryManager.getState(getObjectType());
+        initPersistence(credentialTypeComboBox, state, "credential-type-selection");
     }
 
     @Override
