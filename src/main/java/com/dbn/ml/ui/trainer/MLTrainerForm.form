@@ -16,7 +16,7 @@
           <text value="Model &amp;Name"/>
         </properties>
       </component>
-      <component id="h2i3j" class="javax.swing.JTextField" binding="modelNameField">
+      <component id="h2i3j" class="com.intellij.ui.components.JBTextField" binding="modelNameField">
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="200" height="-1"/>
@@ -50,18 +50,13 @@
           <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
       </hspacer>
-      <component id="j7k8l" class="javax.swing.JTextArea" binding="descriptionTextArea">
+      <component id="j7k8l" class="javax.swing.JPanel" binding="algorithmLinkPanel">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="200" height="36"/>
+            <preferred-size width="200" height="24"/>
           </grid>
         </constraints>
-        <properties>
-          <editable value="false"/>
-          <lineWrap value="true"/>
-          <wrapStyleWord value="true"/>
-          <opaque value="false"/>
-        </properties>
+        <properties/>
       </component>
       <component id="m9n0o" class="javax.swing.JLabel" binding="splitLabel">
         <constraints>

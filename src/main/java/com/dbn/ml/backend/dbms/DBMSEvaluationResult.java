@@ -135,9 +135,8 @@ public class DBMSEvaluationResult {
             String actual = confusionRs.getString("ACTUAL_TARGET_VALUE");
             String predicted = confusionRs.getString("PREDICTED_TARGET_VALUE");
             int count = confusionRs.getInt("VALUE");
-            result.confusionMatrixData.put(actual + "_" + predicted, count);
+            result.confusionMatrixData.put(actual + "\0" + predicted, count);
         }
-        confusionRs.close();
 
         return result;
     }
@@ -160,7 +159,6 @@ public class DBMSEvaluationResult {
                     liftRs.getInt("NON_TARGETS_CUMULATIVE")
             ));
         }
-        liftRs.close();
     }
 
     /**
@@ -199,7 +197,7 @@ public class DBMSEvaluationResult {
             String actual = confusionRs.getString("actual_target_value");
             String predicted = confusionRs.getString("predicted_target_value");
             int count = confusionRs.getInt("value");
-            result.confusionMatrixData.put(actual + "_" + predicted, count);
+            result.confusionMatrixData.put(actual + "\0" + predicted, count);
         }
 
         return result;
@@ -259,7 +257,7 @@ public class DBMSEvaluationResult {
 
         // Format confusion matrix data
         for (Map.Entry<String, Integer> entry : confusionMatrixData.entrySet()) {
-            String[] parts = entry.getKey().split("_");
+            String[] parts = entry.getKey().split("\0");
             sb.append(String.format("  Actual: %s, Predicted: %s, Count: %d\n",
                     parts[0], parts[1], entry.getValue()));
         }
@@ -295,7 +293,7 @@ public class DBMSEvaluationResult {
         // Extract all unique class labels
         Set<String> classLabels = new HashSet<>();
         for (String key : confusionMatrixData.keySet()) {
-            String[] parts = key.split("_");
+            String[] parts = key.split("\0");
             if (parts.length >= 2) {
                 classLabels.add(parts[0]); // actual
                 classLabels.add(parts[1]); // predicted
@@ -315,7 +313,7 @@ public class DBMSEvaluationResult {
             int support = 0; // Total actual samples of this class
 
             for (Map.Entry<String, Integer> entry : confusionMatrixData.entrySet()) {
-                String[] parts = entry.getKey().split("_");
+                String[] parts = entry.getKey().split("\0");
                 if (parts.length < 2) continue;
 
                 String actual = parts[0];

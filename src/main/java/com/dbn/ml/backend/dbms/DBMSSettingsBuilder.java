@@ -65,6 +65,7 @@ public class DBMSSettingsBuilder {
             case "ALGO_SUPPORT_VECTOR_MACHINES" -> addSVMSettings(settings, taskType);
             case "ALGO_GENERALIZED_LINEAR_MODEL" -> addGLMSettings(settings, taskType);
             case "ALGO_NEURAL_NETWORK" -> addNeuralNetworkSettings(settings, taskType);
+            case "ALGO_XGBOOST" -> {} // Uses Oracle default XGBoost settings
         }
 
         return settings;

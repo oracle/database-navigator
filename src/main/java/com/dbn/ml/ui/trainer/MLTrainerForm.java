@@ -20,12 +20,15 @@ import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.ml.model.MLMiningFunction;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.ml.model.trainer.MLTrainerConfig;
 import com.dbn.ml.model.trainer.MLTrainerType;
 import com.dbn.ml.ui.MLToolboxForm;
 import com.dbn.ml.ui.MLToolboxFormBase;
 import com.intellij.openapi.Disposable;
+import com.intellij.ui.HyperlinkLabel;
+import com.intellij.ui.components.JBTextField;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -33,9 +36,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
+import java.awt.FlowLayout;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
@@ -43,10 +45,10 @@ import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleForm {
     private JPanel mainPanel;
     private JLabel modelNameLabel;
-    private JTextField modelNameField;
+    private JBTextField modelNameField;
     private JLabel algorithmLabel;
     private DBNComboBox<MLTrainerType> algorithmComboBox;
-    private JTextArea descriptionTextArea;
+    private JPanel algorithmLinkPanel;
     private JLabel splitLabel;
     private JSlider splitSlider;
     private JLabel splitValueLabel;
@@ -54,16 +56,23 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private JLabel seedLabel;
     private JSpinner seedSpinner;
 
+    private final HyperlinkLabel algorithmDocLink = new HyperlinkLabel("Oracle Documentation");
+
     public MLTrainerForm(Disposable parent, ConnectionHandler connection) {
         super(parent, connection);
         initComponents();
     }
 
     private void initComponents() {
-        modelNameField.putClientProperty("JTextField.placeholderText", "Auto-generated if empty");
+        modelNameField.getEmptyText().setText("Auto-generated if empty");
         splitSlider.setMinimum(10);
         splitSlider.setMaximum(90);
         seedSpinner.setModel(new SpinnerNumberModel(1L, 0L, Long.MAX_VALUE, 1L));
+
+        algorithmLinkPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        algorithmLinkPanel.setOpaque(false);
+        algorithmLinkPanel.add(algorithmDocLink);
+
     }
 
     @Override
@@ -82,13 +91,8 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         useFixedSeedCheckBox.addActionListener(e -> updateSeedEnabled());
     }
 
-    /**
-     * Refreshes available trainers based on task type.
-     */
-    public void refreshTrainers() {
-        // TODO: Get task type from feature config when label column is selected
-        MLTaskType taskType = MLTaskType.CLASSIFICATION;
-
+    public void refreshTrainers(MLMiningFunction miningFunction) {
+        MLTaskType taskType = miningFunction != null ? miningFunction.getTaskType() : null;
         List<MLTrainerType> availableTrainers = MLTrainerType.getTrainersForTask(taskType);
 
         MLTrainerType currentSelection = algorithmComboBox.getSelectedValue();
@@ -106,7 +110,7 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
     private void onAlgorithmChanged() {
         MLTrainerType trainerType = algorithmComboBox.getSelectedValue();
         if (trainerType != null) {
-            descriptionTextArea.setText(trainerType.getDescription());
+            algorithmDocLink.setHyperlinkTarget(trainerType.getDocUrl());
         }
     }
 
@@ -137,7 +141,9 @@ public class MLTrainerForm extends MLToolboxFormBase implements DBNCollapsibleFo
         MLTrainerType trainerType = config.getTrainerType();
         if (trainerType == null) trainerType = MLTrainerType.SVM_CLASSIFICATION;
 
-        refreshTrainers();
+        MLToolboxForm toolboxForm = getParentFrom(MLToolboxForm.class);
+        MLMiningFunction miningFunction = toolboxForm != null ? toolboxForm.getMLRequest().getMiningFunction() : MLMiningFunction.CLASSIFICATION;
+        refreshTrainers(miningFunction);
         algorithmComboBox.setSelectedValue(trainerType);
 
         splitSlider.setValue((int) (config.getTrainTestSplitRatio() * 100));
