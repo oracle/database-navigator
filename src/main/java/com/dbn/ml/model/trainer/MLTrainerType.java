@@ -34,43 +34,43 @@ public enum MLTrainerType implements Presentable {
 
     LOGISTIC_REGRESSION(
             "Logistic Regression",
-            "Generalized Linear Model that estimates the probability of class membership using a logistic function.",
+            "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/generalized-linear-model.html",
             MLTaskType.CLASSIFICATION
     ),
 
     SVM_CLASSIFICATION(
             "Support Vector Machine",
-            "Finds the optimal hyperplane to separate classes. Works well for high-dimensional data and binary or multiclass problems.",
+            "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/support-vector-machine.html",
             MLTaskType.CLASSIFICATION
     ),
 
     DECISION_TREE(
             "Decision Tree",
-            "Builds a tree of binary splits on attribute values. Easy to interpret and visualize.",
+            "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/decision-tree.html",
             MLTaskType.CLASSIFICATION
     ),
 
     NAIVE_BAYES(
             "Naive Bayes",
-            "Probabilistic classifier based on Bayes theorem, assuming independence between features. Fast and effective for text and categorical data.",
+            "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/naive-bayes.html",
             MLTaskType.CLASSIFICATION
     ),
 
     RANDOM_FOREST(
             "Random Forest",
-            "Ensemble of decision trees trained on random subsets of data and features. Provides variable importance ranking.",
+            "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/random-forest.html",
             MLTaskType.CLASSIFICATION
     ),
 
     NEURAL_NETWORK_CLASSIFICATION(
             "Neural Network",
-            "Multi-layer perceptron that learns non-linear patterns through backpropagation. Suitable for complex classification problems.",
+            "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/neural-network.html",
             MLTaskType.CLASSIFICATION
     ),
 
     XGBOOST_CLASSIFICATION(
             "XGBoost",
-            "Extreme Gradient Boosting — builds an ensemble of trees sequentially, each correcting errors of the previous. High accuracy on structured data.",
+            "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/xgboost.html",
             MLTaskType.CLASSIFICATION
     ),
 
@@ -78,35 +78,35 @@ public enum MLTrainerType implements Presentable {
 
     LINEAR_REGRESSION(
             "Linear Regression",
-            "Generalized Linear Model that predicts a numeric target as a linear combination of input features.",
+            "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/generalized-linear-model.html",
             MLTaskType.REGRESSION
     ),
 
     SVM_REGRESSION(
             "SVM Regression",
-            "Support Vector Machine using epsilon-insensitive loss to predict numeric target values.",
+            "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/support-vector-machine.html",
             MLTaskType.REGRESSION
     ),
 
     NEURAL_NETWORK_REGRESSION(
             "Neural Network Regression",
-            "Multi-layer perceptron trained to predict continuous numeric values from input features.",
+            "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/neural-network.html",
             MLTaskType.REGRESSION
     ),
 
     XGBOOST_REGRESSION(
             "XGBoost Regression",
-            "Extreme Gradient Boosting for numeric prediction. Combines multiple weak learners for high predictive accuracy.",
+            "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmcon/xgboost.html",
             MLTaskType.REGRESSION
     );
 
     private final String name;
-    private final String description;
+    private final String docUrl;
     private final MLTaskType taskType;
 
-    MLTrainerType(String name, String description, MLTaskType taskType) {
+    MLTrainerType(String name, String docUrl, MLTaskType taskType) {
         this.name = name;
-        this.description = description;
+        this.docUrl = docUrl;
         this.taskType = taskType;
     }
 
@@ -138,16 +138,10 @@ public enum MLTrainerType implements Presentable {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Returns all classification trainers.
-     */
     public static List<MLTrainerType> getClassificationTrainers() {
         return getTrainersForTask(MLTaskType.CLASSIFICATION);
     }
 
-    /**
-     * Returns all regression trainers.
-     */
     public static List<MLTrainerType> getRegressionTrainers() {
         return getTrainersForTask(MLTaskType.REGRESSION);
     }

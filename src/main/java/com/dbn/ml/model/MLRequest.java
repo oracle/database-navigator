@@ -29,7 +29,9 @@ import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.state.PersistentStateElement.cloneElement;
 
 @Getter
@@ -37,6 +39,8 @@ import static com.dbn.common.state.PersistentStateElement.cloneElement;
 public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
     private final ConnectionId connectionId;
     private transient boolean template;
+
+    private MLMiningFunction miningFunction = MLMiningFunction.CLASSIFICATION;
 
     private MLSourceConfig sourceConfig = new MLSourceConfig();
     private MLFeatureConfig featureConfig = new MLFeatureConfig();
@@ -59,6 +63,7 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
     }
 
     public void reset(SchemaId userSchema) {
+        miningFunction = MLMiningFunction.CLASSIFICATION;
         sourceConfig = new MLSourceConfig();
         featureConfig = new MLFeatureConfig();
         trainerConfig = new MLTrainerConfig();
@@ -74,6 +79,7 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
         Element featureConfigElement = element.getChild("feature-config");
         Element trainerConfigElement = element.getChild("trainer-config");
 
+        miningFunction = enumAttribute(element, "mining-function", miningFunction);
         sourceConfig.readState(sourceConfigElement);
         featureConfig.readState(featureConfigElement);
         trainerConfig.readState(trainerConfigElement);
@@ -85,6 +91,7 @@ public class MLRequest implements PersistentStateElement, Cloneable<MLRequest> {
         Element featureConfigElement = newElement(element, "feature-config");
         Element trainerConfigElement = newElement(element, "trainer-config");
 
+        setEnumAttribute(element, "mining-function", miningFunction);
         sourceConfig.writeState(sourceConfigElement);
         featureConfig.writeState(featureConfigElement);
         trainerConfig.writeState(trainerConfigElement);

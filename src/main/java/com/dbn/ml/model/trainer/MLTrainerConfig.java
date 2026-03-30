@@ -38,6 +38,7 @@ public class MLTrainerConfig extends MLConfig {
     private long randomSeed = 1L;
 
     // Partitioned model support
+    private boolean partitioned = false;
     private List<String> partitionColumns = new ArrayList<>();
 
     @Override
@@ -50,6 +51,7 @@ public class MLTrainerConfig extends MLConfig {
         trainTestSplitRatio = doubleAttribute(element, "split-ratio", trainTestSplitRatio);
         useFixedSeed = booleanAttribute(element, "use-fixed-seed", useFixedSeed);
         randomSeed = longAttribute(element, "random-seed", randomSeed);
+        partitioned = booleanAttribute(element, "partitioned", partitioned);
 
         partitionColumns.clear();
         Element partitionsElement = element.getChild("partition-columns");
@@ -72,6 +74,7 @@ public class MLTrainerConfig extends MLConfig {
         setDoubleAttribute(element, "split-ratio", trainTestSplitRatio);
         setBooleanAttribute(element, "use-fixed-seed", useFixedSeed);
         setLongAttribute(element, "random-seed", randomSeed);
+        setBooleanAttribute(element, "partitioned", partitioned);
 
         if (!partitionColumns.isEmpty()) {
             Element partitionsElement = newElement(element, "partition-columns");

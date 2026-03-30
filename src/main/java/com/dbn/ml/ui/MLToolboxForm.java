@@ -26,6 +26,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.ml.DatabaseMLManager;
+import com.dbn.ml.model.MLMiningFunction;
 import com.dbn.ml.model.MLRequest;
 import com.dbn.ml.model.feature.MLFeatureConfig;
 import com.dbn.ml.model.source.MLSourceConfig;
@@ -35,19 +36,24 @@ import com.dbn.ml.ui.source.MLSourceForm;
 import com.dbn.ml.ui.trainer.MLTrainerForm;
 import com.intellij.openapi.Disposable;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 
 public class MLToolboxForm extends MLToolboxFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel hintPanel;
+    private JPanel taskTypePanel;
     private JPanel sourcePanel;
     private JPanel featurePanel;
     private JPanel trainerPanel;
+    private JPanel hyperlinkPanel;
 
-    private MLSourceForm sourceForm;
+  private MLSourceForm sourceForm;
     private MLFeatureForm featureForm;
     private MLTrainerForm trainerForm;
 
@@ -59,6 +65,7 @@ public class MLToolboxForm extends MLToolboxFormBase {
 
         initHeaderPanel();
         initHintPanel();
+        initTaskTypePanel();
         initForms();
         resetFormChanges();
         updateFieldAlignment();
@@ -134,6 +141,28 @@ public class MLToolboxForm extends MLToolboxFormBase {
         resetFormChanges();
     }
 
+    private void initTaskTypePanel() {
+        ButtonGroup group = new ButtonGroup();
+        taskTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 6));
+
+        for (MLMiningFunction function : MLMiningFunction.values()) {
+            JRadioButton button = new JRadioButton(function.getName());
+            button.setSelected(request.getMiningFunction() == function);
+            button.setEnabled(function.isSupported());
+            if (!function.isSupported()) {
+                button.setToolTipText("Coming soon");
+            }
+            button.addActionListener(e -> onMiningFunctionChanged(function));
+            group.add(button);
+            taskTypePanel.add(button);
+        }
+    }
+
+    private void onMiningFunctionChanged(MLMiningFunction function) {
+        request.setMiningFunction(function);
+        trainerForm.refreshTrainers(function);
+    }
+
     private void initHeaderPanel() {
         DBNHeaderForm headerForm = new DBNHeaderForm(this, getConnection());
         headerPanel.add(headerForm.getComponent());
@@ -147,13 +176,13 @@ public class MLToolboxForm extends MLToolboxFormBase {
                 "configure the training algorithm, and train your model.\n\n" +
                 "The trained model will be stored in the database and can be evaluated and used for predictions.");
         DBNHintForm hintForm = new DBNHintForm(null, hintText, null, true);
-        hintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);
+        hintPanel.add(hintForm.getComponent());
 
         HyperLinkForm hyperLinkForm = HyperLinkForm.create(
                 "Powered by",
                 "Oracle DBMS_DATA_MINING",
                 "https://docs.oracle.com/en/database/oracle/machine-learning/oml4sql/23/dmapi/DBMS_DATA_MINING.html");
-        hintPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
+        hyperlinkPanel.add(hyperLinkForm.getComponent(), BorderLayout.EAST);
     }
 
     @Override
