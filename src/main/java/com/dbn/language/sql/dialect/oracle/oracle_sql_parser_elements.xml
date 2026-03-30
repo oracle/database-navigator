@@ -6980,9 +6980,9 @@
         <element ref-id="create_vector_index" />
     </element-def>
     <element-def attributes="DATA_DEFINITION, SPECIFIC" description="CREATE VECTOR INDEX statement" id="create_vector_index">
-        <token type-id="DT_VECTOR" exit="keyword" id="03963" />
+        <token type-id="DT_VECTOR" flavor="keyword" id="03963" />
         <token type-id="KW_INDEX" id="03964" />
-        <object-def type="INDEX" original-name="vector_index_name" id="03965" />
+        <object-def type="INDEX" original-name="vector_index_name" id="03965" attributes="SUBJECT"/>
         <token type-id="KW_ON" id="03966" />
         <qualified-identifier id="03967">
             <variant>
@@ -7016,6 +7016,13 @@
             <token type-id="KW_ACCURACY" id="03987" />
             <token type-id="INTEGER" original-name="percentage_value" id="03988" />
         </sequence>
+        <sequence optional="true">
+            <token type-id="KW_WITH" optional="true" id="04002" />
+            <sequence id="04003" exit="true">
+                <token type-id="KW_DISTANCE" id="04004" />
+                <element ref-id="vector_distance_metric" original-name="metric_name" />
+            </sequence>
+        </sequence>
         <element ref-id="vector_index_parameters_clause" optional="true" />
         <element ref-id="vector_index_hnsw_replication_clause" optional="true" />
         <sequence optional="true" id="03989">
@@ -7037,10 +7044,12 @@
                 <token type-id="KW_PARTITIONS" id="04001" />
             </sequence>
         </one-of>
-        <token type-id="KW_WITH" optional="true" id="04002" />
-        <sequence optional="true" id="04003">
-            <token type-id="KW_DISTANCE" id="04004" />
-            <element ref-id="vector_distance_metric" original-name="metric_name" />
+        <sequence optional="true">
+            <token type-id="KW_WITH" optional="true" id="04002" />
+            <sequence id="04003" exit="true">
+                <token type-id="KW_DISTANCE" id="04004" />
+                <element ref-id="vector_distance_metric" original-name="metric_name" />
+            </sequence>
         </sequence>
     </element-def>
     <element-def description="Vector distance METRIC name" id="vector_distance_metric">
