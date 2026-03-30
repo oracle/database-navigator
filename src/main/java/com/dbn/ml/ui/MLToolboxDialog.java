@@ -75,7 +75,7 @@ public class MLToolboxDialog extends DBNDialog<MLToolboxForm> {
         super.doOKAction();
         
         DatabaseMLManager mlManager = DatabaseMLManager.getInstance(getProject());
-        mlManager.trainModel(request, getConnection());
+        mlManager.trainModelAsync(request, getConnection());
     }
 
     @Override

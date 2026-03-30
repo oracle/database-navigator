@@ -17,6 +17,10 @@
 package com.dbn.ml.execution;
 
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBView;
+import com.dbn.object.common.list.DBObjectList;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.ml.backend.dbms.DBMSAlgorithmType;
 import com.dbn.ml.backend.dbms.DBMSBackend;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
@@ -60,6 +64,13 @@ public class MLPipelineExecutor {
         try {
             DBMSModelHandle modelHandle = backend.train(context);
             result.setModelHandle(modelHandle);
+          System.out.println("bug12");
+            // Oracle creates DM$V* views when a model is trained — reload schema views so they appear in the browser
+            DBSchema schema = connectionHandler.getUserSchema();
+            if (schema != null) {
+                DBObjectList<DBView> viewList = schema.getChildObjectList(DBObjectType.VIEW);
+                if (viewList != null) viewList.reloadInBackground();
+            }
 
             DBMSEvaluationResult evaluation = backend.evaluate(modelHandle, context);
             result.setEvaluationResult(evaluation);
@@ -98,6 +109,20 @@ public class MLPipelineExecutor {
                 log.warn("Failed to cleanup backend resources", e);
             }
         }
+    }
+
+    /**
+     * Prepares training data and submits CREATE_MODEL as an Oracle Scheduler job.
+     * Returns immediately with a pending job descriptor — training continues server-side.
+     */
+    /**
+     * Prepares training data and submits CREATE_MODEL as an Oracle Scheduler job.
+     * Returns the model name. Training continues on the DB server — client can disconnect.
+     */
+    public String submitAsync(MLRequest request, ConnectionHandler connectionHandler) throws Exception {
+        MLTrainingContext context = buildContext(request);
+        DBMSBackend backend = new DBMSBackend(connectionHandler);
+        return backend.submitAsync(context);
     }
 
     private DBMSAlgorithmType resolveAlgorithmType(String algorithmName) {

@@ -425,4 +425,46 @@ public interface DatabaseMLInterface extends DatabaseInterface {
      * @return ResultSet with column MODEL_NAME
      */
     ResultSet getExistingModelNames(DBNConnection conn) throws SQLException;
+
+    /**
+     * Gets the INPUT feature attributes for an existing model from USER_MINING_MODEL_ATTRIBUTES.
+     * Excludes TARGET, CASE_ID, PARTITION, and SUPPLEMENTARY columns.
+     *
+     * @return ResultSet with column ATTRIBUTE_NAME
+     */
+    ResultSet getModelInputAttributes(DBNConnection conn, String modelName) throws SQLException;
+
+    /**
+     * Gets the mining function (CLASSIFICATION or REGRESSION) for an existing model.
+     *
+     * @return "CLASSIFICATION" or "REGRESSION", or null if not found
+     */
+    String getModelFunction(DBNConnection conn, String modelName) throws SQLException;
+
+    // ==================== ASYNC TRAINING (DBMS_SCHEDULER) ====================
+
+    /**
+     * Submits a CREATE_MODEL call as a DBMS_SCHEDULER job so training
+     * continues on the DB server even after the client disconnects.
+     *
+     * @param jobName   Unique scheduler job name (max 30 chars)
+     * @param jobAction PL/SQL anonymous block: "BEGIN DBMS_DATA_MINING.CREATE_MODEL(...); END;"
+     */
+    void submitTrainingJob(DBNConnection conn, String jobName, String jobAction) throws SQLException;
+
+    /**
+     * Returns the STATE of a scheduler job: SCHEDULED, RUNNING, SUCCEEDED, FAILED, or null if not found.
+     */
+    String getSchedulerJobState(DBNConnection conn, String jobName) throws SQLException;
+
+    /**
+     * Returns the final run STATUS from USER_SCHEDULER_JOB_RUN_DETAILS: SUCCEEDED or FAILED.
+     * Returns null if the job has not run yet or the log entry is unavailable.
+     */
+    String getSchedulerJobRunStatus(DBNConnection conn, String jobName) throws SQLException;
+
+    /**
+     * Drops a completed DBMS_SCHEDULER job to clean up the job registry.
+     */
+    void dropSchedulerJob(DBNConnection conn, String jobName) throws SQLException;
 }

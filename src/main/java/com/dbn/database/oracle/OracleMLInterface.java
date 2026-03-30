@@ -119,14 +119,11 @@ public class OracleMLInterface extends DatabaseInterfaceBase implements Database
 
     @Override
     public int getRowCount(DBNConnection conn, String tableName) throws SQLException {
-        ResultSet rs = executeQuery(conn, "get-row-count", tableName);
-        try {
+        try (ResultSet rs = executeQuery(conn, "get-row-count", tableName)) {
             if (rs.next()) {
                 return rs.getInt("ROW_COUNT");
             }
             return 0;
-        } finally {
-            rs.close();
         }
     }
 
@@ -135,14 +132,11 @@ public class OracleMLInterface extends DatabaseInterfaceBase implements Database
     @Override
     public String predict(DBNConnection conn, String modelName, String featureClause) throws SQLException {
         log.debug("Ad-hoc prediction using model: {}", modelName);
-        ResultSet rs = executeQuery(conn, "predict-adhoc", modelName, featureClause);
-        try {
+        try (ResultSet rs = executeQuery(conn, "predict-adhoc", modelName, featureClause)) {
             if (rs.next()) {
                 return rs.getString("PREDICTION");
             }
             return null;
-        } finally {
-            rs.close();
         }
     }
 
@@ -194,14 +188,11 @@ public class OracleMLInterface extends DatabaseInterfaceBase implements Database
 
     @Override
     public double getAccuracy(DBNConnection conn, String confusionMatrixTableName) throws SQLException {
-        ResultSet rs = executeQuery(conn, "get-accuracy", confusionMatrixTableName);
-        try {
+        try (ResultSet rs = executeQuery(conn, "get-accuracy", confusionMatrixTableName)) {
             if (rs.next()) {
                 return rs.getDouble("ACCURACY");
             }
             return 0.0;
-        } finally {
-            rs.close();
         }
     }
 
@@ -226,14 +217,11 @@ public class OracleMLInterface extends DatabaseInterfaceBase implements Database
 
     @Override
     public double getAUC(DBNConnection conn, String rocTableName) throws SQLException {
-        ResultSet rs = executeQuery(conn, "get-auc", rocTableName);
-        try {
+        try (ResultSet rs = executeQuery(conn, "get-auc", rocTableName)) {
             if (rs.next()) {
                 return rs.getDouble("AUC");
             }
             return 0.0;
-        } finally {
-            rs.close();
         }
     }
 
@@ -370,14 +358,11 @@ public class OracleMLInterface extends DatabaseInterfaceBase implements Database
     @Override
     public String getCloudCsvHeader(DBNConnection conn, String credentialName, String fileUri) throws SQLException {
         log.debug("Reading cloud CSV header from URI: {}", fileUri);
-        ResultSet rs = executeQuery(conn, "get-cloud-csv-header", credentialName, fileUri);
-        try {
+        try (ResultSet rs = executeQuery(conn, "get-cloud-csv-header", credentialName, fileUri)) {
             if (rs.next()) {
                 return rs.getString("FILE_HEAD");
             }
             return null;
-        } finally {
-            rs.close();
         }
     }
 
@@ -410,29 +395,23 @@ public class OracleMLInterface extends DatabaseInterfaceBase implements Database
 
     @Override
     public boolean tableExists(DBNConnection conn, String schemaName, String tableName) throws SQLException {
-        ResultSet rs = executeQuery(conn, "check-table-exists",
+        try (ResultSet rs = executeQuery(conn, "check-table-exists",
                 schemaName != null ? schemaName.toUpperCase() : null,
-                tableName.toUpperCase());
-        try {
+                tableName.toUpperCase())) {
             if (rs.next()) {
                 return rs.getInt(1) > 0;
             }
             return false;
-        } finally {
-            rs.close();
         }
     }
 
     @Override
     public int getDistinctClassCount(DBNConnection conn, String columnName, String tableName) throws SQLException {
-        ResultSet rs = executeQuery(conn, "get-distinct-class-count", columnName, tableName);
-        try {
+        try (ResultSet rs = executeQuery(conn, "get-distinct-class-count", columnName, tableName)) {
             if (rs.next()) {
                 return rs.getInt("CLASS_COUNT");
             }
             return 0;
-        } finally {
-            rs.close();
         }
     }
 
@@ -444,6 +423,49 @@ public class OracleMLInterface extends DatabaseInterfaceBase implements Database
     @Override
     public ResultSet getExistingModelNames(DBNConnection conn) throws SQLException {
         return executeQuery(conn, "get-existing-model-names");
+    }
+
+    @Override
+    public ResultSet getModelInputAttributes(DBNConnection conn, String modelName) throws SQLException {
+        return executeQuery(conn, "get-model-input-attributes", modelName);
+    }
+
+    @Override
+    public String getModelFunction(DBNConnection conn, String modelName) throws SQLException {
+        try (ResultSet rs = executeQuery(conn, "get-model-function", modelName)) {
+            if (rs.next()) return rs.getString("MINING_FUNCTION");
+            return null;
+        }
+    }
+
+    // ==================== ASYNC TRAINING (DBMS_SCHEDULER) ====================
+
+    @Override
+    public void submitTrainingJob(DBNConnection conn, String jobName, String jobAction) throws SQLException {
+        log.debug("Submitting training job: {}", jobName);
+        executeUpdate(conn, "submit-training-job", jobName, jobAction);
+    }
+
+    @Override
+    public String getSchedulerJobState(DBNConnection conn, String jobName) throws SQLException {
+        try (ResultSet rs = executeQuery(conn, "get-scheduler-job-state", jobName)) {
+            if (rs.next()) return rs.getString("STATE");
+            return null;
+        }
+    }
+
+    @Override
+    public String getSchedulerJobRunStatus(DBNConnection conn, String jobName) throws SQLException {
+        try (ResultSet rs = executeQuery(conn, "get-scheduler-job-run-status", jobName)) {
+            if (rs.next()) return rs.getString("STATUS");
+            return null;
+        }
+    }
+
+    @Override
+    public void dropSchedulerJob(DBNConnection conn, String jobName) throws SQLException {
+        log.debug("Dropping scheduler job: {}", jobName);
+        executeUpdate(conn, "drop-scheduler-job", jobName);
     }
 
     // ==================== HELPER METHODS ====================

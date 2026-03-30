@@ -24,6 +24,7 @@ import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMLInterface;
 import com.dbn.ml.backend.model.MLModelMetadata;
 import com.dbn.ml.backend.model.MLTrainingContext;
+
 import com.dbn.ml.model.MLModelDetails;
 import com.dbn.ml.model.MLTaskType;
 import com.dbn.common.cloud.CloudSourceConfig;
@@ -152,7 +153,7 @@ public class DBMSBackend {
             classCount = getDistinctClassCount(trainTableName, targetColumn);
             classValues = getClassValues(trainTableName, targetColumn);
         } else {
-            outputDimensions = context.getFeatureConfig().getLabelColumns().size();
+            outputDimensions = 1;
         }
 
         MLModelMetadata metadata = MLModelMetadata.builder()
@@ -177,6 +178,63 @@ public class DBMSBackend {
         modelHandle.setClassValues(classValues);
 
         return modelHandle;
+    }
+
+    /**
+     * Prepares training data and submits CREATE_MODEL as a DBMS_SCHEDULER job.
+     * Returns immediately — Oracle trains the model server-side.
+     *
+     * @return the model name that will be created by Oracle
+     */
+    public String submitAsync(MLTrainingContext context) throws Exception {
+        log.info("Submitting async training job for task: {}", context.getTaskType());
+        context.setTrainingStartTime(System.currentTimeMillis());
+
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+
+        // Data prep — fast, requires connection
+        String sourceTableName = prepareDataSource(context);
+        String trainTableName = "ML_TRAIN_" + timestamp;
+        String testTableName = "ML_TEST_" + timestamp;
+        splitData(context, sourceTableName, trainTableName, testTableName);
+        String settingsTableName = createSettingsTable(context, timestamp);
+        String modelName = generateModelName(context, timestamp);
+
+        String miningFunction = DBMSAlgorithmType.getMiningFunction(context.getTaskType());
+        String targetColumn = context.getFeatureConfig().getLabelColumns().get(0);
+
+        // Pre-training validation
+        DBMSAlgorithmType algorithmType = DBMSAlgorithmType.fromDisplayName(context.getAlgorithmName());
+        if (context.getTaskType() == MLTaskType.CLASSIFICATION && algorithmType == DBMSAlgorithmType.LOGISTIC_REGRESSION) {
+            int classCount = getDistinctClassCount(trainTableName, targetColumn);
+            if (classCount > 2) {
+                throw new IllegalArgumentException(
+                        "Logistic Regression supports binary classification only. " +
+                        "Target column '" + targetColumn + "' has " + classCount + " distinct values.");
+            }
+        }
+
+        // Build scheduler job name and PL/SQL action
+        String jobName = "ML_JOB_" + timestamp;
+        String jobAction = "BEGIN DBMS_DATA_MINING.CREATE_MODEL(" +
+                "model_name=>'" + modelName + "'," +
+                "mining_function=>DBMS_DATA_MINING." + miningFunction + "," +
+                "data_table_name=>'" + trainTableName + "'," +
+                "case_id_column_name=>'CASE_ID'," +
+                "target_column_name=>'" + targetColumn + "'," +
+                "settings_table_name=>'" + settingsTableName + "'" +
+                "); END;";
+
+        // Submit the scheduler job — returns immediately
+        DatabaseInterfaceInvoker.execute(Priority.HIGH,
+                "Submitting Training Job",
+                "Submitting " + modelName + " to Oracle Scheduler",
+                getProject(),
+                connection.getConnectionId(),
+                conn -> connection.getInterfaces().getMLInterface().submitTrainingJob(conn, jobName, jobAction));
+
+        log.info("Training job {} submitted for model: {}", jobName, modelName);
+        return modelName;
     }
 
     public DBMSEvaluationResult evaluate(DBMSModelHandle modelHandle, MLTrainingContext context) throws Exception {
@@ -391,21 +449,28 @@ public class DBMSBackend {
         }
 
         // Step 4 + Build: Get confusion matrix data and build result
-        DBMSEvaluationResult evalResult;
-        try (ResultSet confusionRs = mlInterface.getConfusionMatrixResults(conn, confusionMatrixTable)) {
-            evalResult = DBMSEvaluationResult.fromOracleEvaluation(accuracy, confusionRs, auc, context.getTestingDataSize());
-        }
+        // Outer try-finally guarantees liftRs cleanup even if confusion matrix processing fails
+        try {
+            DBMSEvaluationResult evalResult;
+            try (ResultSet confusionRs = mlInterface.getConfusionMatrixResults(conn, confusionMatrixTable)) {
+                evalResult = DBMSEvaluationResult.fromOracleEvaluation(accuracy, confusionRs, auc, context.getTestingDataSize());
+            }
 
-        // Add lift data if available
-        if (liftRs != null) {
-            try (ResultSet lr = liftRs) {
-                evalResult.populateLiftData(lr);
-            } catch (Exception e) {
-                log.warn("Failed to parse lift data: {}", e.getMessage());
+            // Add lift data if available
+            if (liftRs != null) {
+                try {
+                    evalResult.populateLiftData(liftRs);
+                } catch (Exception e) {
+                    log.warn("Failed to parse lift data: {}", e.getMessage());
+                }
+            }
+
+            return evalResult;
+        } finally {
+            if (liftRs != null) {
+                try { liftRs.close(); } catch (Exception e) { log.debug("Failed to close lift ResultSet", e); }
             }
         }
-
-        return evalResult;
     }
 
     /**

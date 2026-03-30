@@ -71,6 +71,49 @@
         </statement>
     </statement-execution-processor>
 
+    <!-- Submit CREATE_MODEL as DBMS_SCHEDULER job (fire-and-forget async training) -->
+    <statement-execution-processor id="submit-training-job" timeout="10000">
+        <statement>
+            BEGIN
+                DBMS_SCHEDULER.CREATE_JOB(
+                    job_name   => {#0},
+                    job_type   => 'PLSQL_BLOCK',
+                    job_action => {#1},
+                    start_date => SYSTIMESTAMP,
+                    enabled    => TRUE,
+                    auto_drop  => FALSE
+                );
+            END;
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Check if a DBMS_SCHEDULER job is still scheduled/running -->
+    <statement-execution-processor id="get-scheduler-job-state" timeout="5000">
+        <statement>
+            SELECT state FROM USER_SCHEDULER_JOBS WHERE job_name = UPPER({#0})
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Get the final run status of a completed DBMS_SCHEDULER job -->
+    <statement-execution-processor id="get-scheduler-job-run-status" timeout="5000">
+        <statement>
+            SELECT status, TO_CHAR(error#) AS error_num, additional_info
+            FROM USER_SCHEDULER_JOB_RUN_DETAILS
+            WHERE job_name = UPPER({#0})
+            ORDER BY log_date DESC
+            FETCH FIRST 1 ROWS ONLY
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Drop a DBMS_SCHEDULER job after it has completed -->
+    <statement-execution-processor id="drop-scheduler-job" timeout="5000">
+        <statement>
+            BEGIN
+                DBMS_SCHEDULER.DROP_JOB(job_name => {#0}, force => FALSE);
+            END;
+        </statement>
+    </statement-execution-processor>
+
     <!-- Rename ML Model -->
     <statement-execution-processor id="rename-ml-model" timeout="30000">
         <statement>
@@ -524,6 +567,30 @@
     <statement-execution-processor id="get-existing-model-names" timeout="10000">
         <statement>
             SELECT MODEL_NAME FROM USER_MINING_MODELS
+        </statement>
+    </statement-execution-processor>
+
+    <!-- Get feature attributes for a model, excluding the target/label column -->
+    <!-- TARGET='YES' marks the prediction target; TARGET='NO' marks feature/predictor columns -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-input-attributes" timeout="10000">
+        <statement>
+            SELECT ATTRIBUTE_NAME
+            FROM USER_MINING_MODEL_ATTRIBUTES
+            WHERE MODEL_NAME = {#0}
+              AND TARGET = 'NO'
+            ORDER BY ATTRIBUTE_NAME
+        </statement>
+    </statement-execution-processor>
+<!--    fallback user selected -->
+
+    <!-- Get the mining function (CLASSIFICATION or REGRESSION) for a model -->
+    <!-- Parameters: 0=model_name -->
+    <statement-execution-processor id="get-model-function" timeout="10000">
+        <statement>
+            SELECT MINING_FUNCTION
+            FROM USER_MINING_MODELS
+            WHERE MODEL_NAME = {#0}
         </statement>
     </statement-execution-processor>
 

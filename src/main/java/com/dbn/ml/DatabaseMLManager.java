@@ -27,13 +27,13 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Naming;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.ml.execution.MLPipelineExecutor;
 import com.dbn.ml.model.MLRequest;
 import com.dbn.ml.model.MLResult;
+import com.dbn.ml.model.source.MLSourceNames;
 import com.dbn.ml.result.MLExecutionResult;
 import com.dbn.ml.ui.MLToolboxDialog;
 import com.intellij.openapi.components.State;
@@ -109,40 +109,39 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
     }
 
     /**
-     * Trains a model in the background and shows results in execution manager.
+     * Submits model training as an Oracle Scheduler job.
+     * Data prep runs briefly in background, then CREATE_MODEL is submitted to Oracle
+     * and returns immediately — Oracle continues training server-side.
      */
-    public void trainModel(MLRequest request, ConnectionHandler connection) {
-        request.setTemplate(false); // no longer a template after training
-        
+    public void trainModelAsync(MLRequest request, ConnectionHandler connection) {
+        request.setTemplate(false);
+
         String sourceName = getSourceDisplayName(request);
         String algorithmName = request.getTrainerConfig().getTrainerType().getName();
-        
+
         Progress.prompt(
                 getProject(),
-                connection, 
+                connection,
                 true,
-                "Training ML Model",
-                "Training " + algorithmName + " on \"" + sourceName + "\"...",
+                "Submitting Training Job",
+                "Preparing data for " + algorithmName + " on \"" + sourceName + "\"...",
                 progress -> {
                     try {
-                        progress.setText("Loading data...");
                         MLPipelineExecutor executor = new MLPipelineExecutor();
-
-                        progress.setText("Training model...");
-                        MLResult result = executor.execute(request, connection);
-
-                        progress.setText("Training complete!");
-
-                        // Show result in Execution Manager (like VectorToolbox)
-                        showResultInExecutionManager(result);
-
+                        String modelName = executor.submitAsync(request, connection);
+                        log.info("Training job submitted for model: {}", modelName);
+                        Dispatch.run(() -> Messages.showInfoDialog(
+                                getProject(),
+                                "Training Job Submitted",
+                                "Model \"" + modelName + "\" has been submitted to Oracle Scheduler.\n" +
+                                "Training continues on the database server."
+                        ));
                     } catch (Exception e) {
-                        log.warn("Model training failed", e);
-                        String message = e.getMessage();
+                        log.warn("Failed to submit training job", e);
                         Dispatch.run(() -> Messages.showErrorDialog(
                                 getProject(),
-                                "Model Training Failed",
-                                "An error occurred during training:\n" + message
+                                "Failed to Submit Training Job",
+                                "An error occurred:\n" + e.getMessage()
                         ));
                     }
                 });
@@ -154,24 +153,20 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
 
     /**
      * Shows the training result in the Execution Manager panel.
-     * Same pattern as VectorToolbox's showResultDialog().
      */
     private void showResultInExecutionManager(MLResult result) {
         ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
         Set<String> existingNames = executionManager.getExecutionResultNames(MLExecutionResult.class);
         String name = Naming.nextNumberedIdentifier("ML Training Result", true, () -> existingNames);
-        
         MLExecutionResult executionResult = new MLExecutionResult(result, name);
         executionManager.addExecutionResult(executionResult);
     }
 
-    // PersistentState implementation
     @Nullable
     @Override
     public Element getComponentState() {
         Element element = new Element("state");
         Element templatesElement = newElement(element, "request-templates");
-
         for (Map.Entry<ConnectionId, MLRequest> entry : requestTemplates.entrySet()) {
             Element templateElement = newElement(templatesElement, "request-template");
             setConstantAttribute(templateElement, "connection-id", entry.getKey());
@@ -184,7 +179,6 @@ public class DatabaseMLManager extends ProjectComponentBase implements Persisten
     public void loadComponentState(@NotNull Element element) {
         Element templatesElement = element.getChild("request-templates");
         if (templatesElement == null) return;
-
         for (Element templateElement : childrenOf(templatesElement, "request-template")) {
             ConnectionId connectionId = constantAttribute(templateElement, "connection-id", ConnectionId.class);
             if (connectionId != null) {
