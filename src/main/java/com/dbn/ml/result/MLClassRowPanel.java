@@ -64,14 +64,7 @@ public class MLClassRowPanel extends JPanel {
         labelComp.setPreferredSize(new Dimension(20, 16));
         panel.add(labelComp, BorderLayout.WEST);
 
-        JPanel barWrapper = new JPanel(new GridBagLayout());
-        barWrapper.setOpaque(false);
-        MLProgressBarPanel bar = new MLProgressBarPanel((int) (value * 100), BAR_HEIGHT);
-        barWrapper.add(bar, new GridBagConstraints() {{
-            fill = GridBagConstraints.HORIZONTAL;
-            weightx = 1.0;
-        }});
-        panel.add(barWrapper, BorderLayout.CENTER);
+        panel.add(new MLProgressBarPanel((int) (value * 100), BAR_HEIGHT), BorderLayout.CENTER);
 
         JLabel valueLabel = new JLabel(String.format("%.0f%%", value * 100));
         valueLabel.setFont(valueLabel.getFont().deriveFont(11f));

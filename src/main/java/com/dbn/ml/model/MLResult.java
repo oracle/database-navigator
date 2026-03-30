@@ -60,13 +60,6 @@ public class MLResult {
     private MLModelDetails modelDetails;
 
     /**
-     * Returns true if this is a multi-output regression (2+ labels)
-     */
-    public boolean isMultiOutput() {
-        return labelColumns != null && labelColumns.size() > 1;
-    }
-
-    /**
      * Returns the database model name.
      */
     public String getModelName() {

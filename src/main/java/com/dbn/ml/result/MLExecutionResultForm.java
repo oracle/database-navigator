@@ -16,20 +16,27 @@
 
 package com.dbn.ml.result;
 
+import com.dbn.common.icon.Icons;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.thread.Progress;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.util.Actions;
+import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionAction;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
-import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.dbn.ml.backend.dbms.DBMSAlgorithmType;
 import com.dbn.ml.backend.dbms.DBMSEvaluationResult;
 import com.dbn.ml.backend.dbms.DBMSModelHandle;
-import com.dbn.ml.model.MLModelDetails;
 import com.dbn.ml.model.MLResult;
-import com.dbn.ml.result.detail.AlgorithmDetailBuilder;
-import com.dbn.ml.result.detail.DecisionTreeDetailBuilder;
-import com.dbn.ml.result.detail.GLMDetailBuilder;
-import com.dbn.ml.result.detail.NaiveBayesDetailBuilder;
-import com.dbn.ml.result.detail.SVMDetailBuilder;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBView;
+import com.dbn.object.common.list.DBObjectList;
+import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.project.Project;
+import lombok.extern.slf4j.Slf4j;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.table.JBTable;
@@ -41,7 +48,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -53,15 +59,8 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
  *
  * @author ayoub allali
  */
+@Slf4j
 public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionResult> {
-
-    private static final int BAR_HEIGHT = 4;
-
-    private static final List<AlgorithmDetailBuilder> DETAIL_BUILDERS = List.of(
-            new GLMDetailBuilder(),
-            new SVMDetailBuilder(),
-            new DecisionTreeDetailBuilder(),
-            new NaiveBayesDetailBuilder());
 
     // Form bindings
     private JPanel mainPanel;
@@ -74,14 +73,11 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
     private com.intellij.ui.SimpleColoredComponent metricsSummary;
     private DBNScrollPane contentScrollPane;
     private JPanel contentPanel;
-    private JPanel alertsPanel;
     private JPanel metricsCardsPanel;
     private JPanel confusionMatrixPanel;
     private JPanel perClassPanel;
     private JPanel modelDetailsPanel;
-    private JPanel variableImportancePanel;
-    private JPanel algorithmDetailsPanel;
-    private JPanel modelInsightsPanel;
+    private JPanel modelViewsPanel;
 
     // Data
     private final MLResult result;
@@ -94,14 +90,11 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
 
     private void initializeComponents() {
         initializeHeader();
-        initializeBuildAlerts();
         initializeMetricsCards();
         initializeConfusionMatrix();
         initializePerClassMetrics();
         initializeModelDetails();
-        initializeVariableImportance();
-        initializeAlgorithmDetails();
-        initializeModelInsights();
+        initializeModelViews();
         createActionsPanel();
     }
 
@@ -210,7 +203,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         TreeSet<String> classLabels = new TreeSet<>();
         int maxCount = 0;
         for (Map.Entry<String, Integer> entry : confusionData.entrySet()) {
-            String[] parts = entry.getKey().split("_");
+            String[] parts = entry.getKey().split("\0");
             if (parts.length >= 2) {
                 classLabels.add(parts[0]);
                 classLabels.add(parts[1]);
@@ -231,7 +224,7 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         for (int i = 0; i < size; i++) {
             data[i][0] = labels.get(i);
             for (int j = 0; j < size; j++) {
-                String key = labels.get(i) + "_" + labels.get(j);
+                String key = labels.get(i) + "\0" + labels.get(j);
                 Integer count = confusionData.get(key);
                 data[i][j + 1] = count != null ? count : 0;
             }
@@ -337,161 +330,126 @@ public class MLExecutionResultForm extends ExecutionResultFormBase<MLExecutionRe
         modelDetailsPanel.add(detailsGrid, BorderLayout.CENTER);
     }
 
-    private void initializeVariableImportance() {
-        MLModelDetails details = result.getModelDetails();
-        if (details == null || !details.hasVariableImportance()) {
-            variableImportancePanel.setVisible(false);
+    private void initializeModelViews() {
+        MLResultPanelHelper.initSection(modelViewsPanel, "Model Detail Views");
+
+        JPanel linksPanel = new JPanel();
+        linksPanel.setLayout(new BoxLayout(linksPanel, BoxLayout.Y_AXIS));
+        linksPanel.setBorder(JBUI.Borders.emptyTop(8));
+        linksPanel.setOpaque(false);
+
+        String modelName = result.getModelName();
+        DBMSModelHandle modelHandle = result.getModelHandle();
+        if (modelName == null || modelHandle == null) {
+            modelViewsPanel.setVisible(false);
             return;
         }
 
-        MLResultPanelHelper.initSection(variableImportancePanel, "Variable Importance");
+        ConnectionHandler connection = modelHandle.getConnection();
+        Project project = connection.getProject();
 
-        JPanel barsPanel = new JPanel();
-        barsPanel.setLayout(new BoxLayout(barsPanel, BoxLayout.Y_AXIS));
-        barsPanel.setBorder(JBUI.Borders.emptyTop(8));
+        for (String[] entry : getModelViewEntries()) {
+            String viewName = "DM$V" + entry[0] + modelName;
+            String description = entry[1];
 
-        List<MLModelDetails.VariableImportance> items = details.getVariableImportance();
-        double maxImportance = items.stream().mapToDouble(MLModelDetails.VariableImportance::getImportance).max().orElse(1.0);
+            JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+            row.setOpaque(false);
 
-        for (MLModelDetails.VariableImportance item : items) {
-            barsPanel.add(createImportanceRow(item.getAttributeName(), item.getImportance(), maxImportance));
-            barsPanel.add(Box.createVerticalStrut(6));
+            DBNHyperlinkLabel link = new DBNHyperlinkLabel();
+            link.setIcon(Icons.DBO_VIEW);
+            link.setHyperlinkText(viewName);
+            link.addHyperlinkListener(e -> openView(project, connection, viewName));
+
+            JLabel desc = new JLabel("— " + description);
+            desc.setForeground(JBColor.gray);
+            desc.setFont(desc.getFont().deriveFont(11f));
+
+            row.add(link);
+            row.add(desc);
+            linksPanel.add(row);
         }
 
-        variableImportancePanel.add(barsPanel, BorderLayout.CENTER);
+        modelViewsPanel.add(linksPanel, BorderLayout.CENTER);
     }
 
-    private JPanel createImportanceRow(String name, double importance, double maxImportance) {
-        JPanel row = new JPanel(new BorderLayout(8, 0));
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
-        row.setOpaque(false);
+    private List<String[]> getModelViewEntries() {
+        // Universal views — created for every model, all algorithms
+        List<String[]> views = new ArrayList<>();
+        views.add(new String[]{"G", "Global Statistics"});
+        views.add(new String[]{"S", "Computed Settings"});
+        views.add(new String[]{"W", "Build Alerts"});
 
-        JLabel nameLabel = new JLabel(name);
-        nameLabel.setFont(nameLabel.getFont().deriveFont(12f));
-        nameLabel.setPreferredSize(new Dimension(180, 16));
-        row.add(nameLabel, BorderLayout.WEST);
-
-        int pct = maxImportance > 0 ? (int) (importance / maxImportance * 100) : 0;
-        row.add(new MLProgressBarPanel(pct, BAR_HEIGHT), BorderLayout.CENTER);
-
-        JLabel valLabel = new JLabel(String.format("%.3f", importance));
-        valLabel.setFont(valLabel.getFont().deriveFont(Font.BOLD, 12f));
-        valLabel.setPreferredSize(new Dimension(50, 16));
-        valLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        row.add(valLabel, BorderLayout.EAST);
-
-        return row;
-    }
-
-    private void initializeBuildAlerts() {
-        MLModelDetails details = result.getModelDetails();
-        if (details == null || !details.hasBuildAlerts()) {
-            alertsPanel.setVisible(false);
-            return;
+        // Classification adds target class distribution
+        if (result.isClassification()) {
+            views.add(new String[]{"T", "Target Map"});
         }
 
-        alertsPanel.setLayout(new BorderLayout(8, 4));
-        alertsPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new JBColor(new Color(200, 140, 0), new Color(180, 130, 0)), 1),
-                JBUI.Borders.empty(10)
-        ));
-        alertsPanel.setBackground(new JBColor(new Color(255, 248, 220), new Color(60, 50, 20)));
-        alertsPanel.setOpaque(true);
-
-        JLabel warningLabel = new JLabel("Build Warnings (" + details.getBuildAlerts().size() + ")");
-        warningLabel.setFont(warningLabel.getFont().deriveFont(Font.BOLD, 13f));
-        warningLabel.setForeground(new JBColor(new Color(160, 100, 0), new Color(220, 170, 60)));
-        alertsPanel.add(warningLabel, BorderLayout.NORTH);
-
-        JPanel alertsList = new JPanel();
-        alertsList.setLayout(new BoxLayout(alertsList, BoxLayout.Y_AXIS));
-        alertsList.setOpaque(false);
-        alertsList.setBorder(JBUI.Borders.emptyTop(4));
-        for (String alert : details.getBuildAlerts()) {
-            JLabel alertLabel = new JLabel("\u26A0 " + alert);
-            alertLabel.setFont(alertLabel.getFont().deriveFont(11f));
-            alertLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-            alertsList.add(alertLabel);
-            alertsList.add(Box.createVerticalStrut(2));
-        }
-        alertsPanel.add(alertsList, BorderLayout.CENTER);
-    }
-
-    private void initializeAlgorithmDetails() {
-        MLModelDetails details = result.getModelDetails();
-        if (details == null) {
-            algorithmDetailsPanel.setVisible(false);
-            return;
-        }
-
+        // Algorithm-specific views
         DBMSAlgorithmType algorithmType = null;
-        try {
-            algorithmType = DBMSAlgorithmType.fromDisplayName(result.getAlgorithmName());
-        } catch (Exception ignored) {}
+        try { algorithmType = DBMSAlgorithmType.fromDisplayName(result.getAlgorithmName()); }
+        catch (Exception e) { log.debug("Failed to resolve algorithm type for '{}'", result.getAlgorithmName(), e); }
 
-        DBMSAlgorithmType finalAlgorithmType = algorithmType;
-        for (AlgorithmDetailBuilder builder : DETAIL_BUILDERS) {
-            if (builder.canHandle(details, finalAlgorithmType)) {
-                builder.build(algorithmDetailsPanel, details);
-                return;
-            }
-        }
-        algorithmDetailsPanel.setVisible(false);
-    }
-
-    private void initializeModelInsights() {
-        MLModelDetails details = result.getModelDetails();
-        if (details == null || (!details.hasGlobalStats() && !details.hasComputedSettings())) {
-            modelInsightsPanel.setVisible(false);
-            return;
-        }
-
-        modelInsightsPanel.setLayout(new GridLayout(1, details.hasGlobalStats() && details.hasComputedSettings() ? 2 : 1, 16, 0));
-        modelInsightsPanel.setBorder(JBUI.Borders.empty(0));
-
-        if (details.hasGlobalStats()) {
-            modelInsightsPanel.add(buildInsightCard("Global Statistics", details.getGlobalStats()));
-        }
-
-        if (details.hasComputedSettings()) {
-            // Filter to the most relevant settings (exclude verbose ones)
-            Map<String, String> filteredSettings = new LinkedHashMap<>();
-            details.getComputedSettings().forEach((k, v) -> {
-                if (!k.startsWith("ODMS_DETAILS") && !k.equals("PREP_AUTO")) {
-                    filteredSettings.put(k, v);
+        if (algorithmType != null) {
+            switch (algorithmType) {
+                case RANDOM_FOREST ->
+                        // ADP has no effect on Random Forest — no DM$VN
+                        views.add(new String[]{"A", "Variable Importance"});
+                case DECISION_TREE -> {
+                    // ADP has no effect on Decision Tree — no DM$VN
+                    views.add(new String[]{"P", "Node Split Hierarchy"});
+                    views.add(new String[]{"I", "Node Statistics"});
                 }
-            });
-            if (!filteredSettings.isEmpty()) {
-                modelInsightsPanel.add(buildInsightCard("Computed Settings", filteredSettings));
+                case LOGISTIC_REGRESSION, LINEAR_REGRESSION -> {
+                    views.add(new String[]{"N", "Normalization & Missing Value Handling"});
+                    views.add(new String[]{"D", "GLM Coefficients"});
+                    views.add(new String[]{"A", "Row Diagnostics"});
+                }
+                case SVM_CLASSIFICATION, SVM_REGRESSION -> {
+                    views.add(new String[]{"N", "Normalization & Missing Value Handling"});
+                    views.add(new String[]{"L", "SVM Linear Coefficients"});
+                }
+                case NAIVE_BAYES -> {
+                    // ADP bins Naive Bayes data — DM$VB is present
+                    views.add(new String[]{"B", "Binning Boundaries"});
+                    views.add(new String[]{"P", "Class Priors"});
+                    views.add(new String[]{"V", "Conditional Probabilities"});
+                }
+                case NEURAL_NETWORK_CLASSIFICATION, NEURAL_NETWORK_REGRESSION -> {
+                    views.add(new String[]{"N", "Normalization & Missing Value Handling"});
+                    views.add(new String[]{"A", "Neuron Weights"});
+                }
+                case XGBOOST_CLASSIFICATION, XGBOOST_REGRESSION ->
+                        // ADP has no effect on XGBoost — no DM$VN
+                        views.add(new String[]{"I", "Attribute Importance"});
+                default -> {}
             }
         }
+        return views;
     }
 
-    private JPanel buildInsightCard(String title, Map<String, String> data) {
-        JPanel card = new JPanel(new BorderLayout(8, 6));
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(JBColor.border(), 1),
-                JBUI.Borders.empty(12)
-        ));
+    private void openView(Project project, ConnectionHandler connection, String viewName) {
+        DBSchema schema = connection.getUserSchema();
+        if (schema == null) return;
 
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
-        card.add(titleLabel, BorderLayout.NORTH);
+        DBObjectList<DBView> viewList = schema.getChildObjectList(DBObjectType.VIEW);
+        if (viewList == null) return;
 
-        JPanel grid = new JPanel(new GridLayout(0, 2, 8, 4));
-        grid.setBorder(JBUI.Borders.emptyTop(6));
-        data.forEach((k, v) -> {
-            JLabel keyLabel = new JLabel(k);
-            keyLabel.setForeground(JBColor.gray);
-            keyLabel.setFont(keyLabel.getFont().deriveFont(11f));
-            grid.add(keyLabel);
-
-            JLabel valLabel = new JLabel(v);
-            valLabel.setFont(valLabel.getFont().deriveFont(Font.BOLD, 11f));
-            grid.add(valLabel);
-        });
-        card.add(grid, BorderLayout.CENTER);
-        return card;
+        ConnectionAction.invoke("Opening View", true, viewList,
+                action -> Progress.prompt(project, viewList, true,
+                        "Opening View", "Loading view " + viewName,
+                        progress -> {
+                            // schema.getView() auto-loads lazily on a progress thread (allowSyncLoad = true)
+                            // No full reload needed - avoids the expensive refresh-all-elements cycle
+                            DBView view = schema.getView(viewName);
+                            if (view != null) {
+                                view.navigate(true);
+                            } else {
+                                Dispatch.run(() -> Messages.showErrorDialog(project,
+                                        "Refresh Required",
+                                        "View '" + viewName + "' is not yet visible in the browser.\n" +
+                                        "Please refresh the database connection and try again."));
+                            }
+                        }));
     }
 
     private void addDetailRow(JPanel panel, String label, String value) {
