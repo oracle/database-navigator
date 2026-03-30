@@ -195,6 +195,11 @@
             <license name="Apache License 2.0" url="	http://apache.org/licenses/LICENSE-2.0.html"/>
         </library>
 
+        <library artifact-id="oci-java-sdk-circuitbreaker" group-id="com.oracle.oci.sdk" version="3.37.0">
+            <license name="The Universal Permissive License (UPL), Version 1.0" url="https://www.oracle.com/downloads/licenses/upl-license.html"/>
+            <license name="Apache License 2.0" url="	http://apache.org/licenses/LICENSE-2.0.html"/>
+        </library>
+
         <library artifact-id="ojdbc-provider-common" group-id="com.oracle.database.jdbc" version="1.0.1">
             <license name="The Universal Permissive License (UPL), Version 1.0" url="https://www.oracle.com/downloads/licenses/upl-license.html"/>
         </library>
