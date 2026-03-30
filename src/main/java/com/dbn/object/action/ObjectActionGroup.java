@@ -32,6 +32,8 @@ import com.dbn.execution.method.action.MethodExecuteAction;
 import com.dbn.execution.method.action.ProgramMethodDebugAction;
 import com.dbn.execution.method.action.ProgramMethodExecuteAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
+import com.dbn.ml.action.AIModelPredictAction;
+import com.dbn.object.DBAIModel;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBJavaClass;
@@ -88,6 +90,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         addProgramActions(object);
         addTableActions(object);
         addJavaActions(object);
+        addAIModelActions(object);
         addDependencyActions(object);
         addNavigationActions(object);
         addConsoleActions(object);
@@ -180,6 +183,13 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
         if (object instanceof DBJavaResource) {
             add(new JavaResourceDownloadAction(object));
+        }
+    }
+
+    private void addAIModelActions(DBObject object) {
+        if (object instanceof DBAIModel aiModel) {
+            addSeparator();
+            add(new AIModelPredictAction(aiModel));
         }
     }
 

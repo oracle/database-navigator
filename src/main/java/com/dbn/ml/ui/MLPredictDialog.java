@@ -17,7 +17,9 @@
 package com.dbn.ml.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.ml.model.MLResult;
+import com.dbn.ml.model.MLTaskType;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractAction;
@@ -32,12 +34,25 @@ import java.util.List;
  * @author ayoub allali
  */
 public class MLPredictDialog extends DBNDialog<MLPredictForm> {
-    private final MLResult mlResult;
+    private final String modelName;
+    private final ConnectionHandler connection;
+    private final MLTaskType taskType;
     private final List<String> featureColumns;
 
+    /** Open predict dialog from a training result. */
     public MLPredictDialog(MLResult mlResult, List<String> featureColumns) {
-        super(mlResult.getConnection().getProject(), "Ad-hoc Prediction", true);
-        this.mlResult = mlResult;
+        this(mlResult.getConnection(),
+             mlResult.getModelHandle() != null ? mlResult.getModelHandle().getModelName() : mlResult.getAlgorithmName(),
+             mlResult.getTaskType(),
+             featureColumns);
+    }
+
+    /** Open predict dialog for an existing database model. */
+    public MLPredictDialog(ConnectionHandler connection, String modelName, MLTaskType taskType, List<String> featureColumns) {
+        super(connection.getProject(), "Ad-hoc Prediction", true);
+        this.connection = connection;
+        this.modelName = modelName;
+        this.taskType = taskType;
         this.featureColumns = featureColumns;
         setModal(false);
         init();
@@ -46,7 +61,7 @@ public class MLPredictDialog extends DBNDialog<MLPredictForm> {
     @NotNull
     @Override
     protected MLPredictForm createForm() {
-        return new MLPredictForm(this, mlResult, featureColumns);
+        return new MLPredictForm(this, modelName, connection, taskType, featureColumns);
     }
 
     @Override

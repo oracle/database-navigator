@@ -18,14 +18,13 @@ package com.dbn.ml.ui;
 
 import com.dbn.common.Priority;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMLInterface;
-import com.dbn.ml.backend.dbms.DBMSModelHandle;
-import com.dbn.ml.model.MLResult;
 import com.dbn.ml.model.MLTaskType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -61,19 +60,20 @@ public class MLPredictForm extends DBNFormBase {
     private JLabel resultLabel;
     private JLabel probabilityLabel;
 
-    private final MLResult mlResult;
+    private final String modelName;
+    private final ConnectionHandler connection;
+    private final MLTaskType taskType;
     private final List<String> featureColumns;
     private final List<JTextField> inputFields = new ArrayList<>();
 
-    MLPredictForm(MLPredictDialog parent, @NotNull MLResult mlResult, List<String> featureColumns) {
+    MLPredictForm(MLPredictDialog parent, String modelName, ConnectionHandler connection,
+                  MLTaskType taskType, List<String> featureColumns) {
         super(parent);
-        this.mlResult = mlResult;
+        this.modelName = modelName;
+        this.connection = connection;
+        this.taskType = taskType;
         this.featureColumns = featureColumns;
 
-        String modelName = mlResult.getModelHandle() != null ?
-                mlResult.getModelHandle().toString() : mlResult.getAlgorithmName();
-
-        ConnectionHandler connection = mlResult.getConnection();
         DBNHeaderForm headerForm = new DBNHeaderForm(this,
                 "Prediction using " + modelName,
                 Icons.DBO_AI_MODEL,
@@ -140,8 +140,8 @@ public class MLPredictForm extends DBNFormBase {
     public void runPrediction() {
         // Validate inputs
         List<String> values = getFeatureValues();
-        for (int i = 0; i < values.size(); i++) {
-            if (Strings.isEmpty(values.get(i))) {
+        for (String value : values) {
+            if (Strings.isEmpty(value)) {
                 resultLabel.setText("Please fill in all feature values");
                 resultLabel.setForeground(Color.RED);
                 probabilityLabel.setText("");
@@ -153,11 +153,8 @@ public class MLPredictForm extends DBNFormBase {
         resultLabel.setForeground(Color.GRAY);
         probabilityLabel.setText("");
 
-        DBMSModelHandle dbmsHandle = (DBMSModelHandle) mlResult.getModelHandle();
-        String modelName = dbmsHandle.getModelName();
-        ConnectionHandler connection = dbmsHandle.getConnection();
         Project project = connection.getProject();
-        boolean isClassification = mlResult.getTaskType() == MLTaskType.CLASSIFICATION;
+        boolean isClassification = taskType == MLTaskType.CLASSIFICATION;
         String featureClause = buildFeatureClause(featureColumns, values);
 
         try {
@@ -169,15 +166,12 @@ public class MLPredictForm extends DBNFormBase {
                     conn -> {
                         DatabaseMLInterface mlInterface = connection.getInterfaces().getMLInterface();
                         if (isClassification) {
-                            ResultSet rs = mlInterface.predictWithProbability(conn, modelName, featureClause);
-                            try {
+                            try (ResultSet rs = mlInterface.predictWithProbability(conn, modelName, featureClause)) {
                                 if (rs.next()) {
                                     String prediction = rs.getString("PREDICTION");
                                     double probability = rs.getDouble("PROBABILITY");
                                     updateResult(prediction, probability);
                                 }
-                            } finally {
-                                rs.close();
                             }
                         } else {
                             String prediction = mlInterface.predict(conn, modelName, featureClause);
@@ -190,20 +184,24 @@ public class MLPredictForm extends DBNFormBase {
     }
 
     private void updateResult(String prediction, double probability) {
-        resultLabel.setText("Prediction: " + prediction);
-        resultLabel.setForeground(new Color(0, 128, 0)); // Green
+        Dispatch.run(resultLabel, () -> {
+            resultLabel.setText("Prediction: " + prediction);
+            resultLabel.setForeground(new Color(0, 128, 0)); // Green
 
-        if (probability >= 0) {
-            probabilityLabel.setText(String.format("Confidence: %.2f%%", probability * 100));
-        } else {
-            probabilityLabel.setText("");
-        }
+            if (probability >= 0) {
+                probabilityLabel.setText(String.format("Confidence: %.2f%%", probability * 100));
+            } else {
+                probabilityLabel.setText("");
+            }
+        });
     }
 
     private void updateError(String message) {
-        resultLabel.setText(message);
-        resultLabel.setForeground(Color.RED);
-        probabilityLabel.setText("");
+        Dispatch.run(resultLabel, () -> {
+            resultLabel.setText(message);
+            resultLabel.setForeground(Color.RED);
+            probabilityLabel.setText("");
+        });
     }
 
     private String buildFeatureClause(List<String> columns, List<String> values) {
