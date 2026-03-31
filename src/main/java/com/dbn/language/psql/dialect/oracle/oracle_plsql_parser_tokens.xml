@@ -18,804 +18,796 @@
 
 <token-def>
     <tokens>
-        <token id="UNKNOWN"                value=""                type="unknown"/>
-        <token id="CT_OUTER_JOIN"          value=""                type="character"/>
-        <token id="CT_SIZE_CLAUSE"         value=""                type="keyword"/>
+        <token id="UNKNOWN" value="" category="unknown"/>
+        <token id="CT_OUTER_JOIN" value="" category="character"/>
+        <token id="CT_SIZE_CLAUSE" value="" category="keyword"/>
 
-        <!-- DATA TYPES -->
-        <token index="0" id="DT_VARCHAR2" value="varchar2" type="datatype" reserved="true"/>
-        <token index="1" id="DT_BFILE" value="bfile" type="datatype"/>
-        <token index="2" id="DT_BINARY_DOUBLE" value="binary_double" type="datatype"/>
-        <token index="3" id="DT_BINARY_FLOAT" value="binary_float" type="datatype"/>
-        <token index="4" id="DT_BINARY_INTEGER" value="binary_integer" type="datatype"/>
-        <token index="5" id="DT_BLOB" value="blob" type="datatype"/>
-        <token index="6" id="DT_BOOLEAN" value="boolean" type="datatype"/>
-        <token index="7" id="DT_BYTE" value="byte" type="datatype"/>
-        <token index="8" id="DT_CHAR" value="char" type="datatype" reserved="true"/>
-        <token index="9" id="DT_CHARACTER" value="character" type="datatype"/>
-        <token index="10" id="DT_CHARACTER_VARYING" value="character varying" type="datatype"/>
-        <token index="11" id="DT_CLOB" value="clob" type="datatype"/>
-        <token index="12" id="DT_DATE" value="date" type="datatype" reserved="true"/>
-        <token index="13" id="DT_DECIMAL" value="decimal" type="datatype" reserved="true"/>
-        <token index="14" id="DT_DOUBLE_PRECISION" value="double precision" type="datatype"/>
-        <token index="15" id="DT_FLOAT" value="float" type="datatype" reserved="true"/>
-        <token index="16" id="DT_INT" value="int" type="datatype"/>
-        <token index="17" id="DT_INTEGER" value="integer" type="datatype"/>
-        <token index="18" id="DT_LONG" value="long" type="datatype" reserved="true"/>
-        <token index="19" id="DT_LONG_RAW" value="long raw" type="datatype"/>
-        <token index="20" id="DT_LONG_VARCHAR" value="long varchar" type="datatype"/>
-        <token index="21" id="DT_NATIONAL_CHAR" value="national char" type="datatype"/>
-        <token index="22" id="DT_NATIONAL_CHAR_VARYING" value="national char varying" type="datatype"/>
-        <token index="23" id="DT_NATIONAL_CHARACTER" value="national character" type="datatype"/>
-        <token index="24" id="DT_NATIONAL_CHARACTER_VARYING" value="national character varying" type="datatype"/>
-        <token index="25" id="DT_NCHAR" value="nchar" type="datatype"/>
-        <token index="26" id="DT_NCHAR_VARYING" value="nchar varying" type="datatype"/>
-        <token index="27" id="DT_NCLOB" value="nclob" type="datatype"/>
-        <token index="28" id="DT_NUMBER" value="number" type="datatype" reserved="true"/>
-        <token index="29" id="DT_NUMERIC" value="numeric" type="datatype"/>
-        <token index="30" id="DT_NVARCHAR2" value="nvarchar2" type="datatype"/>
-        <token index="31" id="DT_PLS_INTEGER" value="pls_integer" type="datatype"/>
-        <token index="32" id="DT_RAW" value="raw" type="datatype" reserved="true"/>
-        <token index="33" id="DT_REAL" value="real" type="datatype"/>
-        <token index="34" id="DT_ROWID" value="rowid" type="datatype" reserved="true"/>
-        <token index="35" id="DT_SMALLINT" value="smallint" type="datatype" reserved="true"/>
-        <token index="36" id="DT_STRING" value="string" type="datatype"/>
-        <token index="37" id="DT_TIMESTAMP" value="timestamp" type="datatype"/>
-        <token index="38" id="DT_UROWID" value="urowid" type="datatype"/>
-        <token index="39" id="DT_VARCHAR" value="varchar" type="datatype" reserved="true"/>
-        <token index="40" id="DT_WITH_LOCAL_TIME_ZONE" value="with local time zone" type="datatype"/>
-        <token index="41" id="DT_WITH_TIME_ZONE" value="with time zone" type="datatype"/>
-
-
-
-
-
-        <!-- KEYWORDS -->
-        <token index="0" id="KW_$IF" value="$if" type="keyword" reserved="true"/>
-        <token index="1" id="KW_$ELSE" value="$else" type="keyword" reserved="true"/>
-        <token index="2" id="KW_$ELSIF" value="$elsif" type="keyword" reserved="true"/>
-        <token index="3" id="KW_$END" value="$end" type="keyword" reserved="true"/>
-        <token index="4" id="KW_$THEN" value="$then" type="keyword" reserved="true"/>
-        <token index="5" id="KW_A_SET" value="a set" type="keyword"/>
-        <token index="6" id="KW_ABSENT" value="absent" type="keyword"/>
-        <token index="7" id="KW_ACCESSIBLE" value="accessible" type="keyword"/>
-        <token index="8" id="KW_AFTER" value="after" type="keyword"/>
-        <token index="9" id="KW_AGENT" value="agent" type="keyword"/>
-        <token index="10" id="KW_AGGREGATE" value="aggregate" type="keyword"/>
-        <token index="11" id="KW_ALL" value="all" type="keyword" reserved="true"/>
-        <token index="12" id="KW_ALTER" value="alter" type="keyword" reserved="true"/>
-        <token index="13" id="KW_ANALYZE" value="analyze" type="keyword"/>
-        <token index="14" id="KW_AND" value="and" type="keyword" reserved="true"/>
-        <token index="15" id="KW_ANY" value="any" type="keyword" reserved="true"/>
-        <token index="16" id="KW_APPLY" value="apply" type="keyword"/>
-        <token index="17" id="KW_ARRAY" value="array" type="keyword" reserved="true"/>
-        <token index="18" id="KW_AS" value="as" type="keyword" reserved="true"/>
-        <token index="19" id="KW_ASC" value="asc" type="keyword" reserved="true"/>
-        <token index="20" id="KW_ASSOCIATE" value="associate" type="keyword"/>
-        <token index="21" id="KW_AT" value="at" type="keyword"/>
-        <token index="22" id="KW_AUDIT" value="audit" type="keyword"/>
-        <token index="23" id="KW_AUTHID" value="authid" type="keyword"/>
-        <token index="24" id="KW_AUTOMATIC" value="automatic" type="keyword"/>
-        <token index="25" id="KW_AUTONOMOUS_TRANSACTION" value="autonomous_transaction" type="keyword"/>
-        <token index="26" id="KW_BEFORE" value="before" type="keyword"/>
-        <token index="27" id="KW_BEGIN" value="begin" type="keyword" reserved="true"/>
-        <token index="28" id="KW_BETWEEN" value="between" type="keyword" reserved="true"/>
-        <token index="29" id="KW_BLOCK" value="block" type="keyword"/>
-        <token index="30" id="KW_BODY" value="body" type="keyword"/>
-        <token index="31" id="KW_BOTH" value="both" type="keyword"/>
-        <token index="32" id="KW_BULK" value="bulk" type="keyword"/>
-        <token index="33" id="KW_BULK_EXCEPTIONS" value="bulk_exceptions" type="keyword"/>
-        <token index="34" id="KW_BULK_ROWCOUNT" value="bulk_rowcount" type="keyword"/>
-        <token index="35" id="KW_BY" value="by" type="keyword" reserved="true"/>
-        <token index="36" id="KW_C" value="c" type="keyword"/>
-        <token index="37" id="KW_CALL" value="call" type="keyword"/>
-        <token index="38" id="KW_CANONICAL" value="canonical" type="keyword"/>
-        <token index="39" id="KW_CASE" value="case" type="keyword" reserved="true"/>
-        <token index="40" id="KW_CHAR_BASE" value="char_base" type="keyword"/>
-        <token index="41" id="KW_CHAR_CS" value="char_cs" type="keyword"/>
-        <token index="42" id="KW_CHARSETFORM" value="charsetform" type="keyword"/>
-        <token index="43" id="KW_CHARSETID" value="charsetid" type="keyword"/>
-        <token index="44" id="KW_CHECK" value="check" type="keyword" reserved="true"/>
-        <token index="45" id="KW_CHISQ_DF" value="chisq_df" type="keyword"/>
-        <token index="46" id="KW_CHISQ_OBS" value="chisq_obs" type="keyword"/>
-        <token index="47" id="KW_CHISQ_SIG" value="chisq_sig" type="keyword"/>
-        <token index="48" id="KW_CLONE" value="clone" type="keyword"/>
-        <token index="49" id="KW_CLOSE" value="close" type="keyword"/>
-        <token index="50" id="KW_CLUSTER" value="cluster" type="keyword" reserved="true"/>
-        <token index="51" id="KW_COALESCE" value="coalesce" type="keyword"/>
-        <token index="52" id="KW_COEFFICIENT" value="coefficient" type="keyword"/>
-        <token index="53" id="KW_COHENS_K" value="cohens_k" type="keyword"/>
-        <token index="54" id="KW_COLLATION" value="collation" type="keyword"/>
-        <token index="55" id="KW_COLLECT" value="collect" type="keyword"/>
-        <token index="56" id="KW_COLUMNS" value="columns" type="keyword" reserved="true"/>
-        <token index="57" id="KW_COMMENT" value="comment" type="keyword"/>
-        <token index="58" id="KW_COMMIT" value="commit" type="keyword"/>
-        <token index="59" id="KW_COMMITTED" value="committed" type="keyword"/>
-        <token index="60" id="KW_COMPATIBILITY" value="compatibility" type="keyword"/>
-        <token index="61" id="KW_COMPOUND" value="compound" type="keyword"/>
-        <token index="62" id="KW_COMPRESS" value="compress" type="keyword" reserved="true"/>
-        <token index="63" id="KW_CONDITIONAL" value="conditional" type="keyword" reserved="true"/>
-        <token index="64" id="KW_CONNECT" value="connect" type="keyword" reserved="true"/>
-        <token index="65" id="KW_CONSTANT" value="constant" type="keyword"/>
-        <token index="66" id="KW_CONSTRAINT" value="constraint" type="keyword"/>
-        <token index="67" id="KW_CONSTRUCTOR" value="constructor" type="keyword"/>
-        <token index="68" id="KW_CONT_COEFFICIENT" value="cont_coefficient" type="keyword"/>
-        <token index="69" id="KW_CONTAINER" value="container" type="keyword"/>
-        <token index="70" id="KW_CONTENT" value="content" type="keyword"/>
-        <token index="71" id="KW_CONTEXT" value="context" type="keyword"/>
-        <token index="72" id="KW_CONVERSION" value="conversion" type="keyword"/>
-        <token index="73" id="KW_COUNT" value="count" type="keyword"/>
-        <token index="74" id="KW_CRAMERS_V" value="cramers_v" type="keyword"/>
-        <token index="75" id="KW_CREATE" value="create" type="keyword" reserved="true"/>
-        <token index="76" id="KW_CROSS" value="cross" type="keyword"/>
-        <token index="77" id="KW_CROSSEDITION" value="crossedition" type="keyword"/>
-        <token index="78" id="KW_CUBE" value="cube" type="keyword"/>
-        <token index="79" id="KW_CURRENT" value="current" type="keyword" reserved="true"/>
-        <token index="80" id="KW_CURRENT_USER" value="current_user" type="keyword"/>
-        <token index="81" id="KW_CURRVAL" value="currval" type="keyword"/>
-        <token index="82" id="KW_CURSOR" value="cursor" type="keyword"/>
-        <token index="83" id="KW_DATABASE" value="database" type="keyword"/>
-        <token index="84" id="KW_DAY" value="day" type="keyword"/>
-        <token index="85" id="KW_DB_ROLE_CHANGE" value="db_role_change" type="keyword"/>
-        <token index="86" id="KW_DDL" value="ddl" type="keyword"/>
-        <token index="87" id="KW_DECLARE" value="declare" type="keyword"/>
-        <token index="88" id="KW_DECREMENT" value="decrement" type="keyword"/>
-        <token index="89" id="KW_DEFAULT" value="default" type="keyword" reserved="true"/>
-        <token index="90" id="KW_DEFAULTS" value="defaults" type="keyword"/>
-        <token index="91" id="KW_DEFINER" value="definer" type="keyword"/>
-        <token index="92" id="KW_DELETE" value="delete" type="keyword" reserved="true"/>
-        <token index="93" id="KW_DELETING" value="deleting" type="keyword"/>
-        <token index="94" id="KW_DENSE_RANK" value="dense_rank" type="keyword"/>
-        <token index="95" id="KW_DEPRECATE" value="deprecate" type="keyword"/>
-        <token index="96" id="KW_DESC" value="desc" type="keyword" reserved="true"/>
-        <token index="97" id="KW_DETERMINISTIC" value="deterministic" type="keyword"/>
-        <token index="98" id="KW_DF" value="df" type="keyword"/>
-        <token index="99" id="KW_DF_BETWEEN" value="df_between" type="keyword"/>
-        <token index="100" id="KW_DF_DEN" value="df_den" type="keyword"/>
-        <token index="101" id="KW_DF_NUM" value="df_num" type="keyword"/>
-        <token index="102" id="KW_DF_WITHIN" value="df_within" type="keyword"/>
-        <token index="103" id="KW_DIMENSION" value="dimension" type="keyword"/>
-        <token index="104" id="KW_DISABLE" value="disable" type="keyword"/>
-        <token index="105" id="KW_DISASSOCIATE" value="disassociate" type="keyword"/>
-        <token index="106" id="KW_DISTINCT" value="distinct" type="keyword" reserved="true"/>
-        <token index="107" id="KW_DO" value="do" type="keyword"/>
-        <token index="108" id="KW_DOCUMENT" value="document" type="keyword"/>
-        <token index="109" id="KW_DROP" value="drop" type="keyword" reserved="true"/>
-        <token index="110" id="KW_DUMP" value="dump" type="keyword"/>
-        <token index="111" id="KW_DURATION" value="duration" type="keyword"/>
-        <token index="112" id="KW_EACH" value="each" type="keyword"/>
-        <token index="113" id="KW_EDITIONABLE" value="editionable" type="keyword"/>
-        <token index="114" id="KW_ELSE" value="else" type="keyword" reserved="true"/>
-        <token index="115" id="KW_ELSIF" value="elsif" type="keyword"/>
-        <token index="116" id="KW_EMPTY" value="empty" type="keyword"/>
-        <token index="117" id="KW_ENABLE" value="enable" type="keyword"/>
-        <token index="118" id="KW_ENCODING" value="encoding" type="keyword"/>
-        <token index="119" id="KW_END" value="end" type="keyword" reserved="true"/>
-        <token index="120" id="KW_ENTITYESCAPING" value="entityescaping" type="keyword"/>
-        <token index="121" id="KW_EQUALS_PATH" value="equals_path" type="keyword"/>
-        <token index="122" id="KW_ERROR" value="error" type="keyword"/>
-        <token index="123" id="KW_ERROR_CODE" value="error_code" type="keyword"/>
-        <token index="124" id="KW_ERROR_INDEX" value="error_index" type="keyword"/>
-        <token index="125" id="KW_ERRORS" value="errors" type="keyword"/>
-        <token index="126" id="KW_ESCAPE" value="escape" type="keyword"/>
-        <token index="127" id="KW_EVALNAME" value="evalname" type="keyword"/>
-        <token index="128" id="KW_EXACT_PROB" value="exact_prob" type="keyword"/>
-        <token index="129" id="KW_EXCEPT" value="except" type="keyword"/>
-        <token index="130" id="KW_EXCEPTION" value="exception" type="keyword" reserved="true"/>
-        <token index="131" id="KW_EXCEPTION_INIT" value="exception_init" type="keyword"/>
-        <token index="132" id="KW_EXCEPTIONS" value="exceptions" type="keyword"/>
-        <token index="133" id="KW_EXCLUDE" value="exclude" type="keyword" reserved="true"/>
-        <token index="134" id="KW_EXCLUSIVE" value="exclusive" type="keyword" reserved="true"/>
-        <token index="135" id="KW_EXECUTE" value="execute" type="keyword"/>
-        <token index="136" id="KW_EXISTS" value="exists" type="keyword" reserved="true"/>
-        <token index="137" id="KW_EXIT" value="exit" type="keyword"/>
-        <token index="138" id="KW_EXTEND" value="extend" type="keyword"/>
-        <token index="139" id="KW_EXTENDS" value="extends" type="keyword"/>
-        <token index="140" id="KW_EXTERNAL" value="external" type="keyword"/>
-        <token index="141" id="KW_F_RATIO" value="f_ratio" type="keyword"/>
-        <token index="142" id="KW_FETCH" value="fetch" type="keyword" reserved="true"/>
-        <token index="143" id="KW_FINAL" value="final" type="keyword"/>
-        <token index="144" id="KW_FIRST" value="first" type="keyword"/>
-        <token index="145" id="KW_FOLLOWING" value="following" type="keyword"/>
-        <token index="146" id="KW_FOLLOWS" value="follows" type="keyword"/>
-        <token index="147" id="KW_FOR" value="for" type="keyword" reserved="true"/>
-        <token index="148" id="KW_FORALL" value="forall" type="keyword"/>
-        <token index="149" id="KW_FORCE" value="force" type="keyword"/>
-        <token index="150" id="KW_FORWARD" value="forward" type="keyword"/>
-        <token index="151" id="KW_FOUND" value="found" type="keyword"/>
-        <token index="152" id="KW_FROM" value="from" type="keyword" reserved="true"/>
-        <token index="153" id="KW_FORMAT" value="format" type="keyword"/>
-        <token index="154" id="KW_FULL" value="full" type="keyword"/>
-        <token index="155" id="KW_FUNCTION" value="function" type="keyword"/>
-        <token index="156" id="KW_GOTO" value="goto" type="keyword" reserved="true"/>
-        <token index="157" id="KW_GRANT" value="grant" type="keyword" reserved="true"/>
-        <token index="158" id="KW_GROUP" value="group" type="keyword" reserved="true"/>
-        <token index="159" id="KW_HASH" value="hash" type="keyword"/>
-        <token index="160" id="KW_HAVING" value="having" type="keyword" reserved="true"/>
-        <token index="161" id="KW_HEAP" value="heap" type="keyword"/>
-        <token index="162" id="KW_HIDE" value="hide" type="keyword"/>
-        <token index="163" id="KW_HOUR" value="hour" type="keyword"/>
-        <token index="164" id="KW_IF" value="if" type="keyword" reserved="true"/>
-        <token index="165" id="KW_IGNORE" value="ignore" type="keyword"/>
-        <token index="166" id="KW_IMMEDIATE" value="immediate" type="keyword" reserved="true"/>
-        <token index="167" id="KW_IN" value="in" type="keyword" reserved="true"/>
-        <token index="168" id="KW_INCLUDE" value="include" type="keyword"/>
-        <token index="169" id="KW_INCREMENT" value="increment" type="keyword"/>
-        <token index="170" id="KW_INDENT" value="indent" type="keyword"/>
-        <token index="171" id="KW_INDEX" value="index" type="keyword" reserved="true"/>
-        <token index="172" id="KW_INDICATOR" value="indicator" type="keyword"/>
-        <token index="173" id="KW_INDICES" value="indices" type="keyword"/>
-        <token index="174" id="KW_INFINITE" value="infinite" type="keyword"/>
-        <token index="175" id="KW_INLINE" value="inline" type="keyword"/>
-        <token index="176" id="KW_INNER" value="inner" type="keyword"/>
-        <token index="177" id="KW_INSERT" value="insert" type="keyword" reserved="true"/>
-        <token index="178" id="KW_INSERTING" value="inserting" type="keyword"/>
-        <token index="179" id="KW_INSTANTIABLE" value="instantiable" type="keyword"/>
-        <token index="180" id="KW_INSTEAD" value="instead" type="keyword"/>
-        <token index="181" id="KW_INTERFACE" value="interface" type="keyword"/>
-        <token index="182" id="KW_INTERSECT" value="intersect" type="keyword" reserved="true"/>
-        <token index="183" id="KW_INTERVAL" value="interval" type="keyword"/>
-        <token index="184" id="KW_INTO" value="into" type="keyword" reserved="true"/>
-        <token index="185" id="KW_IS" value="is" type="keyword" reserved="true"/>
-        <token index="186" id="KW_ISOLATION" value="isolation" type="keyword"/>
-        <token index="187" id="KW_ISOPEN" value="isopen" type="keyword"/>
-        <token index="188" id="KW_ITERATE" value="iterate" type="keyword"/>
-        <token index="189" id="KW_JAVA" value="java" type="keyword"/>
-        <token index="190" id="KW_JOIN" value="join" type="keyword"/>
-        <token index="191" id="KW_JSON" value="json" type="keyword"/>
-        <token index="192" id="KW_KEEP" value="keep" type="keyword"/>
-        <token index="193" id="KW_KEY" value="key" type="keyword"/>
-        <token index="194" id="KW_KEYS" value="keys" type="keyword"/>
-        <token index="195" id="KW_LANGUAGE" value="language" type="keyword"/>
-        <token index="196" id="KW_LAST" value="last" type="keyword"/>
-        <token index="197" id="KW_LEADING" value="leading" type="keyword"/>
-        <token index="198" id="KW_LEFT" value="left" type="keyword"/>
-        <token index="199" id="KW_LEVEL" value="level" type="keyword" reserved="true"/>
-        <token index="200" id="KW_LIBRARY" value="library" type="keyword"/>
-        <token index="201" id="KW_LIKE" value="like" type="keyword" reserved="true"/>
-        <token index="202" id="KW_LIKE2" value="like2" type="keyword"/>
-        <token index="203" id="KW_LIKE4" value="like4" type="keyword"/>
-        <token index="204" id="KW_LIKEC" value="likec" type="keyword"/>
-        <token index="205" id="KW_LIMIT" value="limit" type="keyword"/>
-        <token index="206" id="KW_LIMITED" value="limited" type="keyword"/>
-        <token index="207" id="KW_LOCAL" value="local" type="keyword"/>
-        <token index="208" id="KW_LOCK" value="lock" type="keyword" reserved="true"/>
-        <token index="209" id="KW_LOCKED" value="locked" type="keyword"/>
-        <token index="210" id="KW_LOG" value="log" type="keyword"/>
-        <token index="211" id="KW_LOGOFF" value="logoff" type="keyword"/>
-        <token index="212" id="KW_LOGON" value="logon" type="keyword"/>
-        <token index="213" id="KW_LOOP" value="loop" type="keyword"/>
-        <token index="214" id="KW_MAIN" value="main" type="keyword"/>
-        <token index="215" id="KW_MAP" value="map" type="keyword"/>
-        <token index="216" id="KW_MATCHED" value="matched" type="keyword"/>
-        <token index="217" id="KW_MAXLEN" value="maxlen" type="keyword"/>
-        <token index="218" id="KW_MAXVALUE" value="maxvalue" type="keyword"/>
-        <token index="219" id="KW_MEAN_SQUARES_BETWEEN" value="mean_squares_between" type="keyword"/>
-        <token index="220" id="KW_MEAN_SQUARES_WITHIN" value="mean_squares_within" type="keyword"/>
-        <token index="221" id="KW_MEASURES" value="measures" type="keyword"/>
-        <token index="222" id="KW_MEMBER" value="member" type="keyword"/>
-        <token index="223" id="KW_MERGE" value="merge" type="keyword"/>
-        <token index="224" id="KW_METADATA" value="metadata" type="keyword"/>
-        <token index="225" id="KW_MINUS" value="minus" type="keyword" reserved="true"/>
-        <token index="226" id="KW_MINUTE" value="minute" type="keyword"/>
-        <token index="227" id="KW_MINVALUE" value="minvalue" type="keyword"/>
-        <token index="228" id="KW_MISMATCH" value="mismatch" type="keyword"/>
-        <token index="229" id="KW_MLSLABEL" value="mlslabel" type="keyword"/>
-        <token index="230" id="KW_MODE" value="mode" type="keyword" reserved="true"/>
-        <token index="231" id="KW_MODEL" value="model" type="keyword"/>
-        <token index="232" id="KW_MONTH" value="month" type="keyword"/>
-        <token index="233" id="KW_MULTISET" value="multiset" type="keyword"/>
-        <token index="234" id="KW_NAME" value="name" type="keyword"/>
-        <token index="235" id="KW_NAN" value="nan" type="keyword"/>
-        <token index="236" id="KW_NATURAL" value="natural" type="keyword"/>
-        <token index="237" id="KW_NATURALN" value="naturaln" type="keyword"/>
-        <token index="238" id="KW_NAV" value="nav" type="keyword"/>
-        <token index="239" id="KW_NCHAR_CS" value="nchar_cs" type="keyword"/>
-        <token index="240" id="KW_NESTED" value="nested" type="keyword"/>
-        <token index="241" id="KW_NEW" value="new" type="keyword"/>
-        <token index="242" id="KW_NEXT" value="next" type="keyword"/>
-        <token index="243" id="KW_NEXTVAL" value="nextval" type="keyword"/>
-        <token index="244" id="KW_NO" value="no" type="keyword"/>
-        <token index="245" id="KW_NOAUDIT" value="noaudit" type="keyword"/>
-        <token index="246" id="KW_NOCOPY" value="nocopy" type="keyword"/>
-        <token index="247" id="KW_NOCYCLE" value="nocycle" type="keyword"/>
-        <token index="248" id="KW_NONE" value="none" type="keyword"/>
-        <token index="249" id="KW_NOENTITYESCAPING" value="noentityescaping" type="keyword"/>
-        <token index="250" id="KW_NONEDITIONABLE" value="noneditionable" type="keyword"/>
-        <token index="251" id="KW_NOSCHEMACHECK" value="noschemacheck" type="keyword"/>
-        <token index="252" id="KW_NOT" value="not" type="keyword" reserved="true"/>
-        <token index="253" id="KW_NOTFOUND" value="notfound" type="keyword"/>
-        <token index="254" id="KW_NOWAIT" value="nowait" type="keyword" reserved="true"/>
-        <token index="255" id="KW_NULL" value="null" type="keyword" reserved="true"/>
-        <token index="256" id="KW_NULLS" value="nulls" type="keyword"/>
-        <token index="257" id="KW_NUMBER_BASE" value="number_base" type="keyword"/>
-        <token index="258" id="KW_OBJECT" value="object" type="keyword"/>
-        <token index="259" id="KW_OCIROWID" value="ocirowid" type="keyword"/>
-        <token index="260" id="KW_OF" value="of" type="keyword" reserved="true"/>
-        <token index="261" id="KW_OFFSET" value="offset" type="keyword"/>
-        <token index="262" id="KW_OID" value="oid" type="keyword"/>
-        <token index="263" id="KW_OLD" value="old" type="keyword"/>
-        <token index="264" id="KW_ON" value="on" type="keyword" reserved="true"/>
-        <token index="265" id="KW_ONE_SIDED_PROB_OR_LESS" value="one_sided_prob_or_less" type="keyword"/>
-        <token index="266" id="KW_ONE_SIDED_PROB_OR_MORE" value="one_sided_prob_or_more" type="keyword"/>
-        <token index="267" id="KW_ONE_SIDED_SIG" value="one_sided_sig" type="keyword"/>
-        <token index="268" id="KW_ONLY" value="only" type="keyword"/>
-        <token index="269" id="KW_OPAQUE" value="opaque" type="keyword"/>
-        <token index="270" id="KW_OPEN" value="open" type="keyword"/>
-        <token index="271" id="KW_OPERATOR" value="operator" type="keyword"/>
-        <token index="272" id="KW_OPTION" value="option" type="keyword" reserved="true"/>
-        <token index="273" id="KW_OR" value="or" type="keyword" reserved="true"/>
-        <token index="274" id="KW_ORDER" value="order" type="keyword" reserved="true"/>
-        <token index="275" id="KW_ORDINALITY" value="ordinality" type="keyword"/>
-        <token index="276" id="KW_ORGANIZATION" value="organization" type="keyword"/>
-        <token index="277" id="KW_OTHERS" value="others" type="keyword"/>
-        <token index="278" id="KW_OUT" value="out" type="keyword"/>
-        <token index="279" id="KW_OUTER" value="outer" type="keyword"/>
-        <token index="280" id="KW_OVER" value="over" type="keyword"/>
-        <token index="281" id="KW_OVERFLOW" value="overflow" type="keyword"/>
-        <token index="282" id="KW_OVERLAPS" value="overlaps" type="keyword"/>
-        <token index="283" id="KW_OVERRIDING" value="overriding" type="keyword"/>
-        <token index="284" id="KW_PACKAGE" value="package" type="keyword"/>
-        <token index="285" id="KW_PARALLEL_ENABLE" value="parallel_enable" type="keyword"/>
-        <token index="286" id="KW_PARAMETERS" value="parameters" type="keyword"/>
-        <token index="287" id="KW_PARENT" value="parent" type="keyword"/>
-        <token index="288" id="KW_PARTITION" value="partition" type="keyword"/>
-        <token index="289" id="KW_PASSING" value="passing" type="keyword"/>
-        <token index="290" id="KW_PATH" value="path" type="keyword"/>
-        <token index="291" id="KW_PCTFREE" value="pctfree" type="keyword" reserved="true"/>
-        <token index="292" id="KW_PERCENT" value="percent" type="keyword"/>
-        <token index="293" id="KW_PHI_COEFFICIENT" value="phi_coefficient" type="keyword"/>
-        <token index="294" id="KW_PIPE" value="pipe" type="keyword"/>
-        <token index="295" id="KW_PIPELINED" value="pipelined" type="keyword"/>
-        <token index="296" id="KW_PIVOT" value="pivot" type="keyword"/>
-        <token index="297" id="KW_PLUGGABLE" value="pluggable" type="keyword"/>
-        <token index="298" id="KW_POSITIVE" value="positive" type="keyword"/>
-        <token index="299" id="KW_POSITIVEN" value="positiven" type="keyword"/>
-        <token index="300" id="KW_POWER" value="power" type="keyword"/>
-        <token index="301" id="KW_PRAGMA" value="pragma" type="keyword"/>
-        <token index="302" id="KW_PRECEDING" value="preceding" type="keyword"/>
-        <token index="303" id="KW_PRECEDES" value="precedes" type="keyword"/>
-        <token index="304" id="KW_PRESENT" value="present" type="keyword"/>
-        <token index="305" id="KW_PRETTY" value="pretty" type="keyword"/>
-        <token index="306" id="KW_PRIOR" value="prior" type="keyword" reserved="true"/>
-        <token index="307" id="KW_PRIVATE" value="private" type="keyword"/>
-        <token index="308" id="KW_PROCEDURE" value="procedure" type="keyword" reserved="true"/>
-        <token index="309" id="KW_PUBLIC" value="public" type="keyword" reserved="true"/>
-        <token index="310" id="KW_RAISE" value="raise" type="keyword"/>
-        <token index="311" id="KW_RANGE" value="range" type="keyword" reserved="true"/>
-        <token index="312" id="KW_READ" value="read" type="keyword"/>
-        <token index="313" id="KW_RECORD" value="record" type="keyword" reserved="true"/>
-        <token index="314" id="KW_REF" value="ref" type="keyword"/>
-        <token index="315" id="KW_REFERENCE" value="reference" type="keyword"/>
-        <token index="316" id="KW_REFERENCING" value="referencing" type="keyword"/>
-        <token index="317" id="KW_REGEXP_LIKE" value="regexp_like" type="keyword"/>
-        <token index="318" id="KW_REJECT" value="reject" type="keyword"/>
-        <token index="319" id="KW_RELEASE" value="release" type="keyword"/>
-        <token index="320" id="KW_RELIES_ON" value="relies_on" type="keyword"/>
-        <token index="321" id="KW_REMAINDER" value="remainder" type="keyword"/>
-        <token index="322" id="KW_RENAME" value="rename" type="keyword"/>
-        <token index="323" id="KW_REPLACE" value="replace" type="keyword"/>
-        <token index="324" id="KW_RESTRICT_REFERENCES" value="restrict_references" type="keyword"/>
-        <token index="325" id="KW_RESULT" value="result" type="keyword"/>
-        <token index="326" id="KW_RESULT_CACHE" value="result_cache" type="keyword"/>
-        <token index="327" id="KW_RETURN" value="return" type="keyword"/>
-        <token index="328" id="KW_RETURNING" value="returning" type="keyword"/>
-        <token index="329" id="KW_REVERSE" value="reverse" type="keyword"/>
-        <token index="330" id="KW_REVOKE" value="revoke" type="keyword" reserved="true"/>
-        <token index="331" id="KW_RIGHT" value="right" type="keyword"/>
-        <token index="332" id="KW_RNDS" value="rnds" type="keyword"/>
-        <token index="333" id="KW_RNPS" value="rnps" type="keyword"/>
-        <token index="334" id="KW_ROLLBACK" value="rollback" type="keyword"/>
-        <token index="335" id="KW_ROLLUP" value="rollup" type="keyword"/>
-        <token index="336" id="KW_ROW" value="row" type="keyword" reserved="true"/>
-        <token index="337" id="KW_ROWCOUNT" value="rowcount" type="keyword"/>
-        <token index="338" id="KW_ROWNUM" value="rownum" type="keyword" reserved="true"/>
-        <token index="339" id="KW_ROWS" value="rows" type="keyword"/>
-        <token index="340" id="KW_ROWTYPE" value="rowtype" type="keyword"/>
-        <token index="341" id="KW_RULES" value="rules" type="keyword"/>
-        <token index="342" id="KW_SAMPLE" value="sample" type="keyword"/>
-        <token index="343" id="KW_SAVE" value="save" type="keyword"/>
-        <token index="344" id="KW_SAVEPOINT" value="savepoint" type="keyword"/>
-        <token index="345" id="KW_SCHEMA" value="schema" type="keyword"/>
-        <token index="346" id="KW_SCHEMACHECK" value="schemacheck" type="keyword"/>
-        <token index="347" id="KW_SCN" value="scn" type="keyword"/>
-        <token index="348" id="KW_SECOND" value="second" type="keyword"/>
-        <token index="349" id="KW_SEED" value="seed" type="keyword"/>
-        <token index="350" id="KW_SEGMENT" value="segment" type="keyword"/>
-        <token index="351" id="KW_SELECT" value="select" type="keyword" reserved="true"/>
-        <token index="352" id="KW_SELF" value="self" type="keyword"/>
-        <token index="353" id="KW_SEPARATE" value="separate" type="keyword"/>
-        <token index="354" id="KW_SEQUENTIAL" value="sequential" type="keyword"/>
-        <token index="355" id="KW_SERIALIZABLE" value="serializable" type="keyword"/>
-        <token index="356" id="KW_SERIALLY_REUSABLE" value="serially_reusable" type="keyword"/>
-        <token index="357" id="KW_SERVERERROR" value="servererror" type="keyword"/>
-        <token index="358" id="KW_SET" value="set" type="keyword" reserved="true"/>
-        <token index="359" id="KW_SETS" value="sets" type="keyword"/>
-        <token index="360" id="KW_SHARE" value="share" type="keyword" reserved="true"/>
-        <token index="361" id="KW_SHARING" value="sharing" type="keyword"/>
-        <token index="362" id="KW_SHOW" value="show" type="keyword"/>
-        <token index="363" id="KW_SHUTDOWN" value="shutdown" type="keyword"/>
-        <token index="364" id="KW_SIBLINGS" value="siblings" type="keyword"/>
-        <token index="365" id="KW_SIG" value="sig" type="keyword"/>
-        <token index="366" id="KW_SINGLE" value="single" type="keyword"/>
-        <token index="367" id="KW_SIZE" value="size" type="keyword" reserved="true"/>
-        <token index="368" id="KW_SKIP" value="skip" type="keyword"/>
-        <token index="369" id="KW_SOME" value="some" type="keyword"/>
-        <token index="370" id="KW_SPACE" value="space" type="keyword"/>
-        <token index="371" id="KW_SQL" value="sql" type="keyword" reserved="true"/>
-        <token index="372" id="KW_SQLCODE" value="sqlcode" type="keyword"/>
-        <token index="373" id="KW_SQLERRM" value="sqlerrm" type="keyword"/>
-        <token index="374" id="KW_STANDALONE" value="standalone" type="keyword"/>
-        <token index="375" id="KW_START" value="start" type="keyword" reserved="true"/>
-        <token index="376" id="KW_STARTUP" value="startup" type="keyword"/>
-        <token index="377" id="KW_STATEMENT" value="statement" type="keyword"/>
-        <token index="378" id="KW_STATIC" value="static" type="keyword"/>
-        <token index="379" id="KW_STATISTIC" value="statistic" type="keyword"/>
-        <token index="380" id="KW_STATISTICS" value="statistics" type="keyword"/>
-        <token index="381" id="KW_STRICT" value="strict" type="keyword"/>
-        <token index="382" id="KW_STRUCT" value="struct" type="keyword"/>
-        <token index="383" id="KW_SUBMULTISET" value="submultiset" type="keyword"/>
-        <token index="384" id="KW_SUBPARTITION" value="subpartition" type="keyword"/>
-        <token index="385" id="KW_SUBTYPE" value="subtype" type="keyword" reserved="true"/>
-        <token index="386" id="KW_SUCCESSFUL" value="successful" type="keyword" reserved="true"/>
-        <token index="387" id="KW_SUM_SQUARES_BETWEEN" value="sum_squares_between" type="keyword"/>
-        <token index="388" id="KW_SUM_SQUARES_WITHIN" value="sum_squares_within" type="keyword"/>
-        <token index="389" id="KW_SUSPEND" value="suspend" type="keyword"/>
-        <token index="390" id="KW_SYNONYM" value="synonym" type="keyword" reserved="true"/>
-        <token index="391" id="KW_TABLE" value="table" type="keyword" reserved="true"/>
-        <token index="392" id="KW_TDO" value="tdo" type="keyword"/>
-        <token index="393" id="KW_THEN" value="then" type="keyword" reserved="true"/>
-        <token index="394" id="KW_TIES" value="ties" type="keyword"/>
-        <token index="395" id="KW_TIME" value="time" type="keyword"/>
-        <token index="396" id="KW_TIMEZONE_ABBR" value="timezone_abbr" type="keyword"/>
-        <token index="397" id="KW_TIMEZONE_HOUR" value="timezone_hour" type="keyword"/>
-        <token index="398" id="KW_TIMEZONE_MINUTE" value="timezone_minute" type="keyword"/>
-        <token index="399" id="KW_TIMEZONE_REGION" value="timezone_region" type="keyword"/>
-        <token index="400" id="KW_TO" value="to" type="keyword" reserved="true"/>
-        <token index="401" id="KW_TRAILING" value="trailing" type="keyword"/>
-        <token index="402" id="KW_TRANSACTION" value="transaction" type="keyword"/>
-        <token index="403" id="KW_TRIGGER" value="trigger" type="keyword" reserved="true"/>
-        <token index="404" id="KW_TRUNCATE" value="truncate" type="keyword"/>
-        <token index="405" id="KW_TRUST" value="trust" type="keyword"/>
-        <token index="406" id="KW_TWO_SIDED_PROB" value="two_sided_prob" type="keyword"/>
-        <token index="407" id="KW_TWO_SIDED_SIG" value="two_sided_sig" type="keyword"/>
-        <token index="408" id="KW_TYPE" value="type" type="keyword"/>
-        <token index="409" id="KW_U_STATISTIC" value="u_statistic" type="keyword"/>
-        <token index="410" id="KW_UNBOUNDED" value="unbounded" type="keyword"/>
-        <token index="411" id="KW_UNCONDITIONAL" value="unconditional" type="keyword"/>
-        <token index="412" id="KW_UNDER" value="under" type="keyword"/>
-        <token index="413" id="KW_UNDER_PATH" value="under_path" type="keyword"/>
-        <token index="414" id="KW_UNION" value="union" type="keyword" reserved="true"/>
-        <token index="415" id="KW_UNIQUE" value="unique" type="keyword" reserved="true"/>
-        <token index="416" id="KW_UNLIMITED" value="unlimited" type="keyword"/>
-        <token index="417" id="KW_UNPIVOT" value="unpivot" type="keyword"/>
-        <token index="418" id="KW_UNPLUG" value="unplug" type="keyword"/>
-        <token index="419" id="KW_UNTIL" value="until" type="keyword"/>
-        <token index="420" id="KW_UPDATE" value="update" type="keyword" reserved="true"/>
-        <token index="421" id="KW_UPDATED" value="updated" type="keyword"/>
-        <token index="422" id="KW_UPDATING" value="updating" type="keyword"/>
-        <token index="423" id="KW_UPSERT" value="upsert" type="keyword"/>
-        <token index="424" id="KW_USE" value="use" type="keyword" reserved="true"/>
-        <token index="425" id="KW_USER" value="user" type="keyword" reserved="true"/>
-        <token index="426" id="KW_USING" value="using" type="keyword"/>
-        <token index="427" id="KW_VALIDATE" value="validate" type="keyword" reserved="true"/>
-        <token index="428" id="KW_VALUE" value="value" type="keyword"/>
-        <token index="429" id="KW_VALUES" value="values" type="keyword" reserved="true"/>
-        <token index="430" id="KW_VARIABLE" value="variable" type="keyword"/>
-        <token index="431" id="KW_VARRAY" value="varray" type="keyword"/>
-        <token index="432" id="KW_VARYING" value="varying" type="keyword"/>
-        <token index="433" id="KW_VERSION" value="version" type="keyword"/>
-        <token index="434" id="KW_VERSIONS" value="versions" type="keyword"/>
-        <token index="435" id="KW_VIEW" value="view" type="keyword" reserved="true"/>
-        <token index="436" id="KW_WAIT" value="wait" type="keyword"/>
-        <token index="437" id="KW_WELLFORMED" value="wellformed" type="keyword"/>
-        <token index="438" id="KW_WHEN" value="when" type="keyword" reserved="true"/>
-        <token index="439" id="KW_WHENEVER" value="whenever" type="keyword" reserved="true"/>
-        <token index="440" id="KW_WHERE" value="where" type="keyword" reserved="true"/>
-        <token index="441" id="KW_WHILE" value="while" type="keyword"/>
-        <token index="442" id="KW_WITH" value="with" type="keyword" reserved="true"/>
-        <token index="443" id="KW_WITHIN" value="within" type="keyword"/>
-        <token index="444" id="KW_WITHOUT" value="without" type="keyword"/>
-        <token index="445" id="KW_WNDS" value="wnds" type="keyword"/>
-        <token index="446" id="KW_WNPS" value="wnps" type="keyword"/>
-        <token index="447" id="KW_WORK" value="work" type="keyword"/>
-        <token index="448" id="KW_WRITE" value="write" type="keyword"/>
-        <token index="449" id="KW_WRAPPED" value="wrapped" type="keyword"/>
-        <token index="450" id="KW_WRAPPER" value="wrapper" type="keyword"/>
-        <token index="451" id="KW_XML" value="xml" type="keyword"/>
-        <token index="452" id="KW_XMLNAMESPACES" value="xmlnamespaces" type="keyword"/>
-        <token index="453" id="KW_YEAR" value="year" type="keyword"/>
-        <token index="454" id="KW_YES" value="yes" type="keyword"/>
-        <token index="455" id="KW_ZONE" value="zone" type="keyword"/>
-        <token index="456" id="KW_FALSE" value="false" type="keyword" reserved="true"/>
-        <token index="457" id="KW_TRUE" value="true" type="keyword" reserved="true"/>
+        <!-- MARKER_BEGIN_DATATYPES -->
+        <token index="0" id="DT_BFILE" value="bfile" category="datatype"/>
+        <token index="1" id="DT_BINARY_DOUBLE" value="binary_double" category="datatype"/>
+        <token index="2" id="DT_BINARY_FLOAT" value="binary_float" category="datatype"/>
+        <token index="3" id="DT_BINARY_INTEGER" value="binary_integer" category="datatype"/>
+        <token index="4" id="DT_BLOB" value="blob" category="datatype"/>
+        <token index="5" id="DT_BOOLEAN" value="boolean" category="datatype"/>
+        <token index="6" id="DT_BYTE" value="byte" category="datatype"/>
+        <token index="7" id="DT_CHAR" value="char" category="datatype" reserved="true"/>
+        <token index="8" id="DT_CHARACTER" value="character" category="datatype"/>
+        <token index="9" id="DT_CHARACTER_VARYING" value="character varying" category="datatype"/>
+        <token index="10" id="DT_CLOB" value="clob" category="datatype"/>
+        <token index="11" id="DT_DATE" value="date" category="datatype" reserved="true"/>
+        <token index="12" id="DT_DECIMAL" value="decimal" category="datatype" reserved="true"/>
+        <token index="13" id="DT_DOUBLE_PRECISION" value="double precision" category="datatype"/>
+        <token index="14" id="DT_FLOAT" value="float" category="datatype" reserved="true"/>
+        <token index="15" id="DT_FLOAT32" value="float32" category="datatype"/>
+        <token index="16" id="DT_FLOAT64" value="float64" category="datatype"/>
+        <token index="17" id="DT_INT" value="int" category="datatype"/>
+        <token index="18" id="DT_INT8" value="int8" category="datatype"/>
+        <token index="19" id="DT_INTEGER" value="integer" category="datatype"/>
+        <token index="20" id="DT_LONG" value="long" category="datatype" reserved="true"/>
+        <token index="21" id="DT_LONG_RAW" value="long raw" category="datatype"/>
+        <token index="22" id="DT_LONG_VARCHAR" value="long varchar" category="datatype"/>
+        <token index="23" id="DT_NATIONAL_CHAR" value="national char" category="datatype"/>
+        <token index="24" id="DT_NATIONAL_CHAR_VARYING" value="national char varying" category="datatype"/>
+        <token index="25" id="DT_NATIONAL_CHARACTER" value="national character" category="datatype"/>
+        <token index="26" id="DT_NATIONAL_CHARACTER_VARYING" value="national character varying" category="datatype"/>
+        <token index="27" id="DT_NCHAR" value="nchar" category="datatype"/>
+        <token index="28" id="DT_NCHAR_VARYING" value="nchar varying" category="datatype"/>
+        <token index="29" id="DT_NCLOB" value="nclob" category="datatype"/>
+        <token index="30" id="DT_NUMBER" value="number" category="datatype" reserved="true"/>
+        <token index="31" id="DT_NUMERIC" value="numeric" category="datatype"/>
+        <token index="32" id="DT_NVARCHAR2" value="nvarchar2" category="datatype"/>
+        <token index="33" id="DT_PLS_INTEGER" value="pls_integer" category="datatype"/>
+        <token index="34" id="DT_RAW" value="raw" category="datatype" reserved="true"/>
+        <token index="35" id="DT_REAL" value="real" category="datatype"/>
+        <token index="36" id="DT_ROWID" value="rowid" category="datatype" reserved="true"/>
+        <token index="37" id="DT_SMALLINT" value="smallint" category="datatype" reserved="true"/>
+        <token index="38" id="DT_STRING" value="string" category="datatype"/>
+        <token index="39" id="DT_TIMESTAMP" value="timestamp" category="datatype"/>
+        <token index="40" id="DT_UROWID" value="urowid" category="datatype"/>
+        <token index="41" id="DT_VARCHAR" value="varchar" category="datatype" reserved="true"/>
+        <token index="42" id="DT_VARCHAR2" value="varchar2" category="datatype" reserved="true"/>
+        <token index="43" id="DT_VECTOR" value="vector" category="datatype"/>
+        <token index="44" id="DT_WITH_LOCAL_TIME_ZONE" value="with local time zone" category="datatype"/>
+        <token index="45" id="DT_WITH_TIME_ZONE" value="with time zone" category="datatype"/>
+        <!-- MARKER_END_DATATYPES -->
 
 
 
 
+        <!-- MARKER_BEGIN_KEYWORDS -->
+        <token index="0" id="KW_$ELSE" value="$else" category="keyword" reserved="true"/>
+        <token index="1" id="KW_$ELSIF" value="$elsif" category="keyword" reserved="true"/>
+        <token index="2" id="KW_$END" value="$end" category="keyword" reserved="true"/>
+        <token index="3" id="KW_$IF" value="$if" category="keyword" reserved="true"/>
+        <token index="4" id="KW_$THEN" value="$then" category="keyword" reserved="true"/>
+        <token index="5" id="KW_A_SET" value="a set" category="keyword"/>
+        <token index="6" id="KW_ABSENT" value="absent" category="keyword"/>
+        <token index="7" id="KW_ACCESSIBLE" value="accessible" category="keyword"/>
+        <token index="8" id="KW_AFTER" value="after" category="keyword"/>
+        <token index="9" id="KW_AGENT" value="agent" category="keyword"/>
+        <token index="10" id="KW_AGGREGATE" value="aggregate" category="keyword"/>
+        <token index="11" id="KW_ALL" value="all" category="keyword" reserved="true"/>
+        <token index="12" id="KW_ALTER" value="alter" category="keyword" reserved="true"/>
+        <token index="13" id="KW_ANALYZE" value="analyze" category="keyword"/>
+        <token index="14" id="KW_AND" value="and" category="keyword" reserved="true"/>
+        <token index="15" id="KW_ANY" value="any" category="keyword" reserved="true"/>
+        <token index="16" id="KW_APPLY" value="apply" category="keyword"/>
+        <token index="17" id="KW_ARRAY" value="array" category="keyword" reserved="true"/>
+        <token index="18" id="KW_AS" value="as" category="keyword" reserved="true"/>
+        <token index="19" id="KW_ASC" value="asc" category="keyword" reserved="true"/>
+        <token index="20" id="KW_ASSOCIATE" value="associate" category="keyword"/>
+        <token index="21" id="KW_AT" value="at" category="keyword"/>
+        <token index="22" id="KW_AUDIT" value="audit" category="keyword"/>
+        <token index="23" id="KW_AUTHID" value="authid" category="keyword"/>
+        <token index="24" id="KW_AUTOMATIC" value="automatic" category="keyword"/>
+        <token index="25" id="KW_AUTONOMOUS_TRANSACTION" value="autonomous_transaction" category="keyword"/>
+        <token index="26" id="KW_BEFORE" value="before" category="keyword"/>
+        <token index="27" id="KW_BEGIN" value="begin" category="keyword" reserved="true"/>
+        <token index="28" id="KW_BETWEEN" value="between" category="keyword" reserved="true"/>
+        <token index="29" id="KW_BLOCK" value="block" category="keyword"/>
+        <token index="30" id="KW_BODY" value="body" category="keyword"/>
+        <token index="31" id="KW_BOTH" value="both" category="keyword"/>
+        <token index="32" id="KW_BULK" value="bulk" category="keyword"/>
+        <token index="33" id="KW_BULK_EXCEPTIONS" value="bulk_exceptions" category="keyword"/>
+        <token index="34" id="KW_BULK_ROWCOUNT" value="bulk_rowcount" category="keyword"/>
+        <token index="35" id="KW_BY" value="by" category="keyword" reserved="true"/>
+        <token index="36" id="KW_C" value="c" category="keyword"/>
+        <token index="37" id="KW_CALL" value="call" category="keyword"/>
+        <token index="38" id="KW_CANONICAL" value="canonical" category="keyword"/>
+        <token index="39" id="KW_CASE" value="case" category="keyword"/>
+        <token index="40" id="KW_CHARSETFORM" value="charsetform" category="keyword"/>
+        <token index="41" id="KW_CHARSETID" value="charsetid" category="keyword"/>
+        <token index="42" id="KW_CHAR_BASE" value="char_base" category="keyword"/>
+        <token index="43" id="KW_CHAR_CS" value="char_cs" category="keyword"/>
+        <token index="44" id="KW_CHECK" value="check" category="keyword" reserved="true"/>
+        <token index="45" id="KW_CHISQ_DF" value="chisq_df" category="keyword"/>
+        <token index="46" id="KW_CHISQ_OBS" value="chisq_obs" category="keyword"/>
+        <token index="47" id="KW_CHISQ_SIG" value="chisq_sig" category="keyword"/>
+        <token index="48" id="KW_CLONE" value="clone" category="keyword"/>
+        <token index="49" id="KW_CLOSE" value="close" category="keyword"/>
+        <token index="50" id="KW_CLUSTER" value="cluster" category="keyword" reserved="true"/>
+        <token index="51" id="KW_COALESCE" value="coalesce" category="keyword"/>
+        <token index="52" id="KW_COEFFICIENT" value="coefficient" category="keyword"/>
+        <token index="53" id="KW_COHENS_K" value="cohens_k" category="keyword"/>
+        <token index="54" id="KW_COLLATION" value="collation" category="keyword"/>
+        <token index="55" id="KW_COLLECT" value="collect" category="keyword"/>
+        <token index="56" id="KW_COLUMNS" value="columns" category="keyword" reserved="true"/>
+        <token index="57" id="KW_COMMENT" value="comment" category="keyword"/>
+        <token index="58" id="KW_COMMIT" value="commit" category="keyword"/>
+        <token index="59" id="KW_COMMITTED" value="committed" category="keyword"/>
+        <token index="60" id="KW_COMPATIBILITY" value="compatibility" category="keyword"/>
+        <token index="61" id="KW_COMPOUND" value="compound" category="keyword"/>
+        <token index="62" id="KW_COMPRESS" value="compress" category="keyword" reserved="true"/>
+        <token index="63" id="KW_CONDITIONAL" value="conditional" category="keyword" reserved="true"/>
+        <token index="64" id="KW_CONNECT" value="connect" category="keyword" reserved="true"/>
+        <token index="65" id="KW_CONSTANT" value="constant" category="keyword"/>
+        <token index="66" id="KW_CONSTRAINT" value="constraint" category="keyword"/>
+        <token index="67" id="KW_CONSTRUCTOR" value="constructor" category="keyword"/>
+        <token index="68" id="KW_CONTAINER" value="container" category="keyword"/>
+        <token index="69" id="KW_CONTENT" value="content" category="keyword"/>
+        <token index="70" id="KW_CONTEXT" value="context" category="keyword"/>
+        <token index="71" id="KW_CONT_COEFFICIENT" value="cont_coefficient" category="keyword"/>
+        <token index="72" id="KW_CONVERSION" value="conversion" category="keyword"/>
+        <token index="73" id="KW_COUNT" value="count" category="keyword"/>
+        <token index="74" id="KW_CRAMERS_V" value="cramers_v" category="keyword"/>
+        <token index="75" id="KW_CREATE" value="create" category="keyword" reserved="true"/>
+        <token index="76" id="KW_CROSS" value="cross" category="keyword"/>
+        <token index="77" id="KW_CROSSEDITION" value="crossedition" category="keyword"/>
+        <token index="78" id="KW_CUBE" value="cube" category="keyword"/>
+        <token index="79" id="KW_CURRENT" value="current" category="keyword" reserved="true"/>
+        <token index="80" id="KW_CURRENT_USER" value="current_user" category="keyword"/>
+        <token index="81" id="KW_CURRVAL" value="currval" category="keyword"/>
+        <token index="82" id="KW_CURSOR" value="cursor" category="keyword"/>
+        <token index="83" id="KW_DATABASE" value="database" category="keyword"/>
+        <token index="84" id="KW_DAY" value="day" category="keyword"/>
+        <token index="85" id="KW_DB_ROLE_CHANGE" value="db_role_change" category="keyword"/>
+        <token index="86" id="KW_DDL" value="ddl" category="keyword"/>
+        <token index="87" id="KW_DECLARE" value="declare" category="keyword"/>
+        <token index="88" id="KW_DECREMENT" value="decrement" category="keyword"/>
+        <token index="89" id="KW_DEFAULT" value="default" category="keyword" reserved="true"/>
+        <token index="90" id="KW_DEFAULTS" value="defaults" category="keyword"/>
+        <token index="91" id="KW_DEFINER" value="definer" category="keyword"/>
+        <token index="92" id="KW_DELETE" value="delete" category="keyword" reserved="true"/>
+        <token index="93" id="KW_DELETING" value="deleting" category="keyword"/>
+        <token index="94" id="KW_DENSE_RANK" value="dense_rank" category="keyword"/>
+        <token index="95" id="KW_DEPRECATE" value="deprecate" category="keyword"/>
+        <token index="96" id="KW_DESC" value="desc" category="keyword" reserved="true"/>
+        <token index="97" id="KW_DETERMINISTIC" value="deterministic" category="keyword"/>
+        <token index="98" id="KW_DF" value="df" category="keyword"/>
+        <token index="99" id="KW_DF_BETWEEN" value="df_between" category="keyword"/>
+        <token index="100" id="KW_DF_DEN" value="df_den" category="keyword"/>
+        <token index="101" id="KW_DF_NUM" value="df_num" category="keyword"/>
+        <token index="102" id="KW_DF_WITHIN" value="df_within" category="keyword"/>
+        <token index="103" id="KW_DIMENSION" value="dimension" category="keyword"/>
+        <token index="104" id="KW_DISABLE" value="disable" category="keyword"/>
+        <token index="105" id="KW_DISASSOCIATE" value="disassociate" category="keyword"/>
+        <token index="106" id="KW_DISTINCT" value="distinct" category="keyword" reserved="true"/>
+        <token index="107" id="KW_DO" value="do" category="keyword"/>
+        <token index="108" id="KW_DOCUMENT" value="document" category="keyword"/>
+        <token index="109" id="KW_DROP" value="drop" category="keyword" reserved="true"/>
+        <token index="110" id="KW_DUMP" value="dump" category="keyword"/>
+        <token index="111" id="KW_DURATION" value="duration" category="keyword"/>
+        <token index="112" id="KW_EACH" value="each" category="keyword"/>
+        <token index="113" id="KW_EDITIONABLE" value="editionable" category="keyword"/>
+        <token index="114" id="KW_ELSE" value="else" category="keyword" reserved="true"/>
+        <token index="115" id="KW_ELSIF" value="elsif" category="keyword"/>
+        <token index="116" id="KW_EMPTY" value="empty" category="keyword"/>
+        <token index="117" id="KW_ENABLE" value="enable" category="keyword"/>
+        <token index="118" id="KW_ENCODING" value="encoding" category="keyword"/>
+        <token index="119" id="KW_END" value="end" category="keyword" reserved="true"/>
+        <token index="120" id="KW_ENTITYESCAPING" value="entityescaping" category="keyword"/>
+        <token index="121" id="KW_EQUALS_PATH" value="equals_path" category="keyword"/>
+        <token index="122" id="KW_ERROR" value="error" category="keyword"/>
+        <token index="123" id="KW_ERRORS" value="errors" category="keyword"/>
+        <token index="124" id="KW_ERROR_CODE" value="error_code" category="keyword"/>
+        <token index="125" id="KW_ERROR_INDEX" value="error_index" category="keyword"/>
+        <token index="126" id="KW_ESCAPE" value="escape" category="keyword"/>
+        <token index="127" id="KW_EVALNAME" value="evalname" category="keyword"/>
+        <token index="128" id="KW_EXACT_PROB" value="exact_prob" category="keyword"/>
+        <token index="129" id="KW_EXCEPT" value="except" category="keyword"/>
+        <token index="130" id="KW_EXCEPTION" value="exception" category="keyword" reserved="true"/>
+        <token index="131" id="KW_EXCEPTIONS" value="exceptions" category="keyword"/>
+        <token index="132" id="KW_EXCEPTION_INIT" value="exception_init" category="keyword"/>
+        <token index="133" id="KW_EXCLUDE" value="exclude" category="keyword"/>
+        <token index="134" id="KW_EXCLUSIVE" value="exclusive" category="keyword" reserved="true"/>
+        <token index="135" id="KW_EXECUTE" value="execute" category="keyword"/>
+        <token index="136" id="KW_EXISTS" value="exists" category="keyword" reserved="true"/>
+        <token index="137" id="KW_EXIT" value="exit" category="keyword"/>
+        <token index="138" id="KW_EXTEND" value="extend" category="keyword"/>
+        <token index="139" id="KW_EXTENDS" value="extends" category="keyword"/>
+        <token index="140" id="KW_EXTERNAL" value="external" category="keyword"/>
+        <token index="141" id="KW_FALSE" value="false" category="keyword" reserved="true"/>
+        <token index="142" id="KW_FETCH" value="fetch" category="keyword" reserved="true"/>
+        <token index="143" id="KW_FINAL" value="final" category="keyword"/>
+        <token index="144" id="KW_FIRST" value="first" category="keyword"/>
+        <token index="145" id="KW_FOLLOWING" value="following" category="keyword"/>
+        <token index="146" id="KW_FOLLOWS" value="follows" category="keyword"/>
+        <token index="147" id="KW_FOR" value="for" category="keyword" reserved="true"/>
+        <token index="148" id="KW_FORALL" value="forall" category="keyword"/>
+        <token index="149" id="KW_FORCE" value="force" category="keyword"/>
+        <token index="150" id="KW_FORMAT" value="format" category="keyword"/>
+        <token index="151" id="KW_FORWARD" value="forward" category="keyword"/>
+        <token index="152" id="KW_FOUND" value="found" category="keyword"/>
+        <token index="153" id="KW_FROM" value="from" category="keyword" reserved="true"/>
+        <token index="154" id="KW_FULL" value="full" category="keyword"/>
+        <token index="155" id="KW_FUNCTION" value="function" category="keyword"/>
+        <token index="156" id="KW_F_RATIO" value="f_ratio" category="keyword"/>
+        <token index="157" id="KW_GOTO" value="goto" category="keyword" reserved="true"/>
+        <token index="158" id="KW_GRANT" value="grant" category="keyword" reserved="true"/>
+        <token index="159" id="KW_GROUP" value="group" category="keyword" reserved="true"/>
+        <token index="160" id="KW_HASH" value="hash" category="keyword"/>
+        <token index="161" id="KW_HAVING" value="having" category="keyword" reserved="true"/>
+        <token index="162" id="KW_HEAP" value="heap" category="keyword"/>
+        <token index="163" id="KW_HIDE" value="hide" category="keyword"/>
+        <token index="164" id="KW_HOUR" value="hour" category="keyword"/>
+        <token index="165" id="KW_IF" value="if" category="keyword" reserved="true"/>
+        <token index="166" id="KW_IGNORE" value="ignore" category="keyword"/>
+        <token index="167" id="KW_IMMEDIATE" value="immediate" category="keyword" reserved="true"/>
+        <token index="168" id="KW_IN" value="in" category="keyword" reserved="true"/>
+        <token index="169" id="KW_INCLUDE" value="include" category="keyword"/>
+        <token index="170" id="KW_INCREMENT" value="increment" category="keyword"/>
+        <token index="171" id="KW_INDENT" value="indent" category="keyword"/>
+        <token index="172" id="KW_INDEX" value="index" category="keyword" reserved="true"/>
+        <token index="173" id="KW_INDICATOR" value="indicator" category="keyword"/>
+        <token index="174" id="KW_INDICES" value="indices" category="keyword"/>
+        <token index="175" id="KW_INFINITE" value="infinite" category="keyword"/>
+        <token index="176" id="KW_INLINE" value="inline" category="keyword"/>
+        <token index="177" id="KW_INNER" value="inner" category="keyword"/>
+        <token index="178" id="KW_INSERT" value="insert" category="keyword" reserved="true"/>
+        <token index="179" id="KW_INSERTING" value="inserting" category="keyword"/>
+        <token index="180" id="KW_INSTANTIABLE" value="instantiable" category="keyword"/>
+        <token index="181" id="KW_INSTEAD" value="instead" category="keyword"/>
+        <token index="182" id="KW_INTERFACE" value="interface" category="keyword"/>
+        <token index="183" id="KW_INTERSECT" value="intersect" category="keyword" reserved="true"/>
+        <token index="184" id="KW_INTERVAL" value="interval" category="keyword"/>
+        <token index="185" id="KW_INTO" value="into" category="keyword" reserved="true"/>
+        <token index="186" id="KW_IS" value="is" category="keyword" reserved="true"/>
+        <token index="187" id="KW_ISOLATION" value="isolation" category="keyword"/>
+        <token index="188" id="KW_ISOPEN" value="isopen" category="keyword"/>
+        <token index="189" id="KW_ITERATE" value="iterate" category="keyword"/>
+        <token index="190" id="KW_JAVA" value="java" category="keyword"/>
+        <token index="191" id="KW_JOIN" value="join" category="keyword"/>
+        <token index="192" id="KW_JSON" value="json" category="keyword"/>
+        <token index="193" id="KW_KEEP" value="keep" category="keyword"/>
+        <token index="194" id="KW_KEY" value="key" category="keyword"/>
+        <token index="195" id="KW_KEYS" value="keys" category="keyword"/>
+        <token index="196" id="KW_LANGUAGE" value="language" category="keyword"/>
+        <token index="197" id="KW_LAST" value="last" category="keyword"/>
+        <token index="198" id="KW_LEADING" value="leading" category="keyword"/>
+        <token index="199" id="KW_LEFT" value="left" category="keyword"/>
+        <token index="200" id="KW_LEVEL" value="level" category="keyword" reserved="true"/>
+        <token index="201" id="KW_LIBRARY" value="library" category="keyword"/>
+        <token index="202" id="KW_LIKE" value="like" category="keyword" reserved="true"/>
+        <token index="203" id="KW_LIKE2" value="like2" category="keyword"/>
+        <token index="204" id="KW_LIKE4" value="like4" category="keyword"/>
+        <token index="205" id="KW_LIKEC" value="likec" category="keyword"/>
+        <token index="206" id="KW_LIMIT" value="limit" category="keyword"/>
+        <token index="207" id="KW_LIMITED" value="limited" category="keyword"/>
+        <token index="208" id="KW_LOCAL" value="local" category="keyword"/>
+        <token index="209" id="KW_LOCK" value="lock" category="keyword" reserved="true"/>
+        <token index="210" id="KW_LOCKED" value="locked" category="keyword"/>
+        <token index="211" id="KW_LOG" value="log" category="keyword"/>
+        <token index="212" id="KW_LOGOFF" value="logoff" category="keyword"/>
+        <token index="213" id="KW_LOGON" value="logon" category="keyword"/>
+        <token index="214" id="KW_LOOP" value="loop" category="keyword"/>
+        <token index="215" id="KW_MAIN" value="main" category="keyword"/>
+        <token index="216" id="KW_MAP" value="map" category="keyword"/>
+        <token index="217" id="KW_MATCHED" value="matched" category="keyword"/>
+        <token index="218" id="KW_MAXLEN" value="maxlen" category="keyword"/>
+        <token index="219" id="KW_MAXVALUE" value="maxvalue" category="keyword"/>
+        <token index="220" id="KW_MEAN_SQUARES_BETWEEN" value="mean_squares_between" category="keyword"/>
+        <token index="221" id="KW_MEAN_SQUARES_WITHIN" value="mean_squares_within" category="keyword"/>
+        <token index="222" id="KW_MEASURES" value="measures" category="keyword"/>
+        <token index="223" id="KW_MEMBER" value="member" category="keyword"/>
+        <token index="224" id="KW_MERGE" value="merge" category="keyword"/>
+        <token index="225" id="KW_METADATA" value="metadata" category="keyword"/>
+        <token index="226" id="KW_MINUS" value="minus" category="keyword" reserved="true"/>
+        <token index="227" id="KW_MINUTE" value="minute" category="keyword"/>
+        <token index="228" id="KW_MINVALUE" value="minvalue" category="keyword"/>
+        <token index="229" id="KW_MISMATCH" value="mismatch" category="keyword"/>
+        <token index="230" id="KW_MLSLABEL" value="mlslabel" category="keyword"/>
+        <token index="231" id="KW_MODE" value="mode" category="keyword" reserved="true"/>
+        <token index="232" id="KW_MODEL" value="model" category="keyword"/>
+        <token index="233" id="KW_MONTH" value="month" category="keyword"/>
+        <token index="234" id="KW_MULTISET" value="multiset" category="keyword"/>
+        <token index="235" id="KW_NAME" value="name" category="keyword"/>
+        <token index="236" id="KW_NAN" value="nan" category="keyword"/>
+        <token index="237" id="KW_NATURAL" value="natural" category="keyword"/>
+        <token index="238" id="KW_NATURALN" value="naturaln" category="keyword"/>
+        <token index="239" id="KW_NAV" value="nav" category="keyword"/>
+        <token index="240" id="KW_NCHAR_CS" value="nchar_cs" category="keyword"/>
+        <token index="241" id="KW_NESTED" value="nested" category="keyword"/>
+        <token index="242" id="KW_NEW" value="new" category="keyword"/>
+        <token index="243" id="KW_NEXT" value="next" category="keyword"/>
+        <token index="244" id="KW_NEXTVAL" value="nextval" category="keyword"/>
+        <token index="245" id="KW_NO" value="no" category="keyword"/>
+        <token index="246" id="KW_NOAUDIT" value="noaudit" category="keyword"/>
+        <token index="247" id="KW_NOCOPY" value="nocopy" category="keyword"/>
+        <token index="248" id="KW_NOCYCLE" value="nocycle" category="keyword"/>
+        <token index="249" id="KW_NOENTITYESCAPING" value="noentityescaping" category="keyword"/>
+        <token index="250" id="KW_NONE" value="none" category="keyword"/>
+        <token index="251" id="KW_NONEDITIONABLE" value="noneditionable" category="keyword"/>
+        <token index="252" id="KW_NOSCHEMACHECK" value="noschemacheck" category="keyword"/>
+        <token index="253" id="KW_NOT" value="not" category="keyword" reserved="true"/>
+        <token index="254" id="KW_NOTFOUND" value="notfound" category="keyword"/>
+        <token index="255" id="KW_NOWAIT" value="nowait" category="keyword" reserved="true"/>
+        <token index="256" id="KW_NULL" value="null" category="keyword" reserved="true"/>
+        <token index="257" id="KW_NULLS" value="nulls" category="keyword"/>
+        <token index="258" id="KW_NUMBER_BASE" value="number_base" category="keyword"/>
+        <token index="259" id="KW_OBJECT" value="object" category="keyword"/>
+        <token index="260" id="KW_OCIROWID" value="ocirowid" category="keyword"/>
+        <token index="261" id="KW_OF" value="of" category="keyword" reserved="true"/>
+        <token index="262" id="KW_OFFSET" value="offset" category="keyword"/>
+        <token index="263" id="KW_OID" value="oid" category="keyword"/>
+        <token index="264" id="KW_OLD" value="old" category="keyword"/>
+        <token index="265" id="KW_ON" value="on" category="keyword" reserved="true"/>
+        <token index="266" id="KW_ONE_SIDED_PROB_OR_LESS" value="one_sided_prob_or_less" category="keyword"/>
+        <token index="267" id="KW_ONE_SIDED_PROB_OR_MORE" value="one_sided_prob_or_more" category="keyword"/>
+        <token index="268" id="KW_ONE_SIDED_SIG" value="one_sided_sig" category="keyword"/>
+        <token index="269" id="KW_ONLY" value="only" category="keyword"/>
+        <token index="270" id="KW_OPAQUE" value="opaque" category="keyword"/>
+        <token index="271" id="KW_OPEN" value="open" category="keyword"/>
+        <token index="272" id="KW_OPERATOR" value="operator" category="keyword"/>
+        <token index="273" id="KW_OPTION" value="option" category="keyword" reserved="true"/>
+        <token index="274" id="KW_OR" value="or" category="keyword" reserved="true"/>
+        <token index="275" id="KW_ORDER" value="order" category="keyword" reserved="true"/>
+        <token index="276" id="KW_ORDINALITY" value="ordinality" category="keyword"/>
+        <token index="277" id="KW_ORGANIZATION" value="organization" category="keyword"/>
+        <token index="278" id="KW_OTHERS" value="others" category="keyword"/>
+        <token index="279" id="KW_OUT" value="out" category="keyword"/>
+        <token index="280" id="KW_OUTER" value="outer" category="keyword"/>
+        <token index="281" id="KW_OVER" value="over" category="keyword"/>
+        <token index="282" id="KW_OVERFLOW" value="overflow" category="keyword"/>
+        <token index="283" id="KW_OVERLAPS" value="overlaps" category="keyword"/>
+        <token index="284" id="KW_OVERRIDING" value="overriding" category="keyword"/>
+        <token index="285" id="KW_PACKAGE" value="package" category="keyword"/>
+        <token index="286" id="KW_PARALLEL_ENABLE" value="parallel_enable" category="keyword"/>
+        <token index="287" id="KW_PARAMETERS" value="parameters" category="keyword"/>
+        <token index="288" id="KW_PARENT" value="parent" category="keyword"/>
+        <token index="289" id="KW_PARTITION" value="partition" category="keyword"/>
+        <token index="290" id="KW_PASSING" value="passing" category="keyword"/>
+        <token index="291" id="KW_PATH" value="path" category="keyword"/>
+        <token index="292" id="KW_PCTFREE" value="pctfree" category="keyword" reserved="true"/>
+        <token index="293" id="KW_PERCENT" value="percent" category="keyword"/>
+        <token index="294" id="KW_PERIOD" value="period" category="keyword"/>
+        <token index="295" id="KW_PHI_COEFFICIENT" value="phi_coefficient" category="keyword"/>
+        <token index="296" id="KW_PIPE" value="pipe" category="keyword"/>
+        <token index="297" id="KW_PIPELINED" value="pipelined" category="keyword"/>
+        <token index="298" id="KW_PIVOT" value="pivot" category="keyword"/>
+        <token index="299" id="KW_PLUGGABLE" value="pluggable" category="keyword"/>
+        <token index="300" id="KW_POSITIVE" value="positive" category="keyword"/>
+        <token index="301" id="KW_POSITIVEN" value="positiven" category="keyword"/>
+        <token index="302" id="KW_POWER" value="power" category="keyword"/>
+        <token index="303" id="KW_PRAGMA" value="pragma" category="keyword"/>
+        <token index="304" id="KW_PRECEDES" value="precedes" category="keyword"/>
+        <token index="305" id="KW_PRECEDING" value="preceding" category="keyword"/>
+        <token index="306" id="KW_PRESENT" value="present" category="keyword"/>
+        <token index="307" id="KW_PRETTY" value="pretty" category="keyword"/>
+        <token index="308" id="KW_PRIOR" value="prior" category="keyword" reserved="true"/>
+        <token index="309" id="KW_PRIVATE" value="private" category="keyword"/>
+        <token index="310" id="KW_PROCEDURE" value="procedure" category="keyword" reserved="true"/>
+        <token index="311" id="KW_PUBLIC" value="public" category="keyword" reserved="true"/>
+        <token index="312" id="KW_RAISE" value="raise" category="keyword"/>
+        <token index="313" id="KW_RANGE" value="range" category="keyword" reserved="true"/>
+        <token index="314" id="KW_READ" value="read" category="keyword"/>
+        <token index="315" id="KW_RECORD" value="record" category="keyword" reserved="true"/>
+        <token index="316" id="KW_REF" value="ref" category="keyword"/>
+        <token index="317" id="KW_REFERENCE" value="reference" category="keyword"/>
+        <token index="318" id="KW_REFERENCING" value="referencing" category="keyword"/>
+        <token index="319" id="KW_REGEXP_LIKE" value="regexp_like" category="keyword"/>
+        <token index="320" id="KW_REJECT" value="reject" category="keyword"/>
+        <token index="321" id="KW_RELEASE" value="release" category="keyword"/>
+        <token index="322" id="KW_RELIES_ON" value="relies_on" category="keyword"/>
+        <token index="323" id="KW_REMAINDER" value="remainder" category="keyword"/>
+        <token index="324" id="KW_RENAME" value="rename" category="keyword"/>
+        <token index="325" id="KW_REPLACE" value="replace" category="keyword"/>
+        <token index="326" id="KW_RESTRICT_REFERENCES" value="restrict_references" category="keyword"/>
+        <token index="327" id="KW_RESULT" value="result" category="keyword"/>
+        <token index="328" id="KW_RESULT_CACHE" value="result_cache" category="keyword"/>
+        <token index="329" id="KW_RETURN" value="return" category="keyword"/>
+        <token index="330" id="KW_RETURNING" value="returning" category="keyword"/>
+        <token index="331" id="KW_REVERSE" value="reverse" category="keyword"/>
+        <token index="332" id="KW_REVOKE" value="revoke" category="keyword" reserved="true"/>
+        <token index="333" id="KW_RIGHT" value="right" category="keyword"/>
+        <token index="334" id="KW_RNDS" value="rnds" category="keyword"/>
+        <token index="335" id="KW_RNPS" value="rnps" category="keyword"/>
+        <token index="336" id="KW_ROLLBACK" value="rollback" category="keyword"/>
+        <token index="337" id="KW_ROLLUP" value="rollup" category="keyword"/>
+        <token index="338" id="KW_ROW" value="row" category="keyword" reserved="true"/>
+        <token index="339" id="KW_ROWCOUNT" value="rowcount" category="keyword"/>
+        <token index="340" id="KW_ROWNUM" value="rownum" category="keyword" reserved="true"/>
+        <token index="341" id="KW_ROWS" value="rows" category="keyword"/>
+        <token index="342" id="KW_ROWTYPE" value="rowtype" category="keyword"/>
+        <token index="343" id="KW_RULES" value="rules" category="keyword"/>
+        <token index="344" id="KW_SAMPLE" value="sample" category="keyword"/>
+        <token index="345" id="KW_SAVE" value="save" category="keyword"/>
+        <token index="346" id="KW_SAVEPOINT" value="savepoint" category="keyword"/>
+        <token index="347" id="KW_SCHEMA" value="schema" category="keyword"/>
+        <token index="348" id="KW_SCHEMACHECK" value="schemacheck" category="keyword"/>
+        <token index="349" id="KW_SCN" value="scn" category="keyword"/>
+        <token index="350" id="KW_SECOND" value="second" category="keyword"/>
+        <token index="351" id="KW_SEED" value="seed" category="keyword"/>
+        <token index="352" id="KW_SEGMENT" value="segment" category="keyword"/>
+        <token index="353" id="KW_SELECT" value="select" category="keyword" reserved="true"/>
+        <token index="354" id="KW_SELF" value="self" category="keyword"/>
+        <token index="355" id="KW_SEPARATE" value="separate" category="keyword"/>
+        <token index="356" id="KW_SEQUENTIAL" value="sequential" category="keyword"/>
+        <token index="357" id="KW_SERIALIZABLE" value="serializable" category="keyword"/>
+        <token index="358" id="KW_SERIALLY_REUSABLE" value="serially_reusable" category="keyword"/>
+        <token index="359" id="KW_SERVERERROR" value="servererror" category="keyword"/>
+        <token index="360" id="KW_SET" value="set" category="keyword" reserved="true"/>
+        <token index="361" id="KW_SETS" value="sets" category="keyword"/>
+        <token index="362" id="KW_SHARE" value="share" category="keyword" reserved="true"/>
+        <token index="363" id="KW_SHARING" value="sharing" category="keyword"/>
+        <token index="364" id="KW_SHOW" value="show" category="keyword"/>
+        <token index="365" id="KW_SHUTDOWN" value="shutdown" category="keyword"/>
+        <token index="366" id="KW_SIBLINGS" value="siblings" category="keyword"/>
+        <token index="367" id="KW_SIG" value="sig" category="keyword"/>
+        <token index="368" id="KW_SINGLE" value="single" category="keyword"/>
+        <token index="369" id="KW_SIZE" value="size" category="keyword" reserved="true"/>
+        <token index="370" id="KW_SKIP" value="skip" category="keyword"/>
+        <token index="371" id="KW_SOME" value="some" category="keyword"/>
+        <token index="372" id="KW_SPACE" value="space" category="keyword"/>
+        <token index="373" id="KW_SQL" value="sql" category="keyword" reserved="true"/>
+        <token index="374" id="KW_SQLCODE" value="sqlcode" category="keyword"/>
+        <token index="375" id="KW_SQLERRM" value="sqlerrm" category="keyword"/>
+        <token index="376" id="KW_STANDALONE" value="standalone" category="keyword"/>
+        <token index="377" id="KW_START" value="start" category="keyword" reserved="true"/>
+        <token index="378" id="KW_STARTUP" value="startup" category="keyword"/>
+        <token index="379" id="KW_STATEMENT" value="statement" category="keyword"/>
+        <token index="380" id="KW_STATIC" value="static" category="keyword"/>
+        <token index="381" id="KW_STATISTIC" value="statistic" category="keyword"/>
+        <token index="382" id="KW_STATISTICS" value="statistics" category="keyword"/>
+        <token index="383" id="KW_STRICT" value="strict" category="keyword"/>
+        <token index="384" id="KW_STRUCT" value="struct" category="keyword"/>
+        <token index="385" id="KW_SUBMULTISET" value="submultiset" category="keyword"/>
+        <token index="386" id="KW_SUBPARTITION" value="subpartition" category="keyword"/>
+        <token index="387" id="KW_SUBTYPE" value="subtype" category="keyword" reserved="true"/>
+        <token index="388" id="KW_SUCCESSFUL" value="successful" category="keyword" reserved="true"/>
+        <token index="389" id="KW_SUM_SQUARES_BETWEEN" value="sum_squares_between" category="keyword"/>
+        <token index="390" id="KW_SUM_SQUARES_WITHIN" value="sum_squares_within" category="keyword"/>
+        <token index="391" id="KW_SUSPEND" value="suspend" category="keyword"/>
+        <token index="392" id="KW_SYNONYM" value="synonym" category="keyword" reserved="true"/>
+        <token index="393" id="KW_TABLE" value="table" category="keyword" reserved="true"/>
+        <token index="394" id="KW_TDO" value="tdo" category="keyword"/>
+        <token index="395" id="KW_THEN" value="then" category="keyword" reserved="true"/>
+        <token index="396" id="KW_TIES" value="ties" category="keyword"/>
+        <token index="397" id="KW_TIME" value="time" category="keyword"/>
+        <token index="398" id="KW_TIMEZONE_ABBR" value="timezone_abbr" category="keyword"/>
+        <token index="399" id="KW_TIMEZONE_HOUR" value="timezone_hour" category="keyword"/>
+        <token index="400" id="KW_TIMEZONE_MINUTE" value="timezone_minute" category="keyword"/>
+        <token index="401" id="KW_TIMEZONE_REGION" value="timezone_region" category="keyword"/>
+        <token index="402" id="KW_TO" value="to" category="keyword" reserved="true"/>
+        <token index="403" id="KW_TRAILING" value="trailing" category="keyword"/>
+        <token index="404" id="KW_TRANSACTION" value="transaction" category="keyword"/>
+        <token index="405" id="KW_TRIGGER" value="trigger" category="keyword" reserved="true"/>
+        <token index="406" id="KW_TRUE" value="true" category="keyword" reserved="true"/>
+        <token index="407" id="KW_TRUNCATE" value="truncate" category="keyword"/>
+        <token index="408" id="KW_TRUST" value="trust" category="keyword"/>
+        <token index="409" id="KW_TWO_SIDED_PROB" value="two_sided_prob" category="keyword"/>
+        <token index="410" id="KW_TWO_SIDED_SIG" value="two_sided_sig" category="keyword"/>
+        <token index="411" id="KW_TYPE" value="type" category="keyword"/>
+        <token index="412" id="KW_UNBOUNDED" value="unbounded" category="keyword"/>
+        <token index="413" id="KW_UNCONDITIONAL" value="unconditional" category="keyword"/>
+        <token index="414" id="KW_UNDER" value="under" category="keyword"/>
+        <token index="415" id="KW_UNDER_PATH" value="under_path" category="keyword"/>
+        <token index="416" id="KW_UNION" value="union" category="keyword" reserved="true"/>
+        <token index="417" id="KW_UNIQUE" value="unique" category="keyword" reserved="true"/>
+        <token index="418" id="KW_UNLIMITED" value="unlimited" category="keyword"/>
+        <token index="419" id="KW_UNPIVOT" value="unpivot" category="keyword"/>
+        <token index="420" id="KW_UNPLUG" value="unplug" category="keyword"/>
+        <token index="421" id="KW_UNTIL" value="until" category="keyword"/>
+        <token index="422" id="KW_UPDATE" value="update" category="keyword" reserved="true"/>
+        <token index="423" id="KW_UPDATED" value="updated" category="keyword"/>
+        <token index="424" id="KW_UPDATING" value="updating" category="keyword"/>
+        <token index="425" id="KW_UPSERT" value="upsert" category="keyword"/>
+        <token index="426" id="KW_USE" value="use" category="keyword" reserved="true"/>
+        <token index="427" id="KW_USER" value="user" category="keyword" reserved="true"/>
+        <token index="428" id="KW_USING" value="using" category="keyword"/>
+        <token index="429" id="KW_U_STATISTIC" value="u_statistic" category="keyword"/>
+        <token index="430" id="KW_VALIDATE" value="validate" category="keyword" reserved="true"/>
+        <token index="431" id="KW_VALUE" value="value" category="keyword"/>
+        <token index="432" id="KW_VALUES" value="values" category="keyword" reserved="true"/>
+        <token index="433" id="KW_VARIABLE" value="variable" category="keyword"/>
+        <token index="434" id="KW_VARRAY" value="varray" category="keyword"/>
+        <token index="435" id="KW_VARYING" value="varying" category="keyword"/>
+        <token index="436" id="KW_VERSION" value="version" category="keyword"/>
+        <token index="437" id="KW_VERSIONS" value="versions" category="keyword"/>
+        <token index="438" id="KW_VIEW" value="view" category="keyword" reserved="true"/>
+        <token index="439" id="KW_WAIT" value="wait" category="keyword"/>
+        <token index="440" id="KW_WELLFORMED" value="wellformed" category="keyword"/>
+        <token index="441" id="KW_WHEN" value="when" category="keyword" reserved="true"/>
+        <token index="442" id="KW_WHENEVER" value="whenever" category="keyword" reserved="true"/>
+        <token index="443" id="KW_WHERE" value="where" category="keyword" reserved="true"/>
+        <token index="444" id="KW_WHILE" value="while" category="keyword"/>
+        <token index="445" id="KW_WITH" value="with" category="keyword" reserved="true"/>
+        <token index="446" id="KW_WITHIN" value="within" category="keyword"/>
+        <token index="447" id="KW_WITHOUT" value="without" category="keyword"/>
+        <token index="448" id="KW_WNDS" value="wnds" category="keyword"/>
+        <token index="449" id="KW_WNPS" value="wnps" category="keyword"/>
+        <token index="450" id="KW_WORK" value="work" category="keyword"/>
+        <token index="451" id="KW_WRAPPED" value="wrapped" category="keyword"/>
+        <token index="452" id="KW_WRAPPER" value="wrapper" category="keyword"/>
+        <token index="453" id="KW_WRITE" value="write" category="keyword"/>
+        <token index="454" id="KW_XML" value="xml" category="keyword"/>
+        <token index="455" id="KW_XMLNAMESPACES" value="xmlnamespaces" category="keyword"/>
+        <token index="456" id="KW_YEAR" value="year" category="keyword"/>
+        <token index="457" id="KW_YES" value="yes" category="keyword"/>
+        <token index="458" id="KW_ZONE" value="zone" category="keyword"/>
+        <!-- MARKER_END_KEYWORDS -->
 
 
+        <!-- MARKER_BEGIN_FUNCTIONS -->
+        <token index="0" id="FN_ABS" value="abs" category="function"/>
+        <token index="1" id="FN_ACOS" value="acos" category="function"/>
+        <token index="2" id="FN_ADD_MONTHS" value="add_months" category="function"/>
+        <token index="3" id="FN_APPENDCHILDXML" value="appendchildxml" category="function"/>
+        <token index="4" id="FN_ASCII" value="ascii" category="function"/>
+        <token index="5" id="FN_ASCIISTR" value="asciistr" category="function"/>
+        <token index="6" id="FN_ASIN" value="asin" category="function"/>
+        <token index="7" id="FN_ATAN" value="atan" category="function"/>
+        <token index="8" id="FN_ATAN2" value="atan2" category="function"/>
+        <token index="9" id="FN_AVG" value="avg" category="function"/>
+        <token index="10" id="FN_BFILENAME" value="bfilename" category="function"/>
+        <token index="11" id="FN_BIN_TO_NUM" value="bin_to_num" category="function"/>
+        <token index="12" id="FN_BITAND" value="bitand" category="function"/>
+        <token index="13" id="FN_CARDINALITY" value="cardinality" category="function"/>
+        <token index="14" id="FN_CAST" value="cast" category="function"/>
+        <token index="15" id="FN_CEIL" value="ceil" category="function"/>
+        <token index="16" id="FN_CHARTOROWID" value="chartorowid" category="function"/>
+        <token index="17" id="FN_CHR" value="chr" category="function"/>
+        <token index="18" id="FN_COMPOSE" value="compose" category="function"/>
+        <token index="19" id="FN_CONCAT" value="concat" category="function"/>
+        <token index="20" id="FN_CONVERT" value="convert" category="function"/>
+        <token index="21" id="FN_CORR" value="corr" category="function"/>
+        <token index="22" id="FN_CORR_K" value="corr_k" category="function"/>
+        <token index="23" id="FN_CORR_S" value="corr_s" category="function"/>
+        <token index="24" id="FN_COS" value="cos" category="function"/>
+        <token index="25" id="FN_COSH" value="cosh" category="function"/>
+        <token index="26" id="FN_COVAR_POP" value="covar_pop" category="function"/>
+        <token index="27" id="FN_COVAR_SAMP" value="covar_samp" category="function"/>
+        <token index="28" id="FN_CUME_DIST" value="cume_dist" category="function"/>
+        <token index="29" id="FN_CURRENT_DATE" value="current_date" category="function"/>
+        <token index="30" id="FN_CURRENT_TIMESTAMP" value="current_timestamp" category="function"/>
+        <token index="31" id="FN_CV" value="cv" category="function"/>
+        <token index="32" id="FN_DBTIMEZONE" value="dbtimezone" category="function"/>
+        <token index="33" id="FN_DBTMEZONE" value="dbtmezone" category="function"/>
+        <token index="34" id="FN_DECODE" value="decode" category="function"/>
+        <token index="35" id="FN_DECOMPOSE" value="decompose" category="function"/>
+        <token index="36" id="FN_DELETEXML" value="deletexml" category="function"/>
+        <token index="37" id="FN_DEPTH" value="depth" category="function"/>
+        <token index="38" id="FN_DEREF" value="deref" category="function"/>
+        <token index="39" id="FN_EMPTY_BLOB" value="empty_blob" category="function"/>
+        <token index="40" id="FN_EMPTY_CLOB" value="empty_clob" category="function"/>
+        <token index="41" id="FN_EXISTSNODE" value="existsnode" category="function"/>
+        <token index="42" id="FN_EXP" value="exp" category="function"/>
+        <token index="43" id="FN_EXTRACT" value="extract" category="function"/>
+        <token index="44" id="FN_EXTRACTVALUE" value="extractvalue" category="function"/>
+        <token index="45" id="FN_FIRST_VALUE" value="first_value" category="function"/>
+        <token index="46" id="FN_FLOOR" value="floor" category="function"/>
+        <token index="47" id="FN_FROM_TZ" value="from_tz" category="function"/>
+        <token index="48" id="FN_GREATEST" value="greatest" category="function"/>
+        <token index="49" id="FN_GROUPING" value="grouping" category="function"/>
+        <token index="50" id="FN_GROUPING_ID" value="grouping_id" category="function"/>
+        <token index="51" id="FN_GROUP_ID" value="group_id" category="function"/>
+        <token index="52" id="FN_HEXTORAW" value="hextoraw" category="function"/>
+        <token index="53" id="FN_INITCAP" value="initcap" category="function"/>
+        <token index="54" id="FN_INSERTCHILDXML" value="insertchildxml" category="function"/>
+        <token index="55" id="FN_INSERTCHILDXMLAFTER" value="insertchildxmlafter" category="function"/>
+        <token index="56" id="FN_INSERTCHILDXMLBEFORE" value="insertchildxmlbefore" category="function"/>
+        <token index="57" id="FN_INSERTXMLAFTER" value="insertxmlafter" category="function"/>
+        <token index="58" id="FN_INSERTXMLBEFORE" value="insertxmlbefore" category="function"/>
+        <token index="59" id="FN_INSTR" value="instr" category="function"/>
+        <token index="60" id="FN_INSTR2" value="instr2" category="function"/>
+        <token index="61" id="FN_INSTR4" value="instr4" category="function"/>
+        <token index="62" id="FN_INSTRB" value="instrb" category="function"/>
+        <token index="63" id="FN_INSTRC" value="instrc" category="function"/>
+        <token index="64" id="FN_ITERATION_NUMBER" value="iteration_number" category="function"/>
+        <token index="65" id="FN_JSON_ARRAY" value="json_array" category="function"/>
+        <token index="66" id="FN_JSON_ARRAYAGG" value="json_arrayagg" category="function"/>
+        <token index="67" id="FN_JSON_DATAGUIDE" value="json_dataguide" category="function"/>
+        <token index="68" id="FN_JSON_OBJECT" value="json_object" category="function"/>
+        <token index="69" id="FN_JSON_OBJECTAGG" value="json_objectagg" category="function"/>
+        <token index="70" id="FN_JSON_QUERY" value="json_query" category="function"/>
+        <token index="71" id="FN_JSON_TABLE" value="json_table" category="function"/>
+        <token index="72" id="FN_JSON_VALUE" value="json_value" category="function"/>
+        <token index="73" id="FN_LAG" value="lag" category="function"/>
+        <token index="74" id="FN_LAST_DAY" value="last_day" category="function"/>
+        <token index="75" id="FN_LAST_VALUE" value="last_value" category="function"/>
+        <token index="76" id="FN_LATERAL" value="lateral" category="function"/>
+        <token index="77" id="FN_LEAD" value="lead" category="function"/>
+        <token index="78" id="FN_LEAST" value="least" category="function"/>
+        <token index="79" id="FN_LENGTH" value="length" category="function"/>
+        <token index="80" id="FN_LENGTH2" value="length2" category="function"/>
+        <token index="81" id="FN_LENGTH4" value="length4" category="function"/>
+        <token index="82" id="FN_LENGTHB" value="lengthb" category="function"/>
+        <token index="83" id="FN_LENGTHC" value="lengthc" category="function"/>
+        <token index="84" id="FN_LISTAGG" value="listagg" category="function"/>
+        <token index="85" id="FN_LN" value="ln" category="function"/>
+        <token index="86" id="FN_LNNVL" value="lnnvl" category="function"/>
+        <token index="87" id="FN_LOCALTIMESTAMP" value="localtimestamp" category="function"/>
+        <token index="88" id="FN_LOWER" value="lower" category="function"/>
+        <token index="89" id="FN_LPAD" value="lpad" category="function"/>
+        <token index="90" id="FN_LTRIM" value="ltrim" category="function"/>
+        <token index="91" id="FN_MAKE_REF" value="make_ref" category="function"/>
+        <token index="92" id="FN_MAX" value="max" category="function"/>
+        <token index="93" id="FN_MEDIAN" value="median" category="function"/>
+        <token index="94" id="FN_MIN" value="min" category="function"/>
+        <token index="95" id="FN_MOD" value="mod" category="function"/>
+        <token index="96" id="FN_MONTHS_BETWEEN" value="months_between" category="function"/>
+        <token index="97" id="FN_NANVL" value="nanvl" category="function"/>
+        <token index="98" id="FN_NCHR" value="nchr" category="function"/>
+        <token index="99" id="FN_NEW_TIME" value="new_time" category="function"/>
+        <token index="100" id="FN_NEXT_DAY" value="next_day" category="function"/>
+        <token index="101" id="FN_NLSSORT" value="nlssort" category="function"/>
+        <token index="102" id="FN_NLS_CHARSET_DECL_LEN" value="nls_charset_decl_len" category="function"/>
+        <token index="103" id="FN_NLS_CHARSET_ID" value="nls_charset_id" category="function"/>
+        <token index="104" id="FN_NLS_CHARSET_NAME" value="nls_charset_name" category="function"/>
+        <token index="105" id="FN_NLS_INITCAP" value="nls_initcap" category="function"/>
+        <token index="106" id="FN_NLS_LOWER" value="nls_lower" category="function"/>
+        <token index="107" id="FN_NLS_UPPER" value="nls_upper" category="function"/>
+        <token index="108" id="FN_NTILE" value="ntile" category="function"/>
+        <token index="109" id="FN_NULLIF" value="nullif" category="function"/>
+        <token index="110" id="FN_NUMTODSINTERVAL" value="numtodsinterval" category="function"/>
+        <token index="111" id="FN_NUMTOYMINTERVAL" value="numtoyminterval" category="function"/>
+        <token index="112" id="FN_NVL" value="nvl" category="function"/>
+        <token index="113" id="FN_NVL2" value="nvl2" category="function"/>
+        <token index="114" id="FN_ORA_HASH" value="ora_hash" category="function"/>
+        <token index="115" id="FN_PERCENTILE_CONT" value="percentile_cont" category="function"/>
+        <token index="116" id="FN_PERCENTILE_DISC" value="percentile_disc" category="function"/>
+        <token index="117" id="FN_PERCENT_RANK" value="percent_rank" category="function"/>
+        <token index="118" id="FN_POWERMULTISET" value="powermultiset" category="function"/>
+        <token index="119" id="FN_POWERMULTISET_BY_CARDINALITY" value="powermultiset_by_cardinality" category="function"/>
+        <token index="120" id="FN_PRESENTNNV" value="presentnnv" category="function"/>
+        <token index="121" id="FN_PRESENTV" value="presentv" category="function"/>
+        <token index="122" id="FN_PREVIOUS" value="previous" category="function"/>
+        <token index="123" id="FN_RANK" value="rank" category="function"/>
+        <token index="124" id="FN_RATIO_TO_REPORT" value="ratio_to_report" category="function"/>
+        <token index="125" id="FN_RAWTOHEX" value="rawtohex" category="function"/>
+        <token index="126" id="FN_RAWTONHEX" value="rawtonhex" category="function"/>
+        <token index="127" id="FN_REFTOHEX" value="reftohex" category="function"/>
+        <token index="128" id="FN_REGEXP_INSTR" value="regexp_instr" category="function"/>
+        <token index="129" id="FN_REGEXP_REPLACE" value="regexp_replace" category="function"/>
+        <token index="130" id="FN_REGEXP_SUBSTR" value="regexp_substr" category="function"/>
+        <token index="131" id="FN_REGR_AVGX" value="regr_avgx" category="function"/>
+        <token index="132" id="FN_REGR_AVGY" value="regr_avgy" category="function"/>
+        <token index="133" id="FN_REGR_COUNT" value="regr_count" category="function"/>
+        <token index="134" id="FN_REGR_INTERCEPT" value="regr_intercept" category="function"/>
+        <token index="135" id="FN_REGR_R2" value="regr_r2" category="function"/>
+        <token index="136" id="FN_REGR_SLOPE" value="regr_slope" category="function"/>
+        <token index="137" id="FN_REGR_SXX" value="regr_sxx" category="function"/>
+        <token index="138" id="FN_REGR_SXY" value="regr_sxy" category="function"/>
+        <token index="139" id="FN_REGR_SYY" value="regr_syy" category="function"/>
+        <token index="140" id="FN_ROUND" value="round" category="function"/>
+        <token index="141" id="FN_ROWIDTOCHAR" value="rowidtochar" category="function"/>
+        <token index="142" id="FN_ROWIDTONCHAR" value="rowidtonchar" category="function"/>
+        <token index="143" id="FN_ROW_NUMBER" value="row_number" category="function"/>
+        <token index="144" id="FN_RPAD" value="rpad" category="function"/>
+        <token index="145" id="FN_RTRIM" value="rtrim" category="function"/>
+        <token index="146" id="FN_SCN_TO_TIMESTAMP" value="scn_to_timestamp" category="function"/>
+        <token index="147" id="FN_SESSIONTIMEZONE" value="sessiontimezone" category="function"/>
+        <token index="148" id="FN_SIGN" value="sign" category="function"/>
+        <token index="149" id="FN_SIN" value="sin" category="function"/>
+        <token index="150" id="FN_SINH" value="sinh" category="function"/>
+        <token index="151" id="FN_SOUNDEX" value="soundex" category="function"/>
+        <token index="152" id="FN_SQRT" value="sqrt" category="function"/>
+        <token index="153" id="FN_STATS_BINOMIAL_TEST" value="stats_binomial_test" category="function"/>
+        <token index="154" id="FN_STATS_CROSSTAB" value="stats_crosstab" category="function"/>
+        <token index="155" id="FN_STATS_F_TEST" value="stats_f_test" category="function"/>
+        <token index="156" id="FN_STATS_KS_TEST" value="stats_ks_test" category="function"/>
+        <token index="157" id="FN_STATS_MODE" value="stats_mode" category="function"/>
+        <token index="158" id="FN_STATS_MW_TEST" value="stats_mw_test" category="function"/>
+        <token index="159" id="FN_STATS_ONE_WAY_ANOVA" value="stats_one_way_anova" category="function"/>
+        <token index="160" id="FN_STATS_T_TEST_INDEP" value="stats_t_test_indep" category="function"/>
+        <token index="161" id="FN_STATS_T_TEST_INDEPU" value="stats_t_test_indepu" category="function"/>
+        <token index="162" id="FN_STATS_T_TEST_ONE" value="stats_t_test_one" category="function"/>
+        <token index="163" id="FN_STATS_T_TEST_PAIRED" value="stats_t_test_paired" category="function"/>
+        <token index="164" id="FN_STATS_WSR_TEST" value="stats_wsr_test" category="function"/>
+        <token index="165" id="FN_STDDEV" value="stddev" category="function"/>
+        <token index="166" id="FN_STDDEV_POP" value="stddev_pop" category="function"/>
+        <token index="167" id="FN_STDDEV_SAMP" value="stddev_samp" category="function"/>
+        <token index="168" id="FN_SUBSTR" value="substr" category="function"/>
+        <token index="169" id="FN_SUBSTR2" value="substr2" category="function"/>
+        <token index="170" id="FN_SUBSTR4" value="substr4" category="function"/>
+        <token index="171" id="FN_SUBSTRB" value="substrb" category="function"/>
+        <token index="172" id="FN_SUBSTRC" value="substrc" category="function"/>
+        <token index="173" id="FN_SUM" value="sum" category="function"/>
+        <token index="174" id="FN_SYSDATE" value="sysdate" category="function"/>
+        <token index="175" id="FN_SYSTIMESTAMP" value="systimestamp" category="function"/>
+        <token index="176" id="FN_SYS_CONNECT_BY_PATH" value="sys_connect_by_path" category="function"/>
+        <token index="177" id="FN_SYS_CONTEXT" value="sys_context" category="function"/>
+        <token index="178" id="FN_SYS_DBURIGEN" value="sys_dburigen" category="function"/>
+        <token index="179" id="FN_SYS_EXTRACT_UTC" value="sys_extract_utc" category="function"/>
+        <token index="180" id="FN_SYS_GUID" value="sys_guid" category="function"/>
+        <token index="181" id="FN_SYS_TYPEID" value="sys_typeid" category="function"/>
+        <token index="182" id="FN_SYS_XMLAGG" value="sys_xmlagg" category="function"/>
+        <token index="183" id="FN_SYS_XMLGEN" value="sys_xmlgen" category="function"/>
+        <token index="184" id="FN_TAN" value="tan" category="function"/>
+        <token index="185" id="FN_TANH" value="tanh" category="function"/>
+        <token index="186" id="FN_TIMESTAMP_TO_SCN" value="timestamp_to_scn" category="function"/>
+        <token index="187" id="FN_TO_BINARY_DOUBLE" value="to_binary_double" category="function"/>
+        <token index="188" id="FN_TO_BINARY_FLOAT" value="to_binary_float" category="function"/>
+        <token index="189" id="FN_TO_CHAR" value="to_char" category="function"/>
+        <token index="190" id="FN_TO_CLOB" value="to_clob" category="function"/>
+        <token index="191" id="FN_TO_DATE" value="to_date" category="function"/>
+        <token index="192" id="FN_TO_DSINTERVAL" value="to_dsinterval" category="function"/>
+        <token index="193" id="FN_TO_LOB" value="to_lob" category="function"/>
+        <token index="194" id="FN_TO_MULTI_BYTE" value="to_multi_byte" category="function"/>
+        <token index="195" id="FN_TO_NCHAR" value="to_nchar" category="function"/>
+        <token index="196" id="FN_TO_NCLOB" value="to_nclob" category="function"/>
+        <token index="197" id="FN_TO_NUMBER" value="to_number" category="function"/>
+        <token index="198" id="FN_TO_SINGLE_BYTE" value="to_single_byte" category="function"/>
+        <token index="199" id="FN_TO_TIMESTAMP" value="to_timestamp" category="function"/>
+        <token index="200" id="FN_TO_TIMESTAMP_TZ" value="to_timestamp_tz" category="function"/>
+        <token index="201" id="FN_TO_YMINTERVAL" value="to_yminterval" category="function"/>
+        <token index="202" id="FN_TRANSLATE" value="translate" category="function"/>
+        <token index="203" id="FN_TREAT" value="treat" category="function"/>
+        <token index="204" id="FN_TRIM" value="trim" category="function"/>
+        <token index="205" id="FN_TRUNC" value="trunc" category="function"/>
+        <token index="206" id="FN_TZ_OFFSET" value="tz_offset" category="function"/>
+        <token index="207" id="FN_UID" value="uid" category="function"/>
+        <token index="208" id="FN_UNISTR" value="unistr" category="function"/>
+        <token index="209" id="FN_UPDATEXML" value="updatexml" category="function"/>
+        <token index="210" id="FN_UPPER" value="upper" category="function"/>
+        <token index="211" id="FN_USERENV" value="userenv" category="function"/>
+        <token index="212" id="FN_VALIDATE_CONVERSION" value="validate_conversion" category="function"/>
+        <token index="213" id="FN_VARIANCE" value="variance" category="function"/>
+        <token index="214" id="FN_VAR_POP" value="var_pop" category="function"/>
+        <token index="215" id="FN_VAR_SAMP" value="var_samp" category="function"/>
+        <token index="216" id="FN_VSIZE" value="vsize" category="function"/>
+        <token index="217" id="FN_WIDTH_BUCKET" value="width_bucket" category="function"/>
+        <token index="218" id="FN_XMLAGG" value="xmlagg" category="function"/>
+        <token index="219" id="FN_XMLATTRIBUTES" value="xmlattributes" category="function"/>
+        <token index="220" id="FN_XMLCAST" value="xmlcast" category="function"/>
+        <token index="221" id="FN_XMLCDATA" value="xmlcdata" category="function"/>
+        <token index="222" id="FN_XMLCOLATTVAL" value="xmlcolattval" category="function"/>
+        <token index="223" id="FN_XMLCOMMENT" value="xmlcomment" category="function"/>
+        <token index="224" id="FN_XMLCONCAT" value="xmlconcat" category="function"/>
+        <token index="225" id="FN_XMLDIFF" value="xmldiff" category="function"/>
+        <token index="226" id="FN_XMLELEMENT" value="xmlelement" category="function"/>
+        <token index="227" id="FN_XMLFOREST" value="xmlforest" category="function"/>
+        <token index="228" id="FN_XMLISVALID" value="xmlisvalid" category="function"/>
+        <token index="229" id="FN_XMLPARSE" value="xmlparse" category="function"/>
+        <token index="230" id="FN_XMLPATCH" value="xmlpatch" category="function"/>
+        <token index="231" id="FN_XMLPI" value="xmlpi" category="function"/>
+        <token index="232" id="FN_XMLQUERY" value="xmlquery" category="function"/>
+        <token index="233" id="FN_XMLROOT" value="xmlroot" category="function"/>
+        <token index="234" id="FN_XMLSEQUENCE" value="xmlsequence" category="function"/>
+        <token index="235" id="FN_XMLSERIALIZE" value="xmlserialize" category="function"/>
+        <token index="236" id="FN_XMLTABLE" value="xmltable" category="function"/>
+        <token index="237" id="FN_XMLTRANSFORM" value="xmltransform" category="function"/>
+        <!-- MARKER_END_FUNCTIONS -->
 
 
+        <!-- MARKER_BEGIN_PARAMETERS -->
+        <token index="0" id="PRM_USING_NLS_COMP" value="using_nls_comp" category="parameter"/>
+        <!-- MARKER_END_PARAMETERS -->
 
 
-        <!-- FUNCTIONS -->
-        <token index="0" id="FN_ABS" value="abs" type="function"/>
-        <token index="1" id="FN_ACOS" value="acos" type="function"/>
-        <token index="2" id="FN_ADD_MONTHS" value="add_months" type="function"/>
-        <token index="3" id="FN_APPENDCHILDXML" value="appendchildxml" type="function"/>
-        <token index="4" id="FN_ASCII" value="ascii" type="function"/>
-        <token index="5" id="FN_ASCIISTR" value="asciistr" type="function"/>
-        <token index="6" id="FN_ASIN" value="asin" type="function"/>
-        <token index="7" id="FN_ATAN" value="atan" type="function"/>
-        <token index="8" id="FN_ATAN2" value="atan2" type="function"/>
-        <token index="9" id="FN_AVG" value="avg" type="function"/>
-        <token index="10" id="FN_BFILENAME" value="bfilename" type="function"/>
-        <token index="11" id="FN_BIN_TO_NUM" value="bin_to_num" type="function"/>
-        <token index="12" id="FN_BITAND" value="bitand" type="function"/>
-        <token index="13" id="FN_CARDINALITY" value="cardinality" type="function"/>
-        <token index="14" id="FN_CAST" value="cast" type="function"/>
-        <token index="15" id="FN_CEIL" value="ceil" type="function"/>
-        <token index="16" id="FN_CHARTOROWID" value="chartorowid" type="function"/>
-        <token index="17" id="FN_CHR" value="chr" type="function"/>
-        <token index="18" id="FN_COMPOSE" value="compose" type="function"/>
-        <token index="19" id="FN_CONCAT" value="concat" type="function"/>
-        <token index="20" id="FN_CONVERT" value="convert" type="function"/>
-        <token index="21" id="FN_CORR" value="corr" type="function"/>
-        <token index="22" id="FN_CORR_K" value="corr_k" type="function"/>
-        <token index="23" id="FN_CORR_S" value="corr_s" type="function"/>
-        <token index="24" id="FN_COS" value="cos" type="function"/>
-        <token index="25" id="FN_COSH" value="cosh" type="function"/>
-        <token index="26" id="FN_COVAR_POP" value="covar_pop" type="function"/>
-        <token index="27" id="FN_COVAR_SAMP" value="covar_samp" type="function"/>
-        <token index="28" id="FN_CUME_DIST" value="cume_dist" type="function"/>
-        <token index="29" id="FN_CURRENT_DATE" value="current_date" type="function"/>
-        <token index="30" id="FN_CURRENT_TIMESTAMP" value="current_timestamp" type="function"/>
-        <token index="31" id="FN_CV" value="cv" type="function"/>
-        <token index="32" id="FN_DBTIMEZONE" value="dbtimezone" type="function"/>
-        <token index="33" id="FN_DBTMEZONE" value="dbtmezone" type="function"/>
-        <token index="34" id="FN_DECODE" value="decode" type="function"/>
-        <token index="35" id="FN_DECOMPOSE" value="decompose" type="function"/>
-        <token index="36" id="FN_DELETEXML" value="deletexml" type="function"/>
-        <token index="37" id="FN_DEPTH" value="depth" type="function"/>
-        <token index="38" id="FN_DEREF" value="deref" type="function"/>
-        <token index="39" id="FN_EMPTY_BLOB" value="empty_blob" type="function"/>
-        <token index="40" id="FN_EMPTY_CLOB" value="empty_clob" type="function"/>
-        <token index="41" id="FN_EXISTSNODE" value="existsnode" type="function"/>
-        <token index="42" id="FN_EXP" value="exp" type="function"/>
-        <token index="43" id="FN_EXTRACT" value="extract" type="function"/>
-        <token index="44" id="FN_EXTRACTVALUE" value="extractvalue" type="function"/>
-        <token index="45" id="FN_FIRST_VALUE" value="first_value" type="function"/>
-        <token index="46" id="FN_FLOOR" value="floor" type="function"/>
-        <token index="47" id="FN_FROM_TZ" value="from_tz" type="function"/>
-        <token index="48" id="FN_GREATEST" value="greatest" type="function"/>
-        <token index="49" id="FN_GROUP_ID" value="group_id" type="function"/>
-        <token index="50" id="FN_GROUPING" value="grouping" type="function"/>
-        <token index="51" id="FN_GROUPING_ID" value="grouping_id" type="function"/>
-        <token index="52" id="FN_HEXTORAW" value="hextoraw" type="function"/>
-        <token index="53" id="FN_INITCAP" value="initcap" type="function"/>
-        <token index="54" id="FN_INSERTCHILDXML" value="insertchildxml" type="function"/>
-        <token index="55" id="FN_INSERTCHILDXMLAFTER" value="insertchildxmlafter" type="function"/>
-        <token index="56" id="FN_INSERTCHILDXMLBEFORE" value="insertchildxmlbefore" type="function"/>
-        <token index="57" id="FN_INSERTXMLAFTER" value="insertxmlafter" type="function"/>
-        <token index="58" id="FN_INSERTXMLBEFORE" value="insertxmlbefore" type="function"/>
-        <token index="59" id="FN_INSTR" value="instr" type="function"/>
-        <token index="60" id="FN_INSTR2" value="instr2" type="function"/>
-        <token index="61" id="FN_INSTR4" value="instr4" type="function"/>
-        <token index="62" id="FN_INSTRB" value="instrb" type="function"/>
-        <token index="63" id="FN_INSTRC" value="instrc" type="function"/>
-        <token index="64" id="FN_ITERATION_NUMBER" value="iteration_number" type="function"/>
-        <token index="65" id="FN_JSON_ARRAY" value="json_array" type="function"/>
-        <token index="66" id="FN_JSON_ARRAYAGG" value="json_arrayagg" type="function"/>
-        <token index="67" id="FN_JSON_DATAGUIDE" value="json_dataguide" type="function"/>
-        <token index="68" id="FN_JSON_OBJECT" value="json_object" type="function"/>
-        <token index="69" id="FN_JSON_OBJECTAGG" value="json_objectagg" type="function"/>
-        <token index="70" id="FN_JSON_QUERY" value="json_query" type="function"/>
-        <token index="71" id="FN_JSON_TABLE" value="json_table" type="function"/>
-        <token index="72" id="FN_JSON_VALUE" value="json_value" type="function"/>
-        <token index="73" id="FN_LAG" value="lag" type="function"/>
-        <token index="74" id="FN_LAST_DAY" value="last_day" type="function"/>
-        <token index="75" id="FN_LAST_VALUE" value="last_value" type="function"/>
-        <token index="76" id="FN_LATERAL" value="lateral" type="function"/>
-        <token index="77" id="FN_LEAD" value="lead" type="function"/>
-        <token index="78" id="FN_LEAST" value="least" type="function"/>
-        <token index="79" id="FN_LENGTH" value="length" type="function"/>
-        <token index="80" id="FN_LENGTH2" value="length2" type="function"/>
-        <token index="81" id="FN_LENGTH4" value="length4" type="function"/>
-        <token index="82" id="FN_LENGTHB" value="lengthb" type="function"/>
-        <token index="83" id="FN_LENGTHC" value="lengthc" type="function"/>
-        <token index="84" id="FN_LISTAGG" value="listagg" type="function"/>
-        <token index="85" id="FN_LN" value="ln" type="function"/>
-        <token index="86" id="FN_LNNVL" value="lnnvl" type="function"/>
-        <token index="87" id="FN_LOCALTIMESTAMP" value="localtimestamp" type="function"/>
-        <token index="88" id="FN_LOWER" value="lower" type="function"/>
-        <token index="89" id="FN_LPAD" value="lpad" type="function"/>
-        <token index="90" id="FN_LTRIM" value="ltrim" type="function"/>
-        <token index="91" id="FN_MAKE_REF" value="make_ref" type="function"/>
-        <token index="92" id="FN_MAX" value="max" type="function"/>
-        <token index="93" id="FN_MEDIAN" value="median" type="function"/>
-        <token index="94" id="FN_MIN" value="min" type="function"/>
-        <token index="95" id="FN_MOD" value="mod" type="function"/>
-        <token index="96" id="FN_MONTHS_BETWEEN" value="months_between" type="function"/>
-        <token index="97" id="FN_NANVL" value="nanvl" type="function"/>
-        <token index="98" id="FN_NCHR" value="nchr" type="function"/>
-        <token index="99" id="FN_NEW_TIME" value="new_time" type="function"/>
-        <token index="100" id="FN_NEXT_DAY" value="next_day" type="function"/>
-        <token index="101" id="FN_NLS_CHARSET_DECL_LEN" value="nls_charset_decl_len" type="function"/>
-        <token index="102" id="FN_NLS_CHARSET_ID" value="nls_charset_id" type="function"/>
-        <token index="103" id="FN_NLS_CHARSET_NAME" value="nls_charset_name" type="function"/>
-        <token index="104" id="FN_NLS_INITCAP" value="nls_initcap" type="function"/>
-        <token index="105" id="FN_NLS_LOWER" value="nls_lower" type="function"/>
-        <token index="106" id="FN_NLS_UPPER" value="nls_upper" type="function"/>
-        <token index="107" id="FN_NLSSORT" value="nlssort" type="function"/>
-        <token index="108" id="FN_NTILE" value="ntile" type="function"/>
-        <token index="109" id="FN_NULLIF" value="nullif" type="function"/>
-        <token index="110" id="FN_NUMTODSINTERVAL" value="numtodsinterval" type="function"/>
-        <token index="111" id="FN_NUMTOYMINTERVAL" value="numtoyminterval" type="function"/>
-        <token index="112" id="FN_NVL" value="nvl" type="function"/>
-        <token index="113" id="FN_NVL2" value="nvl2" type="function"/>
-        <token index="114" id="FN_ORA_HASH" value="ora_hash" type="function"/>
-        <token index="115" id="FN_PERCENT_RANK" value="percent_rank" type="function"/>
-        <token index="116" id="FN_PERCENTILE_CONT" value="percentile_cont" type="function"/>
-        <token index="117" id="FN_PERCENTILE_DISC" value="percentile_disc" type="function"/>
-        <token index="118" id="FN_POWERMULTISET" value="powermultiset" type="function"/>
-        <token index="119" id="FN_POWERMULTISET_BY_CARDINALITY" value="powermultiset_by_cardinality" type="function"/>
-        <token index="120" id="FN_PRESENTNNV" value="presentnnv" type="function"/>
-        <token index="121" id="FN_PRESENTV" value="presentv" type="function"/>
-        <token index="122" id="FN_PREVIOUS" value="previous" type="function"/>
-        <token index="123" id="FN_RANK" value="rank" type="function"/>
-        <token index="124" id="FN_RATIO_TO_REPORT" value="ratio_to_report" type="function"/>
-        <token index="125" id="FN_RAWTOHEX" value="rawtohex" type="function"/>
-        <token index="126" id="FN_RAWTONHEX" value="rawtonhex" type="function"/>
-        <token index="127" id="FN_REFTOHEX" value="reftohex" type="function"/>
-        <token index="128" id="FN_REGEXP_INSTR" value="regexp_instr" type="function"/>
-        <token index="129" id="FN_REGEXP_REPLACE" value="regexp_replace" type="function"/>
-        <token index="130" id="FN_REGEXP_SUBSTR" value="regexp_substr" type="function"/>
-        <token index="131" id="FN_REGR_AVGX" value="regr_avgx" type="function"/>
-        <token index="132" id="FN_REGR_AVGY" value="regr_avgy" type="function"/>
-        <token index="133" id="FN_REGR_COUNT" value="regr_count" type="function"/>
-        <token index="134" id="FN_REGR_INTERCEPT" value="regr_intercept" type="function"/>
-        <token index="135" id="FN_REGR_R2" value="regr_r2" type="function"/>
-        <token index="136" id="FN_REGR_SLOPE" value="regr_slope" type="function"/>
-        <token index="137" id="FN_REGR_SXX" value="regr_sxx" type="function"/>
-        <token index="138" id="FN_REGR_SXY" value="regr_sxy" type="function"/>
-        <token index="139" id="FN_REGR_SYY" value="regr_syy" type="function"/>
-        <token index="140" id="FN_ROUND" value="round" type="function"/>
-        <token index="141" id="FN_ROW_NUMBER" value="row_number" type="function"/>
-        <token index="142" id="FN_ROWIDTOCHAR" value="rowidtochar" type="function"/>
-        <token index="143" id="FN_ROWIDTONCHAR" value="rowidtonchar" type="function"/>
-        <token index="144" id="FN_RPAD" value="rpad" type="function"/>
-        <token index="145" id="FN_RTRIM" value="rtrim" type="function"/>
-        <token index="146" id="FN_SCN_TO_TIMESTAMP" value="scn_to_timestamp" type="function"/>
-        <token index="147" id="FN_SESSIONTIMEZONE" value="sessiontimezone" type="function"/>
-        <token index="148" id="FN_SIGN" value="sign" type="function"/>
-        <token index="149" id="FN_SIN" value="sin" type="function"/>
-        <token index="150" id="FN_SINH" value="sinh" type="function"/>
-        <token index="151" id="FN_SOUNDEX" value="soundex" type="function"/>
-        <token index="152" id="FN_SQRT" value="sqrt" type="function"/>
-        <token index="153" id="FN_STATS_BINOMIAL_TEST" value="stats_binomial_test" type="function"/>
-        <token index="154" id="FN_STATS_CROSSTAB" value="stats_crosstab" type="function"/>
-        <token index="155" id="FN_STATS_F_TEST" value="stats_f_test" type="function"/>
-        <token index="156" id="FN_STATS_KS_TEST" value="stats_ks_test" type="function"/>
-        <token index="157" id="FN_STATS_MODE" value="stats_mode" type="function"/>
-        <token index="158" id="FN_STATS_MW_TEST" value="stats_mw_test" type="function"/>
-        <token index="159" id="FN_STATS_ONE_WAY_ANOVA" value="stats_one_way_anova" type="function"/>
-        <token index="160" id="FN_STATS_T_TEST_INDEP" value="stats_t_test_indep" type="function"/>
-        <token index="161" id="FN_STATS_T_TEST_INDEPU" value="stats_t_test_indepu" type="function"/>
-        <token index="162" id="FN_STATS_T_TEST_ONE" value="stats_t_test_one" type="function"/>
-        <token index="163" id="FN_STATS_T_TEST_PAIRED" value="stats_t_test_paired" type="function"/>
-        <token index="164" id="FN_STATS_WSR_TEST" value="stats_wsr_test" type="function"/>
-        <token index="165" id="FN_STDDEV" value="stddev" type="function"/>
-        <token index="166" id="FN_STDDEV_POP" value="stddev_pop" type="function"/>
-        <token index="167" id="FN_STDDEV_SAMP" value="stddev_samp" type="function"/>
-        <token index="168" id="FN_SUBSTR" value="substr" type="function"/>
-        <token index="169" id="FN_SUBSTR2" value="substr2" type="function"/>
-        <token index="170" id="FN_SUBSTR4" value="substr4" type="function"/>
-        <token index="171" id="FN_SUBSTRB" value="substrb" type="function"/>
-        <token index="172" id="FN_SUBSTRC" value="substrc" type="function"/>
-        <token index="173" id="FN_SUM" value="sum" type="function"/>
-        <token index="174" id="FN_SYS_CONNECT_BY_PATH" value="sys_connect_by_path" type="function"/>
-        <token index="175" id="FN_SYS_CONTEXT" value="sys_context" type="function"/>
-        <token index="176" id="FN_SYS_DBURIGEN" value="sys_dburigen" type="function"/>
-        <token index="177" id="FN_SYS_EXTRACT_UTC" value="sys_extract_utc" type="function"/>
-        <token index="178" id="FN_SYS_GUID" value="sys_guid" type="function"/>
-        <token index="179" id="FN_SYS_TYPEID" value="sys_typeid" type="function"/>
-        <token index="180" id="FN_SYS_XMLAGG" value="sys_xmlagg" type="function"/>
-        <token index="181" id="FN_SYS_XMLGEN" value="sys_xmlgen" type="function"/>
-        <token index="182" id="FN_SYSDATE" value="sysdate" type="function"/>
-        <token index="183" id="FN_SYSTIMESTAMP" value="systimestamp" type="function"/>
-        <token index="184" id="FN_TAN" value="tan" type="function"/>
-        <token index="185" id="FN_TANH" value="tanh" type="function"/>
-        <token index="186" id="FN_TIMESTAMP_TO_SCN" value="timestamp_to_scn" type="function"/>
-        <token index="187" id="FN_TO_BINARY_DOUBLE" value="to_binary_double" type="function"/>
-        <token index="188" id="FN_TO_BINARY_FLOAT" value="to_binary_float" type="function"/>
-        <token index="189" id="FN_TO_CHAR" value="to_char" type="function"/>
-        <token index="190" id="FN_TO_CLOB" value="to_clob" type="function"/>
-        <token index="191" id="FN_TO_DATE" value="to_date" type="function"/>
-        <token index="192" id="FN_TO_DSINTERVAL" value="to_dsinterval" type="function"/>
-        <token index="193" id="FN_TO_LOB" value="to_lob" type="function"/>
-        <token index="194" id="FN_TO_MULTI_BYTE" value="to_multi_byte" type="function"/>
-        <token index="195" id="FN_TO_NCHAR" value="to_nchar" type="function"/>
-        <token index="196" id="FN_TO_NCLOB" value="to_nclob" type="function"/>
-        <token index="197" id="FN_TO_NUMBER" value="to_number" type="function"/>
-        <token index="198" id="FN_TO_SINGLE_BYTE" value="to_single_byte" type="function"/>
-        <token index="199" id="FN_TO_TIMESTAMP" value="to_timestamp" type="function"/>
-        <token index="200" id="FN_TO_TIMESTAMP_TZ" value="to_timestamp_tz" type="function"/>
-        <token index="201" id="FN_TO_YMINTERVAL" value="to_yminterval" type="function"/>
-        <token index="202" id="FN_TRANSLATE" value="translate" type="function"/>
-        <token index="203" id="FN_TREAT" value="treat" type="function"/>
-        <token index="204" id="FN_TRIM" value="trim" type="function"/>
-        <token index="205" id="FN_TRUNC" value="trunc" type="function"/>
-        <token index="206" id="FN_TZ_OFFSET" value="tz_offset" type="function"/>
-        <token index="207" id="FN_UID" value="uid" type="function"/>
-        <token index="208" id="FN_UNISTR" value="unistr" type="function"/>
-        <token index="209" id="FN_UPDATEXML" value="updatexml" type="function"/>
-        <token index="210" id="FN_UPPER" value="upper" type="function"/>
-        <token index="211" id="FN_USERENV" value="userenv" type="function"/>
-        <token index="212" id="FN_VALIDATE_CONVERSION" value="validate_conversion" type="function"/>
-        <token index="213" id="FN_VAR_POP" value="var_pop" type="function"/>
-        <token index="214" id="FN_VAR_SAMP" value="var_samp" type="function"/>
-        <token index="215" id="FN_VARIANCE" value="variance" type="function"/>
-        <token index="216" id="FN_VSIZE" value="vsize" type="function"/>
-        <token index="217" id="FN_WIDTH_BUCKET" value="width_bucket" type="function"/>
-        <token index="218" id="FN_XMLAGG" value="xmlagg" type="function"/>
-        <token index="219" id="FN_XMLATTRIBUTES" value="xmlattributes" type="function"/>
-        <token index="220" id="FN_XMLCAST" value="xmlcast" type="function"/>
-        <token index="221" id="FN_XMLCDATA" value="xmlcdata" type="function"/>
-        <token index="222" id="FN_XMLCOLATTVAL" value="xmlcolattval" type="function"/>
-        <token index="223" id="FN_XMLCOMMENT" value="xmlcomment" type="function"/>
-        <token index="224" id="FN_XMLCONCAT" value="xmlconcat" type="function"/>
-        <token index="225" id="FN_XMLDIFF" value="xmldiff" type="function"/>
-        <token index="226" id="FN_XMLELEMENT" value="xmlelement" type="function"/>
-        <token index="227" id="FN_XMLFOREST" value="xmlforest" type="function"/>
-        <token index="228" id="FN_XMLISVALID" value="xmlisvalid" type="function"/>
-        <token index="229" id="FN_XMLPARSE" value="xmlparse" type="function"/>
-        <token index="230" id="FN_XMLPATCH" value="xmlpatch" type="function"/>
-        <token index="231" id="FN_XMLPI" value="xmlpi" type="function"/>
-        <token index="232" id="FN_XMLQUERY" value="xmlquery" type="function"/>
-        <token index="233" id="FN_XMLROOT" value="xmlroot" type="function"/>
-        <token index="234" id="FN_XMLSEQUENCE" value="xmlsequence" type="function"/>
-        <token index="235" id="FN_XMLSERIALIZE" value="xmlserialize" type="function"/>
-        <token index="236" id="FN_XMLTABLE" value="xmltable" type="function"/>
-        <token index="237" id="FN_XMLTRANSFORM" value="xmltransform" type="function"/>
+        <!-- MARKER_BEGIN_EXCEPTIONS -->
+        <token index="0" id="EX_ACCESS_INTO_NULL" value="access_into_null" category="exception"/>
+        <token index="1" id="EX_CASE_NOT_FOUND" value="case_not_found" category="exception"/>
+        <token index="2" id="EX_COLLECTION_IS_NULL" value="collection_is_null" category="exception"/>
+        <token index="3" id="EX_CURSOR_ALREADY_OPEN" value="cursor_already_open" category="exception"/>
+        <token index="4" id="EX_DUP_VAL_ON_INDEX" value="dup_val_on_index" category="exception"/>
+        <token index="5" id="EX_INVALID_CURSOR" value="invalid_cursor" category="exception"/>
+        <token index="6" id="EX_INVALID_NUMBER" value="invalid_number" category="exception"/>
+        <token index="7" id="EX_LOGIN_DENIED" value="login_denied" category="exception"/>
+        <token index="8" id="EX_NOT_LOGGED_ON" value="not_logged_on" category="exception"/>
+        <token index="9" id="EX_NO_DATA_FOUND" value="no_data_found" category="exception"/>
+        <token index="10" id="EX_PROGRAM_ERROR" value="program_error" category="exception"/>
+        <token index="11" id="EX_ROWTYPE_MISMATCH" value="rowtype_mismatch" category="exception"/>
+        <token index="12" id="EX_SELF_IS_NULL" value="self_is_null" category="exception"/>
+        <token index="13" id="EX_STORAGE_ERROR" value="storage_error" category="exception"/>
+        <token index="14" id="EX_SUBSCRIPT_BEYOND_COUNT" value="subscript_beyond_count" category="exception"/>
+        <token index="15" id="EX_SUBSCRIPT_OUTSIDE_LIMIT" value="subscript_outside_limit" category="exception"/>
+        <token index="16" id="EX_SYS_INVALID_ROWID" value="sys_invalid_rowid" category="exception"/>
+        <token index="17" id="EX_TIMEOUT_ON_RESOURCE" value="timeout_on_resource" category="exception"/>
+        <token index="18" id="EX_TOO_MANY_ROWS" value="too_many_rows" category="exception"/>
+        <token index="19" id="EX_VALUE_ERROR" value="value_error" category="exception"/>
+        <token index="20" id="EX_ZERO_DIVIDE" value="zero_divide" category="exception"/>
+        <!-- MARKER_END_EXCEPTIONS -->
 
-
-
-
-
-
-
-
-
-
-
-        <!-- EXCEPTIONS -->
-        <token index="0" id="EX_ACCESS_INTO_NULL" value="access_into_null" type="exception"/>
-        <token index="1" id="EX_CASE_NOT_FOUND" value="case_not_found" type="exception"/>
-        <token index="2" id="EX_COLLECTION_IS_NULL" value="collection_is_null" type="exception"/>
-        <token index="3" id="EX_CURSOR_ALREADY_OPEN" value="cursor_already_open" type="exception"/>
-        <token index="4" id="EX_DUP_VAL_ON_INDEX" value="dup_val_on_index" type="exception"/>
-        <token index="5" id="EX_INVALID_CURSOR" value="invalid_cursor" type="exception"/>
-        <token index="6" id="EX_INVALID_NUMBER" value="invalid_number" type="exception"/>
-        <token index="7" id="EX_LOGIN_DENIED" value="login_denied" type="exception"/>
-        <token index="8" id="EX_NO_DATA_FOUND" value="no_data_found" type="exception"/>
-        <token index="9" id="EX_NOT_LOGGED_ON" value="not_logged_on" type="exception"/>
-        <token index="10" id="EX_PROGRAM_ERROR" value="program_error" type="exception"/>
-        <token index="11" id="EX_ROWTYPE_MISMATCH" value="rowtype_mismatch" type="exception"/>
-        <token index="12" id="EX_SELF_IS_NULL" value="self_is_null" type="exception"/>
-        <token index="13" id="EX_STORAGE_ERROR" value="storage_error" type="exception"/>
-        <token index="14" id="EX_SUBSCRIPT_BEYOND_COUNT" value="subscript_beyond_count" type="exception"/>
-        <token index="15" id="EX_SUBSCRIPT_OUTSIDE_LIMIT" value="subscript_outside_limit" type="exception"/>
-        <token index="16" id="EX_SYS_INVALID_ROWID" value="sys_invalid_rowid" type="exception"/>
-        <token index="17" id="EX_TIMEOUT_ON_RESOURCE" value="timeout_on_resource" type="exception"/>
-        <token index="18" id="EX_TOO_MANY_ROWS" value="too_many_rows" type="exception"/>
-        <token index="19" id="EX_VALUE_ERROR" value="value_error" type="exception"/>
-        <token index="20" id="EX_ZERO_DIVIDE" value="zero_divide" type="exception"/>
-
-
-
-        <!-- PARAMETERS -->
-        <token index="0" id="PRM_USING_NLS_COMP" value="using_nls_comp" type="parameter"/>
 
     </tokens>
 

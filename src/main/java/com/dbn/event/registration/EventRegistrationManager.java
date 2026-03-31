@@ -71,6 +71,7 @@ import static com.dbn.common.notification.NotificationCategory.DCN;
 import static com.dbn.common.operation.DatabaseOperation.ENABLE_CHANGE_NOTIFICATIONS;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Lists.toCsv;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.event.registration.EventRegistrationManager.COMPONENT_NAME;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -116,7 +117,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
         Progress.prompt(project, table, false, processTitle, processText, progress -> {
             try {
                 ConnectionId connectionId = connection.getConnectionId();
-                String tableName = table.getQualifiedName();
+                String tableName = table.getQualifiedName(true);
                 DatabaseInterfaceInvoker.execute(HIGH,
                         processTitle,
                         processText,
@@ -127,6 +128,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                 sendInfoNotification(DCN, txt("ntf.events.info.ListenerRegisteredFor", qualifiedTableName, connectionName));
                 notifyRegistrationListeners(connectionId, ObjectChangeAction.CREATE);
             } catch (Exception e) {
+                conditionallyLog(e);
                 sendErrorNotification(DCN, txt("ntf.events.warning.ListenerRegistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
         });
@@ -227,6 +229,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                 sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", qualifiedTableName, connectionName));
                 notifyRegistrationListeners(connectionId, ObjectChangeAction.DELETE);
             } catch (Exception e) {
+                conditionallyLog(e);
                 sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", qualifiedTableName, connectionName, e.getMessage()));
             }
         });
@@ -252,6 +255,7 @@ public class EventRegistrationManager extends ProjectComponentBase implements Pe
                 sendInfoNotification(DCN, txt("ntf.events.info.ListenerDeregisteredFor", tableName, connectionName));
                 notifyRegistrationListeners(connectionId, ObjectChangeAction.DELETE);
             } catch (Exception e) {
+                conditionallyLog(e);
                 sendErrorNotification(DCN, txt("ntf.events.warning.ListenerDeregistrationFailedFor", tableName, connectionName, e.getMessage()));
             }
         });

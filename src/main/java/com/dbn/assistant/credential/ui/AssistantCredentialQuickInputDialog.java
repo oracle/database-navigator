@@ -74,11 +74,11 @@ public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCred
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 getOKAction(),
                 createAction("Advanced Setup", () -> openAdvancedSettings()),
-                getCancelAction()};
+                getCancelAction());
     }
 
     private void openAdvancedSettings() {
@@ -131,8 +131,7 @@ public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCred
             credential.updateSecrets( null);
 
             AssistantProfile targetProfile;
-            if (profile instanceof DeclaredAssistantProfile) {
-                DeclaredAssistantProfile declaredProfile = (DeclaredAssistantProfile) profile;
+            if (profile instanceof DeclaredAssistantProfile declaredProfile) {
                 declaredProfile.setCredentialId(credential.getId());
                 targetProfile = declaredProfile;
             } else {

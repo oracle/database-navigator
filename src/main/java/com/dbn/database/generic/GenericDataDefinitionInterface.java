@@ -21,7 +21,6 @@ import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.DBContentType;
-import com.dbn.object.factory.MethodFactoryInput;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
@@ -43,6 +42,11 @@ public class GenericDataDefinitionInterface extends DatabaseDataDefinitionInterf
     }
 
     public void setSessionSqlMode(String sqlMode, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
@@ -68,13 +72,4 @@ public class GenericDataDefinitionInterface extends DatabaseDataDefinitionInterf
     public void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
-
-    /*********************************************************
-     *                   CREATE statements                   *
-     *********************************************************/
-    @Override
-    public void createMethod(MethodFactoryInput method, DBNConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
 }

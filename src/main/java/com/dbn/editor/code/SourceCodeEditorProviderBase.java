@@ -40,13 +40,13 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 
 import static com.dbn.common.compatibility.CompatibilityUtil.isStructureViewAccess;
+import static com.dbn.vfs.file.status.DBFileStatus.LOADING;
 
 abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider implements DumbAware {
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        if (virtualFile instanceof DBSourceCodeVirtualFile) {
+        if (virtualFile instanceof DBSourceCodeVirtualFile sourceCodeVirtualFile) {
             // accept provider if invoked for a child file (ide invocations)
             //  => custom handling when createEditor(...) is invoked
-            DBSourceCodeVirtualFile sourceCodeVirtualFile = (DBSourceCodeVirtualFile) virtualFile;
             DBContentType contentType = sourceCodeVirtualFile.getContentType();
             return contentType == getContentType();
         }
@@ -60,8 +60,7 @@ abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider impl
         DBEditableObjectVirtualFile databaseFile;
         boolean temporary = false;
 
-        if (file instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) file;
+        if (file instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             databaseFile = sourceCodeFile.getMainDatabaseFile();
 
             temporary = isStructureViewAccess();
@@ -75,6 +74,8 @@ abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider impl
         }
 
         DBSourceCodeVirtualFile sourceCodeFile = databaseFile.ensureContentFile(getContentType());
+        if (sourceCodeFile.is(LOADING)) sourceCodeFile.set(LOADING, false); // TODO verify incomplete "LOADING" status management
+
         SourceCodeEditor sourceCodeEditor = createCodeEditor(project, sourceCodeFile);
         return prepareEditor(project, sourceCodeEditor, sourceCodeFile);
     }
@@ -105,11 +106,7 @@ abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider impl
 
 
         Document document = editor.getDocument();
-        int documentSignature = document.hashCode();
-        if (document.hashCode() != sourceCodeFile.getDocumentSignature()) {
-            document.addDocumentListener(sourceCodeFile);
-            sourceCodeFile.setDocumentSignature(documentSignature);
-        }
+        document.addDocumentListener(sourceCodeFile, sourceCodeEditor);
 
         Icon icon = getIcon();
         if (icon != null) {
@@ -129,8 +126,7 @@ abstract class SourceCodeEditorProviderBase extends BasicTextEditorProvider impl
 
     @Override
     public VirtualFile getContentVirtualFile(VirtualFile virtualFile) {
-        if (virtualFile instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile objectVirtualFile = (DBEditableObjectVirtualFile) virtualFile;
+        if (virtualFile instanceof DBEditableObjectVirtualFile objectVirtualFile) {
             return objectVirtualFile.getContentFile(getContentType());
         }
         return super.getContentVirtualFile(virtualFile);

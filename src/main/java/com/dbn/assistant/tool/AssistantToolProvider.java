@@ -134,8 +134,7 @@ public class AssistantToolProvider implements ToolProvider {
             description = description + "\nreturning=array";
         } else {
             JsonSchemaElement returnElement = Unsafe.warned(null, () -> jsonSchemaElementFrom(returnType));
-            if (returnElement instanceof JsonObjectSchema) {
-                JsonObjectSchema objectElement = (JsonObjectSchema) returnElement;
+            if (returnElement instanceof JsonObjectSchema objectElement) {
                 String returnDescriptor = buildReturnDescriptor(objectElement);
                 description = description + "\nreturning=" + returnDescriptor;
             } else if (returnElement != null) {
@@ -172,8 +171,7 @@ public class AssistantToolProvider implements ToolProvider {
         for (String attribute : properties.keySet()) {
             JsonSchemaElement property = properties.get(attribute);
 
-            if (property instanceof JsonObjectSchema) {
-                JsonObjectSchema objectSchema = (JsonObjectSchema) property;
+            if (property instanceof JsonObjectSchema objectSchema) {
                 Map<String, Object> childDescriptor = new LinkedHashMap<>();
                 childDescriptor.put("name", attribute);
                 childDescriptor.putAll(buildReturnDescr(objectSchema));

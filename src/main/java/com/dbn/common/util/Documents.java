@@ -18,6 +18,7 @@ package com.dbn.common.util;
 
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Read;
 import com.dbn.common.thread.Write;
 import com.dbn.connection.ConnectionHandler;
@@ -70,9 +71,8 @@ public class Documents {
         if (!isValid(project)) return;
 
         PsiFile file = Documents.getFile(editor);
-        if (!(file instanceof DBLanguagePsiFile)) return;
+        if (!(file instanceof DBLanguagePsiFile dbLanguageFile)) return;
 
-        DBLanguagePsiFile dbLanguageFile = (DBLanguagePsiFile) file;
         DBLanguage dbLanguage = dbLanguageFile.getDBLanguage();
         if (dbLanguage != null) {
             ConnectionHandler connection = dbLanguageFile.getConnection();
@@ -87,8 +87,10 @@ public class Documents {
             List<VirtualFile> files = Collections.singletonList(file.getVirtualFile());
             FileContentUtil.reparseFiles(project, files, true);
 
-            CodeFoldingManager codeFoldingManager = CodeFoldingManager.getInstance(project);
-            codeFoldingManager.updateFoldRegionsAsync(editor, false);
+            Background.run(() -> Read.run(() -> {
+                CodeFoldingManager codeFoldingManager = CodeFoldingManager.getInstance(project);
+                codeFoldingManager.updateFoldRegionsAsync(editor, false);
+            }));
         }
         refreshEditorAnnotations(file);
     }
@@ -151,8 +153,7 @@ public class Documents {
 
     @Nullable
     public static VirtualFile getVirtualFile(Editor editor) {
-        if (editor instanceof EditorEx) {
-            EditorEx editorEx = (EditorEx) editor;
+        if (editor instanceof EditorEx editorEx) {
             VirtualFile virtualFile = editorEx.getVirtualFile();
             if (virtualFile != null) return virtualFile;
         }
@@ -239,11 +240,11 @@ public class Documents {
     }
 
     public static void setText(@NotNull Document document, CharSequence text) {
-        FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
-        VirtualFile file = fileDocumentManager.getFile(document);
-        if (isNotValid(file)) return;
-
         Write.run(() -> changeText(document, text));
+    }
+
+    public static String getText(@NotNull Document document) {
+        return Read.call(() -> document.getText());
     }
 
     private static void changeText(Document document, CharSequence text) {

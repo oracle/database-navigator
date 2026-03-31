@@ -17,6 +17,8 @@
 package com.dbn.editor.json.schema;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.Reflection;
+import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
@@ -31,13 +33,13 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.util.CachedValue;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
-import com.jetbrains.jsonSchema.impl.JsonSchemaObject;
-import com.jetbrains.jsonSchema.impl.JsonSchemaReader;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -46,7 +48,6 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
-import static com.jetbrains.jsonSchema.impl.JsonCachedValues.OBJECT_FOR_FILE_KEY;
 
 @State(
     name = JsonDataSchemaManager.COMPONENT_NAME,
@@ -54,6 +55,7 @@ import static com.jetbrains.jsonSchema.impl.JsonCachedValues.OBJECT_FOR_FILE_KEY
 )
 @Getter
 @Setter
+@Workaround
 public class JsonDataSchemaManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.JsonDataSchemaManager";
 
@@ -65,15 +67,37 @@ public class JsonDataSchemaManager extends ProjectComponentBase implements Persi
 
     private static void cacheJsonSchema(DBJsonView jsonView) {
         PsiFile contentPsiFile = JsonFileCache.getJsonContentPsiFile(jsonView);
-        CachedValuesManager.getCachedValue(contentPsiFile, OBJECT_FOR_FILE_KEY, createValueProvider(jsonView));
+
+        Key<CachedValue<Object>> cachedValueKey = getSchemaCacheKey();
+        if (cachedValueKey == null) return;
+        CachedValuesManager.getCachedValue(contentPsiFile, cachedValueKey, createValueProvider(jsonView));
     }
 
-    private static @NotNull CachedValueProvider<JsonSchemaObject> createValueProvider(DBJsonView jsonView) {
+    private static @NotNull CachedValueProvider<Object> createValueProvider(DBJsonView jsonView) {
         return () -> {
             VirtualFile schemaFile = JsonFileCache.getJsonSchemaFile(jsonView);
-            JsonSchemaObject schemaObject = Unsafe.logged(null, () -> JsonSchemaReader.readFromFile(jsonView.getProject(), schemaFile));
+            Object schemaObject = Unsafe.logged(null, () -> readFromFile(jsonView, schemaFile));
             return schemaObject == null ? null : CachedValueProvider.Result.create(schemaObject, ModificationTracker.NEVER_CHANGED);
         };
+    }
+
+    @Nullable
+    private static Key<CachedValue<Object>> getSchemaCacheKey() {
+        //com.jetbrains.jsonSchema.impl.JsonCachedValues.OBJECT_FOR_FILE_KEY
+        String schemaCacheClass = "com.jetbrains.jsonSchema.impl.JsonCachedValues";
+        return Unsafe.logged(null, () -> Reflection.getFieldValue(schemaCacheClass, "OBJECT_FOR_FILE_KEY"));
+    }
+
+    @Nullable
+    private static Object readFromFile(DBJsonView jsonView, VirtualFile schemaFile) {
+        //return Unsafe.logged(null, () -> JsonSchemaReader.readFromFile(jsonView.getProject(), schemaFile));
+
+        String schemaReaderClass = "com.jetbrains.jsonSchema.impl.JsonSchemaReader";
+        return Unsafe.logged(null, () -> Reflection.invokeMethod(
+                schemaReaderClass,
+                "readFromFile",
+                jsonView.getProject(),
+                schemaFile));
     }
 
     public static JsonDataSchemaManager getInstance(@NotNull Project project) {
@@ -85,12 +109,10 @@ public class JsonDataSchemaManager extends ProjectComponentBase implements Persi
         return new DBNFileEditorManagerListener() {
             @Override
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                if (!(file instanceof DBEditableObjectVirtualFile)) return;
+                if (!(file instanceof DBEditableObjectVirtualFile editableObjectFile)) return;
 
-                DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) file;
                 DBSchemaObject object = editableObjectFile.getObject();
-                if (object instanceof DBJsonView) {
-                    DBJsonView jsonView = (DBJsonView) object;
+                if (object instanceof DBJsonView jsonView) {
                     cacheJsonSchema(jsonView);
                 }
             }

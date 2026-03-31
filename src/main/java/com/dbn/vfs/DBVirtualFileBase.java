@@ -54,7 +54,6 @@ public abstract class DBVirtualFileBase extends VirtualFile implements DBVirtual
 
     protected String path;
     protected String url;
-    private volatile int documentSignature;
 
     private long modificationStamp = LocalTimeCounter.currentTime();
     private long timeStamp = System.currentTimeMillis();
@@ -203,8 +202,7 @@ public abstract class DBVirtualFileBase extends VirtualFile implements DBVirtual
             DebugUtil.performPsiModification("disposing database view provider", () -> cachedViewProvider.markInvalidated());
             List<PsiFile> cachedPsiFiles = cachedViewProvider.getCachedPsiFiles();
             for (PsiFile cachedPsiFile: cachedPsiFiles) {
-                if (cachedPsiFile instanceof DBLanguagePsiFile) {
-                    DBLanguagePsiFile languagePsiFile = (DBLanguagePsiFile) cachedPsiFile;
+                if (cachedPsiFile instanceof DBLanguagePsiFile languagePsiFile) {
                     Disposer.dispose(languagePsiFile);
                 }
             }

@@ -20,6 +20,7 @@ import com.dbn.common.routine.Consumer;
 import lombok.Getter;
 
 import javax.swing.Icon;
+import java.util.function.Supplier;
 
 @Getter
 public abstract class ValueFactory<T> {
@@ -33,5 +34,15 @@ public abstract class ValueFactory<T> {
         return null;
     }
 
-    public abstract void create(Consumer<T> consumer);
+    public abstract void createValue(Consumer<T> consumer);
+
+    public static <T> ValueFactory<T> create(String actionName, Supplier<T> supplier) {
+        return new ValueFactory<T>(actionName) {
+            @Override
+            public void createValue(Consumer<T> consumer) {
+                T value = supplier.get();
+                consumer.accept(value);
+            }
+        };
+    }
 }

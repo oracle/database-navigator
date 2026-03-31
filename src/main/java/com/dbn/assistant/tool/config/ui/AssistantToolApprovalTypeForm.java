@@ -61,14 +61,12 @@ public class AssistantToolApprovalTypeForm extends AssistantToolApprovalItemForm
     }
 
     private void initStatusToggle() {
-        statusToggle.setTextColor(s -> {
-            switch (s) {
-                case PROMPTED: return getDefaultForeground();
-                case APPROVED: return getSuccessForeground();
-                case BLOCKED: return getErrorForeground();
-                default: return null;
-            }
-        });
+        statusToggle.setTextColor(s ->
+                switch (s) {
+                    case PROMPTED -> getDefaultForeground();
+                    case APPROVED -> getSuccessForeground();
+                    case BLOCKED -> getErrorForeground();
+                });
 
         AssistantToolApprovalStatus[] approvalStatuses = AssistantToolData.isInteractive(type) ?
                 array(PROMPTED, BLOCKED) : // interactive tools are always prompted; cannot be pre-approved

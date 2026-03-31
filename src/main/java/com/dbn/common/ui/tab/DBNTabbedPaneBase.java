@@ -28,6 +28,7 @@ import com.dbn.common.ui.misc.DBNSelector;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Actions;
+import com.dbn.common.util.Strings;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -75,8 +76,8 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
     private transient int popupTabIndex = -1;
 
     private JPanel hiddenTabsActionPanel;
-    protected final Listeners<DBNTabsSelectionListener> selectionListeners = new Listeners<>();
-    protected final Listeners<DBNTabsUpdateListener> updateListeners = new Listeners<>();
+    protected final Listeners<DBNTabsSelectionListener> selectionListeners = Listeners.create(this);
+    protected final Listeners<DBNTabsUpdateListener> updateListeners = Listeners.create(this);
     private final Latent<Boolean> hasTooltips  = Latent.mutable(
             () -> getTabCount(),
             () -> evaluateHasTooltips());
@@ -91,6 +92,11 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
 
         DataProviders.register(this, this);
         Disposer.register(parent, this);
+    }
+
+    protected static String normalizeTitle(String title) {
+        // prevent html contents in tab titles (BUGDB-38885384)
+        return Strings.removeHtmlTags(title);
     }
 
     private void installHiddenTabButton() {
@@ -183,8 +189,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
     @Workaround // see assumption in BasicTabbedPaneUI.scrollableTabLayoutEnabled()
     public LayoutManager getLayout() {
         LayoutManager layout = super.getLayout();
-        if (layout instanceof Wrapper) {
-            Wrapper wrapped = (Wrapper) layout;
+        if (layout instanceof Wrapper wrapped) {
             return cast(wrapped.unwrap());
         }
         return layout;
@@ -199,7 +204,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
 
     @Workaround // remove tab label from JBTabbedPane
     public void insertTab(@Nls(capitalization = Nls.Capitalization.Title) String title, Icon icon, Component component, @Nls(capitalization = Nls.Capitalization.Sentence) String tip, int index) {
-        super.insertTab(title, icon, component, tip, index);
+        super.insertTab(normalizeTitle(title), icon, component, tip, index);
         setTabComponentAt(index, null);
         updateListeners.notify(l -> l.tabAdded(index));
     }

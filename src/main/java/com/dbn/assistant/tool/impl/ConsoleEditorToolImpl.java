@@ -30,9 +30,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.util.List;
-import java.util.Set;
-
-import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 
 public class ConsoleEditorToolImpl extends AssistantToolBase implements ConsoleEditorTool {
 
@@ -51,8 +48,7 @@ public class ConsoleEditorToolImpl extends AssistantToolBase implements ConsoleE
         FileEditor selectedEditor = editorManager.getSelectedEditor();
         if (selectedEditor == null) return NO_CONSOLE_SELECTED;
 
-        if (selectedEditor instanceof SQLConsoleEditor) {
-            SQLConsoleEditor sqlConsoleEditor = (SQLConsoleEditor) selectedEditor;
+        if (selectedEditor instanceof SQLConsoleEditor sqlConsoleEditor) {
             VirtualFile consoleFile = sqlConsoleEditor.getFile();
             if (consoleFile == null) return NO_CONSOLE_SELECTED;
 
@@ -94,15 +90,15 @@ public class ConsoleEditorToolImpl extends AssistantToolBase implements ConsoleE
     public String openNewSqlConsole(String consoleContent) {
         ConnectionHandler connection = getConnection();
 
-        Set<String> consoleNames = connection.getConsoleBundle().getConsoleNames();
-        String baseName = connection.getName() + " 1";
-        String consoleName = nextNumberedIdentifier(baseName, true, () -> consoleNames);
-
         // line breaks are sometimes received as \\n
         consoleContent = consoleContent.replace("\\n", "\n");
 
         DatabaseConsoleManager consoleManager = DatabaseConsoleManager.getInstance(getProject());
-        consoleManager.createConsole(connection, consoleName, consoleContent, DBConsoleType.STANDARD);
+        String consoleName = consoleManager.getNextConsoleName(connection);
+        consoleManager.createConsole(connection, consoleName, consoleContent, DBConsoleType.STANDARD, c -> {
+            c.setTemporary(true);
+            c.setSource("DB Assistant");
+        });
         return consoleName;
     }
 }

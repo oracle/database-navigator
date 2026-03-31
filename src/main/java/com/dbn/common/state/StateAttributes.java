@@ -18,10 +18,6 @@ package com.dbn.common.state;
 
 import com.dbn.common.options.setting.Settings;
 import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -34,33 +30,22 @@ import static com.dbn.common.options.setting.Settings.setStringAttribute;
  *
  * @author Dan Cioca (Oracle)
  */
-public class StateAttributes implements AttributeHolder, PersistentStateElement {
-    private final Map<String, String> properties = new HashMap<>();
-
-    @Override
-    public String getAttribute(@NonNls String key) {
-        return properties.get(key);
-    }
-
-    @Override
-    public void setAttribute(@NonNls String key, @NonNls String value) {
-        properties.put(key, value);
-    }
-
+public class StateAttributes extends AttributeHolderBase implements PersistentStateElement {
     @Override
     public void readState(Element element) {
         for (Element child : childrenOf(element)) {
-            String key = child.getName();
+            String name = child.getName();
             String value = Settings.stringAttribute(child, "value");
-            properties.put(key, value);
+            setAttribute(name, value);
         }
     }
 
     @Override
     public void writeState(Element element) {
-        properties.forEach((key, value) -> {
-            Element child = newElement(element, key);
+        for (String name : getAttributeNames()) {
+            Element child = newElement(element, name);
+            String value = getAttribute(name);
             setStringAttribute(child, "value", value);
-        });
+        }
     }
 }

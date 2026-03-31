@@ -36,8 +36,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static java.util.stream.Collectors.toList;
-
 
 @Getter
 public abstract class AssistantToolBase extends ConnectionComponent implements AssistantTool{
@@ -65,7 +63,7 @@ public abstract class AssistantToolBase extends ConnectionComponent implements A
                 .stream()
                 .filter(filter)
                 .map(o -> qualified ? o.getQualifiedName() : o.getName())
-                .collect(toList());
+                .toList();
     }
 
     @NotNull
@@ -77,6 +75,10 @@ public abstract class AssistantToolBase extends ConnectionComponent implements A
 
     protected static <T extends DBObject> void verify(T object, DBObjectType objectType, String objectName) {
         if (object == null) throw new IllegalArgumentException(objectType.getTitleCasedName() + " not found: " + objectName);
+    }
+
+    protected static void verify(Object object, String message) {
+        if (object == null) throw new IllegalStateException(message);
     }
 
     protected static <T extends DBObject> T undisposed(T object) {

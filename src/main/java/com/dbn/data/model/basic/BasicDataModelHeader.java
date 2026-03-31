@@ -63,12 +63,14 @@ public class BasicDataModelHeader<T extends ColumnInfo> extends StatefulDisposab
 
     @Override
     public String getColumnName(int index) {
-        return getColumnInfo(index).getName();
+        T columnInfo = getColumnInfo(index);
+        return columnInfo == null ? "NULL" : columnInfo.getName();
     }
 
     @Override
     public DBDataType getColumnDataType(int index) {
-        return getColumnInfo(index).getDataType();
+        T columnInfo = getColumnInfo(index);
+        return columnInfo == null ? null : columnInfo.getDataType();
     }
 
     @Override

@@ -20,8 +20,6 @@ import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.BasicActionGroup;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.icon.Icons;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.database.DatabaseFeature;
 import com.dbn.options.ConfigId;
 import com.dbn.options.action.ProjectSettingsOpenAction;
 import com.dbn.vfs.DBConsoleType;
@@ -37,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.vfs.DBConsoleType.DEBUG;
+import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 @BackgroundUpdate
 public class EditorOptionsAction extends BasicActionGroup {
@@ -45,21 +45,16 @@ public class EditorOptionsAction extends BasicActionGroup {
     protected AnAction[] loadChildren(AnActionEvent e) {
         List<AnAction> actions = new ArrayList<>();
         VirtualFile virtualFile = Lookups.getVirtualFile(e);
-        if (virtualFile instanceof DBConsoleVirtualFile) {
+        if (virtualFile instanceof DBConsoleVirtualFile consoleVirtualFile) {
             actions.add(new ConsoleRenameAction());
             actions.add(new ConsoleDeleteAction());
-            actions.add(new ConsoleSaveToFileAction());
+            DBConsoleType consoleType = consoleVirtualFile.getType();
+            if (consoleType.isOneOf(STANDARD, DEBUG)) {
+                actions.add(new ConsoleSaveToFileAction());
+            }
+
             actions.add(Separator.getInstance());
-
-            DBConsoleVirtualFile consoleVirtualFile = (DBConsoleVirtualFile) virtualFile;
-            if (consoleVirtualFile.getType() != DBConsoleType.DEBUG) {
-                actions.add(new ConsoleCreateAction(DBConsoleType.STANDARD));
-            }
-
-            ConnectionHandler connection = consoleVirtualFile.getConnection();
-            if (DatabaseFeature.DEBUGGING.isSupported(connection)) {
-                actions.add(new ConsoleCreateAction(DBConsoleType.DEBUG));
-            }
+            actions.add(new ConsoleCreateAction(consoleType));
         }
         actions.add(Separator.getInstance());
         actions.add(new ProjectSettingsOpenAction(ConfigId.CODE_EDITOR, false));

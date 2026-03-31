@@ -75,8 +75,7 @@ public class DBObjectListVirtualFile<T extends DBObjectList> extends DBVirtualFi
     @Override
     public SchemaId getSchemaId() {
         DatabaseEntity parent = getObjectList().getParentEntity();
-        if (parent instanceof DBObject) {
-            DBObject object = (DBObject) parent;
+        if (parent instanceof DBObject object) {
             return SchemaId.from(object.getSchema());
         }
         return null;
@@ -115,13 +114,11 @@ public class DBObjectListVirtualFile<T extends DBObjectList> extends DBVirtualFi
         if (isNotValid(objectList)) return null;
 
         DatabaseEntity parent = getObjectList().getParentEntity();
-        if (parent instanceof DBObject) {
-            DBObject parentObject = (DBObject) parent;
+        if (parent instanceof DBObject parentObject) {
             return DBObjectPsiCache.asPsiDirectory(parentObject).getVirtualFile();
         }
 
-        if (parent instanceof DBObjectBundle) {
-            DBObjectBundle objectBundle = (DBObjectBundle) parent;
+        if (parent instanceof DBObjectBundle objectBundle) {
             return objectBundle.getConnection().getPsiDirectory().getVirtualFile();
         }
 

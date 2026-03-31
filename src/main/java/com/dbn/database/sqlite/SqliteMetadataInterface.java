@@ -60,14 +60,13 @@ class SqliteMetadataInterface extends DatabaseMetadataInterfaceImpl {
              */
             @Override
             public String getString(@NonNls String columnLabel) throws SQLException {
-                switch (columnLabel) {
-                    case "SCHEMA_NAME": return inner.getString("name");
-
-                    case "IS_PUBLIC": return "N";
-                    case "IS_SYSTEM": return "N";
-                    case "IS_EMPTY": return "N";
-                    default: return null;
-                }
+                return switch (columnLabel) {
+                    case "SCHEMA_NAME" -> inner.getString("name");
+                    case "IS_PUBLIC" -> "N";
+                    case "IS_SYSTEM" -> "N";
+                    case "IS_EMPTY" -> "N";
+                    default -> null;
+                };
             }
         };
     }

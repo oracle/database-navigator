@@ -51,7 +51,6 @@ import com.dbn.object.dependency.action.ObjectDependencyTreeAction;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.sync.java.action.JavaObjectDownloadAction;
 import com.dbn.sync.java.action.JavaResourceDownloadAction;
-import com.dbn.vfs.DBConsoleType;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.project.DumbAware;
@@ -65,6 +64,7 @@ import static com.dbn.database.DatabaseFeature.OBJECT_DEPENDENCIES;
 import static com.dbn.database.DatabaseFeature.OBJECT_DISABLING;
 import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
 import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
+import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
 import static com.dbn.editor.DBContentType.CODE;
 import static com.dbn.editor.DBContentType.CODE_AND_DATA;
 import static com.dbn.editor.DBContentType.CODE_SPEC_AND_BODY;
@@ -74,6 +74,9 @@ import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.vfs.DBConsoleType.DEBUG;
+import static com.dbn.vfs.DBConsoleType.SEARCH;
+import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
@@ -92,8 +95,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     }
 
     private void addTableActions(DBObject object) {
-        if (object instanceof DBTable) {
-            DBTable table = (DBTable) object;
+        if (object instanceof DBTable table) {
             if (DATA_CHANGE_NOTIFICATION.isSupported(object)) {
                 addSeparator();
                 add(new ChangeNotificationsToggleAction(table));
@@ -102,8 +104,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     }
 
     private void addObjectManagementActions(DBObject object) {
-        if (object instanceof DBSchemaObject) {
-            DBSchemaObject schemaObject = (DBSchemaObject) object;
+        if (object instanceof DBSchemaObject schemaObject) {
 
             if (object.is(EDITABLE)) {
                 DBContentType contentType = schemaObject.getContentType();
@@ -130,7 +131,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
                     !object.getSchema().isSystemSchema() &&
                     !object.getSchema().isPublicSchema()) {
                 if (object.getObjectType() != DBObjectType.CONSTRAINT || CONSTRAINT_MANIPULATION.isSupported(object)) {
-                    add(new ObjectDropAction((DBSchemaObject) object));
+                    add(new ObjectDropAction(schemaObject));
                 }
 
                 //add(new TestAction(object));
@@ -139,9 +140,8 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     }
 
     private void addMethodActions(DBObject object) {
-        if (object instanceof DBMethod) {
+        if (object instanceof DBMethod method) {
             addSeparator();
-            DBMethod method = (DBMethod) object;
             add(new MethodExecuteAction(method, false));
             if (DEBUGGING.isSupported(object)) {
                 add(new MethodDebugAction(method, false));
@@ -160,8 +160,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     }
 
     private void addJavaActions(DBObject object) {
-        if(object instanceof DBJavaMethod){
-            DBJavaMethod method = (DBJavaMethod) object;
+        if(object instanceof DBJavaMethod method){
             if (method.isExecutable()) {
                 add(new JavaMethodExecuteAction(method, false));
                 add(new JavaMethodDebugAction(method, false));
@@ -218,14 +217,16 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
     private void addConsoleActions(DBObject object) {
         ConnectionHandler connection = object.getConnection();
-        if (object instanceof DBConsole) {
-            DBConsole console = (DBConsole) object;
+        if (object instanceof DBConsole console) {
             add(new ConsoleRenameAction(console));
             add(new ConsoleDeleteAction(console));
             addSeparator();
-            add(new ConsoleCreateAction(connection, DBConsoleType.STANDARD));
+            add(new ConsoleCreateAction(connection, STANDARD));
             if (DEBUGGING.isSupported(connection)) {
-                add(new ConsoleCreateAction(connection, DBConsoleType.DEBUG));
+                add(new ConsoleCreateAction(connection, DEBUG));
+            }
+            if (VECTOR_SEARCH.isSupported(connection)) {
+                add(new ConsoleCreateAction(connection, SEARCH));
             }
         }
     }

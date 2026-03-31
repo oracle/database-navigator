@@ -5,6 +5,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Action;
+
 public class McpBuildResultDialog extends DBNDialog<McpBuildResultForm> {
 
     private final String configPath;
@@ -32,5 +34,10 @@ public class McpBuildResultDialog extends DBNDialog<McpBuildResultForm> {
     @Override
     protected McpBuildResultForm createForm() {
         return new McpBuildResultForm(this, configPath, jarPath, envPath, fullJson, fragmentJson);
+    }
+
+    protected final Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(getCancelAction());
     }
 }

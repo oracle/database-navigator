@@ -40,7 +40,6 @@ public class ConnectionInfoDialog extends DBNDialog<ConnectionInfoForm> {
         this.connection = connection.ref();
         this.connectionInfo = connectionInfo;
         this.connectionError = connectionError;
-        renameAction(getCancelAction(), "Close");
         setModal(true);
         init();
     }
@@ -50,7 +49,6 @@ public class ConnectionInfoDialog extends DBNDialog<ConnectionInfoForm> {
         this.connectionInfo = connectionInfo;
         this.connectionName = connectionName;
         this.environmentType = environmentType;
-        renameAction(getCancelAction(), "Close");
         setModal(true);
         init();
     }
@@ -73,9 +71,8 @@ public class ConnectionInfoDialog extends DBNDialog<ConnectionInfoForm> {
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
-            getCancelAction()
-        };
+    protected final Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(getCancelAction());
     }
 }

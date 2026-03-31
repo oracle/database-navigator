@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElement<T> {
     public SequencePsiElement(ASTNode astNode, T elementType) {
@@ -51,8 +52,7 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
         int length = 0;
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            if (child instanceof BasePsiElement basePsiElement) {
                 length = length + basePsiElement.approximateLength();
             }
             child = child.getNextSibling();
@@ -72,8 +72,7 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
 
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            if (child instanceof BasePsiElement basePsiElement) {
                 if (lookupAdapter.accepts(basePsiElement)) {
                     boolean isScopeBoundary = basePsiElement.isScopeBoundary();
                     if (!isScopeBoundary || scopeCrossCount > 0) {
@@ -100,8 +99,7 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
         }
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            if (child instanceof BasePsiElement basePsiElement) {
 
                 if (lookupAdapter.accepts(basePsiElement)) {
                     boolean isScopeBoundary = basePsiElement.isScopeBoundary();
@@ -119,8 +117,7 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
     public void collectExecVariablePsiElements(@NotNull Consumer<ExecVariablePsiElement> consumer) {
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            if (child instanceof BasePsiElement basePsiElement) {
                 basePsiElement.collectExecVariablePsiElements(consumer);
             }
             child = child.getNextSibling();
@@ -131,8 +128,7 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
     public void collectSubjectPsiElements(@NotNull Consumer<IdentifierPsiElement> consumer) {
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            if (child instanceof BasePsiElement basePsiElement) {
                 basePsiElement.collectSubjectPsiElements(consumer);
             }
             child = child.getNextSibling();
@@ -150,8 +146,7 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
             }
             PsiElement child = getFirstChild();
             while (child != null) {
-                if (child instanceof BasePsiElement) {
-                    BasePsiElement basePsiElement = (BasePsiElement) child;
+                if (child instanceof BasePsiElement basePsiElement) {
                     basePsiElement.collectVirtualObjectPsiElements(objectType, consumer);
                 }
                 child = child.getNextSibling();
@@ -163,10 +158,8 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
     public NamedPsiElement findNamedPsiElement(String id) {
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof SequencePsiElement) {
-                SequencePsiElement bundlePsiElement = (SequencePsiElement) child;
-                if (bundlePsiElement instanceof NamedPsiElement) {
-                    NamedPsiElement namedPsiElement = (NamedPsiElement) bundlePsiElement;
+            if (child instanceof SequencePsiElement bundlePsiElement) {
+                if (bundlePsiElement instanceof NamedPsiElement namedPsiElement) {
                     if (Objects.equals(namedPsiElement.elementType.getId(), id)) {
                         return namedPsiElement;
                     }
@@ -184,38 +177,23 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
 
     @Override
     public BasePsiElement findFirstPsiElement(ElementTypeAttribute attribute) {
-        if (elementType.is(attribute)) {
-            return this;
-        }
-
-        PsiElement child = getFirstChild();
-        while (child != null) {
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
-                BasePsiElement firstElement = basePsiElement.findFirstPsiElement(attribute);
-                if (firstElement != null) {
-                    return firstElement;
-                }
-            }
-            child = child.getNextSibling();
-        }
-        return null;
+        return findFirstPsiElement(e -> e.elementType.is(attribute));
     }
 
     @Override
     public BasePsiElement findFirstPsiElement(Class<? extends ElementType> clazz) {
-        if (clazz.isAssignableFrom(elementType.getClass())) {
-            return this;
-        }
+        return findFirstPsiElement(e -> clazz.isAssignableFrom(e.elementType.getClass()));
+    }
+
+    @Override
+    public BasePsiElement findFirstPsiElement(Predicate<BasePsiElement> predicate) {
+        if (predicate.test(this)) return this;
 
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
-                BasePsiElement firstElement = basePsiElement.findFirstPsiElement(clazz);
-                if (firstElement != null) {
-                    return firstElement;
-                }
+            if (child instanceof BasePsiElement basePsiElement) {
+                BasePsiElement firstElement = basePsiElement.findFirstPsiElement(predicate);
+                if (firstElement != null) return firstElement;
             }
             child = child.getNextSibling();
         }
@@ -226,8 +204,7 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
     public BasePsiElement findFirstLeafPsiElement() {
         PsiElement firstChild = getFirstChild();
         while (firstChild != null) {
-            if (firstChild instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) firstChild;
+            if (firstChild instanceof BasePsiElement basePsiElement) {
                 return basePsiElement.findFirstLeafPsiElement();
             }
             firstChild = firstChild.getNextSibling();
@@ -239,8 +216,7 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
     public BasePsiElement findPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType) {
         if (elementType.is(attribute)) {
             BasePsiElement subjectPsiElement = findFirstPsiElement(ElementTypeAttribute.SUBJECT);
-            if (subjectPsiElement instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) subjectPsiElement;
+            if (subjectPsiElement instanceof IdentifierPsiElement identifierPsiElement) {
                 if (identifierPsiElement.getObjectType() == subjectType &&
                         Strings.equalsIgnoreCase(subjectName, identifierPsiElement.getChars())) {
                     return this;
@@ -249,8 +225,7 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
         }
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            if (child instanceof BasePsiElement basePsiElement) {
                 BasePsiElement childPsiElement = basePsiElement.findPsiElementBySubject(attribute, subjectName, subjectType);
                 if (childPsiElement != null) {
                     return childPsiElement;
@@ -268,8 +243,7 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
         }
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            if (child instanceof BasePsiElement basePsiElement) {
                 BasePsiElement childPsiElement = basePsiElement.findPsiElementByAttribute(attribute);
                 if (childPsiElement != null) {
                     return childPsiElement;
@@ -289,8 +263,7 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
 
         PsiElement child = getFirstChild();
         while (child != null) {
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            if (child instanceof BasePsiElement basePsiElement) {
                 boolean containsPsiElement = basePsiElement.containsPsiElement(childPsiElement);
                 if (containsPsiElement) {
                     return true;
@@ -309,8 +282,7 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
          PsiElement child = getFirstChild();
 
          while (child != null) {
-            if (child instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) child;
+            if (child instanceof BasePsiElement basePsiElement) {
                 if (basePsiElement.hasErrors()) {
                     return true;
                 }
@@ -389,9 +361,8 @@ public class SequencePsiElement<T extends ElementTypeBase> extends BasePsiElemen
         PsiElement remoteChild = basePsiElement == null ? null : basePsiElement.getFirstChild();
 
         while(localChild != null && remoteChild != null) {
-            if (localChild instanceof BasePsiElement && remoteChild instanceof BasePsiElement) {
-                BasePsiElement localPsiElement = (BasePsiElement) localChild;
-                BasePsiElement remotePsiElement = (BasePsiElement) remoteChild;
+            if (localChild instanceof BasePsiElement localPsiElement &&
+                    remoteChild instanceof BasePsiElement remotePsiElement) {
                 if (!localPsiElement.matches(remotePsiElement, matchType)) {
                     return false;
                 }

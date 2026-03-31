@@ -101,13 +101,11 @@ public class DBObjectListPsiDirectory implements ReadonlyPsiDirectoryStub  {
     public PsiDirectory getParent() {
         return guarded(null, this, e -> {
             DatabaseEntity parent = e.getObjectList().getParent();
-            if (parent instanceof DBObject) {
-                DBObject parentObject = (DBObject) parent;
+            if (parent instanceof DBObject parentObject) {
                 return DBObjectPsiCache.asPsiDirectory(parentObject);
             }
 
-            if (parent instanceof DBObjectBundle) {
-                DBObjectBundle objectBundle = (DBObjectBundle) parent;
+            if (parent instanceof DBObjectBundle objectBundle) {
                 return objectBundle.getConnection().getPsiDirectory();
             }
 

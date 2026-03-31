@@ -243,11 +243,11 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            emptyValueFactory.create(inputValue -> {
-                if (inputValue != null) {
-                    addValue(inputValue);
-                    selectValue(inputValue);
-                }
+            emptyValueFactory.createValue(inputValue -> {
+                if (inputValue == null) return;
+
+                addValue(inputValue);
+                selectValue(inputValue);
             });
         }
 
@@ -265,11 +265,11 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            valueFactory.create(inputValue -> {
-                if (inputValue != null) {
-                    addValue(inputValue);
-                    selectValue(inputValue);
-                }
+            valueFactory.createValue(inputValue -> {
+                if (inputValue == null) return;
+
+                addValue(inputValue);
+                selectValue(inputValue);
             });
         }
 

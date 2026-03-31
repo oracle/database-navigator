@@ -19,7 +19,6 @@ package com.dbn.connection.transaction.ui;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dbn.connection.transaction.TransactionAction;
@@ -33,16 +32,13 @@ import java.util.List;
 
 import static com.dbn.connection.transaction.TransactionAction.COMMIT;
 import static com.dbn.connection.transaction.TransactionAction.ROLLBACK;
-import static com.dbn.connection.transaction.TransactionAction.actions;
 
 public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactionsDetailForm> {
-    private final ConnectionRef connection;
     private final TransactionAction additionalOperation;
     private final boolean showActions;
 
     public PendingTransactionsDetailDialog(ConnectionHandler connection, TransactionAction additionalOperation, boolean showActions) {
-        super(connection.getProject(), "Open transactions", true);
-        this.connection = connection.ref();
+        super(connection, "Open transactions", true);
         this.additionalOperation = additionalOperation;
         this.showActions = showActions;
         setModal(false);
@@ -56,25 +52,13 @@ public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactio
         return new PendingTransactionsDetailForm(this, getConnection(), additionalOperation, showActions);
     }
 
-    @NotNull
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
-    }
-
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 new CommitAction(),
                 new RollbackAction(),
-                getCancelAction(),
-                getHelpAction()
-        };
-    }
-
-    @Override
-    protected void doOKAction() {
-        super.doOKAction();
+                getCancelAction());
     }
 
     private class CommitAction extends AbstractAction {
@@ -85,7 +69,7 @@ public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactio
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                List<TransactionAction> actions = actions(COMMIT, additionalOperation);
+                List<TransactionAction> actions = TransactionAction.actions(COMMIT, additionalOperation);
                 executeActions(actions);
             } finally {
                 doOKAction();
@@ -101,7 +85,7 @@ public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactio
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                List<TransactionAction> actions = actions(ROLLBACK, additionalOperation);
+                List<TransactionAction> actions = TransactionAction.actions(ROLLBACK, additionalOperation);
                 executeActions(actions);
             } finally {
                 doOKAction();

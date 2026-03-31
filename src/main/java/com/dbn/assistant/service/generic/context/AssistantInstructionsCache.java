@@ -16,10 +16,8 @@
 
 package com.dbn.assistant.service.generic.context;
 
-import com.dbn.assistant.chat.Chat;
+import com.dbn.assistant.AssistantMode;
 import com.dbn.assistant.profile.AssistantProfile;
-import com.dbn.assistant.provider.AIModel;
-import com.dbn.assistant.provider.AIProviderId;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
@@ -34,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -42,7 +41,7 @@ import static com.dbn.assistant.profile.AssistantProfileLookup.getProfile;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_INSTRUCTIONS_CACHE;
 
 public class AssistantInstructionsCache extends AssistantStateExtension implements Function<Object, String> {
-    private final Map<AssistantMemoryId, String> entries = new ConcurrentHashMap<>();
+    private final Map<AssistantMemoryId, SystemMessage> entries = new ConcurrentHashMap<>();
 
     private AssistantInstructionsCache(@NotNull AssistantState assistantState) {
         super(assistantState);
@@ -54,21 +53,46 @@ public class AssistantInstructionsCache extends AssistantStateExtension implemen
 
     @Override
     public String apply(Object memoryId) {
-        if (memoryId instanceof AssistantMemoryId) {
-            AssistantMemoryId memId = (AssistantMemoryId) memoryId;
+        if (memoryId instanceof AssistantMemoryId memId) {
             if (memId.isStateless()) return null;
 
-            return entries.computeIfAbsent(memId, k -> createSystemMessage(k));
+            SystemMessage message = entries.compute(memId, (i, m) -> resolveSystemMessage(m));
+            return message.text;
         }
         return null;
     }
 
-    private String createSystemMessage(AssistantMemoryId memoryId) {
-        AssistantState assistantState = getAssistantState();
-        ConnectionHandler connection = assistantState.getConnection();
-        Project project = connection.getProject();
+    private SystemMessage resolveSystemMessage(SystemMessage message) {
+        int signature = getStateSignature();
+        if (message == null || message.stateSignature != signature) {
+            String systemMessage = createSystemMessage();
+            return new SystemMessage(systemMessage, signature);
+        }
+        return message;
+    }
 
-        String resourceName = isCompact(memoryId) ? "system_message_compact.md.ft" : "system_message.md.ft";
+    private int getStateSignature() {
+        // consider all state attributes that may alter the system message
+        // - operating mode
+        // - tool approvals
+        // - profile user instructions
+        // ...
+
+        AssistantState assistantState = getAssistantState();
+        AssistantMode assistantMode = assistantState.getAssistantMode();
+        int toolsSignature = assistantState.getToolApprovals().getSignature();
+        String userInstructions = getUserInstructions();
+
+        // TODO do we need logic with lower collision potential here?
+        return Objects.hash(assistantMode, toolsSignature, userInstructions);
+    }
+
+    private String createSystemMessage() {
+        AssistantState assistantState = getAssistantState();
+        AssistantMode assistantMode = assistantState.getAssistantMode();
+        ConnectionHandler connection = assistantState.getConnection();
+
+        String resourceName = "system_message_" + assistantMode + ".md.ft";
         String content = TextResources.get(this, resourceName);
         TextContent textContent = TextContent.markdown(content);
         textContent.initField("ASSISTANT_TOOL_CATEGORIES", getToolCategories());
@@ -76,30 +100,21 @@ public class AssistantInstructionsCache extends AssistantStateExtension implemen
         textContent.initField("DATABASE_TYPE", connection.getDatabaseType().getName());
         textContent.initField("DATABASE_NAME", connection.getName());
 
-        String profileId = assistantState.getCurrentContext().getProfileId();
-
-        AssistantProfile profile = getProfile(project, profileId);
-        String userInstructions = profile == null ? "" : profile.getInstructions();
+        String userInstructions = getUserInstructions();
 
         textContent.initField("USER_INSTRUCTIONS", userInstructions);
 
         return textContent.getText();
     }
 
-    private boolean isCompact(AssistantMemoryId memoryId) {
-        String chatId = memoryId.getChatId();
-        Chat chat = getAssistantState().getChat(chatId);
-        if (chat == null) return false;
+    private String getUserInstructions() {
+        AssistantState assistantState = getAssistantState();
+        String profileId = assistantState.getCurrentContext().getProfileId();
 
-        AIModel model = chat.getContext().getModel();
-        if (model == null) return false;
-
-        AIProviderId providerId = model.getProviderId();
-        AIProviderId baseProviderId = model.getBaseProviderId();
-        // TODO quick workaround for cohere 4k limits - implement token metrics and limits (config and model definitions)
-        return providerId == AIProviderId.OCI_GEN_AI && baseProviderId == AIProviderId.COHERE;
+        Project project = assistantState.getProject();
+        AssistantProfile profile = getProfile(project, profileId);
+        return profile == null ? "" : profile.getInstructions();
     }
-
 
     public String getToolCategories() {
         AssistantToolCache toolCache = getToolCache();
@@ -123,4 +138,6 @@ public class AssistantInstructionsCache extends AssistantStateExtension implemen
         AssistantState assistantState = getAssistantState();
         return AssistantToolCache.get(assistantState);
     }
+
+    private record SystemMessage(String text, int stateSignature) {}
 }

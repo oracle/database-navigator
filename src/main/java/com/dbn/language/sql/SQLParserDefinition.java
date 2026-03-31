@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 public class SQLParserDefinition extends DBLanguageParserDefinition {
 
     public SQLParserDefinition() {
-        super(() -> getDefaultParseDefinition().getParser());
+        super(getDefaultParseDefinition().getParser());
     }
 
     public SQLParserDefinition(SQLParser parser) {

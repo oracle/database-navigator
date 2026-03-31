@@ -26,13 +26,13 @@ import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.NamedPsiElement;
 import com.dbn.language.common.psi.TokenPsiElement;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
-import static com.intellij.lang.annotation.HighlightSeverity.ERROR;
 import static com.intellij.lang.annotation.HighlightSeverity.WARNING;
 
 public class SQLLanguageAnnotator extends DBLanguageAnnotator {
@@ -51,13 +51,15 @@ public class SQLLanguageAnnotator extends DBLanguageAnnotator {
             annotateIdentifier(cast(psiElement), holder);
         }
 
-        if (psiElement instanceof NamedPsiElement) {
-            NamedPsiElement namedPsiElement = (NamedPsiElement) psiElement;
+/*
+        // TODO cleanup (intrusive error highlighting)
+        if (psiElement instanceof NamedPsiElement namedPsiElement) {
             if (namedPsiElement.hasErrors()) {
                 String message = "Invalid " + namedPsiElement.elementType.getDescription();
-                createAnnotation(holder, namedPsiElement, ERROR, null, message);
+                createAnnotation(holder, namedPsiElement, WARNING, null, message);
             }
         }
+*/
     }
 
     protected boolean isSupported(PsiElement psiElement) {
@@ -105,12 +107,18 @@ public class SQLLanguageAnnotator extends DBLanguageAnnotator {
     }
 
     private static void annotateObject(@NotNull IdentifierPsiElement objectReference, AnnotationHolder holder) {
-        if (!objectReference.isResolving() && !objectReference.isDefinition()) {
-            PsiElement reference = objectReference.resolve();
-            if (reference == null && objectReference.getResolveAttempts() > 3 && checkConnection(objectReference)) {
-                if (!objectReference.getLanguageDialect().getParserTokenTypes().isFunction(objectReference.getText())) {
-                    createAnnotation(holder, objectReference, WARNING, SQLTextAttributesKeys.UNKNOWN_IDENTIFIER, "Unknown identifier");
-                }
+        if (objectReference.isResolving()) return;
+        if (objectReference.isDefinition()) return;
+
+        DBObjectType objectType = objectReference.getObjectType();
+        if (objectType == DBObjectType.UNKNOWN) return; // not supported (do not highlight)
+        if (!objectType.isBrowsable()) return;
+        if (!objectType.isSupported(objectReference)) return;
+
+        PsiElement reference = objectReference.resolve();
+        if (reference == null && objectReference.getResolveAttempts() > 3 && checkConnection(objectReference)) {
+            if (!objectReference.getLanguageDialect().getParserTokenTypes().isFunction(objectReference.getText())) {
+                createAnnotation(holder, objectReference, WARNING, SQLTextAttributesKeys.UNKNOWN_IDENTIFIER, "Unknown identifier");
             }
         }
     }

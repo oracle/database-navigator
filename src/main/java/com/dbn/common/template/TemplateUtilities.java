@@ -24,6 +24,7 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -50,13 +51,21 @@ public class TemplateUtilities {
 	public static String generateCode(@NotNull Project project, @NonNls String templateName, Properties properties){
 		FileTemplateManager templateManager = FileTemplateManager.getInstance(project);
 		FileTemplate template = templateManager.getCodeTemplate(templateName);
-		return template.getText(properties);
+
+		// workaround for ignored template line-breaks
+		Properties templateProperties = new Properties(properties);
+		templateProperties.put("BR", "\n");
+		return template.getText(templateProperties);
 	}
 
 	@SneakyThrows
-	public static String generateCode(@NotNull Project project, @NonNls String templateName, Map<String, Object> context){
+	public static String generateCode(@NotNull Project project, @NonNls String templateName, Map<String, Object> attributes){
 		FileTemplateManager templateManager = FileTemplateManager.getInstance(project);
 		FileTemplate template = templateManager.getCodeTemplate(templateName);
-		return template.getText(context);
+
+		// workaround for ignored template line-breaks
+		Map<String, Object> templateAttributes = new HashMap<>(attributes);
+		templateAttributes.put("BR", "\n");
+		return template.getText(templateAttributes);
 	}
 }

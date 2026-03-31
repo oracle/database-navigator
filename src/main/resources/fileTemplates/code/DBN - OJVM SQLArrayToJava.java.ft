@@ -1,17 +1,14 @@
-public static ${JAVA_COMPLEX_TYPE}[]${SQUARE_BRACKETS} ${CONVERTER_METHOD_NAME}(java.sql.Array obj) {
-    if (obj == null) return null;
-
-    Object[] ${OBJ_ARRAY};
-    try {
-        ${OBJ_ARRAY} = (Object[]) obj.getArray();
-    } catch (java.sql.SQLException e) {
-        return null;
+    private static ${JAVA_COMPLEX_TYPE}[]${SQUARE_BRACKETS} ${CONVERTER_METHOD_NAME}(java.sql.Array obj)  throws java.sql.SQLException{
+        if (obj == null) return null;
+        $BR
+        Object[] objArray = (Object[]) obj.getArray();
+        if (objArray == null) return null;
+        $BR
+        ${JAVA_COMPLEX_TYPE}[]${SQUARE_BRACKETS} javaObj = new ${JAVA_COMPLEX_TYPE}[objArray.length]${SQUARE_BRACKETS};
+        for (int i = 0; i < objArray.length; i++) {
+            ${ITERATION_CODE}
+        }
+        $BR
+        return javaObj;
     }
-    if (objArray == null) return null;
-
-    ${JAVA_COMPLEX_TYPE}[]${SQUARE_BRACKETS} ${JAVA_OBJECT} = new ${JAVA_COMPLEX_TYPE}[${OBJ_ARRAY}.length]${SQUARE_BRACKETS};
-    for (int ${ITERATOR} = 0; ${ITERATOR} < ${OBJ_ARRAY}.length; ${ITERATOR}++)
-        ${ITERATION_CODE}
-
-    return ${JAVA_OBJECT};
-}
+    $BR

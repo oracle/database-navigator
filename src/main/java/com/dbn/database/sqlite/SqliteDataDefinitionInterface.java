@@ -28,7 +28,6 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.object.factory.MethodFactoryInput;
 import com.intellij.openapi.project.Project;
 
 import java.sql.SQLException;
@@ -77,6 +76,12 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         super.computeSourceCodeOffsets(content, objectTypeId, objectName);
     }
 
+
+    @Override
+    public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
     /*********************************************************
      *                   CHANGE statements                   *
      *********************************************************/
@@ -117,13 +122,4 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             throw e;
         }
     }
-
-    /*********************************************************
-     *                   CREATE statements                   *
-     *********************************************************/
-    @Override
-    public void createMethod(MethodFactoryInput method, DBNConnection connection) throws SQLException {
-        throw new SQLException("Operation not supported: [create method]");
-    }
-
 }

@@ -17,14 +17,17 @@
 package com.dbn.editor.json.schema;
 
 import com.intellij.openapi.project.DumbAware;
+/*
 import com.intellij.openapi.project.Project;
 import com.jetbrains.jsonSchema.extension.JsonSchemaFileProvider;
 import com.jetbrains.jsonSchema.extension.JsonSchemaProviderFactory;
 import org.jetbrains.annotations.NotNull;
+*/
 
 import java.util.List;
 
-public class JsonViewSchemaProviderFactory implements JsonSchemaProviderFactory, DumbAware {
+public class JsonViewSchemaProviderFactory implements /*JsonSchemaProviderFactory, */DumbAware {
+/*
     private final List<JsonSchemaFileProvider> providers = List.of(new JsonViewSchemaProvider());
 
     public JsonViewSchemaProviderFactory() {
@@ -35,4 +38,5 @@ public class JsonViewSchemaProviderFactory implements JsonSchemaProviderFactory,
     public @NotNull List<JsonSchemaFileProvider> getProviders(@NotNull Project project) {
         return providers;
     }
+*/
 }

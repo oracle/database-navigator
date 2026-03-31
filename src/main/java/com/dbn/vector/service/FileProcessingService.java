@@ -1,62 +1,66 @@
 package com.dbn.vector.service;
 
 import com.dbn.common.util.Json;
+import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
-import com.dbn.vector.model.FileResult;
-import com.dbn.vector.model.PipelineStep;
-import com.dbn.vector.model.StepResult;
 import com.dbn.vector.model.VectorEmbeddingRequest;
-import com.dbn.vector.model.common.FileContent;
+import com.dbn.vector.model.request.EmbeddingDestinationConfig;
+import com.dbn.vector.model.request.EmbeddingStagingConfig;
+import com.dbn.vector.model.result.EmbeddingFileResult;
+import com.dbn.vector.model.result.PipelineStep;
+import com.dbn.vector.model.result.StepResult;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.dbn.vector.model.sourceconfig.SourceType.FILE_SYSTEM;
+import static com.dbn.vector.DatabaseVectorManager.ENGINE_VERSION;
+import static com.dbn.vector.model.request.EmbeddingSourceType.FILE_SYSTEM;
 
 @Slf4j
 public class FileProcessingService {
-    public static final String FILES_TABLE = "document_files";
 
-    public String checkFileExists(
+    public String resolveFileStoreId(
             @NotNull DBNConnection connection,
-            @NotNull DatabaseVectorInterface vectorInterface,
-            @NotNull FileContent fileContent,
-            @NotNull FileResult fileResult) {
+            @NotNull VectorEmbeddingRequest request,
+            @NotNull EmbeddingFileResult result) {
 
-        StepResult step = fileResult.startStep(PipelineStep.CHECK_CRC);
+        StepResult step = result.startStep(PipelineStep.CHECK_CRC);
+        DatabaseVectorInterface vectorInterface = request.getVectorInterface();
+        ResultSet resultSet = null;
 
         try {
-            String fileHash = fileContent.getHash();
-            long fileSize = fileContent.getFileSize();
-
             // Query database: does file with this hash and size exist?
-            ResultSet rs = vectorInterface.selectDocumentIdByHashIfExists(
+            EmbeddingStagingConfig stagingConfig = request.getStagingConfig();
+            resultSet = vectorInterface.loadFileStoreMetadata(
                     connection,
-                    FILES_TABLE,
-                    fileHash,
-                    fileSize
-            );
+                    stagingConfig.getSchemaName(),
+                    stagingConfig.getTableName(),
+                    result.getFileHash(),
+                    result.getFileSize());
 
-            if (rs.next()) {
-                String existingDocId = rs.getString("id");
-                String metadata = rs.getString("metadata");
-                fileContent.setMetadata(Json.readAsMap(metadata));
+            if (resultSet.next()) {
+                String fileStoreId = resultSet.getString("id");
+                String metadata = resultSet.getString("metadata");
+                result.setMetadata(metadata);
                 step.markSuccess();
-                return existingDocId;
+                return fileStoreId;
             }
 
             step.markSuccess();
 
         } catch (Exception e) {
-            step.markFailed("CRC_ERROR", e.getMessage());
-            fileResult.finishFailed("CRC_ERROR", e.getMessage());
+            step.markFailed("CRC_ERROR", e);
+            result.finishFailed("CRC_ERROR", e);
+        } finally {
+            Resources.close(resultSet);
         }
         return null;
     }
@@ -64,56 +68,76 @@ public class FileProcessingService {
 
     public void uploadFile(
             @NotNull DBNConnection connection,
-            @NotNull DatabaseVectorInterface vectorInterface,
-            @NotNull FileContent fileContent,
-            @NotNull String documentId,
-            @NotNull FileResult fileResult) {
+            @NotNull VectorEmbeddingRequest request,
+            @NotNull EmbeddingFileResult result) {
 
-        StepResult step = fileResult.startStep(PipelineStep.UPLOADING_FILE);
+        StepResult step = result.startStep(PipelineStep.UPLOADING_FILE);
 
         try {
             // Extract metadata from FileContent and connection
-            String metadataJson = buildFileMetadata(connection, fileContent);
+            String fileMetadata = buildFileMetadata(connection, result);
+            result.setMetadata(fileMetadata);
+            EmbeddingStagingConfig stagingConfig = request.getStagingConfig();
+
+            DatabaseVectorInterface vectorInterface = request.getVectorInterface();
 
             // Step 1: Insert row with metadata and hash
-            vectorInterface.insertEmptyDocumentRow(
+            vectorInterface.createFileStoreEntry(
                     connection,
-                    FILES_TABLE,
-                    documentId,
-                    metadataJson,
-                    fileContent.getHash(),  // From FileContent (no re-computation)
-                    fileContent.getFileSize()   // From FileContent (no re-reading)
-            );
+                    stagingConfig.getSchemaName(),
+                    stagingConfig.getTableName(),
+                    result.getFileStoreId(),
+                    fileMetadata,
+                    result.getFileHash(),
+                    result.getFileSize());
 
             // Step 2: Write file bytes to BLOB column
             // NOTE: Pass bytes directly, not JDBC Blob
-            vectorInterface.writeBlobContent(
+          try (InputStream inputStream = result.getSource().getFileInputStream()) {
+            vectorInterface.uploadFileStoreContent(
                     connection,
-                    FILES_TABLE,
-                    documentId,
-                    fileContent.getBytes()  // Cached bytes from FileContent
-            );
+                    stagingConfig.getSchemaName(),
+                    stagingConfig.getTableName(),
+                    result.getFileStoreId(),   // Cached bytes from FileContent
+                    inputStream);
+          }
+
 
             step.markSuccess();
         } catch (Exception e) {
-            step.markFailed("UPLOAD_ERROR", e.getMessage());
-            fileResult.finishFailed("UPLOAD_ERROR", e.getMessage());
+            step.markFailed("UPLOAD_ERROR", e);
+            result.finishFailed("UPLOAD_ERROR", e);
         }
     }
 
     public void embedFile(
-            @NotNull VectorEmbeddingRequest request,
             @NotNull DBNConnection connection,
-            @NotNull DatabaseVectorInterface vectorInterface,
-            @NotNull String documentId,  // ID only, not bytes!
-            FileContent fileContent, @NotNull FileResult fileResult) {
+            @NotNull VectorEmbeddingRequest request,
+            @NotNull EmbeddingFileResult result) {
 
-        StepResult step = fileResult.startStep(PipelineStep.EMBED);
+        StepResult step = result.startStep(PipelineStep.EMBED);
 
         try {
-            String rowMetadata = buildRowMetadata(request, fileContent.getMetadata());
-            String chunkConfigJson = request.getChunkConfig().getConfigJson();
-            String embedConfigJson = request.getEmbedConfig().getConfigJson();
+            // Check if embeddings already exist for this document
+            EmbeddingStagingConfig stagingConfig = request.getStagingConfig();
+            EmbeddingDestinationConfig destinationConfig = request.getDestinationConfig();
+            DatabaseVectorInterface vectorInterface = request.getVectorInterface();
+
+            boolean alreadyEmbedded = vectorInterface.isContentEmbedded(
+                    connection,
+                    destinationConfig.getSchemaName(),
+                    destinationConfig.getTableName(),
+                    result.getFileStoreId());
+
+            if (alreadyEmbedded) {
+                step.markSuccess();
+                result.finishSkipped();  // 0 new rows - already embedded
+                return;
+            }
+
+            String rowMetadata = buildRowMetadata(request, Json.readAsMap(result.getMetadata()));
+            String chunkConfigJson = request.getChunkConfigJson();
+            String embedConfigJson = request.getModelConfigJson();
 
             // Call embedFileContent with documentId
             // It will SELECT the BLOB from database and process it
@@ -121,37 +145,37 @@ public class FileProcessingService {
                     connection,
                     chunkConfigJson,
                     embedConfigJson,
-                    request.getStoreConfig(),
-                    documentId,              // ← ID instead of Blob!
-                    rowMetadata
-            );
+                    stagingConfig.getSchemaName(),
+                    stagingConfig.getTableName(),
+                    destinationConfig.getSchemaName(),
+                    destinationConfig.getTableName(),
+                    result.getFileStoreId(), rowMetadata);
 
             step.markSuccess();
-            fileResult.finishSuccess(embeddedRows);
+            result.finishSuccess(embeddedRows);
 
         } catch (Throwable e) {
-            step.markFailed("EMBED_ERROR", e.getMessage());
-            fileResult.finishFailed("EMBED_ERROR", e.getMessage());
+            step.markFailed("EMBED_ERROR", e);
+            result.finishFailed("EMBED_ERROR", e);
         }
     }
 
 
     private String buildFileMetadata(
             @NotNull DBNConnection connection,
-            @NotNull FileContent fileContent) throws SQLException {
+            @NotNull EmbeddingFileResult fileResult) throws SQLException {
 
-        VirtualFile file = fileContent.getFile();
+        VirtualFile file = fileResult.getFile();
 
         @NonNls
         Map<String, Object> metadata = new LinkedHashMap<>();
 
+        metadata.put("source_id", fileResult.getFileStoreId());
         metadata.put("file_name", file.getName());
         metadata.put("file_path", file.getPath());
-        metadata.put("file_size", fileContent.getFileSize());
+        metadata.put("file_size", fileResult.getFileSize());
         metadata.put("upload_timestamp", System.currentTimeMillis());
         metadata.put("uploaded_by", connection.getSchema() != null ? connection.getSchema() : "unknown");
-
-        fileContent.setMetadata(metadata);
         return Json.writeAsString(metadata);
     }
 
@@ -161,8 +185,9 @@ public class FileProcessingService {
         sourceMetadata.putAll(fileMetadata);
 
         Map<String, Object> metadata = new LinkedHashMap<>();
+        metadata.put("engine_version", ENGINE_VERSION);
         metadata.put("embedding_source", sourceMetadata);
-        metadata.put("embedding_config", request.getEmbedConfig().getConfigMap());
+        metadata.put("embedding_config", request.getModelConfig().getConfigMap());
         metadata.put("chunking_config", request.getChunkConfig().getConfigMap());
         return Json.writeAsString(metadata);
     }

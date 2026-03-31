@@ -18,12 +18,19 @@ package com.dbn.editor.ddl;
 
 import com.dbn.common.editor.BasicTextEditorImpl;
 import com.dbn.editor.EditorProviderId;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+
+import static com.dbn.help.HelpTopic.DDL_FILE_EDITOR;
 
 public class DDLFileEditor extends BasicTextEditorImpl<VirtualFile> {
     DDLFileEditor(Project project, VirtualFile virtualFile, EditorProviderId editorProviderId) {
         super(project, virtualFile, virtualFile.getName(), editorProviderId);
     }
 
+    @Override
+    public HelpTopic getHelpTopic() {
+        return DDL_FILE_EDITOR;
+    }
 }

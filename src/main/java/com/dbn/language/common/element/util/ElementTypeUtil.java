@@ -32,6 +32,7 @@ public class ElementTypeUtil {
     }
 
     public static NamedElementType getEnclosingNamedElementType(ParserNode pathNode) {
+        if (pathNode == null) return null;
         ParserNode parentNode = (ParserNode) pathNode.parent;
         while (parentNode != null) {
             ElementType elementType = parentNode.element;

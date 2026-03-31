@@ -22,14 +22,17 @@ import com.intellij.lang.PsiBuilder;
 public class ParserNode extends LanguageNodeBase {
     public final int startOffset;
     public int currentOffset;
-    public int cursorPosition;
+    public int elementIndex;
+    public int matchedTokens;
+    public int matchedElements;
+
     public PsiBuilder.Marker elementMarker;
 
-    public ParserNode(ElementTypeBase elementType, ParserNode parent, int startOffset, int cursorPosition) {
+    public ParserNode(ElementTypeBase elementType, ParserNode parent, int startOffset, int elementIndex) {
         super(elementType, parent);
         this.startOffset = startOffset;
         this.currentOffset = startOffset;
-        this.cursorPosition = cursorPosition;
+        this.elementIndex = elementIndex;
     }
 
     @Override
@@ -60,12 +63,6 @@ public class ParserNode extends LanguageNodeBase {
             parseNode = (ParserNode) parseNode.parent;
         }
         return false;
-    }
-
-    public int incrementIndex(int builderOffset) {
-        cursorPosition++;
-        this.currentOffset = builderOffset;
-        return cursorPosition;
     }
 
     @Override

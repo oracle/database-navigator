@@ -24,6 +24,8 @@ import com.intellij.psi.PsiElement;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.ref.Reference;
+
 @UtilityClass
 public final class Checks {
 
@@ -45,34 +47,32 @@ public final class Checks {
             return false;
         }
 
-        if (object instanceof StatefulDisposable) {
-            StatefulDisposable disposable = (StatefulDisposable) object;
+        if (object instanceof StatefulDisposable disposable) {
             return !disposable.isDisposed();
         }
 
-        if (object instanceof Project) {
-            Project project = (Project) object;
+        if (object instanceof Project project) {
             return !project.isDisposed();
         }
 
-        if (object instanceof Editor) {
-            Editor editor = (Editor) object;
+        if (object instanceof Editor editor) {
             return !editor.isDisposed();
         }
 
-        if (object instanceof FileEditor) {
-            FileEditor editor = (FileEditor) object;
+        if (object instanceof FileEditor editor) {
             return editor.isValid();
         }
 
-        if (object instanceof VirtualFile) {
-            VirtualFile virtualFile = (VirtualFile) object;
+        if (object instanceof VirtualFile virtualFile) {
             return virtualFile.isValid();
         }
 
-        if (object instanceof PsiElement) {
-            PsiElement psiElement = (PsiElement) object;
+        if (object instanceof PsiElement psiElement) {
             return psiElement.isValid();
+        }
+
+        if (object instanceof Reference<?> reference) {
+            return reference.get() != null;
         }
 
         return true;

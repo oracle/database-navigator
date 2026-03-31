@@ -41,8 +41,7 @@ public class SessionBrowserNotificationProvider extends EditorNotificationProvid
     @NotNull
     private static SessionBrowserLoadListener sessionBrowserLoadListener() {
         return virtualFile -> {
-            if (virtualFile instanceof DBSessionBrowserVirtualFile) {
-                DBSessionBrowserVirtualFile databaseFile = (DBSessionBrowserVirtualFile) virtualFile;
+            if (virtualFile instanceof DBSessionBrowserVirtualFile databaseFile) {
                 Project project = databaseFile.getProject();
                 EditorNotifications notifications = Editors.getNotifications(project);;
                 notifications.updateNotifications(virtualFile);
@@ -60,9 +59,8 @@ public class SessionBrowserNotificationProvider extends EditorNotificationProvid
     @Override
     public SessionBrowserErrorNotificationPanel createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
         if (!(file instanceof DBSessionBrowserVirtualFile)) return null;
-        if (!(fileEditor instanceof SessionBrowser)) return null;
+        if (!(fileEditor instanceof SessionBrowser sessionBrowser)) return null;
 
-        SessionBrowser sessionBrowser = (SessionBrowser) fileEditor;
         ConnectionHandler connection = sessionBrowser.getConnection();
         String error = sessionBrowser.getModelError();
         if (Strings.isEmpty(error)) return null;

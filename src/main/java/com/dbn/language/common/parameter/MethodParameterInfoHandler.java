@@ -61,13 +61,11 @@ public class MethodParameterInfoHandler implements ParameterInfoHandler<BasePsiE
         if (enclosingNamedPsiElement == null) return null;
 
         BasePsiElement methodPsiElement = METHOD_LOOKUP_ADAPTER.findInElement(enclosingNamedPsiElement);
-        if (!(methodPsiElement instanceof IdentifierPsiElement)) return null;
+        if (!(methodPsiElement instanceof IdentifierPsiElement identifierPsiElement)) return null;
 
-        IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) methodPsiElement;
         DBObject object = identifierPsiElement.getUnderlyingObject();
-        if (!(object instanceof DBMethod)) return null;
+        if (!(object instanceof DBMethod method)) return null;
 
-        DBMethod method = (DBMethod) object;
         DBProgram program = method.getProgram();
         if (program != null) {
             DBObjectList objectList = program.getChildObjectList(method.getObjectType());
@@ -87,8 +85,7 @@ public class MethodParameterInfoHandler implements ParameterInfoHandler<BasePsiE
         while (psiElement != null && !(psiElement instanceof PsiFile)) {
             if (psiElement instanceof BasePsiElement) {
                 ElementType elementType = PsiUtil.getElementType(psiElement);
-                if (elementType instanceof WrapperElementType) {
-                    WrapperElementType wrapperElementType = (WrapperElementType) elementType;
+                if (elementType instanceof WrapperElementType wrapperElementType) {
                     if (wrapperElementType.is(ElementTypeAttribute.METHOD_PARAMETER_HANDLER)) {
                         return (BasePsiElement) psiElement;
                     } else {
@@ -121,15 +118,14 @@ public class MethodParameterInfoHandler implements ParameterInfoHandler<BasePsiE
             BasePsiElement iteratedPsiElement = null;
             while (paramPsiElement != null) {
                 ElementType elementType = PsiUtil.getElementType(paramPsiElement);
-                if (elementType instanceof TokenElementType) {
-                    TokenElementType tokenElementType = (TokenElementType) elementType;
+                if (elementType instanceof TokenElementType tokenElementType) {
                     if (iterationElementType.isSeparator(tokenElementType.tokenType)){
                         if (paramPsiElement.getTextOffset() >= offset) {
                             break;
                         }
                     }
                 }
-                if (elementType == iterationElementType.iteratedElementType) {
+                if (elementType == iterationElementType.iteratedElement) {
                     iteratedPsiElement = (BasePsiElement) paramPsiElement;
                     paramIndex++;
                 }
@@ -158,8 +154,7 @@ public class MethodParameterInfoHandler implements ParameterInfoHandler<BasePsiE
         BasePsiElement argumentPsiElement = ARGUMENT_LOOKUP_ADAPTER.findInElement(parameter);
         if (argumentPsiElement != null) {
             DBObject object = argumentPsiElement.getUnderlyingObject();
-            if (object instanceof DBArgument) {
-                DBArgument argument = (DBArgument) object;
+            if (object instanceof DBArgument argument) {
                 context.setCurrentParameter(argument.getPosition() -1);
                 return;
             }
@@ -170,7 +165,7 @@ public class MethodParameterInfoHandler implements ParameterInfoHandler<BasePsiE
         PsiElement paramPsiElement = iterationPsiElement.getFirstChild();
         while (paramPsiElement != null) {
             ElementType elementType = PsiUtil.getElementType(paramPsiElement);
-            if (elementType == iterationElementType.iteratedElementType) {
+            if (elementType == iterationElementType.iteratedElement) {
                 if (paramPsiElement == parameter) {
                     context.setCurrentParameter(index);
                     return;

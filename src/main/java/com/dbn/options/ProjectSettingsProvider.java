@@ -50,6 +50,8 @@ public class ProjectSettingsProvider extends ConfigurableProvider{
         Unsafe.silent(() -> {
             Object extensionArea = invokeMethod(project, "getExtensionArea");
             ExtensionPoint<ConfigurableEP<?>> projectConfigEP = invokeMethod(extensionArea, "getExtensionPoint", PROJECT_CONFIGURABLE);
+            if (projectConfigEP == null) return;
+
             ConfigurableEP<?>[] extensions = projectConfigEP.getExtensions();
             for (ConfigurableEP<?> extension : extensions) {
                 if (ProjectSettingsProvider.class.getName().equals(extension.providerClass)) {

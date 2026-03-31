@@ -47,6 +47,7 @@ import java.util.Objects;
 import static com.dbn.common.action.UserDataKeys.BREAKPOINT_FILE;
 import static com.dbn.common.action.UserDataKeys.BREAKPOINT_ID;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.debugger.common.breakpoint.DBBreakpointType.createBreakpointProperties;
 
 public class DBBreakpointUtil {
 
@@ -69,8 +70,7 @@ public class DBBreakpointUtil {
         String fileUrl = breakpoint.getFileUrl();
         if (databaseFileSystem.isDatabaseUrl(fileUrl)) {
             VirtualFile virtualFile = databaseFileSystem.findFileByPath(fileUrl);
-            if (virtualFile instanceof DBContentVirtualFile) {
-                DBContentVirtualFile contentVirtualFile = (DBContentVirtualFile) virtualFile;
+            if (virtualFile instanceof DBContentVirtualFile contentVirtualFile) {
                 breakpointFile = contentVirtualFile.getMainDatabaseFile();
                 breakpoint.putUserData(BREAKPOINT_FILE, breakpointFile);
             } else if (virtualFile instanceof DBConsoleVirtualFile) {
@@ -86,8 +86,7 @@ public class DBBreakpointUtil {
     @Nullable
     public static DBObjectRef getDatabaseObject(@NotNull XLineBreakpoint breakpoint) {
         VirtualFile file = getVirtualFile(breakpoint);
-        if (file instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile objectFile = (DBEditableObjectVirtualFile) file;
+        if (file instanceof DBEditableObjectVirtualFile objectFile) {
             return objectFile.getObjectRef();
         }
         return null;
@@ -96,8 +95,7 @@ public class DBBreakpointUtil {
     public static DBContentType getContentType(@NotNull XLineBreakpoint breakpoint) {
         DBContentType contentType = DBContentType.CODE;
         VirtualFile virtualFile = getVirtualFile(breakpoint);
-        if (virtualFile instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) virtualFile;
+        if (virtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             contentType = sourceCodeFile.getContentType();
         }
         return contentType;
@@ -139,8 +137,7 @@ public class DBBreakpointUtil {
         Collection<XLineBreakpoint<XBreakpointProperties>> databaseBreakpoints = getDatabaseBreakpoints(project);
         for (var breakpoint : databaseBreakpoints) {
             XBreakpointProperties properties = breakpoint.getProperties();
-            if (properties instanceof DBBreakpointProperties) {
-                DBBreakpointProperties breakpointProperties = (DBBreakpointProperties) properties;
+            if (properties instanceof DBBreakpointProperties breakpointProperties) {
                 if (connection == breakpointProperties.getConnection()) {
                     breakpoints.add(breakpoint);
                 }
@@ -193,5 +190,21 @@ public class DBBreakpointUtil {
     public static @NotNull XBreakpointManager getBreakpointManager(Project project) {
         XDebuggerManager debuggerManager = XDebuggerManager.getInstance(project);
         return debuggerManager.getBreakpointManager();
+    }
+
+    public static void registerBreakpoint(DBContentVirtualFile contentFile, int line, boolean enabled, boolean temporary) {
+        Read.run(() -> {
+            ConnectionHandler connection = contentFile.getConnection();
+
+            String fileUrl = contentFile.getUrl();
+            Project project = contentFile.getProject();
+
+            XBreakpointProperties properties = createBreakpointProperties(connection);
+            DBBreakpointType breakpointType = DBBreakpointType.get();
+
+            XBreakpointManager breakpointManager = getBreakpointManager(project);
+            XLineBreakpoint<XBreakpointProperties> breakpoint = breakpointManager.addLineBreakpoint(breakpointType, fileUrl, line, properties, temporary);
+            breakpoint.setEnabled(enabled);
+        });
     }
 }

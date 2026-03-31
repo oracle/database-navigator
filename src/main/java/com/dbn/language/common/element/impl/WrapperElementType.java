@@ -18,10 +18,9 @@ package com.dbn.language.common.element.impl;
 
 import com.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dbn.common.util.Strings;
-import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.TokenPairTemplate;
-import com.dbn.language.common.element.cache.WrapperElementTypeLookupCache;
+import com.dbn.language.common.element.cache.WrapperElementTypeCache;
 import com.dbn.language.common.element.parser.impl.WrapperElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.SequencePsiElement;
@@ -31,12 +30,10 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 public final class WrapperElementType extends ElementTypeBase {
-    private WrappingDefinition wrappingDefinition;
     public ElementTypeBase wrappedElement;
     public boolean wrappedElementOptional;
 
@@ -55,12 +52,12 @@ public final class WrapperElementType extends ElementTypeBase {
             String startTokenId = stringAttribute(def, "begin-token");
             String endTokenId = stringAttribute(def, "end-token");
 
-            beginTokenElement = new TokenElementType(bundle, this, startTokenId, "begin-token");
-            endTokenElement = new TokenElementType(bundle, this, endTokenId, "end-token");
+            beginTokenElement = new TokenElementType(this, startTokenId, id + ".b");
+            endTokenElement = new TokenElementType(this, endTokenId, id + ".e");
         } else {
             TokenPairTemplate template = TokenPairTemplate.valueOf(templateId);
-            beginTokenElement = new TokenElementType(bundle, this, template.getBeginToken(), "begin-token");
-            endTokenElement = new TokenElementType(bundle, this, template.getEndToken(), "end-token");
+            beginTokenElement = new TokenElementType(this, template.getBeginToken(), id + ".b");
+            endTokenElement = new TokenElementType(this, template.getEndToken(), id + ".e");
 
             if (template.isBlock()) {
                 beginTokenElement.setDefaultFormatting(FormattingDefinition.LINE_BREAK_AFTER);
@@ -69,7 +66,7 @@ public final class WrapperElementType extends ElementTypeBase {
             }
         }
 
-        wrappingDefinition = new WrappingDefinition(beginTokenElement, endTokenElement);
+        wrapping = new WrappingDefinition(beginTokenElement, endTokenElement, false);
 
 
         List<Element> children = def.getChildren();
@@ -87,8 +84,8 @@ public final class WrapperElementType extends ElementTypeBase {
     }
 
     @Override
-    public WrapperElementTypeLookupCache createLookupCache() {
-        return new WrapperElementTypeLookupCache(this);
+    public WrapperElementTypeCache createLookupCache() {
+        return new WrapperElementTypeCache(this);
     }
 
     @NotNull
@@ -103,19 +100,18 @@ public final class WrapperElementType extends ElementTypeBase {
     }
 
     public TokenElementType getBeginTokenElement() {
-        return wrappingDefinition.beginElementType;
+        return wrapping.beginElement;
     }
 
     public TokenElementType getEndTokenElement() {
-        return wrappingDefinition.endElementType;
+        return wrapping.endElement;
     }
 
     public boolean isStrong() {
         if (getBeginTokenElement().tokenType.isReservedWord()) {
             return true;
         }
-        if (parent instanceof SequenceElementType) {
-            SequenceElementType sequenceElementType = (SequenceElementType) parent;
+        if (parent instanceof SequenceElementType sequenceElementType) {
             int index = sequenceElementType.indexOf(this);
 
             ElementTypeRef child = sequenceElementType.children[index];
@@ -139,13 +135,10 @@ public final class WrapperElementType extends ElementTypeBase {
         return new SequencePsiElement<>(astNode, this);
     }
 
-    public ElementType getWrappedElement() {
-        return wrappedElement;
-    }
+    public void initialize() {
+        if (initialized) return;
+        initialized = true;
 
-    @Override
-    public void collectLeafElements(Set<LeafElementType> bucket) {
-        bucket.add(getBeginTokenElement());
-        bucket.add(getEndTokenElement());
+        wrappedElement.initialize();
     }
 }

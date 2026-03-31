@@ -83,8 +83,7 @@ public class FormattingBlock implements Block {
 
     private FormattingAttributes getFormattingAttributes() {
         PsiElement psiElement = getPsiElement();
-        if (psiElement instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+        if (psiElement instanceof BasePsiElement basePsiElement) {
             return basePsiElement.getFormattingAttributes();
         }
         return null;
@@ -110,8 +109,7 @@ public class FormattingBlock implements Block {
 
     private Object getAttribute(Type type) {
         PsiElement psiElement = getPsiElement();
-        if (psiElement instanceof FormattingProviderPsiElement) {
-            FormattingProviderPsiElement providerPsiElement = (FormattingProviderPsiElement) psiElement;
+        if (psiElement instanceof FormattingProviderPsiElement providerPsiElement) {
             FormattingAttributes attributes = providerPsiElement.getFormattingAttributes();
             Object attribute = FormattingAttributes.getAttribute(attributes,  type);
             if (attribute != null) return attribute;
@@ -146,13 +144,11 @@ public class FormattingBlock implements Block {
 
         Indent indent = getIndentAttribute();
         if (indent == null) {
-            if (psiElement instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+            if (psiElement instanceof BasePsiElement basePsiElement) {
                 BasePsiElement parentPsiElement = getParentPsiElement(basePsiElement);
-                if (parentPsiElement != null && parentPsiElement.elementType instanceof WrapperElementType) {
-                    WrapperElementType wrapperElementType = (WrapperElementType) parentPsiElement.elementType;
+                if (parentPsiElement != null && parentPsiElement.elementType instanceof WrapperElementType wrapperElementType) {
                     SharedTokenTypeBundle sharedTokenTypes = parentPsiElement.getLanguage().getSharedTokenTypes();
-                    if (wrapperElementType.getBeginTokenElement().tokenType == sharedTokenTypes.getChrLeftParenthesis()) {
+                    if (wrapperElementType.getBeginTokenElement().tokenType == sharedTokenTypes.chrLeftParenthesis) {
                         //FormattingBlock parentStatementBlock = getParentBlock(this, ElementTypeAttribute.STATEMENT);
                         //Indent parentStatementIndent = parentStatementBlock.getIndent();
                         //return Indent.getIndent(Indent.Type.SPACES, -1, false, false);
@@ -175,8 +171,7 @@ public class FormattingBlock implements Block {
             return null;
         }
 
-        if (psiElement instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+        if (psiElement instanceof BasePsiElement basePsiElement) {
 
             Wrap wrap = getWrapAttribute();
             if (wrap != null) {
@@ -233,10 +228,10 @@ public class FormattingBlock implements Block {
 
             // DOT, COMMA spacing
             SharedTokenTypeBundle sharedTokenTypes = language.getSharedTokenTypes();
-            SimpleTokenType chrDot = sharedTokenTypes.getChrDot();
-            SimpleTokenType chrComma = sharedTokenTypes.getChrComma();
-            SimpleTokenType leftParenthesis = sharedTokenTypes.getChrLeftParenthesis();
-            SimpleTokenType rightParenthesis = sharedTokenTypes.getChrRightParenthesis();
+            SimpleTokenType chrDot = sharedTokenTypes.chrDot;
+            SimpleTokenType chrComma = sharedTokenTypes.chrComma;
+            SimpleTokenType leftParenthesis = sharedTokenTypes.chrLeftParenthesis;
+            SimpleTokenType rightParenthesis = sharedTokenTypes.chrRightParenthesis;
 
             if (is(leftPsiElement, chrDot)) return SpacingDefinition.NO_SPACE.getValue();
             if (is(rightPsiElement, chrDot)) return SpacingDefinition.NO_SPACE.getValue();
@@ -260,8 +255,7 @@ public class FormattingBlock implements Block {
         }
 
 
-        if (rightPsiElement instanceof BasePsiElement) {
-            BasePsiElement rightBasePsiElement = (BasePsiElement) rightPsiElement;
+        if (rightPsiElement instanceof BasePsiElement rightBasePsiElement) {
 
             if (rightBasePsiElement instanceof TokenPsiElement || rightBasePsiElement instanceof NamedPsiElement) {
                 return null;
@@ -284,8 +278,7 @@ public class FormattingBlock implements Block {
     }
 
     private static boolean is(PsiElement psiElement, TokenType tokenType) {
-        if (psiElement instanceof TreeElement) {
-            TreeElement treeElement = (TreeElement) psiElement;
+        if (psiElement instanceof TreeElement treeElement) {
             return treeElement.getElementType() == tokenType;
         }
         return false;
@@ -294,13 +287,11 @@ public class FormattingBlock implements Block {
     @Nullable
     private DBLanguage getLanguage() {
         PsiElement psiElement = getPsiElement();
-        if (psiElement instanceof DBLanguagePsiFile) {
-            DBLanguagePsiFile databasePsiFile = (DBLanguagePsiFile) psiElement;
+        if (psiElement instanceof DBLanguagePsiFile databasePsiFile) {
             return databasePsiFile.getDBLanguage();
         }
 
-        if (psiElement instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+        if (psiElement instanceof BasePsiElement basePsiElement) {
             return basePsiElement.getLanguage();
         }
         return null;
@@ -317,8 +308,7 @@ public class FormattingBlock implements Block {
     private static FormattingBlock getParentBlock(FormattingBlock block, ElementTypeAttribute typeAttribute) {
         if (block.parentBlock != null) {
             PsiElement psiElement = block.parentBlock.getPsiElement();
-            if (psiElement instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+            if (psiElement instanceof BasePsiElement basePsiElement) {
                 if (basePsiElement.elementType.is(typeAttribute)) {
                     return block.parentBlock;
                 }
@@ -370,8 +360,7 @@ public class FormattingBlock implements Block {
 
     private DBLCodeStyleSettings getCodeStyleSettings(PsiElement child) {
         DBLCodeStyleSettings codeStyleCustomSettings = this.codeStyleCustomSettings;
-        if (child instanceof ChameleonPsiElement) {
-            ChameleonPsiElement element = (ChameleonPsiElement) child;
+        if (child instanceof ChameleonPsiElement element) {
             DBLanguage language = (DBLanguage) PsiUtil.getLanguage(element);
             PsiElement psiElement = getPsiElement();
             codeStyleCustomSettings = language.codeStyleSettings(psiElement.getProject());
@@ -400,8 +389,7 @@ public class FormattingBlock implements Block {
     @Override
     public boolean isIncomplete() {
         PsiElement psiElement = getPsiElement();
-        if (psiElement instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+        if (psiElement instanceof BasePsiElement basePsiElement) {
             return basePsiElement.hasErrors();
         }
         return false;

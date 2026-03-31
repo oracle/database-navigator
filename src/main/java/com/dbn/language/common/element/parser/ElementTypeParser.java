@@ -31,23 +31,30 @@ import com.intellij.lang.PsiBuilder.Marker;
 
 import java.util.Set;
 
+import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
+import static com.dbn.language.common.element.parser.ParseResult.match;
+import static com.dbn.language.common.element.parser.ParseResultType.BORROWED_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
+
 public abstract class ElementTypeParser<T extends ElementTypeBase> {
     public final T elementType;
+    public final SharedTokenTypeBundle sharedTokenTypes;
 
     public ElementTypeParser(T elementType) {
         this.elementType = elementType;
+        this.sharedTokenTypes = elementType.bundle.tokenTypeBundle.getSharedTokenTypes();
     }
 
     public ParserNode stepIn(ParserNode parentNode, ParserContext context) {
         ParserBuilder builder = context.builder;
         ParserNode node = new ParserNode(elementType, parentNode, builder.getOffset(), 0);
-        Marker marker = builder.mark(node);
-        node.elementMarker = marker;
+        node.elementMarker = builder.mark(node);
         return node;
     }
 
-    public ParseResult stepOut(ParserNode node, ParserContext context, ParseResultType resultType, int matchedTokens) {
-        return stepOut(null, node, context, resultType, matchedTokens);
+    public ParseResult stepOut(ParserNode node, ParserContext context, ParseResultType resultType) {
+        return stepOut(null, node, context, resultType, node == null ? 0 : node.matchedTokens);
     }
 
     public ParseResult stepOut(Marker marker, ParserContext context, ParseResultType resultType, int matchedTokens) {
@@ -56,35 +63,37 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
 
     private ParseResult stepOut(Marker marker, ParserNode node, ParserContext context, ParseResultType resultType, int matchedTokens) {
         try {
+            ParserBuilder builder = context.builder;
             marker = marker == null ? node == null ? null : node.elementMarker : marker;
-            if (resultType == ParseResultType.PARTIAL_MATCH) {
-                ElementTypeBase offsetPsiElement = Commons.nvl(context.lastResolvedLeaf, elementType);
+            if (resultType == PARTIAL_MATCH) {
+                ElementTypeBase offsetPsiElement = Commons.nvl(builder.tokenMonitor.lastLeaf, elementType);
                 Set<TokenType> nextPossibleTokens = offsetPsiElement.cache.getNextPossibleTokens();
                 ParseBuilderErrorHandler.updateBuilderError(nextPossibleTokens, context);
             }
-            ParserBuilder builder = context.builder;
-            if (resultType == ParseResultType.NO_MATCH) {
-                builder.markerRollbackTo(marker);
+
+            if (resultType == NO_MATCH) {
+                builder.markerRollbackTo(marker, elementType);
             } else {
                 if (elementType instanceof BlockElementType)
                     builder.markerDrop(marker); else
-                    builder.markerDone(marker, elementType, node);
+                    builder.markerDone(marker, elementType);
             }
 
 
-            if (resultType == ParseResultType.NO_MATCH) {
-                return ParseResult.noMatch();
+            if (resultType == NO_MATCH) {
+                return NO_MATCH_RESULT;
             } else {
                 Branch branch = this.elementType.branch;
                 if (node != null && branch != null) {
                     // if node is matched add branches marker
                     context.addBranchMarker(node, branch);
                 }
-                if (elementType instanceof LeafElementType) {
-                    context.lastResolvedLeaf = (LeafElementType) elementType;
+                if (elementType instanceof LeafElementType leafElementType) {
+                    builder.tokenMonitor.markResolved(leafElementType);
+                    builder.tokenPairMonitor.acknowledge(leafElementType, resultType == BORROWED_MATCH);
                 }
 
-                return ParseResult.match(resultType, matchedTokens);
+                return match(resultType, matchedTokens);
             }
         } finally {
             if (node != null) {
@@ -100,50 +109,54 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
      * Returns true if the token is a reserved word, but can act as an identifier in this context.
      */
     protected boolean isSuppressibleReservedWord(TokenType tokenType, ParserNode node, ParserContext context) {
-        if (tokenType != null && tokenType.isSuppressibleReservedWord()) {
-            SharedTokenTypeBundle sharedTokenTypes = elementType.bundle.tokenTypeBundle.getSharedTokenTypes();
-            SimpleTokenType dot = sharedTokenTypes.getChrDot();
-            SimpleTokenType leftParenthesis = sharedTokenTypes.getChrLeftParenthesis();
-            ParserBuilder builder = context.builder;
-            if (builder.getPreviousToken() == dot || builder.getNextToken() == dot) {
-                return true;
-            }
+        if (tokenType == null) return false;
+        if (!tokenType.isSuppressibleReservedWord()) return false;
 
-            if (tokenType.isFunction() && builder.getNextToken() != leftParenthesis) {
-                if (elementType instanceof LeafElementType) {
-                    LeafElementType leafElementType = (LeafElementType) elementType;
-                    return !leafElementType.isNextRequiredToken(leftParenthesis, node, context);
-                }
-            }
 
-            ElementTypeBase namedElementType = ElementTypeUtil.getEnclosingNamedElementType(node);
-            if (namedElementType != null && namedElementType.cache.containsToken(tokenType)) {
-                LeafElementType lastResolvedLeaf = context.lastResolvedLeaf;
-                return lastResolvedLeaf != null && !lastResolvedLeaf.isNextPossibleToken(tokenType, node, context);
-            }
+        SimpleTokenType dot = context.sharedTokenTypes.chrDot;
+        SimpleTokenType leftParenthesis = sharedTokenTypes.chrLeftParenthesis;
+        ParserBuilder builder = context.builder;
+        if (builder.getPreviousToken() == dot) return true;
+        if (builder.getNextToken() == dot) return true;
 
-            if (context.lastResolvedLeaf != null) {
-                if (context.lastResolvedLeaf.isNextPossibleToken(tokenType, node, context)) {
-                    return false;
-                }
+        if (tokenType.isFunction() && builder.getNextToken() != leftParenthesis) {
+            if (elementType instanceof LeafElementType leafElementType) {
+                return !leafElementType.isNextRequiredToken(leftParenthesis, node);
             }
-            return true;//!isFollowedByToken(tokenType, node);
         }
-        return false;
+
+        LeafElementType lastResolvedLeaf = builder.tokenMonitor.lastLeaf;
+
+        ElementTypeBase namedElementType = ElementTypeUtil.getEnclosingNamedElementType(node);
+        if (namedElementType != null && namedElementType.cache.containsToken(tokenType)) {
+            return lastResolvedLeaf != null && !lastResolvedLeaf.isNextPossibleToken(tokenType, node);
+        }
+
+        if (lastResolvedLeaf != null) {
+            if (lastResolvedLeaf.isNextPossibleToken(tokenType, node)) {
+                return false;
+            }
+        }
+
+        return true;//!isFollowedByToken(tokenType, node);
     }
 
-    @Deprecated
     protected boolean shouldParseElement(ElementTypeBase elementType, ParserNode node, ParserContext context) {
         ParserBuilder builder = context.builder;
         TokenType token = builder.getToken();
-        if (token == null || token.isChameleon()) {
-            return false;
+        if (token == null) return false;
+
+        if (builder.isDummyToken()) return true;
+        if (elementType.cache.couldStartWithToken(token)) return true;
+
+        if (builder.tokenPairMonitor.hasConsumedMatch(elementType)) return true;
+        if (builder.tokenMonitor.isSurrogate()) {
+            if (builder.tokenMonitor.isSurrogateFor(elementType)) return true;
         }
 
-        return
-            builder.isDummyToken() ||
-            elementType.cache.couldStartWithToken(token) ||
-            isSuppressibleReservedWord(token, node, context);
+        if (isSuppressibleReservedWord(token, node, context)) return true;
+
+        return false;
     }
 
     @Override

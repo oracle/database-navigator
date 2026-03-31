@@ -29,4 +29,12 @@ public interface DBConsole extends DBObject {
     DBConsoleVirtualFile getVirtualFile();
 
     DBConsoleType getConsoleType();
+
+    boolean isTemporary();
+
+    void setTemporary(boolean temporary);
+
+    String getSource();
+
+    void setSource(String source);
 }

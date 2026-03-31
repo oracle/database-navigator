@@ -16,6 +16,7 @@
 
 package com.dbn.common.data;
 
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Csvs;
 import com.dbn.common.util.Strings;
 import lombok.experimental.UtilityClass;
@@ -52,6 +53,9 @@ public final class Data {
     public static <T> T asType(@Nullable Object object, Class<T> type) {
         if (object == null) return null;
 
+        Class<?> objectType = object.getClass();
+        if (type.isAssignableFrom(objectType)) return cast(object);
+
         if (type == Boolean.class)    return cast(asBoolean(object));
         if (type == Byte.class)       return cast(asByte(object));
         if (type == Character.class)  return cast(asCharacter(object));
@@ -73,7 +77,10 @@ public final class Data {
         if (type == BigInteger.class) return cast(asBigInteger(object));
         if (type == Object.class)     return cast(object);
 
-        throw new UnsupportedOperationException("Cast from " + object.getClass() + " to " + type + " is not implemented");
+        if (type.isEnum())            return cast(asEnum(type, object));
+        if (type == String[].class)   return cast(asStringArray(object));
+
+        throw new UnsupportedOperationException("Cast from " + objectType + " to " + type + " is not implemented");
         // TODO add more cast logic if required
     }
 
@@ -84,12 +91,30 @@ public final class Data {
     @Nullable
     public static String asString(@Nullable Object object) {
         if (object == null) return null;
+        if (object instanceof char[] chars) return Chars.toString(chars);
         return object.toString();
     }
 
 
     public static List<String> asStringList(@Nullable Object object) {
         return asList(object, o -> asString(o));
+    }
+
+    public static String[] asStringArray(@Nullable Object object) {
+        List<String> strings =
+                object instanceof String string ?
+                        csvToList(string, String.class) : // assumed csv
+                        asList(object, o -> asString(o));
+        return strings == null ? new String[0] : strings.toArray(new String[0]);
+    }
+
+    public static Enum asEnum(Class<?> type, Object object) {
+        if (object == null) return null;
+
+        String string = asString(object);
+        if (string == null) return null;
+
+        return Enum.valueOf((Class<Enum>)type, string);
     }
 
     public static Character asCharacter(@Nullable Object object) {
@@ -228,18 +253,18 @@ public final class Data {
     public static Class<?> asPrimitiveClass(@NonNls String primitiveTypeName) {
         if (primitiveTypeName == null) return null;
 
-        switch (primitiveTypeName) {
-            case "boolean": return boolean.class;
-            case "byte":    return byte.class;
-            case "char":    return char.class;
-            case "short":   return short.class;
-            case "int":     return int.class;
-            case "long":    return long.class;
-            case "float":   return float.class;
-            case "double":  return double.class;
-            case "void":    return void.class;
-            default:        return null;
-        }
+        return switch (primitiveTypeName) {
+            case "boolean" -> boolean.class;
+            case "byte" -> byte.class;
+            case "char" -> char.class;
+            case "short" -> short.class;
+            case "int" -> int.class;
+            case "long" -> long.class;
+            case "float" -> float.class;
+            case "double" -> double.class;
+            case "void" -> void.class;
+            default -> null;
+        };
     }
 
 

@@ -46,15 +46,14 @@ public class CodeStyleCaseOption implements PersistentConfiguration {
     }
 
     public @NonNls String format(String string) {
-        if (string != null) {
-            switch (styleCase) {
-                case UPPER: return ignore(string) ? string : toUpperCase(string);
-                case LOWER: return ignore(string) ? string : toLowerCase(string);
-                case CAPITALIZED: return ignore(string) ? string : titleCased(string);
-                case PRESERVE: return string;
-            }
-        }
-        return null;
+        if (string == null) return null;
+
+        return switch (styleCase) {
+            case UPPER -> ignore(string) ? string : toUpperCase(string);
+            case LOWER -> ignore(string) ? string : toLowerCase(string);
+            case CAPITALIZED -> ignore(string) ? string : titleCased(string);
+            case PRESERVE -> string;
+        };
     }
 
     boolean ignore(String string) {

@@ -64,22 +64,22 @@ public class MetadataDiagnosticsTableModel extends AbstractDiagnosticsTableModel
     public Object getValue(DiagnosticEntry<String> entry, int column) {
         DiagnosticEntry<String> q = entry.getDetail("QUERY");
         DiagnosticEntry<String> l = entry.getDetail("LOAD");
-        switch (column) {
-            case 0: return q.getIdentifier();
-            case 1: return q.getInvocations();
-            case 2: return q.getFailures();
-            case 3: return q.getTimeouts();
-            case 4: return q.getBest();
-            case 5: return l.getBest();
-            case 6: return q.getWorst();
-            case 7: return l.getWorst();
-            case 8: return q.getAverage();
-            case 9: return l.getAverage();
-            case 10: return q.getTotal();
-            case 11: return l.getTotal();
-            case 12: return entry.getDetail("FETCH_BLOCK").getAverage();
-        }
-        return "";
+        return switch (column) {
+            case 0 -> q.getIdentifier();
+            case 1 -> q.getInvocations();
+            case 2 -> q.getFailures();
+            case 3 -> q.getTimeouts();
+            case 4 -> q.getBest();
+            case 5 -> l.getBest();
+            case 6 -> q.getWorst();
+            case 7 -> l.getWorst();
+            case 8 -> q.getAverage();
+            case 9 -> l.getAverage();
+            case 10 -> q.getTotal();
+            case 11 -> l.getTotal();
+            case 12 -> entry.getDetail("FETCH_BLOCK").getAverage();
+            default -> "";
+        };
     }
 
     @Override

@@ -32,7 +32,6 @@ public class ObjectDependencyTreeDialog extends DBNDialog<ObjectDependencyTreeFo
         this.object = DBObjectRef.of(object);
         setModal(false);
         setResizable(true);
-        renameAction(getCancelAction(), "Close");
         init();
     }
 
@@ -50,7 +49,8 @@ public class ObjectDependencyTreeDialog extends DBNDialog<ObjectDependencyTreeFo
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{getCancelAction()};
+    protected final Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(getCancelAction());
     }
 }

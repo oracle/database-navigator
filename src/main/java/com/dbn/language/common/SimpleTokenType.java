@@ -56,6 +56,7 @@ public class SimpleTokenType<T extends SimpleTokenType<T>> extends IElementType 
     private TokenPairTemplate tokenPairTemplate;
     private static final AtomicInteger REGISTERED_COUNT = new AtomicInteger();
     private TextAttributesKey[] textAttributesKeys;
+    private Boolean variable;
 
     public SimpleTokenType(@NotNull @NonNls String debugName, @Nullable Language language) {
         super(debugName, language, false);
@@ -78,8 +79,8 @@ public class SimpleTokenType<T extends SimpleTokenType<T>> extends IElementType 
 
         this.lookupIndex = integerAttribute(element, "index", lookupIndex);
 
-        String type = stringAttribute(element, "type");
-        this.category = TokenTypeCategory.getCategory(type);
+        String category = stringAttribute(element, "category");
+        this.category = TokenTypeCategory.getCategory(category);
         this.suppressibleReservedWord = isReservedWord() && !booleanAttribute(element, "reserved", false);
         this.hashCode = System.identityHashCode(this);
 
@@ -129,12 +130,11 @@ public class SimpleTokenType<T extends SimpleTokenType<T>> extends IElementType 
 
     @Override
     public boolean isVariable() {
-        return getSharedTokenTypes().isVariable(this);
-    }
+        if (variable == null) {
+            variable = getSharedTokenTypes().isVariable(this);
+        }
 
-    @Override
-    public boolean isQuotedIdentifier() {
-        return this == getSharedTokenTypes().getQuotedIdentifier();
+        return variable;
     }
 
     @Override
@@ -205,11 +205,9 @@ public class SimpleTokenType<T extends SimpleTokenType<T>> extends IElementType 
     @NotNull
     private SharedTokenTypeBundle getSharedTokenTypes() {
         Language lang = getLanguage();
-        if (lang instanceof DBLanguageDialect) {
-            DBLanguageDialect languageDialect = (DBLanguageDialect) lang;
+        if (lang instanceof DBLanguageDialect languageDialect) {
             return languageDialect.getSharedTokenTypes();
-        } else if (lang instanceof DBLanguage) {
-            DBLanguage language = (DBLanguage) lang;
+        } else if (lang instanceof DBLanguage language) {
             return language.getSharedTokenTypes();
         }
         throw new IllegalArgumentException("Language element of type " + lang + "is not supported");

@@ -18,7 +18,7 @@ package com.dbn.language.common.parameter;
 
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
-import com.dbn.code.psql.style.PSQLCodeStyle;
+import com.dbn.code.sql.style.SQLCodeStyle;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.IterationElementType;
 import com.dbn.language.common.element.impl.TokenElementType;
@@ -56,15 +56,14 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
                 BasePsiElement iteratedPsiElement = null;
                 while (paramPsiElement != null) {
                     ElementType elementType = PsiUtil.getElementType(paramPsiElement);
-                    if (elementType instanceof TokenElementType) {
-                        TokenElementType tokenElementType = (TokenElementType) elementType;
+                    if (elementType instanceof TokenElementType tokenElementType) {
                         if (iterationElementType.isSeparator(tokenElementType.tokenType)){
                             if (paramPsiElement.getTextOffset() >= offset) {
                                 break;
                             }
                         }
                     }
-                    if (elementType == iterationElementType.iteratedElementType) {
+                    if (elementType == iterationElementType.iteratedElement) {
                         iteratedPsiElement = (BasePsiElement) paramPsiElement;
                     }
 
@@ -86,8 +85,7 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
             while (psiElement != null && !(psiElement instanceof PsiFile)) {
                 if (psiElement instanceof BasePsiElement) {
                     ElementType elementType = PsiUtil.getElementType(psiElement);
-                    if (elementType instanceof WrapperElementType) {
-                        WrapperElementType wrapperElementType = (WrapperElementType) elementType;
+                    if (elementType instanceof WrapperElementType wrapperElementType) {
                         if (wrapperElementType.is(ElementTypeAttribute.COLUMN_PARAMETER_HANDLER)) {
                             return (BasePsiElement) psiElement;
                         } else {
@@ -131,8 +129,7 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
                 BasePsiElement iteratedPsiElement = null;
                 while (paramPsiElement != null) {
                     ElementType elementType = PsiUtil.getElementType(paramPsiElement);
-                    if (elementType instanceof TokenElementType) {
-                        TokenElementType tokenElementType = (TokenElementType) elementType;
+                    if (elementType instanceof TokenElementType tokenElementType) {
                         if (iterationElementType.isSeparator(tokenElementType.tokenType)){
                             if (paramPsiElement.getTextOffset() >= offset) {
                                 break;
@@ -165,7 +162,7 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
             PsiElement paramPsiElement = wrappedPsiElement.getFirstChild();
             while (paramPsiElement != null) {
                 ElementType elementType = PsiUtil.getElementType(paramPsiElement);
-                if (elementType == iterationElementType.iteratedElementType) {
+                if (elementType == iterationElementType.iteratedElement) {
                     if (paramPsiElement == parameter) {
                         context.setCurrentParameter(index);
                         return;
@@ -190,7 +187,7 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
     public void updateUI(BasePsiElement handlerPsiElement, @NotNull ParameterInfoUIContext context) {
         if (handlerPsiElement.isValid()) {
             Project project = handlerPsiElement.getProject();
-            CodeStyleCaseSettings caseSettings = PSQLCodeStyle.caseSettings(project);
+            CodeStyleCaseSettings caseSettings = SQLCodeStyle.caseSettings(project);
             CodeStyleCaseOption datatypeCaseOption = caseSettings.getDatatypeCaseOption();
             CodeStyleCaseOption objectCaseOption = caseSettings.getObjectCaseOption();
 
@@ -206,20 +203,18 @@ public class ColumnParameterInfoHandler implements ParameterInfoHandler<BasePsiE
                 IterationElementType iterationElementType = (IterationElementType) iterationPsiElement.elementType;
                 PsiElement child = iterationPsiElement.getFirstChild();
                 while (child != null) {
-                    if (child instanceof BasePsiElement) {
-                        BasePsiElement basePsiElement = (BasePsiElement) child;
-                        if (basePsiElement.elementType == iterationElementType.iteratedElementType) {
+                    if (child instanceof BasePsiElement basePsiElement) {
+                        if (basePsiElement.elementType == iterationElementType.iteratedElement) {
                             boolean highlight = index == currentIndex || (index == 0 && currentIndex == -1);
                             if (highlight) {
                                 highlightStartOffset = text.length();
                             }
-                            if (text.length() > 0) {
+                            if (!text.isEmpty()) {
                                 text.append(", ");
                             }
                             text.append(datatypeCaseOption.format(basePsiElement.getText()));
                             DBObject object = basePsiElement.getUnderlyingObject();
-                            if (object instanceof DBColumn) {
-                                DBColumn column = (DBColumn) object;
+                            if (object instanceof DBColumn column) {
                                 String columnType = column.getDataType().getName();
                                 text.append(" ");
                                 text.append(objectCaseOption.format(columnType));

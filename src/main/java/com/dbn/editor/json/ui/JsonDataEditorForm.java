@@ -30,7 +30,6 @@ import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SessionId;
-import com.dbn.data.find.DataSearchComponent;
 import com.dbn.data.find.SearchableDataComponent;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dbn.editor.DBContentType;
@@ -48,7 +47,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.text.JTextComponent;
 import java.awt.BorderLayout;
 import java.awt.DefaultFocusTraversalPolicy;
 import java.sql.SQLException;
@@ -85,6 +83,7 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
         try {
             toolbarPanel.setBorder(Borders.insetBorder(2));
 
+            loadingDataPanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
             tablePanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
             editorPanel.setBorder(Borders.tableBorder(0, 1, 0, 0));
             editorPanel.setVisible(false);
@@ -95,11 +94,11 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
             setAccessibleName(actionToolbar, txt("app.dataEditor.aria.JsonDataEditorActions"));
 
             actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
-            loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
+            loadingIconPanel.add(new AsyncProcessIcon("Loading"));
             hideLoadingHint();
 
             ActionToolbar loadingActionToolbar = Actions.createActionToolbar(actionsPanel, true, new CancelLoadingAction());
-            loadingActionPanel.add(loadingActionToolbar.getComponent(), BorderLayout.CENTER);
+            loadingActionPanel.add(loadingActionToolbar.getComponent());
 
             Disposer.register(this, autoCommitLabel);
         } catch (SQLException e) {
@@ -201,43 +200,6 @@ public class JsonDataEditorForm extends DBNFormBase implements SearchableDataCom
     @Override
     public @NotNull JPanel getSearchPanel() {
         return searchPanel;
-    }
-
-    @Override
-    public void showSearchHeader() {
-        getJsonDataEditor().setContentEditorVisible(false);
-        JsonDataEditorTable editorTable = getEditorTable();
-        editorTable.clearSelection();
-
-        DataSearchComponent dataSearchComponent = getSearchComponent();
-        dataSearchComponent.initializeFindModel();
-
-        JTextComponent searchField = dataSearchComponent.getSearchField();
-        if (searchPanel.isVisible()) {
-            searchField.selectAll();
-        } else {
-            searchPanel.setVisible(true);    
-        }
-        dispatch(() -> searchField.requestFocus());
-    }
-
-    @Override
-    public void hideSearchHeader() {
-        if (!searchPanel.isVisible()) return;
-
-        getSearchComponent().resetFindModel();
-        searchPanel.setVisible(false);
-        JsonDataEditorTable editorTable = getEditorTable();
-        UserInterface.repaintAndFocus(editorTable);
-    }
-
-    @Override
-    public void cancelEditActions() {
-    }
-
-    @Override
-    public String getSelectedText() {
-        return null;
     }
 
     @NotNull

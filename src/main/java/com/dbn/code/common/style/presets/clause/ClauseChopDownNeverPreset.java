@@ -41,11 +41,10 @@ public class ClauseChopDownNeverPreset extends ClauseAbstractPreset {
     @Nullable
     public Spacing getSpacing(BasePsiElement psiElement, CodeStyleSettings settings) {
         PsiElement previousPsiElement = psiElement.getPrevSibling();
-        if (previousPsiElement instanceof TokenPsiElement) {
-            TokenPsiElement previousToken = (TokenPsiElement) previousPsiElement;
+        if (previousPsiElement instanceof TokenPsiElement previousToken) {
             SharedTokenTypeBundle sharedTokenTypes = psiElement.getLanguage().getSharedTokenTypes();
             TokenType tokenType = previousToken.getTokenType();
-            return tokenType ==  sharedTokenTypes.getChrLeftParenthesis() ?
+            return tokenType ==  sharedTokenTypes.chrLeftParenthesis ?
                     SPACING_NO_SPACE :
                     SPACING_ONE_SPACE;
 

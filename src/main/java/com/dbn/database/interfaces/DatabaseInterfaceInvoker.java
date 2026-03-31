@@ -73,10 +73,7 @@ public final class DatabaseInterfaceInvoker {
         execute(priority, title, text, project, connectionId, null, runnable);
     }
 
-    /**
-     * @deprecated use {@link #execute(Priority, String, String, Project, ConnectionId, ConnectionRunnable)}
-     */
-    public static void execute(Priority priority, @ProgressTitle String title, @ProgressText String text, Project project, ConnectionId connectionId, @Deprecated SchemaId schemaId, ConnectionRunnable runnable) throws SQLException {
+    public static void execute(Priority priority, @ProgressTitle String title, @ProgressText String text, Project project, ConnectionId connectionId, SchemaId schemaId, ConnectionRunnable runnable) throws SQLException {
         InterfaceTaskRequest request = InterfaceTaskRequest.create(priority, title, text, project, connectionId, schemaId);
         ConnectionHandler connection = request.getConnection();
         DatabaseInterfaceQueue interfaceQueue = connection.getInterfaceQueue();

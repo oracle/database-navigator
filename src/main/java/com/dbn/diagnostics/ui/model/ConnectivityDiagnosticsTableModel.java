@@ -57,15 +57,15 @@ public class ConnectivityDiagnosticsTableModel extends AbstractDiagnosticsTableM
 
     @Override
     public Object getValue(DiagnosticEntry<SessionId> entry, int column) {
-        switch (column) {
-            case 0: return getSession(entry.getIdentifier());
-            case 1: return entry.getInvocations();
-            case 2: return entry.getFailures();
-            case 3: return entry.getTimeouts();
-            case 4: return entry.getAverage();
-            case 5: return entry.getTotal();
-        }
-        return "";
+        return switch (column) {
+            case 0 -> getSession(entry.getIdentifier());
+            case 1 -> entry.getInvocations();
+            case 2 -> entry.getFailures();
+            case 3 -> entry.getTimeouts();
+            case 4 -> entry.getAverage();
+            case 5 -> entry.getTotal();
+            default -> "";
+        };
     }
 
     @NotNull
@@ -75,15 +75,15 @@ public class ConnectivityDiagnosticsTableModel extends AbstractDiagnosticsTableM
 
     @Override
     public String getPresentableValue(DiagnosticEntry<SessionId> entry, int column) {
-        switch (column) {
-            case 0: return getSession(entry.getIdentifier()).getName();
-            case 1: return Long.toString(entry.getInvocations());
-            case 2: return Long.toString(entry.getFailures());
-            case 3: return Long.toString(entry.getTimeouts());
-            case 4: return Long.toString(entry.getAverage());
-            case 5: return Long.toString(entry.getTotal());
-        }
-        return "";
+        return switch (column) {
+            case 0 -> getSession(entry.getIdentifier()).getName();
+            case 1 -> Long.toString(entry.getInvocations());
+            case 2 -> Long.toString(entry.getFailures());
+            case 3 -> Long.toString(entry.getTimeouts());
+            case 4 -> Long.toString(entry.getAverage());
+            case 5 -> Long.toString(entry.getTotal());
+            default -> "";
+        };
     }
 
     public ConnectionHandler getConnection() {

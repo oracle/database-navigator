@@ -56,14 +56,24 @@ public class CardLayouts {
     }
 
     public static Component removeCard(JPanel container, Object identifier) {
+        Component component = getCard(container, identifier);
+        if (component == null) return null;
+
+        CardLayout cardLayout = (CardLayout) container.getLayout();
+        cardLayout.removeLayoutComponent(component);
+        container.remove(component);
+
+        return component;
+    }
+
+    @Nullable
+    public static Component getCard(JPanel container, Object identifier) {
         CardLayout cardLayout = (CardLayout) container.getLayout();
         String name = Objects.toString(identifier);
 
         Component[] components = container.getComponents();
         for (Component component : components) {
             if (Objects.equals(component.getName(), name)) {
-                cardLayout.removeLayoutComponent(component);
-                container.remove(component);
                 return component;
             }
         }

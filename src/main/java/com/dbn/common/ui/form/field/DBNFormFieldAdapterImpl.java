@@ -20,9 +20,10 @@ import com.dbn.common.filter.Filter;
 import com.dbn.common.lookup.Condition;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.util.ClientProperty;
+import com.dbn.data.editor.ui.TextFieldWithButtons;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.util.containers.ContainerUtil;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.ui.HyperlinkLabel;
+import com.intellij.util.containers.WeakList;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractButton;
@@ -30,11 +31,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.text.JTextComponent;
 import java.lang.reflect.Field;
-import java.util.Set;
+import java.util.Collection;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
@@ -51,7 +53,8 @@ import static com.dbn.common.util.Unsafe.warned;
  * @author Dan Cioca (Oracle)
  */
 class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
-    private final Set<JComponent> fields = ContainerUtil.createWeakSet();
+    // weak container with field definition order preservation (Non-streamable)
+    private final Collection<JComponent> fields = new WeakList<>();
 
     DBNFormFieldAdapterImpl(DBNForm form) {
         Class formClass = form.getClass();
@@ -64,39 +67,47 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
         }
     }
 
+    private void forEachField(Filter<JComponent> filter, Consumer<? super JComponent> action) {
+        for (JComponent field : fields) {
+            if (filter.accepts(field)) {
+                action.accept(field);
+            }
+        }
+    }
+
     @Override
     public void classifyFields(JComponentCategory category, Filter<JComponent> filter) {
-        fields(filter).forEach(c -> category.classify(c));
+        forEachField(filter, c -> category.classify(c));
     }
 
     @Override
     public void captureFieldValues(Filter<JComponent> filter) {
-        fields(filter).forEach(c -> captureFieldValue(c));
+        forEachField(filter, c -> captureFieldValue(c));
     }
 
     @Override
     public void resetFieldValues(Filter<JComponent> filter) {
-        fields(filter).forEach(c -> setFieldValue(c, null));
+        forEachField(filter, c -> setFieldValue(c, null));
     }
 
     @Override
     public void restoreFieldValues(Filter<JComponent> filter) {
-        fields(filter).forEach(c -> restoreFieldValue(c));
+        forEachField(filter, c -> restoreFieldValue(c));
     }
 
     @Override
     public void updateFields(Filter<JComponent> filter, Consumer<JComponent> consumer) {
-        fields(filter).forEach(consumer);
+        forEachField(filter, consumer);
     }
 
     @Override
     public void initFieldsVisibility(Condition condition, Filter<JComponent> filter) {
-        fields(filter).forEach(c -> VISIBILITY_CONDITION.set(c, condition));
+        forEachField(filter, c -> VISIBILITY_CONDITION.set(c, condition));
     }
 
     @Override
     public void initFieldsAvailability(Condition condition, Filter<JComponent> filter) {
-        fields(filter).forEach(c -> AVAILABILITY_CONDITION.set(c, condition));
+        forEachField(filter, c -> AVAILABILITY_CONDITION.set(c, condition));
     }
 
     @Override
@@ -123,11 +134,6 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
         }
     }
 
-    private @NotNull Stream<JComponent> fields(Filter<JComponent> filter) {
-        return this.fields.stream().filter(c -> filter.accepts(c));
-    }
-
-
     @Nullable
     private JComponent unwrapComponent(Field field, DBNForm form) {
         Class<?> fieldType = field.getType();
@@ -141,7 +147,11 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
         if (component instanceof JCheckBox) return component;
         if (component instanceof JLabel) return component;
         if (component instanceof TextFieldWithBrowseButton) return component;
+        if (component instanceof TextFieldWithButtons) return component;
         if (component instanceof AbstractButton) return component;
+        if (component instanceof HyperlinkLabel) return component;
+        if (component instanceof JSpinner) return component;
+        if (component instanceof JPanel) return component;
         // TODO....
 
         return null;
@@ -162,20 +172,16 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
     }
 
     private static @Nullable Object getFieldValue(JComponent component) {
-        if (component instanceof TextFieldWithBrowseButton) {
-            TextFieldWithBrowseButton textComponent = (TextFieldWithBrowseButton) component;
+        if (component instanceof TextFieldWithBrowseButton textComponent) {
             return textComponent.getText();
 
-        } else if (component instanceof JTextComponent) {
-            JTextComponent textComponent = (JTextComponent) component;
+        } else if (component instanceof JTextComponent textComponent) {
             return getText(textComponent);
 
-        } else if (component instanceof JComboBox) {
-            JComboBox comboBox = (JComboBox) component;
+        } else if (component instanceof JComboBox comboBox) {
             return comboBox.getSelectedItem();
 
-        } else  if (component instanceof JCheckBox) {
-            JCheckBox checkBox = (JCheckBox) component;
+        } else  if (component instanceof JCheckBox checkBox) {
             return checkBox.isSelected();
 
         }
@@ -184,22 +190,18 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
     }
 
     private static void setFieldValue(JComponent component, Object value) {
-        if (component instanceof TextFieldWithBrowseButton) {
-            TextFieldWithBrowseButton textComponent = (TextFieldWithBrowseButton) component;
+        if (component instanceof TextFieldWithBrowseButton textComponent) {
             String stringValue = value == null ? "" : value.toString();
             textComponent.setText(stringValue);
 
-        } else if (component instanceof JTextComponent) {
-            JTextComponent textComponent = (JTextComponent) component;
+        } else if (component instanceof JTextComponent textComponent) {
             String stringValue = value == null ? "" : value.toString();
             textComponent.setText(stringValue);
 
-        } else if (component instanceof JComboBox) {
-            JComboBox comboBox = (JComboBox) component;
+        } else if (component instanceof JComboBox comboBox) {
             comboBox.setSelectedItem(value);
 
-        } else if (component instanceof JCheckBox) {
-            JCheckBox checkBox = (JCheckBox) component;
+        } else if (component instanceof JCheckBox checkBox) {
             boolean booleanValue = value  != null && (Boolean) value;
             checkBox.setSelected(booleanValue);
         }

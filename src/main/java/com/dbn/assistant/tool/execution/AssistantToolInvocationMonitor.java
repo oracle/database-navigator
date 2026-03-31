@@ -21,7 +21,6 @@ import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
-import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.common.thread.ThreadInfo;
@@ -43,6 +42,7 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
     private final AssistantTool tool;
     private CountDownLatch approvalLatch;
     private boolean approved;
+    private boolean cancelled;
     private Future promise;
 
     public AssistantToolInvocationMonitor(@NotNull AssistantState assistantState, AssistantTool tool) {
@@ -52,8 +52,7 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
 
     public void awaitApproval() {
         AssistantState state = getAssistantState();
-        AssistantToolSettings settings = AssistantToolSettings.get(state);
-        AssistantToolApprovals approvals = settings.getApprovals();
+        AssistantToolApprovals approvals = state.getToolApprovals();
         if (approvals.isApproved(this.tool)) return;
 
         if (approvals.isBlocked(tool.getType())) throw new AssistantToolApprovalException("User has denied the execution of this tool type");
@@ -68,7 +67,8 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
 
             boolean inTime = approvalLatch.await(timeout, unit);
             if (!inTime) throw new AssistantToolApprovalException("User has not approved in time. Tool execution approval has timed out");
-            //if (canceled) throw new AssistantToolApprovalException("User has cancelled the execution of this tool");
+
+            if (cancelled) throw new AssistantToolApprovalException("User has cancelled the execution of this tool");
             if (!approved) throw new AssistantToolApprovalException("User has denied the execution of this tool");
         } catch (AssistantToolApprovalException e) {
             throw e;
@@ -100,13 +100,22 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
     }
 
     public void cancel() {
+        cancelled = true;
+        cancelPromise();
+        releaseLatch();
+    }
+
+    private void cancelPromise() {
+        Future promise = this.promise;
         if (promise == null) return;
+
         promise.cancel(true);
     }
 
     private void releaseLatch() {
+        CountDownLatch approvalLatch = this.approvalLatch;
         if (approvalLatch == null) return;
+
         approvalLatch.countDown();
     }
-
 }

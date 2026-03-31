@@ -19,18 +19,18 @@ package com.dbn.plugin.ui;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.plugin.PluginConflictManager;
 import com.dbn.plugin.PluginConflictResolution;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
 public class PluginConflictResolutionDialog extends DBNDialog<PluginConflictResolutionForm> {
     public PluginConflictResolutionDialog() {
-        super(null, "Plugin Conflict Resolution", true);
+        super((Project) null, "Plugin Conflict Resolution", true);
         setModal(true);
         setResizable(false);
         //setDefaultSize(700, 400);
         getCancelAction().setEnabled(false);
-        renameAction(getOKAction(), "Continue");
         init();
     }
 
@@ -52,10 +52,9 @@ public class PluginConflictResolutionDialog extends DBNDialog<PluginConflictReso
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
-                getOKAction()
-        };
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Continue");
+        return actions(getOKAction());
     }
 
     @Override

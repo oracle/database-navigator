@@ -18,19 +18,14 @@ package com.dbn.assistant.service.selectai.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
 public class SelectAiHelpDialog extends DBNDialog<SelectAiHelpForm> {
 
-  private final ConnectionRef connection;
-
   public SelectAiHelpDialog(ConnectionHandler connection) {
-    super(connection.getProject(), "Select AI Help", true);
-    this.connection = ConnectionRef.of(connection);
-    renameAction(getCancelAction(), "Close");
+    super(connection, "Select AI Help", true);
 
     setResizable(false);
     init();
@@ -38,12 +33,9 @@ public class SelectAiHelpDialog extends DBNDialog<SelectAiHelpForm> {
 
   @NotNull
   @Override
-  protected Action[] createActions() {
-    return new Action[]{getCancelAction()};
-  }
-
-  public ConnectionHandler getConnection() {
-    return connection.ensure();
+  protected Action[] initializeActions() {
+    renameAction(getCancelAction(), "Close");
+    return actions(getCancelAction());
   }
 
   @Override

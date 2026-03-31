@@ -32,6 +32,7 @@ import com.dbn.sync.java.upload.ui.JavaUploadResultDialog;
 import com.dbn.sync.java.upload.ui.JavaUploaderInputDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.JdkOrderEntry;
 import com.intellij.openapi.roots.LibraryOrderEntry;
@@ -97,6 +98,7 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 	}
 
 	public void openCodeUploader(VirtualFile file) {
+		FileDocumentManager.getInstance().saveAllDocuments();
 		Progress.prompt(getProject(), null, true,
 				"Preparing Java Upload",
 				"Loading java dependencies for " + file.getPresentableName() + "...",
@@ -206,9 +208,8 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 			dependencies.add(virtualFile);
 
 			PsiFile psiFile = psiManager.findFile(virtualFile);
-            if (psiFile instanceof PsiClassOwner) {
-				PsiClassOwner classOwner = (PsiClassOwner) psiFile;
-				PsiClass[] classes = classOwner.getClasses();
+            if (psiFile instanceof PsiClassOwner classOwner) {
+                PsiClass[] classes = classOwner.getClasses();
 
                 for (PsiClass psiClass : classes) {
 					PsiElementVisitor collector = createDependenciesCollector(dependencies);
@@ -226,9 +227,8 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 				super.visitReferenceElement(reference);
 
 				PsiElement psiElement = reference.resolve();
-				if (psiElement instanceof PsiClass) {
-					PsiClass psiClass = (PsiClass) psiElement;
-					VirtualFile file = PsiUtilCore.getVirtualFile(psiClass);
+				if (psiElement instanceof PsiClass psiClass) {
+                    VirtualFile file = PsiUtilCore.getVirtualFile(psiClass);
 					if (file == null) return;
 
 					List<OrderEntry> entries = getFileIndex().getOrderEntriesForFile(file);
@@ -261,9 +261,8 @@ public class JavaUploadManager extends ProjectComponentBase implements Persisten
 		if (jarRoot == null) return null;
 
 		VirtualFileSystem fileSystem = jarRoot.getFileSystem();
-		if (fileSystem instanceof JarFileSystem) {
-			JarFileSystem jarFileSystem = (JarFileSystem) fileSystem;
-			return jarFileSystem.getLocalByEntry(jarRoot);
+		if (fileSystem instanceof JarFileSystem jarFileSystem) {
+            return jarFileSystem.getLocalByEntry(jarRoot);
 		}
 
 		return null;

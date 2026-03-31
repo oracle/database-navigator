@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.state;
 
+import com.dbn.assistant.AssistantMode;
 import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.adapter.AssistantAdapter;
 import com.dbn.assistant.adapter.AssistantAdapters;
@@ -23,6 +24,7 @@ import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
+import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
@@ -30,6 +32,9 @@ import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.object.DBTable;
+import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.UserDataHolder;
 import com.intellij.openapi.util.UserDataHolderBase;
 import lombok.Getter;
@@ -37,6 +42,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Delegate;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -90,6 +96,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     private String defaultProfileName;
     private ChatContext lastContext;
 
+
     @Delegate
     private final UserDataHolder userData = new UserDataHolderBase();
 
@@ -103,6 +110,15 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
             lastContext = new ChatContextImpl(assistantType);
         }
         return lastContext;
+    }
+
+    public AssistantToolSettings getToolSettings() {
+        return AssistantToolSettings.get(this);
+    }
+
+    public AssistantToolApprovals getToolApprovals() {
+        AssistantToolSettings settings = getToolSettings();
+        return settings.getApprovals();
     }
 
     @Override
@@ -122,6 +138,14 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         return chats.get(chatId);
     }
 
+    @Nullable
+    public Chat getChatForSource(String sourceId) {
+        for (Chat chat : chats.values()) {
+            if (Objects.equals(chat.getSourceId(), sourceId)) return chat;
+        }
+        return null;
+    }
+
     public Set<String> getChatNames() {
         return chats.
                 values().
@@ -132,12 +156,12 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     }
 
     public List<Chat> getSavedChats() {
-        return chats.
-                values().
-                stream().
-                sorted(Comparator.comparing(c -> ((Chat) c).getTimestamp()).reversed()).
-                filter(c -> c.isPersisted()).
-                collect(Collectors.toList());
+        return chats
+                .values()
+                .stream()
+                .sorted(Comparator.comparing(c -> ((Chat) c).getTimestamp()).reversed())
+                .filter(c -> c.isPersisted())
+                .toList();
     }
 
     public Chat createChat(ChatContext chatContext) {
@@ -202,6 +226,15 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         lastContext = currentChat.getContext();
     }
 
+
+    public AssistantMode getAssistantMode() {
+        return getCurrentContext().getAssistantMode();
+    }
+
+    public DBObjectRef<DBTable> getEmbeddingTable() {
+        return getCurrentContext().getEmbeddingTable();
+    }
+
     public void setCurrentSessionSignature(String currentSessionSignature) {
         this.currentSessionSignature = currentSessionSignature;
         Chat conversation = getCurrentChat();
@@ -262,18 +295,13 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     @Override
     public void readState(Element element) {
         connectionId = connectionIdAttribute(element, "connection-id");
-        assistantType = enumAttribute(element, "assistant-type", AssistantType.SELECT_AI); // default to SELECT AI (backward compatibility)
+        assistantType = enumAttribute(element, "assistant-type", AssistantType.PUBLIC);
         defaultProfileName = stringAttribute(element, "default-profile-name");
         currentChatId = stringAttribute(element, "selected-chat-id");
-
-        if (currentChatId == null) currentChatId = stringAttribute(element, "selected-conversation-id"); // TODO cleanup (backward compatibility)
-
         availability = enumAttribute(element, "availability", availability);
         acknowledgement = enumAttribute(element, "acknowledgement", acknowledgement);
 
         Element chatsElement = element.getChild("chats");
-        if (chatsElement == null) chatsElement = element.getChild("conversations"); // TODO cleanup (backward compatibility)
-
         List<Element> chatElements = childrenOf(chatsElement);
 
         for (Element chatElement : chatElements) {
@@ -283,7 +311,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
             chats.put(chat.getId(), chat);
         }
 
-        AssistantToolSettings toolSettings = AssistantToolSettings.get(this);
+        AssistantToolSettings toolSettings = getToolSettings();
         Element toolsElement = element.getChild("tools");
         toolSettings.readState(toolsElement);
     }
@@ -308,9 +336,12 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         }
 
         Element toolsElement = newElement(element, "tools");
-        AssistantToolSettings toolSettings = AssistantToolSettings.get(this);
+        AssistantToolSettings toolSettings = getToolSettings();
         toolSettings.writeState(toolsElement);
 
     }
 
+    public Project getProject() {
+        return getConnection().getProject();
+    }
 }

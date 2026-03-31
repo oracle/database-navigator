@@ -56,6 +56,7 @@ public enum DatabaseFeature {
     AI_ASSISTANT("AI assistant"),
     DATA_CHANGE_NOTIFICATION("Data change notification"),
     VECTOR_EMBEDDING("Vector embedding"),
+    VECTOR_SEARCH("Vector search"),
 
     // OJVM
     JAVA_VIRTUAL_MACHINE("Embedded java virtual machine"),
@@ -78,9 +79,8 @@ public enum DatabaseFeature {
         if (context == null) return false;
 
         DatabaseCompatibilityInterface compatibility = context.getCompatibilityInterface();
-        if (context instanceof DBObject) {
+        if (context instanceof DBObject object) {
             // qualified feature support lookup
-            DBObject object = (DBObject) context;
             DatabaseObjectTypeId objectTypeId = object.getObjectType().getTypeId();
             return compatibility.supportsFeature(this, objectTypeId);
         }

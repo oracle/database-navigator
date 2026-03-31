@@ -16,15 +16,43 @@
 
 package com.dbn.data.model.sortable;
 
+import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.util.Cloneable;
 import com.dbn.data.model.DataModelState;
 import com.dbn.data.sorting.SortingState;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
+import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-public class SortableDataModelState extends DataModelState {
+public class SortableDataModelState<T extends SortableDataModelState> extends DataModelState implements Cloneable<SortableDataModelState>, PersistentStateElement {
     protected SortingState sortingState = new SortingState();
+
+    @Override
+    @SneakyThrows
+    public T clone() {
+        T clone = cast(super.clone());
+        clone.sortingState = Cloneable.clone(sortingState);
+        return clone;
+    }
+
+    @Override
+    public void readState(@NotNull Element element) {
+        Element sortingElement = element.getChild("sorting");
+        sortingState.readState(sortingElement);
+    }
+
+    @Override
+    public void writeState(Element element) {
+        Element sortingElement = newElement(element, "sorting");
+        sortingState.writeState(sortingElement);
+    }
 }

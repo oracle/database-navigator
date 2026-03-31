@@ -96,8 +96,7 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
         if (virtualFile == null) return null;
 
         Project project = getProject();
-        if (virtualFile instanceof DBEditableObjectVirtualFile) {
-            DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) virtualFile;
+        if (virtualFile instanceof DBEditableObjectVirtualFile databaseFile) {
             SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
             sourceCodeManager.ensureSourcesLoaded(databaseFile.getObject(), true);
         }
@@ -121,8 +120,7 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
             elementAtOffset = elementAtOffset.getNextSibling();
         }
 
-        if (elementAtOffset instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) elementAtOffset;
+        if (elementAtOffset instanceof BasePsiElement basePsiElement) {
             BasePsiElement objectDeclarationPsiElement = basePsiElement.findEnclosingElement(ElementTypeAttribute.OBJECT_DECLARATION);
             if (objectDeclarationPsiElement != null) {
                 return (IdentifierPsiElement) objectDeclarationPsiElement.findFirstPsiElement(ElementTypeAttribute.SUBJECT);
@@ -219,8 +217,7 @@ public abstract class DBDebugStackFrame<P extends DBDebugProcess, V extends DBDe
             //DBObject object = basePsiElement.resolveUnderlyingObject();
 
             ListCollector<String> childVariableNames = ListCollector.unique();
-            if (basePsiElement instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) basePsiElement;
+            if (basePsiElement instanceof IdentifierPsiElement identifierPsiElement) {
                 identifierPsiElement.findQualifiedUsages(qualifiedUsage -> {
                     String childVariableName = objectCaseOption.format(qualifiedUsage.getText());
                     childVariableNames.accept(childVariableName);

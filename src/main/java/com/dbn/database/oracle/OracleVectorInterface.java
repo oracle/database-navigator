@@ -20,104 +20,133 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseVectorInterface;
-import com.dbn.object.factory.ModelFactoryInput;
-import com.dbn.vector.model.sourceconfig.DBTableSourceConfig;
-import com.dbn.vector.model.store.StoreConfig;
+import com.dbn.vector.model.request.EmbeddingSourceTable;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static com.dbn.vector.service.FileProcessingService.FILES_TABLE;
-
 @Slf4j
 public class OracleVectorInterface extends DatabaseInterfaceBase implements DatabaseVectorInterface {
 
-  public OracleVectorInterface(DatabaseInterfaces provider) {
-    super("oracle_vector_interface.xml", provider);
-  }
+    public OracleVectorInterface(DatabaseInterfaces provider) {
+        super("oracle_vector_interface.xml", provider);
+    }
 
-  @Override
-  public void loadOnnxModelFromOci(ModelFactoryInput input, DBNConnection conn) throws SQLException {
-    executeUpdate(conn,"load-onnx-model-from-object-storage",input.getModelName(), input.getCredentialName(), input.getSourceLocation());
-  }
+    @Override
+    public void createModelFromStorage(DBNConnection conn, String ownerName, String modelName, String modelLocation, String credentialName) throws SQLException {
+        executeUpdate(conn, "create-model-from-storage", ownerName + "." + modelName, credentialName, modelLocation);
+    }
 
-  @Override
-  public void deleteAIModel(DBNConnection conn,String modelName) throws SQLException {
-    executeUpdate(conn,"drop-embed-model",modelName);
-  }
+    public void createModelFromFile(DBNConnection conn, String ownerName, String modelName, Blob modelBlob) throws SQLException {
+        executeUpdate(conn, "create-model-from-file", ownerName + "." + modelName, modelBlob);
+    }
 
-  @Override
-  public ResultSet chunkTextContent(String text, String chunkBy, String splitBy, int max, int overlap, DBNConnection conn) throws SQLException {
-    return executeQuery(conn,"chunk-text-from-chunk-lab", text, chunkBy, max, overlap, splitBy);
-  }
+    @Override
+    public void dropModel(DBNConnection conn, String ownerName, String modelName) throws SQLException {
+        executeUpdate(conn, "drop-model", ownerName + "." + modelName);
+    }
 
-  @Override
-  public int embedDataContent(DBNConnection conn, DBTableSourceConfig sourceConfig, String chunkConfig, String embedConfig, StoreConfig storeConfig, @NotNull String metadata) throws SQLException {
-    return executeUpdate(conn,
-            "insert-vector-embeddings-from-table",
-            storeConfig.getSchemaName(),
-            storeConfig.getTableName(),
-            storeConfig.getTextColumnName(),
-            storeConfig.getEmbeddingColumnName(),
-            storeConfig.getMetadataColumnName(),
-            sourceConfig.getSchemaName(),
-            sourceConfig.getTableName(),
-            sourceConfig.getKeyColumnName(),
-            sourceConfig.getDataColumnName(),
-            chunkConfig,
-            embedConfig,
-            metadata
-    );
-  }
+    @Override
+    public ResultSet chunkTextContent(DBNConnection conn, String text, String chunkBy, String splitBy, int max, int overlap) throws SQLException {
+        return executeQuery(conn, "chunk-text-from-chunk-lab", text, chunkBy, max, overlap, splitBy);
+    }
 
-  @Override
-  public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, StoreConfig storeConfig, String documentId, String metadata) throws SQLException {
-      return executeUpdate(conn,
-              "insert-vector-embeddings-from-filesystem",
-              storeConfig.getSchemaName(),
-              storeConfig.getTableName(),
-              storeConfig.getTextColumnName(),
-              storeConfig.getEmbeddingColumnName(),
-              storeConfig.getMetadataColumnName(),
-              FILES_TABLE,
-              documentId, // id of the blob
-              chunkConfig,
-              embedConfig,
-              metadata);
-  }
+    @Override
+    public int embedTableContent(DBNConnection conn, EmbeddingSourceTable tableSource, String chunkConfig, String embedConfig, String destinationSchema, String destinationTable, @NotNull String metadata, int batchSize) throws SQLException {
 
-  @Override
-  public void writeBlobContent(@NotNull DBNConnection conn, String filesTable, @NotNull String documentId, byte[] bytes) throws SQLException {
-    executeUpdate(conn,"stream-file-content-to-blob",filesTable,bytes,documentId);
-  }
+        return chunkConfig == null ?
+                executeUpdate(conn,
+                        "embed-table-content-raw",
+                        destinationSchema,
+                        destinationTable,
+                        tableSource.getSchemaName(),
+                        tableSource.getTableName(),
+                        tableSource.getKeyColumnName(),
+                        tableSource.getDataColumnName(),
+                        embedConfig,
+                        metadata,
+                        batchSize) :
+                executeUpdate(conn,
+                        "embed-table-content",
+                        destinationSchema,
+                        destinationTable,
+                        tableSource.getSchemaName(),
+                        tableSource.getTableName(),
+                        tableSource.getKeyColumnName(),
+                        tableSource.getDataColumnName(),
+                        chunkConfig,
+                        embedConfig,
+                        metadata,
+                        batchSize);
+    }
 
-  @Override
-  public void ensureDocumentsTable(DBNConnection conn, String schemaName, String tableName) throws SQLException {
-    executeUpdate(conn,"ensure-documents-table", schemaName, tableName);
-  }
+    @Override
+    public int embedQueryContent(DBNConnection conn, String selectStatement, String chunkConfig, String embedConfig, String destinationSchema, String destinationTable, @NotNull String metadata, int batchSize) throws SQLException {
+        return chunkConfig == null ?
+                executeUpdate(conn,
+                        "embed-query-content-raw",
+                        destinationSchema,
+                        destinationTable,
+                        selectStatement,
+                        embedConfig,
+                        metadata,
+                        batchSize) :
+                executeUpdate(conn,
+                        "embed-query-content",
+                        destinationSchema,
+                        destinationTable,
+                        selectStatement,
+                        chunkConfig,
+                        embedConfig,
+                        metadata,
+                        batchSize);
+    }
 
-  @Override
-  public void insertEmptyDocumentRow(DBNConnection conn, String filesTable, String id, String fileMetadata, String fileHash, long fileSize) throws SQLException {
-    executeUpdate(conn,"insert-empty-document-row", filesTable, id, fileMetadata, fileHash,fileSize);
-  }
+    @Override
+    public int embedFileContent(DBNConnection conn, String chunkConfig, String embedConfig, String stagingSchema, String stagingTable, String destinationSchema, String destinationTable, String fileStoreId, String metadata) throws SQLException {
+        return executeUpdate(conn,
+                "embed-file-content",
+                destinationSchema,
+                destinationTable,
+                stagingSchema,
+                stagingTable,
+                fileStoreId, // id of the blob
+                chunkConfig,
+                embedConfig,
+                metadata);
+    }
 
-  @Override
-  public ResultSet selectDocumentIdByHashIfExists(DBNConnection conn, String filesTable, String hash, long filesize) throws SQLException {
-    return executeQuery(conn,"select-document-id-by-hash",filesTable,hash,filesize);
-  }
+    @Override
+    public void uploadFileStoreContent(@NotNull DBNConnection conn, String ownerName, String tableName, @NotNull String fileStoreId, InputStream inputStream) throws SQLException {
+        executeUpdate(conn, "upload_file_store_content", ownerName, tableName, inputStream, fileStoreId);
+    }
 
+    @Override
+    public void createFileStoreEntry(DBNConnection conn, String ownerName, String tableName, String fileStoreId, String fileMetadata, String fileHash, long fileSize) throws SQLException {
+        executeUpdate(conn, "create-file-store-entry", ownerName, tableName, fileStoreId, fileMetadata, fileHash, fileSize);
+    }
 
-  @Override
-  public void createEmbeddingTable(DBNConnection conn, String ownerName, String tableName, String keyColumnName, String textColumnName, String embeddingColumnName, String metadataColumnName) throws SQLException {
-    executeUpdate(conn, "create-embedding-table", ownerName, tableName, keyColumnName, textColumnName, embeddingColumnName, metadataColumnName);
-  }
+    @Override
+    public ResultSet loadFileStoreMetadata(DBNConnection conn, String ownerName, String tableName, String fileHash, long fileSize) throws SQLException {
+        return executeQuery(conn, "load-file-store-metadata", ownerName, tableName, fileHash, fileSize);
+    }
 
-  @Override
-  public void loadOnnxModelThroughJdbc(String modelName, Blob modelBlob, DBNConnection conn) throws SQLException {
-    executeCall(conn,null,"load-onnx-model-through-jdbc",modelName, modelBlob);
-  }
+    @Override
+    public String loadDestinationModelMetadata(DBNConnection conn, String ownerName, String tableName) throws SQLException {
+        return getSingleValue(conn, "load-destination-model-metadata", ownerName, tableName);
+    }
 
+    @Override
+    public boolean isContentEmbedded(DBNConnection conn, String schemaName, String tableName, String sourceId) throws SQLException {
+        return getBooleanValue(conn, "is-content-embedded", schemaName, tableName, sourceId);
+    }
+
+    @Override
+    public ResultSet performSimilaritySearch(DBNConnection conn, String schemaName, String tableName, String queryText, String metric, int rows) throws SQLException {
+        return executeQuery(conn, "perform-similarity-search", schemaName, tableName, queryText, metric, rows);
+    }
 }

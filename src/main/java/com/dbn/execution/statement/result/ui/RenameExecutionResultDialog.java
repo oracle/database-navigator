@@ -19,7 +19,6 @@ package com.dbn.execution.statement.result.ui;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.ExecutionResult;
-import com.dbn.execution.statement.result.StatementExecutionResult;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
@@ -30,7 +29,8 @@ public class RenameExecutionResultDialog extends DBNDialog<RenameExecutionResult
     public RenameExecutionResultDialog(ExecutionResult executionResult) {
         super(executionResult.getProject(), "Rename result", true);
         this.executionResult = executionResult;
-        renameAction(getOKAction(), "Rename");
+        setResizable(false);
+        setAutoSize(true);
         init();
     }
 
@@ -42,24 +42,27 @@ public class RenameExecutionResultDialog extends DBNDialog<RenameExecutionResult
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
-            getOKAction(),
-            getCancelAction()
-        };
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Rename");
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 
     @Override
     protected void doOKAction() {
         RenameExecutionResultForm component = getForm();
-
-        boolean stickyResultName = component.isStickyResultName();
         String resultName = component.getResultName();
 
-        executionResult.setName(resultName, stickyResultName);
+        if (executionResult.supportsStickyNames()) {
+            boolean stickyResultName = component.isStickyResultName();
+            executionResult.setName(resultName, stickyResultName);
 
-        ExecutionManager executionManager = ExecutionManager.getInstance(ensureProject());
-        executionManager.setRetainStickyNames(stickyResultName);
+            ExecutionManager executionManager = ExecutionManager.getInstance(ensureProject());
+            executionManager.setRetainStickyNames(stickyResultName);
+        } else {
+            executionResult.setName(resultName);
+        }
 
         super.doOKAction();
     }

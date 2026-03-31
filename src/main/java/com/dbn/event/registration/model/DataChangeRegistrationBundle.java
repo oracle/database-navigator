@@ -34,7 +34,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.ListModel;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -94,7 +93,7 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
     }
 
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    public DataChangeRegistration getValueAt(int rowIndex, int columnIndex) {
         if (isInBounds(registrations, rowIndex)) {
             return registrations.get(rowIndex);
         }
@@ -104,17 +103,17 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
     @Override
     public Object getValue(DataChangeRegistration row, int column) {
         if (row == null) return null;
-        switch (column) {
-            case 0: return row.getRegId();
-            case 1: return row.getUserName();
-            case 2: return row.getTableName();
-            case 3: return row.getOperationsDescription();
-            case 4: return row.getTimeout();
-            case 5: return row.getChangeLag();
-            case 6: return row.getCallback();
-            case 7: return row.getRegFlags();
-            default: return "";
-        }
+        return switch (column) {
+            case 0 -> row.getRegId();
+            case 1 -> row.getUserName();
+            case 2 -> row.getTableName();
+            case 3 -> row.getOperationsDescription();
+            case 4 -> row.getTimeout();
+            case 5 -> row.getChangeLag();
+            case 6 -> row.getCallback();
+            case 7 -> row.getRegFlags();
+            default -> "";
+        };
     }
 
     @Override
@@ -167,16 +166,10 @@ public class DataChangeRegistrationBundle extends DBNMutableTableModel<DataChang
     }
 
     public List<FilterOption> geFilterOptions(EventRegistrationFilterType filterType) {
-        switch (filterType) {
-            case USER: return FilterOption.fromValues(getUserNames());
-            case TABLE: return FilterOption.fromValues(getTableNames());
-            case STATUS: return List.of(FILTER_STATUS_LISTENING, FILTER_STATUS_NOT_LISTENING);
-        }
-        return Collections.emptyList();
-    }
-
-    @Override
-    public ListModel getListModel() {
-        return gutterModel;
+        return switch (filterType) {
+            case USER -> FilterOption.fromValues(getUserNames());
+            case TABLE -> FilterOption.fromValues(getTableNames());
+            case STATUS -> List.of(FILTER_STATUS_LISTENING, FILTER_STATUS_NOT_LISTENING);
+        };
     }
 }

@@ -51,7 +51,6 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -99,9 +98,8 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
         return new DBNFileEditorManagerListener() {
             @Override
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                if (file instanceof DBSessionBrowserVirtualFile) {
+                if (file instanceof DBSessionBrowserVirtualFile sessionBrowserFile) {
                     boolean schedule = openFiles.isEmpty();
-                    DBSessionBrowserVirtualFile sessionBrowserFile = (DBSessionBrowserVirtualFile) file;
                     openFiles.add(sessionBrowserFile);
 
                     if (schedule) {
@@ -113,8 +111,7 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
 
             @Override
             public void whenFileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                if (file instanceof DBSessionBrowserVirtualFile) {
-                    DBSessionBrowserVirtualFile sessionBrowserFile = (DBSessionBrowserVirtualFile) file;
+                if (file instanceof DBSessionBrowserVirtualFile sessionBrowserFile) {
                     openFiles.remove(sessionBrowserFile);
 
                     if (openFiles.isEmpty() && timestampUpdater != null) {
@@ -232,7 +229,7 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
                         Map<SessionIdentifier, SQLException> errors = new HashMap<>();
                         DatabaseMetadataInterface metadata = connection.getMetadataInterface();
                         int index = 0;
-                        for (val entry : sessionIds) {
+                        for (SessionIdentifier entry : sessionIds) {
                             Object sessionId = entry.getSessionId();
                             Object serialNumber = entry.getSerialNumber();
 

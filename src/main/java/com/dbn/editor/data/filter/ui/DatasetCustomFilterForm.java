@@ -72,7 +72,7 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         initErrorLabel(filter);
 
         // delay the initialization of the filter editor to force psi write action in the dialog modality state
-        whenShown(() -> initFilterEditor(dataset, filter) );
+        whenFirstShown(() -> initFilterEditor(dataset, filter) );
     }
 
     private void initSelectStatement(DBDataset dataset, DatasetCustomFilter filter) {
@@ -150,8 +150,7 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
 
    /*************************************************
     *                  SettingsEditor               *
-    ************************************************
-    * @return*/
+    *************************************************/
     @NotNull
     @Override
     public JPanel getMainComponent() {

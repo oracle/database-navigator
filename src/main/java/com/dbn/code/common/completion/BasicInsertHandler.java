@@ -42,8 +42,7 @@ public class BasicInsertHandler implements InsertHandler<CodeCompletionLookupIte
         int tailOffset = insertionContext.getTailOffset();
 
         Object lookupElementObject = lookupElement.getObject();
-        if (lookupElementObject instanceof TokenElementType) {
-            TokenElementType tokenElementType = (TokenElementType) lookupElementObject;
+        if (lookupElementObject instanceof TokenElementType tokenElementType) {
             TokenType tokenType = tokenElementType.tokenType;
             if (tokenType.isReservedWord()) {
                 /* TODO any considerations on completion char??
@@ -51,7 +50,7 @@ public class BasicInsertHandler implements InsertHandler<CodeCompletionLookupIte
                     if (completionChar == '\t' || completionChar == '\u0000' || completionChar == '\n') */
 
                 if (tokenType.isFunction()) {
-                    SimpleTokenType leftParenthesis = tokenElementType.getLanguage().getSharedTokenTypes().getChrLeftParenthesis();
+                    SimpleTokenType leftParenthesis = tokenElementType.getLanguage().getSharedTokenTypes().chrLeftParenthesis;
                     if (tokenElementType.cache.isNextPossibleToken(leftParenthesis)) {
                         addParenthesis(insertionContext);
                         shiftCaret(insertionContext, 1);
@@ -64,11 +63,9 @@ public class BasicInsertHandler implements InsertHandler<CodeCompletionLookupIte
                     shiftCaret(insertionContext, 1);
                 }
             }
-        } else if (lookupElementObject instanceof DBObject) {
-            DBObject object = (DBObject) lookupElementObject;
+        } else if (lookupElementObject instanceof DBObject object) {
             LeafPsiElement leafPsiElement = PsiUtil.lookupLeafBeforeOffset(file, tailOffset);
-            if (leafPsiElement instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) leafPsiElement;
+            if (leafPsiElement instanceof IdentifierPsiElement identifierPsiElement) {
                 identifierPsiElement.resolveAs(object);
 
                 if (identifierPsiElement.getObjectType().getGenericType() == DBObjectType.METHOD) {
@@ -93,7 +90,7 @@ public class BasicInsertHandler implements InsertHandler<CodeCompletionLookupIte
         boolean addWhiteSpace = !isInlineSpace(insertionContext, tailOffset);
 
         LeafPsiElement leafAtOffset = PsiUtil.lookupLeafAtOffset(file, tailOffset);
-        if (leafAtOffset == null || !leafAtOffset.isToken(leafAtOffset.getLanguage().getSharedTokenTypes().getChrLeftParenthesis())) {
+        if (leafAtOffset == null || !leafAtOffset.isToken(leafAtOffset.getLanguage().getSharedTokenTypes().chrLeftParenthesis)) {
             insertionContext.getDocument().insertString(tailOffset, addWhiteSpace ? "() " : "()");
         }
     }

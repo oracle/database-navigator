@@ -30,7 +30,6 @@ public interface PSQLTextAttributesKeys {
     TextAttributesKey DATA_TYPE          = TextAttributesKey.createTextAttributesKey("DBN.Attributes.PSQL.DataType",          DefaultLanguageHighlighterColors.CONSTANT);
     TextAttributesKey ALIAS              = TextAttributesKey.createTextAttributesKey("DBN.Attributes.PSQL.Alias",             DefaultLanguageHighlighterColors.METADATA);
     TextAttributesKey IDENTIFIER         = TextAttributesKey.createTextAttributesKey("DBN.Attributes.PSQL.Identifier",        DefaultLanguageHighlighterColors.IDENTIFIER);
-    TextAttributesKey QUOTED_IDENTIFIER  = TextAttributesKey.createTextAttributesKey("DBN.Attributes.PSQL.QuotedIdentifier",  DefaultLanguageHighlighterColors.IDENTIFIER);
     TextAttributesKey KEYWORD            = TextAttributesKey.createTextAttributesKey("DBN.Attributes.PSQL.Keyword",           DefaultLanguageHighlighterColors.KEYWORD);
     TextAttributesKey FUNCTION           = TextAttributesKey.createTextAttributesKey("DBN.Attributes.PSQL.Function",          DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL);
     TextAttributesKey PARAMETER          = TextAttributesKey.createTextAttributesKey("DBN.Attributes.PSQL.Parameter",         TemplateColors.TEMPLATE_VARIABLE_ATTRIBUTES);

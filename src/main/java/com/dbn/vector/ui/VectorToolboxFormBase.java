@@ -19,40 +19,41 @@ package com.dbn.vector.ui;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.ComboBoxes;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.vector.model.VectorEmbeddingRequest;
 import com.intellij.openapi.Disposable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
 
 public abstract class VectorToolboxFormBase extends DBNFormBase {
-    private final ConnectionRef connection;
-
-    public VectorToolboxFormBase(@Nullable Disposable parent, ConnectionHandler connection) {
+    public VectorToolboxFormBase(@NotNull Disposable parent) {
         super(parent);
-        this.connection = connection.ref();
     }
 
     public ConnectionHandler getConnection() {
-        return connection.ensure();
+        return getEmbeddingRequest().getConnection();
     }
 
     public ConnectionId getConnectionId() {
-        return connection.getId();
+        return getConnection().getConnectionId();
     }
 
     protected VectorEmbeddingRequest getEmbeddingRequest() {
-        VectorToolboxForm rootForm = ensureParentFrom(VectorToolboxForm.class);
+        VectorToolboxForm rootForm = getToolboxForm();
         return rootForm.getEmbeddingRequest();
+    }
+
+    protected VectorToolboxForm getToolboxForm() {
+        return ensureParentFrom(VectorToolboxForm.class);
     }
 
     protected static String getSelectedObjectName(DBNComboBox<? extends DBObject> comboBox, String defaultName) {
@@ -81,9 +82,14 @@ public abstract class VectorToolboxFormBase extends DBNFormBase {
         return null;
     }
 
+    public SchemaId getSelectedSchemaId() {
+        DBSchema schema = getSelectedSchema();
+        return schema == null ? null : schema.getSchemaId();
+    }
 
+/*
     protected static boolean matchesObjectName(@Nullable DBObject object, String name) {
         return object != null && Strings.equalsIgnoreCase(object.getName(), name);
-    }
+    }*/
 
 }

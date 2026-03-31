@@ -108,8 +108,7 @@ class DBTypeAttributeImpl extends DBObjectImpl<DBTypeAttributeMetadata> implemen
 
     @Override
     public int compareTo(@NotNull Object o) {
-        if (o instanceof DBTypeAttribute) {
-            DBTypeAttribute typeAttribute = (DBTypeAttribute) o;
+        if (o instanceof DBTypeAttribute typeAttribute) {
             if (Objects.equals(getType(), typeAttribute.getType())) {
                 return position - typeAttribute.getPosition();
             }

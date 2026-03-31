@@ -177,7 +177,7 @@ public class RegionalSettingsEditorForm extends ConfigurationEditorForm<Regional
                 } catch (Exception e) {
                     conditionallyLog(e);
                     errorLabel.setText("Invalid pattern: " + e.getMessage());
-                    errorLabel.setIcon(Icons.STMT_EXECUTION_ERROR);
+                    errorLabel.setIcon(Icons.COMMON_ERROR);
                     errorLabel.setVisible(true);
                 }
             } else {

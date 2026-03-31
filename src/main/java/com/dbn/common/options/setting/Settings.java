@@ -18,6 +18,7 @@ package com.dbn.common.options.setting;
 
 import com.dbn.common.constant.Constant;
 import com.dbn.common.constant.PseudoConstant;
+import com.dbn.common.data.Data;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionId;
@@ -37,6 +38,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.dbn.common.util.Strings.containsOneOf;
+import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -128,7 +130,7 @@ public final class Settings {
 
     public static String stringAttribute(Element element, @NonNls String name, String defaultValue) {
         String attributeValue = element == null ? defaultValue : element.getAttributeValue(name);
-        return Strings.isEmptyOrSpaces(attributeValue) ? attributeValue : attributeValue.intern();
+        return Strings.isEmptyOrSpaces(attributeValue) ? defaultValue : attributeValue.intern();
     }
 
     public static <T extends PseudoConstant<T>> T constantAttribute(Element element, @NonNls String name, Class<T> constantType) {
@@ -144,7 +146,7 @@ public final class Settings {
 
     public static boolean booleanAttribute(Element element, @NonNls String attributeName, boolean defaultValue) {
         String attributeValue = stringAttribute(element, attributeName);
-        return Strings.isEmptyOrSpaces(attributeValue) ? defaultValue : Boolean.parseBoolean(attributeValue);
+        return Strings.isEmptyOrSpaces(attributeValue) ? defaultValue : Data.asBooleanPrimitive(attributeValue);
     }
 
     public static double doubleAttribute(Element element, @NonNls String attributeName, double defaultValue) {
@@ -155,9 +157,8 @@ public final class Settings {
     public static short shortAttribute(Element element, @NonNls String attributeName, short defaultValue) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
-            if (Strings.isEmpty(attributeValue)) {
-                return defaultValue;
-            }
+            if (isEmpty(attributeValue)) return defaultValue;
+
             return Short.parseShort(attributeValue);
         } catch (Exception e) {
             conditionallyLog(e);
@@ -169,9 +170,8 @@ public final class Settings {
     public static int integerAttribute(Element element, @NonNls String attributeName, int defaultValue) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
-            if (Strings.isEmpty(attributeValue)) {
-                return defaultValue;
-            }
+            if (isEmpty(attributeValue)) return defaultValue;
+
             return Integer.parseInt(attributeValue);
         } catch (NumberFormatException e) {
             conditionallyLog(e);
@@ -183,13 +183,26 @@ public final class Settings {
     public static long longAttribute(Element element, @NonNls String attributeName, long defaultValue) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
-            if (Strings.isEmpty(attributeValue)) {
-                return defaultValue;
-            }
+            if (isEmpty(attributeValue)) return defaultValue;
+
             return Long.parseLong(attributeValue);
         } catch (NumberFormatException e) {
             conditionallyLog(e);
             log.warn("Failed to read LONG config ({}): {}", attributeName, e.getMessage());
+            return defaultValue;
+        }
+    }
+
+    @NonNls
+    public static float floatAttribute(Element element, @NonNls String attributeName, float defaultValue) {
+        try {
+            String attributeValue = stringAttribute(element, attributeName);
+            if (isEmpty(attributeValue)) return defaultValue;
+
+            return Float.parseFloat(attributeValue);
+        } catch (NumberFormatException e) {
+            conditionallyLog(e);
+            log.warn("Failed to read FLOAT config ({}): {}", attributeName, e.getMessage());
             return defaultValue;
         }
     }
@@ -205,7 +218,7 @@ public final class Settings {
     public static <T extends Enum<T>> T enumAttribute(Element element, @NonNls String attributeName, Class<T> enumClass) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
-            return Strings.isEmpty(attributeValue) ? null : T.valueOf(enumClass, attributeValue);
+            return isEmpty(attributeValue) ? null : T.valueOf(enumClass, attributeValue);
         } catch (Exception e) {
             conditionallyLog(e);
             log.warn("Failed to read ENUM attribute ({}): {}", attributeName, e.getMessage());
@@ -216,7 +229,7 @@ public final class Settings {
     public static <T extends Enum<T>> T enumAttribute(Element element, @NonNls String attributeName, @NotNull T defaultValue) {
         try {
             String attributeValue = stringAttribute(element, attributeName);
-            return Strings.isEmpty(attributeValue) ? defaultValue : T.valueOf((Class<T>) defaultValue.getClass(), attributeValue);
+            return isEmpty(attributeValue) ? defaultValue : T.valueOf((Class<T>) defaultValue.getClass(), attributeValue);
         } catch (Exception e) {
             conditionallyLog(e);
             log.warn("Failed to read ENUM attribute ({}): {}", attributeName, e.getMessage());
@@ -245,8 +258,7 @@ public final class Settings {
         StringBuilder builder = new StringBuilder();
         for (int i=0; i<contentSize; i++) {
             Content content = element.getContent(i);
-            if (content instanceof Text) {
-                Text text = (Text) content;
+            if (content instanceof Text text) {
                 builder.append(text.getText());
             }
         }

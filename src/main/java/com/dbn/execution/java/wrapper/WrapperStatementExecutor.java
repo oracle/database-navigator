@@ -67,14 +67,16 @@ public class WrapperStatementExecutor {
                         javaMethod.getTypeName(),
                         javaMethod.getPresentableName()),
                 project,
-                connectionId, c -> {
+                connectionId,
+                schemaId,
+                c -> {
                     c.executeStatement(creationStatement);
-                    if (input.isCompileInDebugMode()) {
+                    if (input.isDebugMode()) {
                         compileObjectInDebugMode(c, model);
                     }
                 });
 
-        if (input.isUseFriendlyNames()) {
+        if (!input.isTemporary()) {
             ObjectChangeEvent.notify(CREATE, JAVA_CLASS, connectionId, schemaId);
             ObjectChangeEvent.notify(CREATE, FUNCTION, connectionId, schemaId);
             ObjectChangeEvent.notify(CREATE, PROCEDURE, connectionId, schemaId);
@@ -102,14 +104,16 @@ public class WrapperStatementExecutor {
                         javaClass.getTypeName(),
                         javaClass.getPresentableName()),
                 project,
-                connectionId, c -> {
+                connectionId,
+                schemaId,
+                c -> {
                     c.executeStatement(creationStatement);
-                    if (input.isCompileInDebugMode()) {
+                    if (input.isDebugMode()) {
                         compileObjectInDebugMode(c, model);
                     }
                 });
 
-        if (input.isUseFriendlyNames()) {
+        if (!input.isTemporary()) {
             ObjectChangeEvent.notify(CREATE, JAVA_CLASS, connectionId, schemaId);
             ObjectChangeEvent.notify(CREATE, PACKAGE, connectionId, schemaId);
             ObjectChangeEvent.notify(CREATE, TYPE, connectionId, schemaId);
@@ -127,13 +131,16 @@ public class WrapperStatementExecutor {
         String removalStatement = statementBuilder.buildWrapperRemovalStatement(model);
 
         ConnectionId connectionId = javaMethod.getConnectionId();
+        SchemaId schemaId = javaMethod.getSchemaId();
         DatabaseInterfaceInvoker.execute(Priority.HIGH,
                 txt("prc.java.title.RemovingExecutionWrappers"),
                 txt("prc.java.text.RemovingExecutionWrappers",
                         javaMethod.getTypeName(),
                         javaMethod.getPresentableName()),
                 project,
-                connectionId, c -> c.executeStatement(removalStatement));
+                connectionId,
+                schemaId,
+                c -> c.executeStatement(removalStatement));
     }
 
     private static void compileObjectInDebugMode(DBNConnection connection, WrapperModel model) throws SQLException {

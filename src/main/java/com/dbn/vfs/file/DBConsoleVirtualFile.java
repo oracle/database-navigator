@@ -18,7 +18,8 @@ package com.dbn.vfs.file;
 
 import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
-import com.dbn.common.icon.Icons;
+import com.dbn.common.state.AttributeHolder;
+import com.dbn.common.state.AttributeHolderBase;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -49,6 +50,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,9 +65,17 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> implements DocumentListener, DBParseableVirtualFile, Comparable<DBConsoleVirtualFile>, FileConnectionContextProvider {
+public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> implements
+        DocumentListener,
+        AttributeHolder,
+        FileConnectionContextProvider,
+        DBParseableVirtualFile,
+        Comparable<DBConsoleVirtualFile>  {
     private final SourceCodeContent content = new SourceCodeContent();
     private final transient FileConnectionContext connectionContext;
+
+    @Delegate
+    private final AttributeHolder attributes = new AttributeHolderBase();
 
     public DBConsoleVirtualFile(@NotNull DBConsole console) {
         super(console.getProject(), DBObjectRef.of(console));
@@ -116,11 +126,7 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
     @Nullable
     @Override
     public Icon getIcon() {
-        switch (getType()) {
-            case STANDARD: return Icons.FILE_SQL_CONSOLE;
-            case DEBUG: return Icons.FILE_SQL_DEBUG_CONSOLE;
-        }
-        return null;
+        return getType().getIcon();
     }
     public void setDatabaseSchema(SchemaId schemaId) {
         connectionContext.setSchemaId(schemaId);
@@ -233,8 +239,7 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
     public void documentChanged(DocumentEvent event) {
         Document document = event.getDocument();
         content.setText(document.getCharsSequence());
-        if (document instanceof DocumentEx) {
-            DocumentEx documentEx = (DocumentEx) document;
+        if (document instanceof DocumentEx documentEx) {
             List<RangeMarker> blocks = documentEx.getGuardedBlocks();
             if (!blocks.isEmpty()) {
                 content.getOffsets().setGuardedBlocks(blocks);
@@ -257,5 +262,9 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
                 throw new UnsupportedOperationException();
             }
         };
+    }
+
+    public String getContentText() {
+        return content.getText().toString();
     }
 }

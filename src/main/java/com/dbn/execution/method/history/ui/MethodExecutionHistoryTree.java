@@ -19,6 +19,7 @@ package com.dbn.execution.method.history.ui;
 import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.execution.method.MethodExecutionInput;
+import com.dbn.execution.method.history.ui.MethodExecutionHistoryTreeModel.MethodTreeNode;
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.tree.TreeUtil;
@@ -91,8 +92,7 @@ public class MethodExecutionHistoryTree extends DBNTree implements Disposable {
     @Nullable
     MethodExecutionInput getSelectedExecutionInput() {
         Object selection = getLastSelectedPathComponent();
-        if (selection instanceof MethodExecutionHistoryTreeModel.MethodTreeNode) {
-            MethodExecutionHistoryTreeModel.MethodTreeNode methodNode = (MethodExecutionHistoryTreeModel.MethodTreeNode) selection;
+        if (selection instanceof MethodTreeNode methodNode) {
             return methodNode.getExecutionInput();
         }
         return null;
@@ -104,8 +104,7 @@ public class MethodExecutionHistoryTree extends DBNTree implements Disposable {
             MethodExecutionHistoryTreeNode node = (MethodExecutionHistoryTreeNode) value;
             setIcon(node.getIcon());
             append(nvl(node.getName(), ""), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            if (node instanceof MethodExecutionHistoryTreeModel.MethodTreeNode) {
-                MethodExecutionHistoryTreeModel.MethodTreeNode methodTreeNode = (MethodExecutionHistoryTreeModel.MethodTreeNode) node;
+            if (node instanceof MethodTreeNode methodTreeNode) {
                 short overload = methodTreeNode.getOverload();
                 if (overload > 0) {
                     append(" #" + overload, SimpleTextAttributes.GRAY_ATTRIBUTES);

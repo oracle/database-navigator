@@ -24,33 +24,48 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Environment;
+import com.dbn.common.util.Java;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
-import com.dbn.data.editor.ui.UserValueHolderImpl;
+import com.dbn.execution.ExecutionInputMode;
+import com.dbn.execution.common.input.CodeBlocks;
+import com.dbn.execution.common.input.ExecutionVariable;
 import com.dbn.execution.java.JavaExecutionInput;
+import com.dbn.execution.java.ui.JavaExecutionInputUtil.UiSuitability;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.event.DocumentListener;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.ScrollPanes.recalibrateScrollContainer;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Lists.sortedCopy;
+import static com.dbn.execution.common.input.CodeBlocks.isCodeBlock;
+import static com.dbn.execution.java.ui.JavaExecutionInputUtil.classifyForUi;
 import static com.dbn.execution.java.ui.JavaExecutionInputUtil.setupSingleDimArrayEditor;
+import static com.dbn.execution.java.wrapper.WrapperStatementBuilder.arrayBrackets;
 import static com.dbn.object.DBOrderedObject.POSITION_COMPARATOR;
-import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static java.util.Collections.emptyList;
 
 
@@ -58,58 +73,103 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
 	private JPanel mainPanel;
 	private JLabel parameterLabel;
 	private JLabel parameterTypeLabel;
-	private JPanel fieldsPanel;
+	private JPanel inputFieldsPanel;
 	private JPanel inputFieldPanel;
+	private JPanel inputCodePanel;
+	private JComboBox<ExecutionInputMode> inputModeComboBox;
+	private final Set<ExecutionInputMode> inputModes;
+	private JavaCodeEditorPanel inputCodeEditor;
 
 	private JTextField inputTextField;
-	private UserValueHolderImpl<String> userValueHolder;
-
 	private final DBObjectRef<DBJavaParameter> parameter;
 	private final List<JavaExecutionInputFieldForm> fieldForms = DisposableContainers.list(this);
 
 	JavaExecutionInputParameterForm(DBNForm parentForm, DBJavaParameter parameter) {
 		super(parentForm);
-
 		this.parameter = DBObjectRef.of(parameter);
-		parameterLabel.setText(parameter.getName());
-		parameterLabel.setIcon(parameter.getIcon());
-		parameterLabel.setBorder(Borders.insetBorder(4, 0, 4, 0));
+		this.inputModes = resolveInputModes();
 
-		parameterTypeLabel.setForeground(UIUtil.getInactiveTextColor());
-		if (parameter.isScalar()) {
-			initPlainField();
-		} else {
-			initClassField();
-		}
+		initParameterLabel();
+		initParameterTypeLabel();
+		initInputModes();
+
+		initPlainFields();
+		initClassFields();
+		initCodeFields();
+
+		updateInputFields();
 	}
 
 	@Override
 	protected void initFieldAlignment() {
 		FieldAlignerData alignerData = getFieldAlignerData();
-		alignerData.registerForms(fieldForms);
+		alignerData.registerForms(() -> fieldForms);
 		alignerData.registerFieldGroup(parameterLabel, inputFieldPanel, parameterTypeLabel);
 	}
 
-	private void initPlainField() {
-		DBJavaParameter parameter = getParameter();
-		Project project = parameter.getProject();
-		JavaExecutionInput executionInput = getExecutionInput();
-		String value = executionInput.ensureInputValue(parameter.getName());
+	private void initInputModes() {
+		initComboBox(inputModeComboBox, inputModes);
 
-		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
-		inputField.setPreferredSize(new Dimension(240, -1));
-		DBObjectRef<DBJavaClass> javaClass = parameter.getJavaClassRef();
-		parameterTypeLabel.setText(getCanonicalName(javaClass));
+		inputModeComboBox.setEnabled(inputModes.size() > 1);
+		inputModeComboBox.setVisible(!getParameter().isScalar());
+
+		JavaExecutionInput executionInput = getExecutionInput();
+		ExecutionVariable executionVariable = executionInput.getExecutionVariable(getParameterName());
+		ExecutionInputMode inputMode = executionVariable.getMode();
+		if (!inputModes.contains(inputMode)) {
+			inputMode = inputModes.iterator().next();
+			executionVariable.setMode(inputMode);
+		}
+		setSelection(inputModeComboBox, inputMode);
+
+		if (inputModes.size() > 1) {
+			inputModeComboBox.addActionListener(e -> updateInputFields());
+		}
+	}
+
+	private Set<ExecutionInputMode> resolveInputModes() {
+		DBJavaParameter parameter = getParameter();
+		if (parameter.isScalar()) return Set.of(ExecutionInputMode.FIELDS);
+
+		UiSuitability suitability = classifyForUi(parameter, getExecutionInput().getWrapperSupportData());
+		if (suitability == UiSuitability.UI_NOT_SUPPORTED) return Set.of(ExecutionInputMode.CODE);
+
+		return Set.of(ExecutionInputMode.FIELDS, ExecutionInputMode.CODE);
+	}
+
+	private void initParameterLabel() {
+		DBJavaParameter parameter = getParameter();
+		parameterLabel.setText(parameter.getName());
+		parameterLabel.setIcon(parameter.getIcon());
+		parameterLabel.setBorder(Borders.insetBorder(4, 0, 4, 0));
+	}
+
+	private void initParameterTypeLabel() {
+		DBJavaParameter parameter = getParameter();
+		parameterTypeLabel.setForeground(UIUtil.getInactiveTextColor());
+		parameterTypeLabel.setText(parameter.getJavaClassName());
 		if (parameter.isClass()) {
 			parameterTypeLabel.setIcon(/*parameter.getParameterClass().getIcon()*/Icons.DBO_JAVA_CLASS); // TODO performance issue (do not force loading the field class)
 		}
+	}
+
+	private void initPlainFields() {
+		DBJavaParameter parameter = getParameter();
+		if (!parameter.isScalar()) return;
+
+		Project project = parameter.getProject();
+		JavaExecutionInput executionInput = getExecutionInput();
+		String value = executionInput.getInputValue(getParameterName(), ExecutionInputMode.FIELDS);
+
+		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
+		inputField.setPreferredSize(new Dimension(240, -1));
 
 		inputTextField = inputField.getTextField();
 		inputTextField.setText(value);
 		inputFieldPanel.add(inputField);
 
 		inputTextField.setDisabledTextColor(inputTextField.getForeground());
-		fieldsPanel.setVisible(false);
+		inputFieldsPanel.setVisible(false);
 
         if (parameter.getArrayDepth() == 1) {
             setupSingleDimArrayEditor(inputField, parameter);
@@ -117,24 +177,67 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
         inputField.createValuesListPopup(createValuesProvider(), parameter, true);
 	}
 
+	private void initClassFields() {
+		DBJavaParameter parameter = getParameter();
+		if (parameter.isScalar()) return;
 
+		moveTypeLabel();
+		if (!isValueSupported()) return;
 
-	private void initClassField() {
-		DBJavaClass javaClass = getParameter().getJavaClass();
-
-		parameterTypeLabel.setText("");
-		parameterTypeLabel.setVisible(false);
-
-		JLabel classLabel = new JLabel(javaClass.getPresentableText());
-		classLabel.setIcon(javaClass.getIcon());
-		classLabel.setForeground(UIUtil.getInactiveTextColor());
-		inputFieldPanel.add(classLabel, BorderLayout.WEST);
-
-
-		verticalBoxLayout(fieldsPanel);
+		verticalBoxLayout(inputFieldsPanel);
+		DBJavaClass javaClass = parameter.getJavaClass();
 		List<DBJavaField> fields = javaClass.getFields();
 		fields = sortedCopy(fields, POSITION_COMPARATOR);
 		fields.forEach(f -> addFieldPanel(f));
+
+		JPanel spacer = new JPanel();
+		spacer.setPreferredSize(new Dimension(-1, 8));
+		inputFieldsPanel.add(spacer);
+	}
+
+	private void moveTypeLabel() {
+		// alternative location of parameter-type label for non-scalar parameters
+		JLabel typeLabel = new JLabel(
+				parameterTypeLabel.getText(),
+				parameterTypeLabel.getIcon(),
+				SwingConstants.LEFT);
+		typeLabel.setForeground(parameterTypeLabel.getForeground());
+		typeLabel.setBorder(Borders.insetBorder(4, 0, 4, 0));
+		inputFieldPanel.add(typeLabel);
+
+		parameterTypeLabel.setVisible(false);
+		//parameterTypeLabel.setText("");
+		//parameterTypeLabel.setIcon(null);
+	}
+
+	private void initCodeFields() {
+		if (!isCodeSupported()) return;
+		inputCodeEditor = new JavaCodeEditorPanel(this, getProject());
+		inputCodePanel.add(inputCodeEditor);
+
+		JavaExecutionInput executionInput = getExecutionInput();
+		String codeBlock = executionInput.getInputValue(getParameterName(), ExecutionInputMode.CODE);
+		String code = codeBlock == null || !isCodeBlock(codeBlock) || Environment.isVersionUpdate() ? // TODO remove version based code-reset after 1 release
+				getJavaTypeDeclaration() :
+				CodeBlocks.deserialize(codeBlock)[1];
+
+		inputCodeEditor.setText(code);
+	}
+
+	private void updateInputFields() {
+		ExecutionInputMode inputMode = getInputMode();
+		JavaExecutionInput executionInput = getExecutionInput();
+		ExecutionVariable executionVariable = executionInput.getExecutionVariable(getParameterName());
+		executionVariable.setMode(inputMode);
+
+		inputFieldsPanel.setVisible(inputMode == ExecutionInputMode.FIELDS);
+		inputCodePanel.setVisible(inputMode == ExecutionInputMode.CODE);
+
+		recalibrateScrollContainer(mainPanel);
+	}
+
+	private @Nullable ExecutionInputMode getInputMode() {
+		return getSelection(inputModeComboBox);
 	}
 
 	@NotNull
@@ -164,7 +267,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
 
 	private void addFieldPanel(DBJavaField field) {
 		JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, field);
-		fieldsPanel.add(argumentComponent.getComponent());
+		inputFieldsPanel.add(argumentComponent.getComponent());
 		fieldForms.add(argumentComponent);
 	}
 
@@ -186,17 +289,19 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
 		DBJavaParameter parameter = getParameter();
         if (parameter == null) return;
 
-        if (fieldForms.isEmpty()) {
-			JavaExecutionInput executionInput = getParentForm().getExecutionInput();
-			if (userValueHolder != null) {
-				String value = userValueHolder.getUserValue();
-				executionInput.setInputValue(parameter, value);
-			} else {
+		JavaExecutionInput executionInput = getExecutionInput();
+		ExecutionInputMode inputMode = getInputMode();
+		if (inputMode == ExecutionInputMode.FIELDS) {
+			if (fieldForms.isEmpty()) {
 				String value = Commons.nullIfEmpty(getText(inputTextField));
 				executionInput.setInputValue(parameter, value);
+			} else {
+				fieldForms.forEach(f -> f.updateExecutionInput());
 			}
 		} else {
-			fieldForms.forEach(f -> f.updateExecutionInput());
+			String code = inputCodeEditor.getText();
+			executionInput.setInputValue(parameter, CodeBlocks.serialize("java", code));
+			fieldForms.forEach(f -> f.removeExecutionInput());
 		}
     }
 
@@ -217,4 +322,34 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
 	public int countFields() {
 		return 1 + fieldForms.stream().mapToInt(f -> f.countFields()).sum();
 	}
+
+	private boolean isCodeSupported() {
+		return inputModes.contains(ExecutionInputMode.CODE);
+	}
+
+	private boolean isValueSupported() {
+		return inputModes.contains(ExecutionInputMode.FIELDS);
+	}
+
+	@NonNls
+	private String getJavaTypeDeclaration() {
+		DBJavaParameter parameter  = getParameter();
+
+		String className = parameter.getJavaClassName();
+		String variableName = parameter.isArray() ? "array" : Java.getSimpleVariableName(className);
+		String arrayBrackets = arrayBrackets(parameter.getArrayDepth());
+		String constructorSuffix = parameter.isArray() ? " {}" : "()";
+
+		return String.format("""
+				%s%s %s = new %s%s%s;
+				return %s;""",
+				className,
+				arrayBrackets,
+				variableName,
+				className,
+				arrayBrackets,
+				constructorSuffix,
+				variableName);
+	}
+
 }

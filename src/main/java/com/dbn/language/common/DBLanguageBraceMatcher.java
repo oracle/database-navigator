@@ -22,7 +22,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.tree.IElementType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 @Getter
 public abstract class DBLanguageBraceMatcher implements PairedBraceMatcher {
@@ -33,9 +32,9 @@ public abstract class DBLanguageBraceMatcher implements PairedBraceMatcher {
         this.language = language;
         SharedTokenTypeBundle tt = language.getSharedTokenTypes();
         bracePairs = new BracePair[]{
-            new BracePair(tt.getChrLeftParenthesis(), tt.getChrRightParenthesis(), false),
-            new BracePair(tt.getChrLeftBracket(), tt.getChrRightBracket(), false),
-            new BracePair(tt.getChrLeftBrace(), tt.getChrRightBrace(), false),
+            new BracePair(tt.chrLeftParenthesis, tt.chrRightParenthesis, false),
+            new BracePair(tt.chrLeftBracket, tt.chrRightBracket, false),
+            new BracePair(tt.chrLeftBrace, tt.chrRightBrace, false),
         };
     }
 
@@ -46,18 +45,17 @@ public abstract class DBLanguageBraceMatcher implements PairedBraceMatcher {
     }
 
     @Override
-    public boolean isPairedBracesAllowedBeforeType(@NotNull IElementType iElementType, @Nullable IElementType iElementType1) {
-        if (iElementType1 instanceof SimpleTokenType) {
-            SimpleTokenType simpleTokenType = (SimpleTokenType) iElementType1;
+    public boolean isPairedBracesAllowedBeforeType(IElementType lbraceType, IElementType contextType) {
+        if (contextType instanceof SimpleTokenType simpleTokenType) {
             SharedTokenTypeBundle tt = language.getSharedTokenTypes();
-            return simpleTokenType == tt.getWhiteSpace() ||
-                    simpleTokenType == tt.getChrDot() ||
-                    simpleTokenType == tt.getChrComma() ||
-                    simpleTokenType == tt.getChrColon() ||
-                    simpleTokenType == tt.getChrSemicolon();
+            return simpleTokenType == tt.whiteSpace ||
+                    simpleTokenType == tt.chrDot ||
+                    simpleTokenType == tt.chrComma ||
+                    simpleTokenType == tt.chrColon ||
+                    simpleTokenType == tt.chrSemicolon;
 
         }
-        return iElementType1 == null;
+        return contextType == null;
     }
 
     @Override

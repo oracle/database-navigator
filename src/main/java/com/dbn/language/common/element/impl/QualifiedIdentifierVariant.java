@@ -21,8 +21,6 @@ import com.dbn.language.common.psi.QualifiedIdentifierPsiElement;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.util.Unsafe.cast;
-
 public class QualifiedIdentifierVariant implements Comparable{
     private LeafElementType[] leafs;
     /**@deprecated*/
@@ -107,11 +105,9 @@ public class QualifiedIdentifierVariant implements Comparable{
     public String toString() {
         StringBuilder buffer = new StringBuilder();
         for (LeafElementType leaf : leafs) {
-            if (leaf instanceof IdentifierElementType) {
-                IdentifierElementType identifierElementType = (IdentifierElementType) leaf;
+            if (leaf instanceof IdentifierElementType identifierElementType) {
                 buffer.append(identifierElementType.getObjectTypeName());
-            } else if (leaf instanceof TokenElementType) {
-                TokenElementType tokenElementType = (TokenElementType) leaf;
+            } else if (leaf instanceof TokenElementType tokenElementType) {
                 buffer.append(tokenElementType.tokenType.getValue());
             }
             if (leaf != leafs[leafs.length-1]) {
@@ -122,13 +118,11 @@ public class QualifiedIdentifierVariant implements Comparable{
     }
 
     public boolean matchesPsiElement(QualifiedIdentifierPsiElement psiElement) {
-        TokenElementType separatorToken = psiElement.elementType.getSeparatorToken();
+        TokenElementType separatorToken = psiElement.elementType.separatorToken;
         PsiElement child = psiElement.getFirstChild();
         int index = 0;
         while (child != null) {
-            if (child instanceof LeafPsiElement) {
-                LeafPsiElement leafPsiElement = cast(child);
-
+            if (child instanceof LeafPsiElement leafPsiElement) {
                 if (leafPsiElement.elementType == separatorToken){
                     index++;
                 } else {
@@ -138,7 +132,7 @@ public class QualifiedIdentifierVariant implements Comparable{
                     }
 
                     PsiElement reference = leafPsiElement.resolve();
-                    LeafElementType leafElementType = cast(leafPsiElement.elementType);
+                    LeafElementType leafElementType = (LeafElementType) leafPsiElement.elementType;
                     if (reference == null) {
                         if (!(leafElementType.isIdentifier() && leafs[index].isIdentifier()) ||
                                 !leafElementType.isSameAs(leafs[index])) {

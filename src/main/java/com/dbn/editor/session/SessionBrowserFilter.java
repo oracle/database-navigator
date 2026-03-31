@@ -66,12 +66,11 @@ public class SessionBrowserFilter implements Filter<SessionBrowserModelRow>, Clo
     }
 
     public String getFilterValue(SessionBrowserFilterType filterType) {
-        switch (filterType) {
-            case USER: return user;
-            case HOST: return host;
-            case STATUS: return status;
-            default: return null;
-        }
+        return switch (filterType) {
+            case USER -> user;
+            case HOST -> host;
+            case STATUS -> status;
+        };
     }
 
     public void clear() {

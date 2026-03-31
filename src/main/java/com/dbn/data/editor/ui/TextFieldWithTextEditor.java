@@ -113,9 +113,8 @@ public class TextFieldWithTextEditor extends TextFieldWithButtons {
     @Override
     public void afterUpdate() {
         Object userValue = getUserValueHolder().getUserValue();
-        if (userValue instanceof String && Strings.isEmpty(displayValue)) {
+        if (userValue instanceof String text && Strings.isEmpty(displayValue)) {
             Dispatch.run(() -> {
-                String text = (String) userValue;
                 setEditable(text.length() < 1000 && text.indexOf('\n') == -1);
                 setText(text);
             });

@@ -174,8 +174,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         return new EnvironmentManagerListener() {
             @Override
             public void editModeChanged(Project project, DBContentVirtualFile databaseContentFile) {
-                if (databaseContentFile instanceof DBSourceCodeVirtualFile) {
-                    DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) databaseContentFile;
+                if (databaseContentFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
                     if (sourceCodeFile.isModified()) {
                         loadSourceCode(sourceCodeFile, true);
                     }
@@ -190,8 +189,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             @Override
             public void whenSelectionChanged(@NotNull FileEditorManagerEvent event) {
                 FileEditor newEditor = event.getNewEditor();
-                if (newEditor instanceof SourceCodeEditor) {
-                    SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) newEditor;
+                if (newEditor instanceof SourceCodeEditor sourceCodeEditor) {
                     DBEditableObjectVirtualFile databaseFile = sourceCodeEditor.getVirtualFile().getMainDatabaseFile();
                     for (DBSourceCodeVirtualFile sourceCodeFile : databaseFile.getSourceCodeFiles()) {
                         if (!sourceCodeFile.isLoaded()) {
@@ -238,31 +236,32 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     private void loadSourceFromDatabase(@NotNull DBSourceCodeVirtualFile sourceCodeFile, boolean force, boolean notifyError) {
         boolean initialLoad = !sourceCodeFile.isLoaded();
-        if (sourceCodeFile.isNot(LOADING) && (initialLoad || force)) {
-            sourceCodeFile.set(LOADING, true);
-            Editors.setEditorsReadonly(sourceCodeFile, true);
-            Project project = getProject();
-            DBSchemaObject object = sourceCodeFile.getObject();
+        if (sourceCodeFile.is(LOADING)) return;
+        if (!initialLoad && !force) return;
 
+        sourceCodeFile.set(LOADING, true);
+        Editors.setEditorsReadonly(sourceCodeFile, true);
+        Project project = getProject();
+        DBSchemaObject object = sourceCodeFile.getObject();
+
+        ProjectEvents.notify(project,
+                SourceCodeManagerListener.TOPIC,
+                (listener) -> listener.sourceCodeLoading(sourceCodeFile));
+        try {
+            sourceCodeFile.loadSourceFromDatabase();
+        } catch (SQLException e) {
+            conditionallyLog(e);
+            sourceCodeFile.setSourceLoadException(e);
+            sourceCodeFile.setModified(false);
+            if (notifyError) {
+                String objectDesc = object.getQualifiedNameWithType();
+                sendErrorNotification(SOURCE_CODE, txt("ntf.sourceCode.error.CannotLoadSourceCode", objectDesc, e));
+            }
+        } finally {
+            sourceCodeFile.set(LOADING, false);
             ProjectEvents.notify(project,
                     SourceCodeManagerListener.TOPIC,
-                    (listener) -> listener.sourceCodeLoading(sourceCodeFile));
-            try {
-                sourceCodeFile.loadSourceFromDatabase();
-            } catch (SQLException e) {
-                conditionallyLog(e);
-                sourceCodeFile.setSourceLoadException(e);
-                sourceCodeFile.setModified(false);
-                if (notifyError) {
-                    String objectDesc = object.getQualifiedNameWithType();
-                    sendErrorNotification(SOURCE_CODE, txt("ntf.sourceCode.error.CannotLoadSourceCode", objectDesc, e));
-                }
-            } finally {
-                sourceCodeFile.set(LOADING, false);
-                ProjectEvents.notify(project,
-                        SourceCodeManagerListener.TOPIC,
-                        (listener) -> listener.sourceCodeLoaded(sourceCodeFile, initialLoad));
-            }
+                    (listener) -> listener.sourceCodeLoaded(sourceCodeFile, initialLoad));
         }
     }
 
@@ -575,25 +574,22 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     @NonNls
     private static String getContentQualifier(DBObjectType objectType, DBContentType contentType) {
-        switch (objectType) {
-            case JAVA_CLASS:       return "JAVA SOURCE";
-            case JAVA_RESOURCE:    return "JAVA RESOURCE";
-            case FUNCTION:         return "FUNCTION";
-            case PROCEDURE:        return "PROCEDURE";
-            case VIEW:             return "VIEW";
-            case DATASET_TRIGGER:  return "TRIGGER";
-            case DATABASE_TRIGGER: return "TRIGGER";
-            case PACKAGE:
-                return
+        return switch (objectType) {
+            case JAVA_CLASS -> "JAVA SOURCE";
+            case JAVA_RESOURCE -> "JAVA RESOURCE";
+            case FUNCTION -> "FUNCTION";
+            case PROCEDURE -> "PROCEDURE";
+            case VIEW -> "VIEW";
+            case DATASET_TRIGGER -> "TRIGGER";
+            case DATABASE_TRIGGER -> "TRIGGER";
+            case PACKAGE ->
                     contentType == DBContentType.CODE_SPEC ? "PACKAGE" :
                     contentType == DBContentType.CODE_BODY ? "PACKAGE BODY" : null;
-            case TYPE:
-                return
+            case TYPE ->
                     contentType == DBContentType.CODE_SPEC ? "TYPE" :
                     contentType == DBContentType.CODE_BODY ? "TYPE BODY" : null;
-
-        }
-        return null;
+            default -> null;
+        };
     }
 
     private boolean isValidObjectTypeAndName(@NotNull PsiFile psiFile, @NotNull DBSchemaObject object, DBContentType contentType) {
@@ -689,8 +685,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         DBEditableObjectVirtualFile editableObjectFile = parentObject.getEditableVirtualFile();
         DBLanguagePsiFile psiFile = basePsiElement.getFile();
         VirtualFile elementVirtualFile = psiFile.getVirtualFile();
-        if (elementVirtualFile instanceof DBSourceCodeVirtualFile) {
-            DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) elementVirtualFile;
+        if (elementVirtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             BasicTextEditor textEditor = Editors.getTextEditor(sourceCodeFile);
             if (textEditor != null) {
                 Project project = getProject();
@@ -707,8 +702,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         VirtualFile[] openFiles = getOpenFiles(project);
 
         for (VirtualFile openFile : openFiles) {
-            if (openFile instanceof DBEditableObjectVirtualFile) {
-                DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) openFile;
+            if (openFile instanceof DBEditableObjectVirtualFile databaseFile) {
                 if (!databaseFile.isModified()) continue;
                 if (databaseFile.isSaving()) continue;
 

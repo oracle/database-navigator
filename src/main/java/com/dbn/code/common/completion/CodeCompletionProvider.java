@@ -26,12 +26,14 @@ import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.cache.ElementLookupContext;
-import com.dbn.language.common.element.cache.ElementTypeLookupCache;
+import com.dbn.language.common.element.cache.ElementTypeCache;
 import com.dbn.language.common.element.impl.ElementTypeBase;
 import com.dbn.language.common.element.impl.IdentifierElementType;
 import com.dbn.language.common.element.impl.LeafElementType;
+import com.dbn.language.common.element.impl.NamedElementType;
 import com.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dbn.language.common.element.impl.TokenElementType;
+import com.dbn.language.common.element.impl.WrapperElementType;
 import com.dbn.language.common.element.parser.Branch;
 import com.dbn.language.common.element.path.AstNode;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
@@ -87,11 +89,9 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
             @NotNull ProcessingContext processingContext,
             @NotNull CompletionResultSet result) {
         PsiFile originalFile = parameters.getOriginalFile();
-        if (!(originalFile instanceof DBLanguagePsiFile)) return;
+        if (!(originalFile instanceof DBLanguagePsiFile file)) return;
 
         if (handleFilterExpressionFile(result, originalFile)) return;
-
-        DBLanguagePsiFile file = (DBLanguagePsiFile) originalFile;
 
         int caretOffset = parameters.getOffset();
         PsiElement elementAtCaret = file.findElementAt(caretOffset);
@@ -115,8 +115,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
 
     private static boolean handleFilterExpressionFile(@NotNull CompletionResultSet result, PsiFile psiFile) {
         VirtualFile virtualFile = psiFile.getVirtualFile();
-        if (virtualFile instanceof DBObjectFilterExpressionFile) {
-            DBObjectFilterExpressionFile expressionFile = (DBObjectFilterExpressionFile) virtualFile;
+        if (virtualFile instanceof DBObjectFilterExpressionFile expressionFile) {
             List<ObjectFilterAttribute> attributesTypes = expressionFile.getFilter().getDefinition().getAttributes();
             attributesTypes.forEach(a -> result.addElement(a.getLookupItem()));
 
@@ -127,8 +126,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
     }
 
     private boolean shouldAddCompletions(LeafPsiElement leafAtOffset, LeafPsiElement leafBeforeCaret) {
-        if (leafAtOffset instanceof TokenPsiElement) {
-            TokenPsiElement tokenPsiElement = (TokenPsiElement) leafAtOffset;
+        if (leafAtOffset instanceof TokenPsiElement tokenPsiElement) {
             TokenType tokenType = tokenPsiElement.getTokenType();
             if (tokenType.isNumeric()) return false;
             if (tokenType.isLiteral()) return false;
@@ -151,13 +149,18 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         DBLanguagePsiFile file = context.getFile();
 
         ElementTypeBundle elementTypeBundle = file.getElementTypeBundle();
-        ElementTypeLookupCache<?> lookupCache = elementTypeBundle.getRootElementType().cache;
+
+        String parseRootId = file.getParseRootId();
+        NamedElementType rootElementType = parseRootId == null ?
+                elementTypeBundle.getRootElementType() :
+                elementTypeBundle.getNamedElementType(parseRootId);
+
+        ElementTypeCache<?> lookupCache = rootElementType.cache;
         ElementLookupContext lookupContext = new ElementLookupContext(context.getDatabaseVersion());
         Set<LeafElementType> firstPossibleLeafs = lookupCache.captureFirstPossibleLeafs(lookupContext);
 
         for (LeafElementType firstPossibleLeaf : firstPossibleLeafs) {
-            if (firstPossibleLeaf instanceof TokenElementType) {
-                TokenElementType tokenElementType = (TokenElementType) firstPossibleLeaf;
+            if (firstPossibleLeaf instanceof TokenElementType tokenElementType) {
                 consumer.accept(tokenElementType);
             }
         }
@@ -170,9 +173,8 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
 
         DBObject parentObject = null;
         PsiElement parent = element.getParent();
-        if (parent instanceof QualifiedIdentifierPsiElement) {
-            QualifiedIdentifierPsiElement qualifiedIdentifier = (QualifiedIdentifierPsiElement) parent;
-            ElementType separator = qualifiedIdentifier.elementType.getSeparatorToken();
+        if (parent instanceof QualifiedIdentifierPsiElement qualifiedIdentifier) {
+            ElementType separator = qualifiedIdentifier.elementType.separatorToken;
 
             if (element.elementType == separator){
                 BasePsiElement parentPsiElement = element.getPrevElement();
@@ -192,20 +194,22 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
                     }
                 }
             }
-        } else if (element.elementType.getTokenType() == element.getLanguage().getSharedTokenTypes().getChrDot()) {
+        } else if (element.elementType.getTokenType() == element.getLanguage().getSharedTokenTypes().chrDot) {
             LeafPsiElement parentPsiElement = element.getPrevLeaf();
             if (parentPsiElement != null) {
                 if (parentPsiElement instanceof IdentifierPsiElement || parentPsiElement.isVirtualObject()) {
                     parentObject = parentPsiElement.getUnderlyingObject();
                 }
             }
-        } else if (parent instanceof BasePsiElement) {
-            BasePsiElement basePsiElement = (BasePsiElement) parent;
+        } else if (parent instanceof BasePsiElement basePsiElement) {
             ElementTypeBase elementType = basePsiElement.elementType;
             if (elementType.isWrappingBegin((LeafElementType) element.elementType)) {
-                Set<LeafElementType> candidates = elementType.cache.getFirstPossibleLeafs();
-                for (LeafElementType candidate : candidates) {
-                    context.addCompletionCandidate(candidate);
+                if (elementType instanceof WrapperElementType wrapperElementType) {
+                    var completionCandidates = wrapperElementType.wrappedElement.cache.getFirstPossibleLeafs();
+                    context.addCompletionCandidates(completionCandidates);
+                } else {
+                    var candidates = elementType.cache.getFirstPossibleLeafs();
+                    context.addCompletionCandidates(candidates);
                 }
             }
         }
@@ -217,10 +221,8 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
             if (!context.isNewLine()) {
                 lookupContext.addBreakOnAttribute(ElementTypeAttribute.STATEMENT);
             }
-            Set<LeafElementType> candidates = elementType.getNextPossibleLeafs(node, lookupContext);
-            for (LeafElementType candidate : candidates) {
-                context.addCompletionCandidate(candidate);
-            }
+            var candidates = elementType.getNextPossibleLeafs(node, lookupContext);
+            context.addCompletionCandidates(candidates);
         }
 
         context.setParentIdentifierPsiElement(parentIdentifierPsiElement);
@@ -236,8 +238,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         context.queue(() -> {
             Collection<LeafElementType> completionCandidates = context.getCompletionCandidates();
             for (LeafElementType elementType : completionCandidates) {
-                if (elementType instanceof TokenElementType) {
-                    TokenElementType tokenElementType = (TokenElementType) elementType;
+                if (elementType instanceof TokenElementType tokenElementType) {
                     //consumer.setAddParenthesis(addParenthesis && tokenType.isFunction());
                     consumer.accept(tokenElementType);
                 }
@@ -252,10 +253,9 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
 
         Collection<LeafElementType> completionCandidates = context.getCompletionCandidates();
         for (LeafElementType elementType : completionCandidates) {
-            if (!(elementType instanceof IdentifierElementType)) continue;
+            if (!(elementType instanceof IdentifierElementType identifier)) continue;
 
 
-            IdentifierElementType identifier = (IdentifierElementType) elementType;
             if (identifier.isReference()) {
                 DBObjectType objectType = identifier.getObjectType();
                 if (parentIdentifierPsiElement == null) {
@@ -286,11 +286,9 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         CodeCompletionFilterSettings filterSettings = context.getCodeCompletionFilterSettings();
         PsiLookupAdapter lookupAdapter = LookupAdapters.objectDefinition(objectType);
         lookupAdapter.collectInParentScopeOf(element, psiElement -> {
-            if (psiElement instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) psiElement;
+            if (psiElement instanceof IdentifierPsiElement identifierPsiElement) {
                 PsiElement referencedPsiElement = identifierPsiElement.resolve();
-                if (referencedPsiElement instanceof DBObjectPsiElement) {
-                    DBObjectPsiElement objectPsiElement = (DBObjectPsiElement) referencedPsiElement;
+                if (referencedPsiElement instanceof DBObjectPsiElement objectPsiElement) {
                     consumer.accept(objectPsiElement);
                 } else {
                     consumer.accept(identifierPsiElement);
@@ -319,8 +317,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         ElementLookupContext lookupContext = new ElementLookupContext(databaseVersion);
         while (astNode != null && !(astNode instanceof FileElement)) {
             IElementType elementType = astNode.getElementType();
-            if (elementType instanceof ElementTypeBase) {
-                ElementTypeBase basicElementType = (ElementTypeBase) elementType;
+            if (elementType instanceof ElementTypeBase basicElementType) {
                 Branch branch = basicElementType.branch;
                 if (branch != null) {
                     lookupContext.addBranchMarker(astNode, branch);

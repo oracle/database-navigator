@@ -106,6 +106,8 @@ public class TextContent {
                 "font-family: Courier New, Courier, monospace; " +
                         "font-size: " + (fontSize + JBUI.scale(2)) + "pt; " +
                         "color: #" + colorHex + ";");
+
+        replaceFields("TABLE_GRID_COLOR", toHex(UIUtil.getLabelDisabledForeground()));
     }
 
     private void replaceFields(String identifier, String replacement) {
@@ -127,6 +129,11 @@ public class TextContent {
 
     public static TextContent html(String text) {
         return new TextContent(text, MimeType.TEXT_HTML);
+    }
+
+    public static TextContent html(Object object, @NonNls String resourceName) {
+        String info = TextResources.get(object, resourceName);
+        return html(info);
     }
     public static TextContent markdown(String text) {
         return new TextContent(text, MimeType.TEXT_MARKDOWN);

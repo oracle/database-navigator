@@ -66,13 +66,11 @@ public class ArgumentValuesTreeNode implements TreeNode{
 
     @Override
     public String toString() {
-        if (value instanceof ExecutionValue) {
-            ExecutionValue fieldValue = (ExecutionValue) value;
+        if (value instanceof ExecutionValue fieldValue) {
             return String.valueOf(fieldValue.getValue());
         }
 
-        if (value instanceof DBObject) {
-            DBObject object = (DBObject) value;
+        if (value instanceof DBObject object) {
             return object.getName();
         }
 

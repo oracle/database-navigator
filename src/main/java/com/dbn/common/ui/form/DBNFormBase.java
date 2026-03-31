@@ -32,7 +32,6 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.options.general.GeneralProjectSettings;
-import com.intellij.ide.DataManager;
 import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.ide.ui.UISettingsListener;
 import com.intellij.openapi.Disposable;
@@ -62,6 +61,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
 
+import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.ui.form.DBNFormBinding.bindForm;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.enableFormField;
@@ -69,7 +69,6 @@ import static com.dbn.common.ui.util.Accessibility.initComponentGroupsAccessibil
 import static com.dbn.common.ui.util.Accessibility.initCustomComponentAccessibility;
 import static com.dbn.common.ui.util.ClientProperty.NON_DISABLEABLE;
 import static com.dbn.common.ui.util.UserInterface.hasChildComponent;
-import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.intellij.util.ui.UIUtil.getScrollBarWidth;
 
@@ -126,7 +125,7 @@ public abstract class DBNFormBase
         if (initialized) {
             Dispatch.run(mainComponent, runnable);
         } else {
-            whenFirstShown(mainComponent, () -> Dispatch.run(mainComponent, runnable));
+            UserInterface.whenFirstShown(mainComponent, () -> Dispatch.run(mainComponent, runnable));
         }
     }
 
@@ -137,8 +136,8 @@ public abstract class DBNFormBase
      *
      * @param runnable the task to execute when the form is shown
      */
-    protected final void whenShown(Runnable runnable) {
-        whenFirstShown(getMainComponent(), runnable);
+    protected final void whenFirstShown(Runnable runnable) {
+        UserInterface.whenFirstShown(getMainComponent(), runnable);
     }
 
     protected final void whenSettingsChange(Runnable runnable) {
@@ -199,6 +198,12 @@ public abstract class DBNFormBase
         }
     }
 
+    public void revalidateForm() {
+        JComponent mainComponent = getMainComponent();
+        mainComponent.revalidate();
+        mainComponent.repaint();
+    }
+
     private void initFormAccessibility() {
         JComponent mainComponent = getMainComponent();
         initAccessibility();
@@ -223,6 +228,10 @@ public abstract class DBNFormBase
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
         fieldAdapter.updateFieldsVisibility();
         fieldAdapter.updateFieldsAvailability();
+    }
+
+    public void updateFieldAlignment() {
+        alignFormFields(this);
     }
 
     protected void validateFormFields() {
@@ -285,8 +294,7 @@ public abstract class DBNFormBase
     public <D extends DBNDialog> D getParentDialog() {
         Disposable parent = getParentComponent();
         if (parent instanceof DBNDialog) return cast(parent);
-        if (parent instanceof DBNForm) {
-            DBNForm form = (DBNForm) parent;
+        if (parent instanceof DBNForm form) {
             return form.getParentDialog();
         }
         return null;
@@ -299,8 +307,7 @@ public abstract class DBNFormBase
         if (parent == null) return null;
         if (formClass.isAssignableFrom(parent.getClass())) return cast(parent);
 
-        if (parent instanceof DBNForm) {
-            DBNForm parentForm = (DBNForm) parent;
+        if (parent instanceof DBNForm parentForm) {
             return parentForm.getParentFrom(formClass);
         }
         return null;
@@ -343,7 +350,7 @@ public abstract class DBNFormBase
     @Override
     public void disposeInner() {
         JComponent component = getComponent();
-        DataManager.removeDataProvider(component);
+        DataProviders.unregister(component);
         ComponentDisposer.dispose(component);
         nullify();
     }
@@ -359,8 +366,7 @@ public abstract class DBNFormBase
     private void disable(JComponent c) {
         if (NON_DISABLEABLE.is(c)) return;
 
-        if (c instanceof JTextComponent) {
-            JTextComponent textComponent = (JTextComponent) c;
+        if (c instanceof JTextComponent textComponent) {
             if (textComponent instanceof JEditorPane || textComponent instanceof JTextArea) {
                 if (!textComponent.isEditable()) return;
             }
@@ -380,5 +386,9 @@ public abstract class DBNFormBase
 
     private void enable(JComponent c) {
         enableFormField(c, "READONLY_FORM");
+    }
+
+    public void setVisible(boolean visible) {
+        getMainComponent().setVisible(visible);
     }
 }

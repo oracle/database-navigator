@@ -57,9 +57,8 @@ public class SortableDataModelCell<
         Class<?> localClass = local.getClass();
         Class<?> remoteClass = remote.getClass();
 
-        if (local instanceof Comparable && remote instanceof Comparable && localClass.equals(remoteClass)) {
-            Comparable localComparable = (Comparable) local;
-            Comparable remoteComparable = (Comparable) remote;
+        if (local instanceof Comparable localComparable &&
+                remote instanceof Comparable remoteComparable && localClass.equals(remoteClass)) {
             return localComparable.compareTo(remoteComparable);
         } else {
             Class typeClass = cell.getColumnInfo().getDataType().getTypeClass();

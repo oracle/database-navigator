@@ -35,7 +35,6 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.ListModel;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -107,7 +106,7 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
     }
 
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    public DataChangeNotification getValueAt(int rowIndex, int columnIndex) {
         if (isInBounds(notifications, rowIndex)) {
             return notifications.get(rowIndex);
         }
@@ -117,15 +116,14 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
     @Override
     public Object getValue(DataChangeNotification row, int column) {
         if (row == null) return null;
-        switch (column) {
-            case 0: return row.getTableIdentifier();
-            case 1: return row.getOperation();
-            case 2: return row.getTimestamp();
-            case 3: return row.getRowId();
-            case 4: return row.getRegId();
-            default:
-                return "";
-        }
+        return switch (column) {
+            case 0 -> row.getTableIdentifier();
+            case 1 -> row.getOperation();
+            case 2 -> row.getTimestamp();
+            case 3 -> row.getRowId();
+            case 4 -> row.getRegId();
+            default -> "";
+        };
     }
 
     @Override
@@ -159,17 +157,10 @@ public class DataChangeNotificationBundle extends DBNMutableTableModel<DataChang
     }
 
     public List<String> getDistinctValues(EventNotificationFilterType filterType) {
-        switch (filterType) {
-            case TABLE:
-                return getTableIdentifiers();
-            case OPERATION:
-                return List.of("INSERT", "UPDATE", "DELETE");
-        }
-        return Collections.emptyList();
-    }
-
-    public ListModel getListModel() {
-        return gutterModel;
+        return switch (filterType) {
+            case TABLE -> getTableIdentifiers();
+            case OPERATION -> List.of("INSERT", "UPDATE", "DELETE");
+        };
     }
 
     @Override

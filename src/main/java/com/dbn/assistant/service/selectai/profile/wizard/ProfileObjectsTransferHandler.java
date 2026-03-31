@@ -82,8 +82,7 @@ public class ProfileObjectsTransferHandler extends TransferHandler {
         if (action != TransferHandler.MOVE) return;
         JTable table = (JTable) source;
         TableModel model = table.getModel();
-        if (model instanceof ObjectsTableModel) {
-            ObjectsTableModel objectModel = (ObjectsTableModel) model;
+        if (model instanceof ObjectsTableModel objectModel) {
             List<DBObject> objects = getSelectedItems(table);
             objects.forEach(o -> objectModel.removeItem(DBObjectRef.of(o)));
             objectModel.fireTableDataChanged();
@@ -125,8 +124,7 @@ public class ProfileObjectsTransferHandler extends TransferHandler {
 
     private static TableModel getTableModel(TransferSupport info) {
         Component component = info.getComponent();
-        if (!(component instanceof JTable)) return null;
-        JTable table = (JTable) component;
+        if (!(component instanceof JTable table)) return null;
         return table.getModel();
     }
 

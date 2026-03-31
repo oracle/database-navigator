@@ -18,6 +18,7 @@ package com.dbn.execution.script.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,7 +34,6 @@ public class CmdLineInterfaceInputDialog extends DBNDialog<CmdLineInterfaceInput
         this.cmdLineInterface = cmdLineInterface;
         this.usedNames = usedNames;
         setModal(true);
-        renameAction(getOKAction(), "Save");
         init();
     }
 
@@ -44,17 +44,22 @@ public class CmdLineInterfaceInputDialog extends DBNDialog<CmdLineInterfaceInput
     }
 
     @Override
+    protected HelpTopic getHelpTopic() {
+        return HelpTopic.SCRIPT_EXECUTION_SETUP;
+    }
+
+    @Override
     protected String getDimensionServiceKey() {
         return null;
     }
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getOKAction(), "Save");
+        return actions(
                 getOKAction(),
-                getCancelAction(),
-        };
+                getCancelAction());
     }
 
     @Override

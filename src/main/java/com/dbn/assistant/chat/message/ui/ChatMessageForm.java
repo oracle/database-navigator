@@ -57,7 +57,7 @@ import static com.dbn.common.util.Commons.array;
 public abstract class ChatMessageForm extends DBNFormBase {
     protected interface Backgrounds {
         Color USER_PROMPT = new JBColor(new Color(218, 234, 255), new Color(68, 95, 128));
-        Color AGENT_RESPONSE = Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 3));
+        Color AGENT_RESPONSE = Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 2));
         Color SYSTEM_RESPONSE = Colors.delegate(() -> Colors.lafBrighter(Colors.getPanelBackground(), 2));
     }
     private final ChatMessage message;
@@ -89,12 +89,11 @@ public abstract class ChatMessageForm extends DBNFormBase {
     @NotNull
     public static ChatMessageForm create(ChatMessagesForm parent, ChatMessage message) {
         AuthorType author = message.getAuthor();
-        switch (author) {
-            case USER: return new UserChatMessageForm(parent, message);
-            case AGENT: return new AgentChatMessageForm(parent, message);
-            case SYSTEM: return new SystemChatMessageForm(parent, message);
-            default: throw new IllegalArgumentException("Unknown author: " + author);
-        }
+        return switch (author) {
+            case USER -> new UserChatMessageForm(parent, message);
+            case AGENT -> new AgentChatMessageForm(parent, message);
+            case SYSTEM -> new SystemChatMessageForm(parent, message);
+        };
     }
 
     protected ChatMessageForm getNextMessageForm() {

@@ -20,6 +20,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.data.record.DatasetRecord;
 import com.dbn.editor.data.DatasetEditorManager;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +36,6 @@ public class RecordViewerDialog extends DBNDialog<RecordViewerForm> {
         this.record = record; 
         setModal(false);
         setResizable(true);
-        renameAction(getCancelAction(), "Close");
         init();
     }
 
@@ -46,13 +46,17 @@ public class RecordViewerDialog extends DBNDialog<RecordViewerForm> {
     }
 
     @Override
+    protected HelpTopic getHelpTopic() {
+        return HelpTopic.RECORD_VIEWER;
+    }
+
+    @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(
                 new OpenInEditorAction(),
-                getCancelAction(),
-                getHelpAction()
-        };
+                getCancelAction());
     }
     
     @Override

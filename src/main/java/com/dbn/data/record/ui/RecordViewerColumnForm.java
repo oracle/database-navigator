@@ -103,8 +103,7 @@ public class RecordViewerColumnForm extends DBNFormBase {
     private void updateColumnValue(DBColumn column) {
         Object value = record.getColumnValue(column);
         Formatter formatter = Formatter.getInstance(ensureProject());
-        if (value instanceof String) {
-            String userValue = (String) value;
+        if (value instanceof String userValue) {
             if (userValue.indexOf('\n') > -1) {
                 userValue = userValue.replace('\n', ' ');
             } else {

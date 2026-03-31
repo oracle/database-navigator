@@ -177,14 +177,12 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
         for (int index = 0; index < outputTabs.getTabCount(); index++) {
             DBNForm content = outputTabs.getContentAt(index);
 
-            if (content instanceof MethodExecutionCursorResultForm) {
-                MethodExecutionCursorResultForm cursorResultForm = (MethodExecutionCursorResultForm) content;
+            if (content instanceof MethodExecutionCursorResultForm cursorResultForm) {
                 if (cursorResultForm.getArgument().equals(argument)) {
                     outputTabs.setSelectedIndex(index);
                     break;
                 }
-            } else if (content instanceof MethodExecutionLargeValueResultForm) {
-                MethodExecutionLargeValueResultForm largeValueResultForm = (MethodExecutionLargeValueResultForm) content;
+            } else if (content instanceof MethodExecutionLargeValueResultForm largeValueResultForm) {
                 if (largeValueResultForm.getArgument().equals(argument)) {
                     outputTabs.setSelectedIndex(index);
                     break;

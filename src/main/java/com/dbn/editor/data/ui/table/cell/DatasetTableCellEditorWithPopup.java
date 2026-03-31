@@ -75,19 +75,19 @@ public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor {
 
 
     private boolean showAutoPopup() {
-        DataEditorPopupSettings settings = this.settings.getPopupSettings();
         DatasetEditorModelCell cell = getCell();
-        if (cell != null) {
-            DBDataType dataType = cell.getColumnInfo().getDataType();
-            long dataLength = dataType.getLength();
-            if (!isEditable()) {
-                return true;
-            } else  if (settings.isActive() && (settings.getDataLengthThreshold() < dataLength || dataLength == 0)) {
-                if (settings.isActiveIfEmpty() || !isEmptyText(getTextField())) {
-                    return true;
-                }
-            }
-        }
+        if (cell == null) return false;
+
+        DBDataType dataType = cell.getColumnInfo().getDataType();
+        long dataLength = dataType.getLength();
+        if (!isEditable()) return true;
+
+        DataEditorPopupSettings settings = this.settings.getPopupSettings();
+        if (!settings.isActive()) return false;
+        if (settings.getDataLengthThreshold() >= dataLength && dataLength != 0) return false;
+
+        if (settings.isActiveIfEmpty()) return true;
+        if (!isEmptyText(getTextField())) return true;
         return false;
     }
 

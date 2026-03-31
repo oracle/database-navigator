@@ -187,6 +187,12 @@ public class Reflection {
         Field field = object.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
         return cast(field.get(object));
+    }
 
+    @SneakyThrows
+    public static <T> T getFieldValue(String className, String fieldName) {
+        Field field = Class.forName(className).getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return cast(field.get(null));
     }
 }

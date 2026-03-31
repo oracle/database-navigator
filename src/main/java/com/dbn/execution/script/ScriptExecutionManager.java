@@ -53,7 +53,6 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.val;
 import org.jdesktop.swingx.util.OS;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -397,7 +396,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         Element element = newStateElement();
         setBooleanAttribute(element, "clear-outputs", clearOutputOption);
         Element interfacesElement = newElement(element, "recently-used-interfaces");
-        for (val entry : recentlyUsedInterfaces.entrySet()) {
+        for (var entry : recentlyUsedInterfaces.entrySet()) {
             DatabaseType databaseType = entry.getKey();
             String interfaceId = entry.getValue();
             Element interfaceElement = newElement(interfacesElement, "mapping");

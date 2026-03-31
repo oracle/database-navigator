@@ -35,6 +35,8 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
+
 /**
  * Database Assistant introduction form
  * This form is presented to the user on top of the chat-box.
@@ -81,8 +83,8 @@ public class GenericAssistantIntroductionForm extends AssistantDetailFormBase im
 
 
     protected void initButtons() {
-        continueButton.addActionListener(e -> getChatBox().acknowledgeIntro());
-        helpButton.addActionListener(e -> showHelpDialog());
+        onButtonClick(continueButton, e -> getChatBox().acknowledgeIntro());
+        onButtonClick(helpButton, e -> showHelpDialog());
         helpButton.setVisible(false); // TODO
     }
 

@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NonNls;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,8 +63,11 @@ public class Json {
         return OBJECT_MAPPER.writeValueAsString(value);
     }
 
+
     @SneakyThrows
+    @SuppressWarnings("Convert2Diamond") // needed for deserialization
     public static Map<String, Object> readAsMap(String json) {
+        if (isEmpty(json)) return Collections.emptyMap();
         return OBJECT_MAPPER.readValue(json, new TypeReference<Map<String, Object>>(){});
     }
 
@@ -182,8 +186,7 @@ public class Json {
         if (isEmpty(json)) return "";
 
         JsonNode rootNode = OBJECT_MAPPER.readTree(json);
-        if (rootNode instanceof ObjectNode) {
-            ObjectNode objectNode = (ObjectNode) rootNode;
+        if (rootNode instanceof ObjectNode objectNode) {
             for (String attribute : attributes) {
                 objectNode.remove(attribute);
             }
@@ -204,9 +207,8 @@ public class Json {
         if (isEmpty(json)) return emptyMap();
 
         JsonNode rootNode = OBJECT_MAPPER.readTree(json);
-        if (rootNode instanceof ObjectNode) {
+        if (rootNode instanceof ObjectNode objectNode) {
             Map<String, Object> propertyValues = new HashMap<>();
-            ObjectNode objectNode = (ObjectNode) rootNode;
             for (String propertyName : attributeNames) {
                 Object propertyValue = getPropertyValue(objectNode, propertyName);
                 propertyValues.put(propertyName, propertyValue);

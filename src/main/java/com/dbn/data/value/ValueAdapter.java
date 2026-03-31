@@ -101,8 +101,7 @@ public abstract class ValueAdapter<T> {
     }
 
     private static void handleException(Throwable e, GenericDataType genericDataType) throws SQLException {
-        if (e instanceof InvocationTargetException) {
-            InvocationTargetException invocationTargetException = (InvocationTargetException) e;
+        if (e instanceof InvocationTargetException invocationTargetException) {
             e = invocationTargetException.getTargetException();
         }
         if (e instanceof SQLException) {

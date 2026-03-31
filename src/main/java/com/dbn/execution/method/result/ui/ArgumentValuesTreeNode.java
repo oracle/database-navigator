@@ -48,13 +48,11 @@ public class ArgumentValuesTreeNode implements TreeNode{
 
     @Override
     public String toString() {
-        if (userValue instanceof ArgumentValue) {
-            ArgumentValue argumentValue = (ArgumentValue) userValue;
+        if (userValue instanceof ArgumentValue argumentValue) {
             return String.valueOf(argumentValue.getValue());
         }
 
-        if (userValue instanceof DBObject) {
-            DBObject object = (DBObject) userValue;
+        if (userValue instanceof DBObject object) {
             return object.getName();
         }
 

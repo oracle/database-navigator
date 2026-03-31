@@ -18,6 +18,7 @@ package com.dbn.common.ui.util;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.DocumentAdapter;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import javax.swing.JPasswordField;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -65,8 +67,7 @@ public class TextFields {
     public static JTextField getTextField(JSpinner spinner) {
         JComponent editor = spinner.getEditor();
 
-        if (editor instanceof JSpinner.DefaultEditor) {
-            JSpinner.DefaultEditor defaultEditor = (JSpinner.DefaultEditor) editor;
+        if (editor instanceof JSpinner.DefaultEditor defaultEditor) {
             return defaultEditor.getTextField();
         }
         return null;
@@ -93,7 +94,7 @@ public class TextFields {
         if (textComponent == null) return true;
 
         String text = textComponent.getText();
-        return Strings.isNotEmptyOrSpaces(text);
+        return Strings.isEmptyOrSpaces(text);
     }
 
     public static void limitTextLength(JTextComponent textComponent, int maxLength) {
@@ -116,14 +117,17 @@ public class TextFields {
         textComponent.setText(text == null ? "" : text.trim());
     }
 
+    public static void setPassword(JPasswordField textComponent, char[] password) {
+        textComponent.setText(Chars.toString(password));
+    }
+
     public static void setText(TextFieldWithBrowseButton textComponent, String text) {
         setText(textComponent.getTextField(), text);
     }
 
     public static void setTextSilently(JTextComponent textComponent, String text) {
         Document document = textComponent.getDocument();
-        if (document instanceof AbstractDocument) {
-            AbstractDocument abstractDocument = (AbstractDocument) document;
+        if (document instanceof AbstractDocument abstractDocument) {
             DocumentListener[] documentListeners = abstractDocument.getDocumentListeners();
             try {
                 Arrays.stream(documentListeners).forEach(document::removeDocumentListener);

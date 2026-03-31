@@ -36,74 +36,75 @@ import com.intellij.lang.PsiBuilder;
 
 import java.util.Set;
 
-public class SequenceElementTypeParser<ET extends SequenceElementType> extends ElementTypeParser<ET> {
-    public SequenceElementTypeParser(ET elementType) {
+import static com.dbn.language.common.element.parser.ParseResult.NO_MATCH_RESULT;
+import static com.dbn.language.common.element.parser.ParseResultType.FULL_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.NO_MATCH;
+import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MATCH;
+
+public class SequenceElementTypeParser<E extends SequenceElementType> extends ElementTypeParser<E> {
+    public SequenceElementTypeParser(E elementType) {
         super(elementType);
     }
 
     @Override
     public ParseResult parse(ParserNode parentNode, ParserContext context) throws ParseException {
         ParserBuilder builder = context.builder;
-        ParserNode node = stepIn(parentNode, context);
+        ParserNode node = null;
 
-        int matches = 0;
-        int matchedTokens = 0;
+        if (shouldParseElement(elementType, parentNode, context)) {
+            node = stepIn(parentNode, context);
 
-        TokenType token = builder.getToken();
-
-        if (token != null && !token.isChameleon() && shouldParseElement(elementType, node, context)) {
             ElementTypeRef[] elements = elementType.children;
-            while (node.cursorPosition < elements.length) {
-                int index = node.cursorPosition;
+            while (node.elementIndex < elements.length) {
+                int index = node.elementIndex;
                 ElementTypeRef element = elements[index];
 
                 // end of document / language switch
-                if (token == null || token.isChameleon()) {
+                TokenType token = builder.getToken();
+                if (token == null) {
 
                     if (element.isFirst() || elementType.isExitIndex(index)) {
-                        return stepOut(node, context, ParseResultType.NO_MATCH, matchedTokens);
+                        return stepOut(node, context, NO_MATCH);
                     }
 
                     if (element.optional && element.isOptionalFromHere()) {
-                        return stepOut(node, context, ParseResultType.FULL_MATCH, matchedTokens);
+                        return stepOut(node, context, FULL_MATCH);
                     }
 
-                    return stepOut(node, context, ParseResultType.PARTIAL_MATCH, matchedTokens);
+                    return stepOut(node, context, PARTIAL_MATCH);
                 }
 
                 if (context.check(element)) {
-                    ParseResult result = ParseResult.noMatch();
+                    ParseResult result = NO_MATCH_RESULT;
                     if (shouldParseElement(element.elementType, node, context)) {
 
                         //node = node.createVariant(builder.getCurrentOffset(), i);
                         result = element.elementType.parser.parse(node, context);
 
-                        if (result.isMatch()) {
-                            matchedTokens = matchedTokens + result.getMatchedTokens();
-                            token = builder.getToken();
-                            matches++;
+                        if (result.type != NO_MATCH) {
+                            node.matchedTokens += result.matchedTokens;
+                            node.matchedElements++;
                         }
                     }
 
                     // not matched and not optional
-                    if (result.isNoMatch() && !element.optional) {
-                        boolean isWeakMatch = matches < 2 && matchedTokens < 3 && index > 1 && ignoreFirstMatch();
-
-                        if (element.isFirst() || elementType.isExitIndex(index) || isWeakMatch || matches == 0) {
-                            //if (isFirst(i) || isExitIndex(i)) {
-                            return stepOut(node, context, ParseResultType.NO_MATCH, matchedTokens);
+                    if (result.type == NO_MATCH && !element.optional) {
+                        if (element.isFirst() ||
+                                node.matchedElements == 0 ||
+                                node.matchedTokens == 0 ||
+                                elementType.isExitIndex(index) ||
+                                isWeakMatch(node)) {
+                            return stepOut(node, context, NO_MATCH);
                         }
 
                         index = advanceLexerToNextLandmark(node, context);
 
                         if (index <= 0) {
                             // no landmarks found or landmark in parent found
-                            return stepOut(node, context, ParseResultType.PARTIAL_MATCH, matchedTokens);
+                            return stepOut(node, context, PARTIAL_MATCH);
                         } else {
                             // local landmarks found
-
-                            token = builder.getToken();
-                            node.cursorPosition = index;
+                            node.elementIndex = index;
                             continue;
                         }
                     }
@@ -113,29 +114,33 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                 // if is last element
                 if (element.isLast()) {
                     //matches == 0 reaches this stage only if all sequence elements are optional
-                    ParseResultType resultType = matches == 0 ? ParseResultType.NO_MATCH : ParseResultType.FULL_MATCH;
-                    return stepOut(node, context, resultType, matchedTokens);
+                    ParseResultType resultType = node.matchedElements == 0 ? NO_MATCH : FULL_MATCH;
+                    return stepOut(node, context, resultType);
                 }
-                node.incrementIndex(builder.getOffset());
+                node.elementIndex++;
+                node.currentOffset = builder.getOffset();
             }
         }
 
-        return stepOut(node, context, ParseResultType.NO_MATCH, matchedTokens);
+        return stepOut(node, context, NO_MATCH);
+    }
+
+    private boolean isWeakMatch(ParserNode node) {
+        return node.matchedElements < 2 && node.matchedTokens < 3 && node.elementIndex > 1 && ignoreFirstMatch();
     }
 
     @Deprecated // ambiguous
     private boolean ignoreFirstMatch() {
         ElementTypeRef firstChild = elementType.children[0];
         ElementType elementType = firstChild.elementType;
-        if (elementType instanceof IdentifierElementType) {
-            IdentifierElementType identifierElementType = (IdentifierElementType) elementType;
+        if (elementType instanceof IdentifierElementType identifierElementType) {
             return !identifierElementType.isDefinition();
         }
         return false;
     }
 
     private int advanceLexerToNextLandmark(ParserNode node, ParserContext context) {
-        int siblingPosition = node.cursorPosition;
+        int siblingPosition = node.elementIndex;
         ParserBuilder builder = context.builder;
         PsiBuilder.Marker marker = builder.mark();
         Set<TokenType> possibleTokens = elementType.getFirstPossibleTokensFromIndex(context, siblingPosition);
@@ -151,13 +156,13 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
                 builder.advance();
                 tokenType = builder.getToken();
             } else {
-                //builder.markerDone(marker, getElementBundle().getUnknownElementType());
-                marker.error("Invalid or incomplete statement. Expected: ");
+                builder.markerDone(marker, elementType.bundle.getUnknownElementType());
+                //marker.error("Invalid or incomplete statement");
                 return newIndex;
             }
         }
         //builder.markerDone(marker, getElementBundle().getUnknownElementType());
-        marker.error("Invalid or incomplete statement. Expected: ");
+        marker.error("Invalid or incomplete statement");
         return 0;
     }
 
@@ -178,13 +183,11 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends E
             ParserNode parseNode = node;
             while (parseNode != null) {
                 ElementType elementType = parseNode.element;
-                if (elementType instanceof SequenceElementType) {
-                    SequenceElementType sequenceElementType = (SequenceElementType) elementType;
-                    if ( sequenceElementType.containsLandmarkTokenFromIndex(tokenType, parseNode.cursorPosition + 1)) {
+                if (elementType instanceof SequenceElementType sequenceElementType) {
+                    if ( sequenceElementType.containsLandmarkTokenFromIndex(tokenType, parseNode.elementIndex + 1)) {
                         return -1;
                     }
-                } else  if (elementType instanceof IterationElementType) {
-                    IterationElementType iterationElementType = (IterationElementType) elementType;
+                } else  if (elementType instanceof IterationElementType iterationElementType) {
                     if (iterationElementType.isSeparator(tokenType)) {
                         return -1;
                     }

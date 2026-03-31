@@ -20,7 +20,9 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
+import com.dbn.common.ui.table.DBNTableGutter;
 import com.dbn.common.ui.table.DBNTableTransferHandler;
+import com.dbn.common.ui.table.DBNTableWithGutter;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.ui.util.Mouse;
@@ -39,7 +41,7 @@ import java.awt.event.MouseEvent;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
-public class ParserDiagnosticsTable extends DBNTable<ParserDiagnosticsTableModel> {
+public class ParserDiagnosticsTable extends DBNTableWithGutter<ParserDiagnosticsTableModel> {
 
     public ParserDiagnosticsTable(@NotNull DBNComponent parent, ParserDiagnosticsTableModel model) {
         super(parent, model, true);
@@ -52,7 +54,14 @@ public class ParserDiagnosticsTable extends DBNTable<ParserDiagnosticsTableModel
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
         ClientProperty.BORDER.set(this, Borders.tableBorder(1, 0, 0, 0));
 
+        setProportionalColumnWidth(0, 60);
+
         setAccessibleName(this, "Parser Diagnostic Results");
+    }
+
+    @Override
+    protected DBNTableGutter<?> createTableGutter() {
+        return new DBNTableGutter<>(this);
     }
 
     private void clickEvent(MouseEvent e) {
@@ -89,11 +98,9 @@ public class ParserDiagnosticsTable extends DBNTable<ParserDiagnosticsTableModel
             Object columnValue = model.getValue(entry, column);
 
             SimpleTextAttributes textAttributes = SimpleTextAttributes.REGULAR_ATTRIBUTES;
-            if (columnValue instanceof StateTransition) {
-                StateTransition stateTransition = (StateTransition) columnValue;
+            if (columnValue instanceof StateTransition stateTransition) {
                 textAttributes = stateTransition.getCategory().getTextAttributes();
-            } else if (columnValue instanceof VirtualFile) {
-                VirtualFile virtualFile = (VirtualFile) columnValue;
+            } else if (columnValue instanceof VirtualFile virtualFile) {
                 setIcon(virtualFile.getFileType().getIcon());
             }
 

@@ -6,6 +6,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Action;
+
 
 public class ToolDefinitionCreateDialog extends DBNDialog<ToolDefinitionCreateForm> {
 
@@ -20,5 +22,11 @@ public class ToolDefinitionCreateDialog extends DBNDialog<ToolDefinitionCreateFo
     @Override
     protected @NotNull ToolDefinitionCreateForm createForm() {
         return new ToolDefinitionCreateForm(this, connection);
+    }
+
+    protected final Action[] initializeActions() {
+        return actions(
+                getOKAction(),
+                getCancelAction());
     }
 }

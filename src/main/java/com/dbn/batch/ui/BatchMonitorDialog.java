@@ -37,7 +37,6 @@ public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements B
         this.batch.addEventListener(this);
 
         setDefaultSize(600, 600);
-        renameAction(getCancelAction(), "Close");
         hideAction(getShowResultsAction());
 
         init();
@@ -50,8 +49,9 @@ public class BatchMonitorDialog extends DBNDialog<BatchMonitorForm> implements B
     }
 
     @Override
-    protected final Action[] createActions() {
-        return createActions(
+    protected final Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(
                 getShowResultsAction(),
                 getCancelAction());
     }

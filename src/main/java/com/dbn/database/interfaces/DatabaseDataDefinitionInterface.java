@@ -20,7 +20,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
-import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBConstraintType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
@@ -36,12 +36,18 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     boolean includesTypeAndNameInSourceContent(DatabaseObjectTypeId objectTypeId);
 
+    String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
+
     /*********************************************************
      *                   CREATE statements                   *
      *********************************************************/
     void createView(String viewName, String code, DBNConnection connection) throws SQLException;
 
-    void createMethod(MethodFactoryInput methodFactoryInput, DBNConnection connection) throws SQLException;
+    void createMethod(DBObjectSpec methodSpec, DBNConnection connection) throws SQLException;
+
+    void createTable(DBObjectSpec tableSpec, DBNConnection connection) throws SQLException;
+
+    void createIndex(DBObjectSpec indexSpec, DBNConnection connection) throws SQLException;
 
     void createObject(String code, DBNConnection connection) throws SQLException;
 

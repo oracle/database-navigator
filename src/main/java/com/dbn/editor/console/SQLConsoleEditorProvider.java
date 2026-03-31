@@ -19,6 +19,7 @@ package com.dbn.editor.console;
 import com.dbn.common.editor.BasicTextEditorProvider;
 import com.dbn.editor.EditorProviderId;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
+import com.dbn.vfs.file.DBSearchConsoleVirtualFile;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorPolicy;
@@ -35,6 +36,7 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements
 
     @Override
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
+        if (virtualFile instanceof DBSearchConsoleVirtualFile) return false;
         return virtualFile instanceof DBConsoleVirtualFile;
     }
 
@@ -48,8 +50,7 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements
 
     @Override
     public void writeState(@NotNull FileEditorState state, @NotNull Project project, @NotNull Element targetElement) {
-        if (state instanceof SQLConsoleEditorState) {
-            SQLConsoleEditorState editorState = (SQLConsoleEditorState) state;
+        if (state instanceof SQLConsoleEditorState editorState) {
             editorState.writeState(targetElement, project);
         }
     }
@@ -57,15 +58,12 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider implements
     @Override
     @NotNull
     public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
-        DBConsoleVirtualFile consoleVirtualFile = (DBConsoleVirtualFile) file;
-        SQLConsoleEditor editor = new SQLConsoleEditor(project, consoleVirtualFile, "SQL Console", getEditorProviderId());
+        DBConsoleVirtualFile consoleFile = (DBConsoleVirtualFile) file;
+        SQLConsoleEditor editor = new SQLConsoleEditor(project, consoleFile, "SQL Console", getEditorProviderId());
 
         Document document = editor.getEditor().getDocument();
-        int documentSignature = document.hashCode();
-        if (document.hashCode() != consoleVirtualFile.getDocumentSignature()) {
-            document.addDocumentListener(consoleVirtualFile);
-            consoleVirtualFile.setDocumentSignature(documentSignature);
-        }
+        document.addDocumentListener(consoleFile, editor);
+
         return editor;
     }
 

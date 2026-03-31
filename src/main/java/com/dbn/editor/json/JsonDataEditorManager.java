@@ -78,14 +78,12 @@ public class JsonDataEditorManager extends ProjectComponentBase implements Persi
         return new DBNFileEditorManagerListener() {
             @Override
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-                if (file instanceof DBEditableObjectVirtualFile) {
-                    DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) file;
+                if (file instanceof DBEditableObjectVirtualFile editableObjectFile) {
                     DBSchemaObject object = editableObjectFile.getObject();
                     if (object instanceof DBJsonView) {
                         FileEditor[] fileEditors = source.getEditors(file);
                         for (FileEditor fileEditor : fileEditors) {
-                            if (fileEditor instanceof JsonDataEditor) {
-                                JsonDataEditor jsonDataEditor = (JsonDataEditor) fileEditor;
+                            if (fileEditor instanceof JsonDataEditor jsonDataEditor) {
                                 if (editableObjectFile.getSelectedEditorProviderId() == EditorProviderId.JSON) {
                                     jsonDataEditor.loadData(INITIAL_LOAD_INSTRUCTIONS);
                                 }
@@ -98,8 +96,7 @@ public class JsonDataEditorManager extends ProjectComponentBase implements Persi
             @Override
             public void whenSelectionChanged(@NotNull FileEditorManagerEvent event) {
                 FileEditor newEditor = event.getNewEditor();
-                if (newEditor instanceof JsonDataEditor) {
-                    JsonDataEditor jsonDataEditor = (JsonDataEditor) newEditor;
+                if (newEditor instanceof JsonDataEditor jsonDataEditor) {
                     if (!jsonDataEditor.isLoaded() && !jsonDataEditor.isLoading()) {
                         jsonDataEditor.loadData(INITIAL_LOAD_INSTRUCTIONS);
                     }
@@ -112,8 +109,7 @@ public class JsonDataEditorManager extends ProjectComponentBase implements Persi
         VirtualFile file = jsonView.getVirtualFile();
         FileEditor[] fileEditors = FileEditorManager.getInstance(getProject()).getEditors(file);
         for (FileEditor fileEditor : fileEditors) {
-            if (fileEditor instanceof JsonDataEditor) {
-                JsonDataEditor datasetEditor = (JsonDataEditor) fileEditor;
+            if (fileEditor instanceof JsonDataEditor datasetEditor) {
                 datasetEditor.loadData(RELOAD_LOAD_INSTRUCTIONS);
                 break;
             }

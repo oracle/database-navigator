@@ -23,7 +23,6 @@ import com.dbn.code.common.lookup.IdentifierLookupItemBuilder;
 import com.dbn.code.common.lookup.LookupItemBuilder;
 import com.dbn.code.common.lookup.VariableLookupItemBuilder;
 import com.dbn.common.consumer.CancellableConsumer;
-import com.dbn.common.util.Strings;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeCategory;
@@ -34,8 +33,13 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectPsiElement;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+
+import static com.dbn.language.common.element.util.IdentifierType.ALIAS;
+import static com.dbn.language.common.element.util.IdentifierType.OBJECT;
+import static com.dbn.language.common.element.util.IdentifierType.VARIABLE;
 
 @Getter
 public class CodeCompletionLookupConsumer implements CancellableConsumer<Object> {
@@ -50,63 +54,84 @@ public class CodeCompletionLookupConsumer implements CancellableConsumer<Object>
         if (object instanceof Object[]) {
             consumeArray((Object[]) object);
 
-        } else if (object instanceof Collection) {
-            consumeCollection((Collection) object);
+        } else if (object instanceof Collection collection) {
+            consumeCollection(collection);
 
         } else {
-            checkCancelled();
-            LookupItemBuilder lookupItemBuilder = null;
-            DBLanguage language = context.getLanguage();
-            if (object instanceof DBObject) {
-                DBObject dbObject = (DBObject) object;
-                lookupItemBuilder = dbObject.getLookupItemBuilder(language);
-            } else if (object instanceof DBObjectPsiElement) {
-                DBObjectPsiElement objectPsiElement = (DBObjectPsiElement) object;
-                lookupItemBuilder = objectPsiElement.ensureObject().getLookupItemBuilder(language);
+            LookupItemBuilder builder = resolveBuilder(object);
+            if (builder == null) return;
 
-            } else if (object instanceof TokenElementType) {
-                TokenElementType tokenElementType = (TokenElementType) object;
-                String text = tokenElementType.getText();
-                if (Strings.isNotEmpty(text)) {
-                    lookupItemBuilder = tokenElementType.getLookupItemBuilder(language);
-                } else {
-                    CodeCompletionFilterSettings filterSettings = context.getCodeCompletionFilterSettings();
-                    TokenTypeCategory tokenTypeCategory = tokenElementType.getTokenTypeCategory();
-                    if (tokenTypeCategory == TokenTypeCategory.OBJECT) {
-                        TokenType tokenType = tokenElementType.tokenType;
-                        DBObjectType objectType = tokenType.getObjectType();
-                        if (objectType != null && filterSettings.acceptsRootObject(objectType)) {
-                            lookupItemBuilder = new BasicLookupItemBuilder(
-                                    tokenType.getValue(),
-                                    objectType.getName(),
-                                    objectType.getIcon());
-                        }
-                    } else if (filterSettings.acceptReservedWord(tokenTypeCategory)) {
-                        lookupItemBuilder = tokenElementType.getLookupItemBuilder(language);
-                    }
-                }
-            } else if (object instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) object;
-                if (identifierPsiElement.isValid()) {
-                    CharSequence chars = identifierPsiElement.getChars();
-                    IdentifierType identifierType = identifierPsiElement.getIdentifierType();
-                    if (identifierType == IdentifierType.VARIABLE) {
-                        lookupItemBuilder = new VariableLookupItemBuilder(chars, true);
-                    } else if (identifierType == IdentifierType.ALIAS) {
-                        lookupItemBuilder = new AliasLookupItemBuilder(chars, true);
-                    } else if (identifierType == IdentifierType.OBJECT && identifierPsiElement.isDefinition()) {
-                        lookupItemBuilder = new IdentifierLookupItemBuilder(identifierPsiElement);
-
-                    }
-                }
-            } else if (object instanceof String) {
-                lookupItemBuilder = new AliasLookupItemBuilder((CharSequence) object, true);
-            }
-
-            if (lookupItemBuilder != null) {
-                lookupItemBuilder.createLookupItem(object, this);
-            }
+            builder.createLookupItem(object, this);
         }
+    }
+
+    private @Nullable LookupItemBuilder resolveBuilder(Object object) {
+        checkCancelled();
+        DBLanguage language = context.getLanguage();
+        if (object instanceof DBObject dbObject) {
+            return dbObject.getLookupItemBuilder(language);
+        }
+
+        if (object instanceof DBObjectPsiElement objectPsiElement) {
+            return objectPsiElement.ensureObject().getLookupItemBuilder(language);
+        }
+
+        if (object instanceof TokenElementType tokenElementType) {
+            return acceptToken(tokenElementType);
+        }
+
+        if (object instanceof IdentifierPsiElement identifierPsiElement) {
+            return acceptIdentifier(identifierPsiElement);
+        }
+
+        if (object instanceof String) {
+            return new AliasLookupItemBuilder((CharSequence) object, true);
+        }
+        return null;
+    }
+
+    private LookupItemBuilder acceptToken(TokenElementType tokenElementType) {
+        DBLanguage language = context.getLanguage();
+        if (tokenElementType.text != null) {
+            return tokenElementType.getLookupItemBuilder(language);
+        }
+
+        CodeCompletionFilterSettings filterSettings = context.getCodeCompletionFilterSettings();
+        TokenTypeCategory tokenTypeCategory = tokenElementType.getTokenTypeCategory();
+        if (tokenTypeCategory == TokenTypeCategory.OBJECT) {
+            TokenType tokenType = tokenElementType.tokenType;
+            DBObjectType objectType = tokenType.getObjectType();
+            if (objectType != null && filterSettings.acceptsRootObject(objectType)) {
+                return new BasicLookupItemBuilder(
+                        tokenType.getValue(),
+                        objectType.getName(),
+                        objectType.getIcon());
+            }
+        } else if (filterSettings.acceptReservedWord(tokenTypeCategory)) {
+            return tokenElementType.getLookupItemBuilder(language);
+        }
+        return null;
+    }
+
+    private LookupItemBuilder acceptIdentifier(IdentifierPsiElement identifierPsiElement) {
+        if (!identifierPsiElement.isValid()) return null;
+        if (identifierPsiElement.getChars().equals(context.getUserInput())) return null;
+
+        CharSequence chars = identifierPsiElement.getChars();
+        IdentifierType identifierType = identifierPsiElement.getIdentifierType();
+        if (identifierType == VARIABLE) {
+            return new VariableLookupItemBuilder(chars, true);
+        }
+
+        if (identifierType == ALIAS) {
+            return new AliasLookupItemBuilder(chars, true);
+        }
+
+        if (identifierType == OBJECT && identifierPsiElement.isDefinition()) {
+            return new IdentifierLookupItemBuilder(identifierPsiElement);
+
+        }
+        return null;
     }
 
     private void consumeArray(Object[] array) {

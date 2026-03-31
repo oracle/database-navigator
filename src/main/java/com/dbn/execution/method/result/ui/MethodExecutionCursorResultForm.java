@@ -22,9 +22,7 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
 import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
-import com.dbn.data.find.DataSearchComponent;
 import com.dbn.data.find.SearchableDataComponent;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
@@ -38,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
-import javax.swing.text.JTextComponent;
 import java.awt.Dimension;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
@@ -96,39 +93,6 @@ public class MethodExecutionCursorResultForm extends DBNFormBase implements Sear
         return searchPanel;
     }
 
-    @Override
-    public void showSearchHeader() {
-        resultTable.clearSelection();
-
-        DataSearchComponent dataSearchComponent = getSearchComponent();
-        dataSearchComponent.initializeFindModel();
-        JTextComponent searchField = dataSearchComponent.getSearchField();
-        if (searchPanel.isVisible()) {
-            searchField.selectAll();
-        } else {
-            searchPanel.setVisible(true);
-        }
-        searchField.requestFocus();
-
-    }
-
-    @Override
-    public void hideSearchHeader() {
-        getSearchComponent().resetFindModel();
-        searchPanel.setVisible(false);
-        UserInterface.repaintAndFocus(resultTable);
-    }
-
-    @Override
-    public void cancelEditActions() {
-
-    }
-
-    @Override
-    public String getSelectedText() {
-        return null;
-    }
-
     @NotNull
     @Override
     public ResultSetTable<?> getTable() {
@@ -147,6 +111,6 @@ public class MethodExecutionCursorResultForm extends DBNFormBase implements Sear
         if (DataKeys.METHOD_EXECUTION_ARGUMENT.is(dataId)) {
             return DBObjectRef.get(argument);
         }
-        return super.getData(dataId);
+        return null;
     }
 }

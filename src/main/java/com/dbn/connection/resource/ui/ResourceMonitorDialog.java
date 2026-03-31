@@ -18,10 +18,13 @@ package com.dbn.connection.resource.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.transaction.DatabaseTransactionManager;
+import com.dbn.help.HelpTopic;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
+
+import static com.dbn.help.HelpTopic.RESOURCE_MONITOR;
 
 public class ResourceMonitorDialog extends DBNDialog<ResourceMonitorForm> {
 
@@ -29,7 +32,6 @@ public class ResourceMonitorDialog extends DBNDialog<ResourceMonitorForm> {
         super(project, "Resource Monitor", true);
         setModal(false);
         setResizable(true);
-        setCancelButtonText("Close");
         setDefaultSize(1000, 600);
         init();
     }
@@ -41,12 +43,15 @@ public class ResourceMonitorDialog extends DBNDialog<ResourceMonitorForm> {
     }
 
     @Override
+    protected HelpTopic getHelpTopic() {
+        return RESOURCE_MONITOR;
+    }
+
+    @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
-                getCancelAction(),
-                getHelpAction()
-        };
+    protected final Action[] initializeActions() {
+        renameAction(getCancelAction(), "Close");
+        return actions(getCancelAction());
     }
 
     @Override

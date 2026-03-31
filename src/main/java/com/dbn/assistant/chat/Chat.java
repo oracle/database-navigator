@@ -32,7 +32,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.dbn.assistant.chat.message.AuthorType.AGENT;
 import static com.dbn.assistant.chat.message.AuthorType.SYSTEM;
@@ -52,6 +51,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 public class Chat implements PersistentStateElement {
     private String id = UUIDs.compact();
     private String title;
+    private String sourceId;
     private ChatContext context;
     private List<ChatMessage> messages = new CopyOnWriteArrayList<>();
     private long timestamp = System.currentTimeMillis();
@@ -107,11 +107,11 @@ public class Chat implements PersistentStateElement {
     }
 
     public List<String> getUserPrompts() {
-        return messages.
-                stream().
-                filter(m -> m.getAuthor() == USER).
-                map(m -> m.getContent()).
-                collect(Collectors.toList());
+        return messages
+                .stream()
+                .filter(m -> m.getAuthor() == USER)
+                .map(m -> m.getContent())
+                .toList();
     }
 
     public boolean isOlderThan(long duration, TimeUnit unit) {

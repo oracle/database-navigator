@@ -17,16 +17,71 @@
 package com.dbn.data.find;
 
 import com.dbn.common.ui.form.DBNForm;
+import com.dbn.common.ui.listener.KeyAdapter;
+import com.dbn.common.ui.util.Keyboard;
+import com.dbn.common.ui.util.UserInterface;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
+import com.intellij.openapi.actionSystem.IdeActions;
+import com.intellij.openapi.actionSystem.Shortcut;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
+import javax.swing.text.JTextComponent;
+import java.awt.event.KeyEvent;
 
 public interface SearchableDataComponent extends DBNForm {
-    void showSearchHeader();
-    void hideSearchHeader();
-    void cancelEditActions();
-    String getSelectedText();
+    default void showSearchHeader() {
+        BasicTable<?> table = getTable();
+        table.cancelEditing();
+        table.clearSelection();
+
+        DataSearchComponent searchComponent = getSearchComponent();
+        searchComponent.initializeFindModel();
+
+        JTextComponent searchField = searchComponent.getSearchField();
+        JPanel searchPanel = getSearchPanel();
+        if (searchPanel.isVisible()) {
+            searchField.selectAll();
+        } else {
+            searchPanel.setVisible(true);
+        }
+        searchField.requestFocus();
+    }
+
+    default void hideSearchHeader() {
+        DataSearchComponent searchComponent = getSearchComponent();
+        searchComponent.resetFindModel();
+
+        JPanel searchPanel = getSearchPanel();
+        searchPanel.setVisible(false);
+
+        BasicTable<?> table = getTable();
+        UserInterface.repaintAndFocus(table);
+    }
+
+    default void cancelEditActions() {
+        BasicTable<?> table = getTable();
+        table.cancelEditing();
+    }
+
+    default String getSelectedText() {
+        return null;
+    }
+
+    default void installSearchKeyListener() {
+        Keyboard.insertKeyListener(getTable(), new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                Shortcut[] shortcuts = Keyboard.getShortcuts(IdeActions.ACTION_FIND);
+                if (e.isConsumed()) return;
+                if (!Keyboard.match(shortcuts, e)) return;
+
+                e.consume();
+                showSearchHeader();
+            }
+        });
+
+    }
 
     @NotNull
     BasicTable<?> getTable();

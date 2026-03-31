@@ -48,7 +48,6 @@ import java.awt.BorderLayout;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
@@ -93,7 +92,7 @@ public class DatasetRecordEditorForm extends DBNFormBase {
         DatasetEditorManager datasetEditorManager = DatasetEditorManager.getInstance(project);
         ColumnSortingType columnSortingType = datasetEditorManager.getRecordViewColumnSortingType();
         sortColumns(columnSortingType);
-        alignFormFields(this);
+        updateFieldAlignment();
 
         filterTextField.getEmptyText().setText("Filter");
         onTextChange(filterTextField, e -> filterColumForms());
@@ -107,7 +106,7 @@ public class DatasetRecordEditorForm extends DBNFormBase {
     @Override
     protected void initFieldAlignment() {
         FieldAlignerData alignerData = getFieldAlignerData();
-        alignerData.registerForms(columnForms);
+        alignerData.registerForms(() -> columnForms);
     }
 
     private void filterColumForms() {
@@ -115,7 +114,7 @@ public class DatasetRecordEditorForm extends DBNFormBase {
         for (DatasetRecordEditorColumnForm columnForm : columnForms) {
             String columnName = columnForm.getColumnName();
             boolean visible = Strings.indexOfIgnoreCase(columnName, text, 0) > -1;
-            columnForm.getMainComponent().setVisible(visible);
+            columnForm.setVisible(visible);
         }
     }
 

@@ -27,7 +27,7 @@ import javax.swing.event.TableModelListener;
 
 public abstract class DBNEditableTableModel extends StatefulDisposableBase implements DBNTableWithGutterModel {
     private final Listeners<TableModelListener> listeners = Listeners.create(this);
-    private final Latent<DBNTableGutterModel<?>> listModel = Latent.basic(() -> new DBNTableGutterModel<>(DBNEditableTableModel.this));
+    private final Latent<DBNTableGutterModel<?>> gutterModel = Latent.basic(() -> new DBNTableGutterModel<>(DBNEditableTableModel.this));
 
     @Override
     public void addTableModelListener(TableModelListener listener) {
@@ -40,8 +40,8 @@ public abstract class DBNEditableTableModel extends StatefulDisposableBase imple
     }
 
     @Override
-    public ListModel<?> getListModel() {
-        return listModel.get();
+    public ListModel<?> getGutterModel() {
+        return gutterModel.get();
     }
 
     public abstract void insertRow(int rowIndex);
@@ -52,9 +52,9 @@ public abstract class DBNEditableTableModel extends StatefulDisposableBase imple
         TableModelEvent modelEvent = new TableModelEvent(this, firstRowIndex, lastRowIndex, columnIndex);
         listeners.notify(l -> l.tableChanged(modelEvent));
 
-        if (listModel.loaded()) {
+        if (gutterModel.loaded()) {
             ListDataEvent listDataEvent = new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, firstRowIndex, lastRowIndex);
-            listModel.get().notifyListeners(listDataEvent);
+            gutterModel.get().notifyListeners(listDataEvent);
         }
     }
 

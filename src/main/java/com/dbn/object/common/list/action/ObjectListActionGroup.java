@@ -26,9 +26,12 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.sync.java.action.JavaObjectDownloadAction;
 import com.dbn.sync.java.action.JavaResourceDownloadAction;
-import com.dbn.vfs.DBConsoleType;
 
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
+import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
+import static com.dbn.vfs.DBConsoleType.DEBUG;
+import static com.dbn.vfs.DBConsoleType.SEARCH;
+import static com.dbn.vfs.DBConsoleType.STANDARD;
 
 public class ObjectListActionGroup extends DefaultActionGroup {
 
@@ -50,8 +53,7 @@ public class ObjectListActionGroup extends DefaultActionGroup {
         DBObjectType objectType = objectList.getObjectType();
         DatabaseEntity parentElement = objectList.getParentEntity();
 
-        if (parentElement instanceof DBSchema) {
-            DBSchema schema = (DBSchema) parentElement;
+        if (parentElement instanceof DBSchema schema) {
             addSeparator();
             if (objectType == DBObjectType.JAVA_CLASS) {
                 add(new JavaObjectDownloadAction(schema));
@@ -73,9 +75,13 @@ public class ObjectListActionGroup extends DefaultActionGroup {
             if (objectType == DBObjectType.CONSOLE) {
                 ConnectionHandler connection = objectList.getConnection();
                 addSeparator();
-                add(new ConsoleCreateAction(connection, DBConsoleType.STANDARD));
+                add(new ConsoleCreateAction(connection, STANDARD));
+
                 if (DEBUGGING.isSupported(connection)) {
-                    add(new ConsoleCreateAction(connection, DBConsoleType.DEBUG));
+                    add(new ConsoleCreateAction(connection, DEBUG));
+                }
+                if (VECTOR_SEARCH.isSupported(connection)) {
+                    add(new ConsoleCreateAction(connection, SEARCH));
                 }
             }
         }

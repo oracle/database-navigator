@@ -41,8 +41,6 @@ public interface TokenType extends Indexable {
 
     boolean isVariable();
 
-    boolean isQuotedIdentifier();
-
     boolean isKeyword();
 
     boolean isFunction();

@@ -66,7 +66,6 @@ import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.frame.XSuspendContext;
-import com.intellij.xdebugger.impl.XDebugSessionImpl;
 import com.intellij.xdebugger.ui.XDebugTabLayouter;
 import lombok.Getter;
 import lombok.Setter;
@@ -155,10 +154,8 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
     public void sessionInitialized() {
         Project project = getProject();
         XDebugSession session = getSession();
-        if (session instanceof XDebugSessionImpl) {
-            XDebugSessionImpl sessionImpl = (XDebugSessionImpl) session;
-            sessionImpl.getSessionData().setBreakpointsMuted(false);
-        }
+        session.setBreakpointMuted(false);
+
         Progress.background(project, getConnection(), true,
                 txt("prc.debugger.title.InitializingDebugEnvironment"),
                 txt("prc.debugger.text.StartingDebugger"),
@@ -513,8 +510,7 @@ public abstract class DBJdbcDebugProcess<T extends ExecutionInput> extends XDebu
         DBSchemaObject schemaObject = getDatabaseObject(runtimeInfo);
         if (schemaObject != null) {
             DBObjectVirtualFile virtualFile = schemaObject.getVirtualFile();
-            if (virtualFile instanceof DBEditableObjectVirtualFile) {
-                DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) virtualFile;
+            if (virtualFile instanceof DBEditableObjectVirtualFile editableObjectFile) {
                 DBContentType contentType = schemaObject.getContentType();
                 if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
                     return editableObjectFile.getContentFile(DBContentType.CODE_BODY);

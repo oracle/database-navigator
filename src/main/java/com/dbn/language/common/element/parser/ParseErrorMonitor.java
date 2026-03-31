@@ -19,12 +19,11 @@ package com.dbn.language.common.element.parser;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ParseErrorMonitor {
-    private final ParserBuilder builder;
+public class ParseErrorMonitor extends ParserBuilderExtension{
     private final Set<Integer> errorOffsets = new HashSet<>();
 
     public ParseErrorMonitor(ParserBuilder builder) {
-        this.builder = builder;
+        super(builder);
     }
 
     boolean isErrorAtOffset() {

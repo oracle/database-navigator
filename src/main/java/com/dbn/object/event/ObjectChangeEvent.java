@@ -30,6 +30,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import static com.dbn.common.util.Unsafe.cast;
 
@@ -107,11 +108,18 @@ public class ObjectChangeEvent {
         ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(this));
     }
 
-    public static void subscribe(Disposable parentDisposable, ConnectionHandler connection, DBObjectType objectType, Runnable runnable) {
-        Project project = connection.getProject();
+    public static void subscribe(
+            Project project,
+            Disposable parentDisposable,
+            Supplier<ConnectionId> connectionId,
+            Supplier<SchemaId> ownerId,
+            Supplier<DBObjectType> objectType, Runnable runnable) {
+        if (project == null) return;
+
         ProjectEvents.subscribe(project, parentDisposable, ObjectChangeListener.TOPIC, e -> {
-            if (!e.matches(connection)) return;
-            if (!e.matches(objectType)) return;
+            if (!e.matches(connectionId.get())) return;
+            if (!e.matches(ownerId.get())) return;
+            if (!e.matches(objectType.get())) return;
             runnable.run();
         });
     }

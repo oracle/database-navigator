@@ -70,7 +70,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		return DBObjectRef.ensure(method);
 	}
 
-	public List<DBJavaParameter> getArguments() {
+	public List<DBJavaParameter> getParameters() {
 		DBJavaMethod method = getMethod();
 		List<DBJavaParameter> parameters = method.getParameters();
 		parameters = sortedCopy(parameters, POSITION_COMPARATOR);
@@ -78,7 +78,18 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	}
 
 	protected int getArgumentsCount() {
-		return getArguments().size();
+		return getArgumentsCount(null);
+	}
+
+	protected  int getArgumentsCount(JavaExecutionContext context) {
+		int excludedParamCount  = 0;
+		if(context != null) {
+			if(context.getWrapperModel().getInput().getCodeInputs() != null) {
+				excludedParamCount = context.getWrapperModel().getInput()
+													.getCodeInputs().size();
+			}
+		}
+		return getParameters().size() - excludedParamCount;
 	}
 
 	protected String getReturnArgument() {
@@ -145,7 +156,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		initLogging(context);
 		initTimeout(context);
 		initParameters(context);
-		if (isQuery()) {
+		if (isQuery(context)) {
 			boolean hasReturnType = isReturnType();
 			execute(context, hasReturnType);
 		} else {
@@ -179,9 +190,10 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 			Resources.commitSilently(conn);
 		}
 
-		Resources.close(conn);
+		if (conn.isDebugConnection()) {
+			Resources.close(conn);
 
-		if (conn.isPoolConnection()) {
+		} else if (conn.isPoolConnection()) {
 			connection.freePoolConnection(conn);
 		}
 	}
@@ -191,7 +203,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		JavaExecutionInput executionInput = context.getInput();
 		String command = buildExecutionCommand(executionInput, wrapperModel);
 		DBNConnection conn = context.getConnection();
-		DBNPreparedStatement<?> statement = !isQuery() ?
+		DBNPreparedStatement<?> statement = !isQuery(context) ?
 				conn.prepareStatement(command) :
 				conn.prepareCall(command);
 
@@ -216,8 +228,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.setLogging(logging);
 	}
 
-	private void initParameters(JavaExecutionContext context) {
-		if (!isQuery()) return;
+	private void initParameters(JavaExecutionContext context) throws SQLException {
+		if (!isQuery(context)) return;
 
 		WrapperModel wrapperModel = context.getWrapperModel();
 		JavaExecutionInput executionInput = context.getInput();
@@ -273,7 +285,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		JavaExecutionResult executionResult = executionInput.getExecutionResult();
 		if (executionResult != null) {
 			if(catchResult)
-				loadValues(executionResult, statement);
+				loadValues(context, executionResult, statement);
 			executionResult.calculateExecDuration();
 
 			if (context.isLogging()) {
@@ -290,19 +302,19 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		return getMethod().getConnection();
 	}
 
-	protected boolean isQuery() {
-		return getArgumentsCount() > 0 || isReturnType();
+	protected boolean isQuery(JavaExecutionContext context) {
+		return getArgumentsCount(context) > 0 || isReturnType();
 	}
 
 	private boolean isReturnType(){
-		return !getMethod().getSignature().split(":")[1].trim().equals("void");
+		return !getMethod().isReturningVoid();
 	}
 
-	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement preparedStatement, WrapperModel wrapperModel) {
+	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement preparedStatement, WrapperModel wrapperModel) throws SQLException {
 
 	}
 
-	public void loadValues(JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
+	public void loadValues(JavaExecutionContext context, JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
 
 	}
 

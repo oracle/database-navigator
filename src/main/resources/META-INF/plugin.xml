@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2025 Oracle and/or its affiliates
+  ~ Copyright 2026 Oracle and/or its affiliates
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.7.0.0</version>
+    <version>3.7.3.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -27,7 +27,7 @@
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
     <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
     <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
-    <idea-version since-build="201.6668.113" until-build="253.*"/>
+    <idea-version since-build="201.6668.113" until-build="261.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
             <b>Database Development and Management Tool</b><br></br>
@@ -53,6 +53,22 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.7.3</b>
+            <ul>
+                <li>Support for latest IDE versions
+                <li>Fixed issue with sqlite database browser
+                <li>Bug fixes
+            </ul>
+            <li><b>3.7.2</b>
+            <ul>
+                <li>Support for latest IDE EAP versions
+                <li>Bug fixes
+            </ul>
+            <li><b>3.7.1</b>
+            <ul>
+                <li>Online documentation integration
+                <li>Bug fixes and performance improvements
+            </ul>
             <li><b>3.7.0</b>
             <ul>
                 <li>DB assistant (an AI-powered assistant with database and workspace integration)
@@ -254,7 +270,9 @@
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
     </extensions>
     <extensionPoints>
-        <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterFactory" dynamic="true"/>
+        <extensionPoint name="objectFilter" qualifiedName="com.dbn.objectFilter" interface="com.dbn.object.cache.DBObjectFilter" dynamic="true"/>
+        <extensionPoint name="objectFactoryAdapter" qualifiedName="com.dbn.objectFactoryAdapter" interface="com.dbn.object.factory.ObjectFactoryAdapter" dynamic="true"/>
+        <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterExtension" dynamic="true"/>
 
         <extensionPoint name="assistantAdapter" qualifiedName="com.dbn.assistantAdapter" interface="com.dbn.assistant.adapter.AssistantAdapter" dynamic="true"/>
         <extensionPoint name="assistantModelFactory" qualifiedName="com.dbn.assistantModelFactory" interface="com.dbn.assistant.service.generic.model.AssistantModelFactory" dynamic="true"/>
@@ -265,6 +283,20 @@
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
     </extensionPoints>
     <extensions defaultExtensionNs="com.dbn">
+        <!--object filters-->
+        <objectFilter implementation="com.dbn.vector.model.request.EmbeddingStagingTableFilter"/>
+        <objectFilter implementation="com.dbn.vector.model.request.EmbeddingDestinationTableFilter"/>
+
+        <!--object factory adapters-->
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBAIModelFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBJavaClassFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBFunctionFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBProcedureFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBArgumentFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBTableFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBColumnFactoryAdapter"/>
+        <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBCredentialFactoryAdapter"/>
+
         <!--object management adapters-->
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBConstraintManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBCredentialManagementAdapter"/>
@@ -337,6 +369,7 @@
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ConsoleEditorTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SourceCodeEditorTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.DatasetEditorTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SemanticSearchTool$Factory" />
     </extensions>
 
     <actions>
@@ -431,7 +464,11 @@
             <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Chat" id="DBNavigator.Actions.Assistant.TypeChat"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantPromptActions" text="Assistant Prompt Actions">
+            <action class="com.dbn.assistant.service.generic.action.AssistantModeInfoAction" id="DBNavigator.Actions.Assistant.AssistantModeInfo" text="Assistant Mode Info"/>
+            <action class="com.dbn.assistant.service.generic.action.AssistantModeAction" id="DBNavigator.Actions.Assistant.AssistantMode" text="Assistant Mode"/>
+            <separator/>
             <action class="com.dbn.assistant.service.generic.action.ToolSelectionAction" id="DBNavigator.Actions.Assistant.ToolSelection" text="Tools"/>
+            <action class="com.dbn.assistant.service.generic.action.EmbeddingTableSelectionAction" id="DBNavigator.Actions.Assistant.EmbeddingTable" text="Embedding Table"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantPromptSubmitActions" text="Assistant Chat-Box Prompt">
             <action class="com.dbn.assistant.chat.window.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Assistant.SubmitPrompt" icon="AllIcons.Actions.Execute">
@@ -543,6 +580,13 @@
             <action id="DBNavigator.Actions.SessionBrowser.KillSessions" class="com.dbn.editor.session.action.KillSessionsAction" text="Session Browser - Kill Sessions" icon="com.dbn.common.icon.Icons.ACTION_KILL_SESSION"/>
             <separator/>
             <action id="DBNavigator.Actions.SessionBrowser.OpenSettings" class="com.dbn.editor.session.action.SessionBrowserSettingsAction" text="Session Browser - Settings"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.VectorSearchConsole" text="Vector Search Controls">
+            <action id="DBNavigator.Actions.VectorSearchSchema" class="com.dbn.vector.search.action.VectorSchemaSelectAction" text="Vector Search - Schema"/>
+            <action id="DBNavigator.Actions.VectorSearchTable" class="com.dbn.vector.search.action.VectorTableSelectAction" text="Vector Search - Table"/>
+            <action id="DBNavigator.Actions.VectorSearchMetric" class="com.dbn.vector.search.action.VectorMetricSelectAction" text="Vector Search - Distance Metric"/>
+            <separator/>
+            <group id="DBNavigator.Actions.VectorConsoleOptions" class="com.dbn.language.editor.action.EditorOptionsAction" text="Vector Search - Settings" icon="AllIcons.General.GearPlain" />
         </group>
         <group id="DBNavigator.ActionGroup.JsonDataEditor" text="JSON Data Editor Controls">
             <action id="DBNavigator.Actions.JsonDataEditor.ToggleEditableStatus" class="com.dbn.editor.json.action.JsonDataEditingLockToggleAction" text="JSON Data Editor - Lock / Unlock Editing"/>
@@ -797,6 +841,8 @@
         <listener topic="com.intellij.openapi.actionSystem.ex.AnActionListener" class="com.dbn.execution.statement.action.ExecuteStatementEditorAction$ShortcutInterceptor"/>
     </projectListeners>
     <extensions defaultExtensionNs="com.intellij">
+        <webHelpProvider implementation="com.dbn.help.PluginHelpProvider"/>
+
         <notificationGroup id="DBNavigator.NotificationGroup.Default" displayType="BALLOON" key="ntf.shared.title.DBNavigator"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Browser" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorBrowser" toolWindowId="DB Browser"/>
         <notificationGroup id="DBNavigator.NotificationGroup.Execution" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorExecution" toolWindowId="DB Execution Console"/>
@@ -910,6 +956,7 @@
         <fileEditorProvider implementation="com.dbn.editor.session.SessionBrowserEditorProvider"/>
         <fileEditorProvider implementation="com.dbn.editor.code.SourceCodeSpecEditorProvider"/>
         <fileEditorProvider implementation="com.dbn.editor.console.SQLConsoleEditorProvider"/>
+        <fileEditorProvider implementation="com.dbn.vector.search.VectorSearchEditorProvider"/>
         <!--<fileEditorProvider implementation="com.dbn.common.editor.SQLFileTextEditorProvider"/>-->
 
         <editorNotificationProvider implementation="com.dbn.ddl.DDLMappedNotificationProvider"/>

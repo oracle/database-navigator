@@ -77,6 +77,10 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
 
             DBDataType dataType = argument.getDataType();
             if (dataType.isPurelyDeclared()) {
+                buffer.append("    ");
+                appendVariableName(buffer, argument);
+                buffer.append(" := ").append(dataType.getQualifiedName(true)).append("();\n");
+
                 DBType declaredType = dataType.getDeclaredType();
                 List<DBTypeAttribute> attributes = declaredType.getAttributes();
                 for (DBTypeAttribute attribute : attributes) {

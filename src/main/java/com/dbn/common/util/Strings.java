@@ -21,6 +21,8 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -45,6 +48,7 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
 
     private static final Map<String, String> UPPER_CASE_STRINGS = new ConcurrentHashMap<>();
     private static final Map<String, String> LOWER_CASE_STRINGS = new ConcurrentHashMap<>();
+    private static final Set<Character> VOWELS = Set.of('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U');
 
     @NotNull
     public static List<String> tokenize(@Nullable String string, @NotNull String separator) {
@@ -176,6 +180,8 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
 
     public static boolean isIndex(@Nullable String string) {
         if (string == null) return false;
+        if (string.length() > 3) return false; // practical limit for index inputs (e.g. column at index #)
+
         for (int i = 0; i < string.length(); i++) {
             char chr = string.charAt(i);
             if (chr < '0' || chr > '9') return false;
@@ -225,6 +231,18 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
             return buffer.toString();
         }
         return content;
+    }
+
+
+    public static String removeHtmlTags(String content) {
+        if (content == null) return "";
+        content = Jsoup.clean(content, Safelist.none());
+        return content.replaceAll("\\s+", " ").trim();
+    }
+
+    public static String indentText(String text, int spaces) {
+        String indent = " ".repeat(spaces);
+        return indent + text.replaceAll("\\R", "\n" + indent);
     }
 
     public static @NotNull String trim(@Nullable String message) {
@@ -525,5 +543,56 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return slices;
     }
 
+    public static String truncateWithMiddleEllipsis(String string, int maxLength) {
+        if (string == null) return null;
+        if (maxLength < 5) return string;
+        if (string.length() <= maxLength) return string;
+
+        String ellipsis = "...";
+        int remaining = maxLength - ellipsis.length();
+        int head = (remaining + 1) / 2;
+        int tail = remaining / 2;
+
+        return string.substring(0, head) + ellipsis + string.substring(string.length() - tail);
+    }
+
+
+    /**
+     * Truncates the given string to the specified maximum length, appending "..." if truncation occurs.
+     * Attempts to break at non-alphanumeric characters within a small overflow (up to 5 characters beyond maxLength).
+     * If no suitable break point is found, truncates at maxLength - 3.
+     * If the string is null or its length is less than or equal to maxLength, returns the string unchanged.
+     * If maxLength is less than or equal to 3, returns the substring of the first maxLength characters.
+     *
+     * @param text the string to truncate
+     * @param maxLength the maximum length of the result
+     * @return the truncated string with "..." appended if necessary
+     */
+    public static String truncateWithEllipsis(String text, int maxLength) {
+        if (text == null) return text;
+        if (text.length() <= maxLength) return text;
+        if (maxLength <= 3) return text.substring(0, maxLength);
+
+        int overflow = 5;
+        int searchLimit = Math.min(text.length(), maxLength + overflow);
+
+        for (int i = Math.min(maxLength - 1, searchLimit - 1); i >= 0; i--) {
+            char c = text.charAt(i);
+            if (!Character.isLetterOrDigit(c)) {
+                return text.substring(0, i + 1) + "...";
+            }
+        }
+
+        // No suitable break point found, use simple truncation
+        return text.substring(0, maxLength - 3) + "...";
+    }
+
+    public static boolean startsWithVowel(String input) {
+        if (input == null) return false;
+        if (input.isEmpty()) return false;
+
+        char firstChar = input.charAt(0);
+        return VOWELS.contains(firstChar);
+    }
 }
 

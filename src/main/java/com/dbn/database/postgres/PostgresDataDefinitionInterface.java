@@ -19,19 +19,27 @@ package com.dbn.database.postgres;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.DBContentType;
-import com.dbn.object.factory.ArgumentFactoryInput;
-import com.dbn.object.factory.MethodFactoryInput;
+import com.dbn.object.factory.model.DBObjectSpec;
+import com.dbn.object.factory.model.DBObjectSpecList;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
+import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
+import static com.dbn.object.type.DBObjectType.ARGUMENT;
 
 public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
     public PostgresDataDefinitionInterface(DatabaseInterfaces provider) {
@@ -56,6 +64,11 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         if (sqlMode != null) {
             executeUpdate(connection, "set-session-sql-mode", sqlMode);
         }
+    }
+
+    @Override
+    public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     /*********************************************************
@@ -90,60 +103,67 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
      *                   CREATE statements                   *
      *********************************************************/
     @Override
-    public void createMethod(MethodFactoryInput method, DBNConnection connection) throws SQLException {
+    public void createMethod(@NotNull DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
         // TODO SQL-Injection
-        Project project = method.getSchema().getProject();
+        Project project = methodSpec.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption keywordCaseOption = styleCaseSettings.getKeywordCaseOption();
         CodeStyleCaseOption objectCaseOption = styleCaseSettings.getObjectCaseOption();
         CodeStyleCaseOption dataTypeCaseOption = styleCaseSettings.getDatatypeCaseOption();
+        boolean function = methodSpec.getObjectType() == DBObjectType.FUNCTION;
 
         StringBuilder buffer = new StringBuilder();
-        String methodType = method.isFunction() ? "function " : "procedure ";
+        String methodType = function ? "function " : "procedure ";
         buffer.append(keywordCaseOption.format(methodType));
-        buffer.append(objectCaseOption.format(method.getObjectName()));
+        buffer.append(objectCaseOption.format(methodSpec.getObjectName()));
         buffer.append("(");
 
         int maxArgNameLength = 0;
         int maxArgDirectionLength = 0;
-        for (ArgumentFactoryInput argument : method.getArguments()) {
+        DBObjectSpecList<DBObjectSpec> arguments = methodSpec.getChildren(ARGUMENT);
+        for (DBObjectSpec argument : arguments) {
+            boolean in = IS_INPUT.is(argument);
+            boolean out = IS_OUTPUT.is(argument);
             maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
-            maxArgDirectionLength = Math.max(maxArgDirectionLength,
-                    argument.isInput() && argument.isOutput() ? 5 :
-                    argument.isInput() ? 2 :
-                    argument.isOutput() ? 3 : 0);
+            maxArgDirectionLength = Math.max(maxArgDirectionLength, in && out ? 5 : in ? 2 : out ? 3 : 0);
         }
 
 
-        for (ArgumentFactoryInput argument : method.getArguments()) {
+        for (DBObjectSpec argumentSpec : arguments) {
+            boolean in = IS_INPUT.is(argumentSpec);
+            boolean out = IS_OUTPUT.is(argumentSpec);
+
             buffer.append("\n    ");
-            
-            if (!method.isFunction()) {
+            if (!function) {
                 String direction =
-                        argument.isInput() && argument.isOutput() ? keywordCaseOption.format("inout") :
-                                argument.isInput() ? keywordCaseOption.format("in") :
-                                        argument.isOutput() ? keywordCaseOption.format("out") : "";
+                        in && out ? keywordCaseOption.format("inout") :
+                        in ? keywordCaseOption.format("in") :
+                        out ? keywordCaseOption.format("out") : "";
                 buffer.append(direction);
                 buffer.append(Strings.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
             }
 
-            buffer.append(objectCaseOption.format(argument.getObjectName()));
-            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
+            buffer.append(objectCaseOption.format(argumentSpec.getObjectName()));
+            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argumentSpec.getObjectName().length() + 1));
 
-            buffer.append(dataTypeCaseOption.format(argument.getDataType()));
-            if (argument != method.getArguments().get(method.getArguments().size() -1)) {
+            String dataType = DATA_TYPE.of(argumentSpec);
+            buffer.append(dataTypeCaseOption.format(dataType));
+            if (argumentSpec != Lists.lastElement(arguments)) {
                 buffer.append(",");
             }
         }
 
         buffer.append(")\n");
-        if (method.isFunction()) {
+        if (function) {
+            DBObjectSpec returnArgument = RETURN_ARGUMENT.of(methodSpec);
             buffer.append(keywordCaseOption.format("returns "));
-            buffer.append(dataTypeCaseOption.format(method.getReturnArgument().getDataType()));
+            buffer.append(dataTypeCaseOption.format(DATA_TYPE.of(returnArgument)));
             buffer.append("\n");
         }
         buffer.append(keywordCaseOption.format("begin\n\n"));
-        if (method.isFunction()) buffer.append(keywordCaseOption.format("    return null;\n\n"));
+        if (function) {
+            buffer.append(keywordCaseOption.format("    return null;\n\n"));
+        }
         buffer.append("end");
         
         String sqlMode = getSessionSqlMode(connection);
@@ -153,7 +173,5 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         } finally {
             setSessionSqlMode(sqlMode, connection);
         }
-
     }
-
 }

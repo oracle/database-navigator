@@ -24,7 +24,6 @@ import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
 import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
-import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.assistant.tool.execution.AssistantToolResponse;
@@ -112,8 +111,7 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
         Object[] arguments = values.subList(0, placeholderCount).toArray(new Object[0]);
         for (int i = 0; i < arguments.length; i++) {
             Object argument = arguments[i];
-            if (argument instanceof List) {
-                List<?> list = (List<?>) argument;
+            if (argument instanceof List<?> list) {
                 arguments[i] = Lists.toCsv(list, e -> Objects.toString(e));
             }
         }
@@ -157,7 +155,6 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
 
     private AssistantToolApprovals getToolApprovals() {
         AssistantState state = getAssistantState();
-        AssistantToolSettings settings = AssistantToolSettings.get(state);
-        return settings.getApprovals();
+        return state.getToolApprovals();
     }
 }

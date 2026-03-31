@@ -20,7 +20,6 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.dialog.DialogWithTimeout;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.ResourceStatus;
 import com.dbn.connection.transaction.DatabaseTransactionManager;
@@ -38,34 +37,27 @@ import static com.dbn.connection.transaction.TransactionAction.COMMIT;
 import static com.dbn.connection.transaction.TransactionAction.DISCONNECT_IDLE;
 import static com.dbn.connection.transaction.TransactionAction.KEEP_ALIVE;
 import static com.dbn.connection.transaction.TransactionAction.ROLLBACK_IDLE;
-import static com.dbn.connection.transaction.TransactionAction.actions;
 
 public class IdleConnectionDialog extends DialogWithTimeout {
-    private final IdleConnectionDialogForm idleConnectionDialogForm;
-    private final ConnectionRef connection;
+    private final IdleConnectionDialogForm form;
     private final DBNConnection conn;
 
     public IdleConnectionDialog(ConnectionHandler targetConnection, DBNConnection conn) {
-        super(targetConnection.getProject(), "Idle connection", true, TimeUtil.getSeconds(5));
-        this.connection = targetConnection.ref();
+        super(targetConnection, "Idle connection", true, TimeUtil.getSeconds(5));
         this.conn = conn;
-        idleConnectionDialogForm = new IdleConnectionDialogForm(this, targetConnection, conn, 5);
+        this.form = new IdleConnectionDialogForm(this, targetConnection, conn, 5);
         setModal(false);
         init();
     }
 
     @Override
     protected JComponent createContentComponent() {
-        return idleConnectionDialogForm.getComponent();
+        return form.getComponent();
     }
 
     @Override
     public void doDefaultAction() {
         rollback();
-    }
-
-    public ConnectionHandler getConnection() {
-        return connection.ensure();
     }
 
     @Override
@@ -85,13 +77,11 @@ public class IdleConnectionDialog extends DialogWithTimeout {
 
     @Override
     @NotNull
-    protected final Action[] createActions() {
-        return new Action[]{
+    protected final Action[] initializeActions() {
+        return actions(
                 new CommitAction(),
                 new RollbackAction(),
-                new KeepAliveAction(),
-                getHelpAction()
-        };
+                new KeepAliveAction());
     }
 
     private class CommitAction extends AbstractAction {
@@ -127,7 +117,7 @@ public class IdleConnectionDialog extends DialogWithTimeout {
 
     private void commit() {
         try {
-            List<TransactionAction> actions = actions(COMMIT, DISCONNECT_IDLE);
+            List<TransactionAction> actions = TransactionAction.actions(COMMIT, DISCONNECT_IDLE);
             DatabaseTransactionManager transactionManager = getTransactionManager();
             transactionManager.execute(getConnection(), conn, actions, true, null);
         } finally {
@@ -138,7 +128,7 @@ public class IdleConnectionDialog extends DialogWithTimeout {
 
     private void rollback() {
         try {
-            List<TransactionAction> actions = actions(ROLLBACK_IDLE, DISCONNECT_IDLE);
+            List<TransactionAction> actions = TransactionAction.actions(ROLLBACK_IDLE, DISCONNECT_IDLE);
             DatabaseTransactionManager transactionManager = getTransactionManager();
             transactionManager.execute(getConnection(), conn, actions, true, null);
         } finally {
@@ -148,7 +138,7 @@ public class IdleConnectionDialog extends DialogWithTimeout {
 
     private void ping() {
         try {
-            List<TransactionAction> actions = actions(KEEP_ALIVE);
+            List<TransactionAction> actions = TransactionAction.actions(KEEP_ALIVE);
             DatabaseTransactionManager transactionManager = getTransactionManager();
             transactionManager.execute(getConnection(), conn, actions, true, null);
         } finally {

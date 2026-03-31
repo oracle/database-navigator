@@ -35,7 +35,6 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,40 +46,9 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectConfiguration, ObjectTypeFilterSettingsForm> {
-    private final List<ObjectTypeFilterSetting> settings = Arrays.asList(
-            new ObjectTypeFilterSetting(this, DBObjectType.SCHEMA),
-            new ObjectTypeFilterSetting(this, DBObjectType.USER),
-            new ObjectTypeFilterSetting(this, DBObjectType.ROLE),
-            new ObjectTypeFilterSetting(this, DBObjectType.PRIVILEGE),
-            new ObjectTypeFilterSetting(this, DBObjectType.CHARSET),
-            new ObjectTypeFilterSetting(this, DBObjectType.TABLE),
-            new ObjectTypeFilterSetting(this, DBObjectType.VIEW),
-            new ObjectTypeFilterSetting(this, DBObjectType.JSON_VIEW),
-            new ObjectTypeFilterSetting(this, DBObjectType.MATERIALIZED_VIEW),
-            new ObjectTypeFilterSetting(this, DBObjectType.NESTED_TABLE),
-            new ObjectTypeFilterSetting(this, DBObjectType.COLUMN),
-            new ObjectTypeFilterSetting(this, DBObjectType.INDEX),
-            new ObjectTypeFilterSetting(this, DBObjectType.CONSTRAINT),
-            new ObjectTypeFilterSetting(this, DBObjectType.DATASET_TRIGGER),
-            new ObjectTypeFilterSetting(this, DBObjectType.DATABASE_TRIGGER),
-            new ObjectTypeFilterSetting(this, DBObjectType.SYNONYM),
-            new ObjectTypeFilterSetting(this, DBObjectType.SEQUENCE),
-            new ObjectTypeFilterSetting(this, DBObjectType.PROCEDURE),
-            new ObjectTypeFilterSetting(this, DBObjectType.FUNCTION),
-            new ObjectTypeFilterSetting(this, DBObjectType.PACKAGE),
-            new ObjectTypeFilterSetting(this, DBObjectType.TYPE),
-            new ObjectTypeFilterSetting(this, DBObjectType.TYPE_ATTRIBUTE),
-            new ObjectTypeFilterSetting(this, DBObjectType.ARGUMENT),
-            new ObjectTypeFilterSetting(this, DBObjectType.JAVA_CLASS),
-            new ObjectTypeFilterSetting(this, DBObjectType.JAVA_FIELD),
-            new ObjectTypeFilterSetting(this, DBObjectType.JAVA_METHOD),
-            new ObjectTypeFilterSetting(this, DBObjectType.JAVA_RESOURCE),
-            new ObjectTypeFilterSetting(this, DBObjectType.DIMENSION),
-            new ObjectTypeFilterSetting(this, DBObjectType.CLUSTER),
-            new ObjectTypeFilterSetting(this, DBObjectType.DBLINK),
-            new ObjectTypeFilterSetting(this, DBObjectType.CREDENTIAL),
-            new ObjectTypeFilterSetting(this, DBObjectType.AI_PROFILE),
-            new ObjectTypeFilterSetting(this,DBObjectType.AI_MODEL));
+    private final List<ObjectTypeFilterSetting> settings = Lists.convert(
+            DBObjectType.BROWSABLE_TYPES,
+            t -> new ObjectTypeFilterSetting(this, t));
 
     private Map<DBObjectType, ObjectTypeFilterSetting> cache = new ConcurrentHashMap<>(settings.size());
 
@@ -141,14 +109,12 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
             return false;
         }
 
-        if (treeNode instanceof DBObject) {
-            DBObject object = (DBObject) treeNode;
+        if (treeNode instanceof DBObject object) {
             DBObjectType objectType = object.getObjectType();
             return isVisible(objectType);
         }
 
-        if (treeNode instanceof DBObjectList) {
-            DBObjectList objectList = (DBObjectList) treeNode;
+        if (treeNode instanceof DBObjectList objectList) {
             return isVisible(objectList.getObjectType());
         }
 

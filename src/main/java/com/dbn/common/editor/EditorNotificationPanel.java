@@ -20,6 +20,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.ComponentDisposer;
+import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.file.VirtualFileRef;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
@@ -30,7 +31,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.intellij.codeInsight.intention.IntentionActionWithOptions;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.colors.ColorKey;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
@@ -38,6 +38,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.util.ui.JBUI;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +55,11 @@ import java.util.Objects;
 import static com.dbn.common.ui.util.UserInterface.findChildComponent;
 import static javax.swing.SwingConstants.RIGHT;
 
-public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationPanel implements Disposable {
+@Getter
+@Setter
+public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationPanel implements StatefulDisposable {
+    private boolean disposed;
+
     private final VirtualFileRef file;
     private final ProjectRef project;
     private final WeakRef<FileEditor> fileEditor;
@@ -112,32 +118,33 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
     }
 
     protected Icon getIcon(MessageType messageType) {
-        switch (messageType) {
-            case INFO: return Icons.COMMON_INFO;
-            case SUCCESS: return null;
-            case WARNING: return Icons.COMMON_WARNING;
-            case ERROR: return Icons.COMMON_ERROR;
-            default: return null;
-        }    }
+        return switch (messageType) {
+            case INFO -> Icons.COMMON_INFO;
+            case SUCCESS -> null;
+            case WARNING -> Icons.COMMON_WARNING;
+            case ERROR -> Icons.COMMON_ERROR;
+            default -> null;
+        };
+    }
 
     private static Color getBackground(MessageType messageType) {
-        switch (messageType) {
-            case INFO: return Banner.INFO_BACKGROUND;
-            case SUCCESS: return Banner.SUCCESS_BACKGROUND;
-            case WARNING: return Banner.WARNING_BACKGROUND;
-            case ERROR: return Banner.ERROR_BACKGROUND;
-            default: return Colors.getLightPanelBackground();
-        }
+        return switch (messageType) {
+            case INFO -> Banner.INFO_BACKGROUND;
+            case SUCCESS -> Banner.SUCCESS_BACKGROUND;
+            case WARNING -> Banner.WARNING_BACKGROUND;
+            case ERROR -> Banner.ERROR_BACKGROUND;
+            default -> Colors.getLightPanelBackground();
+        };
     }
 
     private static ColorKey getBackgroundKey(MessageType messageType) {
-        switch (messageType) {
-            case INFO: return ColorKey.createColorKey("Banner.infoBackground");
-            case SUCCESS: return ColorKey.createColorKey("Banner.successBackground");
-            case WARNING: return ColorKey.createColorKey("Banner.warningBackground");
-            case ERROR: return ColorKey.createColorKey("Banner.errorBackground");
-            default: return null;
-        }
+        return switch (messageType) {
+            case INFO -> ColorKey.createColorKey("Banner.infoBackground");
+            case SUCCESS -> ColorKey.createColorKey("Banner.successBackground");
+            case WARNING -> ColorKey.createColorKey("Banner.warningBackground");
+            case ERROR -> ColorKey.createColorKey("Banner.errorBackground");
+            default -> null;
+        };
     }
 
 
@@ -176,7 +183,7 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
     }
 
     @Override
-    public void dispose() {
+    public void disposeInner() {
         ComponentDisposer.dispose(this);
     }
 
