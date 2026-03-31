@@ -1,4 +1,4 @@
-package com.dbn.connection.config.configprovider;
+package com.dbn.connection.config.export;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,9 +53,6 @@ public class JsonConfigProviderProcessor extends ConfigProviderFormatProcessor{
         putIfNotBlank(node, "connect_descriptor", payload.getConnectDescriptor());
         putIfNotBlank(node, "user", payload.getUser());
 
-        if (payload.getPassword() != null) {
-            node.set("password", toSecretRefJson(payload.getPassword()));
-        }
         if (payload.getWalletLocation() != null) {
             node.set("wallet_location", toSecretRefJson(payload.getWalletLocation()));
         }

@@ -1,4 +1,4 @@
-package com.dbn.connection.config.configprovider;
+package com.dbn.connection.config.export;
 
 import java.nio.file.Path;
 

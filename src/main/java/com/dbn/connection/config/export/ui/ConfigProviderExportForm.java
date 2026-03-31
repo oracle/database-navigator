@@ -1,26 +1,31 @@
-package com.dbn.connection.config.configprovider.ui;
+package com.dbn.connection.config.export.ui;
 
-import com.dbn.common.icon.Icons;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Strings;
-import com.intellij.openapi.vfs.VirtualFileWrapper;
-import com.dbn.connection.config.ConnectionSettings;
-import com.dbn.connection.config.configprovider.ConfigProviderExportService;
-import com.dbn.connection.config.configprovider.ConfigProviderExportRequest;
+import com.dbn.connection.config.export.ConfigProviderExportManager;
+import com.dbn.connection.config.export.ConfigProviderExportRequest;
 import com.intellij.openapi.fileChooser.FileSaverDescriptor;
 import com.intellij.openapi.fileChooser.FileSaverDialog;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
+import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBCheckBox;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.nio.file.Path;
 
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_INCLUDE_WALLET;
+import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_OUTPUT_FILE;
+import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_WALLET_FILE;
+import static com.dbn.connection.config.export.ConfigProviderExportManager.LAST_WRAPPER_KEY;
 
 public class ConfigProviderExportForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -28,63 +33,50 @@ public class ConfigProviderExportForm extends DBNFormBase {
     private JTextField wrapperKeyTextField;
     private TextFieldWithBrowseButton outputFileTextField;
 
-    private JBCheckBox includePasswordCheckBox;
     private JBCheckBox includeWalletCheckBox;
 
     private TextFieldWithBrowseButton walletFileTextField;
 
-    private JLabel errorLabel;
-
     private Path outputFile;
     private Path walletFile;
 
-    private final ConnectionSettings connectionSettings;
-    private final ConfigProviderExportService exportService;
+    private final ConfigProviderExportManager exportService;
 
     ConfigProviderExportForm(
             @NotNull ConfigProviderExportDialog parent,
-            @NotNull ConnectionSettings connectionSettings,
-            @NotNull ConfigProviderExportService exportService) {
+            @NotNull ConfigProviderExportManager exportService) {
 
         super(parent);
-        this.connectionSettings = connectionSettings;
         this.exportService = exportService;
 
         // Fail-fast if .form bindings are wrong
         if (mainPanel == null || wrapperKeyTextField == null || outputFileTextField == null ||
-                includePasswordCheckBox == null || includeWalletCheckBox == null ||
-                walletFileTextField == null) {
+                includeWalletCheckBox == null || walletFileTextField == null) {
             throw new IllegalStateException("Form binding failed. Check ConfigProviderExportForm.form bindings.");
-        }
-
-        // Optional error label
-        if (errorLabel != null) {
-            errorLabel.setIcon(Icons.COMMON_ERROR);
-            errorLabel.setVisible(false);
         }
 
         outputFileTextField.getTextField().setEditable(false);
         walletFileTextField.getTextField().setEditable(false);
 
-        initDefaults();
         initListeners();
         updateWalletControls();
     }
 
-    private void initDefaults() {
-        // wrapper key default
-        wrapperKeyTextField.setText(exportService.getLastWrapperKey());
+    @Override
+    protected void initStatePersistence() {
+        StateAttributes state = exportService.getExportFormState();
 
-        // output file default: lastExportDir -> project base -> user home
-        String baseDir = exportService.getLastExportDir();
-        if (Strings.isEmpty(baseDir) && getProject() != null) baseDir = getProject().getBasePath();
-        if (Strings.isEmpty(baseDir)) baseDir = System.getProperty("user.home");
+        initPersistence(wrapperKeyTextField, state, LAST_WRAPPER_KEY);
+        initPersistence(outputFileTextField.getTextField(), state, LAST_OUTPUT_FILE);
+        initPersistence(includeWalletCheckBox, state, LAST_INCLUDE_WALLET);
+        initPersistence(walletFileTextField.getTextField(), state, LAST_WALLET_FILE);
 
-        outputFile = Path.of(baseDir, "connection.json");
-        outputFileTextField.setText(outputFile.toString());
+        if (Strings.isEmpty(getText(outputFileTextField.getTextField()))) {
+            outputFileTextField.setText(getDefaultOutputFile().toString());
+        }
 
-        includePasswordCheckBox.setSelected(exportService.isLastIncludePassword());
-        includeWalletCheckBox.setSelected(exportService.isLastIncludeWallet());
+        outputFile = toPath(getText(outputFileTextField.getTextField()));
+        walletFile = toPath(getText(walletFileTextField.getTextField()));
     }
 
     private void initListeners() {
@@ -96,9 +88,17 @@ public class ConfigProviderExportForm extends DBNFormBase {
                 walletFile = null;
                 walletFileTextField.setText("");
             }
+            validateFormFields();
         });
 
-        walletFileTextField.addActionListener(e -> chooseWalletFile());    }
+        walletFileTextField.addActionListener(e -> chooseWalletFile());
+    }
+
+    @Override
+    protected void initValidation() {
+        addTextValidation(outputFileTextField.getTextField(), f -> validateOutputFile());
+        addTextValidation(walletFileTextField.getTextField(), f -> validateWalletFile());
+    }
 
     private void chooseOutputFile() {
         FileSaverDescriptor descriptor =
@@ -106,7 +106,7 @@ public class ConfigProviderExportForm extends DBNFormBase {
 
         FileSaverDialog dialog = FileChooserFactory.getInstance().createSaveFileDialog(descriptor, getProject());
         com.intellij.openapi.vfs.VirtualFile baseDir = null;
-        String basePath = exportService.getLastExportDir();
+        String basePath = outputFile != null ? outputFile.toString() : getText(outputFileTextField.getTextField());
         if (Strings.isEmpty(basePath) && getProject() != null) basePath = getProject().getBasePath();
 
         if (Strings.isNotEmpty(basePath)) {
@@ -121,6 +121,7 @@ public class ConfigProviderExportForm extends DBNFormBase {
 
         outputFile = wrapper.getFile().toPath();
         outputFileTextField.setText(outputFile.toString());
+        validateFormFields();
     }
 
     private void chooseWalletFile() {
@@ -139,6 +140,7 @@ public class ConfigProviderExportForm extends DBNFormBase {
 
         walletFile = Path.of(vf.getPath());
         walletFileTextField.setText(walletFile.toString());
+        validateFormFields();
     }
 
     private void updateWalletControls() {
@@ -147,18 +149,28 @@ public class ConfigProviderExportForm extends DBNFormBase {
         walletFileTextField.getTextField().setEnabled(enabled);
     }
 
-    public void validateEntries(@NotNull Runnable onSuccess) {
-        hideError();
+    private Path getDefaultOutputFile() {
+        String baseDir = getProject() == null ? null : getProject().getBasePath();
+        if (Strings.isEmpty(baseDir)) baseDir = System.getProperty("user.home");
+        return Path.of(baseDir, "connection.json");
+    }
 
+    private static Path toPath(String path) {
+        return Strings.isEmpty(path) ? null : Path.of(path);
+    }
+
+    private String validateOutputFile() {
         if (outputFile == null) {
-            showError("Please choose an output file.");
-            return;
+            return "Please choose an output file.";
         }
+        return null;
+    }
+
+    private String validateWalletFile() {
         if (includeWalletCheckBox.isSelected() && walletFile == null) {
-            showError("Please choose a wallet file or uncheck 'Include wallet'.");
-            return;
+            return "Please choose a wallet file or uncheck 'Include wallet'.";
         }
-        onSuccess.run();
+        return null;
     }
 
     public ConfigProviderExportRequest getExportRequest() {
@@ -169,26 +181,9 @@ public class ConfigProviderExportForm extends DBNFormBase {
                 .outputFile(outputFile)
                 .formatId("json") // JSON-only UI
                 .wrapperKey(key)
-                .includePassword(includePasswordCheckBox.isSelected())
                 .includeWallet(includeWalletCheckBox.isSelected())
                 .walletFile(walletFile)
                 .build();
-
-
-    }
-
-    private void showError(String message) {
-        if (errorLabel != null) {
-            errorLabel.setText(message);
-            errorLabel.setVisible(true);
-        }
-    }
-
-    private void hideError() {
-        if (errorLabel != null) {
-            errorLabel.setVisible(false);
-            errorLabel.setText("");
-        }
     }
 
     @NotNull

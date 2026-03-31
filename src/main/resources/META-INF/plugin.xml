@@ -192,7 +192,7 @@
         <applicationService serviceImplementation="com.dbn.driver.DatabaseDriverManager"/>
         <applicationService serviceImplementation="com.dbn.driver.download.DriverDownloadManager"/>
         <applicationService serviceImplementation="com.dbn.connection.config.tns.TnsImportService"/>
-        <applicationService serviceImplementation="com.dbn.connection.config.configprovider.ConfigProviderExportService"/>
+        <applicationService serviceImplementation="com.dbn.connection.config.export.ConfigProviderExportManager"/>
         <applicationService serviceImplementation="com.dbn.connection.ssh.SshTunnelManager"/>
         <applicationService serviceImplementation="com.dbn.connection.ssl.SslConnectionManager"/>
         <applicationService serviceImplementation="com.dbn.options.DefaultProjectSettingsManager"/>

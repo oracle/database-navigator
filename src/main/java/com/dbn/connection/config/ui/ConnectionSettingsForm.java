@@ -40,6 +40,7 @@ import com.dbn.connection.config.ConnectionFilterSettings;
 import com.dbn.connection.config.ConnectionPropertiesSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
+import com.dbn.connection.config.export.ConfigProviderExportManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
@@ -208,7 +209,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
                 Project project = ensureProject();
                 try{
                     ConnectionSettings tmp = getTemporaryConfig();
-                    com.dbn.connection.config.configprovider.ConfigProviderExportService
+                    ConfigProviderExportManager
                             .getInstance()
                             .exportConnection(project, tmp);
                 }catch (ConfigurationException ex) {

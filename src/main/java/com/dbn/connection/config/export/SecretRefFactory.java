@@ -1,38 +1,12 @@
-package com.dbn.connection.config.configprovider;
+package com.dbn.connection.config.export;
 
-
-
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Base64;
 
 public class SecretRefFactory {
 
     private SecretRefFactory(){}
-
-    public static SecretRef base64Password(char[] password) {
-        if (password == null || password.length == 0) return null;
-
-        byte[] utf8 = null;
-        try {
-            ByteBuffer bb = StandardCharsets.UTF_8.encode(CharBuffer.wrap(password));
-            utf8 = new byte[bb.remaining()];
-            bb.get(utf8);
-
-            String b64 = Base64.getEncoder().encodeToString(utf8);
-
-            return SecretRef.builder()
-                    .type(SecretProviderType.BASE64)
-                    .value(b64)
-                    .build();
-        } finally {
-            if (utf8 != null) Arrays.fill(utf8, (byte) 0);
-        }
-    }
 
     public static SecretRef base64Wallet(Path walletFile) throws Exception {
         if (walletFile == null) return null;

@@ -1,4 +1,4 @@
-package com.dbn.connection.config.configprovider;
+package com.dbn.connection.config.export;
 
 import lombok.Builder;
 import lombok.Value;
@@ -11,7 +11,6 @@ public class ConfigProviderPayload {
 
     String connectDescriptor;
     String user;
-    SecretRef password;
     SecretRef walletLocation;
 
     Map<String,Object> jdbc;

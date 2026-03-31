@@ -1,85 +1,64 @@
-package com.dbn.connection.config.configprovider;
+package com.dbn.connection.config.export;
 
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
+import com.dbn.common.state.StateAttributes;
+import com.dbn.common.state.StateCategory;
+import com.dbn.common.state.StateContainer;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.config.ConnectionSettings;
-import com.dbn.connection.config.configprovider.ui.ConfigProviderExportDialog;
+import com.dbn.connection.config.export.ui.ConfigProviderExportDialog;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import lombok.Getter;
-import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.Path;
-
 import static com.dbn.common.component.Components.applicationService;
-import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
-import static com.dbn.common.options.setting.Settings.setBoolean;
-import static com.dbn.common.options.setting.Settings.setString;
-import static com.dbn.common.options.setting.Settings.getString;
-import static com.dbn.common.options.setting.Settings.getBoolean;
-import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
-@Getter
-@Setter
 @State(
-        name = ConfigProviderExportService.COMPONENT_NAME,
+        name = ConfigProviderExportManager.COMPONENT_NAME,
         storages = @Storage(DatabaseNavigator.STORAGE_FILE)
 )
-public class ConfigProviderExportService extends ApplicationComponentBase implements PersistentState {
+public class ConfigProviderExportManager extends ApplicationComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Application.ConfigProviderExportService";
+    private static final StateCategory EXPORT_FORM = StateCategory.get("EXPORT_FORM");
+    private static final String STATES = "states";
 
-    private String lastFormatId = "json";
-    private String lastExportDir = "";
-    private String lastWrapperKey = "";
-    private boolean lastIncludePassword = false;
-    private boolean lastIncludeWallet = false;
+    public static final String LAST_OUTPUT_FILE = "last-output-file";
+    public static final String LAST_WRAPPER_KEY = "last-wrapper-key";
+    public static final String LAST_INCLUDE_WALLET = "last-include-wallet";
+    public static final String LAST_WALLET_FILE = "last-wallet-file";
 
-    private ConfigProviderExportService() {super(COMPONENT_NAME);}
+    private final StateContainer states = new StateContainer();
+
+    private ConfigProviderExportManager() {super(COMPONENT_NAME);}
 
     @Override
     public Element getComponentState() {
-
         Element element = newStateElement();
-        Element options = newElement(element, "configprovider-export-options");
-
-        setString(options, "last-format-id", lastFormatId);
-        setString(options, "last-export-dir", lastExportDir);
-        setString(options, "last-wrapper-key", lastWrapperKey);
-        setBoolean(options, "last-include-password", lastIncludePassword);
-        setBoolean(options, "last-include-wallet", lastIncludeWallet);
-
+        states.writeState(element, STATES);
         return element;
     }
 
     @Override
     public void loadComponentState(@NotNull Element element) {
-        Element options = element.getChild("configprovider-export-options");
-        if (options == null) return;
-
-        lastFormatId = getString(options, "last-format-id", lastFormatId);
-        lastExportDir = getString(options, "last-export-dir", lastExportDir);
-        lastWrapperKey = getString(options, "last-wrapper-key", lastWrapperKey);
-        lastIncludePassword = getBoolean(options, "last-include-password", lastIncludePassword);
-        lastIncludeWallet = getBoolean(options, "last-include-wallet", lastIncludeWallet);
+        states.readState(element, STATES);
     }
+
     public void exportConnection(@NotNull Project project, @NotNull ConnectionSettings settings){
         Dialogs.show(
-                () -> new ConfigProviderExportDialog(project, settings, this),
+                () -> new ConfigProviderExportDialog(project, this),
                 (dialog, exitCode) -> {
                     if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
 
                     ConfigProviderExportRequest request = dialog.getExportRequest();
-                    remember(request);
 
                     Progress.modal(project, null, true,
                             "Exporting configuration",
@@ -87,6 +66,10 @@ public class ConfigProviderExportService extends ApplicationComponentBase implem
                             progress -> doExport(project, settings, request));
                 }
         );
+    }
+
+    public @NotNull StateAttributes getExportFormState() {
+        return states.ensureAttributes(EXPORT_FORM);
     }
 
     private void doExport(Project project, ConnectionSettings settings, ConfigProviderExportRequest request) {
@@ -100,8 +83,7 @@ public class ConfigProviderExportService extends ApplicationComponentBase implem
                         "connect_descriptor is required.\n\n" +
                                 "Fix one of the following:\n" +
                                 " - Provide Host/Port/Service(SID)\n" +
-                                " - Select a TNS profile\n" +
-                                " - For Custom URL, add an alias/descriptor after '@' (not only ?TNS_ADMIN=...)"
+                                " - Select a TNS profile\n"
                 );
             }
 
@@ -115,7 +97,7 @@ public class ConfigProviderExportService extends ApplicationComponentBase implem
             // 5) success message (safe)
             Messages.showInfoDialog(project, "Export configuration", "Configuration exported successfully.");
         } catch (Exception e) {
-            boolean sensitive = request.isIncludePassword() || request.isIncludeWallet();
+            boolean sensitive = request.isIncludeWallet();
 
             if (sensitive) {
                 conditionallyLog(new RuntimeException("ConfigProvider export failed (" + e.getClass().getName() + ")"));
@@ -127,24 +109,7 @@ public class ConfigProviderExportService extends ApplicationComponentBase implem
         }
     }
 
-    private void remember(ConfigProviderExportRequest request) {
-        if (request == null) return;
-
-        if (request.getFormatId() != null && !request.getFormatId().isBlank()) {
-            lastFormatId = request.getFormatId();
-        }
-        lastWrapperKey = nvl(request.getWrapperKey(), "");
-
-        lastIncludePassword = request.isIncludePassword();
-        lastIncludeWallet = request.isIncludeWallet();
-
-        Path out = request.getOutputFile();
-        if (out != null && out.getParent() != null) {
-            lastExportDir = out.getParent().toString();
-        }
-    }
-
-    public static ConfigProviderExportService getInstance() {
-        return applicationService(ConfigProviderExportService.class);
+    public static ConfigProviderExportManager getInstance() {
+        return applicationService(ConfigProviderExportManager.class);
     }
 }

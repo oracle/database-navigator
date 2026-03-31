@@ -1,25 +1,22 @@
-package com.dbn.connection.config.configprovider.ui;
+package com.dbn.connection.config.export.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.config.ConnectionSettings;
-import com.dbn.connection.config.configprovider.ConfigProviderExportService;
-import com.dbn.connection.config.configprovider.ConfigProviderExportRequest;
+import com.dbn.connection.config.export.ConfigProviderExportManager;
+import com.dbn.connection.config.export.ConfigProviderExportRequest;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
 public class ConfigProviderExportDialog extends DBNDialog<ConfigProviderExportForm> {
-    private final ConnectionSettings connectionSettings;
-    private final ConfigProviderExportService exportService;
+    private final ConfigProviderExportManager exportService;
 
     public ConfigProviderExportDialog(
             @NotNull Project project,
-            @NotNull ConnectionSettings connectionSettings,
-            @NotNull ConfigProviderExportService exportService) {
+            @NotNull ConfigProviderExportManager exportService) {
 
         super(project, "Export JSON", true);
-        this.connectionSettings = connectionSettings;
         this.exportService = exportService;
         init();
     }
@@ -27,7 +24,7 @@ public class ConfigProviderExportDialog extends DBNDialog<ConfigProviderExportFo
     @NotNull
     @Override
     protected ConfigProviderExportForm createForm() {
-        return new ConfigProviderExportForm(this, connectionSettings, exportService);
+        return new ConfigProviderExportForm(this, exportService);
     }
 
     @NotNull
@@ -35,11 +32,6 @@ public class ConfigProviderExportDialog extends DBNDialog<ConfigProviderExportFo
     protected Action[] initializeActions() {
         renameAction(getOKAction(), "Export");
         return actions(getOKAction(), getCancelAction());
-    }
-
-    @Override
-    protected void doOKAction() {
-        getForm().validateEntries(() -> super.doOKAction());
     }
 
     public ConfigProviderExportRequest getExportRequest() {
