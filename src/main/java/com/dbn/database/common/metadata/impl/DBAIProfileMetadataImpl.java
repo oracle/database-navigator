@@ -17,14 +17,14 @@
 package com.dbn.database.common.metadata.impl;
 
 import com.dbn.database.common.metadata.DBObjectMetadataBase;
-import com.dbn.database.common.metadata.def.DBProfileMetadata;
+import com.dbn.database.common.metadata.def.DBAIProfileMetadata;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DBProfileMetadataImpl extends DBObjectMetadataBase implements DBProfileMetadata {
+public class DBAIProfileMetadataImpl extends DBObjectMetadataBase implements DBAIProfileMetadata {
 
-    public DBProfileMetadataImpl(ResultSet resultSet) {
+    public DBAIProfileMetadataImpl(ResultSet resultSet) {
         super(resultSet);
     }
 

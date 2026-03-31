@@ -73,7 +73,7 @@ public class BrowserToolWindowForm extends DBNFormBase {
                 ConnectionConfigListener.TOPIC,
                 ConnectionConfigListener
                         .whenSetupChanged(() -> rebuild())
-                        .whenNameChanged(id -> refreshTabs(id)));
+                        .whenNameChanged((id, on) -> refreshTabs(id)));
     }
 
     public void rebuild() {

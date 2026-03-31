@@ -21,25 +21,22 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.pom.Navigatable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)
-public class DBObjectPresentableProperty extends PresentableProperty{
-    private final DBObjectRef objectRef;
+public class DBObjectPresentableProperty extends DBObjectPropertyBase {
+    private final DBObjectRef<?> object;
     private final boolean qualified;
     private final String name;
 
 
-    public DBObjectPresentableProperty(String name, DBObject object, boolean qualified) {
-        this.objectRef = object.ref();
+    public DBObjectPresentableProperty(String name, @Nullable DBObject object, boolean qualified) {
+        this.object = DBObjectRef.of(object);
         this.qualified = qualified;
         this.name = name;
-    }
-
-    public DBObjectPresentableProperty(DBObject object, boolean qualified) {
-        this(null, object, qualified);
     }
 
     public DBObjectPresentableProperty(DBObject object) {
@@ -48,22 +45,28 @@ public class DBObjectPresentableProperty extends PresentableProperty{
 
     @Override
     public String getName() {
-        return name == null ? objectRef.getObjectType().getTitleCasedName() : name;
+        if (object == null) return name == null ? "Undefined" : name;
+
+        return name == null ? object.getObjectType().getTitleCasedName() : name;
     }
 
     @Override
     public String getValue() {
-        return qualified ? objectRef.getPath() : objectRef.getObjectName();
+        if (object == null) return "";
+
+        return qualified ? object.getPath() : object.getObjectName();
     }
 
     @Override
     public Icon getIcon() {
-        DBObject object = objectRef.get();
+        if (object == null) return null;
+
+        DBObject object = this.object.get();
         return object == null ? null : object.getIcon();
     }
 
     @Override
     public Navigatable getNavigatable() {
-        return objectRef.get();
+        return DBObjectRef.get(object);
     }
 }

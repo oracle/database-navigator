@@ -107,7 +107,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
 
         if (isOci()) {
             Element ociConfigElement = element.getChild("oci-config");
-            ociConfig.readConfiguration(ociConfigElement);
+            ociConfig.readState(ociConfigElement);
         }
 
         if (isTransientContext()) {
@@ -126,7 +126,7 @@ public class AssistantCredential implements Cloneable<AssistantCredential>, Pers
 
         if (isOci()) {
             Element ociConfigElement = newElement(element, "oci-config");
-            ociConfig.writeConfiguration(ociConfigElement);
+            ociConfig.writeState(ociConfigElement);
         }
 
         if (isTransientContext()) {

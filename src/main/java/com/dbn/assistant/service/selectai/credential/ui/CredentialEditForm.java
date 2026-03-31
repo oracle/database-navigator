@@ -26,12 +26,16 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.impl.DBCredentialImpl;
 import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBCredentialType;
+import com.dbn.oci.config.OciConfig;
+import com.dbn.oci.config.OciConfigManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextField;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -42,6 +46,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -82,6 +87,7 @@ public class CredentialEditForm extends DBNFormBase {
     private JPanel passwordCredentialPanel;
     private JPanel tokenCredentialPanel;
     private JPanel ociCredentialPanel;
+    private JButton ociConfigFileButton;
 
     private DBCredential credential;
     private final ConnectionRef connection;
@@ -97,13 +103,28 @@ public class CredentialEditForm extends DBNFormBase {
      */
     public CredentialEditForm(CredentialEditDialog dialog, @Nullable DBCredential credential, List<DBCredentialType> credentialTypes, Set<String> usedCredentialNames) {
         super(dialog);
-        this.connection = dialog.getConnection().ref();
+        this.connection = ConnectionRef.of(dialog.getConnection());
         this.credential = credential;
         this.credentialTypes = credentialTypes == null ? List.of(DBCredentialType.values()) : credentialTypes;
         this.usedCredentialNames = usedCredentialNames;
 
         initCredentialTypeComboBox();
         initCredentialAttributeFields();
+        onButtonClick(ociConfigFileButton, e -> openOciConfigSelector());
+    }
+
+    private void openOciConfigSelector() {
+        Project project = ensureProject();
+        OciConfigManager configManager = OciConfigManager.getInstance(project);
+        configManager.openOciConfigSelector(c -> applyOciConfiguration(c));
+    }
+
+    private void applyOciConfiguration(OciConfig config) {
+        setText(ociCredentialUserOcidField, config.getUserId());
+        setText(ociCredentialTenancyOcidField, config.getTenancyId());
+        setText(ociCredentialPrivateKeyField, config.getPrivateKeyFile());
+        setText(ociCredentialFingerprintField, config.getFingerprint());
+        ociCredentialUserOcidField.requestFocus();
     }
 
     @Override

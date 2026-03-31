@@ -28,7 +28,6 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
@@ -40,7 +39,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
@@ -135,22 +133,6 @@ class DBJsonViewImpl extends DBViewImpl<DBJsonViewMetadata> implements DBJsonVie
     @Nullable
     public DBTable getRootTable() {
         return DBObjectRef.get(rootTable);
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-
-        List<DBTable> tables = getTables();
-        navigationLists.add(DBObjectNavigationList.create("Tables", tables));
-
-        DBTable rootTable = getRootTable();
-        if (rootTable != null) {
-            navigationLists.add(DBObjectNavigationList.create("Root Table", rootTable));
-            return navigationLists;
-        }
-
-        return null;
     }
 
     /*********************************************************

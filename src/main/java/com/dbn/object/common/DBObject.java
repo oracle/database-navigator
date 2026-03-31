@@ -36,10 +36,8 @@ import com.dbn.object.DBUser;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectListVisitor;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.properties.PresentableProperty;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBObjectVirtualFile;
 import org.jetbrains.annotations.NotNull;
@@ -88,7 +86,6 @@ public interface DBObject extends
 
     boolean needsNameQuoting();
     String getQualifiedNameWithType();
-    String getNavigationTooltipText();
     String getTypeName();
     @Override
     @Nullable
@@ -105,9 +102,6 @@ public interface DBObject extends
     <T extends DBObject> T getParentObject(Predicate<DBObject> predicate);
 
     <T extends DBObject> DBObjectRef<T> getParentObjectRef();
-
-    @Nullable
-    DBObject getDefaultNavigationObject();
 
     <T extends DBObject> List<T> getChildObjects(DBObjectType objectType);
 
@@ -137,8 +131,6 @@ public interface DBObject extends
 
     List<String> getChildObjectNames(DBObjectType objectType);
 
-    List<DBObjectNavigationList> getNavigationLists();
-
     @Nullable
     DBObjectListContainer getChildObjects();
 
@@ -146,8 +138,6 @@ public interface DBObject extends
 
     @NotNull
     DBObjectVirtualFile getVirtualFile();
-
-    List<PresentableProperty> getPresentableProperties();
 
     @Override
     DBObjectRef ref();
