@@ -34,7 +34,7 @@ val bundledJdbcPostgres: Configuration by configurations.creating
 val bundledJdbcSqlite: Configuration by configurations.creating
 
 group = "com.dbn"
-version = "3.7.2.0"
+version = "4.0.0.0"
 
 repositories {
     // locally built 3rd party dependencies
@@ -65,28 +65,28 @@ dependencies {
 
     // ********** DEPENDENCY TREE MODEL **********
 /*
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.20")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.20.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.20.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0")
-    implementation("com.fasterxml.jackson.module:jackson-modules-base:2.20.0")
-    implementation("com.fasterxml.jackson.module:jackson-modules-java8:2.20.0")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.21.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.1")
+    implementation("com.fasterxml.jackson.module:jackson-modules-base:2.21.1")
+    implementation("com.fasterxml.jackson.module:jackson-modules-java8:2.21.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-generativeaiinference:3.76.1")
     implementation("commons-io:commons-io:2.18.0")
-    implementation("dev.langchain4j:langchain4j-anthropic:1.9.1")
-    implementation("dev.langchain4j:langchain4j-community-oci-genai:1.9.1-beta17")
-    implementation("dev.langchain4j:langchain4j-core:1.9.1")
-    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.9.1")
-    implementation("dev.langchain4j:langchain4j-http-client:1.9.1")
-    implementation("dev.langchain4j:langchain4j-mcp:1.9.1-beta17")
-    implementation("dev.langchain4j:langchain4j-mistral-ai:1.9.1")
-    implementation("dev.langchain4j:langchain4j-ollama:1.9.1")
-    implementation("dev.langchain4j:langchain4j-open-ai:1.9.1")
-    implementation("dev.langchain4j:langchain4j:1.9.1")
+    implementation("dev.langchain4j:langchain4j-anthropic:1.12.2")
+    implementation("dev.langchain4j:langchain4j-community-oci-genai:1.12.2-beta17")
+    implementation("dev.langchain4j:langchain4j-core:1.12.2")
+    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.12.2")
+    implementation("dev.langchain4j:langchain4j-http-client:1.12.2")
+    implementation("dev.langchain4j:langchain4j-mcp:1.12.2-beta17")
+    implementation("dev.langchain4j:langchain4j-mistral-ai:1.12.2")
+    implementation("dev.langchain4j:langchain4j-ollama:1.12.2")
+    implementation("dev.langchain4j:langchain4j-open-ai:1.12.2")
+    implementation("dev.langchain4j:langchain4j:1.12.2")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.apache.commons:commons-compress:1.27.1")
     implementation("org.apache.commons:commons-lang3:3.18.0")
@@ -106,12 +106,12 @@ dependencies {
 
 
     // ********** DEPENDENCY FLAT MODEL **********
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.20@jar")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.20.0@jar")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.20.0@jar")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.0@jar")
-    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.20.0@jar")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0@jar")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.21@jar")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.21.1@jar")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1@jar")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.1@jar")
+    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.21.1@jar")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-circuitbreaker:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient:3.76.1@jar")
@@ -119,16 +119,16 @@ dependencies {
     implementation("com.oracle.oci.sdk:oci-java-sdk-generativeaiinference:3.76.1@jar")
     implementation("com.oracle.oci.sdk:oci-java-sdk-identity:3.76.1@jar")
     implementation("commons-io:commons-io:2.18.0@jar")
-    implementation("dev.langchain4j:langchain4j-anthropic:1.9.1@jar")
-    implementation("dev.langchain4j:langchain4j-community-oci-genai:1.9.1-beta17@jar")
-    implementation("dev.langchain4j:langchain4j-core:1.9.1@jar")
-    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.9.1@jar")
-    implementation("dev.langchain4j:langchain4j-http-client:1.9.1@jar")
-    implementation("dev.langchain4j:langchain4j-mcp:1.9.1-beta17@jar")
-    implementation("dev.langchain4j:langchain4j-mistral-ai:1.9.1@jar")
-    implementation("dev.langchain4j:langchain4j-ollama:1.9.1@jar")
-    implementation("dev.langchain4j:langchain4j-open-ai:1.9.1@jar")
-    implementation("dev.langchain4j:langchain4j:1.9.1@jar")
+    implementation("dev.langchain4j:langchain4j-anthropic:1.12.2@jar")
+    implementation("dev.langchain4j:langchain4j-community-oci-genai:1.12.2-beta22@jar")
+    implementation("dev.langchain4j:langchain4j-core:1.12.2@jar")
+    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.12.2@jar")
+    implementation("dev.langchain4j:langchain4j-http-client:1.12.2@jar")
+    implementation("dev.langchain4j:langchain4j-mcp:1.12.2-beta22@jar")
+    implementation("dev.langchain4j:langchain4j-mistral-ai:1.12.2@jar")
+    implementation("dev.langchain4j:langchain4j-ollama:1.12.2@jar")
+    implementation("dev.langchain4j:langchain4j-open-ai:1.12.2@jar")
+    implementation("dev.langchain4j:langchain4j:1.12.2@jar")
     implementation("io.github.resilience4j:resilience4j-circuitbreaker:1.7.1@jar")
     implementation("io.github.resilience4j:resilience4j-core:1.7.1@jar")
     implementation("io.vavr:vavr:0.10.2@jar")
@@ -185,10 +185,10 @@ dependencies {
     bundledJdbcOracle("org.glassfish.hk2:hk2-api:2.6.1@jar")
     bundledJdbcOracle("org.glassfish.hk2:hk2-locator:2.6.1@jar")
     bundledJdbcOracle("org.glassfish.hk2:hk2-utils:2.6.1@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-annotations:2.20@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-core:2.20.0@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-databind:2.20.0@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.0@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-annotations:2.17.1@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-core:2.17.1@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-databind:2.17.1@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1@jar")
     bundledJdbcOracle("org.glassfish.hk2.external:jakarta.inject:2.6.1@jar")
     bundledJdbcOracle("jakarta.ws.rs:jakarta.ws.rs-api:2.1.6@jar")
     bundledJdbcOracle("jakarta.xml.bind:jakarta.xml.bind-api:2.3.3@jar")
@@ -218,7 +218,7 @@ dependencies {
     bundledJdbcMysql("com.mysql:mysql-connector-j:9.5.0@jar")
 
     // PostgreSQL
-    bundledJdbcPostgres("org.postgresql:postgresql:42.7.8@jar")
+    bundledJdbcPostgres("org.postgresql:postgresql:42.7.10@jar")
 
     // SQLite
     bundledJdbcSqlite("org.xerial:sqlite-jdbc:3.51.1.0@jar")

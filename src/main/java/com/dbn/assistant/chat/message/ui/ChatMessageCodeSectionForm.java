@@ -56,6 +56,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.CODE;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 import static javax.swing.JLayeredPane.DRAG_LAYER;
 
@@ -105,6 +106,7 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm {
         EditorEx codeViewer = createViewer(connection, section);
         if (codeViewer == null) return null;
 
+        installEditorLayoutUpdater(codeViewer, parent);
         return new ChatMessageCodeSectionForm(parent, connection, codeViewer, section);
     }
 

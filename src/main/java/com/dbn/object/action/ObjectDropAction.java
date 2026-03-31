@@ -16,32 +16,31 @@
 
 package com.dbn.object.action;
 
-import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.factory.DatabaseObjectFactory;
-import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.nls.NlsResources.txt;
 
-public class ObjectDropAction extends BasicAction {
-    private final DBObjectRef<DBSchemaObject> object;
-
+public class ObjectDropAction extends AnObjectAction<DBSchemaObject> {
     public ObjectDropAction(DBSchemaObject object) {
-        super(txt("app.objects.action.Drop"), null, Icons.ACTION_CLOSE);
-        this.object = DBObjectRef.of(object);
-    }
-
-    public DBSchemaObject getObject() {
-        return DBObjectRef.ensure(object);
+        super(object);
     }
 
     @Override
-    public void actionPerformed(@NotNull AnActionEvent e) {
-        DBSchemaObject object = getObject();
-        DatabaseObjectFactory objectFactory = DatabaseObjectFactory.getInstance(object.getProject());
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DBSchemaObject object) {
+        presentation.setText(txt("app.objects.action.Drop"));
+        presentation.setIcon(Icons.ACTION_CLOSE);
+    }
+
+    @Override
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DBSchemaObject object) {
+        DatabaseObjectFactory objectFactory = DatabaseObjectFactory.getInstance(project);
         objectFactory.dropObject(object);
     }
 }

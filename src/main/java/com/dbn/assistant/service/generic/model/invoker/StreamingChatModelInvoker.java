@@ -29,9 +29,11 @@ import dev.langchain4j.service.AiServiceTokenStream;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.TokenStream;
 
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static com.dbn.assistant.service.generic.model.AssistantModelType.STREAMING_CHAT;
+import static com.dbn.common.util.TimeUtil.isOlderThan;
 
 public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingChatModel> implements AssistantComponent {
     public StreamingChatModelInvoker() {
@@ -57,7 +59,7 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
     }
 
     private void initTokenStream(TokenStream tokenStream, AssistantResponseConsumer consumer) {
-        StringBuilder buffer = new StringBuilder();
+        TokenBuffer buffer = new TokenBuffer();
         if (tokenStream instanceof AiServiceTokenStream aiTokenStream) {
             aiTokenStream.beforeToolExecution(e -> {
                 ToolExecutionRequest request = e.request();
@@ -82,12 +84,12 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
                 Pattern pattern = Pattern.compile("[#*_`~\\[\\]()>+\\-!=|]");
                 buffer.append(t);
                 if (!pattern.matcher(t).matches()) {
-                    consumeBuffer(buffer, consumer);
+                    buffer.consume(consumer, false);
                 }
             });
 
             aiTokenStream.onCompleteResponse(r -> {
-                consumeBuffer(buffer, consumer);
+                buffer.consume(consumer, true);
 
                 consumer.acceptMessage(r.aiMessage().text());
                 consumer.acceptCompletion();
@@ -112,6 +114,27 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
             });
 
             wrapped(() -> tokenStream.start());
+        }
+    }
+
+    // avoid screen flickering when time-interval between tokens is below chatbox UI refresh time
+    // (buffer tokens and release only if forced or buffer time exceeded)
+    private static class TokenBuffer {
+        private final StringBuilder buffer = new StringBuilder();
+        private long consumeTimestamp = 0;
+
+        private void consume(AssistantResponseConsumer consumer, boolean force) {
+            force = force || isOlderThan(consumeTimestamp, 50, TimeUnit.MILLISECONDS);
+            if (!force) return;
+
+            // consume and reset
+            consumeTimestamp = System.currentTimeMillis();
+            consumer.acceptToken(buffer.toString());
+            buffer.delete(0, buffer.length());
+        }
+
+        public void append(String token) {
+            buffer.append(token);
         }
     }
 

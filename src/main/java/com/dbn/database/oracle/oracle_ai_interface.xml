@@ -96,42 +96,42 @@
     <statement-execution-processor id="disable-credential" timeout="20">
         <statement>
             begin
-                DBMS_CLOUD.DISABLE_CREDENTIAL(credential_name => '{0}');
+                DBMS_CLOUD.DISABLE_CREDENTIAL(credential_name => {#0});
             end;
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="enable-credential" timeout="20">
         <statement>
             begin
-                DBMS_CLOUD.ENABLE_CREDENTIAL(credential_name => '{0}');
+                DBMS_CLOUD.ENABLE_CREDENTIAL(credential_name => {#0});
             end;
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="drop-credential" timeout="120">
         <statement>
             begin
-                DBMS_CLOUD.DROP_CREDENTIAL(credential_name => '{0}');
+                DBMS_CLOUD.DROP_CREDENTIAL(credential_name => {#0});
             end;
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="disable-profile" timeout="20">
         <statement>
             begin
-                DBMS_CLOUD_AI.DISABLE_PROFILE(profile_name => '{0}');
+                DBMS_CLOUD_AI.DISABLE_PROFILE(profile_name => {#0});
             end;
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="enable-profile" timeout="20">
         <statement>
             begin
-                DBMS_CLOUD_AI.ENABLE_PROFILE(profile_name => '{0}');
+                DBMS_CLOUD_AI.ENABLE_PROFILE(profile_name => {#0});
             end;
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="drop-profile" timeout="120">
         <statement>
             begin
-                DBMS_CLOUD_AI.DROP_PROFILE(profile_name => '{0}');
+                DBMS_CLOUD_AI.DROP_PROFILE(profile_name => {#0});
             end;
         </statement>
     </statement-execution-processor>
@@ -139,7 +139,7 @@
     <statement-execution-processor id="set-current-profile" timeout="20">
         <statement>
             begin
-                DBMS_CLOUD_AI.SET_PROFILE(profile_name => '{0}');
+                DBMS_CLOUD_AI.SET_PROFILE(profile_name => {#0});
             end;
         </statement>
     </statement-execution-processor>
