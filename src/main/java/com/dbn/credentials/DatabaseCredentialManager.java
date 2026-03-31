@@ -35,7 +35,6 @@ import java.util.Arrays;
 
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.util.Commons.match;
-import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.credentials.Secret.EMPTY;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
