@@ -25,16 +25,13 @@ import com.dbn.object.DBIndex;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.type.DBObjectRelationType;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 
 class DBIndexImpl extends DBSchemaObjectImpl<DBIndexMetadata> implements DBIndex {
@@ -96,19 +93,6 @@ class DBIndexImpl extends DBSchemaObjectImpl<DBIndexMetadata> implements DBIndex
     @Override
     public boolean isUnique() {
         return is(DBObjectProperty.UNIQUE);
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-
-        List<DBColumn> columns = getColumns();
-        if (columns.size() > 0) {
-            navigationLists.add(DBObjectNavigationList.create("Columns", columns));
-        }
-        navigationLists.add(DBObjectNavigationList.create("Dataset", getDataset()));
-
-        return navigationLists;
     }
 
     @Override

@@ -22,6 +22,8 @@ import com.dbn.common.content.loader.DynamicContentResultSetLoader;
 import com.dbn.common.content.loader.DynamicSubcontentLoader;
 import com.dbn.common.exception.ElementSkippedException;
 import com.dbn.database.common.metadata.DBObjectMetadata;
+import com.dbn.database.common.metadata.def.DBAIModelMetadata;
+import com.dbn.database.common.metadata.def.DBAIProfileMetadata;
 import com.dbn.database.common.metadata.def.DBArgumentMetadata;
 import com.dbn.database.common.metadata.def.DBCharsetMetadata;
 import com.dbn.database.common.metadata.def.DBClusterMetadata;
@@ -31,7 +33,6 @@ import com.dbn.database.common.metadata.def.DBConstraintMetadata;
 import com.dbn.database.common.metadata.def.DBCredentialMetadata;
 import com.dbn.database.common.metadata.def.DBDatabaseLinkMetadata;
 import com.dbn.database.common.metadata.def.DBDimensionMetadata;
-import com.dbn.database.common.metadata.def.DBModelMetadata;
 import com.dbn.database.common.metadata.def.DBFunctionMetadata;
 import com.dbn.database.common.metadata.def.DBGrantedPrivilegeMetadata;
 import com.dbn.database.common.metadata.def.DBGrantedRoleMetadata;
@@ -50,7 +51,6 @@ import com.dbn.database.common.metadata.def.DBObjectDependencyMetadata;
 import com.dbn.database.common.metadata.def.DBPackageMetadata;
 import com.dbn.database.common.metadata.def.DBPrivilegeMetadata;
 import com.dbn.database.common.metadata.def.DBProcedureMetadata;
-import com.dbn.database.common.metadata.def.DBProfileMetadata;
 import com.dbn.database.common.metadata.def.DBRoleMetadata;
 import com.dbn.database.common.metadata.def.DBSchemaMetadata;
 import com.dbn.database.common.metadata.def.DBSequenceMetadata;
@@ -381,12 +381,12 @@ public class DBObjectLoaders {
                 (content, conn, mdi) -> mdi.loadCredentials(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBCredentialImpl(content.getParentEntity(), md));
 
-        DynamicContentResultSetLoader.<DBAIProfileImpl, DBProfileMetadata>create(
+        DynamicContentResultSetLoader.<DBAIProfileImpl, DBAIProfileMetadata>create(
                 "AI_PROFILES", SCHEMA, AI_PROFILE, true, true,
                 (content, conn, mdi) -> mdi.loadAiProfiles(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBAIProfileImpl(content.getParentEntity(), md));
 
-        DynamicContentResultSetLoader.<DBAIModelImpl, DBModelMetadata>create(
+        DynamicContentResultSetLoader.<DBAIModelImpl, DBAIModelMetadata>create(
                 "AI_MODELS", DBObjectType.SCHEMA, DBObjectType.AI_MODEL, true, true,
                 (content, conn, mdi) -> mdi.loadAiModels(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBAIModelImpl(content.getParentEntity(), md));

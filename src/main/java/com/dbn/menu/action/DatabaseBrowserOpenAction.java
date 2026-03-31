@@ -16,22 +16,22 @@
 
 package com.dbn.menu.action;
 
-import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.common.action.ProjectAction;
-import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.ui.window.ToolWindows;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.browser.DatabaseBrowserManager.TOOL_WINDOW_ID;
+import static com.dbn.common.dispose.Failsafe.nn;
 
 public class DatabaseBrowserOpenAction extends ProjectAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-        ToolWindow toolWindow = Failsafe.nn(toolWindowManager.getToolWindow(DatabaseBrowserManager.TOOL_WINDOW_ID));
+        ToolWindow toolWindow = nn(ToolWindows.getToolWindow(project, TOOL_WINDOW_ID));
         toolWindow.show(null);
     }
 
@@ -40,8 +40,7 @@ public class DatabaseBrowserOpenAction extends ProjectAction {
         Presentation presentation = e.getPresentation();
 
         if (!project.isDefault()) {
-            ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-            ToolWindow toolWindow = toolWindowManager.getToolWindow(DatabaseBrowserManager.TOOL_WINDOW_ID);
+            ToolWindow toolWindow = ToolWindows.getToolWindow(project, TOOL_WINDOW_ID);
             presentation.setVisible(toolWindow != null && !toolWindow.isVisible());
         }
 

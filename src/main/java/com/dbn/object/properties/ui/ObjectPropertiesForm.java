@@ -34,6 +34,10 @@ import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.properties.DBObjectPropertiesProvider;
+import com.dbn.object.properties.DBObjectPropertiesProviderCache;
+import com.dbn.object.properties.DBObjectProperty;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,6 +46,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import java.awt.event.MouseListener;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -136,9 +141,10 @@ public class ObjectPropertiesForm extends DBNFormBase {
 
         this.object = object == null ? null : DBObjectRef.of(object);
         Background.run(refreshHandle, () -> {
+
             ObjectPropertiesTableModel tableModel = object == null ?
                     new ObjectPropertiesTableModel() :
-                    new ObjectPropertiesTableModel(object.getPresentableProperties());
+                    new ObjectPropertiesTableModel(getObjectProperties(object));
             Disposer.register(ObjectPropertiesForm.this, tableModel);
 
             dispatch(() -> {
@@ -156,10 +162,20 @@ public class ObjectPropertiesForm extends DBNFormBase {
 
                 ObjectPropertiesTableModel oldTableModel = (ObjectPropertiesTableModel) objectPropertiesTable.getModel();
                 objectPropertiesTable.setModel(tableModel);
+                objectPropertiesTable.adjustColumnWidths();
+
 
                 UserInterface.repaint(mainPanel);
                 Disposer.dispose(oldTableModel);
             });
         });
+    }
+
+    private List<DBObjectProperty> getObjectProperties(DBObject object) {
+        DBObjectType objectType = object.getObjectType();
+        DBObjectPropertiesProvider<DBObject> propertiesProvider = DBObjectPropertiesProviderCache.get(objectType);
+        if (propertiesProvider == null) return Collections.emptyList();
+
+        return propertiesProvider.getProperties(object);
     }
 }

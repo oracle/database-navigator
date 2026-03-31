@@ -18,6 +18,7 @@ package com.dbn.common.extension;
 
 import com.intellij.openapi.extensions.ExtensionPointName;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,17 @@ public abstract class ExtensionPointCache<K, E> {
             if (Objects.equals(extensionKey, key)) return extension;
         }
 
+        K alternativeKey = alternativeKey(key);
+        if (alternativeKey != null) {
+            return scan(alternativeKey);
+        }
+
         throw new UnsupportedOperationException("No extension of type \"" + extensionPointName + "\" registered for key \"" + key + "\"");
+    }
+
+    @Nullable
+    protected K alternativeKey(K key) {
+        return null;
     }
 
     protected List<E> all() {

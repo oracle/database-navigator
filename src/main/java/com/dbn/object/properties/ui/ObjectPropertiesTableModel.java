@@ -18,23 +18,23 @@ package com.dbn.object.properties.ui;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.ui.table.DBNReadonlyTableModel;
-import com.dbn.object.properties.PresentableProperty;
+import com.dbn.object.properties.DBObjectProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ObjectPropertiesTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel {
-    private List<PresentableProperty> presentableProperties = new ArrayList<>();
+public class ObjectPropertiesTableModel extends StatefulDisposableBase implements DBNReadonlyTableModel<DBObjectProperty> {
+    private List<DBObjectProperty> properties = new ArrayList<>();
 
     ObjectPropertiesTableModel() {}
 
-    ObjectPropertiesTableModel(List<PresentableProperty> presentableProperties) {
-        this.presentableProperties = presentableProperties;
+    ObjectPropertiesTableModel(List<DBObjectProperty> properties) {
+        this.properties = properties;
     }
 
     @Override
     public int getRowCount() {
-        return presentableProperties.size();
+        return properties.size();
     }
 
     @Override
@@ -53,7 +53,14 @@ public class ObjectPropertiesTableModel extends StatefulDisposableBase implement
         return String.class;
     }
     @Override public Object getValueAt(int rowIndex, int columnIndex) {
-        return presentableProperties.get(rowIndex);
+        return properties.get(rowIndex);
+    }
+
+    @Override
+    public String getPresentableValue(DBObjectProperty property, int columnIndex) {
+        return
+            columnIndex == 0 ? property.getName() :
+            columnIndex == 1 ? property.getValue() : null;
     }
 
     @Override

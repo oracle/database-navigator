@@ -28,9 +28,12 @@ import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.PsiUtil;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.codeInsight.folding.CodeFoldingManager;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.DocumentBulkUpdateListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -46,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
@@ -273,5 +277,14 @@ public class Documents {
     public static void cacheDocument(VirtualFile file) {
         Document document = getDocument(file);
         file.putUserData(HARD_REF_TO_DOCUMENT_KEY, document);
+    }
+
+    public static void onDocumentChanged(@NotNull Document document, Disposable parentDisposable, Consumer<DocumentEvent> consumer) {
+        document.addDocumentListener(new DocumentListener() {
+            @Override
+            public void documentChanged(@NotNull DocumentEvent event) {
+                consumer.accept(event);
+            }
+        }, parentDisposable);
     }
 }

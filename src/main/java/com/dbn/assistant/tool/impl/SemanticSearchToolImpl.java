@@ -61,7 +61,6 @@ public class SemanticSearchToolImpl extends AssistantToolBase implements Semanti
 
             while (resultSet.next()) {
                 SemanticSearchResult searchResult = new SemanticSearchResult();
-                searchResult.setId(resultSet.getString("ID"));
                 searchResult.setContent(resultSet.getString("CONTENT"));
                 searchResult.setScore(resultSet.getDouble("DISTANCE"));
                 searchResults.add(searchResult);

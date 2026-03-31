@@ -16,12 +16,12 @@
 
 package com.dbn.assistant.tool;
 
+import com.dbn.assistant.AssistantComponent;
 import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
 import com.dbn.common.util.Unsafe;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.agent.tool.ToolSpecification;
-import dev.langchain4j.agent.tool.ToolSpecifications;
 import dev.langchain4j.model.chat.request.json.JsonArraySchema;
 import dev.langchain4j.model.chat.request.json.JsonBooleanSchema;
 import dev.langchain4j.model.chat.request.json.JsonEnumSchema;
@@ -50,11 +50,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.dbn.assistant.AssistantComponent.OBJECT_MAPPER;
+import static dev.langchain4j.agent.tool.ToolSpecifications.toolSpecificationFrom;
 import static dev.langchain4j.internal.JsonSchemaElementUtils.jsonSchemaElementFrom;
 
 @Slf4j
-public class AssistantToolProvider implements ToolProvider {
+public class AssistantToolProvider implements ToolProvider, AssistantComponent {
     private final AssistantToolCache cache;
 
     public AssistantToolProvider(AssistantToolCache cache) {
@@ -114,12 +114,12 @@ public class AssistantToolProvider implements ToolProvider {
         return utilitySpec.discontinued();
     }
 
-    private static ToolSpecification buildSpecification(Method method) {
+    private ToolSpecification buildSpecification(Method method) {
         ToolSpec toolSpec = method.getDeclaringClass().getAnnotation(ToolSpec.class);
         UtilitySpec utilitySpec = method.getAnnotation(UtilitySpec.class);
         Tool tool = method.getAnnotation(Tool.class);
 
-        ToolSpecification specification = ToolSpecifications.toolSpecificationFrom(method);
+        ToolSpecification specification = wrapped(() -> toolSpecificationFrom(method));
 
         String description =
                 "type = " + toolSpec.type() + "\n" +

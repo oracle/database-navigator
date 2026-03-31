@@ -38,15 +38,12 @@ import com.dbn.vector.model.request.EmbeddingChunkingConfig;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
-import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.ui.AsyncProcessIcon;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
@@ -58,6 +55,8 @@ import java.awt.BorderLayout;
 import java.sql.ResultSet;
 
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
+import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
+import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
 
 public class EmbeddingChunkLabForm extends DBNFormBase {
@@ -77,7 +76,6 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
     private final ConnectionRef connection;
 
     private EditorEx inputEditor;
-    private int inputLineCount;
 
     public EmbeddingChunkLabForm(@Nullable Disposable parent, ConnectionHandler connection, EmbeddingChunkingConfig config) {
         super(parent, connection.getProject());
@@ -116,14 +114,12 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         VirtualFile virtualFile = new LightVirtualFile("chunk_lab_input.txt", fileType, text);
 
         Document document = Documents.createDocument(text);
-        document.addDocumentListener(formLayoutUpdater(), this);
         inputEditor = Editors.createEditor(document, project, virtualFile, fileType);
         inputEditor.setEmbeddedIntoDialogWrapper(false);
         inputEditor.getContentComponent().setFocusTraversalKeysEnabled(false);
         inputEditor.setPlaceholder("Enter your sample text for chunking here");
         inputEditor.setBorder(null);
         inputEditor.getComponent().setBorder(null);
-        updateEditorScrollPane(inputEditor);
 
         EditorSettings settings = inputEditor.getSettings();
         settings.setUseSoftWraps(true);
@@ -134,26 +130,15 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         settings.setCaretRowShown(false);
         settings.setAdditionalLinesCount(2);
 
-
+        updateEditorScrollPane(inputEditor);
+        installEditorLayoutUpdater(inputEditor, this);
+        restrictEditorHeight(inputEditor, this, 200);
         inputPanel.add(inputEditor.getComponent());
     }
 
     private void initSpinner() {
         spinPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
         spinPanel.setVisible(false);
-    }
-
-    private @NotNull DocumentListener formLayoutUpdater() {
-        return new DocumentListener() {
-            @Override
-            public void documentChanged(@NotNull DocumentEvent event) {
-                int lineCount = event.getDocument().getLineCount();
-                if (lineCount == inputLineCount) return;
-
-                inputLineCount = lineCount;
-                revalidateForm();
-            }
-        };
     }
 
     private ConnectionHandler getConnection() {
