@@ -29,17 +29,14 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.DBRootObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.type.DBObjectRelationType;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -122,17 +119,6 @@ class DBRoleImpl extends DBRootObjectImpl<DBRoleMetadata> implements DBRole {
             }
         }
         return false;
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-        navigationLists.add(DBObjectNavigationList.create("User grantees", getUserGrantees()));
-
-        if (DBObjectType.ROLE.isSupported(this)) {
-            navigationLists.add(DBObjectNavigationList.create("Role grantees", getRoleGrantees()));
-        }
-        return navigationLists;
     }
 
     /*********************************************************

@@ -27,7 +27,6 @@ import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 
@@ -65,12 +64,6 @@ class DBGrantedPrivilegeImpl extends DBObjectImpl<DBGrantedPrivilegeMetadata> im
     @Override
     public boolean isAdminOption() {
         return is(DBObjectProperty.ADMIN_OPTION);
-    }
-
-    @Nullable
-    @Override
-    public DBObject getDefaultNavigationObject() {
-        return getPrivilege();
     }
 
     /*********************************************************

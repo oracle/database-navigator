@@ -60,8 +60,6 @@ public interface SemanticSearchTool extends AssistantTool {
     @Data
     @Description("Semantic search result")
     class SemanticSearchResult {
-        @Description("Unique identifier of the result")
-        private String id;
 
         @Description("Text of the retrieved passage/document.")
         private String content;

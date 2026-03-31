@@ -143,6 +143,7 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
         editor = Editors.createEditor(document, project, virtualFile, fileType);
         editor.setEmbeddedIntoDialogWrapper(true);
         editor.getContentComponent().setFocusTraversalKeysEnabled(false);
+        Editors.updateEditorScrollPane(editor);
 
         if (fileType instanceof DBLanguageFileType dbFileType) {
             DBLanguage language = (DBLanguage) dbFileType.getLanguage();
@@ -155,7 +156,7 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
             editorPanel.remove(oldEditor.getComponent());
             Editors.releaseEditor(oldEditor);
         }
-        editorPanel.add(editor.getComponent(), BorderLayout.CENTER);
+        editorPanel.add(editor.getComponent());
         editor.getScrollingModel().scrollVertically(scrollOffset);
     }
 

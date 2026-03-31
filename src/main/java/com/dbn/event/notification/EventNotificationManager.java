@@ -22,6 +22,7 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.window.ToolWindows;
 import com.dbn.common.util.Conditional;
 import com.dbn.connection.ConnectionId;
 import com.dbn.event.registration.EventRegistrationListener;
@@ -32,7 +33,6 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
@@ -73,9 +73,7 @@ public class EventNotificationManager extends ProjectComponentBase {
     }
 
     public ToolWindow getEventMonitorToolWindow() {
-        Project project = getProject();
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-        return toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
+        return ToolWindows.getToolWindow(getProject(), TOOL_WINDOW_ID);
     }
 
     public void showEventNotificationConsole() {

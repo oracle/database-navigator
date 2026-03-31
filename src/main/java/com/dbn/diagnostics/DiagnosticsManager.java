@@ -21,6 +21,7 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.form.DBNForm;
+import com.dbn.common.ui.window.ToolWindows;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SessionId;
@@ -33,7 +34,6 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
@@ -158,9 +158,7 @@ public class DiagnosticsManager extends ProjectComponentBase implements Persiste
     }
 
     public ToolWindow getDiagnosticsToolWindow() {
-        Project project = getProject();
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-        return toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
+        return ToolWindows.getToolWindow(getProject(), TOOL_WINDOW_ID);
     }
 
     /*********************************************

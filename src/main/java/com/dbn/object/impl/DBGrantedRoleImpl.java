@@ -28,7 +28,6 @@ import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 
@@ -78,12 +77,6 @@ class DBGrantedRoleImpl extends DBObjectImpl<DBGrantedRoleMetadata> implements D
     public boolean hasPrivilege(DBPrivilege privilege) {
         DBRole role = getRole();
         return role != null && role.hasPrivilege(privilege);
-    }
-
-    @Nullable
-    @Override
-    public DBObject getDefaultNavigationObject() {
-        return getRole();
     }
 
     /*********************************************************

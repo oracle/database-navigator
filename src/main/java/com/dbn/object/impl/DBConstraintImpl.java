@@ -27,13 +27,9 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.list.DBObjectRelationList;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.properties.DBObjectPresentableProperty;
-import com.dbn.object.properties.PresentableProperty;
-import com.dbn.object.properties.SimplePresentableProperty;
 import com.dbn.object.type.DBConstraintType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -42,7 +38,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -220,45 +215,6 @@ class DBConstraintImpl extends DBSchemaObjectImpl<DBConstraintMetadata> implemen
 
         ttb.createEmptyRow();
         super.buildToolTip(ttb);
-    }
-
-    @Override
-    public List<PresentableProperty> getPresentableProperties() {
-        List<PresentableProperty> properties = super.getPresentableProperties();
-        switch (constraintType) {
-            case CHECK:
-                properties.add(0, new SimplePresentableProperty("Check condition", checkCondition));
-                properties.add(0, new SimplePresentableProperty("Constraint type", "Check"));
-                break;
-            case PRIMARY_KEY: properties.add(0, new SimplePresentableProperty("Constraint type", "Primary Key")); break;
-            case FOREIGN_KEY:
-                DBConstraint foreignKeyConstraint = getForeignKeyConstraint();
-                if (foreignKeyConstraint != null) {
-                    properties.add(0, new DBObjectPresentableProperty(foreignKeyConstraint));
-                    properties.add(0, new SimplePresentableProperty("Constraint type", "Foreign Key"));
-                }
-                break;
-            case UNIQUE_KEY: properties.add(0, new SimplePresentableProperty("Constraint type", "Unique")); break;
-        }
-
-        return properties;
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-
-        List<DBColumn> columns = getColumns();
-        if (columns.size() > 0) {
-            navigationLists.add(DBObjectNavigationList.create("Columns", columns));
-        }
-
-        DBConstraint foreignKeyConstraint = getForeignKeyConstraint();
-        if (foreignKeyConstraint != null) {
-            navigationLists.add(DBObjectNavigationList.create("Foreign key constraint", foreignKeyConstraint));
-        }
-
-        return navigationLists;
     }
 
     @Override
