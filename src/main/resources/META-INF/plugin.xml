@@ -902,7 +902,6 @@
 
         <lang.directNavigationProvider implementation="com.dbn.navigation.DatabaseNavigationProvider"/>
         <gotoDeclarationHandler implementation="com.dbn.navigation.DatabaseGotoDeclarationHandler"/>
-
         <postStartupActivity implementation="com.dbn.project.ProjectStartupActivity"/>
         <!--<postStartupActivity implementation="com.dbn.project.ProjectComponentsInitializer" order="last"/>-->
         <!--<applicationInitializedListener implementation="com.dbn.init.DatabaseNavigatorInitializer"/>-->
