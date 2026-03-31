@@ -16,17 +16,23 @@
 
 package com.dbn.object.factory.ui;
 
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBCredentialType;
+import com.dbn.oci.config.OciConfig;
+import com.dbn.oci.config.OciConfigManager;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextField;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -35,7 +41,9 @@ import javax.swing.JTextField;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
@@ -85,6 +93,7 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
     private JPasswordField passwordCredentialPasswordField;
     private JPasswordField tokenCredentialPasswordField;
     private JComboBox<DBCredentialType> credentialTypeComboBox;
+    private JButton ociConfigFileButton;
 
 
     private final Set<String> usedCredentialNames = new HashSet<>(); // TODO
@@ -97,6 +106,29 @@ public class DBCredentialFactoryInputForm extends DBSchemaObjectFactoryInputForm
         initCredentialTypes();
 
         resetFormChanges();
+
+        onButtonClick(ociConfigFileButton, e -> openOciConfigSelector());
+    }
+
+    private void openOciConfigSelector() {
+        Project project = ensureProject();
+        OciConfigManager configManager = OciConfigManager.getInstance(project);
+        configManager.openOciConfigSelector(c -> applyOciConfiguration(c));    }
+
+    private void applyOciConfiguration(OciConfig config) {
+        setText(ociCredentialUserOcidField, config.getUserId());
+        setText(ociCredentialTenancyOcidField, config.getTenancyId());
+        setText(ociCredentialPrivateKeyField, config.getPrivateKeyFile());
+        setText(ociCredentialFingerprintField, config.getFingerprint());
+        ociCredentialUserOcidField.requestFocus();
+    }
+
+    protected void initStatePersistence() {
+        Project project = ensureProject();
+        ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
+
+        StateAttributes state = factoryManager.getState(getObjectType());
+        initPersistence(credentialTypeComboBox, state, "credential-type-selection");
     }
 
     @Override

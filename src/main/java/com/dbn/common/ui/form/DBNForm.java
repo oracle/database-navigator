@@ -58,4 +58,6 @@ public interface DBNForm extends DBNComponent, DataProviderDelegate, NlsSupport 
     void resetFormChanges();
 
     void applyFormChanges() throws ConfigurationException;
+
+    void revalidateForm();
 }

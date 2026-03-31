@@ -21,6 +21,7 @@ import com.dbn.connection.ConnectionId;
 import com.intellij.util.messages.Topic;
 
 import java.util.EventListener;
+import java.util.function.BiConsumer;
 
 public interface ConnectionConfigListener extends EventListener {
     Topic<ConnectionConfigListener> TOPIC = Topic.create("Connection changed", ConnectionConfigListener.class);
@@ -31,7 +32,7 @@ public interface ConnectionConfigListener extends EventListener {
 
     default void connectionChanged(ConnectionId connectionId) {}
 
-    default void connectionNameChanged(ConnectionId connectionId) {}
+    default void connectionNameChanged(ConnectionId connectionId, String oldName) {}
 
     static ConnectionConfigAdapter whenSetupChanged(Runnable consumer) {
         return new ConnectionConfigAdapter().whenSetupChanged(consumer);
@@ -49,7 +50,7 @@ public interface ConnectionConfigListener extends EventListener {
         return new ConnectionConfigAdapter().whenChanged(consumer).whenRemoved(consumer);
     }
 
-    static ConnectionConfigAdapter whenNameChanged(Consumer<ConnectionId> consumer) {
+    static ConnectionConfigAdapter whenNameChanged(BiConsumer<ConnectionId, String> consumer) {
         return new ConnectionConfigAdapter().whenNameChanged(consumer);
     }
 

@@ -20,11 +20,13 @@ import com.dbn.common.routine.Consumer;
 import com.dbn.common.util.Safe;
 import com.dbn.connection.ConnectionId;
 
+import java.util.function.BiConsumer;
+
 public final class ConnectionConfigAdapter implements ConnectionConfigListener {
     private Runnable changesConsumer;
     private Consumer<ConnectionId> removeConsumer;
     private Consumer<ConnectionId> changeConsumer;
-    private Consumer<ConnectionId> nameChangeConsumer;
+    private BiConsumer<ConnectionId, String> nameChangeConsumer;
 
 
     @Override
@@ -43,8 +45,8 @@ public final class ConnectionConfigAdapter implements ConnectionConfigListener {
     }
 
     @Override
-    public void connectionNameChanged(ConnectionId connectionId) {
-        Safe.run(nameChangeConsumer, c -> c.accept(connectionId));
+    public void connectionNameChanged(ConnectionId connectionId, String oldName) {
+        Safe.run(nameChangeConsumer, c -> c.accept(connectionId, oldName));
     }
 
     public ConnectionConfigAdapter whenSetupChanged(Runnable changesConsumer) {
@@ -62,7 +64,7 @@ public final class ConnectionConfigAdapter implements ConnectionConfigListener {
         return this;
     }
 
-    public ConnectionConfigAdapter whenNameChanged(Consumer<ConnectionId> nameChangeConsumer) {
+    public ConnectionConfigAdapter whenNameChanged(BiConsumer<ConnectionId, String> nameChangeConsumer) {
         this.nameChangeConsumer = nameChangeConsumer;
         return this;
     }

@@ -21,6 +21,8 @@ import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectPsiElement;
+import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
+import com.dbn.object.navigation.DBObjectNavigationInfoProviderCache;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.lang.documentation.DocumentationProvider;
 import com.intellij.psi.PsiElement;
@@ -34,45 +36,54 @@ public class PSQLDocumentationProvider implements DocumentationProvider {
     @Nullable
     private String getQuickNavigateInfo(PsiElement element) {
         if (element instanceof DBObjectPsiElement objectPsiElement) {
-            return objectPsiElement.ensureObject().getNavigationTooltipText();
-        } else if (element instanceof IdentifierPsiElement identifierPsiElement) {
+            DBObject object = objectPsiElement.ensureObject();
+            DBObjectType objectType = object.getObjectType();
+            DBObjectNavigationInfoProvider<DBObject> infoProvider = DBObjectNavigationInfoProviderCache.get(objectType);
+            if (infoProvider == null) return null;
+
+            return infoProvider.getNavigationTooltipText(object);
+        }
+
+        if (element instanceof IdentifierPsiElement identifierPsiElement) {
+            String objectTypeName = identifierPsiElement.getObjectType().getName();
+
+            // ALIAS
             if (identifierPsiElement.isAlias()) {
-                if (identifierPsiElement.isDefinition()) {
-                    BasePsiElement aliasedObjectElement = PsiUtil.resolveAliasedEntityElement(identifierPsiElement);
-                    if (aliasedObjectElement == null) {
-                        return "unknown alias";
-                    } else {
-                        DBObject aliasedObject = aliasedObjectElement.getUnderlyingObject();
-                        if (aliasedObject == null) {
-                            return "alias of " + aliasedObjectElement.getReferenceQualifiedName();
-                        } else {
-                            return "alias of " + aliasedObject.getQualifiedNameWithType();
-                        }
-                    }
+                if (!identifierPsiElement.isDefinition()) return null;
 
+                BasePsiElement aliasedObjectElement = PsiUtil.resolveAliasedEntityElement(identifierPsiElement);
+                if (aliasedObjectElement == null) {
+                    return "unknown alias";
                 }
-             } else {
-                 String objectTypeName = identifierPsiElement.getObjectType().getName();
-                 if (identifierPsiElement.isObject()) {
-                     if (identifierPsiElement.isDefinition()) {
-                         BasePsiElement contextPsiElement = identifierPsiElement.findEnclosingVirtualObjectElement(identifierPsiElement.getObjectType());
-                         if (contextPsiElement == null) {
-                             contextPsiElement = identifierPsiElement.findEnclosingNamedElement();
-                         }
-                         return contextPsiElement == null ? objectTypeName : objectTypeName + ":\n" + contextPsiElement.getText();
-                     }
-                 }
 
-                 else if (identifierPsiElement.isVariable()) {
-                     BasePsiElement contextPsiElement = identifierPsiElement.findEnclosingVirtualObjectElement(identifierPsiElement.getObjectType());
-                     if (contextPsiElement == null) {
-                         contextPsiElement = identifierPsiElement.findEnclosingNamedElement();
-                     }
-
-                     String prefix = identifierPsiElement.getObjectType() == DBObjectType.ANY ? "variable" : objectTypeName;
-                     return contextPsiElement == null ? prefix : prefix + ":\n " + contextPsiElement.getText() ;
+                DBObject aliasedObject = aliasedObjectElement.getUnderlyingObject();
+                if (aliasedObject == null) {
+                    return "alias of " + aliasedObjectElement.getReferenceQualifiedName();
                 }
-             }
+                return "alias of " + aliasedObject.getQualifiedNameWithType();
+            }
+
+            // OBJECT
+            if (identifierPsiElement.isObject()) {
+                if (!identifierPsiElement.isDefinition()) return null;
+
+                BasePsiElement contextPsiElement = identifierPsiElement.findEnclosingVirtualObjectElement(identifierPsiElement.getObjectType());
+                if (contextPsiElement == null) {
+                    contextPsiElement = identifierPsiElement.findEnclosingNamedElement();
+                }
+                return contextPsiElement == null ? objectTypeName : objectTypeName + ":\n" + contextPsiElement.getText();
+            }
+
+            // VARIABLE
+            if (identifierPsiElement.isVariable()) {
+                BasePsiElement contextPsiElement = identifierPsiElement.findEnclosingVirtualObjectElement(identifierPsiElement.getObjectType());
+                if (contextPsiElement == null) {
+                    contextPsiElement = identifierPsiElement.findEnclosingNamedElement();
+                }
+
+                String prefix = identifierPsiElement.getObjectType() == DBObjectType.ANY ? "variable" : objectTypeName;
+                return contextPsiElement == null ? prefix : prefix + ":\n " + contextPsiElement.getText() ;
+           }
         }
         return null;
     }
