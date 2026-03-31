@@ -55,8 +55,9 @@ import java.awt.BorderLayout;
 import java.sql.SQLException;
 
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
+import static com.dbn.common.util.Editors.focusEditor;
 import static com.dbn.common.util.Editors.initEditorHighlighter;
-import static com.dbn.common.util.Editors.installFormLayoutUpdater;
+import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
 
@@ -107,12 +108,8 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         document = Documents.ensureDocument(queryPsiFile);
 
         editor = Editors.createEditor(document, project, queryFile, SQLFileType.INSTANCE);
-        initEditorHighlighter(editor, SQLLanguage.INSTANCE, connection);
-        installFormLayoutUpdater(editor, this);
-        restrictEditorHeight(editor, this, 200);
-        updateEditorScrollPane(editor);
-
         editor.setEmbeddedIntoDialogWrapper(true);
+        initEditorHighlighter(editor, SQLLanguage.INSTANCE, connection);
 
 
 
@@ -127,8 +124,12 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         settings.setRightMarginShown(false);
         settings.setUseTabCharacter(true);
 
+        updateEditorScrollPane(editor);
+        installEditorLayoutUpdater(editor, this);
+        restrictEditorHeight(editor, this, 200);
         queryPanel.add(editor.getComponent());
-        Editors.focusEditor(editor);
+
+        focusEditor(editor);
     }
 
     private void initSpinner() {

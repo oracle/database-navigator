@@ -55,7 +55,7 @@ import java.awt.BorderLayout;
 import java.sql.ResultSet;
 
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
-import static com.dbn.common.util.Editors.installFormLayoutUpdater;
+import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
 
@@ -121,10 +121,6 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         inputEditor.setBorder(null);
         inputEditor.getComponent().setBorder(null);
 
-        restrictEditorHeight(inputEditor, this, 200);
-        installFormLayoutUpdater(inputEditor, this);
-        updateEditorScrollPane(inputEditor);
-
         EditorSettings settings = inputEditor.getSettings();
         settings.setUseSoftWraps(true);
         settings.setLineMarkerAreaShown(false);
@@ -134,7 +130,9 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         settings.setCaretRowShown(false);
         settings.setAdditionalLinesCount(2);
 
-
+        updateEditorScrollPane(inputEditor);
+        installEditorLayoutUpdater(inputEditor, this);
+        restrictEditorHeight(inputEditor, this, 200);
         inputPanel.add(inputEditor.getComponent());
     }
 
