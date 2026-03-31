@@ -103,7 +103,7 @@ public class AssistantStateDelegate extends AssistantState {
         ProjectEvents.notify(project, AssistantStateListener.TOPIC, l -> l.stateChanged(project, getConnectionId()));
     }
 
-    private Project getProject() {
+    public Project getProject() {
         return ProjectRef.ensure(project);
     }
 

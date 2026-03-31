@@ -228,6 +228,11 @@ public abstract class TokenTypeBundleBase {
         return dataTypes[index];
     }
 
+    /** Shorter equivalent of {@link #getExceptionTokenType(int)} to reduce the size of the generated java lexer */
+    public SimpleTokenType ett(int index) {
+        return exceptions[index];
+    }
+
     /** Shorter equivalent of {@link #getOperatorTokenType(int)} to reduce the size of the generated java lexer */
     public SimpleTokenType ott(int index) {
         return operators[index];

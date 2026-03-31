@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.assistant.adapter.AssistantAdapter;
 import com.dbn.assistant.adapter.AssistantAdapters;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
+import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxFormContainer;
 import com.dbn.assistant.state.AssistantSelectionState;
@@ -28,17 +29,20 @@ import com.dbn.assistant.state.AssistantStateDelegate;
 import com.dbn.assistant.state.AssistantStateListener;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.thread.Background;
+import com.dbn.common.ui.window.ToolWindows;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectionStatusListener;
+import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.object.DBTable;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -46,7 +50,8 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.openapi.wm.ToolWindowAnchor;
+import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.ui.content.Content;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +65,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -158,8 +164,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
 
     public void showToolWindow(@Nullable ConnectionId connectionId, @Nullable AssistantType assistantType) {
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject());
-        ToolWindow toolWindow = Failsafe.nn(toolWindowManager.getToolWindow(TOOL_WINDOW_ID));
+        ToolWindow toolWindow = nn(ToolWindows.getToolWindow(getProject(), TOOL_WINDOW_ID));
         toolWindow.show(null);
         switchContext(connectionId, assistantType);
     }
@@ -179,6 +184,22 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     public void initializeAssistant(ConnectionId connectionId, AssistantType assistantType) {
         AssistantAdapter assistantAdapter = AssistantAdapters.get(assistantType);
         assistantAdapter.initializeAssistant(connectionId);
+    }
+
+    public boolean divertNotificationBalloon() {
+        // notification balloons overlapping with assistant input field
+
+        ToolWindow toolWindow = geToolWindow();
+        if (toolWindow == null) return false;
+        if (!toolWindow.isVisible()) return false;
+        if (toolWindow.getType() != ToolWindowType.DOCKED) return false;
+        if (toolWindow.getAnchor() != ToolWindowAnchor.RIGHT) return false;
+
+        return true;
+    }
+
+    private @Nullable ToolWindow geToolWindow() {
+        return ToolWindows.getToolWindow(getProject(), TOOL_WINDOW_ID);
     }
 
     /**
@@ -212,9 +233,46 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         }
     }
 
+    public void startAssistantChat(String sourceId, ConnectionId connectionId, AssistantType assistantType, AssistantMode assistantMode, DBObjectRef<DBTable> embeddingTable) {
+        switchContext(connectionId, assistantType);
+        AssistantState assistantState = getAssistantState(connectionId, assistantType);
+
+        Chat chat = assistantState.getChatForSource(sourceId);
+        if (chat == null) {
+            ChatContext context = assistantState.getCurrentContext();
+            chat = assistantState.createChat(context);
+            chat.setSourceId(sourceId);
+        } else {
+            assistantState.setCurrentChatId(chat.getId());
+        }
+
+        ChatContext chatContext = chat.getContext();
+        chatContext.setAssistantMode(assistantMode);
+        chatContext.setEmbeddingTable(embeddingTable);
+
+        ToolWindow toolWindow = getToolWindow();
+        if (toolWindow == null) return;
+
+        ChatBoxFormContainer container = getFormContainer();
+        if (container == null) return;
+
+        toolWindow.show(null);
+        container.focusInputField();
+    }
+
     @NotNull
     private AssistantType getSelectedAssistantType(@NotNull ConnectionId connectionId) {
-        return selectedAssistantTypes.computeIfAbsent(connectionId, c -> getPrefferedAssistantType(c));
+        AssistantType assistantType = selectedAssistantTypes.computeIfAbsent(connectionId, c -> getPrefferedAssistantType(c));
+        if (assistantType != AssistantType.SELECT_AI) return assistantType;
+
+        // reset old SELECT_AI mappings against non-oracle connections
+        ConnectionHandler connection = ConnectionHandler.get(connectionId);
+        if (connection == null) return AssistantType.PUBLIC;
+        if (connection.getDatabaseType() != DatabaseType.ORACLE) {
+            assistantType = AssistantType.PUBLIC;
+            selectedAssistantTypes.put(connectionId, assistantType);
+        }
+        return assistantType;
     }
 
     @NotNull
@@ -242,8 +300,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
     @Nullable
     public ToolWindow getToolWindow() {
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject());
-        return toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
+        return geToolWindow();
     }
 
     @Nullable

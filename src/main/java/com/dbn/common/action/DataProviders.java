@@ -36,6 +36,10 @@ public class DataProviders {
         DataManager.registerDataProvider(component, dataProvider);
     }
 
+    public static void unregister(@NotNull JComponent component) {
+        DataManager.removeDataProvider(component);
+    }
+
     private static DataProvider createDataProvider(DataProviderDelegate delegate, DataProvider original) {
         return new CompositeDataProvider(delegate, original);
     }

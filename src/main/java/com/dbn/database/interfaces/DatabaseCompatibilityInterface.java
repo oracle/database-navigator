@@ -16,6 +16,8 @@
 
 package com.dbn.database.interfaces;
 
+import com.dbn.assistant.tool.AssistantToolCategory;
+import com.dbn.assistant.tool.AssistantToolType;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.operation.DatabaseOperation;
 import com.dbn.connection.ConnectionExceptionInfo;
@@ -37,6 +39,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+
+import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
 
 public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     List<DatabaseObjectTypeId> getSupportedObjectTypes();
@@ -113,4 +117,15 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     void initConnectorFileAttachments(ConnectionSettings settings, Connection connection);
 
     boolean resetConnectorAndRetry(Throwable e, ConnectionSettings settings);
+
+    default boolean isAssistantToolSupported(AssistantToolCategory toolCategory) {
+        return true;
+    }
+
+    default boolean isAssistantToolSupported(AssistantToolType toolType) {
+        if (toolType == AssistantToolType.SEMANTIC_SEARCH) {
+            return supportsFeature(VECTOR_SEARCH);
+        }
+        return true;
+    }
 }

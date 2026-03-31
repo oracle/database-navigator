@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,46 @@
 
 package com.dbn.assistant.tool.approval;
 
+import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.assistant.tool.AssistantToolType;
+import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.filter.Filter;
 
-public class AssistantToolFilter implements Filter<AssistantTool> {
-    private final AssistantToolApprovals approval;
+import static com.dbn.assistant.tool.AssistantToolData.isSupported;
 
-    public AssistantToolFilter(AssistantToolApprovals approvals) {
-        this.approval = approvals;
+public class AssistantToolFilter extends AssistantStateExtension implements Filter<AssistantTool> {
+    public AssistantToolFilter(AssistantState assistantState) {
+        super(assistantState);
+    }
+
+    private AssistantToolApprovals getApprovals() {
+        AssistantState assistantState = getAssistantState();
+        AssistantToolSettings settings = assistantState.getToolSettings();
+        return settings.getApprovals();
     }
 
     @Override
     public int getSignature() {
-        return approval.getSignature();
+        AssistantState assistantState = getAssistantState();
+        return getApprovals().getSignature() + assistantState.getAssistantMode().ordinal() * 100;
     }
 
     @Override
     public boolean accepts(AssistantTool assistantTool) {
-        AssistantToolCategory category = assistantTool.getCategory();
-        AssistantToolType type = assistantTool.getType();
+        AssistantState assistantState = getAssistantState();
 
-        if (approval.isBlocked(category)) return false;
-        if (approval.isBlocked(type)) return false;
+        AssistantToolCategory toolCategory = assistantTool.getCategory();
+        if (!isSupported(toolCategory, assistantState)) return false;
+
+        AssistantToolType toolType = assistantTool.getType();
+        if (!isSupported(toolType, assistantState)) return false;
+
+        AssistantToolApprovals approvals = getApprovals();
+        if (approvals.isBlocked(toolCategory)) return false;
+        if (approvals.isBlocked(toolType)) return false;
 
         return true;
     }

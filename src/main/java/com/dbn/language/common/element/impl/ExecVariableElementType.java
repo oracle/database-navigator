@@ -17,7 +17,7 @@
 package com.dbn.language.common.element.impl;
 
 import com.dbn.language.common.element.ElementTypeBundle;
-import com.dbn.language.common.element.cache.ExecVariableElementTypeLookupCache;
+import com.dbn.language.common.element.cache.ExecVariableElementTypeCache;
 import com.dbn.language.common.element.parser.impl.ExecVariableElementTypeParser;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.language.common.psi.ExecVariablePsiElement;
@@ -35,8 +35,8 @@ public class ExecVariableElementType extends LeafElementType {
     }
 
     @Override
-    public ExecVariableElementTypeLookupCache createLookupCache() {
-        return new ExecVariableElementTypeLookupCache(this);
+    public ExecVariableElementTypeCache createLookupCache() {
+        return new ExecVariableElementTypeCache(this);
     }
 
     @NotNull

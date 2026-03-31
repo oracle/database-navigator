@@ -145,15 +145,15 @@ public class SortingState implements PersistentStateElement, Cloneable<SortingSt
 
     @Override
     public void readState(Element element) {
-        if (element != null) {
-            for (Element child:  element.getChildren()) {
-                String columnName = stringAttribute(child, "name");
-                String sortDirection = stringAttribute(child, "direction");
-                SortingInstruction sortingInstruction = addSortingInstruction(columnName, SortDirection.valueOf(sortDirection));
-                sortingInstruction.setIndex(integerAttribute(element, "index", 1));
-            }
-            updateIndexes();
+        if (element == null) return;
+
+        for (Element child:  element.getChildren()) {
+            String columnName = stringAttribute(child, "name");
+            String sortDirection = stringAttribute(child, "direction");
+            SortingInstruction sortingInstruction = addSortingInstruction(columnName, SortDirection.valueOf(sortDirection));
+            sortingInstruction.setIndex(integerAttribute(element, "index", 1));
         }
+        updateIndexes();
     }
 
     public int size() {

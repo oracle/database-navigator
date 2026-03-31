@@ -1,5 +1,6 @@
 package com.dbn.object.factory.ui;
 
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -12,11 +13,13 @@ import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.ui.DBObjectSelector;
+import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBAIModelSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBAIModelSourceType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,6 +31,7 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
@@ -87,6 +91,14 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
         DBNHeaderForm headerForm = createHeaderForm();
         headerPanel.add(headerForm.getComponent());
         onTextChange(nameTextField, e -> headerForm.setTitle(buildHeaderTitle()));
+    }
+
+    protected void initStatePersistence() {
+        Project project = ensureProject();
+        ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
+
+        StateAttributes state = factoryManager.getState(getObjectType());
+        initPersistence(sourceComboBox, state, "model-source-selection");
     }
 
     private void initComboBoxes() {

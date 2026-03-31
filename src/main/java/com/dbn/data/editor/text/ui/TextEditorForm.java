@@ -143,6 +143,7 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
         editor = Editors.createEditor(document, project, virtualFile, fileType);
         editor.setEmbeddedIntoDialogWrapper(true);
         editor.getContentComponent().setFocusTraversalKeysEnabled(false);
+        Editors.updateEditorScrollPane(editor);
 
         if (fileType instanceof DBLanguageFileType dbFileType) {
             DBLanguage language = (DBLanguage) dbFileType.getLanguage();
@@ -155,7 +156,7 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
             editorPanel.remove(oldEditor.getComponent());
             Editors.releaseEditor(oldEditor);
         }
-        editorPanel.add(editor.getComponent(), BorderLayout.CENTER);
+        editorPanel.add(editor.getComponent());
         editor.getScrollingModel().scrollVertically(scrollOffset);
     }
 
@@ -198,13 +199,15 @@ public class TextEditorForm extends DBNFormBase implements TextContentTypeOwner 
         GenericDataType dataType = GenericDataType.LITERAL;
         try {
             Object userValue = userValueHolder.getUserValue();
-            if (userValue instanceof String) {
-                return (String) userValue;
-            } else if (userValue instanceof JsonValue) {
-                JsonValue jsonValue = (JsonValue) userValue;
-                return Json.formatJsonContent(jsonValue.getData());
+            if (userValue instanceof String stringUserValue) {
+                return stringUserValue;
+            }
 
-            } else if (userValue instanceof LargeObjectValue largeObjectValue) {
+            if (userValue instanceof JsonValue jsonValue) {
+                return Json.formatJsonContent(jsonValue.getData());
+            }
+
+            if (userValue instanceof LargeObjectValue largeObjectValue) {
                 dataType = largeObjectValue.getGenericDataType();
                 return largeObjectValue.read();
             }

@@ -25,6 +25,7 @@ import com.dbn.connection.console.DatabaseConsoleManager;
 import com.dbn.connection.session.DatabaseSessionManager;
 import com.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dbn.ddl.DDLFileAttachmentManager;
+import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.editor.DatabaseEditorStateManager;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.code.SourceCodeManager;
@@ -97,6 +98,7 @@ public class ProjectComponentsInitializer extends ProjectComponentBase implement
         DatasetEditorManager.getInstance(project);
         JsonDataEditorManager.getInstance(project);
         JsonDataSchemaManager.getInstance(project);
+        DatabaseDebuggerManager.getInstance(project);
         DatabaseCompilerManager.getInstance(project);
         DDLFileAttachmentManager.getInstance(project);
         DatabaseLoaderManager.getInstance(project);

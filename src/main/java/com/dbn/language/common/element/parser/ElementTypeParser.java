@@ -39,9 +39,11 @@ import static com.dbn.language.common.element.parser.ParseResultType.PARTIAL_MAT
 
 public abstract class ElementTypeParser<T extends ElementTypeBase> {
     public final T elementType;
+    public final SharedTokenTypeBundle sharedTokenTypes;
 
     public ElementTypeParser(T elementType) {
         this.elementType = elementType;
+        this.sharedTokenTypes = elementType.bundle.tokenTypeBundle.getSharedTokenTypes();
     }
 
     public ParserNode stepIn(ParserNode parentNode, ParserContext context) {
@@ -110,9 +112,9 @@ public abstract class ElementTypeParser<T extends ElementTypeBase> {
         if (tokenType == null) return false;
         if (!tokenType.isSuppressibleReservedWord()) return false;
 
-        SharedTokenTypeBundle sharedTokenTypes = elementType.bundle.tokenTypeBundle.getSharedTokenTypes();
-        SimpleTokenType dot = sharedTokenTypes.getChrDot();
-        SimpleTokenType leftParenthesis = sharedTokenTypes.getChrLeftParenthesis();
+
+        SimpleTokenType dot = context.sharedTokenTypes.chrDot;
+        SimpleTokenType leftParenthesis = sharedTokenTypes.chrLeftParenthesis;
         ParserBuilder builder = context.builder;
         if (builder.getPreviousToken() == dot) return true;
         if (builder.getNextToken() == dot) return true;

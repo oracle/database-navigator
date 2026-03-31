@@ -49,7 +49,11 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.dbn.common.util.Documents.onDocumentChanged;
+import static com.dbn.common.util.Editors.restrictEditorHeight;
+import static com.dbn.common.util.Editors.updateEditorScrollPane;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 
@@ -66,7 +70,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         super(new BorderLayout());
         this.chatBox = WeakRef.of(chatBox);
         this.editor = createEditor();
-        add(editor.getComponent(), BorderLayout.CENTER);
+        add(editor.getComponent());
         setBorder(Borders.insetBorder(0, 8, 8, 8));
         Disposer.register(chatBox, this);
 
@@ -181,7 +185,6 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         EditorEx editor = Editors.createEditor(document, project, file, file.getFileType());
         //editor.setEmbeddedIntoDialogWrapper(false); TODO quick-fix check why it does not grab focus if this is set to false
         editor.setBorder(Borders.EMPTY_BORDER);
-        Editors.updateEditorScrollPane(editor);
 
         document.addDocumentListener(new EnterKeyInterceptor(), this);
 
@@ -191,14 +194,28 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         settings.setLineNumbersShown(false);
         settings.setVirtualSpace(false);
         settings.setDndEnabled(false);
-        settings.setAdditionalLinesCount(1);
         settings.setRightMarginShown(false);
         settings.setCaretRowShown(false);
         settings.setUseSoftWraps(true);
         settings.setAdditionalLinesCount(2);
 
+        updateEditorScrollPane(editor);
+        installEditorLayoutUpdater(editor);
+        restrictEditorHeight(editor, this, 200);
         return editor;
+    }
 
+    private void installEditorLayoutUpdater(EditorEx editor) {
+        // TODO try using Editors#installEditorLayoutUpdater
+        AtomicInteger inputLineCount = new AtomicInteger(0);
+        onDocumentChanged(editor.getDocument(), ChatBoxInputField.this, e -> {
+            int lineCount = e.getDocument().getLineCount();
+            if (lineCount == inputLineCount.get()) return;
+
+            inputLineCount.set(lineCount);
+            revalidate();
+            repaint();
+        });
     }
 
     private class EnterKeyInterceptor implements DocumentListener {

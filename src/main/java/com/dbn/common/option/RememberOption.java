@@ -30,7 +30,7 @@ import static com.dbn.common.util.Unsafe.cast;
  * DoNotAskOption adapter
  * Motivated by various api changes in the versions ranging from 2020.1 to 2025.3.
  * (this ensures runtime compatibility throughout)
- * TODO review and decommission after discontinuing support for 2020-2022.x
+ * TODO review and decommission after discontinuing support for 2020-2023.x
  */
 @Compatibility
 public interface RememberOption extends DoNotAskOption {

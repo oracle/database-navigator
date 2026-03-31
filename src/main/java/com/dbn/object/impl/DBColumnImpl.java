@@ -28,19 +28,12 @@ import com.dbn.object.DBConstraint;
 import com.dbn.object.DBDataset;
 import com.dbn.object.DBIndex;
 import com.dbn.object.DBSchema;
-import com.dbn.object.DBTable;
 import com.dbn.object.DBType;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.list.DBObjectRelationList;
-import com.dbn.object.common.list.ObjectListProvider;
-import com.dbn.object.properties.DBDataTypePresentableProperty;
-import com.dbn.object.properties.DBObjectPresentableProperty;
-import com.dbn.object.properties.PresentableProperty;
-import com.dbn.object.properties.SimplePresentableProperty;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -117,15 +109,6 @@ class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
     @Override
     public DBObjectType getObjectType() {
         return COLUMN;
-    }
-
-    @Override
-    @Nullable
-    public DBObject getDefaultNavigationObject() {
-        if (isForeignKey()) {
-            return getForeignKeyColumn();
-        }
-        return null;
     }
 
     @Override
@@ -293,65 +276,8 @@ class DBColumnImpl extends DBObjectImpl<DBColumnMetadata> implements DBColumn {
     }
 
     @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-
-        if (dataType.isDeclared()) {
-            navigationLists.add(DBObjectNavigationList.create("Type", dataType.getDeclaredType()));
-        }
-
-        List<DBConstraint> constraints = getConstraints();
-        if (constraints.size() > 0) {
-            navigationLists.add(DBObjectNavigationList.create("Constraints", constraints));
-        }
-
-        if (getParentObject() instanceof DBTable) {
-            List<DBIndex> indexes = getIndexes();
-            if (indexes.size() > 0) {
-                navigationLists.add(DBObjectNavigationList.create("Indexes", indexes));
-            }
-
-            if (isForeignKey()) {
-                DBColumn foreignKeyColumn = getForeignKeyColumn();
-                navigationLists.add(DBObjectNavigationList.create("Referenced column", foreignKeyColumn));
-            }
-        }
-
-        if (isPrimaryKey()) {
-            ObjectListProvider<DBColumn> objectListProvider = () -> getReferencingColumns();
-            navigationLists.add(DBObjectNavigationList.create("Foreign-key columns", objectListProvider));
-        }
-        return navigationLists;
-    }
-
-    @Override
     public String getPresentableTextConditionalDetails() {
         return dataType.getQualifiedName();
-    }
-
-    @Override
-    public List<PresentableProperty> getPresentableProperties() {
-        List<PresentableProperty> properties = super.getPresentableProperties();
-
-        if (isForeignKey()) {
-            DBColumn foreignKeyColumn = getForeignKeyColumn();
-            if (foreignKeyColumn != null) {
-                properties.add(0, new DBObjectPresentableProperty("Foreign key column", foreignKeyColumn, true));
-            }
-        }
-
-        StringBuilder attributes  = new StringBuilder();
-        if (isIdentity()) attributes.append("IDENTITY");
-        if (isPrimaryKey()) attributes.append(" PK");
-        if (isForeignKey()) attributes.append(" FK");
-        if (!isPrimaryKey() && !isNullable()) attributes.append(" not null");
-
-        if (attributes.length() > 0) {
-            properties.add(0, new SimplePresentableProperty("Attributes", attributes.toString().trim()));
-        }
-        properties.add(0, new DBDataTypePresentableProperty(dataType));
-
-        return properties;
     }
 
     /*********************************************************

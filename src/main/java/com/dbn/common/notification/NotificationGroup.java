@@ -21,6 +21,7 @@ import lombok.Getter;
 @Getter
 public enum NotificationGroup {
     DEFAULT("DBNavigator.NotificationGroup.Default"),
+    PINNED("DBNavigator.NotificationGroup.Pinned"),
     BROWSER("DBNavigator.NotificationGroup.Browser"),
     EXECUTION("DBNavigator.NotificationGroup.Execution"),
     ASSISTANT("DBNavigator.NotificationGroup.Assistant"),

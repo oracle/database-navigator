@@ -31,6 +31,9 @@ public abstract class ContentDependency implements UnlistedDisposable {
     }
 
     public boolean isDirty() {
-        return signature != getSourceContent().getSignature();
+        DynamicContent sourceContent = getSourceContent();
+        if (sourceContent.isDirty()) return true;
+
+        return signature != sourceContent.getSignature();
     }
 }

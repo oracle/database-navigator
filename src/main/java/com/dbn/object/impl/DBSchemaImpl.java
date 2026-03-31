@@ -62,7 +62,6 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectListVisitor;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
@@ -76,7 +75,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -259,12 +257,6 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         return is(EMPTY_SCHEMA);
     }
 
-    @Nullable
-    @Override
-    public DBObject getDefaultNavigationObject() {
-        return getOwner();
-    }
-
     @Override
     public <T extends DBObject> T  getChildObject(DBObjectType type, String name, short overload, boolean lookupHidden) {
         if (type != ANY && !type.isSchemaObject()) return null;
@@ -291,16 +283,6 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
             return cast(object);
         }
         return null;
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        DBUser user = getOwner();
-        if (user == null) return null;
-
-        LinkedList<DBObjectNavigationList> navigationLists = new LinkedList<>();
-        navigationLists.add(DBObjectNavigationList.create("User", user));
-        return navigationLists;
     }
 
     @Override

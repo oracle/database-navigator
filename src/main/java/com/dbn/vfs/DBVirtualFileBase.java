@@ -54,7 +54,6 @@ public abstract class DBVirtualFileBase extends VirtualFile implements DBVirtual
 
     protected String path;
     protected String url;
-    private volatile int documentSignature;
 
     private long modificationStamp = LocalTimeCounter.currentTime();
     private long timeStamp = System.currentTimeMillis();

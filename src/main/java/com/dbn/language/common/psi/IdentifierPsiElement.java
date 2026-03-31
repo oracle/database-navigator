@@ -443,7 +443,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
     public boolean isPrecededByDot() {
         LeafPsiElement prevLeaf = getPrevLeaf();
         if (prevLeaf instanceof TokenPsiElement tokenPsiElement) {
-            return tokenPsiElement.getTokenType() == tokenPsiElement.getLanguage().getSharedTokenTypes().getChrDot();
+            return tokenPsiElement.getTokenType() == tokenPsiElement.getLanguage().getSharedTokenTypes().chrDot;
         }
         return false;
     }
