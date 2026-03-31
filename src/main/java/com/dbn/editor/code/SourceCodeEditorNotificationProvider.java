@@ -140,7 +140,7 @@ public class SourceCodeEditorNotificationProvider extends EditorNotificationProv
             return new SourceCodeOutdatedNotificationPanel(sourceCodeFile, fileEditor, sourceCodeEditor);
         }
 
-        if (sourceCodeFile.getEnvironmentType().isReadonlyCode()) {
+        if (sourceCodeFile.isLoaded() && sourceCodeFile.getEnvironmentType().isReadonlyCode()) {
             return new SourceCodeReadonlyNotificationPanel(schemaObject, fileEditor, sourceCodeEditor);
         }
         return null;

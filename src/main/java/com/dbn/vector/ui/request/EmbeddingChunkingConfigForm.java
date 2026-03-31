@@ -18,8 +18,10 @@ package com.dbn.vector.ui.request;
 
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.util.Dialogs;
 import com.dbn.vector.model.request.EmbeddingChunkingConfig;
+import com.dbn.vector.model.request.EmbeddingSourceType;
 import com.dbn.vector.ui.VectorToolboxFormBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,109 +33,136 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.util.Dialogs.whenOk;
 import static com.dbn.vector.model.request.EmbeddingChunkingConfigValidator.validateMaxSize;
 import static com.dbn.vector.model.request.EmbeddingChunkingConfigValidator.validateOverlap;
 
 public class EmbeddingChunkingConfigForm extends VectorToolboxFormBase implements DBNCollapsibleForm {
-  private JPanel mainPanel;
-  private JComboBox<String> chunkByComboBox;
-  private JComboBox<String> splitByComboBox;
-  private JSpinner maxSizeSpinner;
-  private JSpinner overlapSpinner;
-  private JButton chunkLaboButton;
-  private JLabel chunkByLabel;
-  private JLabel splitByLabel;
+    private JPanel mainPanel;
+    private JComboBox<String> chunkByComboBox;
+    private JComboBox<String> splitByComboBox;
+    private JSpinner maxSizeSpinner;
+    private JSpinner overlapSpinner;
+    private JButton chunkLaboButton;
+    private JLabel chunkByLabel;
+    private JLabel splitByLabel;
 
-  public EmbeddingChunkingConfigForm(@NotNull VectorToolboxFormBase parent) {
-    super(parent);
+    public EmbeddingChunkingConfigForm(@NotNull VectorToolboxFormBase parent) {
+        super(parent);
 
-    chunkLaboButton.addActionListener(e -> openChunkLab());
-  }
+        onButtonClick(chunkLaboButton, e -> openChunkLab());
+        onSelectionChange(chunkByComboBox, e -> updateFieldAvailability());
+    }
 
-  private void openChunkLab() {
-    EmbeddingChunkingConfig chunkConfig = new EmbeddingChunkingConfig();
-    applyFormChanges(chunkConfig);
+    private void openChunkLab() {
+        EmbeddingChunkingConfig chunkConfig = new EmbeddingChunkingConfig();
+        applyFormChanges(chunkConfig);
 
-    Dialogs.show(() -> new EmbeddingChunkLabDialog(getConnection(), chunkConfig),
-            whenOk(d -> resetFormChanges(d.getChunkConfig())));
-  }
+        Dialogs.show(() -> new EmbeddingChunkLabDialog(getConnection(), chunkConfig),
+                whenOk(d -> resetFormChanges(d.getChunkConfig())));
+    }
 
-  private Integer getMaxSize() {
-    return (Integer) maxSizeSpinner.getValue();
-  }
+    private Integer getMaxSize() {
+        return (Integer) maxSizeSpinner.getValue();
+    }
 
-  private Integer getOverlap() {
-    return (Integer) overlapSpinner.getValue();
-  }
+    private Integer getOverlap() {
+        return (Integer) overlapSpinner.getValue();
+    }
 
-  @Nullable
-  private String getChunkBy() {
-    return getSelection(chunkByComboBox);
-  }
+    @Nullable
+    private String getChunkBy() {
+        return getSelection(chunkByComboBox);
+    }
 
-  @Nullable
-  private String getSplitBy() {
-    return getSelection(splitByComboBox);
-  }
+    @Nullable
+    private String getSplitBy() {
+        return getSelection(splitByComboBox);
+    }
 
-  @Override
-  protected void initFieldAlignment() {
-    FieldAlignerData alignerData = getFieldAlignerData();
-    alignerData.registerFieldGroup(chunkByLabel/*, chunkByComboBox*/);
-    alignerData.registerFieldGroup(splitByLabel/*, splitByComboBox*/);
-  }
+    @Override
+    protected void initFieldAlignment() {
+        FieldAlignerData alignerData = getFieldAlignerData();
+        alignerData.registerFieldGroup(chunkByLabel/*, chunkByComboBox*/);
+        alignerData.registerFieldGroup(splitByLabel/*, splitByComboBox*/);
+    }
 
-  @Override
-  protected void initValidation() {
-    addValidation(maxSizeSpinner, n -> validateMaxSize(getChunkBy(), getMaxSize()));
-    addValidation(overlapSpinner, o-> validateOverlap(getMaxSize(), getOverlap()));
-  }
+    @Override
+    protected void initValidation() {
+        addValidation(maxSizeSpinner, c -> validateMaxSize(getChunkBy(), getMaxSize()));
+        addValidation(overlapSpinner, c -> validateOverlap(getMaxSize(), getOverlap()));
+        addValidation(chunkByComboBox, c -> validateChunkBy());
+    }
 
-  @Override
-  public void resetFormChanges() {
-    EmbeddingChunkingConfig config = getConfig();
-    resetFormChanges(config);
-  }
+    private String validateChunkBy() {
+        String chunkBy = getSelection(chunkByComboBox);
+        if ("NONE".equals(chunkBy)) {
+            EmbeddingSourceType sourceType = getToolboxForm().getEmbeddingSourceForm().getSelectedSourceType();
+            if (sourceType == EmbeddingSourceType.FILE_SYSTEM) {
+                return "Chunking configuration is mandatory for contents sourced from file system";
+            }
+        }
 
-  private void resetFormChanges(EmbeddingChunkingConfig config) {
-    setSelection(chunkByComboBox, config.getChunkBy());
-    setSelection(splitByComboBox, config.getSplitBy());
-    maxSizeSpinner.setValue(config.getMaxSize());
-    overlapSpinner.setValue(config.getOverlap());
-  }
+        return null;
+    }
 
-  @Override
-  public void applyFormChanges() {
-    EmbeddingChunkingConfig config = getConfig();
-    applyFormChanges(config);
-  }
+    @Override
+    protected void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.initFieldsAvailability(() -> !"NONE".equals(getChunkBy()), array(
+                splitByComboBox,
+                maxSizeSpinner,
+                overlapSpinner,
+                chunkLaboButton));
+    }
 
-  private void applyFormChanges(EmbeddingChunkingConfig config) {
-    config.setChunkBy(getChunkBy());
-    config.setSplitBy(getSplitBy());
-    config.setMaxSize(getMaxSize());
-    config.setOverlap(getOverlap());
-  }
+    @Override
+    public void resetFormChanges() {
+        EmbeddingChunkingConfig config = getConfig();
+        resetFormChanges(config);
+    }
 
-  public EmbeddingChunkingConfig getConfig() {
-    return getEmbeddingRequest().getChunkConfig();
-  }
+    private void resetFormChanges(EmbeddingChunkingConfig config) {
+        setSelection(chunkByComboBox, config.getChunkBy());
+        setSelection(splitByComboBox, config.getSplitBy());
+        maxSizeSpinner.setValue(config.getMaxSize());
+        overlapSpinner.setValue(config.getOverlap());
+    }
 
-  @Override
-  protected JComponent getMainComponent() {
-    return mainPanel;
-  }
+    @Override
+    public void applyFormChanges() {
+        EmbeddingChunkingConfig config = getConfig();
+        applyFormChanges(config);
+    }
 
-  @Override
-  public String getFormTitle() {
-    return "Chunk Configuration";
-  }
+    private void applyFormChanges(EmbeddingChunkingConfig config) {
+        config.setChunkBy(getChunkBy());
+        config.setSplitBy(getSplitBy());
+        config.setMaxSize(getMaxSize());
+        config.setOverlap(getOverlap());
+    }
 
-  @Override
-  public String getFormTitleDetail() {
-    return getChunkBy() + " / " + getSplitBy() + " / " + maxSizeSpinner.getValue() + " / " + overlapSpinner.getValue();
-  }
+    public EmbeddingChunkingConfig getConfig() {
+        return getEmbeddingRequest().getChunkConfig();
+    }
+
+    @Override
+    protected JComponent getMainComponent() {
+        return mainPanel;
+    }
+
+    @Override
+    public String getFormTitle() {
+        return "Chunk Configuration";
+    }
+
+    @Override
+    public String getFormTitleDetail() {
+        return getChunkBy() + " / " + getSplitBy() + " / " + maxSizeSpinner.getValue() + " / " + overlapSpinner.getValue();
+    }
 }

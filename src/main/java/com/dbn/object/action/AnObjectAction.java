@@ -43,7 +43,7 @@ public abstract class AnObjectAction<T extends DBObject> extends ContextAction<T
 
     @NotNull
     @Override
-    public  Project getProject() {
+    public final Project getProject() {
         return object.ensure().getProject();
     }
 

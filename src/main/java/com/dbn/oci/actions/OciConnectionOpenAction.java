@@ -32,6 +32,7 @@ public class OciConnectionOpenAction extends ContributeADBActions.ExtensionConte
   protected void doAction(ActionEvent actionEvent) {
     DataContext dataContext = DataManager.getInstance().getDataContext();
     Project project =  dataContext.getData(CommonDataKeys.PROJECT);
+    if (project == null) return;
 
     // open tool window if it's not opened
     ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);

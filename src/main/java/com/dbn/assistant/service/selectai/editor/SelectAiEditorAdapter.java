@@ -37,6 +37,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.experimental.UtilityClass;
 
+import static com.dbn.assistant.AssistantMode.DEVELOPMENT;
 import static com.dbn.assistant.AssistantType.SELECT_AI;
 import static com.intellij.util.ObjectUtils.coalesce;
 
@@ -60,10 +61,12 @@ public class SelectAiEditorAdapter {
 
         ChatContextImpl context = new ChatContextImpl(
                 SELECT_AI,
+                DEVELOPMENT,
                 profile.getName(),
                 profile.getProviderId(),
                 profile.getModelId(),
                 action.getId(),
+                null,
                 false);
         SelectAiEditorPromptUtil.generate(connectionId, prompt, context, message -> Dispatch.run(editor.getComponent(), () -> appendMessage(project, editor, message)));
     }

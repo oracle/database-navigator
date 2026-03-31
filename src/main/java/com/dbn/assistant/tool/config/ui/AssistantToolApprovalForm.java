@@ -29,13 +29,15 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.util.containers.ContainerUtil;
+import lombok.Getter;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import java.util.List;
 import java.util.Map;
 
-import static com.dbn.assistant.tool.AssistantToolData.getToolCategories;
+import static com.dbn.assistant.tool.AssistantToolData.getSupportedToolCategories;
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
@@ -46,7 +48,7 @@ public class AssistantToolApprovalForm extends DBNFormBase {
     private JPanel toolsPanel;
     private JScrollPane toolsScrollPane;
 
-    private final AssistantToolSettings settings;
+    private final @Getter AssistantToolSettings settings;
     private final Map<AssistantToolCategory, AssistantToolApprovalCategoryForm> toolCategoryForms = ContainerUtil.createConcurrentWeakValueMap();
 
     public AssistantToolApprovalForm(AssistantToolApprovalDialog dialog, AssistantToolSettings settings) {
@@ -79,7 +81,8 @@ public class AssistantToolApprovalForm extends DBNFormBase {
         HORIZONTAL_SCROLL_POLICY.set(toolsScrollPane, HORIZONTAL_SCROLLBAR_NEVER);
         Layouts.verticalBoxLayout(toolsPanel);
 
-        AssistantToolCategory[] toolCategories = getToolCategories();
+        AssistantState assistantState = settings.getAssistantState();
+        List<AssistantToolCategory> toolCategories = getSupportedToolCategories(assistantState);
         for (AssistantToolCategory toolCategory : toolCategories) {
             AssistantToolApprovalCategoryForm toolCategoryForm = new AssistantToolApprovalCategoryForm(this, toolCategory);
             toolCategoryForms.put(toolCategory, toolCategoryForm);

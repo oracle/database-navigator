@@ -309,7 +309,9 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
             }
         }
 
-        boolean nameChanged = !Objects.equals(getText(nameTextField), configuration.getName());
+        String oldName = configuration.getName();
+        String newName = getText(nameTextField);
+        boolean nameChanged = !Objects.equals(newName, oldName);
 
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
         boolean settingsChanged =
@@ -326,7 +328,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
             if (nameChanged) {
                 ProjectEvents.notify(project,
                         ConnectionConfigListener.TOPIC,
-                        listener -> listener.connectionNameChanged(connectionId));
+                        listener -> listener.connectionNameChanged(connectionId, oldName));
             }
 
             if (settingsChanged) {

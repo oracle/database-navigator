@@ -21,6 +21,9 @@ import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectPsiElement;
+import com.dbn.object.navigation.DBObjectNavigationInfoProvider;
+import com.dbn.object.navigation.DBObjectNavigationInfoProviderCache;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.lang.documentation.DocumentationProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
@@ -33,23 +36,30 @@ public class SQLDocumentationProvider implements DocumentationProvider {
     @Nullable
     private String getQuickNavigateInfo(PsiElement element) {
         if (element instanceof DBObjectPsiElement objectPsiElement) {
-            return objectPsiElement.ensureObject().getNavigationTooltipText();
-        } else if (element instanceof IdentifierPsiElement identifierPsiElement) {
-            if (identifierPsiElement.isAlias()) {
-                if (identifierPsiElement.isDefinition()) {
-                    BasePsiElement aliasedObjectElement = PsiUtil.resolveAliasedEntityElement(identifierPsiElement);
-                    if (aliasedObjectElement == null) {
-                        return "unknown alias";
-                    } else {
-                        DBObject aliasedObject = aliasedObjectElement.getUnderlyingObject();
-                        if (aliasedObject == null) {
-                            return "alias of " + aliasedObjectElement.getReferenceQualifiedName();
-                        } else {
-                            return "alias of " + aliasedObject.getQualifiedNameWithType();
-                        }
-                    }
-                }
-            } 
+            DBObject object = objectPsiElement.ensureObject();
+            DBObjectType objectType = object.getObjectType();
+            DBObjectNavigationInfoProvider<DBObject> infoProvider = DBObjectNavigationInfoProviderCache.get(objectType);
+            if (infoProvider == null) return null;
+
+            return infoProvider.getNavigationTooltipText(object);
+        }
+
+        if (element instanceof IdentifierPsiElement identifierPsiElement) {
+            if (!identifierPsiElement.isAlias()) return null;
+
+            if (!identifierPsiElement.isDefinition()) return null;
+
+            BasePsiElement aliasedObjectElement = PsiUtil.resolveAliasedEntityElement(identifierPsiElement);
+            if (aliasedObjectElement == null) {
+                return "unknown alias";
+            }
+
+            DBObject aliasedObject = aliasedObjectElement.getUnderlyingObject();
+            if (aliasedObject == null) {
+                return "alias of " + aliasedObjectElement.getReferenceQualifiedName();
+            }
+
+            return "alias of " + aliasedObject.getQualifiedNameWithType();
         }
         return null;
     }

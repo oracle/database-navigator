@@ -56,6 +56,7 @@ public enum DatabaseFeature {
     AI_ASSISTANT("AI assistant"),
     DATA_CHANGE_NOTIFICATION("Data change notification"),
     VECTOR_EMBEDDING("Vector embedding"),
+    VECTOR_SEARCH("Vector search"),
 
     // OJVM
     JAVA_VIRTUAL_MACHINE("Embedded java virtual machine"),

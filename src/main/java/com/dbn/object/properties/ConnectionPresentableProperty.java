@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 import javax.swing.Icon;
 
 @EqualsAndHashCode(callSuper = false)
-public class ConnectionPresentableProperty extends PresentableProperty{
+public class ConnectionPresentableProperty extends DBObjectPropertyBase {
     private final ConnectionRef connection;
 
     public ConnectionPresentableProperty(ConnectionHandler connection) {
