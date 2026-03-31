@@ -44,7 +44,6 @@
                 )
             select
                 vector_distance(t.EMBEDDING, q.QUERY_VECTOR, {3}) as DISTANCE,
-                t.ID,
                 to_char(t.TEXT) as CONTENT
             from {0}.{1} t
             cross join PROMPT_QUERY q
