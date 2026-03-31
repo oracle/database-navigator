@@ -106,6 +106,8 @@ import java.util.stream.Collectors;
 import static com.dbn.browser.DatabaseBrowserUtils.markSkipBrowserAutoscroll;
 import static com.dbn.browser.DatabaseBrowserUtils.unmarkSkipBrowserAutoscroll;
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.ui.util.Components.onComponentResized;
+import static com.dbn.common.util.Documents.onDocumentChanged;
 import static com.dbn.common.util.Documents.onDocumentChanged;
 import static com.intellij.openapi.editor.EditorModificationUtil.setReadOnlyHint;
 
@@ -648,18 +650,23 @@ public class Editors {
         // not constrained by the max height of the parent containers
 
         AtomicInteger previousLineCount = new AtomicInteger(0);
-        updateEditorHeight(editor, maxHeight, previousLineCount);
+        AtomicInteger previousEditorWidth = new AtomicInteger(0);
+        updateEditorHeight(editor, maxHeight, previousLineCount, previousEditorWidth);
 
         onDocumentChanged(editor.getDocument(), parentDisposable, e ->
-                updateEditorHeight(editor, maxHeight, previousLineCount));
+                updateEditorHeight(editor, maxHeight, previousLineCount, previousEditorWidth));
+
+        onComponentResized(editor.getComponent(), e ->
+                updateEditorHeight(editor, maxHeight, previousLineCount, previousEditorWidth));
     }
 
-    private static void updateEditorHeight(Editor editor, int maxHeight, AtomicInteger previousLineCount) {
-        Document document = editor.getDocument();
-        int lineCount = Math.max(document.getLineCount(), 1);
-        if (lineCount == previousLineCount.get()) return;
+    private static void updateEditorHeight(Editor editor, int maxHeight, AtomicInteger previousLineCount, AtomicInteger previousEditorWidth) {
+        int lineCount = getEffectiveLineCount(editor);
+        int editorWidth = editor.getComponent().getWidth();
 
+        if (lineCount == previousLineCount.get() && editorWidth == previousEditorWidth.get()) return;
         previousLineCount.set(lineCount);
+        previousEditorWidth.set(editorWidth);
 
         JComponent component = editor.getComponent();
         Dimension preferredSize = component.getPreferredSize();
@@ -667,15 +674,27 @@ public class Editors {
         int additionalLines = editor.getSettings().getAdditionalLinesCount();
 
         int lines = lineCount + additionalLines;
-        int height = Math.min(lineHeight * lines, maxHeight) + 12 /**/;
+        int height = Math.min(lineHeight * lines, maxHeight) + 16 /**/;
 
         component.setPreferredSize(new Dimension(preferredSize.width, height));
     }
 
-    public static void installFormLayoutUpdater(EditorEx editor, DBNForm form) {
+    private static int getEffectiveLineCount(Editor editor) {
+        Document document = editor.getDocument();
+        int lineCount = Math.max(document.getLineCount(), 1);
+        int softWraps = 0;
+        if (editor.getSettings().isUseSoftWraps()) {
+            var wraps = editor.getSoftWrapModel().getSoftWrapsForRange(0, document.getTextLength());
+            softWraps = wraps.size();
+        }
+        lineCount = lineCount + softWraps;
+        return lineCount;
+    }
+
+    public static void installEditorLayoutUpdater(EditorEx editor, DBNForm form) {
         AtomicInteger inputLineCount = new AtomicInteger(0);
         onDocumentChanged(editor.getDocument(), form, e -> {
-            int lineCount = e.getDocument().getLineCount();
+            int lineCount = getEffectiveLineCount(editor);
             if (lineCount == inputLineCount.get()) return;
 
             inputLineCount.set(lineCount);

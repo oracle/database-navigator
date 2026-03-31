@@ -16,9 +16,12 @@
 
 package com.dbn.common.notification;
 
+import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.common.project.ProjectSupplier;
 import com.dbn.common.util.Titles;
 import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationDisplayType;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.project.Project;
@@ -58,12 +61,30 @@ public interface NotificationSupport extends ProjectSupplier {
     static void sendNotification(@Nullable Project project, NotificationType type, NotificationCategory category, String message) {
         if (project != null && project.isDisposed()) return;
 
+        String notificationGroupId = category.getGroup().getId();
+        if (usePinnedNotification(project, notificationGroupId)) {
+            notificationGroupId = NotificationGroup.PINNED.getId();
+        }
+
         Notification notification = new Notification(
-                category.getGroup().getId(),
+                notificationGroupId,
                 Titles.signed(category.toString()), // TODO NLS
                 message,
                 type);
         notification.setImportant(false);
         Notifications.Bus.notify(notification, project);
+    }
+
+    private static boolean usePinnedNotification(Project project, String notificationGroupId) {
+        if (project == null) return false;
+
+        com.intellij.notification.NotificationGroup notificationGroup = NotificationGroupManager.getInstance().getNotificationGroup(notificationGroupId);
+        if (notificationGroup == null) return false;
+        if (notificationGroup.getDisplayType() != NotificationDisplayType.BALLOON) return false;
+
+        DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
+        if (!assistantManager.divertNotificationBalloon()) return false;
+
+        return true;
     }
 }

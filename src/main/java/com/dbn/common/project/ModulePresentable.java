@@ -57,4 +57,9 @@ public class ModulePresentable implements Presentable {
         ModuleType<?> moduleType = ModuleType.get(module);
         return moduleType.getIcon();
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

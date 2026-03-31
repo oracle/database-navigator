@@ -58,7 +58,7 @@ import java.sql.ResultSet;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.util.Documents.onDocumentChanged;
-import static com.dbn.common.util.Editors.installFormLayoutUpdater;
+import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
 import static com.dbn.common.util.Messages.showErrorDialog;
@@ -111,9 +111,6 @@ public class VectorSearchForm extends DBNFormBase {
         requestEditor.setEmbeddedIntoDialogWrapper(false);
         requestEditor.getContentComponent().setFocusTraversalKeysEnabled(false);
         requestEditor.setPlaceholder("Enter your search text here");
-        updateEditorScrollPane(requestEditor);
-        installFormLayoutUpdater(requestEditor, this);
-        restrictEditorHeight(requestEditor, this, 300);
 
         EditorSettings settings = requestEditor.getSettings();
         settings.setUseSoftWraps(true);
@@ -124,6 +121,9 @@ public class VectorSearchForm extends DBNFormBase {
         settings.setCaretRowShown(false);
         settings.setAdditionalLinesCount(2);
 
+        updateEditorScrollPane(requestEditor);
+        installEditorLayoutUpdater(requestEditor, this);
+        restrictEditorHeight(requestEditor, this, 300);
         inputPanel.add(requestEditor.getComponent());
     }
 

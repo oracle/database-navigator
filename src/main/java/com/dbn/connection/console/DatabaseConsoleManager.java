@@ -33,6 +33,7 @@ import com.dbn.common.util.Titles;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
+import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.connection.console.ui.CreateRenameConsoleDialog;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.connection.session.DatabaseSession;
@@ -86,6 +87,7 @@ import static com.dbn.common.util.Commons.array;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.common.util.Strings.isOneOf;
+import static com.dbn.connection.config.ConnectionConfigListener.whenNameChanged;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.code.options.CodeEditorChangesOption.CANCEL;
 import static com.dbn.editor.code.options.CodeEditorChangesOption.DISCARD;
@@ -103,6 +105,22 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
         super(project, COMPONENT_NAME);
         ProjectEvents.subscribe(project, this, SessionManagerListener.TOPIC, sessionManagerListener);
         ProjectEvents.subscribe(project, this, FileEditorManagerListener.Before.FILE_EDITOR_MANAGER, fileEditorManagerListenerBefore());
+        ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC, whenNameChanged((id, oldName) -> renameConsoles(id, oldName)));
+    }
+
+    private void renameConsoles(ConnectionId id, String oldName) {
+        ConnectionHandler connection = ConnectionHandler.get(id);
+        if (connection == null) return;
+
+        String newName = connection.getName();
+        List<DBConsole> consoles = connection.getConsoleBundle().getConsoles();
+        for (DBConsole console : consoles) {
+            String consoleName = console.getName();
+            if (consoleName.startsWith(oldName)) {
+                consoleName = newName + consoleName.substring(oldName.length());
+                renameConsole(console, consoleName);
+            }
+        }
     }
 
     private FileEditorManagerListener.Before fileEditorManagerListenerBefore() {
@@ -194,16 +212,16 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
 
     public void renameConsole(@NotNull DBConsole console, String newName) {
         String oldName = console.getName();
-        if (!Objects.equals(oldName, newName)) {
-            ConnectionHandler connection = console.getConnection();
-            DatabaseConsoleBundle consoleBundle = connection.getConsoleBundle();
+        if (Objects.equals(oldName, newName)) return;
 
-            DBConsoleVirtualFile virtualFile = console.getVirtualFile();
-            VFileEvent renameEvent = createFileRenameEvent(virtualFile, oldName, newName);
-            notifiedFileChange(renameEvent, () -> consoleBundle.renameConsole(oldName, newName));
+        ConnectionHandler connection = console.getConnection();
+        DatabaseConsoleBundle consoleBundle = connection.getConsoleBundle();
 
-            reloadConsoles(connection);
-        }
+        DBConsoleVirtualFile virtualFile = console.getVirtualFile();
+        VFileEvent renameEvent = createFileRenameEvent(virtualFile, oldName, newName);
+        notifiedFileChange(renameEvent, () -> consoleBundle.renameConsole(oldName, newName));
+
+        reloadConsoles(connection);
     }
 
     public void deleteConsole(DBConsole console) {

@@ -70,6 +70,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Naming.doubleQuoted;
@@ -352,14 +354,33 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
 
         if (pathNode instanceof DBObjectList<?> objectList) {
             return new ObjectListActionGroup(objectList);
-        } else if (pathNode instanceof DBObject object) {
-            return new ObjectActionGroup(object);
-        } else if (pathNode instanceof DBObjectBundle objectsBundle) {
+        }
+
+        if (pathNode instanceof DBObject object) {
+            DBObject[] objects = getSelectedObjects(object);
+            return new ObjectActionGroup(objects);
+        }
+
+        if (pathNode instanceof DBObjectBundle objectsBundle) {
             ConnectionHandler connection = objectsBundle.getConnection();
             return new ConnectionActionGroup(connection);
         }
 
         return null;
+    }
+
+    private DBObject[] getSelectedObjects(DBObject sourceObject) {
+        List<DBObject> objects = new ArrayList<>();
+        for (TreePath path : getSelectionModel().getSelectionPaths()) {
+            Object node = path.getLastPathComponent();
+            if (!(node instanceof DBObject selectedObject)) continue;
+            if (isNotValid(selectedObject)) continue;
+            if (selectedObject.getObjectType() != sourceObject.getObjectType()) continue;
+
+            objects.add(selectedObject);
+        }
+
+        return objects.toArray(new DBObject[0]);
     }
 
     @Override
