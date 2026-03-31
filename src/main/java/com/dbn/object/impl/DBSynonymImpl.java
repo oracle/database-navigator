@@ -24,20 +24,15 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.DBSynonym;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.property.DBObjectProperty;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.properties.DBObjectPresentableProperty;
-import com.dbn.object.properties.PresentableProperty;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
 
 class DBSynonymImpl extends DBSchemaObjectImpl<DBSynonymMetadata> implements DBSynonym {
     private DBObjectRef<DBObject> underlyingObject;
@@ -81,12 +76,6 @@ class DBSynonymImpl extends DBSchemaObjectImpl<DBSynonymMetadata> implements DBS
         return DBObjectType.SYNONYM;
     }
 
-    @Nullable
-    @Override
-    public DBObject getDefaultNavigationObject() {
-        return getUnderlyingObject();
-    }
-
     @Override
     @Nullable
     public Icon getIcon() {
@@ -114,36 +103,6 @@ class DBSynonymImpl extends DBSchemaObjectImpl<DBSynonymMetadata> implements DBS
     }
 
     @Override
-    public String getNavigationTooltipText() {
-        DBObject parentObject = getParentObject();
-        if (parentObject == null) {
-            return "unknown " + getTypeName();
-        } else {
-            DBObject underlyingObject = getUnderlyingObject();
-            if (underlyingObject == null) {
-                return "unknown " + getTypeName() +
-                        " (" + parentObject.getTypeName() + " " + parentObject.getName() + ")";
-            } else {
-                return getTypeName() + " of " + underlyingObject.getName() + " " + underlyingObject.getTypeName() +
-                        " (" + parentObject.getTypeName() + " " + parentObject.getName() + ")";
-
-            }
-
-        }
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        DBObject underlyingObject = getUnderlyingObject();
-        if (underlyingObject != null) {
-            List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-            navigationLists.add(DBObjectNavigationList.create("Underlying " + underlyingObject.getTypeName(), underlyingObject));
-            return navigationLists;
-        }
-        return null;
-    }
-
-    @Override
     public void buildToolTip(HtmlToolTipBuilder ttb) {
         DBObject underlyingObject = getUnderlyingObject();
         if (underlyingObject!= null) {
@@ -152,16 +111,6 @@ class DBSynonymImpl extends DBSchemaObjectImpl<DBSynonymMetadata> implements DBS
         ttb.append(false, getObjectType().getName(), true);
         ttb.createEmptyRow();
         super.buildToolTip(ttb);
-    }
-
-    @Override
-    public List<PresentableProperty> getPresentableProperties() {
-        List<PresentableProperty> properties = super.getPresentableProperties();
-        DBObject underlyingObject = getUnderlyingObject();
-        if (underlyingObject != null) {
-            properties.add(0, new DBObjectPresentableProperty("Underlying object", underlyingObject, true));
-        }
-        return properties;
     }
 
     /*********************************************************

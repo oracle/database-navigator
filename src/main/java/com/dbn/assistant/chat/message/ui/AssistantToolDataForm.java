@@ -51,6 +51,7 @@ import javax.swing.JTextPane;
 import java.awt.Color;
 import java.awt.Dimension;
 
+import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 
 public class AssistantToolDataForm extends DBNFormBase {
@@ -99,6 +100,7 @@ public class AssistantToolDataForm extends DBNFormBase {
         if (requestViewer != null && responseViewer != null) {
             requestDataPanel.add(requestViewer.getComponent());
             responseDataPanel.add(responseViewer.getComponent());
+            restrictEditorHeight(responseViewer, this, 300);
         } else {
             JTextPane requestTextPane = new JTextPane();
             JTextPane responseTextPane = new JTextPane();

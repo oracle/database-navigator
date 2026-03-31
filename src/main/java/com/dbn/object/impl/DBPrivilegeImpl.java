@@ -24,11 +24,8 @@ import com.dbn.object.DBUser;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBRootObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.common.list.DBObjectNavigationList;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.dbn.object.type.DBObjectType.ROLE;
@@ -59,17 +56,6 @@ abstract class DBPrivilegeImpl<M extends DBPrivilegeMetadata> extends DBRootObje
 
     public List<DBRole> getRoleGrantees() {
         return getChildObjects(ROLE);
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-        navigationLists.add(DBObjectNavigationList.create("User grantees", getUserGrantees()));
-
-        if (ROLE.isSupported(this)) {
-            navigationLists.add(DBObjectNavigationList.create("Role grantees", getRoleGrantees()));
-        }
-        return navigationLists;
     }
 
     /*********************************************************

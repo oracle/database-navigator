@@ -17,7 +17,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.7.3.0</version>
+    <version>4.0.0.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -53,6 +53,19 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>4.0.0</b>
+            <ul>
+                <li>Vector Toolbox enhancements<ul>
+                    <li>Additional content sources (multiple tables, user defined queries)
+                    <li>Similarity search console
+                    <li>DB Assistant integration (RAG)
+                </ul>
+                <li>Oracle OJVM module enhancements<ul>
+                    <li>Support for java expressions as inputs to execution engine
+                    <li>DB Assistant integration (tools)
+                </ul>
+                <li>Bug fixes and performance improvements
+            </ul>
             <li><b>3.7.3</b>
             <ul>
                 <li>Support for latest IDE versions
@@ -264,12 +277,15 @@
         <projectService serviceImplementation="com.dbn.vfs.DatabaseFileManager"/>
         <projectService serviceImplementation="com.dbn.connection.session.DatabaseSessionManager"/>
         <projectService serviceImplementation="com.dbn.connection.console.DatabaseConsoleManager"/>
+        <projectService serviceImplementation="com.dbn.oci.config.OciConfigManager"/>
         <projectService serviceInterface="com.dbn.object.management.ObjectManagementService" serviceImplementation="com.dbn.object.management.ObjectManagementServiceImpl"/>
 
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
     </extensions>
     <extensionPoints>
         <extensionPoint name="objectFilter" qualifiedName="com.dbn.objectFilter" interface="com.dbn.object.cache.DBObjectFilter" dynamic="true"/>
+        <extensionPoint name="objectPropertiesProvider" qualifiedName="com.dbn.objectPropertiesProvider" interface="com.dbn.object.properties.DBObjectPropertiesProvider" dynamic="true"/>
+        <extensionPoint name="objectNavigationInfoProvider" qualifiedName="com.dbn.objectNavigationInfoProvider" interface="com.dbn.object.navigation.DBObjectNavigationInfoProvider" dynamic="true"/>
         <extensionPoint name="objectFactoryAdapter" qualifiedName="com.dbn.objectFactoryAdapter" interface="com.dbn.object.factory.ObjectFactoryAdapter" dynamic="true"/>
         <extensionPoint name="objectManagementAdapter" qualifiedName="com.dbn.objectManagementAdapter" interface="com.dbn.object.management.ObjectManagementAdapterExtension" dynamic="true"/>
 
@@ -285,6 +301,42 @@
         <!--object filters-->
         <objectFilter implementation="com.dbn.vector.model.request.EmbeddingStagingTableFilter"/>
         <objectFilter implementation="com.dbn.vector.model.request.EmbeddingDestinationTableFilter"/>
+
+        <!--object property providers-->
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBGenericObjectPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBAIModelPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBAIProfilePropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBColumnPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBConstraintPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBCredentialPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBArgumentPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTablePropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTriggerPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBSynonymPropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTypePropertiesProvider"/>
+        <objectPropertiesProvider implementation="com.dbn.object.properties.impl.DBTypeAttributePropertiesProvider"/>
+
+        <!--object navigation info providers-->
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBObjectNavigationInfoProviderBase"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBAIProfileNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBArgumentNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBColumnNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBConstraintNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBGrantedPrivilegeNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBGrantedRoleNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBIndexNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBJavaMethodNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBJsonViewNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBPrivilegeNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBRoleNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBSchemaNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBSynonymNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTableNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTypeNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBTypeAttributeNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBUserNavigationInfoProvider"/>
+        <objectNavigationInfoProvider implementation="com.dbn.object.navigation.impl.DBViewNavigationInfoProvider"/>
+
 
         <!--object factory adapters-->
         <objectFactoryAdapter implementation="com.dbn.object.factory.adapter.DBAIModelFactoryAdapter"/>
@@ -841,11 +893,12 @@
         <webHelpProvider implementation="com.dbn.help.PluginHelpProvider"/>
 
         <notificationGroup id="DBNavigator.NotificationGroup.Default" displayType="BALLOON" key="ntf.shared.title.DBNavigator"/>
-        <notificationGroup id="DBNavigator.NotificationGroup.Browser" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorBrowser" toolWindowId="DB Browser"/>
-        <notificationGroup id="DBNavigator.NotificationGroup.Execution" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorExecution" toolWindowId="DB Execution Console"/>
-        <notificationGroup id="DBNavigator.NotificationGroup.Assistant" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorAssistant" toolWindowId="DB Assistant"/>
-        <notificationGroup id="DBNavigator.NotificationGroup.Diagnostics" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorDiagnostics" toolWindowId="DB Diagnostics"/>
-        <notificationGroup id="DBNavigator.NotificationGroup.Events" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorEvents" toolWindowId="DB Events"/>
+        <notificationGroup id="DBNavigator.NotificationGroup.Pinned" displayType="TOOL_WINDOW" key="ntf.shared.title.DBNavigatorPinned" toolWindowId="Notifications"/>
+        <notificationGroup id="DBNavigator.NotificationGroup.Browser" displayType="BALLOON" key="ntf.shared.title.DBNavigatorBrowser" toolWindowId="DB Browser"/>
+        <notificationGroup id="DBNavigator.NotificationGroup.Execution" displayType="BALLOON" key="ntf.shared.title.DBNavigatorExecution" toolWindowId="DB Execution Console"/>
+        <notificationGroup id="DBNavigator.NotificationGroup.Assistant" displayType="BALLOON" key="ntf.shared.title.DBNavigatorAssistant" toolWindowId="DB Assistant"/>
+        <notificationGroup id="DBNavigator.NotificationGroup.Diagnostics" displayType="BALLOON" key="ntf.shared.title.DBNavigatorDiagnostics" toolWindowId="DB Diagnostics"/>
+        <notificationGroup id="DBNavigator.NotificationGroup.Events" displayType="BALLOON" key="ntf.shared.title.DBNavigatorEvents" toolWindowId="DB Events"/>
         <postStartupActivity implementation="com.dbn.project.ProjectStartupActivity"/>
         <!--<postStartupActivity implementation="com.dbn.project.ProjectComponentsInitializer" order="last"/>-->
         <!--<applicationInitializedListener implementation="com.dbn.init.DatabaseNavigatorInitializer"/>-->

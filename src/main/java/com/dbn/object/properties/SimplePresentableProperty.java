@@ -16,15 +16,17 @@
 
 package com.dbn.object.properties;
 
+import com.dbn.common.ui.Presentable;
 import com.intellij.pom.Navigatable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import javax.swing.Icon;
+import java.util.Objects;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)
-public class SimplePresentableProperty extends PresentableProperty{
+public class SimplePresentableProperty extends DBObjectPropertyBase {
     private final String name;
     private final String value;
     private final Icon icon;
@@ -33,6 +35,23 @@ public class SimplePresentableProperty extends PresentableProperty{
         this.name = name;
         this.value = value;
         this.icon = icon;
+    }
+
+    public SimplePresentableProperty(String name, Object value) {
+        this(name, getValueText(value), getValueIcon(value));
+    }
+
+    private static String getValueText(Object value) {
+        if (value == null) return "";
+        if (value instanceof Presentable presentable) return presentable.getName();
+        if (value instanceof Boolean bool) return bool ? "Yes" : "No";
+        return Objects.toString(value);
+    }
+
+    private static Icon getValueIcon(Object value) {
+        if (value == null) return null;
+        if (value instanceof Presentable presentable) return presentable.getIcon();
+        return null;
     }
 
     public SimplePresentableProperty(String name, String value) {

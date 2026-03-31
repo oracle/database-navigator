@@ -20,6 +20,7 @@ import com.dbn.common.data.Data;
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.Presentable;
 import com.dbn.object.common.ui.DBObjectSelector;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NonNls;
 
@@ -55,6 +56,10 @@ public class DBNFormState {
 
         String attribute = stateAttributes.getAttribute(stateAttribute);
         selectElement(comboBox, attribute);
+    }
+
+    public static void initPersistence(TextFieldWithBrowseButton textField, StateAttributes stateAttributes, @NonNls String stateAttribute) {
+        initPersistence(textField.getTextField(), stateAttributes, stateAttribute);
     }
 
     public static void initPersistence(JTextField textField, StateAttributes stateAttributes, @NonNls String stateAttribute) {

@@ -30,15 +30,12 @@ import com.dbn.object.DBType;
 import com.dbn.object.DBView;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
-import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
@@ -103,17 +100,6 @@ class DBViewImpl<M extends DBViewMetadata> extends DBDatasetImpl<M> implements D
     @Override
     public boolean isEditable(DBContentType contentType) {
         return contentType == DBContentType.CODE;
-    }
-
-    @Override
-    protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
-        DBType type = getType();
-        if (type != null) {
-            List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-            navigationLists.add(DBObjectNavigationList.create("Type", type));
-            return navigationLists;
-        }
-        return null;
     }
 
     @Override
