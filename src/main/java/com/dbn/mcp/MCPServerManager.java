@@ -4,6 +4,7 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.util.Dialogs;
+import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -26,7 +27,7 @@ public class MCPServerManager extends ProjectComponentBase {
         return Components.projectService(project, MCPServerManager.class);
     }
 
-    public void showMCPManager() {
-        Dialogs.show(() -> new McpServerInputDialog(getProject()));
+    public void openMCPBuilder(@NotNull ConnectionHandler connection) {
+        Dialogs.show(() -> new McpServerInputDialog(connection));
     }
 }

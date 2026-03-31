@@ -5,12 +5,12 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.common.util.Messages;
 import com.dbn.mcp.model.ToolDefinitionModel;
 import com.dbn.mcp.ui.ToolDefinitionCreateDialog;
 import com.dbn.mcp.ui.ToolDefinitionListItemForm;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.ui.DialogWrapper;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.BoxLayout;
@@ -18,7 +18,6 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ToolDefinitionListForm extends DBNFormBase {
@@ -28,17 +27,11 @@ public class ToolDefinitionListForm extends DBNFormBase {
     private JButton addButton;
 
     private final List<ToolDefinitionListItemForm> toolDefinitionListItemFormList = DisposableContainers.list(this);
-    
-    /**
-     * Supplier to get the current connection from parent form.
-     * We use a Supplier instead of storing the ConnectionHandler directly because
-     * the user might change the connection selection after this form is created.
-     */
-    private final Supplier<ConnectionHandler> connectionSupplier;
+    private final ConnectionHandler connection;
 
-    public ToolDefinitionListForm(@Nullable Disposable parent, Supplier<ConnectionHandler> connectionSupplier) {
+    public ToolDefinitionListForm(@Nullable Disposable parent, @NotNull ConnectionHandler connection) {
         super(parent);
-        this.connectionSupplier = connectionSupplier;
+        this.connection = connection;
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         initAddButton();
         actionPanel.add(addButton);
@@ -47,11 +40,6 @@ public class ToolDefinitionListForm extends DBNFormBase {
     private void initAddButton() {
         addButton = new JButton("Add Tool");
         addButton.addActionListener(e -> {
-            ConnectionHandler connection = connectionSupplier.get();
-            if (connection == null) {
-                Messages.showWarningDialog(getProject(), "No Connection", "Please select a database connection first");
-                return;
-            }
             Dialogs.show(() -> new ToolDefinitionCreateDialog(getProject(), connection),
                     (dialog, exitCode) -> {
                         if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
