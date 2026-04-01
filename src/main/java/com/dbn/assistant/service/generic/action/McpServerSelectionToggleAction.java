@@ -19,6 +19,7 @@ package com.dbn.assistant.service.generic.action;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.mcp.AssistantMcpServer;
 import com.dbn.assistant.mcp.AssistantMcpServerOptions;
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ToggleAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -28,6 +29,7 @@ import javax.swing.Icon;
 
 import static com.dbn.common.icon.Icons.ACTION_CHECK;
 
+@BackgroundUpdate
 public class McpServerSelectionToggleAction extends ToggleAction implements AssistantActionSupport {
     private final AssistantMcpServer mcpServer;
 

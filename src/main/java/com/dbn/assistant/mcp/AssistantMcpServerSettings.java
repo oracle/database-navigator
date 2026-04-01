@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -46,6 +47,10 @@ public class AssistantMcpServerSettings
 
     public void setMcpServers(AssistantMcpServerBundle mcpServers) {
         this.mcpServers = new AssistantMcpServerBundle(getProject(), mcpServers.getElements());
+    }
+
+    public Set<String> getMcpServerIds() {
+        return mcpServers.getMcpServerIds();
     }
 
     @NotNull

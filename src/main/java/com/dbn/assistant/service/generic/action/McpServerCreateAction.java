@@ -21,9 +21,10 @@ import com.dbn.assistant.mcp.AssistantMcpServerOptions;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.mcp.ui.AssistantMcpServerEditDialog;
 import com.dbn.assistant.mcp.ui.AssistantMcpServerEditRequest;
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.util.Dialogs;
-import com.dbn.options.ProjectSettings;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -34,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import static com.dbn.nls.NlsResources.txt;
 
 @Setter
+@BackgroundUpdate
 public class McpServerCreateAction extends AbstractChatBoxAction {
 
     @Override
@@ -43,8 +45,8 @@ public class McpServerCreateAction extends AbstractChatBoxAction {
 
         AssistantMcpServerOptions serverOptions = assistantState.getMcpServerOptions();
 
-        ProjectSettings projectSettings = ProjectSettings.get(project);
-        AssistantMcpServerSettings serverSettings = projectSettings.getAssistantSettings().getMcpServerSettings();
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+        AssistantMcpServerSettings serverSettings = assistantSettings.getMcpServerSettings();
 
         AssistantMcpServerEditRequest request = AssistantMcpServerEditRequest
                 .builder()

@@ -23,9 +23,10 @@ import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.mcp.AssistantMcpServer;
 import com.dbn.assistant.mcp.AssistantMcpServerBundle;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
-import com.dbn.options.ProjectSettings;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -38,6 +39,7 @@ import javax.swing.JComponent;
 
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 
+@BackgroundUpdate
 public class McpServerSelectionAction extends ComboBoxAction implements AssistantActionSupport {
 
     @Override
@@ -61,8 +63,8 @@ public class McpServerSelectionAction extends ComboBoxAction implements Assistan
 
     private static AssistantMcpServerBundle getMcpServers(AssistantState assistantState) {
         Project project = assistantState.getProject();
-        ProjectSettings projectSettings = ProjectSettings.get(project);
-        AssistantMcpServerSettings mcpServerSettings = projectSettings.getAssistantSettings().getMcpServerSettings();
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+        AssistantMcpServerSettings mcpServerSettings = assistantSettings.getMcpServerSettings();
         return mcpServerSettings.getMcpServers();
     }
 

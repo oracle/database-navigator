@@ -17,20 +17,24 @@
 package com.dbn.assistant.mcp;
 
 import com.dbn.common.component.ProjectUnit;
+import com.dbn.common.sign.Signed;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.util.CollectionUtil.cloneElements;
 import static com.dbn.common.util.Lists.first;
 
 @Getter
 @Setter
-public class AssistantMcpServerBundle extends ProjectUnit {
-
+public class AssistantMcpServerBundle extends ProjectUnit implements Signed {
+    private final AtomicInteger signature = new AtomicInteger(0);
     private final List<AssistantMcpServer> elements = new ArrayList<>();
 
     public AssistantMcpServerBundle(Project project) {
@@ -45,10 +49,16 @@ public class AssistantMcpServerBundle extends ProjectUnit {
     public void setMcpServers(List<AssistantMcpServer> servers) {
         this.elements.clear();
         cloneElements(servers, this.elements);
+        updateSignature();
+    }
+
+    private void updateSignature() {
+        signature.incrementAndGet();
     }
 
     public void addMcpServer(AssistantMcpServer server) {
         this.elements.add(server);
+        updateSignature();
     }
 
     public int size() {
@@ -61,5 +71,14 @@ public class AssistantMcpServerBundle extends ProjectUnit {
 
     public AssistantMcpServer getMcpServer(int index) {
         return elements.get(index);
+    }
+
+    public Set<String> getMcpServerIds() {
+        return elements.stream().map(s -> s.getId()).collect(Collectors.toSet());
+    }
+
+    @Override
+    public int getSignature() {
+        return signature.get();
     }
 }
