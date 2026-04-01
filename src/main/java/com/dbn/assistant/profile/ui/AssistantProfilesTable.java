@@ -28,7 +28,6 @@ public class AssistantProfilesTable extends DBNEntityEditableTable<AssistantProf
     AssistantProfilesTable(DBNComponent parent, AssistantProfileBundle profiles) {
         super(parent, createModel(profiles), true);
 
-        setCellRenderer(new AssistantProfilesTableCellRenderer());
         setProportionalColumnWidths(25, 15, 25, 35);
         setAccessibleName(this, "Assistant Profiles");
     }

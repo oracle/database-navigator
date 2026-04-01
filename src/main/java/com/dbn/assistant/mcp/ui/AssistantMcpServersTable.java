@@ -28,7 +28,6 @@ public class AssistantMcpServersTable extends DBNEntityEditableTable<AssistantMc
     AssistantMcpServersTable(DBNComponent parent, AssistantMcpServerBundle mcpServers) {
         super(parent, createModel(mcpServers), true);
 
-        setCellRenderer(new AssistantMcpServersTableCellRenderer());
         setProportionalColumnWidths(25, 15, 60);
         setAccessibleName(this, "MCP Servers");
     }
