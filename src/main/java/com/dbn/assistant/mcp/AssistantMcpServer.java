@@ -40,6 +40,13 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     private String url;
     private String command;
 
+    public String getEndpoint() {
+        return switch (type) {
+            case HTTP -> url;
+            case STDIO -> command;
+        };
+    }
+
 
     @Override
     public void readConfiguration(Element element) {

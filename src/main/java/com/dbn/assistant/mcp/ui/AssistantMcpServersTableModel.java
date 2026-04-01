@@ -23,8 +23,6 @@ import com.dbn.common.ui.table.DBNEntityEditableTableModel;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.options.ConfigurationException;
 
-import static com.dbn.assistant.mcp.AssistantMcpServerType.HTTP;
-
 public class AssistantMcpServersTableModel extends DBNEntityEditableTableModel<AssistantMcpServer> {
 
     AssistantMcpServersTableModel(AssistantMcpServerBundle mcpServers) {
@@ -32,7 +30,7 @@ public class AssistantMcpServersTableModel extends DBNEntityEditableTableModel<A
 
         addColumn("Server Name", String.class, c -> c.getName(), (c, v) -> c.setName(v));
         addColumn("Server Type", AssistantMcpServerType.class, c -> c.getType(), null);
-        addColumn("Url / Command", String.class, c -> c.getType() == HTTP ? c.getUrl() : c.getCommand(), null);
+        addColumn("Url / Command", String.class, c -> c.getEndpoint(), null);
     }
 
 

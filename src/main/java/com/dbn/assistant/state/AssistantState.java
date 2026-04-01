@@ -24,6 +24,7 @@ import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
+import com.dbn.assistant.mcp.AssistantMcpServerOptions;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.feature.FeatureAcknowledgement;
@@ -119,6 +120,10 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     public AssistantToolApprovals getToolApprovals() {
         AssistantToolSettings settings = getToolSettings();
         return settings.getApprovals();
+    }
+
+    public AssistantMcpServerOptions getMcpServerOptions() {
+        return AssistantMcpServerOptions.get(this);
     }
 
     @Override
@@ -314,6 +319,10 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         AssistantToolSettings toolSettings = getToolSettings();
         Element toolsElement = element.getChild("tools");
         toolSettings.readState(toolsElement);
+
+        AssistantMcpServerOptions mcpServerOptions = getMcpServerOptions();
+        Element mcpServersElement = element.getChild("mcp-servers");
+        mcpServerOptions.readState(mcpServersElement);
     }
 
     @Override
@@ -338,6 +347,10 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         Element toolsElement = newElement(element, "tools");
         AssistantToolSettings toolSettings = getToolSettings();
         toolSettings.writeState(toolsElement);
+
+        Element mcpServersElement = newElement(element, "mcp-servers");
+        AssistantMcpServerOptions mcpServerOptions = getMcpServerOptions();
+        mcpServerOptions.writeState(mcpServersElement);
 
     }
 
