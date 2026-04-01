@@ -19,26 +19,18 @@ package com.dbn.assistant.profile.ui;
 import com.dbn.assistant.profile.AssistantProfileBundle;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNEntityEditableTable;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
-
-import javax.swing.ListSelectionModel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
-public class AssistantProfilesEditorTable extends DBNEntityEditableTable<AssistantProfilesTableModel> {
+public class AssistantProfilesTable extends DBNEntityEditableTable<AssistantProfilesTableModel> {
 
-    AssistantProfilesEditorTable(DBNComponent parent, AssistantProfileBundle profiles) {
+    AssistantProfilesTable(DBNComponent parent, AssistantProfileBundle profiles) {
         super(parent, createModel(profiles), true);
 
-        setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        setSelectionBackground(UIUtil.getTableBackground());
-        setSelectionForeground(UIUtil.getTableForeground());
-        setCellSelectionEnabled(true);
-        setDefaultRenderer(String.class, new AssistantProfilesTableCellRenderer());
-
-        setAccessibleName(this, "Assistant Profiles");
+        setCellRenderer(new AssistantProfilesTableCellRenderer());
         setProportionalColumnWidths(25, 15, 25, 35);
+        setAccessibleName(this, "Assistant Profiles");
     }
 
     @NotNull

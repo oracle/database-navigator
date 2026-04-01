@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.credential.ui;
+package com.dbn.assistant.mcp.ui;
 
-import com.dbn.assistant.credential.AssistantCredential;
-import com.dbn.assistant.credential.AssistantCredentialBundle;
-import com.dbn.assistant.provider.AIProviderId;
+import com.dbn.assistant.mcp.AssistantMcpServer;
+import com.dbn.assistant.mcp.AssistantMcpServerBundle;
 import com.dbn.common.routine.Consumer;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,26 +28,25 @@ import java.util.stream.Collectors;
 
 @Builder
 @Getter
-public class AssistantCredentialEditRequest{
-    private AssistantCredentialBundle credentials;
-    private AssistantCredential credential;
-    private AIProviderId providerId;
-    private Consumer<AssistantCredential> saveConsumer;
+public class AssistantMcpServerEditRequest{
+    private AssistantMcpServerBundle mcpServers;
+    private AssistantMcpServer mcpServer;
+    private Consumer<AssistantMcpServer> saveConsumer;
 
-    public boolean isNewCredential() {
-        return credential == null;
+    public boolean isNewMcpServer() {
+        return mcpServer == null;
     }
 
-    public void acceptCredential(AssistantCredential credential) {
+    public void acceptMcpServer(AssistantMcpServer mcpServer) {
         if (saveConsumer == null) return;
-        saveConsumer.accept(credential);
+        saveConsumer.accept(mcpServer);
     }
 
     public Set<String> getUsedNames() {
-        return credentials
+        return mcpServers
                 .getElements()
                 .stream()
-                .filter(c -> credential == null || !c.getId().equals(credential.getId()))
+                .filter(c -> mcpServer == null || !c.getId().equals(mcpServer.getId()))
                 .map(c -> c.getName())
                 .collect(Collectors.toSet());
     }
