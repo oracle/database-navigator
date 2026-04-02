@@ -20,7 +20,7 @@ import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.mcp.AssistantMcpServerOptions;
+import com.dbn.assistant.mcp.AssistantMcpServerData;
 import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.state.AssistantState;
@@ -109,11 +109,11 @@ public interface AssistantActionSupport {
     }
 
     @Nullable
-    default AssistantMcpServerOptions getMcpServersOptions(@NotNull AnActionEvent e) {
+    default AssistantMcpServerData getMcpServerData(@NotNull AnActionEvent e) {
         AssistantState assistantState = getAssistantState(e);
         if (assistantState == null) return null;
 
-        return assistantState.getMcpServerOptions();
+        return assistantState.getMcpServerData();
     }
 
     @Nullable

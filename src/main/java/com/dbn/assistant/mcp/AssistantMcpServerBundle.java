@@ -21,6 +21,7 @@ import com.dbn.common.sign.Signed;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,5 +81,10 @@ public class AssistantMcpServerBundle extends ProjectUnit implements Signed {
     @Override
     public int getSignature() {
         return signature.get();
+    }
+
+    @Nullable
+    public AssistantMcpServer resolveMcpServer(String utilityName) {
+        return first(elements, s -> s.matchesUtilityName(utilityName));
     }
 }

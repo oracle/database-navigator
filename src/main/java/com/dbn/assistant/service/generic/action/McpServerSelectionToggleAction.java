@@ -18,7 +18,7 @@ package com.dbn.assistant.service.generic.action;
 
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.assistant.mcp.AssistantMcpServer;
-import com.dbn.assistant.mcp.AssistantMcpServerOptions;
+import com.dbn.assistant.mcp.AssistantMcpServerData;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ToggleAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -52,17 +52,17 @@ public class McpServerSelectionToggleAction extends ToggleAction implements Assi
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
-        AssistantMcpServerOptions options = getMcpServersOptions(e);
-        if (options == null) return false;
+        AssistantMcpServerData mcpServerData = getMcpServerData(e);
+        if (mcpServerData == null) return false;
 
-        return options.isSelected(mcpServer.getId());
+        return mcpServerData.isSelected(mcpServer.getId());
     }
 
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean selected) {
-        AssistantMcpServerOptions options = getMcpServersOptions(e);
-        if (options == null) return;
+        AssistantMcpServerData mcpServerData = getMcpServerData(e);
+        if (mcpServerData == null) return;
 
-        options.setSelected(mcpServer.getId(), selected);
+        mcpServerData.setSelected(mcpServer.getId(), selected);
     }
 }

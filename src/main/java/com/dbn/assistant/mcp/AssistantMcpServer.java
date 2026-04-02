@@ -37,6 +37,7 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     private String id = UUIDs.regular();
     private AssistantMcpServerType type = AssistantMcpServerType.HTTP;
     private String name;
+    private String key;
     private String url;
     private String command;
 
@@ -47,6 +48,27 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
         };
     }
 
+    public void setName(String name) {
+        this.name = name;
+        this.key = name.trim().toLowerCase()
+                .replaceAll("[^a-z0-9]", "_")
+                .replaceAll("_+", "_");
+    }
+
+    public boolean matchesUtilityName(String utilityName) {
+        return utilityName.startsWith(key + "_");
+    }
+
+    public static String qualifiedUtilityName(String serverKey, String utilityName) {
+        return serverKey + "_" + utilityName;
+    }
+
+    public String unqualifiedUtilityName(String utilityName) {
+        if (matchesUtilityName(utilityName)) {
+            return utilityName.substring(key.length() + 1);
+        }
+        return utilityName;
+    }
 
     @Override
     public void readConfiguration(Element element) {
@@ -54,6 +76,7 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
 
         type = enumAttribute(element, "type", AssistantMcpServerType.class);
         name = stringAttribute(element, "name");
+        key = stringAttribute(element, "key");
         url = stringAttribute(element, "url");
         command = stringAttribute(element, "command");
 
@@ -65,6 +88,7 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
 
         setEnumAttribute(element, "type", type);
         setStringAttribute(element, "name", name);
+        setStringAttribute(element, "key", key);
         setStringAttribute(element, "url", url);
         setStringAttribute(element, "command", command);
     }

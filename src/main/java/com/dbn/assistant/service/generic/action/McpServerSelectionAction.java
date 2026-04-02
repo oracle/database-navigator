@@ -83,7 +83,7 @@ public class McpServerSelectionAction extends ComboBoxAction implements Assistan
 
         AssistantMcpServerBundle mcpServers = getMcpServers(assistantState);
         int available = mcpServers.getElements().size();
-        int selected = assistantState.getMcpServerOptions().countSelected();
+        int selected = assistantState.getMcpServerData().countSelected();
 
         return "MCP Servers (" + selected + "/" + available + ")";
     }

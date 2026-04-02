@@ -32,6 +32,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +41,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
-import static com.dbn.common.action.UserDataKeys.ASSISTANT_MCP_SERVER_OPTIONS;
+import static com.dbn.assistant.mcp.AssistantMcpServer.qualifiedUtilityName;
+import static com.dbn.common.action.UserDataKeys.ASSISTANT_MCP_SERVER_DATA;
 import static com.dbn.common.action.UserDataKeys.getUserDataSync;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
@@ -53,17 +55,17 @@ import static com.dbn.common.util.Lists.filter;
 
 @Slf4j
 @Getter
-public class AssistantMcpServerOptions extends AssistantStateExtension implements PersistentStateElement {
+public class AssistantMcpServerData extends AssistantStateExtension implements PersistentStateElement {
     private final Map<String, Boolean> selections = new ConcurrentHashMap<>();
     private int settingsSignature;
 
-    protected AssistantMcpServerOptions(@NotNull AssistantState assistantState) {
+    protected AssistantMcpServerData(@NotNull AssistantState assistantState) {
         super(assistantState);
     }
 
-    public static AssistantMcpServerOptions get(AssistantState assistantState) {
-        return getUserDataSync(assistantState, ASSISTANT_MCP_SERVER_OPTIONS,
-                () -> new AssistantMcpServerOptions(assistantState));
+    public static AssistantMcpServerData get(AssistantState assistantState) {
+        return getUserDataSync(assistantState, ASSISTANT_MCP_SERVER_DATA,
+                () -> new AssistantMcpServerData(assistantState));
     }
 
     private void cleanupSelections() {
@@ -104,6 +106,12 @@ public class AssistantMcpServerOptions extends AssistantStateExtension implement
         return filter(mcpServers.getElements(), e -> isSelected(e.getId()));
     }
 
+    @Nullable
+    public AssistantMcpServer resolveMcpServer(String utilityName) {
+        AssistantMcpServerSettings mcpServerSettings = getMcpServerSettings();
+        return mcpServerSettings.getMcpServers().resolveMcpServer(utilityName);
+    }
+
     @Override
     public void readState(Element element) {
         if (element == null) return;
@@ -138,13 +146,13 @@ public class AssistantMcpServerOptions extends AssistantStateExtension implement
         try {
             McpTransport transport = createMcpTransport(mcpServer);
             McpClient mcpClient = DefaultMcpClient.builder()
-                    .key(serverName)
+                    .key(mcpServer.getKey())
                     .transport(transport)
                     .build();
 
             return McpToolProvider.builder()
                     .mcpClients(mcpClient)
-                    .toolNameMapper((c, s) -> c.key() + "_" + s.name())
+                    .toolNameMapper((c, s) -> qualifiedUtilityName(c.key(), s.name()))
                     .build();
         } catch (Throwable t) {
             log.warn(t.getMessage(), t);

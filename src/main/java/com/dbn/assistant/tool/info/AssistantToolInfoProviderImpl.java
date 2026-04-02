@@ -16,6 +16,8 @@
 
 package com.dbn.assistant.tool.info;
 
+import com.dbn.assistant.mcp.AssistantMcpServer;
+import com.dbn.assistant.mcp.AssistantMcpServerData;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
@@ -31,6 +33,7 @@ import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Unsafe;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -51,9 +54,12 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
 
         AssistantTool tool = getTool();
         UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
-        if (utilitySpec == null) return utilityName;
+        if (utilitySpec != null) return utilitySpec.name();
 
-        return utilitySpec.name();
+        AssistantMcpServer mcpServer = resolveMcpServer(utilityName);
+        if (mcpServer != null) return mcpServer.unqualifiedUtilityName(utilityName);
+
+        return utilityName;
     }
 
     @Override
@@ -63,6 +69,7 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
         AssistantTool tool = getTool();
         UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
         if (utilitySpec == null) return "";
+
         return utilitySpec.description();
     }
 
@@ -93,11 +100,14 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
 
     private @NotNull String buildToolRequestSummary() {
         AssistantToolRequest request = getToolRequest();
-        String utility = request.getToolName();
+        String utilityName = request.getToolName();
 
         AssistantTool tool = getTool();
-        UtilitySpec utilitySpec = getUtilitySpec(tool, utility);
-        if (utilitySpec == null) return "";
+        UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
+        if (utilitySpec == null) {
+            AssistantMcpServer mcpServer = resolveMcpServer(utilityName);
+            return mcpServer == null ? "" : "(" + mcpServer.getName() + ")";
+        }
 
         String summary = utilitySpec.summary();
         if (summary == null) return "";
@@ -162,4 +172,12 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
         AssistantState state = getAssistantState();
         return state.getToolApprovals();
     }
+
+    @Nullable
+    private AssistantMcpServer resolveMcpServer(String utilityName) {
+        AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(getAssistantState());
+        return mcpServerData.resolveMcpServer(utilityName);
+    }
+
+
 }

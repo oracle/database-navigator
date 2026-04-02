@@ -24,7 +24,7 @@ import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
-import com.dbn.assistant.mcp.AssistantMcpServerOptions;
+import com.dbn.assistant.mcp.AssistantMcpServerData;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.feature.FeatureAcknowledgement;
@@ -122,8 +122,8 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         return settings.getApprovals();
     }
 
-    public AssistantMcpServerOptions getMcpServerOptions() {
-        return AssistantMcpServerOptions.get(this);
+    public AssistantMcpServerData getMcpServerData() {
+        return AssistantMcpServerData.get(this);
     }
 
     @Override
@@ -320,9 +320,9 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         Element toolsElement = element.getChild("tools");
         toolSettings.readState(toolsElement);
 
-        AssistantMcpServerOptions mcpServerOptions = getMcpServerOptions();
+        AssistantMcpServerData mcpServerData = getMcpServerData();
         Element mcpServersElement = element.getChild("mcp-servers");
-        mcpServerOptions.readState(mcpServersElement);
+        mcpServerData.readState(mcpServersElement);
     }
 
     @Override
@@ -349,8 +349,8 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         toolSettings.writeState(toolsElement);
 
         Element mcpServersElement = newElement(element, "mcp-servers");
-        AssistantMcpServerOptions mcpServerOptions = getMcpServerOptions();
-        mcpServerOptions.writeState(mcpServersElement);
+        AssistantMcpServerData mcpServerData = getMcpServerData();
+        mcpServerData.writeState(mcpServersElement);
 
     }
 

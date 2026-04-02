@@ -18,7 +18,7 @@ package com.dbn.assistant.service.generic.model.invoker;
 
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.chat.context.ChatContext;
-import com.dbn.assistant.mcp.AssistantMcpServerOptions;
+import com.dbn.assistant.mcp.AssistantMcpServerData;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIModelFeature;
 import com.dbn.assistant.service.generic.context.AssistantInstructionsCache;
@@ -75,8 +75,8 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
         if (!isFeatureSupported(assistantState, TOOLS)) return;
 
         AssistantResponseConsumer responseConsumer = context.getResponseConsumer();
-        AssistantMcpServerOptions mcpServerOptions = AssistantMcpServerOptions.get(assistantState);
-        List<ToolProvider> tools = mcpServerOptions.createToolProviders((m, e) -> responseConsumer.acceptToolError(m, e));
+        AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(assistantState);
+        List<ToolProvider> tools = mcpServerData.createToolProviders((m, e) -> responseConsumer.acceptToolError(m, e));
         builder.toolProviders(tools);
     }
 

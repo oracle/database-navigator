@@ -17,7 +17,7 @@
 package com.dbn.assistant.service.generic.action;
 
 import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
-import com.dbn.assistant.mcp.AssistantMcpServerOptions;
+import com.dbn.assistant.mcp.AssistantMcpServerData;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.mcp.ui.AssistantMcpServerEditDialog;
 import com.dbn.assistant.mcp.ui.AssistantMcpServerEditRequest;
@@ -43,17 +43,17 @@ public class McpServerCreateAction extends AbstractChatBoxAction {
         AssistantState assistantState = getAssistantState(e);
         if (assistantState == null) return;
 
-        AssistantMcpServerOptions serverOptions = assistantState.getMcpServerOptions();
+        AssistantMcpServerData mcpServerData = assistantState.getMcpServerData();
 
         AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
-        AssistantMcpServerSettings serverSettings = assistantSettings.getMcpServerSettings();
+        AssistantMcpServerSettings mcpServerSettings = assistantSettings.getMcpServerSettings();
 
         AssistantMcpServerEditRequest request = AssistantMcpServerEditRequest
                 .builder()
-                .mcpServers(serverSettings.getMcpServers())
+                .mcpServers(mcpServerSettings.getMcpServers())
                 .saveConsumer(s -> {
-                    serverSettings.getMcpServers().addMcpServer(s);
-                    serverOptions.setSelected(s.getId(), true);
+                    mcpServerSettings.getMcpServers().addMcpServer(s);
+                    mcpServerData.setSelected(s.getId(), true);
                 })
                 .build();
 
