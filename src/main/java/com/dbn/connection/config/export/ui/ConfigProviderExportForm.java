@@ -77,6 +77,7 @@ public class ConfigProviderExportForm extends DBNFormBase {
 
         outputFile = toPath(getText(outputFileTextField.getTextField()));
         walletFile = toPath(getText(walletFileTextField.getTextField()));
+        updateWalletControls();
     }
 
     private void initListeners() {
@@ -106,7 +107,7 @@ public class ConfigProviderExportForm extends DBNFormBase {
 
         FileSaverDialog dialog = FileChooserFactory.getInstance().createSaveFileDialog(descriptor, getProject());
         com.intellij.openapi.vfs.VirtualFile baseDir = null;
-        String basePath = outputFile != null ? outputFile.toString() : getText(outputFileTextField.getTextField());
+        String basePath = resolveOutputDirectoryPath();
         if (Strings.isEmpty(basePath) && getProject() != null) basePath = getProject().getBasePath();
 
         if (Strings.isNotEmpty(basePath)) {
@@ -147,6 +148,22 @@ public class ConfigProviderExportForm extends DBNFormBase {
         boolean enabled = includeWalletCheckBox.isSelected();
         walletFileTextField.setEnabled(enabled);
         walletFileTextField.getTextField().setEnabled(enabled);
+    }
+
+    private String resolveOutputDirectoryPath() {
+        if (outputFile != null) {
+            Path parent = outputFile.toAbsolutePath().getParent();
+            if (parent != null) return parent.toString();
+        }
+
+        String configuredPath = getText(outputFileTextField.getTextField());
+        Path configuredFile = toPath(configuredPath);
+        if (configuredFile != null) {
+            Path parent = configuredFile.toAbsolutePath().getParent();
+            if (parent != null) return parent.toString();
+        }
+
+        return configuredPath;
     }
 
     private Path getDefaultOutputFile() {
