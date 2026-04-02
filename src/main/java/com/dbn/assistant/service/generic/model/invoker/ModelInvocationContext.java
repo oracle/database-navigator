@@ -34,4 +34,8 @@ public class ModelInvocationContext {
     public boolean isStateless() {
         return memoryId.isStateless();
     }
+
+    public String getChatId() {
+        return memoryId.getChatId();
+    }
 }

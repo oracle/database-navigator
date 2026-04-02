@@ -61,9 +61,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptToken(String token) {
-        if (!isCurrentChat()) return;
-
-        chatBoxForm.hideProcessingIndicators();
+        chatBoxForm.hideProcessingIndicators(chatId);
         tokenized = true;
 
         Chat chat = ensureChat();
@@ -77,16 +75,15 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
             chatBoxForm.appendMessage(chatId, agentMessage);
         } else if (author == AGENT) {
             lastMessage.appendToken(token);
-            chatBoxForm.refreshMessage(lastMessage);
+            chatBoxForm.refreshMessage(chatId, lastMessage);
             // TODO update UI
         }
     }
 
     @Override
     public void acceptMessage(String message) {
-        if (!isCurrentChat()) return;
+        chatBoxForm.hideProcessingIndicators(chatId);
 
-        chatBoxForm.hideProcessingIndicators();
         // ignore if token-stream is supported
         if (tokenized) return;
         message = nvl(message, "");
@@ -99,9 +96,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptError(Throwable e) {
-        if (!isCurrentChat()) return;
-
-        chatBoxForm.hideProcessingIndicators();
+        chatBoxForm.hideProcessingIndicators(chatId);
         if (e instanceof AssistantToolApprovalException) return;
 
         log.warn("Error processing assistant query", e);
@@ -116,20 +111,20 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptCompletion() {
-        if (!isCurrentChat()) return;
+        chatBoxForm.hideProcessingIndicators(chatId);
 
-        chatBoxForm.hideProcessingIndicators();
-        AssistantState assistantState = getAssistantState();
-        assistantState.set(QUERYING, false);
+        if (isCurrentChat()) {
+            AssistantState assistantState = getAssistantState();
+            assistantState.set(QUERYING, false);
+        }
     }
 
     @Override
     public void acceptToolRequest(String requestId, String toolName, String toolArguments) {
         resetToolInvocation();
-        if (!isCurrentChat()) return;
 
         Chat chat = ensureChat();
-        chatBoxForm.hideProcessingIndicators();
+        chatBoxForm.hideProcessingIndicators(chatId);
 
         ChatMessage lastMessage = chat.getLastMessage();
         if (lastMessage == null) return;
@@ -144,7 +139,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
             chatBoxForm.appendMessage(chatId, lastMessage);
         } else if (author == AGENT) {
             lastMessage.appendToolRequest(invocation);
-            chatBoxForm.refreshTools(lastMessage);
+            chatBoxForm.refreshTools(chatId, lastMessage);
         }
     }
 
@@ -167,15 +162,13 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptToolResponse(String requestId, String toolName, String toolResponse) {
-        if (!isCurrentChat()) return;
-
         Chat chat = ensureChat();
         ChatMessage lastMessage = chat.getLastMessage();
         if (lastMessage == null) return;
 
         if (lastMessage.getAuthor() == AGENT) {
             lastMessage.appendToolResponse(requestId, toolName, toolResponse);
-            chatBoxForm.refreshTools(lastMessage);
+            chatBoxForm.refreshTools(chatId, lastMessage);
         }
     }
 

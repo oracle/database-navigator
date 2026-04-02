@@ -434,8 +434,10 @@ public class ChatBoxForm extends DBNFormBase {
         chatMessagesPanel.add(messagesForm.getComponent());
     }
 
-    public void hideProcessingIndicators() {
-        messagesForm.hideProcessingIndicators();
+    public void hideProcessingIndicators(String chatId) {
+        if (isCurrentChat(chatId)) {
+            messagesForm.hideProcessingIndicators();
+        }
     }
 
     public ChatContext getCurrentContext() {
@@ -444,10 +446,6 @@ public class ChatBoxForm extends DBNFormBase {
 
     public Chat getCurrentChat() {
         return getAssistantState().getCurrentChat();
-    }
-
-    public Object getCurrentChatId() {
-        return getAssistantState().getCurrentChatId();
     }
 
     public void submitPrompt() {
@@ -522,20 +520,28 @@ public class ChatBoxForm extends DBNFormBase {
         if (chat == null) return; // chat already discarded by the time of message arrival
 
         chat.addMessage(message);
-        String currentChatId = state.getCurrentChatId();
-        if (Objects.equals(chatId, currentChatId)) {
+        if (isCurrentChat(chatId)) {
             // update UI only if chat is still current
             messagesForm.addMessages(List.of(message));
             updateActionToolbars();
         }
     }
 
-    public void refreshMessage(ChatMessage message) {
-        messagesForm.refreshMessage(message);
+    public void refreshMessage(String chatId, ChatMessage message) {
+        if (isCurrentChat(chatId)) {
+            messagesForm.refreshMessage(message);
+        }
     }
 
-    public void refreshTools(ChatMessage message) {
-        messagesForm.refreshTools(message);
+    public void refreshTools(String chatId, ChatMessage message) {
+        if (isCurrentChat(chatId)) {
+            messagesForm.refreshTools(message);
+        }
+    }
+
+    public boolean isCurrentChat(String chatId) {
+        String currentChatId = getAssistantState().getCurrentChatId();
+        return Objects.equals(currentChatId, chatId);
     }
 
 

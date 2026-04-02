@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 
 import static com.dbn.assistant.service.generic.model.AssistantModelType.STREAMING_CHAT;
 import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
+import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.util.TimeUtil.isOlderThan;
 
 public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingChatModel> implements AssistantComponent {
@@ -67,18 +68,16 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
         modelTokenStream.beforeToolExecution(e -> {
             ToolExecutionRequest request = e.request();
             normalizeRequest(request);
-            consumer.acceptToolRequest(
+            guarded(() -> consumer.acceptToolRequest(
                     request.id(),
-                    request.name(),
-                    request.arguments());
+                    request.name(), request.arguments()));
         });
 
         modelTokenStream.onToolExecuted(e -> {
             ToolExecutionRequest request = e.request();
-            consumer.acceptToolResponse(
+            guarded(() -> consumer.acceptToolResponse(
                     request.id(),
-                    request.name(),
-                    e.result());
+                    request.name(), e.result()));
         });
 
         modelTokenStream.onPartialResponse(t -> {
@@ -94,13 +93,13 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
         modelTokenStream.onCompleteResponse(r -> {
             buffer.consume(consumer, true);
 
-            consumer.acceptMessage(r.aiMessage().text());
-            consumer.acceptCompletion();
+            guarded(() -> consumer.acceptMessage(r.aiMessage().text()));
+            guarded(() -> consumer.acceptCompletion());
         });
 
         modelTokenStream.onError((e) -> {
-            consumer.acceptError(e);
-            consumer.acceptCompletion();
+            guarded(() -> consumer.acceptError(e));
+            guarded(() -> consumer.acceptCompletion());
         });
 
         modelTokenStream.onRetrieved(l -> {
