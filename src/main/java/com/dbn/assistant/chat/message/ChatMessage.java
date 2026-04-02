@@ -24,6 +24,7 @@ import com.dbn.assistant.tool.event.AssistantToolStatus;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.execution.AssistantToolResponse;
 import com.dbn.common.message.MessageType;
+import com.dbn.common.message.TitledMessage;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.common.util.UUIDs;
@@ -38,10 +39,10 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
@@ -77,8 +78,9 @@ public class ChatMessage implements PersistentStateElement {
     protected boolean folded;
     private long timestamp = System.currentTimeMillis();
 
-    private List<ChatMessageSection> sections;
+    private List<ChatMessageTextSection> sections;
     private List<ChatMessageToolSection> toolSections = new ArrayList<>();
+    private List<ChatMessageNoteSection> noteSections = new ArrayList<>();
 
     private transient boolean progress;
 
@@ -103,15 +105,21 @@ public class ChatMessage implements PersistentStateElement {
     }
 
     @NotNull
-    public synchronized List<ChatMessageSection> getSections() {
+    public synchronized List<ChatMessageTextSection> getSections() {
         if (sections == null) {
             sections = buildSections();
         }
         return sections;
     }
 
+    public void appendNote(@NotNull TitledMessage message) {
+        int offset = getLastSectionEndOffset();
+        ChatMessageNoteSection noteSection = new ChatMessageNoteSection(offset, message);
+        noteSections.add(noteSection);
+    }
+
     public void appendToken(String token) {
-        int lastToolOffset = getLastToolOffset();
+        int lastInsertOffset = getLastInsertOffset();
         int currentOffset = content.length();
 
         content = content + token;
@@ -124,16 +132,16 @@ public class ChatMessage implements PersistentStateElement {
             return;
         }
 
-        if (lastToolOffset == currentOffset) {
+        if (lastInsertOffset == currentOffset) {
             int startOffset = getLastSectionEndOffset();
-            List<ChatMessageSection> deltaSections = buildSections(startOffset);
+            List<ChatMessageTextSection> deltaSections = buildSections(startOffset);
 
             sections.addAll(deltaSections);
         } else {
             removeLast(sections);
 
             int startOffset = getLastSectionEndOffset();
-            List<ChatMessageSection> deltaSections = buildSections(startOffset);
+            List<ChatMessageTextSection> deltaSections = buildSections(startOffset);
 
             sections.addAll(deltaSections);
         }
@@ -145,24 +153,29 @@ public class ChatMessage implements PersistentStateElement {
     }
 
     private int getLastSectionEndOffset() {
-        ChatMessageSection lastSection = lastElement(sections);
+        ChatMessageTextSection lastSection = lastElement(sections);
         return lastSection == null ? 0 : lastSection.getContentEndOffset();
     }
 
-    private int getLastToolOffset() {
+    private int getLastInsertOffset() {
         ChatMessageToolSection lastToolSection = lastElement(toolSections);
-        return lastToolSection == null ? 0 : lastToolSection.getOffset();
+        int lastToolOffset = lastToolSection == null ? 0 : lastToolSection.getOffset();
+
+        ChatMessageNoteSection lastNoteSection = lastElement(noteSections);
+        int lastNoteOffset = lastNoteSection == null ? 0 : lastNoteSection.getOffset();
+
+        return Math.max(lastToolOffset, lastNoteOffset);
     }
 
     private int[] getSliceOffsets() {
-        Set<Integer> offsets = new LinkedHashSet<>();
-        for (ChatMessageToolSection toolSection : toolSections) {
-            offsets.add(toolSection.getOffset());
-        }
+        Set<Integer> offsets = new TreeSet<>();
+        toolSections.forEach(e -> offsets.add(e.getOffset()));
+        noteSections.forEach(e -> offsets.add(e.getOffset()));
+
         return offsets.stream().mapToInt(i -> i).toArray();
     }
 
-    private List<ChatMessageSection> buildSections() {
+    private List<ChatMessageTextSection> buildSections() {
         return buildSections(0);
     }
 
@@ -171,20 +184,20 @@ public class ChatMessage implements PersistentStateElement {
      * Background: responses from the AI backends may contain a sequence of text and code sections.
      * Code is typically demarcated by ``` (3 single quotes) followed by code content and closed with again with 3 single quotes
      *
-     * @return a list of {@link ChatMessageSection} with the different sections
+     * @return a list of {@link ChatMessageTextSection} with the different sections
      */
-    private List<ChatMessageSection> buildSections(int offset) {
+    private List<ChatMessageTextSection> buildSections(int offset) {
         int contentLength = content.length();
         if (isSqlCodeContent()) {
             // output is expected to be SQL code based on the author, action and content
             TextRange textRange = new TextRange(offset, contentLength);
-            return new ChatMessageSection(content, textRange, "sql").asList();
+            return new ChatMessageTextSection(content, textRange, "sql").asList();
         }
 
         if (author.isOneOf(AuthorType.USER, AuthorType.SYSTEM)) {
             // output is already expected to be plain text
             TextRange textRange = new TextRange(offset, contentLength);
-            return new ChatMessageSection(content, textRange, null).asList();
+            return new ChatMessageTextSection(content, textRange, null).asList();
         }
 
         return ChatMessageParser.parse(content, offset, getSliceOffsets());
@@ -269,6 +282,14 @@ public class ChatMessage implements PersistentStateElement {
             toolSections.add(toolSection);
         }
 
+        Element notesElement = element.getChild("notes");
+        List<Element> noteElements = childrenOf(notesElement);
+        for (Element noteElement : noteElements) {
+            ChatMessageNoteSection noteSection = new ChatMessageNoteSection();
+            noteSection.readState(noteElement);
+            noteSections.add(noteSection);
+        }
+
     }
 
     @Override
@@ -290,6 +311,14 @@ public class ChatMessage implements PersistentStateElement {
             for (ChatMessageToolSection toolSection : toolSections) {
                 Element toolElement = newElement(toolsElement, "tool");
                 toolSection.writeState(toolElement);
+            }
+        }
+
+        if (!noteSections.isEmpty()) {
+            Element toolsElement = newElement(element,"notes");
+            for (ChatMessageNoteSection noteSection : noteSections) {
+                Element noteElement = newElement(toolsElement, "note");
+                noteSection.writeState(noteElement);
             }
         }
     }

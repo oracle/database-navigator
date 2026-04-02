@@ -500,8 +500,8 @@ public class ChatBoxForm extends DBNFormBase {
             if (title == null) return;
 
             title = title.trim();
-            title = title.replaceAll("\"", "");
-            title = title.replaceAll("'", "");
+            title = title.replace("\"", "");
+            title = title.replace("'", "");
             chat.setTitle(title);
         });
     }
@@ -528,15 +528,18 @@ public class ChatBoxForm extends DBNFormBase {
     }
 
     public void refreshMessage(String chatId, ChatMessage message) {
-        if (isCurrentChat(chatId)) {
-            messagesForm.refreshMessage(message);
-        }
+        if (!isCurrentChat(chatId)) return;
+        messagesForm.refreshMessage(message);
     }
 
     public void refreshTools(String chatId, ChatMessage message) {
-        if (isCurrentChat(chatId)) {
-            messagesForm.refreshTools(message);
-        }
+        if (!isCurrentChat(chatId)) return;
+        messagesForm.refreshTools(message);
+    }
+
+    public void refreshNotes(String chatId, ChatMessage message) {
+        if (!isCurrentChat(chatId)) return;
+        messagesForm.refreshNotes(message);
     }
 
     public boolean isCurrentChat(String chatId) {

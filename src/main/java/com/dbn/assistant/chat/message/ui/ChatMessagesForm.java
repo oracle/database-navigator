@@ -130,6 +130,10 @@ public class ChatMessagesForm extends DBNFormBase {
         refreshContent(message, f -> f.refreshToolContent());
     }
 
+    public void refreshNotes(ChatMessage message) {
+        refreshContent(message, f -> f.refreshNoteContent());
+    }
+
     private void refreshContent(ChatMessage message, Consumer<ChatMessageForm> action) {
         Dispatch.execute(mainPanel, () -> {
             ChatMessageForm messageForm = getMessageForm(message.getId());

@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_MCP_SERVER_OPTIONS;
 import static com.dbn.common.action.UserDataKeys.getUserDataSync;
@@ -133,11 +133,12 @@ public class AssistantMcpServerOptions extends AssistantStateExtension implement
         }
     }
 
-    private static ToolProvider createToolProvider(AssistantMcpServer mcpServer, Consumer<Throwable> errorHandler) {
+    private static ToolProvider createToolProvider(AssistantMcpServer mcpServer, BiConsumer<String, Throwable> errorHandler) {
+        String serverName = mcpServer.getName();
         try {
             McpTransport transport = createMcpTransport(mcpServer);
             McpClient mcpClient = DefaultMcpClient.builder()
-                    .key(mcpServer.getName())
+                    .key(serverName)
                     .transport(transport)
                     .build();
 
@@ -147,7 +148,7 @@ public class AssistantMcpServerOptions extends AssistantStateExtension implement
                     .build();
         } catch (Throwable t) {
             log.warn(t.getMessage(), t);
-            errorHandler.accept(t);
+            errorHandler.accept("Failed to initialize MCP Server \"" + serverName + "\"", t);
             return null;
         }
     }
@@ -163,7 +164,7 @@ public class AssistantMcpServerOptions extends AssistantStateExtension implement
         };
     }
 
-    public List<ToolProvider> createToolProviders(Consumer<Throwable> errorHandler) {
+    public List<ToolProvider> createToolProviders(BiConsumer<String, Throwable> errorHandler) {
         return getSelectedMcpServers()
                 .stream()
                 .map(s -> createToolProvider(s, errorHandler))

@@ -46,7 +46,7 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
             consumer.acceptMessage(message);
 
         } catch (Throwable e) {
-            consumer.acceptError(e);
+            consumer.acceptError("Model invocation failed", e);
 
         } finally {
             consumer.acceptCompletion();

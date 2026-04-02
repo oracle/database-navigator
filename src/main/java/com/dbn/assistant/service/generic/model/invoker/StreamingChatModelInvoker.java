@@ -98,7 +98,7 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
         });
 
         modelTokenStream.onError((e) -> {
-            guarded(() -> consumer.acceptError(e));
+            guarded(() -> consumer.acceptError(e.getMessage(), e));
             guarded(() -> consumer.acceptCompletion());
         });
 

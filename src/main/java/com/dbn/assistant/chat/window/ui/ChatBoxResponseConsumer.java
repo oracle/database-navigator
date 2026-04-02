@@ -32,6 +32,7 @@ import com.dbn.assistant.tool.execution.AssistantToolInvocationMonitor;
 import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.common.exception.RequestCancelledException;
 import com.dbn.common.message.MessageType;
+import com.dbn.common.message.TitledMessage;
 import com.dbn.connection.ConnectionId;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -95,7 +96,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
     }
 
     @Override
-    public void acceptError(Throwable e) {
+    public void acceptError(String message, Throwable e) {
         chatBoxForm.hideProcessingIndicators(chatId);
         if (e instanceof AssistantToolApprovalException) return;
 
@@ -104,8 +105,8 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         ConnectionId connectionId = getConnectionId();
         AssistantAdapter assistantAdapter = chatBoxForm.getAssistantAdapter();
 
-        String message = assistantAdapter.prepareError(connectionId, chatContext, e);
-        ChatMessage errorMessage = createMessage(ERROR, message, SYSTEM);
+        String error = assistantAdapter.prepareError(connectionId, chatContext, e);
+        ChatMessage errorMessage = createMessage(ERROR, error, SYSTEM);
         chatBoxForm.appendMessage(chatId, errorMessage);
     }
 
@@ -116,6 +117,29 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         if (isCurrentChat()) {
             AssistantState assistantState = getAssistantState();
             assistantState.set(QUERYING, false);
+        }
+    }
+
+    @Override
+    public void acceptToolError(String message, Throwable exception) {
+        Chat chat = ensureChat();
+
+        ChatMessage lastMessage = chat.getLastMessage();
+        if (lastMessage == null) return;
+
+        AuthorType author = lastMessage.getAuthor();
+        TitledMessage titledMessage = new TitledMessage(ERROR,
+                message,
+                exception.getMessage());
+
+        if (author == USER) {
+            // agent responded directly with a tool request
+            lastMessage = createMessage(NEUTRAL, "", AGENT);
+            lastMessage.appendNote(titledMessage);
+            chatBoxForm.appendMessage(chatId, lastMessage);
+        } else if (author == AGENT) {
+            lastMessage.appendNote(titledMessage);
+            chatBoxForm.refreshNotes(chatId, lastMessage);
         }
     }
 

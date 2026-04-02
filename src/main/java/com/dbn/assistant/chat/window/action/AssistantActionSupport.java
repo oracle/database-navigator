@@ -27,6 +27,8 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.ui.component.DBNDiscardableComponent;
+import com.dbn.common.ui.component.DBNFoldableComponent;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -157,5 +159,15 @@ public interface AssistantActionSupport {
         if (profile == null) return null;
 
         return chatContext.getModel();
+    }
+
+    @Nullable
+    default DBNFoldableComponent getFoldableComponent(@NotNull AnActionEvent e) {
+        return e.getDataContext().getData(DataKeys.FOLDABLE_COMPONENT);
+    }
+
+    @Nullable
+    default DBNDiscardableComponent getDiscardableComponent(@NotNull AnActionEvent e) {
+        return e.getDataContext().getData(DataKeys.DISCARDABLE_COMPONENT);
     }
 }

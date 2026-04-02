@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.chat.message;
+package com.dbn.common.ui.component;
 
-public interface ChatMessageSection {
-    ChatMessageSectionType getType();
+public interface DBNFoldableComponent {
+    boolean isFolded();
+    void setFolded(boolean folded);
+
+    default void toggleFolding(){
+        boolean folded = isFolded();
+        setFolded(!folded);
+    }
 }

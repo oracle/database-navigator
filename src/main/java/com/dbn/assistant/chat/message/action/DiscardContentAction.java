@@ -18,34 +18,29 @@ package com.dbn.assistant.chat.message.action;
 
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ui.component.DBNFoldableComponent;
+import com.dbn.common.ui.component.DBNDiscardableComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
-public class ToggleFoldingAction extends ChatMessageAction implements AssistantActionSupport {
+public class DiscardContentAction extends ChatMessageAction implements AssistantActionSupport {
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        DBNFoldableComponent foldableComponent = getFoldableComponent(e);
-
-        boolean enabled = foldableComponent != null;
-        boolean folded = enabled && foldableComponent.isFolded();
+        DBNDiscardableComponent discardableComponent = getDiscardableComponent(e);
 
         Presentation presentation = e.getPresentation();
-        presentation.setText(folded ? "Expand" : "Collapse");
-        presentation.setIcon(folded ?
-                Icons.ACTION_CONTENT_EXPAND :
-                Icons.ACTION_CONTENT_COLLAPSE);
-        presentation.setEnabled(enabled);
+        presentation.setIcon(Icons.ACTION_CLOSE);
+        presentation.setText("Discard");
+        presentation.setEnabled(discardableComponent != null);
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        DBNFoldableComponent foldableComponent = getFoldableComponent(e);
-        if (foldableComponent == null) return;
+        DBNDiscardableComponent discardableComponent = getDiscardableComponent(e);
+        if (discardableComponent == null) return;
 
-        foldableComponent.toggleFolding();
+        discardableComponent.discard();
     }
 
 }

@@ -76,7 +76,7 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
 
         AssistantResponseConsumer responseConsumer = context.getResponseConsumer();
         AssistantMcpServerOptions mcpServerOptions = AssistantMcpServerOptions.get(assistantState);
-        List<ToolProvider> tools = mcpServerOptions.createToolProviders(e -> responseConsumer.acceptError(e));
+        List<ToolProvider> tools = mcpServerOptions.createToolProviders((m, e) -> responseConsumer.acceptToolError(m, e));
         builder.toolProviders(tools);
     }
 

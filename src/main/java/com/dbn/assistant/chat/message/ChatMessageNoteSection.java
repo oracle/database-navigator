@@ -16,66 +16,50 @@
 
 package com.dbn.assistant.chat.message;
 
-import com.dbn.assistant.tool.execution.AssistantToolInvocation;
-import com.dbn.assistant.tool.execution.AssistantToolResponse;
+import com.dbn.common.message.TitledMessage;
 import com.dbn.common.state.PersistentStateElement;
-import com.dbn.common.util.Strings;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.Delegate;
 import org.jdom.Element;
 
 import static com.dbn.common.options.setting.Settings.integerAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setIntegerAttribute;
 
 @Getter
 @Setter
-public class ChatMessageToolSection implements ChatMessageSection, PersistentStateElement {
+@NoArgsConstructor
+public class ChatMessageNoteSection implements ChatMessageSection, PersistentStateElement {
     private int offset; // offset in the original assistant message
 
-    @Delegate
-    private AssistantToolInvocation invocation;
+    private TitledMessage message;
+    private boolean folded = true;
 
-    public ChatMessageToolSection() {}
-
-    public ChatMessageToolSection(int offset, AssistantToolInvocation invocation) {
+    public ChatMessageNoteSection(int offset, TitledMessage message) {
         this.offset = offset;
-        this.invocation = invocation;
+        this.message = message;
     }
 
     @Override
     public ChatMessageSectionType getType() {
-        return ChatMessageSectionType.TOOL;
+        return ChatMessageSectionType.NOTE;
     }
 
     @Override
     public void readState(Element element) {
         offset = integerAttribute(element, "offset", offset);
-        invocation = new AssistantToolInvocation();
-        invocation.readState(element);
+        Element messageElement = element.getChild("message");
+
+        message = new TitledMessage();
+        message.readState(messageElement);
     }
 
     @Override
     public void writeState(Element element) {
         setIntegerAttribute(element, "offset", offset);
-        invocation.writeState(element);
-    }
 
-    public String getToolName() {
-        return invocation.getRequest().getToolName();
-    }
-
-    public String getToolRequestId() {
-        return invocation.getRequest().getRequestId();
-    }
-
-    public boolean hasResponse() {
-        AssistantToolResponse response = invocation.getResponse();
-        if (response == null) return false;
-
-        String content = response.getContent();
-        if (Strings.isEmptyOrSpaces(content)) return false;
-
-        return true;
+        Element messageElement = newElement(element, "message");
+        message.writeState(messageElement);
     }
 }

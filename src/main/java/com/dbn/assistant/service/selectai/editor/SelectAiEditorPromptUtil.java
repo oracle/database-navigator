@@ -69,7 +69,7 @@ public class SelectAiEditorPromptUtil {
                         }
 
                         @Override
-                        public void acceptError(Throwable e) {
+                        public void acceptError(String message, Throwable e) {
                             conditionallyLog(e);
                             AIProvider provider = context.getModel().getProvider();
                             handleGenerateException(project, connectionId, provider, e);
