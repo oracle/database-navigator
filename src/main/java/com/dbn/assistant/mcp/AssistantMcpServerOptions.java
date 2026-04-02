@@ -21,14 +21,24 @@ import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.common.state.PersistentStateElement;
 import com.intellij.openapi.project.Project;
+import dev.langchain4j.mcp.McpToolProvider;
+import dev.langchain4j.mcp.client.DefaultMcpClient;
+import dev.langchain4j.mcp.client.McpClient;
+import dev.langchain4j.mcp.client.transport.McpTransport;
+import dev.langchain4j.mcp.client.transport.http.StreamableHttpMcpTransport;
+import dev.langchain4j.mcp.client.transport.stdio.StdioMcpTransport;
+import dev.langchain4j.service.tool.ToolProvider;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_MCP_SERVER_OPTIONS;
 import static com.dbn.common.action.UserDataKeys.getUserDataSync;
@@ -38,8 +48,10 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Lists.filter;
 
 
+@Slf4j
 @Getter
 public class AssistantMcpServerOptions extends AssistantStateExtension implements PersistentStateElement {
     private final Map<String, Boolean> selections = new ConcurrentHashMap<>();
@@ -56,15 +68,20 @@ public class AssistantMcpServerOptions extends AssistantStateExtension implement
 
     private void cleanupSelections() {
         // cleanup mappings for servers which are no longer available
-        Project project = getProject();
-        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
-        AssistantMcpServerSettings mcpServerSettings = assistantSettings.getMcpServerSettings();
-        int settingsSignature = mcpServerSettings.getMcpServers().getSignature();
+        AssistantMcpServerSettings mcpServerSettings = getMcpServerSettings();
+        AssistantMcpServerBundle mcpServers = mcpServerSettings.getMcpServers();
+        int settingsSignature = mcpServers.getSignature();
         if (settingsSignature == this.settingsSignature) return;
 
         this.settingsSignature = settingsSignature;
         Set<String> serverIds = mcpServerSettings.getMcpServerIds();
         selections.keySet().removeIf(s -> !serverIds.contains(s));
+    }
+
+    private AssistantMcpServerSettings getMcpServerSettings() {
+        Project project = getProject();
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+        return assistantSettings.getMcpServerSettings();
     }
 
     public boolean isSelected(String id) {
@@ -79,6 +96,12 @@ public class AssistantMcpServerOptions extends AssistantStateExtension implement
     public int countSelected() {
         cleanupSelections();
         return (int) selections.values().stream().filter(b -> b).count();
+    }
+
+    public List<AssistantMcpServer> getSelectedMcpServers() {
+        AssistantMcpServerSettings mcpServerSettings = getMcpServerSettings();
+        AssistantMcpServerBundle mcpServers = mcpServerSettings.getMcpServers();
+        return filter(mcpServers.getElements(), e -> isSelected(e.getId()));
     }
 
     @Override
@@ -108,6 +131,43 @@ public class AssistantMcpServerOptions extends AssistantStateExtension implement
                 setBooleanAttribute(serverElement, "selected", selected);
             }
         }
+    }
 
+    private static ToolProvider createToolProvider(AssistantMcpServer mcpServer, Consumer<Throwable> errorHandler) {
+        try {
+            McpTransport transport = createMcpTransport(mcpServer);
+            McpClient mcpClient = DefaultMcpClient.builder()
+                    .key(mcpServer.getName())
+                    .transport(transport)
+                    .build();
+
+            return McpToolProvider.builder()
+                    .mcpClients(mcpClient)
+                    .toolNameMapper((c, s) -> c.key() + "_" + s.name())
+                    .build();
+        } catch (Throwable t) {
+            log.warn(t.getMessage(), t);
+            errorHandler.accept(t);
+            return null;
+        }
+    }
+
+    private static McpTransport createMcpTransport(AssistantMcpServer mcpServer) {
+        AssistantMcpServerType type = mcpServer.getType();
+        return switch (type) {
+            case HTTP -> StreamableHttpMcpTransport.builder()
+                    .url(mcpServer.getUrl())
+                    .build();
+            case STDIO ->  StdioMcpTransport.builder()
+                    .command(Arrays.stream(mcpServer.getCommand().split(" ")).toList()).build();
+        };
+    }
+
+    public List<ToolProvider> createToolProviders(Consumer<Throwable> errorHandler) {
+        return getSelectedMcpServers()
+                .stream()
+                .map(s -> createToolProvider(s, errorHandler))
+                .filter(p -> p != null)
+                .toList();
     }
 }

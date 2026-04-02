@@ -140,6 +140,11 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
         return getTool().getType();
     }
 
+    @Override
+    public boolean isExternalTool() {
+        return getToolCategory() == AssistantToolCategory.EXTERNAL;
+    }
+
     private AssistantToolRequest getToolRequest() {
         return invocation.getRequest();
     }

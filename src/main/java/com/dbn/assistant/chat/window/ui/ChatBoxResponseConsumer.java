@@ -35,7 +35,6 @@ import com.dbn.common.message.MessageType;
 import com.dbn.connection.ConnectionId;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -136,7 +135,6 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         if (lastMessage == null) return;
 
         AssistantToolInvocation invocation = initToolInvocation(chatId, requestId, toolName, toolArguments);
-        if (invocation == null) return;
 
         AuthorType author = lastMessage.getAuthor();
         if (author == USER) {
@@ -154,11 +152,9 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         AssistantToolInvocation.resetCurrent();
     }
 
-    @Nullable
     private AssistantToolInvocation initToolInvocation(String chatId, String requestId, String toolName, String toolArguments) {
         AssistantToolCache cache = getToolCache();
         AssistantTool tool = cache.getAssistantTool(toolName);
-        if (tool == null) return null;
 
         AssistantToolRequest request = new AssistantToolRequest(chatId, requestId, toolName, toolArguments);
         AssistantToolInvocation invocation = new AssistantToolInvocation(request);
@@ -208,7 +204,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         Chat chat = getChat();
         if (chat == null) return false;
 
-        String currentChatId = getAssistantState().getCurrentChatId();;
+        String currentChatId = getAssistantState().getCurrentChatId();
         return Objects.equals(chatId, currentChatId);
     }
 

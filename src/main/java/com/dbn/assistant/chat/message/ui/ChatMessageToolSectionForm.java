@@ -316,14 +316,18 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
             }
         }
 
-        Color faded = Colors.faded(UIUtil.getLabelForeground());
-        descriptionTextPane.setText(info.getToolDescription());
-        descriptionTextPane.setForeground(faded);
+        if (info.isExternalTool()) {
+            descriptionTextPane.setVisible(false);
+            toolTypePanel.setVisible(false);
+        } else {
+            Color faded = Colors.faded(UIUtil.getLabelForeground());
+            descriptionTextPane.setText(info.getToolDescription());
+            descriptionTextPane.setForeground(faded);
+            descriptionTextPane.setVisible(visible);
+            toolTypePanel.setVisible(!visible);
+        }
 
-        descriptionTextPane.setVisible(visible);
         toolDataPanel.setVisible(visible);
-        toolTypePanel.setVisible(!visible);
-        //toolTypePanel.setVisible(false);
     }
 
     public boolean isShowingToolData() {

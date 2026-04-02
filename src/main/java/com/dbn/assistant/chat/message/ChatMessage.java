@@ -20,6 +20,7 @@ import com.dbn.assistant.AssistantType;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.editor.SQLChatMessageConverter;
+import com.dbn.assistant.tool.event.AssistantToolStatus;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.execution.AssistantToolResponse;
 import com.dbn.common.message.MessageType;
@@ -234,7 +235,9 @@ public class ChatMessage implements PersistentStateElement {
         if (toolSection == null) return;
 
         AssistantToolResponse response = new AssistantToolResponse(toolResponse);
-        toolSection.getInvocation().setResponse(response);
+        AssistantToolInvocation invocation = toolSection.getInvocation();
+        invocation.setResponse(response);
+        invocation.setStatus(AssistantToolStatus.COMPLETED);
     }
 
     private ChatMessageToolSection findToolSection(String requestId, String toolName) {

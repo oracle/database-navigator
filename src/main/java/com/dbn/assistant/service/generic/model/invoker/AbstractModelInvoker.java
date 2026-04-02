@@ -16,11 +16,14 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
+import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.chat.context.ChatContext;
+import com.dbn.assistant.mcp.AssistantMcpServerOptions;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIModelFeature;
 import com.dbn.assistant.service.generic.context.AssistantInstructionsCache;
 import com.dbn.assistant.service.generic.context.AssistantMemoryCache;
+import com.dbn.assistant.service.generic.context.AssistantMemoryId;
 import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
 import com.dbn.assistant.service.generic.model.AssistantModelType;
 import com.dbn.assistant.state.AssistantState;
@@ -28,8 +31,11 @@ import com.dbn.assistant.tool.AssistantToolCache;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.tool.ToolProvider;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 import static com.dbn.assistant.provider.AIModelFeature.INSTRUCTIONS;
 import static com.dbn.assistant.provider.AIModelFeature.TOOLS;
@@ -43,25 +49,49 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
         this.modelType = modelType;
     }
 
-    protected void initToolProvider(AiServices<?> builder, AssistantState state, boolean stateless) {
-        if (stateless) return;
-        if (!isFeatureSupported(state, TOOLS)) return;
+    protected static ModelInvocationContext creatInvocationContext(AssistantState state, AssistantMemoryId memoryId, AssistantResponseConsumer consumer) {
+        return ModelInvocationContext
+                .builder()
+                .memoryId(memoryId)
+                .assistantState(state)
+                .responseConsumer(consumer)
+                .build();
+    }
 
-        var tools = AssistantToolCache.get(state);
+    protected static void initInternalToolProvider(AiServices<?> builder, ModelInvocationContext context) {
+        if (context.isStateless()) return;
+
+        AssistantState assistantState = context.getAssistantState();
+        if (!isFeatureSupported(assistantState, TOOLS)) return;
+
+        var tools = AssistantToolCache.get(assistantState);
         builder.toolProvider(tools);
     }
 
-    protected void initSystemMessage(AiServices<?> builder, AssistantState state) {
-        if (!isFeatureSupported(state, INSTRUCTIONS)) return;
+    protected static void initExternalToolProviders(AiServices<?> builder, ModelInvocationContext context) {
+        if (context.isStateless()) return;
 
-        var instructions = AssistantInstructionsCache.get(state);
+        AssistantState assistantState = context.getAssistantState();
+        if (!isFeatureSupported(assistantState, TOOLS)) return;
+
+        AssistantResponseConsumer responseConsumer = context.getResponseConsumer();
+        AssistantMcpServerOptions mcpServerOptions = AssistantMcpServerOptions.get(assistantState);
+        List<ToolProvider> tools = mcpServerOptions.createToolProviders(e -> responseConsumer.acceptError(e));
+        builder.toolProviders(tools);
+    }
+
+    protected static void initSystemMessage(AiServices<?> builder, ModelInvocationContext context) {
+        AssistantState assistantState = context.getAssistantState();
+        if (!isFeatureSupported(assistantState, INSTRUCTIONS)) return;
+
+        var instructions = AssistantInstructionsCache.get(assistantState);
         builder.systemMessageProvider(instructions);
     }
 
-    protected void initChatMemory(AiServices<?> builder, AssistantState state, boolean stateless) {
-        var memory = stateless ?
+    protected static void initChatMemory(AiServices<?> builder, ModelInvocationContext context) {
+        var memory = context.isStateless() ?
                 prepareEmptyMemory() :
-                prepareMemory(state);
+                prepareMemory(context.getAssistantState());
         builder.chatMemoryProvider(memory);
     }
 
@@ -73,11 +103,11 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
                 .build();
     }
 
-    protected ChatMemoryProvider prepareMemory(AssistantState assistantState) {
+    protected static ChatMemoryProvider prepareMemory(AssistantState assistantState) {
         return AssistantMemoryCache.get(assistantState);
     }
 
-    private boolean isFeatureSupported(AssistantState state, AIModelFeature feature) {
+    private static boolean isFeatureSupported(AssistantState state, AIModelFeature feature) {
         ChatContext context = state.getCurrentContext();
         AIModel model = context.getModel();
         if (model == null) return false;
