@@ -58,8 +58,8 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
 
         initComboBox(typeComboBox, AssistantMcpServerType.values());
         resetFormChanges();
-        urlTextField.getEmptyText().setText("e.g. http://localhost:3001/mcp-server");
-        commandTextField.getEmptyText().setText("e.g. java mcp-server.jar");
+        urlTextField.getEmptyText().setText("http://localhost:3001/mcp-server");
+        commandTextField.getEmptyText().setText("java -jar mcp-server.jar");
 
         updateFieldAvailability();
 
