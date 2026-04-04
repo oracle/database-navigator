@@ -32,8 +32,8 @@ public abstract class GenericChatMessageConverter implements ChatMessageConverte
     @Override
     public final String convert(ChatMessage chatMessage) {
         StringBuilder builder = new StringBuilder();
-        List<ChatMessageSection> sections = chatMessage.getSections();
-        for (ChatMessageSection section : sections) {
+        List<ChatMessageTextSection> sections = chatMessage.getSections();
+        for (ChatMessageTextSection section : sections) {
             String content = section.getContent();
             if (section.getLanguage() == language) {
                 // no alteration to the content if language matches the target language

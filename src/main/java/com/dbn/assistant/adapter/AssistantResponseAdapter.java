@@ -18,92 +18,59 @@ package com.dbn.assistant.adapter;
 
 import com.dbn.common.routine.Consumer;
 import com.intellij.util.TriConsumer;
+import lombok.Builder;
 
+import java.util.function.BiConsumer;
+
+@Builder
 public class AssistantResponseAdapter implements AssistantResponseConsumer {
     private Consumer<String> tokenConsumer;
     private Consumer<String> messageConsumer;
-    private Consumer<Throwable> errorConsumer;
+    private BiConsumer<String, Throwable> errorConsumer;
+    private BiConsumer<String, Throwable> toolErrorConsumer;
     private TriConsumer<String, String, String> toolRequestConsumer;
     private TriConsumer<String, String, String> toolResponseConsumer;
     private Runnable completionConsumer;
 
-    private AssistantResponseAdapter() {
-
-    }
-
-    public static AssistantResponseAdapter create() {
-        return new AssistantResponseAdapter();
-    }
-
-    public AssistantResponseAdapter withTokenConsumer(Consumer<String> tokenConsumer) {
-        this.tokenConsumer = tokenConsumer;
-        return this;
-    }
-
-    public AssistantResponseAdapter withMessageConsumer(Consumer<String> messageConsumer) {
-        this.messageConsumer = messageConsumer;
-        return this;
-    }
-
-    public AssistantResponseAdapter withErrorConsumer(Consumer<Throwable> errorConsumer) {
-        this.errorConsumer = errorConsumer;
-        return this;
-    }
-
-    public AssistantResponseAdapter withToolRequestConsumer(TriConsumer<String, String, String> toolRequestConsumer) {
-        this.toolRequestConsumer = toolRequestConsumer;
-        return this;
-    }
-
-    public AssistantResponseAdapter withToolResponseConsumer(TriConsumer<String, String, String> toolResponseConsumer) {
-        this.toolResponseConsumer = toolResponseConsumer;
-        return this;
-    }
-
-    public AssistantResponseAdapter withCompletionConsumer(Runnable completionConsumer) {
-        this.completionConsumer = completionConsumer;
-        return this;
-    }
-
     @Override
     public void acceptToken(String token) {
-        if (tokenConsumer != null) {
-            tokenConsumer.accept(token);
-        }
+        if (tokenConsumer == null) return;
+        tokenConsumer.accept(token);
     }
 
     @Override
     public void acceptMessage(String message) {
-        if (messageConsumer != null) {
-            messageConsumer.accept(message);
-        }
+        if (messageConsumer == null) return;
+        messageConsumer.accept(message);
     }
 
     @Override
-    public void acceptError(Throwable exception) {
-        if (errorConsumer != null) {
-            errorConsumer.accept(exception);
-        }
+    public void acceptError(String message, Throwable exception) {
+        if (errorConsumer == null) return;
+        errorConsumer.accept(message, exception);
+    }
+
+    @Override
+    public void acceptToolError(String message, Throwable exception) {
+        if (toolErrorConsumer == null) return;
+        toolErrorConsumer.accept(message, exception);
     }
 
     @Override
     public void acceptToolRequest(String requestId, String toolName, String toolArguments) {
-        if (toolRequestConsumer != null) {
-            toolRequestConsumer.accept(requestId, toolName, toolArguments);
-        }
+        if (toolRequestConsumer == null) return;
+        toolRequestConsumer.accept(requestId, toolName, toolArguments);
     }
 
     @Override
     public void acceptToolResponse(String requestId, String toolName, String toolResponse) {
-        if (toolResponseConsumer != null) {
-            toolResponseConsumer.accept(requestId, toolName, toolResponse);
-        }
+        if (toolResponseConsumer == null) return;
+        toolResponseConsumer.accept(requestId, toolName, toolResponse);
     }
 
     @Override
     public void acceptCompletion() {
-        if (completionConsumer != null) {
-            completionConsumer.run();
-        }
+        if (completionConsumer == null) return;
+        completionConsumer.run();
     }
 }
