@@ -172,7 +172,7 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
             invoker.invokeModel(model, state, memoryId, prompt, responseConsumer);
 
         } catch (Throwable t) {
-            responseConsumer.acceptError(t);
+            responseConsumer.acceptError("Model invocation failed", t);
             responseConsumer.acceptCompletion();
         }
     }
@@ -196,7 +196,11 @@ public class GenericAssistantAdapter extends AssistantAdapterBase {
         var invoker = resolveModelInvoker(model);
 
         AtomicReference<String> title = new AtomicReference<>();
-        AssistantResponseConsumer responseConsumer = AssistantResponseAdapter.create().withMessageConsumer(m -> title.set(m));
+        AssistantResponseConsumer responseConsumer = AssistantResponseAdapter
+                .builder()
+                .messageConsumer(m -> title.set(m))
+                .build();
+
         AssistantMemoryId memoryId = AssistantMemoryId.stateless();
         invoker.invokeModel(model, state, memoryId, titlePrompt, responseConsumer);
 

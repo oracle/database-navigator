@@ -18,6 +18,7 @@ package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessageSection;
 import com.dbn.assistant.chat.message.ChatMessageSectionType;
+import com.dbn.assistant.chat.message.ChatMessageTextSection;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -29,29 +30,45 @@ import java.util.Objects;
 import java.util.function.Function;
 
 @Getter
-public abstract class ChatMessageSectionForm extends DBNFormBase {
+public abstract class ChatMessageSectionForm<T extends ChatMessageSection> extends DBNFormBase {
     private String content;
     private TextContent textContent;
     private final Function<String, TextContent > contentBuilder;
-    private final ChatMessageSectionType sectionType;
+    private final T section;
 
-    ChatMessageSectionForm(DBNForm parent, ChatMessageSectionType sectionType) {
-        this(parent, sectionType, c -> TextContent.plain(c));
+    ChatMessageSectionForm(DBNForm parent, T section) {
+        this(parent, section, c -> TextContent.plain(c));
     }
 
-    ChatMessageSectionForm(DBNForm parent, ChatMessageSectionType sectionType, Function<String, TextContent> contentBuilder) {
+    ChatMessageSectionForm(DBNForm parent, T section, Function<String, TextContent> contentBuilder) {
         super(parent);
-        this.sectionType = sectionType;
+        this.section = section;
         this.contentBuilder = contentBuilder;
     }
 
-    public final void updateContent(ChatMessageSection section) {
-        String content = section.getContent();
+    ChatMessageSectionType getSectionType() {
+        return section == null ? ChatMessageSectionType.TEXT : section.getType();
+    }
+
+    public final void updateContent(ChatMessageTextSection section) {
+        updateContent(section.getContent(), section.getLanguage());
+    }
+
+    protected final void updateContent(String content) {
+        updateContent(content, null);
+    }
+
+    protected final void updateContent(String content, @Nullable Language language) {
         if (Objects.equals(this.content, content)) return;
 
         this.content = content;
         this.textContent = createTextContent(this.content);
-        applyContent(this.textContent, section.getLanguage());
+        applyContent(this.textContent, language);
+    }
+
+    protected void rebuildContent() {
+        textContent.rebuild();
+        applyContent(this.textContent, null);
     }
 
     public void hideProcessingIndicator() {}

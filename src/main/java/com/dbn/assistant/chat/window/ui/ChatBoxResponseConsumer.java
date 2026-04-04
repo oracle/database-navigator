@@ -32,10 +32,10 @@ import com.dbn.assistant.tool.execution.AssistantToolInvocationMonitor;
 import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.common.exception.RequestCancelledException;
 import com.dbn.common.message.MessageType;
+import com.dbn.common.message.TitledMessage;
 import com.dbn.connection.ConnectionId;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -62,9 +62,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptToken(String token) {
-        if (!isCurrentChat()) return;
-
-        chatBoxForm.hideProcessingIndicators();
+        chatBoxForm.hideProcessingIndicators(chatId);
         tokenized = true;
 
         Chat chat = ensureChat();
@@ -78,16 +76,15 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
             chatBoxForm.appendMessage(chatId, agentMessage);
         } else if (author == AGENT) {
             lastMessage.appendToken(token);
-            chatBoxForm.refreshMessage(lastMessage);
+            chatBoxForm.refreshMessage(chatId, lastMessage);
             // TODO update UI
         }
     }
 
     @Override
     public void acceptMessage(String message) {
-        if (!isCurrentChat()) return;
+        chatBoxForm.hideProcessingIndicators(chatId);
 
-        chatBoxForm.hideProcessingIndicators();
         // ignore if token-stream is supported
         if (tokenized) return;
         message = nvl(message, "");
@@ -99,10 +96,8 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
     }
 
     @Override
-    public void acceptError(Throwable e) {
-        if (!isCurrentChat()) return;
-
-        chatBoxForm.hideProcessingIndicators();
+    public void acceptError(String message, Throwable e) {
+        chatBoxForm.hideProcessingIndicators(chatId);
         if (e instanceof AssistantToolApprovalException) return;
 
         log.warn("Error processing assistant query", e);
@@ -110,33 +105,55 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         ConnectionId connectionId = getConnectionId();
         AssistantAdapter assistantAdapter = chatBoxForm.getAssistantAdapter();
 
-        String message = assistantAdapter.prepareError(connectionId, chatContext, e);
-        ChatMessage errorMessage = createMessage(ERROR, message, SYSTEM);
+        String error = assistantAdapter.prepareError(connectionId, chatContext, e);
+        ChatMessage errorMessage = createMessage(ERROR, error, SYSTEM);
         chatBoxForm.appendMessage(chatId, errorMessage);
     }
 
     @Override
     public void acceptCompletion() {
-        if (!isCurrentChat()) return;
+        chatBoxForm.hideProcessingIndicators(chatId);
 
-        chatBoxForm.hideProcessingIndicators();
-        AssistantState assistantState = getAssistantState();
-        assistantState.set(QUERYING, false);
+        if (isCurrentChat()) {
+            AssistantState assistantState = getAssistantState();
+            assistantState.set(QUERYING, false);
+        }
+    }
+
+    @Override
+    public void acceptToolError(String message, Throwable exception) {
+        Chat chat = ensureChat();
+
+        ChatMessage lastMessage = chat.getLastMessage();
+        if (lastMessage == null) return;
+
+        AuthorType author = lastMessage.getAuthor();
+        TitledMessage titledMessage = new TitledMessage(ERROR,
+                message,
+                exception.getMessage());
+
+        if (author == USER) {
+            // agent responded directly with a tool request
+            lastMessage = createMessage(NEUTRAL, "", AGENT);
+            lastMessage.appendNote(titledMessage);
+            chatBoxForm.appendMessage(chatId, lastMessage);
+        } else if (author == AGENT) {
+            lastMessage.appendNote(titledMessage);
+            chatBoxForm.refreshNotes(chatId, lastMessage);
+        }
     }
 
     @Override
     public void acceptToolRequest(String requestId, String toolName, String toolArguments) {
         resetToolInvocation();
-        if (!isCurrentChat()) return;
 
         Chat chat = ensureChat();
-        chatBoxForm.hideProcessingIndicators();
+        chatBoxForm.hideProcessingIndicators(chatId);
 
         ChatMessage lastMessage = chat.getLastMessage();
         if (lastMessage == null) return;
 
         AssistantToolInvocation invocation = initToolInvocation(chatId, requestId, toolName, toolArguments);
-        if (invocation == null) return;
 
         AuthorType author = lastMessage.getAuthor();
         if (author == USER) {
@@ -146,7 +163,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
             chatBoxForm.appendMessage(chatId, lastMessage);
         } else if (author == AGENT) {
             lastMessage.appendToolRequest(invocation);
-            chatBoxForm.refreshTools(lastMessage);
+            chatBoxForm.refreshTools(chatId, lastMessage);
         }
     }
 
@@ -154,11 +171,9 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         AssistantToolInvocation.resetCurrent();
     }
 
-    @Nullable
     private AssistantToolInvocation initToolInvocation(String chatId, String requestId, String toolName, String toolArguments) {
         AssistantToolCache cache = getToolCache();
         AssistantTool tool = cache.getAssistantTool(toolName);
-        if (tool == null) return null;
 
         AssistantToolRequest request = new AssistantToolRequest(chatId, requestId, toolName, toolArguments);
         AssistantToolInvocation invocation = new AssistantToolInvocation(request);
@@ -171,15 +186,13 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
 
     @Override
     public void acceptToolResponse(String requestId, String toolName, String toolResponse) {
-        if (!isCurrentChat()) return;
-
         Chat chat = ensureChat();
         ChatMessage lastMessage = chat.getLastMessage();
         if (lastMessage == null) return;
 
         if (lastMessage.getAuthor() == AGENT) {
             lastMessage.appendToolResponse(requestId, toolName, toolResponse);
-            chatBoxForm.refreshTools(lastMessage);
+            chatBoxForm.refreshTools(chatId, lastMessage);
         }
     }
 
@@ -208,7 +221,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         Chat chat = getChat();
         if (chat == null) return false;
 
-        String currentChatId = getAssistantState().getCurrentChatId();;
+        String currentChatId = getAssistantState().getCurrentChatId();
         return Objects.equals(chatId, currentChatId);
     }
 

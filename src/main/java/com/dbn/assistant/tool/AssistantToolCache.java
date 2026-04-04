@@ -41,6 +41,7 @@ import static com.dbn.common.action.UserDataKeys.ASSISTANT_TOOL_CACHE;
 public class AssistantToolCache extends AssistantStateExtension implements ToolProvider {
     private final List<AssistantTool> tools;
     private final ToolProvider provider = new AssistantToolProvider(this);
+    private final AssistantTool externalTool;
 
     private AssistantToolCache(@NotNull AssistantState assistantState) {
         super(assistantState);
@@ -48,6 +49,7 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
 
         AssistantToolFilter filter = new AssistantToolFilter(assistantState);
         this.tools = FilteredList.stateful(filter, tools);
+        this.externalTool = new ExternalAssistantTool(getConnection(), "External tool", "External tool from user-defined MCP servers");
     }
 
     private static List<AssistantTool> initTools(AssistantState assistantState) {
@@ -74,13 +76,14 @@ public class AssistantToolCache extends AssistantStateExtension implements ToolP
         return UserDataKeys.getUserDataSync(assistantState, ASSISTANT_TOOL_CACHE, () -> new AssistantToolCache(assistantState));
     }
 
-    @Nullable
+    @NotNull
     public AssistantTool getAssistantTool(String utilityName) {
         for (AssistantTool tool : getAllTools()) {
             UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
             if (utilitySpec != null) return tool;
         }
-        return null;
+
+        return externalTool;
     }
 
     @Nullable
