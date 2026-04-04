@@ -33,7 +33,6 @@ public class AssistantCredentialsTableCellRenderer extends DBNColoredTableCellRe
         if (stringValue.isEmpty()) return;
 
         if (column == SECRET_COLUMN) {
-            //String text = value.toString();
             value = "*".repeat(20);
         }
         append(value.toString());

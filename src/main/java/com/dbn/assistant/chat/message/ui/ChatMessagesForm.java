@@ -45,7 +45,6 @@ import javax.swing.JScrollPane;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 
@@ -83,9 +82,8 @@ public class ChatMessagesForm extends DBNFormBase {
         ChatBoxForm chatBoxForm = getParentFrom(ChatBoxForm.class);
         if (chatBoxForm == null) return false;
 
-        String requestChatId = request.getChatId();
-        Object currentChatId = chatBoxForm.getCurrentChatId();
-        return Objects.equals(currentChatId, requestChatId);
+        String chatId = request.getChatId();
+        return chatBoxForm.isCurrentChat(chatId);
 
     }
 
@@ -130,6 +128,10 @@ public class ChatMessagesForm extends DBNFormBase {
 
     public void refreshTools(ChatMessage message) {
         refreshContent(message, f -> f.refreshToolContent());
+    }
+
+    public void refreshNotes(ChatMessage message) {
+        refreshContent(message, f -> f.refreshNoteContent());
     }
 
     private void refreshContent(ChatMessage message, Consumer<ChatMessageForm> action) {

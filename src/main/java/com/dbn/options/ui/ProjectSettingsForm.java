@@ -50,8 +50,8 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
     private JPanel tabsPanel;
     private final DBNTabbedPane<ConfigurationEditorForm<?>> configurationTabs;
 
-    public ProjectSettingsForm(ProjectSettings globalSettings) {
-        super(globalSettings);
+    public ProjectSettingsForm(ProjectSettings projectSettings) {
+        super(projectSettings);
 
         configurationTabs = new DBNTabbedPane<>(this);
         configurationTabs.setTabComponentInsets(DBNTabbedPane.REGULAR_INSETS);
@@ -59,18 +59,18 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
 
         tabsPanel.add(configurationTabs, BorderLayout.CENTER);
 
-        ConnectionBundleSettings connectionSettings = globalSettings.getConnectionSettings();
-        DatabaseBrowserSettings browserSettings = globalSettings.getBrowserSettings();
-        NavigationSettings navigationSettings = globalSettings.getNavigationSettings();
-        CodeEditorSettings codeEditorSettings = globalSettings.getCodeEditorSettings();
-        CodeCompletionSettings codeCompletionSettings = globalSettings.getCodeCompletionSettings();
-        DataGridSettings dataGridSettings = globalSettings.getDataGridSettings();
-        DataEditorSettings dataEditorSettings = globalSettings.getDataEditorSettings();
-        ExecutionEngineSettings executionEngineSettings = globalSettings.getExecutionEngineSettings();
-        OperationSettings operationSettings = globalSettings.getOperationSettings();
-        DDLFileSettings ddlFileSettings = globalSettings.getDdlFileSettings();
-        AssistantSettings assistantSettings = globalSettings.getAssistantSettings();
-        GeneralProjectSettings generalSettings = globalSettings.getGeneralSettings();
+        ConnectionBundleSettings connectionSettings = projectSettings.getConnectionSettings();
+        DatabaseBrowserSettings browserSettings = projectSettings.getBrowserSettings();
+        NavigationSettings navigationSettings = projectSettings.getNavigationSettings();
+        CodeEditorSettings codeEditorSettings = projectSettings.getCodeEditorSettings();
+        CodeCompletionSettings codeCompletionSettings = projectSettings.getCodeCompletionSettings();
+        DataGridSettings dataGridSettings = projectSettings.getDataGridSettings();
+        DataEditorSettings dataEditorSettings = projectSettings.getDataEditorSettings();
+        ExecutionEngineSettings executionEngineSettings = projectSettings.getExecutionEngineSettings();
+        OperationSettings operationSettings = projectSettings.getOperationSettings();
+        DDLFileSettings ddlFileSettings = projectSettings.getDdlFileSettings();
+        AssistantSettings assistantSettings = projectSettings.getAssistantSettings();
+        GeneralProjectSettings generalSettings = projectSettings.getGeneralSettings();
 
         addSettingsPanel(connectionSettings);
         addSettingsPanel(browserSettings);
@@ -84,7 +84,7 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         addSettingsPanel(ddlFileSettings);
         addSettingsPanel(assistantSettings);
         addSettingsPanel(generalSettings);
-        globalSettings.reset();
+        projectSettings.reset();
 
         tabsPanel.setFocusable(true);
    }

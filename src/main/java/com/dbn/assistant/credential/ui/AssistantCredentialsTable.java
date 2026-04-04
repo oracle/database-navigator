@@ -19,29 +19,18 @@ package com.dbn.assistant.credential.ui;
 import com.dbn.assistant.credential.AssistantCredentialBundle;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNEntityEditableTable;
-import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
-
-import javax.swing.ListSelectionModel;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
-/**
- * Table model for provider credentials information
- * The template credential stored locally.
- */
-public class AssistantCredentialsEditorTable extends DBNEntityEditableTable<AssistantCredentialsTableModel> {
+public class AssistantCredentialsTable extends DBNEntityEditableTable<AssistantCredentialsTableModel> {
 
-    AssistantCredentialsEditorTable(DBNComponent parent, AssistantCredentialBundle credentials) {
+    AssistantCredentialsTable(DBNComponent parent, AssistantCredentialBundle credentials) {
         super(parent, createModel(credentials), true);
-        setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        setSelectionBackground(UIUtil.getTableBackground());
-        setSelectionForeground(UIUtil.getTableForeground());
-        setCellSelectionEnabled(true);
-        setDefaultRenderer(String.class, new AssistantCredentialsTableCellRenderer());
 
-        setAccessibleName(this, "Assistant Credentials");
+        setCellRenderer(new AssistantCredentialsTableCellRenderer());
         setProportionalColumnWidths(25, 15, 15, 45);
+        setAccessibleName(this, "Assistant Credentials");
     }
 
     @NotNull

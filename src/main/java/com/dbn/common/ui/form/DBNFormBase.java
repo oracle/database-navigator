@@ -25,7 +25,6 @@ import com.dbn.common.latent.Latent;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.alignment.FieldAlignerData;
-import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.component.DBNComponentBase;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -303,7 +302,7 @@ public abstract class DBNFormBase
     @Nullable
     @Override
     public final <F extends DBNForm> F getParentFrom(Class<F> formClass) {
-        DBNComponent parent = getParentComponent();
+        Object parent = getParentComponent();
         if (parent == null) return null;
         if (formClass.isAssignableFrom(parent.getClass())) return cast(parent);
 
