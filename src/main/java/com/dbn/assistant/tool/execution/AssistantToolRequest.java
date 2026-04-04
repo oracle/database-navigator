@@ -16,7 +16,6 @@
 
 package com.dbn.assistant.tool.execution;
 
-import com.dbn.assistant.tool.AssistantToolData;
 import com.dbn.common.util.UUIDs;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +29,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static com.dbn.assistant.AssistantComponent.OBJECT_MAPPER;
+import static com.dbn.assistant.tool.AssistantToolData.getUtilityMethod;
+import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
 import static com.dbn.common.util.Commons.nvl;
 
 @Slf4j
@@ -44,6 +45,7 @@ public class AssistantToolRequest {
 
     private Method method;
     private Object[] methodArguments;
+    private boolean external;
 
     public AssistantToolRequest() {}
 
@@ -54,7 +56,8 @@ public class AssistantToolRequest {
         this.toolName = toolName;
         this.toolArguments = toolArguments;
 
-        this.method = AssistantToolData.getUtilityMethod(toolName);
+        this.external = !isInternalTool(toolName);
+        this.method = this.external ? null : getUtilityMethod(toolName);
     }
 
     @SneakyThrows

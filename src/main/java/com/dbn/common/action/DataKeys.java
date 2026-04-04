@@ -25,6 +25,8 @@ import com.dbn.assistant.service.selectai.credential.ui.CredentialManagementForm
 import com.dbn.assistant.service.selectai.profile.ui.ProfileManagementForm;
 import com.dbn.assistant.tool.config.ui.AssistantToolApprovalItemForm;
 import com.dbn.batch.ui.BatchMonitorForm;
+import com.dbn.common.ui.component.DBNDiscardableComponent;
+import com.dbn.common.ui.component.DBNFoldableComponent;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
 import com.dbn.data.editor.ui.array.ArrayEditorPopupProviderForm;
@@ -82,6 +84,8 @@ public interface DataKeys {
     DataKey<ChatMessageForm> CHAT_MESSAGE_FORM = DataKey.create("DBNavigator.ChatMessageForm");
     DataKey<DBNTabbedPane> TABBED_PANE = DataKey.create("DBNavigator.TabbedPane");
     DataKey<Disposable> PARENT_DISPOSABLE = DataKey.create("DBNavigator.ParentDisposable");
+    DataKey<DBNFoldableComponent> FOLDABLE_COMPONENT = DataKey.create("DBNavigator.FoldableComponent");
+    DataKey<DBNDiscardableComponent> DISCARDABLE_COMPONENT = DataKey.create("DBNavigator.DiscardableComponent");
 
     DataKey<EventRegistrationsForm> EVENT_REGISTRATIONS_FORM = DataKey.create("DBNavigator.EventRegistrationsForm");
     DataKey<EventNotificationsForm> EVENT_NOTIFICATIONS_FORM = DataKey.create("DBNavigator.EventNotificationsForm");

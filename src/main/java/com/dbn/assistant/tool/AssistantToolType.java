@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 public enum AssistantToolType implements Constant<AssistantToolType> {
+    EXTERNAL,
 
     // USER_INTERACTION
     USER_PROMPTS,

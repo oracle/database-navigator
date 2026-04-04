@@ -1,0 +1,54 @@
+/*
+ * Copyright 2025 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.assistant.mcp.ui;
+
+import com.dbn.assistant.mcp.AssistantMcpServer;
+import com.dbn.assistant.mcp.AssistantMcpServerBundle;
+import com.dbn.common.routine.Consumer;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+
+
+@Builder
+@Getter
+public class AssistantMcpServerEditRequest{
+    private AssistantMcpServerBundle mcpServers;
+    private AssistantMcpServer mcpServer;
+    private Consumer<AssistantMcpServer> saveConsumer;
+
+    public boolean isNewMcpServer() {
+        return mcpServer == null;
+    }
+
+    public void acceptMcpServer(AssistantMcpServer mcpServer) {
+        if (saveConsumer == null) return;
+        saveConsumer.accept(mcpServer);
+    }
+
+    public Set<String> getUsedNames() {
+        return mcpServers
+                .getElements()
+                .stream()
+                .filter(c -> mcpServer == null || !c.getId().equals(mcpServer.getId()))
+                .map(c -> c.getName())
+                .collect(Collectors.toSet());
+    }
+
+}

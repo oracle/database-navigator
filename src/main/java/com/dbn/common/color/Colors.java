@@ -311,4 +311,24 @@ public final class Colors {
         ColorChooserService colorChooserService = ColorChooserService.getInstance();
         return colorChooserService.showDialog(project, parent, caption, initialColor, false, Collections.emptyList(), false);
     }
+
+    /**
+     * Copy of JBUI.CurrentTheme.Banner
+     */
+    @Compatibility
+    @UtilityClass
+    public static final class Banner {
+        public static final Color INFO_BACKGROUND_COLOR = JBColor.namedColor("Banner.infoBackground", 0xF5F8FE, 0x25324D);
+        public static final Color INFO_BORDER_COLOR = JBColor.namedColor("Banner.infoBorderColor", 0xC2D6FC, 0x35538F);
+
+        public static final Color SUCCESS_BACKGROUND_COLOR = JBColor.namedColor("Banner.successBackground", 0xF2FCF3, 0x253627);
+        public static final Color SUCCESS_BORDER_COLOR = JBColor.namedColor("Banner.successBorderColor", 0xC5E5CC, 0x375239);
+
+        public static final Color WARNING_BACKGROUND_COLOR = JBColor.namedColor("Banner.warningBackground", 0xFFFAEB, 0x3d3223);
+        public static final Color WARNING_BORDER_COLOR = JBColor.namedColor("Banner.warningBorderColor", 0xFED277, 0x5E4D33);
+
+        public static final Color ERROR_BACKGROUND_COLOR = JBColor.namedColor("Banner.errorBackground", 0xFFF7F7, 0x402929);
+        public static final Color ERROR_BORDER_COLOR = JBColor.namedColor("Banner.errorBorderColor", 0xFAD4D8, 0x5E3838);
+        public static final Color FOREGROUND = JBColor.namedColor("Banner.foreground", 0x0, 0xDFE1E5);
+    }
 }

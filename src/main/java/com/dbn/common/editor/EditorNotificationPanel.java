@@ -17,12 +17,10 @@
 package com.dbn.common.editor;
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.ComponentDisposer;
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.file.VirtualFileRef;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.ref.WeakRef;
@@ -35,12 +33,10 @@ import com.intellij.openapi.editor.colors.ColorKey;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.JBColor;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.util.ui.JBUI;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
@@ -79,7 +75,7 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
         this.contentPanel.add(this.myLabel, BorderLayout.WEST);
         add(this.contentPanel, BorderLayout.WEST);
 
-        this.myLabel.setForeground(Banner.FOREGROUND);
+        this.myLabel.setForeground(Colors.Banner.FOREGROUND);
         this.myLabel.setIcon(getIcon(messageType));
 
         this.myLabel.setHorizontalAlignment(RIGHT);
@@ -118,23 +114,11 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
     }
 
     protected Icon getIcon(MessageType messageType) {
-        return switch (messageType) {
-            case INFO -> Icons.COMMON_INFO;
-            case SUCCESS -> null;
-            case WARNING -> Icons.COMMON_WARNING;
-            case ERROR -> Icons.COMMON_ERROR;
-            default -> null;
-        };
+        return messageType.getTitleIcon();
     }
 
     private static Color getBackground(MessageType messageType) {
-        return switch (messageType) {
-            case INFO -> Banner.INFO_BACKGROUND;
-            case SUCCESS -> Banner.SUCCESS_BACKGROUND;
-            case WARNING -> Banner.WARNING_BACKGROUND;
-            case ERROR -> Banner.ERROR_BACKGROUND;
-            default -> Colors.getLightPanelBackground();
-        };
+        return messageType.getBannerBackgroundColor();
     }
 
     private static ColorKey getBackgroundKey(MessageType messageType) {
@@ -197,18 +181,5 @@ public class EditorNotificationPanel extends com.intellij.ui.EditorNotificationP
     @Override
     public int hashCode() {
         return Objects.hash(file, fileEditor);
-    }
-
-    /**
-     * Copy of JBUI.CurrentTheme.Banner
-     */
-    @Compatibility
-    @UtilityClass
-    public static final class Banner {
-        public static final Color INFO_BACKGROUND = JBColor.namedColor("Banner.infoBackground", 0xF5F8FE, 0x25324D);
-        public static final Color SUCCESS_BACKGROUND = JBColor.namedColor("Banner.successBackground", 0xF2FCF3, 0x253627);
-        public static final Color WARNING_BACKGROUND = JBColor.namedColor("Banner.warningBackground", 0xFFFAEB, 0x3d3223);
-        public static final Color ERROR_BACKGROUND = JBColor.namedColor("Banner.errorBackground", 0xFFF7F7, 0x402929);
-        public static final Color FOREGROUND = JBColor.namedColor("Banner.foreground", 0x0, 0xDFE1E5);
     }
 }

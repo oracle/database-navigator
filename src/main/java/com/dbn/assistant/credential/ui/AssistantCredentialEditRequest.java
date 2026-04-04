@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @Builder
 @Getter
-public class AssistantCredentialEditRequest {
+public class AssistantCredentialEditRequest{
     private AssistantCredentialBundle credentials;
     private AssistantCredential credential;
     private AIProviderId providerId;

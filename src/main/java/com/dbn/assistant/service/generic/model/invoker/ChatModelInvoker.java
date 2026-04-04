@@ -31,14 +31,14 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
     @Override
     public void invokeModel(ChatModel model, AssistantState state, AssistantMemoryId memoryId, String prompt, AssistantResponseConsumer consumer) {
         try {
-            boolean stateless = memoryId.isStateless();
-
             var builder = AiServices.builder(ChatModelAdapter.class);
             builder.chatModel(model);
 
-            initChatMemory(builder, state, stateless);
-            initSystemMessage(builder, state);
-            initToolProvider(builder, state, stateless);
+            ModelInvocationContext context = creatInvocationContext(state, memoryId, consumer);
+            initChatMemory(builder, context);
+            initSystemMessage(builder, context);
+            initInternalToolProvider(builder, context);
+            initExternalToolProviders(builder, context);
 
             ChatModelAdapter adapter = builder.build();
 
@@ -46,7 +46,7 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
             consumer.acceptMessage(message);
 
         } catch (Throwable e) {
-            consumer.acceptError(e);
+            consumer.acceptError("Model invocation failed", e);
 
         } finally {
             consumer.acceptCompletion();

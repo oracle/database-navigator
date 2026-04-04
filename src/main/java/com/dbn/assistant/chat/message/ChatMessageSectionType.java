@@ -19,5 +19,6 @@ package com.dbn.assistant.chat.message;
 public enum ChatMessageSectionType {
     TEXT,
     CODE,
-    TOOL;
+    TOOL,
+    NOTE;
 }

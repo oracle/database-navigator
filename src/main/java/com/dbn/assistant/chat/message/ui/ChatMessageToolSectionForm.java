@@ -39,6 +39,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
+import com.dbn.common.ui.component.DBNFoldableComponent;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.util.Borders;
@@ -71,17 +72,15 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Objects;
 
-import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
-import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.icon.Icons.ASSISTANT_QUESTION;
 import static com.dbn.common.text.TextContent.asHtmlContent;
 import static com.dbn.common.ui.Layouts.horizontalBoxLayout;
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
 import static com.dbn.common.util.Messages.showConfirmationDialog;
 
-public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
+public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessageToolSection> implements DBNFoldableComponent {
     private JPanel mainPanel;
     private JPanel messageButtonsPanel;
     private JLabel toolNameLabel;
@@ -105,15 +104,13 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     private JTextPane descriptionTextPane;
 
     private final ConnectionRef connection;
-    private final ChatMessageToolSection section;
     private final AssistantToolInfoProvider info;
 
     private AssistantToolDataForm toolDataForm;
 
     ChatMessageToolSectionForm(DBNForm parent, ConnectionHandler connection, ChatMessageToolSection section) {
-        super(parent, TOOL);
+        super(parent, section);
         this.connection = ConnectionRef.of(connection);
-        this.section = section;
         framePanel.setBorder(Borders.COMPONENT_OUTLINE_BORDER);
         framePanel.setBackground(Colors.getEditorBackground());
 
@@ -316,14 +313,18 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
             }
         }
 
-        Color faded = Colors.faded(UIUtil.getLabelForeground());
-        descriptionTextPane.setText(info.getToolDescription());
-        descriptionTextPane.setForeground(faded);
+        if (info.isExternalTool()) {
+            descriptionTextPane.setVisible(false);
+            toolTypePanel.setVisible(false);
+        } else {
+            Color faded = Colors.faded(UIUtil.getLabelForeground());
+            descriptionTextPane.setText(info.getToolDescription());
+            descriptionTextPane.setForeground(faded);
+            descriptionTextPane.setVisible(visible);
+            toolTypePanel.setVisible(!visible);
+        }
 
-        descriptionTextPane.setVisible(visible);
         toolDataPanel.setVisible(visible);
-        toolTypePanel.setVisible(!visible);
-        //toolTypePanel.setVisible(false);
     }
 
     public boolean isShowingToolData() {
@@ -432,12 +433,8 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
         executionMonitor.cancel();
     }
 
-    public void toggleToolExecutionData() {
-        initToolDataPanel(!toolDataPanel.isVisible());
-    }
-
     public AssistantToolInvocation getToolInvocation() {
-        return section.getInvocation();
+        return getSection().getInvocation();
     }
 
     @Override
@@ -446,11 +443,11 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     }
 
     private AssistantToolRequest getToolRequest() {
-        return section.getInvocation().getRequest();
+        return getSection().getInvocation().getRequest();
     }
 
     private AssistantToolResponse getToolResponse() {
-        return section.getInvocation().getResponse();
+        return getSection().getInvocation().getResponse();
     }
 
     private AssistantTool getTool() {
@@ -480,7 +477,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     }
 
     private ChatBoxForm getChatBoxForm() {
-        return nd(getParentFrom(ChatBoxForm.class));
+        return ensureParentFrom(ChatBoxForm.class);
     }
 
     public ConnectionHandler getConnection() {
@@ -509,6 +506,17 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm{
     @Override
     public Object getData(@NotNull String dataId) {
         if (DataKeys.CHAT_MESSAGE_TOOL_SECTION_FORM.is(dataId)) return this;
+        if (DataKeys.FOLDABLE_COMPONENT.is(dataId)) return this;
         return null;
+    }
+
+    @Override
+    public boolean isFolded() {
+        return !toolDataPanel.isVisible();
+    }
+
+    @Override
+    public void setFolded(boolean folded) {
+        initToolDataPanel(!folded);
     }
 }

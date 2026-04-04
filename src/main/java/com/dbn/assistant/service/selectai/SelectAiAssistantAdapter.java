@@ -272,7 +272,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
             responseConsumer.acceptMessage(message);
         } catch (Throwable t) {
             conditionallyLog(t);
-            responseConsumer.acceptError(t);
+            responseConsumer.acceptError("Request failed", t);
         } finally {
             responseConsumer.acceptCompletion();
         }

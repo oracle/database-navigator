@@ -16,7 +16,6 @@
 
 package com.dbn.common.ui.table;
 
-import com.dbn.common.color.Colors;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.util.Borders;
 import com.intellij.ui.SimpleTextAttributes;
@@ -24,28 +23,30 @@ import com.intellij.ui.TableUtil;
 
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.ui.table.Tables.enableCellSelection;
 
 public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableWithGutter<T> {
     public DBNEditableTable(DBNComponent parent, T model, boolean showHeader) {
         super(parent, model, showHeader);
-        setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        getSelectionModel().addListSelectionListener(selectionListener);
-        setSelectionBackground(Colors.getTableBackground());
-        setSelectionForeground(Colors.getTableForeground());
-        setCellSelectionEnabled(true);
+        enableCellSelection(this);
+
+        getSelectionModel().addListSelectionListener(e -> startCellEditing(e));
         putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
-        setDefaultRenderer(String.class, new DBNColoredTableCellRenderer() {
+        setDefaultRenderer(Object.class, createDefaultCellRenderer());
+    }
+
+    private static DBNColoredTableCellRenderer createDefaultCellRenderer() {
+        return new DBNColoredTableCellRenderer() {
             @Override
             protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
                 acquireState(table, false, false, row, column);
@@ -53,26 +54,31 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
                 if (selected && !table.isEditing()) {
                     attributes = SimpleTextAttributes.SELECTED_SIMPLE_CELL_ATTRIBUTES;
                 }
-                append(value == null ? "" : (String) value, attributes);
+                append(value == null ? "" : value.toString(), attributes);
             }
-        });
+        };
     }
 
-    private final ListSelectionListener selectionListener = e -> {
-        if (!e.getValueIsAdjusting() && getSelectedRowCount() == 1) {
-            startCellEditing();
-        }
-    };
+    protected void setCellRenderer(TableCellRenderer renderer) {
+        setDefaultRenderer(Object.class, renderer);
+    }
+
+    private void startCellEditing(ListSelectionEvent e) {
+        if (e.getValueIsAdjusting()) return;
+        if (getSelectedRowCount() != 1) return;
+        startCellEditing();
+    }
 
     @Override
     public void columnSelectionChanged(ListSelectionEvent e) {
         super.columnSelectionChanged(e);
+        if (e.getValueIsAdjusting()) return;
+
         JTableHeader tableHeader = getTableHeader();
-        if (tableHeader != null && tableHeader.getDraggedColumn() == null) {
-            if (!e.getValueIsAdjusting()) {
-                startCellEditing();
-            }
-        }
+        if (tableHeader == null) return;
+        if (tableHeader.getDraggedColumn() != null) return;
+
+        startCellEditing();
     }
 
     private void startCellEditing() {

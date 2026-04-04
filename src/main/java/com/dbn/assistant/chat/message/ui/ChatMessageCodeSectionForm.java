@@ -16,7 +16,7 @@
 
 package com.dbn.assistant.chat.message.ui;
 
-import com.dbn.assistant.chat.message.ChatMessageSection;
+import com.dbn.assistant.chat.message.ChatMessageTextSection;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
@@ -54,13 +54,12 @@ import java.awt.BorderLayout;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.dbn.assistant.chat.message.ChatMessageSectionType.CODE;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
 import static javax.swing.JLayeredPane.DRAG_LAYER;
 
-public class ChatMessageCodeSectionForm extends ChatMessageSectionForm {
+public class ChatMessageCodeSectionForm extends ChatMessageSectionForm<ChatMessageTextSection> {
     private static final AtomicLong previewFileIndex = new AtomicLong(0);
 
     private JPanel mainPanel;
@@ -70,8 +69,8 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm {
     private final ConnectionRef connection;
     private Language language;
 
-    private ChatMessageCodeSectionForm(DBNForm parent, ConnectionHandler connection, EditorEx codeViewer, ChatMessageSection section) {
-        super(parent, CODE);
+    private ChatMessageCodeSectionForm(DBNForm parent, ConnectionHandler connection, EditorEx codeViewer, ChatMessageTextSection section) {
+        super(parent, section);
         this.codeViewer = codeViewer;
         this.language = section.getLanguage();
         this.connection = ConnectionRef.of(connection);
@@ -102,7 +101,7 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm {
     }
 
     @Nullable
-    public static ChatMessageCodeSectionForm create(DBNForm parent, ConnectionHandler connection, ChatMessageSection section){
+    public static ChatMessageCodeSectionForm create(DBNForm parent, ConnectionHandler connection, ChatMessageTextSection section){
         EditorEx codeViewer = createViewer(connection, section);
         if (codeViewer == null) return null;
 
@@ -112,7 +111,7 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm {
 
     @Override
     protected void applyContent(TextContent content, @Nullable Language language) {
-        String text = content.getText();
+        String text = content.getText().trim();
         if (language == null || Objects.equals(this.language, language)) {
             DocumentEx document = codeViewer.getDocument();
             Documents.setText(document, text);
@@ -137,7 +136,7 @@ public class ChatMessageCodeSectionForm extends ChatMessageSectionForm {
     }
 
     @Nullable
-    private static EditorEx createViewer(ConnectionHandler connection, ChatMessageSection section) {
+    private static EditorEx createViewer(ConnectionHandler connection, ChatMessageTextSection section) {
         String content = section.getContent();
         Language language = section.getLanguage();
         if (language == null) return null;

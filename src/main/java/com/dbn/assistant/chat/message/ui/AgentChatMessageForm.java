@@ -17,13 +17,15 @@
 package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessage;
-import com.dbn.assistant.chat.message.ChatMessageSection;
+import com.dbn.assistant.chat.message.ChatMessageNoteSection;
 import com.dbn.assistant.chat.message.ChatMessageSectionType;
+import com.dbn.assistant.chat.message.ChatMessageTextSection;
 import com.dbn.assistant.chat.message.ChatMessageToolSection;
 import com.dbn.assistant.chat.message.action.CopyContentAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
@@ -38,6 +40,7 @@ import java.util.List;
 
 import static com.dbn.assistant.chat.message.ChatMessageParser.convertMarkdownToHtml;
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.CODE;
+import static com.dbn.assistant.chat.message.ChatMessageSectionType.NOTE;
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.TEXT;
 import static com.dbn.assistant.chat.message.ChatMessageSectionType.TOOL;
 import static com.dbn.common.util.Commons.array;
@@ -95,32 +98,34 @@ public class AgentChatMessageForm extends ChatMessageForm {
     private void initMessagePanels() {
         ChatMessage message = getMessage();
         Layouts.verticalBoxLayout(sectionsPanel);
-        for (ChatMessageSection section : message.getSections()) {
-            int toolOffset = section.getContentStartOffset();
-            createToolSectionForms(toolOffset);
+        for (ChatMessageTextSection section : message.getSections()) {
+            int offset = section.getContentStartOffset();
+            createToolSectionForms(offset);
+            createNoteSectionForms(offset);
             createSectionForm(section);
         }
 
-        int toolOffset = message.getContent().length();
-        createToolSectionForms(toolOffset);
+        int offset = message.getContent().length();
+        createToolSectionForms(offset);
+        createNoteSectionForms(offset);
     }
 
-    private void createSectionForm(ChatMessageSection section) {
+    private void createSectionForm(ChatMessageTextSection section) {
         if (section.getLanguage() == null)
             createTextSectionForm(section); else
             createCodeSectionForm(section);
     }
 
-    protected void createTextSectionForm(ChatMessageSection section) {
+    protected void createTextSectionForm(ChatMessageTextSection section) {
         ChatMessageTextSectionForm messageSectionForm = new ChatMessageTextSectionForm(this,
-                section.getContent(),
+                section,
                 c -> convertMarkdownToHtml(c));
 
         sectionForms.add(messageSectionForm);
         sectionsPanel.add(messageSectionForm.getComponent());
     }
 
-    private void createCodeSectionForm(ChatMessageSection section) {
+    private void createCodeSectionForm(ChatMessageTextSection section) {
         ChatMessagesForm parent = ensureParentComponent();
         ChatBoxForm chatBoxForm = parent.ensureParentComponent();
         ConnectionHandler connection = chatBoxForm.getConnection();
@@ -145,31 +150,57 @@ public class AgentChatMessageForm extends ChatMessageForm {
     }
 
     private void createToolSectionForms(int offset) {
-        List<ChatMessageToolSection> toolSections = getMessage().getToolSections();
-        for (ChatMessageToolSection toolSection : toolSections) {
-            if (toolSection.getOffset() == offset) {
-                createToolSectionForm(toolSection);
+        List<ChatMessageToolSection> sections = getMessage().getToolSections();
+        for (ChatMessageToolSection section : sections) {
+            if (section.getOffset() == offset) {
+                createToolSectionForm(section);
+            }
+        }
+    }
+
+    private void createNoteSectionForms(int offset) {
+        List<ChatMessageNoteSection> sections = getMessage().getNoteSections();
+        for (ChatMessageNoteSection section : sections) {
+            if (section.getOffset() == offset) {
+                createNoteSectionForm(section);
             }
         }
     }
 
     private void createToolSectionForm(ChatMessageToolSection toolSection) {
-        ChatMessagesForm parent = ensureParentComponent();
-        ChatBoxForm chatBoxForm = parent.ensureParentComponent();
+        ChatBoxForm chatBoxForm = ensureParentFrom(ChatBoxForm.class);
         ConnectionHandler connection = chatBoxForm.getConnection();
 
-        ChatMessageToolSectionForm toolSectionForm = new ChatMessageToolSectionForm(parent, connection, toolSection);
+        ChatMessageToolSectionForm toolSectionForm = new ChatMessageToolSectionForm(this, connection, toolSection);
         sectionForms.add(toolSectionForm);
         sectionsPanel.add(toolSectionForm.getComponent());
+    }
+
+    private void createNoteSectionForm(ChatMessageNoteSection noteSection) {
+        ChatMessageNoteSectionForm noteSectionForm = new ChatMessageNoteSectionForm(this, noteSection);
+        sectionForms.add(noteSectionForm);
+        sectionsPanel.add(noteSectionForm.getComponent());
+    }
+
+    protected void discardContent(ChatMessageSectionForm sectionForm) {
+        ChatMessageSectionType sectionType = sectionForm.getSectionType();
+        sectionsPanel.remove(sectionForm.getComponent());
+        sectionForms.remove(sectionForm);
+        Disposer.dispose(sectionForm);
+
+        if (sectionType == NOTE) {
+            getMessage().getNoteSections().remove(sectionForm.getSection());
+        }
+
     }
 
     @Override
     public void refreshMessageContent() {
         ChatMessage message = getMessage();
-        List<ChatMessageSection> sections = new ArrayList<>(message.getSections());
+        List<ChatMessageTextSection> sections = new ArrayList<>(message.getSections());
         List<ChatMessageSectionForm> sectionForms = getSectionForms(CODE, TEXT);
         for (int i = 0; i < sections.size(); i++) {
-            ChatMessageSection section = sections.get(i);
+            ChatMessageTextSection section = sections.get(i);
             if (i < sectionForms.size()) {
                 ChatMessageSectionForm sectionForm = sectionForms.get(i);
                 sectionForm.updateContent(section);
@@ -191,6 +222,22 @@ public class AgentChatMessageForm extends ChatMessageForm {
                 sectionForm.updateToolContent(section);
             } else {
                 createToolSectionForm(section);
+            }
+        }
+    }
+
+    @Override
+    public void refreshNoteContent() {
+        ChatMessage message = getMessage();
+        List<ChatMessageNoteSection> sections = new ArrayList<>(message.getNoteSections());
+        List<ChatMessageNoteSectionForm> sectionForms = getSectionForms(NOTE);
+        for (int i = 0; i < sections.size(); i++) {
+            ChatMessageNoteSection section = sections.get(i);
+            if (i < sectionForms.size()) {
+                ChatMessageNoteSectionForm sectionForm = sectionForms.get(i);
+                sectionForm.updateNoteContent(section);
+            } else {
+                createNoteSectionForm(section);
             }
         }
     }
