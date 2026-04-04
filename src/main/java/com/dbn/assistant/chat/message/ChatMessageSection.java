@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,58 +16,6 @@
 
 package com.dbn.assistant.chat.message;
 
-import com.intellij.lang.Language;
-import com.intellij.openapi.util.TextRange;
-import lombok.Getter;
-import lombok.Setter;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.dbn.assistant.chat.message.ChatMessageLanguages.resolveLanguage;
-
-/**
- * Section of chat message, qualified with a language
- */
-@Getter
-@Setter
-public class ChatMessageSection {
-
-    private final String content;
-    private final String languageId;
-
-    // offsets in the original message
-    private TextRange contentRange;
-
-    public ChatMessageSection(String content, TextRange contentRange, @Nullable @NonNls String languageId) {
-        this.content = content;
-        this.contentRange = contentRange;
-        this.languageId = languageId;
-    }
-
-    public int getContentStartOffset() {
-        return contentRange.getStartOffset();
-    }
-
-    public int getContentEndOffset() {
-        return contentRange.getEndOffset();
-    }
-
-    @Nullable
-    public Language getLanguage() {
-        return resolveLanguage(languageId);
-    }
-
-    public List<ChatMessageSection> asList() {
-        List<ChatMessageSection> sections = new ArrayList<>();
-        sections.add(this);
-        return sections;
-    }
-
-    @Override
-    public String toString() {
-        return languageId == null ? content : "[" + languageId + "] " + content;
-    }
+public interface ChatMessageSection {
+    ChatMessageSectionType getType();
 }

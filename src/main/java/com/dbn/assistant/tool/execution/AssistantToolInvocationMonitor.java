@@ -45,7 +45,7 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
     private boolean cancelled;
     private Future promise;
 
-    public AssistantToolInvocationMonitor(@NotNull AssistantState assistantState, AssistantTool tool) {
+    public AssistantToolInvocationMonitor(@NotNull AssistantState assistantState, @NotNull AssistantTool tool) {
         super(assistantState);
         this.tool = tool;
     }

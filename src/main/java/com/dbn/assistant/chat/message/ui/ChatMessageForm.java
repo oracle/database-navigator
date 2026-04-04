@@ -25,6 +25,7 @@ import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.ui.component.DBNFoldableComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
@@ -54,7 +55,7 @@ import static com.dbn.common.util.Commons.array;
  * @author Dan Cioca (Oracle)
  */
 @Getter
-public abstract class ChatMessageForm extends DBNFormBase {
+public abstract class ChatMessageForm extends DBNFormBase implements DBNFoldableComponent {
     protected interface Backgrounds {
         Color USER_PROMPT = new JBColor(new Color(218, 234, 255), new Color(68, 95, 128));
         Color AGENT_RESPONSE = Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 2));
@@ -71,9 +72,15 @@ public abstract class ChatMessageForm extends DBNFormBase {
         contentPanel.setVisible(!message.isFolded());
     }
 
-    public final void toggleContentFolding() {
-        boolean folded = message.isFolded();
-        changeContentFolding(!folded);
+
+    @Override
+    public boolean isFolded() {
+        return message.isFolded();
+    }
+
+    @Override
+    public void setFolded(boolean folded) {
+        changeContentFolding(folded);
     }
 
     protected void changeContentFolding(boolean folded) {
@@ -84,6 +91,8 @@ public abstract class ChatMessageForm extends DBNFormBase {
     public void refreshMessageContent() {}
 
     public void refreshToolContent() {}
+
+    public void refreshNoteContent() {}
 
 
     @NotNull
@@ -177,6 +186,7 @@ public abstract class ChatMessageForm extends DBNFormBase {
 
     public Object getData(@NotNull String dataId) {
         if (DataKeys.CHAT_MESSAGE_FORM.is(dataId)) return this;
+        if (DataKeys.FOLDABLE_COMPONENT.is(dataId)) return this;
         return null;
     }
 }

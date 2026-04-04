@@ -44,13 +44,13 @@ public class AssistantProfilesSettingsForm extends ConfigurationEditorForm<Assis
     private JPanel mainPanel;
     private JPanel profilesTablePanel;
 
-    private final AssistantProfilesEditorTable profilesTable;
+    private final AssistantProfilesTable profilesTable;
 
     public AssistantProfilesSettingsForm(AssistantProfileSettings settings) {
         super(settings);
 
         AssistantProfileBundle profiles = settings.getProfiles();
-        profilesTable = new AssistantProfilesEditorTable(this, profiles);
+        profilesTable = new AssistantProfilesTable(this, profiles);
         profilesTablePanel.add(initTableComponent());
 
         registerComponents(mainPanel);
