@@ -16,7 +16,6 @@
 
 package com.dbn.assistant.chat.message.ui;
 
-import androidx.annotation.Nullable;
 import com.dbn.assistant.chat.message.ChatMessageNoteSection;
 import com.dbn.assistant.chat.message.action.DiscardContentAction;
 import com.dbn.assistant.chat.message.action.ToggleFoldingAction;
@@ -33,6 +32,7 @@ import com.dbn.common.util.Actions;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
