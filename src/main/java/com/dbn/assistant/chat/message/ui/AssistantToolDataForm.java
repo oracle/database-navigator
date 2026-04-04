@@ -64,18 +64,29 @@ public class AssistantToolDataForm extends DBNFormBase {
     private DBNInfoLabel categoryInfoLabel;
     private JLabel typeLabel;
     private JLabel categoryLabel;
+    private JPanel toolInfoPanel;
+
+    private final AssistantToolInfoProvider info;
+    private final AssistantToolInvocation invocation;
 
     private EditorEx requestViewer;
     private EditorEx responseViewer;
 
     public AssistantToolDataForm(DBNComponent parent, AssistantToolInfoProvider info, AssistantToolInvocation invocation) {
         super(parent);
+        this.info = info;
+        this.invocation = invocation;
 
-        initDataHeader(info);
-        initDataViewers(invocation);
+        initDataHeader();
+        initDataViewers();
     }
 
-    private void initDataHeader(AssistantToolInfoProvider info) {
+    private void initDataHeader() {
+        if (info.isExternalTool()) {
+            toolInfoPanel.setVisible(false);
+            return;
+        }
+
         Color faded = Colors.faded(UIUtil.getLabelForeground());
         typeLabel.setForeground(faded);
         typeLabel.setFont(Fonts.regular(-1));
@@ -89,7 +100,7 @@ public class AssistantToolDataForm extends DBNFormBase {
         categoryInfoLabel.setContent(TextContent.plain(info.getToolCategoryDescription()));
     }
 
-    private void initDataViewers(AssistantToolInvocation invocation) {
+    private void initDataViewers() {
         Project project = getProject();
         String requestContent = invocation.getRequestContent();
         String responseContent = invocation.getResponseContent();

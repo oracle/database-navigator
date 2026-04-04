@@ -44,14 +44,16 @@ public abstract class AssistantToolBase extends ConnectionComponent implements A
     private String name;
     private String description;
     private boolean interactive;
+    private boolean external;
 
-    public void initialize(ConnectionHandler connection, String name, String description, AssistantToolType type, AssistantToolCategory category, boolean interactive) {
+    public void initialize(ConnectionHandler connection, String name, String description, AssistantToolType type, AssistantToolCategory category, boolean interactive, boolean external) {
         initialize(connection);
         this.name = name;
         this.description = description;
         this.type = type;
         this.category = category;
         this.interactive = interactive;
+        this.external = external;
     }
 
     protected static <T extends DBObject> List<String> getObjectNames(List<T> objects, boolean qualified) {

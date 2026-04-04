@@ -30,7 +30,7 @@ import static com.dbn.common.options.setting.Settings.setIntegerAttribute;
 
 @Getter
 @Setter
-public class ChatMessageToolSection implements PersistentStateElement {
+public class ChatMessageToolSection implements ChatMessageSection, PersistentStateElement {
     private int offset; // offset in the original assistant message
 
     @Delegate
@@ -41,6 +41,11 @@ public class ChatMessageToolSection implements PersistentStateElement {
     public ChatMessageToolSection(int offset, AssistantToolInvocation invocation) {
         this.offset = offset;
         this.invocation = invocation;
+    }
+
+    @Override
+    public ChatMessageSectionType getType() {
+        return ChatMessageSectionType.TOOL;
     }
 
     @Override

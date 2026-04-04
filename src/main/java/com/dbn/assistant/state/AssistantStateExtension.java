@@ -18,6 +18,7 @@ package com.dbn.assistant.state;
 
 import com.dbn.common.ref.WeakRef;
 import com.dbn.connection.ConnectionHandler;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class AssistantStateExtension {
@@ -35,5 +36,10 @@ public abstract class AssistantStateExtension {
     @NotNull
     public ConnectionHandler getConnection() {
         return getAssistantState().getConnection();
+    }
+
+    @NotNull
+    public Project getProject() {
+        return getAssistantState().getProject();
     }
 }
