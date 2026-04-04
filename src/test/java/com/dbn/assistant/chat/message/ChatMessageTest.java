@@ -34,21 +34,21 @@ public class ChatMessageTest {
 
     @Test
     public void testSample1() throws Exception{
-        List<ChatMessageSection> sections = readMessageSections("/assistantChatMessages/md-sample-01.md");
+        List<ChatMessageTextSection> sections = readMessageSections("/assistantChatMessages/md-sample-01.md");
         Assert.assertEquals(1, sections.size());
         Assert.assertEquals("typescript", sections.get(0).getLanguageId());
     }
 
     @Test
     public void testSample2() throws Exception{
-        List<ChatMessageSection> sections = readMessageSections("/assistantChatMessages/md-sample-02.md");
+        List<ChatMessageTextSection> sections = readMessageSections("/assistantChatMessages/md-sample-02.md");
         Assert.assertEquals(1, sections.size());
         Assert.assertEquals("javascript", sections.get(0).getLanguageId());
     }
 
     @Test
     public void testSample3() throws Exception{
-        List<ChatMessageSection> sections = readMessageSections("/assistantChatMessages/md-sample-03.md");
+        List<ChatMessageTextSection> sections = readMessageSections("/assistantChatMessages/md-sample-03.md");
         Assert.assertEquals(11, sections.size());
         Assert.assertNull(sections.get(0).getLanguageId());
         Assert.assertNull(sections.get(2).getLanguageId());
@@ -67,12 +67,12 @@ public class ChatMessageTest {
 
     @Test
     public void testSample4() throws Exception{
-        List<ChatMessageSection> sections = readMessageSections("/assistantChatMessages/md-sample-04.md");
+        List<ChatMessageTextSection> sections = readMessageSections("/assistantChatMessages/md-sample-04.md");
         Assert.assertEquals(1, sections.size());
         Assert.assertNull(sections.get(0).getLanguageId());
     }
 
-    private static List<ChatMessageSection> readMessageSections(String resource) throws IOException {
+    private static List<ChatMessageTextSection> readMessageSections(String resource) throws IOException {
         String content = readResource(resource);
         ChatContextImpl chatContext = new ChatContextImpl(PUBLIC);
         ChatMessage chatMessage = new ChatMessage(PUBLIC, NEUTRAL, content, AGENT, chatContext);

@@ -38,7 +38,7 @@ public class LanguageModelInvoker extends AbstractModelInvoker<LanguageModel>{
             consumer.acceptMessage(content);
             consumer.acceptCompletion();
         } catch (Throwable e) {
-            consumer.acceptError(e);
+            consumer.acceptError("Model invocation failed", e);
             consumer.acceptCompletion();
         }
 

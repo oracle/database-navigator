@@ -28,6 +28,7 @@ import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ThreadBlocker;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
+import com.dbn.common.util.UUIDs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.project.Project;
@@ -56,7 +57,7 @@ public class SelectAiEditorPromptUtil {
                 processMessage, p -> {
                     DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
 
-                    String chatId = null; // conversation not supported in editor context
+                    String chatId = UUIDs.compact(); // conversation not supported in editor context
                     // TODO is there any interactive use-case possible
                     //  (e.g. popup dialog with suggestion to improve the output)
 
@@ -68,7 +69,7 @@ public class SelectAiEditorPromptUtil {
                         }
 
                         @Override
-                        public void acceptError(Throwable e) {
+                        public void acceptError(String message, Throwable e) {
                             conditionallyLog(e);
                             AIProvider provider = context.getModel().getProvider();
                             handleGenerateException(project, connectionId, provider, e);

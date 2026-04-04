@@ -17,14 +17,24 @@
 package com.dbn.common.message;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
+import com.dbn.common.state.PersistentStateElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.jdom.Element;
 
 import javax.swing.Icon;
 
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.readCdata;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.common.options.setting.Settings.writeCdata;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class Message extends StatefulDisposableBase {
+@NoArgsConstructor
+public class Message extends StatefulDisposableBase implements PersistentStateElement {
     protected MessageType type;
     protected String text;
 
@@ -48,5 +58,25 @@ public class Message extends StatefulDisposableBase {
     @Override
     public void disposeInner() {
         nullify();
+    }
+
+    @Override
+    public void readState(Element element) {
+        if (element == null) return;
+
+        type = enumAttribute(element, "type", MessageType.class);
+
+        Element textElement = element.getChild("text");
+        text = readCdata(textElement);
+    }
+
+    @Override
+    public void writeState(Element element) {
+        if (element == null) return;
+
+        setEnumAttribute(element, "type", type);
+
+        Element textElement = newElement(element, "text");
+        writeCdata(textElement, text);
     }
 }

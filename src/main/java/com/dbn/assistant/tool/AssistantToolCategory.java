@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NonNls;
 @NonNls
 @Getter
 public enum AssistantToolCategory implements Constant<AssistantToolCategory> {
+    EXTERNAL("External", "External tool provided by MCP Servers"),
     USER_INTERACTION("User interaction", "Interactive tools for quick user input"),
     CONFIG_INFO_PROVIDER("Config information provider", "Database configuration details"),
     METADATA_PROVIDER("Metadata provider", "Database structure insights"),

@@ -25,6 +25,11 @@ public interface SelectAiResponseConsumer extends AssistantResponseConsumer {
     }
 
     @Override
+    default void acceptToolError(String message, Throwable exception) {
+        // tools not supported by select-ai backend
+    }
+
+    @Override
     default void acceptToolRequest(String requestId, String toolName, String toolArguments) {
         // tools not supported by select-ai backend
     }
