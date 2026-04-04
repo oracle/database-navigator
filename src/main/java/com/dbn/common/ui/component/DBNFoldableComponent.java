@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.profile.ui;
+package com.dbn.common.ui.component;
 
-import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
-import com.dbn.common.ui.table.DBNTable;
-import org.jetbrains.annotations.Nullable;
+public interface DBNFoldableComponent {
+    boolean isFolded();
+    void setFolded(boolean folded);
 
-public class AssistantProfilesTableCellRenderer extends DBNColoredTableCellRenderer {
-
-    @Override
-    protected void customizeCellRenderer(DBNTable table, @Nullable Object value, boolean selected, boolean hasFocus, int row, int column) {
-        if (value == null) return;
-        append(value.toString());
+    default void toggleFolding(){
+        boolean folded = isFolded();
+        setFolded(!folded);
     }
 }

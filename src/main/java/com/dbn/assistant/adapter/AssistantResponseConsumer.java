@@ -19,7 +19,8 @@ package com.dbn.assistant.adapter;
 public interface AssistantResponseConsumer {
     void acceptToken(String token);
     void acceptMessage(String message);
-    void acceptError(Throwable exception);
+    void acceptError(String message, Throwable exception);
+    void acceptToolError(String message, Throwable exception);
     void acceptToolRequest(String requestId, String toolName, String toolArguments);
     void acceptToolResponse(String requestId, String toolName, String toolResponse);
     void acceptCompletion();
