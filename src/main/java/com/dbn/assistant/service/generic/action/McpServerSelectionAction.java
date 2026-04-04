@@ -57,6 +57,7 @@ public class McpServerSelectionAction extends ComboBoxAction implements Assistan
 
         actionGroup.addSeparator();
         actionGroup.add(new McpServerCreateAction());
+        actionGroup.add(new AssistantSettingsAction());
 
         return actionGroup;
     }

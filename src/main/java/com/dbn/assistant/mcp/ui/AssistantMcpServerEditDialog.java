@@ -30,7 +30,7 @@ public class AssistantMcpServerEditDialog extends DBNDialog<AssistantMcpServerEd
     private final AssistantMcpServerEditRequest request;
 
     public AssistantMcpServerEditDialog(Project project, AssistantMcpServerEditRequest request) {
-        super(project, request.isNewMcpServer() ? "Create MCP Server" : "Update MCP Server", true);
+        super(project, request.isNewMcpServer() ? "Create MCP Server Config" : "Update MCP Server Config", true);
         this.request = request;
         this.mcpServer = initMcpServer();
 
