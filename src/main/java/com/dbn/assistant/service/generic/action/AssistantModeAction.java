@@ -70,4 +70,9 @@ public class AssistantModeAction extends SelectDropdownAction<AssistantMode> imp
         ChatAvailability availability = getChatAvailability(e);
         return availability == AVAILABLE;
     }
+
+    @Override
+    protected String getDescription(AnActionEvent e) {
+        return "Assistant operating mode";
+    }
 }
