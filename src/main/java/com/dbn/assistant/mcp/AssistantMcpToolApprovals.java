@@ -21,16 +21,23 @@ import com.dbn.common.sign.Signed;
 import com.dbn.common.state.PersistentStateElement;
 import org.jdom.Element;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
+import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 public class AssistantMcpToolApprovals implements PersistentStateElement, Signed {
-    private final Map<String, Map<String, AssistantToolApprovalStatus>> tools = new ConcurrentHashMap<>();
     private final Map<String, AssistantToolApprovalStatus> servers = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, AssistantToolApprovalStatus>> tools = new ConcurrentHashMap<>();
 
     private final AtomicInteger signature = new AtomicInteger(0);
 
@@ -56,9 +63,7 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
 
     public boolean isApproved(String serverKey, String toolName) {
         Map<String, AssistantToolApprovalStatus> approvals = tools.get(serverKey);
-        if (approvals == null) return false;
-
-        AssistantToolApprovalStatus toolStatus = approvals.get(toolName);
+        AssistantToolApprovalStatus toolStatus = approvals == null ? null : approvals.get(toolName);
         if (toolStatus == APPROVED) return true;
 
         AssistantToolApprovalStatus serverStatus = servers.get(serverKey);
@@ -69,9 +74,7 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
 
     public boolean isBlocked(String serverKey, String toolName) {
         Map<String, AssistantToolApprovalStatus> approvals = tools.get(serverKey);
-        if (approvals == null) return false;
-
-        AssistantToolApprovalStatus toolStatus = approvals.get(toolName);
+        AssistantToolApprovalStatus toolStatus = approvals == null ? null : approvals.get(toolName);
         if (toolStatus == BLOCKED) return true;
 
         return isBlocked(serverKey);
@@ -82,57 +85,61 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
         return serverStatus == BLOCKED;
     }
 
-
-
     public boolean isEmpty() {
         return tools.isEmpty() && servers.isEmpty();
     }
 
     @Override
     public void readState(Element element) {
-/*        if (element == null) return;
+        if (element == null) return;
 
-        Element categoriesElement = element.getChild("categories");
-        List<Element> categoryElements = childrenOf(categoriesElement);
-        for (Element categoryElement : categoryElements) {
-            AssistantToolCategory toolCategory = enumAttribute(categoryElement, "id", AssistantToolCategory.class);
-            AssistantToolApprovalStatus approvalStatus = enumAttribute(categoryElement, "status", AssistantToolApprovalStatus.class);
-            categories.put(toolCategory, approvalStatus);
+        Element serversElement = element.getChild("servers");
+        List<Element> serverElements = childrenOf(serversElement);
+        for (Element serverElement : serverElements) {
+            String serverKey = stringAttribute(serverElement , "key");
+            AssistantToolApprovalStatus approvalStatus = enumAttribute(serverElement, "status", AssistantToolApprovalStatus.class);
+            servers.put(serverKey, approvalStatus);
         }
 
-        Element typesElement = element.getChild("types");
-        List<Element> typeElements = childrenOf(typesElement);
-        for (Element typeElement : typeElements) {
-            AssistantToolType toolType = enumAttribute(typeElement, "id", AssistantToolType.class);
-            AssistantToolApprovalStatus approvalStatus = enumAttribute(typeElement, "status", AssistantToolApprovalStatus.class);
-            types.put(toolType, approvalStatus);
-        }*/
+        Element toolsElement = element.getChild("tools");
+        List<Element> toolElements = childrenOf(toolsElement);
+        for (Element toolElement : toolElements) {
+            String serverKey = stringAttribute(toolElement , "server-key");
+            String toolName = stringAttribute(toolElement , "tool-name");
+            AssistantToolApprovalStatus approvalStatus = enumAttribute(toolElement, "status", AssistantToolApprovalStatus.class);
+            Map<String, AssistantToolApprovalStatus> toolApprovals = tools.computeIfAbsent(serverKey, k -> new ConcurrentHashMap<>());
+            toolApprovals.put(toolName, approvalStatus);
+        }
     }
 
     @Override
     public void writeState(Element element) {
-/*        if (element == null) return;
+        if (element == null) return;
 
-        if (!categories.isEmpty()) {
-            Element categoriesElement = newElement(element, "categories");
-            for (AssistantToolCategory toolCategory : categories.keySet()) {
-                AssistantToolApprovalStatus approvalStatus = categories.get(toolCategory);
+        if (!servers.isEmpty()) {
+            Element serversElement = newElement(element, "servers");
+            for (String serverKey : servers.keySet()) {
+                AssistantToolApprovalStatus approvalStatus = servers.get(serverKey);
 
-                Element categoryElement = newElement(categoriesElement, "category");
-                setEnumAttribute(categoryElement, "id", toolCategory);
-                setEnumAttribute(categoryElement, "status", approvalStatus);
+                Element serverElement = newElement(serversElement, "server");
+                setStringAttribute(serverElement, "key", serverKey);
+                setEnumAttribute(serverElement, "status", approvalStatus);
             }
         }
 
-        if (!types.isEmpty()) {
-            Element typesElement = newElement(element, "types");
-            for (AssistantToolType toolType : types.keySet()) {
-                AssistantToolApprovalStatus approvalStatus = types.get(toolType);
+        if (!tools.isEmpty()) {
+            Element toolsElement = newElement(element, "tools");
+            for (String serverKey : tools.keySet()) {
+                Map<String, AssistantToolApprovalStatus> toolApprovals = tools.get(serverKey);
+                for (String toolName : toolApprovals.keySet()) {
+                    AssistantToolApprovalStatus approvalStatus = toolApprovals.get(toolName);
 
-                Element typeElement = newElement(typesElement, "type");
-                setEnumAttribute(typeElement, "id", toolType);
-                setEnumAttribute(typeElement, "status", approvalStatus);
+                    Element toolElement = newElement(toolsElement, "tool");
+                    setStringAttribute(toolElement, "server-key", serverKey);
+                    setStringAttribute(toolElement, "tool-name", toolName);
+                    setEnumAttribute(toolElement, "status", approvalStatus);
+                }
             }
-        }*/
+        }
     }
 }
