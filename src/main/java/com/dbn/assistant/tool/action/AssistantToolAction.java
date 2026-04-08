@@ -43,6 +43,6 @@ public abstract class AssistantToolAction extends ProjectAction implements Assis
         ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
         if (toolSectionForm == null) return false;
 
-        return toolSectionForm.isInteractive();
+        return toolSectionForm.isInteractiveTool();
     }
 }

@@ -58,6 +58,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBOptionButton;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -105,6 +106,8 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     private JTextPane descriptionTextPane;
 
     private final ConnectionRef connection;
+
+    @Delegate
     private final AssistantToolInfoProvider info;
 
     private AssistantToolDataForm toolDataForm;
@@ -127,7 +130,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     }
 
     private void initHeaderPanel() {
-        if (isInteractive()) {
+        if (isInteractiveTool()) {
             AssistantToolInvocation invocation = getToolInvocation();
             AssistantPrompt prompt = invocation.getPrompt();
             headerTitleLabel.setText(prompt.getTitle());
@@ -139,7 +142,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     }
 
     private void initContentPanel() {
-        if (isInteractive()) {
+        if (isInteractiveTool()) {
             contentPanel.setVisible(false);
             toolIconLabel.setIcon(ASSISTANT_QUESTION);
             toolIconLabel.setText("");
@@ -152,14 +155,16 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         toolIconLabel.setIcon(Icons.ASSISTANT_TOOL);
         toolIconLabel.setText("");
 
-        String wrapperContent = TextResources.get(getClass(), "tool_info_tooltip.html.ft");
-        TextContent htmlContent = TextContent.html(wrapperContent);
-        htmlContent.initField("TOOL_TYPE_NAME", info.getToolTypeName());
-        htmlContent.initField("TOOL_TYPE_DESCRIPTION", info.getToolTypeDescription());
-        htmlContent.initField("TOOL_CATEGORY_NAME", info.getToolCategoryName());
-        htmlContent.initField("TOOL_CATEGORY_DESCRIPTION", info.getToolCategoryDescription());
+        if (isInternalTool()) {
+            String wrapperContent = TextResources.get(getClass(), "tool_info_tooltip.html.ft");
+            TextContent htmlContent = TextContent.html(wrapperContent);
+            htmlContent.initField("TOOL_TYPE_NAME", info.getToolTypeName());
+            htmlContent.initField("TOOL_TYPE_DESCRIPTION", info.getToolTypeDescription());
+            htmlContent.initField("TOOL_CATEGORY_NAME", info.getToolCategoryName());
+            htmlContent.initField("TOOL_CATEGORY_DESCRIPTION", info.getToolCategoryDescription());
 
-        toolInfoLabel.setContent(htmlContent);
+            toolInfoLabel.setContent(htmlContent);
+        }
     }
 
     private void initDetailPanel() {
@@ -192,7 +197,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         processingIconPanel.add(new AsyncProcessIcon("Processing tool request"));
         processingPanel.setVisible(false);
         if (getInvocationMonitor() == null) return; // old incomplete tool request
-        if (isInteractive()) return;
+        if (isInteractiveTool()) return;
         if (!isPreapproved()) return;
 
         AssistantToolInvocation invocation = getToolInvocation();
@@ -202,7 +207,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     }
 
     private void initPromptMessagePanel() {
-        if (!isInteractive()) return;
+        if (!isInteractiveTool()) return;
         messagePanel.setVisible(true);
         messageSeparator.setVisible(false);
 
@@ -214,7 +219,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     }
 
     private void initPromptMessageButtons() {
-        if (!isInteractive()) return;
+        if (!isInteractiveTool()) return;
 
         messageButtonsPanel.removeAll();
         AssistantToolInvocation invocation = getToolInvocation();
@@ -260,7 +265,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     }
 
     private void initStandardMessagePanel() {
-        if (isInteractive()) return;
+        if (isInteractiveTool()) return;
 
         messagePanel.setVisible(false);
         AssistantToolInvocation invocation = getToolInvocation();
@@ -268,7 +273,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         if (getInvocationMonitor() == null) return; // old incomplete tool request
         if (isPreapproved()) return;
 
-        messageTextPane.setText(isExternal() ?
+        messageTextPane.setText(isExternalTool() ?
                 txt("msg.assistant.info.ExternalToolRequest") :
                 txt("msg.assistant.info.InternalToolRequest"));
 
@@ -310,6 +315,8 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
             if (toolDataForm == null) {
                 toolDataForm = new AssistantToolDataForm(this, info, getToolInvocation());
                 toolDataPanel.add(toolDataForm.getComponent());
+            } else {
+                toolDataForm.updateResponse();
             }
         }
 
@@ -325,14 +332,6 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         }
 
         toolDataPanel.setVisible(visible);
-    }
-
-    public boolean isInteractive() {
-        return info.isInteractiveTool();
-    }
-
-    public boolean isExternal() {
-        return info.isExternalTool();
     }
 
     private void consumeUserOption(String option) {
@@ -374,7 +373,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     }
 
     private boolean confirm(boolean approval) {
-        return isExternal() ?
+        return isExternalTool() ?
                 confirmExternal(approval) :
                 confirmInternal(approval);
     }
@@ -473,7 +472,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     }
 
     private boolean isPreapproved() {
-        if (isExternal()) {
+        if (isExternalTool()) {
             String utilityName = info.getUtilityName();
             String serverKey = info.getToolServerKey();
 
@@ -555,7 +554,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     public void updateToolContent(ChatMessageToolSection section) {
         AssistantToolStatus status = section.getStatus();
         if (status != AssistantToolStatus.REQUESTED) {
-            boolean interactive = isInteractive();
+            boolean interactive = isInteractiveTool();
             messagePanel.setVisible(interactive);
             messageButtonsPanel.setVisible(interactive);
             if (interactive) {

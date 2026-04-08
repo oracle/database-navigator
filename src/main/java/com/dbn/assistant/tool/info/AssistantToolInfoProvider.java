@@ -39,5 +39,6 @@ public interface AssistantToolInfoProvider {
     String getToolResponseSummary();
 
     boolean isInteractiveTool();
+    boolean isInternalTool();
     boolean isExternalTool();
 }
