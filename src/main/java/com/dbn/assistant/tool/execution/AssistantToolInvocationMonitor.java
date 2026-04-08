@@ -16,6 +16,9 @@
 
 package com.dbn.assistant.tool.execution;
 
+import com.dbn.assistant.mcp.AssistantMcpServer;
+import com.dbn.assistant.mcp.AssistantMcpServerData;
+import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
@@ -35,25 +38,54 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.thread.ThreadProperty.BACKGROUND;
+import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class AssistantToolInvocationMonitor extends AssistantStateExtension {
     private final AssistantTool tool;
+    private final String toolName;
     private CountDownLatch approvalLatch;
     private boolean approved;
     private boolean cancelled;
-    private Future promise;
+    private Future<?> promise;
 
-    public AssistantToolInvocationMonitor(@NotNull AssistantState assistantState, @NotNull AssistantTool tool) {
+    public AssistantToolInvocationMonitor(@NotNull AssistantState assistantState, @NotNull AssistantTool tool,  @NotNull String toolName) {
         super(assistantState);
+        this.toolName = toolName;
         this.tool = tool;
     }
 
     public void awaitApproval() {
+        if (tool.isExternal()) {
+            awaitMcpToolApproval();
+        } else {
+            awaitToolApproval();
+        }
+    }
+
+    private void awaitMcpToolApproval() {
+        AssistantState state = getAssistantState();
+        AssistantMcpToolApprovals approvals = state.getMcpToolApprovals();
+
+        AssistantMcpServerData mcpServerData = state.getMcpServerData();
+        AssistantMcpServer mcpServer = mcpServerData.resolveMcpServer(toolName);
+        if (mcpServer == null) throw new AssistantToolApprovalException("Can't resolve mcp server for tool name \"" + toolName + "\"");
+
+        String serverKey = mcpServer.getKey();
+        String utilityName = mcpServer.unqualifiedUtilityName(toolName);
+
+        if (approvals.isApproved(serverKey, utilityName)) return;
+        if (approvals.isBlocked(serverKey, utilityName)) throw new AssistantToolApprovalException("User has denied the execution of this tool");
+        if (approvals.isBlocked(serverKey)) throw new AssistantToolApprovalException("User has denied the execution of this MCP server");
+
+        awaitApproval(1, MINUTES); // TODO configuration
+    }
+
+    private void awaitToolApproval() {
         AssistantState state = getAssistantState();
         AssistantToolApprovals approvals = state.getToolApprovals();
-        if (approvals.isApproved(this.tool)) return;
+        if (approvals.isApproved(tool)) return;
 
         if (approvals.isBlocked(tool.getType())) throw new AssistantToolApprovalException("User has denied the execution of this tool type");
         if (approvals.isBlocked(tool.getCategory())) throw new AssistantToolApprovalException("User has denied the execution of this tool category");
@@ -78,12 +110,12 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
     }
 
     @SneakyThrows
-    public Object executeTool(ThrowableCallable<?, Exception> callable) {
+    public <T> T executeTool(ThrowableCallable<T, Exception> callable) {
         ThreadInfo invoker = ThreadInfo.copy();
         try {
             ExecutorService executorService = Threads.assistantToolExecutor();
             promise = executorService.submit(() -> ThreadMonitor.surround(invoker, BACKGROUND, callable));
-            return promise.get(1, MINUTES); // TODO tool timeout configuration
+            return cast(promise.get(1, MINUTES)); // TODO tool timeout configuration
         } catch (Throwable e) {
             conditionallyLog(e);
             throw Exceptions.unwrap(e);

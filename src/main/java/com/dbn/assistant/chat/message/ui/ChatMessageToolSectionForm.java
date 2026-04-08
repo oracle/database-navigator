@@ -18,6 +18,7 @@ package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessageToolSection;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCache;
@@ -267,10 +268,9 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         if (getInvocationMonitor() == null) return; // old incomplete tool request
         if (isPreapproved()) return;
 
-        messageTextPane.setText("The agent has requested to run this tool on your database. " +
-                "Please review the request and choose whether to allow or deny it. " +
-                "You may also choose to always allow or deny tools of this type or category. " +
-                "The system will remember your preference for future requests");
+        messageTextPane.setText(isExternal() ?
+                txt("msg.assistant.info.ExternalToolRequest") :
+                txt("msg.assistant.info.InternalToolRequest"));
 
         messagePanel.setVisible(true);
         String toolName = info.getToolName();
@@ -327,12 +327,12 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         toolDataPanel.setVisible(visible);
     }
 
-    public boolean isShowingToolData() {
-        return toolDataPanel != null && toolDataPanel.isVisible();
+    public boolean isInteractive() {
+        return info.isInteractiveTool();
     }
 
-    public boolean isInteractive() {
-        return getTool().isInteractive();
+    public boolean isExternal() {
+        return info.isExternalTool();
     }
 
     private void consumeUserOption(String option) {
@@ -374,6 +374,55 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     }
 
     private boolean confirm(boolean approval) {
+        return isExternal() ?
+                confirmExternal(approval) :
+                confirmInternal(approval);
+    }
+
+    private boolean confirmExternal(boolean approval) {
+        String title = approval ?
+                txt("msg.assistant.title.AlwaysAllowTool") :
+                txt("msg.assistant.title.DisableTool");
+
+        String utilityName = info.getUtilityName();
+        String serverKey = info.getToolServerKey();
+        String serverName = info.getToolServerName();
+
+        String message = approval ?
+                txt("msg.assistant.question.AlwaysAllowExternalTool", utilityName, serverName) :
+                txt("msg.assistant.question.DisableExternalTool", utilityName, serverName);
+
+        String[] options = approval ?
+                Messages.options(
+                        txt("msg.assistant.button.AllowTool"),
+                        txt("msg.assistant.button.AllowToolServer"),
+                        txt("msg.shared.button.Cancel")) :
+                Messages.options(
+                        txt("msg.assistant.button.DisableTool"),
+                        txt("msg.assistant.button.DisableToolServer"),
+                        txt("msg.shared.button.Cancel"));
+
+        int option = showConfirmationDialog(
+                getProject(),
+                title,
+                message,
+                options, 0);
+
+        AssistantMcpToolApprovals toolApprovals = getMcpToolApprovals();
+        AssistantToolApprovalStatus status = approval ? APPROVED : BLOCKED;
+        if (option == 0) {
+            toolApprovals.setStatus(serverKey, utilityName, status);
+            return true;
+        }
+
+        if (option == 1) {
+            toolApprovals.setStatus(serverKey, status);
+            return true;
+        }
+
+        return false;    }
+
+    private boolean confirmInternal(boolean approval) {
         String title = approval ?
                 txt("msg.assistant.title.AlwaysAllowTool") :
                 txt("msg.assistant.title.DisableTool");
@@ -424,8 +473,17 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     }
 
     private boolean isPreapproved() {
-        AssistantToolApprovals toolApprovals = getToolApprovals();
-        return toolApprovals.isApproved(getTool());
+        if (isExternal()) {
+            String utilityName = info.getUtilityName();
+            String serverKey = info.getToolServerKey();
+
+            AssistantMcpToolApprovals approvals = getMcpToolApprovals();
+            return approvals.isApproved(serverKey, utilityName);
+        } else {
+            AssistantTool tool = getTool();
+            AssistantToolApprovals approvals = getToolApprovals();
+            return approvals.isApproved(tool);
+        }
     }
 
     public void cancelToolExecution() {
@@ -465,6 +523,11 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     private AssistantToolApprovals getToolApprovals() {
         AssistantState assistantState = getAssistantState();
         return assistantState.getToolApprovals();
+    }
+
+    private AssistantMcpToolApprovals getMcpToolApprovals() {
+        AssistantState assistantState = getAssistantState();
+        return assistantState.getMcpToolApprovals();
     }
 
     private AssistantState getAssistantState() {

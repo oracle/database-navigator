@@ -25,6 +25,7 @@ import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
 import com.dbn.assistant.mcp.AssistantMcpServerData;
+import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.feature.FeatureAcknowledgement;
@@ -119,7 +120,12 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
     public AssistantToolApprovals getToolApprovals() {
         AssistantToolSettings settings = getToolSettings();
-        return settings.getApprovals();
+        return settings.getToolApprovals();
+    }
+
+    public AssistantMcpToolApprovals getMcpToolApprovals() {
+        AssistantToolSettings settings = getToolSettings();
+        return settings.getMcpToolApprovals();
     }
 
     public AssistantMcpServerData getMcpServerData() {

@@ -22,6 +22,10 @@ import com.dbn.assistant.tool.AssistantToolType;
 public interface AssistantToolInfoProvider {
     String getToolName();
     String getToolDescription();
+    String getToolServerKey();
+    String getToolServerName();
+
+    String getUtilityName();
 
     AssistantToolType getToolType();
     String getToolTypeName();
@@ -34,5 +38,6 @@ public interface AssistantToolInfoProvider {
     String getToolRequestSummary();
     String getToolResponseSummary();
 
+    boolean isInteractiveTool();
     boolean isExternalTool();
 }

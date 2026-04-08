@@ -50,27 +50,69 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
 
     @Override
     public String getToolName() {
-        String utilityName = getToolRequest().getToolName();
+        String utilityName = getRequestUtilityName();
 
-        AssistantTool tool = getTool();
-        UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
-        if (utilitySpec != null) return utilitySpec.name();
-
-        AssistantMcpServer mcpServer = resolveMcpServer(utilityName);
-        if (mcpServer != null) return mcpServer.unqualifiedUtilityName(utilityName);
+        if (isExternalTool()) {
+            AssistantMcpServer mcpServer = resolveMcpServer(utilityName);
+            if (mcpServer != null) return mcpServer.unqualifiedUtilityName(utilityName);
+        } else {
+            AssistantTool tool = getTool();
+            UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
+            if (utilitySpec != null) return utilitySpec.name();
+        }
 
         return utilityName;
     }
 
     @Override
     public String getToolDescription() {
-        String utilityName = getToolRequest().getToolName();
+        String utilityName = getRequestUtilityName();
 
-        AssistantTool tool = getTool();
-        UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
-        if (utilitySpec == null) return "";
+        if (isExternalTool()) {
+            return "";
+        } else {
+            AssistantTool tool = getTool();
+            UtilitySpec utilitySpec = getUtilitySpec(tool, utilityName);
+            if (utilitySpec == null) return "";
 
-        return utilitySpec.description();
+            return utilitySpec.description();
+        }
+    }
+
+    @Override
+    public String getToolServerKey() {
+        if (isExternalTool()) {
+            String utilityName = getRequestUtilityName();
+            AssistantMcpServer mcpServer = resolveMcpServer(utilityName);
+
+            return mcpServer == null ? null : mcpServer.getKey();
+        }
+        return null;
+    }
+
+    @Override
+    public String getToolServerName() {
+        if (isExternalTool()) {
+            String utilityName = getRequestUtilityName();
+            AssistantMcpServer mcpServer = resolveMcpServer(utilityName);
+
+            return mcpServer == null ? null : mcpServer.getName();
+        }
+
+        return null;
+    }
+
+    public String getUtilityName() {
+        String utilityName = getRequestUtilityName();
+        if (isExternalTool()) {
+            AssistantMcpServer mcpServer = resolveMcpServer(utilityName);
+            return mcpServer == null ? null : mcpServer.unqualifiedUtilityName(utilityName);
+        }
+        return utilityName;
+    }
+
+    private String getRequestUtilityName() {
+        return getToolRequest().getToolName();
     }
 
     @Override
@@ -137,8 +179,8 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
     private AssistantTool getTool() {
         AssistantToolCache toolCache = getToolCache();
 
-        String utilityName = getToolRequest().getToolName();
-        return toolCache.getAssistantTool(utilityName);
+        String toolName = getRequestUtilityName();
+        return toolCache.getAssistantTool(toolName);
     }
 
     public AssistantToolCategory getToolCategory() {
@@ -148,6 +190,11 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
     @Override
     public AssistantToolType getToolType() {
         return getTool().getType();
+    }
+
+    @Override
+    public boolean isInteractiveTool() {
+        return getTool().isInteractive();
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.tool.config;
 
+import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
@@ -30,7 +31,8 @@ import static com.dbn.common.options.setting.Settings.newElement;
 
 @Getter
 public class AssistantToolSettings extends AssistantStateExtension implements PersistentStateElement {
-    private final AssistantToolApprovals approvals = new AssistantToolApprovals();
+    private final AssistantToolApprovals toolApprovals = new AssistantToolApprovals();
+    private final AssistantMcpToolApprovals mcpToolApprovals = new AssistantMcpToolApprovals();
 
     protected AssistantToolSettings(@NotNull AssistantState assistantState) {
         super(assistantState);
@@ -45,16 +47,24 @@ public class AssistantToolSettings extends AssistantStateExtension implements Pe
         if (element == null) return;
 
         Element approvalsElement = element.getChild("approvals");
-        approvals.readState(approvalsElement);
+        toolApprovals.readState(approvalsElement);
+
+        Element mcpApprovalsElement = element.getChild("mcp-approvals");
+        mcpToolApprovals.readState(mcpApprovalsElement);
     }
 
     @Override
     public void writeState(Element element) {
         if (element == null) return;
 
-        if (!approvals.isEmpty()) {
+        if (!toolApprovals.isEmpty()) {
             Element approvalsElement = newElement(element, "approvals");
-            approvals.writeState(approvalsElement);
+            toolApprovals.writeState(approvalsElement);
+        }
+
+        if (!mcpToolApprovals.isEmpty()) {
+            Element approvalsElement = newElement(element, "mcp-approvals");
+            mcpToolApprovals.writeState(approvalsElement);
         }
     }
 }

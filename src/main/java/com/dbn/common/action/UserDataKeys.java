@@ -17,6 +17,7 @@
 package com.dbn.common.action;
 
 import com.dbn.assistant.mcp.AssistantMcpServerData;
+import com.dbn.assistant.mcp.AssistantMcpServerToolInterceptor;
 import com.dbn.assistant.service.generic.context.AssistantInstructionsCache;
 import com.dbn.assistant.service.generic.context.AssistantMemoryCache;
 import com.dbn.assistant.tool.AssistantToolCache;
@@ -70,6 +71,7 @@ public class UserDataKeys {
     public static final Key<AssistantToolSettings> ASSISTANT_TOOL_SETTINGS = Key.create("DBNavigator.AssistantToolSettings");
     public static final Key<AssistantInstructionsCache> ASSISTANT_INSTRUCTIONS_CACHE = Key.create("DBNavigator.AssistantInstructionsCache");
     public static final Key<AssistantMcpServerData> ASSISTANT_MCP_SERVER_DATA = Key.create("DBNavigator.AssistantMcpServerOptions");
+    public static final Key<AssistantMcpServerToolInterceptor> ASSISTANT_MCP_SERVER_TOOL_INTERCEPTOR = Key.create("DBNavigator.AssistantMcpServerToolInterceptor");
 
     public static final Key<MessageOutcomeHandler> MESSAGE_OUTCOME_HANDLER = Key.create("DBNavigator.MessageOutcomeHandler");
     public static final Key<Map<NotificationCategory, NotificationOutcomeHandler>> NOTIFICATION_OUTCOME_HANDLERS = Key.create("DBNavigator.NotificationOutcomeHandlers");

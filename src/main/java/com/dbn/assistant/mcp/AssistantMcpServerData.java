@@ -27,6 +27,7 @@ import dev.langchain4j.mcp.client.McpClient;
 import dev.langchain4j.mcp.client.transport.McpTransport;
 import dev.langchain4j.mcp.client.transport.http.StreamableHttpMcpTransport;
 import dev.langchain4j.mcp.client.transport.stdio.StdioMcpTransport;
+import dev.langchain4j.service.tool.ToolExecutor;
 import dev.langchain4j.service.tool.ToolProvider;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -141,7 +142,7 @@ public class AssistantMcpServerData extends AssistantStateExtension implements P
         }
     }
 
-    private static ToolProvider createToolProvider(AssistantMcpServer mcpServer, BiConsumer<String, Throwable> errorHandler) {
+    private ToolProvider createToolProvider(AssistantMcpServer mcpServer, BiConsumer<String, Throwable> errorHandler) {
         String serverName = mcpServer.getName();
         try {
             McpTransport transport = createMcpTransport(mcpServer);
@@ -153,12 +154,22 @@ public class AssistantMcpServerData extends AssistantStateExtension implements P
             return McpToolProvider.builder()
                     .mcpClients(mcpClient)
                     .toolNameMapper((c, s) -> qualifiedUtilityName(c.key(), s.name()))
+                    .toolWrapper(executor -> createInterceptedExecutor(executor))
                     .build();
         } catch (Throwable t) {
             log.warn(t.getMessage(), t);
             errorHandler.accept("Failed to initialize MCP Server \"" + serverName + "\"", t);
             return null;
         }
+    }
+
+    private ToolExecutor createInterceptedExecutor(ToolExecutor executor) {
+        return (request, memoryId) -> {
+            AssistantState assistantState = getAssistantState();
+            AssistantMcpServerToolInterceptor interceptor = AssistantMcpServerToolInterceptor.get(assistantState);
+
+            return interceptor.invoke(executor, request, memoryId);
+        };
     }
 
     private static McpTransport createMcpTransport(AssistantMcpServer mcpServer) {
