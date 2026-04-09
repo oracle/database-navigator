@@ -2,12 +2,20 @@ package com.dbn.connection.config.export;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseUrlType;
+import com.dbn.connection.ServerType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionPropertiesSettings;
 import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.EasyConnectParameters;
+import com.dbn.connection.config.tns.TnsNames;
+import com.dbn.connection.config.tns.TnsNamesParser;
+import com.dbn.connection.config.tns.TnsProfile;
 
+import java.io.File;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ConfigProviderMapper {
@@ -38,42 +46,45 @@ public class ConfigProviderMapper {
                 .build();
     }
 
-    private static String resolveConnectDescriptor(DatabaseInfo info) {
+    private static String resolveConnectDescriptor(DatabaseInfo info) throws Exception {
         if (info == null) return null;
 
         DatabaseUrlType urlType = info.getUrlType();
-        String url = trim(info.getUrl());
 
         // TNS: export alias
         if (urlType == DatabaseUrlType.TNS) {
-            String profile = trim(info.getTnsProfile());
-            return isBlank(profile) ? null : sanitize(profile);
+            return resolveTnsDescriptor(info);
         }
 
-        // SID/SERVICE/DATABASE: build descriptor from fields (preferred)
+        // SID/SERVICE/DATABASE/EZCONNECT: build descriptor from fields (preferred)
         String host = trim(info.getHost());
         String port = trim(info.getPort());
         String db   = trim(info.getDatabase());
 
         if (urlType == DatabaseUrlType.SID ||
                 urlType == DatabaseUrlType.SERVICE ||
-                urlType == DatabaseUrlType.DATABASE) {
+                urlType == DatabaseUrlType.DATABASE ||
+                urlType == DatabaseUrlType.EZCONNECT) {
 
-            if (isBlank(host) || isBlank(port) || isBlank(db)) {
-                return null; // block export: missing required fields
-            }
+            validateDescriptorFields(urlType, host, port, db);
 
             String protocol = info.getProtocol() == null ? "tcp" : info.getProtocol().name().toLowerCase();
 
-            String connectData = (urlType == DatabaseUrlType.SID)
-                    ? "(connect_data=(sid=" + db + "))"
-                    : "(connect_data=(service_name=" + db + "))";
+            String connectData = buildConnectData(info, urlType, db);
+            String descriptionParameters = urlType == DatabaseUrlType.EZCONNECT
+                    ? buildDescriptionParameters(info)
+                    : "";
+            String security = urlType == DatabaseUrlType.EZCONNECT
+                    ? buildSecurityParameters(info)
+                    : "";
 
             String descriptor =
                     "(description=" +
+                            descriptionParameters +
                             "(address_list=" +
                             "(address=(protocol=" + protocol + ")(host=" + host + ")(port=" + port + "))" +
                             ")" +
+                            security +
                             connectData +
                             ")";
 
@@ -83,14 +94,121 @@ public class ConfigProviderMapper {
         return null;
     }
 
-    private static String stripJdbcPrefix(String url) {
-        String prefix = "jdbc:oracle:thin:@";
-        String s = url.trim();
-        return s.startsWith(prefix) ? s.substring(prefix.length()).trim() : s;
+    private static String resolveTnsDescriptor(DatabaseInfo info) throws Exception {
+        String profileName = trim(info.getTnsProfile());
+        if (isBlank(profileName)) {
+            throw new IllegalArgumentException("TNS profile is required.");
+        }
+
+        String tnsFolder = trim(info.getTnsFolder());
+        if (isBlank(tnsFolder)) {
+            throw new IllegalArgumentException("TNS folder is required.");
+        }
+
+        File tnsNamesFile = Path.of(tnsFolder, "tnsnames.ora").toFile();
+        if (!tnsNamesFile.isFile()) {
+            throw new IllegalArgumentException("tnsnames.ora not found in folder: " + tnsFolder);
+        }
+
+        TnsNames tnsNames = TnsNamesParser.get(tnsNamesFile);
+        for (TnsProfile profile : tnsNames.getProfiles()) {
+            if (Strings.equalsIgnoreCase(profile.getProfile(), profileName)) {
+                return sanitize(profile.getDescriptor());
+            }
+        }
+
+        throw new IllegalArgumentException("TNS profile \"" + profileName + "\" was not found in " + tnsNamesFile.getPath());
+    }
+
+    private static void validateDescriptorFields(DatabaseUrlType urlType, String host, String port, String database) {
+        StringBuilder missing = new StringBuilder();
+        appendMissingField(missing, host, "Host");
+        appendMissingField(missing, port, "Port");
+        appendMissingField(missing, database, urlType == DatabaseUrlType.SID ? "SID" : "Service name");
+
+        if (!missing.isEmpty()) {
+            throw new IllegalArgumentException("Missing required connection fields for " + urlType.name() + ": " + missing);
+        }
+    }
+
+    private static void appendMissingField(StringBuilder builder, String value, String label) {
+        if (!isBlank(value)) return;
+        if (!builder.isEmpty()) builder.append(", ");
+        builder.append(label);
     }
 
     private static String normalize(String s) {
         return s == null ? null : s.replaceAll("\\s+", " ").trim();
+    }
+
+    private static String buildConnectData(DatabaseInfo info, DatabaseUrlType urlType, String database) {
+        StringBuilder builder = new StringBuilder("(connect_data=");
+        if (urlType == DatabaseUrlType.SID) {
+            builder.append("(sid=").append(database).append(")");
+        } else {
+            builder.append("(service_name=").append(database).append(")");
+        }
+
+        ServerType serverType = info.getServerType();
+        if (serverType != null && serverType != ServerType.DEFAULT) {
+            builder.append("(server=").append(serverType.name().toLowerCase()).append(")");
+        }
+        builder.append(")");
+        return builder.toString();
+    }
+
+    private static String buildDescriptionParameters(DatabaseInfo info) {
+        StringBuilder builder = new StringBuilder();
+        Map<String, String> parameters = normalizeEasyConnectParameters(info);
+        for (Map.Entry<String, String> entry : parameters.entrySet()) {
+            String key = trim(entry.getKey());
+            String value = trim(entry.getValue());
+            if (isBlank(key) || isBlank(value) || isSecurityParameter(key)) continue;
+
+            builder.append("(")
+                    .append(key.toLowerCase())
+                    .append("=")
+                    .append(value)
+                    .append(")");
+        }
+        return builder.toString();
+    }
+
+    private static String buildSecurityParameters(DatabaseInfo info) {
+        StringBuilder builder = new StringBuilder();
+        Map<String, String> parameters = normalizeEasyConnectParameters(info);
+        for (Map.Entry<String, String> entry : parameters.entrySet()) {
+            String key = trim(entry.getKey());
+            String value = trim(entry.getValue());
+            if (isBlank(key) || isBlank(value) || !isSecurityParameter(key)) continue;
+
+            builder.append("(")
+                    .append(key.toLowerCase())
+                    .append("=")
+                    .append(value)
+                    .append(")");
+        }
+
+        return builder.isEmpty() ? "" : "(security=" + builder + ")";
+    }
+
+    private static Map<String, String> normalizeEasyConnectParameters(DatabaseInfo info) {
+        Map<String, String> inputParameters = info.getParameters() == null
+                ? Map.of()
+                : new LinkedHashMap<>(info.getParameters());
+
+        LinkedHashMap<String, String> parameters = EasyConnectParameters.ensureParameters(
+                inputParameters,
+                info.getProtocol());
+
+        EasyConnectParameters.ensureQuoted(parameters, false);
+        return parameters;
+    }
+
+    private static boolean isSecurityParameter(String key) {
+        return "WALLET_LOCATION".equalsIgnoreCase(key) ||
+                "SSL_SERVER_DN_MATCH".equalsIgnoreCase(key) ||
+                "SSL_SERVER_CERT_DN".equalsIgnoreCase(key);
     }
 
     private static String trim(String s) { return s == null ? null : s.trim(); }

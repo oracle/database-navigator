@@ -18,6 +18,9 @@ import com.intellij.openapi.ui.DialogWrapper;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -74,6 +77,8 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
 
     private void doExport(Project project, ConnectionSettings settings, ConfigProviderExportRequest request) {
         try {
+            validateRequest(request);
+
             // 1) map settings -> domain payload (format-agnostic)
             ConfigProviderPayload payload = ConfigProviderMapper.map(settings, request);
 
@@ -100,13 +105,67 @@ public class ConfigProviderExportManager extends ApplicationComponentBase implem
             boolean sensitive = request.isIncludeWallet();
 
             if (sensitive) {
-                conditionallyLog(new RuntimeException("ConfigProvider export failed (" + e.getClass().getName() + ")"));
+                conditionallyLog(new RuntimeException("ConfigProvider export failed (" + e.getClass().getName() + "): " + messageOf(e)));
             } else {
                 conditionallyLog(e);
             }
 
-            Messages.showErrorDialog(project, "Export failed", "Export failed.");
+            Messages.showErrorDialog(project, "Export failed", userMessage(e));
         }
+    }
+
+    private static void validateRequest(ConfigProviderExportRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Export request is missing.");
+        }
+
+        Path outputFile = request.getOutputFile();
+        if (outputFile == null) {
+            throw new IllegalArgumentException("Output file is required.");
+        }
+
+        Path outputDirectory = outputFile.toAbsolutePath().getParent();
+        if (outputDirectory == null) {
+            throw new IllegalArgumentException("Output file must have a parent directory.");
+        }
+        if (!Files.exists(outputDirectory)) {
+            throw new IllegalArgumentException("Output directory does not exist: " + outputDirectory);
+        }
+        if (!Files.isDirectory(outputDirectory)) {
+            throw new IllegalArgumentException("Output path parent is not a directory: " + outputDirectory);
+        }
+        if (!Files.isWritable(outputDirectory)) {
+            throw new IllegalArgumentException("Output directory is not writable: " + outputDirectory);
+        }
+
+        if (request.isIncludeWallet()) {
+            Path walletFile = request.getWalletFile();
+            if (walletFile == null) {
+                throw new IllegalArgumentException("Wallet file is required when 'Include wallet' is selected.");
+            }
+            if (!Files.exists(walletFile)) {
+                throw new IllegalArgumentException("Wallet file does not exist: " + walletFile);
+            }
+            if (!Files.isRegularFile(walletFile)) {
+                throw new IllegalArgumentException("Wallet path is not a file: " + walletFile);
+            }
+            if (!Files.isReadable(walletFile)) {
+                throw new IllegalArgumentException("Wallet file is not readable: " + walletFile);
+            }
+        }
+    }
+
+    private static String userMessage(Exception e) {
+        String message = messageOf(e);
+        return message == null ? "Export failed." : message;
+    }
+
+    private static String messageOf(Exception e) {
+        String message = e.getMessage();
+        if (message == null || message.isBlank()) {
+            message = e.getLocalizedMessage();
+        }
+        return message == null || message.isBlank() ? null : message.trim();
     }
 
     public static ConfigProviderExportManager getInstance() {
