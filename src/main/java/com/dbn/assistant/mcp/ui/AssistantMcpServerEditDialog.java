@@ -17,6 +17,7 @@
 package com.dbn.assistant.mcp.ui;
 
 import com.dbn.assistant.mcp.AssistantMcpServer;
+import com.dbn.common.EntityId;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -43,6 +44,7 @@ public class AssistantMcpServerEditDialog extends DBNDialog<AssistantMcpServerEd
         AssistantMcpServer mcpServer = request.getMcpServer();
         if (mcpServer == null) {
             mcpServer = new AssistantMcpServer();
+            mcpServer.setId(EntityId.create(false));
         }
         return mcpServer;
     }

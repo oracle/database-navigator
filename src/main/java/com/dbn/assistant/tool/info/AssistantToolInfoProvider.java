@@ -18,10 +18,14 @@ package com.dbn.assistant.tool.info;
 
 import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.assistant.tool.AssistantToolType;
+import com.dbn.common.EntityId;
 
 public interface AssistantToolInfoProvider {
     String getToolName();
     String getToolDescription();
+
+
+    EntityId getToolServerId();
     String getToolServerKey();
     String getToolServerName();
 

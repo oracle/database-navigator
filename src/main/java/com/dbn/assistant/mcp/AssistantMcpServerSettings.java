@@ -18,6 +18,7 @@ package com.dbn.assistant.mcp;
 
 import com.dbn.assistant.mcp.ui.AssistantMcpServersSettingsForm;
 import com.dbn.assistant.settings.AssistantSettings;
+import com.dbn.common.EntityId;
 import com.dbn.common.options.BasicProjectConfiguration;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -49,7 +50,7 @@ public class AssistantMcpServerSettings
         this.mcpServers = new AssistantMcpServerBundle(getProject(), mcpServers.getElements());
     }
 
-    public Set<String> getMcpServerIds() {
+    public Set<EntityId> getMcpServerIds() {
         return mcpServers.getMcpServerIds();
     }
 

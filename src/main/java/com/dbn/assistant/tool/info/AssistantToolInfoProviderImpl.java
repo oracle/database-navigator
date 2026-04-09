@@ -29,6 +29,7 @@ import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.execution.AssistantToolInvocation;
 import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.assistant.tool.execution.AssistantToolResponse;
+import com.dbn.common.EntityId;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Unsafe;
@@ -77,6 +78,17 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
 
             return utilitySpec.description();
         }
+    }
+
+    @Override
+    public EntityId getToolServerId() {
+        if (isExternalTool()) {
+            String utilityName = getRequestUtilityName();
+            AssistantMcpServer mcpServer = resolveMcpServer(utilityName);
+
+            return mcpServer == null ? null : mcpServer.getId();
+        }
+        return null;
     }
 
     @Override

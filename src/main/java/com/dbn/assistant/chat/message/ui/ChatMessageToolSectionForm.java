@@ -35,6 +35,7 @@ import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.assistant.tool.execution.AssistantToolResponse;
 import com.dbn.assistant.tool.info.AssistantToolInfoProvider;
 import com.dbn.assistant.tool.info.AssistantToolInfoProviderImpl;
+import com.dbn.common.EntityId;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
@@ -384,7 +385,7 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
                 txt("msg.assistant.title.DisableTool");
 
         String utilityName = info.getUtilityName();
-        String serverKey = info.getToolServerKey();
+        EntityId serverId = info.getToolServerId();
         String serverName = info.getToolServerName();
 
         String message = approval ?
@@ -410,12 +411,12 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
         AssistantMcpToolApprovals toolApprovals = getMcpToolApprovals();
         AssistantToolApprovalStatus status = approval ? APPROVED : BLOCKED;
         if (option == 0) {
-            toolApprovals.setStatus(serverKey, utilityName, status);
+            toolApprovals.setStatus(serverId, utilityName, status);
             return true;
         }
 
         if (option == 1) {
-            toolApprovals.setStatus(serverKey, status);
+            toolApprovals.setStatus(serverId, status);
             return true;
         }
 
@@ -474,10 +475,10 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     private boolean isPreapproved() {
         if (isExternalTool()) {
             String utilityName = info.getUtilityName();
-            String serverKey = info.getToolServerKey();
+            EntityId serverId = info.getToolServerId();
 
             AssistantMcpToolApprovals approvals = getMcpToolApprovals();
-            return approvals.isApproved(serverKey, utilityName);
+            return approvals.isApproved(serverId, utilityName);
         } else {
             AssistantTool tool = getTool();
             AssistantToolApprovals approvals = getToolApprovals();

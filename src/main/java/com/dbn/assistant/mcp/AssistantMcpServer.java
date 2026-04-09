@@ -16,16 +16,18 @@
 
 package com.dbn.assistant.mcp;
 
+import com.dbn.common.EntityId;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
-import com.dbn.common.util.UUIDs;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 
+import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -34,8 +36,8 @@ import static com.dbn.common.util.Unsafe.cast;
 @Getter
 @Setter
 public class AssistantMcpServer implements PersistentConfiguration, Presentable, Cloneable<AssistantMcpServer> {
-    private String id = UUIDs.regular();
     private AssistantMcpServerType type = AssistantMcpServerType.HTTP;
+    private EntityId id;
     private String name;
     private String key;
     private String url;
@@ -72,7 +74,7 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
 
     @Override
     public void readConfiguration(Element element) {
-        id = stringAttribute(element, "id", id);
+        id = constantAttribute(element, "id", EntityId.class);
 
         type = enumAttribute(element, "type", AssistantMcpServerType.class);
         name = stringAttribute(element, "name");
@@ -84,7 +86,7 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
 
     @Override
     public void writeConfiguration(Element element) {
-        setStringAttribute(element, "id", id);
+        setConstantAttribute(element, "id", id);
 
         setEnumAttribute(element, "type", type);
         setStringAttribute(element, "name", name);

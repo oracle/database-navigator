@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.mcp;
 
+import com.dbn.common.EntityId;
 import com.dbn.common.component.ProjectUnit;
 import com.dbn.common.sign.Signed;
 import com.intellij.openapi.project.Project;
@@ -66,7 +67,7 @@ public class AssistantMcpServerBundle extends ProjectUnit implements Signed {
         return elements.size();
     }
 
-    public AssistantMcpServer getMcpServer(String id) {
+    public AssistantMcpServer getMcpServer(EntityId id) {
         return first(elements, c -> c.getId().equals(id));
     }
 
@@ -74,7 +75,7 @@ public class AssistantMcpServerBundle extends ProjectUnit implements Signed {
         return elements.get(index);
     }
 
-    public Set<String> getMcpServerIds() {
+    public Set<EntityId> getMcpServerIds() {
         return elements.stream().map(s -> s.getId()).collect(Collectors.toSet());
     }
 

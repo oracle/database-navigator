@@ -65,7 +65,7 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
         if (!isFeatureSupported(assistantState, TOOLS)) return;
 
         var tools = AssistantToolCache.get(assistantState);
-        builder.toolProvider(tools);
+        builder.toolProvider(tools.getProvider());
     }
 
     protected static void initExternalToolProviders(AiServices<?> builder, ModelInvocationContext context) {

@@ -24,6 +24,7 @@ import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
+import com.dbn.common.EntityId;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.common.thread.ThreadInfo;
@@ -72,12 +73,12 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
         AssistantMcpServer mcpServer = mcpServerData.resolveMcpServer(toolName);
         if (mcpServer == null) throw new AssistantToolApprovalException("Can't resolve mcp server for tool name \"" + toolName + "\"");
 
-        String serverKey = mcpServer.getKey();
+        EntityId serverId = mcpServer.getId();
         String utilityName = mcpServer.unqualifiedUtilityName(toolName);
 
-        if (approvals.isApproved(serverKey, utilityName)) return;
-        if (approvals.isBlocked(serverKey, utilityName)) throw new AssistantToolApprovalException("User has denied the execution of this tool");
-        if (approvals.isBlocked(serverKey)) throw new AssistantToolApprovalException("User has denied the execution of this MCP server");
+        if (approvals.isApproved(serverId, utilityName)) return;
+        if (approvals.isBlocked(serverId, utilityName)) throw new AssistantToolApprovalException("User has denied the execution of this tool");
+        if (approvals.isBlocked(serverId)) throw new AssistantToolApprovalException("User has denied the execution of this MCP server");
 
         awaitApproval(1, MINUTES); // TODO configuration
     }

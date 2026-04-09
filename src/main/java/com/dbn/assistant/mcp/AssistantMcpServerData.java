@@ -19,6 +19,7 @@ package com.dbn.assistant.mcp;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
+import com.dbn.common.EntityId;
 import com.dbn.common.state.PersistentStateElement;
 import com.intellij.openapi.project.Project;
 import dev.langchain4j.mcp.McpToolProvider;
@@ -47,17 +48,18 @@ import static com.dbn.common.action.UserDataKeys.ASSISTANT_MCP_SERVER_DATA;
 import static com.dbn.common.action.UserDataKeys.getUserDataSync;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
-import static com.dbn.common.options.setting.Settings.setStringAttribute;
-import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.common.util.Lists.filter;
 
 
 @Slf4j
 @Getter
 public class AssistantMcpServerData extends AssistantStateExtension implements PersistentStateElement {
-    private final Map<String, Boolean> selections = new ConcurrentHashMap<>();
+    private final Map<EntityId, Boolean> selections = new ConcurrentHashMap<>();
+    private final Map<EntityId, List<AssistantMcpToolInfo>> tools = new ConcurrentHashMap<>();
     private int settingsSignature;
 
     protected AssistantMcpServerData(@NotNull AssistantState assistantState) {
@@ -77,7 +79,7 @@ public class AssistantMcpServerData extends AssistantStateExtension implements P
         if (settingsSignature == this.settingsSignature) return;
 
         this.settingsSignature = settingsSignature;
-        Set<String> serverIds = mcpServerSettings.getMcpServerIds();
+        Set<EntityId> serverIds = mcpServerSettings.getMcpServerIds();
         selections.keySet().removeIf(s -> !serverIds.contains(s));
     }
 
@@ -87,13 +89,13 @@ public class AssistantMcpServerData extends AssistantStateExtension implements P
         return assistantSettings.getMcpServerSettings();
     }
 
-    public boolean isSelected(String id) {
-        Boolean selected = selections.get(id);
+    public boolean isSelected(EntityId serverId) {
+        Boolean selected = selections.get(serverId);
         return selected != null && selected;
     }
 
-    public void setSelected(String id, boolean selected) {
-        selections.put(id, selected);
+    public void setSelected(EntityId serverId, boolean selected) {
+        selections.put(serverId, selected);
     }
 
     public int countSelected() {
@@ -120,7 +122,7 @@ public class AssistantMcpServerData extends AssistantStateExtension implements P
         Element mcpServersElement = element.getChild("selections");
         List<Element> mcpServerElements = childrenOf(mcpServersElement, "mcp-server");
         for (Element mcpServerElement : mcpServerElements) {
-            String serverId = stringAttribute(mcpServerElement, "id");
+            EntityId serverId = constantAttribute(mcpServerElement, "id", EntityId.class);
             boolean selected = booleanAttribute(mcpServerElement, "selected", false);
             selections.put(serverId, selected);
         }
@@ -133,10 +135,10 @@ public class AssistantMcpServerData extends AssistantStateExtension implements P
 
         if (!selections.isEmpty()) {
             Element approvalsElement = newElement(element, "selections");
-            for (String serverId : selections.keySet()) {
+            for (EntityId serverId : selections.keySet()) {
                 boolean selected = selections.get(serverId);
                 Element serverElement = newElement(approvalsElement, "mcp-server");
-                setStringAttribute(serverElement, "id", serverId);
+                setConstantAttribute(serverElement, "id", serverId);
                 setBooleanAttribute(serverElement, "selected", selected);
             }
         }
@@ -155,6 +157,7 @@ public class AssistantMcpServerData extends AssistantStateExtension implements P
                     .mcpClients(mcpClient)
                     .toolNameMapper((c, s) -> qualifiedUtilityName(c.key(), s.name()))
                     .toolWrapper(executor -> createInterceptedExecutor(executor))
+                    .filter((c, s) -> true) // TODO approval
                     .build();
         } catch (Throwable t) {
             log.warn(t.getMessage(), t);
@@ -175,12 +178,23 @@ public class AssistantMcpServerData extends AssistantStateExtension implements P
     private static McpTransport createMcpTransport(AssistantMcpServer mcpServer) {
         AssistantMcpServerType type = mcpServer.getType();
         return switch (type) {
-            case HTTP -> StreamableHttpMcpTransport.builder()
-                    .url(mcpServer.getUrl())
-                    .build();
-            case STDIO ->  StdioMcpTransport.builder()
-                    .command(Arrays.stream(mcpServer.getCommand().split(" ")).toList()).build();
+            case HTTP -> createHttpMcpTransport(mcpServer);
+            case STDIO -> createStdioMcpTransport(mcpServer);
         };
+    }
+
+    private static StdioMcpTransport createStdioMcpTransport(AssistantMcpServer mcpServer) {
+        return StdioMcpTransport
+                .builder()
+                .command(Arrays.stream(mcpServer.getCommand().split(" ")).toList())
+                .build();
+    }
+
+    private static StreamableHttpMcpTransport createHttpMcpTransport(AssistantMcpServer mcpServer) {
+        return StreamableHttpMcpTransport
+                .builder()
+                .url(mcpServer.getUrl())
+                .build();
     }
 
     public List<ToolProvider> createToolProviders(BiConsumer<String, Throwable> errorHandler) {
