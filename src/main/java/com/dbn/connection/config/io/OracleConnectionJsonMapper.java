@@ -13,21 +13,31 @@ public final class OracleConnectionJsonMapper {
     private OracleConnectionJsonMapper() {}
 
     public static OracleConnectionJsonConfig from(ConnectionSettings settings) {
-        OracleConnectionJsonConfig cfg = new OracleConnectionJsonConfig();
 
         ConnectionDatabaseSettings db = settings.getDatabaseSettings();
         DatabaseInfo info = db.getDatabaseInfo();
         AuthenticationInfo auth = db.getAuthenticationInfo();
         ConnectionPropertiesSettings props = settings.getPropertiesSettings();
 
-        cfg.setConnectDescriptor(resolveConnectDescriptor(info));  // REQUIRED
-        cfg.setUser(auth == null ||auth.getUser().equals("") ? null : auth.getUser());         // optional
-        cfg.setJdbc(resolveJdbc(props));                           // optional
+        return OracleConnectionJsonConfig.builder()
+                .connectDescriptor(resolveConnectDescriptor(info))
+                .user(auth == null || auth.getUser() == null || auth.getUser().isBlank() ? null : auth.getUser())
+                .jdbc(resolveJdbc(props))
+                .password(null)
+                .walletLocation(null)
+                .build();
+    }
 
-        cfg.setPassword(null);
-        cfg.setWalletLocation(null);
+    public static OracleConnectionJsonConfig.OracleConnectionJsonConfigBuilder builderFrom(ConnectionSettings settings) {
+        ConnectionDatabaseSettings db = settings.getDatabaseSettings();
+        DatabaseInfo info = db.getDatabaseInfo();
+        AuthenticationInfo auth = db.getAuthenticationInfo();
+        ConnectionPropertiesSettings props = settings.getPropertiesSettings();
 
-        return cfg;
+        return OracleConnectionJsonConfig.builder()
+                .connectDescriptor(resolveConnectDescriptor(info))  // required
+                .user(auth == null || auth.getUser() == null || auth.getUser().isBlank() ? null : auth.getUser())
+                .jdbc(resolveJdbc(props));
     }
 
     private static String resolveConnectDescriptor(DatabaseInfo info) {
@@ -39,7 +49,7 @@ public final class OracleConnectionJsonMapper {
         // TNS: export alias
         if (urlType == DatabaseUrlType.TNS) {
             String profile = trim(info.getTnsProfile());
-            return isBlank(profile) ? null : profile;
+            return isBlank(profile) ? null : sanitize(profile);
         }
 
         // SID/SERVICE/DATABASE: build descriptor from fields (preferred)
@@ -64,13 +74,24 @@ public final class OracleConnectionJsonMapper {
                             connectData +
                             ")";
 
-            return normalize(descriptor);
+            return sanitize(descriptor);
         }
 
         // CUSTOM (or fallback): return base if present
         if (!isBlank(url)) {
-            String base = beforeQuery(stripJdbcPrefix(url));
-            return isBlank(base) ? null : normalize(base);
+            String remainder = stripJdbcPrefix(url); // everything after '@'
+            remainder = trim(remainder);
+            if (isBlank(remainder)) return null;
+
+            // case: jdbc:oracle:thin:@?TNS_ADMIN=...  -> no connect descriptor
+            if (remainder.startsWith("?")) return null;
+
+            // case: jdbc:oracle:thin:@(description=...) -> keep as-is
+            if (startsLikeDescriptor(remainder)) return sanitize(remainder);
+
+            // default: drop query params (e.g. TNS_ADMIN) and return base
+            String base = beforeQuery(remainder);
+            return isBlank(base) ? null : sanitize(base);
         }
 
         return null;
@@ -134,6 +155,20 @@ public final class OracleConnectionJsonMapper {
         try { return Double.parseDouble(v); } catch (Exception ignore) {}
 
         return value;
+    }
+
+    private static String sanitize(String s) {
+        s = normalize(s);
+        if (s == null) return null;
+        if ((s.startsWith("\"") && s.endsWith("\"")) || (s.startsWith("'") && s.endsWith("'"))) {
+            s = s.substring(1, s.length() - 1).trim();
+        }
+        return s;
+    }
+
+    private static boolean startsLikeDescriptor(String s) {
+        String v = trim(s);
+        return v != null && v.regionMatches(true, 0, "(description=", 0, "(description=".length());
     }
 
 }
