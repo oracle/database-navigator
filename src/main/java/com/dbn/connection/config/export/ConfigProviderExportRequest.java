@@ -1,4 +1,4 @@
-package com.dbn.connection.config.configprovider;
+package com.dbn.connection.config.export;
 
 import lombok.Builder;
 import lombok.Value;
@@ -11,9 +11,6 @@ public class ConfigProviderExportRequest {
     Path outputFile;
     String formatId;
     String wrapperKey;
-    boolean includePassword;
     boolean includeWallet;
     Path walletFile;
-
-
 }

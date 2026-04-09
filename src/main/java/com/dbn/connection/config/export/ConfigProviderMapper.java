@@ -1,13 +1,11 @@
-package com.dbn.connection.config.configprovider;
+package com.dbn.connection.config.export;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
-import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionPropertiesSettings;
 import com.dbn.connection.config.ConnectionSettings;
-import com.dbn.connection.config.configprovider.ConfigProviderPayload;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -25,15 +23,7 @@ public class ConfigProviderMapper {
         String user = auth == null ? null : trim(auth.getUser());
         Map<String, Object> jdbc = resolveJdbc(props);
 
-        SecretRef passwordRef = null;
         SecretRef walletRef = null;
-
-        if (request != null && request.isIncludePassword()) {
-            // Only export password for USER_PASSWORD auth
-            if (auth != null && auth.getType() == AuthenticationType.USER_PASSWORD) {
-                passwordRef = SecretRefFactory.base64Password(auth.getPassword());
-            }
-        }
 
         if (request != null && request.isIncludeWallet()) {
             Path walletFile = request.getWalletFile();
@@ -44,7 +34,6 @@ public class ConfigProviderMapper {
                 .connectDescriptor(connectDescriptor)
                 .user(user)
                 .jdbc(jdbc)
-                .password(passwordRef)
                 .walletLocation(walletRef)
                 .build();
     }
@@ -66,8 +55,13 @@ public class ConfigProviderMapper {
         String port = trim(info.getPort());
         String db   = trim(info.getDatabase());
 
-        if (!isBlank(host) && !isBlank(port) && !isBlank(db) &&
-                (urlType == DatabaseUrlType.SID || urlType == DatabaseUrlType.SERVICE || urlType == DatabaseUrlType.DATABASE)) {
+        if (urlType == DatabaseUrlType.SID ||
+                urlType == DatabaseUrlType.SERVICE ||
+                urlType == DatabaseUrlType.DATABASE) {
+
+            if (isBlank(host) || isBlank(port) || isBlank(db)) {
+                return null; // block export: missing required fields
+            }
 
             String protocol = info.getProtocol() == null ? "tcp" : info.getProtocol().name().toLowerCase();
 
@@ -86,20 +80,6 @@ public class ConfigProviderMapper {
             return sanitize(descriptor);
         }
 
-        // CUSTOM (or fallback): return base if present
-        if (!isBlank(url)) {
-            String remainder = stripJdbcPrefix(url); // everything after '@'
-            remainder = trim(remainder);
-            if (isBlank(remainder)) return null;
-
-            // case: jdbc:oracle:thin:@?TNS_ADMIN=...  -> no connect descriptor
-            if (remainder.startsWith("?")) return null;
-
-            // default: drop query params (e.g. TNS_ADMIN) and return base
-            String base = beforeQuery(remainder);
-            return isBlank(base) ? null : sanitize(base);
-        }
-
         return null;
     }
 
@@ -107,12 +87,6 @@ public class ConfigProviderMapper {
         String prefix = "jdbc:oracle:thin:@";
         String s = url.trim();
         return s.startsWith(prefix) ? s.substring(prefix.length()).trim() : s;
-    }
-
-    private static String beforeQuery(String s) {
-        if (s == null) return null;
-        int idx = s.indexOf('?');
-        return idx == -1 ? s.trim() : s.substring(0, idx).trim();
     }
 
     private static String normalize(String s) {
@@ -172,8 +146,4 @@ public class ConfigProviderMapper {
         return s;
     }
 
-    private static boolean startsLikeDescriptor(String s) {
-        String v = trim(s);
-        return v != null && v.regionMatches(true, 0, "(description=", 0, "(description=".length());
-    }
 }
