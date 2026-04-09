@@ -1,4 +1,6 @@
-package com.dbn.connection.config.io;
+package com.dbn.connection.config.configprovider;
+
+
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -8,10 +10,11 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
 
-public final class OracleSecretRefFactory {
-    private OracleSecretRefFactory() {}
+public class SecretRefFactory {
 
-    public static OracleConnectionJsonConfig.SecretRef base64Password(char[] password) {
+    private SecretRefFactory(){}
+
+    public static SecretRef base64Password(char[] password) {
         if (password == null || password.length == 0) return null;
 
         byte[] utf8 = null;
@@ -22,8 +25,8 @@ public final class OracleSecretRefFactory {
 
             String b64 = Base64.getEncoder().encodeToString(utf8);
 
-            return OracleConnectionJsonConfig.SecretRef.builder()
-                    .type("base64")
+            return SecretRef.builder()
+                    .type(SecretProviderType.BASE64)
                     .value(b64)
                     .build();
         } finally {
@@ -31,7 +34,7 @@ public final class OracleSecretRefFactory {
         }
     }
 
-    public static OracleConnectionJsonConfig.SecretRef base64Wallet(Path walletFile) throws Exception {
+    public static SecretRef base64Wallet(Path walletFile) throws Exception {
         if (walletFile == null) return null;
 
         String name = walletFile.getFileName().toString().toLowerCase();
@@ -43,8 +46,8 @@ public final class OracleSecretRefFactory {
         byte[] bytes = Files.readAllBytes(walletFile);
         String b64 = Base64.getEncoder().encodeToString(bytes);
 
-        return OracleConnectionJsonConfig.SecretRef.builder()
-                .type("base64")
+        return SecretRef.builder()
+                .type(SecretProviderType.BASE64)
                 .value(b64)
                 .build();
     }
