@@ -16,6 +16,7 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
+import com.dbn.assistant.AssistantMode;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.mcp.AssistantMcpServerData;
@@ -73,6 +74,9 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
 
         AssistantState assistantState = context.getAssistantState();
         if (!isFeatureSupported(assistantState, TOOLS)) return;
+
+        ChatContext currentContext = assistantState.getCurrentContext();
+        if (currentContext.getAssistantMode() == AssistantMode.RAG) return;
 
         AssistantResponseConsumer responseConsumer = context.getResponseConsumer();
         AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(assistantState);
