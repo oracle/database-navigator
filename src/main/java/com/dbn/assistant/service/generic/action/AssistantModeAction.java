@@ -75,4 +75,9 @@ public class AssistantModeAction extends SelectDropdownAction<AssistantMode> imp
     protected String getDescription(AnActionEvent e) {
         return "Assistant operating mode";
     }
+
+    @Override
+    protected String getDescription(AssistantMode element) {
+        return element.getDescription();
+    }
 }
