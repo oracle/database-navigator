@@ -94,7 +94,6 @@ public abstract class ComboBoxAction
         if (content == null) return;
 
         JPanel component = createPopupComponent(content);
-
         RelativePoint location = getPopupLocation(dataContext, component, list);
         if (location == null) return;
 
@@ -172,7 +171,7 @@ public abstract class ComboBoxAction
         Point boundsLocation = SwingUtilities.convertPoint(actionList, bounds.getLocation(), window);
         int left = boundsLocation.x - popupWidth - popupGap;
 
-        int y = boundsLocation.y;
+        int y = boundsLocation.y + contentSize.height / 2;
         int x = left < 0 ?
                 boundsLocation.x + actionList.getWidth() + popupWidth / 2 + popupGap :
                 boundsLocation.x - popupWidth / 2 - popupGap;
