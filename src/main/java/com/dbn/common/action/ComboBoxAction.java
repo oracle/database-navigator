@@ -17,6 +17,9 @@
 package com.dbn.common.action;
 
 import com.dbn.common.ref.WeakRef;
+import com.dbn.common.text.TextContent;
+import com.dbn.common.ui.info.DBNInfoForm;
+import com.dbn.common.util.Strings;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -28,9 +31,7 @@ import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.awt.RelativePoint;
-import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.popup.PopupFactoryImpl;
 import com.intellij.ui.popup.list.ListPopupImpl;
 import com.intellij.util.ui.JBUI;
@@ -133,26 +134,29 @@ public abstract class ComboBoxAction
         builder.setCornerRadius(JBUI.scale(8));
         builder.setLayer(Balloon.Layer.top);
         builder.setDisposable(disposable);
-        builder.setFillColor(UIUtil.getTextFieldBackground());
-        builder.setBorderColor(JBUI.CurrentTheme.Popup.borderColor(true));
+        builder.setFillColor(UIUtil.getToolTipBackground());
+        builder.setBorderColor(JBUI.CurrentTheme.Tooltip.borderColor());
 
 
         return builder.createBalloon();
     }
 
-    private static JPanel createPopupComponent(String description) {
-        String html = description.contains("<html>") ? description : "<html><body style='width: 200px; margin: 0;'>" +
-                StringUtil.escapeXmlEntities(description) +
-                "</body></html>";
+    private static JPanel createPopupComponent(String content) {
+        if (!Strings.containsIgnoreCase(content, "<html")) {
+            int width = content.length() > 60 ? 200 : 150;
+            content = TextContent.tooltip(content, "width: " + width + "px").getText();
+        }
 
-        JBLabel label = new JBLabel(html);
-        label.setOpaque(false);
+        TextContent textContent = TextContent.html(content);
+        textContent.rebuild();
+        DBNInfoForm infoForm = new DBNInfoForm(null, textContent);
+        JComponent infoComponent = infoForm.getComponent();
 
-        JPanel content = new JPanel(new BorderLayout());
-        content.setOpaque(false);
-        content.setBorder(JBUI.Borders.empty(4, 4));
-        content.add(label);
-        return content;
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setOpaque(false);
+        contentPanel.setBorder(JBUI.Borders.empty(4, 4));
+        contentPanel.add(infoComponent);
+        return contentPanel;
     }
 
     private static RelativePoint getPopupLocation(DataContext dataContext, JPanel content, JList actionList) {

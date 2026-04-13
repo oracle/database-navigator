@@ -35,6 +35,7 @@ public class DBNInfoForm extends DBNFormBase {
         super(parent);
         content.setTooltip(true);
         content.rebuild();
+
         infoTextPane.setContentType(content.getTypeId());
         infoTextPane.setText(content.getText());
         infoTextPane.setForeground(UIUtil.getToolTipForeground());

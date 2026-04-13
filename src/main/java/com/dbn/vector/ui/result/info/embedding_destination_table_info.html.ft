@@ -26,7 +26,7 @@
 
     </style>
 </head>
-<body>
+<body style="width: 300px">
     <h3>Embedding Destination</h3>
     <p>
         Destination table where vector embeddings were generated.<br>
