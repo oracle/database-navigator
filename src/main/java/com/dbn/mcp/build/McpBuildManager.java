@@ -96,25 +96,13 @@ public class McpBuildManager {
 
     private String resolveUrl() {
         DatabaseInfo info = connection.getDatabaseInfo();
-        connection.getSettings().getDatabaseSettings().getConnectionUrl();
         DatabaseUrlType urlType = info.getUrlType();
-        //todo get connection url from database setting
-      // but for the tns take the tns build the url based
-//      info.getTnsFolder()
-//      connection.getSettings().getDatabaseSettings().get
-//      DatabaseUrlPattern.ORACLE_TNS.buildUrl(null,null,null,null,null,info.getTnsFolder(),"",null,null)
 
         if (urlType == DatabaseUrlType.TNS) {
             throw new UnsupportedOperationException(
                     "TNS alias connections are not yet supported by the MCP Builder.\n" +
                     "Please switch to a direct connection (EZConnect, SID, or Service Name) and rebuild.");
         }
-        if (urlType == DatabaseUrlType.LDAP || urlType == DatabaseUrlType.LDAPS) {
-            throw new UnsupportedOperationException(
-                    "LDAP connections are not yet supported by the MCP Builder.\n" +
-                    "Please switch to a direct connection (EZConnect, SID, or Service Name) and rebuild.");
-        }
-
         if (urlType == DatabaseUrlType.CUSTOM) {
             return safe(info.getUrl());
         }
