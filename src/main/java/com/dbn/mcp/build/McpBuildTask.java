@@ -247,7 +247,7 @@ public class McpBuildTask {
                 Path finalJar = serverOutputDir.resolve(tempJar.getFileName());
                 Files.move(tempJar, finalJar, StandardCopyOption.REPLACE_EXISTING);
                 Files.copy(cfg.getFile(), serverOutputDir.resolve(CONFIG), StandardCopyOption.REPLACE_EXISTING);
-                Files.writeString(serverOutputDir.resolve("Main.java"), template, StandardCharsets.UTF_8);
+                Files.deleteIfExists(serverOutputDir.resolve("Main.java"));
                 createWallet(serverOutputDir);
                 writeReadme(serverOutputDir);
                 showResult(serverOutputDir, finalJar);

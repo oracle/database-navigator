@@ -44,7 +44,7 @@ public class McpBuildResultForm extends DBNFormBase {
                 + "<b>MCP server built successfully.</b><br><br>"
                 + "Built JAR: " + escapeHtml(jarPath) + "<br>"
                 + "Config: " + escapeHtml(configPath) + "<br>"
-                + "Wallet: " + escapeHtml(walletPath) + "<br><br>"
+                + "Wallet: " + escapeHtml(walletPath) + "<br>"
                 + "Source project: " + escapeHtml(sourceProjectPath) + "<br><br>"
                 + "<b>Next steps:</b><br>"
                 + "1. Copy the JSON below into your MCP client configuration (e.g. Claude Desktop).<br>"
