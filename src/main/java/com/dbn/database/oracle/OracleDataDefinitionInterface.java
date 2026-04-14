@@ -36,6 +36,7 @@ import com.dbn.object.factory.model.DBObjectSpecList;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -146,7 +147,8 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         try {
             resultSet = executeQuery(connection, "extract-ddl-statement", objectType, ownerName, objectName);
             resultSet.next();
-            return resultSet.getString(1);
+            Clob clob = resultSet.getClob(1);
+            return Resources.readClob(clob);
         } finally {
             Resources.close(resultSet);
         }
