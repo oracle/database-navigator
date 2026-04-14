@@ -203,6 +203,7 @@ dependencies {
     bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey:3.37.0@jar")
     bundledJdbcOracle("com.oracle.oci.sdk:oci-java-sdk-identitydataplane:3.37.0@jar")
     bundledJdbcOracle("com.oracle.database.jdbc:ojdbc8:23.4.0.24.05@jar")
+    implementation("com.oracle.database.security:oraclepki:23.4.0.24.05@jar")
     bundledJdbcOracle("com.oracle.database.security:oraclepki:23.4.0.24.05@jar")
     bundledJdbcOracle("com.oracle.database.nls:orai18n:23.4.0.24.05@jar")
     bundledJdbcOracle("com.oracle.database.xml:xdb:23.4.0.24.05@jar")
