@@ -5,6 +5,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.mcp.model.ToolDefinitionModel;
+import com.dbn.mcp.util.McpServerName;
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.UIUtil;
@@ -41,7 +42,7 @@ public class McpServerInputForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(serverNameField, n -> n != null && !n.trim().isEmpty(), "Please enter a server name");
+        addTextValidation(serverNameField, field -> McpServerName.validationError(field.getText()));
     }
 
     public boolean hasTools() {
@@ -62,7 +63,7 @@ public class McpServerInputForm extends DBNFormBase {
     }
 
     public String getServerName() {
-        return serverNameField.getText().trim();
+        return McpServerName.normalize(serverNameField.getText());
     }
 
     public List<ToolDefinitionModel> getTools() {

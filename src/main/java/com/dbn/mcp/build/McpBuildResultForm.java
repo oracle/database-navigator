@@ -24,11 +24,12 @@ public class McpBuildResultForm extends DBNFormBase {
                                String configPath,
                                String jarPath,
                                String walletPath,
+                               String sourceProjectPath,
                                String fullJson,
                                String fragmentJson) {
         super(parent);
         mainPanel = new JPanel(new BorderLayout(8, 8));
-        mainPanel.add(createHeaderLabel(configPath, jarPath, walletPath), BorderLayout.NORTH);
+        mainPanel.add(createHeaderLabel(configPath, jarPath, walletPath, sourceProjectPath), BorderLayout.NORTH);
         mainPanel.add(createConfigTabs(fullJson, fragmentJson), BorderLayout.CENTER);
     }
 
@@ -38,16 +39,17 @@ public class McpBuildResultForm extends DBNFormBase {
         return mainPanel;
     }
 
-    private JLabel createHeaderLabel(String configPath, String jarPath, String walletPath) {
+    private JLabel createHeaderLabel(String configPath, String jarPath, String walletPath, String sourceProjectPath) {
         String headerHtml = "<html>"
                 + "<b>MCP server built successfully.</b><br><br>"
                 + "Built JAR: " + escapeHtml(jarPath) + "<br>"
                 + "Config: " + escapeHtml(configPath) + "<br>"
                 + "Wallet: " + escapeHtml(walletPath) + "<br><br>"
+                + "Source project: " + escapeHtml(sourceProjectPath) + "<br><br>"
                 + "<b>Next steps:</b><br>"
                 + "1. Copy the JSON below into your MCP client configuration (e.g. Claude Desktop).<br>"
-                + "2. The <code>wallet/</code> folder contains encrypted credentials — keep it private.<br>"
-                + "3. To change credentials, rebuild the server from DBN with the updated connection."
+                + "2. Keep the <code>wallet/</code> folder private.<br>"
+                + "3. See <code>README.md</code> in the output folder for full run and customization details."
                 + "</html>";
         return new JLabel(headerHtml);
     }

@@ -26,6 +26,7 @@ import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @Slf4j
 public final class McpMavenBuild {
@@ -36,7 +37,17 @@ public final class McpMavenBuild {
 
     private McpMavenBuild() {}
 
-    public static Path buildWithMaven(Project project, Path outDir, String serverName, String sdkCoord, String jdbcCoord, String java, Path props, boolean allowWrapper, Consumer<String> outputHandler)
+    public static Path buildWithMaven(
+            Project project,
+            Path outDir,
+            String serverName,
+            String sdkCoord,
+            String jdbcCoord,
+            String java,
+            Path props,
+            Path sourceProjectDir,
+            boolean allowWrapper,
+            Consumer<String> outputHandler)
             throws IOException, MavenInvocationException {
         Coord sdk = Coord.parse(sdkCoord);
         Coord jdbc = Coord.parse(jdbcCoord);
@@ -47,9 +58,57 @@ public final class McpMavenBuild {
             setupProject(projDir, java, props, info);
             writePom(project, projDir, serverName, sdk, jdbc, info.fqn);
             runMaven(projDir, allowWrapper, outputHandler);
+            exportSourceProject(projDir, sourceProjectDir);
             return copyJar(projDir, outDir);
         } finally {
             deleteDir(projDir);
+        }
+    }
+
+    private static void exportSourceProject(Path projDir, Path sourceProjectDir) throws IOException {
+        if (sourceProjectDir == null) return;
+
+        if (Files.exists(sourceProjectDir)) {
+            deleteDir(sourceProjectDir);
+        }
+        Files.createDirectories(sourceProjectDir);
+
+        copyFileIfExists(projDir.resolve("pom.xml"), sourceProjectDir.resolve("pom.xml"));
+        copyDirIfExists(projDir.resolve("src"), sourceProjectDir.resolve("src"));
+        copyFileIfExists(projDir.resolve("mvnw"), sourceProjectDir.resolve("mvnw"));
+        copyFileIfExists(projDir.resolve("mvnw.cmd"), sourceProjectDir.resolve("mvnw.cmd"));
+        copyDirIfExists(projDir.resolve(".mvn"), sourceProjectDir.resolve(".mvn"));
+    }
+
+    private static void copyFileIfExists(Path source, Path target) throws IOException {
+        if (!Files.exists(source) || !Files.isRegularFile(source)) return;
+        Path parent = target.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+        Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private static void copyDirIfExists(Path source, Path target) throws IOException {
+        if (!Files.exists(source) || !Files.isDirectory(source)) return;
+        copyDirectory(source, target);
+    }
+
+    private static void copyDirectory(Path sourceDir, Path targetDir) throws IOException {
+        try (Stream<Path> stream = Files.walk(sourceDir)) {
+            for (Path source : stream.toList()) {
+                Path relative = sourceDir.relativize(source);
+                Path target = targetDir.resolve(relative);
+                if (Files.isDirectory(source)) {
+                    Files.createDirectories(target);
+                } else {
+                    Path parent = target.getParent();
+                    if (parent != null) {
+                        Files.createDirectories(parent);
+                    }
+                    Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
         }
     }
 

@@ -2,7 +2,7 @@ package com.dbn.mcp;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.mcp.build.McpBuildManager;
+import com.dbn.mcp.build.McpBuildTask;
 import com.dbn.mcp.model.ToolDefinitionModel;
 import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
@@ -48,6 +48,6 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
         List<ToolDefinitionModel> tools = getForm().getTools();
         super.doOKAction();
 
-        new McpBuildManager(getProject(), connection, serverName, tools).execute();
+        new McpBuildTask(getProject(), connection, serverName, tools).execute();
     }
 }

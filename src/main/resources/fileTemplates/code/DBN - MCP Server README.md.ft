@@ -16,6 +16,12 @@ $h2 Running
 java -jar ${JAR_NAME}
 ```
 
+Or pass an explicit config path:
+
+```
+java -jar ${JAR_NAME} /absolute/path/to/mcp-config.yaml
+```
+
 The `wallet/` directory must be in the same directory as the JAR.
 
 $h2 Credentials
@@ -32,24 +38,30 @@ dataSource:
 ```
 
 If `username` and `password` are absent from the YAML, the wallet is used automatically.
+This is the simplest way to switch credentials without rebuilding the JAR.
+
+$h2 Advanced Customization
+
+The build also generates a full Maven project under `source-project/`:
+
+- `source-project/pom.xml`
+- `source-project/src/main/java/...`
+
+You can edit this project (for example switch transport to HTTP in `Main.java`) and rebuild independently.
 
 $h2 Security
 
 - Do **not** commit the `wallet/` directory to version control — add it to `.gitignore`
 - Restrict wallet permissions: `chmod 700 wallet`
 - If you add credentials to `mcp-config.yaml`, treat that file as sensitive — do not commit it to git
-- To restore wallet-based auth, remove `username` and `password` from the YAML and rebuild from DBN
 
 $h2 Claude Desktop
 
-Add the following to your `claude_desktop_config.json`:
+Paste the following **fragment** inside the existing `mcpServers` block in your `claude_desktop_config.json`:
 
 ```json
-
-  "mcpServers": {
-    "${SERVER_NAME}": {
-      "command": "java",
-      "args": ["-jar", "/absolute/path/to/${JAR_NAME}"]
-    }
-  }
+"${SERVER_NAME}": {
+  "command": "java",
+  "args": ["-jar", "/absolute/path/to/${JAR_NAME}"]
+}
 ```

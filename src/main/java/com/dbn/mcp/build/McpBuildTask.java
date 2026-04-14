@@ -10,8 +10,11 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
+import com.dbn.connection.config.tns.TnsNamesParser;
+import com.dbn.connection.config.tns.TnsProfile;
 import com.dbn.mcp.model.ParamRow;
 import com.dbn.mcp.model.ToolDefinitionModel;
+import com.dbn.mcp.util.McpServerName;
 import com.dbn.mcp.util.SqlParameterParser;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -19,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import oracle.security.pki.OracleSecretStore;
 import oracle.security.pki.OracleWallet;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -26,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +39,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class McpBuildManager {
+public class McpBuildTask {
     private static final String TEMPLATE = "DBN - MCP Server Main";
     private static final String CONFIG = "mcp-config.yaml";
     private static final String DIST = "mcp-dist";
+    private static final String SOURCE_PROJECT = "source-project";
     private static final String MCP_SDK = "io.modelcontextprotocol.sdk:mcp:0.12.1";
     private static final String JDBC = "com.oracle.database.jdbc:ojdbc11:23.8.0.25.04";
 
@@ -46,14 +52,20 @@ public class McpBuildManager {
     private final String serverName;
     private final List<ToolDefinitionModel> tools;
 
-    public McpBuildManager(Project project, ConnectionHandler connection, String serverName, List<ToolDefinitionModel> tools) {
+    public McpBuildTask(Project project, ConnectionHandler connection, String serverName, List<ToolDefinitionModel> tools) {
         this.project = project;
         this.connection = connection;
-        this.serverName = serverName;
+        this.serverName = McpServerName.normalize(serverName);
         this.tools = tools;
     }
 
     public void execute() {
+        String serverNameError = McpServerName.validationError(serverName);
+        if (serverNameError != null) {
+            showError(serverNameError);
+            return;
+        }
+
         try {
             resolveUrl(); // fail fast before any dialog or file writing
         } catch (UnsupportedOperationException e) {
@@ -65,8 +77,13 @@ public class McpBuildManager {
         templateProps.setProperty("SERVER_NAME", serverName);
         String template = TemplateUtilities.generateCode(project, TEMPLATE, templateProps);
 
-        Path basePath = project != null ? Paths.get(project.getBasePath()) : Paths.get(System.getProperty("user.home"));
-        Path serverOutputDir = basePath.resolve(DIST).resolve(serverName);
+        Path basePath = resolveBasePath();
+        Path distPath = basePath.resolve(DIST).toAbsolutePath().normalize();
+        Path serverOutputDir = distPath.resolve(serverName).normalize();
+        if (!serverOutputDir.startsWith(distPath)) {
+            showError("Invalid server name. Please choose a different name.");
+            return;
+        }
 
         if (Files.exists(serverOutputDir)) {
             int option = Messages.showConfirmationDialog(project,
@@ -75,21 +92,30 @@ public class McpBuildManager {
                     new String[]{"Override", "Cancel"}, 0);
             if (option != 0) return;
         }
-        build(createConfig(), template, serverOutputDir);
+        McpBuildConfig config;
+        try {
+            config = createConfig();
+        } catch (IOException e) {
+            log.error("Failed to write MCP config", e);
+            showError("Config write failed: " + e.getMessage());
+            return;
+        }
+        build(config, template, serverOutputDir);
     }
 
-    private McpBuildConfig createConfig() {
-        Path dir = project != null ? Paths.get(project.getBasePath()) : Paths.get(System.getProperty("user.home"));
+    private Path resolveBasePath() {
+        return project != null && project.getBasePath() != null
+                ? Paths.get(project.getBasePath())
+                : Paths.get(System.getProperty("user.home"));
+    }
+
+    private McpBuildConfig createConfig() throws IOException {
+        Path dir = resolveBasePath();
         String yaml = buildYaml(serverName);
         Path configFile = dir.resolve(CONFIG);
 
-        try {
-            Files.createDirectories(dir);
-            Files.write(configFile, yaml.getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            log.error("Failed to write MCP config", e);
-            Messages.showErrorDialog(project, "Error", "Config write failed: " + e.getMessage());
-        }
+        Files.createDirectories(dir);
+        Files.write(configFile, yaml.getBytes(StandardCharsets.UTF_8));
 
         return new McpBuildConfig(dir, configFile, serverName);
     }
@@ -99,9 +125,7 @@ public class McpBuildManager {
         DatabaseUrlType urlType = info.getUrlType();
 
         if (urlType == DatabaseUrlType.TNS) {
-            throw new UnsupportedOperationException(
-                    "TNS alias connections are not yet supported by the MCP Builder.\n" +
-                    "Please switch to a direct connection (EZConnect, SID, or Service Name) and rebuild.");
+            return resolveTnsDescriptorUrl(info);
         }
         if (urlType == DatabaseUrlType.CUSTOM) {
             return safe(info.getUrl());
@@ -109,6 +133,41 @@ public class McpBuildManager {
 
         DatabaseUrlPattern pattern = DatabaseUrlPattern.get(connection.getDatabaseType(), urlType);
         return pattern.buildUrl(info);
+    }
+
+    private String resolveTnsDescriptorUrl(DatabaseInfo info) {
+        String tnsFolder = safe(info.ensureTnsFolder());
+        String tnsProfile = safe(info.getTnsProfile());
+
+        if (Strings.isEmptyOrSpaces(tnsFolder)) {
+            throw new UnsupportedOperationException("TNS folder is not configured for this connection.");
+        }
+        if (Strings.isEmptyOrSpaces(tnsProfile)) {
+            throw new UnsupportedOperationException("TNS profile is not configured for this connection.");
+        }
+
+        File tnsFile = Paths.get(tnsFolder, "tnsnames.ora").toFile();
+        if (!tnsFile.isFile()) {
+            throw new UnsupportedOperationException("TNS file not found: " + tnsFile.getAbsolutePath());
+        }
+
+        try {
+            TnsProfile profile = TnsNamesParser.get(tnsFile).getProfiles().stream()
+                    .filter(p -> p.getProfile().equalsIgnoreCase(tnsProfile))
+                    .findFirst()
+                    .orElseThrow(() -> new UnsupportedOperationException(
+                            "TNS profile '" + tnsProfile + "' not found in " + tnsFile.getAbsolutePath()));
+
+            String descriptor = safe(profile.getDescriptor()).replaceAll("\\s", "");
+            if (descriptor.isEmpty()) {
+                throw new UnsupportedOperationException("TNS profile '" + tnsProfile + "' has an empty descriptor.");
+            }
+            return "jdbc:oracle:thin:@" + descriptor;
+        } catch (UnsupportedOperationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UnsupportedOperationException("Failed to parse TNS file: " + tnsFile.getAbsolutePath(), e);
+        }
     }
 
     private String buildYaml(String serverName) {
@@ -172,7 +231,18 @@ public class McpBuildManager {
         Progress.prompt(project, null, true, "Building MCP Server", "Maven build...", indicator -> {
             indicator.setIndeterminate(true);
             try {
-                Path tempJar = McpMavenBuild.buildWithMaven(project, cfg.getDir().resolve(DIST), serverName, MCP_SDK, JDBC, template, cfg.getFile(), useWrapper, logger(indicator));
+                Path sourceProjectDir = serverOutputDir.resolve(SOURCE_PROJECT);
+                Path tempJar = McpMavenBuild.buildWithMaven(
+                        project,
+                        cfg.getDir().resolve(DIST),
+                        serverName,
+                        MCP_SDK,
+                        JDBC,
+                        template,
+                        cfg.getFile(),
+                        sourceProjectDir,
+                        useWrapper,
+                        logger(indicator));
                 Files.createDirectories(serverOutputDir);
                 Path finalJar = serverOutputDir.resolve(tempJar.getFileName());
                 Files.move(tempJar, finalJar, StandardCopyOption.REPLACE_EXISTING);
@@ -192,8 +262,8 @@ public class McpBuildManager {
         Path walletDir = dir.resolve("wallet");
         Files.createDirectories(walletDir);
 
-        String user = safe(connection.getUserName());
-        char[] pwd  = getPassword(connection).toCharArray();
+        char[] user = safe(connection.getUserName()).toCharArray();
+        char[] pwd = getPassword(connection);
 
         // Random password — used only to create ewallet.p12, never stored or shown.
         // cwallet.sso (used at runtime) needs no password.
@@ -206,7 +276,7 @@ public class McpBuildManager {
 
             OracleSecretStore store = wallet.getSecretStore();
             // Fixed keys — no URL coupling, credentials are decoupled from connection string
-            store.setSecret("mcp.username", user.toCharArray());
+            store.setSecret("mcp.username", user);
             store.setSecret("mcp.password", pwd);
             wallet.setSecretStore(store);
 
@@ -215,7 +285,9 @@ public class McpBuildManager {
         } catch (Exception e) {
             throw new IOException("Failed to create Oracle SEPS wallet: " + e.getMessage(), e);
         } finally {
-            java.util.Arrays.fill(walletPassword, '\0');
+            Arrays.fill(walletPassword, '\0');
+            Arrays.fill(user, '\0');
+            Arrays.fill(pwd, '\0');
         }
     }
 
@@ -259,7 +331,8 @@ public class McpBuildManager {
         String path = jar.toAbsolutePath().toString();
         String configPath = serverOutputDir.resolve(CONFIG).toAbsolutePath().toString();
         String walletPath = serverOutputDir.resolve("wallet").toAbsolutePath().toString();
-        Dialogs.show(() -> new McpBuildResultDialog(project, configPath, path, walletPath,
+        String sourceProjectPath = serverOutputDir.resolve(SOURCE_PROJECT).toAbsolutePath().toString();
+        Dialogs.show(() -> new McpBuildResultDialog(project, configPath, path, walletPath, sourceProjectPath,
                 buildJson(serverName, path, true), buildJson(serverName, path, false)));
     }
 
@@ -267,10 +340,10 @@ public class McpBuildManager {
         Messages.showErrorDialog(project, "MCP Build Error", msg);
     }
 
-    private String getPassword(ConnectionHandler conn) {
-        if (conn == null || conn.getAuthenticationInfo() == null) return "";
+    private static char[] getPassword(ConnectionHandler conn) {
+        if (conn == null || conn.getAuthenticationInfo() == null) return new char[0];
         char[] pwd = conn.getAuthenticationInfo().getPassword();
-        return pwd != null ? new String(pwd) : "";
+        return pwd != null ? pwd.clone() : new char[0];
     }
 
     private String safe(String v) { return v != null ? v : ""; }

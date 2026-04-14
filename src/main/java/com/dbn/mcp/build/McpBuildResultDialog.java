@@ -12,6 +12,7 @@ public class McpBuildResultDialog extends DBNDialog<McpBuildResultForm> {
     private final String configPath;
     private final String jarPath;
     private final String walletPath;
+    private final String sourceProjectPath;
     private final String fullJson;
     private final String fragmentJson;
 
@@ -19,12 +20,14 @@ public class McpBuildResultDialog extends DBNDialog<McpBuildResultForm> {
                                  String configPath,
                                  String jarPath,
                                  String walletPath,
+                                 String sourceProjectPath,
                                  String fullJson,
                                  String fragmentJson) {
         super(project, "MCP Build Complete", true);
         this.configPath = configPath;
         this.jarPath = jarPath;
         this.walletPath = walletPath;
+        this.sourceProjectPath = sourceProjectPath;
         this.fullJson = fullJson;
         this.fragmentJson = fragmentJson;
         init();
@@ -33,7 +36,7 @@ public class McpBuildResultDialog extends DBNDialog<McpBuildResultForm> {
     @NotNull
     @Override
     protected McpBuildResultForm createForm() {
-        return new McpBuildResultForm(this, configPath, jarPath, walletPath, fullJson, fragmentJson);
+        return new McpBuildResultForm(this, configPath, jarPath, walletPath, sourceProjectPath, fullJson, fragmentJson);
     }
 
     protected final Action[] initializeActions() {
