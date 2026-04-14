@@ -35,7 +35,6 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Separator;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
@@ -63,6 +62,8 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.util.FileChoosers.addFileChooser;
+import static com.dbn.common.util.FileChoosers.singleFolderOrJar;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.connection.DatabaseType.GENERIC;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -82,8 +83,6 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     private JButton downloadButton;
     private JLabel driverErrorLabel;
 
-    private static final FileChooserDescriptor LIBRARY_FILE_DESCRIPTOR = new FileChooserDescriptor(false, true, true, true, false, false);
-
     ConnectionDriverSettingsForm(@NotNull ConnectionDatabaseSettingsForm parent) {
         super(parent);
 
@@ -99,11 +98,12 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             //driverSetupPanel.setVisible(isExternalLibrary);
         });
 
-        // TODO NLS
-        driverLibraryTextField.addBrowseFolderListener(
+        addFileChooser(
+                getProject(),
+                driverLibraryTextField,
+                singleFolderOrJar(),
                 txt("cfg.connection.title.SelectDriverLibrary"),
-                txt("cfg.connection.text.LibraryDriverClasses"),
-                null, LIBRARY_FILE_DESCRIPTOR);
+                txt("cfg.connection.text.LibraryDriverClasses"));
 
         driverErrorLabel.setText("");
         driverErrorLabel.setVisible(false);
