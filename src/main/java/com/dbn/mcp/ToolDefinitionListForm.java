@@ -1,5 +1,7 @@
 package com.dbn.mcp;
 
+import com.dbn.common.color.Colors;
+import lombok.Getter;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.UserInterface;
@@ -16,7 +18,10 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import java.awt.BorderLayout;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,14 +32,22 @@ public class ToolDefinitionListForm extends DBNFormBase {
     private JButton addButton;
 
     private final List<ToolDefinitionListItemForm> toolDefinitionListItemFormList = DisposableContainers.list(this);
-    private final ConnectionHandler connection;
+    @Getter private final ConnectionHandler connection;
+    private JLabel emptyLabel;
 
     public ToolDefinitionListForm(@Nullable Disposable parent, @NotNull ConnectionHandler connection) {
         super(parent);
         this.connection = connection;
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
+        initEmptyLabel();
         initAddButton();
         actionPanel.add(addButton);
+    }
+
+    private void initEmptyLabel() {
+        emptyLabel = new JLabel("No tools defined", SwingConstants.CENTER);
+        emptyLabel.setForeground(Colors.HINT_COLOR);
+        listPanel.add(emptyLabel, BorderLayout.CENTER);
     }
 
     private void initAddButton() {
@@ -59,23 +72,24 @@ public class ToolDefinitionListForm extends DBNFormBase {
         toolDefinitionListItemFormList.remove(toolDefinitionListItemForm);
         listPanel.remove(toolDefinitionListItemForm.getComponent());
 
-        // rebuild index
         for (int i = 0; i < toolDefinitionListItemFormList.size(); i++) {
             toolDefinitionListItemFormList.get(i).setIndex(i);
         }
 
+        emptyLabel.setVisible(toolDefinitionListItemFormList.isEmpty());
         UserInterface.repaint(mainPanel);
         validateInput();
     }
 
     public ToolDefinitionListItemForm createObjectPanel(@Nullable ToolDefinitionModel toolDefinitionModel) {
         ToolDefinitionListItemForm toolDefinitionListItemForm = new ToolDefinitionListItemForm(
-                this, 
-                toolDefinitionListItemFormList.size(), 
+                this,
+                toolDefinitionListItemFormList.size(),
                 toolDefinitionModel
         );
         toolDefinitionListItemFormList.add(toolDefinitionListItemForm);
         listPanel.add(toolDefinitionListItemForm.getComponent());
+        emptyLabel.setVisible(false);
 
         if (isInitialized()) {
             UserInterface.repaint(mainPanel);

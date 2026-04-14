@@ -1,15 +1,16 @@
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.server.transport.StdioServerTransportProvider;
 import io.modelcontextprotocol.spec.McpSchema;
 import oracle.jdbc.OraclePreparedStatement;
+import oracle.security.pki.OracleSecretStore;
+import oracle.security.pki.OracleWallet;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -19,213 +20,197 @@ import java.sql.*;
 import java.util.*;
 
 public class Main {
+
     private static final String SERVER_NAME = "${SERVER_NAME}";
-    private static final String ENV_FILE = SERVER_NAME + ".env";
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    private static Connection connection;
 
     public static void main(String[] args) throws Exception {
-        Map<String, String> dotenv = loadDotEnv();
+        Path jarDir = getJarDir();
 
-        ConfigRoot config;
-        try (InputStream in = Main.class.getResourceAsStream("/mcp-config.yaml")) {
-            if (in == null) throw new IllegalStateException("mcp-config.yaml not found on classpath");
-            try (Reader reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
-                config = new Yaml().loadAs(reader, ConfigRoot.class);
-            }
+        Path configFile = args.length > 0
+                ? Paths.get(args[0])
+                : jarDir.resolve("mcp-config.yaml");
+        if (!Files.exists(configFile))
+            throw new IllegalStateException("mcp-config.yaml not found at: " + configFile);
+
+        McpConfig config;
+        try (Reader reader = Files.newBufferedReader(configFile, StandardCharsets.UTF_8)) {
+            config = new Yaml().loadAs(reader, McpConfig.class);
         }
-        config.substituteEnvVars(dotenv);
+
+        Path walletDir = jarDir.resolve("wallet");
+        if (!Files.isDirectory(walletDir))
+            throw new IllegalStateException("Wallet directory not found at: " + walletDir);
+
+        // Credentials: use YAML values if provided, otherwise read from wallet
+        if (config.dataSource.username == null || config.dataSource.username.isBlank()) {
+            OracleWallet wallet = new OracleWallet();
+            wallet.open(walletDir.toAbsolutePath().toString(), null);
+            OracleSecretStore store = wallet.getSecretStore();
+            config.dataSource.username = new String(store.getSecret("mcp.username"));
+            config.dataSource.password = new String(store.getSecret("mcp.password"));
+        }
+
+        connection = config.dataSource.connect();
 
         List<McpServerFeatures.SyncToolSpecification> specs = new ArrayList<>();
         for (Map.Entry<String, ToolConfig> entry : config.tools.entrySet()) {
-            String toolName = entry.getKey();
-            ToolConfig tc = entry.getValue();
-            String dsKey = tc.dataSource != null ? tc.dataSource : "default";
-            DataSourceConfig ds = config.dataSources.get(dsKey);
-            if (ds == null) throw new IllegalStateException("DataSource '" + dsKey + "' not found for tool: " + toolName);
-            specs.add(createTool(toolName, tc, ds));
+            specs.add(createTool(entry.getKey(), entry.getValue(), config.dataSource));
         }
 
-        StdioServerTransportProvider transport = new StdioServerTransportProvider(new ObjectMapper());
-        McpServer.sync(transport)
+        McpServer.sync(new StdioServerTransportProvider(MAPPER))
                 .serverInfo(SERVER_NAME, "1.0.0")
                 .capabilities(McpSchema.ServerCapabilities.builder()
                         .tools(true)
                         .logging()
                         .build())
-                .tools(specs.toArray(new McpServerFeatures.SyncToolSpecification[0]))
+                .tools(specs)
+                .build();
+
+        // To use HTTP instead, replace the block above with:
+        // startHttpServer(specs);
+    }
+
+//    private static void startHttpServer(List<McpServerFeatures.SyncToolSpecification> specs) throws Exception {
+//        HttpServletStreamableServerTransportProvider transport =
+//                HttpServletStreamableServerTransportProvider.builder()
+//                        .objectMapper(MAPPER)
+//                        .mcpEndpoint("/mcp")
+//                        .build();
+//
+//        McpServer.sync(transport)
+//                .serverInfo(SERVER_NAME, "1.0.0")
+//                .capabilities(McpSchema.ServerCapabilities.builder()
+//                        .tools(true)
+//                        .logging()
+//                        .build())
+//                .tools(specs)
+//                .build();
+//
+//        Tomcat tomcat = new Tomcat();
+//        tomcat.setPort(8080);
+//        Context ctx = tomcat.addContext("", new File(".").getAbsolutePath());
+//        Tomcat.addServlet(ctx, "mcpServlet", transport);
+//        ctx.addServletMappingDecoded("/mcp/*", "mcpServlet");
+//        tomcat.start();
+//        tomcat.getServer().await();
+//    }
+
+    private static synchronized Connection getConnection(DataSourceConfig ds) throws SQLException {
+        if (connection == null || !connection.isValid(2))
+            connection = ds.connect();
+        return connection;
+    }
+
+    @FunctionalInterface
+    interface McpCallable {
+        McpSchema.CallToolResult call() throws Exception;
+    }
+
+    private static McpSchema.CallToolResult tryCall(McpCallable callable) {
+        try {
+            return callable.call();
+        } catch (Exception ex) {
+            connection = null;
+            return McpSchema.CallToolResult.builder()
+                    .isError(true)
+                    .addTextContent(ex.getMessage())
+                    .build();
+        }
+    }
+
+    private static List<Map<String, Object>> rsToList(ResultSet rs) throws SQLException {
+        List<Map<String, Object>> out = new ArrayList<>();
+        ResultSetMetaData md = rs.getMetaData();
+        int cols = md.getColumnCount();
+        while (rs.next()) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            for (int i = 1; i <= cols; i++) {
+                Object value = rs.getObject(i);
+                if (value instanceof Clob clob) value = clob.getSubString(1, (int) clob.length());
+                row.put(md.getColumnLabel(i), value);
+            }
+            out.add(row);
+        }
+        return out;
+    }
+
+    private static McpServerFeatures.SyncToolSpecification createTool(
+            String toolName, ToolConfig tc, DataSourceConfig ds) {
+        return McpServerFeatures.SyncToolSpecification.builder()
+                .tool(McpSchema.Tool.builder()
+                        .name(toolName)
+                        .description(tc.description)
+                        .inputSchema(tc.buildInputSchemaJson())
+                        .build())
+                .callHandler((exchange, callReq) -> tryCall(() -> {
+                    Connection conn = getConnection(ds);
+                    try (OraclePreparedStatement ps =
+                                 (OraclePreparedStatement) conn.prepareStatement(tc.statement)) {
+                        if (tc.parameters != null) {
+                            for (ToolParameterConfig param : tc.parameters) {
+                                ps.setObjectAtName(param.name, callReq.arguments().get(param.name));
+                            }
+                        }
+                        try (ResultSet rs = ps.executeQuery()) {
+                            List<Map<String, Object>> rows = rsToList(rs);
+                            return McpSchema.CallToolResult.builder()
+                                    .structuredContent(Map.of("rows", rows, "rowCount", rows.size()))
+                                    .addTextContent(MAPPER.writeValueAsString(rows))
+                                    .build();
+                        }
+                    }
+                }))
                 .build();
     }
 
-    private static McpServerFeatures.SyncToolSpecification createTool(String toolName, ToolConfig tc, DataSourceConfig ds) {
-        String schema = buildSchema(tc);
-        McpSchema.Tool tool = new McpSchema.Tool(toolName, tc.description, schema);
-        return new McpServerFeatures.SyncToolSpecification(tool, (e, request) -> {
-            try (Connection conn = DriverManager.getConnection(ds.toJdbcUrl(), ds.user, ds.getPassword());
-                 OraclePreparedStatement ps = (OraclePreparedStatement) conn.prepareStatement(tc.statement)) {
-
-                for (Map.Entry<String, Object> en : request.entrySet()) {
-                    ps.setObjectAtName(en.getKey(), en.getValue());
-                }
-
-                try (ResultSet rs = ps.executeQuery()) {
-                    List<Map<String, Object>> rows = new ArrayList<>();
-                    ResultSetMetaData md = rs.getMetaData();
-                    int colCount = md.getColumnCount();
-                    while (rs.next()) {
-                        Map<String, Object> row = new HashMap<>();
-                        for (int i = 1; i <= colCount; i++) {
-                            row.put(md.getColumnLabel(i), rs.getObject(i));
-                        }
-                        rows.add(row);
-                    }
-                    String json = new ObjectMapper().writeValueAsString(rows);
-                    return new McpSchema.CallToolResult(List.of(new McpSchema.TextContent(json)), false);
-                } catch (JsonProcessingException ex) {
-                    throw new RuntimeException(ex);
-                }
-            } catch (SQLException ex) {
-                return new McpSchema.CallToolResult(ex.getMessage(), true);
-            }
-        });
+    private static Path getJarDir() throws Exception {
+        return Paths.get(
+                Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
     }
 
-    private static String buildSchema(ToolConfig tc) {
-        if (tc.parameters == null || tc.parameters.isEmpty()) {
-            return "{\"type\":\"object\",\"properties\":{}}";
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\"type\":\"object\",\"properties\":{");
-        List<String> requiredList = new ArrayList<>();
-        for (int i = 0; i < tc.parameters.size(); i++) {
-            ToolParameterConfig p = tc.parameters.get(i);
-            if (i > 0) sb.append(',');
-            sb.append('"').append(escape(p.name)).append("\":{\"type\":\"").append(escape(p.type)).append('"');
-            if (p.description != null && !p.description.isEmpty()) {
-                sb.append(",\"description\":\"").append(escape(p.description)).append('"');
-            }
-            sb.append('}');
-            if (p.required) requiredList.add(p.name);
-        }
-        sb.append('}');
-        if (!requiredList.isEmpty()) {
-            sb.append(",\"required\":[");
-            for (int i = 0; i < requiredList.size(); i++) {
-                if (i > 0) sb.append(',');
-                sb.append('"').append(escape(requiredList.get(i))).append('"');
-            }
-            sb.append(']');
-        }
-        sb.append('}');
-        return sb.toString();
-    }
-
-    private static String escape(String s) {
-        return s.replace("\\", "\\\\").replace("\"", "\\\"");
-    }
-
-
-    private static Path getJarDir() {
-        try {
-            Path jarPath = Paths.get(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            return jarPath.getParent();
-        } catch (Exception e) {
-            return Paths.get("").toAbsolutePath();
-        }
-    }
-
-    private static Map<String, String> loadDotEnv() {
-        Map<String, String> env = new HashMap<>();
-        Path envFile = getJarDir().resolve(ENV_FILE);
-        if (!Files.exists(envFile)) return env;
-        try (BufferedReader br = Files.newBufferedReader(envFile, StandardCharsets.UTF_8)) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                line = line.trim();
-                if (line.isEmpty() || line.startsWith("#")) continue;
-                int eq = line.indexOf('=');
-                if (eq <= 0) continue;
-                String key = line.substring(0, eq).trim();
-                String value = line.substring(eq + 1).trim();
-                if (value.length() >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
-                    value = value.substring(1, value.length() - 1);
-                }
-                if (value.startsWith("base64:")) {
-                    value = new String(Base64.getDecoder().decode(value.substring(7)), StandardCharsets.UTF_8);
-                }
-                env.put(key, value);
-            }
-        } catch (Exception e) {
-            System.err.println("Warning: could not read .env file: " + e.getMessage());
-        }
-        return env;
-    }
-
-    public static class ConfigRoot {
-        public Map<String, DataSourceConfig> dataSources = new LinkedHashMap<>();
+    public static class McpConfig {
+        public DataSourceConfig dataSource;
         public Map<String, ToolConfig> tools = new LinkedHashMap<>();
-
-        public void substituteEnvVars(Map<String, String> dotenv) {
-            if (dataSources != null) {
-                for (DataSourceConfig ds : dataSources.values()) {
-                    if (ds != null) ds.substituteEnvVars(dotenv);
-                }
-            }
-            if (tools != null) {
-                for (ToolConfig tc : tools.values()) {
-                    if (tc != null) tc.substituteEnvVars(dotenv);
-                }
-            }
-        }
     }
 
     public static class DataSourceConfig {
-        public String host;
-        public String port;
-        public String database;
         public String url;
-        public String user;
-        public String password;
-        private transient char[] passwordChars;
+        public String username; // optional — overrides wallet if set
+        public String password; // optional — overrides wallet if set
 
-        public String toJdbcUrl() {
-            if (url != null) return url;
-            return String.format("jdbc:oracle:thin:@%s:%s/%s", host, port, database);
-        }
-
-        public String getPassword() {
-            if (passwordChars == null && password != null) {
-                passwordChars = password.toCharArray();
-                password = null;
+        public Connection connect() throws SQLException {
+            try {
+                return DriverManager.getConnection(url, username, password);
+            } catch (SQLException e) {
+                throw new IllegalStateException("Could not connect to database: " + e.getMessage(), e);
             }
-            return passwordChars != null ? new String(passwordChars) : null;
-        }
-
-        public void substituteEnvVars(Map<String, String> dotenv) {
-            this.host     = EnvSubstitutor.substitute(this.host, dotenv);
-            this.port     = EnvSubstitutor.substitute(this.port, dotenv);
-            this.database = EnvSubstitutor.substitute(this.database, dotenv);
-            this.url      = EnvSubstitutor.substitute(this.url, dotenv);
-            this.user     = EnvSubstitutor.substitute(this.user, dotenv);
-            this.password = EnvSubstitutor.substitute(this.password, dotenv);
         }
     }
 
     public static class ToolConfig {
-        public String name;
-        public String dataSource;
         public String description;
         public String statement;
         public List<ToolParameterConfig> parameters;
 
-        public void substituteEnvVars(Map<String, String> dotenv) {
-            this.name        = EnvSubstitutor.substitute(this.name, dotenv);
-            this.dataSource  = EnvSubstitutor.substitute(this.dataSource, dotenv);
-            this.description = EnvSubstitutor.substitute(this.description, dotenv);
-            this.statement   = EnvSubstitutor.substitute(this.statement, dotenv);
+        public String buildInputSchemaJson() {
+            ObjectNode schema = JsonNodeFactory.instance.objectNode();
+            schema.put("type", "object");
+            ObjectNode properties = schema.putObject("properties");
+            ArrayNode required = JsonNodeFactory.instance.arrayNode();
             if (parameters != null) {
-                for (ToolParameterConfig p : parameters) {
-                    if (p != null) p.substituteEnvVars(dotenv);
+                for (ToolParameterConfig param : parameters) {
+                    if (param == null) continue;
+                    ObjectNode prop = properties.putObject(param.name);
+                    prop.put("type", param.type);
+                    prop.put("description", param.description);
+                    if (param.required) required.add(param.name);
                 }
             }
+            if (!required.isEmpty()) schema.set("required", required);
+            return schema.toString();
         }
     }
 
@@ -234,35 +219,5 @@ public class Main {
         public String type = "string";
         public String description;
         public boolean required;
-
-        public void substituteEnvVars(Map<String, String> dotenv) {
-            this.name        = EnvSubstitutor.substitute(this.name, dotenv);
-            this.type        = EnvSubstitutor.substitute(this.type, dotenv);
-            this.description = EnvSubstitutor.substitute(this.description, dotenv);
-        }
-    }
-
-    static class EnvSubstitutor {
-        private static final String PREFIX = "" + (char) 36 + "{";
-
-        static String substitute(String input, Map<String, String> dotenv) {
-            if (input == null) return null;
-            StringBuilder sb = new StringBuilder();
-            int i = 0;
-            while (i < input.length()) {
-                int start = input.indexOf(PREFIX, i);
-                if (start < 0) { sb.append(input, i, input.length()); break; }
-                int end = input.indexOf('}', start + PREFIX.length());
-                if (end < 0) { sb.append(input, i, input.length()); break; }
-                sb.append(input, i, start);
-                String var = input.substring(start + PREFIX.length(), end);
-                String value = dotenv.get(var);
-                if (value == null) value = System.getenv(var);
-                if (value == null) throw new IllegalStateException("Missing variable: " + var + " (not found in .env file or environment)");
-                sb.append(value);
-                i = end + 1;
-            }
-            return sb.toString();
-        }
     }
 }

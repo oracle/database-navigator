@@ -22,6 +22,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.components.JBTextArea;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultCellEditor;
@@ -63,16 +64,32 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
     private boolean suppressDocEvents;
 
     public ToolDefinitionCreateForm(Disposable parent, @NotNull ConnectionHandler connection) {
+        this(parent, connection, null);
+    }
+
+    public ToolDefinitionCreateForm(Disposable parent, @NotNull ConnectionHandler connection, @Nullable ToolDefinitionModel existing) {
         super(parent);
         this.connection = connection;
         initParamsTable();
+        if (existing != null) {
+            toolName.setText(existing.getName());
+            toolDescriptionTextArea.setText(existing.getDescription());
+            cachedSqlText = existing.getStatement();
+            if (existing.getParamsModel() != null) {
+                for (ParamRow row : existing.getParamsModel().getRows()) {
+                    paramsModel.getRows().add(new ParamRow(row.getName(), row.getType(), row.getDefaultValue(), row.getDescription(), row.isRequired()));
+                }
+                paramsModel.fireTableDataChanged();
+            }
+        }
         whenFirstShown(this::initEditor);
     }
 
     @Override
     protected void initValidation() {
         addTextValidation(toolName, n -> isNotEmptyOrSpaces(n), "Please enter a tool name");
-        addTextValidation(toolName, n -> isWord(n), "Please enter a valid tool name");
+        addTextValidation(toolName, n -> !n.contains(" "), "Tool name cannot contain spaces");
+        addTextValidation(toolName, n -> isWord(n), "Tool name can only contain letters, digits, and underscores");
         addValidation(sqlEditorPanel, c -> getSqlText().isBlank() ? "Please enter a SQL query" : null);
     }
 
@@ -99,6 +116,7 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         PsiFile psiFile = sqlFile.initializePsiFile(viewProvider, SQLLanguage.INSTANCE);
 
         document = Documents.ensureDocument(psiFile);
+        if (cachedSqlText != null) setSqlText(cachedSqlText);
         editor = Editors.createEditor(document, project, sqlFile, SQLFileType.INSTANCE);
         Editors.initEditorHighlighter(editor, SQLLanguage.INSTANCE, connection);
         configureEditor(editor);

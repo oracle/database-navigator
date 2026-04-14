@@ -16,32 +16,40 @@ $h2 Running
 java -jar ${JAR_NAME}
 ```
 
-The `${ENV_NAME}` file must be in the same directory as the JAR.
+The `wallet/` directory must be in the same directory as the JAR.
+
+$h2 Credentials
+
+By default, credentials are stored in an Oracle wallet (`wallet/cwallet.sso`) — an encrypted binary file generated at build time. No username or password appears in any config file.
+
+To connect to a different database or use different credentials, edit `mcp-config.yaml`:
+
+```yaml
+dataSource:
+  url: "jdbc:oracle:thin:@tcps://newhost:1521/newservice"
+  username: YOUR_USER    # add this line to override the wallet
+  password: YOUR_PASS    # add this line to override the wallet
+```
+
+If `username` and `password` are absent from the YAML, the wallet is used automatically.
 
 $h2 Security
 
-The `${ENV_NAME}` file contains your database credentials:
-
-```
-${ENV_PREFIX}_DB_USER=...
-${ENV_PREFIX}_DB_PASSWORD=...
-```
-
-- Do **not** commit this file to version control — add it to `.gitignore`
-- Restrict file permissions: `chmod 600 ${ENV_NAME}`
-- The password is Base64-encoded (prefixed with `base64:`) — it is **not** encrypted
+- Do **not** commit the `wallet/` directory to version control — add it to `.gitignore`
+- Restrict wallet permissions: `chmod 700 wallet`
+- If you add credentials to `mcp-config.yaml`, treat that file as sensitive — do not commit it to git
+- To restore wallet-based auth, remove `username` and `password` from the YAML and rebuild from DBN
 
 $h2 Claude Desktop
 
 Add the following to your `claude_desktop_config.json`:
 
 ```json
-{
+
   "mcpServers": {
     "${SERVER_NAME}": {
       "command": "java",
       "args": ["-jar", "/absolute/path/to/${JAR_NAME}"]
     }
   }
-}
 ```

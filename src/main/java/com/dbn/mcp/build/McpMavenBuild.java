@@ -43,11 +43,21 @@ public final class McpMavenBuild {
         Info info = analyze(java);
 
         Path projDir = uniqueDir(outDir, info.className);
-        setupProject(projDir, java, props, info);
-        writePom(project, projDir, serverName, sdk, jdbc, info.fqn);
-        runMaven(projDir, allowWrapper, outputHandler);
+        try {
+            setupProject(projDir, java, props, info);
+            writePom(project, projDir, serverName, sdk, jdbc, info.fqn);
+            runMaven(projDir, allowWrapper, outputHandler);
+            return copyJar(projDir, outDir);
+        } finally {
+            deleteDir(projDir);
+        }
+    }
 
-        return copyJar(projDir, outDir);
+    private static void deleteDir(Path dir) {
+        try (var stream = Files.walk(dir)) {
+            stream.sorted(java.util.Comparator.reverseOrder())
+                  .forEach(p -> { try { Files.delete(p); } catch (IOException ignored) {} });
+        } catch (IOException ignored) {}
     }
 
     private static Info analyze(String src) {
@@ -72,14 +82,11 @@ public final class McpMavenBuild {
 
     private static void setupProject(Path dir, String java, Path props, Info info) throws IOException {
         Path src = dir.resolve("src/main/java");
-        Path res = dir.resolve("src/main/resources");
         Files.createDirectories(src);
-        Files.createDirectories(res);
 
         Path pkg = info.pkg != null ? src.resolve(info.pkg.replace('.', '/')) : src;
         Files.createDirectories(pkg);
         Files.writeString(pkg.resolve(info.className + ".java"), java);
-        Files.copy(props, res.resolve("mcp-config.yaml"), StandardCopyOption.REPLACE_EXISTING);
     }
 
     private static void writePom(Project project, Path dir, String serverName, Coord sdk, Coord jdbc, String main) throws IOException {
@@ -100,7 +107,6 @@ public final class McpMavenBuild {
         req.setPomFile(dir.resolve("pom.xml").toFile());
         req.addArgs(List.of("clean", "package"));
         req.setBatchMode(true);
-        if (outputHandler != null) { req.setOutputHandler(outputHandler::accept); req.setErrorHandler(outputHandler::accept); }
 
         Properties mavenProps = getIdeProxyProperties();
         if (!mavenProps.isEmpty()) {
@@ -115,18 +121,34 @@ public final class McpMavenBuild {
         log.info("Maven executable: {}", inv.getMavenExecutable());
         log.info("Working dir: {}", dir);
 
+        StringBuilder output = new StringBuilder();
+        Consumer<String> capture = line -> {
+            output.append(line).append('\n');
+            if (outputHandler != null) outputHandler.accept(line);
+        };
+        req.setOutputHandler(capture::accept);
+        req.setErrorHandler(capture::accept);
+
         try {
             InvocationResult res = inv.execute(req);
             log.info("Maven exit code: {}", res.getExitCode());
             if (res.getExecutionException() != null) {
                 log.error("Maven execution exception", res.getExecutionException());
             }
-            if (res.getExitCode() != 0) throw new IllegalStateException("Maven failed: " + res.getExitCode());
+            if (res.getExitCode() != 0) {
+                // Extract ERROR lines for a concise message
+                String errors = output.toString().lines()
+                        .filter(l -> l.contains("ERROR") || l.contains("error:"))
+                        .collect(java.util.stream.Collectors.joining("\n"));
+                log.error("Maven build output:\n{}", output);
+                throw new IllegalStateException("Maven failed:\n" + (errors.isBlank() ? output.toString() : errors));
+            }
         } catch (MavenInvocationException e) {
             log.error("MavenInvocationException", e);
             throw e;
         }
     }
+
 
     public static boolean isMavenAvailable() {
         return findMavenHome() != null || findMavenExe() != null;

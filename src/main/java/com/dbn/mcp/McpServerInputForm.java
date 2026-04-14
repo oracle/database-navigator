@@ -7,9 +7,11 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.mcp.model.ToolDefinitionModel;
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBTextField;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.List;
 
@@ -18,6 +20,7 @@ public class McpServerInputForm extends DBNFormBase {
     private JPanel hintPanel;
     private JPanel toolDefinitionPanel;
     private JBTextField serverNameField;
+    private JLabel serverNameHintLabel;
     private ToolDefinitionListForm toolDefinitionListForm;
 
     private final ConnectionHandler connection;
@@ -26,6 +29,8 @@ public class McpServerInputForm extends DBNFormBase {
         super(parent);
         this.connection = connection;
         serverNameField.setText("mcp-server");
+        serverNameHintLabel.setText("The server name is used to identify the project that will be generated");
+        serverNameHintLabel.setForeground(UIUtil.getInactiveTextColor());
         initHint();
     }
 
@@ -45,8 +50,8 @@ public class McpServerInputForm extends DBNFormBase {
 
     private void initHint() {
         String html = "<html><div style='font-size:11px;margin:4px 0;'>" +
-                "<b>Build MCP data tool</b> — turn SQL into a ready-to-run MCP server JAR. " +
-                "Use <code>:param</code> placeholders, fill in the tool info, click <b>Build</b>." +
+                "This will generate the Java code of a standalone MCP server with the specified tools, " +
+                "as well as the self-contained JAR produced by the compilation." +
                 "</div></html>";
         hintPanel.add(new DBNHintForm(this, TextContent.html(html), null, true).getComponent());
     }
