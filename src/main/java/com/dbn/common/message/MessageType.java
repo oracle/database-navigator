@@ -16,9 +16,12 @@
 
 package com.dbn.common.message;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import java.awt.Color;
 
 public enum MessageType {
     INFO,
@@ -30,7 +33,7 @@ public enum MessageType {
     PROCESSING,
     NEUTRAL;
 
-
+    @Nullable
     public Icon getDialogIcon() {
         return switch (this) {
             case INFO -> Icons.DIALOG_INFORMATION;
@@ -41,5 +44,39 @@ public enum MessageType {
             default -> null;
         };
     }
+
+    @Nullable
+    public Icon getTitleIcon() {
+        return switch (this) {
+            case INFO -> Icons.COMMON_INFO;
+            case SUCCESS -> Icons.COMMON_STATUS_SUCCESS; // TODO
+            case WARNING -> Icons.COMMON_WARNING;
+            case ERROR -> Icons.COMMON_ERROR;
+            case QUESTION -> Icons.DIALOG_QUESTION; // TODO
+            default -> null;
+        };
+    }
+
+    public Color getBannerBackgroundColor() {
+        return switch (this) {
+            case INFO -> Colors.Banner.INFO_BACKGROUND_COLOR;
+            case SUCCESS -> Colors.Banner.SUCCESS_BACKGROUND_COLOR;
+            case WARNING -> Colors.Banner.WARNING_BACKGROUND_COLOR;
+            case ERROR -> Colors.Banner.ERROR_BACKGROUND_COLOR;
+            default -> Colors.getLightPanelBackground();
+        };
+    }
+
+    public Color getBannerBorderColor() {
+        return switch (this) {
+            case INFO -> Colors.Banner.INFO_BORDER_COLOR;
+            case SUCCESS -> Colors.Banner.SUCCESS_BORDER_COLOR;
+            case WARNING -> Colors.Banner.WARNING_BORDER_COLOR;
+            case ERROR -> Colors.Banner.ERROR_BORDER_COLOR;
+            default -> Colors.getLightPanelBackground();
+        };
+    }
+
+
 
 }

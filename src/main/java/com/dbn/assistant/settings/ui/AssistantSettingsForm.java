@@ -28,11 +28,13 @@ public class AssistantSettingsForm extends CompositeConfigurationEditorForm<Assi
   private JPanel mainPanel;
   private JPanel credentialsPanel;
   private JPanel profilesPanel;
+  private JPanel mcpServersPanel;
 
   public AssistantSettingsForm(AssistantSettings settings) {
     super(settings);
     credentialsPanel.add(settings.getCredentialSettings().createComponent());
     profilesPanel.add(settings.getProfileSettings().createComponent());
+    mcpServersPanel.add(settings.getMcpServerSettings().createComponent());
   }
 
   @Override

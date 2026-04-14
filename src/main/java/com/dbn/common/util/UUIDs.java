@@ -33,7 +33,7 @@ public class UUIDs {
 */
 
     public static String compact() {
-        return toUpperCase(UUID.randomUUID().toString().replaceAll("-", ""));
+        return toUpperCase(UUID.randomUUID().toString().replace("-", ""));
     }
 
     public static String regular() {

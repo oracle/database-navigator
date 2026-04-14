@@ -33,6 +33,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static com.dbn.assistant.service.generic.model.AssistantModelType.STREAMING_CHAT;
+import static com.dbn.assistant.tool.AssistantToolData.isInternalTool;
+import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.util.TimeUtil.isOlderThan;
 
 public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingChatModel> implements AssistantComponent {
@@ -42,79 +44,78 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
 
     @Override
     public void invokeModel(StreamingChatModel model, AssistantState state, AssistantMemoryId memoryId, String prompt, AssistantResponseConsumer consumer) {
-
-        boolean stateless = memoryId.isStateless();
-
         var builder = AiServices.builder(StreamingChatModelAdapter.class);
         builder.streamingChatModel(model);
 
-        initChatMemory(builder, state, stateless);
-        initSystemMessage(builder, state);
-        initToolProvider(builder, state, stateless);
+        ModelInvocationContext context = creatInvocationContext(state, memoryId, consumer);
+        initChatMemory(builder, context);
+        initSystemMessage(builder, context);
+        initInternalToolProvider(builder, context);
+        initExternalToolProviders(builder, context);
 
         StreamingChatModelAdapter adapter = builder.build();
 
         TokenStream tokenStream = adapter.chat(memoryId, prompt);
-        initTokenStream(tokenStream, consumer);
+        initTokenStream(tokenStream, context);
     }
 
-    private void initTokenStream(TokenStream tokenStream, AssistantResponseConsumer consumer) {
+    private void initTokenStream(TokenStream tokenStream, ModelInvocationContext context) {
+        AiServiceTokenStream modelTokenStream = (AiServiceTokenStream) tokenStream;
+
         TokenBuffer buffer = new TokenBuffer();
-        if (tokenStream instanceof AiServiceTokenStream aiTokenStream) {
-            aiTokenStream.beforeToolExecution(e -> {
-                ToolExecutionRequest request = e.request();
-                normalizeRequest(request);
-                consumer.acceptToolRequest(
-                        request.id(),
-                        request.name(),
-                        request.arguments());
-            });
+        AssistantResponseConsumer consumer = context.getResponseConsumer();
 
-            aiTokenStream.onToolExecuted(e -> {
-                ToolExecutionRequest request = e.request();
-                consumer.acceptToolResponse(
-                        request.id(),
-                        request.name(),
-                        e.result());
-            });
+        modelTokenStream.beforeToolExecution(e -> {
+            ToolExecutionRequest request = e.request();
+            normalizeRequest(request);
+            guarded(() -> consumer.acceptToolRequest(
+                    request.id(),
+                    request.name(), request.arguments()));
+        });
 
-            aiTokenStream.onPartialResponse(t -> {
-                // avoid scroll flickering on incomplete markdown structures
-                // (buffer consecutive tokens containing formating elements)
-                Pattern pattern = Pattern.compile("[#*_`~\\[\\]()>+\\-!=|]");
-                buffer.append(t);
-                if (!pattern.matcher(t).matches()) {
-                    buffer.consume(consumer, false);
-                }
-            });
+        modelTokenStream.onToolExecuted(e -> {
+            ToolExecutionRequest request = e.request();
+            guarded(() -> consumer.acceptToolResponse(
+                    request.id(),
+                    request.name(), e.result()));
+        });
 
-            aiTokenStream.onCompleteResponse(r -> {
-                buffer.consume(consumer, true);
+        modelTokenStream.onPartialResponse(t -> {
+            // avoid scroll flickering on incomplete markdown structures
+            // (buffer consecutive tokens containing formating elements)
+            Pattern pattern = Pattern.compile("[#*_`~\\[\\]()>+\\-!=|]");
+            buffer.append(t);
+            if (!pattern.matcher(t).matches()) {
+                buffer.consume(consumer, false);
+            }
+        });
 
-                consumer.acceptMessage(r.aiMessage().text());
-                consumer.acceptCompletion();
-            });
+        modelTokenStream.onCompleteResponse(r -> {
+            buffer.consume(consumer, true);
 
-            aiTokenStream.onError((e) -> {
-                consumer.acceptError(e);
-                consumer.acceptCompletion();
-            });
+            guarded(() -> consumer.acceptMessage(r.aiMessage().text()));
+            guarded(() -> consumer.acceptCompletion());
+        });
 
-            aiTokenStream.onRetrieved(l -> {
-                return;
-            });
+        modelTokenStream.onError((e) -> {
+            guarded(() -> consumer.acceptError(e.getMessage(), e));
+            guarded(() -> consumer.acceptCompletion());
+        });
 
-            aiTokenStream.onIntermediateResponse(r -> {
-                return;
-            });
+        modelTokenStream.onRetrieved(l -> {
+            return;
+        });
 
-            aiTokenStream.onPartialThinking(t -> {
-                // TODO display "thinking..." in chat box
-                return;
-            });
+        modelTokenStream.onIntermediateResponse(r -> {
+            return;
+        });
 
-            wrapped(() -> tokenStream.start());
-        }
+        modelTokenStream.onPartialThinking(t -> {
+            // TODO display "thinking..." in chat box
+            return;
+        });
+
+        wrapped(() -> tokenStream.start());
     }
 
     // avoid screen flickering when time-interval between tokens is below chatbox UI refresh time
@@ -138,13 +139,10 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
         }
     }
 
-    private static void consumeBuffer(StringBuilder buffer, AssistantResponseConsumer consumer) {
-        consumer.acceptToken(buffer.toString());
-        buffer.delete(0, buffer.length());
-    }
-
     @Workaround
     private static void normalizeRequest(ToolExecutionRequest request) {
+        if (!isInternalTool(request.name())) return;
+
         Unsafe.logged(() -> AssistantToolRequestNormalizer.normalize(request));
     }
 

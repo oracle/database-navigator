@@ -521,6 +521,7 @@
             <action class="com.dbn.assistant.service.generic.action.AssistantModeAction" id="DBNavigator.Actions.Assistant.AssistantMode" text="Assistant Mode"/>
             <separator/>
             <action class="com.dbn.assistant.service.generic.action.ToolSelectionAction" id="DBNavigator.Actions.Assistant.ToolSelection" text="Tools"/>
+            <action class="com.dbn.assistant.service.generic.action.McpServerSelectionAction" id="DBNavigator.Actions.Assistant.McpServerSelection" text="MCP Servers"/>
             <action class="com.dbn.assistant.service.generic.action.EmbeddingTableSelectionAction" id="DBNavigator.Actions.Assistant.EmbeddingTable" text="Embedding Table"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantPromptSubmitActions" text="Assistant Chat-Box Prompt">

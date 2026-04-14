@@ -43,12 +43,12 @@ public class AssistantCredentialsSettingsForm extends ConfigurationEditorForm<As
     private JPanel mainPanel;
     private JPanel credentialsTablePanel;
 
-    private final AssistantCredentialsEditorTable credentialsTable;
+    private final AssistantCredentialsTable credentialsTable;
 
     public AssistantCredentialsSettingsForm(AssistantCredentialSettings settings) {
         super(settings);
 
-        credentialsTable = new AssistantCredentialsEditorTable(this, settings.getCredentials());
+        credentialsTable = new AssistantCredentialsTable(this, settings.getCredentials());
         credentialsTablePanel.add(initTableComponent());
 
         registerComponents(mainPanel);

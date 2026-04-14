@@ -50,8 +50,8 @@ import static org.intellij.markdown.MarkdownTokenTypes.FENCE_LANG;
 @UtilityClass
 public class ChatMessageParser {
 
-    public static List<ChatMessageSection> parse(String content, int offset, int[] sliceOffsets) {
-        List<ChatMessageSection> sections = new ArrayList<>();
+    public static List<ChatMessageTextSection> parse(String content, int offset, int[] sliceOffsets) {
+        List<ChatMessageTextSection> sections = new ArrayList<>();
 
         String parseContent = content.substring(offset);
         ASTNode rootNode;
@@ -94,7 +94,7 @@ public class ChatMessageParser {
         return markdownParser.buildMarkdownTreeFromString(content);
     }
 
-    private static void createTextSection(List<ChatMessageSection> sections, int offset, int[] sliceOffsets, String content) {
+    private static void createTextSection(List<ChatMessageTextSection> sections, int offset, int[] sliceOffsets, String content) {
         if (content.isEmpty()) return;
 
         for (int i = 0; i < sliceOffsets.length; i++) {
@@ -111,15 +111,15 @@ public class ChatMessageParser {
         }
     }
 
-    private static TextRange createContentRange(List<ChatMessageSection> sections, int offset, int length) {
-        ChatMessageSection previousSection = Lists.lastElement(sections);
+    private static TextRange createContentRange(List<ChatMessageTextSection> sections, int offset, int length) {
+        ChatMessageTextSection previousSection = Lists.lastElement(sections);
         int startOffset = previousSection == null ? offset : previousSection.getContentEndOffset();
         int endOffset = startOffset + length;
 
         return new TextRange(startOffset, endOffset);
     }
 
-    private static void createCodeSection(List<ChatMessageSection> sections, int offset, String content, ASTNode rootNode) {
+    private static void createCodeSection(List<ChatMessageTextSection> sections, int offset, String content, ASTNode rootNode) {
         String language = null;
         StringBuilder builder = new StringBuilder();
         for (ASTNode codeNode : rootNode.getChildren()) {
@@ -143,8 +143,8 @@ public class ChatMessageParser {
         }
     }
 
-    private void createSection(List<ChatMessageSection> sections, String content, TextRange contentRange, String language) {
-        ChatMessageSection currentSection = new ChatMessageSection(content, contentRange, language);
+    private void createSection(List<ChatMessageTextSection> sections, String content, TextRange contentRange, String language) {
+        ChatMessageTextSection currentSection = new ChatMessageTextSection(content, contentRange, language);
         currentSection.setContentRange(contentRange);
         sections.add(currentSection);
     }
