@@ -128,6 +128,12 @@ https://plugins.jetbrains.com/plugin/1800-database-navigator
 
 ---
 
+## Security
+
+Please consult the [security guide](./SECURITY.md) for our responsible security vulnerability disclosure process
+
+---
+
 ## License
 
 This project is licensed under the Apache License 2.0.
