@@ -8,10 +8,13 @@ import com.dbn.common.util.Json;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionUtil;
 import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.connection.config.tns.TnsProfile;
+import com.dbn.mcp.model.OracleSecretStore;
+import com.dbn.mcp.model.OracleWallet;
 import com.dbn.mcp.model.ParamRow;
 import com.dbn.mcp.model.ToolDefinitionModel;
 import com.dbn.mcp.util.McpServerName;
@@ -19,8 +22,6 @@ import com.dbn.mcp.util.SqlParameterParser;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
-import oracle.security.pki.OracleSecretStore;
-import oracle.security.pki.OracleWallet;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,10 +31,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.SecureRandom;
+import java.sql.Driver;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -270,7 +273,8 @@ public class McpBuildTask {
         char[] walletPassword = generateWalletPassword();
 
         try {
-            OracleWallet wallet = new OracleWallet();
+            ClassLoader classLoader = getDriverClassLoader();
+            OracleWallet wallet = OracleWallet.newInstance(classLoader);
             wallet.create(walletPassword);
             wallet.setLocation(walletDir.toAbsolutePath().toString());
 
@@ -289,6 +293,11 @@ public class McpBuildTask {
             Arrays.fill(user, '\0');
             Arrays.fill(pwd, '\0');
         }
+    }
+
+    private ClassLoader getDriverClassLoader() throws Exception {
+        Driver driver = ConnectionUtil.resolveDriver(connection.getSettings().getDatabaseSettings());
+        return Objects.requireNonNull(driver).getClass().getClassLoader();
     }
 
     private static char[] generateWalletPassword() {
