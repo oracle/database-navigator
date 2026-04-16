@@ -3,6 +3,7 @@ package com.dbn.mcp;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.mcp.build.McpBuildTask;
+import com.dbn.mcp.model.McpTransportType;
 import com.dbn.mcp.model.ToolDefinitionModel;
 import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
@@ -45,9 +46,11 @@ public class McpServerInputDialog extends DBNDialog<McpServerInputForm> {
     @Override
     protected void doOKAction() {
         String serverName = getForm().getServerName();
+        McpTransportType transportType = getForm().getTransportType();
+        int httpPort = getForm().getHttpPort();
         List<ToolDefinitionModel> tools = getForm().getTools();
         super.doOKAction();
 
-        new McpBuildTask(getProject(), connection, serverName, tools).execute();
+        new McpBuildTask(getProject(), connection, serverName, transportType, httpPort, tools).execute();
     }
 }

@@ -1,8 +1,8 @@
 #set($h2 = '##')
 # ${SERVER_NAME}
 
-A standalone MCP server that connects to an Oracle database and exposes SQL queries as tools
-over STDIO transport. Designed to work with MCP clients such as Claude Desktop.
+A standalone MCP server that connects to an Oracle database and exposes SQL queries as tools.
+Transport is configured at runtime from `mcp-config.yaml` (`stdio` or `http`).
 
 $h2 Tools
 
@@ -24,9 +24,63 @@ java -jar ${JAR_NAME} /absolute/path/to/mcp-config.yaml
 
 The `wallet/` directory must be in the same directory as the JAR.
 
+$h2 Transport
+
+Configure transport in `mcp-config.yaml`:
+
+```yaml
+transport: "stdio"   # "stdio" or "http"
+httpPort: ${HTTP_PORT}        # used when transport is "http"
+```
+
+`stdio` is the default when `transport` is not set.
+
+When `transport: "http"`, the MCP endpoint is:
+
+```
+http://localhost:${HTTP_PORT}/mcp
+```
+
+(Replace `${HTTP_PORT}` with your `httpPort` value if you change it.)
+
+$h2 MCP Clients
+
+For `transport: "stdio"`, paste this **snippet** inside the existing `mcpServers` block:
+
+```json
+"${SERVER_NAME}": {
+  "command": "java",
+  "args": ["-jar", "/absolute/path/to/${JAR_NAME}"]
+}
+```
+
+Using HTTP transport and Cline (`transport: "http"`):
+
+```json
+"${SERVER_NAME}": {
+  "type": "streamableHttp",
+  "url": "http://127.0.0.1:${HTTP_PORT}/mcp"
+}
+```
+
+Using HTTP from Claude Desktop (`transport: "http"`):
+
+```json
+"${SERVER_NAME}": {
+  "command": "npx",
+  "args": [
+    "-y",
+    "mcp-remote",
+    "http://127.0.0.1:${HTTP_PORT}/mcp"
+  ]
+}
+```
+
+Both HTTP examples above are also snippets to paste inside the existing `mcpServers` block.
+
 $h2 Credentials
 
-By default, credentials are stored in an Oracle wallet (`wallet/cwallet.sso`) — an encrypted binary file generated at build time. No username or password appears in any config file.
+By default, credentials are stored in an Oracle wallet (`wallet/cwallet.sso`) — an encrypted binary file generated at build time.
 
 To connect to a different database or use different credentials, edit `mcp-config.yaml`:
 
@@ -37,8 +91,7 @@ dataSource:
   password: YOUR_PASS    # add this line to override the wallet
 ```
 
-If `username` and `password` are absent from the YAML, the wallet is used automatically.
-This is the simplest way to switch credentials without rebuilding the JAR.
+If `username` and `password` are absent from YAML, the wallet is used automatically.
 
 $h2 Advanced Customization
 
@@ -47,21 +100,10 @@ The build also generates a full Maven project under `source-project/`:
 - `source-project/pom.xml`
 - `source-project/src/main/java/...`
 
-You can edit this project (for example switch transport to HTTP in `Main.java`) and rebuild independently.
+You can edit and rebuild it independently.
 
 $h2 Security
 
-- Do **not** commit the `wallet/` directory to version control — add it to `.gitignore`
+- Do **not** commit the `wallet/` directory to version control
 - Restrict wallet permissions: `chmod 700 wallet`
-- If you add credentials to `mcp-config.yaml`, treat that file as sensitive — do not commit it to git
-
-$h2 Claude Desktop
-
-Paste the following **fragment** inside the existing `mcpServers` block in your `claude_desktop_config.json`:
-
-```json
-"${SERVER_NAME}": {
-  "command": "java",
-  "args": ["-jar", "/absolute/path/to/${JAR_NAME}"]
-}
-```
+- If you add credentials to `mcp-config.yaml`, treat that file as sensitive and avoid committing it

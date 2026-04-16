@@ -1,6 +1,7 @@
 package com.dbn.mcp.build;
 
 import com.dbn.common.database.DatabaseInfo;
+import com.dbn.common.exception.Exceptions;
 import com.dbn.common.template.TemplateUtilities;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
@@ -13,6 +14,7 @@ import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.connection.config.tns.TnsProfile;
+import com.dbn.mcp.model.McpTransportType;
 import com.dbn.mcp.model.OracleSecretStore;
 import com.dbn.mcp.model.OracleWallet;
 import com.dbn.mcp.model.ParamRow;
@@ -48,18 +50,22 @@ public class McpBuildTask {
     private static final String CONFIG = "mcp-config.yaml";
     private static final String DIST = "mcp-dist";
     private static final String SOURCE_PROJECT = "source-project";
-    private static final String MCP_SDK = "io.modelcontextprotocol.sdk:mcp:0.12.1";
+    private static final String MCP_SDK = "io.modelcontextprotocol.sdk:mcp:1.1.1";
     private static final String JDBC = "com.oracle.database.jdbc:ojdbc11:23.26.1.0.0";
 
     private final Project project;
     private final ConnectionHandler connection;
     private final String serverName;
+    private final McpTransportType transportType;
+    private final int httpPort;
     private final List<ToolDefinitionModel> tools;
 
-    public McpBuildTask(Project project, ConnectionHandler connection, String serverName, List<ToolDefinitionModel> tools) {
+    public McpBuildTask(Project project, ConnectionHandler connection, String serverName, McpTransportType transportType, int httpPort, List<ToolDefinitionModel> tools) {
         this.project = project;
         this.connection = connection;
         this.serverName = McpServerName.normalize(serverName);
+        this.transportType = transportType == null ? McpTransportType.STDIO : transportType;
+        this.httpPort = httpPort >= 1 && httpPort <= 65535 ? httpPort : 8080;
         this.tools = tools;
     }
 
@@ -115,7 +121,7 @@ public class McpBuildTask {
 
     private McpBuildConfig createConfig() throws IOException {
         Path dir = resolveBasePath();
-        String yaml = buildYaml(serverName);
+        String yaml = buildYaml();
         Path configFile = dir.resolve(CONFIG);
 
         Files.createDirectories(dir);
@@ -162,7 +168,7 @@ public class McpBuildTask {
                     .orElseThrow(() -> new UnsupportedOperationException(
                             "TNS profile '" + tnsProfile + "' not found in " + tnsFile.getAbsolutePath()));
 
-            String descriptor = safe(profile.getDescriptor()).replaceAll("\\s", "");
+            String descriptor = safe(profile.getDescriptor()).trim();
             if (descriptor.isEmpty()) {
                 throw new UnsupportedOperationException("TNS profile '" + tnsProfile + "' has an empty descriptor.");
             }
@@ -174,8 +180,12 @@ public class McpBuildTask {
         }
     }
 
-    private String buildYaml(String serverName) {
+    private String buildYaml() {
         StringBuilder sb = new StringBuilder();
+
+        sb.append("transport: ").append(yamlValue(transportType.isHttp() ? "http" : "stdio")).append('\n');
+        sb.append("httpPort: ").append(httpPort).append("  # used when transport is http").append('\n');
+        sb.append('\n');
 
         sb.append("dataSource:\n");
         sb.append("  url: ").append(yamlValue(resolveUrl())).append('\n');
@@ -288,7 +298,11 @@ public class McpBuildTask {
             wallet.save();
             wallet.saveSSO();
         } catch (Exception e) {
-            throw new IOException("Failed to create Oracle SEPS wallet: " + e.getMessage(), e);
+            Throwable root = Exceptions.rootCauseOf(Exceptions.unwrap(e));
+            String message = root != null && root.getMessage() != null && !root.getMessage().isBlank()
+                    ? root.getMessage()
+                    : e.getClass().getSimpleName();
+            throw new IOException("Failed to create Oracle SEPS wallet: " + message, e);
         } finally {
             Arrays.fill(walletPassword, '\0');
             Arrays.fill(user, '\0');
@@ -323,10 +337,20 @@ public class McpBuildTask {
 
     private static char[] generateWalletPassword() {
         SecureRandom rng = new SecureRandom();
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        String digits = "0123456789";
+        String chars = letters + digits;
         char[] password = new char[32];
-        for (int i = 0; i < password.length; i++) {
+        password[0] = letters.charAt(rng.nextInt(letters.length()));
+        password[1] = digits.charAt(rng.nextInt(digits.length()));
+        for (int i = 2; i < password.length; i++) {
             password[i] = chars.charAt(rng.nextInt(chars.length()));
+        }
+        for (int i = password.length - 1; i > 0; i--) {
+            int j = rng.nextInt(i + 1);
+            char tmp = password[i];
+            password[i] = password[j];
+            password[j] = tmp;
         }
         return password;
     }
@@ -339,6 +363,7 @@ public class McpBuildTask {
             Map<String, Object> context = new LinkedHashMap<>();
             context.put("SERVER_NAME", serverName);
             context.put("JAR_NAME", serverName + ".jar");
+            context.put("HTTP_PORT", Integer.toString(httpPort));
             context.put("TOOLS", toolList);
             String content = TemplateUtilities.generateCode(project, "DBN - MCP Server README", context);
             Files.writeString(dir.resolve("README.md"), content, StandardCharsets.UTF_8);
@@ -362,8 +387,10 @@ public class McpBuildTask {
         String configPath = serverOutputDir.resolve(CONFIG).toAbsolutePath().toString();
         String walletPath = serverOutputDir.resolve("wallet").toAbsolutePath().toString();
         String sourceProjectPath = serverOutputDir.resolve(SOURCE_PROJECT).toAbsolutePath().toString();
-        Dialogs.show(() -> new McpBuildResultDialog(project, configPath, path, walletPath, sourceProjectPath,
-                buildJson(serverName, path, true), buildJson(serverName, path, false)));
+        String claudeSnippetJson = buildClaudeJson(serverName, path);
+        String clineSnippetJson = transportType.isHttp() ? buildClineJson(serverName) : null;
+        Dialogs.show(() -> new McpBuildResultDialog(project, configPath, path, walletPath, sourceProjectPath, transportType.isHttp(),
+                claudeSnippetJson, clineSnippetJson));
     }
 
     private void showError(String msg) {
@@ -379,17 +406,38 @@ public class McpBuildTask {
     private String safe(String v) { return v != null ? v : ""; }
     private String safe(String v, String d) { return v != null && !v.isEmpty() ? v : d; }
 
-    private String buildJson(String name, String jar, boolean full) {
+    private String buildClaudeJson(String name, String jar) {
+        String command;
+        List<String> args;
+        if (transportType.isHttp()) {
+            command = "npx";
+            args = List.of("-y", "mcp-remote", "http://127.0.0.1:" + httpPort + "/mcp");
+        } else {
+            command = "java";
+            args = List.of("-jar", jar);
+        }
+        return buildCommandSnippetJson(name, command, args);
+    }
+
+    private String buildClineJson(String name) {
         Map<String, Object> server = new LinkedHashMap<>();
-        server.put("command", "java");
-        server.put("args", List.of("-jar", jar));
+        server.put("type", "streamableHttp");
+        server.put("url", "http://127.0.0.1:" + httpPort + "/mcp");
         Map<String, Object> entry = new LinkedHashMap<>();
         entry.put(name, server);
-        if (full) {
-            return Json.writeAsString(Map.of("mcpServers", entry));
-        }
-        // Fragment: strip outer {} so it pastes directly into an existing mcpServers block
-        String json = Json.writeAsString(entry);
+        String json = Json.writeAsFormattedString(entry);
+        return json.substring(1, json.length() - 1).trim();
+    }
+
+    private static String buildCommandSnippetJson(String name, String command, List<String> args) {
+        Map<String, Object> server = new LinkedHashMap<>();
+        server.put("command", command);
+        server.put("args", args);
+
+        Map<String, Object> entry = new LinkedHashMap<>();
+        entry.put(name, server);
+
+        String json = Json.writeAsFormattedString(entry);
         return json.substring(1, json.length() - 1).trim();
     }
 }
