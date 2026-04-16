@@ -1,13 +1,14 @@
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import oracle.jdbc.OracleConnection;
+import io.modelcontextprotocol.json.McpJsonDefaults;
+import io.modelcontextprotocol.json.McpJsonMapper;
 import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.server.McpServerFeatures;
+import io.modelcontextprotocol.server.transport.HttpServletStreamableServerTransportProvider;
 import io.modelcontextprotocol.server.transport.StdioServerTransportProvider;
 import io.modelcontextprotocol.spec.McpSchema;
+import oracle.jdbc.OracleConnection;
 import oracle.jdbc.OraclePreparedStatement;
+import org.apache.catalina.Context;
+import org.apache.catalina.startup.Tomcat;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.Reader;
@@ -21,7 +22,9 @@ import java.util.*;
 public class Main {
 
     private static final String SERVER_NAME = "${SERVER_NAME}";
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final String TRANSPORT_STDIO = "stdio";
+    private static final String TRANSPORT_HTTP = "http";
+    private static final McpJsonMapper MAPPER = McpJsonDefaults.getMapper();
 
     private static Connection connection;
     private static Path sepsWalletDir;
@@ -39,19 +42,57 @@ public class Main {
         try (Reader reader = Files.newBufferedReader(configFile, StandardCharsets.UTF_8)) {
             config = new Yaml().loadAs(reader, McpConfig.class);
         }
+        if (config == null) {
+            throw new IllegalStateException("mcp-config.yaml is empty or invalid");
+        }
+        if (config.dataSource == null) {
+            throw new IllegalStateException("dataSource section is missing in mcp-config.yaml");
+        }
+        if (config.tools == null) {
+            config.tools = new LinkedHashMap<>();
+        }
 
         Path walletDir = jarDir.resolve("wallet");
         if (!Files.isDirectory(walletDir))
             throw new IllegalStateException("Wallet directory not found at: " + walletDir);
 
         sepsWalletDir = walletDir;
-        connection = config.dataSource.connect(walletDir);
 
         List<McpServerFeatures.SyncToolSpecification> specs = new ArrayList<>();
         for (Map.Entry<String, ToolConfig> entry : config.tools.entrySet()) {
             specs.add(createTool(entry.getKey(), entry.getValue(), config.dataSource));
         }
 
+        if (isHttpTransport(config.transport)) {
+            startHttpServer(specs, resolveHttpPort(config.httpPort));
+        } else {
+            startStdioServer(specs);
+        }
+    }
+
+    private static boolean isHttpTransport(String transport) {
+        String value = transport == null ? TRANSPORT_STDIO : transport.trim().toLowerCase(Locale.ROOT);
+        if ("streamablehttp".equals(value) || "streamable-http".equals(value)) {
+            value = TRANSPORT_HTTP;
+        }
+
+        return switch (value) {
+            case TRANSPORT_HTTP -> true;
+            case TRANSPORT_STDIO -> false;
+            default -> throw new IllegalStateException(
+                    "Unsupported transport '" + transport + "'. Use 'stdio' or 'http'.");
+        };
+    }
+
+    private static int resolveHttpPort(Integer port) {
+        int value = port == null ? 8080 : port;
+        if (value < 1 || value > 65535) {
+            throw new IllegalStateException("Invalid httpPort '" + value + "'. Use a value between 1 and 65535.");
+        }
+        return value;
+    }
+
+    private static void startStdioServer(List<McpServerFeatures.SyncToolSpecification> specs) {
         McpServer.sync(new StdioServerTransportProvider(MAPPER))
                 .serverInfo(SERVER_NAME, "1.0.0")
                 .capabilities(McpSchema.ServerCapabilities.builder()
@@ -60,35 +101,37 @@ public class Main {
                         .build())
                 .tools(specs)
                 .build();
-
-        // To use HTTP instead, replace the block above with:
-        // startHttpServer(specs);
     }
 
-//    private static void startHttpServer(List<McpServerFeatures.SyncToolSpecification> specs) throws Exception {
-//        HttpServletStreamableServerTransportProvider transport =
-//                HttpServletStreamableServerTransportProvider.builder()
-//                        .objectMapper(MAPPER)
-//                        .mcpEndpoint("/mcp")
-//                        .build();
-//
-//        McpServer.sync(transport)
-//                .serverInfo(SERVER_NAME, "1.0.0")
-//                .capabilities(McpSchema.ServerCapabilities.builder()
-//                        .tools(true)
-//                        .logging()
-//                        .build())
-//                .tools(specs)
-//                .build();
-//
-//        Tomcat tomcat = new Tomcat();
-//        tomcat.setPort(8080);
-//        Context ctx = tomcat.addContext("", new File(".").getAbsolutePath());
-//        Tomcat.addServlet(ctx, "mcpServlet", transport);
-//        ctx.addServletMappingDecoded("/mcp/*", "mcpServlet");
-//        tomcat.start();
-//        tomcat.getServer().await();
-//    }
+    private static void startHttpServer(List<McpServerFeatures.SyncToolSpecification> specs, int port) throws Exception {
+        HttpServletStreamableServerTransportProvider transport =
+                HttpServletStreamableServerTransportProvider.builder()
+                        .jsonMapper(MAPPER)
+                        .mcpEndpoint("/mcp")
+                        .build();
+
+        McpServer.sync(transport)
+                .serverInfo(SERVER_NAME, "1.0.0")
+                .capabilities(McpSchema.ServerCapabilities.builder()
+                        .tools(true)
+                        .logging()
+                        .build())
+                .tools(specs)
+                .build();
+
+        Path tomcatBaseDir = Paths.get(System.getProperty("java.io.tmpdir"), SERVER_NAME + "-tomcat");
+        Files.createDirectories(tomcatBaseDir);
+
+        Tomcat tomcat = new Tomcat();
+        tomcat.setBaseDir(tomcatBaseDir.toString());
+        tomcat.setPort(port);
+        tomcat.getConnector();
+        Context ctx = tomcat.addContext("", tomcatBaseDir.toString());
+        Tomcat.addServlet(ctx, "mcpServlet", transport);
+        ctx.addServletMappingDecoded("/mcp/*", "mcpServlet");
+        tomcat.start();
+        tomcat.getServer().await();
+    }
 
     private static synchronized Connection getConnection(DataSourceConfig ds) throws SQLException {
         if (connection == null || !connection.isValid(2))
@@ -135,7 +178,7 @@ public class Main {
                 .tool(McpSchema.Tool.builder()
                         .name(toolName)
                         .description(tc.description)
-                        .inputSchema(tc.buildInputSchemaJson())
+                        .inputSchema(MAPPER, tc.buildInputSchemaJson())
                         .build())
                 .callHandler((exchange, callReq) -> tryCall(() -> {
                     Connection conn = getConnection(ds);
@@ -164,6 +207,8 @@ public class Main {
     }
 
     public static class McpConfig {
+        public String transport = TRANSPORT_STDIO;
+        public Integer httpPort = 8080;
         public DataSourceConfig dataSource;
         public Map<String, ToolConfig> tools = new LinkedHashMap<>();
     }
@@ -197,21 +242,28 @@ public class Main {
         public List<ToolParameterConfig> parameters;
 
         public String buildInputSchemaJson() {
-            ObjectNode schema = JsonNodeFactory.instance.objectNode();
+            Map<String, Object> schema = new LinkedHashMap<>();
             schema.put("type", "object");
-            ObjectNode properties = schema.putObject("properties");
-            ArrayNode required = JsonNodeFactory.instance.arrayNode();
+            Map<String, Object> properties = new LinkedHashMap<>();
+            List<String> required = new ArrayList<>();
             if (parameters != null) {
                 for (ToolParameterConfig param : parameters) {
                     if (param == null) continue;
-                    ObjectNode prop = properties.putObject(param.name);
+                    Map<String, Object> prop = new LinkedHashMap<>();
                     prop.put("type", param.type);
                     prop.put("description", param.description);
+                    properties.put(param.name, prop);
                     if (param.required) required.add(param.name);
                 }
             }
-            if (!required.isEmpty()) schema.set("required", required);
-            return schema.toString();
+            schema.put("properties", properties);
+            if (!required.isEmpty()) schema.put("required", required);
+
+            try {
+                return MAPPER.writeValueAsString(schema);
+            } catch (Exception e) {
+                throw new IllegalStateException("Could not build tool input schema", e);
+            }
         }
     }
 

@@ -25,12 +25,13 @@ public class McpBuildResultForm extends DBNFormBase {
                                String jarPath,
                                String walletPath,
                                String sourceProjectPath,
-                               String fullJson,
-                               String fragmentJson) {
+                               boolean httpTransport,
+                               String claudeSnippetJson,
+                               String clineSnippetJson) {
         super(parent);
         mainPanel = new JPanel(new BorderLayout(8, 8));
-        mainPanel.add(createHeaderLabel(configPath, jarPath, walletPath, sourceProjectPath), BorderLayout.NORTH);
-        mainPanel.add(createConfigTabs(fullJson, fragmentJson), BorderLayout.CENTER);
+        mainPanel.add(createHeaderLabel(configPath, jarPath, walletPath, sourceProjectPath, httpTransport), BorderLayout.NORTH);
+        mainPanel.add(createConfigTabs(httpTransport, claudeSnippetJson, clineSnippetJson), BorderLayout.CENTER);
     }
 
     @NotNull
@@ -39,7 +40,15 @@ public class McpBuildResultForm extends DBNFormBase {
         return mainPanel;
     }
 
-    private JLabel createHeaderLabel(String configPath, String jarPath, String walletPath, String sourceProjectPath) {
+    private JLabel createHeaderLabel(String configPath, String jarPath, String walletPath, String sourceProjectPath, boolean httpTransport) {
+        String transportSteps = httpTransport
+                ? "1. Start the JAR so it serves HTTP (see README for transport/httpPort).<br>"
+                + "2. Copy the JSON below into your MCP client configuration.<br>"
+                + "3. If you change <code>httpPort</code> in YAML, update the URL in the JSON snippet.<br>"
+                : "1. Copy the JSON below into your MCP client configuration (e.g. Claude Desktop).<br>"
+                + "2. Keep the <code>wallet/</code> folder private.<br>";
+        String readmeStep = httpTransport ? "4." : "3.";
+
         String headerHtml = "<html>"
                 + "<b>MCP server built successfully.</b><br><br>"
                 + "Built JAR: " + escapeHtml(jarPath) + "<br>"
@@ -47,17 +56,18 @@ public class McpBuildResultForm extends DBNFormBase {
                 + "Wallet: " + escapeHtml(walletPath) + "<br>"
                 + "Source project: " + escapeHtml(sourceProjectPath) + "<br><br>"
                 + "<b>Next steps:</b><br>"
-                + "1. Copy the JSON below into your MCP client configuration (e.g. Claude Desktop).<br>"
-                + "2. Keep the <code>wallet/</code> folder private.<br>"
-                + "3. See <code>README.md</code> in the output folder for full run and customization details."
+                + transportSteps
+                + readmeStep + " See <code>README.md</code> in the output folder for full run and customization details."
                 + "</html>";
         return new JLabel(headerHtml);
     }
 
-    private JBTabbedPane createConfigTabs(String fullJson, String fragmentJson) {
+    private JBTabbedPane createConfigTabs(boolean httpTransport, String claudeSnippetJson, String clineSnippetJson) {
         JBTabbedPane tabs = new JBTabbedPane();
-        tabs.addTab("Full file", createConfigTab(fullJson));
-        tabs.addTab("Fragment", createConfigTab(fragmentJson));
+        tabs.addTab(httpTransport ? "Claude" : "MCP Config", createConfigTab(claudeSnippetJson));
+        if (httpTransport && clineSnippetJson != null) {
+            tabs.addTab("Cline", createConfigTab(clineSnippetJson));
+        }
         return tabs;
     }
 

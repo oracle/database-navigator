@@ -13,30 +13,34 @@ public class McpBuildResultDialog extends DBNDialog<McpBuildResultForm> {
     private final String jarPath;
     private final String walletPath;
     private final String sourceProjectPath;
-    private final String fullJson;
-    private final String fragmentJson;
+    private final boolean httpTransport;
+    private final String claudeSnippetJson;
+    private final String clineSnippetJson;
 
     public McpBuildResultDialog(@Nullable Project project,
                                  String configPath,
                                  String jarPath,
                                  String walletPath,
                                  String sourceProjectPath,
-                                 String fullJson,
-                                 String fragmentJson) {
+                                 boolean httpTransport,
+                                 String claudeSnippetJson,
+                                 String clineSnippetJson) {
         super(project, "MCP Build Complete", true);
         this.configPath = configPath;
         this.jarPath = jarPath;
         this.walletPath = walletPath;
         this.sourceProjectPath = sourceProjectPath;
-        this.fullJson = fullJson;
-        this.fragmentJson = fragmentJson;
+        this.httpTransport = httpTransport;
+        this.claudeSnippetJson = claudeSnippetJson;
+        this.clineSnippetJson = clineSnippetJson;
         init();
     }
 
     @NotNull
     @Override
     protected McpBuildResultForm createForm() {
-        return new McpBuildResultForm(this, configPath, jarPath, walletPath, sourceProjectPath, fullJson, fragmentJson);
+        return new McpBuildResultForm(this, configPath, jarPath, walletPath, sourceProjectPath, httpTransport,
+                claudeSnippetJson, clineSnippetJson);
     }
 
     protected final Action[] initializeActions() {

@@ -44,13 +44,11 @@
             <artifactId>snakeyaml</artifactId>
             <version>2.5</version>
         </dependency>
-        <!-- Uncomment to enable HTTP Streamable transport via embedded Tomcat
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-core</artifactId>
             <version>10.1.40</version>
         </dependency>
-        -->
     </dependencies>
     
     <build>
