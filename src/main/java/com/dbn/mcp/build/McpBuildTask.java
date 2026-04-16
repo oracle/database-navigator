@@ -36,19 +36,20 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class McpBuildTask {
+    private static final String DEFAULT_SEPS_USERNAME = "oracle.security.client.default_username";
+    private static final String DEFAULT_SEPS_PASSWORD = "oracle.security.client.default_password";
     private static final String TEMPLATE = "DBN - MCP Server Main";
     private static final String CONFIG = "mcp-config.yaml";
     private static final String DIST = "mcp-dist";
     private static final String SOURCE_PROJECT = "source-project";
     private static final String MCP_SDK = "io.modelcontextprotocol.sdk:mcp:0.12.1";
-    private static final String JDBC = "com.oracle.database.jdbc:ojdbc11:23.8.0.25.04";
+    private static final String JDBC = "com.oracle.database.jdbc:ojdbc11:23.26.1.0.0";
 
     private final Project project;
     private final ConnectionHandler connection;
@@ -273,15 +274,15 @@ public class McpBuildTask {
         char[] walletPassword = generateWalletPassword();
 
         try {
-            ClassLoader classLoader = getDriverClassLoader();
+            ClassLoader classLoader = getWalletClassLoader();
             OracleWallet wallet = OracleWallet.newInstance(classLoader);
             wallet.create(walletPassword);
             wallet.setLocation(walletDir.toAbsolutePath().toString());
 
             OracleSecretStore store = wallet.getSecretStore();
-            // Fixed keys — no URL coupling, credentials are decoupled from connection string
-            store.setSecret("mcp.username", user);
-            store.setSecret("mcp.password", pwd);
+            // Use documented default SEPS keys to avoid connect-string lookup mismatches.
+            store.setSecret(DEFAULT_SEPS_USERNAME, user);
+            store.setSecret(DEFAULT_SEPS_PASSWORD, pwd);
             wallet.setSecretStore(store);
 
             wallet.save();
@@ -295,9 +296,29 @@ public class McpBuildTask {
         }
     }
 
+    private ClassLoader getWalletClassLoader() throws Exception {
+        ClassLoader driverClassLoader = getDriverClassLoader();
+        if (driverClassLoader != null && containsClass(driverClassLoader, "oracle.security.pki.OracleWallet")) {
+            return driverClassLoader;
+        }
+
+        throw new ClassNotFoundException(
+                "oracle.security.pki.OracleWallet is not available in the selected Oracle driver bundle. " +
+                "Please add oraclepki to the driver libraries for this connection.");
+    }
+
+    private static boolean containsClass(ClassLoader classLoader, String className) {
+        try {
+            Class.forName(className, false, classLoader);
+            return true;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
     private ClassLoader getDriverClassLoader() throws Exception {
         Driver driver = ConnectionUtil.resolveDriver(connection.getSettings().getDatabaseSettings());
-        return Objects.requireNonNull(driver).getClass().getClassLoader();
+        return driver == null ? null : driver.getClass().getClassLoader();
     }
 
     private static char[] generateWalletPassword() {

@@ -2,13 +2,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import oracle.jdbc.OracleConnection;
 import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.server.transport.StdioServerTransportProvider;
 import io.modelcontextprotocol.spec.McpSchema;
 import oracle.jdbc.OraclePreparedStatement;
-import oracle.security.pki.OracleSecretStore;
-import oracle.security.pki.OracleWallet;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.Reader;
@@ -25,6 +24,7 @@ public class Main {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private static Connection connection;
+    private static Path sepsWalletDir;
 
     public static void main(String[] args) throws Exception {
         Path jarDir = getJarDir();
@@ -44,16 +44,8 @@ public class Main {
         if (!Files.isDirectory(walletDir))
             throw new IllegalStateException("Wallet directory not found at: " + walletDir);
 
-        // Credentials: use YAML values if provided, otherwise read from wallet
-        if (config.dataSource.username == null || config.dataSource.username.isBlank()) {
-            OracleWallet wallet = new OracleWallet();
-            wallet.open(walletDir.toAbsolutePath().toString(), null);
-            OracleSecretStore store = wallet.getSecretStore();
-            config.dataSource.username = new String(store.getSecret("mcp.username"));
-            config.dataSource.password = new String(store.getSecret("mcp.password"));
-        }
-
-        connection = config.dataSource.connect();
+        sepsWalletDir = walletDir;
+        connection = config.dataSource.connect(walletDir);
 
         List<McpServerFeatures.SyncToolSpecification> specs = new ArrayList<>();
         for (Map.Entry<String, ToolConfig> entry : config.tools.entrySet()) {
@@ -100,7 +92,7 @@ public class Main {
 
     private static synchronized Connection getConnection(DataSourceConfig ds) throws SQLException {
         if (connection == null || !connection.isValid(2))
-            connection = ds.connect();
+            connection = ds.connect(sepsWalletDir);
         return connection;
     }
 
@@ -181,9 +173,18 @@ public class Main {
         public String username; // optional — overrides wallet if set
         public String password; // optional — overrides wallet if set
 
-        public Connection connect() throws SQLException {
+        public Connection connect(Path walletDir) throws SQLException {
             try {
-                return DriverManager.getConnection(url, username, password);
+                if (username != null && !username.isBlank()) {
+                    return DriverManager.getConnection(url, username, password);
+                }
+
+                // Let Oracle JDBC resolve default SEPS credentials from the wallet for this connection.
+                Properties properties = new Properties();
+                properties.setProperty(
+                        OracleConnection.CONNECTION_PROPERTY_SEPS_WALLET_LOCATION,
+                        walletDir.toAbsolutePath().toString());
+                return DriverManager.getConnection(url, properties);
             } catch (SQLException e) {
                 throw new IllegalStateException("Could not connect to database: " + e.getMessage(), e);
             }
