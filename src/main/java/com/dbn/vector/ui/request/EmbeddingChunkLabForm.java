@@ -19,7 +19,6 @@ package com.dbn.vector.ui.request;
 import com.dbn.common.color.Colors;
 import com.dbn.common.file.FileTypes;
 import com.dbn.common.text.TextContent;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
@@ -43,7 +42,6 @@ import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.LightVirtualFile;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JButton;
@@ -51,10 +49,9 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import java.awt.BorderLayout;
 import java.sql.ResultSet;
 
-import static com.dbn.common.ui.util.Buttons.onButtonClick;
+import static com.dbn.common.ui.util.Buttons.onButtonClickAsync;
 import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
@@ -69,7 +66,6 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
     private JComboBox<String> splitByComboBox;
     private JSpinner maxSpinner;
     private JSpinner overlapSpinner;
-    private JPanel spinPanel;
     private JPanel outputPanel;
     private JPanel hintPanel;
     private JPanel inputPanel;
@@ -85,7 +81,6 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         initOutputPanel();
         initConfigFields(config);
         initInputTextArea();
-        initSpinner();
         initTestButton();
     }
 
@@ -136,11 +131,6 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
         inputPanel.add(inputEditor.getComponent());
     }
 
-    private void initSpinner() {
-        spinPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
-        spinPanel.setVisible(false);
-    }
-
     private ConnectionHandler getConnection() {
         return connection.ensure();
     }
@@ -153,10 +143,9 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
     }
 
     private void initTestButton() {
-        onButtonClick(testButton, e ->
-                Dispatch.async(mainPanel,
-                        () -> chunkTextContent(),
-                        d -> applyChunkResult(d)));
+        onButtonClickAsync(testButton,
+                () -> chunkTextContent(),
+                d -> applyChunkResult(d));
     }
 
     private ResultSetDataModel chunkTextContent() {
@@ -187,8 +176,6 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
     }
 
     private void startActivityNotifier() {
-        spinPanel.setVisible(true);
-        testButton.setEnabled(false);
         chunkDataTable.setLoading(true);
     }
 
@@ -196,8 +183,6 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
      * Stops the spining wheel
      */
     private void stopActivityNotifier() {
-        spinPanel.setVisible(false);
-        testButton.setEnabled(true);
         chunkDataTable.setLoading(false);
     }
 
