@@ -40,6 +40,7 @@ import com.dbn.connection.config.ConnectionFilterSettings;
 import com.dbn.connection.config.ConnectionPropertiesSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.ConnectionSshTunnelSettings;
+import com.dbn.connection.config.export.ConfigProviderExportManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
@@ -63,6 +64,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     private JPanel headerPanel;
     private JButton infoButton;
     private JButton testButton;
+    private JButton jsonButton;
     private DBNTabbedPane tabbedPane;
     private DBNHeaderForm headerForm;
 
@@ -125,8 +127,13 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         headerForm = new DBNHeaderForm(this, name, icon, color);
         testButton = new JButton(txt("cfg.connection.button.TestConnection"));
         infoButton = new JButton(txt("cfg.connection.button.Info"));
+        jsonButton = new JButton(txt("cfg.connection.button.Json"));
         headerForm.addButton(testButton);
         headerForm.addButton(infoButton);
+        headerForm.addButton(jsonButton);
+        registerComponent(jsonButton);
+
+        jsonButton.setVisible(databaseSettings.getDatabaseType() == DatabaseType.ORACLE);
 
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
@@ -198,6 +205,19 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
                     Messages.showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), e1.getMessage());
                 }
             }
+            if (source == jsonButton){
+                Project project = ensureProject();
+                try{
+                    ConnectionSettings tmp = getTemporaryConfig();
+                    ConfigProviderExportManager
+                            .getInstance()
+                            .exportConnection(project, tmp);
+                }catch (ConfigurationException ex) {
+                    conditionallyLog(ex);
+                    Messages.showErrorDialog(project, txt("cfg.connection.title.InvalidConfiguration"), ex.getMessage());
+                }
+                return;
+            }
         };
     }
 
@@ -240,6 +260,12 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
                 DBNHeaderForm header = headerForm;
                 if (header == null) return;
 
+                /* Update visibility when the user switches the database type
+                if (jsonButton != null && databaseType != null) {
+                    jsonButton.setVisible(databaseType == DatabaseType.ORACLE);
+                    headerPanel.revalidate();
+                    headerPanel.repaint();
+                }*/
                 if (name != null) header.setTitle(name);
                 if (icon != null) header.setIcon(icon);
                 if (color != null) header.setBackground(color); else header.setBackground(Colors.getPanelBackground());
@@ -260,4 +286,50 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     @Override
     public void applyFormChanges(ConnectionSettings configuration) throws ConfigurationException {
     }
+
+//    private void exportJsonAction(Project project, ConnectionSettings tmp) {
+//        var auth = tmp.getDatabaseSettings().getAuthenticationInfo();
+//        boolean passwordEligible =
+//                auth != null && auth.getType() == com.dbn.connection.AuthenticationType.USER_PASSWORD;
+//
+//        OracleJsonExportDialog dialog = new OracleJsonExportDialog(project, passwordEligible);
+//        if (!dialog.showAndGet()) return;
+//
+//        try {
+//            var b = com.dbn.connection.config.io.OracleConnectionJsonMapper.builderFrom(tmp);
+//
+//            if (dialog.isIncludePassword()) {
+//                char[] pwd = (auth == null) ? null : auth.getPassword();
+//                var pwRef = com.dbn.connection.config.io.OracleSecretRefFactory.base64Password(pwd);
+//
+//                if (pwRef != null) {
+//                    b.password(pwRef);
+//                } else {
+//                    Messages.showWarningDialog(project, "Password Not Available",
+//                            "Password is not available to export (credential manager / not entered).");
+//                }
+//            }
+//
+//            if (dialog.isIncludeWallet()) {
+//                var walletPath = dialog.getWalletFile();
+//                if (walletPath != null) {
+//                    var walletRef = com.dbn.connection.config.io.OracleSecretRefFactory.base64Wallet(walletPath);
+//                    b.walletLocation(walletRef);
+//                }
+//            }
+//
+//            OracleConnectionJsonConfig cfg = b.build();
+//
+//            com.dbn.connection.config.io.OracleConnectionJsonExporter.exportConfig(
+//                    cfg, dialog.getOutputFile(), dialog.getKeyOrNull());
+//
+//            Messages.showInfoDialog(project, "JSON Exported Successfully", "Export JSON");
+//        } catch (IllegalStateException ex) {
+//            Messages.showErrorDialog(project, "Export JSON",
+//                    "Connect_descriptor is required.\nfix URL/host/port/service(SID) or select a TNS profile.");
+//        } catch (Exception ex) {
+//            conditionallyLog(ex);
+//            Messages.showErrorDialog(project, "Export Failed", ex.getMessage());
+//        }
+//    }
 }
