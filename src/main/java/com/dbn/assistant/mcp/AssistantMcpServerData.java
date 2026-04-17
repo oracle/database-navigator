@@ -17,70 +17,48 @@
 package com.dbn.assistant.mcp;
 
 import com.dbn.assistant.settings.AssistantSettings;
-import com.dbn.assistant.state.AssistantState;
-import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.common.EntityId;
+import com.dbn.common.component.ProjectUnit;
 import com.dbn.common.state.PersistentStateElement;
 import com.intellij.openapi.project.Project;
-import dev.langchain4j.mcp.McpToolProvider;
-import dev.langchain4j.mcp.client.DefaultMcpClient;
+import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.invocation.InvocationContext;
 import dev.langchain4j.mcp.client.McpClient;
-import dev.langchain4j.mcp.client.transport.McpTransport;
-import dev.langchain4j.mcp.client.transport.http.StreamableHttpMcpTransport;
-import dev.langchain4j.mcp.client.transport.stdio.StdioMcpTransport;
 import dev.langchain4j.service.tool.ToolExecutor;
 import dev.langchain4j.service.tool.ToolProvider;
+import dev.langchain4j.service.tool.ToolProviderRequest;
+import dev.langchain4j.service.tool.ToolProviderResult;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 
-import static com.dbn.assistant.mcp.AssistantMcpServer.qualifiedUtilityName;
-import static com.dbn.common.action.UserDataKeys.ASSISTANT_MCP_SERVER_DATA;
-import static com.dbn.common.action.UserDataKeys.getUserDataSync;
-import static com.dbn.common.options.setting.Settings.booleanAttribute;
-import static com.dbn.common.options.setting.Settings.childrenOf;
-import static com.dbn.common.options.setting.Settings.constantAttribute;
-import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
-import static com.dbn.common.options.setting.Settings.setConstantAttribute;
-import static com.dbn.common.util.Lists.filter;
+import static com.dbn.assistant.mcp.AssistantMcpToolProviders.createToolProvider;
+import static com.dbn.common.exception.Exceptions.sneakyThrow;
+import static dev.langchain4j.data.message.UserMessage.userMessage;
+import static java.util.Collections.emptyList;
 
 
 @Slf4j
 @Getter
-public class AssistantMcpServerData extends AssistantStateExtension implements PersistentStateElement {
-    private final Map<EntityId, Boolean> selections = new ConcurrentHashMap<>();
+public class AssistantMcpServerData extends ProjectUnit implements PersistentStateElement {
     private final Map<EntityId, List<AssistantMcpToolInfo>> tools = new ConcurrentHashMap<>();
-    private int settingsSignature;
 
-    protected AssistantMcpServerData(@NotNull AssistantState assistantState) {
-        super(assistantState);
+    public AssistantMcpServerData(Project project) {
+        super(project);
     }
 
-    public static AssistantMcpServerData get(AssistantState assistantState) {
-        return getUserDataSync(assistantState, ASSISTANT_MCP_SERVER_DATA,
-                () -> new AssistantMcpServerData(assistantState));
-    }
-
-    private void cleanupSelections() {
-        // cleanup mappings for servers which are no longer available
-        AssistantMcpServerSettings mcpServerSettings = getMcpServerSettings();
-        AssistantMcpServerBundle mcpServers = mcpServerSettings.getMcpServers();
-        int settingsSignature = mcpServers.getSignature();
-        if (settingsSignature == this.settingsSignature) return;
-
-        this.settingsSignature = settingsSignature;
-        Set<EntityId> serverIds = mcpServerSettings.getMcpServerIds();
-        selections.keySet().removeIf(s -> !serverIds.contains(s));
+    public static AssistantMcpServerData get(Project project) {
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+        return assistantSettings.getMcpServerSettings().getMcpServerData();
     }
 
     private AssistantMcpServerSettings getMcpServerSettings() {
@@ -89,119 +67,74 @@ public class AssistantMcpServerData extends AssistantStateExtension implements P
         return assistantSettings.getMcpServerSettings();
     }
 
-    public boolean isSelected(EntityId serverId) {
-        Boolean selected = selections.get(serverId);
-        return selected != null && selected;
-    }
-
-    public void setSelected(EntityId serverId, boolean selected) {
-        selections.put(serverId, selected);
-    }
-
-    public int countSelected() {
-        cleanupSelections();
-        return (int) selections.values().stream().filter(b -> b).count();
-    }
-
-    public List<AssistantMcpServer> getSelectedMcpServers() {
-        AssistantMcpServerSettings mcpServerSettings = getMcpServerSettings();
-        AssistantMcpServerBundle mcpServers = mcpServerSettings.getMcpServers();
-        return filter(mcpServers.getElements(), e -> isSelected(e.getId()));
-    }
-
     @Nullable
     public AssistantMcpServer resolveMcpServer(String utilityName) {
         AssistantMcpServerSettings mcpServerSettings = getMcpServerSettings();
         return mcpServerSettings.getMcpServers().resolveMcpServer(utilityName);
     }
 
+    public List<AssistantMcpToolInfo> getTools(EntityId serverId) {
+        return tools.computeIfAbsent(serverId, id -> loadTools(id));
+    }
+
+    public List<AssistantMcpToolInfo> loadTools(EntityId serverId) {
+        AssistantMcpServerSettings mcpServerSettings = getMcpServerSettings();
+        AssistantMcpServer mcpServer = mcpServerSettings.getMcpServer(serverId);
+        return loadTools(mcpServer);
+    }
+
+    public static List<AssistantMcpToolInfo> loadTools(AssistantMcpServer mcpServer) {
+        if (mcpServer == null) return emptyList();
+
+        BiPredicate<McpClient, ToolSpecification> filter = (m, e) -> true; // no filter
+        Function<ToolExecutor, ToolExecutor> executor = e -> e; // no executor override
+
+        ToolProvider provider = createToolProvider(mcpServer, (m, e) -> sneakyThrow(e), filter, executor);
+        if (provider == null) return emptyList();
+
+        InvocationContext context = InvocationContext.builder().build();
+        try {
+            ToolProviderRequest request = ToolProviderRequest
+                    .builder()
+                    .invocationContext(context)
+                    .userMessage(userMessage("List available tools"))
+                    .build();
+
+            ToolProviderResult result = provider.provideTools(request);
+
+            ArrayList<AssistantMcpToolInfo> toolInfos = new ArrayList<>();
+            List<ToolSpecification> specifications = result.tools().keySet().stream().sorted(Comparator.comparing(t -> t.name())).toList();
+            for (ToolSpecification specification : specifications) {
+                AssistantMcpToolInfo toolInfo = createToolInfo(mcpServer, specification);
+                toolInfos.add(toolInfo);
+            }
+            return toolInfos;
+        } catch (Throwable t) {
+            return emptyList();
+        }
+    }
+
+    private static AssistantMcpToolInfo createToolInfo(AssistantMcpServer mcpServer, ToolSpecification specification) {
+        String toolName = specification.name();
+        String toolDescription = specification.description().replaceAll("(?m)^[ \t]+(?=\\S)", "").trim();
+
+        String name = mcpServer.unqualifiedUtilityName(toolName);
+        String description = toolDescription.split("\n *\n")[0];
+        String instruction = toolDescription;
+        return AssistantMcpToolInfo.builder()
+            .serverId(mcpServer.getId())
+            .name(name)
+            .description(description)
+            .instruction(instruction)
+            .build();
+    }
+
+
     @Override
     public void readState(Element element) {
-        if (element == null) return;
-
-        Element mcpServersElement = element.getChild("selections");
-        List<Element> mcpServerElements = childrenOf(mcpServersElement, "mcp-server");
-        for (Element mcpServerElement : mcpServerElements) {
-            EntityId serverId = constantAttribute(mcpServerElement, "id", EntityId.class);
-            boolean selected = booleanAttribute(mcpServerElement, "selected", false);
-            selections.put(serverId, selected);
-        }
     }
 
     @Override
     public void writeState(Element element) {
-        if (element == null) return;
-        cleanupSelections();
-
-        if (!selections.isEmpty()) {
-            Element approvalsElement = newElement(element, "selections");
-            for (EntityId serverId : selections.keySet()) {
-                boolean selected = selections.get(serverId);
-                Element serverElement = newElement(approvalsElement, "mcp-server");
-                setConstantAttribute(serverElement, "id", serverId);
-                setBooleanAttribute(serverElement, "selected", selected);
-            }
-        }
-    }
-
-    private ToolProvider createToolProvider(AssistantMcpServer mcpServer, BiConsumer<String, Throwable> errorHandler) {
-        String serverName = mcpServer.getName();
-        try {
-            McpTransport transport = createMcpTransport(mcpServer);
-            McpClient mcpClient = DefaultMcpClient.builder()
-                    .key(mcpServer.getKey())
-                    .transport(transport)
-                    .build();
-
-            return McpToolProvider.builder()
-                    .mcpClients(mcpClient)
-                    .toolNameMapper((c, s) -> qualifiedUtilityName(c.key(), s.name()))
-                    .toolWrapper(executor -> createInterceptedExecutor(executor))
-                    .filter((c, s) -> true) // TODO approval
-                    .build();
-        } catch (Throwable t) {
-            log.warn(t.getMessage(), t);
-            errorHandler.accept("Failed to initialize MCP Server \"" + serverName + "\"", t);
-            return null;
-        }
-    }
-
-    private ToolExecutor createInterceptedExecutor(ToolExecutor executor) {
-        return (request, memoryId) -> {
-            AssistantState assistantState = getAssistantState();
-            AssistantMcpServerToolInterceptor interceptor = AssistantMcpServerToolInterceptor.get(assistantState);
-
-            return interceptor.invoke(executor, request, memoryId);
-        };
-    }
-
-    private static McpTransport createMcpTransport(AssistantMcpServer mcpServer) {
-        AssistantMcpServerType type = mcpServer.getType();
-        return switch (type) {
-            case HTTP -> createHttpMcpTransport(mcpServer);
-            case STDIO -> createStdioMcpTransport(mcpServer);
-        };
-    }
-
-    private static StdioMcpTransport createStdioMcpTransport(AssistantMcpServer mcpServer) {
-        return StdioMcpTransport
-                .builder()
-                .command(Arrays.stream(mcpServer.getCommand().split(" ")).toList())
-                .build();
-    }
-
-    private static StreamableHttpMcpTransport createHttpMcpTransport(AssistantMcpServer mcpServer) {
-        return StreamableHttpMcpTransport
-                .builder()
-                .url(mcpServer.getUrl())
-                .build();
-    }
-
-    public List<ToolProvider> createToolProviders(BiConsumer<String, Throwable> errorHandler) {
-        return getSelectedMcpServers()
-                .stream()
-                .map(s -> createToolProvider(s, errorHandler))
-                .filter(p -> p != null)
-                .toList();
     }
 }

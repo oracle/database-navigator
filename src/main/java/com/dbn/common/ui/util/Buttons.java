@@ -34,21 +34,23 @@ public class Buttons {
     }
 
     public static <T> void onButtonClickAsync(JButton button, Supplier<T> supplier, Consumer<T> consumer) {
-        button.addActionListener(e -> {
-            Supplier<T> interceptedSupplier = () -> {
-                button.setEnabled(false);
+        button.addActionListener(e -> clickButtonAsync(button, supplier, consumer));
+    }
 
-                Icon originalIcon = button.getIcon();
-                button.setIcon(new AnimatedIcon.Default());
+    public static <T> void clickButtonAsync(JButton button, Supplier<T> supplier, Consumer<T> consumer) {
+        Supplier<T> interceptedSupplier = () -> {
+            button.setEnabled(false);
 
-                try {
-                    return supplier.get();
-                } finally {
-                    button.setIcon(originalIcon);
-                    button.setEnabled(true);
-                }
-            };
-            Dispatch.async(button, interceptedSupplier, consumer);
-        });
+            Icon originalIcon = button.getIcon();
+            button.setIcon(new AnimatedIcon.Default());
+
+            try {
+                return supplier.get();
+            } finally {
+                button.setIcon(originalIcon);
+                button.setEnabled(true);
+            }
+        };
+        Dispatch.async(button, interceptedSupplier, consumer);
     }
 }

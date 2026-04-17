@@ -24,8 +24,9 @@ import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.context.ChatContextImpl;
-import com.dbn.assistant.mcp.AssistantMcpServerData;
+import com.dbn.assistant.mcp.AssistantMcpServerState;
 import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.tool.approval.AssistantToolApprovals;
 import com.dbn.assistant.tool.config.AssistantToolSettings;
 import com.dbn.common.feature.FeatureAcknowledgement;
@@ -124,12 +125,12 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     }
 
     public AssistantMcpToolApprovals getMcpToolApprovals() {
-        AssistantToolSettings settings = getToolSettings();
-        return settings.getMcpToolApprovals();
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(getProject());
+        return assistantSettings.getMcpServerSettings().getMcpToolApprovals();
     }
 
-    public AssistantMcpServerData getMcpServerData() {
-        return AssistantMcpServerData.get(this);
+    public AssistantMcpServerState getMcpServerState() {
+        return AssistantMcpServerState.get(this);
     }
 
     @Override
@@ -326,9 +327,9 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         Element toolsElement = element.getChild("tools");
         toolSettings.readState(toolsElement);
 
-        AssistantMcpServerData mcpServerData = getMcpServerData();
+        AssistantMcpServerState mcpServerState = getMcpServerState();
         Element mcpServersElement = element.getChild("mcp-servers");
-        mcpServerData.readState(mcpServersElement);
+        mcpServerState.readState(mcpServersElement);
     }
 
     @Override
@@ -355,8 +356,8 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
         toolSettings.writeState(toolsElement);
 
         Element mcpServersElement = newElement(element, "mcp-servers");
-        AssistantMcpServerData mcpServerData = getMcpServerData();
-        mcpServerData.writeState(mcpServersElement);
+        AssistantMcpServerState mcpServerState = getMcpServerState();
+        mcpServerState.writeState(mcpServersElement);
 
     }
 

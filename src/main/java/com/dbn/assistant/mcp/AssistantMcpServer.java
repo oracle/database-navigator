@@ -21,6 +21,7 @@ import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
@@ -35,6 +36,7 @@ import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class AssistantMcpServer implements PersistentConfiguration, Presentable, Cloneable<AssistantMcpServer> {
     private AssistantMcpServerType type = AssistantMcpServerType.HTTP;
     private EntityId id;
@@ -42,6 +44,10 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     private String key;
     private String url;
     private String command;
+
+    public AssistantMcpServer(EntityId id) {
+        this.id = id;
+    }
 
     public String getEndpoint() {
         return switch (type) {

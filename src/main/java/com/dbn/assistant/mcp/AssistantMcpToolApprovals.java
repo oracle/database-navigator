@@ -21,6 +21,7 @@ import com.dbn.common.EntityId;
 import com.dbn.common.sign.Signed;
 import com.dbn.common.state.PersistentStateElement;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.BLOCKED;
+import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -65,8 +67,7 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
     }
 
     public boolean isApproved(EntityId serverId, String toolName) {
-        Map<String, AssistantToolApprovalStatus> approvals = tools.get(serverId);
-        AssistantToolApprovalStatus toolStatus = approvals == null ? null : approvals.get(toolName);
+        AssistantToolApprovalStatus toolStatus = getStatus(serverId, toolName);
         if (toolStatus == APPROVED) return true;
 
         AssistantToolApprovalStatus serverStatus = servers.get(serverId);
@@ -76,11 +77,21 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
     }
 
     public boolean isBlocked(EntityId serverId, String toolName) {
-        Map<String, AssistantToolApprovalStatus> approvals = tools.get(serverId);
-        AssistantToolApprovalStatus toolStatus = approvals == null ? null : approvals.get(toolName);
+        AssistantToolApprovalStatus toolStatus = getStatus(serverId, toolName);
         if (toolStatus == BLOCKED) return true;
 
         return isBlocked(serverId);
+    }
+
+    @Nullable
+    public AssistantToolApprovalStatus getStatus(EntityId serverId, String toolName) {
+        Map<String, AssistantToolApprovalStatus> approvals = tools.get(serverId);
+        AssistantToolApprovalStatus approvalStatus = approvals == null ? null : approvals.get(toolName);
+        if (approvalStatus == null) {
+            approvalStatus = servers.get(serverId);
+        }
+
+        return approvalStatus == null ? PROMPTED : approvalStatus;
     }
 
     public boolean isBlocked(EntityId serverId) {

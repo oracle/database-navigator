@@ -92,6 +92,10 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
     }
 
     public void applyFormChanges() {
+        applyFormChanges(mcpServer);
+    }
+
+    public void applyFormChanges(AssistantMcpServer mcpServer) {
         mcpServer.setName(getText(nameTextField));
         mcpServer.setCommand(getText(commandTextField));
         mcpServer.setUrl(getText(urlTextField));

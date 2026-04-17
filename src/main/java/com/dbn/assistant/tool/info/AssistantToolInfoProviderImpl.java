@@ -239,7 +239,7 @@ public class AssistantToolInfoProviderImpl extends AssistantStateExtension imple
 
     @Nullable
     private AssistantMcpServer resolveMcpServer(String utilityName) {
-        AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(getAssistantState());
+        AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(getProject());
         return mcpServerData.resolveMcpServer(utilityName);
     }
 

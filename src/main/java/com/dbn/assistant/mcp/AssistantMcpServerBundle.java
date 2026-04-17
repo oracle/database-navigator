@@ -67,12 +67,9 @@ public class AssistantMcpServerBundle extends ProjectUnit implements Signed {
         return elements.size();
     }
 
+    @Nullable
     public AssistantMcpServer getMcpServer(EntityId id) {
         return first(elements, c -> c.getId().equals(id));
-    }
-
-    public AssistantMcpServer getMcpServer(int index) {
-        return elements.get(index);
     }
 
     public Set<EntityId> getMcpServerIds() {

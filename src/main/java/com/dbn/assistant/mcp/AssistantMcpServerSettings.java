@@ -20,11 +20,13 @@ import com.dbn.assistant.mcp.ui.AssistantMcpServersSettingsForm;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.EntityId;
 import com.dbn.common.options.BasicProjectConfiguration;
+import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +42,15 @@ public class AssistantMcpServerSettings
         extends BasicProjectConfiguration<AssistantSettings, AssistantMcpServersSettingsForm> {
 
     private AssistantMcpServerBundle mcpServers;
+    private AssistantMcpServerData mcpServerData;
+    private final AssistantMcpToolApprovals mcpToolApprovals = new AssistantMcpToolApprovals();
+
 
     public AssistantMcpServerSettings(AssistantSettings parent) {
         super(parent);
-        mcpServers = new AssistantMcpServerBundle(parent.getProject());
+        Project project = parent.getProject();
+        mcpServers = new AssistantMcpServerBundle(project);
+        mcpServerData = new AssistantMcpServerData(project);
     }
 
     public void setMcpServers(AssistantMcpServerBundle mcpServers) {
@@ -53,6 +60,13 @@ public class AssistantMcpServerSettings
     public Set<EntityId> getMcpServerIds() {
         return mcpServers.getMcpServerIds();
     }
+
+
+    @Nullable
+    public AssistantMcpServer getMcpServer(EntityId serverId) {
+        return mcpServers.getMcpServer(serverId);
+    }
+
 
     @NotNull
     @Override
@@ -77,6 +91,9 @@ public class AssistantMcpServerSettings
             mcpServers.add(mcpServer);
         }
         this.mcpServers.setMcpServers(mcpServers);
+
+        Element approvalsElement = element.getChild("mcp-tool-approvals");
+        mcpToolApprovals.readState(approvalsElement);
     }
 
     @Override
@@ -86,5 +103,8 @@ public class AssistantMcpServerSettings
             Element serverElement = newElement(serversElement, "mcp-server");
             mcpServer.writeConfiguration(serverElement);
         }
+
+        Element approvalsElement = newElement(element, "mcp-tool-approvals");
+        mcpToolApprovals.writeState(approvalsElement);
     }
 }

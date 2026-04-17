@@ -16,5 +16,17 @@
 
 package com.dbn.assistant.mcp;
 
+import com.dbn.common.EntityId;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Builder
 public class AssistantMcpToolInfo {
+    private EntityId serverId;
+    private String name;
+    private String description;
+    private String instruction;
 }

@@ -18,7 +18,10 @@ package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessageToolSection;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.mcp.AssistantMcpServer;
+import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolCache;
@@ -528,6 +531,14 @@ public class ChatMessageToolSectionForm extends ChatMessageSectionForm<ChatMessa
     private AssistantMcpToolApprovals getMcpToolApprovals() {
         AssistantState assistantState = getAssistantState();
         return assistantState.getMcpToolApprovals();
+    }
+
+    public AssistantMcpServer getMcpServer() {
+        EntityId toolServerId = getToolServerId();
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(ensureProject());
+        AssistantMcpServerSettings mcpServerSettings = assistantSettings.getMcpServerSettings();
+
+        return mcpServerSettings.getMcpServer(toolServerId);
     }
 
     private AssistantState getAssistantState() {

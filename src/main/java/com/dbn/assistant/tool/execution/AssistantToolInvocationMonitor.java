@@ -69,7 +69,7 @@ public class AssistantToolInvocationMonitor extends AssistantStateExtension {
         AssistantState state = getAssistantState();
         AssistantMcpToolApprovals approvals = state.getMcpToolApprovals();
 
-        AssistantMcpServerData mcpServerData = state.getMcpServerData();
+        AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(getProject());
         AssistantMcpServer mcpServer = mcpServerData.resolveMcpServer(toolName);
         if (mcpServer == null) throw new AssistantToolApprovalException("Can't resolve mcp server for tool name \"" + toolName + "\"");
 
