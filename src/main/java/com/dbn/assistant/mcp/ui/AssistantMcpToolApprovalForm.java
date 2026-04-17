@@ -24,6 +24,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNToggleButton;
 import com.dbn.common.ui.util.Fonts;
 import com.intellij.util.ui.UIUtil;
+import lombok.Getter;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -42,7 +43,7 @@ public class AssistantMcpToolApprovalForm extends DBNFormBase {
     private JTextPane descriptionTextPane;
     private DBNToggleButton<AssistantToolApprovalStatus> statusToggle;
 
-    private final AssistantMcpToolInfo toolInfo;
+    private final @Getter AssistantMcpToolInfo toolInfo;
 
     public AssistantMcpToolApprovalForm(AssistantMcpToolApprovalsForm approvalsForm, AssistantMcpToolInfo toolInfo) {
         super(approvalsForm);

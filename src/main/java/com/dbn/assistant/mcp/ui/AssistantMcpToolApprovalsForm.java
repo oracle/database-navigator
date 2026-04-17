@@ -21,21 +21,24 @@ import com.dbn.assistant.mcp.AssistantMcpServerData;
 import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
 import com.dbn.assistant.mcp.AssistantMcpToolInfo;
 import com.dbn.assistant.settings.AssistantSettings;
+import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.misc.DBNFilterTextField;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.containers.ContainerUtil;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import java.util.List;
-import java.util.Map;
 
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
+import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.Strings.containsIgnoreCase;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class AssistantMcpToolApprovalsForm extends DBNFormBase {
@@ -44,9 +47,10 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
     private JPanel hintPanel;
     private JPanel toolsPanel;
     private JScrollPane toolsScrollPane;
+    private DBNFilterTextField filterTextField;
 
     private final AssistantMcpServer mcpServer;
-    private final Map<String, AssistantMcpToolApprovalForm> toolForms = ContainerUtil.createConcurrentWeakValueMap();
+    private final List<AssistantMcpToolApprovalForm> toolForms = DisposableContainers.list(this);
 
     public AssistantMcpToolApprovalsForm(AssistantMcpToolApprovalDialog dialog, AssistantMcpServer mcpServer) {
         super(dialog);
@@ -54,8 +58,25 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
 
         initHintPanel();
         initToolsPanel();
+        initFilterField();
 
         whenFirstShown(() -> toolsScrollPane.getVerticalScrollBar().setValue(0));
+    }
+
+    private void initFilterField() {
+        filterTextField.getEmptyText().setText("Filter");
+        onTextChange(filterTextField, e -> filterToolForms());
+    }
+
+    private void filterToolForms() {
+        String text = getText(filterTextField);
+        for (AssistantMcpToolApprovalForm toolForm : toolForms) {
+            AssistantMcpToolInfo toolInfo = toolForm.getToolInfo();
+            boolean visible =
+                    containsIgnoreCase(toolInfo.getName(), text) ||
+                    containsIgnoreCase(toolInfo.getDescription(), text);
+            toolForm.setVisible(visible);
+        }
     }
 
     private void initHintPanel() {
@@ -77,7 +98,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
 
         for (AssistantMcpToolInfo toolInfo : tools) {
             AssistantMcpToolApprovalForm approvalForm = new AssistantMcpToolApprovalForm(this, toolInfo);
-            toolForms.put(toolInfo.getName(), approvalForm);
+            toolForms.add(approvalForm);
             toolsPanel.add(approvalForm.getComponent());
         }
     }
