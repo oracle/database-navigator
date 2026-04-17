@@ -21,10 +21,15 @@ import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.mcp.AssistantMcpServer;
 import com.dbn.assistant.mcp.AssistantMcpServerBundle;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Dialogs;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ToolbarDecorator;
@@ -58,6 +63,21 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
         decorator.setMoveUpAction(b -> mcpServersTable.moveRowUp());
         decorator.setMoveDownAction(b -> mcpServersTable.moveRowDown());
         decorator.setEditAction(b -> openMcpServerEditor(false));
+        decorator.addExtraAction(Separator.getInstance());
+        decorator.addExtraAction(new AnAction() {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                Dialogs.show(() -> new AssistantMcpToolApprovalDialog(getProject(), getSelectedMcpServer()));
+            }
+
+            @Override
+            public void update(@NotNull AnActionEvent e) {
+                Presentation presentation = e.getPresentation();
+                presentation.setIcon(Icons.ACTION_CHECK_LIST);
+                presentation.setText("Tool Approvals");
+                presentation.setEnabled(mcpServersTable.getSelectedRows().length == 1);
+            }
+        });
 
         Mouse.onMouseDoubleClick(mcpServersTable, e -> openMcpServerEditor(false));
         return createToolbarDecoratorComponent(decorator, mcpServersTable);

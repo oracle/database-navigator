@@ -350,7 +350,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                     }
                 });
         }
-        actions.add(Separator.create());
+        actions.add(Separator.getInstance());
         actions.add(new DumbAwareAction("Download Libraries...", null, AllIcons.Actions.Download) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent anActionEvent) {

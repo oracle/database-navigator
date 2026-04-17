@@ -349,7 +349,7 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
         }
 
         if (options.is(SHOW_VIRTUAL_CONNECTIONS)) {
-            actions.add(Separator.create());
+            actions.add(Separator.getInstance());
             for (ConnectionHandler virtualConnectionHandler : connectionBundle.listVirtualConnections()) {
                 ConnectionSelectAction connectionAction = new ConnectionSelectAction(
                         virtualConnectionHandler,
@@ -361,7 +361,7 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
         }
 
         if (options.is(SHOW_CREATE_CONNECTION)) {
-            actions.add(Separator.create());
+            actions.add(Separator.getInstance());
             actions.add(new ConnectionSetupAction(project));
         }
 
@@ -419,7 +419,7 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
                             SessionSelectAction sessionAction = new SessionSelectAction(file, session, callback);
                             actions.add(sessionAction);
                         }
-                        actions.add(Separator.create());
+                        actions.add(Separator.getInstance());
                         actions.add(new SessionCreateAction(file, connection));
                     }
 
