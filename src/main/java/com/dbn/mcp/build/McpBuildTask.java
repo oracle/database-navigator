@@ -224,24 +224,34 @@ public class McpBuildTask {
         return "\"" + v.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n") + "\"";
     }
 
-    private static boolean wrapperApproved = false;
-
     private void build(McpBuildConfig cfg, String template, Path serverOutputDir) {
-//      PluginManager pm = PluginManager.getInstance();
-//      PluginManager.isPluginInstalled(PluginId.getId());
-        if (!wrapperApproved && !McpMavenBuild.isMavenAvailable()) {
+        if (!McpMavenBuild.isMavenPluginAvailable()) {
+            int option = Messages.showConfirmationDialog(project,
+                    "Maven Plugin Required",
+                    "This feature requires the Maven plugin (org.jetbrains.idea.maven).\n" +
+                    "Please enable or install it from IDE Plugins settings.",
+                    new String[]{"Open Plugins", "Cancel"}, 0);
+            if (option == 0) {
+                McpMavenBuild.openMavenPluginSettings(project);
+            }
+            return;
+        }
+
+        if (!McpMavenBuild.isMavenAvailable(project)) {
             int option = Messages.showConfirmationDialog(project,
                     "Maven Required",
-                    "Maven was not found on this system.\n" +
-                    "Would you like to download Maven Wrapper (~10MB) to build the MCP server?",
-                    new String[]{"Download", "Cancel"}, 0);
-            if (option != 0) return;
-            wrapperApproved = true;
+                    "Maven runtime is not available or invalid in IDE Maven settings.\n" +
+                    "Please verify Maven settings and try again.",
+                    new String[]{"Open Plugins", "Cancel"}, 0);
+            if (option == 0) {
+                McpMavenBuild.openMavenPluginSettings(project);
+            }
+            return;
         }
-        runBuild(cfg, template, serverOutputDir, wrapperApproved);
+        runBuild(cfg, template, serverOutputDir);
     }
 
-    private void runBuild(McpBuildConfig cfg, String template, Path serverOutputDir, boolean useWrapper) {
+    private void runBuild(McpBuildConfig cfg, String template, Path serverOutputDir) {
         Progress.prompt(project, null, true, "Building MCP Server", "Maven build...", indicator -> {
             indicator.setIndeterminate(true);
             try {
@@ -253,9 +263,8 @@ public class McpBuildTask {
                         MCP_SDK,
                         JDBC,
                         template,
-                        cfg.getFile(),
                         sourceProjectDir,
-                        useWrapper,
+                        indicator,
                         logger(indicator));
                 Files.createDirectories(serverOutputDir);
                 Path finalJar = serverOutputDir.resolve(tempJar.getFileName());

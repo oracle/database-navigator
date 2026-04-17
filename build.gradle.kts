@@ -59,7 +59,8 @@ dependencies {
         bundledPlugins(
             "com.intellij.java",
             "com.intellij.modules.json",
-            "com.intellij.copyright"
+            "com.intellij.copyright",
+            "org.jetbrains.idea.maven"
         )
     }
 
@@ -101,7 +102,6 @@ dependencies {
     implementation("org.apache.xmlbeans:xmlbeans:5.3.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.20")
     implementation("org.projectlombok:lombok:1.18.36")
-    implementation("org.apache.maven.shared:maven-invoker:3.3.0")
 */
 
 
@@ -144,7 +144,6 @@ dependencies {
     implementation("org.apache.maven.resolver:maven-resolver-named-locks:1.9.22@jar")
     implementation("org.apache.maven.resolver:maven-resolver-spi:1.9.22@jar")
     implementation("org.apache.maven.resolver:maven-resolver-util:1.9.22@jar")
-    implementation("org.apache.maven.shared:maven-invoker:3.3.0@jar")
     implementation("org.apache.maven.shared:maven-shared-utils:3.4.2@jar")
     implementation("org.apache.maven:maven-artifact:3.9.9@jar")
     implementation("org.apache.maven:maven-builder-support:3.9.9@jar")
@@ -171,7 +170,6 @@ dependencies {
     implementation("org.glassfish.jersey.media:jersey-media-json-jackson:2.35@jar")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.20@jar")
     implementation("org.projectlombok:lombok:1.18.36@jar")
-    implementation("org.apache.maven.shared:maven-invoker:3.3.0@jar")
 
     implementation(project(":modules:dbn-api"))
     implementation(project(":modules:dbn-spi"))
