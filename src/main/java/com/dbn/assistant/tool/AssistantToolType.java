@@ -41,15 +41,18 @@ public enum AssistantToolType implements Constant<AssistantToolType> {
     TABLE_METADATA,
     VIEW_METADATA,
     PROGRAM_METADATA,
+    JAVA_METADATA,
 
     // SOURCE_CODE_PROVIDER
     VIEW_SOURCE_CODE,
     PROGRAM_SOURCE_CODE,
+    JAVA_SOURCE_CODE,
 
 
     // IDE_ACTION_INVOKER
     DATASET_EDITORS,
     SOURCE_CODE_EDITORS,
+    JAVA_CODE_EDITORS,
     SQL_CONSOLE_EDITORS,
 
     ;
@@ -64,10 +67,13 @@ public enum AssistantToolType implements Constant<AssistantToolType> {
                 TABLE_METADATA,
                 VIEW_METADATA,
                 PROGRAM_METADATA,
+                JAVA_METADATA,
                 VIEW_SOURCE_CODE,
                 PROGRAM_SOURCE_CODE,
+                JAVA_SOURCE_CODE,
                 DATASET_EDITORS,
                 SOURCE_CODE_EDITORS,
+                JAVA_CODE_EDITORS,
                 SQL_CONSOLE_EDITORS),
 
             // data analytics
