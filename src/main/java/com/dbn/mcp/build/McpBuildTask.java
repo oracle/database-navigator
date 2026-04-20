@@ -20,6 +20,9 @@ import com.dbn.mcp.model.OracleWallet;
 import com.dbn.mcp.model.ParamRow;
 import com.dbn.mcp.model.ToolDefinitionModel;
 import com.dbn.mcp.util.McpServerName;
+import com.dbn.mcp.util.McpToolDescription;
+import com.dbn.mcp.util.McpToolDefinitions;
+import com.dbn.mcp.util.McpToolName;
 import com.dbn.mcp.util.SqlParameterParser;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -73,6 +76,11 @@ public class McpBuildTask {
         String serverNameError = McpServerName.validationError(serverName);
         if (serverNameError != null) {
             showError(serverNameError);
+            return;
+        }
+        String toolValidationError = McpToolDefinitions.validationError(tools);
+        if (toolValidationError != null) {
+            showError(toolValidationError);
             return;
         }
 
@@ -183,30 +191,36 @@ public class McpBuildTask {
     private String buildYaml() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("transport: ").append(yamlValue(transportType.isHttp() ? "http" : "stdio")).append('\n');
+        appendYamlField(sb, "", "transport", transportType.isHttp() ? "http" : "stdio");
         sb.append("httpPort: ").append(httpPort).append("  # used when transport is http").append('\n');
         sb.append('\n');
 
         sb.append("dataSource:\n");
-        sb.append("  url: ").append(yamlValue(resolveUrl())).append('\n');
+        appendYamlField(sb, "  ", "url", resolveUrl());
         sb.append("  # username: YOUR_USER  # uncomment to override wallet credentials\n");
         sb.append("  # password: YOUR_PASS  # uncomment to override wallet credentials\n");
         sb.append('\n');
 
         sb.append("tools:\n");
         for (ToolDefinitionModel t : tools) {
-            sb.append("  ").append(safe(t.getName(), "tool")).append(":\n");
-            sb.append("    description: ").append(yamlValue(safe(t.getDescription(), "SQL tool"))).append('\n');
-            sb.append("    statement: ").append(yamlValue(safe(t.getStatement(), "SELECT 1 FROM dual"))).append('\n');
+            String toolName = McpToolName.normalize(t.getName());
+            String description = McpToolDescription.normalize(t.getDescription());
+            sb.append("  ").append(toolName).append(":\n");
+            appendYamlField(sb, "    ", "description", safe(description, "SQL tool"));
+            appendYamlField(sb, "    ", "statement", safe(t.getStatement(), "SELECT 1 FROM dual"));
 
             List<ParamRow> params = t.getParamsModel() != null ? t.getParamsModel().getRows() : List.of();
             if (!params.isEmpty()) {
                 sb.append("    parameters:\n");
                 for (ParamRow row : params) {
                     sb.append("      - name: ").append(SqlParameterParser.stripColon(row.getName())).append('\n');
-                    sb.append("        type: ").append(row.getType().getYamlType()).append('\n');
-                    if (Strings.isNotEmpty(row.getDescription()))
-                        sb.append("        description: ").append(yamlValue(row.getDescription())).append('\n');
+                    sb.append("        type: ").append(row.getType().getSchemaType()).append('\n');
+                    if (Strings.isNotEmpty(row.getType().getSchemaFormat())) {
+                        sb.append("        format: ").append(row.getType().getSchemaFormat()).append('\n');
+                    }
+                    if (Strings.isNotEmpty(row.getDescription())) {
+                        appendYamlField(sb, "        ", "description", row.getDescription());
+                    }
                     sb.append("        required: ").append(row.isRequired()).append('\n');
                 }
             }
@@ -215,13 +229,26 @@ public class McpBuildTask {
         return sb.toString();
     }
 
+    private static void appendYamlField(StringBuilder sb, String indent, String key, String value) {
+        String normalized = value == null ? "" : value;
+        if (normalized.contains("\n")) {
+            sb.append(indent).append(key).append(": |").append('\n');
+            String[] lines = normalized.split("\\R", -1);
+            for (String line : lines) {
+                sb.append(indent).append("  ").append(line).append('\n');
+            }
+        } else {
+            sb.append(indent).append(key).append(": ").append(yamlValue(normalized)).append('\n');
+        }
+    }
+
     private static String yamlValue(String v) {
         if (v == null || v.isEmpty()) return "\"\"";
         boolean needsQuotes = v.contains(":") || v.contains("#") || v.contains("\"")
-                || v.contains("'") || v.contains("\n") || v.contains("{") || v.contains("}")
+                || v.contains("'") || v.contains("{") || v.contains("}")
                 || v.contains("[") || v.contains("]") || v.startsWith(" ") || v.endsWith(" ");
         if (!needsQuotes) return v;
-        return "\"" + v.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n") + "\"";
+        return "\"" + v.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
     }
 
     private void build(McpBuildConfig cfg, String template, Path serverOutputDir) {
@@ -367,7 +394,9 @@ public class McpBuildTask {
     private void writeReadme(Path dir) {
         try {
             List<Map<String, String>> toolList = tools.stream()
-                    .map(t -> Map.of("name", safe(t.getName(), "tool"), "description", safe(t.getDescription(), "SQL tool")))
+                    .map(t -> Map.of(
+                            "name", McpToolName.normalize(t.getName()),
+                            "description", safe(McpToolDescription.normalize(t.getDescription()), "SQL tool")))
                     .collect(Collectors.toList());
             Map<String, Object> context = new LinkedHashMap<>();
             context.put("SERVER_NAME", serverName);

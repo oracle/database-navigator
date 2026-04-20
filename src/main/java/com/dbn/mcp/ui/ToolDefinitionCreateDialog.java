@@ -9,28 +9,38 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
+import java.util.List;
 
 
 public class ToolDefinitionCreateDialog extends DBNDialog<ToolDefinitionCreateForm> {
 
     private final ConnectionHandler connection;
     private final ToolDefinitionModel existing;
+    private final List<String> usedToolNames;
 
     public ToolDefinitionCreateDialog(@Nullable Project project, @NotNull ConnectionHandler connection) {
-        this(project, connection, null);
+        this(project, connection, null, List.of());
     }
 
     public ToolDefinitionCreateDialog(@Nullable Project project, @NotNull ConnectionHandler connection, @Nullable ToolDefinitionModel existing) {
+        this(project, connection, existing, List.of());
+    }
+
+    public ToolDefinitionCreateDialog(@Nullable Project project,
+                                      @NotNull ConnectionHandler connection,
+                                      @Nullable ToolDefinitionModel existing,
+                                      @NotNull List<String> usedToolNames) {
         super(project, existing == null ? "Create MCP Tool" : "Edit MCP Tool", true);
         this.connection = connection;
         this.existing = existing;
+        this.usedToolNames = usedToolNames;
         setDefaultSize(980, 740);
         init();
     }
 
     @Override
     protected @NotNull ToolDefinitionCreateForm createForm() {
-        return new ToolDefinitionCreateForm(this, connection, existing);
+        return new ToolDefinitionCreateForm(this, connection, existing, usedToolNames);
     }
 
     protected final Action[] initializeActions() {

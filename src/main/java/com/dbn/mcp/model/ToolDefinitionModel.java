@@ -69,7 +69,10 @@ public class ToolDefinitionModel {
         Map<String, Object> schema = new LinkedHashMap<>();
         ParamType type = row != null ? row.getType() : ParamType.STRING;
 
-        schema.put("type", type.getYamlType());
+        schema.put("type", type.getSchemaType());
+        if (type.getSchemaFormat() != null) {
+            schema.put("format", type.getSchemaFormat());
+        }
         if (row != null && row.getDescription() != null && !row.getDescription().isEmpty()) {
             schema.put("description", row.getDescription());
         }

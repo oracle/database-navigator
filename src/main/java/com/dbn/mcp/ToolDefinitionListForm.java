@@ -1,6 +1,5 @@
 package com.dbn.mcp;
 
-import com.dbn.common.color.Colors;
 import lombok.Getter;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -23,7 +22,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import com.intellij.util.ui.UIUtil;
 
 public class ToolDefinitionListForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -46,14 +47,14 @@ public class ToolDefinitionListForm extends DBNFormBase {
 
     private void initEmptyLabel() {
         emptyLabel = new JLabel("No tools defined", SwingConstants.CENTER);
-        emptyLabel.setForeground(Colors.HINT_COLOR);
+        emptyLabel.setForeground(UIUtil.getLabelForeground());
         listPanel.add(emptyLabel, BorderLayout.CENTER);
     }
 
     private void initAddButton() {
         addButton = new JButton("Add Tool");
         addButton.addActionListener(e -> {
-            Dialogs.show(() -> new ToolDefinitionCreateDialog(getProject(), connection),
+            Dialogs.show(() -> new ToolDefinitionCreateDialog(getProject(), connection, null, getToolNamesExcluding(null)),
                     (dialog, exitCode) -> {
                         if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
                         ToolDefinitionModel toolDefinitionModel = dialog.getForm().getToolDefinitionModel();
@@ -102,6 +103,15 @@ public class ToolDefinitionListForm extends DBNFormBase {
     public List<ToolDefinitionModel> getToolDefinitionModelList() {
         return toolDefinitionListItemFormList.stream()
                 .map(ToolDefinitionListItemForm::getToolDefinitionModel)
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getToolNamesExcluding(@Nullable ToolDefinitionListItemForm itemToExclude) {
+        return toolDefinitionListItemFormList.stream()
+                .filter(item -> item != itemToExclude)
+                .map(ToolDefinitionListItemForm::getToolDefinitionModel)
+                .filter(Objects::nonNull)
+                .map(ToolDefinitionModel::getName)
                 .collect(Collectors.toList());
     }
 }

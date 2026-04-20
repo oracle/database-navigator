@@ -11,6 +11,9 @@ import com.dbn.language.sql.SQLLanguage;
 import com.dbn.mcp.model.ParamRow;
 import com.dbn.mcp.model.ParamType;
 import com.dbn.mcp.model.ToolDefinitionModel;
+import com.dbn.mcp.util.McpToolDescription;
+import com.dbn.mcp.util.McpToolDefinitions;
+import com.dbn.mcp.util.McpToolName;
 import com.dbn.mcp.vfs.McpToolSqlVirtualFile;
 import com.dbn.vfs.DatabaseFileViewProvider;
 import com.intellij.openapi.Disposable;
@@ -23,6 +26,7 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.components.JBTextArea;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,15 +46,15 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
-import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
-import static com.dbn.common.util.Strings.isWord;
 import static com.dbn.mcp.util.SqlParameterParser.parseOccurrences;
 import static com.dbn.mcp.util.SqlParameterParser.stripColon;
 import static com.dbn.mcp.util.SqlParameterParser.uniqueInOrder;
@@ -74,19 +78,24 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
     private String lastTestedSql;
     private boolean hasSqlTestResult;
     private boolean lastSqlTestPassed;
+    private final Set<String> siblingToolNames = new LinkedHashSet<>();
 
     public ToolDefinitionCreateForm(Disposable parent, @NotNull ConnectionHandler connection) {
-        this(parent, connection, null);
+        this(parent, connection, null, List.of());
     }
 
-    public ToolDefinitionCreateForm(Disposable parent, @NotNull ConnectionHandler connection, @Nullable ToolDefinitionModel existing) {
+    public ToolDefinitionCreateForm(Disposable parent, @NotNull ConnectionHandler connection, @Nullable ToolDefinitionModel existing, @NotNull List<String> usedToolNames) {
         super(parent);
         this.connection = connection;
+        for (String usedToolName : usedToolNames) {
+            siblingToolNames.add(McpToolName.normalize(usedToolName));
+        }
         initParamsTable();
         initTestButton();
 
         if (existing != null) {
             toolName.setText(existing.getName());
+            siblingToolNames.remove(McpToolName.normalize(existing.getName()));
             toolDescriptionTextArea.setText(existing.getDescription());
             cachedSqlText = existing.getStatement();
 
@@ -104,10 +113,13 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
 
     @Override
     protected void initValidation() {
-        addTextValidation(toolName, n -> isNotEmptyOrSpaces(n), "Please enter a tool name");
-        addTextValidation(toolName, n -> !n.contains(" "), "Tool name cannot contain spaces");
-        addTextValidation(toolName, n -> isWord(n), "Tool name can only contain letters, digits, and underscores");
+        addTextValidation(toolName, field -> validateToolName(field.getText()));
+        addTextValidation(toolDescriptionTextArea, field -> McpToolDescription.validationError(field.getText()));
         addValidation(sqlEditorPanel, c -> getSqlText().isBlank() ? "Please enter a SQL query" : null);
+    }
+
+    private String validateToolName(String value) {
+        return McpToolDefinitions.validationError(value, siblingToolNames);
     }
 
     private void initParamsTable() {
@@ -127,6 +139,10 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
     private void initTestButton() {
         testSqlButton.setToolTipText("Open a dedicated SQL tester dialog for parameter input and preview results.");
         onButtonClick(testSqlButton, e -> {
+            if (getSqlText().isBlank()) {
+                Messages.showErrorDialog(getProject(), "Please enter the SQL query first, then run Test SQL Query.");
+                return;
+            }
             try {
                 openSqlTestDialog();
             } catch (Exception ex) {
@@ -264,13 +280,13 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         String currentSql = getSqlText();
 
         if (!hasSqlTestResult || lastTestedSql == null) {
-            sqlTestStatusLabel.setForeground(Colors.HINT_COLOR);
+            sqlTestStatusLabel.setForeground(UIUtil.getContextHelpForeground());
             sqlTestStatusLabel.setText("Not tested yet. Open tester to verify SQL and preview results.");
             return;
         }
 
         if (!Objects.equals(lastTestedSql, currentSql)) {
-            sqlTestStatusLabel.setForeground(Colors.HINT_COLOR);
+            sqlTestStatusLabel.setForeground(UIUtil.getContextHelpForeground());
             sqlTestStatusLabel.setText("Query changed since last test. Please run tester again.");
             return;
         }
@@ -329,8 +345,8 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
 
     public ToolDefinitionModel getToolDefinitionModel() {
         ToolDefinitionModel model = new ToolDefinitionModel(paramsModel);
-        model.setName(toolName.getText());
-        model.setDescription(toolDescriptionTextArea.getText());
+        model.setName(McpToolName.normalize(toolName.getText()));
+        model.setDescription(McpToolDescription.normalize(toolDescriptionTextArea.getText()));
         model.setStatement(getSqlText());
         return model;
     }

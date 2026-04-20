@@ -69,7 +69,11 @@ public class ToolDefinitionListItemForm extends DBNFormBase {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             ToolDefinitionListForm parent = getParentForm();
-            Dialogs.show(() -> new ToolDefinitionCreateDialog(getProject(), parent.getConnection(), toolDefinitionModel),
+            Dialogs.show(() -> new ToolDefinitionCreateDialog(
+                            getProject(),
+                            parent.getConnection(),
+                            toolDefinitionModel,
+                            parent.getToolNamesExcluding(ToolDefinitionListItemForm.this)),
                     (dialog, exitCode) -> {
                         if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
                         toolDefinitionModel = dialog.getForm().getToolDefinitionModel();

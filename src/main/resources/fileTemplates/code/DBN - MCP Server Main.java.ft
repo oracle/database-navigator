@@ -307,6 +307,9 @@ public class Main {
 
                     Map<String, Object> property = new LinkedHashMap<>();
                     property.put("type", param.type);
+                    if (param.format != null && !param.format.isBlank()) {
+                        property.put("format", param.format);
+                    }
                     property.put("description", param.description);
                     properties.put(param.name, property);
 
@@ -332,6 +335,7 @@ public class Main {
     public static class ToolParameterConfig {
         public String name;
         public String type = "string";
+        public String format;
         public String description;
         public boolean required;
     }
