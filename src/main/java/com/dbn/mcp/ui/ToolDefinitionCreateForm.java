@@ -1,8 +1,10 @@
 package com.dbn.mcp.ui;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.language.sql.SQLFileType;
 import com.dbn.language.sql.SQLLanguage;
@@ -26,8 +28,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -37,11 +41,14 @@ import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
+import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.common.util.Strings.isWord;
 import static com.dbn.mcp.util.SqlParameterParser.parseOccurrences;
@@ -55,6 +62,8 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
     private JPanel sqlEditorPanel;
     private JTable paramsTable;
     private JScrollPane paramsScrollPane;
+    private JButton testSqlButton;
+    private JLabel sqlTestStatusLabel;
 
     private final ConnectionHandler connection;
     private ParamTableModel paramsModel;
@@ -62,6 +71,9 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
     private EditorEx editor;
     private String cachedSqlText;
     private boolean suppressDocEvents;
+    private String lastTestedSql;
+    private boolean hasSqlTestResult;
+    private boolean lastSqlTestPassed;
 
     public ToolDefinitionCreateForm(Disposable parent, @NotNull ConnectionHandler connection) {
         this(parent, connection, null);
@@ -71,17 +83,22 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         super(parent);
         this.connection = connection;
         initParamsTable();
+        initTestButton();
+
         if (existing != null) {
             toolName.setText(existing.getName());
             toolDescriptionTextArea.setText(existing.getDescription());
             cachedSqlText = existing.getStatement();
+
             if (existing.getParamsModel() != null) {
                 for (ParamRow row : existing.getParamsModel().getRows()) {
-                    paramsModel.getRows().add(new ParamRow(row.getName(), row.getType(), row.getDefaultValue(), row.getDescription(), row.isRequired()));
+                    paramsModel.getRows().add(new ParamRow(row.getName(), row.getType(), row.getTestValue(), row.getDescription(), row.isRequired()));
                 }
                 paramsModel.fireTableDataChanged();
             }
         }
+
+        updateSqlTestStatus();
         whenFirstShown(this::initEditor);
     }
 
@@ -94,7 +111,7 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
     }
 
     private void initParamsTable() {
-        paramsModel = new ParamTableModel();
+        paramsModel = new ParamTableModel(false);
         paramsTable.setModel(paramsModel);
         paramsTable.setDefaultEditor(ParamType.class, new DefaultCellEditor(new JComboBox<>(ParamType.values())));
 
@@ -105,6 +122,55 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
                 deleteSelectedParam();
             }
         });
+    }
+
+    private void initTestButton() {
+        testSqlButton.setToolTipText("Open a dedicated SQL tester dialog for parameter input and preview results.");
+        onButtonClick(testSqlButton, e -> {
+            try {
+                openSqlTestDialog();
+            } catch (Exception ex) {
+                Messages.showErrorDialog(getProject(), "Failed to open SQL tester", ex);
+            }
+        });
+    }
+
+    public void openSqlTestDialog() {
+        List<ParamRow> testParams = copyRows(paramsModel.getRows());
+        ToolDefinitionSqlTestDialog dialog = new ToolDefinitionSqlTestDialog(connection, getSqlText(), testParams);
+        dialog.show();
+        applyTestValues(dialog.getParamRows());
+        if (dialog.hasVerificationRun()) {
+            hasSqlTestResult = true;
+            lastSqlTestPassed = dialog.isLastVerificationSuccessful();
+            lastTestedSql = getSqlText();
+        }
+        updateSqlTestStatus();
+        validateFormFields();
+    }
+
+    private void applyTestValues(List<ParamRow> testRows) {
+        Map<String, ParamRow> testedByName = new LinkedHashMap<>();
+        for (ParamRow row : testRows) {
+            testedByName.put(stripColon(row.getName()), row);
+        }
+
+        for (ParamRow row : paramsModel.getRows()) {
+            ParamRow tested = testedByName.get(stripColon(row.getName()));
+            if (tested != null) {
+                row.setTestValue(tested.getTestValue());
+            }
+        }
+
+        paramsModel.fireTableDataChanged();
+    }
+
+    private static List<ParamRow> copyRows(List<ParamRow> rows) {
+        List<ParamRow> copy = new ArrayList<>();
+        for (ParamRow row : rows) {
+            copy.add(new ParamRow(row.getName(), row.getType(), row.getTestValue(), row.getDescription(), row.isRequired()));
+        }
+        return copy;
     }
 
     private void initEditor() {
@@ -126,6 +192,7 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
             public void documentChanged(@NotNull DocumentEvent event) {
                 if (suppressDocEvents) return;
                 refreshParams();
+                updateSqlTestStatus();
                 validateFormFields();
             }
         });
@@ -172,7 +239,11 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
     }
 
     private void refreshParams() {
-        List<String> uniqueParams = uniqueInOrder(parseOccurrences(getSqlText()));
+        refreshParams(getSqlText());
+    }
+
+    private void refreshParams(String sqlText) {
+        List<String> uniqueParams = uniqueInOrder(parseOccurrences(sqlText));
 
         Map<String, ParamRow> existing = new LinkedHashMap<>();
         for (ParamRow row : paramsModel.getRows()) {
@@ -183,10 +254,34 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         for (String name : uniqueParams) {
             ParamRow prev = existing.get(name);
             paramsModel.getRows().add(prev != null
-                    ? new ParamRow(":" + name, prev.getType(), prev.getDefaultValue(), prev.getDescription(), prev.isRequired())
-                    : new ParamRow(":" + name, ParamType.STRING, ""));
+                    ? new ParamRow(":" + name, prev.getType(), prev.getTestValue(), prev.getDescription(), prev.isRequired())
+                    : new ParamRow(":" + name, ParamType.STRING, "", "", false));
         }
         paramsModel.fireTableDataChanged();
+    }
+
+    private void updateSqlTestStatus() {
+        String currentSql = getSqlText();
+
+        if (!hasSqlTestResult || lastTestedSql == null) {
+            sqlTestStatusLabel.setForeground(Colors.HINT_COLOR);
+            sqlTestStatusLabel.setText("Not tested yet. Open tester to verify SQL and preview results.");
+            return;
+        }
+
+        if (!Objects.equals(lastTestedSql, currentSql)) {
+            sqlTestStatusLabel.setForeground(Colors.HINT_COLOR);
+            sqlTestStatusLabel.setText("Query changed since last test. Please run tester again.");
+            return;
+        }
+
+        if (lastSqlTestPassed) {
+            sqlTestStatusLabel.setForeground(Colors.SUCCESS_COLOR);
+            sqlTestStatusLabel.setText("Test passed for current query.");
+        } else {
+            sqlTestStatusLabel.setForeground(Colors.FAILURE_COLOR);
+            sqlTestStatusLabel.setText("Last test failed for current query.");
+        }
     }
 
     private String getSqlText() {
@@ -211,6 +306,25 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         editor = null;
         document = null;
         super.disposeInner();
+    }
+
+    public boolean hasPassingTestForCurrentSql() {
+        String currentSql = getSqlText();
+        return hasSqlTestResult &&
+                lastSqlTestPassed &&
+                lastTestedSql != null &&
+                Objects.equals(lastTestedSql, currentSql);
+    }
+
+    public String getSqlTestStatusSummary() {
+        String currentSql = getSqlText();
+        if (!hasSqlTestResult || lastTestedSql == null) {
+            return "not tested";
+        }
+        if (!Objects.equals(lastTestedSql, currentSql)) {
+            return "changed since last test";
+        }
+        return lastSqlTestPassed ? "test passed" : "last test failed";
     }
 
     public ToolDefinitionModel getToolDefinitionModel() {

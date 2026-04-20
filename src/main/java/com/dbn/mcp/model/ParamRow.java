@@ -8,17 +8,17 @@ import lombok.Setter;
 public class ParamRow {
     private String name;
     private ParamType type;
-    private String defaultValue;
+    private String testValue;
     private String description;
     private boolean required;
 
     public ParamRow(String name) { this(name, ParamType.STRING, "", "", false); }
-    public ParamRow(String name, ParamType type, String defaultValue) { this(name, type, defaultValue, "", false); }
+    public ParamRow(String name, ParamType type, String testValue) { this(name, type, testValue, "", false); }
 
-    public ParamRow(String name, ParamType type, String defaultValue, String description, boolean required) {
+    public ParamRow(String name, ParamType type, String testValue, String description, boolean required) {
         this.name = name;
         this.type = type != null ? type : ParamType.STRING;
-        this.defaultValue = defaultValue != null ? defaultValue : "";
+        this.testValue = testValue != null ? testValue : "";
         this.description = description != null ? description : "";
         this.required = required;
     }

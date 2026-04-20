@@ -1,7 +1,6 @@
 package com.dbn.mcp.model;
 
 import com.dbn.common.util.Json;
-import com.dbn.common.util.Strings;
 import com.dbn.mcp.ui.ParamTableModel;
 import com.dbn.mcp.util.SqlParameterParser;
 import lombok.Getter;
@@ -71,20 +70,10 @@ public class ToolDefinitionModel {
         ParamType type = row != null ? row.getType() : ParamType.STRING;
 
         schema.put("type", type.getYamlType());
-        if (row != null && Strings.isNotEmpty(row.getDescription())) schema.put("description", row.getDescription());
-        if (row != null && Strings.isNotEmpty(row.getDefaultValue())) addDefault(schema, row.getDefaultValue(), type);
+        if (row != null && row.getDescription() != null && !row.getDescription().isEmpty()) {
+            schema.put("description", row.getDescription());
+        }
 
         return schema;
-    }
-
-    private void addDefault(Map<String, Object> schema, String value, ParamType type) {
-        try {
-            switch (type) {
-                case BOOLEAN: schema.put("default", "true".equalsIgnoreCase(value)); break;
-                case INTEGER: schema.put("default", Long.parseLong(value)); break;
-                case NUMBER:  schema.put("default", Double.parseDouble(value)); break;
-                default:      schema.put("default", value);
-            }
-        } catch (NumberFormatException ignored) {}
     }
 }
