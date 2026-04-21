@@ -44,10 +44,13 @@ public class McpBuildResultForm extends DBNFormBase {
         String transportSteps = httpTransport
                 ? "1. Start the JAR so it serves HTTP (see README for transport/httpPort).<br>"
                 + "2. Copy the JSON below into your MCP client configuration.<br>"
-                + "3. If you change <code>httpPort</code> in YAML, update the URL in the JSON snippet.<br>"
+                + "3. Keep the <code>wallet/</code> folder private and secure.<br>"
                 : "1. Copy the JSON below into your MCP client configuration (e.g. Claude Desktop).<br>"
                 + "2. Keep the <code>wallet/</code> folder private.<br>";
         String readmeStep = httpTransport ? "4." : "3.";
+        String readmeMessage = httpTransport
+                ? " See <code>README.md</code> in the output folder for full run details and HTTP customization (including <code>httpPort</code> changes)."
+                : " See <code>README.md</code> in the output folder for full run and customization details.";
 
         String headerHtml = "<html>"
                 + "<b>MCP server built successfully.</b><br><br>"
@@ -57,7 +60,7 @@ public class McpBuildResultForm extends DBNFormBase {
                 + "Source project: " + escapeHtml(sourceProjectPath) + "<br><br>"
                 + "<b>Next steps:</b><br>"
                 + transportSteps
-                + readmeStep + " See <code>README.md</code> in the output folder for full run and customization details."
+                + readmeStep + readmeMessage
                 + "</html>";
         return new JLabel(headerHtml);
     }

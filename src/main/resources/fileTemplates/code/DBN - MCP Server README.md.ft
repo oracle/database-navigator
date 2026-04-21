@@ -38,41 +38,86 @@ httpPort: ${HTTP_PORT}        # used when transport is "http"
 When `transport: "http"`, the MCP endpoint is:
 
 ```
-http://localhost:${HTTP_PORT}/mcp
+http://127.0.0.1:${HTTP_PORT}/mcp
 ```
 
 (Replace `${HTTP_PORT}` with your `httpPort` value if you change it.)
+
+$h2 Tool Configuration
+
+The generated `mcp-config.yaml` is flexible: you can edit tool SQL, descriptions, and parameters after generation.
+
+Typical tool entry:
+
+```yaml
+tools:
+  ${SERVER_NAME}_sample_tool:
+    description: "Example query tool"
+    statement: |
+      select employee_id, first_name, last_name
+      from employees
+      where hire_date >= to_date(:from_date, 'YYYY-MM-DD')
+    parameters:
+      - name: from_date
+        type: string
+        format: date
+        required: true
+```
+
+Parameter fields:
+
+- `name` — bind variable name without `:`
+- `type` — JSON schema type (`string`, `integer`, `number`, `boolean`)
+- `format` — optional metadata for string types (for example `date`)
+- `required` — whether the argument is required by the tool schema
+
+After changing `mcp-config.yaml`:
+
+- for `transport: "http"`, rerun the JAR
+- reopen/reconnect your MCP client to pick up the updated tool definitions
 
 $h2 MCP Clients
 
 For `transport: "stdio"`, paste this **snippet** inside the existing `mcpServers` block:
 
 ```json
-"${SERVER_NAME}": {
-  "command": "java",
-  "args": ["-jar", "/absolute/path/to/${JAR_NAME}"]
+{
+  "mcpServers": {
+    "${SERVER_NAME}": {
+      "command": "java",
+      "args": ["-jar", "/absolute/path/to/${JAR_NAME}"]
+    }
+  }
 }
 ```
 
 Using HTTP transport and Cline (`transport: "http"`):
 
 ```json
-"${SERVER_NAME}": {
-  "type": "streamableHttp",
-  "url": "http://127.0.0.1:${HTTP_PORT}/mcp"
+{
+  "mcpServers": {
+    "${SERVER_NAME}": {
+      "type": "streamableHttp",
+      "url": "http://127.0.0.1:${HTTP_PORT}/mcp"
+    }
+  }
 }
 ```
 
 Using HTTP from Claude Desktop (`transport: "http"`):
 
 ```json
-"${SERVER_NAME}": {
-  "command": "npx",
-  "args": [
-    "-y",
-    "mcp-remote",
-    "http://127.0.0.1:${HTTP_PORT}/mcp"
-  ]
+{
+  "mcpServers": {
+    "${SERVER_NAME}": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "http://127.0.0.1:${HTTP_PORT}/mcp"
+      ]
+    }
+  }
 }
 ```
 
@@ -87,11 +132,12 @@ To connect to a different database or use different credentials, edit `mcp-confi
 ```yaml
 dataSource:
   url: "jdbc:oracle:thin:@tcps://newhost:1521/newservice"
-  username: YOUR_USER    # add this line to override the wallet
-  password: YOUR_PASS    # add this line to override the wallet
+  username: YOUR_USER    # add to override wallet credentials
+  password: YOUR_PASS    # add to override wallet credentials
 ```
 
 If `username` and `password` are absent from YAML, the wallet is used automatically.
+If both are present, YAML credentials override the wallet.
 
 $h2 Advanced Customization
 

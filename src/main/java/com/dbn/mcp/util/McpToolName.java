@@ -23,6 +23,9 @@ public class McpToolName {
         if (normalized.length() > MAX_LENGTH) {
             return "Tool name is too long (max " + MAX_LENGTH + " characters)";
         }
+        if (normalized.contains(" ")) {
+            return "No spaces are allowed in tool name";
+        }
         if (!VALID_NAME.matcher(normalized).matches()) {
             return "Tool name can only contain letters, digits, '.', '-', and '_'";
         }
@@ -30,4 +33,3 @@ public class McpToolName {
         return null;
     }
 }
-
