@@ -437,6 +437,34 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     /*********************************************************
+     *               DATA SOURCE CONFIG STORE               *
+     *********************************************************/
+    @Override
+    public ResultSet loadDataSourceConfigEntries(DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "data-source-config-entries");
+    }
+
+    @Override
+    public ResultSet loadDataSourceConfigEntry(String key, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "data-source-config-entry", key);
+    }
+
+    @Override
+    public void insertDataSourceConfigEntry(String key, String value, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "insert-data-source-config-entry", key, value);
+    }
+
+    @Override
+    public void updateDataSourceConfigEntry(String key, String value, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "update-data-source-config-entry", key, value);
+    }
+
+    @Override
+    public void deleteDataSourceConfigEntry(String key, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "delete-data-source-config-entry", key);
+    }
+
+    /*********************************************************
      *                      REFERENCES                       *
      *********************************************************/
     @Override
