@@ -139,6 +139,12 @@ public class GenericMetadataInterface extends DatabaseMetadataInterfaceImpl {
         return null;
     }
 
+    @Override
+    public String loadSessionUser(DBNConnection connection) {
+        // no session user in generic_metadata_interface.xml
+        return null;
+    }
+
     // TODO
     @Override
     public String createDateString(Date date) {
