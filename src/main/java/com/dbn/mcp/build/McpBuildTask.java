@@ -24,7 +24,6 @@ import com.dbn.mcp.util.McpToolDescription;
 import com.dbn.mcp.util.McpToolDefinitions;
 import com.dbn.mcp.util.McpToolName;
 import com.dbn.mcp.util.SqlParameterParser;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,7 +41,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -282,7 +280,9 @@ public class McpBuildTask {
         Progress.prompt(project, null, true, "Building MCP Server", "Maven build...", indicator -> {
             indicator.setIndeterminate(true);
             try {
+                indicator.setText2("Preparing project...");
                 Path sourceProjectDir = serverOutputDir.resolve(SOURCE_PROJECT);
+                indicator.setText2("Running Maven build (clean package)...");
                 Path tempJar = McpMavenBuild.buildWithMaven(
                         project,
                         cfg.getDir().resolve(DIST),
@@ -292,14 +292,18 @@ public class McpBuildTask {
                         template,
                         sourceProjectDir,
                         indicator,
-                        logger(indicator));
+                        null);
+                indicator.setText2("Finalizing output...");
                 Files.createDirectories(serverOutputDir);
                 Path finalJar = serverOutputDir.resolve(tempJar.getFileName());
                 Files.move(tempJar, finalJar, StandardCopyOption.REPLACE_EXISTING);
                 Files.copy(cfg.getFile(), serverOutputDir.resolve(CONFIG), StandardCopyOption.REPLACE_EXISTING);
                 Files.deleteIfExists(serverOutputDir.resolve("Main.java"));
+                indicator.setText2("Creating wallet...");
                 createWallet(serverOutputDir);
+                indicator.setText2("Writing README...");
                 writeReadme(serverOutputDir);
+                indicator.setText2("Done");
                 showResult(serverOutputDir, finalJar);
             } catch (Throwable e) {
                 log.error("MCP build failed", e);
@@ -408,16 +412,6 @@ public class McpBuildTask {
         } catch (IOException e) {
             log.error("Failed to write README", e);
         }
-    }
-
-    private Consumer<String> logger(ProgressIndicator ind) {
-        long[] last = {0L};
-        return line -> {
-            if (line == null || System.nanoTime() - last[0] < 50_000_000L) return;
-            last[0] = System.nanoTime();
-            String t = line.replaceAll("\\p{Cntrl}", " ").replaceAll("\\s+", " ").trim();
-            ind.setText2(t.length() > 140 ? t.substring(0, 140) + "…" : t);
-        };
     }
 
     private void showResult(Path serverOutputDir, Path jar) {

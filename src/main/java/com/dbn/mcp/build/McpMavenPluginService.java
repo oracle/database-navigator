@@ -20,6 +20,7 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
+import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
@@ -47,6 +48,7 @@ import java.util.stream.Collectors;
 public class McpMavenPluginService extends ProjectComponentBase implements McpMavenService {
     private static final String COMPONENT_NAME = "DBNavigator.Project.McpMavenPluginService";
     private static final long PROCESS_ATTACH_TIMEOUT_MILLIS = 30_000;
+    private static final String BUILD_PROGRESS_TEXT = "Running Maven build (clean package)...";
 
     public McpMavenPluginService(@NotNull Project project) {
         super(project, COMPONENT_NAME);
@@ -69,6 +71,8 @@ public class McpMavenPluginService extends ProjectComponentBase implements McpMa
 
     @Override
     public void runBuild(@NotNull Path projectDir, @NotNull ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
+        indicator.setText2(BUILD_PROGRESS_TEXT);
+
         MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(getProject());
         MavenGeneralSettings generalSettings = projectsManager.getGeneralSettings().clone();
         MavenRunnerSettings runnerSettings = MavenRunner.getInstance(getProject()).getSettings().clone();
@@ -105,9 +109,12 @@ public class McpMavenPluginService extends ProjectComponentBase implements McpMa
                 public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
                     String text = event.getText();
                     if (text == null || text.isBlank()) return;
+                    String source =
+                            outputType == ProcessOutputTypes.STDERR ? "STDERR" :
+                            outputType == ProcessOutputTypes.STDOUT ? "STDOUT" : "SYSTEM";
                     for (String line : text.split("\\R")) {
                         if (!line.isBlank()) {
-                            capture.accept(line);
+                            capture.accept("[" + source + "] " + line);
                         }
                     }
                 }
@@ -161,6 +168,8 @@ public class McpMavenPluginService extends ProjectComponentBase implements McpMa
             StringBuilder output) throws IOException {
         long startedAt = System.currentTimeMillis();
         while (finished.getCount() > 0) {
+            indicator.setText2(BUILD_PROGRESS_TEXT);
+
             if (indicator.isCanceled()) {
                 ProcessHandler processHandler = processRef.get();
                 if (processHandler != null && !processHandler.isProcessTerminated()) {
