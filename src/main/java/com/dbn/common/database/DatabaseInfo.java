@@ -25,6 +25,8 @@ import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.ServerType;
 import com.dbn.connection.config.file.DatabaseFile;
 import com.dbn.connection.config.file.DatabaseFileBundle;
+import com.dbn.connection.config.imports.CloudConfigProviderType;
+import com.dbn.connection.config.imports.ConfigFileSourceType;
 import com.dbn.connection.config.tns.TnsAdmin;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -38,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.connection.DatabaseUrlType.CUSTOM;
+import static com.dbn.connection.DatabaseUrlType.CONFIG_FILE;
 import static com.dbn.connection.DatabaseUrlType.DATABASE;
 import static com.dbn.connection.DatabaseUrlType.FILE;
 import static com.dbn.connection.DatabaseUrlType.SID;
@@ -67,6 +70,10 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
     private ServerType serverType;
     private String tnsFolder;
     private String tnsProfile;
+    private ConfigFileSourceType configFileSourceType = ConfigFileSourceType.LOCAL_FILE;
+    private CloudConfigProviderType cloudConfigProviderType;
+    private String configLocation;
+    private String configFileProfileKey;
     private Map<String, String> parameters = new HashMap<>();
 
     public DatabaseInfo() {}
@@ -98,6 +105,10 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.fileBundle = null;
         this.url = null;
         this.serverType = null;
+        this.configFileSourceType = ConfigFileSourceType.LOCAL_FILE;
+        this.cloudConfigProviderType = null;
+        this.configLocation = null;
+        this.configFileProfileKey = null;
         this.parameters = new HashMap<>();
     }
 
@@ -117,9 +128,30 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.serverType = pattern.resolveServerType(url);
         this.parameters = pattern.resolveParameters(url);
         this.protocol = pattern.resolveProtocol(url);
+        this.configLocation = pattern.resolveConfigLocation(url);
+        this.configFileProfileKey = this.parameters.get("key");
+        initializeConfigFileSource(pattern);
 
         // TODO: resolve serverType
         initializeFiles(pattern);
+    }
+
+    private void initializeConfigFileSource(DatabaseUrlPattern pattern) {
+        if (pattern.getUrlType() != CONFIG_FILE) return;
+
+        String provider = pattern.resolveConfigProvider(url);
+        if (Strings.isEmptyOrSpaces(provider)) return;
+
+        if ("file".equalsIgnoreCase(provider)) {
+            configFileSourceType = ConfigFileSourceType.LOCAL_FILE;
+            cloudConfigProviderType = null;
+        } else if ("https".equalsIgnoreCase(provider)) {
+            configFileSourceType = ConfigFileSourceType.HTTPS;
+            cloudConfigProviderType = null;
+        } else {
+            configFileSourceType = ConfigFileSourceType.CLOUD_PROVIDER;
+            cloudConfigProviderType = CloudConfigProviderType.fromSlug(provider);
+        }
     }
 
     private void initializeFiles(DatabaseUrlPattern pattern) {
@@ -171,6 +203,10 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         clone.tnsFolder = this.tnsFolder;
         clone.tnsProfile = this.tnsProfile;
         clone.serverType = this.serverType;
+        clone.configFileSourceType = this.configFileSourceType;
+        clone.cloudConfigProviderType = this.cloudConfigProviderType;
+        clone.configLocation = this.configLocation;
+        clone.configFileProfileKey = this.configFileProfileKey;
         clone.parameters = new HashMap<>(this.parameters);
         return clone;
     }

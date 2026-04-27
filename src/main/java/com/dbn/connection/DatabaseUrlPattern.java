@@ -20,6 +20,8 @@ import com.dbn.common.constant.Constants;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.database.DatabaseInfo.Default;
 import com.dbn.common.util.Parameters;
+import com.dbn.connection.config.imports.CloudConfigProviderType;
+import com.dbn.connection.config.imports.ConfigFileSourceType;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -43,8 +45,11 @@ import static com.dbn.connection.DatabaseUrlPattern.Elements.profile;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.protocol;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.serverType;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.vendor;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.provider;
+import static com.dbn.connection.DatabaseUrlPattern.Elements.location;
 import static com.dbn.connection.DatabaseUrlType.CUSTOM;
 import static com.dbn.connection.DatabaseUrlType.DATABASE;
+import static com.dbn.connection.DatabaseUrlType.CONFIG_FILE;
 import static com.dbn.connection.DatabaseUrlType.EZCONNECT;
 import static com.dbn.connection.DatabaseUrlType.FILE;
 import static com.dbn.connection.DatabaseUrlType.LDAP;
@@ -83,6 +88,10 @@ public enum DatabaseUrlPattern {
             compile("^jdbc:oracle:(thin|oci):@//" + host + "(:" + port + ")?(/" + database + ")$", CASE_INSENSITIVE),
             Default.ORACLE, SERVICE),
 
+    ORACLE_CONFIG(
+        "jdbc:oracle:thin:@config-<PROVIDER>://<LOCATION><PARAMETERS>",
+        compile("^jdbc:oracle:(thin|oci):@config-" + provider + "://" + location + parameters + "$", CASE_INSENSITIVE),
+        Default.ORACLE, CONFIG_FILE),
 
     ORACLE_LDAP(
             "jdbc:oracle:thin:@ldap://<HOST>:<PORT>/<DATABASE>",
@@ -131,6 +140,8 @@ public enum DatabaseUrlPattern {
         String serverType = "(?<SERVERTYPE>:[\\w\\-.$#]+)?";
         String parameters = "(?<PARAMETERS>\\?(.*))?";
         String protocol = "(?<PROTOCOL>(tcp|tcps))";
+        String provider = "(?<PROVIDER>[a-z0-9]+)";
+        String location = "(?<LOCATION>[^?]+)";
     }
 
 
@@ -150,6 +161,10 @@ public enum DatabaseUrlPattern {
 
 
     public String buildUrl(DatabaseInfo databaseInfo) {
+        Map<String, String> parameters = databaseInfo.getUrlType() == CONFIG_FILE ?
+                configFileParameters(databaseInfo) :
+                databaseInfo.getParameters();
+
         return buildUrl(
                 databaseInfo.getVendor(),
                 databaseInfo.getHost(),
@@ -160,11 +175,18 @@ public enum DatabaseUrlPattern {
                 databaseInfo.getTnsProfile(),
                 databaseInfo.getProtocol(),
                 databaseInfo.getServerType(),
-                databaseInfo.getParameters()
+                parameters,
+                resolveConfigProvider(databaseInfo),
+                databaseInfo.getConfigLocation()
         );
     }
 
-    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, DatabaseProtocol protocol, ServerType serverType, Map<String, String> parameters) {
+    private static Map<String, String> configFileParameters(DatabaseInfo databaseInfo) {
+        String profileKey = databaseInfo.getConfigFileProfileKey();
+        return isEmpty(profileKey) ? Collections.emptyMap() : Collections.singletonMap("key", profileKey);
+    }
+
+    public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, DatabaseProtocol protocol, ServerType serverType, Map<String, String> parameters, String configProvider, String configLocation) {
         // for building the url, copy the parameter
         return urlTemplate.
                 replace("<VENDOR>", nvl(vendor, "")).
@@ -175,6 +197,8 @@ public enum DatabaseUrlPattern {
                 replace("<DATABASE>", nvl(database, "")).
                 replace("<PROTOCOL>", protocol == null ? "" : protocol + ":").
                 replace("<FILE>", nvl(file, "")).
+                replace("<PROVIDER>", nvl(configProvider, "")).
+                replace("<LOCATION>", nvl(configLocation, "")).
                 replace("<TNS_FOLDER>", nvl(tnsFolder, "")).replaceAll("\\\\", "/").
                 replace("<TNS_PROFILE>", nvl(tnsProfile, "")).
                 replace(":<SERVER_TYPE>", getServerTypeToken(serverType)).
@@ -247,6 +271,26 @@ public enum DatabaseUrlPattern {
         }
         String paramsString = url.substring(qmarkIdx);
         return Parameters.toParameterMap(paramsString);
+    }
+
+    public String resolveConfigProvider(String url) {
+        return resolveGroup(url, "PROVIDER", CONFIG_FILE);
+    }
+
+    public String resolveConfigLocation(String url) {
+        return resolveGroup(url, "LOCATION", CONFIG_FILE);
+    }
+
+    public static String resolveConfigProvider(DatabaseInfo databaseInfo) {
+        ConfigFileSourceType configFileSourceType = nvl(databaseInfo.getConfigFileSourceType(), ConfigFileSourceType.LOCAL_FILE);
+        return switch (configFileSourceType) {
+            case LOCAL_FILE -> "file";
+            case HTTPS -> "https";
+            case CLOUD_PROVIDER -> {
+                CloudConfigProviderType provider = databaseInfo.getCloudConfigProviderType();
+                yield provider == null ? "" : provider.getSlug();
+            }
+        };
     }
 
     public boolean isValid(String url) {

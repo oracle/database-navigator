@@ -40,6 +40,7 @@ import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
+import com.dbn.connection.config.imports.ConfigFileSourceType;
 import com.dbn.credentials.Secret;
 import com.dbn.driver.DriverSource;
 import com.intellij.openapi.options.ConfigurationException;
@@ -65,6 +66,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.util.Strings.isEmptyOrSpaces;
 import static java.awt.event.KeyEvent.VK_UNDEFINED;
 
 @SuppressWarnings("unused")
@@ -124,7 +126,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         AuthenticationType[] authTypes = databaseType.getAuthTypes();
 
         urlSettingsForm.updateFieldVisibility();
-        authenticationPanel.setVisible(databaseType.supportsAuthentication());
+        updateAuthenticationVisibility();
 
 
         if (configType == ConnectionConfigType.CUSTOM) {
@@ -142,7 +144,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         AuthenticationType[] authTypes = newDatabaseType.getAuthTypes();
 
         urlSettingsForm.handleDatabaseTypeChange(oldDatabaseType, newDatabaseType);
-        authenticationPanel.setVisible(newDatabaseType.supportsAuthentication());
+        updateAuthenticationVisibility();
         driverSettingsForm.updateDriverFields();
 
         updateNativeSupportDatabaseHint();
@@ -241,6 +243,8 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         DatabaseType databaseType = getSelectedDatabaseType();
         DriverOption driverOption = driverSettingsForm.getDriverOption();
         DatabaseUrlType urlType = Commons.nvl(urlSettingsForm.getUrlType(), DatabaseUrlType.CUSTOM);
+        boolean localConfigFile = urlType == DatabaseUrlType.CONFIG_FILE &&
+                urlSettingsForm.getConfigFileSourceType() == ConfigFileSourceType.LOCAL_FILE;
 
         configuration.setDatabaseType(databaseType);
         configuration.setName(getConnectionName());
@@ -267,6 +271,15 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         else if (urlType == DatabaseUrlType.TNS) {
         	databaseInfo.setTnsFolder(urlSettingsForm.getTnsFolder());
         	databaseInfo.setTnsProfile(urlSettingsForm.getTnsProfile());
+        } else if (urlType == DatabaseUrlType.CONFIG_FILE) {
+            databaseInfo.setConfigFileSourceType(urlSettingsForm.getConfigFileSourceType());
+            databaseInfo.setCloudConfigProviderType(urlSettingsForm.getCloudConfigProviderType());
+            if (urlSettingsForm.getConfigFileSourceType() == ConfigFileSourceType.LOCAL_FILE &&
+                    isEmptyOrSpaces(urlSettingsForm.getConfigLocation())) {
+                throw new ConfigurationException("Config file is required.");
+            }
+            databaseInfo.setConfigLocation(urlSettingsForm.getConfigLocation());
+            databaseInfo.setConfigFileProfileKey(urlSettingsForm.getConfigFileProfileKey());
         } else if (urlType == DatabaseUrlType.FILE){
             DatabaseFileBundle fileBundle = urlSettingsForm.getFileBundle();
             fileBundle.validate();
@@ -283,6 +296,10 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
         // apply changes and create snapshot of new authentication
         authSettingsForm.applyFormChanges(authenticationInfo);
+
+        if (localConfigFile) {
+            authenticationInfo.setType(AuthenticationType.NONE);
+        }
         //Secret[] newSecrets = authenticationInfo.getSecrets();
 
         if (!authenticationInfo.isTemporary()) {
@@ -345,6 +362,11 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         return Commons.nvl(getSelection(databaseTypeComboBox), configuration.getDatabaseType());
     }
 
+    void updateAuthenticationVisibility() {
+        DatabaseType databaseType = getSelectedDatabaseType();
+        authenticationPanel.setVisible(databaseType.supportsAuthentication() && urlSettingsForm.requiresAuthentication());
+    }
+
     @Override
     public void resetFormChanges() {
         ConnectionDatabaseSettings configuration = getConfiguration();
@@ -377,4 +399,3 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         }
     }
 }
-

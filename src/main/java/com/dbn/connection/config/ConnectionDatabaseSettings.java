@@ -33,6 +33,8 @@ import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.ServerType;
 import com.dbn.connection.config.file.DatabaseFileBundle;
+import com.dbn.connection.config.imports.CloudConfigProviderType;
+import com.dbn.connection.config.imports.ConfigFileSourceType;
 import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverSource;
@@ -49,6 +51,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -199,8 +202,31 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     databaseInfo.getTnsProfile(),
                     databaseInfo.getProtocol(),
                     databaseInfo.getServerType(),
-                    databaseInfo.getParameters());
+                    getUrlParameters(),
+                    getConfigProvider(),
+                    databaseInfo.getConfigLocation());
         }
+    }
+
+    private Map<String, String> getUrlParameters() {
+        if (databaseInfo.getUrlType() != DatabaseUrlType.CONFIG_FILE) {
+            return databaseInfo.getParameters();
+        }
+
+        String profileKey = databaseInfo.getConfigFileProfileKey();
+        return Strings.isEmpty(profileKey) ? Collections.emptyMap() : Collections.singletonMap("key", profileKey);
+    }
+
+    private String getConfigProvider() {
+        ConfigFileSourceType configFileSourceType = Commons.nvl(databaseInfo.getConfigFileSourceType(), ConfigFileSourceType.LOCAL_FILE);
+        return switch (configFileSourceType) {
+            case LOCAL_FILE -> "file";
+            case HTTPS -> "https";
+            case CLOUD_PROVIDER -> {
+                CloudConfigProviderType cloudConfigProviderType = databaseInfo.getCloudConfigProviderType();
+                yield cloudConfigProviderType == null ? "" : cloudConfigProviderType.getSlug();
+            }
+        };
     }
 
     public void updateSignature() {
@@ -319,6 +345,10 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             databaseInfo.setTnsProfile(getString(element, "tns-profile", null));
             databaseInfo.setServerType(getEnum(element, "server-type", ServerType.class));
             databaseInfo.setProtocol(getEnum(element, "protocol", DatabaseProtocol.class));
+            databaseInfo.setConfigFileSourceType(getEnum(element, "config-file-source-type", ConfigFileSourceType.LOCAL_FILE));
+            databaseInfo.setCloudConfigProviderType(getEnum(element, "cloud-config-provider-type", CloudConfigProviderType.class));
+            databaseInfo.setConfigLocation(getString(element, "config-location", getString(element, "config-file-path", null)));
+            databaseInfo.setConfigFileProfileKey(getString(element, "config-file-profile-key", null));
 
             Element paramsElement = element.getChild("url-parameters");
             Map<String, String> parameters = new HashMap<>();
@@ -388,6 +418,10 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setString(element, "tns-profile", nvl(databaseInfo.getTnsProfile()));
             setEnum(element, "server-type", databaseInfo.getServerType());
             setEnum(element, "protocol", databaseInfo.getProtocol());
+            setEnum(element, "config-file-source-type", databaseInfo.getConfigFileSourceType());
+            setEnum(element, "cloud-config-provider-type", databaseInfo.getCloudConfigProviderType());
+            setString(element, "config-location", nvl(databaseInfo.getConfigLocation()));
+            setString(element, "config-file-profile-key", nvl(databaseInfo.getConfigFileProfileKey()));
 
             Element paramsElement = newElement(element, "url-parameters");
             databaseInfo.getParameters().forEach((key, value) -> {
