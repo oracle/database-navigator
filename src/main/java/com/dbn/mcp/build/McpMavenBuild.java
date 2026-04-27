@@ -1,6 +1,7 @@
 package com.dbn.mcp.build;
 
 import com.dbn.common.template.TemplateUtilities;
+import com.dbn.common.util.Messages;
 import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.options.ShowSettingsUtil;
@@ -172,6 +173,34 @@ public final class McpMavenBuild {
 
     public static boolean isMavenPluginAvailable() {
         return PluginManagerCore.isPluginInstalled(MAVEN_PLUGIN_ID) && !PluginManagerCore.isDisabled(MAVEN_PLUGIN_ID);
+    }
+
+    public static boolean ensureMavenPrerequisites(Project project) {
+        if (!isMavenPluginAvailable()) {
+            int option = Messages.showConfirmationDialog(project,
+                    "Maven Plugin Required",
+                    "This feature requires the Maven plugin (org.jetbrains.idea.maven).\n" +
+                    "Please enable or install it from IDE Plugins settings.",
+                    new String[]{"Open Plugins", "Cancel"}, 0);
+            if (option == 0) {
+                openMavenPluginSettings(project);
+            }
+            return false;
+        }
+
+        if (!isMavenAvailable(project)) {
+            int option = Messages.showConfirmationDialog(project,
+                    "Maven Required",
+                    "Maven runtime is not available or invalid in IDE Maven settings.\n" +
+                    "Please verify Maven settings and try again.",
+                    new String[]{"Open Plugins", "Cancel"}, 0);
+            if (option == 0) {
+                openMavenPluginSettings(project);
+            }
+            return false;
+        }
+
+        return true;
     }
 
     public static void openMavenPluginSettings(Project project) {

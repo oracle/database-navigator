@@ -160,6 +160,12 @@ $h2 5. Credentials
 
 By default, credentials are stored in Oracle wallet files under `wallet/` (including `wallet/cwallet.sso`).
 
+Wallet folder notes:
+- `cwallet.sso`: runtime auto-login wallet file used by the generated server.
+- `*.lck`: lock files created by Oracle wallet libraries (they may be recreated during runtime operations); they are not credential files.
+- `ewallet.p12`: intermediate wallet artifact created during generation and removed by the builder.
+- A randomized wallet password is used only at generation time (for wallet creation flow) and is never persisted in generated config files.
+
 To connect with different credentials, set them in `mcp-config.yaml`:
 
 ```yaml
@@ -189,5 +195,4 @@ You can customize and rebuild that project independently.
 $h2 7. Security
 
 - Do not commit `wallet/` to version control
-- Restrict wallet permissions (`chmod 700 wallet`)
 - If you add credentials to `mcp-config.yaml`, treat the file as sensitive

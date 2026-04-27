@@ -24,6 +24,7 @@ import com.dbn.mcp.util.McpToolDescription;
 import com.dbn.mcp.util.McpToolDefinitions;
 import com.dbn.mcp.util.McpToolName;
 import com.dbn.mcp.util.SqlParameterParser;
+import com.dbn.oci.util.WalletPasswordGenerator;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,7 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.security.SecureRandom;
 import java.sql.Driver;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
+
+import static com.dbn.common.util.Commons.nvl;
 
 @Slf4j
 public class McpBuildTask {
@@ -144,7 +146,7 @@ public class McpBuildTask {
             return resolveTnsDescriptorUrl(info);
         }
         if (urlType == DatabaseUrlType.CUSTOM) {
-            return safe(info.getUrl());
+            return nvl(info.getUrl(), "");
         }
 
         DatabaseUrlPattern pattern = DatabaseUrlPattern.get(connection.getDatabaseType(), urlType);
@@ -152,8 +154,8 @@ public class McpBuildTask {
     }
 
     private String resolveTnsDescriptorUrl(DatabaseInfo info) {
-        String tnsFolder = safe(info.ensureTnsFolder());
-        String tnsProfile = safe(info.getTnsProfile());
+        String tnsFolder = nvl(info.ensureTnsFolder(), "");
+        String tnsProfile = nvl(info.getTnsProfile(), "");
 
         if (Strings.isEmptyOrSpaces(tnsFolder)) {
             throw new UnsupportedOperationException("TNS folder is not configured for this connection.");
@@ -174,7 +176,7 @@ public class McpBuildTask {
                     .orElseThrow(() -> new UnsupportedOperationException(
                             "TNS profile '" + tnsProfile + "' not found in " + tnsFile.getAbsolutePath()));
 
-            String descriptor = safe(profile.getDescriptor()).trim();
+            String descriptor = nvl(profile.getDescriptor(), "").trim();
             if (descriptor.isEmpty()) {
                 throw new UnsupportedOperationException("TNS profile '" + tnsProfile + "' has an empty descriptor.");
             }
@@ -204,8 +206,8 @@ public class McpBuildTask {
             String toolName = McpToolName.normalize(t.getName());
             String description = McpToolDescription.normalize(t.getDescription());
             sb.append("  ").append(toolName).append(":\n");
-            appendYamlField(sb, "    ", "description", safe(description, "SQL tool"));
-            appendYamlField(sb, "    ", "statement", safe(t.getStatement(), "SELECT 1 FROM dual"));
+            appendYamlField(sb, "    ", "description", Strings.isEmptyOrSpaces(description) ? "SQL tool" : description);
+            appendYamlField(sb, "    ", "statement", Strings.isEmptyOrSpaces(t.getStatement()) ? "SELECT 1 FROM dual" : t.getStatement());
 
             List<ParamRow> params = t.getParamsModel() != null ? t.getParamsModel().getRows() : List.of();
             if (!params.isEmpty()) {
@@ -250,27 +252,7 @@ public class McpBuildTask {
     }
 
     private void build(McpBuildConfig cfg, String template, Path serverOutputDir) {
-        if (!McpMavenBuild.isMavenPluginAvailable()) {
-            int option = Messages.showConfirmationDialog(project,
-                    "Maven Plugin Required",
-                    "This feature requires the Maven plugin (org.jetbrains.idea.maven).\n" +
-                    "Please enable or install it from IDE Plugins settings.",
-                    new String[]{"Open Plugins", "Cancel"}, 0);
-            if (option == 0) {
-                McpMavenBuild.openMavenPluginSettings(project);
-            }
-            return;
-        }
-
-        if (!McpMavenBuild.isMavenAvailable(project)) {
-            int option = Messages.showConfirmationDialog(project,
-                    "Maven Required",
-                    "Maven runtime is not available or invalid in IDE Maven settings.\n" +
-                    "Please verify Maven settings and try again.",
-                    new String[]{"Open Plugins", "Cancel"}, 0);
-            if (option == 0) {
-                McpMavenBuild.openMavenPluginSettings(project);
-            }
+        if (!McpMavenBuild.ensureMavenPrerequisites(project)) {
             return;
         }
         runBuild(cfg, template, serverOutputDir);
@@ -316,7 +298,7 @@ public class McpBuildTask {
         Path walletDir = dir.resolve("wallet");
         Files.createDirectories(walletDir);
 
-        char[] user = safe(connection.getUserName()).toCharArray();
+        char[] user = nvl(connection.getUserName(), "").toCharArray();
         char[] pwd = getPassword(connection);
 
         // Random password — used only to create ewallet.p12, never stored or shown.
@@ -330,13 +312,13 @@ public class McpBuildTask {
             wallet.setLocation(walletDir.toAbsolutePath().toString());
 
             OracleSecretStore store = wallet.getSecretStore();
-            // Use documented default SEPS keys to avoid connect-string lookup mismatches.
             store.setSecret(DEFAULT_SEPS_USERNAME, user);
             store.setSecret(DEFAULT_SEPS_PASSWORD, pwd);
             wallet.setSecretStore(store);
 
             wallet.save();
             wallet.saveSSO();
+            cleanupWalletArtifacts(walletDir);
         } catch (Exception e) {
             Throwable root = Exceptions.rootCauseOf(Exceptions.unwrap(e));
             String message = root != null && root.getMessage() != null && !root.getMessage().isBlank()
@@ -347,6 +329,22 @@ public class McpBuildTask {
             Arrays.fill(walletPassword, '\0');
             Arrays.fill(user, '\0');
             Arrays.fill(pwd, '\0');
+        }
+    }
+
+    private static void cleanupWalletArtifacts(Path walletDir) {
+        try (var files = Files.list(walletDir)) {
+            files.filter(path -> {
+                        String name = path.getFileName().toString();
+                        return name.endsWith(".lck") || "ewallet.p12".equals(name);
+                    })
+                    .forEach(path -> {
+                        try {
+                            Files.deleteIfExists(path);
+                        } catch (IOException ignored) {
+                        }
+                    });
+        } catch (IOException ignored) {
         }
     }
 
@@ -376,31 +374,18 @@ public class McpBuildTask {
     }
 
     private static char[] generateWalletPassword() {
-        SecureRandom rng = new SecureRandom();
-        String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        String digits = "0123456789";
-        String chars = letters + digits;
-        char[] password = new char[32];
-        password[0] = letters.charAt(rng.nextInt(letters.length()));
-        password[1] = digits.charAt(rng.nextInt(digits.length()));
-        for (int i = 2; i < password.length; i++) {
-            password[i] = chars.charAt(rng.nextInt(chars.length()));
-        }
-        for (int i = password.length - 1; i > 0; i--) {
-            int j = rng.nextInt(i + 1);
-            char tmp = password[i];
-            password[i] = password[j];
-            password[j] = tmp;
-        }
-        return password;
+        return WalletPasswordGenerator.generateRandomPassword().toCharArray();
     }
 
     private void writeReadme(Path dir) {
         try {
             List<Map<String, String>> toolList = tools.stream()
-                    .map(t -> Map.of(
-                            "name", McpToolName.normalize(t.getName()),
-                            "description", safe(McpToolDescription.normalize(t.getDescription()), "SQL tool")))
+                    .map(t -> {
+                        String normalizedDescription = McpToolDescription.normalize(t.getDescription());
+                        return Map.of(
+                                "name", McpToolName.normalize(t.getName()),
+                                "description", Strings.isEmptyOrSpaces(normalizedDescription) ? "SQL tool" : normalizedDescription);
+                    })
                     .collect(Collectors.toList());
             Map<String, Object> context = new LinkedHashMap<>();
             context.put("SERVER_NAME", serverName);
@@ -434,9 +419,6 @@ public class McpBuildTask {
         char[] pwd = conn.getAuthenticationInfo().getPassword();
         return pwd != null ? pwd.clone() : new char[0];
     }
-
-    private String safe(String v) { return v != null ? v : ""; }
-    private String safe(String v, String d) { return v != null && !v.isEmpty() ? v : d; }
 
     private String buildClaudeJson(String name, String jar) {
         String command;
