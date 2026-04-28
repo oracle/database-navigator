@@ -23,11 +23,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.config.hosts.KnownHostEntry;
 import org.apache.sshd.client.future.ConnectFuture;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.client.session.forward.ExplicitPortForwardingTracker;
 import org.apache.sshd.client.session.forward.PortForwardingTracker;
 import org.apache.sshd.common.NamedResource;
+import org.apache.sshd.common.SshConstants;
+import org.apache.sshd.common.SshException;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.util.net.SshdSocketAddress;
 import org.apache.sshd.common.util.security.SecurityUtils;
@@ -40,9 +43,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
-import java.rmi.ConnectException;
+import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
+import static com.dbn.common.exception.Exceptions.getMessage;
+import static com.dbn.common.exception.Exceptions.rootCauseOf;
 import static com.dbn.connection.ssh.SshAuthType.KEY_PAIR;
 import static com.dbn.connection.ssh.SshConnections.toSshdSocketAddress;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -78,8 +83,34 @@ public class SshTunnelConnector {
             initTracker();
             return session;
         } catch (Exception e) {
-            throw new ConnectException("Failed to create SSL Tunnel", e);
+            disconnect();
+            throw createTunnelException(e);
         }
+    }
+
+    private SshTunnelException createTunnelException(Exception e) {
+        if (!isServerKeyValidationFailure(e)) {
+            return new SshTunnelException("Failed to create SSH tunnel: " + getMessage(rootCauseOf(e)), e);
+        }
+
+        NetworkAddress proxyAddress = config.getProxyAddress();
+        Path knownHostsFile = KnownHostEntry.getDefaultKnownHostsFile();
+        String message = "SSH tunnel blocked: host key verification failed for " +
+                proxyAddress.getHost() + ":" + proxyAddress.getPort() +
+                ". DB Navigator could not verify this SSH server against the known-hosts file. " +
+                "Verify the SSH bastion identity before updating " + knownHostsFile + ".";
+
+        return new SshTunnelException(message, e);
+    }
+
+    private static boolean isServerKeyValidationFailure(Throwable e) {
+        while (e != null) {
+            if (e instanceof SshException sshException &&
+                    sshException.getDisconnectCode() == SshConstants.SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE) return true;
+
+            e = e.getCause();
+        }
+        return false;
     }
 
     private void initPort() throws IOException {
@@ -96,7 +127,7 @@ public class SshTunnelConnector {
         if (reverseTunnel) {
             client.setForwardingFilter(AcceptAllForwardingFilter.INSTANCE);
         }
-        client.setServerKeyVerifier((clientSession, remoteAddress, serverKey) -> true); // Disable host key checking (for development/testing)
+        client.setServerKeyVerifier(new StrictKnownHostsServerKeyVerifier());
 
         CoreModuleProperties.SOCKET_KEEPALIVE.set(client, true);
 
