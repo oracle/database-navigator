@@ -35,7 +35,6 @@ import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.util.net.SshdSocketAddress;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.core.CoreModuleProperties;
-import org.apache.sshd.server.forward.AcceptAllForwardingFilter;
 import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
@@ -125,7 +124,8 @@ public class SshTunnelConnector {
     private void initClient() {
         client = SshClient.setUpDefaultClient();
         if (reverseTunnel) {
-            client.setForwardingFilter(AcceptAllForwardingFilter.INSTANCE);
+            client.setForwardingFilter(
+                    new ReverseSshTunnelForwardingFilter(toSshdSocketAddress(localAddress)));
         }
         client.setServerKeyVerifier(new StrictKnownHostsServerKeyVerifier());
 
