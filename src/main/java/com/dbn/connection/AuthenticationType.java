@@ -29,6 +29,7 @@ public enum AuthenticationType implements Constant<AuthenticationType>, Presenta
     NONE(txt("cfg.connection.const.AuthenticationType_NONE")),
     USER(txt("cfg.connection.const.AuthenticationType_USER")),
     USER_PASSWORD(txt("cfg.connection.const.AuthenticationType_USER_PASSWORD")),
+    BASIC_AUTH(txt("cfg.connection.const.AuthenticationType_BASIC_AUTH")),
     OS_CREDENTIALS(txt("cfg.connection.const.AuthenticationType_OS_CREDENTIALS")),
     TOKEN(txt("cfg.connection.const.AuthenticationType_TOKEN"));
 

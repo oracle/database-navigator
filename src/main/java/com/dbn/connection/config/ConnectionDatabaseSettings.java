@@ -19,6 +19,7 @@ package com.dbn.connection.config;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.options.BasicConfiguration;
+import com.dbn.common.util.Chars;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Files;
@@ -66,6 +67,7 @@ import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
+import static com.dbn.connection.AuthenticationType.BASIC_AUTH;
 
 @Slf4j
 @Getter
@@ -188,6 +190,10 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                 urlPattern.buildUrl(databaseInfo);
     }
 
+    public String getConnectionUrlForConnect() {
+        return appendConfigHttpsAuthentication(getConnectionUrl());
+    }
+
     public String getConnectionUrl(String host, String port) {
         if (databaseInfo.isCustomUrl()) {
             return databaseInfo.getUrl();
@@ -206,6 +212,36 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     getConfigProvider(),
                     databaseInfo.getConfigLocation());
         }
+    }
+
+    public boolean isConfigHttps() {
+        return databaseInfo.getUrlType() == DatabaseUrlType.CONFIG_FILE &&
+                databaseInfo.getConfigFileSourceType() == ConfigFileSourceType.HTTPS;
+    }
+
+    public void setConfigLocation(String configLocation) {
+        databaseInfo.setConfigLocation(isConfigHttps() ?
+                DatabaseUrlPattern.normalizeConfigHttpsLocation(configLocation) :
+                configLocation);
+    }
+
+    private String appendConfigHttpsAuthentication(String url) {
+        if (!isConfigHttpsBasicAuth()) return url;
+
+        String user = authenticationInfo.getUser();
+        char[] password = authenticationInfo.getPassword();
+        if (Strings.isEmpty(user) || Chars.isEmpty(password)) return url;
+
+        return url +
+                (url.contains("?") ? "&" : "?") +
+                "authentication=basic" +
+                "&user=" + user +
+                "&password=" + Chars.toString(password);
+    }
+
+    private boolean isConfigHttpsBasicAuth() {
+        return isConfigHttps() &&
+                authenticationInfo.getType() == BASIC_AUTH;
     }
 
     private Map<String, String> getUrlParameters() {
@@ -347,7 +383,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             databaseInfo.setProtocol(getEnum(element, "protocol", DatabaseProtocol.class));
             databaseInfo.setConfigFileSourceType(getEnum(element, "config-file-source-type", ConfigFileSourceType.LOCAL_FILE));
             databaseInfo.setCloudConfigProviderType(getEnum(element, "cloud-config-provider-type", CloudConfigProviderType.class));
-            databaseInfo.setConfigLocation(getString(element, "config-location", getString(element, "config-file-path", null)));
+            setConfigLocation(getString(element, "config-location", getString(element, "config-file-path", null)));
             databaseInfo.setConfigFileProfileKey(getString(element, "config-file-profile-key", null));
 
             Element paramsElement = element.getChild("url-parameters");

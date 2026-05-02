@@ -31,6 +31,11 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.connection.AuthenticationType.NONE;
+import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
+import static com.dbn.connection.AuthenticationType.TOKEN;
+import static com.dbn.connection.AuthenticationType.USER;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 
 
 /**
@@ -55,7 +60,7 @@ public class ConnectionAuthenticationForm extends DBNFormBase {
         AuthenticationInfo authenticationInfo = parentComponent.getAuthenticationInfo();
         fieldsPanel.add(fieldsForm.getComponent(), BorderLayout.CENTER);
         AuthenticationType[] authTypes = connection == null ?
-                AuthenticationType.values() :
+                new AuthenticationType[]{NONE, USER, USER_PASSWORD, OS_CREDENTIALS, TOKEN} :
                 connection.getDatabaseType().getAuthTypes();
 
         fieldsForm.setAuthenticationTypes(authTypes);

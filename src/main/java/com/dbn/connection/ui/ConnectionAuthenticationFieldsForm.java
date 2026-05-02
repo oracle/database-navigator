@@ -64,6 +64,7 @@ import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL
 import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_TOKEN;
 import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
 import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
+import static com.dbn.connection.AuthenticationType.BASIC_AUTH;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCategory.CACHEABLE_FIELDS;
@@ -234,7 +235,16 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     }
 
     public void setAuthenticationTypes(AuthenticationType ...  authenticationTypes) {
+        AuthenticationType authenticationType = getAuthenticationType();
         initComboBox(authTypeComboBox, authenticationTypes);
+        if (authenticationType != null && authenticationType.isOneOf(authenticationTypes)) {
+            setSelection(authTypeComboBox, authenticationType);
+        } else if (USER_PASSWORD.isOneOf(authenticationTypes)) {
+            setSelection(authTypeComboBox, USER_PASSWORD);
+        } else if (authenticationTypes.length > 0) {
+            setSelection(authTypeComboBox, authenticationTypes[0]);
+        }
+        updateFieldAvailability();
     }
 
     public void addChangeListeners(Runnable runnable) {
@@ -362,11 +372,11 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     }
 
     private boolean isUserAuth() {
-        return Commons.isOneOf(getAuthenticationType(), USER, USER_PASSWORD);
+        return Commons.isOneOf(getAuthenticationType(), USER, USER_PASSWORD, BASIC_AUTH);
     }
 
     private boolean isPasswordAuth() {
-        return getAuthenticationType() == USER_PASSWORD;
+        return Commons.isOneOf(getAuthenticationType(), USER_PASSWORD, BASIC_AUTH);
     }
 
     private boolean isTokenAuth() {

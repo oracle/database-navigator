@@ -18,6 +18,7 @@ package com.dbn.connection.config.ui;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.ui.ConnectionAuthenticationFieldsForm;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +52,10 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
     public void resetFormChanges() {
         AuthenticationInfo authenticationInfo = getAuthenticationInfo();
         fieldsForm.resetFormChanges(authenticationInfo);
+    }
+
+    public void setAuthenticationTypes(AuthenticationType ... authenticationTypes) {
+        fieldsForm.setAuthenticationTypes(authenticationTypes);
     }
 
     private AuthenticationInfo getAuthenticationInfo() {

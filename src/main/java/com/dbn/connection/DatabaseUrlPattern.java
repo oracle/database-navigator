@@ -281,6 +281,14 @@ public enum DatabaseUrlPattern {
         return resolveGroup(url, "LOCATION", CONFIG_FILE);
     }
 
+    public static String normalizeConfigHttpsLocation(String location) {
+        if (location == null) return null;
+
+        location = location.trim();
+        location = location.replaceFirst("(?i)^https://", "");
+        return location;
+    }
+
     public static String resolveConfigProvider(DatabaseInfo databaseInfo) {
         ConfigFileSourceType configFileSourceType = nvl(databaseInfo.getConfigFileSourceType(), ConfigFileSourceType.LOCAL_FILE);
         return switch (configFileSourceType) {
