@@ -62,11 +62,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
-import java.security.SecureRandom;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -98,7 +96,14 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class ScriptExecutionManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.ScriptExecutionManager";
 
-    private static final SecureRandom TMP_FILE_RANDOMIZER = new SecureRandom();
+    private static final Set<PosixFilePermission> TEMP_DIRECTORY_PERMISSIONS = Set.of(
+            PosixFilePermission.OWNER_READ,
+            PosixFilePermission.OWNER_WRITE,
+            PosixFilePermission.OWNER_EXECUTE);
+    private static final Set<PosixFilePermission> TEMP_FILE_PERMISSIONS = Set.of(
+            PosixFilePermission.OWNER_READ,
+            PosixFilePermission.OWNER_WRITE);
+
     private final ExecutionManager executionManager;
     private final Map<VirtualFile, Process> activeProcesses = new ConcurrentHashMap<>();
     private final Map<DatabaseType, String> recentlyUsedInterfaces = new EnumMap<>(DatabaseType.class);
@@ -283,6 +288,11 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                 executionManager.writeLogOutput(outputContext, createSysOutput("Deleting temporary script file " + temporaryScriptFile));
                 FileUtil.delete(temporaryScriptFile);
             }
+            File temporaryScriptDirectory = temporaryScriptFile == null ? null : temporaryScriptFile.getParentFile();
+            if (temporaryScriptDirectory != null && temporaryScriptDirectory.exists()) {
+                executionManager.writeLogOutput(outputContext, createSysOutput("Deleting temporary script directory " + temporaryScriptDirectory));
+                FileUtil.delete(temporaryScriptDirectory);
+            }
         }
     }
 
@@ -350,41 +360,68 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
     }
 
     private File createTempScriptFile() throws IOException {
-        File tempFile = File.createTempFile("DBN-", ".sql");
-        if (!tempFile.isFile()) {
-            long n = TMP_FILE_RANDOMIZER.nextLong();
-            n = n == Long.MIN_VALUE ? 0 : Math.abs(n);
-            String tempFileName = "DBN-" + n;
-
-            tempFile = FileUtil.createTempFile(tempFileName, ".sql");
-            if (!tempFile.isFile()) {
-                String systemDir = PathManager.getSystemPath();
-                File systemTempDir = new File(systemDir, "tmp");
-                tempFile = new File(systemTempDir, tempFileName);
-                FileUtil.createParentDirs(tempFile);
-                FileUtil.delete(tempFile);
-                FileUtil.createIfDoesntExist(tempFile);
-            }
+        Path tempDirectory = createTempScriptDirectory();
+        try {
+            return createTempScriptFile(tempDirectory).toFile();
+        } catch (IOException | RuntimeException e) {
+            FileUtil.delete(tempDirectory.toFile());
+            throw e;
         }
+    }
 
-        Path filePath = tempFile.toPath();
-        PosixFileAttributeView view = Files.getFileAttributeView(filePath, PosixFileAttributeView.class);
-        if (view != null) {
-            Set<PosixFilePermission> permissions = new HashSet<>();
-            permissions.add(PosixFilePermission.OWNER_READ);
-            permissions.add(PosixFilePermission.OWNER_WRITE);
-            permissions.add(PosixFilePermission.OWNER_EXECUTE);
-            permissions.add(PosixFilePermission.OTHERS_READ);
-            permissions.add(PosixFilePermission.OTHERS_EXECUTE);
-            permissions.add(PosixFilePermission.GROUP_READ);
-            permissions.add(PosixFilePermission.GROUP_EXECUTE);
-            view.setPermissions(permissions);
-        } else {
-            tempFile.setReadable(true, false);
-            tempFile.setExecutable(true, false);
+    private static Path createTempScriptDirectory() throws IOException {
+        try {
+            return createTempScriptDirectory(null);
+        } catch (IOException e) {
+            Path systemTempDirectory = Path.of(PathManager.getSystemPath(), "tmp");
+            Files.createDirectories(systemTempDirectory);
+            return createTempScriptDirectory(systemTempDirectory);
         }
+    }
 
-        return tempFile;
+    private static Path createTempScriptDirectory(@Nullable Path parentDirectory) throws IOException {
+        try {
+            return parentDirectory == null ?
+                    Files.createTempDirectory("DBN-", posixPermissions(TEMP_DIRECTORY_PERMISSIONS)) :
+                    Files.createTempDirectory(parentDirectory, "DBN-", posixPermissions(TEMP_DIRECTORY_PERMISSIONS));
+        } catch (UnsupportedOperationException e) {
+            Path tempDirectory = parentDirectory == null ?
+                    Files.createTempDirectory("DBN-") :
+                    Files.createTempDirectory(parentDirectory, "DBN-");
+            setOwnerOnlyDirectoryPermissions(tempDirectory.toFile());
+            return tempDirectory;
+        }
+    }
+
+    private static Path createTempScriptFile(Path tempDirectory) throws IOException {
+        try {
+            return Files.createTempFile(tempDirectory, "DBN-", ".sql", posixPermissions(TEMP_FILE_PERMISSIONS));
+        } catch (UnsupportedOperationException e) {
+            Path tempFile = Files.createTempFile(tempDirectory, "DBN-", ".sql");
+            setOwnerOnlyFilePermissions(tempFile.toFile());
+            return tempFile;
+        }
+    }
+
+    private static FileAttribute<Set<PosixFilePermission>> posixPermissions(Set<PosixFilePermission> permissions) {
+        return java.nio.file.attribute.PosixFilePermissions.asFileAttribute(permissions);
+    }
+
+    private static void setOwnerOnlyDirectoryPermissions(File directory) {
+        directory.setReadable(false, false);
+        directory.setWritable(false, false);
+        directory.setExecutable(false, false);
+        directory.setReadable(true, true);
+        directory.setWritable(true, true);
+        directory.setExecutable(true, true);
+    }
+
+    private static void setOwnerOnlyFilePermissions(File file) {
+        file.setReadable(false, false);
+        file.setWritable(false, false);
+        file.setExecutable(false, false);
+        file.setReadable(true, true);
+        file.setWritable(true, true);
     }
 
     /****************************************
