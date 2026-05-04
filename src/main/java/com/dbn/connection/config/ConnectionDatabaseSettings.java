@@ -225,6 +225,8 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                 configLocation);
     }
 
+    // Oracle's HTTPS config provider expects Basic Auth credentials as URL query parameters.
+    // The password is added only to the runtime connect URL and is never stored in source code.
     private String appendConfigHttpsAuthentication(String url) {
         if (!isConfigHttpsBasicAuth()) return url;
 

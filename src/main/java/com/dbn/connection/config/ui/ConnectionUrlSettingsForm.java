@@ -90,8 +90,8 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JLabel protocolLabel;
     private JLabel sourceTypeLabel;
     private JLabel cloudProviderLabel;
+    private JLabel configFileLabel;
     private JLabel configLocationLabel;
-    private JLabel configHttpsUrlLabel;
     private JLabel configFileProfileKeyLabel;
     private JPanel databaseFilesPanel;
     private ComboBox<DatabaseUrlType> urlTypeComboBox;
@@ -103,10 +103,10 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JTextField hostTextField;
     private JTextField portTextField;
     private JTextField databaseTextField;
-    private JTextField configHttpsUrlTextField;
+    private JTextField configLocationTextField;
     private JTextField configFileProfileKeyTextField;
     private TextFieldWithBrowseButton tnsFolderTextField;
-    private TextFieldWithBrowseButton configLocationTextField;
+    private TextFieldWithBrowseButton configFileTextField;
     private ExpandableTextField urlTextField;
     private JPanel mainPanel;
     private JButton parametersButton;
@@ -132,15 +132,15 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 getProject(), tnsFolderTextField,
                 txt("cfg.connection.title.SelectWalletDirectory"),
                 txt("cfg.connection.text.ValidTnsNamesFolder"));
-        addSingleFileChooser(getProject(), configLocationTextField, txt("cfg.connection.title.SelectConfigLocation"), "");
+        addSingleFileChooser(getProject(), configFileTextField, txt("cfg.connection.title.SelectConfigFile"), "");
 
         onTextChange(hostTextField, e -> updateUrlField());
         onTextChange(portTextField, e -> updateUrlField());
         onTextChange(databaseTextField, e -> updateUrlField());
         onTextChange(tnsFolderTextField, e -> updateTnsProfilesField());
         onTextChange(tnsFolderTextField, e -> updateUrlField());
+        onTextChange(configFileTextField, e -> updateUrlField());
         onTextChange(configLocationTextField, e -> updateUrlField());
-        onTextChange(configHttpsUrlTextField, e -> updateUrlField());
         onTextChange(configFileProfileKeyTextField, e -> updateUrlField());
         tnsProfileComboBox.addActionListener(e -> updateUrlField());
         serverTypeComboBox.addActionListener(e -> updateUrlField());
@@ -233,9 +233,13 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     }
 
     public String getConfigLocation() {
-        return getConfigFileSourceType() == ConfigFileSourceType.HTTPS ?
-                DatabaseUrlPattern.normalizeConfigHttpsLocation(getText(configHttpsUrlTextField)) :
-                getText(configLocationTextField);
+        ConfigFileSourceType sourceType = getConfigFileSourceType();
+        if (sourceType == ConfigFileSourceType.LOCAL_FILE) return getText(configFileTextField);
+
+        String configLocation = getText(configLocationTextField);
+        return sourceType == ConfigFileSourceType.HTTPS ?
+                DatabaseUrlPattern.normalizeConfigHttpsLocation(configLocation) :
+                configLocation;
     }
 
     public String getConfigFileProfileKey() {
@@ -347,7 +351,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         boolean flsVisible = urlType == DatabaseUrlType.FILE;
         boolean configFileVisible = urlType == DatabaseUrlType.CONFIG_FILE;
         boolean localConfigFileVisible = configFileVisible && configFileSourceType == ConfigFileSourceType.LOCAL_FILE;
-        boolean httpsConfigVisible = configFileVisible && configFileSourceType == ConfigFileSourceType.HTTPS;
+        boolean remoteConfigVisible = configFileVisible && configFileSourceType != ConfigFileSourceType.LOCAL_FILE;
         boolean cloudProviderVisible = configFileVisible && configFileSourceType == ConfigFileSourceType.CLOUD_PROVIDER;
         boolean hpdVisible = Constants.isOneOf(urlType,
                 DatabaseUrlType.SID,
@@ -387,10 +391,10 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         sourceTypeComboBox.setVisible(configFileVisible);
         cloudProviderLabel.setVisible(cloudProviderVisible);
         cloudProviderComboBox.setVisible(cloudProviderVisible);
-        configLocationLabel.setVisible(localConfigFileVisible);
-        configLocationTextField.setVisible(localConfigFileVisible);
-        configHttpsUrlLabel.setVisible(httpsConfigVisible);
-        configHttpsUrlTextField.setVisible(httpsConfigVisible);
+        configFileLabel.setVisible(localConfigFileVisible);
+        configFileTextField.setVisible(localConfigFileVisible);
+        configLocationLabel.setVisible(remoteConfigVisible);
+        configLocationTextField.setVisible(remoteConfigVisible);
         configFileProfileKeyLabel.setVisible(configFileVisible);
         configFileProfileKeyTextField.setVisible(configFileVisible);
 
@@ -466,8 +470,8 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         portTextField.setText(databaseInfo.getPort());
         databaseTextField.setText(databaseInfo.getDatabase());
         tnsFolderTextField.setText(databaseInfo.getTnsFolder());
+        configFileTextField.setText(databaseInfo.getConfigLocation());
         configLocationTextField.setText(databaseInfo.getConfigLocation());
-        configHttpsUrlTextField.setText(databaseInfo.getConfigLocation());
         configFileProfileKeyTextField.setText(databaseInfo.getConfigFileProfileKey());
         parameters = databaseInfo.getParameters();
 
