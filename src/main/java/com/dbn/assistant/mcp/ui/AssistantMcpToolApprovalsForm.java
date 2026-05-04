@@ -22,17 +22,22 @@ import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
 import com.dbn.assistant.mcp.AssistantMcpToolInfo;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.dispose.Disposer;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.Layouts;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.misc.DBNFilterTextField;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.AsyncProcessIcon;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ClientProperty.HORIZONTAL_SCROLL_POLICY;
@@ -48,6 +53,7 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
     private JPanel toolsPanel;
     private JScrollPane toolsScrollPane;
     private DBNFilterTextField filterTextField;
+    private JPanel loadingPanel;
 
     private final AssistantMcpServer mcpServer;
     private final List<AssistantMcpToolApprovalForm> toolForms = DisposableContainers.list(this);
@@ -93,14 +99,41 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
         HORIZONTAL_SCROLL_POLICY.set(toolsScrollPane, HORIZONTAL_SCROLLBAR_NEVER);
         Layouts.verticalBoxLayout(toolsPanel);
 
-        AssistantMcpServerData serverData = AssistantMcpServerData.get(ensureProject());
-        List<AssistantMcpToolInfo> tools = serverData.getTools(mcpServer.getId());
+        loadingPanel.add(new AsyncProcessIcon("Loading tools..."), BorderLayout.WEST);
+
+        Dispatch.async(mainPanel, () -> loadTools(),
+                tools -> initToolForms(tools));
+
+    }
+
+    private List<AssistantMcpToolInfo> loadTools() {
+        loadingPanel.setVisible(true);
+        try {
+            AssistantMcpServerData serverData = getServerData();
+            return serverData.loadTools(mcpServer.getId());
+        } finally {
+            loadingPanel.setVisible(false);
+        }
+    }
+
+    private AssistantMcpServerData getServerData() {
+        return AssistantMcpServerData.get(ensureProject());
+    }
+
+    private void initToolForms(List<AssistantMcpToolInfo> tools) {
+        List<AssistantMcpToolApprovalForm> toolForms = new ArrayList<>(this.toolForms);
+        this.toolsPanel.removeAll();
+        this.toolForms.clear();
+
+        Disposer.disposeCollection(toolForms);
 
         for (AssistantMcpToolInfo toolInfo : tools) {
             AssistantMcpToolApprovalForm approvalForm = new AssistantMcpToolApprovalForm(this, toolInfo);
-            toolForms.add(approvalForm);
-            toolsPanel.add(approvalForm.getComponent());
+            this.toolForms.add(approvalForm);
+            this.toolsPanel.add(approvalForm.getComponent());
         }
+
+        toolsScrollPane.getVerticalScrollBar().setValue(0);
     }
 
     @Override
