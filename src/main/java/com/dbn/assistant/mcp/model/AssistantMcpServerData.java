@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.mcp;
+package com.dbn.assistant.mcp.model;
 
+import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.EntityId;
 import com.dbn.common.component.ProjectUnit;
@@ -93,25 +94,21 @@ public class AssistantMcpServerData extends ProjectUnit implements PersistentSta
         if (provider == null) return emptyList();
 
         InvocationContext context = InvocationContext.builder().build();
-        try {
-            ToolProviderRequest request = ToolProviderRequest
-                    .builder()
-                    .invocationContext(context)
-                    .userMessage(userMessage("List available tools"))
-                    .build();
+        ToolProviderRequest request = ToolProviderRequest
+                .builder()
+                .invocationContext(context)
+                .userMessage(userMessage("List available tools"))
+                .build();
 
-            ToolProviderResult result = provider.provideTools(request);
+        ToolProviderResult result = provider.provideTools(request);
 
-            ArrayList<AssistantMcpToolInfo> toolInfos = new ArrayList<>();
-            List<ToolSpecification> specifications = result.tools().keySet().stream().sorted(Comparator.comparing(t -> t.name())).toList();
-            for (ToolSpecification specification : specifications) {
-                AssistantMcpToolInfo toolInfo = createToolInfo(mcpServer, specification);
-                toolInfos.add(toolInfo);
-            }
-            return toolInfos;
-        } catch (Throwable t) {
-            return emptyList();
+        ArrayList<AssistantMcpToolInfo> toolInfos = new ArrayList<>();
+        List<ToolSpecification> specifications = result.tools().keySet().stream().sorted(Comparator.comparing(t -> t.name())).toList();
+        for (ToolSpecification specification : specifications) {
+            AssistantMcpToolInfo toolInfo = createToolInfo(mcpServer, specification);
+            toolInfos.add(toolInfo);
         }
+        return toolInfos;
     }
 
     private static AssistantMcpToolInfo createToolInfo(AssistantMcpServer mcpServer, ToolSpecification specification) {

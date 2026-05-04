@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package com.dbn.assistant.mcp.ui;
 
-import com.dbn.assistant.mcp.AssistantMcpServer;
-import com.dbn.assistant.mcp.AssistantMcpServerData;
-import com.dbn.assistant.mcp.AssistantMcpToolInfo;
+import com.dbn.assistant.mcp.model.AssistantMcpServer;
+import com.dbn.assistant.mcp.model.AssistantMcpServerData;
+import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
 import com.dbn.common.EntityId;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.dialog.DBNDialog;
@@ -29,10 +29,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
-import javax.swing.JButton;
 import java.util.List;
-
-import static com.dbn.common.util.Conditional.when;
 
 @Getter
 public class AssistantMcpServerEditDialog extends DBNDialog<AssistantMcpServerEditForm> {
@@ -71,32 +68,36 @@ public class AssistantMcpServerEditDialog extends DBNDialog<AssistantMcpServerEd
         renameAction(getOKAction(), actionName);
         return actions(
                 getOKAction(),
-                createAction("Verify", b -> verifyMcpServer(b)),
+                createAction("Verify", b -> verifyMcpServer()),
+                createAction("Tool Approvals", b -> openMcpToolApprovals()),
                 getCancelAction());
     }
 
-    private void verifyMcpServer(JButton button) {
-        AssistantMcpServer mcpServer = new AssistantMcpServer(this.mcpServer.getId());
-        getForm().applyFormChanges(mcpServer);
+    private void verifyMcpServer() {
+        AssistantMcpServer mcpServer = getConfigMcpServer();
 
         Progress.modal(getProject(), null, true,
                 "Verifying MCP Server configuration",
                 "Verifying configuration MCP Server " + mcpServer.getName(), p -> verifyMcpServer(mcpServer));
     }
 
-    private void openMcpToolApprovals(AssistantMcpServer mcpServer) {
+    private @NotNull AssistantMcpServer getConfigMcpServer() {
+        AssistantMcpServer mcpServer = new AssistantMcpServer(this.mcpServer.getId());
+        getForm().applyFormChanges(mcpServer);
+        return mcpServer;
+    }
+
+    private void openMcpToolApprovals() {
+        AssistantMcpServer mcpServer = getConfigMcpServer();
         Dialogs.show(() -> new AssistantMcpToolApprovalDialog(getProject(), mcpServer));
     }
 
     private void verifyMcpServer(AssistantMcpServer mcpServer) {
         try {
             List<AssistantMcpToolInfo> tools = AssistantMcpServerData.loadTools(mcpServer);
-            String[] options = {"Show Details", "Ok"};
-            int option = Messages.showConfirmationDialog(getProject(), "MCP Server Config",
+            Messages.showConfirmationDialog(getProject(), "MCP Server Config",
                     "Successfully verified \"" + mcpServer.getName() + "\" MCP Server configuration.\n" +
-                            tools.size() + " tools found.", options, 0);
-            when(option == 0, () -> openMcpToolApprovals(mcpServer));
-
+                            tools.size() + " tools found.", Messages.OPTIONS_OK, 0);
         } catch (Throwable e) {
             Messages.showErrorDialog(getProject(), "MCP Server Config",
                     "Failed to validate \"" + mcpServer.getName() + "\" MCP Server configuration.", e);

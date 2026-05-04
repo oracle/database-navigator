@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.mcp;
+package com.dbn.assistant.mcp.model;
 
 import com.dbn.common.EntityId;
 import lombok.Builder;

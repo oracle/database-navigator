@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package com.dbn.assistant.mcp.ui;
 
-import com.dbn.assistant.mcp.AssistantMcpServer;
-import com.dbn.assistant.mcp.AssistantMcpServerType;
+import com.dbn.assistant.mcp.model.AssistantMcpServer;
+import com.dbn.assistant.mcp.model.AssistantMcpServerType;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -28,8 +28,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import static com.dbn.assistant.mcp.AssistantMcpServerType.HTTP;
-import static com.dbn.assistant.mcp.AssistantMcpServerType.STDIO;
+import static com.dbn.assistant.mcp.model.AssistantMcpServerType.HTTP;
+import static com.dbn.assistant.mcp.model.AssistantMcpServerType.STDIO;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;

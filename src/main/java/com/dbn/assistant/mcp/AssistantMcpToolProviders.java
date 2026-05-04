@@ -16,6 +16,8 @@
 
 package com.dbn.assistant.mcp;
 
+import com.dbn.assistant.mcp.model.AssistantMcpServer;
+import com.dbn.assistant.mcp.model.AssistantMcpServerType;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.mcp.McpToolProvider;
 import dev.langchain4j.mcp.client.DefaultMcpClient;
@@ -33,7 +35,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
-import static com.dbn.assistant.mcp.AssistantMcpServer.qualifiedUtilityName;
+import static com.dbn.assistant.mcp.model.AssistantMcpServer.qualifiedUtilityName;
 
 @Slf4j
 @UtilityClass

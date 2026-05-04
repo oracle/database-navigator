@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.dbn.common.EntityId;
 import com.dbn.common.sign.Signed;
 import com.dbn.common.state.PersistentStateElement;
 import org.jdom.Element;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -63,6 +63,7 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
 
     public void setStatus(EntityId serverId, AssistantToolApprovalStatus status) {
         servers.put(serverId, status);
+        tools.remove(serverId);
         updateSignature();
     }
 
@@ -83,7 +84,7 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
         return isBlocked(serverId);
     }
 
-    @Nullable
+    @NotNull
     public AssistantToolApprovalStatus getStatus(EntityId serverId, String toolName) {
         Map<String, AssistantToolApprovalStatus> approvals = tools.get(serverId);
         AssistantToolApprovalStatus approvalStatus = approvals == null ? null : approvals.get(toolName);
@@ -91,6 +92,12 @@ public class AssistantMcpToolApprovals implements PersistentStateElement, Signed
             approvalStatus = servers.get(serverId);
         }
 
+        return approvalStatus == null ? PROMPTED : approvalStatus;
+    }
+
+    @NotNull
+    public AssistantToolApprovalStatus getStatus(EntityId serverId) {
+        AssistantToolApprovalStatus approvalStatus = servers.get(serverId);
         return approvalStatus == null ? PROMPTED : approvalStatus;
     }
 

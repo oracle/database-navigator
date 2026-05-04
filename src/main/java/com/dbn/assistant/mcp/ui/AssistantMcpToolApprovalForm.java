@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@
 package com.dbn.assistant.mcp.ui;
 
 import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
-import com.dbn.assistant.mcp.AssistantMcpToolInfo;
+import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
+import com.dbn.assistant.tool.approval.AssistantToolApprovalUtil;
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNToggleButton;
@@ -33,9 +34,6 @@ import javax.swing.JTextPane;
 
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.APPROVED;
 import static com.dbn.assistant.tool.approval.AssistantToolApprovalStatus.PROMPTED;
-import static com.dbn.common.ui.misc.DBNToggleButton.getDefaultForeground;
-import static com.dbn.common.ui.misc.DBNToggleButton.getErrorForeground;
-import static com.dbn.common.ui.misc.DBNToggleButton.getSuccessForeground;
 
 public class AssistantMcpToolApprovalForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -56,17 +54,10 @@ public class AssistantMcpToolApprovalForm extends DBNFormBase {
     }
 
     private void initStatusToggle() {
-        statusToggle.setTextColor(s ->
-                switch (s) {
-                    case PROMPTED -> getDefaultForeground();
-                    case APPROVED -> getSuccessForeground();
-                    case BLOCKED -> getErrorForeground();
-                });
-        AssistantToolApprovalStatus[] approvalStatuses = AssistantToolApprovalStatus.values();
-
-        statusToggle.setValues(approvalStatuses);
-        statusToggle.setSelectedValue(getToolApproval());
-        statusToggle.addListener((os, ns) -> setApprovalStatus(ns));
+        AssistantToolApprovalUtil.initStatusToggle(statusToggle,
+                AssistantToolApprovalStatus.values(),
+                () -> getApprovalStatus(),
+                s -> setApprovalStatus(s));
     }
 
     private void initNameLabel() {
@@ -89,6 +80,10 @@ public class AssistantMcpToolApprovalForm extends DBNFormBase {
         return approvalsForm.getToolApprovals();
     }
 
+    private AssistantToolApprovalStatus getApprovalStatus() {
+        return getToolApprovals().getStatus(toolInfo.getServerId(), toolInfo.getName());
+    }
+
     public void setApprovalStatus(AssistantToolApprovalStatus status) {
         AssistantMcpToolApprovals approvals = getToolApprovals();
         approvals.setStatus(toolInfo.getServerId(), toolInfo.getName(), status);
@@ -98,7 +93,7 @@ public class AssistantMcpToolApprovalForm extends DBNFormBase {
     }
 
     public void refreshState() {
-        AssistantToolApprovalStatus categoryStatus = getToolApproval();
+        AssistantToolApprovalStatus categoryStatus = getApprovalStatus();
         statusToggle.setSelectedValue(categoryStatus);
 
         boolean enabled = categoryStatus.isOneOf(PROMPTED, APPROVED);
@@ -109,12 +104,8 @@ public class AssistantMcpToolApprovalForm extends DBNFormBase {
                 UIUtil.getLabelDisabledForeground());
     }
 
-    private AssistantToolApprovalStatus getToolApproval() {
-        return getToolApprovals().getStatus(toolInfo.getServerId(), toolInfo.getName());
-    }
-
     public void resetState() {
-        AssistantToolApprovalStatus categoryStatus = getToolApproval();
+        AssistantToolApprovalStatus categoryStatus = getApprovalStatus();
         statusToggle.setSelectedValueSilently(categoryStatus);
     }
 }

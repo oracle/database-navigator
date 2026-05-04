@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package com.dbn.assistant.chat.message.ui;
 
 import com.dbn.assistant.chat.message.ChatMessageToolSection;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.mcp.AssistantMcpServer;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.mcp.AssistantMcpToolApprovals;
+import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantTool;

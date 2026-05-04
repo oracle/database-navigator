@@ -14,45 +14,43 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.service.selectai.profile.action;
+package com.dbn.assistant.mcp.action;
 
-import com.dbn.assistant.service.selectai.profile.ui.ProfileManagementForm;
+import com.dbn.assistant.mcp.ui.AssistantMcpToolApprovalsForm;
+import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.action.DataKeys.ASSISTANT_MCP_TOOL_APPROVALS_FORM;
 import static com.dbn.nls.NlsResources.txt;
 
-/**
- * Profile management reload action
- * (invokes the reload of profiles from the database and refreshes the list)
- *
- * @author Dan Cioca (Oracle)
- */
-public class ProfilesReloadAction extends ProfileManagementAction {
+public class AssistantMcpToolsReloadAction extends ProjectAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ProfileManagementForm managementForm = getManagementForm(e);
-        if (managementForm == null) return;
+        AssistantMcpToolApprovalsForm approvalsForm = getApprovalForm(e);
+        if (approvalsForm == null) return;
 
-        managementForm.reloadProfiles();
+        approvalsForm.reloadTools();
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_RELOAD);
-        presentation.setText(txt("app.assistant.action.ReloadProfiles"));
+        presentation.setText(txt("app.assistant.action.ReloadMcpTools"));
         presentation.setEnabled(isEnabled(e));
     }
 
     private static boolean isEnabled(@NotNull AnActionEvent e) {
-        ProfileManagementForm managementForm = getManagementForm(e);
-        if (managementForm == null) return false;
-        if (managementForm.isLoading()) return false;
+        AssistantMcpToolApprovalsForm approvalsForm = getApprovalForm(e);
+        return approvalsForm != null && !approvalsForm.isLoading();
+    }
 
-        return true;
+    private static @Nullable AssistantMcpToolApprovalsForm getApprovalForm(@NotNull AnActionEvent e) {
+        return ASSISTANT_MCP_TOOL_APPROVALS_FORM.getData(e.getDataContext());
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.mcp;
+package com.dbn.assistant.mcp.model;
 
 public enum AssistantMcpServerType {
     HTTP,
