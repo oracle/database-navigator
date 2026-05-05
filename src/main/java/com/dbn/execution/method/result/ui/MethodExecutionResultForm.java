@@ -114,7 +114,7 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
     }
 
     private void updateOutputTabs() {
-        TabbedPanes.removeAllTabs(outputTabs);
+        TabbedPanes.removeAllTabs(outputTabs, true);
         MethodExecutionResult executionResult = getExecutionResult();
         addOutputArgumentTabs(executionResult);
         addLoggingConsoleTab(executionResult);

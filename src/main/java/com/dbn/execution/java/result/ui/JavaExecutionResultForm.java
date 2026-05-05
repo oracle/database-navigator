@@ -128,7 +128,7 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
     }
 
     private void updateOutputTabs() {
-        TabbedPanes.removeAllTabs(outputTabs);
+        TabbedPanes.removeAllTabs(outputTabs, true);
         JavaExecutionResult executionResult = getExecutionResult();
         addInputArgumentTabs(executionResult);
         addOutputArgumentTabs(executionResult);

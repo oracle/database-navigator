@@ -17,14 +17,19 @@
 package com.dbn.common.ui.util;
 
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.ui.form.DBNForm;
+import com.dbn.common.util.Strings;
 import com.intellij.ui.components.JBTabbedPane;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import java.awt.Component;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 @UtilityClass
 public class TabbedPanes {
@@ -87,12 +92,50 @@ public class TabbedPanes {
         });
     }
 
-    public void removeAllTabs(JBTabbedPane tabbedPane) {
+    public void removeAllTabs(JBTabbedPane tabbedPane, boolean disposeContents) {
         while (tabbedPane.getTabCount() > 0) {
             Component component = tabbedPane.getComponent(0);
             tabbedPane.removeTabAt(0);
-            Disposer.dispose(component);
+
+            if (disposeContents) {
+                DBNForm content = ClientProperty.FORM.get(component);
+                Disposer.dispose(content);
+            }
         }
     }
 
+    public static void removeTab(JBTabbedPane tabbedPane, Component component, boolean disposeContent) {
+        int index = getTabIndex(tabbedPane, component);
+        tabbedPane.removeTabAt(index);
+
+        if (disposeContent) {
+            DBNForm content = ClientProperty.FORM.get(component);
+            Disposer.dispose(content);
+        }
+    }
+
+    public static void setTabTitle(JBTabbedPane tabbedPane, Component component, String title) {
+        int index = getTabIndex(tabbedPane, component);
+        tabbedPane.setTitleAt(index, normalizeTitle(title));
+    }
+
+    @Nullable
+    public static Component getSelectedTabComponent(JBTabbedPane tabbedPane) {
+        int index = tabbedPane.getSelectedIndex();
+        if (index == -1) return null;
+
+        return tabbedPane.getComponentAt(index);
+    }
+
+    private static String normalizeTitle(String title) {
+        // prevent html contents in tab titles (BUGDB-38885384)
+        return Strings.removeHtmlTags(title);
+    }
+
+    public static List<Component> getTabbedComponents(JBTabbedPane tabbedPane) {
+        return IntStream
+                .range(0, tabbedPane.getTabCount())
+                .mapToObj(i -> tabbedPane.getComponentAt(i))
+                .toList();
+    }
 }
