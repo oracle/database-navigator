@@ -272,7 +272,6 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         while (getTabCount() > 0) {
             removeTabAt(0);
         }
-
     }
 
     public void disposeInner() {
