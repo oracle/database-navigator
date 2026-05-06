@@ -33,6 +33,7 @@ import lombok.Setter;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.HyperlinkListener;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -47,6 +48,7 @@ public class DBNInfoLabel extends JLabel {
 
     private static WeakRef<Balloon> currentBalloon;
     private static boolean currentBalloonSticky;
+    private HyperlinkListener hyperlinkListener;
 
     public DBNInfoLabel() {
         super("", Icons.ACTION_INFO, JLabel.LEFT);
@@ -92,8 +94,9 @@ public class DBNInfoLabel extends JLabel {
         balloon.show(popupLocation, Balloon.Position.atRight);
     }
 
-    private static JComponent createPopupComponent(TextContent content) {
+    private JComponent createPopupComponent(TextContent content) {
         DBNInfoForm infoForm = new DBNInfoForm(null, content);
+        infoForm.addHyperlinkListener(hyperlinkListener);
         JComponent infoComponent = infoForm.getComponent();
 
         JPanel component = new JPanel(new BorderLayout());
@@ -117,9 +120,11 @@ public class DBNInfoLabel extends JLabel {
 
     private static void hideCurrentPopup(boolean force) {
         if (currentBalloonSticky && !force) return;
+
         Balloon current = WeakRef.get(currentBalloon);
-        if (current != null) {
-            current.hide();
-        }
+        if (current == null) return;
+
+        current.hide();
+        currentBalloon.clear();
     }
 }

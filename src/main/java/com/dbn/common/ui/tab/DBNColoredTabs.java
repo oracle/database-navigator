@@ -75,6 +75,7 @@ public class DBNColoredTabs<T extends DBNForm> extends JBEditorTabs {
         if (presentation == null) return;
 
         presentation.setUiDecorator(() -> new UiDecoration(JBUI.Fonts.label(), JBUI.insets(8)));
+
     }
 
     private void initTabActions(TabInfo tabInfo) {

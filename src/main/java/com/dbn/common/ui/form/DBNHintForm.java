@@ -41,6 +41,7 @@ import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
+import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.ClientProperty.RESIZING;
 import static com.dbn.common.ui.util.UserInterface.adjustDimension;
 
@@ -80,7 +81,7 @@ public class DBNHintForm extends DBNFormBase {
         if (actionText != null) {
             actionLink.setVisible(true);
             actionLink.setHyperlinkText(actionText);
-            actionLink.addHyperlinkListener(e -> action.run());
+            onHyperlinkAccess(actionLink, e -> action.run());
         } else {
             actionLink.setVisible(false);
         }

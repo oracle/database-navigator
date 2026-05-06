@@ -44,8 +44,10 @@ import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
 public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<AssistantMcpServerSettings> {
     private JPanel mainPanel;
     private JPanel mcpServersTablePanel;
+    private JPanel ideMcpServerPanel;
 
     private final AssistantMcpServersTable mcpServersTable;
+    private final AssistantIdeMcpServerForm ideMcpServerForm;
 
     public AssistantMcpServersSettingsForm(AssistantMcpServerSettings settings) {
         super(settings);
@@ -53,8 +55,13 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
         mcpServersTable = new AssistantMcpServersTable(this, settings.getMcpServers());
         mcpServersTablePanel.add(initTableComponent());
 
+        ideMcpServerForm = new AssistantIdeMcpServerForm(this);
+        ideMcpServerPanel.add(ideMcpServerForm.getComponent());
+        ideMcpServerForm.setServerEnabled(getConfiguration().isWorkspaceIntegration());
+
         registerComponents(mainPanel);
     }
+
 
     private JPanel initTableComponent() {
         ToolbarDecorator decorator = createToolbarDecorator(mcpServersTable);
@@ -125,6 +132,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
     @Override
     public void applyFormChanges() throws ConfigurationException {
         AssistantMcpServerSettings configuration = getConfiguration();
+        configuration.setWorkspaceIntegration(ideMcpServerForm.isServerEnabled());
 
         AssistantMcpServersTableModel model = mcpServersTable.getModel();
         model.validate();

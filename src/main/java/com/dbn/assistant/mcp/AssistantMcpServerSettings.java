@@ -36,7 +36,9 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setBoolean;
 
 @Getter
 @Setter
@@ -46,6 +48,7 @@ public class AssistantMcpServerSettings
 
     private AssistantMcpServerBundle mcpServers;
     private AssistantMcpServerData mcpServerData;
+    private boolean workspaceIntegration;
     private final AssistantMcpToolApprovals mcpToolApprovals = new AssistantMcpToolApprovals();
 
 
@@ -84,6 +87,8 @@ public class AssistantMcpServerSettings
 
     @Override
     public void readConfiguration(Element element) {
+        workspaceIntegration = getBoolean(element, "workspace-integration", false);
+
         Element serversElement = element.getChild("mcp-servers");
         List<AssistantMcpServer> mcpServers = new ArrayList<>();
 
@@ -101,6 +106,8 @@ public class AssistantMcpServerSettings
 
     @Override
     public void writeConfiguration(Element element) {
+        setBoolean(element, "workspace-integration", workspaceIntegration);
+
         Element serversElement = newElement(element, "mcp-servers");
         for (AssistantMcpServer mcpServer : mcpServers.getElements()) {
             Element serverElement = newElement(serversElement, "mcp-server");
