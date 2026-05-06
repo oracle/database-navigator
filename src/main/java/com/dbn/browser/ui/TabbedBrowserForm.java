@@ -44,7 +44,6 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.ui.util.ClientProperty.FORM;
-import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
 
 public class TabbedBrowserForm extends DatabaseBrowserForm{
     private final DBNColoredTabs<SimpleBrowserForm> connectionTabs;
@@ -58,7 +57,7 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
         initBrowserForms();
         ProjectEvents.subscribe(ensureProject(), this, EnvironmentManagerListener.TOPIC, environmentManagerListener());
 
-        connectionTabs.onSelectionChange(() -> ProjectEvents.notify(ensureProject(),
+        connectionTabs.onTabSelected(i -> ProjectEvents.notify(ensureProject(),
                 BrowserTreeEventListener.TOPIC,
                 (listener) -> listener.selectionChanged()));
     }
@@ -123,20 +122,6 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
         return null;
     }
 
-    @Nullable
-    private SimpleBrowserForm removeBrowserForm(ConnectionId connectionId) {
-        var connectionTabs = getConnectionTabs();
-        for (Component component : connectionTabs.getTabbedComponents()) {
-            SimpleBrowserForm browserForm = FORM.get(component);
-            ConnectionId tabConnectionId = browserForm.getConnectionId();
-            if (tabConnectionId == connectionId) {
-                connectionTabs.removeTab(component, false);
-                return browserForm;
-            }
-        }
-        return null;
-    }
-
     @NotNull
     @Override
     public JPanel getMainComponent() {
@@ -182,7 +167,7 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
         SimpleBrowserForm browserForm = getBrowserForm(connectionId);
         if (browserForm == null) return;
 
-        getConnectionTabs().selectTab(browserForm);
+        getConnectionTabs().selectTab(browserForm, false);
     }
 
     @Override
@@ -211,7 +196,7 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
 
     void refreshTabInfo(ConnectionId connectionId) {
         for (Component component : getTabComponents()) {
-            SimpleBrowserForm browserForm = TAB_CONTENT.get(component);
+            SimpleBrowserForm browserForm = FORM.get(component);
             ConnectionHandler connection = browserForm.getConnection();
             if (connection == null) continue;
 

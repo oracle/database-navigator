@@ -17,7 +17,6 @@
 package com.dbn.common.ui.tab;
 
 import com.dbn.common.Wrapper;
-import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.DataProviderDelegate;
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.compatibility.Workaround;
@@ -70,6 +69,7 @@ import static java.lang.Boolean.TRUE;
 @Getter
 @Setter
 @Slf4j
+@Deprecated // TODO remove (replaced by DBNColoredTabs)
 class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements StatefulDisposable, DataProviderDelegate {
     private boolean disposed;
     private transient boolean showingPopup;
@@ -334,8 +334,6 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
 
     @Override
     public Object getData(String dataId) {
-        if (DataKeys.TABBED_PANE.is(dataId)) return this;
-
         return null;
     }
 }

@@ -28,7 +28,6 @@ import com.dbn.assistant.tool.config.ui.AssistantToolApprovalItemForm;
 import com.dbn.batch.ui.BatchMonitorForm;
 import com.dbn.common.ui.component.DBNDiscardableComponent;
 import com.dbn.common.ui.component.DBNFoldableComponent;
-import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
 import com.dbn.data.editor.ui.array.ArrayEditorPopupProviderForm;
 import com.dbn.data.editor.ui.calendar.CalendarPopupProviderForm;
@@ -84,7 +83,7 @@ public interface DataKeys {
     DataKey<BatchMonitorForm> BATCH_MONITOR_FORM = DataKey.create("DBNavigator.BatchMonitorForm");
     DataKey<PrerequisitesForm> PREREQUISITES_FORM = DataKey.create("DBNavigator.PrerequisitesForm");
     DataKey<ChatMessageForm> CHAT_MESSAGE_FORM = DataKey.create("DBNavigator.ChatMessageForm");
-    DataKey<DBNTabbedPane> TABBED_PANE = DataKey.create("DBNavigator.TabbedPane");
+
     DataKey<Disposable> PARENT_DISPOSABLE = DataKey.create("DBNavigator.ParentDisposable");
     DataKey<DBNFoldableComponent> FOLDABLE_COMPONENT = DataKey.create("DBNavigator.FoldableComponent");
     DataKey<DBNDiscardableComponent> DISCARDABLE_COMPONENT = DataKey.create("DBNavigator.DiscardableComponent");
