@@ -19,7 +19,6 @@ package com.dbn.connection.ssh;
 import com.dbn.common.network.NetworkAddress;
 import com.dbn.common.util.Chars;
 import com.dbn.common.util.Commons;
-import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +34,6 @@ import org.apache.sshd.common.util.net.SshdSocketAddress;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.core.CoreModuleProperties;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -62,28 +60,17 @@ public class SshTunnelConnector {
     private ClientSession session;
     private SshClient client;
     private PortForwardingTracker tracker;
-    private StrictKnownHostsServerKeyVerifier serverKeyVerifier;
-    private @Nullable Project project;
+    private StrictKnownHostsServerKeyVerifier keyVerifier;
     private boolean reverseTunnel = false;
 
     public SshTunnelConnector(SshTunnelConfig config) {
-        this.config = config;
-    }
-
-    public SshTunnelConnector(SshTunnelConfig config, @Nullable Project project) {
-        this.config = config;
-        this.project = project;
+        this(config, null);
     }
 
     public SshTunnelConnector(SshTunnelConfig config, NetworkAddress localAddress) {
         this.config = config;
         this.localAddress = localAddress;
-    }
-
-    public SshTunnelConnector(SshTunnelConfig config, NetworkAddress localAddress, @Nullable Project project) {
-        this.config = config;
-        this.localAddress = localAddress;
-        this.project = project;
+        this.keyVerifier = new StrictKnownHostsServerKeyVerifier();
     }
 
     public ClientSession connect() throws Exception {
@@ -103,8 +90,7 @@ public class SshTunnelConnector {
     private SshTunnelException createTunnelException(Exception e) {
         NetworkAddress proxyAddress = config.getProxyAddress();
         Path knownHostsFile = KnownHostEntry.getDefaultKnownHostsFile();
-        StrictKnownHostsServerKeyVerifier.HostKeyMismatch mismatch =
-                serverKeyVerifier == null ? null : serverKeyVerifier.getHostKeyMismatch();
+        StrictKnownHostsServerKeyVerifier.HostKeyMismatch mismatch = keyVerifier.getHostKeyMismatch();
         if (mismatch != null) {
             String message = "SSH tunnel blocked: the saved SSH host key no longer matches this server.\n\n" +
                     "Host: " + formatHost(proxyAddress) + "\n" +
@@ -116,8 +102,7 @@ public class SshTunnelConnector {
             return new SshTunnelException(message, e);
         }
 
-        Throwable knownHostsFileUpdateFailure =
-                serverKeyVerifier == null ? null : serverKeyVerifier.getKnownHostsFileUpdateFailure();
+        Throwable knownHostsFileUpdateFailure = keyVerifier.getKnownHostsFileUpdateFailure();
         if (knownHostsFileUpdateFailure != null) {
             String message = "SSH tunnel blocked: DB Navigator could not save the SSH server key.\n\n" +
                     "Host: " + formatHost(proxyAddress) + "\n" +
@@ -148,11 +133,11 @@ public class SshTunnelConnector {
     private void initClient() {
         client = SshClient.setUpDefaultClient();
         if (reverseTunnel) {
-            client.setForwardingFilter(
-                    new ReverseSshTunnelForwardingFilter(toSshdSocketAddress(localAddress)));
+            SshdSocketAddress socketAddress = toSshdSocketAddress(localAddress);
+            ReverseSshTunnelForwardingFilter forwardingFilter = new ReverseSshTunnelForwardingFilter(socketAddress);
+            client.setForwardingFilter(forwardingFilter);
         }
-        serverKeyVerifier = new StrictKnownHostsServerKeyVerifier(new SshHostKeyTrustPrompt(project));
-        client.setServerKeyVerifier(serverKeyVerifier);
+        client.setServerKeyVerifier(keyVerifier);
 
         CoreModuleProperties.SOCKET_KEEPALIVE.set(client, true);
 
