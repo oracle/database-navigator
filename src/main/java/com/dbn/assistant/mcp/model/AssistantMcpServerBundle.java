@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
+import static com.dbn.assistant.mcp.ide.IdeMcpServerManager.isIdeMcpPluginSupported;
 import static com.dbn.common.util.CollectionUtil.cloneElements;
 import static com.dbn.common.util.Lists.first;
 
@@ -123,6 +124,8 @@ public class AssistantMcpServerBundle extends ProjectUnit implements Signed {
 
     @Nullable
     public AssistantMcpServer getIdeMcpServer() {
+        if (!isIdeMcpPluginSupported()) return null;
+
         Project project = getProject();
         AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
 

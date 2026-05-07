@@ -23,6 +23,7 @@ import com.dbn.common.latent.Latent;
 import com.dbn.common.util.Environment;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManagerCore;
+import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.extensions.PluginId;
 import lombok.Getter;
 import lombok.Setter;
@@ -108,6 +109,7 @@ public class IdeMcpServerManager extends ApplicationComponentBase {
         if (port == null) return null;
 
         return "http://127.0.0.1:" + port + "/stream";
+        //return "http://127.0.0.1:" + port + "/sse"; TODO support non-streamable transport
     }
 
     @Nullable
@@ -130,6 +132,11 @@ public class IdeMcpServerManager extends ApplicationComponentBase {
     private static ClassLoader getPluginClassLoader() {
         IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(MCP_SERVER_PLUGIN_ID);
         return plugin == null ? null : plugin.getPluginClassLoader();
+    }
+
+    public static boolean isIdeMcpPluginSupported() {
+        ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
+        return applicationInfo.getBuild().getBaselineVersion() >= 261;
     }
 
     private boolean isPluginAvailable() {

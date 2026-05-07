@@ -19,6 +19,7 @@ package com.dbn.assistant.mcp.ui;
 
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
+import com.dbn.assistant.mcp.ide.IdeMcpServerManager;
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerBundle;
 import com.dbn.common.icon.Icons;
@@ -47,7 +48,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
     private JPanel ideMcpServerPanel;
 
     private final AssistantMcpServersTable mcpServersTable;
-    private final AssistantIdeMcpServerForm ideMcpServerForm;
+    private AssistantIdeMcpServerForm ideMcpServerForm;
 
     public AssistantMcpServersSettingsForm(AssistantMcpServerSettings settings) {
         super(settings);
@@ -55,9 +56,11 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
         mcpServersTable = new AssistantMcpServersTable(this, settings.getMcpServers());
         mcpServersTablePanel.add(initTableComponent());
 
-        ideMcpServerForm = new AssistantIdeMcpServerForm(this);
-        ideMcpServerPanel.add(ideMcpServerForm.getComponent());
-        ideMcpServerForm.setServerEnabled(getConfiguration().isWorkspaceIntegration());
+        if (IdeMcpServerManager.isIdeMcpPluginSupported()) {
+            ideMcpServerForm = new AssistantIdeMcpServerForm(this);
+            ideMcpServerPanel.add(ideMcpServerForm.getComponent());
+            ideMcpServerForm.setServerEnabled(getConfiguration().isWorkspaceIntegration());
+        }
 
         registerComponents(mainPanel);
     }
@@ -132,7 +135,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
     @Override
     public void applyFormChanges() throws ConfigurationException {
         AssistantMcpServerSettings configuration = getConfiguration();
-        configuration.setWorkspaceIntegration(ideMcpServerForm.isServerEnabled());
+        configuration.setWorkspaceIntegration(ideMcpServerForm != null && ideMcpServerForm.isServerEnabled());
 
         AssistantMcpServersTableModel model = mcpServersTable.getModel();
         model.validate();

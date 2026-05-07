@@ -55,7 +55,7 @@ public class AssistantMcpToolProviders {
                 .build();
     }
 
-    private static StreamableHttpMcpTransport createHttpMcpTransport(AssistantMcpServer mcpServer) {
+    private static McpTransport createHttpMcpTransport(AssistantMcpServer mcpServer) {
         return StreamableHttpMcpTransport
                 .builder()
                 .url(mcpServer.getUrl())
