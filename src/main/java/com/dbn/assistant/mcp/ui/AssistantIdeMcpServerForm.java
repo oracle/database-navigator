@@ -39,9 +39,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.Set;
 
-import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.PLUGIN_UNAVAILABLE;
-import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.SERVER_DISABLED;
-import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.SERVER_ENABLED;
+import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.DISABLED;
+import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.ENABLED;
+import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.UNAVAILABLE;
 import static com.dbn.assistant.mcp.ide.IdeMcpServerManager.MCP_SERVER_PLUGIN_ID;
 import static com.dbn.common.thread.Dispatch.async;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
@@ -113,20 +113,20 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
 
     private void handleMcpServerAvailability(IdeMcpServerAvailability a) {
         boolean enabled = isServerEnabled();
-        if (a == PLUGIN_UNAVAILABLE) {
+        if (a == UNAVAILABLE) {
             installHyperlink.setVisible(enabled);
 
             serverStatusLabel.setVisible(enabled);
             serverStatusLabel.setText("MCP Server plugin not installed");
             serverStatusLabel.setIcon(Icons.COMMON_STATUS_ERROR);
-        } else if (a == SERVER_DISABLED) {
+        } else if (a == DISABLED) {
             configHyperlink.setVisible(enabled);
             configHyperlink.setHyperlinkText("Enable");
 
             serverStatusLabel.setVisible(enabled);
             serverStatusLabel.setText("MCP Server not enabled");
             serverStatusLabel.setIcon(Icons.COMMON_STATUS_ERROR);
-        } else if (a == SERVER_ENABLED) {
+        } else if (a == ENABLED) {
             configHyperlink.setVisible(enabled);
             configHyperlink.setHyperlinkText("Configure");
 

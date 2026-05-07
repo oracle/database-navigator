@@ -17,8 +17,7 @@
 package com.dbn.assistant.mcp.ide;
 
 public enum IdeMcpServerAvailability {
-    PLUGIN_UNAVAILABLE,
-    PLUGIN_DISABLED,
-    SERVER_DISABLED,
-    SERVER_ENABLED
+    UNAVAILABLE,
+    DISABLED,
+    ENABLED
 }

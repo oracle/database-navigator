@@ -33,16 +33,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.PLUGIN_DISABLED;
-import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.PLUGIN_UNAVAILABLE;
-import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.SERVER_DISABLED;
-import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.SERVER_ENABLED;
+import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.DISABLED;
+import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.ENABLED;
+import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.UNAVAILABLE;
 import static com.dbn.assistant.mcp.model.AssistantMcpServer.IDE_MCP_SERVER_ID;
 import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.util.Unsafe.silent;
-import static com.intellij.ide.plugins.PluginManagerCore.isDisabled;
-import static com.intellij.ide.plugins.PluginManagerCore.isLoaded;
 
 @Getter
 @Setter
@@ -82,16 +79,9 @@ public class IdeMcpServerManager extends ApplicationComponentBase {
 
 
     private IdeMcpServerAvailability evaluateMcpServerAvailability() {
-        if (!isLoaded(MCP_SERVER_PLUGIN_ID)) return PLUGIN_UNAVAILABLE;
-        if (isDisabled(MCP_SERVER_PLUGIN_ID)) return PLUGIN_DISABLED;
-        if (!isMcpServerEnabled()) return SERVER_DISABLED;
-        return SERVER_ENABLED;
-    }
-
-    @Nullable
-    private static ClassLoader getPluginClassLoader() {
-        IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(MCP_SERVER_PLUGIN_ID);
-        return plugin == null ? null : plugin.getPluginClassLoader();
+        if (!isPluginAvailable()) return UNAVAILABLE;
+        if (!isMcpServerEnabled()) return DISABLED;
+        return ENABLED;
     }
 
     @SneakyThrows
@@ -134,6 +124,16 @@ public class IdeMcpServerManager extends ApplicationComponentBase {
         String className = "com.intellij.mcpserver.settings.McpServerSettings";
         ClassLoader classLoader = getPluginClassLoader();
         return silent(null, () -> Class.forName(className, false, classLoader));
+    }
+
+    @Nullable
+    private static ClassLoader getPluginClassLoader() {
+        IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(MCP_SERVER_PLUGIN_ID);
+        return plugin == null ? null : plugin.getPluginClassLoader();
+    }
+
+    private boolean isPluginAvailable() {
+        return getMcpServerSettingsClass() != null;
     }
 
     public AssistantMcpServer getIdeMcpServer() {
