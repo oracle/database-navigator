@@ -17,12 +17,19 @@
 package com.dbn.assistant.mcp.ui;
 
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
+import com.dbn.assistant.mcp.model.AssistantMcpServerData;
 import com.dbn.assistant.mcp.model.AssistantMcpServerType;
+import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
+import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNCommentLabel;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
@@ -30,10 +37,12 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.util.List;
 
 import static com.dbn.assistant.mcp.model.AssistantMcpServerType.HTTP;
 import static com.dbn.assistant.mcp.model.AssistantMcpServerType.STDIO;
 import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
@@ -44,6 +53,7 @@ import static com.dbn.common.ui.util.TextFields.setEmptyText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Strings.isNotEmpty;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class AssistantMcpServerEditForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -57,6 +67,8 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
     private JLabel commandLabel;
     private JLabel commandArgumentsLabel;
     private DBNCommentLabel commandPreviewLabel;
+    private DBNHyperlinkLabel verifyLink;
+    private DBNHyperlinkLabel approvalsLink;
 
 
     private final AssistantMcpServer mcpServer;
@@ -74,6 +86,11 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
         onTextChange(commandTextField, e -> updateCommandPreview());
         onTextChange(commandArgumentsTextField, e -> updateCommandPreview());
         addSingleFileChooser(getProject(), commandTextField, "Select MCP Server executable", null);
+
+        verifyLink.setHyperlinkText("Verify configuration");
+        approvalsLink.setHyperlinkText("Tool approvals");
+        onHyperlinkAccess(verifyLink, e -> verifyMcpServer());
+        onHyperlinkAccess(approvalsLink, e -> openMcpToolApprovals());
 
         resetFormChanges();
         updateCommandPreview();
@@ -107,10 +124,50 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
         commandPreviewLabel.setText(commandPreview);
     }
 
-
     private AssistantMcpServerEditRequest getRequest() {
         AssistantMcpServerEditDialog dialog = ensureParentComponent();
         return dialog.getRequest();
+    }
+
+    private AssistantMcpServer getConfigMcpServer() {
+        AssistantMcpServer mcpServer = new AssistantMcpServer(this.mcpServer.getId());
+        applyFormChanges(mcpServer);
+        return mcpServer;
+    }
+
+    private void openMcpToolApprovals() {
+        AssistantMcpServer mcpServer = getConfigMcpServer();
+        Dialogs.show(() -> new AssistantMcpToolApprovalDialog(getProject(), mcpServer));
+    }
+
+    private void verifyMcpServer() {
+        Progress.modal(getProject(), null, true,
+                "Verifying MCP Server Configuration",
+                "Connecting to \"" + mcpServer.getName() + "\" MCP Server",
+                p -> doVerifyMcpServer(p));
+    }
+
+    private void doVerifyMcpServer(ProgressIndicator indicator) {
+        AssistantMcpServer mcpServer = getConfigMcpServer();
+        try {
+            String detail = mcpServer.getType() == HTTP ?
+                    "Accessing http url \"" + mcpServer.getUrl() + "\"":
+                    "Invoking command \"" + mcpServer.getEndpoint() + "\"";
+            indicator.setText2(detail);
+            List<AssistantMcpToolInfo> tools = AssistantMcpServerData.loadTools(mcpServer);
+            if (indicator.isCanceled()) return;
+
+            int count = tools.size();
+            Messages.showConfirmationDialog(getProject(), "MCP Server Config",
+                    "Successfully verified \"" + mcpServer.getName() + "\" MCP Server configuration. " +
+                            count + (count == 1 ? " tool" : " tools") + " found.", Messages.OPTIONS_OK, 0);
+        } catch (Throwable e) {
+            conditionallyLog(e);
+
+            if (indicator.isCanceled()) return;
+            Messages.showErrorDialog(getProject(), "MCP Server Config",
+                    "Failed to validate \"" + mcpServer.getName() + "\" MCP Server configuration.", e);
+        }
     }
 
     @Override

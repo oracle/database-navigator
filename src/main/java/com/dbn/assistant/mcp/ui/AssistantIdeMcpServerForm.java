@@ -18,12 +18,14 @@ package com.dbn.assistant.mcp.ui;
 
 import com.dbn.assistant.mcp.ide.IdeMcpServerAvailability;
 import com.dbn.assistant.mcp.ide.IdeMcpServerManager;
+import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
+import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.updateSettings.impl.pluginsAdvertisement.PluginsAdvertiser;
@@ -51,6 +53,7 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
     private DBNInfoLabel infoLabel;
     private DBNHyperlinkLabel installHyperlink;
     private DBNHyperlinkLabel configHyperlink;
+    private DBNHyperlinkLabel approvalsHyperlink;
     private JLabel serverStatusLabel;
 
     public AssistantIdeMcpServerForm(@Nullable Disposable parent) {
@@ -87,15 +90,19 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
         serverStatusLabel.setForeground(JBUI.CurrentTheme.ContextHelp.FOREGROUND);
         installHyperlink.setHyperlinkText("Install");
         configHyperlink.setHyperlinkText("Enable");
+        approvalsHyperlink.setHyperlinkText("Tool approvals");
         onHyperlinkAccess(installHyperlink, e -> installMcpServerPlugin());
         onHyperlinkAccess(configHyperlink, e -> enableMcpServer());
+        onHyperlinkAccess(approvalsHyperlink, e -> openMcpToolApprovals());
         onSelectionChange(enableCheckBox, e -> updateAvailabilityLinks());
     }
 
     private void updateAvailabilityLinks() {
         installHyperlink.setVisible(false);
         configHyperlink.setVisible(false);
+        approvalsHyperlink.setVisible(false);
         serverStatusLabel.setVisible(false);
+
 
         if (!isServerEnabled()) return;
 
@@ -126,6 +133,7 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
             serverStatusLabel.setVisible(enabled);
             serverStatusLabel.setText("MCP Server active");
             serverStatusLabel.setIcon(Icons.COMMON_STATUS_SUCCESS);
+            approvalsHyperlink.setVisible(enabled);
         }
     }
 
@@ -147,5 +155,11 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
     private void enableMcpServer() {
         ShowSettingsUtil.getInstance().showSettingsDialog(getProject(), "MCP Server");
         updateAvailabilityLinks();
+    }
+
+    private void openMcpToolApprovals() {
+        IdeMcpServerManager serverManager = IdeMcpServerManager.getInstance();
+        AssistantMcpServer mcpServer = serverManager.getIdeMcpServer();
+        Dialogs.show(() -> new AssistantMcpToolApprovalDialog(getProject(), mcpServer));
     }
 }

@@ -37,6 +37,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 
+import java.util.List;
+
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 
 @BackgroundUpdate
@@ -50,19 +52,22 @@ public class McpServerSelectionAction extends ComboBoxAction implements Assistan
         AssistantState assistantState = getAssistantState(dataContext);
         if (assistantState == null) return actionGroup;
 
-        AssistantMcpServerBundle mcpServers = getMcpServers(assistantState);
-        AssistantMcpServer ideMcpServer = mcpServers.getIdeMcpServer();
+        AssistantMcpServerBundle mcpServerBundle = getMcpServers(assistantState);
+        AssistantMcpServer ideMcpServer = mcpServerBundle.getIdeMcpServer();
         if (ideMcpServer != null) {
             actionGroup.add(new McpServerSelectionToggleAction(ideMcpServer));
             actionGroup.addSeparator();
         }
 
-        for (AssistantMcpServer mcpServer : mcpServers.getElements()) {
+        List<AssistantMcpServer> mcpServers = mcpServerBundle.getElements();
+        for (AssistantMcpServer mcpServer : mcpServers) {
             actionGroup.add(new McpServerSelectionToggleAction(mcpServer));
         }
 
         actionGroup.addSeparator();
-        actionGroup.add(new McpServerCreateAction());
+        if (mcpServers.isEmpty()) {
+            actionGroup.add(new McpServerCreateAction());
+        }
         actionGroup.add(new AssistantSettingsAction());
 
         return actionGroup;
