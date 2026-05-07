@@ -29,6 +29,7 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.Resources;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.ssh.SshTunnelConfig;
 import com.dbn.connection.ssh.SshTunnelConnector;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.debugger.DBDebugConsoleLogger;
@@ -278,7 +279,8 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
             //opening reverse ssh tunnel here if required
             if (tunnelType == SSH_REVERSE_TUNNEL) {
                 console.info("Initializing reverse ssh tunnel...");
-                SshTunnelConnector sshTunnelConnector = new SshTunnelConnector(tcpConfig.getSshTunnelConfig(), localAddress, getProject());
+                SshTunnelConfig sshTunnelConfig = tcpConfig.getSshTunnelConfig();
+                SshTunnelConnector sshTunnelConnector = new SshTunnelConnector(sshTunnelConfig, localAddress);
                 sshTunnelConnector.setReverseTunnel(true);
                 sshTunnelConnector.connect();
                 targetConnection.beforeClose(() -> sshTunnelConnector.disconnect());
@@ -287,7 +289,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                 jdwpTcpAddress.setHost(boundAddress.getHostName());
                 jdwpTcpAddress.setPort(boundAddress.getPort());
 
-                NetworkAddress proxyAddress = tcpConfig.getSshTunnelConfig().getProxyAddress();
+                NetworkAddress proxyAddress = sshTunnelConfig.getProxyAddress();
                 console.system("Reverse ssh tunnel started ~ " + localAddress + " (this machine)"
                         + " <- " + jdwpTcpAddress + " (" + proxyAddress + ")");
             }

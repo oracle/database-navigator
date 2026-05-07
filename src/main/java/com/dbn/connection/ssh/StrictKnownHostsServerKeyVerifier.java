@@ -16,15 +16,16 @@
 
 package com.dbn.connection.ssh;
 
+import com.dbn.common.util.Messages;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.sshd.client.config.hosts.KnownHostEntry;
 import org.apache.sshd.client.keyverifier.DefaultKnownHostsServerKeyVerifier;
-import org.apache.sshd.client.keyverifier.KnownHostsServerKeyVerifier.HostEntryPair;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.config.keys.KeyUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,8 +36,14 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Slf4j
 final class StrictKnownHostsServerKeyVerifier extends DefaultKnownHostsServerKeyVerifier {
+    private static final String[] TRUST_OPTIONS = Messages.options(
+            txt("msg.ssh.button.TrustAndSave"),
+            txt("msg.shared.button.Cancel"));
+
     private static final Set<PosixFilePermission> OWNER_ONLY_DIRECTORY_PERMISSIONS = EnumSet.of(
             PosixFilePermission.OWNER_READ,
             PosixFilePermission.OWNER_WRITE,
@@ -49,9 +56,32 @@ final class StrictKnownHostsServerKeyVerifier extends DefaultKnownHostsServerKey
     private HostKeyMismatch hostKeyMismatch;
     private Throwable knownHostsFileUpdateFailure;
 
-    StrictKnownHostsServerKeyVerifier(@Nullable SshHostKeyTrustPrompt trustPrompt) {
-        super((clientSession, remoteAddress, serverKey) ->
-                trustPrompt != null && trustPrompt.acceptUnknownHostKey(remoteAddress, serverKey));
+    StrictKnownHostsServerKeyVerifier() {
+        super((s, a, k) -> acceptUnknownHostKey(a, k));
+    }
+
+    static boolean acceptUnknownHostKey(SocketAddress remoteAddress, PublicKey serverKey) {
+        Path knownHostsFile = KnownHostEntry.getDefaultKnownHostsFile();
+        String message = txt(
+                "msg.ssh.message.UnknownHostKey",
+                formatAddress(remoteAddress),
+                KeyUtils.getKeyType(serverKey),
+                KeyUtils.getFingerPrint(serverKey),
+                knownHostsFile);
+
+        return Messages.showConfirmationDialog(
+                null,
+                txt("msg.ssh.title.TrustSshServer"),
+                message,
+                TRUST_OPTIONS,
+                1) == 0;
+    }
+
+    private static String formatAddress(SocketAddress address) {
+        if (address instanceof InetSocketAddress inetAddress) {
+            return inetAddress.getHostString() + ":" + inetAddress.getPort();
+        }
+        return String.valueOf(address);
     }
 
     @Nullable

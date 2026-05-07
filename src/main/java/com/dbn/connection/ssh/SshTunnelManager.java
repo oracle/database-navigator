@@ -46,10 +46,11 @@ public class SshTunnelManager extends ApplicationComponentBase {
 
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         SshTunnelConfig config = createConfig(databaseSettings, sshSettings);
-        SshTunnelConnector connector = sshTunnelConnectors.computeIfAbsent(config, SshTunnelConnector::new);
-        connector.setProject(connectionSettings.getProject());
+        SshTunnelConnector connector = sshTunnelConnectors.computeIfAbsent(config, c -> new SshTunnelConnector(c));
 
-        if (!connector.isConnected()) connector.connect();
+        if (!connector.isConnected()) {
+            connector.connect();
+        }
         return connector;
     }
 
