@@ -278,7 +278,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
             //opening reverse ssh tunnel here if required
             if (tunnelType == SSH_REVERSE_TUNNEL) {
                 console.info("Initializing reverse ssh tunnel...");
-                SshTunnelConnector sshTunnelConnector = new SshTunnelConnector(tcpConfig.getSshTunnelConfig(), localAddress);
+                SshTunnelConnector sshTunnelConnector = new SshTunnelConnector(tcpConfig.getSshTunnelConfig(), localAddress, getProject());
                 sshTunnelConnector.setReverseTunnel(true);
                 sshTunnelConnector.connect();
                 targetConnection.beforeClose(() -> sshTunnelConnector.disconnect());
