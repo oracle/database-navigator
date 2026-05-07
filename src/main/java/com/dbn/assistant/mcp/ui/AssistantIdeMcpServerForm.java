@@ -18,6 +18,7 @@ package com.dbn.assistant.mcp.ui;
 
 import com.dbn.assistant.mcp.ide.IdeMcpServerAvailability;
 import com.dbn.assistant.mcp.ide.IdeMcpServerManager;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -27,10 +28,12 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.updateSettings.impl.pluginsAdvertisement.PluginsAdvertiser;
 import com.intellij.ui.BrowserHyperlinkListener;
+import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.Set;
 
@@ -48,6 +51,7 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
     private DBNInfoLabel infoLabel;
     private DBNHyperlinkLabel installHyperlink;
     private DBNHyperlinkLabel configHyperlink;
+    private JLabel serverStatusLabel;
 
     public AssistantIdeMcpServerForm(@Nullable Disposable parent) {
         super(parent);
@@ -80,8 +84,9 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
     }
 
     private void initAvailabilityLinks() {
-        installHyperlink.setHyperlinkText("Install MCP Server plugin");
-        configHyperlink.setHyperlinkText("Enable MCP Server");
+        serverStatusLabel.setForeground(JBUI.CurrentTheme.ContextHelp.FOREGROUND);
+        installHyperlink.setHyperlinkText("Install");
+        configHyperlink.setHyperlinkText("Enable");
         onHyperlinkAccess(installHyperlink, e -> installMcpServerPlugin());
         onHyperlinkAccess(configHyperlink, e -> enableMcpServer());
         onSelectionChange(enableCheckBox, e -> updateAvailabilityLinks());
@@ -90,6 +95,7 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
     private void updateAvailabilityLinks() {
         installHyperlink.setVisible(false);
         configHyperlink.setVisible(false);
+        serverStatusLabel.setVisible(false);
 
         if (!isServerEnabled()) return;
 
@@ -102,16 +108,28 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
         boolean enabled = isServerEnabled();
         if (a == PLUGIN_UNAVAILABLE) {
             installHyperlink.setVisible(enabled);
+
+            serverStatusLabel.setVisible(enabled);
+            serverStatusLabel.setText("MCP Server plugin not installed");
+            serverStatusLabel.setIcon(Icons.COMMON_STATUS_ERROR);
         } else if (a == SERVER_DISABLED) {
             configHyperlink.setVisible(enabled);
-            configHyperlink.setHyperlinkText("Enable MCP Server");
+            configHyperlink.setHyperlinkText("Enable");
+
+            serverStatusLabel.setVisible(enabled);
+            serverStatusLabel.setText("MCP Server not enabled");
+            serverStatusLabel.setIcon(Icons.COMMON_STATUS_ERROR);
         } else if (a == SERVER_ENABLED) {
             configHyperlink.setVisible(enabled);
-            configHyperlink.setHyperlinkText("IDE MCP Server configuration");
+            configHyperlink.setHyperlinkText("Configure");
+
+            serverStatusLabel.setVisible(enabled);
+            serverStatusLabel.setText("MCP Server active");
+            serverStatusLabel.setIcon(Icons.COMMON_STATUS_SUCCESS);
         }
     }
 
-    private static IdeMcpServerAvailability evaluateMcpServerAvailability() {
+    private IdeMcpServerAvailability evaluateMcpServerAvailability() {
         IdeMcpServerManager serverManager = IdeMcpServerManager.getInstance();
         return serverManager.getMcpServerAvailability(true);
     }

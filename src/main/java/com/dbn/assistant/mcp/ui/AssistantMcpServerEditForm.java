@@ -20,7 +20,10 @@ import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerType;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.util.Strings;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,18 +39,24 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.TextFields.setEmptyText;
 import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
 public class AssistantMcpServerEditForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JBTextField nameTextField;
-    private JBTextField commandTextField;
-    private JBTextField urlTextField;
+    private JBTextField httpUrlTextField;
+    private JBTextField commandArgumentsTextField;
+    private TextFieldWithBrowseButton commandTextField;
     private DBNComboBox<AssistantMcpServerType> typeComboBox;
+    private JLabel httpUrlLabel;
     private JLabel commandLabel;
-    private JLabel urlLabel;
+    private JLabel commandArgumentsLabel;
+    private DBNCommentLabel commandPreviewLabel;
 
 
     private final AssistantMcpServer mcpServer;
@@ -57,10 +66,17 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
         this.mcpServer = parent.getMcpServer();
 
         initComboBox(typeComboBox, AssistantMcpServerType.values());
-        resetFormChanges();
-        urlTextField.getEmptyText().setText("http://localhost:3001/mcp-server");
-        commandTextField.getEmptyText().setText("java -jar mcp-server.jar");
 
+        setEmptyText(httpUrlTextField, "http://localhost:3001/mcp-server");
+        setEmptyText(commandTextField.getTextField(), "java");
+        setEmptyText(commandArgumentsTextField, "-jar mcp-server.jar");
+
+        onTextChange(commandTextField, e -> updateCommandPreview());
+        onTextChange(commandArgumentsTextField, e -> updateCommandPreview());
+        addSingleFileChooser(getProject(), commandTextField, "Select MCP Server executable", null);
+
+        resetFormChanges();
+        updateCommandPreview();
         updateFieldAvailability();
 
         // listeners
@@ -69,9 +85,28 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
 
     protected void initFieldAvailability() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
-        fieldAdapter.initFieldsVisibility(() -> getSelectedServerType() == HTTP, array(urlLabel, urlTextField));
-        fieldAdapter.initFieldsVisibility(() -> getSelectedServerType() == STDIO, array(commandLabel, commandTextField));
+        fieldAdapter.initFieldsVisibility(() -> getSelectedServerType() == HTTP, array(httpUrlLabel, httpUrlTextField));
+        fieldAdapter.initFieldsVisibility(() -> getSelectedServerType() == STDIO, array(
+                commandLabel,
+                commandTextField,
+                commandArgumentsLabel,
+                commandArgumentsTextField,
+                commandPreviewLabel));
     }
+
+    private void updateCommandPreview() {
+        String command = getText(commandTextField);
+        String arguments = getText(commandArgumentsTextField);
+        String commandPreview;
+        if (Strings.isEmptyOrSpaces(command) && Strings.isEmptyOrSpaces(arguments)) {
+            commandPreview = "[command preview]";
+        } else {
+            commandPreview = command + " " + arguments;
+        }
+
+        commandPreviewLabel.setText(commandPreview);
+    }
+
 
     private AssistantMcpServerEditRequest getRequest() {
         AssistantMcpServerEditDialog dialog = ensureParentComponent();
@@ -82,8 +117,8 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
     protected void initValidation() {
         addTextValidation(nameTextField, n -> isNotEmpty(n), "Please provide a server name");
         addTextValidation(nameTextField, n -> isNotUsed(n), "The server name is already in use");
-        addTextValidation(urlTextField, s -> isNotEmpty(s), "Please provide the server URL");
-        addTextValidation(commandTextField, s -> isNotEmpty(s), "Please provide the server command");
+        addTextValidation(httpUrlTextField, s -> isNotEmpty(s), "Please provide the server URL");
+        addTextValidation(commandTextField.getTextField(), s -> isNotEmpty(s), "Please provide the server command executable");
     }
 
     @Nullable
@@ -98,14 +133,16 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
     public void applyFormChanges(AssistantMcpServer mcpServer) {
         mcpServer.setName(getText(nameTextField));
         mcpServer.setCommand(getText(commandTextField));
-        mcpServer.setUrl(getText(urlTextField));
+        mcpServer.setCommandArguments(getText(commandArgumentsTextField));
+        mcpServer.setUrl(getText(httpUrlTextField));
         mcpServer.setType(getSelectedServerType());
     }
 
     public void resetFormChanges() {
         setText(nameTextField, mcpServer.getName());
         setText(commandTextField, mcpServer.getCommand());
-        setText(urlTextField, mcpServer.getUrl());
+        setText(commandArgumentsTextField, mcpServer.getCommandArguments());
+        setText(httpUrlTextField, mcpServer.getUrl());
         setSelection(typeComboBox, mcpServer.getType());
     }
 

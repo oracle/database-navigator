@@ -30,7 +30,6 @@ import dev.langchain4j.service.tool.ToolProvider;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -52,7 +51,7 @@ public class AssistantMcpToolProviders {
     private static StdioMcpTransport createStdioMcpTransport(AssistantMcpServer mcpServer) {
         return StdioMcpTransport
                 .builder()
-                .command(Arrays.stream(mcpServer.getCommand().split(" ")).toList())
+                .command(mcpServer.getCommandTokens())
                 .build();
     }
 

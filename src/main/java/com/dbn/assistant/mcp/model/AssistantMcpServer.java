@@ -20,13 +20,17 @@ import com.dbn.common.EntityId;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
+import com.dbn.common.util.Strings;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.constantAttribute;
@@ -51,6 +55,7 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     private String key;
     private String url;
     private String command;
+    private String commandArguments;
 
     public AssistantMcpServer(EntityId id) {
         this.id = id;
@@ -63,8 +68,17 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     public String getEndpoint() {
         return switch (type) {
             case HTTP -> url;
-            case STDIO -> command;
+            case STDIO -> command + " " + commandArguments;
         };
+    }
+
+    public List<String> getCommandTokens() {
+        if (Strings.isEmpty(command)) return Collections.emptyList();
+
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add(command);
+        tokens.addAll(List.of(commandArguments.split("\\s+")));
+        return tokens;
     }
 
     private static synchronized String registerKey(String serverKey) {
@@ -109,6 +123,7 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
         key = stringAttribute(element, "key");
         url = stringAttribute(element, "url");
         command = stringAttribute(element, "command");
+        commandArguments = stringAttribute(element, "command-arguments");
     }
 
     @Override
@@ -120,6 +135,7 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
         setStringAttribute(element, "key", key);
         setStringAttribute(element, "url", url);
         setStringAttribute(element, "command", command);
+        setStringAttribute(element, "command-arguments", commandArguments);
     }
 
     @Override

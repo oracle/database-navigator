@@ -40,6 +40,7 @@ import static com.dbn.assistant.mcp.ide.IdeMcpServerAvailability.SERVER_ENABLED;
 import static com.dbn.assistant.mcp.model.AssistantMcpServer.IDE_MCP_SERVER_ID;
 import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.component.Components.applicationService;
+import static com.dbn.common.util.Unsafe.silent;
 import static com.intellij.ide.plugins.PluginManagerCore.isDisabled;
 import static com.intellij.ide.plugins.PluginManagerCore.isLoaded;
 
@@ -120,13 +121,19 @@ public class IdeMcpServerManager extends ApplicationComponentBase {
     }
 
     @Nullable
-    @SneakyThrows
     private Object getMcpServerState() {
-        ClassLoader pluginClassLoader = getPluginClassLoader();
-        Class<?> settingsClass = Class.forName("com.intellij.mcpserver.settings.McpServerSettings", false, pluginClassLoader);
+        Class<?> settingsClass = getMcpServerSettingsClass();
+        if (settingsClass == null) return null;
 
         Object settings = invokeMethod(settingsClass, "getInstance");
         return invokeMethod(settings, "getState");
+    }
+
+    @Nullable
+    private static Class<?> getMcpServerSettingsClass() {
+        String className = "com.intellij.mcpserver.settings.McpServerSettings";
+        ClassLoader classLoader = getPluginClassLoader();
+        return silent(null, () -> Class.forName(className, false, classLoader));
     }
 
     public AssistantMcpServer getIdeMcpServer() {
