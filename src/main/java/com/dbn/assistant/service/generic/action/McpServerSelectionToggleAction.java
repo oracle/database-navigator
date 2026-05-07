@@ -43,7 +43,7 @@ public class McpServerSelectionToggleAction extends ToggleAction implements Assi
 
         Icon icon = isSelected(e) ? ACTION_CHECK : null;
         String text = mcpServer.getName();
-        String description = mcpServer.getEndpoint();
+        String description = "<strong>" + mcpServer.getName() + "</strong><br>" + mcpServer.getEndpoint();
 
         presentation.setIcon(icon);
         presentation.setText(text);

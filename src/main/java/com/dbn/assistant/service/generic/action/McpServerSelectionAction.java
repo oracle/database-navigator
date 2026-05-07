@@ -51,6 +51,12 @@ public class McpServerSelectionAction extends ComboBoxAction implements Assistan
         if (assistantState == null) return actionGroup;
 
         AssistantMcpServerBundle mcpServers = getMcpServers(assistantState);
+        AssistantMcpServer ideMcpServer = mcpServers.getIdeMcpServer();
+        if (ideMcpServer != null) {
+            actionGroup.add(new McpServerSelectionToggleAction(ideMcpServer));
+            actionGroup.addSeparator();
+        }
+
         for (AssistantMcpServer mcpServer : mcpServers.getElements()) {
             actionGroup.add(new McpServerSelectionToggleAction(mcpServer));
         }
@@ -81,9 +87,8 @@ public class McpServerSelectionAction extends ComboBoxAction implements Assistan
         AssistantState assistantState = getAssistantState(e);
         if (assistantState == null) return "MCP Servers";
 
-
         AssistantMcpServerBundle mcpServers = getMcpServers(assistantState);
-        int available = mcpServers.getElements().size();
+        int available = mcpServers.size();
         int selected = assistantState.getMcpServerState().countSelected();
 
         return "MCP Servers (" + selected + "/" + available + ")";

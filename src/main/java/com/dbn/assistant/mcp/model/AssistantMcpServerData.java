@@ -43,6 +43,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 import static com.dbn.assistant.mcp.AssistantMcpToolProviders.createToolProvider;
+import static com.dbn.assistant.mcp.ide.IdeMcpServerManager.isConflictingIdeTool;
 import static com.dbn.common.exception.Exceptions.sneakyThrow;
 import static dev.langchain4j.data.message.UserMessage.userMessage;
 import static java.util.Collections.emptyList;
@@ -105,6 +106,12 @@ public class AssistantMcpServerData extends ProjectUnit implements PersistentSta
         ArrayList<AssistantMcpToolInfo> toolInfos = new ArrayList<>();
         List<ToolSpecification> specifications = result.tools().keySet().stream().sorted(Comparator.comparing(t -> t.name())).toList();
         for (ToolSpecification specification : specifications) {
+            if (mcpServer.isIdeMcpServer()) {
+                // filter out database related tools for IDE MCP server
+                String utilityName = mcpServer.unqualifiedUtilityName(specification.name());
+                if (isConflictingIdeTool(utilityName)) continue;
+            }
+
             AssistantMcpToolInfo toolInfo = createToolInfo(mcpServer, specification);
             toolInfos.add(toolInfo);
         }

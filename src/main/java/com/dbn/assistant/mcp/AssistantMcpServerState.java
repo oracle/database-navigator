@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +43,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 import static com.dbn.assistant.mcp.AssistantMcpToolProviders.createToolProvider;
+import static com.dbn.assistant.mcp.ide.IdeMcpServerManager.isConflictingIdeTool;
 import static com.dbn.common.action.UserDataKeys.ASSISTANT_MCP_SERVER_STATE;
 import static com.dbn.common.action.UserDataKeys.getUserDataSync;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
@@ -111,7 +113,7 @@ public class AssistantMcpServerState extends AssistantStateExtension implements 
 
     public List<ToolProvider> createToolProviders(BiConsumer<String, Throwable> errorHandler) {
         Function<ToolExecutor, ToolExecutor> executor = e -> createInterceptedExecutor(e);
-        BiPredicate<McpClient, ToolSpecification> filter = (mcpClient, toolSpecification) -> true; // TODO approval filter
+        BiPredicate<McpClient, ToolSpecification> filter = (c, t) -> isMcpToolAvailable(c, t);
 
         return getSelectedMcpServers()
                 .stream()
@@ -120,10 +122,40 @@ public class AssistantMcpServerState extends AssistantStateExtension implements 
                 .toList();
     }
 
+    private boolean isMcpToolAvailable(McpClient client, ToolSpecification specification) {
+        Project project = getProject();
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+        AssistantMcpServerSettings serverSettings = assistantSettings.getMcpServerSettings();
+        AssistantMcpServerBundle mcpServers = serverSettings.getMcpServers();
+
+        AssistantMcpServer mcpServer = mcpServers.getMcpServer(client.key());
+        if (mcpServer == null) return false;
+
+        EntityId serverId = mcpServer.getId();
+        String toolName = specification.name();
+        if (mcpServer.isIdeMcpServer()) {
+            if (isConflictingIdeTool(toolName)) return false;
+        }
+
+        AssistantMcpToolApprovals toolApprovals = serverSettings.getMcpToolApprovals();
+        if (toolApprovals.isBlocked(serverId, toolName)) return false;
+
+        return true;
+    }
+
     public List<AssistantMcpServer> getSelectedMcpServers() {
         AssistantMcpServerSettings mcpServerSettings = getMcpServerSettings();
-        AssistantMcpServerBundle mcpServers = mcpServerSettings.getMcpServers();
-        return filter(mcpServers.getElements(), e -> isSelected(e.getId()));
+        AssistantMcpServerBundle mcpServerBundle = mcpServerSettings.getMcpServers();
+
+        List<AssistantMcpServer> mcpServers = mcpServerBundle.getElements();
+        List<AssistantMcpServer> selectedMcpServers = filter(mcpServers, e -> isSelected(e.getId()));
+
+        AssistantMcpServer ideMcpServer = mcpServerBundle.getIdeMcpServer();
+        if (ideMcpServer != null && isSelected(ideMcpServer.getId())) {
+            selectedMcpServers = new ArrayList<>(selectedMcpServers);
+            selectedMcpServers.add(0, ideMcpServer);
+        }
+        return selectedMcpServers;
     }
 
     @Override

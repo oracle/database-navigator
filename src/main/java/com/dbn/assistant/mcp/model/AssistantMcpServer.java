@@ -26,18 +26,25 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class AssistantMcpServer implements PersistentConfiguration, Presentable, Cloneable<AssistantMcpServer> {
+    public static final EntityId IDE_MCP_SERVER_ID = EntityId.get("ide-mcp-server-id");
+    private static final Set<String> serverKeyStore = new HashSet<>();
+
     private AssistantMcpServerType type = AssistantMcpServerType.HTTP;
     private EntityId id;
     private String name;
@@ -47,6 +54,10 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
 
     public AssistantMcpServer(EntityId id) {
         this.id = id;
+        if (id.equals(IDE_MCP_SERVER_ID)) {
+            this.key = "ide_mcp";
+            serverKeyStore.add(this.key);
+        }
     }
 
     public String getEndpoint() {
@@ -56,11 +67,22 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
         };
     }
 
-    public void setName(String name) {
-        this.name = name;
-        this.key = name.trim().toLowerCase()
-                .replaceAll("[^a-z0-9]", "_")
-                .replaceAll("_+", "_");
+    private static synchronized String registerKey(String serverKey) {
+        if (serverKeyStore.contains(serverKey)) return serverKey;
+
+        if (serverKey != null && serverKey.matches("usr_mcp[0-9]+")) {
+            serverKeyStore.add(serverKey);
+            return serverKey;
+        }
+
+        serverKey = nextNumberedIdentifier("usr_mcp0", false, () -> serverKeyStore);
+        serverKeyStore.add(serverKey);
+        return serverKey;
+    }
+
+    public String getKey() {
+        key = registerKey(key);
+        return key;
     }
 
     public boolean matchesUtilityName(String utilityName) {
@@ -87,7 +109,6 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
         key = stringAttribute(element, "key");
         url = stringAttribute(element, "url");
         command = stringAttribute(element, "command");
-
     }
 
     @Override
@@ -105,5 +126,9 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     @SneakyThrows
     public AssistantMcpServer clone() {
         return cast(super.clone());
+    }
+
+    public boolean isIdeMcpServer() {
+        return id.equals(IDE_MCP_SERVER_ID);
     }
 }

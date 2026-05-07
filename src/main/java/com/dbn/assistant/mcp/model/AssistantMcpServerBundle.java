@@ -16,6 +16,9 @@
 
 package com.dbn.assistant.mcp.model;
 
+import com.dbn.assistant.mcp.AssistantMcpServerSettings;
+import com.dbn.assistant.mcp.ide.IdeMcpServerManager;
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.EntityId;
 import com.dbn.common.component.ProjectUnit;
 import com.dbn.common.sign.Signed;
@@ -25,10 +28,11 @@ import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 import static com.dbn.common.util.CollectionUtil.cloneElements;
 import static com.dbn.common.util.Lists.first;
@@ -64,16 +68,24 @@ public class AssistantMcpServerBundle extends ProjectUnit implements Signed {
     }
 
     public int size() {
-        return elements.size();
-    }
-
-    @Nullable
-    public AssistantMcpServer getMcpServer(EntityId id) {
-        return first(elements, c -> c.getId().equals(id));
+        int size = elements.size();
+        if (getIdeMcpServer() != null) size++;
+        return size;
     }
 
     public Set<EntityId> getMcpServerIds() {
-        return elements.stream().map(s -> s.getId()).collect(Collectors.toSet());
+        Set<EntityId> serverIds = new HashSet<>();
+        for (AssistantMcpServer s : elements) {
+            EntityId serverId = s.getId();
+            serverIds.add(serverId);
+        }
+        AssistantMcpServer ideMcpServer = getIdeMcpServer();
+        if (ideMcpServer != null) {
+            EntityId serverId = ideMcpServer.getId();
+            serverIds.add(serverId);
+        }
+
+        return serverIds;
     }
 
     @Override
@@ -82,7 +94,43 @@ public class AssistantMcpServerBundle extends ProjectUnit implements Signed {
     }
 
     @Nullable
+    public AssistantMcpServer getMcpServer(EntityId id) {
+        return resolveMcpServer(s -> s.getId().equals(id));
+    }
+
+    @Nullable
+    public AssistantMcpServer getMcpServer(String key) {
+        return resolveMcpServer(s -> s.getKey().equals(key));
+    }
+
+    @Nullable
     public AssistantMcpServer resolveMcpServer(String utilityName) {
-        return first(elements, s -> s.matchesUtilityName(utilityName));
+        return resolveMcpServer(s -> s.matchesUtilityName(utilityName));
+    }
+
+    @Nullable
+    private AssistantMcpServer resolveMcpServer(Predicate<AssistantMcpServer> predicate) {
+        AssistantMcpServer mcpServer = first(elements, predicate);
+        if (mcpServer != null) return mcpServer;
+
+        AssistantMcpServer ideMcpServer = getIdeMcpServer();
+        if (ideMcpServer == null) return null;
+        if (predicate.test(ideMcpServer)) return ideMcpServer;
+
+        return null;
+    }
+
+
+    @Nullable
+    public AssistantMcpServer getIdeMcpServer() {
+        Project project = getProject();
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+
+        AssistantMcpServerSettings mcpServerSettings = assistantSettings.getMcpServerSettings();
+        if (mcpServerSettings.isWorkspaceIntegration()) {
+            IdeMcpServerManager ideMcpServerManager = IdeMcpServerManager.getInstance();
+            return ideMcpServerManager.getIdeMcpServer();
+        }
+        return null;
     }
 }

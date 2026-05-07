@@ -16,6 +16,9 @@
 
 package com.dbn.assistant.mcp;
 
+import com.dbn.assistant.mcp.model.AssistantMcpServer;
+import com.dbn.assistant.mcp.model.AssistantMcpServerBundle;
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalException;
@@ -27,12 +30,14 @@ import com.dbn.assistant.tool.execution.AssistantToolInvocationMonitor;
 import com.dbn.assistant.tool.execution.AssistantToolRequest;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
+import com.dbn.common.util.Json;
 import com.intellij.openapi.project.Project;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.service.tool.ToolExecutor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Map;
 import java.util.concurrent.CancellationException;
 
 import static com.dbn.assistant.tool.event.AssistantToolStatus.CANCELLED;
@@ -61,8 +66,7 @@ public class AssistantMcpServerToolInterceptor extends AssistantStateExtension {
         AssistantToolInvocation invocation = AssistantToolInvocation.current();
         if (invocation == null) return null;
 
-        //AssistantToolRequest request = invocation.getRequest();
-
+        ToolExecutionRequest enhancedRequest = enhanceRequestContext(request);
 
         Project project = getProject();
         try {
@@ -75,7 +79,7 @@ public class AssistantMcpServerToolInterceptor extends AssistantStateExtension {
 
             // start execution
             handleEvent(project, invocation, EXECUTING, null);
-            String result = monitor.executeTool(() -> executor.execute(request, memoryId));
+            String result = monitor.executeTool(() -> executor.execute(enhancedRequest, memoryId));
 
             // confirm execution
             handleEvent(project, invocation, COMPLETED, null);
@@ -91,6 +95,46 @@ public class AssistantMcpServerToolInterceptor extends AssistantStateExtension {
             handleEvent(project, invocation, FAILED, exception);
             throw exception;
         }
+    }
+
+    /**
+     * Enhances the provided {@link ToolExecutionRequest} by updating its context with additional information
+     * derived from the current project and associated MCP server configuration.
+     *
+     * @param request the original {@link ToolExecutionRequest} to be enhanced.
+     * @return a new {@link ToolExecutionRequest} instance with updated context, or the original request
+     *         if no enhancements are applicable.
+     */
+    private ToolExecutionRequest enhanceRequestContext(ToolExecutionRequest request) {
+        Project project = getProject();
+
+        AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
+        AssistantMcpServerBundle mcpServers = assistantSettings.getMcpServerSettings().getMcpServers();
+        AssistantMcpServer mcpServer = mcpServers.resolveMcpServer(request.name());
+        if (mcpServer == null) return request;
+        if (!mcpServer.isIdeMcpServer()) return request;
+
+        String argumentsString = request.arguments();
+        Map<String, Object> arguments = Json.readAsMap(argumentsString);
+
+        // check if project path argument is required
+        Object projectPathArgument = arguments.get("projectPath");
+        if (projectPathArgument == null) return request;
+
+        // check if project path argument is matching the current project path
+        String projectPath = project.getBasePath();
+        if (projectPathArgument.toString().equals(projectPath)) return request;
+
+        arguments.put("projectPath", projectPath);
+        argumentsString = Json.writeAsString(arguments);
+
+        request = ToolExecutionRequest
+                .builder()
+                .id(request.id())
+                .name(request.name())
+                .arguments(argumentsString)
+                .build();
+        return request;
     }
 
     public static void handleEvent(Project project, AssistantToolInvocation invocation, AssistantToolStatus status, Throwable exception) {
