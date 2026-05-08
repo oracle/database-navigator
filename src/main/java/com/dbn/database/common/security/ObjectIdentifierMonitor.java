@@ -16,13 +16,13 @@
 
 package com.dbn.database.common.security;
 
+import com.dbn.common.exception.Exceptions;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.security.DatabaseIdentifierCache;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.function.Function;
@@ -76,9 +76,9 @@ public class ObjectIdentifierMonitor<T> implements InvocationHandler {
         try {
             Object result = method.invoke(target, args);
             return registerIdentifier(method, result);
-        } catch (InvocationTargetException e) {
+        } catch (Throwable e) {
             // unwrap InvocationTargetException produced by the proxy
-            throw e.getTargetException();
+            throw Exceptions.unwrap(e);
         }
     }
 

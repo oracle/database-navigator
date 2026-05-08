@@ -78,17 +78,22 @@ public class Actions {
 
     public static ActionToolbar createActionToolbar(@NotNull JComponent component, boolean horizontal, AnAction... actions){
         ActionManager actionManager = ActionManager.getInstance();
+        ActionGroup actionGroup = createActionGroup(actions);
+
+        ActionToolbar toolbar = actionManager.createActionToolbar(TOOLBAR, actionGroup, horizontal);
+        linkActionToolbar(component, toolbar);
+        markImportantToolbar(toolbar);
+        return toolbar;
+    }
+
+    public static ActionGroup createActionGroup(AnAction... actions) {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         for (AnAction action : actions) {
             if (action == SEPARATOR)
                 actionGroup.addSeparator(); else
                 actionGroup.add(action);
         }
-
-        ActionToolbar toolbar = actionManager.createActionToolbar(TOOLBAR, actionGroup, horizontal);
-        linkActionToolbar(component, toolbar);
-        markImportantToolbar(toolbar);
-        return toolbar;
+        return actionGroup;
     }
 
     private static void linkActionToolbar(@NotNull JComponent component, ActionToolbar toolbar) {

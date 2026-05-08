@@ -118,7 +118,7 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
 
     @Override
     protected HelpTopic getHelpTopic() {
-        return getForm().getConfiguration().getConfigHelpTopic();
+        return getForm().getSelectedConfiguration().getConfigHelpTopic();
     }
 
     @Override
@@ -199,15 +199,15 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
 
     public void selectConnectionSettings(@Nullable ConnectionId connectionId) {
         ProjectSettingsForm settingsEditor = projectSettings.getSettingsEditor();
-        if (settingsEditor != null) {
-            settingsEditor.selectConnectionSettings(connectionId);
-        }
+        if (settingsEditor == null) return;
+
+        settingsEditor.selectConnectionSettings(connectionId);
     }
 
     public void selectSettings(ConfigId configId) {
         ProjectSettingsForm globalSettingsEditor = projectSettings.getSettingsEditor();
-        if (globalSettingsEditor != null) {
-            globalSettingsEditor.selectSettingsEditor(configId);
-        }
+        if (globalSettingsEditor == null) return;
+
+        globalSettingsEditor.selectSettingsEditor(configId);
     }
 }

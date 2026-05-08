@@ -54,7 +54,7 @@ public class ChatHistoryDropdownAction extends BasicActionGroup implements DumbA
                 forEach(c -> actionList.add(new ChatSelectAction(c)));
 
         if (!chats.isEmpty()) {
-            actionList.add(Separator.create());
+            actionList.add(Separator.getInstance());
             actionList.add(new ChatHistoryShowAllAction(chats));
         }
 

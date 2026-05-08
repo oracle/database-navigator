@@ -33,6 +33,7 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.lang.Language;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -50,6 +51,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.util.Objects;
 
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.language.common.psi.PsiUtil.getFileManager;
@@ -125,6 +127,16 @@ public class AssistantToolDataForm extends DBNFormBase {
             responseDataPanel.add(responseTextPane);
         }
     }
+
+    public void updateResponse() {
+        DocumentEx responseDocument = responseViewer.getDocument();
+        String responseText = responseDocument.getText();
+        String responseContent = invocation.getResponseContent();
+        if (Objects.equals(responseText, responseContent)) return;
+
+        Documents.setText(responseDocument, responseContent);
+    }
+
 
     @Override
     protected JComponent getMainComponent() {

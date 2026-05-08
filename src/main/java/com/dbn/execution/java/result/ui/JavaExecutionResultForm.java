@@ -21,9 +21,10 @@ import com.dbn.common.data.Data;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNForm;
-import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.common.ui.tab.DBNTabs;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.ClientProperty;
+import com.dbn.common.ui.util.TabbedPanes;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Strings;
@@ -44,6 +45,7 @@ import com.dbn.object.DBJavaParameter;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,13 +53,15 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTree;
-import java.awt.BorderLayout;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 import static com.dbn.common.util.Commons.nvl;
 
 public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecutionResult> {
@@ -66,13 +70,15 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
     private JPanel statusPanel;
     private JLabel connectionLabel;
     private JLabel durationLabel;
-    private JPanel outputCursorsPanel;
+    private JBTabbedPane outputTabs;
+
     private JTree argumentValuesTree;
     private JPanel argumentValuesPanel;
     private JPanel executionResultPanel;
     private JBScrollPane argumentValuesScrollPane;
+    private JSplitPane resultSplitPanel;
 
-    private final DBNTabbedPane<DBNForm> outputTabs;
+
 
 
     public JavaExecutionResultForm(@NotNull JavaExecutionResult executionResult) {
@@ -84,15 +90,12 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         argumentValuesScrollPane.setViewportView(argumentValuesTree);
 
 
-        outputTabs = new DBNTabbedPane<>(this);
         createActionsPanel();
         updateOutputTabs();
 
-        outputCursorsPanel.add(outputTabs, BorderLayout.CENTER);
-
         argumentValuesPanel.setBorder(Borders.lineBorder(JBColor.border(), 0, 1, 1, 0));
         updateStatusBarLabels();
-        executionResultPanel.setSize(800, -1);
+        setSplitPaneProportion(resultSplitPanel, 0.2);
         TreeUtil.expand(argumentValuesTree, 2);
     }
 
@@ -125,7 +128,7 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
     }
 
     private void updateOutputTabs() {
-        outputTabs.removeAllTabs();
+        TabbedPanes.removeAllTabs(outputTabs, true);
         JavaExecutionResult executionResult = getExecutionResult();
         addInputArgumentTabs(executionResult);
         addOutputArgumentTabs(executionResult);
@@ -222,7 +225,8 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
 
     void selectArgumentOutputTab(DBJavaParameter parameter) {
         for (int index = 0; index < outputTabs.getTabCount(); index++) {
-            DBNForm content = outputTabs.getContentAt(index);
+            Component component = outputTabs.getComponent(index);
+            DBNForm content = ClientProperty.FORM.get(component);
 
             if (content instanceof JavaExecutionResultDetailForm detailForm) {
                 if (Objects.equals(detailForm.getValuePath(), parameter.getName())) {

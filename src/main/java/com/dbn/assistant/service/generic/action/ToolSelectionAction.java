@@ -68,6 +68,7 @@ public class ToolSelectionAction extends ComboBoxAction implements AssistantActi
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e));
         presentation.setEnabled(isEnabled(e));
+        presentation.setDescription("Assistant tool selection");
     }
 
     private @ActionText String getText(@NotNull AnActionEvent e) {
