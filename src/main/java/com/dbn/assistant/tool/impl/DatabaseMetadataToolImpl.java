@@ -37,5 +37,4 @@ public class DatabaseMetadataToolImpl extends AssistantToolBase implements Datab
         return information;
 
     }
-
 }
