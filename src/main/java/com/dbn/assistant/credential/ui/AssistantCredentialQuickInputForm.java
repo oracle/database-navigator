@@ -25,9 +25,9 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.util.Chars;
+import com.dbn.common.util.Environment;
 import com.dbn.common.util.Strings;
 import com.dbn.oci.config.ui.OciConfigForm;
-import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import lombok.Getter;
@@ -81,8 +81,7 @@ public class AssistantCredentialQuickInputForm extends DBNFormBase {
 
     private void initHintPanel() {
         String providerName = provider.getName();
-        ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
-        String ideName = applicationInfo.getVersionName();
+        String ideName = Environment.getIdeName();
 
         boolean oci = provider.getId() == AIProviderId.OCI_GEN_AI;
         TextContent hintContent =

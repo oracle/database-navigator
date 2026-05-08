@@ -20,6 +20,7 @@ import com.dbn.assistant.chat.message.ChatMessageTextSection;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNForm;
 import com.intellij.lang.Language;
+import com.intellij.ui.BrowserHyperlinkListener;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
@@ -35,14 +36,22 @@ public class ChatMessageTextSectionForm extends ChatMessageSectionForm<ChatMessa
 
     public ChatMessageTextSectionForm(DBNForm parent, String content) {
         super(parent, null, c -> TextContent.plain(c));
+        initMessageTextPane();
+
         updateContent(content);
         whenSettingsChange(() -> rebuildContent());
     }
 
     public ChatMessageTextSectionForm(DBNForm parent, ChatMessageTextSection section, Function<String, TextContent> contentBuilder) {
         super(parent, section, contentBuilder);
+        initMessageTextPane();
+
         updateContent(section.getContent());
         whenSettingsChange(() -> rebuildContent());
+    }
+
+    private void initMessageTextPane() {
+        messageTextPane.addHyperlinkListener(BrowserHyperlinkListener.INSTANCE);
     }
 
     @Override

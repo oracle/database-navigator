@@ -46,7 +46,7 @@ public class CodeEditorConfirmationSettings extends BasicConfiguration<CodeEdito
             new InteractiveOptionBroker<>(
                     "exit-on-changes",
                     "Unsaved Changes",
-                    "You are about to close the editor for \"{0}\" and you have unsaved changes.\n\nPlease choose whether to save or discard the changes." + REMEMBER_OPTION_HINT,
+                    "You are about to close the editor for {0} and you have unsaved changes.\n\nPlease choose whether to save or discard the changes." + REMEMBER_OPTION_HINT,
                     CodeEditorChangesOption.ASK,
                     CodeEditorChangesOption.SAVE,
                     CodeEditorChangesOption.DISCARD,

@@ -26,6 +26,7 @@ import com.dbn.assistant.tool.AssistantToolCategory;
 import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -101,6 +102,7 @@ public class AssistantInstructionsCache extends AssistantStateExtension implemen
         textContent.initField("DATABASE_NAME", connection.getName());
 
         String userInstructions = getUserInstructions();
+        if (Strings.isEmpty(userInstructions)) userInstructions = "(none)";
 
         textContent.initField("USER_INSTRUCTIONS", userInstructions);
 

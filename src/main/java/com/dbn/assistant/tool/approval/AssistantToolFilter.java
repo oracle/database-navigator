@@ -34,7 +34,7 @@ public class AssistantToolFilter extends AssistantStateExtension implements Filt
     private AssistantToolApprovals getApprovals() {
         AssistantState assistantState = getAssistantState();
         AssistantToolSettings settings = assistantState.getToolSettings();
-        return settings.getApprovals();
+        return settings.getToolApprovals();
     }
 
     @Override

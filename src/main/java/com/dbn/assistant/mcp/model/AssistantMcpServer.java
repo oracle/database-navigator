@@ -14,45 +14,89 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.mcp;
+package com.dbn.assistant.mcp.model;
 
+import com.dbn.common.EntityId;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
-import com.dbn.common.util.UUIDs;
+import com.dbn.common.util.Strings;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.setConstantAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class AssistantMcpServer implements PersistentConfiguration, Presentable, Cloneable<AssistantMcpServer> {
-    private String id = UUIDs.regular();
+    public static final EntityId IDE_MCP_SERVER_ID = EntityId.get("ide-mcp-server-id");
+    private static final Set<String> serverKeyStore = new HashSet<>();
+
     private AssistantMcpServerType type = AssistantMcpServerType.HTTP;
+    private EntityId id;
     private String name;
     private String key;
     private String url;
     private String command;
+    private String commandArguments;
+
+    public AssistantMcpServer(EntityId id) {
+        this.id = id;
+        if (id.equals(IDE_MCP_SERVER_ID)) {
+            this.key = "ide_mcp";
+            serverKeyStore.add(this.key);
+        }
+    }
 
     public String getEndpoint() {
         return switch (type) {
             case HTTP -> url;
-            case STDIO -> command;
+            case STDIO -> command + " " + commandArguments;
         };
     }
 
-    public void setName(String name) {
-        this.name = name;
-        this.key = name.trim().toLowerCase()
-                .replaceAll("[^a-z0-9]", "_")
-                .replaceAll("_+", "_");
+    public List<String> getCommandTokens() {
+        if (Strings.isEmpty(command)) return Collections.emptyList();
+
+        ArrayList<String> tokens = new ArrayList<>();
+        tokens.add(command);
+        tokens.addAll(List.of(commandArguments.split("\\s+")));
+        return tokens;
+    }
+
+    private static synchronized String registerKey(String serverKey) {
+        if (serverKeyStore.contains(serverKey)) return serverKey;
+
+        if (serverKey != null && serverKey.matches("usr_mcp[0-9]+")) {
+            serverKeyStore.add(serverKey);
+            return serverKey;
+        }
+
+        serverKey = nextNumberedIdentifier("usr_mcp0", false, () -> serverKeyStore);
+        serverKeyStore.add(serverKey);
+        return serverKey;
+    }
+
+    public String getKey() {
+        key = registerKey(key);
+        return key;
     }
 
     public boolean matchesUtilityName(String utilityName) {
@@ -72,30 +116,35 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
 
     @Override
     public void readConfiguration(Element element) {
-        id = stringAttribute(element, "id", id);
+        id = constantAttribute(element, "id", EntityId.class);
 
         type = enumAttribute(element, "type", AssistantMcpServerType.class);
         name = stringAttribute(element, "name");
         key = stringAttribute(element, "key");
         url = stringAttribute(element, "url");
         command = stringAttribute(element, "command");
-
+        commandArguments = stringAttribute(element, "command-arguments");
     }
 
     @Override
     public void writeConfiguration(Element element) {
-        setStringAttribute(element, "id", id);
+        setConstantAttribute(element, "id", id);
 
         setEnumAttribute(element, "type", type);
         setStringAttribute(element, "name", name);
         setStringAttribute(element, "key", key);
         setStringAttribute(element, "url", url);
         setStringAttribute(element, "command", command);
+        setStringAttribute(element, "command-arguments", commandArguments);
     }
 
     @Override
     @SneakyThrows
     public AssistantMcpServer clone() {
         return cast(super.clone());
+    }
+
+    public boolean isIdeMcpServer() {
+        return id.equals(IDE_MCP_SERVER_ID);
     }
 }

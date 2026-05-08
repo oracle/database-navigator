@@ -67,6 +67,7 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
 
         initHeaderPanel();
         initHintPanel();
+        initObjectLabel();
 
         resetFormChanges();
     }
@@ -84,6 +85,11 @@ public class DBObjectSelectionForm<T extends DBObject> extends DBNFormBase {
             DBNHintForm hintForm = new DBNHintForm(this, hint, null, true);
             hintPanel.add(hintForm.getComponent());
         }
+    }
+
+    private void initObjectLabel() {
+        String objectTypeName = input.getObjectType().getTitleCasedName();
+        objectLabel.setText(objectTypeName);
     }
 
     public ConnectionHandler getConnection() {

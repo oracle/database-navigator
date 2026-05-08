@@ -15,19 +15,11 @@
           </grid>
         </constraints>
         <properties>
-          <dividerLocation value="198"/>
+          <dividerLocation value="177"/>
           <resizeWeight value="0.3"/>
         </properties>
         <border type="none"/>
         <children>
-          <grid id="e399" binding="sessionDetailsTabsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
-            <constraints>
-              <splitpane position="right"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children/>
-          </grid>
           <scrollpane id="fd33c" class="com.dbn.common.ui.misc.DBNScrollPane" binding="sessionDetailsTablePane">
             <constraints>
               <splitpane position="left"/>
@@ -36,6 +28,14 @@
             <border type="none"/>
             <children/>
           </scrollpane>
+          <tabbedpane id="1454f" class="com.intellij.ui.components.JBTabbedPane" binding="detailsTabbedPane">
+            <constraints>
+              <splitpane position="right"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children/>
+          </tabbedpane>
         </children>
       </splitpane>
     </children>
