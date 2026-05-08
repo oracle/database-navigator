@@ -36,13 +36,10 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class ExportScrambledSourcecodeAction extends ProjectAction {
-    public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFolder().
-            withTitle("Select Destination Directory").
-            withDescription("Select destination directory for the scrambled sources");
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        VirtualFile[] virtualFiles = FileChooser.chooseFiles(FILE_CHOOSER_DESCRIPTOR, project, null);
+        VirtualFile[] virtualFiles = FileChooser.chooseFiles(codeDestinationDirectory(), project, null);
         if (virtualFiles.length == 1) {
             Progress.modal(project, null, true,
                     txt("prc.diagnostics.title.ScramblingCode"),
@@ -53,6 +50,12 @@ public class ExportScrambledSourcecodeAction extends ProjectAction {
                         manager.scrambleProjectFiles(progress, new File(virtualFiles[0].getPath()));
                     });
         }
+    }
+
+    private @NotNull FileChooserDescriptor codeDestinationDirectory() {
+        return FileChoosers.singleFolder().
+                withTitle("Select Destination Directory").
+                withDescription("Select destination directory for the scrambled sources");
     }
 
     @Override

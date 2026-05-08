@@ -45,7 +45,7 @@ public class ToolSelectionToggleAction extends ToggleAction implements Assistant
 
         Icon icon = isSelected(e) ? ACTION_CHECK : null;
         String text = getToolName(toolType);
-        String description = getToolDescription(toolType);
+        String description = "<strong>" + getToolName(toolType) + "</strong><br><br>" + getToolDescription(toolType);
 
         presentation.setIcon(icon);
         presentation.setText(text);

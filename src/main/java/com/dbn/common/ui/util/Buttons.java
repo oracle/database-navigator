@@ -16,16 +16,41 @@
 
 package com.dbn.common.ui.util;
 
+import com.dbn.common.routine.Consumer;
+import com.dbn.common.thread.Dispatch;
+import com.intellij.ui.AnimatedIcon;
 import lombok.experimental.UtilityClass;
 
+import javax.swing.Icon;
 import javax.swing.JButton;
 import java.awt.event.ActionEvent;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @UtilityClass
 public class Buttons {
 
     public static void onButtonClick(JButton button, Consumer<ActionEvent> consumer) {
         button.addActionListener(e -> consumer.accept(e));
+    }
+
+    public static <T> void onButtonClickAsync(JButton button, Supplier<T> supplier, Consumer<T> consumer) {
+        button.addActionListener(e -> clickButtonAsync(button, supplier, consumer));
+    }
+
+    public static <T> void clickButtonAsync(JButton button, Supplier<T> supplier, Consumer<T> consumer) {
+        Supplier<T> interceptedSupplier = () -> {
+            button.setEnabled(false);
+
+            Icon originalIcon = button.getIcon();
+            button.setIcon(new AnimatedIcon.Default());
+
+            try {
+                return supplier.get();
+            } finally {
+                button.setIcon(originalIcon);
+                button.setEnabled(true);
+            }
+        };
+        Dispatch.async(button, interceptedSupplier, consumer);
     }
 }

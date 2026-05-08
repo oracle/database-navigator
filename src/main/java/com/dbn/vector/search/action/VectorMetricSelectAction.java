@@ -41,6 +41,11 @@ public class VectorMetricSelectAction extends SelectDropdownAction<DBVectorDista
     }
 
     @Override
+    protected String getDescription(DBVectorDistanceMetric element) {
+        return "<strong>" + element.getName() + "</strong><br><br>" + element.getDescription();
+    }
+
+    @Override
     protected DBVectorDistanceMetric getSelectedObject(AnActionEvent e) {
         VectorSearchConsole console = getConsole(e);
         if (console == null) return DBVectorDistanceMetric.COSINE;

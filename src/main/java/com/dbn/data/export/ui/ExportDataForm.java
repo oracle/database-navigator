@@ -171,7 +171,8 @@ public class ExportDataForm extends DBNFormBase {
 
         Project project = connection.getProject();
         addSingleFolderChooser(
-                project, fileLocationTextField,
+                project,
+                fileLocationTextField,
                 txt("msg.dataExport.title.SelectDirectory"),
                 txt("msg.dataExport.text.SelectDirectory"));
         enableDisableFields();

@@ -26,8 +26,11 @@
 
     </style>
 </head>
-<h3>Temperature options</h3>
+<body style="width: 300px">
+    <h3>Temperature options</h3>
     ${BODY_CONTENT}
+</body>
+
 </html>
 
 

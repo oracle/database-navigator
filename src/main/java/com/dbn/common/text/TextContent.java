@@ -131,6 +131,14 @@ public class TextContent {
         return new TextContent(text, MimeType.TEXT_HTML);
     }
 
+    public static TextContent tooltip(String bodyContent, String bodyStyle) {
+        TextContent content = html("<html><body style='${HTML_BODY_STYLE}; ${REGULAR_FONT_STYLE}'>${HTML_BODY_CONTENT}</body></html>");
+        content.initField("HTML_BODY_STYLE", bodyStyle);
+        content.initField("HTML_BODY_CONTENT", bodyContent);
+        content.rebuild();
+        return content;
+    }
+
     public static TextContent html(Object object, @NonNls String resourceName) {
         String info = TextResources.get(object, resourceName);
         return html(info);

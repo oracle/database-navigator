@@ -74,7 +74,7 @@ public class OciConfigForm extends DBNFormBase {
 
         initComboBox(configTypeComboBox, OciConfigType.values());
         addSingleFileChooser(getProject(), configFileTextField, "Select OCI configuration file", "");
-        addSingleFileChooser(getProject(), privateKeyFileTextField, "Select OCI configuration file", "").withFileFilter(extensionFilter("pem"));
+        addSingleFileChooser(getProject(), privateKeyFileTextField, "Select OCI private key file (.pem)", "").withFileFilter(extensionFilter("pem"));
 
         userIdTextField.getEmptyText().setText("ocid1.user.oc1..");
         tenancyIdTextField.getEmptyText().setText("ocid1.tenancy.oc1..");

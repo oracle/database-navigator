@@ -97,7 +97,7 @@ public class AssistantToolApprovalForm extends DBNFormBase {
     }
 
     public AssistantToolApprovals getToolApprovals() {
-        return settings.getApprovals();
+        return settings.getToolApprovals();
     }
 
     public AssistantToolCache getToolCache() {

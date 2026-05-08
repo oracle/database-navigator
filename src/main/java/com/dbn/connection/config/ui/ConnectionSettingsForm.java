@@ -23,7 +23,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.tab.DBNTabbedPane;
+import com.dbn.common.ui.util.TabbedPanes;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Safe;
@@ -43,6 +43,7 @@ import com.dbn.connection.config.ConnectionSshTunnelSettings;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.components.JBTabbedPane;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -59,11 +60,10 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<ConnectionSettings> {
     private JPanel mainPanel;
-    private JPanel contentPanel;
     private JPanel headerPanel;
     private JButton infoButton;
     private JButton testButton;
-    private DBNTabbedPane tabbedPane;
+    private JBTabbedPane tabbedPane;
     private DBNHeaderForm headerForm;
 
     public ConnectionSettingsForm(ConnectionSettings connectionSettings) {
@@ -81,10 +81,9 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
 
     private void initConfigTabs(ConnectionSettings connectionSettings) {
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
-        tabbedPane = new DBNTabbedPane(this);
-        tabbedPane.setTabComponentInsets(DBNTabbedPane.REGULAR_INSETS);
-        contentPanel.add(tabbedPane, BorderLayout.CENTER);
+        //tabbedPane.setTabComponentInsets(DBNTabbedPane.REGULAR_INSETS);
         tabbedPane.addTab(txt("cfg.connection.title.Database"), databaseSettings.createComponent());
+        tabbedPane.setTabLayoutPolicy(JBTabbedPane.SCROLL_TAB_LAYOUT);
 
         if (databaseSettings.getConfigType() == ConnectionConfigType.BASIC) {
             // TODO enable when ssl connectivity is implemented
@@ -215,11 +214,11 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     }
 
     public void selectTab(String tabName) {
-        Safe.run(tabbedPane, t -> t.selectTab(tabName));
+        Safe.run(tabbedPane, t -> TabbedPanes.selectTab(tabbedPane, tabName));
     }
 
     public String getSelectedTabName() {
-        return Safe.call(tabbedPane, t -> t.getSelectedTabTitle());
+        return Safe.call(tabbedPane, t -> t.getTitleAt(t.getSelectedIndex()));
     }
 
     @NotNull
