@@ -186,7 +186,10 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
     }
 
     public String getConnectionUrl(String host, String port) {
-        if (databaseInfo.isCustomUrl()) {
+        if (databaseInfo.isCustomUrl() &&
+                (!urlPattern.isValid(databaseInfo.getUrl()) ||
+                        Strings.isEmpty(databaseInfo.getHost()) ||
+                        Strings.isEmpty(databaseInfo.getPort()))) {
             return databaseInfo.getUrl();
         } else {
             return urlPattern.buildUrl(
