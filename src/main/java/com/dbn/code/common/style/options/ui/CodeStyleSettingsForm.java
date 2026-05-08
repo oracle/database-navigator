@@ -20,23 +20,20 @@ import com.dbn.code.common.style.options.ProjectCodeStyleSettings;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.Configuration;
 import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
-import com.dbn.common.ui.tab.DBNTabbedPane;
+import com.intellij.ui.components.JBTabbedPane;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 
 public class CodeStyleSettingsForm extends CompositeConfigurationEditorForm<ProjectCodeStyleSettings> {
     private JPanel mainPanel;
-    private final DBNTabbedPane languageTabs;
+    private JBTabbedPane languageTabs;
 
     public CodeStyleSettingsForm(ProjectCodeStyleSettings settings) {
         super(settings);
-        languageTabs = new DBNTabbedPane(this);
         //languageTabs.setAdjustBorders(false);
-        mainPanel.add(languageTabs, BorderLayout.CENTER);
         addSettingsPanel(settings.getSQLCodeStyleSettings(), Icons.FILE_SQL);
         addSettingsPanel(settings.getPSQLCodeStyleSettings(), Icons.FILE_PLSQL);
     }

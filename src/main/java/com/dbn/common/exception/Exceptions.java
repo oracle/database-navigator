@@ -20,6 +20,7 @@ import com.dbn.common.lookup.Visitor;
 import com.dbn.common.ui.tree.ExceptionTreeModel;
 import com.dbn.common.ui.tree.ExceptionTreeNode;
 import com.dbn.common.util.Adaptable;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -213,5 +214,10 @@ public class Exceptions {
         //...
 
         return throwable;
+    }
+
+    @SneakyThrows
+    public static Throwable sneakyThrow(Throwable exception) {
+        throw exception;
     }
 }

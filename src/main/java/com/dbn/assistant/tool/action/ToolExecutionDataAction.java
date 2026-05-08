@@ -27,10 +27,10 @@ import org.jetbrains.annotations.NotNull;
 public class ToolExecutionDataAction extends AssistantToolAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatMessageToolSectionForm foldableComponent = getToolSectionForm(e);
-        if (foldableComponent == null) return;
+        ChatMessageToolSectionForm toolSectionForm = getToolSectionForm(e);
+        if (toolSectionForm == null) return;
 
-        foldableComponent.toggleFolding();
+        toolSectionForm.toggleFolding();
     }
 
     @Override

@@ -43,6 +43,7 @@ import com.intellij.openapi.util.UserDataHolder;
 import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.wm.IdeFrame;
 import com.intellij.ui.AppIcon;
+import com.intellij.util.Consumer;
 import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
 import lombok.Setter;
@@ -265,6 +266,15 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
             @Override
             public void actionPerformed(ActionEvent e) {
                 runnable.run();
+            }
+        };
+    }
+
+    protected static Action createAction(@NotNull @Nls String name, @NotNull Consumer<JButton> consumer) {
+        return new AbstractAction(name) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                consumer.consume(e.getSource() instanceof JButton ? (JButton) e.getSource() : null);
             }
         };
     }

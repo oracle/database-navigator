@@ -26,7 +26,7 @@
 
     </style>
 </head>
-<body>
+<body style="width: 300px">
     <h3>Staging Location</h3>
     <p>
         File contents are uploaded into a staging table before their contents are chunked and embedded.

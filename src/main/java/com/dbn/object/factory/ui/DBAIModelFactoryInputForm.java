@@ -39,6 +39,7 @@ import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.FileChoosers.addFileChooser;
 import static com.dbn.common.util.FileChoosers.extensionFilter;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
@@ -51,11 +52,6 @@ import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
 
 public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIModelSpec> {
-    public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFile().
-            withTitle("Select ONNX Model File").
-            withDescription("Select a valid ONNX file").
-            withFileFilter(extensionFilter("onnx"));
-
     private JPanel mainPanel;
     private JPanel headerPanel;
     private DBNComboBox<ConnectionHandler> connectionComboBox;
@@ -84,7 +80,14 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
     }
 
     private void initModelFileBrowser() {
-        modelFileTextField.addBrowseFolderListener(null, null, getProject(), FILE_CHOOSER_DESCRIPTOR);
+        addFileChooser(getProject(), modelFileTextField, modelFileChooser());
+    }
+
+    private static FileChooserDescriptor modelFileChooser() {
+        return FileChoosers.singleFile().
+                withTitle("Select Model File").
+                withDescription("Select an ONNX model file (.onnx)").
+                withFileFilter(extensionFilter("onnx"));
     }
 
     private void initHeaderForm() {

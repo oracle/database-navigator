@@ -22,6 +22,7 @@ import com.dbn.common.util.Editors;
 import com.dbn.common.util.Strings;
 import com.dbn.execution.common.input.ExecutionValue;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
@@ -48,6 +49,22 @@ public class JavaExecutionCodeResultForm extends JavaExecutionResultDetailForm {
         Document document = Documents.createDocument(text);
 
         editor = Editors.createEditor(document, project, null, FileTypes.getJavaFileType());
+        Editors.updateEditorScrollPane(editor);
+
+        EditorSettings settings = editor.getSettings();
+        settings.setFoldingOutlineShown(false);
+        settings.setLineMarkerAreaShown(false);
+        settings.setCaretRowShown(false);
+        settings.setLineNumbersShown(false);
+        settings.setVirtualSpace(false);
+        settings.setDndEnabled(false);
+        settings.setAdditionalLinesCount(0);
+        settings.setRightMarginShown(false);
+        settings.setUseTabCharacter(false);
+        settings.setShowIntentionBulb(false);
+        settings.setGutterIconsShown(false);
+
+
         editor.getContentComponent().setFocusTraversalKeysEnabled(false);
 
         codeViewerPanel.add(editor.getComponent());
