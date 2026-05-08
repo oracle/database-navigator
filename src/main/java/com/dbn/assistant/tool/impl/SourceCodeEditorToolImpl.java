@@ -17,7 +17,7 @@
 package com.dbn.assistant.tool.impl;
 
 import com.dbn.assistant.tool.AssistantToolBase;
-import com.dbn.assistant.tool.spec.SourceCodeEditorTool;
+import com.dbn.assistant.tool.spec.ProgramSourceCodeEditorTool;
 import com.dbn.common.util.Commons;
 import com.dbn.object.DBFunction;
 import com.dbn.object.DBPackage;
@@ -29,7 +29,7 @@ import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 
-public class SourceCodeEditorToolImpl extends AssistantToolBase implements SourceCodeEditorTool {
+public class SourceCodeEditorToolImpl extends AssistantToolBase implements ProgramSourceCodeEditorTool {
 
     @Override
     public void openProgramCodeEditor(String schemaName, String programName, String programType) throws SQLException {

@@ -39,6 +39,7 @@ public class ChatModelInvoker extends AbstractModelInvoker<ChatModel>{
             initSystemMessage(builder, context);
             initInternalToolProvider(builder, context);
             initExternalToolProviders(builder, context);
+            initToolExecutionErrorHandler(builder, context);
 
             ChatModelAdapter adapter = builder.build();
 
