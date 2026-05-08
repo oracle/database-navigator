@@ -100,28 +100,28 @@ public class GroovyExpressionEvaluatorTest {
     public void fromSql_IN1() {
         testSqlToGroovy(
                 "COLUMN_NAME IN ('TEST1', 'TEST2', 'TEST3')",
-                "['TEST1', 'TEST2', 'TEST3'].contains(COLUMN_NAME)");
+                "COLUMN_NAME in ['TEST1', 'TEST2', 'TEST3']");
     }
 
     @Test
     public void fromSql_IN2() {
         testSqlToGroovy(
                 "COLUMN_SIZE IN (1, 4, 5)",
-                "[1, 4, 5].contains(COLUMN_SIZE)");
+                "COLUMN_SIZE in [1, 4, 5]");
     }
 
     @Test
     public void fromSql_IN3() {
         testSqlToGroovy(
                 "COLUMN_NAME IN ('TEST1', 'TEST2', 'TEST3') AND COLUMN_SIZE IN (1, 4, 5)",
-                "['TEST1', 'TEST2', 'TEST3'].contains(COLUMN_NAME) && [1, 4, 5].contains(COLUMN_SIZE)");
+                "COLUMN_NAME in ['TEST1', 'TEST2', 'TEST3'] && COLUMN_SIZE in [1, 4, 5]");
     }
 
     @Test
     public void fromSql_NOT_IN() {
         testSqlToGroovy(
                 "COLUMN_NAME NOT IN ('TEST1', 'TEST2', 'TEST3')",
-                "!['TEST1', 'TEST2', 'TEST3'].contains(COLUMN_NAME)");
+                "!(COLUMN_NAME in ['TEST1', 'TEST2', 'TEST3'])");
     }
 
 
