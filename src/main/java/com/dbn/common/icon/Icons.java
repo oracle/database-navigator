@@ -81,6 +81,7 @@ public class Icons {
     public static final Icon ACTION_MOVE_DOWN                 = load("/img/action/MoveDown.svg");
     public static final Icon ACTION_CONTENT_COLLAPSE          = load("/img/action/ContentFold.svg");
     public static final Icon ACTION_CONTENT_EXPAND            = load("/img/action/ContentUnfold.svg");
+    public static final Icon ACTION_CHECK_LIST                = load("/img/action/CheckList.svg");
     public static final Icon ACTION_DOWNLOAD                  = AllIcons.Actions.Download;
     public static final Icon ACTION_UPLOAD                    = AllIcons.Actions.Upload;
     public static final Icon ACTION_EDIT                      = AllIcons.Actions.EditSource; //load("/img/action/EditSource.svg");

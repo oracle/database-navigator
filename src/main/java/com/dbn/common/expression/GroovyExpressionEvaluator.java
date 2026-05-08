@@ -16,12 +16,11 @@
 
 package com.dbn.common.expression;
 
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import java.util.Objects;
 
 import static com.dbn.common.expression.SqlToGroovyExpressionConverter.cachedSqlToGroovy;
@@ -30,12 +29,6 @@ import static com.dbn.common.util.Unsafe.cast;
 
 @Slf4j
 public class GroovyExpressionEvaluator implements ExpressionEvaluator{
-    private final ScriptEngine scriptEngine;
-
-    public GroovyExpressionEvaluator() {
-        ScriptEngineManager manager = new ScriptEngineManager();
-        scriptEngine = manager.getEngineByName("Groovy");
-    }
 
     @Override
     public boolean verifyExpression(String expression, ExpressionEvaluatorContext context) {
@@ -71,8 +64,11 @@ public class GroovyExpressionEvaluator implements ExpressionEvaluator{
             context.setExpression(expression);
             context.setError(null);
 
-            ScriptContext scriptContext = context.createScriptContext();
-            Object result = scriptEngine.eval(expression, scriptContext);
+            Binding binding = new Binding();
+            context.getBindVariables().forEach((n, v) -> binding.setVariable(n, v));
+
+            GroovyShell shell = GroovySandboxFactory.createSandbox(binding);
+            Object result = shell.evaluate(expression);
 
             verifyResult(result, expectedOutcome);
             return cast(result);

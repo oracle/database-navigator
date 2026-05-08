@@ -19,16 +19,22 @@ package com.dbn.options.general.ui;
 import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.general.GeneralProjectSettings;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.Disposable;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+
+import static com.dbn.common.util.FileChoosers.nativeFileChoosers;
 
 public class GeneralProjectSettingsForm extends CompositeConfigurationEditorForm<GeneralProjectSettings> {
     private JPanel mainPanel;
     private JPanel localeSettingsPanel;
     private JPanel environmentSettingsPanel;
+    private JPanel environmentOptionsPanel;
+    private JCheckBox nativeFileChoosersCheckBox;
 
     public GeneralProjectSettingsForm(GeneralProjectSettings generalSettings, Disposable parent) {
         super(generalSettings, parent);
@@ -38,6 +44,18 @@ public class GeneralProjectSettingsForm extends CompositeConfigurationEditorForm
 
         localeSettingsPanel.add(generalSettings.getRegionalSettings().createComponent(), BorderLayout.CENTER);
         environmentSettingsPanel.add(generalSettings.getEnvironmentSettings().createComponent(), BorderLayout.CENTER);
+    }
+
+    @Override
+    public void resetFormChanges() {
+        super.resetFormChanges();
+        nativeFileChoosersCheckBox.setSelected(nativeFileChoosers);
+    }
+
+    @Override
+    public void applyFormChanges() throws ConfigurationException {
+        super.applyFormChanges();
+        nativeFileChoosers = nativeFileChoosersCheckBox.isSelected();
     }
 
     @NotNull

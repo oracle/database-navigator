@@ -23,6 +23,7 @@ import com.dbn.common.util.Strings;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.JBColor;
+import com.intellij.ui.components.JBTextField;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -147,5 +148,11 @@ public class TextFields {
         FIELD_ERROR.set(textComponent, error);
         textComponent.setForeground(error == null ? Colors.getTextFieldForeground() : JBColor.RED);
         textComponent.setToolTipText(error);
+    }
+
+    public static void setEmptyText(JTextField textField, String emptyText) {
+        if (textField instanceof JBTextField jbTextField) {
+            jbTextField.getEmptyText().setText(emptyText);
+        }
     }
 }

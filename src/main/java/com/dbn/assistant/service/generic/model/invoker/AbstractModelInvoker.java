@@ -16,9 +16,10 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
+import com.dbn.assistant.AssistantMode;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.chat.context.ChatContext;
-import com.dbn.assistant.mcp.AssistantMcpServerData;
+import com.dbn.assistant.mcp.AssistantMcpServerState;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIModelFeature;
 import com.dbn.assistant.service.generic.context.AssistantInstructionsCache;
@@ -65,7 +66,7 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
         if (!isFeatureSupported(assistantState, TOOLS)) return;
 
         var tools = AssistantToolCache.get(assistantState);
-        builder.toolProvider(tools);
+        builder.toolProvider(tools.getProvider());
     }
 
     protected static void initExternalToolProviders(AiServices<?> builder, ModelInvocationContext context) {
@@ -74,9 +75,12 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
         AssistantState assistantState = context.getAssistantState();
         if (!isFeatureSupported(assistantState, TOOLS)) return;
 
+        ChatContext currentContext = assistantState.getCurrentContext();
+        if (currentContext.getAssistantMode() == AssistantMode.RAG) return;
+
         AssistantResponseConsumer responseConsumer = context.getResponseConsumer();
-        AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(assistantState);
-        List<ToolProvider> tools = mcpServerData.createToolProviders((m, e) -> responseConsumer.acceptToolError(m, e));
+        AssistantMcpServerState mcpServerState = AssistantMcpServerState.get(assistantState);
+        List<ToolProvider> tools = mcpServerState.createToolProviders((m, e) -> responseConsumer.acceptToolError(m, e));
         builder.toolProviders(tools);
     }
 

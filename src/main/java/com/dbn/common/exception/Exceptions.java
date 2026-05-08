@@ -17,6 +17,7 @@
 package com.dbn.common.exception;
 
 import com.dbn.common.lookup.Visitor;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -157,5 +158,10 @@ public class Exceptions {
         //...
 
         return throwable;
+    }
+
+    @SneakyThrows
+    public static Throwable sneakyThrow(Throwable exception) {
+        throw exception;
     }
 }

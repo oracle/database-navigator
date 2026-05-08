@@ -231,10 +231,10 @@
 
     <statement-execution-processor id="extract-ddl-statement">
         <statement>
-            select TO_CHAR(DBMS_METADATA.GET_DDL(
+            select DBMS_METADATA.GET_DDL(
                             OBJECT_TYPE => {#0},
                             NAME        => {#2},
-                            SCHEMA      => {#1})) from dual
+                            SCHEMA      => {#1}) from dual
         </statement>
     </statement-execution-processor>
 </data-dictionary>

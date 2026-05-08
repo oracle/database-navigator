@@ -24,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom.Document;
 import org.jetbrains.annotations.NonNls;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -46,7 +45,7 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
     private final IElementType exception;
     private final IElementType dataType;
 
-    private static final Set<String> GENERIC_TOKENS = new HashSet<>(Arrays.asList("INTEGER", "NUMBER", "STRING", "OPERATOR", "KEYWORD", "FUNCTION", "VARIABLE", "PARAMETER", "EXCEPTION", "DATA_TYPE"));
+    public static final Set<String> GENERIC_TOKENS = Set.of("INTEGER", "NUMBER", "STRING", "OPERATOR", "KEYWORD", "FUNCTION", "VARIABLE", "PARAMETER", "EXCEPTION", "DATA_TYPE");
     private final Set<String> undefinedTokens = new HashSet<>();
 
     public TokenTypeBundle(DBLanguageDialect languageDialect, Document document) {
