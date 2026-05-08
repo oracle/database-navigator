@@ -64,7 +64,7 @@ public class SqlToGroovyExpressionConverter {
         while (m.find()) {
             String name = m.group(1);
             String patchedValue = m.group(2)
-                    .replaceAll("'", "")
+                    .replace("'", "")
                     .replaceAll("[%*]", ".*")
                     .replaceAll("\\$", quoteReplacement("[$]"));
             String value = "/(?i)" + patchedValue + "/";
@@ -83,7 +83,7 @@ public class SqlToGroovyExpressionConverter {
         while (m.find()) {
             String name = m.group(1);
             String patchedValue = m.group(2)
-                    .replaceAll("'", "")
+                    .replace("'", "")
                     .replaceAll("[%*]", ".*")
                     .replaceAll("\\$", quoteReplacement("[$]"));
             String value = "/(?i)" + patchedValue + "/";
@@ -102,7 +102,7 @@ public class SqlToGroovyExpressionConverter {
         while (m.find()) {
             String name = m.group(1);
             String values = m.group(2);
-            String transformed = String.format("![%s].contains(%s)", values, name);
+            String transformed = String.format("!(%s in [%s])", name, values);
             m.appendReplacement(result, transformed);
         }
         m.appendTail(result);
@@ -117,7 +117,7 @@ public class SqlToGroovyExpressionConverter {
         while (m.find()) {
             String name = m.group(1);
             String values = m.group(2);
-            String transformed = String.format("[%s].contains(%s)", values, name);
+            String transformed = String.format("%s in [%s]", name, values);
             m.appendReplacement(result, transformed);
         }
         m.appendTail(result);
