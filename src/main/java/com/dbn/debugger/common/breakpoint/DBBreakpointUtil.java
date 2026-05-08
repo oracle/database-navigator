@@ -40,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -62,7 +63,7 @@ public class DBBreakpointUtil {
     }
 
     @Nullable
-    public static VirtualFile getVirtualFile(@NotNull XLineBreakpoint breakpoint) {
+    public static VirtualFile getBreakpointFile(@NotNull XLineBreakpoint breakpoint) {
         VirtualFile breakpointFile = breakpoint.getUserData(BREAKPOINT_FILE);
         if (breakpointFile != null) return breakpointFile;
 
@@ -85,7 +86,7 @@ public class DBBreakpointUtil {
 
     @Nullable
     public static DBObjectRef getDatabaseObject(@NotNull XLineBreakpoint breakpoint) {
-        VirtualFile file = getVirtualFile(breakpoint);
+        VirtualFile file = getBreakpointFile(breakpoint);
         if (file instanceof DBEditableObjectVirtualFile objectFile) {
             return objectFile.getObjectRef();
         }
@@ -94,7 +95,7 @@ public class DBBreakpointUtil {
 
     public static DBContentType getContentType(@NotNull XLineBreakpoint breakpoint) {
         DBContentType contentType = DBContentType.CODE;
-        VirtualFile virtualFile = getVirtualFile(breakpoint);
+        VirtualFile virtualFile = getBreakpointFile(breakpoint);
         if (virtualFile instanceof DBSourceCodeVirtualFile sourceCodeFile) {
             contentType = sourceCodeFile.getContentType();
         }
@@ -119,7 +120,7 @@ public class DBBreakpointUtil {
     @NotNull
     public static String getBreakpointDesc(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint) {
         DBObjectRef object = getDatabaseObject(breakpoint);
-        VirtualFile virtualFile = getVirtualFile(breakpoint);
+        VirtualFile virtualFile = getBreakpointFile(breakpoint);
         int line = breakpoint.getLine() + 1;
         Integer breakpointId = getBreakpointId(breakpoint);
         String base = object == null ?
@@ -160,6 +161,23 @@ public class DBBreakpointUtil {
         return breakpoints;
     }
 
+    public static List<XLineBreakpoint> getAllLineBreakpoints(Project project) {
+        XBreakpoint<?>[] breakpoints = getAllBreakpoints(project);
+
+        return Arrays
+                .stream(breakpoints)
+                .filter(b -> b instanceof XLineBreakpoint<?>)
+                .map(b -> (XLineBreakpoint) b)
+                .toList();
+    }
+
+    public static XBreakpoint<?>[] getAllBreakpoints(Project project) {
+        XDebuggerManager debuggerManager = XDebuggerManager.getInstance(project);
+        XBreakpointManager breakpointManager = debuggerManager.getBreakpointManager();
+        return Read.call(() -> breakpointManager.getAllBreakpoints());
+    }
+
+
     @NotNull
     private static Collection<XLineBreakpoint<XBreakpointProperties>> getDatabaseBreakpoints(Project project) {
         DBBreakpointType breakpointType = DBBreakpointType.get();
@@ -169,9 +187,7 @@ public class DBBreakpointUtil {
 
     @NotNull
     private static Collection<XLineBreakpoint<XBreakpointProperties>> getJavaBreakpoints(Project project) {
-        XBreakpointManager breakpointManager = getBreakpointManager(project);
-
-        XBreakpoint<?>[] allBreakpoints = breakpointManager.getAllBreakpoints();
+        XBreakpoint<?>[] allBreakpoints = getAllBreakpoints(project);
         List<XLineBreakpoint<XBreakpointProperties>> javaBreakpoints = new ArrayList<>();
 
         for (XBreakpoint<?> breakpoint : allBreakpoints) {
