@@ -52,6 +52,7 @@ public class StreamingChatModelInvoker extends AbstractModelInvoker<StreamingCha
         initSystemMessage(builder, context);
         initInternalToolProvider(builder, context);
         initExternalToolProviders(builder, context);
+        initToolExecutionErrorHandler(builder, context);
 
         StreamingChatModelAdapter adapter = builder.build();
 

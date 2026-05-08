@@ -324,6 +324,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         return executeQuery(connection, "java-class-dependencies", ownerName, objectName);
     }
 
+    @Override
+    public String loadJavaVersion(DBNConnection connection) throws SQLException {
+        return getSingleValue(connection, "java-version");
+    }
+
     /*********************************************************
      *                        TYPES                          *
      *********************************************************/

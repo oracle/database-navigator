@@ -533,6 +533,11 @@
             where 1 = 2
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="java-version">
+        <statement>
+            select DBMS_JAVA.GET_JDK_VERSION as VERSION from DUAL
+        </statement>
+    </statement-execution-processor>
 
     <statement-execution-processor id="java-primitives">
         <statement prefixes="DBA, ALL">
