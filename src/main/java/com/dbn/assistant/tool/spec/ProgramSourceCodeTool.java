@@ -36,7 +36,7 @@ import static com.dbn.assistant.tool.AssistantToolType.PROGRAM_SOURCE_CODE;
     category = SOURCE_CODE_PROVIDER,
     type = PROGRAM_SOURCE_CODE,
     name = "Program source-code",
-    description = "Source code for program units (stored procedures, functions, packages, triggers, declared types)")
+    description = "Source code for database program units (stored procedures, functions, packages, triggers, declared types)")
 public interface ProgramSourceCodeTool extends AssistantTool {
 
     @FactorySpec(

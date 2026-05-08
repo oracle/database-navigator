@@ -40,6 +40,11 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import static com.dbn.assistant.tool.AssistantToolType.JAVA_METADATA;
+import static com.dbn.assistant.tool.AssistantToolType.JAVA_SOURCE_CODE;
+import static com.dbn.assistant.tool.AssistantToolType.JAVA_SOURCE_CODE_EDITORS;
+import static com.dbn.assistant.tool.AssistantToolType.SEMANTIC_SEARCH;
+import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
 import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
 
 public interface DatabaseCompatibilityInterface extends DatabaseInterface {
@@ -123,9 +128,17 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
     }
 
     default boolean isAssistantToolSupported(AssistantToolType toolType) {
-        if (toolType == AssistantToolType.SEMANTIC_SEARCH) {
+        if (toolType == SEMANTIC_SEARCH) {
             return supportsFeature(VECTOR_SEARCH);
         }
+
+        if (toolType.isOneOf(
+                JAVA_METADATA,
+                JAVA_SOURCE_CODE,
+                JAVA_SOURCE_CODE_EDITORS)) {
+            return supportsFeature(JAVA_VIRTUAL_MACHINE);
+        }
+
         return true;
     }
 }
