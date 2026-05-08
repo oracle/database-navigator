@@ -43,6 +43,7 @@ import com.dbn.object.DBFunction;
 import com.dbn.object.DBIndex;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaResource;
 import com.dbn.object.DBJsonView;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBMethod;
@@ -406,6 +407,11 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
+    public List<DBJavaResource> getJavaResources() {
+        return getChildObjects(JAVA_RESOURCE);
+    }
+
+    @Override
     public DBTable getTable(String name) {
         return getChildObject(TABLE, name);
     }
@@ -468,6 +474,10 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 () -> getChildObject(JAVA_INNER_CLASS, name));
     }
 
+    @Override
+    public DBJavaResource getJavaResource(String name) {
+        return getChildObject(JAVA_RESOURCE, name);
+    }
 
 
     @Override

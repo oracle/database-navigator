@@ -36,45 +36,72 @@ import org.jetbrains.annotations.Nullable;
  */
 @UtilityClass
 public class FileChoosers {
-    @Compatibility
+    public static boolean nativeFileChoosers = false;
+
     public static FileChooserDescriptor addSingleFileChooser(
             @Nullable Project project,
             @NotNull TextFieldWithBrowseButton field,
             @Nullable @DialogTitle String title,
             @Nullable @Label String description) {
-
-        FileChooserDescriptor descriptor = singleFile();
-        field.addBrowseFolderListener(title, description, project, descriptor);
-        return descriptor;
+        return addFileChooser(project, field, singleFile(), title, description);
     }
 
-    @Compatibility
     public static FileChooserDescriptor addSingleFolderChooser(
             @Nullable Project project,
             @NotNull TextFieldWithBrowseButton field,
             @Nullable @DialogTitle String title,
             @Nullable @Label String description) {
+        return addFileChooser(project, field, singleFolder(), title, description);
+    }
 
-        FileChooserDescriptor descriptor = singleFolder();
-        field.addBrowseFolderListener(title, description, project, descriptor);
+    public static FileChooserDescriptor addFileChooser(
+            @Nullable Project project,
+            @NotNull TextFieldWithBrowseButton field,
+            @NotNull FileChooserDescriptor descriptor,
+            @Nullable @DialogTitle String title,
+            @Nullable @Label String description) {
+        descriptor = descriptor
+                .withTitle(title)
+                .withDescription(description);
+        addFileChooser(project, field, descriptor);
         return descriptor;
     }
 
+    @Compatibility
+    public static FileChooserDescriptor addFileChooser(
+            @Nullable Project project,
+            @NotNull TextFieldWithBrowseButton field,
+            @NotNull FileChooserDescriptor descriptor) {
+        //field.addBrowseFolderListener(project, descriptor);
+        field.addBrowseFolderListener(
+                descriptor.getTitle(),
+                descriptor.getDescription(),
+                project,
+                descriptor);
+        return descriptor;
+    }
+
+
     public static FileChooserDescriptor singleFile() {
-        return new FileChooserDescriptor(true, false, false, false, false, false).withShowHiddenFiles(true);
+        return adjustFileChooser(new FileChooserDescriptor(true, false, false, false, false, false).withShowHiddenFiles(true));
     }
 
     public static FileChooserDescriptor singleFolder() {
-        return new FileChooserDescriptor(false, true, false, false, false, false).withShowHiddenFiles(true);
+        return adjustFileChooser(new FileChooserDescriptor(false, true, false, false, false, false));
+    }
+
+    public static FileChooserDescriptor singleFolderOrJar() {
+        return adjustFileChooser(new FileChooserDescriptor(false, true, true, true, false, false));
     }
 
     public static FileChooserDescriptor singleFileOrFolder() {
-        return new FileChooserDescriptor(true, true, false, false, false, false).withShowHiddenFiles(true);
+        return adjustFileChooser(new FileChooserDescriptor(true, true, false, false, false, false));
     }
 
     public static FileChooserDescriptor multipleFiles() {
-        return new FileChooserDescriptor(true, true, false, false, false, true).withShowHiddenFiles(true);
+        return adjustFileChooser(new FileChooserDescriptor(true, true, false, false, false, true));
     }
+
 
     public static Condition<? super VirtualFile> extensionFilter(String extension) {
         return (Condition<VirtualFile>) file -> Strings.equalsIgnoreCase(file.getExtension(), extension);
@@ -87,5 +114,10 @@ public class FileChoosers {
             }
             return false;
         };
+    }
+
+    private static FileChooserDescriptor adjustFileChooser(FileChooserDescriptor descriptor) {
+        descriptor.setForcedToUseIdeaFileChooser(!nativeFileChoosers);
+        return descriptor;
     }
 }

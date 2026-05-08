@@ -16,29 +16,27 @@
 
 package com.dbn.event.ui;
 
-import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.tab.DBNTabbedPane;
+import com.dbn.common.ui.util.TabbedPanes;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.event.notification.model.DataChangeNotificationBundle;
 import com.dbn.event.notification.ui.EventNotificationsForm;
 import com.dbn.event.registration.model.DataChangeRegistrationBundle;
 import com.dbn.event.registration.ui.EventRegistrationsForm;
+import com.intellij.ui.components.JBTabbedPane;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 
 public class EventMonitorDetailsForm extends DBNFormBase {
     private JPanel mainPanel;
-    private JPanel tabsPanel;
     private JPanel headerPanel;
-    private final DBNTabbedPane<DBNForm> contentTabs;
+    private JBTabbedPane contentTabs;
 
     private final @Getter EventRegistrationsForm registrationsForm;
     private final @Getter EventNotificationsForm notificationsForm;
@@ -46,26 +44,22 @@ public class EventMonitorDetailsForm extends DBNFormBase {
     public EventMonitorDetailsForm(@NotNull EventMonitorForm parent, ConnectionHandler connection) {
         super(parent);
 
-        // Initialize components
-        contentTabs = new DBNTabbedPane<>(this);
-        tabsPanel.add(contentTabs, BorderLayout.CENTER);
-        contentTabs.enableFocusInheritance();
-
         DataChangeNotificationBundle eventModel = new DataChangeNotificationBundle(connection);
         DataChangeRegistrationBundle registrationModel = new DataChangeRegistrationBundle(connection);
 
         // Initialize tables
         registrationsForm = new EventRegistrationsForm(this, registrationModel);
-        contentTabs.addTab("Registrations", registrationsForm.getComponent(), registrationsForm);
+        contentTabs.addTab("Registrations", registrationsForm.getComponent());
 
         notificationsForm = new EventNotificationsForm(this, eventModel);
-        contentTabs.addTab("Notifications", notificationsForm.getComponent(), notificationsForm);
+        contentTabs.addTab("Notifications", notificationsForm.getComponent());
 
         initFormHeader(connection);
 
-        contentTabs.addTabSelectionListener(i -> {
+        TabbedPanes.onSelectionChange(contentTabs, i -> {
             EventMonitorForm parentForm = nd(getParentComponent());
             parentForm.setTabSelectionIndex(i);
+
         });
     }
 

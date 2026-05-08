@@ -114,7 +114,8 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         updateTnsAdminField();
 
         addSingleFolderChooser(
-                getProject(), tnsFolderTextField,
+                getProject(),
+                tnsFolderTextField,
                 txt("cfg.connection.title.SelectWalletDirectory"),
                 txt("cfg.connection.text.ValidTnsNamesFolder"));
 

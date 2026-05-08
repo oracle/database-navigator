@@ -17,6 +17,7 @@
 package com.dbn.execution.java;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.Priority;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Disposer;
@@ -35,6 +36,8 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.interfaces.DatabaseExecutionInterface;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.ExecutionStatus;
@@ -98,6 +101,19 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 
 	public JavaExecutionInput getExecutionInput(DBJavaMethod method) {
 		return executionHistory.getExecutionInput(method);
+	}
+
+	public String getJavaVersion(ConnectionId connectionId) throws SQLException {
+		ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+		return DatabaseInterfaceInvoker.load(Priority.MEDIUM,
+				"Loading Java Version",
+				"Loading database java version (OJVM)",
+				getProject(),
+				connectionId,
+				c -> {
+					DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
+					return metadataInterface.loadJavaVersion(c);
+				});
 	}
 
 	@NotNull

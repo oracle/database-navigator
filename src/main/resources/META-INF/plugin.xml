@@ -215,6 +215,7 @@
         <applicationService serviceImplementation="com.dbn.connection.ssl.SslConnectionManager"/>
         <applicationService serviceImplementation="com.dbn.options.DefaultProjectSettingsManager"/>
         <applicationService serviceImplementation="com.dbn.credentials.DatabaseCredentialManager"/>
+        <applicationService serviceImplementation="com.dbn.assistant.mcp.ide.IdeMcpServerManager"/>
 
         <!--<projectService serviceImplementation="com.dbn.options.GlobalProjectSettings"/>-->
         <projectService serviceImplementation="com.dbn.project.ProjectStateManager"/>
@@ -416,10 +417,13 @@
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ViewMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ViewSourceCodeTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ProgramMetadataTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.JavaMetadataTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ProgramSourceCodeTool$Factory" />
-        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ConsoleEditorTool$Factory" />
-        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SourceCodeEditorTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.JavaSourceCodeTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.DatasetEditorTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ConsoleEditorTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.ProgramSourceCodeEditorTool$Factory" />
+        <assistantToolFactory implementation="com.dbn.assistant.tool.spec.JavaSourceCodeEditorTool$Factory" />
         <assistantToolFactory implementation="com.dbn.assistant.tool.spec.SemanticSearchTool$Factory" />
     </extensions>
 
@@ -515,7 +519,6 @@
             <action class="com.dbn.assistant.service.selectai.action.PromptActionSelectAction$Chat" id="DBNavigator.Actions.Assistant.TypeChat"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantPromptActions" text="Assistant Prompt Actions">
-            <action class="com.dbn.assistant.service.generic.action.AssistantModeInfoAction" id="DBNavigator.Actions.Assistant.AssistantModeInfo" text="Assistant Mode Info"/>
             <action class="com.dbn.assistant.service.generic.action.AssistantModeAction" id="DBNavigator.Actions.Assistant.AssistantMode" text="Assistant Mode"/>
             <separator/>
             <action class="com.dbn.assistant.service.generic.action.ToolSelectionAction" id="DBNavigator.Actions.Assistant.ToolSelection" text="Tools"/>
@@ -890,6 +893,9 @@
         <listener topic="com.intellij.openapi.actionSystem.ex.AnActionListener" class="com.dbn.editor.code.action.SourceCodeSaveAction$ShortcutInterceptor"/>
         <listener topic="com.intellij.openapi.actionSystem.ex.AnActionListener" class="com.dbn.execution.statement.action.ExecuteStatementEditorAction$ShortcutInterceptor"/>
     </projectListeners>
+    <applicationListeners>
+        <listener class="com.dbn.assistant.mcp.ide.IdeMcpServerPluginListener" topic="com.intellij.ide.plugins.DynamicPluginListener"/>
+    </applicationListeners>
     <extensions defaultExtensionNs="com.intellij">
         <webHelpProvider implementation="com.dbn.help.PluginHelpProvider"/>
 

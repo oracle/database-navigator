@@ -97,7 +97,7 @@ public class ProjectSettings
         if (settingsEditor == null) {
             return INTRODUCTION;
         } else {
-            Configuration selectedConfiguration = settingsEditor.getActiveConfiguration();
+            Configuration selectedConfiguration = settingsEditor.getSelectedConfiguration();
             HelpTopic helpTopic = selectedConfiguration.getConfigHelpTopic();
             return Commons.nvl(helpTopic, INTRODUCTION);
         }
