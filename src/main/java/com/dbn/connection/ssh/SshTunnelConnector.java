@@ -64,7 +64,8 @@ public class SshTunnelConnector {
     private boolean reverseTunnel = false;
 
     public SshTunnelConnector(SshTunnelConfig config) {
-        this(config, null);
+        this.config = config;
+        this.keyVerifier = new StrictKnownHostsServerKeyVerifier();
     }
 
     public SshTunnelConnector(SshTunnelConfig config, NetworkAddress localAddress) {
