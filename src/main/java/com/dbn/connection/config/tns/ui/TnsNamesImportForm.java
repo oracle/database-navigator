@@ -37,6 +37,8 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.FileChoosers.addFileChooser;
+import static com.dbn.connection.config.tns.TnsNamesParser.tnsFileChooser;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class TnsNamesImportForm extends DBNFormBase {
@@ -66,11 +68,7 @@ public class TnsNamesImportForm extends DBNFormBase {
 
         tnsNamesTable.getSelectionModel().addListSelectionListener(e -> updateSelections());
 
-        tnsNamesFileTextField.addBrowseFolderListener(
-                null,
-                null,
-                getProject(),
-                TnsNamesParser.FILE_CHOOSER_DESCRIPTOR);
+        addFileChooser(getProject(), tnsNamesFileTextField, tnsFileChooser());
 
         onTextChange(tnsNamesFileTextField, e -> updateTnsNamesTable());
         onTextChange(filterTextField, e -> filterTnsNamesTable());

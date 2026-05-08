@@ -20,7 +20,7 @@ import com.dbn.assistant.chat.Chat;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.mcp.AssistantMcpServerData;
+import com.dbn.assistant.mcp.AssistantMcpServerState;
 import com.dbn.assistant.profile.AssistantProfile;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.state.AssistantState;
@@ -105,15 +105,15 @@ public interface AssistantActionSupport {
         AssistantToolSettings toolSettings = getToolSettings(e);
         if (toolSettings == null) return null;
 
-        return toolSettings.getApprovals();
+        return toolSettings.getToolApprovals();
     }
 
     @Nullable
-    default AssistantMcpServerData getMcpServerData(@NotNull AnActionEvent e) {
+    default AssistantMcpServerState getMcpServerState(@NotNull AnActionEvent e) {
         AssistantState assistantState = getAssistantState(e);
         if (assistantState == null) return null;
 
-        return assistantState.getMcpServerData();
+        return assistantState.getMcpServerState();
     }
 
     @Nullable

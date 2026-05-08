@@ -35,6 +35,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Reader;
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
@@ -43,6 +45,7 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.notification.NotificationCategory.CONNECTION;
 import static com.dbn.common.notification.NotificationCategory.TRANSACTION;
 import static com.dbn.common.util.Classes.className;
@@ -360,5 +363,21 @@ public final class Resources implements NlsSupport {
 
     public static boolean isObsolete(@Nullable Resource resource) {
         return resource == null || resource.isObsolete();
+    }
+
+    public static String readClob(Clob clob) throws SQLException {
+        if (clob == null) return null;
+
+        StringBuilder builder = new StringBuilder();
+        try (Reader reader = clob.getCharacterStream()) {
+            char[] buffer = new char[4096];
+            int n;
+            while ((n = reader.read(buffer)) != -1) {
+                builder.append(buffer, 0, n);
+            }
+        } catch (Throwable e) {
+            throw toSqlException(e);
+        }
+        return builder.toString();
     }
 }

@@ -34,7 +34,6 @@ import com.dbn.common.ui.dialog.SelectionListDialog;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Dialogs.DialogCallback;
 import com.dbn.common.util.Documents;
-import com.dbn.common.util.FileChoosers;
 import com.dbn.common.util.Files;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
@@ -64,6 +63,7 @@ import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBList;
@@ -91,6 +91,7 @@ import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.FileChoosers.singleFolder;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Messages.options;
@@ -300,8 +301,10 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
         Project project = getProject();
 
         if (fileNameProvider != null) {
-            FileChooserDescriptor descriptor = FileChoosers.singleFolder();
-            descriptor.setTitle(txt("msg.ddlFiles.title.SelectNewFileLocation"));
+            ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
+            FileChooserDescriptor descriptor = singleFolder()
+                    .withRoots(rootManager.getContentRoots())
+                    .withTitle(txt("msg.ddlFiles.title.SelectNewFileLocation"));
 
             VirtualFile[] selectedDirectories = FileChooser.chooseFiles(descriptor, project, null);
             if (selectedDirectories.length > 0) {

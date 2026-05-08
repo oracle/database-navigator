@@ -21,13 +21,13 @@ import com.dbn.assistant.chat.message.ui.ChatMessageForm;
 import com.dbn.assistant.chat.message.ui.ChatMessageToolSectionForm;
 import com.dbn.assistant.chat.ui.ChatHistoryForm;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.mcp.ui.AssistantMcpToolApprovalsForm;
 import com.dbn.assistant.service.selectai.credential.ui.CredentialManagementForm;
 import com.dbn.assistant.service.selectai.profile.ui.ProfileManagementForm;
 import com.dbn.assistant.tool.config.ui.AssistantToolApprovalItemForm;
 import com.dbn.batch.ui.BatchMonitorForm;
 import com.dbn.common.ui.component.DBNDiscardableComponent;
 import com.dbn.common.ui.component.DBNFoldableComponent;
-import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
 import com.dbn.data.editor.ui.array.ArrayEditorPopupProviderForm;
 import com.dbn.data.editor.ui.calendar.CalendarPopupProviderForm;
@@ -77,15 +77,17 @@ public interface DataKeys {
     DataKey<ChatMessageToolSectionForm> CHAT_MESSAGE_TOOL_SECTION_FORM = DataKey.create("DBNavigator.ChatMessageToolSectionForm");
     DataKey<AssistantToolApprovalItemForm> ASSISTANT_TOOL_APPROVAL_FORM = DataKey.create("DBNavigator.AssistantToolApprovalItemForm");
     DataKey<AssistantToolDataForm> ASSISTANT_TOOL_DATA_FORM = DataKey.create("DBNavigator.AssistantToolDataForm");
+    DataKey<AssistantMcpToolApprovalsForm> ASSISTANT_MCP_TOOL_APPROVALS_FORM = DataKey.create("DBNavigator.AssistantMcpToolApprovalsForm");
     DataKey<CredentialManagementForm> CREDENTIAL_MANAGEMENT_FORM = DataKey.create("DBNavigator.CredentialManagementForm");
     DataKey<ProfileManagementForm> PROFILE_MANAGEMENT_FORM = DataKey.create("DBNavigator.ProfileManagementForm");
     DataKey<BatchMonitorForm> BATCH_MONITOR_FORM = DataKey.create("DBNavigator.BatchMonitorForm");
     DataKey<PrerequisitesForm> PREREQUISITES_FORM = DataKey.create("DBNavigator.PrerequisitesForm");
     DataKey<ChatMessageForm> CHAT_MESSAGE_FORM = DataKey.create("DBNavigator.ChatMessageForm");
-    DataKey<DBNTabbedPane> TABBED_PANE = DataKey.create("DBNavigator.TabbedPane");
+
     DataKey<Disposable> PARENT_DISPOSABLE = DataKey.create("DBNavigator.ParentDisposable");
     DataKey<DBNFoldableComponent> FOLDABLE_COMPONENT = DataKey.create("DBNavigator.FoldableComponent");
     DataKey<DBNDiscardableComponent> DISCARDABLE_COMPONENT = DataKey.create("DBNavigator.DiscardableComponent");
+
 
     DataKey<EventRegistrationsForm> EVENT_REGISTRATIONS_FORM = DataKey.create("DBNavigator.EventRegistrationsForm");
     DataKey<EventNotificationsForm> EVENT_NOTIFICATIONS_FORM = DataKey.create("DBNavigator.EventNotificationsForm");

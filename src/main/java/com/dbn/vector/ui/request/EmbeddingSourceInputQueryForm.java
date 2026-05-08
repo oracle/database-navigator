@@ -17,7 +17,6 @@
 package com.dbn.vector.ui.request;
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
@@ -45,16 +44,14 @@ import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.sql.SQLException;
 
-import static com.dbn.common.ui.util.Buttons.onButtonClick;
+import static com.dbn.common.ui.util.Buttons.onButtonClickAsync;
 import static com.dbn.common.util.Editors.focusEditor;
 import static com.dbn.common.util.Editors.initEditorHighlighter;
 import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
@@ -67,7 +64,6 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private JPanel queryPanel;
     private JPanel outputPanel;
     private JButton verifyButton;
-    private JPanel spinPanel;
     private DBNScrollPane outputScrollPane;
 
     private final ConnectionRef connection;
@@ -84,7 +80,6 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         this.config = config;
 
         initHeaderPanel();
-        initSpinner();
         initVerifyButton();
         initOutputPanel();
 
@@ -132,11 +127,6 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         focusEditor(editor);
     }
 
-    private void initSpinner() {
-        spinPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
-        spinPanel.setVisible(false);
-    }
-
     private void initOutputPanel() {
         ConnectionHandler connection = getConnection();
         RecordViewInfo recordViewInfo = new RecordViewInfo("Query data", null);
@@ -149,10 +139,8 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     }
 
     private void initVerifyButton() {
-        onButtonClick(verifyButton, e ->
-                Dispatch.async(mainPanel,
-                    () -> verifyQuery(),
-                    d -> applyChunkResult(d)));
+        onButtonClickAsync(verifyButton, () -> verifyQuery(),
+                    d -> applyChunkResult(d));
     }
 
     private void applyChunkResult(ResultSetDataModel data){
@@ -196,14 +184,10 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     }
 
     private void startActivityNotifier() {
-        spinPanel.setVisible(true);
-        verifyButton.setEnabled(false);
         outputTable.setLoading(true);
     }
 
     private void stopActivityNotifier() {
-        spinPanel.setVisible(false);
-        verifyButton.setEnabled(true);
         outputTable.setLoading(false);
     }
 

@@ -1,0 +1,26 @@
+<html lang="en">
+<head>
+    <title>Tool Approval</title>
+    <style>
+        h3 { ${REGULAR_LARGE_FONT_STYLE} }
+        body { ${REGULAR_FONT_STYLE} }
+        code { ${MONOSPACE_FONT_STYLE} }
+        h3 code { font-size: inherit; }
+        p { margin-top:0; }
+
+    </style>
+</head>
+<body>
+    This is an overview of all tools supplied by the MCP Server "${MCP_SERVER_NAME}".<br>
+    It allows you to determine which tools the language model can access.
+
+    <br><br>
+    You can manage tool access by enabling or disabling individual tools.<br>
+    The status of a tool determines its visibility to the LLM:
+    <ul>
+        <li>Tools marked as "Approved" will be invoked automatically.</li>
+        <li>Tools marked as "Prompted" will be prompted for approval before every invocation.</li>
+        <li>Blocked tools will not be visible to the LLM.</li>
+    </ul>
+</body>
+</html>
