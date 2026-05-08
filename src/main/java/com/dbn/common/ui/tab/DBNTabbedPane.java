@@ -33,6 +33,7 @@ import static com.dbn.common.ui.util.ClientProperty.TAB_COLOR;
 import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
 import static com.dbn.common.ui.util.UserInterface.hasChildComponent;
 
+@Deprecated // TODO remove (replaced by DBNColoredTabs)
 public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
     public static final Insets REGULAR_INSETS = new JBInsets(6, 6, 6, 6);
 

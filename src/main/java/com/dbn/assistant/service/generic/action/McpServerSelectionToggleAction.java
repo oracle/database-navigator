@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package com.dbn.assistant.service.generic.action;
 
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
-import com.dbn.assistant.mcp.AssistantMcpServer;
-import com.dbn.assistant.mcp.AssistantMcpServerData;
+import com.dbn.assistant.mcp.AssistantMcpServerState;
+import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ToggleAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -43,7 +43,7 @@ public class McpServerSelectionToggleAction extends ToggleAction implements Assi
 
         Icon icon = isSelected(e) ? ACTION_CHECK : null;
         String text = mcpServer.getName();
-        String description = mcpServer.getEndpoint();
+        String description = "<strong>" + mcpServer.getName() + "</strong><br>" + mcpServer.getEndpoint();
 
         presentation.setIcon(icon);
         presentation.setText(text);
@@ -52,17 +52,17 @@ public class McpServerSelectionToggleAction extends ToggleAction implements Assi
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
-        AssistantMcpServerData mcpServerData = getMcpServerData(e);
-        if (mcpServerData == null) return false;
+        AssistantMcpServerState mcpServerState = getMcpServerState(e);
+        if (mcpServerState == null) return false;
 
-        return mcpServerData.isSelected(mcpServer.getId());
+        return mcpServerState.isSelected(mcpServer.getId());
     }
 
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean selected) {
-        AssistantMcpServerData mcpServerData = getMcpServerData(e);
-        if (mcpServerData == null) return;
+        AssistantMcpServerState mcpServerState = getMcpServerState(e);
+        if (mcpServerState == null) return;
 
-        mcpServerData.setSelected(mcpServer.getId(), selected);
+        mcpServerState.setSelected(mcpServer.getId(), selected);
     }
 }

@@ -25,13 +25,13 @@ import org.jetbrains.annotations.NonNls;
 @NonNls
 @Getter
 public enum DBVectorDistanceMetric implements Constant<DBVectorDistanceMetric>, Presentable {
-    COSINE("COSINE", "Cosine distance; measures angular difference between vectors (ignores magnitude)"),
-    DOT ("DOT", "Negated dot product; lower values mean higher inner-product similarity"),
+    COSINE("COSINE", "Cosine distance<br> Measures angular difference between vectors (ignores magnitude)"),
+    DOT ("DOT", "Negated dot product<br> Lower values mean higher inner-product similarity"),
     EUCLIDEAN ("EUCLIDEAN", "Straight-line (L2) distance between vectors"),
     EUCLIDEAN_SQUARED ("EUCLIDEAN_SQUARED", "Squared L2 distance (Euclidean distance without the square root)"),
     HAMMING ("HAMMING", "Counts positions (dimensions/bits) where the vectors differ"),
     MANHATTAN ("MANHATTAN", "Sum of absolute coordinate-wise differences (taxicab distance)"),
-    JACCARD ("JACCARD", "Jaccard distance for binary vectors; 1 minus overlap/union of “on” bits")
+    JACCARD ("JACCARD", "Jaccard distance for binary vectors<br> 1 minus overlap/union of “on” bits")
 
     ;
 

@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.mcp;
+package com.dbn.common.ui.info;
 
-public enum AssistantMcpServerType {
-    HTTP,
-    STDIO
+import com.intellij.ui.components.JBLabel;
+import com.intellij.util.ui.JBFont;
+import com.intellij.util.ui.JBUI;
+
+public class DBNCommentLabel extends JBLabel {
+
+    public DBNCommentLabel() {
+        setFont(JBFont.medium());
+        setForeground(JBUI.CurrentTheme.ContextHelp.FOREGROUND);
+    }
 }
