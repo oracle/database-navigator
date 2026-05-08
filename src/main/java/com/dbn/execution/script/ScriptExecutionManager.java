@@ -62,8 +62,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFilePermission;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -81,10 +79,15 @@ import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.FilePermissions.ownDirectoryPermissions;
+import static com.dbn.common.util.FilePermissions.ownFilePermissions;
+import static com.dbn.common.util.FilePermissions.restrictToOwner;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.logging.LogOutput.createSysOutput;
 import static com.dbn.execution.script.ScriptExecutionProcessHandler.startProcess;
 import static com.dbn.nls.NlsResources.txt;
+import static java.nio.file.Files.createTempDirectory;
+import static java.nio.file.Files.createTempFile;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Getter
@@ -95,14 +98,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 )
 public class ScriptExecutionManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.ScriptExecutionManager";
-
-    private static final Set<PosixFilePermission> TEMP_DIRECTORY_PERMISSIONS = Set.of(
-            PosixFilePermission.OWNER_READ,
-            PosixFilePermission.OWNER_WRITE,
-            PosixFilePermission.OWNER_EXECUTE);
-    private static final Set<PosixFilePermission> TEMP_FILE_PERMISSIONS = Set.of(
-            PosixFilePermission.OWNER_READ,
-            PosixFilePermission.OWNER_WRITE);
 
     private final ExecutionManager executionManager;
     private final Map<VirtualFile, Process> activeProcesses = new ConcurrentHashMap<>();
@@ -363,7 +358,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         Path tempDirectory = createTempScriptDirectory();
         try {
             return createTempScriptFile(tempDirectory).toFile();
-        } catch (IOException | RuntimeException e) {
+        } catch (IOException e) {
             FileUtil.delete(tempDirectory.toFile());
             throw e;
         }
@@ -381,47 +376,30 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
     private static Path createTempScriptDirectory(@Nullable Path parentDirectory) throws IOException {
         try {
+            var permissions = ownDirectoryPermissions();
             return parentDirectory == null ?
-                    Files.createTempDirectory("DBN-", posixPermissions(TEMP_DIRECTORY_PERMISSIONS)) :
-                    Files.createTempDirectory(parentDirectory, "DBN-", posixPermissions(TEMP_DIRECTORY_PERMISSIONS));
+                    createTempDirectory("DBN-", permissions) :
+                    createTempDirectory(parentDirectory, "DBN-", permissions);
+
         } catch (UnsupportedOperationException e) {
             Path tempDirectory = parentDirectory == null ?
-                    Files.createTempDirectory("DBN-") :
-                    Files.createTempDirectory(parentDirectory, "DBN-");
-            setOwnerOnlyDirectoryPermissions(tempDirectory.toFile());
+                    createTempDirectory("DBN-") :
+                    createTempDirectory(parentDirectory, "DBN-");
+
+            restrictToOwner(tempDirectory.toFile());
             return tempDirectory;
         }
     }
 
     private static Path createTempScriptFile(Path tempDirectory) throws IOException {
         try {
-            return Files.createTempFile(tempDirectory, "DBN-", ".sql", posixPermissions(TEMP_FILE_PERMISSIONS));
+            var permissions = ownFilePermissions();
+            return createTempFile(tempDirectory, "DBN-", ".sql", permissions);
         } catch (UnsupportedOperationException e) {
-            Path tempFile = Files.createTempFile(tempDirectory, "DBN-", ".sql");
-            setOwnerOnlyFilePermissions(tempFile.toFile());
+            Path tempFile = createTempFile(tempDirectory, "DBN-", ".sql");
+            restrictToOwner(tempFile.toFile());
             return tempFile;
         }
-    }
-
-    private static FileAttribute<Set<PosixFilePermission>> posixPermissions(Set<PosixFilePermission> permissions) {
-        return java.nio.file.attribute.PosixFilePermissions.asFileAttribute(permissions);
-    }
-
-    private static void setOwnerOnlyDirectoryPermissions(File directory) {
-        directory.setReadable(false, false);
-        directory.setWritable(false, false);
-        directory.setExecutable(false, false);
-        directory.setReadable(true, true);
-        directory.setWritable(true, true);
-        directory.setExecutable(true, true);
-    }
-
-    private static void setOwnerOnlyFilePermissions(File file) {
-        file.setReadable(false, false);
-        file.setWritable(false, false);
-        file.setExecutable(false, false);
-        file.setReadable(true, true);
-        file.setWritable(true, true);
     }
 
     /****************************************
