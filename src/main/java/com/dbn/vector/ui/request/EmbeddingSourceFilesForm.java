@@ -17,10 +17,8 @@
 package com.dbn.vector.ui.request;
 
 import com.dbn.common.ui.file.VirtualFileListForm;
-import com.dbn.common.util.FileChoosers;
 import com.dbn.vector.model.request.EmbeddingSourceFiles;
 import com.dbn.vector.ui.VectorToolboxFormBase;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
@@ -30,11 +28,6 @@ public class EmbeddingSourceFilesForm extends VectorToolboxFormBase {
     private JPanel mainPanel;
     private JPanel fileListPanel;
     private final VirtualFileListForm fileListForm;
-
-    //  private FileSystemSourceConfig fileSystemSourceConfig;
-    public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.multipleFiles().
-            withTitle("Select Text Files to Embed").
-            withDescription("Select valid text files to embed");
 
     public EmbeddingSourceFilesForm(@NotNull VectorToolboxFormBase parent) {
         super(parent);

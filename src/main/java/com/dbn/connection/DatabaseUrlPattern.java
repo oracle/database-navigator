@@ -231,15 +231,15 @@ public enum DatabaseUrlPattern {
     }
 
     public String resolveHost(String url) {
-        return resolveGroup(url, "HOST", DATABASE, SERVICE, SID, LDAP, LDAPS);
+        return resolveGroup(url, "HOST", CUSTOM, DATABASE, EZCONNECT, SERVICE, SID, LDAP, LDAPS);
     }
 
     public String resolvePort(String url) {
-        return resolveGroup(url, "PORT", DATABASE, SERVICE, SID, LDAP, LDAPS);
+        return resolveGroup(url, "PORT", CUSTOM, DATABASE, EZCONNECT, SERVICE, SID, LDAP, LDAPS);
     }
 
     public String resolveDatabase(String url) {
-        return resolveGroup(url, "DATABASE", DATABASE, SERVICE, SID, LDAP, LDAPS);
+        return resolveGroup(url, "DATABASE", CUSTOM, DATABASE, EZCONNECT, SERVICE, SID, LDAP, LDAPS);
     }
 
     public String resolveFile(String url) {
@@ -256,6 +256,9 @@ public enum DatabaseUrlPattern {
 
     public ServerType resolveServerType(String url) {
         String serverType = resolveGroup(url, "SERVERTYPE", EZCONNECT);
+        if (serverType.startsWith(":")) {
+            serverType = serverType.substring(1);
+        }
         return ServerType.get(serverType);
     }
 

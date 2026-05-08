@@ -59,7 +59,7 @@ public class CodeEditorDDLFileAction extends ProjectPopupAction {
                     new DDLFileCreateAction(object),
                     new DDLFileAttachAction(object),
                     new DDLFileDetachAction(object),
-                    new Separator(),
+                    Separator.getInstance(),
                     new DDLFileSettingsAction()
             };
         }

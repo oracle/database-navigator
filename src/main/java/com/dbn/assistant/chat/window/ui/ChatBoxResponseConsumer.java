@@ -179,7 +179,7 @@ class ChatBoxResponseConsumer implements AssistantResponseConsumer {
         AssistantToolInvocation invocation = new AssistantToolInvocation(request);
 
         AssistantState state = getAssistantState();
-        AssistantToolInvocationMonitor monitor = new AssistantToolInvocationMonitor(state, tool);
+        AssistantToolInvocationMonitor monitor = new AssistantToolInvocationMonitor(state, tool, toolName);
         invocation.setMonitor(monitor);
         return invocation;
     }

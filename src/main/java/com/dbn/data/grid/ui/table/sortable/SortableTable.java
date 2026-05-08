@@ -55,6 +55,8 @@ public abstract class SortableTable<T extends SortableDataModel<?, ?>> extends B
     }
 
     public boolean sort(int columnIndex, SortDirection sortDirection, boolean keepExisting) {
+        checkColumnBounds(columnIndex);
+
         SortableDataModel<?, ?> model = getModel();
         int modelColumnIndex = convertColumnIndexToModel(columnIndex);
         ColumnInfo columnInfo = model.getColumnInfo(modelColumnIndex);

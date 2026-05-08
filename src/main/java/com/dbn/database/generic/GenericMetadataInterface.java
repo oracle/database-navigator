@@ -139,6 +139,12 @@ public class GenericMetadataInterface extends DatabaseMetadataInterfaceImpl {
         return null;
     }
 
+
+    @Override
+    public String loadSessionUser(DBNConnection connection) throws SQLException {
+        return connection.getMetaData().getUserName();
+    }
+
     // TODO
     @Override
     public String createDateString(Date date) {

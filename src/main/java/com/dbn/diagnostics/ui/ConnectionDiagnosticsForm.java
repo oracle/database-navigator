@@ -33,16 +33,19 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.ListModel;
 import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.ui.util.Borderless.markBorderless;
+import static com.dbn.common.ui.util.Splitters.setSplitPaneProportion;
 
 public class ConnectionDiagnosticsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel detailsPanel;
+    private JSplitPane detailsSplitPane;
     private JList<ConnectionHandler> connectionsList;
     private int tabSelectionIndex;
 
@@ -60,6 +63,7 @@ public class ConnectionDiagnosticsForm extends DBNFormBase {
         connectionsList.setModel(model);
         connectionsList.setSelectedIndex(0);
         markBorderless(connectionsList);
+        setSplitPaneProportion(detailsSplitPane, 0.2);
 
         ProjectEvents.subscribe(project, this,
                 ConnectionConfigListener.TOPIC,

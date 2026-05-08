@@ -62,11 +62,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFileAttributeView;
-import java.nio.file.attribute.PosixFilePermission;
-import java.security.SecureRandom;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -83,10 +79,15 @@ import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.FilePermissions.ownDirectoryPermissions;
+import static com.dbn.common.util.FilePermissions.ownFilePermissions;
+import static com.dbn.common.util.FilePermissions.restrictToOwner;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.logging.LogOutput.createSysOutput;
 import static com.dbn.execution.script.ScriptExecutionProcessHandler.startProcess;
 import static com.dbn.nls.NlsResources.txt;
+import static java.nio.file.Files.createTempDirectory;
+import static java.nio.file.Files.createTempFile;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Getter
@@ -98,7 +99,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class ScriptExecutionManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.ScriptExecutionManager";
 
-    private static final SecureRandom TMP_FILE_RANDOMIZER = new SecureRandom();
     private final ExecutionManager executionManager;
     private final Map<VirtualFile, Process> activeProcesses = new ConcurrentHashMap<>();
     private final Map<DatabaseType, String> recentlyUsedInterfaces = new EnumMap<>(DatabaseType.class);
@@ -283,6 +283,11 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                 executionManager.writeLogOutput(outputContext, createSysOutput("Deleting temporary script file " + temporaryScriptFile));
                 FileUtil.delete(temporaryScriptFile);
             }
+            File temporaryScriptDirectory = temporaryScriptFile == null ? null : temporaryScriptFile.getParentFile();
+            if (temporaryScriptDirectory != null && temporaryScriptDirectory.exists()) {
+                executionManager.writeLogOutput(outputContext, createSysOutput("Deleting temporary script directory " + temporaryScriptDirectory));
+                FileUtil.delete(temporaryScriptDirectory);
+            }
         }
     }
 
@@ -350,41 +355,51 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
     }
 
     private File createTempScriptFile() throws IOException {
-        File tempFile = File.createTempFile("DBN-", ".sql");
-        if (!tempFile.isFile()) {
-            long n = TMP_FILE_RANDOMIZER.nextLong();
-            n = n == Long.MIN_VALUE ? 0 : Math.abs(n);
-            String tempFileName = "DBN-" + n;
-
-            tempFile = FileUtil.createTempFile(tempFileName, ".sql");
-            if (!tempFile.isFile()) {
-                String systemDir = PathManager.getSystemPath();
-                File systemTempDir = new File(systemDir, "tmp");
-                tempFile = new File(systemTempDir, tempFileName);
-                FileUtil.createParentDirs(tempFile);
-                FileUtil.delete(tempFile);
-                FileUtil.createIfDoesntExist(tempFile);
-            }
+        Path tempDirectory = createTempScriptDirectory();
+        try {
+            return createTempScriptFile(tempDirectory).toFile();
+        } catch (IOException e) {
+            FileUtil.delete(tempDirectory.toFile());
+            throw e;
         }
+    }
 
-        Path filePath = tempFile.toPath();
-        PosixFileAttributeView view = Files.getFileAttributeView(filePath, PosixFileAttributeView.class);
-        if (view != null) {
-            Set<PosixFilePermission> permissions = new HashSet<>();
-            permissions.add(PosixFilePermission.OWNER_READ);
-            permissions.add(PosixFilePermission.OWNER_WRITE);
-            permissions.add(PosixFilePermission.OWNER_EXECUTE);
-            permissions.add(PosixFilePermission.OTHERS_READ);
-            permissions.add(PosixFilePermission.OTHERS_EXECUTE);
-            permissions.add(PosixFilePermission.GROUP_READ);
-            permissions.add(PosixFilePermission.GROUP_EXECUTE);
-            view.setPermissions(permissions);
-        } else {
-            tempFile.setReadable(true, false);
-            tempFile.setExecutable(true, false);
+    private static Path createTempScriptDirectory() throws IOException {
+        try {
+            return createTempScriptDirectory(null);
+        } catch (IOException e) {
+            Path systemTempDirectory = Path.of(PathManager.getSystemPath(), "tmp");
+            Files.createDirectories(systemTempDirectory);
+            return createTempScriptDirectory(systemTempDirectory);
         }
+    }
 
-        return tempFile;
+    private static Path createTempScriptDirectory(@Nullable Path parentDirectory) throws IOException {
+        try {
+            var permissions = ownDirectoryPermissions();
+            return parentDirectory == null ?
+                    createTempDirectory("DBN-", permissions) :
+                    createTempDirectory(parentDirectory, "DBN-", permissions);
+
+        } catch (UnsupportedOperationException e) {
+            Path tempDirectory = parentDirectory == null ?
+                    createTempDirectory("DBN-") :
+                    createTempDirectory(parentDirectory, "DBN-");
+
+            restrictToOwner(tempDirectory.toFile());
+            return tempDirectory;
+        }
+    }
+
+    private static Path createTempScriptFile(Path tempDirectory) throws IOException {
+        try {
+            var permissions = ownFilePermissions();
+            return createTempFile(tempDirectory, "DBN-", ".sql", permissions);
+        } catch (UnsupportedOperationException e) {
+            Path tempFile = createTempFile(tempDirectory, "DBN-", ".sql");
+            restrictToOwner(tempFile.toFile());
+            return tempFile;
+        }
     }
 
     /****************************************
