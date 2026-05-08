@@ -80,4 +80,9 @@ public class Environment {
 
         return null;
     }
+
+    public static String getIdeName() {
+        ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
+        return applicationInfo.getVersionName();
+    }
 }

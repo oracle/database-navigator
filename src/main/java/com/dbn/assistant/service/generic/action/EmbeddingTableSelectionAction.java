@@ -111,6 +111,7 @@ public class EmbeddingTableSelectionAction extends ComboBoxAction implements Ass
         presentation.setIcon(getIcon(e));
         presentation.setEnabled(isEnabled(e));
         presentation.setVisible(isVisible(e));
+        presentation.setDescription("Vector embeddings table");
     }
 
     private @ActionText String getText(@NotNull AnActionEvent e) {

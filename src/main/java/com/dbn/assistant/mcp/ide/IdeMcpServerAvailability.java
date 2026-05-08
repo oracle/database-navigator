@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.service.generic.action;
+package com.dbn.assistant.mcp.ide;
 
-import com.dbn.common.action.InfoPopupAction;
-import com.dbn.common.text.TextContent;
-
-public class AssistantModeInfoAction extends InfoPopupAction {
-    @Override
-    protected TextContent getPopupContent() {
-        return TextContent.html(this, "assistant_mode_info.html.ft");
-    }
+public enum IdeMcpServerAvailability {
+    UNAVAILABLE,
+    DISABLED,
+    ENABLED
 }

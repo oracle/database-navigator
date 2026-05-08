@@ -7,6 +7,7 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Naming;
@@ -260,9 +261,11 @@ public class DatabaseVectorManager extends ProjectComponentBase implements Persi
         ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
         DBObjectNameCache<DBTable> names = getObjectNamesCache(connectionId, DBObjectFilterType.EMBEDDING_DESTINATION_TABLES);
 
+        TextContent hint = TextContent.plain("Select vector embeddings table to use as source for your RAG (Retrieval-Augmented Generation) actions.");
         return new DBObjectSelectionInput<DBTable>(connection, DBObjectType.TABLE)
                 .withSchemaFilter(s -> !s.isSystemSchema())
                 .withSchemaPreselector(s -> s.getSchemaId() == connection.getUserSchemaId())
+                .withHint(hint)
                 .withObjectFilter(names);
     }
 
