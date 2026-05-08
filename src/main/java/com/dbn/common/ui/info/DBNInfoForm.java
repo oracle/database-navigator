@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import javax.swing.event.HyperlinkListener;
 
 public class DBNInfoForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -35,6 +36,7 @@ public class DBNInfoForm extends DBNFormBase {
         super(parent);
         content.setTooltip(true);
         content.rebuild();
+
         infoTextPane.setContentType(content.getTypeId());
         infoTextPane.setText(content.getText());
         infoTextPane.setForeground(UIUtil.getToolTipForeground());
@@ -42,6 +44,11 @@ public class DBNInfoForm extends DBNFormBase {
             infoTextPane.revalidate();
             Dialogs.resizeToFitContent(mainPanel);
         });
+    }
+
+    public void addHyperlinkListener(HyperlinkListener listener) {
+        if (listener == null) return;
+        infoTextPane.addHyperlinkListener(listener);
     }
 
     @Override

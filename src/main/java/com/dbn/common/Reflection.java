@@ -16,6 +16,7 @@
 
 package com.dbn.common;
 
+import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.util.Primitives;
 import com.dbn.common.util.Unsafe;
 import lombok.SneakyThrows;
@@ -194,5 +195,20 @@ public class Reflection {
         Field field = Class.forName(className).getDeclaredField(fieldName);
         field.setAccessible(true);
         return cast(field.get(null));
+    }
+
+    @SneakyThrows
+    public static <T extends DBNForm> void setFieldValue(Object object, String fieldName, Object fieldValue) {
+        Field field = getDeclaredField(object.getClass(), fieldName);
+        field.setAccessible(true);
+        field.set(object, fieldValue);
+    }
+
+    public static Field getDeclaredField(Class<?> clazz, String fieldName) {
+        try {
+            return clazz.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            return getDeclaredField(clazz.getSuperclass(), fieldName);
+        }
     }
 }
