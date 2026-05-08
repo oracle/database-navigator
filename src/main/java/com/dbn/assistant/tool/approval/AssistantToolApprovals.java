@@ -139,6 +139,8 @@ public class AssistantToolApprovals implements PersistentStateElement, Signed {
         List<Element> categoryElements = childrenOf(categoriesElement);
         for (Element categoryElement : categoryElements) {
             AssistantToolCategory toolCategory = enumAttribute(categoryElement, "id", AssistantToolCategory.class);
+            if (toolCategory == null) continue; // ignore renamed tool categories
+
             AssistantToolApprovalStatus approvalStatus = enumAttribute(categoryElement, "status", AssistantToolApprovalStatus.class);
             categories.put(toolCategory, approvalStatus);
         }
@@ -147,6 +149,8 @@ public class AssistantToolApprovals implements PersistentStateElement, Signed {
         List<Element> typeElements = childrenOf(typesElement);
         for (Element typeElement : typeElements) {
             AssistantToolType toolType = enumAttribute(typeElement, "id", AssistantToolType.class);
+            if (toolType == null) continue; // ignore renamed tool types
+
             AssistantToolApprovalStatus approvalStatus = enumAttribute(typeElement, "status", AssistantToolApprovalStatus.class);
             types.put(toolType, approvalStatus);
         }
