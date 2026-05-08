@@ -17,16 +17,25 @@
 package com.dbn.common.ui.info;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ref.WeakRef;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.ui.DBNTooltip;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
-import com.intellij.ide.IdeTooltipManager;
+import com.intellij.openapi.ui.popup.Balloon;
+import com.intellij.openapi.ui.popup.BalloonBuilder;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.ui.awt.RelativePoint;
+import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.UIUtil;
 import lombok.Setter;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.event.HyperlinkListener;
+import java.awt.BorderLayout;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,21 +46,18 @@ public class DBNInfoLabel extends JLabel {
     private TimerTask timerTask;
     private TextContent content;
 
+    private static WeakRef<Balloon> currentBalloon;
+    private static boolean currentBalloonSticky;
+    private HyperlinkListener hyperlinkListener;
+
     public DBNInfoLabel() {
         super("", Icons.ACTION_INFO, JLabel.LEFT);
         setCursor(Cursors.handCursor());
 
-        Mouse.onMousePress(this, MouseEvent.BUTTON1, e -> showTooltip());
+        Mouse.onMousePress(this, MouseEvent.BUTTON1, e -> showTooltip(true));
         Mouse.onMouseEntered(this, e -> scheduleShowTooltip());
         Mouse.onMouseExited(this, e -> hideTooltip());
-
     }
-
-    private DBNTooltip createTooltip() {
-        DBNInfoForm infoForm = new DBNInfoForm(null, content);
-        return new DBNTooltip(this, getLocation(), infoForm.getComponent());
-    }
-
 
     private void scheduleShowTooltip() {
         timerTask = createTimerTask(this);
@@ -62,23 +68,47 @@ public class DBNInfoLabel extends JLabel {
         return new TimerTask() {
             @Override
             public void run() {
-                Dispatch.run(component, () -> showTooltip());
+                Dispatch.run(component, () -> showTooltip(false));
             }
         };
     }
 
-    private void showTooltip() {
+    private void showTooltip(boolean sticky) {
         cancelSchedule();
-        DBNTooltip tooltip = createTooltip();
+        hideCurrentPopup(true);
 
-        IdeTooltipManager tooltipManager = IdeTooltipManager.getInstance();
-        tooltipManager.show(tooltip, true);
+        JComponent popupComponent = createPopupComponent(content);
+        BalloonBuilder builder = JBPopupFactory.getInstance().createBalloonBuilder(popupComponent);
+        builder.setAnimationCycle(0);
+        builder.setCornerRadius(JBUI.scale(8));
+        builder.setFillColor(UIUtil.getToolTipBackground());
+        builder.setBorderColor(JBUI.CurrentTheme.Tooltip.borderColor());
+
+        RelativePoint popupLocation = JBPopupFactory.getInstance().guessBestPopupLocation(this);
+        Point point = popupLocation.getPoint();
+        popupLocation = new RelativePoint(popupLocation.getComponent(), new Point(point.x + 12, point.y));
+
+        Balloon balloon = builder.createBalloon();
+        currentBalloon = WeakRef.of(balloon);
+        currentBalloonSticky = sticky;
+        balloon.show(popupLocation, Balloon.Position.atRight);
+    }
+
+    private JComponent createPopupComponent(TextContent content) {
+        DBNInfoForm infoForm = new DBNInfoForm(null, content);
+        infoForm.addHyperlinkListener(hyperlinkListener);
+        JComponent infoComponent = infoForm.getComponent();
+
+        JPanel component = new JPanel(new BorderLayout());
+        component.setOpaque(false);
+        component.setBorder(JBUI.Borders.empty(4));
+        component.add(infoComponent);
+        return component;
     }
 
     private void hideTooltip() {
         cancelSchedule();
-        IdeTooltipManager tooltipManager = IdeTooltipManager.getInstance();
-        tooltipManager.hideCurrentNow(true);
+        hideCurrentPopup(false);
     }
 
     private void cancelSchedule() {
@@ -86,5 +116,15 @@ public class DBNInfoLabel extends JLabel {
             timerTask.cancel();
         }
         timer.purge();
+    }
+
+    private static void hideCurrentPopup(boolean force) {
+        if (currentBalloonSticky && !force) return;
+
+        Balloon current = WeakRef.get(currentBalloon);
+        if (current == null) return;
+
+        current.hide();
+        currentBalloon.clear();
     }
 }

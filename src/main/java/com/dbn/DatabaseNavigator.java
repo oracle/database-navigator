@@ -40,9 +40,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 import static com.dbn.common.component.Components.applicationService;
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.common.util.FileChoosers.nativeFileChoosers;
 
 @Slf4j
 @Getter
@@ -116,6 +119,7 @@ public class DatabaseNavigator extends ApplicationComponentBase implements Persi
         Diagnostics.writeState(diagnosticsElement);
         setString(element, "client-id", clientId);
         setString(element, "config-version", pluginVersion); // always save as current version
+        setBooleanAttribute(element, "native-file-choosers", nativeFileChoosers);
         return element;
     }
 
@@ -125,6 +129,7 @@ public class DatabaseNavigator extends ApplicationComponentBase implements Persi
         Diagnostics.readState(diagnosticsElement);
         clientId = getString(element, "client-id", clientId);
         configVersion = getString(element, "config-version", "");
+        nativeFileChoosers = booleanAttribute(element, "native-file-choosers", nativeFileChoosers);
 
     }
 }

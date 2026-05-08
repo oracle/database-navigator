@@ -25,7 +25,7 @@
         p { margin-top:0; }
     </style>
 </head>
-<body>
+<body style="width: 300px">
     <h3>Data Source</h3>
     <p>Data source used for generating vector embeddings. Choose where the content will be loaded from.</p>
     <br>

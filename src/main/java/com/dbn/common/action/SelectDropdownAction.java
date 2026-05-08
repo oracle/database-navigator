@@ -57,6 +57,10 @@ public abstract class SelectDropdownAction<T extends Presentable> extends ComboB
         return null;
     }
 
+    protected String getDescription(T element) {
+        return null;
+    }
+
     protected boolean isVisible(AnActionEvent e) {
         return true;
     }
@@ -138,6 +142,7 @@ public abstract class SelectDropdownAction<T extends Presentable> extends ComboB
 
             presentation.setText(text);
             presentation.setIcon(element.getIcon());
+            presentation.setDescription(getDescription(element));
         }
     }
 }

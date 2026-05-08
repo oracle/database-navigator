@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,29 @@
 
 package com.dbn.assistant.mcp;
 
+import com.dbn.assistant.mcp.model.AssistantMcpServer;
+import com.dbn.assistant.mcp.model.AssistantMcpServerBundle;
+import com.dbn.assistant.mcp.model.AssistantMcpServerData;
 import com.dbn.assistant.mcp.ui.AssistantMcpServersSettingsForm;
 import com.dbn.assistant.settings.AssistantSettings;
+import com.dbn.common.EntityId;
 import com.dbn.common.options.BasicProjectConfiguration;
+import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.options.setting.Settings.childrenOf;
+import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setBoolean;
 
 @Getter
 @Setter
@@ -39,19 +47,32 @@ public class AssistantMcpServerSettings
         extends BasicProjectConfiguration<AssistantSettings, AssistantMcpServersSettingsForm> {
 
     private AssistantMcpServerBundle mcpServers;
+    private AssistantMcpServerData mcpServerData;
+    private boolean workspaceIntegration;
+    private final AssistantMcpToolApprovals mcpToolApprovals = new AssistantMcpToolApprovals();
+
 
     public AssistantMcpServerSettings(AssistantSettings parent) {
         super(parent);
-        mcpServers = new AssistantMcpServerBundle(parent.getProject());
+        Project project = parent.getProject();
+        mcpServers = new AssistantMcpServerBundle(project);
+        mcpServerData = new AssistantMcpServerData(project);
     }
 
     public void setMcpServers(AssistantMcpServerBundle mcpServers) {
         this.mcpServers = new AssistantMcpServerBundle(getProject(), mcpServers.getElements());
     }
 
-    public Set<String> getMcpServerIds() {
+    public Set<EntityId> getMcpServerIds() {
         return mcpServers.getMcpServerIds();
     }
+
+
+    @Nullable
+    public AssistantMcpServer getMcpServer(EntityId serverId) {
+        return mcpServers.getMcpServer(serverId);
+    }
+
 
     @NotNull
     @Override
@@ -66,6 +87,8 @@ public class AssistantMcpServerSettings
 
     @Override
     public void readConfiguration(Element element) {
+        workspaceIntegration = getBoolean(element, "workspace-integration", false);
+
         Element serversElement = element.getChild("mcp-servers");
         List<AssistantMcpServer> mcpServers = new ArrayList<>();
 
@@ -76,14 +99,22 @@ public class AssistantMcpServerSettings
             mcpServers.add(mcpServer);
         }
         this.mcpServers.setMcpServers(mcpServers);
+
+        Element approvalsElement = element.getChild("mcp-tool-approvals");
+        mcpToolApprovals.readState(approvalsElement);
     }
 
     @Override
     public void writeConfiguration(Element element) {
+        setBoolean(element, "workspace-integration", workspaceIntegration);
+
         Element serversElement = newElement(element, "mcp-servers");
         for (AssistantMcpServer mcpServer : mcpServers.getElements()) {
             Element serverElement = newElement(serversElement, "mcp-server");
             mcpServer.writeConfiguration(serverElement);
         }
+
+        Element approvalsElement = newElement(element, "mcp-tool-approvals");
+        mcpToolApprovals.writeState(approvalsElement);
     }
 }

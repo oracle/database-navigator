@@ -208,11 +208,11 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         List<ConnectionHandler> connections = connectionBundle.getConnections();
         actions.addAll(convert(connections, c -> new ConnectionAction(file, c)));
 
-        actions.add(Separator.create());
+        actions.add(Separator.getInstance());
         Collection<ConnectionHandler> virtualConnections = connectionBundle.listVirtualConnections();
         actions.addAll(convert(virtualConnections, c -> new ConnectionAction(file, c)));
 
-        actions.add(Separator.create());
+        actions.add(Separator.getInstance());
         actions.add(new ConnectionAction(file, null));
         promptSelector("Connections", actions, a -> a instanceof ConnectionAction && ((ConnectionAction) a).getConnectionId() == mapping.getConnectionId());
     }
