@@ -18,12 +18,14 @@ package com.dbn.assistant.tool.spec;
 
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
+import com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
 import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
-import com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
 import com.dbn.assistant.tool.impl.JavaMetadataToolImpl;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
+import dev.langchain4j.model.output.structured.Description;
+import lombok.Data;
 
 import java.util.List;
 
@@ -34,7 +36,7 @@ import static com.dbn.assistant.tool.AssistantToolType.JAVA_METADATA;
         category = METADATA_PROVIDER,
         type = JAVA_METADATA,
         name = "Java metadata",
-        description = "Information about java units (classes, resources) in a given schema")
+        description = "Information about OJVM java units (classes, resources) in a given database schema")
 public interface JavaMetadataTool extends AssistantTool {
 
     @FactorySpec(
@@ -46,18 +48,33 @@ public interface JavaMetadataTool extends AssistantTool {
      *                 TOOLS                     *
      *********************************************/
 
+    @Tool(name = "LOAD_JAVA_INFORMATION")
+    @UtilitySpec(
+            name = "Load database java information",
+            description = "Loads database OJVM java information")
+    JavaInformation getJavaInformation();
+
+
     @Tool(name = "LIST_JAVA_CLASS_NAMES")
     @UtilitySpec(
-            name = "List class names",
-            description = "Lists the names of class in a given schema",
+            name = "List java class names",
+            description = "Lists the names of OJVM java classes in a given schema",
             summary = "schema %s")
     List<String> listClassNames(@P("Schema name") String schemaName);
 
 
     @Tool(name = "LIST_JAVA_RESOURCE_NAMES")
     @UtilitySpec(
-            name = "List resource names",
-            description = "Lists the names of resources in a given schema",
+            name = "List java resource names",
+            description = "Lists the names of OJVM java resources in a given schema",
             summary = "schema %s")
     List<String> listResourceNames(@P("Schema name") String schemaName);
+
+
+    @Data
+    @Description("Java information")
+    class JavaInformation{
+        @Description("OJVM Java version")
+        private String version;
+    }
 }

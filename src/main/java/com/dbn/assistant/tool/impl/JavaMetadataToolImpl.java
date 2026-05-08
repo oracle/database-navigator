@@ -18,14 +18,31 @@ package com.dbn.assistant.tool.impl;
 
 import com.dbn.assistant.tool.AssistantToolBase;
 import com.dbn.assistant.tool.spec.JavaMetadataTool;
+import com.dbn.connection.info.ConnectionInfo;
+import com.dbn.execution.java.JavaExecutionManager;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaResource;
 import com.dbn.object.DBSchema;
-import com.dbn.object.DBJavaClass;
+import lombok.SneakyThrows;
 
 import java.util.List;
 
 
 public class JavaMetadataToolImpl extends AssistantToolBase implements JavaMetadataTool {
+
+    @Override
+    @SneakyThrows
+    public JavaInformation getJavaInformation() {
+        ConnectionInfo connectionInfo = getConnection().getConnectionInfo();
+        if (connectionInfo == null) throw new IllegalStateException("Could not connect to database");
+
+        JavaInformation information = new JavaInformation();
+
+        JavaExecutionManager javaExecutionManager = JavaExecutionManager.getInstance(getProject());
+        String javaVersion = javaExecutionManager.getJavaVersion(getConnectionId());
+        information.setVersion(javaVersion); //SELECT dbms_java.get_jdk_version FROM dual;
+        return information;
+    }
 
     @Override
     public List<String> listClassNames(String schemaName) {

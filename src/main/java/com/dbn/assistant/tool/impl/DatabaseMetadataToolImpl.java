@@ -37,16 +37,4 @@ public class DatabaseMetadataToolImpl extends AssistantToolBase implements Datab
         return information;
 
     }
-
-    @Override
-    public JavaInformation getJavaInformation() {
-        ConnectionInfo connectionInfo = getConnection().getConnectionInfo();
-        if (connectionInfo == null) throw new IllegalStateException("Could not connect to database");
-
-        JavaInformation information = new JavaInformation();
-
-        information.setVersion(""); //SELECT dbms_java.get_jdk_version FROM dual;
-        return information;
-    }
-
 }

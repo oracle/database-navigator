@@ -18,8 +18,8 @@ package com.dbn.assistant.tool.spec;
 
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
-import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
 import com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
+import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
 import com.dbn.assistant.tool.impl.JavaSourceCodeToolImpl;
 import dev.langchain4j.agent.tool.P;
@@ -36,7 +36,7 @@ import static com.dbn.assistant.tool.AssistantToolType.JAVA_SOURCE_CODE;
         category = SOURCE_CODE_PROVIDER,
         type = JAVA_SOURCE_CODE,
         name = "Java source-code",
-        description = "Source code for OJVM object (Java Class, Java Resource)")
+        description = "Source code for OJVM java units (classes and resources)")
 public interface JavaSourceCodeTool extends AssistantTool {
 
     @FactorySpec(
@@ -50,8 +50,8 @@ public interface JavaSourceCodeTool extends AssistantTool {
 
     @Tool(name = "LOAD_JAVA_CLASS_CODE")
     @UtilitySpec(
-            name = "Load Java class code",
-            description = "Loads the source code of a given java class",
+            name = "Load java class code",
+            description = "Loads the source code of a given OJVM java class",
             summary = "%s.%s")
     JavaSourceCodeTool.JavaSourceCode loadJavaClassCode(
             @P("Schema name") String schemaName,
@@ -60,8 +60,8 @@ public interface JavaSourceCodeTool extends AssistantTool {
 
     @Tool(name = "LOAD_JAVA_RESOURCE_CODE")
     @UtilitySpec(
-            name = "Load Java resource source-code",
-            description = "Loads the source code of a given user-defined java resource",
+            name = "Load java resource code",
+            description = "Loads the source code of a given OJVM java resource",
             summary = "%s.%s")
     JavaSourceCodeTool.JavaSourceCode loadJavaResourceCode(
             @P("Schema name") String schemaName,

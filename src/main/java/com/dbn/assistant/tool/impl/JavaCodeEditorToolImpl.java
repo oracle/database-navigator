@@ -17,14 +17,14 @@
 package com.dbn.assistant.tool.impl;
 
 import com.dbn.assistant.tool.AssistantToolBase;
-import com.dbn.assistant.tool.spec.JavaCodeEditorTool;
+import com.dbn.assistant.tool.spec.JavaSourceCodeEditorTool;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaResource;
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 
 
-public class JavaCodeEditorToolImpl extends AssistantToolBase implements JavaCodeEditorTool {
+public class JavaCodeEditorToolImpl extends AssistantToolBase implements JavaSourceCodeEditorTool {
     @Override
     public void openJavaClassEditor(String schemaName, String className) {
         DBSchema schema = getSchema(schemaName);

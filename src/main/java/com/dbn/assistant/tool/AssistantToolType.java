@@ -51,9 +51,9 @@ public enum AssistantToolType implements Constant<AssistantToolType> {
 
     // IDE_ACTION_INVOKER
     DATASET_EDITORS,
-    SOURCE_CODE_EDITORS,
-    JAVA_CODE_EDITORS,
     SQL_CONSOLE_EDITORS,
+    PROGRAM_SOURCE_CODE_EDITORS,
+    JAVA_SOURCE_CODE_EDITORS,
 
     ;
 
@@ -72,8 +72,8 @@ public enum AssistantToolType implements Constant<AssistantToolType> {
                 PROGRAM_SOURCE_CODE,
                 JAVA_SOURCE_CODE,
                 DATASET_EDITORS,
-                SOURCE_CODE_EDITORS,
-                JAVA_CODE_EDITORS,
+                PROGRAM_SOURCE_CODE_EDITORS,
+                JAVA_SOURCE_CODE_EDITORS,
                 SQL_CONSOLE_EDITORS),
 
             // data analytics

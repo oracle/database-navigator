@@ -18,27 +18,27 @@ package com.dbn.assistant.tool.spec;
 
 import com.dbn.assistant.tool.AssistantTool;
 import com.dbn.assistant.tool.AssistantToolFactoryBase;
+import com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
 import com.dbn.assistant.tool.AssistantToolInfo.ToolSpec;
 import com.dbn.assistant.tool.AssistantToolInfo.UtilitySpec;
-import com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
 import com.dbn.assistant.tool.impl.JavaCodeEditorToolImpl;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.IDE_ACTION_INVOKER;
-import static com.dbn.assistant.tool.AssistantToolType.JAVA_CODE_EDITORS;
+import static com.dbn.assistant.tool.AssistantToolType.JAVA_SOURCE_CODE_EDITORS;
 
 @ToolSpec(
         category = IDE_ACTION_INVOKER,
-        type = JAVA_CODE_EDITORS,
-        name = "Source-code editors",
-        description = "IDE actions for editing source-code of database objects")
-public interface JavaCodeEditorTool extends AssistantTool {
+        type = JAVA_SOURCE_CODE_EDITORS,
+        name = "Java source-code editors",
+        description = "IDE actions for editing source-code of given OJVM java units")
+public interface JavaSourceCodeEditorTool extends AssistantTool {
 
     @FactorySpec(
-            spec = JavaCodeEditorTool.class,
+            spec = JavaSourceCodeEditorTool.class,
             impl = JavaCodeEditorToolImpl.class)
-    class Factory extends AssistantToolFactoryBase<JavaCodeEditorTool> {}
+    class Factory extends AssistantToolFactoryBase<JavaSourceCodeEditorTool> {}
 
     /*********************************************
      *                 TOOLS                     *
@@ -46,8 +46,8 @@ public interface JavaCodeEditorTool extends AssistantTool {
 
     @Tool(name = "OPEN_JAVA_CLASS_EDITOR")
     @UtilitySpec(
-            name = "Open program code editor",
-            description = "Opens the code editor of a given OJVM Java class in the IDE",
+            name = "Open java source code editor",
+            description = "Opens the code editor of a given OJVM java class in the IDE",
             summary = "%s.%s")
     void openJavaClassEditor(
             @P("Schema name") String schemaName,
@@ -56,8 +56,8 @@ public interface JavaCodeEditorTool extends AssistantTool {
 
     @Tool(name = "OPEN_JAVA_RESOURCE_EDITOR")
     @UtilitySpec(
-            name = "Open type code editor",
-            description = "Opens the code editor of a given OJVM Java resource in the IDE",
+            name = "Open java resource code editor",
+            description = "Opens the code editor of a given OJVM java resource in the IDE",
             summary = "%s.%s")
     void openJavaResourceEditor(
             @P("Schema name") String schemaName,

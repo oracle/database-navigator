@@ -51,11 +51,6 @@ public interface DatabaseMetadataTool extends AssistantTool {
             description = "Loads database general information")
     DatabaseInformation loadDatabaseInformation();
 
-    @Tool(name = "GET_JAVA_INFORMATION")
-    @UtilitySpec(
-            name = "Get OJVM information",
-            description = "Gets database java (OJVM) information")
-    JavaInformation getJavaInformation();
 
     @Data
     @Description("Database information")
@@ -69,12 +64,5 @@ public interface DatabaseMetadataTool extends AssistantTool {
         @Description("Database version")
         private String version;
 
-    }
-
-    @Data
-    @Description("Java (OJVM) information")
-    class JavaInformation{
-        @Description("OJVM Java version")
-        private String version;
     }
 }
