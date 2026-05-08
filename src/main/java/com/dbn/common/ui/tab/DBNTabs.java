@@ -25,6 +25,7 @@ import java.awt.Color;
 import java.awt.Component;
 
 @UtilityClass
+@Deprecated // TODO remove (replaced by DBNColoredTabs)
 public class DBNTabs {
     public static void initTabComponent(Component component, Icon icon, Color color, DBNForm content) {
         ClientProperty.TAB_ICON.set(component, icon);

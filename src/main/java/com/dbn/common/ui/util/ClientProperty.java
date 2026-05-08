@@ -39,10 +39,16 @@ public enum ClientProperty {
     AVAILABILITY_CONDITION,
     FIELD_ERROR,
     ACTION_TOOLBAR,
+
+    @Deprecated // TODO remove (DBNTabbedPane replaced by DBNColoredTabs)
     TAB_ICON,
+    @Deprecated
     TAB_COLOR,
+    @Deprecated
     TAB_TOOLTIP,
+    @Deprecated
     TAB_CONTENT,
+
     FOCUS_INHERITANCE,
     COMPONENT_GROUP_QUALIFIER,
     HAS_VALIDATION_LISTENERS,

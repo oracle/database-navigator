@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import com.dbn.assistant.AssistantMode;
 import com.dbn.assistant.chat.ChatAvailability;
 import com.dbn.assistant.chat.context.ChatContext;
 import com.dbn.assistant.chat.window.action.AssistantActionSupport;
-import com.dbn.assistant.mcp.AssistantMcpServer;
-import com.dbn.assistant.mcp.AssistantMcpServerBundle;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
+import com.dbn.assistant.mcp.model.AssistantMcpServer;
+import com.dbn.assistant.mcp.model.AssistantMcpServerBundle;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.BackgroundUpdate;
@@ -37,6 +37,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 
+import java.util.List;
+
 import static com.dbn.assistant.chat.ChatAvailability.AVAILABLE;
 
 @BackgroundUpdate
@@ -50,13 +52,22 @@ public class McpServerSelectionAction extends ComboBoxAction implements Assistan
         AssistantState assistantState = getAssistantState(dataContext);
         if (assistantState == null) return actionGroup;
 
-        AssistantMcpServerBundle mcpServers = getMcpServers(assistantState);
-        for (AssistantMcpServer mcpServer : mcpServers.getElements()) {
+        AssistantMcpServerBundle mcpServerBundle = getMcpServers(assistantState);
+        AssistantMcpServer ideMcpServer = mcpServerBundle.getIdeMcpServer();
+        if (ideMcpServer != null) {
+            actionGroup.add(new McpServerSelectionToggleAction(ideMcpServer));
+            actionGroup.addSeparator();
+        }
+
+        List<AssistantMcpServer> mcpServers = mcpServerBundle.getElements();
+        for (AssistantMcpServer mcpServer : mcpServers) {
             actionGroup.add(new McpServerSelectionToggleAction(mcpServer));
         }
 
         actionGroup.addSeparator();
-        actionGroup.add(new McpServerCreateAction());
+        if (mcpServers.isEmpty()) {
+            actionGroup.add(new McpServerCreateAction());
+        }
         actionGroup.add(new AssistantSettingsAction());
 
         return actionGroup;
@@ -81,10 +92,9 @@ public class McpServerSelectionAction extends ComboBoxAction implements Assistan
         AssistantState assistantState = getAssistantState(e);
         if (assistantState == null) return "MCP Servers";
 
-
         AssistantMcpServerBundle mcpServers = getMcpServers(assistantState);
-        int available = mcpServers.getElements().size();
-        int selected = assistantState.getMcpServerData().countSelected();
+        int available = mcpServers.size();
+        int selected = assistantState.getMcpServerState().countSelected();
 
         return "MCP Servers (" + selected + "/" + available + ")";
     }

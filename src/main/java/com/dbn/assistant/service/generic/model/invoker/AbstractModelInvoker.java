@@ -16,9 +16,10 @@
 
 package com.dbn.assistant.service.generic.model.invoker;
 
+import com.dbn.assistant.AssistantMode;
 import com.dbn.assistant.adapter.AssistantResponseConsumer;
 import com.dbn.assistant.chat.context.ChatContext;
-import com.dbn.assistant.mcp.AssistantMcpServerData;
+import com.dbn.assistant.mcp.AssistantMcpServerState;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIModelFeature;
 import com.dbn.assistant.service.generic.context.AssistantInstructionsCache;
@@ -28,9 +29,12 @@ import com.dbn.assistant.service.generic.model.AssistantModelInvoker;
 import com.dbn.assistant.service.generic.model.AssistantModelType;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.tool.AssistantToolCache;
+import com.dbn.common.exception.Exceptions;
+import com.dbn.common.util.Strings;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.tool.ToolErrorHandlerResult;
 import dev.langchain4j.service.tool.ToolProvider;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +69,16 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
         if (!isFeatureSupported(assistantState, TOOLS)) return;
 
         var tools = AssistantToolCache.get(assistantState);
-        builder.toolProvider(tools);
+        builder.toolProvider(tools.getProvider());
+    }
+
+    protected static void initToolExecutionErrorHandler(AiServices<?> builder, ModelInvocationContext context) {
+        builder.toolExecutionErrorHandler((e, c) -> {
+            Throwable cause = Exceptions.unwrap(e);
+            String message = cause.getMessage();
+            String errorMessage = Strings.isEmptyOrSpaces(message) ? e.getClass().getName() : message;
+            return ToolErrorHandlerResult.text(errorMessage);
+        });
     }
 
     protected static void initExternalToolProviders(AiServices<?> builder, ModelInvocationContext context) {
@@ -74,9 +87,12 @@ abstract class AbstractModelInvoker<T> implements AssistantModelInvoker<T> {
         AssistantState assistantState = context.getAssistantState();
         if (!isFeatureSupported(assistantState, TOOLS)) return;
 
+        ChatContext currentContext = assistantState.getCurrentContext();
+        if (currentContext.getAssistantMode() == AssistantMode.RAG) return;
+
         AssistantResponseConsumer responseConsumer = context.getResponseConsumer();
-        AssistantMcpServerData mcpServerData = AssistantMcpServerData.get(assistantState);
-        List<ToolProvider> tools = mcpServerData.createToolProviders((m, e) -> responseConsumer.acceptToolError(m, e));
+        AssistantMcpServerState mcpServerState = AssistantMcpServerState.get(assistantState);
+        List<ToolProvider> tools = mcpServerState.createToolProviders((m, e) -> responseConsumer.acceptToolError(m, e));
         builder.toolProviders(tools);
     }
 

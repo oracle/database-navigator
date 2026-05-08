@@ -22,7 +22,6 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.driver.download.DriverDownloadManager;
 import com.dbn.driver.download.metadata.DriverPackage;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,6 +34,7 @@ import java.awt.Color;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
 
 public class DriverDownloadForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -44,8 +44,6 @@ public class DriverDownloadForm extends DBNFormBase {
     TextFieldWithBrowseButton libraryPathTextField;
     JLabel errorHintLabel;
     private JButton infoButton;
-    private static final FileChooserDescriptor LIBRARY_FILE_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false);
-
 
     public DriverDownloadForm(@Nullable Disposable parent, DatabaseType databaseType, List<DriverPackage> driverPackages) {
         super(parent);
@@ -68,10 +66,12 @@ public class DriverDownloadForm extends DBNFormBase {
         for (DriverPackage driverPackage : driverPackages) {
             libraryPackageComboBox.addItem(driverPackage);
         }
-        libraryPathTextField.addBrowseFolderListener(
+
+        addSingleFolderChooser(
+                getProject(),
+                libraryPathTextField,
                 txt("cfg.connection.title.SelectDriverLibrary"),
-                txt("cfg.connection.text.LibraryDriverClasses"),
-                null, LIBRARY_FILE_DESCRIPTOR);
+                txt("cfg.connection.text.LibraryDriverClasses"));
 
         libraryPathTextField.setText(getSelectedPackageLocation());
         libraryPackageComboBox.addActionListener(e ->

@@ -4,7 +4,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.oci.util.WalletPathValidator;
 import com.dbn.oci.util.WalletPathValidator.WalletValidationResult;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBPasswordField;
@@ -19,6 +18,8 @@ import javax.swing.JPanel;
 import java.util.Arrays;
 import java.util.Objects;
 
+import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
+
 
 public class OciConnectionInputForm extends DBNFormBase {
   public static final String AUTHENTICATION_TYPE_MTLS = "Mutual TLS (Wallet Required)";
@@ -26,11 +27,6 @@ public class OciConnectionInputForm extends DBNFormBase {
   public static final String WALLET_DEFAULT_LOCATION = System.getProperty("user.home") + "/.oci_toolkit/wallets";
 
   private final String walletDefaultPath;
-
-  private static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false)
-          .withTitle("Select Wallet")
-          .withDescription("Select a valid Oracle Database wallet");
-
 
   private JPanel mainPanel;
   private ComboBox authenticationTypeComboBox;
@@ -65,11 +61,13 @@ public class OciConnectionInputForm extends DBNFormBase {
     walletTypeComboBox.addItem(AutonomousDatabaseConstants.INSTANCE_WALLET);
     walletTypeComboBox.addItem(AutonomousDatabaseConstants.REGIONAL_WALLET);
 
-    walletLocationField.addBrowseFolderListener(
-            null, null, getProject(), FILE_CHOOSER_DESCRIPTOR
-    );
-
+    addSingleFileChooser(
+            getProject(),
+            walletLocationField,
+            "Select Wallet",
+            "Select an Oracle database wallet folder");
   }
+
 
   private void setListeners() {
     authenticationTypeComboBox.addActionListener(e -> {

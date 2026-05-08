@@ -51,6 +51,7 @@ public interface DatabaseMetadataTool extends AssistantTool {
             description = "Loads database general information")
     DatabaseInformation loadDatabaseInformation();
 
+
     @Data
     @Description("Database information")
     class DatabaseInformation{

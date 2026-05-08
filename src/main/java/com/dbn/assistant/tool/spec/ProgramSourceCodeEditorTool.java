@@ -28,19 +28,19 @@ import java.sql.SQLException;
 
 import static com.dbn.assistant.tool.AssistantToolCategory.IDE_ACTION_INVOKER;
 import static com.dbn.assistant.tool.AssistantToolInfo.FactorySpec;
-import static com.dbn.assistant.tool.AssistantToolType.SOURCE_CODE_EDITORS;
+import static com.dbn.assistant.tool.AssistantToolType.PROGRAM_SOURCE_CODE_EDITORS;
 
 @ToolSpec(
         category = IDE_ACTION_INVOKER,
-        type = SOURCE_CODE_EDITORS,
-        name = "Source-code editors",
-        description = "IDE actions for editing source-code of database objects")
-public interface SourceCodeEditorTool extends AssistantTool {
+        type = PROGRAM_SOURCE_CODE_EDITORS,
+        name = "Program source-code editors",
+        description = "IDE actions for editing source-code of database program units (stored procedures, functions, packages, triggers, declared types)")
+public interface ProgramSourceCodeEditorTool extends AssistantTool {
 
     @FactorySpec(
-            spec = SourceCodeEditorTool.class,
+            spec = ProgramSourceCodeEditorTool.class,
             impl = SourceCodeEditorToolImpl.class)
-    class Factory extends AssistantToolFactoryBase<SourceCodeEditorTool> {}
+    class Factory extends AssistantToolFactoryBase<ProgramSourceCodeEditorTool> {}
 
     /*********************************************
      *                 TOOLS                     *
