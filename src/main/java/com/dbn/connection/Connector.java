@@ -136,13 +136,13 @@ class Connector {
             compatibility.initConnectorSslConnection(properties, connectionSettings);
 
             String connectionUrl = databaseSettings.getConnectionUrl();
-            if (databaseSettings.isConfigHttps()) {
+            if (databaseSettings.isConfigFile()) {
                 connectionUrl = databaseSettings.getConnectionUrlForConnect();
             }
 
             // SSH Tunnel
             ConnectionSshTunnelSettings sshTunnelSettings = connectionSettings.getSshTunnelSettings();
-            if (sshTunnelSettings.isActive() && !databaseSettings.isConfigHttps()) {
+            if (sshTunnelSettings.isActive() && !databaseSettings.isConfigFile()) {
                 SshTunnelManager sshTunnelManager = SshTunnelManager.getInstance();
                 SshTunnelConnector sshTunnelConnector = sshTunnelManager.ensureSshConnection(connectionSettings);
                 if (sshTunnelConnector != null) {

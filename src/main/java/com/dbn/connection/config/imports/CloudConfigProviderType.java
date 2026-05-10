@@ -67,4 +67,10 @@ public enum CloudConfigProviderType implements Presentable {
         }
         return null;
     }
+
+    public boolean isOci() {
+        return this == OCI_OBJECT ||
+                this == OCI_DB_TOOLS ||
+                this == OCI_VAULT;
+    }
 }

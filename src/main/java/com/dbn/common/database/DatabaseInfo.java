@@ -27,6 +27,7 @@ import com.dbn.connection.config.file.DatabaseFile;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.imports.CloudConfigProviderType;
 import com.dbn.connection.config.imports.ConfigFileSourceType;
+import com.dbn.connection.config.imports.OciConfigProviderAuthentication;
 import com.dbn.connection.config.tns.TnsAdmin;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -72,6 +73,9 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
     private String tnsProfile;
     private ConfigFileSourceType configFileSourceType = ConfigFileSourceType.LOCAL_FILE;
     private CloudConfigProviderType cloudConfigProviderType;
+    private OciConfigProviderAuthentication ociConfigProviderAuthentication;
+    private String ociConfigProviderConfigFile;
+    private String ociConfigProviderProfile;
     private String configLocation;
     private String configFileProfileKey;
     private Map<String, String> parameters = new HashMap<>();
@@ -107,6 +111,9 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.serverType = null;
         this.configFileSourceType = ConfigFileSourceType.LOCAL_FILE;
         this.cloudConfigProviderType = null;
+        this.ociConfigProviderAuthentication = null;
+        this.ociConfigProviderConfigFile = null;
+        this.ociConfigProviderProfile = null;
         this.configLocation = null;
         this.configFileProfileKey = null;
         this.parameters = new HashMap<>();
@@ -152,6 +159,21 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
             configFileSourceType = ConfigFileSourceType.CLOUD_PROVIDER;
             cloudConfigProviderType = CloudConfigProviderType.fromSlug(provider);
         }
+
+        if (cloudConfigProviderType != null && cloudConfigProviderType.isOci()) {
+            ociConfigProviderAuthentication = OciConfigProviderAuthentication.get(getParameterIgnoreCase("AUTHENTICATION"));
+            ociConfigProviderConfigFile = getParameterIgnoreCase("OCI_CONFIG_FILE");
+            ociConfigProviderProfile = getParameterIgnoreCase("OCI_PROFILE");
+        }
+    }
+
+    private String getParameterIgnoreCase(String key) {
+        for (Map.Entry<String, String> entry : parameters.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(key)) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
     private void initializeFiles(DatabaseUrlPattern pattern) {
@@ -205,6 +227,9 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         clone.serverType = this.serverType;
         clone.configFileSourceType = this.configFileSourceType;
         clone.cloudConfigProviderType = this.cloudConfigProviderType;
+        clone.ociConfigProviderAuthentication = this.ociConfigProviderAuthentication;
+        clone.ociConfigProviderConfigFile = this.ociConfigProviderConfigFile;
+        clone.ociConfigProviderProfile = this.ociConfigProviderProfile;
         clone.configLocation = this.configLocation;
         clone.configFileProfileKey = this.configFileProfileKey;
         clone.parameters = new HashMap<>(this.parameters);

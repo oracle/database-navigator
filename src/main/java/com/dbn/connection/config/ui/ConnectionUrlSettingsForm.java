@@ -123,7 +123,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         databaseFilesPanel.add(databaseFileSettingsForm.getComponent(), BorderLayout.CENTER);
         urlTypeComboBox.addActionListener(e -> updateFieldVisibility());
         sourceTypeComboBox.addActionListener(e -> updateFieldVisibility());
-        cloudProviderComboBox.addActionListener(e -> updateUrlField());
+        cloudProviderComboBox.addActionListener(e -> updateFieldVisibility());
         parametersButton.addActionListener(e -> openParametersDialog());
 
         updateTnsAdminField();
@@ -238,7 +238,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         if (sourceType == ConfigFileSourceType.LOCAL_FILE) return getText(configFileTextField);
 
         String configLocation = getText(configLocationTextField);
-        return sourceType == ConfigFileSourceType.HTTPS ?
+        return sourceType == ConfigFileSourceType.HTTPS || isOciObjectStorageConfig() ?
                 DatabaseUrlPattern.normalizeConfigHttpsLocation(configLocation) :
                 configLocation;
     }
@@ -251,7 +251,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         return getUrlType() != DatabaseUrlType.CONFIG_FILE || getConfigFileSourceType() != ConfigFileSourceType.LOCAL_FILE;
     }
 
-    private void updateUrlField() {
+    void updateUrlField() {
         DatabaseUrlType urlType = getUrlType();
         if (urlType == DatabaseUrlType.CUSTOM) return;
 
@@ -287,8 +287,14 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     }
 
     private Map<String, String> getConfigFileParameters() {
+        Map<String, String> parameters = new LinkedHashMap<>();
+
         String profileKey = getConfigFileProfileKey();
-        return isEmptyOrSpaces(profileKey) ? Collections.emptyMap() : Collections.singletonMap("key", profileKey.trim());
+        if (Strings.isNotEmptyOrSpaces(profileKey)) {
+            parameters.put("key", profileKey.trim());
+        }
+
+        return parameters.isEmpty() ? Collections.emptyMap() : parameters;
     }
 
     public Map<String, String> getParameters() {
@@ -407,6 +413,21 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         ConnectionDatabaseSettingsForm parent = ensureParentComponent();
         parent.updateAuthenticationVisibility();
 
+    }
+
+    boolean isOciCloudProvider() {
+        CloudConfigProviderType provider = getCloudConfigProviderType();
+        return isCloudProviderConfig() && provider != null && provider.isOci();
+    }
+
+    private boolean isOciObjectStorageConfig() {
+        return isCloudProviderConfig() &&
+                getCloudConfigProviderType() == CloudConfigProviderType.OCI_OBJECT;
+    }
+
+    boolean isCloudProviderConfig() {
+        return getUrlType() == DatabaseUrlType.CONFIG_FILE &&
+                getConfigFileSourceType() == ConfigFileSourceType.CLOUD_PROVIDER;
     }
 
     void handleDatabaseTypeChange(DatabaseType oldDatabaseType, DatabaseType newDatabaseType) {

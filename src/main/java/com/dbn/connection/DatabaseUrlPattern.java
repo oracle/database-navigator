@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -182,8 +183,14 @@ public enum DatabaseUrlPattern {
     }
 
     private static Map<String, String> configFileParameters(DatabaseInfo databaseInfo) {
+        Map<String, String> parameters = new LinkedHashMap<>();
+
         String profileKey = databaseInfo.getConfigFileProfileKey();
-        return isEmpty(profileKey) ? Collections.emptyMap() : Collections.singletonMap("key", profileKey);
+        if (!isEmpty(profileKey)) {
+            parameters.put("key", profileKey);
+        }
+
+        return parameters.isEmpty() ? Collections.emptyMap() : parameters;
     }
 
     public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, DatabaseProtocol protocol, ServerType serverType, Map<String, String> parameters, String configProvider, String configLocation) {

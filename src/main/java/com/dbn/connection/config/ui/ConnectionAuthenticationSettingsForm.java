@@ -17,9 +17,11 @@
 package com.dbn.connection.config.ui;
 
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.imports.OciConfigProviderAuthentication;
 import com.dbn.connection.ui.ConnectionAuthenticationFieldsForm;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,10 +35,13 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
     private JPanel mainPanel;
 
     private final ConnectionAuthenticationFieldsForm fieldsForm = new ConnectionAuthenticationFieldsForm(this);
+    private final CloudConfigProviderAuthenticationSettingsForm cloudConfigProviderAuthSettingsForm;
 
     public ConnectionAuthenticationSettingsForm(@NotNull ConnectionDatabaseSettingsForm parentComponent) {
         super(parentComponent);
-        mainPanel.add(fieldsForm.getComponent());
+        cloudConfigProviderAuthSettingsForm = new CloudConfigProviderAuthenticationSettingsForm(parentComponent);
+
+        setCloudProviderMode(false);
     }
 
     @Override
@@ -49,13 +54,48 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
         return fieldsForm.settingsChanged(authenticationInfo);
     }
 
+    public boolean cloudProviderSettingsChanged() {
+        return cloudConfigProviderAuthSettingsForm.settingsChanged();
+    }
+
     public void resetFormChanges() {
         AuthenticationInfo authenticationInfo = getAuthenticationInfo();
         fieldsForm.resetFormChanges(authenticationInfo);
+        cloudConfigProviderAuthSettingsForm.resetFormChanges();
     }
 
     public void setAuthenticationTypes(AuthenticationType ... authenticationTypes) {
         fieldsForm.setAuthenticationTypes(authenticationTypes);
+    }
+
+    public void setCloudProviderMode(boolean cloudProviderMode) {
+        mainPanel.removeAll();
+        JComponent component = cloudProviderMode ?
+                cloudConfigProviderAuthSettingsForm.getComponent() :
+                fieldsForm.getComponent();
+        mainPanel.add(component);
+        mainPanel.revalidate();
+        mainPanel.repaint();
+    }
+
+    public OciConfigProviderAuthentication getOciConfigProviderAuthentication() {
+        return cloudConfigProviderAuthSettingsForm.getOciConfigProviderAuthentication();
+    }
+
+    public String getOciConfigProviderConfigFile() {
+        return cloudConfigProviderAuthSettingsForm.getOciConfigProviderConfigFile();
+    }
+
+    public String getOciConfigProviderProfile() {
+        return cloudConfigProviderAuthSettingsForm.getOciConfigProviderProfile();
+    }
+
+    public void applyCloudProviderFormChanges(DatabaseInfo databaseInfo) {
+        cloudConfigProviderAuthSettingsForm.applyFormChanges(databaseInfo);
+    }
+
+    public void addCloudProviderChangeListeners(Runnable runnable) {
+        cloudConfigProviderAuthSettingsForm.addChangeListeners(runnable);
     }
 
     private AuthenticationInfo getAuthenticationInfo() {

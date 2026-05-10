@@ -36,6 +36,7 @@ import com.dbn.connection.ServerType;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.imports.CloudConfigProviderType;
 import com.dbn.connection.config.imports.ConfigFileSourceType;
+import com.dbn.connection.config.imports.OciConfigProviderAuthentication;
 import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverSource;
@@ -54,6 +55,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -191,7 +193,24 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
     }
 
     public String getConnectionUrlForConnect() {
-        return appendConfigHttpsAuthentication(getConnectionUrl());
+        if (!isConfigFile() || databaseInfo.isCustomUrl()) {
+            return appendConfigHttpsAuthentication(getConnectionUrl());
+        }
+
+        String connectionUrl = urlPattern.buildUrl(
+                databaseInfo.getVendor(),
+                databaseInfo.getHost(),
+                databaseInfo.getPort(),
+                databaseInfo.getDatabase(),
+                databaseInfo.getMainFilePath(),
+                databaseInfo.ensureTnsFolder(),
+                databaseInfo.getTnsProfile(),
+                databaseInfo.getProtocol(),
+                databaseInfo.getServerType(),
+                getUrlParameters(),
+                getConfigProvider(),
+                databaseInfo.getConfigLocation());
+        return appendConfigHttpsAuthentication(connectionUrl);
     }
 
     public String getConnectionUrl(String host, String port) {
@@ -218,14 +237,23 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
     }
 
     public boolean isConfigHttps() {
-        return databaseInfo.getUrlType() == DatabaseUrlType.CONFIG_FILE &&
+        return isConfigFile() &&
                 databaseInfo.getConfigFileSourceType() == ConfigFileSourceType.HTTPS;
     }
 
+    public boolean isConfigFile() {
+        return databaseInfo.getUrlType() == DatabaseUrlType.CONFIG_FILE;
+    }
+
     public void setConfigLocation(String configLocation) {
-        databaseInfo.setConfigLocation(isConfigHttps() ?
+        databaseInfo.setConfigLocation(isConfigHttps() || isOciObjectStorageConfig() ?
                 DatabaseUrlPattern.normalizeConfigHttpsLocation(configLocation) :
                 configLocation);
+    }
+
+    private boolean isOciObjectStorageConfig() {
+        return isConfigCloudProvider() &&
+                databaseInfo.getCloudConfigProviderType() == CloudConfigProviderType.OCI_OBJECT;
     }
 
     // Oracle's HTTPS config provider expects Basic Auth credentials as URL query parameters.
@@ -254,8 +282,26 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             return databaseInfo.getParameters();
         }
 
+        Map<String, String> parameters = new LinkedHashMap<>();
         String profileKey = databaseInfo.getConfigFileProfileKey();
-        return Strings.isEmpty(profileKey) ? Collections.emptyMap() : Collections.singletonMap("key", profileKey);
+        if (Strings.isNotEmpty(profileKey)) {
+            parameters.put("key", profileKey);
+        }
+
+        CloudConfigProviderType provider = databaseInfo.getCloudConfigProviderType();
+        if (isConfigCloudProvider() && provider != null && provider.isOci()) {
+            OciConfigProviderAuthentication authentication = databaseInfo.getOciConfigProviderAuthentication();
+            parameters.putAll(OciConfigProviderParameters.build(
+                    authentication,
+                    databaseInfo.getOciConfigProviderConfigFile(),
+                    databaseInfo.getOciConfigProviderProfile()));
+        }
+        return parameters.isEmpty() ? Collections.emptyMap() : parameters;
+    }
+
+    private boolean isConfigCloudProvider() {
+        return databaseInfo.getUrlType() == DatabaseUrlType.CONFIG_FILE &&
+                databaseInfo.getConfigFileSourceType() == ConfigFileSourceType.CLOUD_PROVIDER;
     }
 
     private String getConfigProvider() {
@@ -388,6 +434,9 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             databaseInfo.setProtocol(getEnum(element, "protocol", DatabaseProtocol.class));
             databaseInfo.setConfigFileSourceType(getEnum(element, "config-file-source-type", ConfigFileSourceType.LOCAL_FILE));
             databaseInfo.setCloudConfigProviderType(getEnum(element, "cloud-config-provider-type", CloudConfigProviderType.class));
+            databaseInfo.setOciConfigProviderAuthentication(getEnum(element, "oci-config-provider-authentication", OciConfigProviderAuthentication.class));
+            databaseInfo.setOciConfigProviderConfigFile(getString(element, "oci-config-provider-config-file", null));
+            databaseInfo.setOciConfigProviderProfile(getString(element, "oci-config-provider-profile", null));
             setConfigLocation(getString(element, "config-location", getString(element, "config-file-path", null)));
             databaseInfo.setConfigFileProfileKey(getString(element, "config-file-profile-key", null));
 
@@ -461,6 +510,9 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setEnum(element, "protocol", databaseInfo.getProtocol());
             setEnum(element, "config-file-source-type", databaseInfo.getConfigFileSourceType());
             setEnum(element, "cloud-config-provider-type", databaseInfo.getCloudConfigProviderType());
+            setEnum(element, "oci-config-provider-authentication", databaseInfo.getOciConfigProviderAuthentication());
+            setString(element, "oci-config-provider-config-file", nvl(databaseInfo.getOciConfigProviderConfigFile()));
+            setString(element, "oci-config-provider-profile", nvl(databaseInfo.getOciConfigProviderProfile()));
             setString(element, "config-location", nvl(databaseInfo.getConfigLocation()));
             setString(element, "config-file-profile-key", nvl(databaseInfo.getConfigFileProfileKey()));
 
@@ -489,6 +541,13 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
     }
 
     public boolean isInteractiveAuthentication() {
+        if (isConfigCloudProvider() &&
+                databaseInfo.getCloudConfigProviderType() != null &&
+                databaseInfo.getCloudConfigProviderType().isOci() &&
+                databaseInfo.getOciConfigProviderAuthentication() == OciConfigProviderAuthentication.OCI_INTERACTIVE) {
+            return true;
+        }
+
         AuthenticationType authenticationType = authenticationInfo.getType();
         if (authenticationType != AuthenticationType.TOKEN) return false;
 

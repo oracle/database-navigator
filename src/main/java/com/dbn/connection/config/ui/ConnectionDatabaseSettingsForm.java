@@ -120,6 +120,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         urlPanel.add(urlSettingsForm.getComponent(), BorderLayout.CENTER);
         authenticationPanel.add(authSettingsForm.getComponent(), BorderLayout.CENTER);
         driverLibraryPanel.add(driverSettingsForm.getComponent(), BorderLayout.CENTER);
+        authSettingsForm.addCloudProviderChangeListeners(urlSettingsForm::updateUrlField);
 
         resetFormChanges();
         registerComponent(mainPanel);
@@ -284,6 +285,9 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         } else if (urlType == DatabaseUrlType.CONFIG_FILE) {
             databaseInfo.setConfigFileSourceType(urlSettingsForm.getConfigFileSourceType());
             databaseInfo.setCloudConfigProviderType(urlSettingsForm.getCloudConfigProviderType());
+            if (urlSettingsForm.isOciCloudProvider()) {
+                authSettingsForm.applyCloudProviderFormChanges(databaseInfo);
+            }
             if (urlSettingsForm.getConfigFileSourceType() == ConfigFileSourceType.LOCAL_FILE &&
                     isEmptyOrSpaces(urlSettingsForm.getConfigLocation())) {
                 throw new ConfigurationException("Config file is required.");
@@ -305,7 +309,11 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         Secret[] oldSecrets = authenticationInfo.getSecrets();
 
         // apply changes and create snapshot of new authentication
-        authSettingsForm.applyFormChanges(authenticationInfo);
+        if (urlSettingsForm.isOciCloudProvider()) {
+            authenticationInfo.setType(AuthenticationType.NONE);
+        } else {
+            authSettingsForm.applyFormChanges(authenticationInfo);
+        }
 
         if (localConfigFile) {
             authenticationInfo.setType(AuthenticationType.NONE);
@@ -343,7 +351,9 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
         boolean settingsChanged =
                 urlSettingsForm.settingsChanged() ||
-                authSettingsForm.settingsChanged() ||
+                (urlSettingsForm.isOciCloudProvider() ?
+                        authSettingsForm.cloudProviderSettingsChanged() :
+                        authSettingsForm.settingsChanged()) ||
                 !Commons.match(configuration.getDatabaseType(), selectedDatabaseType) ||
                 !Commons.match(configuration.getDriverLibrary(), driverSettingsForm.getDriverLibrary());
 
@@ -375,7 +385,11 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
     void updateAuthenticationVisibility() {
         DatabaseType databaseType = getSelectedDatabaseType();
         authSettingsForm.setAuthenticationTypes(getAuthenticationTypes());
-        authenticationPanel.setVisible(databaseType.supportsAuthentication() && urlSettingsForm.requiresAuthentication());
+        boolean ociCloudProvider = urlSettingsForm.isOciCloudProvider();
+        boolean cloudProviderConfig = urlSettingsForm.isCloudProviderConfig();
+        authSettingsForm.setCloudProviderMode(ociCloudProvider);
+        authenticationPanel.setVisible(ociCloudProvider ||
+                !cloudProviderConfig && databaseType.supportsAuthentication() && urlSettingsForm.requiresAuthentication());
     }
 
     private AuthenticationType[] getAuthenticationTypes() {
@@ -399,6 +413,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
         urlSettingsForm.resetFormChanges();
         authSettingsForm.resetFormChanges();
+        urlSettingsForm.updateUrlField();
         driverSettingsForm.resetFormChanges();
     }
 
