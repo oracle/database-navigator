@@ -66,7 +66,7 @@ public class QuotePair {
     public String quote(String identifier) {
         if (isQuoted(identifier)) return identifier;
 
-        return beginQuote + identifier.replace(endQuote, endQuote + endQuote) + endQuote;
+        return beginQuote + identifier + endQuote;
     }
 
     /**
