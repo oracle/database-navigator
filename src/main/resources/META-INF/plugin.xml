@@ -27,7 +27,7 @@
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
     <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
     <vendor email="dan.cioca@oracle.com" url="https://www.oracle.com">Dan Cioca (Oracle)</vendor>
-    <idea-version since-build="231.4840.387" until-build="261.*"/>
+    <idea-version since-build="231.4840.387" until-build="262.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
             <b>Database Development and Management Tool</b><br></br>
@@ -53,6 +53,11 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.7.4</b>
+            <ul>
+                <li>Support for latest IDE versions
+                <li>Bug fixes
+            </ul>
             <li><b>3.7.3</b>
             <ul>
                 <li>Support for latest IDE versions
@@ -121,59 +126,6 @@
                 <li>Password storage in native keychain
                 <li>Tool accessibility enhancements
                 <li>Support for latest IDE versions (2024.3.x and 2025.1.x)
-                <li>Bug fixes
-            </ul>
-            <li><b>3.4.4425</b>
-            <ul>
-                <li>Script execution engine - support for Oracle TNS_ADMIN / cloud connections
-                <li>New-UI tool window icons rework
-                <li>NLS support - work in progress
-                <li>Bug fixes
-            </ul>
-            <li><b>3.4.4179</b>
-            <ul>
-                <li>Postgres SQL syntax - literal comparison operators
-                <li>Oracle TNS_ADMIN - support for environment variable
-                <li>New-UI tool window icons rework
-                <li>Support for latest IDE EAP versions
-                <li>Bug fixes
-            </ul>
-            <li><b>3.4.3713</b>
-            <ul>
-                <li>Object browser - new display mode (Connection selector)
-                <li>Object browser trees - sticky-path scroll headers
-                <li>Optimised database object lookup (Ctrl-Shift-D)
-                <li>New-UI adaptations and icons (WIP)
-                <li>Bug fixes
-            </ul>
-            <li><b>3.4.3407</b>
-            <ul>
-                <li>New UI adaptations and icons (WIP)
-                <li>Bug fixes
-            </ul>
-            <li><b>3.4.3211</b>
-            <ul>
-                <li>Prompted background-capable DB operations
-                <li>Ide startup optimisations (lazy component initialisation)
-                <li>Expression-based object filters
-                <li>New-UI adaptations and icons (WIP)
-                <li>Bug fixes
-            </ul>
-            <li><b>3.4.2700</b>
-            <ul>
-                <li>IDE startup optimisations
-                <li>Support for latest IDE versions
-                <li>Run profiles simplification
-                <li>Collapsible execution context details
-                <li>DDL file attachments (alternative file-name patterns)
-                <li>Bug fixes
-            </ul>
-            <li><b>3.4.2455</b>
-            <ul>
-                <li>Copyright support for SQL / PLSQL source code
-                <li>Oracle SQL - support for LIBRARY ddl statements
-                <li>Oracle PLSQL - basic support for conditional code blocks
-                <li>IDE freezing issues - background operations
                 <li>Bug fixes
             </ul>
         </ul>
