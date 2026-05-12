@@ -14,18 +14,20 @@ import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.dbn.connection.config.tns.TnsProfile;
+import com.dbn.mcp.model.McpServerDefinition;
+import com.dbn.mcp.model.McpToolDefinition;
+import com.dbn.mcp.model.McpToolParam;
 import com.dbn.mcp.model.McpTransportType;
 import com.dbn.mcp.model.OracleSecretStore;
 import com.dbn.mcp.model.OracleWallet;
-import com.dbn.mcp.model.ParamRow;
-import com.dbn.mcp.model.ToolDefinitionModel;
 import com.dbn.mcp.util.McpServerName;
-import com.dbn.mcp.util.McpToolDescription;
 import com.dbn.mcp.util.McpToolDefinitions;
+import com.dbn.mcp.util.McpToolDescription;
 import com.dbn.mcp.util.McpToolName;
 import com.dbn.mcp.util.SqlParameterParser;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,27 +58,22 @@ public class McpBuildTask {
 
     private final Project project;
     private final ConnectionHandler connection;
-    private final String serverName;
-    private final McpTransportType transportType;
-    private final int httpPort;
-    private final List<ToolDefinitionModel> tools;
+    private final McpServerDefinition serverDefinition;
 
-    public McpBuildTask(Project project, ConnectionHandler connection, String serverName, McpTransportType transportType, int httpPort, List<ToolDefinitionModel> tools) {
+    public McpBuildTask(Project project, ConnectionHandler connection, McpServerDefinition serverDefinition) {
         this.project = project;
         this.connection = connection;
-        this.serverName = McpServerName.normalize(serverName);
-        this.transportType = transportType == null ? McpTransportType.STDIO : transportType;
-        this.httpPort = httpPort >= 1 && httpPort <= 65535 ? httpPort : 8080;
-        this.tools = tools;
+        this.serverDefinition = serverDefinition;
     }
 
     public void execute() {
+        String serverName = serverDefinition.getServerName();
         String serverNameError = McpServerName.validationError(serverName);
         if (serverNameError != null) {
             showError(serverNameError);
             return;
         }
-        String toolValidationError = McpToolDefinitions.validationError(tools);
+        String toolValidationError = McpToolDefinitions.validationError(serverDefinition.getTools());
         if (toolValidationError != null) {
             showError(toolValidationError);
             return;
@@ -133,7 +130,7 @@ public class McpBuildTask {
         Files.createDirectories(dir);
         Files.write(configFile, yaml.getBytes(StandardCharsets.UTF_8));
 
-        return new McpBuildConfig(dir, configFile, serverName);
+        return new McpBuildConfig(dir, configFile, serverDefinition.getServerName());
     }
 
     private String resolveUrl() {
@@ -187,10 +184,11 @@ public class McpBuildTask {
     }
 
     private String buildYaml() {
+        @NonNls
         StringBuilder sb = new StringBuilder();
 
-        appendYamlField(sb, "", "transport", transportType.isHttp() ? "http" : "stdio");
-        sb.append("httpPort: ").append(httpPort).append("  # used when transport is http").append('\n');
+        appendYamlField(sb, "", "transport", serverDefinition.getTransportType().isHttp() ? "http" : "stdio");
+        sb.append("httpPort: ").append(serverDefinition.getHttpPort()).append("  # used when transport is http").append('\n');
         sb.append('\n');
 
         sb.append("dataSource:\n");
@@ -200,17 +198,17 @@ public class McpBuildTask {
         sb.append('\n');
 
         sb.append("tools:\n");
-        for (ToolDefinitionModel t : tools) {
+        for (McpToolDefinition t : serverDefinition.getTools()) {
             String toolName = McpToolName.normalize(t.getName());
             String description = McpToolDescription.normalize(t.getDescription());
             sb.append("  ").append(toolName).append(":\n");
             appendYamlField(sb, "    ", "description", safe(description, "SQL tool"));
             appendYamlField(sb, "    ", "statement", safe(t.getStatement(), "SELECT 1 FROM dual"));
 
-            List<ParamRow> params = t.getParamsModel() != null ? t.getParamsModel().getRows() : List.of();
+            List<McpToolParam> params = t.getParameters() != null ? t.getParameters() : List.of();
             if (!params.isEmpty()) {
                 sb.append("    parameters:\n");
-                for (ParamRow row : params) {
+                for (McpToolParam row : params) {
                     sb.append("      - name: ").append(SqlParameterParser.stripColon(row.getName())).append('\n');
                     sb.append("        type: ").append(row.getType().getSchemaType()).append('\n');
                     if (Strings.isNotEmpty(row.getType().getSchemaFormat())) {
@@ -227,7 +225,7 @@ public class McpBuildTask {
         return sb.toString();
     }
 
-    private static void appendYamlField(StringBuilder sb, String indent, String key, String value) {
+    private static void appendYamlField(StringBuilder sb, String indent, @NonNls String key, @NonNls String value) {
         String normalized = value == null ? "" : value;
         if (normalized.contains("\n")) {
             sb.append(indent).append(key).append(": |").append('\n');
@@ -286,7 +284,7 @@ public class McpBuildTask {
                 Path tempJar = McpMavenBuild.buildWithMaven(
                         project,
                         cfg.getDir().resolve(DIST),
-                        serverName,
+                        serverDefinition.getServerName(),
                         MCP_SDK,
                         JDBC,
                         template,
@@ -397,15 +395,20 @@ public class McpBuildTask {
 
     private void writeReadme(Path dir) {
         try {
+            String serverName = serverDefinition.getServerName();
+            String httpPort = serverDefinition.getHttpPort();
+
+            List<McpToolDefinition> tools = serverDefinition.getTools();
             List<Map<String, String>> toolList = tools.stream()
                     .map(t -> Map.of(
                             "name", McpToolName.normalize(t.getName()),
                             "description", safe(McpToolDescription.normalize(t.getDescription()), "SQL tool")))
                     .collect(Collectors.toList());
+
             Map<String, Object> context = new LinkedHashMap<>();
             context.put("SERVER_NAME", serverName);
             context.put("JAR_NAME", serverName + ".jar");
-            context.put("HTTP_PORT", Integer.toString(httpPort));
+            context.put("HTTP_PORT", httpPort);
             context.put("TOOLS", toolList);
             String content = TemplateUtilities.generateCode(project, "DBN - MCP Server README", context);
             Files.writeString(dir.resolve("README.md"), content, StandardCharsets.UTF_8);
@@ -415,6 +418,9 @@ public class McpBuildTask {
     }
 
     private void showResult(Path serverOutputDir, Path jar) {
+        String serverName = serverDefinition.getServerName();
+        McpTransportType transportType = serverDefinition.getTransportType();
+
         String path = jar.toAbsolutePath().toString();
         String configPath = serverOutputDir.resolve(CONFIG).toAbsolutePath().toString();
         String walletPath = serverOutputDir.resolve("wallet").toAbsolutePath().toString();
@@ -441,8 +447,10 @@ public class McpBuildTask {
     private String buildClaudeJson(String name, String jar) {
         String command;
         List<String> args;
+        McpTransportType transportType = serverDefinition.getTransportType();
         if (transportType.isHttp()) {
             command = "npx";
+            String httpPort = serverDefinition.getHttpPort();
             args = List.of("-y", "mcp-remote", "http://127.0.0.1:" + httpPort + "/mcp");
         } else {
             command = "java";
@@ -453,6 +461,7 @@ public class McpBuildTask {
 
     private String buildClineJson(String name) {
         Map<String, Object> server = new LinkedHashMap<>();
+        String httpPort = serverDefinition.getHttpPort();
         server.put("type", "streamableHttp");
         server.put("url", "http://127.0.0.1:" + httpPort + "/mcp");
         Map<String, Object> entry = new LinkedHashMap<>();

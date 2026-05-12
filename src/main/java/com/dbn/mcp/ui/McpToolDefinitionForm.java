@@ -8,25 +8,24 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.language.sql.SQLFileType;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.mcp.model.ParamRow;
-import com.dbn.mcp.model.ParamType;
-import com.dbn.mcp.model.ToolDefinitionModel;
-import com.dbn.mcp.util.McpToolDescription;
+import com.dbn.mcp.model.McpServerDefinition;
+import com.dbn.mcp.model.McpToolDefinition;
+import com.dbn.mcp.model.McpToolParam;
+import com.dbn.mcp.model.McpToolParamType;
 import com.dbn.mcp.util.McpToolDefinitions;
+import com.dbn.mcp.util.McpToolDescription;
 import com.dbn.mcp.util.McpToolName;
 import com.dbn.mcp.vfs.McpToolSqlVirtualFile;
 import com.dbn.vfs.DatabaseFileViewProvider;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
-import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.intellij.ui.components.JBTextArea;
+import com.intellij.ui.components.fields.ExpandableTextField;
 import com.intellij.util.ui.UIUtil;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,86 +45,76 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
+import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.mcp.util.SqlParameterParser.parseOccurrences;
 import static com.dbn.mcp.util.SqlParameterParser.stripColon;
 import static com.dbn.mcp.util.SqlParameterParser.uniqueInOrder;
 
-public class ToolDefinitionCreateForm extends DBNFormBase {
+public class McpToolDefinitionForm extends DBNFormBase {
     private JPanel mainPanel;
-    private JTextField toolName;
-    private JBTextArea toolDescriptionTextArea;
+    private JTextField nameTextField;
     private JPanel sqlEditorPanel;
     private JTable paramsTable;
     private JScrollPane paramsScrollPane;
     private JButton testSqlButton;
     private JLabel sqlTestStatusLabel;
+    private ExpandableTextField descriptionTextField;
 
     private final ConnectionHandler connection;
-    private ParamTableModel paramsModel;
     private Document document;
     private EditorEx editor;
-    private String cachedSqlText;
     private boolean suppressDocEvents;
     private String lastTestedSql;
     private boolean hasSqlTestResult;
     private boolean lastSqlTestPassed;
-    private final Set<String> siblingToolNames = new LinkedHashSet<>();
 
-    public ToolDefinitionCreateForm(Disposable parent, @NotNull ConnectionHandler connection) {
-        this(parent, connection, null, List.of());
-    }
 
-    public ToolDefinitionCreateForm(Disposable parent, @NotNull ConnectionHandler connection, @Nullable ToolDefinitionModel existing, @NotNull List<String> usedToolNames) {
+    private final @Getter McpServerDefinition serverDefinition;
+    private final @Getter McpToolDefinition toolDefinition;
+    private ParamTableModel paramsModel;
+
+    public McpToolDefinitionForm(
+            Disposable parent,
+            @NotNull ConnectionHandler connection,
+            @NotNull McpServerDefinition serverDefinition,
+            @Nullable McpToolDefinition toolDefinition) {
+
         super(parent);
         this.connection = connection;
-        for (String usedToolName : usedToolNames) {
-            siblingToolNames.add(McpToolName.normalize(usedToolName));
-        }
+        this.serverDefinition = serverDefinition;
+        this.toolDefinition = toolDefinition == null ? new McpToolDefinition() : toolDefinition;
+
         initParamsTable();
         initTestButton();
 
-        if (existing != null) {
-            toolName.setText(existing.getName());
-            siblingToolNames.remove(McpToolName.normalize(existing.getName()));
-            toolDescriptionTextArea.setText(existing.getDescription());
-            cachedSqlText = existing.getStatement();
-
-            if (existing.getParamsModel() != null) {
-                for (ParamRow row : existing.getParamsModel().getRows()) {
-                    paramsModel.getRows().add(new ParamRow(row.getName(), row.getType(), row.getTestValue(), row.getDescription(), row.isRequired()));
-                }
-                paramsModel.fireTableDataChanged();
-            }
-        }
-
         updateSqlTestStatus();
-        whenFirstShown(this::initEditor);
+        resetFormChanges();
+        whenFirstShown(this::initStatementEditor);
     }
 
     @Override
     protected void initValidation() {
-        addTextValidation(toolName, field -> validateToolName(field.getText()));
-        addTextValidation(toolDescriptionTextArea, field -> McpToolDescription.validationError(field.getText()));
-        addValidation(sqlEditorPanel, c -> getSqlText().isBlank() ? "Please enter a SQL query" : null);
+        addTextValidation(nameTextField, field -> validateToolName(field.getText()));
+        addTextValidation(descriptionTextField, field -> McpToolDescription.validationError(field.getText()));
+        addValidation(sqlEditorPanel, c -> getSqlStatement().isBlank() ? "Please enter a SQL query" : null);
     }
 
     private String validateToolName(String value) {
-        return McpToolDefinitions.validationError(value, siblingToolNames);
+        return McpToolDefinitions.validationError(value, serverDefinition.getToolNames());
     }
 
     private void initParamsTable() {
-        paramsModel = new ParamTableModel(false);
+        paramsModel = new ParamTableModel(toolDefinition, false);
         paramsTable.setModel(paramsModel);
-        paramsTable.setDefaultEditor(ParamType.class, new DefaultCellEditor(new JComboBox<>(ParamType.values())));
+        paramsTable.setDefaultEditor(McpToolParamType.class, new DefaultCellEditor(new JComboBox<>(McpToolParamType.values())));
 
         paramsTable.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "deleteParam");
         paramsTable.getActionMap().put("deleteParam", new AbstractAction() {
@@ -139,7 +128,7 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
     private void initTestButton() {
         testSqlButton.setToolTipText("Open a dedicated SQL tester dialog for parameter input and preview results.");
         onButtonClick(testSqlButton, e -> {
-            if (getSqlText().isBlank()) {
+            if (getSqlStatement().isBlank()) {
                 Messages.showErrorDialog(getProject(), "Please enter the SQL query first, then run Test SQL Query.");
                 return;
             }
@@ -152,27 +141,27 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
     }
 
     public void openSqlTestDialog() {
-        List<ParamRow> testParams = copyRows(paramsModel.getRows());
-        ToolDefinitionSqlTestDialog dialog = new ToolDefinitionSqlTestDialog(connection, getSqlText(), testParams);
+        List<McpToolParam> testParams = copyRows(paramsModel.getRows());
+        ToolDefinitionSqlTestDialog dialog = new ToolDefinitionSqlTestDialog(connection, getSqlStatement(), testParams);
         dialog.show();
         applyTestValues(dialog.getParamRows());
         if (dialog.hasVerificationRun()) {
             hasSqlTestResult = true;
             lastSqlTestPassed = dialog.isLastVerificationSuccessful();
-            lastTestedSql = getSqlText();
+            lastTestedSql = getSqlStatement();
         }
         updateSqlTestStatus();
         validateFormFields();
     }
 
-    private void applyTestValues(List<ParamRow> testRows) {
-        Map<String, ParamRow> testedByName = new LinkedHashMap<>();
-        for (ParamRow row : testRows) {
+    private void applyTestValues(List<McpToolParam> testRows) {
+        Map<String, McpToolParam> testedByName = new LinkedHashMap<>();
+        for (McpToolParam row : testRows) {
             testedByName.put(stripColon(row.getName()), row);
         }
 
-        for (ParamRow row : paramsModel.getRows()) {
-            ParamRow tested = testedByName.get(stripColon(row.getName()));
+        for (McpToolParam row : paramsModel.getRows()) {
+            McpToolParam tested = testedByName.get(stripColon(row.getName()));
             if (tested != null) {
                 row.setTestValue(tested.getTestValue());
             }
@@ -181,36 +170,30 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         paramsModel.fireTableDataChanged();
     }
 
-    private static List<ParamRow> copyRows(List<ParamRow> rows) {
-        List<ParamRow> copy = new ArrayList<>();
-        for (ParamRow row : rows) {
-            copy.add(new ParamRow(row.getName(), row.getType(), row.getTestValue(), row.getDescription(), row.isRequired()));
+    private static List<McpToolParam> copyRows(List<McpToolParam> rows) {
+        List<McpToolParam> copy = new ArrayList<>();
+        for (McpToolParam row : rows) {
+            copy.add(new McpToolParam(row.getName(), row.getType(), row.getTestValue(), row.getDescription(), row.isRequired()));
         }
         return copy;
     }
 
-    private void initEditor() {
-        Project project = getProject();
-        if (project == null) return;
-
-        McpToolSqlVirtualFile sqlFile = new McpToolSqlVirtualFile(connection, "");
+    private void initStatementEditor() {
+        Project project = ensureProject();
+        McpToolSqlVirtualFile sqlFile = new McpToolSqlVirtualFile(connection, toolDefinition.getStatement());
         DatabaseFileViewProvider viewProvider = new DatabaseFileViewProvider(project, sqlFile, true);
         PsiFile psiFile = sqlFile.initializePsiFile(viewProvider, SQLLanguage.INSTANCE);
 
         document = Documents.ensureDocument(psiFile);
-        if (cachedSqlText != null) setSqlText(cachedSqlText);
         editor = Editors.createEditor(document, project, sqlFile, SQLFileType.INSTANCE);
         Editors.initEditorHighlighter(editor, SQLLanguage.INSTANCE, connection);
         configureEditor(editor);
 
-        document.addDocumentListener(new DocumentListener() {
-            @Override
-            public void documentChanged(@NotNull DocumentEvent event) {
-                if (suppressDocEvents) return;
-                refreshParams();
-                updateSqlTestStatus();
-                validateFormFields();
-            }
+        Documents.onDocumentChanged(document, this, e -> {
+            if (suppressDocEvents) return;
+            refreshParams();
+            updateSqlTestStatus();
+            validateFormFields();
         });
 
         sqlEditorPanel.add(editor.getComponent(), BorderLayout.CENTER);
@@ -225,7 +208,7 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         EditorSettings settings = editor.getSettings();
         settings.setFoldingOutlineShown(false);
         settings.setLineMarkerAreaShown(false);
-        settings.setLineNumbersShown(true);
+        settings.setLineNumbersShown(false);
         settings.setCaretRowShown(true);
         settings.setVirtualSpace(false);
         settings.setDndEnabled(false);
@@ -243,11 +226,11 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         }
 
         String name = stripColon(paramsModel.getRows().get(row).getName());
-        String newSql = getSqlText().replaceAll(":" + Pattern.quote(name) + "\\b", "");
+        String newSql = getSqlStatement().replaceAll(":" + Pattern.quote(name) + "\\b", "");
 
         suppressDocEvents = true;
         try {
-            setSqlText(newSql);
+            Documents.setText(document, newSql);
         } finally {
             suppressDocEvents = false;
         }
@@ -255,29 +238,29 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
     }
 
     private void refreshParams() {
-        refreshParams(getSqlText());
+        refreshParams(getSqlStatement());
     }
 
     private void refreshParams(String sqlText) {
         List<String> uniqueParams = uniqueInOrder(parseOccurrences(sqlText));
 
-        Map<String, ParamRow> existing = new LinkedHashMap<>();
-        for (ParamRow row : paramsModel.getRows()) {
+        Map<String, McpToolParam> existing = new LinkedHashMap<>();
+        for (McpToolParam row : paramsModel.getRows()) {
             existing.put(stripColon(row.getName()), row);
         }
 
         paramsModel.getRows().clear();
         for (String name : uniqueParams) {
-            ParamRow prev = existing.get(name);
+            McpToolParam prev = existing.get(name);
             paramsModel.getRows().add(prev != null
-                    ? new ParamRow(":" + name, prev.getType(), prev.getTestValue(), prev.getDescription(), prev.isRequired())
-                    : new ParamRow(":" + name, ParamType.STRING, "", "", false));
+                    ? new McpToolParam(":" + name, prev.getType(), prev.getTestValue(), prev.getDescription(), prev.isRequired())
+                    : new McpToolParam(":" + name, McpToolParamType.STRING, "", "", false));
         }
         paramsModel.fireTableDataChanged();
     }
 
     private void updateSqlTestStatus() {
-        String currentSql = getSqlText();
+        String currentSql = getSqlStatement();
 
         if (!hasSqlTestResult || lastTestedSql == null) {
             sqlTestStatusLabel.setForeground(UIUtil.getContextHelpForeground());
@@ -300,14 +283,6 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         }
     }
 
-    private String getSqlText() {
-        return document != null ? document.getText() : (cachedSqlText != null ? cachedSqlText : "");
-    }
-
-    private void setSqlText(String text) {
-        if (document == null) return;
-        WriteCommandAction.runWriteCommandAction(getProject(), () -> document.setText(text));
-    }
 
     @NotNull
     @Override
@@ -317,7 +292,6 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
 
     @Override
     public void disposeInner() {
-        if (document != null) cachedSqlText = document.getText();
         Editors.releaseEditor(editor);
         editor = null;
         document = null;
@@ -325,7 +299,7 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
     }
 
     public boolean hasPassingTestForCurrentSql() {
-        String currentSql = getSqlText();
+        String currentSql = getSqlStatement();
         return hasSqlTestResult &&
                 lastSqlTestPassed &&
                 lastTestedSql != null &&
@@ -333,7 +307,7 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
     }
 
     public String getSqlTestStatusSummary() {
-        String currentSql = getSqlText();
+        String currentSql = getSqlStatement();
         if (!hasSqlTestResult || lastTestedSql == null) {
             return "not tested";
         }
@@ -343,11 +317,21 @@ public class ToolDefinitionCreateForm extends DBNFormBase {
         return lastSqlTestPassed ? "test passed" : "last test failed";
     }
 
-    public ToolDefinitionModel getToolDefinitionModel() {
-        ToolDefinitionModel model = new ToolDefinitionModel(paramsModel);
-        model.setName(McpToolName.normalize(toolName.getText()));
-        model.setDescription(McpToolDescription.normalize(toolDescriptionTextArea.getText()));
-        model.setStatement(getSqlText());
-        return model;
+    @Override
+    public void resetFormChanges() {
+        setText(nameTextField, toolDefinition.getName());
+        setText(descriptionTextField, toolDefinition.getDescription());
+        //Documents.setText(document, toolDefinition.getStatement());
+    }
+
+    @Override
+    public void applyFormChanges() {
+        toolDefinition.setName(McpToolName.normalize(getText(nameTextField)));
+        toolDefinition.setDescription(McpToolDescription.normalize(getText(descriptionTextField)));
+        toolDefinition.setStatement(getSqlStatement());
+    }
+
+    private String getSqlStatement() {
+        return document == null ? toolDefinition.getStatement() : Documents.getText(document);
     }
 }

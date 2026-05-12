@@ -1,6 +1,9 @@
 package com.dbn.mcp.model;
 
-public enum ParamType {
+import lombok.Getter;
+
+@Getter
+public enum McpToolParamType {
     STRING("string", null),
     INTEGER("integer", null),
     NUMBER("number", null),
@@ -10,29 +13,21 @@ public enum ParamType {
     private final String schemaType;
     private final String schemaFormat;
 
-    ParamType(String schemaType, String schemaFormat) {
+    McpToolParamType(String schemaType, String schemaFormat) {
         this.schemaType = schemaType;
         this.schemaFormat = schemaFormat;
     }
 
-    public String getSchemaType() {
-        return schemaType;
-    }
-
-    public String getSchemaFormat() {
-        return schemaFormat;
-    }
-
-    public static ParamType fromYamlType(String yamlType) {
+    public static McpToolParamType fromYamlType(String yamlType) {
         return fromYamlType(yamlType, null);
     }
 
-    public static ParamType fromYamlType(String yamlType, String yamlFormat) {
+    public static McpToolParamType fromYamlType(String yamlType, String yamlFormat) {
         if ("string".equalsIgnoreCase(yamlType) && "date".equalsIgnoreCase(yamlFormat)) {
             return DATE;
         }
 
-        for (ParamType pt : values()) {
+        for (McpToolParamType pt : values()) {
             if (pt.schemaType.equalsIgnoreCase(yamlType) && pt.schemaFormat == null) return pt;
         }
         return STRING;

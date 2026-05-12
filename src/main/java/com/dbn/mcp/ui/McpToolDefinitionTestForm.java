@@ -2,7 +2,6 @@ package com.dbn.mcp.ui;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.DisposableContainers;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -26,14 +25,13 @@ import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.sql.SQLFileType;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.mcp.model.ParamRow;
-import com.dbn.mcp.model.ParamType;
+import com.dbn.mcp.model.McpToolParam;
+import com.dbn.mcp.model.McpToolParamType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BoxLayout;
@@ -49,13 +47,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.dbn.common.ui.util.Buttons.onButtonClick;
+import static com.dbn.common.ui.util.Buttons.onButtonClickAsync;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.mcp.util.SqlParameterParser.parseOccurrences;
 import static com.dbn.mcp.util.SqlParameterParser.stripColon;
 import static com.dbn.mcp.util.SqlParameterParser.uniqueInOrder;
 
-public class ToolDefinitionSqlTestForm extends DBNFormBase {
+public class McpToolDefinitionTestForm extends DBNFormBase {
     private static final int PREVIEW_ROW_LIMIT = 200;
 
     private JPanel mainPanel;
@@ -64,7 +62,6 @@ public class ToolDefinitionSqlTestForm extends DBNFormBase {
     private JPanel variablesPanel;
     private JPanel executionOptionsPanel;
     private JButton verifyButton;
-    private JPanel spinPanel;
     private JPanel previewPanel;
     private JPanel outputPanel;
     private DBNScrollPane outputScrollPane;
@@ -74,7 +71,7 @@ public class ToolDefinitionSqlTestForm extends DBNFormBase {
 
     private final List<McpStatementExecutionVariableValueForm> variableValueForms = DisposableContainers.list(this);
     private StatementExecutionVariablesBundle executionVariables = new StatementExecutionVariablesBundle(Collections.emptyList());
-    private final Map<String, ParamRow> paramMetadata = new LinkedHashMap<>();
+    private final Map<String, McpToolParam> paramMetadata = new LinkedHashMap<>();
 
     private ResultSetTable outputTable;
     private EditorEx previewViewer;
@@ -82,22 +79,21 @@ public class ToolDefinitionSqlTestForm extends DBNFormBase {
     private boolean verificationRun;
     private boolean lastVerificationSuccessful;
 
-    public ToolDefinitionSqlTestForm(@NotNull Disposable parent,
+    public McpToolDefinitionTestForm(@NotNull Disposable parent,
                                      @NotNull ConnectionHandler connection,
                                      @NotNull String statement,
-                                     @NotNull List<ParamRow> params) {
+                                     @NotNull List<McpToolParam> params) {
         super(parent);
         this.connection = connection;
         this.statement = statement;
 
-        for (ParamRow row : params) {
+        for (McpToolParam row : params) {
             String name = stripColon(row.getName());
-            paramMetadata.put(name, new ParamRow(":" + name, row.getType(), row.getTestValue(), row.getDescription(), row.isRequired()));
+            paramMetadata.put(name, new McpToolParam(":" + name, row.getType(), row.getTestValue(), row.getDescription(), row.isRequired()));
         }
 
         initHeaderPanel();
         initVariablesPanel();
-        initSpinner();
         initVerifyButton();
         initOutputPanel();
 
@@ -160,8 +156,8 @@ public class ToolDefinitionSqlTestForm extends DBNFormBase {
 
         List<String> parameterNames = uniqueInOrder(parseOccurrences(sqlText));
         for (String parameterName : parameterNames) {
-            ParamRow metadata = paramMetadata.computeIfAbsent(parameterName,
-                    name -> new ParamRow(":" + name, ParamType.STRING, "", "", false));
+            McpToolParam metadata = paramMetadata.computeIfAbsent(parameterName,
+                    name -> new McpToolParam(":" + name, McpToolParamType.STRING, "", "", false));
             VariableState state = previous.get(parameterName);
 
             StatementExecutionVariable variable = new StatementExecutionVariable();
@@ -204,8 +200,8 @@ public class ToolDefinitionSqlTestForm extends DBNFormBase {
         }
     }
 
-    private static GenericDataType mapGenericType(ParamType type) {
-        if (type == ParamType.INTEGER || type == ParamType.NUMBER) {
+    private static GenericDataType mapGenericType(McpToolParamType type) {
+        if (type == McpToolParamType.INTEGER || type == McpToolParamType.NUMBER) {
             return GenericDataType.NUMERIC;
         }
         return GenericDataType.LITERAL;
@@ -215,23 +211,8 @@ public class ToolDefinitionSqlTestForm extends DBNFormBase {
         return value == null ? "" : value.trim();
     }
 
-    private void initSpinner() {
-        spinPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
-        spinPanel.setVisible(false);
-    }
-
     private void initVerifyButton() {
-        onButtonClick(verifyButton, e -> {
-            if (getStatement().isBlank()) {
-                Messages.showErrorDialog(getProject(), "Please provide a SQL query in the tool definition before running preview.");
-                return;
-            }
-
-            startActivityNotifier();
-            Dispatch.async(mainPanel,
-                    this::verifyQuery,
-                    this::applyQueryResult);
-        });
+        onButtonClickAsync(verifyButton, () -> verifyQuery(), q -> applyQueryResult(q));
     }
 
     private void initOutputPanel() {
@@ -264,11 +245,18 @@ public class ToolDefinitionSqlTestForm extends DBNFormBase {
     }
 
     private QueryVerificationResult verifyQuery() {
+        QueryVerificationResult emptyResult = new QueryVerificationResult(new ResultSetDataModel(connection), null);
+        if (getStatement().isBlank()) {
+            Messages.showErrorDialog(getProject(), "Please provide a SQL query in the tool definition before running preview.");
+            return emptyResult;
+        }
+        startActivityNotifier();
+
         try {
             ResultSetDataModel result = executeStatement();
             return new QueryVerificationResult(result, null);
         } catch (Exception e) {
-            return new QueryVerificationResult(new ResultSetDataModel(connection), e);
+            return emptyResult;
         }
     }
 
@@ -348,29 +336,25 @@ public class ToolDefinitionSqlTestForm extends DBNFormBase {
     }
 
     private void startActivityNotifier() {
-        spinPanel.setVisible(true);
-        verifyButton.setEnabled(false);
         outputTable.setLoading(true);
     }
 
     private void stopActivityNotifier() {
-        spinPanel.setVisible(false);
-        verifyButton.setEnabled(true);
         outputTable.setLoading(false);
     }
 
-    public List<ParamRow> getParamRows() {
+    public List<McpToolParam> getParamRows() {
         syncVariablesFromInput();
 
-        List<ParamRow> rows = new ArrayList<>();
+        List<McpToolParam> rows = new ArrayList<>();
         List<String> parameterNames = uniqueInOrder(parseOccurrences(getStatement()));
         for (String parameterName : parameterNames) {
-            ParamRow metadata = paramMetadata.computeIfAbsent(parameterName,
-                    name -> new ParamRow(":" + name, ParamType.STRING, "", "", false));
+            McpToolParam metadata = paramMetadata.computeIfAbsent(parameterName,
+                    name -> new McpToolParam(":" + name, McpToolParamType.STRING, "", "", false));
 
             StatementExecutionVariable variable = executionVariables.getVariable(parameterName);
             String testValue = variable == null ? metadata.getTestValue() : normalize(variable.getValue());
-            rows.add(new ParamRow(
+            rows.add(new McpToolParam(
                     ":" + parameterName,
                     metadata.getType(),
                     testValue,

@@ -1,17 +1,35 @@
-package com.dbn.mcp;
+/*
+ * Copyright 2026 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dbn.mcp.ui;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.mcp.model.McpServerDefinition;
+import com.dbn.mcp.model.McpToolDefinition;
 import com.dbn.mcp.model.McpTransportType;
-import com.dbn.mcp.model.ToolDefinitionModel;
 import com.dbn.mcp.util.McpServerName;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBTextField;
-import com.intellij.util.ui.UIUtil;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -23,34 +41,59 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.common.ui.util.TextFields.getText;
+import static com.dbn.common.ui.util.TextFields.setText;
 
-public class McpServerInputForm extends DBNFormBase {
+public class McpServerDefinitionForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel hintPanel;
-    private JPanel toolDefinitionPanel;
+    private JPanel toolDefinitionsPanel;
     private JBTextField serverNameField;
-    private JLabel serverNameHintLabel;
-    private ToolDefinitionListForm toolDefinitionListForm;
+    private McpToolDefinitionListForm toolDefinitionListForm;
     private ComboBox<McpTransportType> transportTypeComboBox;
     private JLabel httpPortLabel;
     private JBTextField httpPortField;
 
     private final ConnectionHandler connection;
+    private final @Getter McpServerDefinition serverDefinition;
 
-    public McpServerInputForm(@NotNull Disposable parent, @NotNull ConnectionHandler connection) {
+    public McpServerDefinitionForm(@NotNull Disposable parent, @NotNull ConnectionHandler connection, @Nullable McpServerDefinition serverDefinition) {
         super(parent);
         this.connection = connection;
-        serverNameField.setText("mcp-server");
+        this.serverDefinition = serverDefinition == null ? new McpServerDefinition() : serverDefinition;
+
+        initInputFields();
+        initToolDefinitionsPanel();
+
+        resetFormChanges();
+        initHint();
+    }
+
+    private void initInputFields() {
         initComboBox(transportTypeComboBox, McpTransportType.values());
-        setSelection(transportTypeComboBox, McpTransportType.STDIO);
-        httpPortField.setText("8080");
-        serverNameHintLabel.setText("The server name is used to identify the project that will be generated");
-        serverNameHintLabel.setForeground(UIUtil.getInactiveTextColor());
         onSelectionChange(transportTypeComboBox, type -> {
             updateFieldAvailability();
             validateFormFields();
         });
-        initHint();
+    }
+
+    private void initToolDefinitionsPanel() {
+        toolDefinitionListForm = new McpToolDefinitionListForm(this, connection, serverDefinition);
+        toolDefinitionsPanel.add(toolDefinitionListForm.getComponent());
+    }
+
+    @Override
+    public void resetFormChanges() {
+        setText(serverNameField, serverDefinition.getServerName());
+        setSelection(transportTypeComboBox, serverDefinition.getTransportType());
+        setText(httpPortField, serverDefinition.getHttpPort());
+    }
+
+    @Override
+    public void applyFormChanges() {
+        serverDefinition.setServerName(getText(serverNameField));
+        serverDefinition.setTransportType(getSelection(transportTypeComboBox));
+        serverDefinition.setHttpPort(getText(httpPortField));
     }
 
     @Override
@@ -74,23 +117,18 @@ public class McpServerInputForm extends DBNFormBase {
     }
 
     private void initHint() {
-        String html = "<html><div style='font-size:11px;margin:4px 0;'>" +
+        String html = "<html>" +
                 "This will generate the Java code of a standalone MCP server with the specified tools, " +
                 "as well as the self-contained JAR produced by the compilation." +
-                "</div></html>";
+                "</html>";
         hintPanel.add(new DBNHintForm(this, TextContent.html(html), null, true).getComponent());
-    }
-
-    private void createUIComponents() {
-        toolDefinitionListForm = new ToolDefinitionListForm(this, connection);
-        toolDefinitionPanel = (JPanel) toolDefinitionListForm.getComponent();
     }
 
     public String getServerName() {
         return McpServerName.normalize(serverNameField.getText());
     }
 
-    public List<ToolDefinitionModel> getTools() {
+    public List<McpToolDefinition> getTools() {
         return toolDefinitionListForm.getToolDefinitionModelList();
     }
 

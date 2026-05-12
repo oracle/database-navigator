@@ -1,6 +1,6 @@
 package com.dbn.mcp.util;
 
-import com.dbn.mcp.model.ToolDefinitionModel;
+import com.dbn.mcp.model.McpToolDefinition;
 import lombok.experimental.UtilityClass;
 
 import java.util.Collection;
@@ -28,14 +28,14 @@ public class McpToolDefinitions {
         return null;
     }
 
-    public static String validationError(List<ToolDefinitionModel> tools) {
+    public static String validationError(List<McpToolDefinition> tools) {
         if (tools == null || tools.isEmpty()) {
             return "Please add at least one tool";
         }
 
         Set<String> names = new LinkedHashSet<>();
         for (int i = 0; i < tools.size(); i++) {
-            ToolDefinitionModel tool = tools.get(i);
+            McpToolDefinition tool = tools.get(i);
             String name = tool == null ? "" : McpToolName.normalize(tool.getName());
 
             String error = McpToolName.validationError(name);

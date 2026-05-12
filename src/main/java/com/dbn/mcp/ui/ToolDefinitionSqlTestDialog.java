@@ -2,20 +2,20 @@ package com.dbn.mcp.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.mcp.model.ParamRow;
+import com.dbn.mcp.model.McpToolParam;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 import java.util.List;
 
-public class ToolDefinitionSqlTestDialog extends DBNDialog<ToolDefinitionSqlTestForm> {
+public class ToolDefinitionSqlTestDialog extends DBNDialog<McpToolDefinitionTestForm> {
     private final ConnectionHandler connection;
     private final String statement;
-    private final List<ParamRow> params;
+    private final List<McpToolParam> params;
 
     public ToolDefinitionSqlTestDialog(@NotNull ConnectionHandler connection,
                                        @NotNull String statement,
-                                       @NotNull List<ParamRow> params) {
+                                       @NotNull List<McpToolParam> params) {
         super(connection, "Test SQL Query", true);
         this.connection = connection;
         this.statement = statement;
@@ -25,8 +25,8 @@ public class ToolDefinitionSqlTestDialog extends DBNDialog<ToolDefinitionSqlTest
     }
 
     @Override
-    protected @NotNull ToolDefinitionSqlTestForm createForm() {
-        return new ToolDefinitionSqlTestForm(this, connection, statement, params);
+    protected @NotNull McpToolDefinitionTestForm createForm() {
+        return new McpToolDefinitionTestForm(this, connection, statement, params);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class ToolDefinitionSqlTestDialog extends DBNDialog<ToolDefinitionSqlTest
         return actions(getCancelAction());
     }
 
-    public List<ParamRow> getParamRows() {
+    public List<McpToolParam> getParamRows() {
         return getForm().getParamRows();
     }
 
