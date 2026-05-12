@@ -309,7 +309,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         Secret[] oldSecrets = authenticationInfo.getSecrets();
 
         // apply changes and create snapshot of new authentication
-        if (urlSettingsForm.isOciCloudProvider()) {
+        if (urlSettingsForm.isCloudProviderConfig()) {
             authenticationInfo.setType(AuthenticationType.NONE);
         } else {
             authSettingsForm.applyFormChanges(authenticationInfo);

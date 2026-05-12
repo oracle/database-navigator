@@ -349,6 +349,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                 errors.add("Database information incomplete or invalid (host, port, database, file)");
             }
         }
+        validateGcpStorageConfigLocation(errors);
 
         if (getDriverSource() == DriverSource.EXTERNAL) {
             if (Strings.isEmpty(getDriverLibrary())) {
@@ -374,6 +375,31 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             // TODO NLS
             throw new ConfigurationException(message.toString());
         }
+    }
+
+    private void validateGcpStorageConfigLocation(List<String> errors) {
+        if (!isConfigCloudProvider()) return;
+        if (databaseInfo.getCloudConfigProviderType() != CloudConfigProviderType.GCP_STORAGE) return;
+
+        Map<String, String> values = parseNamedConfigLocation(databaseInfo.getConfigLocation());
+        if (isEmptyOrSpaces(values.get("project")) ||
+                isEmptyOrSpaces(values.get("bucket")) ||
+                isEmptyOrSpaces(values.get("object"))) {
+            errors.add("GCP Cloud Storage config location requires project, bucket and object");
+        }
+    }
+
+    private static Map<String, String> parseNamedConfigLocation(String configLocation) {
+        Map<String, String> values = new HashMap<>();
+        if (isEmptyOrSpaces(configLocation)) return values;
+
+        String[] tokens = configLocation.split(";");
+        for (String token : tokens) {
+            String[] entry = token.split("=", 2);
+            if (entry.length != 2) continue;
+            values.put(entry[0].trim().toLowerCase(), entry[1].trim());
+        }
+        return values;
     }
 
     @NotNull

@@ -93,6 +93,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JLabel configFileLabel;
     private JLabel configLocationLabel;
     private JLabel configFileProfileKeyLabel;
+    private JLabel gcpStorageProjectLabel;
+    private JLabel gcpStorageBucketLabel;
+    private JLabel gcpStorageObjectLabel;
     private JPanel databaseFilesPanel;
     private ComboBox<DatabaseUrlType> urlTypeComboBox;
     private JComboBox<ConfigFileSourceType> sourceTypeComboBox;
@@ -104,6 +107,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JTextField portTextField;
     private JTextField databaseTextField;
     private JTextField configLocationTextField;
+    private JTextField gcpStorageProjectTextField;
+    private JTextField gcpStorageBucketTextField;
+    private JTextField gcpStorageObjectTextField;
     private JTextField configFileProfileKeyTextField;
     private TextFieldWithBrowseButton tnsFolderTextField;
     private TextFieldWithBrowseButton configFileTextField;
@@ -142,6 +148,9 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         onTextChange(tnsFolderTextField, e -> updateUrlField());
         onTextChange(configFileTextField, e -> updateUrlField());
         onTextChange(configLocationTextField, e -> updateUrlField());
+        onTextChange(gcpStorageProjectTextField, e -> updateUrlField());
+        onTextChange(gcpStorageBucketTextField, e -> updateUrlField());
+        onTextChange(gcpStorageObjectTextField, e -> updateUrlField());
         onTextChange(configFileProfileKeyTextField, e -> updateUrlField());
         tnsProfileComboBox.addActionListener(e -> updateUrlField());
         serverTypeComboBox.addActionListener(e -> updateUrlField());
@@ -236,11 +245,26 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     public String getConfigLocation() {
         ConfigFileSourceType sourceType = getConfigFileSourceType();
         if (sourceType == ConfigFileSourceType.LOCAL_FILE) return getText(configFileTextField);
+        if (isGcpStorageConfig()) return getGcpStorageConfigLocation();
 
         String configLocation = getText(configLocationTextField);
         return sourceType == ConfigFileSourceType.HTTPS || isOciObjectStorageConfig() ?
                 DatabaseUrlPattern.normalizeConfigHttpsLocation(configLocation) :
                 configLocation;
+    }
+
+    private String getGcpStorageConfigLocation() {
+        String project = getText(gcpStorageProjectTextField);
+        String bucket = getText(gcpStorageBucketTextField);
+        String object = getText(gcpStorageObjectTextField);
+        if (Strings.isEmptyOrSpaces(project) &&
+                Strings.isEmptyOrSpaces(bucket) &&
+                Strings.isEmptyOrSpaces(object)) {
+            return "";
+        }
+        return "project=" + project.trim() +
+                ";bucket=" + bucket.trim() +
+                ";object=" + object.trim();
     }
 
     public String getConfigFileProfileKey() {
@@ -360,6 +384,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         boolean localConfigFileVisible = configFileVisible && configFileSourceType == ConfigFileSourceType.LOCAL_FILE;
         boolean remoteConfigVisible = configFileVisible && configFileSourceType != ConfigFileSourceType.LOCAL_FILE;
         boolean cloudProviderVisible = configFileVisible && configFileSourceType == ConfigFileSourceType.CLOUD_PROVIDER;
+        boolean gcpStorageConfig = remoteConfigVisible && isGcpStorageConfig();
         boolean hpdVisible = Constants.isOneOf(urlType,
                 DatabaseUrlType.SID,
                 DatabaseUrlType.SERVICE,
@@ -400,8 +425,14 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         cloudProviderComboBox.setVisible(cloudProviderVisible);
         configFileLabel.setVisible(localConfigFileVisible);
         configFileTextField.setVisible(localConfigFileVisible);
-        configLocationLabel.setVisible(remoteConfigVisible);
-        configLocationTextField.setVisible(remoteConfigVisible);
+        configLocationLabel.setVisible(remoteConfigVisible && !gcpStorageConfig);
+        configLocationTextField.setVisible(remoteConfigVisible && !gcpStorageConfig);
+        gcpStorageProjectLabel.setVisible(gcpStorageConfig);
+        gcpStorageProjectTextField.setVisible(gcpStorageConfig);
+        gcpStorageBucketLabel.setVisible(gcpStorageConfig);
+        gcpStorageBucketTextField.setVisible(gcpStorageConfig);
+        gcpStorageObjectLabel.setVisible(gcpStorageConfig);
+        gcpStorageObjectTextField.setVisible(gcpStorageConfig);
         configFileProfileKeyLabel.setVisible(configFileVisible);
         configFileProfileKeyTextField.setVisible(configFileVisible);
 
@@ -423,6 +454,11 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private boolean isOciObjectStorageConfig() {
         return isCloudProviderConfig() &&
                 getCloudConfigProviderType() == CloudConfigProviderType.OCI_OBJECT;
+    }
+
+    private boolean isGcpStorageConfig() {
+        return isCloudProviderConfig() &&
+                getCloudConfigProviderType() == CloudConfigProviderType.GCP_STORAGE;
     }
 
     boolean isCloudProviderConfig() {
@@ -494,6 +530,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         tnsFolderTextField.setText(databaseInfo.getTnsFolder());
         configFileTextField.setText(databaseInfo.getConfigLocation());
         configLocationTextField.setText(databaseInfo.getConfigLocation());
+        applyGcpStorageConfigLocation(databaseInfo.getConfigLocation());
         configFileProfileKeyTextField.setText(databaseInfo.getConfigFileProfileKey());
         parameters = databaseInfo.getParameters();
 
@@ -523,6 +560,26 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         urlTypeLabel.setVisible(urlTypes.length > 1);
         urlTypeComboBox.setVisible(urlTypes.length > 1);
         urlTextField.setText(databaseInfo.getUrl());
+    }
+
+    private void applyGcpStorageConfigLocation(String configLocation) {
+        Map<String, String> values = parseGcpStorageConfigLocation(configLocation);
+        gcpStorageProjectTextField.setText(values.get("project"));
+        gcpStorageBucketTextField.setText(values.get("bucket"));
+        gcpStorageObjectTextField.setText(values.get("object"));
+    }
+
+    private static Map<String, String> parseGcpStorageConfigLocation(String configLocation) {
+        Map<String, String> values = new HashMap<>();
+        if (Strings.isEmptyOrSpaces(configLocation)) return values;
+
+        String[] tokens = configLocation.split(";");
+        for (String token : tokens) {
+            String[] entry = token.split("=", 2);
+            if (entry.length != 2) continue;
+            values.put(entry[0].trim().toLowerCase(), entry[1].trim());
+        }
+        return values;
     }
 
     @NotNull
