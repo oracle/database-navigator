@@ -160,7 +160,7 @@ dependencies {
     implementation("org.apache.sshd:sshd-core:2.16.0@jar")
     implementation("org.apache.xmlbeans:xmlbeans:5.3.0@jar")
     implementation("org.codehaus.plexus:plexus-interpolation:1.27@jar")
-    implementation("org.codehaus.plexus:plexus-utils:3.5.1@jar")
+    implementation("org.codehaus.plexus:plexus-utils:3.6.1@jar")
     implementation("org.eclipse.sisu:org.eclipse.sisu.inject:0.9.0.M3@jar")
     implementation("org.glassfish.hk2.external:jakarta.inject:2.6.1@jar")
     implementation("org.glassfish.hk2:hk2-api:2.6.1@jar")
