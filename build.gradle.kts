@@ -183,7 +183,7 @@ dependencies {
     bundledJdbcOracle("org.glassfish.hk2:hk2-api:2.6.1@jar")
     bundledJdbcOracle("org.glassfish.hk2:hk2-locator:2.6.1@jar")
     bundledJdbcOracle("org.glassfish.hk2:hk2-utils:2.6.1@jar")
-    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-annotations:2.21.1@jar")
+    bundledJdbcOracle("com.fasterxml.jackson.core:jackson-annotations:2.21@jar")
     bundledJdbcOracle("com.fasterxml.jackson.core:jackson-core:2.21.1@jar")
     bundledJdbcOracle("com.fasterxml.jackson.core:jackson-databind:2.21.1@jar")
     bundledJdbcOracle("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.1@jar")
