@@ -14,7 +14,6 @@ import com.dbn.mcp.model.McpToolParam;
 import com.dbn.mcp.model.McpToolParamType;
 import com.dbn.mcp.util.McpToolDefinitions;
 import com.dbn.mcp.util.McpToolDescription;
-import com.dbn.mcp.util.McpToolName;
 import com.dbn.mcp.vfs.McpToolSqlVirtualFile;
 import com.dbn.vfs.DatabaseFileViewProvider;
 import com.intellij.openapi.Disposable;
@@ -40,6 +39,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -49,7 +49,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.util.Buttons.onButtonClick;
 import static com.dbn.common.ui.util.TextFields.getText;
@@ -108,12 +110,22 @@ public class McpToolDefinitionForm extends DBNFormBase {
     }
 
     private String validateToolName(String value) {
-        return McpToolDefinitions.validationError(value, serverDefinition.getToolNames());
+        Set<String> toolNames = getUsedToolNames();
+        return McpToolDefinitions.validationError(value, toolNames);
+    }
+
+    private Set<String> getUsedToolNames() {
+        return serverDefinition
+                .getToolNames()
+                .stream()
+                .filter(n -> !n.equalsIgnoreCase(toolDefinition.getName()))
+                .collect(Collectors.toSet());
     }
 
     private void initParamsTable() {
         paramsModel = new ParamTableModel(toolDefinition, false);
         paramsTable.setModel(paramsModel);
+        paramsTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         paramsTable.setDefaultEditor(McpToolParamType.class, new DefaultCellEditor(new JComboBox<>(McpToolParamType.values())));
 
         paramsTable.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "deleteParam");
@@ -326,8 +338,8 @@ public class McpToolDefinitionForm extends DBNFormBase {
 
     @Override
     public void applyFormChanges() {
-        toolDefinition.setName(McpToolName.normalize(getText(nameTextField)));
-        toolDefinition.setDescription(McpToolDescription.normalize(getText(descriptionTextField)));
+        toolDefinition.setName(getText(nameTextField));
+        toolDefinition.setDescription(getText(descriptionTextField));
         toolDefinition.setStatement(getSqlStatement());
     }
 

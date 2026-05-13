@@ -1,7 +1,6 @@
 package com.dbn.mcp.ui;
 
 import com.dbn.common.dispose.Disposer;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.alignment.FieldAlignerData;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -32,7 +31,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.getText;
 
-public class McpStatementExecutionVariableValueForm extends DBNFormBase {
+public class McpToolVerificationParamForm extends DBNFormBase {
     private JPanel mainPanel;
     private JLabel variableNameLabel;
     private JPanel valueFieldPanel;
@@ -42,7 +41,7 @@ public class McpStatementExecutionVariableValueForm extends DBNFormBase {
     private final TextFieldWithPopup<?> editorComponent;
     private final Runnable previewUpdater;
 
-    public McpStatementExecutionVariableValueForm(
+    public McpToolVerificationParamForm(
             @NotNull Disposable parent,
             @NotNull Project project,
             @NotNull StatementExecutionVariable variable,
@@ -52,7 +51,7 @@ public class McpStatementExecutionVariableValueForm extends DBNFormBase {
         this.previewUpdater = previewUpdater;
 
         variableNameLabel.setText(variable.getName());
-        variableNameLabel.setIcon(Icons.DBO_VARIABLE);
+        //variableNameLabel.setIcon(Icons.DBO_VARIABLE);
 
         dataTypeComboBox.setValues(
                 GenericDataType.LITERAL,

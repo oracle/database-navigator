@@ -53,7 +53,7 @@ import static com.dbn.mcp.util.SqlParameterParser.parseOccurrences;
 import static com.dbn.mcp.util.SqlParameterParser.stripColon;
 import static com.dbn.mcp.util.SqlParameterParser.uniqueInOrder;
 
-public class McpToolDefinitionTestForm extends DBNFormBase {
+public class McpToolVerificationForm extends DBNFormBase {
     private static final int PREVIEW_ROW_LIMIT = 200;
 
     private JPanel mainPanel;
@@ -69,7 +69,7 @@ public class McpToolDefinitionTestForm extends DBNFormBase {
     private final ConnectionHandler connection;
     private final String statement;
 
-    private final List<McpStatementExecutionVariableValueForm> variableValueForms = DisposableContainers.list(this);
+    private final List<McpToolVerificationParamForm> variableValueForms = DisposableContainers.list(this);
     private StatementExecutionVariablesBundle executionVariables = new StatementExecutionVariablesBundle(Collections.emptyList());
     private final Map<String, McpToolParam> paramMetadata = new LinkedHashMap<>();
 
@@ -79,10 +79,10 @@ public class McpToolDefinitionTestForm extends DBNFormBase {
     private boolean verificationRun;
     private boolean lastVerificationSuccessful;
 
-    public McpToolDefinitionTestForm(@NotNull Disposable parent,
-                                     @NotNull ConnectionHandler connection,
-                                     @NotNull String statement,
-                                     @NotNull List<McpToolParam> params) {
+    public McpToolVerificationForm(@NotNull Disposable parent,
+                                   @NotNull ConnectionHandler connection,
+                                   @NotNull String statement,
+                                   @NotNull List<McpToolParam> params) {
         super(parent);
         this.connection = connection;
         this.statement = statement;
@@ -145,7 +145,7 @@ public class McpToolDefinitionTestForm extends DBNFormBase {
         Editors.updateEditorScrollPane(previewViewer);
         Editors.installEditorLayoutUpdater(previewViewer, this);
 
-        previewPanel.add(previewViewer.getComponent(), BorderLayout.CENTER);
+        previewPanel.add(previewViewer.getComponent());
     }
 
     private void rebuildVariablesFromSql(String sqlText) {
@@ -168,11 +168,11 @@ public class McpToolDefinitionTestForm extends DBNFormBase {
 
             Project project = getProject();
             if (project == null) project = connection.getProject();
-            McpStatementExecutionVariableValueForm variableForm =
-                    new McpStatementExecutionVariableValueForm(this, project, variable, this::updateResolvedPreview);
-            variableValueForms.add(variableForm);
-            variablesPanel.add(variableForm.getComponent());
-            onTextChange(variableForm.getEditorComponent(), e -> updateResolvedPreview());
+            McpToolVerificationParamForm paramForm =
+                    new McpToolVerificationParamForm(this, project, variable, this::updateResolvedPreview);
+            variableValueForms.add(paramForm);
+            variablesPanel.add(paramForm.getComponent());
+            onTextChange(paramForm.getEditorComponent(), e -> updateResolvedPreview());
         }
 
         updateFieldAlignment();
@@ -195,7 +195,7 @@ public class McpToolDefinitionTestForm extends DBNFormBase {
 
     private void clearVariableForms() {
         while (!variableValueForms.isEmpty()) {
-            McpStatementExecutionVariableValueForm form = variableValueForms.remove(0);
+            McpToolVerificationParamForm form = variableValueForms.remove(0);
             variablesPanel.remove(form.getComponent());
         }
     }
@@ -292,7 +292,7 @@ public class McpToolDefinitionTestForm extends DBNFormBase {
     }
 
     private void syncVariablesFromInput() {
-        for (McpStatementExecutionVariableValueForm variableForm : variableValueForms) {
+        for (McpToolVerificationParamForm variableForm : variableValueForms) {
             variableForm.saveValue();
         }
     }

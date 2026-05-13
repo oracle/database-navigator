@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 import java.util.List;
 
-public class ToolDefinitionSqlTestDialog extends DBNDialog<McpToolDefinitionTestForm> {
+public class ToolDefinitionSqlTestDialog extends DBNDialog<McpToolVerificationForm> {
     private final ConnectionHandler connection;
     private final String statement;
     private final List<McpToolParam> params;
@@ -25,8 +25,8 @@ public class ToolDefinitionSqlTestDialog extends DBNDialog<McpToolDefinitionTest
     }
 
     @Override
-    protected @NotNull McpToolDefinitionTestForm createForm() {
-        return new McpToolDefinitionTestForm(this, connection, statement, params);
+    protected @NotNull McpToolVerificationForm createForm() {
+        return new McpToolVerificationForm(this, connection, statement, params);
     }
 
     @Override

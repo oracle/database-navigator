@@ -22,8 +22,6 @@ import com.dbn.mcp.model.OracleSecretStore;
 import com.dbn.mcp.model.OracleWallet;
 import com.dbn.mcp.util.McpServerName;
 import com.dbn.mcp.util.McpToolDefinitions;
-import com.dbn.mcp.util.McpToolDescription;
-import com.dbn.mcp.util.McpToolName;
 import com.dbn.mcp.util.SqlParameterParser;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
@@ -199,8 +197,8 @@ public class McpBuildTask {
 
         sb.append("tools:\n");
         for (McpToolDefinition t : serverDefinition.getTools()) {
-            String toolName = McpToolName.normalize(t.getName());
-            String description = McpToolDescription.normalize(t.getDescription());
+            String toolName = t.getName();
+            String description = t.getDescription();
             sb.append("  ").append(toolName).append(":\n");
             appendYamlField(sb, "    ", "description", safe(description, "SQL tool"));
             appendYamlField(sb, "    ", "statement", safe(t.getStatement(), "SELECT 1 FROM dual"));
@@ -401,8 +399,8 @@ public class McpBuildTask {
             List<McpToolDefinition> tools = serverDefinition.getTools();
             List<Map<String, String>> toolList = tools.stream()
                     .map(t -> Map.of(
-                            "name", McpToolName.normalize(t.getName()),
-                            "description", safe(McpToolDescription.normalize(t.getDescription()), "SQL tool")))
+                            "name", t.getName(),
+                            "description", safe(t.getDescription(), "SQL tool")))
                     .collect(Collectors.toList());
 
             Map<String, Object> context = new LinkedHashMap<>();
