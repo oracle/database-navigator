@@ -82,6 +82,8 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     private JLabel reloadDriversCheckLabel;
     private JButton downloadButton;
     private JLabel driverErrorLabel;
+    private JLabel driverSourceHintLabel;
+    private boolean externalLibraryRequired;
 
     ConnectionDriverSettingsForm(@NotNull ConnectionDatabaseSettingsForm parent) {
         super(parent);
@@ -89,6 +91,10 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
         initComboBox(driverSourceComboBox, DriverSource.BUNDLED, DriverSource.EXTERNAL);
         driverSourceComboBox.addActionListener(e -> {
             DriverSource selection = getSelection(driverSourceComboBox);
+            if (externalLibraryRequired && selection == DriverSource.BUNDLED) {
+                setSelection(driverSourceComboBox, DriverSource.EXTERNAL);
+                return;
+            }
 
             driverLibraryTextField.setEnabled(selection == DriverSource.EXTERNAL);
             driverComboBox.setEnabled(selection == DriverSource.EXTERNAL);
@@ -107,6 +113,10 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
         driverErrorLabel.setText("");
         driverErrorLabel.setVisible(false);
+        driverSourceHintLabel.setIcon(Icons.COMMON_INFO);
+        driverSourceHintLabel.setText("Cloud config providers require an external driver library. " +
+                "Use (...) button to install matching driver libraries.");
+        driverSourceHintLabel.setVisible(false);
 
         reloadDriversCheckLabel.setText("");
         reloadDriversCheckLabel.setIcon(Icons.COMMON_CHECK);
@@ -161,6 +171,16 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
     public ConnectionDatabaseSettingsForm getParentForm() {
         return ensureParentComponent();
+    }
+
+    void setExternalLibraryRequired(boolean externalLibraryRequired) {
+        this.externalLibraryRequired = externalLibraryRequired;
+        driverSourceHintLabel.setVisible(externalLibraryRequired);
+        if (externalLibraryRequired) {
+            setSelection(driverSourceComboBox, DriverSource.EXTERNAL);
+        }
+        driverSourceComboBox.repaint();
+        updateDriverFields();
     }
 
     void updateDriverFields() {
@@ -396,6 +416,3 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
     }
 
 }
-
-
-

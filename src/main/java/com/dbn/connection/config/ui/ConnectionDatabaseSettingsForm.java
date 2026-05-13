@@ -387,6 +387,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         authSettingsForm.setAuthenticationTypes(getAuthenticationTypes());
         boolean ociCloudProvider = urlSettingsForm.isOciCloudProvider();
         boolean cloudProviderConfig = urlSettingsForm.isCloudProviderConfig();
+        driverSettingsForm.setExternalLibraryRequired(cloudProviderConfig);
         authSettingsForm.setCloudProviderMode(ociCloudProvider);
         authenticationPanel.setVisible(ociCloudProvider ||
                 !cloudProviderConfig && databaseType.supportsAuthentication() && urlSettingsForm.requiresAuthentication());
