@@ -209,7 +209,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
         settings.setFoldingOutlineShown(false);
         settings.setLineMarkerAreaShown(false);
         settings.setLineNumbersShown(false);
-        settings.setCaretRowShown(true);
+        settings.setCaretRowShown(false);
         settings.setVirtualSpace(false);
         settings.setDndEnabled(false);
         settings.setAdditionalLinesCount(2);

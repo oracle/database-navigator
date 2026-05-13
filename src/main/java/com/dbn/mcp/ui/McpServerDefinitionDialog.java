@@ -33,7 +33,7 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
     private final McpServerDefinition definition;
 
     public McpServerDefinitionDialog(@NotNull ConnectionHandler connection, McpServerDefinition definition) {
-        super(connection, "MCP Builder", true);
+        super(connection, "MCP Server Builder", true);
         this.connection = connection;
         this.definition = definition;
         init();

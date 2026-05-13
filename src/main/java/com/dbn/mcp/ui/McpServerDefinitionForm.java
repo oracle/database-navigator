@@ -18,8 +18,11 @@ package com.dbn.mcp.ui;
 
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
+import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpToolDefinition;
 import com.dbn.mcp.model.McpTransportType;
@@ -53,20 +56,26 @@ public class McpServerDefinitionForm extends DBNFormBase {
     private ComboBox<McpTransportType> transportTypeComboBox;
     private JLabel httpPortLabel;
     private JBTextField httpPortField;
+    private JPanel headerPanel;
+    private DBNCommentLabel nameInfoLabel;
 
-    private final ConnectionHandler connection;
+    private final ConnectionRef connection;
     private final @Getter McpServerDefinition serverDefinition;
 
     public McpServerDefinitionForm(@NotNull Disposable parent, @NotNull ConnectionHandler connection, @Nullable McpServerDefinition serverDefinition) {
         super(parent);
-        this.connection = connection;
+        this.connection = ConnectionRef.of(connection);
         this.serverDefinition = serverDefinition == null ? new McpServerDefinition() : serverDefinition;
+
+        this.nameInfoLabel.setVisible(false); // TODO crowded form, consider cleanup
+
+        initHeaderPanel();
+        initHintPanel();
 
         initInputFields();
         initToolDefinitionsPanel();
 
         resetFormChanges();
-        initHint();
     }
 
     private void initInputFields() {
@@ -78,7 +87,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
     }
 
     private void initToolDefinitionsPanel() {
-        toolDefinitionListForm = new McpToolDefinitionListForm(this, connection, serverDefinition);
+        toolDefinitionListForm = new McpToolDefinitionListForm(this, getConnection(), serverDefinition);
         toolDefinitionsPanel.add(toolDefinitionListForm.getComponent());
     }
 
@@ -101,6 +110,10 @@ public class McpServerDefinitionForm extends DBNFormBase {
         return mainPanel;
     }
 
+    public ConnectionHandler getConnection() {
+        return ConnectionRef.ensure(connection);
+    }
+
     @Override
     protected void initValidation() {
         addTextValidation(serverNameField, field -> McpServerName.validationError(field.getText()));
@@ -116,16 +129,18 @@ public class McpServerDefinitionForm extends DBNFormBase {
         return !toolDefinitionListForm.getToolDefinitionModelList().isEmpty();
     }
 
-    private void initHint() {
-        String html = "<html>" +
-                "This will generate the Java code of a standalone MCP server with the specified tools, " +
-                "as well as the self-contained JAR produced by the compilation." +
-                "</html>";
-        hintPanel.add(new DBNHintForm(this, TextContent.html(html), null, true).getComponent());
+    private void initHeaderPanel() {
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, getConnection());
+        headerPanel.add(headerForm.getComponent());
     }
 
-    public String getServerName() {
-        return McpServerName.normalize(serverNameField.getText());
+    private void initHintPanel() {
+        TextContent hintContent = TextContent.plain(
+                "MCP Server Builder helps you define SQL-backed MCP tools for this database connection.\n\n" +
+                "Each tool exposes a named SQL statement with typed parameters to MCP clients. Choose STDIO " +
+                "or HTTP transport and build a standalone server package with a runnable JAR, configuration, " +
+                "wallet, source project, and README.");
+        hintPanel.add(new DBNHintForm(this, hintContent, null, true).getComponent());
     }
 
     public List<McpToolDefinition> getTools() {
@@ -135,17 +150,6 @@ public class McpServerDefinitionForm extends DBNFormBase {
     public McpTransportType getTransportType() {
         McpTransportType type = getSelection(transportTypeComboBox);
         return type == null ? McpTransportType.STDIO : type;
-    }
-
-    public int getHttpPort() {
-        String value = httpPortField.getText();
-        if (value == null || value.isBlank()) return 8080;
-        try {
-            int port = Integer.parseInt(value.trim());
-            return port >= 1 && port <= 65535 ? port : 8080;
-        } catch (Exception ignored) {
-            return 8080;
-        }
     }
 
     private String validateHttpPort(String value) {

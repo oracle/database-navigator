@@ -41,7 +41,7 @@ public class McpBuilderOpenAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Open MCP Builder...");
+        presentation.setText("Open MCP Server Builder...");
         presentation.setIcon(Icons.ASSISTANT_TOOL);
     }
 
@@ -63,7 +63,7 @@ public class McpBuilderOpenAction extends ProjectAction {
 
         List<SelectConnectionAction> actions = convert(connections, SelectConnectionAction::new);
         popupBuilder(actions, e)
-                .withTitle("Select MCP Builder Connection")
+                .withTitle("Select MCP Server Connection")
                 .withSpeedSearch()
                 .buildAndShowCentered();
     }

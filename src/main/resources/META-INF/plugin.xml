@@ -517,7 +517,7 @@
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift S"/>
             </action>
             <action class="com.dbn.menu.action.VectorToolboxOpenAction" text="Open Vector Toolbox..." id="DBNavigator.Actions.MainMenu.OpenVectorToolbox" icon="com.dbn.common.icon.Icons.VECTOR_TOOLBOX"/>
-            <action class="com.dbn.menu.action.McpBuilderOpenAction" text="Open MCP Builder..." id="DBNavigator.Actions.MainMenu.McpBuilderOpenAction"/>
+            <action class="com.dbn.menu.action.McpBuilderOpenAction" text="Open MCP Server Builder..." id="DBNavigator.Actions.MainMenu.McpBuilderOpenAction"/>
             <separator/>
             <action class="com.dbn.menu.action.MethodExecutionHistoryAction" text="Method Execution History" id="DBNavigator.Actions.MainMenu.MethodExecutionHistory">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>

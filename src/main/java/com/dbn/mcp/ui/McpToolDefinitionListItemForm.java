@@ -2,12 +2,19 @@ package com.dbn.mcp.ui;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.color.Colors;
+import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.StatementViewerPopup;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.language.common.DBLanguageDialect;
+import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.language.sql.SQLLanguage;
 import com.dbn.mcp.model.McpToolDefinition;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -23,6 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import java.awt.BorderLayout;
+import java.awt.Component;
 
 import static com.dbn.common.util.Conditional.when;
 
@@ -41,7 +49,10 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
         super(parent);
         this.toolDefinition = toolDefinition;
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(removeActionPanel, true, new EditObjectAction(), new RemoveObjectAction());
+        ActionToolbar actionToolbar = Actions.createActionToolbar(removeActionPanel, true,
+                new RemoveToolAction(),
+                new EditToolAction(),
+                new ViewToolStatementAction());
         removeActionPanel.add(actionToolbar.getComponent(), BorderLayout.NORTH);
 
         toolSql.setEditable(false);
@@ -64,8 +75,38 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
         return mainPanel;
     }
 
-    public class EditObjectAction extends BasicAction {
-        EditObjectAction() {
+    public class ViewToolStatementAction extends BasicAction {
+        ViewToolStatementAction() {
+            super("View SQL Statement", null, Icons.ACTION_PREVIEW);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            StatementViewerPopup statementViewer = new StatementViewerPopup(null, createPreviewFile(), getConnection());
+            statementViewer.show((Component) Failsafe.nn(e.getInputEvent()).getSource());
+        }
+    }
+
+    @NotNull
+    private ConnectionHandler getConnection() {
+        return getParentForm().getConnection();
+    }
+
+    public DBLanguagePsiFile createPreviewFile() {
+        ConnectionHandler connection = getConnection();
+        DBLanguageDialect languageDialect = connection.getLanguageDialect(SQLLanguage.INSTANCE);
+
+        return DBLanguagePsiFile.createFromText(
+                ensureProject(),
+                "preview",
+                languageDialect,
+                toolDefinition.getStatement(),
+                connection,
+                connection.getDefaultSchemaId());
+    }
+
+    public class EditToolAction extends BasicAction {
+        EditToolAction() {
             super("Edit Tool", null, Icons.ACTION_EDIT);
         }
 
@@ -83,14 +124,21 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
         }
     }
 
-    public class RemoveObjectAction extends BasicAction {
-        RemoveObjectAction() {
+    public class RemoveToolAction extends BasicAction {
+        RemoveToolAction() {
             super(txt("app.objects.action.RemoveObject", "Tool"), null, Icons.ACTION_DELETE);
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            getParentForm().removeToolDefinitionForm(McpToolDefinitionListItemForm.this);
+            int exitCode = Messages.showConfirmationDialog(ensureProject(),
+                    "Remove Tool",
+                    "Are you sure you want to remove the tool \"" + getToolDefinition().getName() + "\"?",
+                    Messages.OPTIONS_YES_NO, 0);
+
+            if (exitCode == 0) {
+                getParentForm().removeToolDefinitionForm(McpToolDefinitionListItemForm.this);
+            }
         }
     }
 
