@@ -18,10 +18,8 @@ package com.dbn.menu.action;
 
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
-import com.dbn.connection.DatabaseType;
 import com.dbn.connection.action.AbstractConnectionAction;
 import com.dbn.mcp.MCPServerManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -35,6 +33,7 @@ import java.util.List;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
+import static com.dbn.database.DatabaseFeature.MCP_SERVER_BUILDER;
 
 public class McpBuilderOpenAction extends ProjectAction {
 
@@ -43,18 +42,17 @@ public class McpBuilderOpenAction extends ProjectAction {
         Presentation presentation = e.getPresentation();
         presentation.setText("Open MCP Server Builder...");
         presentation.setIcon(Icons.ASSISTANT_TOOL);
+        presentation.setVisible(isVisible(project));
+    }
+
+    private boolean isVisible(@NotNull Project project) {
+        return MCP_SERVER_BUILDER.isSupported(project);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        List<ConnectionHandler> connections = ConnectionManager.getInstance(project).getConnections(DatabaseType.ORACLE);
-
-        if (connections.isEmpty()) {
-            Messages.showInfoDialog(project, "No Connection Found",
-                    "A connection configuration in DBN is required to use this feature.\n" +
-                    "Please create a connection by clicking the plus sign in the DB Browser.");
-            return;
-        }
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        List<ConnectionHandler> connections = connectionManager.getConnections(MCP_SERVER_BUILDER);
 
         if (connections.size() == 1) {
             openMcpBuilder(connections.get(0));
