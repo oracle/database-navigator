@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @UtilityClass
 public class FileChoosers {
-    public static boolean nativeFileChoosers = false;
+    public static boolean nativeFileChoosers = true;
 
     public static FileChooserDescriptor addSingleFileChooser(
             @Nullable Project project,

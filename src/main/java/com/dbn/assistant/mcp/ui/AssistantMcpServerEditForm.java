@@ -27,7 +27,6 @@ import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -52,6 +51,8 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setEmptyText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showSuccessDialog;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -158,14 +159,14 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
             if (indicator.isCanceled()) return;
 
             int count = tools.size();
-            Messages.showConfirmationDialog(getProject(), "MCP Server Config",
+            showSuccessDialog(getProject(), "MCP Server Config",
                     "Successfully verified \"" + mcpServer.getName() + "\" MCP Server configuration. " +
-                            count + (count == 1 ? " tool" : " tools") + " found.", Messages.OPTIONS_OK, 0);
+                            count + (count == 1 ? " tool" : " tools") + " found.");
         } catch (Throwable e) {
             conditionallyLog(e);
 
             if (indicator.isCanceled()) return;
-            Messages.showErrorDialog(getProject(), "MCP Server Config",
+            showErrorDialog(getProject(), "MCP Server Config",
                     "Failed to validate \"" + mcpServer.getName() + "\" MCP Server configuration.", e);
         }
     }
