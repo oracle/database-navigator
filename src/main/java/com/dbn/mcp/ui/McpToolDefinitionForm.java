@@ -1,7 +1,9 @@
 package com.dbn.mcp.ui;
 
-import com.dbn.common.color.Colors;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
@@ -23,14 +25,12 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.components.fields.ExpandableTextField;
-import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultCellEditor;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -53,12 +53,16 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.dbn.common.ui.util.Buttons.onButtonClick;
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.mcp.util.SqlParameterParser.parseOccurrences;
 import static com.dbn.mcp.util.SqlParameterParser.stripColon;
 import static com.dbn.mcp.util.SqlParameterParser.uniqueInOrder;
+import static com.intellij.util.ui.UIUtil.getContextHelpForeground;
 
 public class McpToolDefinitionForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -66,22 +70,21 @@ public class McpToolDefinitionForm extends DBNFormBase {
     private JPanel sqlEditorPanel;
     private JTable paramsTable;
     private JScrollPane paramsScrollPane;
-    private JButton testSqlButton;
-    private JLabel sqlTestStatusLabel;
     private ExpandableTextField descriptionTextField;
+    private JLabel verifiedLabel;
+    private DBNHyperlinkLabel verifyHyperlink;
 
     private final ConnectionHandler connection;
     private Document document;
     private EditorEx editor;
     private boolean suppressDocEvents;
-    private String lastTestedSql;
-    private boolean hasSqlTestResult;
-    private boolean lastSqlTestPassed;
 
 
     private final @Getter McpServerDefinition serverDefinition;
     private final @Getter McpToolDefinition toolDefinition;
     private ParamTableModel paramsModel;
+
+    private String verifiedStatement;
 
     public McpToolDefinitionForm(
             Disposable parent,
@@ -93,11 +96,13 @@ public class McpToolDefinitionForm extends DBNFormBase {
         this.connection = connection;
         this.serverDefinition = serverDefinition;
         this.toolDefinition = toolDefinition == null ? new McpToolDefinition() : toolDefinition;
+        if (this.toolDefinition.isVerified()) {
+            verifiedStatement = this.toolDefinition.getStatement();
+        }
 
         initParamsTable();
-        initTestButton();
+        initVerificationFields();
 
-        updateSqlTestStatus();
         resetFormChanges();
         whenFirstShown(this::initStatementEditor);
     }
@@ -137,9 +142,13 @@ public class McpToolDefinitionForm extends DBNFormBase {
         });
     }
 
-    private void initTestButton() {
-        testSqlButton.setToolTipText("Open a dedicated SQL tester dialog for parameter input and preview results.");
-        onButtonClick(testSqlButton, e -> {
+    private void initVerificationFields() {
+        verifiedLabel.setForeground(getContextHelpForeground());
+        verifiedLabel.setIcon(Icons.COMMON_CHECK);
+
+
+        verifyHyperlink.setHyperlinkText("Verify");
+        onHyperlinkAccess(verifyHyperlink, e -> {
             if (getSqlStatement().isBlank()) {
                 Messages.showErrorDialog(getProject(), "Please enter the SQL query first, then run Test SQL Query.");
                 return;
@@ -154,15 +163,13 @@ public class McpToolDefinitionForm extends DBNFormBase {
 
     public void openSqlTestDialog() {
         List<McpToolParam> testParams = copyRows(paramsModel.getRows());
-        ToolDefinitionSqlTestDialog dialog = new ToolDefinitionSqlTestDialog(connection, getSqlStatement(), testParams);
+        McpToolVerificationDialog dialog = new McpToolVerificationDialog(connection, getSqlStatement(), testParams);
         dialog.show();
         applyTestValues(dialog.getParamRows());
-        if (dialog.hasVerificationRun()) {
-            hasSqlTestResult = true;
-            lastSqlTestPassed = dialog.isLastVerificationSuccessful();
-            lastTestedSql = getSqlStatement();
+        if (dialog.isStatementVerified()) {
+            verifiedStatement = getSqlStatement();
         }
-        updateSqlTestStatus();
+        updateFieldAvailability();
         validateFormFields();
     }
 
@@ -204,7 +211,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
         Documents.onDocumentChanged(document, this, e -> {
             if (suppressDocEvents) return;
             refreshParams();
-            updateSqlTestStatus();
+            updateFieldAvailability();
             validateFormFields();
         });
 
@@ -213,7 +220,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
 
     private void configureEditor(EditorEx editor) {
         editor.setEmbeddedIntoDialogWrapper(true);
-        editor.setPlaceholder("SELECT * FROM employees WHERE department_id = :dept_id");
+        //editor.setPlaceholder("SELECT * FROM employees WHERE department_id = :dept_id"); // TODO interface already too crowded
         editor.setShowPlaceholderWhenFocused(true);
         Editors.updateEditorScrollPane(editor);
 
@@ -271,30 +278,23 @@ public class McpToolDefinitionForm extends DBNFormBase {
         paramsModel.fireTableDataChanged();
     }
 
-    private void updateSqlTestStatus() {
-        String currentSql = getSqlStatement();
+    public boolean isStatementVerified() {
+        if (isEmpty(verifiedStatement)) return false;
 
-        if (!hasSqlTestResult || lastTestedSql == null) {
-            sqlTestStatusLabel.setForeground(UIUtil.getContextHelpForeground());
-            sqlTestStatusLabel.setText("Not tested yet. Open tester to verify SQL and preview results.");
-            return;
-        }
+        String statement = getSqlStatement();
+        if (isEmpty(statement)) return false;
 
-        if (!Objects.equals(lastTestedSql, currentSql)) {
-            sqlTestStatusLabel.setForeground(UIUtil.getContextHelpForeground());
-            sqlTestStatusLabel.setText("Query changed since last test. Please run tester again.");
-            return;
-        }
-
-        if (lastSqlTestPassed) {
-            sqlTestStatusLabel.setForeground(Colors.SUCCESS_COLOR);
-            sqlTestStatusLabel.setText("Test passed for current query.");
-        } else {
-            sqlTestStatusLabel.setForeground(Colors.FAILURE_COLOR);
-            sqlTestStatusLabel.setText("Last test failed for current query.");
-        }
+        String verified = verifiedStatement.replaceAll("\\s+", "");
+        String current = statement.replaceAll("\\s+", "");
+        return Objects.equals(verified, current);
     }
 
+    @Override
+    protected void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.initFieldsVisibility(() -> isStatementVerified(), array(verifiedLabel));
+        fieldAdapter.initFieldsVisibility(() -> isNotEmptyOrSpaces(getSqlStatement()) && !isStatementVerified(), array(verifyHyperlink));
+    }
 
     @NotNull
     @Override
@@ -310,25 +310,6 @@ public class McpToolDefinitionForm extends DBNFormBase {
         super.disposeInner();
     }
 
-    public boolean hasPassingTestForCurrentSql() {
-        String currentSql = getSqlStatement();
-        return hasSqlTestResult &&
-                lastSqlTestPassed &&
-                lastTestedSql != null &&
-                Objects.equals(lastTestedSql, currentSql);
-    }
-
-    public String getSqlTestStatusSummary() {
-        String currentSql = getSqlStatement();
-        if (!hasSqlTestResult || lastTestedSql == null) {
-            return "not tested";
-        }
-        if (!Objects.equals(lastTestedSql, currentSql)) {
-            return "changed since last test";
-        }
-        return lastSqlTestPassed ? "test passed" : "last test failed";
-    }
-
     @Override
     public void resetFormChanges() {
         setText(nameTextField, toolDefinition.getName());
@@ -341,6 +322,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
         toolDefinition.setName(getText(nameTextField));
         toolDefinition.setDescription(getText(descriptionTextField));
         toolDefinition.setStatement(getSqlStatement());
+        toolDefinition.setVerified(isStatementVerified());
     }
 
     private String getSqlStatement() {

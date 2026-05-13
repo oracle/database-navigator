@@ -25,7 +25,8 @@ public class McpToolDefinitionDialog extends DBNDialog<McpToolDefinitionForm> {
         this.connection = connection;
         this.serverDefinition = serverDefinition;
         this.toolDefinition = toolDefinition;
-        setDefaultSize(980, 740);
+        setDefaultSize(800, 600);
+        renameAction(getOKAction(), toolDefinition == null ? "Add Tool" : "Save Tool");
         init();
     }
 
@@ -44,13 +45,13 @@ public class McpToolDefinitionDialog extends DBNDialog<McpToolDefinitionForm> {
     protected void doOKAction() {
         McpToolDefinitionForm form = getForm();
         form.applyFormChanges();
-        if (!form.hasPassingTestForCurrentSql()) {
+        if (!form.isStatementVerified()) {
             int option = Messages.showConfirmationDialog(
                     getProject(),
                     toolDefinition == null ? "Create MCP Tool" : "Edit MCP Tool",
-                    "SQL query is " + form.getSqlTestStatusSummary() + ".\n" +
-                            "Do you want to test it now before saving?",
-                    Messages.options("Test now", "Save anyway", "Cancel"),
+                    "The tool SQL statement is not yet verified.\n" +
+                            "Do you want to verify it before saving?",
+                    Messages.options("Verify Statement", "Save Tool", "Cancel"),
                     0);
 
             if (option == 0) {

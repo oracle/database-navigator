@@ -8,14 +8,14 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 import java.util.List;
 
-public class ToolDefinitionSqlTestDialog extends DBNDialog<McpToolVerificationForm> {
+public class McpToolVerificationDialog extends DBNDialog<McpToolVerificationForm> {
     private final ConnectionHandler connection;
     private final String statement;
     private final List<McpToolParam> params;
 
-    public ToolDefinitionSqlTestDialog(@NotNull ConnectionHandler connection,
-                                       @NotNull String statement,
-                                       @NotNull List<McpToolParam> params) {
+    public McpToolVerificationDialog(@NotNull ConnectionHandler connection,
+                                     @NotNull String statement,
+                                     @NotNull List<McpToolParam> params) {
         super(connection, "Test SQL Query", true);
         this.connection = connection;
         this.statement = statement;
@@ -39,11 +39,11 @@ public class ToolDefinitionSqlTestDialog extends DBNDialog<McpToolVerificationFo
         return getForm().getParamRows();
     }
 
-    public boolean hasVerificationRun() {
-        return getForm().hasVerificationRun();
+    public boolean isStatementVerified() {
+        return getForm().isStatementVerified();
     }
 
-    public boolean isLastVerificationSuccessful() {
-        return getForm().isLastVerificationSuccessful();
+    public Exception getStatementError() {
+        return getForm().getStatementError();
     }
 }

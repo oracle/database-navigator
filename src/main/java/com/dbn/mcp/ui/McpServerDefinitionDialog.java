@@ -36,6 +36,7 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
         super(connection, "MCP Server Builder", true);
         this.connection = connection;
         this.definition = definition;
+        setDefaultSize(600, 600);
         init();
     }
 

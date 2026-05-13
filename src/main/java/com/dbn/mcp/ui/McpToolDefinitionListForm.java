@@ -18,15 +18,17 @@ package com.dbn.mcp.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.util.Buttons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpToolDefinition;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.ui.components.JBScrollPane;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,19 +36,20 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import java.awt.BorderLayout;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.intellij.util.ui.UIUtil.getContextHelpForeground;
 
+@Slf4j
 public class McpToolDefinitionListForm extends DBNFormBase {
     private JPanel mainPanel;
-    private JPanel listPanel;
-    private JPanel actionPanel;
-    private JButton addButton;
-    private JLabel emptyLabel;
+    private JPanel toolListPanel;
+    private JButton addToolButton;
+    private JLabel noToolsLabel;
+    private JBScrollPane toolListScrollPane;
 
     private final List<McpToolDefinitionListItemForm> toolDefinitionForms = DisposableContainers.list(this);
     private final @Getter ConnectionHandler connection;
@@ -57,37 +60,48 @@ public class McpToolDefinitionListForm extends DBNFormBase {
         this.connection = connection;
         this.serverDefinition = serverDefinition;
 
-        verticalBoxLayout(listPanel);
+        verticalBoxLayout(toolListPanel);
 
         initEmptyLabel();
         initAddButton();
 
-        serverDefinition.getTools().forEach(this::createToolDefinitionForm);
-        actionPanel.add(addButton);
+        for (McpToolDefinition toolDefinition : serverDefinition.getTools()) {
+            createToolDefinitionForm(toolDefinition);
+        }
+    }
+
+    @Override
+    protected void initFieldAvailability() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+        fieldAdapter.initFieldsVisibility(() -> noToolsDefined(), array(noToolsLabel));
+        fieldAdapter.initFieldsVisibility(() -> !noToolsDefined(), array(toolListScrollPane));
+    }
+
+    private boolean noToolsDefined() {
+        return toolDefinitionForms.isEmpty();
     }
 
     private void initEmptyLabel() {
-        emptyLabel = new JLabel("No tools defined", SwingConstants.CENTER);
-        emptyLabel.setForeground(UIUtil.getLabelForeground());
-        listPanel.add(emptyLabel, BorderLayout.CENTER);
+        noToolsLabel.setForeground(getContextHelpForeground());
     }
 
     private void initAddButton() {
-        addButton = new JButton("Add Tool");
-        addButton.addActionListener(e -> {
-            Dialogs.show(() -> new McpToolDefinitionDialog(getProject(), connection, serverDefinition, null),
-                    (dialog, exitCode) -> {
-                        if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
-                        McpToolDefinitionForm form = dialog.getForm();
-                        form.applyFormChanges();
-                        McpToolDefinition toolDefinition = form.getToolDefinition();
-                        createToolDefinitionForm(toolDefinition);
+        Buttons.onButtonClick(addToolButton, e -> openToolDefinitionEditor());
+    }
 
-                        serverDefinition.addToolDefinition(toolDefinition);
+    private void openToolDefinitionEditor() {
+        Dialogs.show(() -> new McpToolDefinitionDialog(getProject(), connection, serverDefinition, null),
+                (dialog, exitCode) -> {
+                    if (exitCode != DialogWrapper.OK_EXIT_CODE) return;
+                    McpToolDefinitionForm form = dialog.getForm();
+                    form.applyFormChanges();
+                    McpToolDefinition toolDefinition = form.getToolDefinition();
+                    createToolDefinitionForm(toolDefinition);
 
-                        validateInput();
-                    });
-        });
+                    serverDefinition.addToolDefinition(toolDefinition);
+
+                    validateInput();
+                });
     }
 
     @Override
@@ -97,26 +111,22 @@ public class McpToolDefinitionListForm extends DBNFormBase {
 
     public void removeToolDefinitionForm(McpToolDefinitionListItemForm toolDefinitionForm) {
         toolDefinitionForms.remove(toolDefinitionForm);
-        listPanel.remove(toolDefinitionForm.getComponent());
+        toolListPanel.remove(toolDefinitionForm.getComponent());
         serverDefinition.deleteToolDefinition(toolDefinitionForm.getToolDefinition());
 
-        emptyLabel.setVisible(toolDefinitionForms.isEmpty());
-        UserInterface.repaint(mainPanel);
+        noToolsLabel.setVisible(toolDefinitionForms.isEmpty());
+        toolListScrollPane.setVisible(!toolDefinitionForms.isEmpty());
+        updateFieldAvailability();
+        revalidateForm();
         validateInput();
     }
 
-    public void createToolDefinitionForm(McpToolDefinition mcpToolDefinition) {
-        McpToolDefinitionListItemForm toolDefinitionListItemForm = new McpToolDefinitionListItemForm(
-                this,
-                mcpToolDefinition
-        );
-        toolDefinitionForms.add(toolDefinitionListItemForm);
-        listPanel.add(toolDefinitionListItemForm.getComponent());
-        emptyLabel.setVisible(false);
-
-        if (isInitialized()) {
-            UserInterface.repaint(mainPanel);
-        }
+    public void createToolDefinitionForm(McpToolDefinition toolDefinition) {
+        McpToolDefinitionListItemForm toolDefinitionForm = new McpToolDefinitionListItemForm(this, toolDefinition);
+        toolDefinitionForms.add(toolDefinitionForm);
+        toolListPanel.add(toolDefinitionForm.getComponent());
+        updateFieldAvailability();
+        revalidateForm();
     }
 
     public List<McpToolDefinition> getToolDefinitionModelList() {

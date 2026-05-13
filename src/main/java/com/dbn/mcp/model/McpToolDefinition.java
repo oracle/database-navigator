@@ -13,10 +13,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.readCdata;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.options.setting.Settings.writeCdata;
@@ -28,7 +31,16 @@ public class McpToolDefinition implements PersistentStateElement, Cloneable<McpT
     private String name;
     private String description;
     private String statement;
+    private boolean verified;
     private List<McpToolParam> parameters = new ArrayList<>();
+
+    public void setStatement(String statement) {
+        statement = statement.trim();
+        if (!Objects.equals(this.statement, statement)) {
+            verified = false;
+            this.statement = statement;
+        }
+    }
 
     public String getRewrittenStatement() {
         if (statement == null) return "";
@@ -92,6 +104,7 @@ public class McpToolDefinition implements PersistentStateElement, Cloneable<McpT
         name = stringAttribute(element, "name", name);
         description = readCdata(element.getChild("description"));
         statement = readCdata(element.getChild("statement"));
+        verified = booleanAttribute(element, "verified", verified);
 
         Element parametersElement = element.getChild("parameters");
         for (Element parameterElement : childrenOf(parametersElement, "parameter")) {
@@ -106,6 +119,7 @@ public class McpToolDefinition implements PersistentStateElement, Cloneable<McpT
         setStringAttribute(element, "name", name);
         writeCdata(newElement(element, "description"), description);
         writeCdata(newElement(element, "statement"), statement);
+        setBooleanAttribute(element, "verified", verified);
 
         Element parametersElement = newElement(element, "parameters");
         for (McpToolParam parameter : parameters) {

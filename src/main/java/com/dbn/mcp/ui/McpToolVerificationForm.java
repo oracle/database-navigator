@@ -32,6 +32,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BoxLayout;
@@ -76,8 +77,9 @@ public class McpToolVerificationForm extends DBNFormBase {
     private ResultSetTable outputTable;
     private EditorEx previewViewer;
     private Document previewDocument;
-    private boolean verificationRun;
-    private boolean lastVerificationSuccessful;
+
+    private @Getter boolean statementVerified;
+    private @Getter Exception statementError;
 
     public McpToolVerificationForm(@NotNull Disposable parent,
                                    @NotNull ConnectionHandler connection,
@@ -234,9 +236,10 @@ public class McpToolVerificationForm extends DBNFormBase {
     private void applyQueryResult(QueryVerificationResult result) {
         try {
             outputTable.setModel(result.data);
-            verificationRun = true;
-            lastVerificationSuccessful = result.error == null;
-            if (result.error != null) {
+            statementVerified = result.error == null;
+            statementError = result.error;
+
+            if (statementError != null) {
                 Messages.showErrorDialog(connection.getProject(), "Failed to verify query", result.error);
             }
         } finally {
@@ -245,18 +248,12 @@ public class McpToolVerificationForm extends DBNFormBase {
     }
 
     private QueryVerificationResult verifyQuery() {
-        QueryVerificationResult emptyResult = new QueryVerificationResult(new ResultSetDataModel(connection), null);
-        if (getStatement().isBlank()) {
-            Messages.showErrorDialog(getProject(), "Please provide a SQL query in the tool definition before running preview.");
-            return emptyResult;
-        }
         startActivityNotifier();
-
         try {
             ResultSetDataModel result = executeStatement();
             return new QueryVerificationResult(result, null);
         } catch (Exception e) {
-            return emptyResult;
+            return new QueryVerificationResult(new ResultSetDataModel(connection), e);
         }
     }
 
@@ -366,14 +363,6 @@ public class McpToolVerificationForm extends DBNFormBase {
 
     public String getStatement() {
         return statement == null ? "" : statement;
-    }
-
-    public boolean hasVerificationRun() {
-        return verificationRun;
-    }
-
-    public boolean isLastVerificationSuccessful() {
-        return lastVerificationSuccessful;
     }
 
     @NotNull

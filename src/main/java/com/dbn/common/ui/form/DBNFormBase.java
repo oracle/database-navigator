@@ -198,6 +198,8 @@ public abstract class DBNFormBase
     }
 
     public void revalidateForm() {
+        if (!isInitialized()) return;
+
         JComponent mainComponent = getMainComponent();
         mainComponent.revalidate();
         mainComponent.repaint();
