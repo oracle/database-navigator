@@ -51,10 +51,11 @@ public class Library implements PersistentStateElement {
     private String groupId;
     private String artifactId;
     private String version;
-    private List<Developer> developers = new ArrayList<>();
-    private List<License> licenses = new ArrayList<>();
+    private List<LibraryDeveloper> developers = new ArrayList<>();
+    private List<LibraryLicense> licenses = new ArrayList<>();
+    private List<LibraryChecksum> checksums = new ArrayList<>();
 
-    public Library(String groupId, String artifactId, String version, List<Developer> developers, List<License> licenses) {
+    public Library(String groupId, String artifactId, String version, List<LibraryDeveloper> developers, List<LibraryLicense> licenses) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
@@ -63,7 +64,7 @@ public class Library implements PersistentStateElement {
     }
 
     // Constructor using DependencyNode
-    public Library(DependencyNode node, List<Developer> developers, List<License> licenses) {
+    public Library(DependencyNode node, List<LibraryDeveloper> developers, List<LibraryLicense> licenses) {
         this(node.getArtifact().getGroupId(),
                 node.getArtifact().getArtifactId(),
                 node.getArtifact().getVersion(), developers, licenses);
@@ -84,19 +85,27 @@ public class Library implements PersistentStateElement {
     }
 
     public String getArtefactPath() {
-        return groupId.replace(".", "/") + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".jar";
+        return getGroupPath() + "/" + artifactId + "/" + version + "/" + getFileName();
     }
 
     public String getLibraryId() {
         return artifactId + "-" + version;
     }
 
+    public String getGroupPath() {
+        return groupId.replace(".", "/");
+    }
+
+    public String getFileName() {
+        return artifactId + "-" + version + ".jar";
+    }
+
     @Override
     public String toString() {
         return String.format("Library [groupId=%s, artifactId=%s, version=%s, developers=%s, licenses=%s]",
                 groupId, artifactId, version,
-                developers.stream().map(Developer::getName).collect(Collectors.joining(", ")),
-                licenses.stream().map(License::getName).collect(Collectors.joining(", ")));
+                developers.stream().map(LibraryDeveloper::getName).collect(Collectors.joining(", ")),
+                licenses.stream().map(LibraryLicense::getName).collect(Collectors.joining(", ")));
     }
 
     @Override
@@ -109,16 +118,23 @@ public class Library implements PersistentStateElement {
 
         this.developers = new ArrayList<>();
         for (Element developerElement : childrenOf(element, "developer")) {
-            Developer developer = new Developer();
+            LibraryDeveloper developer = new LibraryDeveloper();
             developer.readState(developerElement);
             developers.add(developer);
         }
 
         this.licenses = new ArrayList<>();
         for (Element licenseElement : childrenOf(element, "license")) {
-            License license = new License();
+            LibraryLicense license = new LibraryLicense();
             license.readState(licenseElement);
             licenses.add(license);
+        }
+
+        this.checksums = new ArrayList<>();
+        for (Element checksumElement : childrenOf(element, "checksum")) {
+            LibraryChecksum checksum = new LibraryChecksum();
+            checksum.readState(checksumElement);
+            checksums.add(checksum);
         }
     }
 
@@ -128,14 +144,19 @@ public class Library implements PersistentStateElement {
         setStringAttribute(element, "artifact-id", artifactId);
         setStringAttribute(element, "version", version);
 
-        for (Developer developer : this.developers) {
+        for (LibraryDeveloper developer : this.developers) {
             Element developerElement = newElement(element, "developer");
             developer.writeState(developerElement);
         }
 
-        for (License license : this.licenses) {
+        for (LibraryLicense license : this.licenses) {
             Element licenseElement = newElement(element, "license");
             license.writeState(licenseElement);
+        }
+
+        for (LibraryChecksum checksum : this.checksums) {
+            Element checksumElement = newElement(element, "checksum");
+            checksum.writeState(checksumElement);
         }
     }
 

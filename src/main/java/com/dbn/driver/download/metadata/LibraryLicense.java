@@ -26,19 +26,19 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Getter
 @NoArgsConstructor
-public class Developer implements PersistentStateElement {
+public class LibraryLicense implements PersistentStateElement {
     private String name;
     private String url;
 
 
-    public Developer(String name, String url) {
+    public LibraryLicense(String name, String url) {
         this.name = name;
         this.url = url;
     }
 
     @Override
     public String toString() {
-        return String.format("Author [name=%s, url=%s]", name, url);
+        return String.format("License [name=%s, url=%s]", name, url);
     }
 
     @Override

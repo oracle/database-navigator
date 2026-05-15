@@ -18,6 +18,7 @@ package com.dbn.driver.download;
 
 import com.dbn.common.checksum.Checksum;
 import com.dbn.common.checksum.ChecksumType;
+import com.dbn.driver.download.metadata.LibraryChecksum;
 import com.intellij.openapi.util.io.FileUtil;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -37,16 +38,20 @@ import static com.dbn.driver.download.DriverDownloadManager.getDriverPackageChec
 public class PackageChecksumData {
     private final String packageId;
     private final File file;
-    private final Map<String, String> checksums = new ConcurrentHashMap<>();
+    private final Map<String, LibraryChecksum> checksums = new ConcurrentHashMap<>();
     private final Set<File> invalidChecksums = new HashSet<>();
 
     public PackageChecksumData(String packageId) {
-        this.packageId = packageId;
-        this.file = new File(getDriverPackageChecksumsLocation(), packageId + ".txt");
+        this(packageId, new File(getDriverPackageChecksumsLocation(), packageId + ".txt"));
     }
 
-    public void addChecksum(String libraryId, String checksum) {
-        checksums.put(libraryId, checksum);
+    PackageChecksumData(String packageId, File file) {
+        this.packageId = packageId;
+        this.file = file;
+    }
+
+    public void addChecksum(String libraryId, ChecksumType type, String checksum) {
+        checksums.put(libraryId, new LibraryChecksum(type, checksum));
     }
 
     public boolean fileExists() {
@@ -64,33 +69,61 @@ public class PackageChecksumData {
         List<String> lines = FileUtil.loadLines(file);
         lines.stream()
              .filter(l -> isNotEmptyOrSpaces(l))
-             .map(l -> l.split(" "))
-             .forEach(l -> checksums.put(l[0], l[1]));
+             .map(l -> l.split("\\s+"))
+             .forEach(this::readChecksum);
     }
 
     @SneakyThrows
     public void writeChecksums() {
         StringBuilder builder = new StringBuilder();
-        Map<String, String> checksums = new TreeMap<>(this.checksums); // sort
-        checksums.forEach((k, v) -> builder.append(k).append(" ").append(v).append("\n"));
+        Map<String, LibraryChecksum> checksums = new TreeMap<>(this.checksums); // sort
+        checksums.forEach((k, v) -> builder.append(k)
+                .append(" ").append(v.getType().name())
+                .append(" ").append(v.getValue())
+                .append("\n"));
         FileUtil.writeToFile(file, builder.toString());
     }
 
     public boolean verifyChecksums(File packageDir) {
         invalidChecksums.clear();
+        if (checksums.isEmpty()) return false;
 
         for (String libraryId : checksums.keySet()) {
-            String checksum = checksums.get(libraryId);
+            LibraryChecksum checksum = checksums.get(libraryId);
             File libraryFile = new File(packageDir, libraryId + ".jar");
-            if (libraryFile.exists()) {
-                String actualChecksum = Checksum.fromFileContent(libraryFile, ChecksumType.SHA_1);
-                if (!Checksum.verifyChecksum(checksum, actualChecksum, ChecksumType.SHA_1)) {
-                    invalidChecksums.add(libraryFile);
-                }
-            } else {
+            if (!libraryFile.exists() || checksum.getType() == null) {
+                invalidChecksums.add(libraryFile);
+                continue;
+            }
+
+            ChecksumType type = checksum.getType();
+            String actualChecksum = Checksum.fromFileContent(libraryFile, type);
+            if (!Checksum.verifyChecksum(checksum.getValue(), actualChecksum, type)) {
                 invalidChecksums.add(libraryFile);
             }
         }
         return invalidChecksums.isEmpty();
+    }
+
+    private void readChecksum(String[] values) {
+        if (values.length < 2) return;
+
+        String libraryId = values[0];
+        if (values.length == 2) {
+            // Legacy DBN files stored only SHA-1 digests.
+            checksums.put(libraryId, new LibraryChecksum(ChecksumType.SHA_1, values[1]));
+            return;
+        }
+
+        ChecksumType type = readChecksumType(values[1]);
+        checksums.put(libraryId, new LibraryChecksum(type, values[2]));
+    }
+
+    private static ChecksumType readChecksumType(String value) {
+        try {
+            return ChecksumType.valueOf(value);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }
