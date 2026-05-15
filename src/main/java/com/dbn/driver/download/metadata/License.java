@@ -16,12 +16,19 @@
 
 package com.dbn.driver.download.metadata;
 
+import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.jdom.Element;
+
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Getter
-public class License {
-    private final String name;
-    private final String url;
+@NoArgsConstructor
+public class License implements PersistentStateElement {
+    private String name;
+    private String url;
 
 
     public License(String name, String url) {
@@ -32,5 +39,19 @@ public class License {
     @Override
     public String toString() {
         return String.format("License [name=%s, url=%s]", name, url);
+    }
+
+    @Override
+    public void readState(Element element) {
+        if (element == null) return;
+
+        name = stringAttribute(element, "name");
+        url = stringAttribute(element, "url");
+    }
+
+    @Override
+    public void writeState(Element element) {
+        setStringAttribute(element, "name", name);
+        setStringAttribute(element, "url", url);
     }
 }

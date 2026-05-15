@@ -18,6 +18,7 @@ package com.dbn.driver.download.metadata;
 
 import com.dbn.common.state.PersistentStateElement;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.graph.DependencyNode;
 import org.jdom.Element;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.options.setting.Settings.childrenOf;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -44,10 +46,11 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
  * @author Ayoub Aarrasse
  */
 @Getter
+@NoArgsConstructor
 public class Library implements PersistentStateElement {
-    private final String groupId;
-    private final String artifactId;
-    private final String version;
+    private String groupId;
+    private String artifactId;
+    private String version;
     private List<Developer> developers = new ArrayList<>();
     private List<License> licenses = new ArrayList<>();
 
@@ -98,15 +101,25 @@ public class Library implements PersistentStateElement {
 
     @Override
     public void readState(Element element) {
-        // Read developers
-        this.developers = element.getChildren("developer").stream()
-                .map(e -> new Developer(stringAttribute(e, "name"), stringAttribute(e, "url")))
-                .collect(Collectors.toList());
+        if (element == null) return;
 
-        // Read licenses
-        this.licenses = element.getChildren("license").stream()
-                .map(e -> new License(stringAttribute(e, "name"), stringAttribute(e, "url")))
-                .collect(Collectors.toList());
+        this.groupId = stringAttribute(element, "group-id");
+        this.artifactId = stringAttribute(element, "artifact-id");
+        this.version = stringAttribute(element, "version");
+
+        this.developers = new ArrayList<>();
+        for (Element developerElement : childrenOf(element, "developer")) {
+            Developer developer = new Developer();
+            developer.readState(developerElement);
+            developers.add(developer);
+        }
+
+        this.licenses = new ArrayList<>();
+        for (Element licenseElement : childrenOf(element, "license")) {
+            License license = new License();
+            license.readState(licenseElement);
+            licenses.add(license);
+        }
     }
 
     @Override
@@ -115,16 +128,14 @@ public class Library implements PersistentStateElement {
         setStringAttribute(element, "artifact-id", artifactId);
         setStringAttribute(element, "version", version);
 
-        for (Developer dev : this.developers) {
-            Element devElement = newElement(element, "developer");
-            setStringAttribute(devElement, "name", dev.getName());
-            setStringAttribute(devElement, "url", dev.getUrl());
+        for (Developer developer : this.developers) {
+            Element developerElement = newElement(element, "developer");
+            developer.writeState(developerElement);
         }
 
-        for (License lic : this.licenses) {
-            Element licElement = newElement(element, "license");
-            setStringAttribute(licElement, "name", lic.getName());
-            setStringAttribute(licElement, "url", lic.getUrl());
+        for (License license : this.licenses) {
+            Element licenseElement = newElement(element, "license");
+            license.writeState(licenseElement);
         }
     }
 
