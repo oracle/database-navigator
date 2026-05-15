@@ -96,7 +96,7 @@ public class MavenArtifactDownloader {
         String actualChecksum = Checksum.fromFileContent(outputFile, ChecksumType.SHA_1);
 
         DriverDownloadManager downloadManager = DriverDownloadManager.getInstance();
-        if (expectedChecksum.equals(actualChecksum)) {
+        if (Checksum.verifyChecksum(expectedChecksum, actualChecksum, ChecksumType.SHA_1)) {
             // Update download status
             downloadManager.setDownloadStatus(packageId, artifactId + "-" + version, DownloadStatus.DONE);
 

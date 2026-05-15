@@ -26,7 +26,6 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -85,7 +84,7 @@ public class PackageChecksumData {
             File libraryFile = new File(packageDir, libraryId + ".jar");
             if (libraryFile.exists()) {
                 String actualChecksum = Checksum.fromFileContent(libraryFile, ChecksumType.SHA_1);
-                if (!Objects.equals(checksum, actualChecksum)) {
+                if (!Checksum.verifyChecksum(checksum, actualChecksum, ChecksumType.SHA_1)) {
                     invalidChecksums.add(libraryFile);
                 }
             } else {
