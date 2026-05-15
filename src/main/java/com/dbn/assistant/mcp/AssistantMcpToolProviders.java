@@ -18,6 +18,8 @@ package com.dbn.assistant.mcp;
 
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerType;
+import com.dbn.common.acknowledgement.UserAcknowledgementCancelledException;
+import com.dbn.common.acknowledgement.UserAcknowledgementManager;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.mcp.McpToolProvider;
 import dev.langchain4j.mcp.client.DefaultMcpClient;
@@ -41,6 +43,7 @@ import static com.dbn.assistant.mcp.model.AssistantMcpServer.qualifiedUtilityNam
 public class AssistantMcpToolProviders {
 
     private static McpTransport createMcpTransport(AssistantMcpServer mcpServer) {
+        UserAcknowledgementManager.getInstance().ensureAcknowledged(mcpServer);
         AssistantMcpServerType type = mcpServer.getType();
         return switch (type) {
             case HTTP -> createHttpMcpTransport(mcpServer);
@@ -85,6 +88,8 @@ public class AssistantMcpToolProviders {
                     .toolWrapper(toolWrapper)
                     .filter(toolsFilter)
                     .build();
+        } catch (UserAcknowledgementCancelledException e) {
+            throw e;
         } catch (Throwable t) {
             log.warn(t.getMessage(), t);
             errorHandler.accept("Failed to initialize MCP Server \"" + serverName + "\"", t);

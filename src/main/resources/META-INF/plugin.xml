@@ -215,6 +215,7 @@
         <applicationService serviceImplementation="com.dbn.connection.ssl.SslConnectionManager"/>
         <applicationService serviceImplementation="com.dbn.options.DefaultProjectSettingsManager"/>
         <applicationService serviceImplementation="com.dbn.credentials.DatabaseCredentialManager"/>
+        <applicationService serviceImplementation="com.dbn.common.acknowledgement.UserAcknowledgementManager"/>
         <applicationService serviceImplementation="com.dbn.assistant.mcp.ide.IdeMcpServerManager"/>
 
         <!--<projectService serviceImplementation="com.dbn.options.GlobalProjectSettings"/>-->

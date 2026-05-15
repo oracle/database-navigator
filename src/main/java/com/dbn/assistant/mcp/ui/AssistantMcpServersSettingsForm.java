@@ -22,6 +22,7 @@ import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.mcp.ide.IdeMcpServerManager;
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerBundle;
+import com.dbn.common.acknowledgement.UserAcknowledgementManager;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
@@ -37,7 +38,9 @@ import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
@@ -48,6 +51,8 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
     private JPanel ideMcpServerPanel;
 
     private final AssistantMcpServersTable mcpServersTable;
+    private final Set<String> initialAckKeys = new HashSet<>();
+    private final Set<String> userTrustedKeys = new HashSet<>();
     private AssistantIdeMcpServerForm ideMcpServerForm;
 
     public AssistantMcpServersSettingsForm(AssistantMcpServerSettings settings) {
@@ -55,6 +60,9 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
 
         mcpServersTable = new AssistantMcpServersTable(this, settings.getMcpServers());
         mcpServersTablePanel.add(initTableComponent());
+        for (AssistantMcpServer mcpServer : settings.getMcpServers().getElements()) {
+            initialAckKeys.add(mcpServer.getAcknowledgementKey());
+        }
 
         if (IdeMcpServerManager.isIdeMcpPluginSupported()) {
             ideMcpServerForm = new AssistantIdeMcpServerForm(this);
@@ -114,6 +122,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
             AssistantMcpServersTableModel model = mcpServersTable.getModel();
             model.addElement(mcpServer);
         }
+        userTrustedKeys.add(mcpServer.getAcknowledgementKey());
         mackConfigModified();
         mcpServersTable.revalidate();
         mcpServersTable.repaint();
@@ -143,6 +152,13 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
 
         List<AssistantMcpServer> mcpServers = model.getElements();
         configuration.setMcpServers(new AssistantMcpServerBundle(getProject(), mcpServers));
+        UserAcknowledgementManager.getInstance().updateAcknowledgements(initialAckKeys, userTrustedKeys, mcpServers);
+        // refresh the baseline so the next Apply diffs against the just-applied state
+        initialAckKeys.clear();
+        for (AssistantMcpServer mcpServer : mcpServers) {
+            initialAckKeys.add(mcpServer.getAcknowledgementKey());
+        }
+        userTrustedKeys.clear();
 
         if (configuration.isModified()) {
             refreshAssistantStates();
@@ -160,6 +176,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
 
     @Override
     public void resetFormChanges() {
+        userTrustedKeys.clear();
         mcpServersTable.getModel().resetChanges();
     }
 }

@@ -20,6 +20,7 @@ import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerData;
 import com.dbn.assistant.mcp.model.AssistantMcpServerType;
 import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
+import com.dbn.common.acknowledgement.UserAcknowledgementManager;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -154,6 +155,8 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
                     "Accessing http url \"" + mcpServer.getUrl() + "\"":
                     "Invoking command \"" + mcpServer.getEndpoint() + "\"";
             indicator.setText2(detail);
+            // trust this endpoint for the verify call; persistent acknowledgement happens on settings Apply
+            UserAcknowledgementManager.getInstance().acknowledgeTemporarily(mcpServer);
             List<AssistantMcpToolInfo> tools = AssistantMcpServerData.loadTools(mcpServer);
             if (indicator.isCanceled()) return;
 

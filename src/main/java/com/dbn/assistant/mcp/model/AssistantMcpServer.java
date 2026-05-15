@@ -17,6 +17,8 @@
 package com.dbn.assistant.mcp.model;
 
 import com.dbn.common.EntityId;
+import com.dbn.common.acknowledgement.UserAcknowledgeable;
+import com.dbn.common.checksum.Checksum;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
@@ -33,6 +35,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.assistant.mcp.model.AssistantMcpServerType.HTTP;
+import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
@@ -40,12 +44,13 @@ import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
+import static com.dbn.common.util.Strings.concatenate;
 import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class AssistantMcpServer implements PersistentConfiguration, Presentable, Cloneable<AssistantMcpServer> {
+public class AssistantMcpServer implements PersistentConfiguration, Presentable, Cloneable<AssistantMcpServer>, UserAcknowledgeable {
     public static final EntityId IDE_MCP_SERVER_ID = EntityId.get("ide-mcp-server-id");
     private static final Set<String> serverKeyStore = new HashSet<>();
 
@@ -68,8 +73,30 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     public String getEndpoint() {
         return switch (type) {
             case HTTP -> url;
-            case STDIO -> command + " " + commandArguments;
+            case STDIO -> concatenate(getCommandTokens(), " ");
         };
+    }
+
+    @Override
+    public String getAcknowledgementTitle() {
+        return "Trust MCP Server \"" + getName() + "\"";
+    }
+
+    @Override
+    public String getAcknowledgementMessage() {
+        return "DB Assistant wants to use MCP server \"" + getName() + "\".\n\n" +
+                "Endpoint type: " + getType().name() + "\n" +
+                "Endpoint: " + getEndpoint() + "\n\n" +
+                "Only acknowledge this endpoint if you trust this project configuration.";
+    }
+
+    @Override
+    public String getAcknowledgementKey() {
+        return "mcp-server:" + getId().id() + ":" + getEndpointFingerprint();
+    }
+
+    private String getEndpointFingerprint() {
+        return Checksum.fromStringContent(getType().name() + ":" + getEndpoint(), SHA_256);
     }
 
     public List<String> getCommandTokens() {
@@ -77,7 +104,9 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
 
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add(command);
-        tokens.addAll(List.of(commandArguments.split("\\s+")));
+        if (!Strings.isEmpty(commandArguments)) {
+            tokens.addAll(List.of(commandArguments.split("\\s+")));
+        }
         return tokens;
     }
 
