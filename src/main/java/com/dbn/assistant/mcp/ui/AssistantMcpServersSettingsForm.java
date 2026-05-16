@@ -152,7 +152,10 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
 
         List<AssistantMcpServer> mcpServers = model.getElements();
         configuration.setMcpServers(new AssistantMcpServerBundle(getProject(), mcpServers));
-        UserAcknowledgementManager.getInstance().updateAcknowledgements(initialAckKeys, userTrustedKeys, mcpServers);
+
+        UserAcknowledgementManager acknowledgementManager = UserAcknowledgementManager.getInstance();
+        acknowledgementManager.updateAcknowledgements(initialAckKeys, userTrustedKeys, mcpServers);
+
         // refresh the baseline so the next Apply diffs against the just-applied state
         initialAckKeys.clear();
         for (AssistantMcpServer mcpServer : mcpServers) {

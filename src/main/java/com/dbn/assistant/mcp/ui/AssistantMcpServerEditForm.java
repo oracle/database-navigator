@@ -155,8 +155,11 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
                     "Accessing http url \"" + mcpServer.getUrl() + "\"":
                     "Invoking command \"" + mcpServer.getEndpoint() + "\"";
             indicator.setText2(detail);
+
             // trust this endpoint for the verify call; persistent acknowledgement happens on settings Apply
-            UserAcknowledgementManager.getInstance().acknowledgeTemporarily(mcpServer);
+            UserAcknowledgementManager acknowledgementManager = UserAcknowledgementManager.getInstance();
+            acknowledgementManager.acknowledgeTemporarily(mcpServer);
+
             List<AssistantMcpToolInfo> tools = AssistantMcpServerData.loadTools(mcpServer);
             if (indicator.isCanceled()) return;
 

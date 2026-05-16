@@ -19,12 +19,13 @@ package com.dbn.assistant.service.generic.action;
 import com.dbn.assistant.chat.window.action.AbstractChatBoxAction;
 import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.mcp.AssistantMcpServerState;
+import com.dbn.assistant.mcp.model.AssistantMcpServerBundle;
 import com.dbn.assistant.mcp.ui.AssistantMcpServerEditDialog;
 import com.dbn.assistant.mcp.ui.AssistantMcpServerEditRequest;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
-import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.acknowledgement.UserAcknowledgementManager;
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.util.Dialogs;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -49,11 +50,12 @@ public class McpServerCreateAction extends AbstractChatBoxAction {
         AssistantSettings assistantSettings = AssistantSettings.getInstance(project);
         AssistantMcpServerSettings mcpServerSettings = assistantSettings.getMcpServerSettings();
 
+        AssistantMcpServerBundle mcpServers = mcpServerSettings.getMcpServers();
         AssistantMcpServerEditRequest request = AssistantMcpServerEditRequest
                 .builder()
-                .mcpServers(mcpServerSettings.getMcpServers())
+                .mcpServers(mcpServers)
                 .saveConsumer(s -> {
-                    mcpServerSettings.getMcpServers().addMcpServer(s);
+                    mcpServers.addMcpServer(s);
                     UserAcknowledgementManager.getInstance().acknowledge(s);
                     mcpServerState.setSelected(s.getId(), true);
                 })

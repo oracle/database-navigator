@@ -43,7 +43,9 @@ import static com.dbn.assistant.mcp.model.AssistantMcpServer.qualifiedUtilityNam
 public class AssistantMcpToolProviders {
 
     private static McpTransport createMcpTransport(AssistantMcpServer mcpServer) {
-        UserAcknowledgementManager.getInstance().ensureAcknowledged(mcpServer);
+        UserAcknowledgementManager acknowledgementManager = UserAcknowledgementManager.getInstance();
+        acknowledgementManager.ensureAcknowledged(mcpServer);
+
         AssistantMcpServerType type = mcpServer.getType();
         return switch (type) {
             case HTTP -> createHttpMcpTransport(mcpServer);

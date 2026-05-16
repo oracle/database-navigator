@@ -30,12 +30,10 @@ import lombok.SneakyThrows;
 import org.jdom.Element;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.dbn.assistant.mcp.model.AssistantMcpServerType.HTTP;
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
@@ -46,6 +44,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Naming.nextNumberedIdentifier;
 import static com.dbn.common.util.Strings.concatenate;
 import static com.dbn.common.util.Unsafe.cast;
+import static java.util.Collections.emptyList;
 
 @Getter
 @Setter
@@ -100,13 +99,11 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     }
 
     public List<String> getCommandTokens() {
-        if (Strings.isEmpty(command)) return Collections.emptyList();
+        if (Strings.isEmpty(command)) return emptyList();
 
         ArrayList<String> tokens = new ArrayList<>();
         tokens.add(command);
-        if (!Strings.isEmpty(commandArguments)) {
-            tokens.addAll(List.of(commandArguments.split("\\s+")));
-        }
+        tokens.addAll(Strings.split(commandArguments, "\\s+"));
         return tokens;
     }
 

@@ -27,7 +27,6 @@ import org.jsoup.safety.Safelist;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -40,6 +39,7 @@ import java.util.stream.Collectors;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.lang.Character.isWhitespace;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 @NonNls
@@ -52,7 +52,7 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
 
     @NotNull
     public static List<String> tokenize(@Nullable String string, @NotNull String separator) {
-        if (isEmptyOrSpaces(string)) return Collections.emptyList();
+        if (isEmptyOrSpaces(string)) return emptyList();
         return Arrays
                 .stream(string.split(separator))
                 .map(t -> t.trim())
@@ -101,6 +101,11 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
 
     public static boolean isEmpty(CharSequence string) {
         return StringUtil.isEmpty(string);
+    }
+
+    public static List<String> split(String string, String separator) {
+        if (isEmpty(string)) return emptyList();
+        return List.of(string.split(separator));
     }
 
     public static boolean isNotEmpty(String string) {
@@ -364,7 +369,7 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
 
     @NotNull
     public static List<String> nonEmptyStrings(List<String> values) {
-        if (values == null) return Collections.emptyList();
+        if (values == null) return emptyList();
         return values.stream().filter(s -> isNotEmptyOrSpaces(s)).collect(Collectors.toList());
     }
 
