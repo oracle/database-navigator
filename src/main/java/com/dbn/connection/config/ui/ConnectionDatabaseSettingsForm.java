@@ -40,6 +40,7 @@ import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
+import com.dbn.connection.config.imports.CloudConfigProviderType;
 import com.dbn.connection.config.imports.ConfigFileSourceType;
 import com.dbn.credentials.Secret;
 import com.dbn.driver.DriverSource;
@@ -351,7 +352,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         DatabaseInfo databaseInfo = configuration.getDatabaseInfo();
         boolean settingsChanged =
                 urlSettingsForm.settingsChanged() ||
-                (urlSettingsForm.isOciCloudProvider() ?
+                (isCloudProviderAuthenticationVisible() ?
                         authSettingsForm.cloudProviderSettingsChanged() :
                         authSettingsForm.settingsChanged()) ||
                 !Commons.match(configuration.getDatabaseType(), selectedDatabaseType) ||
@@ -385,12 +386,19 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
     void updateAuthenticationVisibility() {
         DatabaseType databaseType = getSelectedDatabaseType();
         authSettingsForm.setAuthenticationTypes(getAuthenticationTypes());
-        boolean ociCloudProvider = urlSettingsForm.isOciCloudProvider();
         boolean cloudProviderConfig = urlSettingsForm.isCloudProviderConfig();
+        CloudConfigProviderType cloudProviderType = isCloudProviderAuthenticationVisible() ?
+                urlSettingsForm.getCloudConfigProviderType() :
+                null;
         driverSettingsForm.setExternalLibraryRequired(cloudProviderConfig);
-        authSettingsForm.setCloudProviderMode(ociCloudProvider);
-        authenticationPanel.setVisible(ociCloudProvider ||
+        authSettingsForm.setCloudProviderMode(cloudProviderType);
+        authenticationPanel.setVisible(cloudProviderType != null ||
                 !cloudProviderConfig && databaseType.supportsAuthentication() && urlSettingsForm.requiresAuthentication());
+    }
+
+    private boolean isCloudProviderAuthenticationVisible() {
+        CloudConfigProviderType provider = urlSettingsForm.getCloudConfigProviderType();
+        return urlSettingsForm.isCloudProviderConfig() && provider != null && provider.isOci();
     }
 
     private AuthenticationType[] getAuthenticationTypes() {

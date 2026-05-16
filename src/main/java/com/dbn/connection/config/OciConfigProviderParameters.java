@@ -16,7 +16,7 @@
 
 package com.dbn.connection.config;
 
-import com.dbn.connection.config.imports.OciConfigProviderAuthentication;
+import com.dbn.connection.config.imports.CloudConfigProviderAuthentication;
 import com.dbn.oci.config.OciConfigFileUtil;
 import lombok.experimental.UtilityClass;
 
@@ -28,7 +28,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 @UtilityClass
 public class OciConfigProviderParameters {
     public static Map<String, String> build(
-            OciConfigProviderAuthentication authentication,
+            CloudConfigProviderAuthentication authentication,
             String configFile,
             String profile) {
         Map<String, String> parameters = new LinkedHashMap<>();
@@ -36,7 +36,7 @@ public class OciConfigProviderParameters {
 
         parameters.put("AUTHENTICATION", authentication.getParameterValue());
 
-        if (authentication != OciConfigProviderAuthentication.OCI_DEFAULT) {
+        if (authentication != CloudConfigProviderAuthentication.OCI_DEFAULT) {
             return parameters;
         }
 

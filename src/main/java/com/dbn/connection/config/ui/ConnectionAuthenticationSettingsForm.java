@@ -21,7 +21,7 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
-import com.dbn.connection.config.imports.OciConfigProviderAuthentication;
+import com.dbn.connection.config.imports.CloudConfigProviderType;
 import com.dbn.connection.ui.ConnectionAuthenticationFieldsForm;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,7 +41,7 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
         super(parentComponent);
         cloudConfigProviderAuthSettingsForm = new CloudConfigProviderAuthenticationSettingsForm(parentComponent);
 
-        setCloudProviderMode(false);
+        setCloudProviderMode(null);
     }
 
     @Override
@@ -68,26 +68,17 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
         fieldsForm.setAuthenticationTypes(authenticationTypes);
     }
 
-    public void setCloudProviderMode(boolean cloudProviderMode) {
+    public void setCloudProviderMode(CloudConfigProviderType cloudProviderType) {
         mainPanel.removeAll();
-        JComponent component = cloudProviderMode ?
+        if (cloudProviderType != null) {
+            cloudConfigProviderAuthSettingsForm.setCloudProviderType(cloudProviderType);
+        }
+        JComponent component = cloudProviderType != null ?
                 cloudConfigProviderAuthSettingsForm.getComponent() :
                 fieldsForm.getComponent();
         mainPanel.add(component);
         mainPanel.revalidate();
         mainPanel.repaint();
-    }
-
-    public OciConfigProviderAuthentication getOciConfigProviderAuthentication() {
-        return cloudConfigProviderAuthSettingsForm.getOciConfigProviderAuthentication();
-    }
-
-    public String getOciConfigProviderConfigFile() {
-        return cloudConfigProviderAuthSettingsForm.getOciConfigProviderConfigFile();
-    }
-
-    public String getOciConfigProviderProfile() {
-        return cloudConfigProviderAuthSettingsForm.getOciConfigProviderProfile();
     }
 
     public void applyCloudProviderFormChanges(DatabaseInfo databaseInfo) {

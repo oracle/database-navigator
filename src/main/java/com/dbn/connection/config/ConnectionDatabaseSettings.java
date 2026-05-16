@@ -36,7 +36,7 @@ import com.dbn.connection.ServerType;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.imports.CloudConfigProviderType;
 import com.dbn.connection.config.imports.ConfigFileSourceType;
-import com.dbn.connection.config.imports.OciConfigProviderAuthentication;
+import com.dbn.connection.config.imports.CloudConfigProviderAuthentication;
 import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverSource;
@@ -290,7 +290,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
 
         CloudConfigProviderType provider = databaseInfo.getCloudConfigProviderType();
         if (isConfigCloudProvider() && provider != null && provider.isOci()) {
-            OciConfigProviderAuthentication authentication = databaseInfo.getOciConfigProviderAuthentication();
+            CloudConfigProviderAuthentication authentication = databaseInfo.getCloudConfigProviderAuthentication();
             parameters.putAll(OciConfigProviderParameters.build(
                     authentication,
                     databaseInfo.getOciConfigProviderConfigFile(),
@@ -460,7 +460,13 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             databaseInfo.setProtocol(getEnum(element, "protocol", DatabaseProtocol.class));
             databaseInfo.setConfigFileSourceType(getEnum(element, "config-file-source-type", ConfigFileSourceType.LOCAL_FILE));
             databaseInfo.setCloudConfigProviderType(getEnum(element, "cloud-config-provider-type", CloudConfigProviderType.class));
-            databaseInfo.setOciConfigProviderAuthentication(getEnum(element, "oci-config-provider-authentication", OciConfigProviderAuthentication.class));
+            CloudConfigProviderAuthentication cloudProviderAuthentication =
+                    getEnum(element, "cloud-config-provider-authentication", CloudConfigProviderAuthentication.class);
+            if (cloudProviderAuthentication == null) {
+                cloudProviderAuthentication =
+                        getEnum(element, "oci-config-provider-authentication", CloudConfigProviderAuthentication.class);
+            }
+            databaseInfo.setCloudConfigProviderAuthentication(cloudProviderAuthentication);
             databaseInfo.setOciConfigProviderConfigFile(getString(element, "oci-config-provider-config-file", null));
             databaseInfo.setOciConfigProviderProfile(getString(element, "oci-config-provider-profile", null));
             setConfigLocation(getString(element, "config-location", getString(element, "config-file-path", null)));
@@ -536,7 +542,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setEnum(element, "protocol", databaseInfo.getProtocol());
             setEnum(element, "config-file-source-type", databaseInfo.getConfigFileSourceType());
             setEnum(element, "cloud-config-provider-type", databaseInfo.getCloudConfigProviderType());
-            setEnum(element, "oci-config-provider-authentication", databaseInfo.getOciConfigProviderAuthentication());
+            setEnum(element, "cloud-config-provider-authentication", databaseInfo.getCloudConfigProviderAuthentication());
             setString(element, "oci-config-provider-config-file", nvl(databaseInfo.getOciConfigProviderConfigFile()));
             setString(element, "oci-config-provider-profile", nvl(databaseInfo.getOciConfigProviderProfile()));
             setString(element, "config-location", nvl(databaseInfo.getConfigLocation()));
@@ -570,7 +576,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         if (isConfigCloudProvider() &&
                 databaseInfo.getCloudConfigProviderType() != null &&
                 databaseInfo.getCloudConfigProviderType().isOci() &&
-                databaseInfo.getOciConfigProviderAuthentication() == OciConfigProviderAuthentication.OCI_INTERACTIVE) {
+                databaseInfo.getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.OCI_INTERACTIVE) {
             return true;
         }
 

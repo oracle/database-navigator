@@ -27,7 +27,7 @@ import com.dbn.connection.config.file.DatabaseFile;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.imports.CloudConfigProviderType;
 import com.dbn.connection.config.imports.ConfigFileSourceType;
-import com.dbn.connection.config.imports.OciConfigProviderAuthentication;
+import com.dbn.connection.config.imports.CloudConfigProviderAuthentication;
 import com.dbn.connection.config.tns.TnsAdmin;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -73,7 +73,7 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
     private String tnsProfile;
     private ConfigFileSourceType configFileSourceType = ConfigFileSourceType.LOCAL_FILE;
     private CloudConfigProviderType cloudConfigProviderType;
-    private OciConfigProviderAuthentication ociConfigProviderAuthentication;
+    private CloudConfigProviderAuthentication cloudConfigProviderAuthentication;
     private String ociConfigProviderConfigFile;
     private String ociConfigProviderProfile;
     private String configLocation;
@@ -111,7 +111,7 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.serverType = null;
         this.configFileSourceType = ConfigFileSourceType.LOCAL_FILE;
         this.cloudConfigProviderType = null;
-        this.ociConfigProviderAuthentication = null;
+        this.cloudConfigProviderAuthentication = null;
         this.ociConfigProviderConfigFile = null;
         this.ociConfigProviderProfile = null;
         this.configLocation = null;
@@ -161,7 +161,7 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         }
 
         if (cloudConfigProviderType != null && cloudConfigProviderType.isOci()) {
-            ociConfigProviderAuthentication = OciConfigProviderAuthentication.get(getParameterIgnoreCase("AUTHENTICATION"));
+            cloudConfigProviderAuthentication = CloudConfigProviderAuthentication.get(getParameterIgnoreCase("AUTHENTICATION"));
             ociConfigProviderConfigFile = getParameterIgnoreCase("OCI_CONFIG_FILE");
             ociConfigProviderProfile = getParameterIgnoreCase("OCI_PROFILE");
         }
@@ -227,7 +227,7 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         clone.serverType = this.serverType;
         clone.configFileSourceType = this.configFileSourceType;
         clone.cloudConfigProviderType = this.cloudConfigProviderType;
-        clone.ociConfigProviderAuthentication = this.ociConfigProviderAuthentication;
+        clone.cloudConfigProviderAuthentication = this.cloudConfigProviderAuthentication;
         clone.ociConfigProviderConfigFile = this.ociConfigProviderConfigFile;
         clone.ociConfigProviderProfile = this.ociConfigProviderProfile;
         clone.configLocation = this.configLocation;
