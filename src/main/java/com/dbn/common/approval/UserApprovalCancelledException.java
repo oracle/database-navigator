@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.service.generic.model;
+package com.dbn.common.approval;
 
-import com.dbn.assistant.provider.AIProviderId;
-import com.dbn.common.extension.ExtensionPoint;
-import com.intellij.openapi.extensions.ExtensionPointName;
+import com.dbn.common.exception.RequestCancelledException;
 
-public interface AssistantModelFactory extends ExtensionPoint {
-    ExtensionPointName<AssistantModelFactory> EP = ExtensionPointName.create("com.dbn.assistantModelFactory");
-
-    AIProviderId getProviderId();
-
-    <T> T createModel(Class<T> modelType, AssistantModelInput input);
+/**
+ * Signals that the user cancelled an approval prompt.
+ */
+public class UserApprovalCancelledException extends RequestCancelledException {
+    public UserApprovalCancelledException() {
+        super("User has not approved this operation");
+    }
 }

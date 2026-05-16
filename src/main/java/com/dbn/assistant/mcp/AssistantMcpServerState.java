@@ -22,7 +22,7 @@ import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateExtension;
 import com.dbn.common.EntityId;
-import com.dbn.common.acknowledgement.UserAcknowledgementCancelledException;
+import com.dbn.common.approval.UserApprovalCancelledException;
 import com.dbn.common.state.PersistentStateElement;
 import com.intellij.openapi.project.Project;
 import dev.langchain4j.agent.tool.ToolSpecification;
@@ -129,7 +129,7 @@ public class AssistantMcpServerState extends AssistantStateExtension implements 
             Function<ToolExecutor, ToolExecutor> executor) {
         try {
             return AssistantMcpToolProviders.createToolProvider(mcpServer, errorHandler, filter, executor);
-        } catch (UserAcknowledgementCancelledException e) {
+        } catch (UserApprovalCancelledException e) {
             // user declined; unselect so we do not prompt on every chat message
             setSelected(mcpServer.getId(), false);
             return null;

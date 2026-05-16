@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.common.acknowledgement;
+package com.dbn.common.extension;
 
-public interface UserAcknowledgeable {
-    String getAcknowledgementTitle();
-    String getAcknowledgementMessage();
-    String getAcknowledgementKey();
+public interface ExtensionPoint {
 }

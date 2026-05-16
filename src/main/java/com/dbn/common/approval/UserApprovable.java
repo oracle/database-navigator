@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.common.acknowledgement;
+package com.dbn.common.approval;
 
-import com.dbn.common.exception.RequestCancelledException;
-
-public class UserAcknowledgementCancelledException extends RequestCancelledException {
-    public UserAcknowledgementCancelledException() {
-        super("User has not acknowledged this operation");
-    }
+/**
+ * Marker for domain objects that require user approval before use.
+ * <p>
+ * Approval title, message, and key data are supplied by a matching
+ * {@link UserApprovalAdapter} extension, keeping approval UI concerns out of
+ * the domain object itself.
+ */
+public interface UserApprovable {
 }

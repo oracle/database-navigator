@@ -17,8 +17,7 @@
 package com.dbn.assistant.mcp.model;
 
 import com.dbn.common.EntityId;
-import com.dbn.common.acknowledgement.UserAcknowledgeable;
-import com.dbn.common.checksum.Checksum;
+import com.dbn.common.approval.UserApprovable;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Cloneable;
@@ -34,7 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.dbn.common.checksum.ChecksumType.SHA_256;
 import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
@@ -49,7 +47,7 @@ import static java.util.Collections.emptyList;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AssistantMcpServer implements PersistentConfiguration, Presentable, Cloneable<AssistantMcpServer>, UserAcknowledgeable {
+public class AssistantMcpServer implements PersistentConfiguration, Presentable, Cloneable<AssistantMcpServer>, UserApprovable {
     public static final EntityId IDE_MCP_SERVER_ID = EntityId.get("ide-mcp-server-id");
     private static final Set<String> serverKeyStore = new HashSet<>();
 
@@ -74,28 +72,6 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
             case HTTP -> url;
             case STDIO -> concatenate(getCommandTokens(), " ");
         };
-    }
-
-    @Override
-    public String getAcknowledgementTitle() {
-        return "Trust MCP Server \"" + getName() + "\"";
-    }
-
-    @Override
-    public String getAcknowledgementMessage() {
-        return "DB Assistant wants to use MCP server \"" + getName() + "\".\n\n" +
-                "Endpoint type: " + getType().name() + "\n" +
-                "Endpoint: " + getEndpoint() + "\n\n" +
-                "Only acknowledge this endpoint if you trust this project configuration.";
-    }
-
-    @Override
-    public String getAcknowledgementKey() {
-        return "mcp-server:" + getId().id() + ":" + getEndpointFingerprint();
-    }
-
-    private String getEndpointFingerprint() {
-        return Checksum.fromStringContent(getType().name() + ":" + getEndpoint(), SHA_256);
     }
 
     public List<String> getCommandTokens() {

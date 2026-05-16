@@ -24,8 +24,8 @@ import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalStatus;
 import com.dbn.assistant.tool.approval.AssistantToolApprovalUtil;
-import com.dbn.common.acknowledgement.UserAcknowledgementManager;
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.text.TextContent;
@@ -233,8 +233,8 @@ public class AssistantMcpToolApprovalsForm extends DBNFormBase {
     }
 
     public void reloadTools() {
-        UserAcknowledgementManager acknowledgementManager = UserAcknowledgementManager.getInstance();
-        acknowledgementManager.acknowledgeTemporarily(mcpServer);
+        UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+        approvalManager.approveTemporarily(mcpServer);
 
         Dispatch.async(mainPanel, () -> loadTools(),
                 tools -> initToolForms(tools));

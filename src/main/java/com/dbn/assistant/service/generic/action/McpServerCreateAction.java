@@ -24,8 +24,8 @@ import com.dbn.assistant.mcp.ui.AssistantMcpServerEditDialog;
 import com.dbn.assistant.mcp.ui.AssistantMcpServerEditRequest;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.assistant.state.AssistantState;
-import com.dbn.common.acknowledgement.UserAcknowledgementManager;
 import com.dbn.common.action.BackgroundUpdate;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.util.Dialogs;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -56,7 +56,7 @@ public class McpServerCreateAction extends AbstractChatBoxAction {
                 .mcpServers(mcpServers)
                 .saveConsumer(s -> {
                     mcpServers.addMcpServer(s);
-                    UserAcknowledgementManager.getInstance().acknowledge(s);
+                    UserApprovalManager.getInstance().approve(s);
                     mcpServerState.setSelected(s.getId(), true);
                 })
                 .build();

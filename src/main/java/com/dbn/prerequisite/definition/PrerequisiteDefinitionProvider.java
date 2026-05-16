@@ -16,11 +16,12 @@
 
 package com.dbn.prerequisite.definition;
 
+import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.prerequisite.model.PrerequisiteType;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.openapi.project.DumbAware;
 
-public interface PrerequisiteDefinitionProvider  extends DumbAware {
+public interface PrerequisiteDefinitionProvider extends ExtensionPoint, DumbAware {
     ExtensionPointName<PrerequisiteDefinitionProvider> EP = ExtensionPointName.create("com.dbn.prerequisiteDefinitionProvider");
 
     PrerequisiteType getType();

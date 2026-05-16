@@ -16,8 +16,9 @@
 
 package com.dbn.object.common.extension;
 
+import com.dbn.common.extension.ExtensionPoint;
 import com.dbn.object.type.DBObjectType;
 
-public interface DBObjectExtensionPoint {
+public interface DBObjectExtensionPoint extends ExtensionPoint {
     DBObjectType getObjectType();
 }

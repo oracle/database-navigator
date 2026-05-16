@@ -19,7 +19,7 @@ package com.dbn.assistant.mcp.ui;
 import com.dbn.assistant.mcp.ide.IdeMcpServerAvailability;
 import com.dbn.assistant.mcp.ide.IdeMcpServerManager;
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
-import com.dbn.common.acknowledgement.UserAcknowledgementManager;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.text.TextResources;
@@ -162,8 +162,8 @@ public class AssistantIdeMcpServerForm extends DBNFormBase {
         IdeMcpServerManager serverManager = IdeMcpServerManager.getInstance();
         AssistantMcpServer mcpServer = serverManager.getIdeMcpServer();
 
-        UserAcknowledgementManager acknowledgementManager = UserAcknowledgementManager.getInstance();
-        acknowledgementManager.acknowledgeTemporarily(mcpServer);
+        UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+        approvalManager.approveTemporarily(mcpServer);
 
         Dialogs.show(() -> new AssistantMcpToolApprovalDialog(getProject(), mcpServer));
     }
