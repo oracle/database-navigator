@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.service.generic.model;
-
-import com.dbn.assistant.provider.AIProviderId;
-import com.dbn.common.extension.ExtensionPoint;
-import com.intellij.openapi.extensions.ExtensionPointName;
-
-public interface AssistantModelFactory extends ExtensionPoint {
-    ExtensionPointName<AssistantModelFactory> EP = ExtensionPointName.create("com.dbn.assistantModelFactory");
-
-    AIProviderId getProviderId();
-
-    <T> T createModel(Class<T> modelType, AssistantModelInput input);
-}
+/**
+ * User approval infrastructure for operations that require an explicit
+ * user decision before they may proceed.
+ * <p>
+ * Domain objects mark themselves as {@link com.dbn.common.approval.UserApprovable}
+ * and provide approval metadata through a registered
+ * {@link com.dbn.common.approval.UserApprovalAdapter}. The
+ * {@link com.dbn.common.approval.UserApprovalManager} owns the persisted and
+ * temporary approval keys.
+ */
+package com.dbn.common.approval;

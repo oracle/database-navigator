@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.service.generic.model;
+package com.dbn.common.approval;
 
-import com.dbn.assistant.provider.AIProviderId;
-import com.dbn.common.extension.ExtensionPoint;
-import com.intellij.openapi.extensions.ExtensionPointName;
-
-public interface AssistantModelFactory extends ExtensionPoint {
-    ExtensionPointName<AssistantModelFactory> EP = ExtensionPointName.create("com.dbn.assistantModelFactory");
-
-    AIProviderId getProviderId();
-
-    <T> T createModel(Class<T> modelType, AssistantModelInput input);
+/**
+ * Marker for domain objects that require user approval before use.
+ * <p>
+ * Approval title, message, and key data are supplied by a matching
+ * {@link UserApprovalAdapter} extension, keeping approval UI concerns out of
+ * the domain object itself.
+ */
+public interface UserApprovable {
 }
