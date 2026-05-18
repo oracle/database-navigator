@@ -203,7 +203,7 @@
     <statement-execution-processor id="set-java-compiler-option">
         <statement>
             begin
-                dbms_java.set_compiler_option('{0}', '{1}', '{2}');
+                dbms_java.set_compiler_option({#0}, {#1}, {#2});
             end;
         </statement>
     </statement-execution-processor>
@@ -213,7 +213,7 @@
             declare
                 result varchar2(4000);
             begin
-                result := dbms_java.set_property('{0}', '{1}');
+                result := dbms_java.set_property({#0}, {#1});
             end;
         </statement>
     </statement-execution-processor>
