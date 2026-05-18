@@ -28,7 +28,7 @@ public class AlreadyDisposedException extends ProcessCanceledException {
 
     public AlreadyDisposedException(@Nullable Object o) {
         super((o == null) ?
-                new IllegalArgumentException("Object is null") :
-                new IllegalStateException(simpleClassName(o) + " is invalid or disposed"));
+                "Object is null" :
+                simpleClassName(o) + " is invalid or disposed");
     }
 }

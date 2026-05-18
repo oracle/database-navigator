@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
+import static com.dbn.common.util.CollectionUtil.clear;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public abstract class ObjectCacheBase<K, O, E extends Throwable> extends StatefulDisposableBase implements ObjectCache<K, O, E> {
@@ -118,6 +119,6 @@ public abstract class ObjectCacheBase<K, O, E extends Throwable> extends Statefu
 
     @Override
     public void disposeInner() {
-        data.clear();
+        clear(data);
     }
 }

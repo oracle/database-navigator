@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.dbn.assistant.mcp.model;
+package com.dbn.assistant.mcp;
 
+import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.common.approval.UserApprovalAdapter;
 import com.dbn.common.checksum.Checksum;
 

@@ -14,15 +14,30 @@
  * limitations under the License.
  */
 
-package com.dbn.common.approval;
+package com.dbn.common;
 
-/**
- * Marker for domain objects that require user approval before use.
- * <p>
- * Approval title, message, and key data are supplied by a matching
- * {@link UserApprovalAdapter} extension, keeping approval UI concerns out of
- * the domain object itself.
- */
-public interface UserApprovable {
-    boolean isAcknowledged();
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class Result<T> {
+    private T value;
+    private Throwable error;
+
+    public Result(T value) {
+        this.value = value;
+    }
+
+    public Result(Throwable error) {
+        this.error = error;
+    }
+
+    public boolean isSuccess() {
+        return error == null;
+    }
+
+    public boolean isError() {
+        return error != null;
+    }
 }

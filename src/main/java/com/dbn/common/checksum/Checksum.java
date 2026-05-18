@@ -117,9 +117,11 @@ public class Checksum {
 
         @Override
         void visit(File file, MessageDigest digest) {
+            String name = file.getName();
+            long modified = file.lastModified();
             String signature = file.isDirectory() ?
-                    file.getName() :
-                    file.getName() + file.length();
+                    name + ":" + modified :
+                    name + ":" + modified + ":" + file.length();
 
             digest.update(signature.getBytes());
         }

@@ -312,7 +312,8 @@
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBJsonViewManagementAdapter"/>
 
         <!--user approval adapters-->
-        <userApprovalAdapter implementation="com.dbn.assistant.mcp.model.AssistantMcpServerApprovalAdapter"/>
+        <userApprovalAdapter implementation="com.dbn.assistant.mcp.AssistantMcpServerApprovalAdapter"/>
+        <userApprovalAdapter implementation="com.dbn.driver.approval.DriverLibraryApprovalAdapter"/>
 
         <!--shared prerequisites-->
         <prerequisiteDefinitionProvider implementation="com.dbn.prerequisite.shared.SystemPrivilege_CREATE_TABLE"/>
