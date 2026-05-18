@@ -286,7 +286,8 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         } else if (urlType == DatabaseUrlType.CONFIG_FILE) {
             databaseInfo.setConfigFileSourceType(urlSettingsForm.getConfigFileSourceType());
             databaseInfo.setCloudConfigProviderType(urlSettingsForm.getCloudConfigProviderType());
-            if (urlSettingsForm.isOciCloudProvider()) {
+            databaseInfo.setCloudConfigProviderRegion(urlSettingsForm.getCloudConfigProviderRegion());
+            if (isCloudProviderAuthenticationVisible()) {
                 authSettingsForm.applyCloudProviderFormChanges(databaseInfo);
             }
             if (urlSettingsForm.getConfigFileSourceType() == ConfigFileSourceType.LOCAL_FILE &&

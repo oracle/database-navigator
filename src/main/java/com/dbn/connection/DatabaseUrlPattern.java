@@ -189,6 +189,10 @@ public enum DatabaseUrlPattern {
         if (!isEmpty(profileKey)) {
             parameters.put("key", profileKey);
         }
+        CloudConfigProviderType provider = databaseInfo.getCloudConfigProviderType();
+        if (provider != null && provider.getRegionParameterName() != null && !isEmpty(databaseInfo.getCloudConfigProviderRegion())) {
+            parameters.put(provider.getRegionParameterName(), databaseInfo.getCloudConfigProviderRegion());
+        }
 
         return parameters.isEmpty() ? Collections.emptyMap() : parameters;
     }

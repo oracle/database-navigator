@@ -93,6 +93,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JLabel configFileLabel;
     private JLabel configLocationLabel;
     private JLabel configFileProfileKeyLabel;
+    private JLabel cloudRegionLabel;
     private JLabel gcpStorageProjectLabel;
     private JLabel gcpStorageBucketLabel;
     private JLabel gcpStorageObjectLabel;
@@ -107,6 +108,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private JTextField portTextField;
     private JTextField databaseTextField;
     private JTextField configLocationTextField;
+    private JTextField cloudRegionTextField;
     private JTextField gcpStorageProjectTextField;
     private JTextField gcpStorageBucketTextField;
     private JTextField gcpStorageObjectTextField;
@@ -148,6 +150,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         onTextChange(tnsFolderTextField, e -> updateUrlField());
         onTextChange(configFileTextField, e -> updateUrlField());
         onTextChange(configLocationTextField, e -> updateUrlField());
+        onTextChange(cloudRegionTextField, e -> updateUrlField());
         onTextChange(gcpStorageProjectTextField, e -> updateUrlField());
         onTextChange(gcpStorageBucketTextField, e -> updateUrlField());
         onTextChange(gcpStorageObjectTextField, e -> updateUrlField());
@@ -271,6 +274,10 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         return getText(configFileProfileKeyTextField);
     }
 
+    public String getCloudConfigProviderRegion() {
+        return isCloudRegionConfig() ? getCloudRegion() : null;
+    }
+
     public boolean requiresAuthentication() {
         return getUrlType() != DatabaseUrlType.CONFIG_FILE || getConfigFileSourceType() != ConfigFileSourceType.LOCAL_FILE;
     }
@@ -316,6 +323,11 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         String profileKey = getConfigFileProfileKey();
         if (Strings.isNotEmptyOrSpaces(profileKey)) {
             parameters.put("key", profileKey.trim());
+        }
+        String cloudRegion = getCloudRegion();
+        String cloudRegionParameter = getCloudRegionParameterName();
+        if (cloudRegionParameter != null && Strings.isNotEmptyOrSpaces(cloudRegion)) {
+            parameters.put(cloudRegionParameter, cloudRegion.trim());
         }
 
         return parameters.isEmpty() ? Collections.emptyMap() : parameters;
@@ -385,6 +397,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         boolean remoteConfigVisible = configFileVisible && configFileSourceType != ConfigFileSourceType.LOCAL_FILE;
         boolean cloudProviderVisible = configFileVisible && configFileSourceType == ConfigFileSourceType.CLOUD_PROVIDER;
         boolean gcpStorageConfig = remoteConfigVisible && isGcpStorageConfig();
+        boolean cloudRegionConfig = remoteConfigVisible && isCloudRegionConfig();
         boolean hpdVisible = Constants.isOneOf(urlType,
                 DatabaseUrlType.SID,
                 DatabaseUrlType.SERVICE,
@@ -427,6 +440,8 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         configFileTextField.setVisible(localConfigFileVisible);
         configLocationLabel.setVisible(remoteConfigVisible && !gcpStorageConfig);
         configLocationTextField.setVisible(remoteConfigVisible && !gcpStorageConfig);
+        cloudRegionLabel.setVisible(cloudRegionConfig);
+        cloudRegionTextField.setVisible(cloudRegionConfig);
         gcpStorageProjectLabel.setVisible(gcpStorageConfig);
         gcpStorageProjectTextField.setVisible(gcpStorageConfig);
         gcpStorageBucketLabel.setVisible(gcpStorageConfig);
@@ -459,6 +474,16 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     private boolean isGcpStorageConfig() {
         return isCloudProviderConfig() &&
                 getCloudConfigProviderType() == CloudConfigProviderType.GCP_STORAGE;
+    }
+
+    private boolean isCloudRegionConfig() {
+        CloudConfigProviderType provider = getCloudConfigProviderType();
+        return isCloudProviderConfig() && provider != null && provider.getRegionParameterName() != null;
+    }
+
+    private String getCloudRegionParameterName() {
+        CloudConfigProviderType provider = getCloudConfigProviderType();
+        return isCloudProviderConfig() && provider != null ? provider.getRegionParameterName() : null;
     }
 
     boolean isCloudProviderConfig() {
@@ -510,6 +535,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         databaseInfo.setTnsProfile(getTnsProfile());
         databaseInfo.setConfigFileSourceType(getConfigFileSourceType());
         databaseInfo.setCloudConfigProviderType(getCloudConfigProviderType());
+        databaseInfo.setCloudConfigProviderRegion(getCloudConfigProviderRegion());
         databaseInfo.setConfigLocation(getConfigLocation());
         databaseInfo.setConfigFileProfileKey(getConfigFileProfileKey());
         databaseInfo.setUrlType(getUrlType());
@@ -530,6 +556,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         tnsFolderTextField.setText(databaseInfo.getTnsFolder());
         configFileTextField.setText(databaseInfo.getConfigLocation());
         configLocationTextField.setText(databaseInfo.getConfigLocation());
+        cloudRegionTextField.setText(databaseInfo.getCloudConfigProviderRegion());
         applyGcpStorageConfigLocation(databaseInfo.getConfigLocation());
         configFileProfileKeyTextField.setText(databaseInfo.getConfigFileProfileKey());
         parameters = databaseInfo.getParameters();
@@ -601,11 +628,16 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
             !Commons.match(databaseInfo.getTnsProfile(), getTnsProfile()) ||
             !Commons.match(databaseInfo.getConfigFileSourceType(), getConfigFileSourceType()) ||
             !Commons.match(databaseInfo.getCloudConfigProviderType(), getCloudConfigProviderType()) ||
+            !Commons.match(databaseInfo.getCloudConfigProviderRegion(), isCloudRegionConfig() ? getCloudRegion() : null) ||
             !Commons.match(databaseInfo.getConfigLocation(), getConfigLocation()) ||
             !Commons.match(databaseInfo.getConfigFileProfileKey(), getConfigFileProfileKey()) ||
             !Commons.match(databaseInfo.getUrl(), getUrl()) ||
             !Commons.match(databaseInfo.getUrlType(), urlType) ||
             !Commons.match(databaseInfo.getFileBundle(), urlType == DatabaseUrlType.FILE ? getFileBundle() : null);
 
+    }
+
+    private String getCloudRegion() {
+        return getText(cloudRegionTextField);
     }
 }

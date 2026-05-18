@@ -289,6 +289,12 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
         }
 
         CloudConfigProviderType provider = databaseInfo.getCloudConfigProviderType();
+        if (isConfigCloudProvider() && provider != null && provider.getRegionParameterName() != null) {
+            String region = databaseInfo.getCloudConfigProviderRegion();
+            if (Strings.isNotEmptyOrSpaces(region)) {
+                parameters.put(provider.getRegionParameterName(), region.trim());
+            }
+        }
         if (isConfigCloudProvider() && provider != null && provider.isOci()) {
             CloudConfigProviderAuthentication authentication = databaseInfo.getCloudConfigProviderAuthentication();
             parameters.putAll(OciConfigProviderParameters.build(
@@ -469,6 +475,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             databaseInfo.setCloudConfigProviderAuthentication(cloudProviderAuthentication);
             databaseInfo.setOciConfigProviderConfigFile(getString(element, "oci-config-provider-config-file", null));
             databaseInfo.setOciConfigProviderProfile(getString(element, "oci-config-provider-profile", null));
+            databaseInfo.setCloudConfigProviderRegion(getString(element, "cloud-config-provider-region", null));
             setConfigLocation(getString(element, "config-location", getString(element, "config-file-path", null)));
             databaseInfo.setConfigFileProfileKey(getString(element, "config-file-profile-key", null));
 
@@ -545,6 +552,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             setEnum(element, "cloud-config-provider-authentication", databaseInfo.getCloudConfigProviderAuthentication());
             setString(element, "oci-config-provider-config-file", nvl(databaseInfo.getOciConfigProviderConfigFile()));
             setString(element, "oci-config-provider-profile", nvl(databaseInfo.getOciConfigProviderProfile()));
+            setString(element, "cloud-config-provider-region", nvl(databaseInfo.getCloudConfigProviderRegion()));
             setString(element, "config-location", nvl(databaseInfo.getConfigLocation()));
             setString(element, "config-file-profile-key", nvl(databaseInfo.getConfigFileProfileKey()));
 

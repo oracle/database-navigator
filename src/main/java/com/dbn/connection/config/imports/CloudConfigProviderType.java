@@ -69,4 +69,27 @@ public enum CloudConfigProviderType implements Presentable {
                 this == OCI_DB_TOOLS ||
                 this == OCI_VAULT;
     }
+
+    public boolean isAws() {
+        return this == AWS_S3 ||
+                this == AWS_SECRETS;
+    }
+
+    public boolean isGcp() {
+        return this == GCP_STORAGE ||
+                this == GCP_SECRET_MANAGER;
+    }
+
+    public boolean isAzure() {
+        return this == AZURE_APP_CONFIG ||
+                this == AZURE_VAULT;
+    }
+
+    public boolean isHashicorp() {
+        return this == HASHICORP_VAULT;
+    }
+
+    public String getRegionParameterName() {
+        return isAws() ? "AWS_REGION" : null;
+    }
 }

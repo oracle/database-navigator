@@ -76,6 +76,7 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
     private CloudConfigProviderAuthentication cloudConfigProviderAuthentication;
     private String ociConfigProviderConfigFile;
     private String ociConfigProviderProfile;
+    private String cloudConfigProviderRegion;
     private String configLocation;
     private String configFileProfileKey;
     private Map<String, String> parameters = new HashMap<>();
@@ -114,6 +115,7 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.cloudConfigProviderAuthentication = null;
         this.ociConfigProviderConfigFile = null;
         this.ociConfigProviderProfile = null;
+        this.cloudConfigProviderRegion = null;
         this.configLocation = null;
         this.configFileProfileKey = null;
         this.parameters = new HashMap<>();
@@ -164,6 +166,9 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
             cloudConfigProviderAuthentication = CloudConfigProviderAuthentication.get(getParameterIgnoreCase("AUTHENTICATION"));
             ociConfigProviderConfigFile = getParameterIgnoreCase("OCI_CONFIG_FILE");
             ociConfigProviderProfile = getParameterIgnoreCase("OCI_PROFILE");
+        }
+        if (cloudConfigProviderType != null && cloudConfigProviderType.isAws()) {
+            cloudConfigProviderRegion = getParameterIgnoreCase("AWS_REGION");
         }
     }
 
@@ -230,6 +235,7 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         clone.cloudConfigProviderAuthentication = this.cloudConfigProviderAuthentication;
         clone.ociConfigProviderConfigFile = this.ociConfigProviderConfigFile;
         clone.ociConfigProviderProfile = this.ociConfigProviderProfile;
+        clone.cloudConfigProviderRegion = this.cloudConfigProviderRegion;
         clone.configLocation = this.configLocation;
         clone.configFileProfileKey = this.configFileProfileKey;
         clone.parameters = new HashMap<>(this.parameters);
