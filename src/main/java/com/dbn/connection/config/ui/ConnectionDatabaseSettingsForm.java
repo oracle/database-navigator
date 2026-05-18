@@ -40,6 +40,7 @@ import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
+import com.dbn.connection.config.imports.CloudConfigProviderAuthentication;
 import com.dbn.connection.config.imports.CloudConfigProviderType;
 import com.dbn.connection.config.imports.ConfigFileSourceType;
 import com.dbn.credentials.Secret;
@@ -399,7 +400,9 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
     private boolean isCloudProviderAuthenticationVisible() {
         CloudConfigProviderType provider = urlSettingsForm.getCloudConfigProviderType();
-        return urlSettingsForm.isCloudProviderConfig() && provider != null && provider.isOci();
+        return urlSettingsForm.isCloudProviderConfig() &&
+                provider != null &&
+                CloudConfigProviderAuthentication.values(provider).length > 0;
     }
 
     private AuthenticationType[] getAuthenticationTypes() {

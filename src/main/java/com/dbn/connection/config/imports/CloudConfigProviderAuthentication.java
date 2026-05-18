@@ -24,7 +24,8 @@ import java.util.Arrays;
 @Getter
 public enum CloudConfigProviderAuthentication implements Presentable {
     OCI_DEFAULT("OCI Default", "OCI_DEFAULT", CloudConfigProviderType.OCI_OBJECT, CloudConfigProviderType.OCI_DB_TOOLS, CloudConfigProviderType.OCI_VAULT),
-    OCI_INTERACTIVE("Interactive", "OCI_INTERACTIVE", CloudConfigProviderType.OCI_OBJECT, CloudConfigProviderType.OCI_DB_TOOLS, CloudConfigProviderType.OCI_VAULT);
+    OCI_INTERACTIVE("Interactive", "OCI_INTERACTIVE", CloudConfigProviderType.OCI_OBJECT, CloudConfigProviderType.OCI_DB_TOOLS, CloudConfigProviderType.OCI_VAULT),
+    GCP_ADC("Application Default Credentials", "GCP_ADC", CloudConfigProviderType.GCP_STORAGE, CloudConfigProviderType.GCP_SECRET_MANAGER);
 
     private final String name;
     private final String parameterValue;
@@ -59,6 +60,6 @@ public enum CloudConfigProviderAuthentication implements Presentable {
 
     public static CloudConfigProviderAuthentication getDefault(CloudConfigProviderType provider) {
         CloudConfigProviderAuthentication[] values = values(provider);
-        return values.length == 0 ? OCI_DEFAULT : values[0];
+        return values.length == 0 ? null : values[0];
     }
 }
