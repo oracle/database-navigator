@@ -25,7 +25,8 @@ import java.util.Arrays;
 public enum CloudConfigProviderAuthentication implements Presentable {
     OCI_DEFAULT("OCI Default", "OCI_DEFAULT", CloudConfigProviderType.OCI_OBJECT, CloudConfigProviderType.OCI_DB_TOOLS, CloudConfigProviderType.OCI_VAULT),
     OCI_INTERACTIVE("Interactive", "OCI_INTERACTIVE", CloudConfigProviderType.OCI_OBJECT, CloudConfigProviderType.OCI_DB_TOOLS, CloudConfigProviderType.OCI_VAULT),
-    GCP_ADC("Application Default Credentials", "GCP_ADC", CloudConfigProviderType.GCP_STORAGE, CloudConfigProviderType.GCP_SECRET_MANAGER);
+    GCP_ADC("Application Default Credentials", "GCP_ADC", CloudConfigProviderType.GCP_STORAGE, CloudConfigProviderType.GCP_SECRET_MANAGER),
+    AWS_DEFAULT("AWS Default Credentials", "AWS_DEFAULT", CloudConfigProviderType.AWS_S3, CloudConfigProviderType.AWS_SECRETS);
 
     private final String name;
     private final String parameterValue;
