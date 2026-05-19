@@ -107,12 +107,6 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
         executeUpdate(connection, "drop-object-body", objectType, ownerName, objectName);
     }
 
-    @Override
-    public void dropJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        // TODO move to OracleDataDefinitionInterface (too specific for this level)
-        executeUpdate(connection, "drop-java-object", ownerName, objectName);
-    }
-
     protected String updateNameQualification(String code, boolean qualified, String objectType, String schemaName, String objectName, CodeStyleCaseSettings caseSettings) {
         CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
         CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();

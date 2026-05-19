@@ -23,7 +23,8 @@
         <!ELEMENT statement (#PCDATA)>
         <!ATTLIST statement
                 comment CDATA #IMPLIED
-                prefixes CDATA #IMPLIED>
+                prefixes CDATA #IMPLIED
+                silent-error-codes CDATA #IMPLIED>
         ]>
 <data-dictionary>
     <statement-execution-processor id="create-view">
@@ -168,23 +169,15 @@
         <statement>drop {0} body {1}.{2}</statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="drop-java-object">
-        <statement>
-            begin
-                begin
-                    execute immediate 'drop java source {0}.{1}';
-                exception
-                    when others then
-                        if SQLCODE != -4043 then raise; end if;
-                end;
+    <statement-execution-processor id="drop-java-source">
+        <statement silent-error-codes="4043">
+            drop java source {0}.{1}
+        </statement>
+    </statement-execution-processor>
 
-                begin
-                    execute immediate 'drop java class {0}.{1}';
-                exception
-                    when others then
-                        if SQLCODE != -4043 then raise; end if;
-                end;
-            end;
+    <statement-execution-processor id="drop-java-class">
+        <statement silent-error-codes="4043">
+            drop java class {0}.{1}
         </statement>
     </statement-execution-processor>
 
