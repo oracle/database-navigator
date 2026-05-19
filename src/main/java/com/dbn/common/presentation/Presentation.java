@@ -34,6 +34,11 @@ public class Presentation {
         return getProvider(object).getName(object);
     }
 
+    public static String presentableDetailedName(Object object) {
+        if (object == null) return "Undefined";
+        return getProvider(object).getDetailedName(object);
+    }
+
     public static String presentableTypeName(Object object) {
         if (object == null) return "Undefined";
         return getProvider(object).getTypeName(object);
