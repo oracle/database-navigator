@@ -109,31 +109,21 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
 
     protected String updateNameQualification(String code, boolean qualified, String objectType, String schemaName, String objectName, CodeStyleCaseSettings caseSettings) {
         CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();
 
         StringBuilder buffer = new StringBuilder();
         QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
+
         String bq = "(" + Pattern.quote(quotes.beginQuote()) + ")?";
         String eq = "(" + Pattern.quote(quotes.endQuote()) + ")?";
-        String regex = objectType + "\\s+(" + bq + schemaName + eq + "\\s*\\.)?\\s*" + bq + objectName + eq;
-        if (qualified) {
-            Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(code);
-            if (matcher.find()) {
-                String replacement = kco.format(objectType) + " " + oco.format(schemaName + "." + objectName);
-                matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
-                matcher.appendTail(buffer);
-                code = buffer.toString();
-            }
-        } else {
-            Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(code);
-            if (matcher.find()) {
-                String replacement = kco.format(objectType) + " " + oco.format(objectName);
-                matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
-                matcher.appendTail(buffer);
-                code = buffer.toString();
-            }
+        String regex = objectType + "\\s+(" + bq + quotes.unquote(schemaName) + eq + "\\s*\\.)?\\s*" + bq + quotes.unquote(objectName) + eq;
+
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(code);
+        if (matcher.find()) {
+            String replacement = kco.format(objectType) + " " + (qualified ? schemaName + "." : "") + objectName;
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
+            matcher.appendTail(buffer);
+            code = buffer.toString();
         }
         return code;
     }

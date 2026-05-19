@@ -53,7 +53,6 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
         CodeStyleCaseSettings caseSettings = DBLCodeStyleManager.getInstance(project).getCodeStyleCaseSettings(SQLLanguage.INSTANCE);
         CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();
 
 
         if (objectTypeId.isOneOf(DatabaseObjectTypeId.VIEW, DatabaseObjectTypeId.DATASET_TRIGGER)) {
@@ -64,7 +63,7 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             code = updateNameQualification(code, useQualified, objectType, schemaName, objectName, caseSettings);
             String dropStatement =
                     kco.format("drop " + objectType + " if exists ") +
-                    oco.format((useQualified ? schemaName + "." : "") + objectName) + alternativeDelimiter + "\n";
+                    (useQualified ? schemaName + "." : "") + objectName + alternativeDelimiter + "\n";
             String createStatement = kco.format("create \n") + code + alternativeDelimiter + "\n";
             return (makeRerunnable ? dropStatement : "") + createStatement;
         }
