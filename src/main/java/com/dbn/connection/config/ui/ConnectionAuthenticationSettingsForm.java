@@ -21,7 +21,7 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
-import com.dbn.connection.config.imports.CloudConfigProviderType;
+import com.dbn.connection.config.provider.CloudConfigProviderType;
 import com.dbn.connection.ui.ConnectionAuthenticationFieldsForm;
 import org.jetbrains.annotations.NotNull;
 

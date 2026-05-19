@@ -16,7 +16,7 @@
 
 package com.dbn.connection.config;
 
-import com.dbn.connection.config.imports.CloudConfigProviderAuthentication;
+import com.dbn.connection.config.provider.CloudConfigProviderAuthentication;
 import com.dbn.oci.config.OciConfigFileUtil;
 import lombok.experimental.UtilityClass;
 

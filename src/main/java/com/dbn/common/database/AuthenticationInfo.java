@@ -27,7 +27,7 @@ import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
-import com.dbn.connection.config.imports.ConfigFileSourceType;
+import com.dbn.connection.config.provider.ConfigFileSourceType;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;

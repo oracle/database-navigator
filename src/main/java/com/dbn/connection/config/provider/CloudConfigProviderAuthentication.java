@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.connection.config.imports;
+package com.dbn.connection.config.provider;
 
 import com.dbn.common.ui.Presentable;
 import lombok.Getter;
