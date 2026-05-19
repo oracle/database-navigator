@@ -188,6 +188,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         try {
             executeSilentUpdate(connection, "set-java-property", "sun.tools.javac.Main.args", 'g');
             executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "true");
+            executeUpdate(connection, "compile-java-source", ownerName, objectName);
             executeUpdate(connection, "compile-java-class", ownerName, objectName);
         } finally {
             executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "false");

@@ -91,6 +91,6 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
 
-    void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+    default void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {};
 
 }
