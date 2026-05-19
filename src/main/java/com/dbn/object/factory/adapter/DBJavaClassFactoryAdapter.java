@@ -95,7 +95,7 @@ public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter<DBJavaCla
                     String quotedObjectName = identifierCache.getQuotedIdentifier(objectName);
 
                     DatabaseJavaInterface javaInterface = connection.getJavaInterface();
-                    javaInterface.createJavaSource(schema.getName(), quotedObjectName, javaCode.toString().getBytes(), conn);
+                    javaInterface.createJavaSource(schema.getName(true), quotedObjectName, javaCode.toString().getBytes(), conn);
                 });
 
         ObjectChangeEvent.notify(CREATE, JAVA_CLASS, connectionId, schemaId);
