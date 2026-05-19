@@ -248,6 +248,7 @@
         <extensionPoint name="assistantModelInvoker" qualifiedName="com.dbn.assistantModelInvoker" interface="com.dbn.assistant.service.generic.model.AssistantModelInvoker" dynamic="true"/>
         <extensionPoint name="assistantToolFactory" qualifiedName="com.dbn.assistantToolFactory" interface="com.dbn.assistant.tool.AssistantToolFactory" dynamic="true"/>
         <extensionPoint name="userApprovalAdapter" qualifiedName="com.dbn.userApprovalAdapter" interface="com.dbn.common.approval.UserApprovalAdapter" dynamic="true"/>
+        <extensionPoint name="presentationProvider" qualifiedName="com.dbn.presentationProvider" interface="com.dbn.common.presentation.PresentationProvider" dynamic="true"/>
 
         <extensionPoint name="prerequisiteDefinitionProvider" qualifiedName="com.dbn.prerequisiteDefinitionProvider" interface="com.dbn.prerequisite.definition.PrerequisiteDefinitionProvider" dynamic="true"/>
         <extensionPoint name="prerequisiteRequirementEvaluator" qualifiedName="com.dbn.prerequisiteRequirementEvaluator" interface="com.dbn.prerequisite.evaluation.PrerequisiteRequirementEvaluator" dynamic="true"/>
@@ -310,6 +311,14 @@
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBAIModelManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBTriggerManagementAdapter"/>
         <objectManagementAdapter implementation="com.dbn.object.management.adapter.impl.DBJsonViewManagementAdapter"/>
+
+        <!--presentation providers-->
+        <presentationProvider implementation="com.dbn.common.presentation.provider.ConnectionPresentationProvider"/>
+        <presentationProvider implementation="com.dbn.common.presentation.provider.ConnectionRefPresentationProvider"/>
+        <presentationProvider implementation="com.dbn.common.presentation.provider.DBObjectPresentationProvider"/>
+        <presentationProvider implementation="com.dbn.common.presentation.provider.DBObjectRefPresentationProvider"/>
+        <presentationProvider implementation="com.dbn.common.presentation.provider.VirtualFilePresentationProvider"/>
+        <presentationProvider implementation="com.dbn.common.presentation.provider.PsiFilePresentationProvider"/>
 
         <!--user approval adapters-->
         <userApprovalAdapter implementation="com.dbn.assistant.mcp.AssistantMcpServerApprovalAdapter"/>
