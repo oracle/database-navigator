@@ -143,7 +143,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
         ResultSet resultSet = null;
         try {
-            resultSet = executeQuery(connection, "extract-ddl-statement", objectType, ownerName, objectName);
+            resultSet = executeQuery(connection, "extract-ddl-statement", objectType, unquoted(ownerName), unquoted(objectName));
             resultSet.next();
             Clob clob = resultSet.getClob(1);
             return Resources.readClob(clob);
