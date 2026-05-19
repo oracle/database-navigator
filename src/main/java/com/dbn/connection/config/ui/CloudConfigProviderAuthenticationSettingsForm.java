@@ -18,6 +18,7 @@ package com.dbn.connection.config.ui;
 
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.config.imports.CloudConfigProviderAuthentication;
@@ -40,8 +41,16 @@ import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
 public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
+    private static final String GCP_AUTHENTICATION_URL =
+            "https://github.com/oracle/ojdbc-extensions/blob/main/ojdbc-provider-gcp/README.md#authentication";
+    private static final String AWS_AUTHENTICATION_URL =
+            "https://github.com/oracle/ojdbc-extensions/blob/main/ojdbc-provider-aws/README.md#common-parameters-for-centralized-config-providers";
+
     private JPanel mainPanel;
+    private JLabel authenticationLabel;
     private JComboBox<CloudConfigProviderAuthentication> authenticationComboBox;
+    private JLabel authenticationInfoLabel;
+    private DBNHyperlinkLabel authenticationInfoHyperlink;
     private JLabel configFileLabel;
     private TextFieldWithBrowseButton configFileTextField;
     private JLabel profileLabel;
@@ -78,7 +87,7 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     }
 
     public CloudConfigProviderAuthentication getCloudConfigProviderAuthentication() {
-        return getSelection(authenticationComboBox);
+        return isOciProvider() ? getSelection(authenticationComboBox) : null;
     }
 
     public String getOciConfigProviderProfile() {
@@ -91,26 +100,35 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
 
     public void applyFormChanges(DatabaseInfo databaseInfo) {
         databaseInfo.setCloudConfigProviderAuthentication(getCloudConfigProviderAuthentication());
-        databaseInfo.setOciConfigProviderConfigFile(isDefaultAuthentication() ? getOciConfigProviderConfigFile() : null);
-        databaseInfo.setOciConfigProviderProfile(isDefaultAuthentication() ? getOciConfigProviderProfile() : null);
+        databaseInfo.setOciConfigProviderConfigFile(isOciProvider() && isDefaultAuthentication() ? getOciConfigProviderConfigFile() : null);
+        databaseInfo.setOciConfigProviderProfile(isOciProvider() && isDefaultAuthentication() ? getOciConfigProviderProfile() : null);
     }
 
     public void resetFormChanges() {
         DatabaseInfo databaseInfo = getDatabaseInfo();
         setCloudProviderType(databaseInfo.getCloudConfigProviderType());
-        setSelection(authenticationComboBox, Commons.nvl(
-                databaseInfo.getCloudConfigProviderAuthentication(),
-                CloudConfigProviderAuthentication.getDefault(cloudProviderType)));
-        configFileTextField.setText(databaseInfo.getOciConfigProviderConfigFile());
-        profileComboBox
-                .withValueLoader(() -> OciConfigFileUtil.getConfigProfileNames(getOciConfigProviderConfigFile()))
-                .withValuePreselector(p -> Objects.equals(p, databaseInfo.getOciConfigProviderProfile()))
-                .triggerLoad();
+
+        if (isOciProvider()) {
+            setSelection(authenticationComboBox, Commons.nvl(
+                    databaseInfo.getCloudConfigProviderAuthentication(),
+                    CloudConfigProviderAuthentication.getDefault(cloudProviderType)));
+            configFileTextField.setText(databaseInfo.getOciConfigProviderConfigFile());
+            profileComboBox
+                    .withValueLoader(() -> OciConfigFileUtil.getConfigProfileNames(getOciConfigProviderConfigFile()))
+                    .withValuePreselector(p -> Objects.equals(p, databaseInfo.getOciConfigProviderProfile()))
+                    .triggerLoad();
+        } else {
+            setSelection(authenticationComboBox, null);
+            configFileTextField.setText(null);
+            profileComboBox.removeAllItems();
+        }
         updateFieldVisibility();
     }
 
     public boolean settingsChanged() {
         DatabaseInfo databaseInfo = getDatabaseInfo();
+        if (!isOciProvider()) return false;
+
         String configFile = isDefaultAuthentication() ? getOciConfigProviderConfigFile() : null;
         String profile = isDefaultAuthentication() ? getOciConfigProviderProfile() : null;
         return !Commons.match(
@@ -132,14 +150,41 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     }
 
     private void updateFieldVisibility() {
-        boolean visible = cloudProviderType != null && cloudProviderType.isOci() && isDefaultAuthentication();
-        configFileLabel.setVisible(visible);
-        configFileTextField.setVisible(visible);
-        profileLabel.setVisible(visible);
-        profileComboBox.setVisible(visible);
+        boolean ociProvider = isOciProvider();
+        boolean infoProvider = isInfoProvider();
+        boolean ociDefaultAuthentication = ociProvider && isDefaultAuthentication();
+
+        authenticationLabel.setVisible(ociProvider);
+        authenticationComboBox.setVisible(ociProvider);
+        authenticationInfoLabel.setVisible(infoProvider);
+        authenticationInfoHyperlink.setVisible(infoProvider);
+        configFileLabel.setVisible(ociDefaultAuthentication);
+        configFileTextField.setVisible(ociDefaultAuthentication);
+        profileLabel.setVisible(ociDefaultAuthentication);
+        profileComboBox.setVisible(ociDefaultAuthentication);
+
+        if (cloudProviderType == null) return;
+
+        if (cloudProviderType.isGcp()) {
+            authenticationInfoLabel.setText("Authentication uses Google Application Default Credentials.");
+            authenticationInfoHyperlink.setHyperlinkText("Authentication details");
+            authenticationInfoHyperlink.setHyperlinkTarget(GCP_AUTHENTICATION_URL);
+        } else if (cloudProviderType.isAws()) {
+            authenticationInfoLabel.setText("Authentication uses the AWS default credentials provider chain.");
+            authenticationInfoHyperlink.setHyperlinkText("Authentication details");
+            authenticationInfoHyperlink.setHyperlinkTarget(AWS_AUTHENTICATION_URL);
+        }
     }
 
     private boolean isDefaultAuthentication() {
         return getCloudConfigProviderAuthentication() == CloudConfigProviderAuthentication.OCI_DEFAULT;
+    }
+
+    private boolean isOciProvider() {
+        return cloudProviderType != null && cloudProviderType.isOci();
+    }
+
+    private boolean isInfoProvider() {
+        return cloudProviderType != null && (cloudProviderType.isGcp() || cloudProviderType.isAws());
     }
 }
