@@ -22,6 +22,7 @@ import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.security.DatabaseIdentifierCache;
 import com.dbn.data.export.DataExportException;
 import com.dbn.data.export.DataExportFormat;
 import com.dbn.data.export.DataExportInstructions;
@@ -63,16 +64,16 @@ public class SQLDataExportProcessor extends DataExportProcessor{
 
     @Override
     public void performExport(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connection) throws DataExportException {
-        // TODO SQL-Injection
         Project project = connection.getProject();
         CodeStyleCaseSettings styleCaseSettings = DBLCodeStyleManager.getInstance(project).getCodeStyleCaseSettings(SQLLanguage.INSTANCE);
         CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = styleCaseSettings.getObjectCaseOption();
+        DatabaseIdentifierCache identifierCache = connection.getIdentifierCache();
+        String tableName = identifierCache.getQuotedIdentifier(model.getTableName());
 
         StringBuilder buffer = new StringBuilder();
         for (int rowIndex=0; rowIndex < model.getRowCount(); rowIndex++) {
             buffer.append(kco.format("insert into "));
-            buffer.append(oco.format(model.getTableName()));
+            buffer.append(tableName);
             buffer.append(" (");
 
             int realColumnIndex = 0;
@@ -82,7 +83,8 @@ public class SQLDataExportProcessor extends DataExportProcessor{
                         genericDataType == GenericDataType.NUMERIC ||
                         genericDataType == GenericDataType.DATE_TIME) {
                     if (realColumnIndex > 0) buffer.append(", ");
-                    buffer.append(oco.format(model.getColumnName(columnIndex)));
+                    String columnName = identifierCache.getQuotedIdentifier(model.getColumnName(columnIndex));
+                    buffer.append(columnName);
                     realColumnIndex++;
                 }
             }
