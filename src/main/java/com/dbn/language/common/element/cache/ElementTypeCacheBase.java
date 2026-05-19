@@ -75,7 +75,12 @@ public abstract class ElementTypeCacheBase<T extends ElementTypeBase> implements
     }
 
     private Set<TokenPairTemplate> computeFirstPossibleTokenPairs() {
-        return Set.of(getFirstPossibleTokens().stream().map(t -> t.getTokenPairTemplate()).filter(t -> t != null).toArray(TokenPairTemplate[]::new));
+        return Set.of(getFirstPossibleTokens()
+                .stream()
+                .map(t -> t.getTokenPairTemplate())
+                .filter(t -> t != null)
+                .distinct()
+                .toArray(i -> new TokenPairTemplate[i]));
     }
 
     @Override
