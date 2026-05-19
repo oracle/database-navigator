@@ -16,32 +16,18 @@
 
 package com.dbn.database.interfaces;
 
-import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.nls.NlsSupport;
-
-import java.sql.SQLException;
-
-public interface DatabaseInterface extends NlsSupport {
-
-    DatabaseInterfaceType getInterfaceType();
-
-    default void reset() {
-    }
-
-    interface Callable<T> {
-        T call() throws SQLException;
-    }
-
-    interface Runnable {
-        void run() throws SQLException;
-    }
-
-    interface ConnectionCallable<T> {
-        T call(DBNConnection conn) throws SQLException;
-    }
-
-    interface ConnectionRunnable {
-        void run(DBNConnection conn) throws SQLException;
-    }
-
+/**
+ * Identifies the database interface contract implemented by a database-specific interface instance.
+ */
+public enum DatabaseInterfaceType {
+    ENVIRONMENT,
+    COMPATIBILITY,
+    MESSAGE_PARSER,
+    METADATA,
+    DATA_DEFINITION,
+    EXECUTION,
+    DEBUGGER,
+    ASSISTANT,
+    VECTOR,
+    JAVA
 }

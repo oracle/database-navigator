@@ -43,7 +43,6 @@ import java.util.Arrays;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.toCsv;
-import static com.dbn.common.util.Naming.unquote;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.database.DatabaseObjectTypeId.DATABASE_TRIGGER;
 import static com.dbn.database.DatabaseObjectTypeId.DATASET_TRIGGER;
@@ -176,56 +175,6 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     public void updateObject(String ownerName, String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException {
         // code assumed to contain object type and name
         executeUpdate(connection, "update-object", newCode);
-    }
-
-    public void createJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "create-java-source", ownerName, objectName, content);
-        compileJavaClass(ownerName, objectName, connection);
-    }
-
-    public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        try {
-            executeSilentUpdate(connection, "set-java-property", "sun.tools.javac.Main.args", 'g');
-            executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "true");
-            executeUpdate(connection, "compile-java-source", ownerName, objectName);
-            executeUpdate(connection, "compile-java-class", ownerName, objectName);
-        } finally {
-            executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "false");
-        }
-    }
-
-    @Override
-    public void updateJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "update-java-source", ownerName, objectName, content);
-        compileJavaClass(ownerName, objectName, connection);
-    }
-
-    @Override
-    public void dropJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "drop-java-source", ownerName, objectName);
-        executeUpdate(connection, "drop-java-class", ownerName, objectName);
-    }
-
-    @Override
-    public void replaceJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        dropJavaClass(ownerName, objectName, connection);
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "create-java-source", ownerName, objectName, content);
-    }
-
-    @Override
-    public void replaceJavaClass(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        dropJavaClass(ownerName, objectName, connection);
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "create-java-class", ownerName, objectName, content);
-    }
-
-    @Override
-    public void updateJavaResource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "update-java-resource", ownerName, objectName, content);
     }
 
 
