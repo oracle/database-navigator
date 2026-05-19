@@ -182,7 +182,6 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
      *********************************************************/
     @Override
     public void createMethod(@NotNull DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
-        // TODO SQL-Injection
         Project project = methodSpec.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();
