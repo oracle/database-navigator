@@ -58,9 +58,6 @@ import static com.dbn.common.util.Commons.NOT_NULL;
 )
 public class UserApprovalManager extends ApplicationComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Application.UserApprovalManager";
-    private static final String[] APPROVAL_OPTIONS = Messages.options(
-            "Approve",
-            "Cancel");
 
     private final Set<String> approvals = ConcurrentHashMap.newKeySet();
     private final Set<String> temporaryApprovals = ConcurrentHashMap.newKeySet();
@@ -111,7 +108,7 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
                 null,
                 adapter.getApprovalTitle(approvable),
                 adapter.getApprovalMessage(approvable),
-                APPROVAL_OPTIONS,
+                adapter.getApprovalOptions(approvable),
                 1);
         if (option != 0) {
             rejections.put(approvalKey, System.currentTimeMillis());

@@ -19,10 +19,15 @@ package com.dbn.assistant.mcp;
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.common.approval.UserApprovalAdapter;
 import com.dbn.common.checksum.Checksum;
+import com.dbn.common.util.Messages;
 
 import static com.dbn.common.checksum.ChecksumType.SHA_256;
 
 public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<AssistantMcpServer> {
+    private static final String[] APPROVAL_OPTIONS = Messages.options(
+            "Trust and Connect",
+            "Cancel");
+
     @Override
     public Class<AssistantMcpServer> getApprovalClass() {
         return AssistantMcpServer.class;
@@ -30,20 +35,26 @@ public class AssistantMcpServerApprovalAdapter implements UserApprovalAdapter<As
 
     @Override
     public String getApprovalTitle(AssistantMcpServer mcpServer) {
-        return "Approve MCP Server \"" + mcpServer.getName() + "\"";
+        return "Trust MCP Server";
     }
 
     @Override
     public String getApprovalMessage(AssistantMcpServer mcpServer) {
-        return "DB Assistant wants to use MCP server \"" + mcpServer.getName() + "\".\n\n" +
+        return "DB Assistant wants to connect to the \"" + mcpServer.getName() + "\" MCP server.\n\n" +
                 "Endpoint type: " + mcpServer.getType().name() + "\n" +
                 "Endpoint: " + mcpServer.getEndpoint() + "\n\n" +
-                "Only approve this endpoint if you trust this project configuration.";
+                "MCP servers can expose tools and data to DB Assistant.\n" +
+                "Only continue if you recognize this MCP server and consider it safe to use.";
     }
 
     @Override
     public String getApprovalKey(AssistantMcpServer mcpServer) {
         return "mcp-server:" + mcpServer.getId().id() + ":" + getEndpointFingerprint(mcpServer);
+    }
+
+    @Override
+    public String[] getApprovalOptions(AssistantMcpServer approvable) {
+        return APPROVAL_OPTIONS;
     }
 
     private String getEndpointFingerprint(AssistantMcpServer mcpServer) {
