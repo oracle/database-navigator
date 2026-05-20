@@ -5,6 +5,12 @@ description: DBN Database Navigator project coding guide. Use when Codex is chan
 
 # DBN Codebase Guide
 
+## Product Context
+
+DBN is Oracle Database Navigator, a JetBrains IDE plugin for database development and management inside IntelliJ-based IDEs. It lets developers connect to relational databases, browse schemas and database objects, edit SQL/PLSQL, run scripts and programs, edit table data, manage sessions and transactions, compile and debug database programs, and use assistant, OCI, and vector-related integrations.
+
+Primary supported databases are Oracle, MySQL, PostgreSQL, and SQLite, with experimental generic JDBC support. Treat DBN as an IDE-integrated developer tool, not as a standalone database client or backend service.
+
 ## Quick Workflow
 
 1. Inspect nearby code first. Match the existing package, base class, nullability annotations, Lombok usage, static imports, and registration style before adding a new pattern.
