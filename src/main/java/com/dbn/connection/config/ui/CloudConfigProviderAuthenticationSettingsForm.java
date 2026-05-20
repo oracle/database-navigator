@@ -23,6 +23,7 @@ import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.config.provider.CloudConfigProviderAuthentication;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
+import com.dbn.connection.config.provider.ConfigProviderInfo;
 import com.dbn.oci.config.OciConfigFileUtil;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
@@ -98,24 +99,25 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         return getText(configFileTextField);
     }
 
-    public void applyFormChanges(DatabaseInfo databaseInfo) {
-        databaseInfo.setCloudConfigProviderAuthentication(getCloudConfigProviderAuthentication());
-        databaseInfo.setOciConfigProviderConfigFile(isOciProvider() && isDefaultAuthentication() ? getOciConfigProviderConfigFile() : null);
-        databaseInfo.setOciConfigProviderProfile(isOciProvider() && isDefaultAuthentication() ? getOciConfigProviderProfile() : null);
+    public void applyFormChanges(ConfigProviderInfo configProviderInfo) {
+        configProviderInfo.applyOciAuthentication(
+                getCloudConfigProviderAuthentication(),
+                isOciProvider() && isDefaultAuthentication() ? getOciConfigProviderConfigFile() : null,
+                isOciProvider() && isDefaultAuthentication() ? getOciConfigProviderProfile() : null);
     }
 
     public void resetFormChanges() {
         DatabaseInfo databaseInfo = getDatabaseInfo();
-        setCloudProviderType(databaseInfo.getCloudConfigProviderType());
+        setCloudProviderType(databaseInfo.getConfigProviderInfo().getCloudProviderType());
 
         if (isOciProvider()) {
             setSelection(authenticationComboBox, Commons.nvl(
-                    databaseInfo.getCloudConfigProviderAuthentication(),
+                    databaseInfo.getConfigProviderInfo().getAuthentication(),
                     CloudConfigProviderAuthentication.getDefault(cloudProviderType)));
-            configFileTextField.setText(databaseInfo.getOciConfigProviderConfigFile());
+            configFileTextField.setText(databaseInfo.getConfigProviderInfo().getOciConfigFile());
             profileComboBox
                     .withValueLoader(() -> OciConfigFileUtil.getConfigProfileNames(getOciConfigProviderConfigFile()))
-                    .withValuePreselector(p -> Objects.equals(p, databaseInfo.getOciConfigProviderProfile()))
+                    .withValuePreselector(p -> Objects.equals(p, databaseInfo.getConfigProviderInfo().getOciProfile()))
                     .triggerLoad();
         } else {
             setSelection(authenticationComboBox, null);
@@ -132,10 +134,10 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         String configFile = isDefaultAuthentication() ? getOciConfigProviderConfigFile() : null;
         String profile = isDefaultAuthentication() ? getOciConfigProviderProfile() : null;
         return !Commons.match(
-                    Commons.nvl(databaseInfo.getCloudConfigProviderAuthentication(), CloudConfigProviderAuthentication.getDefault(cloudProviderType)),
+                    Commons.nvl(databaseInfo.getConfigProviderInfo().getAuthentication(), CloudConfigProviderAuthentication.getDefault(cloudProviderType)),
                     getCloudConfigProviderAuthentication()) ||
-                !Commons.match(databaseInfo.getOciConfigProviderConfigFile(), configFile) ||
-                !Commons.match(databaseInfo.getOciConfigProviderProfile(), profile);
+                !Commons.match(databaseInfo.getConfigProviderInfo().getOciConfigFile(), configFile) ||
+                !Commons.match(databaseInfo.getConfigProviderInfo().getOciProfile(), profile);
     }
 
     public void addChangeListeners(Runnable runnable) {

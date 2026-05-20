@@ -20,15 +20,12 @@ import com.dbn.common.constant.Constants;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.database.DatabaseInfo.Default;
 import com.dbn.common.util.Parameters;
-import com.dbn.connection.config.provider.CloudConfigProviderType;
-import com.dbn.connection.config.provider.ConfigFileSourceType;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -178,23 +175,12 @@ public enum DatabaseUrlPattern {
                 databaseInfo.getServerType(),
                 parameters,
                 resolveConfigProvider(databaseInfo),
-                databaseInfo.getConfigLocation()
+                databaseInfo.getConfigProviderInfo().getLocation()
         );
     }
 
     private static Map<String, String> configFileParameters(DatabaseInfo databaseInfo) {
-        Map<String, String> parameters = new LinkedHashMap<>();
-
-        String profileKey = databaseInfo.getConfigFileProfileKey();
-        if (!isEmpty(profileKey)) {
-            parameters.put("key", profileKey);
-        }
-        CloudConfigProviderType provider = databaseInfo.getCloudConfigProviderType();
-        if (provider != null && provider.getRegionParameterName() != null && !isEmpty(databaseInfo.getCloudConfigProviderRegion())) {
-            parameters.put(provider.getRegionParameterName(), databaseInfo.getCloudConfigProviderRegion());
-        }
-
-        return parameters.isEmpty() ? Collections.emptyMap() : parameters;
+        return databaseInfo.getConfigProviderInfo().getUrlParameters(false);
     }
 
     public String buildUrl(String vendor, String host, String port, String database, String file, String tnsFolder, String tnsProfile, DatabaseProtocol protocol, ServerType serverType, Map<String, String> parameters, String configProvider, String configLocation) {
@@ -304,15 +290,7 @@ public enum DatabaseUrlPattern {
     }
 
     public static String resolveConfigProvider(DatabaseInfo databaseInfo) {
-        ConfigFileSourceType configFileSourceType = nvl(databaseInfo.getConfigFileSourceType(), ConfigFileSourceType.LOCAL_FILE);
-        return switch (configFileSourceType) {
-            case LOCAL_FILE -> "file";
-            case HTTPS -> "https";
-            case CLOUD_PROVIDER -> {
-                CloudConfigProviderType provider = databaseInfo.getCloudConfigProviderType();
-                yield provider == null ? "" : provider.getSlug();
-            }
-        };
+        return databaseInfo.getConfigProviderInfo().getProviderSlug();
     }
 
     public boolean isValid(String url) {

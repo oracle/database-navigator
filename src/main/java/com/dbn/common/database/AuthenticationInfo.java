@@ -27,7 +27,6 @@ import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
-import com.dbn.connection.config.provider.ConfigFileSourceType;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
 import com.dbn.credentials.SecretsOwner;
@@ -291,7 +290,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     private boolean isHttpsConfigFile() {
         DatabaseInfo databaseInfo = ensureParent().getDatabaseInfo();
         return databaseInfo.getUrlType() == DatabaseUrlType.CONFIG_FILE &&
-                databaseInfo.getConfigFileSourceType() == ConfigFileSourceType.HTTPS;
+                databaseInfo.getConfigProviderInfo().isConfigHttps();
     }
 
     @Override

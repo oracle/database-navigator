@@ -284,18 +284,14 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         	databaseInfo.setTnsFolder(urlSettingsForm.getTnsFolder());
         	databaseInfo.setTnsProfile(urlSettingsForm.getTnsProfile());
         } else if (urlType == DatabaseUrlType.CONFIG_FILE) {
-            databaseInfo.setConfigFileSourceType(urlSettingsForm.getConfigFileSourceType());
-            databaseInfo.setCloudConfigProviderType(urlSettingsForm.getCloudConfigProviderType());
-            databaseInfo.setCloudConfigProviderRegion(urlSettingsForm.getCloudConfigProviderRegion());
+            urlSettingsForm.applyConfigProviderInfo(databaseInfo.getConfigProviderInfo());
             if (isCloudProviderAuthenticationVisible()) {
-                authSettingsForm.applyCloudProviderFormChanges(databaseInfo);
+                authSettingsForm.applyCloudProviderFormChanges(databaseInfo.getConfigProviderInfo());
             }
             if (urlSettingsForm.getConfigFileSourceType() == ConfigFileSourceType.LOCAL_FILE &&
                     isEmptyOrSpaces(urlSettingsForm.getConfigLocation())) {
                 throw new ConfigurationException("Config file is required.");
             }
-            configuration.setConfigLocation(urlSettingsForm.getConfigLocation());
-            databaseInfo.setConfigFileProfileKey(urlSettingsForm.getConfigFileProfileKey());
         } else if (urlType == DatabaseUrlType.FILE){
             DatabaseFileBundle fileBundle = urlSettingsForm.getFileBundle();
             fileBundle.validate();

@@ -22,6 +22,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.provider.CloudConfigProviderType;
+import com.dbn.connection.config.provider.ConfigProviderInfo;
 import com.dbn.connection.ui.ConnectionAuthenticationFieldsForm;
 import org.jetbrains.annotations.NotNull;
 
@@ -81,8 +82,8 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
         mainPanel.repaint();
     }
 
-    public void applyCloudProviderFormChanges(DatabaseInfo databaseInfo) {
-        cloudConfigProviderAuthSettingsForm.applyFormChanges(databaseInfo);
+    public void applyCloudProviderFormChanges(ConfigProviderInfo configProviderInfo) {
+        cloudConfigProviderAuthSettingsForm.applyFormChanges(configProviderInfo);
     }
 
     public void addCloudProviderChangeListeners(Runnable runnable) {
