@@ -40,6 +40,8 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -48,6 +50,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -61,9 +65,15 @@ public class StatementExecutionVariablesBundle extends StatefulDisposableBase im
 
     private Map<String, String> errors;
     private List<StatementExecutionVariable> variables = new ArrayList<>();
+    private List<StatementExecutionVariable> boundVariables = new ArrayList<>();
 
     public StatementExecutionVariablesBundle(List<ExecVariablePsiElement> variablePsiElements) {
         initialize(variablePsiElements);
+    }
+
+    // package-private constructor for tests; PSI-free setup
+    StatementExecutionVariablesBundle(StatementExecutionVariable... variables) {
+        this.variables = List.of(variables);
     }
 
     public void initialize(List<ExecVariablePsiElement> variablePsiElements) {
@@ -142,6 +152,37 @@ public class StatementExecutionVariablesBundle extends StatefulDisposableBase im
 
     public boolean hasErrors() {
         return errors != null && !errors.isEmpty();
+    }
+
+    private static final Pattern VARIABLE_PATTERN = Pattern.compile(":([\\w$]+)");
+
+    public String prepareExecutableStatementText(String statementText) {
+        StringBuilder builder = new StringBuilder();
+        List<StatementExecutionVariable> boundVariables = new ArrayList<>();
+        Matcher matcher = VARIABLE_PATTERN.matcher(statementText);
+        int cursor = 0;
+        while (matcher.find()) {
+            StatementExecutionVariable variable = getVariable(matcher.group(1));
+            if (variable == null) continue;
+            builder.append(statementText, cursor, matcher.start()).append('?');
+            boundVariables.add(variable);
+            cursor = matcher.end();
+        }
+        builder.append(statementText, cursor, statementText.length());
+
+        this.boundVariables = boundVariables;
+        return builder.toString();
+    }
+
+    public boolean hasVariables() {
+        return !variables.isEmpty();
+    }
+
+    public void bindValues(PreparedStatement statement) throws SQLException {
+        for (int i = 0; i < boundVariables.size(); i++) {
+            String value = boundVariables.get(i).getValue();
+            statement.setObject(i + 1, Strings.isEmpty(value) ? null : value);
+        }
     }
 
     private static DBDataType lookupDataType(ExecVariablePsiElement variablePsiElement) {

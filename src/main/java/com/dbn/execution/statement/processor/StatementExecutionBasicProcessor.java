@@ -38,6 +38,7 @@ import com.dbn.connection.Resources;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.connection.session.DatabaseSession;
@@ -331,7 +332,9 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
                     initLogging(context, debug);
 
                     beforeExecution(context);
-                    executionResult = executeStatement(statementText);
+                    executionResult = hasBoundVariables()
+                            ? executeBoundStatement(executionInput.getOriginalStatementText())
+                            : executeStatement(statementText);
                     afterExecution(context);
 
                     // post execution activities
@@ -497,6 +500,61 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
             }
         };
         return databaseCall.start();
+    }
+
+    /**
+     * Interchangeable version of executeStatement for SQL containing :var bind variables.
+     * Receives the raw statement text (with :var tokens intact), converts each occurrence to ?,
+     * creates a prepared statement, binds dialog values, and executes.
+     * Dialog input is bound as JDBC parameters and never parsed as SQL.
+     */
+    @Nullable
+    private StatementExecutionResult executeBoundStatement(String rawStatementText) throws SQLException {
+        StatementExecutionVariablesBundle executionVariables = executionInput.getExecutionVariables();
+        String statementText = executionVariables.prepareExecutableStatementText(rawStatementText);
+        executionInput.setExecutableStatementText(statementText);
+
+        StatementExecutionContext context = getExecutionContext();
+        assertNotCancelled();
+
+        ConnectionHandler connection = getTargetConnection();
+        DBNConnection conn = context.getConnection();
+        DBNPreparedStatement statement = conn.prepareStatement(statementText);
+        statement.setFetchSize(executionInput.getResultSetFetchBlockSize());
+        context.setStatement(statement);
+
+        int timeout = context.getTimeout();
+        statement.setQueryTimeout(timeout);
+        assertNotCancelled();
+
+        executionVariables.bindValues(statement);
+
+        databaseCall = new CancellableDatabaseCall<>(connection, conn, timeout, TimeUnit.SECONDS) {
+            @Override
+            public StatementExecutionResult execute() throws Exception {
+                try {
+                    statement.execute();
+                    return createExecutionResult(statement, executionInput);
+                } finally {
+                    databaseCall = null;
+                }
+            }
+
+            @Override
+            public void cancel() {
+                try {
+                    Resources.cancel(statement);
+                } finally {
+                    databaseCall = null;
+                }
+            }
+        };
+        return databaseCall.start();
+    }
+
+    private boolean hasBoundVariables() {
+        StatementExecutionVariablesBundle variables = executionInput.getExecutionVariables();
+        return variables != null && variables.hasVariables();
     }
 
     @Override
