@@ -1,13 +1,17 @@
 package com.dbn.mcp.ui;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.language.sql.SQLFileType;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.mcp.model.McpServerDefinition;
@@ -73,8 +77,10 @@ public class McpToolDefinitionForm extends DBNFormBase {
     private ExpandableTextField descriptionTextField;
     private JLabel verifiedLabel;
     private DBNHyperlinkLabel verifyHyperlink;
+    private JPanel headerPanel;
+    private JPanel hintPanel;
 
-    private final ConnectionHandler connection;
+    private final ConnectionRef connection;
     private Document document;
     private EditorEx editor;
     private boolean suppressDocEvents;
@@ -93,18 +99,40 @@ public class McpToolDefinitionForm extends DBNFormBase {
             @Nullable McpToolDefinition toolDefinition) {
 
         super(parent);
-        this.connection = connection;
+        this.connection = connection.ref();
         this.serverDefinition = serverDefinition;
         this.toolDefinition = toolDefinition == null ? new McpToolDefinition() : toolDefinition;
         if (this.toolDefinition.isVerified()) {
             verifiedStatement = this.toolDefinition.getStatement();
         }
 
+        initHeaderPanel();
+        initHintPanel();
         initParamsTable();
         initVerificationFields();
 
         resetFormChanges();
         whenFirstShown(this::initStatementEditor);
+    }
+
+    private ConnectionHandler getConnection() {
+        return connection.ensure();
+    }
+
+    private void initHeaderPanel() {
+        ConnectionHandler connection = getConnection();
+        DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
+        headerPanel.add(headerForm.getComponent());
+    }
+
+    private void initHintPanel() {
+        TextContent hintContent = TextContent.plain(
+                "MCP Tool Builder turns a SQL statement into a callable tool for this MCP server.\n\n" +
+                "Name and describe the tool so MCP clients can choose it correctly. Use named SQL " +
+                "parameters such as :employee_id; the parameter list is derived from the statement " +
+                "and lets you define types, required flags, descriptions, and test values. Run Verify " +
+                "to execute the query with sample values before saving.");
+        hintPanel.add(new DBNHintForm(this, hintContent, null, true).getComponent());
     }
 
     @Override
@@ -162,6 +190,7 @@ public class McpToolDefinitionForm extends DBNFormBase {
     }
 
     public void openSqlTestDialog() {
+        ConnectionHandler connection = getConnection();
         List<McpToolParam> testParams = copyRows(paramsModel.getRows());
         McpToolVerificationDialog dialog = new McpToolVerificationDialog(connection, getSqlStatement(), testParams);
         dialog.show();
@@ -198,7 +227,8 @@ public class McpToolDefinitionForm extends DBNFormBase {
     }
 
     private void initStatementEditor() {
-        Project project = ensureProject();
+        ConnectionHandler connection = getConnection();
+        Project project = connection.getProject();
         McpToolSqlVirtualFile sqlFile = new McpToolSqlVirtualFile(connection, toolDefinition.getStatement());
         DatabaseFileViewProvider viewProvider = new DatabaseFileViewProvider(project, sqlFile, true);
         PsiFile psiFile = sqlFile.initializePsiFile(viewProvider, SQLLanguage.INSTANCE);
