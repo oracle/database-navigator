@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="19" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="4" left="4" bottom="4" right="4"/>
     <constraints>
-      <xy x="20" y="20" width="896" height="624"/>
+      <xy x="20" y="20" width="896" height="740"/>
     </constraints>
     <properties/>
     <border type="none" title-resource-bundle="messages/DBNResources" title-key="cfg.connection.title.Connection"/>
@@ -266,7 +266,7 @@
         </constraints>
         <properties>
           <labelFor value="a311e"/>
-          <text value="Cloud region"/>
+          <text value="Region"/>
         </properties>
       </component>
       <component id="a311e" class="javax.swing.JTextField" binding="cloudRegionTextField">
