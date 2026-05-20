@@ -64,7 +64,7 @@ import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
-import static com.dbn.connection.AuthenticationType.BASIC_AUTH;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 
 @Slf4j
 @Getter
@@ -242,7 +242,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
     // Oracle's HTTPS config provider expects Basic Auth credentials as URL query parameters.
     // The password is added only to the runtime connect URL and is never stored in source code.
     private String appendConfigHttpsAuthentication(String url) {
-        if (!isConfigHttpsBasicAuth()) return url;
+        if (!isConfigHttpsUserPasswordAuth()) return url;
 
         String user = authenticationInfo.getUser();
         char[] password = authenticationInfo.getPassword();
@@ -255,9 +255,9 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                 "&password=" + Chars.toString(password);
     }
 
-    private boolean isConfigHttpsBasicAuth() {
+    private boolean isConfigHttpsUserPasswordAuth() {
         return isConfigHttps() &&
-                authenticationInfo.getType() == BASIC_AUTH;
+                authenticationInfo.getType() == USER_PASSWORD;
     }
 
     private Map<String, String> getUrlParameters() {

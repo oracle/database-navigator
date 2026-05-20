@@ -113,7 +113,9 @@ class Connector {
             if (!authenticationInfo.isProvided() && this.authenticationInfo != null) {
                 authenticationInfo = this.authenticationInfo;
             }
-            compatibility.initConnectorAuthentication(properties, authenticationInfo);
+            if (!databaseSettings.isConfigHttps()) {
+                compatibility.initConnectorAuthentication(properties, authenticationInfo);
+            }
 
             // SESSION INFO
             compatibility.initConnectorSession(properties, connectionSettings, sessionId);

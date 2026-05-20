@@ -68,8 +68,8 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.util.Strings.isEmptyOrSpaces;
-import static com.dbn.connection.AuthenticationType.BASIC_AUTH;
 import static com.dbn.connection.AuthenticationType.NONE;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static java.awt.event.KeyEvent.VK_UNDEFINED;
 
 @SuppressWarnings("unused")
@@ -405,7 +405,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         boolean httpsConfigFile = urlType == DatabaseUrlType.CONFIG_FILE &&
                 urlSettingsForm.getConfigFileSourceType() == ConfigFileSourceType.HTTPS;
         return httpsConfigFile ?
-                new AuthenticationType[]{NONE, BASIC_AUTH} :
+                new AuthenticationType[]{NONE, USER_PASSWORD} :
                 getSelectedDatabaseType().getAuthTypes();
     }
 

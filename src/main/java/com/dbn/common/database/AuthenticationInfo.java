@@ -25,7 +25,6 @@ import com.dbn.common.util.TimeAware;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
@@ -62,7 +61,6 @@ import static com.dbn.common.util.Commons.matchArrays;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_CERTIFICATE;
 import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_TOKEN;
-import static com.dbn.connection.AuthenticationType.BASIC_AUTH;
 import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
@@ -133,7 +131,6 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         switch (type) {
             case USER: return isNotEmpty(user);
             case USER_PASSWORD:
-            case BASIC_AUTH:
                 return
                     isNotEmpty(user) &&
                     Chars.isNotEmpty(password);
@@ -184,7 +181,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
      */
     public boolean hasUserInformation() {
         if (type == OS_CREDENTIALS) return true;
-        if (type.isOneOf(USER, USER_PASSWORD, BASIC_AUTH)) return isNotEmpty(user);
+        if (type.isOneOf(USER, USER_PASSWORD)) return isNotEmpty(user);
         if (type == AuthenticationType.TOKEN) return Chars.isNotEmpty(azureClientSecret);
         return false;
     }
@@ -206,7 +203,6 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     		case NONE:
     		case USER:
     		case USER_PASSWORD:
-            case BASIC_AUTH:
     		case OS_CREDENTIALS:
     			return match(this.user, that.user) &&
     		           matchArrays(this.password, that.password);
@@ -280,17 +276,10 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
      */
     private void adjustAuthenticationType() {
         AuthenticationType[] supportedAuthTypes = ensureParent().getDatabaseType().getAuthTypes();
-        if (type == BASIC_AUTH && isHttpsConfigFile()) return;
 
         if (!Constants.isOneOf(type, supportedAuthTypes)) {
             type = supportedAuthTypes[0];
         }
-    }
-
-    private boolean isHttpsConfigFile() {
-        DatabaseInfo databaseInfo = ensureParent().getDatabaseInfo();
-        return databaseInfo.getUrlType() == DatabaseUrlType.CONFIG_FILE &&
-                databaseInfo.getConfigProviderInfo().isConfigHttps();
     }
 
     @Override
@@ -424,7 +413,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     public void initSecrets() {
         DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
 
-        if (type == AuthenticationType.USER_PASSWORD || type == BASIC_AUTH) {
+        if (type == AuthenticationType.USER_PASSWORD) {
             Secret secret = credentialManager.loadSecret(CONNECTION_PASSWORD, getConnectionId(), user);
             password = secret.getToken();
         }

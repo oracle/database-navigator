@@ -64,7 +64,6 @@ import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL
 import static com.dbn.connection.AuthenticationTokenType.AZURE_SERVICE_PRINCIPAL_TOKEN;
 import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
 import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
-import static com.dbn.connection.AuthenticationType.BASIC_AUTH;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCategory.CACHEABLE_FIELDS;
@@ -372,11 +371,11 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     }
 
     private boolean isUserAuth() {
-        return Commons.isOneOf(getAuthenticationType(), USER, USER_PASSWORD, BASIC_AUTH);
+        return Commons.isOneOf(getAuthenticationType(), USER, USER_PASSWORD);
     }
 
     private boolean isPasswordAuth() {
-        return Commons.isOneOf(getAuthenticationType(), USER_PASSWORD, BASIC_AUTH);
+        return getAuthenticationType() == USER_PASSWORD;
     }
 
     private boolean isTokenAuth() {
