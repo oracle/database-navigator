@@ -54,6 +54,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
     private String region;
     private String location;
     private String profileKey;
+    private String label;
 
     public void reset() {
         sourceType = ConfigFileSourceType.LOCAL_FILE;
@@ -64,6 +65,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         region = null;
         location = null;
         profileKey = null;
+        label = null;
     }
 
     public void applyOciAuthentication(
@@ -80,12 +82,27 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
             CloudConfigProviderType cloudProviderType,
             String region,
             String location,
-            String profileKey) {
+            String profileKey,
+            String label) {
         this.sourceType = Commons.nvl(sourceType, ConfigFileSourceType.LOCAL_FILE);
         this.cloudProviderType = this.sourceType == ConfigFileSourceType.CLOUD_PROVIDER ? cloudProviderType : null;
         this.region = isRegionConfig() ? region : null;
-        this.profileKey = profileKey;
+        this.profileKey = normalizeProfileKey(profileKey);
+        this.label = isAzureAppConfig() ? label : null;
         setLocation(location);
+    }
+
+    private String normalizeProfileKey(String profileKey) {
+        if (!isAzureAppConfig() || isEmptyOrSpaces(profileKey)) return profileKey;
+
+        String normalized = profileKey.trim();
+        if (!normalized.startsWith("/")) {
+            normalized = "/" + normalized;
+        }
+        if (!normalized.endsWith("/")) {
+            normalized = normalized + "/";
+        }
+        return normalized;
     }
 
     public void setLocation(String location) {
@@ -119,6 +136,10 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
                 authentication == CloudConfigProviderAuthentication.OCI_INTERACTIVE;
     }
 
+    public boolean isAzureAppConfig() {
+        return isCloudProviderConfig() && cloudProviderType == CloudConfigProviderType.AZURE_APP_CONFIG;
+    }
+
     public String getProviderSlug() {
         ConfigFileSourceType sourceType = Commons.nvl(this.sourceType, ConfigFileSourceType.LOCAL_FILE);
         return switch (sourceType) {
@@ -133,6 +154,9 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         if (isNotEmpty(profileKey)) {
             parameters.put("key", profileKey);
         }
+        if (isAzureAppConfig() && isNotEmpty(label)) {
+            parameters.put("label", label);
+        }
 
         if (isRegionConfig() && isNotEmptyOrSpaces(region)) {
             parameters.put(cloudProviderType.getRegionParameterName(), region.trim());
@@ -140,6 +164,9 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
 
         if (includeAuthentication && isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isOci()) {
             parameters.putAll(OciConfigProviderParameters.build(authentication, ociConfigFile, ociProfile));
+        }
+        if (includeAuthentication && isCloudProviderConfig() && cloudProviderType != null && cloudProviderType.isAzure() && authentication != null) {
+            parameters.put("AUTHENTICATION", authentication.getParameterValue());
         }
 
         return parameters.isEmpty() ? Collections.emptyMap() : parameters;
@@ -201,7 +228,8 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
     public void initialize(String url, DatabaseUrlPattern pattern, Map<String, String> parameters) {
         reset();
         location = pattern.resolveConfigLocation(url);
-        profileKey = parameters.get("key");
+        profileKey = getParameterIgnoreCase(parameters, "key");
+        label = getParameterIgnoreCase(parameters, "label");
 
         if (pattern.getUrlType() != CONFIG_FILE) return;
 
@@ -209,11 +237,11 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         if (Strings.isEmptyOrSpaces(provider)) return;
 
         if ("file".equalsIgnoreCase(provider)) {
-            apply(ConfigFileSourceType.LOCAL_FILE, null, null, location, profileKey);
+            apply(ConfigFileSourceType.LOCAL_FILE, null, null, location, profileKey, null);
         } else if ("https".equalsIgnoreCase(provider)) {
-            apply(ConfigFileSourceType.HTTPS, null, null, location, profileKey);
+            apply(ConfigFileSourceType.HTTPS, null, null, location, profileKey, null);
         } else {
-            apply(ConfigFileSourceType.CLOUD_PROVIDER, CloudConfigProviderType.fromSlug(provider), null, location, profileKey);
+            apply(ConfigFileSourceType.CLOUD_PROVIDER, CloudConfigProviderType.fromSlug(provider), null, location, profileKey, label);
         }
 
         if (cloudProviderType != null && cloudProviderType.isOci()) {
@@ -241,7 +269,8 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         String region = getString(element, "cloud-config-provider-region", null);
         String location = getString(element, "config-location", getString(element, "config-file-path", null));
         String profileKey = getString(element, "config-file-profile-key", null);
-        apply(sourceType, cloudProviderType, region, location, profileKey);
+        String label = getString(element, "cloud-config-provider-label", null);
+        apply(sourceType, cloudProviderType, region, location, profileKey, label);
 
         CloudConfigProviderAuthentication authentication =
                 getEnum(element, "cloud-config-provider-authentication", CloudConfigProviderAuthentication.class);
@@ -264,6 +293,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         setString(element, "cloud-config-provider-region", region);
         setString(element, "config-location", location);
         setString(element, "config-file-profile-key", profileKey);
+        setString(element, "cloud-config-provider-label", label);
     }
 
     @Override
@@ -277,6 +307,7 @@ public class ConfigProviderInfo implements Cloneable<ConfigProviderInfo> {
         clone.region = region;
         clone.location = location;
         clone.profileKey = profileKey;
+        clone.label = label;
         return clone;
     }
 }
