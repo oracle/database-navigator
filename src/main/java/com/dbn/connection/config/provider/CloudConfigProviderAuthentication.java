@@ -24,7 +24,10 @@ import java.util.Arrays;
 @Getter
 public enum CloudConfigProviderAuthentication implements Presentable {
     OCI_DEFAULT("OCI Default", "OCI_DEFAULT", CloudConfigProviderType.OCI_OBJECT, CloudConfigProviderType.OCI_DB_TOOLS, CloudConfigProviderType.OCI_VAULT),
-    OCI_INTERACTIVE("Interactive", "OCI_INTERACTIVE", CloudConfigProviderType.OCI_OBJECT, CloudConfigProviderType.OCI_DB_TOOLS, CloudConfigProviderType.OCI_VAULT);
+    OCI_INTERACTIVE("Interactive", "OCI_INTERACTIVE", CloudConfigProviderType.OCI_OBJECT, CloudConfigProviderType.OCI_DB_TOOLS, CloudConfigProviderType.OCI_VAULT),
+    AZURE_DEFAULT("Azure Default", "AZURE_DEFAULT", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
+    AZURE_SERVICE_PRINCIPAL("Service Principal", "AZURE_SERVICE_PRINCIPAL", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT),
+    AZURE_INTERACTIVE("Interactive", "AZURE_INTERACTIVE", CloudConfigProviderType.AZURE_APP_CONFIG, CloudConfigProviderType.AZURE_VAULT);
 
     private final String name;
     private final String parameterValue;

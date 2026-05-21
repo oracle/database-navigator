@@ -88,7 +88,7 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
     }
 
     public CloudConfigProviderAuthentication getCloudConfigProviderAuthentication() {
-        return isOciProvider() ? getSelection(authenticationComboBox) : null;
+        return isAuthenticationProvider() ? getSelection(authenticationComboBox) : null;
     }
 
     public String getOciConfigProviderProfile() {
@@ -110,10 +110,13 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
         DatabaseInfo databaseInfo = getDatabaseInfo();
         setCloudProviderType(databaseInfo.getConfigProviderInfo().getCloudProviderType());
 
-        if (isOciProvider()) {
+        if (isAuthenticationProvider()) {
             setSelection(authenticationComboBox, Commons.nvl(
                     databaseInfo.getConfigProviderInfo().getAuthentication(),
                     CloudConfigProviderAuthentication.getDefault(cloudProviderType)));
+        }
+
+        if (isOciProvider()) {
             configFileTextField.setText(databaseInfo.getConfigProviderInfo().getOciConfigFile());
             profileComboBox
                     .withValueLoader(() -> OciConfigFileUtil.getConfigProfileNames(getOciConfigProviderConfigFile()))
@@ -129,13 +132,16 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
 
     public boolean settingsChanged() {
         DatabaseInfo databaseInfo = getDatabaseInfo();
-        if (!isOciProvider()) return false;
+        if (!isAuthenticationProvider()) return false;
 
         String configFile = isDefaultAuthentication() ? getOciConfigProviderConfigFile() : null;
         String profile = isDefaultAuthentication() ? getOciConfigProviderProfile() : null;
-        return !Commons.match(
-                    Commons.nvl(databaseInfo.getConfigProviderInfo().getAuthentication(), CloudConfigProviderAuthentication.getDefault(cloudProviderType)),
-                    getCloudConfigProviderAuthentication()) ||
+        boolean authenticationChanged = !Commons.match(
+                Commons.nvl(databaseInfo.getConfigProviderInfo().getAuthentication(), CloudConfigProviderAuthentication.getDefault(cloudProviderType)),
+                getCloudConfigProviderAuthentication());
+        if (!isOciProvider()) return authenticationChanged;
+
+        return authenticationChanged ||
                 !Commons.match(databaseInfo.getConfigProviderInfo().getOciConfigFile(), configFile) ||
                 !Commons.match(databaseInfo.getConfigProviderInfo().getOciProfile(), profile);
     }
@@ -153,11 +159,12 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
 
     private void updateFieldVisibility() {
         boolean ociProvider = isOciProvider();
+        boolean authenticationProvider = isAuthenticationProvider();
         boolean infoProvider = isInfoProvider();
         boolean ociDefaultAuthentication = ociProvider && isDefaultAuthentication();
 
-        authenticationLabel.setVisible(ociProvider);
-        authenticationComboBox.setVisible(ociProvider);
+        authenticationLabel.setVisible(authenticationProvider);
+        authenticationComboBox.setVisible(authenticationProvider);
         authenticationInfoLabel.setVisible(infoProvider);
         authenticationInfoHyperlink.setVisible(infoProvider);
         configFileLabel.setVisible(ociDefaultAuthentication);
@@ -184,6 +191,11 @@ public class CloudConfigProviderAuthenticationSettingsForm extends DBNFormBase {
 
     private boolean isOciProvider() {
         return cloudProviderType != null && cloudProviderType.isOci();
+    }
+
+    private boolean isAuthenticationProvider() {
+        return cloudProviderType != null &&
+                CloudConfigProviderAuthentication.values(cloudProviderType).length > 0;
     }
 
     private boolean isInfoProvider() {
