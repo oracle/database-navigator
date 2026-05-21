@@ -21,8 +21,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.security.DatabaseIdentifierCache;
-import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBSchema;
@@ -91,10 +91,11 @@ public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter<DBJavaCla
                 connectionId,
                 conn -> {
                     ConnectionHandler connection = schema.getConnection();
-                    DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
                     DatabaseIdentifierCache identifierCache = connection.getIdentifierCache();
                     String quotedObjectName = identifierCache.getQuotedIdentifier(objectName);
-                    dataDefinition.createJavaSource(schema.getName(), quotedObjectName, javaCode.toString().getBytes(), conn);
+
+                    DatabaseJavaInterface javaInterface = connection.getJavaInterface();
+                    javaInterface.createJavaSource(schema.getName(true), quotedObjectName, javaCode.toString().getBytes(), conn);
                 });
 
         ObjectChangeEvent.notify(CREATE, JAVA_CLASS, connectionId, schemaId);

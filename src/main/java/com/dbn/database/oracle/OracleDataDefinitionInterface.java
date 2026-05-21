@@ -43,7 +43,6 @@ import java.util.Arrays;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.toCsv;
-import static com.dbn.common.util.Naming.unquote;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.database.DatabaseObjectTypeId.DATABASE_TRIGGER;
 import static com.dbn.database.DatabaseObjectTypeId.DATASET_TRIGGER;
@@ -81,7 +80,6 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
         CodeStyleCaseSettings styleCaseSettings = DBLCodeStyleManager.getInstance(project).getCodeStyleCaseSettings(SQLLanguage.INSTANCE);
         CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = styleCaseSettings.getObjectCaseOption();
 
         if (objectTypeId.isOneOf(DATABASE_TRIGGER, DATASET_TRIGGER)) {
             objectTypeId = TRIGGER;
@@ -92,12 +90,12 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
                     kco.format("execute immediate \n") +
                     kco.format("' \n") +
                     kco.format("create" + (makeRerunnable ? " or replace" : "") + " and compile java source named " )
-                    + "\"" + oco.format(objectName.replace("/", ".")) + "\""
+                    + "\"" + objectName.replace("/", ".") + "\""
                     + kco.format(" as\n") +
                     code +
                     "';\n" + "end;\n/";
         } else if (objectTypeId == VIEW) {
-            return kco.format("create" + (makeRerunnable ? " or replace" : "") + " view ") + oco.format((useQualified ? schemaName + "." : "") + objectName) + kco.format(" as\n") + code + "\n/";
+            return kco.format("create" + (makeRerunnable ? " or replace" : "") + " view ") + (useQualified ? schemaName + "." : "") + objectName + kco.format(" as\n") + code + "\n/";
         } else {
             String objectType = cachedLowerCase(objectTypeId.toString());
             if (contentType == DBContentType.CODE_BODY) {
@@ -145,7 +143,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     public String extractDDLStatement(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException {
         ResultSet resultSet = null;
         try {
-            resultSet = executeQuery(connection, "extract-ddl-statement", objectType, ownerName, objectName);
+            resultSet = executeQuery(connection, "extract-ddl-statement", objectType, unquoted(ownerName), unquoted(objectName));
             resultSet.next();
             Clob clob = resultSet.getClob(1);
             return Resources.readClob(clob);
@@ -178,56 +176,12 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         executeUpdate(connection, "update-object", newCode);
     }
 
-    public void createJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "create-java-source", ownerName, objectName, content);
-        compileJavaClass(ownerName, objectName, connection);
-    }
-
-    public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
-        try {
-            executeSilentUpdate(connection, "set-java-property", "sun.tools.javac.Main.args", 'g');
-            executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "true");
-            executeUpdate(connection, "compile-java-class", ownerName, objectName);
-        } finally {
-            executeSilentUpdate(connection, "set-java-compiler-option", unquote(objectName), "debug", "false");
-        }
-    }
-
-    @Override
-    public void updateJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "update-java-source", ownerName, objectName, content);
-        compileJavaClass(ownerName, objectName, connection);
-    }
-
-    @Override
-    public void replaceJavaSource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "drop-java-object", ownerName, objectName);
-        executeUpdate(connection, "create-java-source", ownerName, objectName, content);
-    }
-
-    @Override
-    public void replaceJavaClass(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "drop-java-object", ownerName, objectName);
-        executeUpdate(connection, "create-java-class", ownerName, objectName, content);
-    }
-
-    @Override
-    public void updateJavaResource(String ownerName, String objectName, byte[] content, DBNConnection connection) throws SQLException {
-        executeUpdate(connection, "prepare-java-staging-table", ownerName);
-        executeUpdate(connection, "update-java-resource", ownerName, objectName, content);
-    }
-
 
     /*********************************************************
      *                   CREATE statements                   *
      *********************************************************/
     @Override
     public void createMethod(@NotNull DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
-        // TODO SQL-Injection
         Project project = methodSpec.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();

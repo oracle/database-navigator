@@ -505,10 +505,11 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
         while (objectRefs.hasNext()) {
             DBObjectRef<?> objectRef = objectRefs.next();
             DBEditableObjectVirtualFile file = filesCache.get(objectRef);
-            if (file.getProject() == project) {
-                objectRefs.remove();
-                Disposer.dispose(file);
-            }
+            if (file == null) continue;
+            if (file.getProject() != project) continue;
+
+            objectRefs.remove();
+            Disposer.dispose(file);
         }
     }
 

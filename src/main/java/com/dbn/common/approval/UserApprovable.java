@@ -24,4 +24,5 @@ package com.dbn.common.approval;
  * the domain object itself.
  */
 public interface UserApprovable {
+    boolean isAcknowledged();
 }

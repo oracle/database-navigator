@@ -20,8 +20,8 @@ import com.dbn.common.file.FileTypes;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaResourceMetadata;
-import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJavaResource;
 import com.dbn.object.DBSchema;
@@ -122,8 +122,8 @@ public class DBJavaResourceImpl extends DBSchemaObjectImpl<DBJavaResourceMetadat
 				getConnectionId(),
 				conn -> {
 					ConnectionHandler connection = getConnection();
-					DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
-					dataDefinitionInterface.updateJavaResource(
+					DatabaseJavaInterface javaInterface = connection.getJavaInterface();
+					javaInterface.updateJavaResource(
 							getSchemaName(true),
 							getName(true),
 							newCode.getBytes(),

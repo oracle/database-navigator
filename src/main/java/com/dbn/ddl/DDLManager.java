@@ -65,8 +65,8 @@ public class DDLManager extends ProjectComponentBase implements PersistentState 
                     ConnectionHandler connection = object.getConnection();
                     DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
                     return dataDefinition.extractDDLStatement(
-                            object.getSchemaName(),
-                            object.getName(),
+                            object.getSchemaName(true),
+                            object.getName(true),
                             getObjectTypeName(object),
                             conn);
                 });

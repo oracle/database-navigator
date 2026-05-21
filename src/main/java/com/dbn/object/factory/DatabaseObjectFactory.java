@@ -29,6 +29,7 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
@@ -216,7 +217,8 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                             }
                         } else {
                             if(objectType == JAVA_CLASS) {
-                                dataDefinition.dropJavaClass(schemaName, objectName, conn);
+                                DatabaseJavaInterface javaInterface = object.getJavaInterface();
+                                javaInterface.dropJavaClass(schemaName, objectName, conn);
                             } else {
                                 dataDefinition.dropObject(objectTypeName, schemaName, objectName, conn);
 

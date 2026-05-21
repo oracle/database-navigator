@@ -31,10 +31,10 @@ public class Recursion {
 
     public static <T, S, E extends Throwable> T computeGuarded(String taskName, T defaultValue, S subject, ParametricCallable<S, T, E> callable) throws E{
         Set<S> traces = ensureTraces(taskName);
-        try {
-            if (traces.contains(subject)) return defaultValue;
+        if (traces.contains(subject)) return defaultValue;
 
-            traces.add(subject);
+        traces.add(subject);
+        try {
             return callable.call(subject);
         } finally {
             traces.remove(subject);
@@ -43,10 +43,10 @@ public class Recursion {
 
     public static <S, E extends Throwable> void executeGuarded(String taskName, S subject, ParametricRunnable<S, E> runnable) throws E{
         Set<S> traces = ensureTraces(taskName);
-        try {
-            if (traces.contains(subject)) return;
+        if (traces.contains(subject)) return;
 
-            traces.add(subject);
+        traces.add(subject);
+        try {
             runnable.run(subject);
         } finally {
             traces.remove(subject);

@@ -59,6 +59,8 @@ public class AssistantMcpServer implements PersistentConfiguration, Presentable,
     private String command;
     private String commandArguments;
 
+    private transient boolean acknowledged;
+
     public AssistantMcpServer(EntityId id) {
         this.id = id;
         if (id.equals(IDE_MCP_SERVER_ID)) {

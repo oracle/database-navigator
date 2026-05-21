@@ -38,9 +38,7 @@ import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JPanel;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.dbn.common.ui.util.Decorators.createToolbarDecorator;
 import static com.dbn.common.ui.util.Decorators.createToolbarDecoratorComponent;
@@ -51,8 +49,6 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
     private JPanel ideMcpServerPanel;
 
     private final AssistantMcpServersTable mcpServersTable;
-    private final Set<String> initialApprovalKeys = new HashSet<>();
-    private final Set<String> userApprovedKeys = new HashSet<>();
     private final UserApprovalManager approvalManager = UserApprovalManager.getInstance();
     private AssistantIdeMcpServerForm ideMcpServerForm;
 
@@ -61,9 +57,6 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
 
         mcpServersTable = new AssistantMcpServersTable(this, settings.getMcpServers());
         mcpServersTablePanel.add(initTableComponent());
-        for (AssistantMcpServer mcpServer : settings.getMcpServers().getElements()) {
-            initialApprovalKeys.add(approvalManager.getApprovalKey(mcpServer));
-        }
 
         if (IdeMcpServerManager.isIdeMcpPluginSupported()) {
             ideMcpServerForm = new AssistantIdeMcpServerForm(this);
@@ -123,7 +116,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
             AssistantMcpServersTableModel model = mcpServersTable.getModel();
             model.addElement(mcpServer);
         }
-        userApprovedKeys.add(approvalManager.getApprovalKey(mcpServer));
+        mcpServer.setAcknowledged(true);
         mackConfigModified();
         mcpServersTable.revalidate();
         mcpServersTable.repaint();
@@ -151,17 +144,11 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
         model.validate();
         model.applyChanges();
 
-        List<AssistantMcpServer> mcpServers = model.getElements();
-        configuration.setMcpServers(new AssistantMcpServerBundle(getProject(), mcpServers));
+        List<AssistantMcpServer> oldMcpServers = configuration.getMcpServers().getElements();
+        List<AssistantMcpServer> newMcpServers = model.getElements();
+        configuration.setMcpServers(new AssistantMcpServerBundle(getProject(), newMcpServers));
 
-        approvalManager.updateApprovals(initialApprovalKeys, userApprovedKeys, mcpServers);
-
-        // refresh the baseline so the next Apply diffs against the just-applied state
-        initialApprovalKeys.clear();
-        for (AssistantMcpServer mcpServer : mcpServers) {
-            initialApprovalKeys.add(approvalManager.getApprovalKey(mcpServer));
-        }
-        userApprovedKeys.clear();
+        approvalManager.updateApprovals(oldMcpServers, newMcpServers);
 
         if (configuration.isModified()) {
             refreshAssistantStates();
@@ -179,7 +166,6 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
 
     @Override
     public void resetFormChanges() {
-        userApprovedKeys.clear();
         mcpServersTable.getModel().resetChanges();
     }
 }

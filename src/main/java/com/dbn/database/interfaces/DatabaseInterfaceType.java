@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.download.metadata;
+package com.dbn.database.interfaces;
 
-import lombok.Getter;
-
-@Getter
-public class Developer {
-    private final String name;
-    private final String url;
-
-
-    public Developer(String name, String url) {
-        this.name = name;
-        this.url = url;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("Author [name=%s, url=%s]", name, url);
-    }
+/**
+ * Identifies the database interface contract implemented by a database-specific interface instance.
+ */
+public enum DatabaseInterfaceType {
+    ENVIRONMENT,
+    COMPATIBILITY,
+    MESSAGE_PARSER,
+    METADATA,
+    DATA_DEFINITION,
+    EXECUTION,
+    DEBUGGER,
+    ASSISTANT,
+    VECTOR,
+    JAVA
 }

@@ -46,4 +46,13 @@ public class QuoteDefinition {
     public String toString() {
         return "quote definition (pairs=" + Arrays.toString(quotePairs) +')';
     }
+
+    public String unquote(String objectName) {
+        for (QuotePair quotePair : quotePairs) {
+            if (quotePair.isQuoted(objectName)) {
+                objectName = quotePair.unquote(objectName);
+            }
+        }
+        return objectName;
+    }
 }

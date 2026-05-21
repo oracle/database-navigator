@@ -47,4 +47,6 @@ public interface UserApprovalAdapter<T extends UserApprovable> extends Extension
      * Returns the stable key used to persist approval for this approvable object.
      */
     String getApprovalKey(T approvable);
+
+    String[] getApprovalOptions(T approvable);
 }

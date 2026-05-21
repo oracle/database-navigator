@@ -54,7 +54,8 @@ public interface ViewMetadataTool extends AssistantTool {
             description = "Lists view names in a given schema",
             summary = "schema %s")
     List<String> listViewNames(
-            @P("Schema name") String schemaName);
+            @P("Schema name") String schemaName,
+            @P(value = "Optional name filter (see REGEX_NAME_EXPRESSION tool instruction)", required = false) String viewNameRegex);
 
 
     @Tool(name = "LIST_MATERIALIZED_VIEW_NAMES")
