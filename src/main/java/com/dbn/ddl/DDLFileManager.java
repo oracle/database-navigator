@@ -104,8 +104,8 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
         return dataDefinition.createDDLStatement(getProject(),
                 object.getObjectType().getTypeId(),
                 connection.getUserName(),
-                object.getSchema().getName(),
-                object.getName(),
+                object.getSchema().getName(true),
+                object.getName(true),
                 contentType,
                 content,
                 alternativeStatementDelimiter);

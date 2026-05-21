@@ -23,8 +23,8 @@ import com.dbn.common.util.Java;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
-import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.nls.NlsResources;
 import com.dbn.object.DBJavaClass;
@@ -302,17 +302,17 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 				getConnectionId(),
 				conn -> {
 					ConnectionHandler connection = getConnection();
-					DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
 					String schemaName = getSchemaName(true);
 					String name = getName(true);
 
-					dataDefinitionInterface.updateJavaSource(
+					DatabaseJavaInterface javaInterface = connection.getJavaInterface();
+					javaInterface.updateJavaSource(
 							schemaName,
 							name,
 							newCode.getBytes(),
 							conn);
 
-					dataDefinitionInterface.compileJavaClass(
+					javaInterface.compileJavaClass(
 							schemaName,
 							name,
 							conn);

@@ -20,6 +20,7 @@ import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerData;
 import com.dbn.assistant.mcp.model.AssistantMcpServerType;
 import com.dbn.assistant.mcp.model.AssistantMcpToolInfo;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -155,6 +156,11 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
                     "Accessing http url \"" + mcpServer.getUrl() + "\"":
                     "Invoking command \"" + mcpServer.getEndpoint() + "\"";
             indicator.setText2(detail);
+
+            // approve this endpoint for the verify call; persistent approval happens on settings Apply
+            UserApprovalManager approvalManager = UserApprovalManager.getInstance();
+            approvalManager.approveTemporarily(mcpServer);
+
             List<AssistantMcpToolInfo> tools = AssistantMcpServerData.loadTools(mcpServer);
             if (indicator.isCanceled()) return;
 

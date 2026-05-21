@@ -22,6 +22,7 @@ import com.dbn.assistant.mcp.AssistantMcpServerSettings;
 import com.dbn.assistant.mcp.ide.IdeMcpServerManager;
 import com.dbn.assistant.mcp.model.AssistantMcpServer;
 import com.dbn.assistant.mcp.model.AssistantMcpServerBundle;
+import com.dbn.common.approval.UserApprovalManager;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
@@ -48,6 +49,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
     private JPanel ideMcpServerPanel;
 
     private final AssistantMcpServersTable mcpServersTable;
+    private final UserApprovalManager approvalManager = UserApprovalManager.getInstance();
     private AssistantIdeMcpServerForm ideMcpServerForm;
 
     public AssistantMcpServersSettingsForm(AssistantMcpServerSettings settings) {
@@ -114,6 +116,7 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
             AssistantMcpServersTableModel model = mcpServersTable.getModel();
             model.addElement(mcpServer);
         }
+        mcpServer.setAcknowledged(true);
         mackConfigModified();
         mcpServersTable.revalidate();
         mcpServersTable.repaint();
@@ -141,8 +144,11 @@ public class AssistantMcpServersSettingsForm extends ConfigurationEditorForm<Ass
         model.validate();
         model.applyChanges();
 
-        List<AssistantMcpServer> mcpServers = model.getElements();
-        configuration.setMcpServers(new AssistantMcpServerBundle(getProject(), mcpServers));
+        List<AssistantMcpServer> oldMcpServers = configuration.getMcpServers().getElements();
+        List<AssistantMcpServer> newMcpServers = model.getElements();
+        configuration.setMcpServers(new AssistantMcpServerBundle(getProject(), newMcpServers));
+
+        approvalManager.updateApprovals(oldMcpServers, newMcpServers);
 
         if (configuration.isModified()) {
             refreshAssistantStates();

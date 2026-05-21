@@ -16,7 +16,16 @@
 
 package com.dbn.database.interfaces;
 
-public interface DatabaseEnvironmentInterface {
+import static com.dbn.database.interfaces.DatabaseInterfaceType.ENVIRONMENT;
+
+/**
+ * Identifies database environment characteristics that affect connection and feature behavior.
+ */
+public interface DatabaseEnvironmentInterface extends DatabaseInterface {
+    @Override
+    default DatabaseInterfaceType getInterfaceType() {
+        return ENVIRONMENT;
+    }
 
     boolean isCloudDatabase(String hostname);
 

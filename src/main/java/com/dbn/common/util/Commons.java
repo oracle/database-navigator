@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
@@ -39,6 +40,7 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 @Slf4j
 @UtilityClass
 public final class Commons {
+    public static Predicate<Object> NOT_NULL = a -> a != null;
 
     @NotNull
     public static <T> T nvl(@Nullable T value, @NotNull Supplier<T> defaultValue) {

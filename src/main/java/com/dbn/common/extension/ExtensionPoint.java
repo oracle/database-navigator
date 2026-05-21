@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.download.metadata;
+package com.dbn.common.extension;
 
-import lombok.Getter;
-
-@Getter
-public class Developer {
-    private final String name;
-    private final String url;
-
-
-    public Developer(String name, String url) {
-        this.name = name;
-        this.url = url;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("Author [name=%s, url=%s]", name, url);
-    }
+public interface ExtensionPoint {
 }

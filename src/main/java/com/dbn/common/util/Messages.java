@@ -201,6 +201,10 @@ public class Messages {
         return Dispatch.call(() -> showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_QUESTION, null));
     }
 
+    public static int showAcknowledgementDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex) {
+        return Dispatch.call(() -> showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_WARNING, null));
+    }
+
     private static void showDialog(
             @Nullable Project project,
             @DialogMessage String message,

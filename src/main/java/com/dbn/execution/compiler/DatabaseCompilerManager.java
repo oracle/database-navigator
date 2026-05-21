@@ -31,6 +31,7 @@ import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeEditor;
@@ -225,7 +226,8 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         String objectTypeName = cachedUpperCase(object.getTypeName());
 
         if (object.getObjectType() == DBObjectType.JAVA_CLASS) {
-            dataDefinitionInterface.compileJavaClass(
+            DatabaseJavaInterface javaInterface = connection.getJavaInterface();
+            javaInterface.compileJavaClass(
                     schemaName,
                     objectName,
                     conn);
@@ -372,7 +374,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                 progress -> {
                     progress.setIndeterminate(false);
 
-                    DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
+                    DatabaseJavaInterface javaInterface = connection.getJavaInterface();
 
                     int size = javaClasses.size();
                     for (int i = 0; i < size; i++) {
@@ -386,7 +388,7 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
                             DatabaseInterfaceInvoker.execute(Priority.MEDIUM,
                                     "Compiling Java Class",
                                     "Compiling java class \"" + className + "\"", project, connection.getConnectionId(), conn -> {
-                                        dataDefinitionInterface.compileJavaClass(
+                                        javaInterface.compileJavaClass(
                                                 schemaName,
                                                 objectName,
                                                 conn);

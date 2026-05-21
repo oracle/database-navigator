@@ -23,7 +23,8 @@
         <!ELEMENT statement (#PCDATA)>
         <!ATTLIST statement
                 comment CDATA #IMPLIED
-                prefixes CDATA #IMPLIED>
+                prefixes CDATA #IMPLIED
+                silent-error-codes CDATA #IMPLIED>
         ]>
 <data-dictionary>
     <statement-execution-processor id="create-view">
@@ -47,115 +48,6 @@
         <statement>create or replace {0}</statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="prepare-java-staging-table">
-        <statement prefixes="DBA, ALL">
-            declare
-                v_count INTEGER;
-            begin
-                select count(1)
-                        into v_count
-                        from [PREFIX]_TABLES
-                       where OWNER = REPLACE({#0}, '"')
-                         and TABLE_NAME = 'CREATE$JAVA$LOB$TABLE';
-
-                if v_count = 0 THEN
-                    execute immediate 'create table {0}."CREATE$JAVA$LOB$TABLE" (
-                                "NAME" VARCHAR2(700) PRIMARY KEY,
-                                "LOB" BLOB,
-                                "LOADTIME" DATE)';
-                end if;
-            end;
-        </statement>
-        <statement>
-            declare
-                v_count INTEGER;
-            begin
-                select count(1)
-                        into v_count
-                        from USER_TABLES
-                       where USER = REPLACE({#0}, '"')
-                         and TABLE_NAME = 'CREATE$JAVA$LOB$TABLE';
-
-                if v_count = 0 THEN
-                    execute immediate 'create table {0}."CREATE$JAVA$LOB$TABLE" (
-                                "NAME" VARCHAR2(700) PRIMARY KEY,
-                                "LOB" BLOB,
-                                "LOADTIME" DATE)';
-                end if;
-            end;
-        </statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="update-java-resource">
-        <statement>
-            declare
-                v_content BLOB := {#2};
-                v_content_id VARCHAR2(128) := SYS_GUID();
-            begin
-                insert into {0}."CREATE$JAVA$LOB$TABLE" ("NAME", "LOB", "LOADTIME") VALUES (v_content_id, v_content, SYSDATE);
-
-                if v_content is null then
-                    execute immediate 'create or replace java resource named {0}.{1} using blob (select EMPTY_BLOB() from DUAL)';
-                else
-                    execute immediate 'create or replace java resource named {0}.{1} using blob "LOB" from {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
-                end if;
-                delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
-            exception
-                when others then
-                    delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
-                raise;
-            end;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="create-java-class">
-        <statement>
-            declare
-                v_content BLOB := {#2};
-                v_content_id VARCHAR2(128) := SYS_GUID();
-            begin
-                insert into {0}."CREATE$JAVA$LOB$TABLE" ("NAME", "LOB", "LOADTIME") VALUES (v_content_id, v_content, SYSDATE);
-                execute immediate 'create java class schema {0} using blob select "LOB" from {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
-                delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
-            exception
-                when others then
-                    delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
-                raise;
-            end;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="create-java-source">
-        <statement>
-            declare
-                v_content BLOB := {#2};
-                v_content_id VARCHAR2(128) := SYS_GUID();
-            begin
-                insert into {0}."CREATE$JAVA$LOB$TABLE" ("NAME", "LOB", "LOADTIME") VALUES (v_content_id, v_content, SYSDATE);
-                execute immediate 'create java source named {0}.{1} using blob select "LOB" from {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
-                delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
-            exception
-                when others then
-                    delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
-                raise;
-            end;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="update-java-source">
-        <statement>
-            declare
-                v_content BLOB := {#2};
-                v_content_id VARCHAR2(128) := SYS_GUID();
-            begin
-                insert into {0}."CREATE$JAVA$LOB$TABLE" ("NAME", "LOB", "LOADTIME") VALUES (v_content_id, v_content, SYSDATE);
-                execute immediate 'create or replace java source named {0}.{1} using blob select "LOB" from {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = '''||v_content_id||'''';
-                delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
-            exception
-                when others then
-                    delete {0}."CREATE$JAVA$LOB$TABLE" where "NAME" = v_content_id;
-                raise;
-            end;
-        </statement>
-    </statement-execution-processor>
-
     <statement-execution-processor id="drop-object">
         <statement>drop {0} {1}.{2}</statement>
     </statement-execution-processor>
@@ -168,26 +60,6 @@
         <statement>drop {0} body {1}.{2}</statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="drop-java-object">
-        <statement>
-            begin
-                begin
-                    execute immediate 'drop java source {0}.{1}';
-                exception
-                    when others then
-                        if SQLCODE != -4043 then raise; end if;
-                end;
-
-                begin
-                    execute immediate 'drop java class {0}.{1}';
-                exception
-                    when others then
-                        if SQLCODE != -4043 then raise; end if;
-                end;
-            end;
-        </statement>
-    </statement-execution-processor>
-
     <statement-execution-processor id="compile-object">
         <statement>
             alter {2} {0}.{1} compile {3}
@@ -197,35 +69,6 @@
     <statement-execution-processor id="compile-object-body">
         <statement>
             alter {2} {0}.{1} compile {3} body
-        </statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="set-java-compiler-option">
-        <statement>
-            begin
-                dbms_java.set_compiler_option('{0}', '{1}', '{2}');
-            end;
-        </statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="set-java-property">
-        <statement>
-            declare
-                result varchar2(4000);
-            begin
-                result := dbms_java.set_property('{0}', '{1}');
-            end;
-        </statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="compile-java-class">
-        <statement>
-            begin
-                execute immediate 'alter JAVA SOURCE {0}.{1} compile';
-            exception
-            when others then
-                execute immediate 'alter JAVA CLASS {0}.{1} compile';
-            end;
         </statement>
     </statement-execution-processor>
 
