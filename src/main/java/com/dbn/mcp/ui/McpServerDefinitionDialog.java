@@ -21,6 +21,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.mcp.MCPServerManager;
 import com.dbn.mcp.build.McpBuildTask;
 import com.dbn.mcp.model.McpServerDefinition;
+import com.intellij.openapi.ui.OptionAction;
 import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,11 +33,14 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
     private final ConnectionHandler connection;
     private final McpServerDefinition definition;
 
+    private Action saveAsAction;
+
     public McpServerDefinitionDialog(@NotNull ConnectionHandler connection, McpServerDefinition definition) {
         super(connection, "MCP Server Builder", true);
         this.connection = connection;
         this.definition = definition;
         setDefaultSize(600, 600);
+
         init();
     }
 
@@ -55,10 +59,21 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
     }
 
     protected final Action[] initializeActions() {
-        renameAction(getOKAction(), "Build");
+        renameAction(getOKAction(), "Build Server");
+        renameAction(getCancelAction(), "Close");
+
+        Action saveAction = createAction("Save", () -> getForm().saveConfiguration());
+        saveAsAction = createAction("Save As...", () -> getForm().saveConfigurationAs());
+        OptionAction saveOptionAction = createCompositeAction(saveAction, saveAsAction);
+
         return actions(
                 getOKAction(),
+                saveOptionAction,
                 getCancelAction());
+    }
+
+    protected void setSaveAsVisible(boolean visible) {
+        makeActionVisible(saveAsAction, visible);
     }
 
     @Override

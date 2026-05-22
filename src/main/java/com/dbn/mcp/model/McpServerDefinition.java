@@ -55,7 +55,7 @@ public class McpServerDefinition implements PersistentStateElement, Cloneable<Mc
 
     @Override
     public void readState(Element element) {
-        serverName = stringAttribute(element, "server-name", serverName);
+        serverName = stringAttribute(element, "server-name");
         transportType = enumAttribute(element, "transport-type", McpTransportType.class);
         description = readCdata(element.getChild("description"));
 
