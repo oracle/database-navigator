@@ -201,8 +201,12 @@ public class Messages {
         return Dispatch.call(() -> showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_QUESTION, null));
     }
 
-    public static int showAcknowledgementDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex) {
-        return Dispatch.call(() -> showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_WARNING, null));
+    public static int showAcknowledgementDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex,  MessageCallback callback) {
+        return Dispatch.call(() -> {
+            int option = showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_WARNING, null);
+            callback.accept(option);
+            return option;
+        });
     }
 
     private static void showDialog(
