@@ -80,6 +80,7 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.registerDialog;
 import static com.dbn.common.ui.dialog.DBNDialogMonitor.releaseDialog;
+import static com.dbn.common.ui.util.Buttons.installMousePressFocus;
 import static com.dbn.common.ui.util.UserInterface.findTopLeftmostFocusComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Classes.simpleClassName;
@@ -304,6 +305,16 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
 
     protected void hideAction(@NotNull Action action) {
         makeActionVisible(action, false);
+    }
+
+    @Override
+    protected JButton createJButtonForAction(Action action) {
+        JButton button = super.createJButtonForAction(action);
+        if (button instanceof JBOptionButton optionButton) {
+            installMousePressFocus(optionButton);
+        }
+
+        return button;
     }
 
     protected void makeActionVisible(@NotNull Action action, boolean visible) {
