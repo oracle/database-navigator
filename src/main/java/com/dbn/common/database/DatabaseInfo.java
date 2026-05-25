@@ -115,8 +115,8 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
         this.host = pattern.resolveHost(url);
         this.port = pattern.resolvePort(url);
         this.database = pattern.resolveDatabase(url);
-        this.tnsFolder = pattern.resolveTnsProfile(url);
-        this.tnsProfile = pattern.resolveTnsFolder(url);
+        this.tnsFolder = pattern.resolveTnsFolder(url);
+        this.tnsProfile = pattern.resolveTnsProfile(url);
         this.serverType = pattern.resolveServerType(url);
         this.parameters = pattern.resolveParameters(url);
         this.protocol = pattern.resolveProtocol(url);
