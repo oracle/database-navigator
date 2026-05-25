@@ -19,11 +19,11 @@ package com.dbn.common.approval;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ApplicationComponentBase;
 import com.dbn.common.component.PersistentState;
-import com.dbn.common.thread.Synchronized;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.TimeUtil;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,6 +61,7 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
 
     private final Set<String> approvals = ConcurrentHashMap.newKeySet();
     private final Set<String> temporaryApprovals = ConcurrentHashMap.newKeySet();
+    private final Set<String> pendingApprovals = ConcurrentHashMap.newKeySet();
     private final Map<String, Long> rejections = new ConcurrentHashMap<>();
 
     public UserApprovalManager() {
@@ -81,14 +82,6 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
         UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(approvable);
         String approvalKey = adapter.getApprovalKey(approvable);
 
-        Synchronized.on(approvalKey, k -> {
-            ensureApproved(approvable, k);
-        });
-    }
-
-    private <T extends UserApprovable> void ensureApproved(T approvable, String approvalKey) {
-        UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(approvable);
-
         // check and discard temporary approval
         if (temporaryApprovals.contains(approvalKey)) {
             temporaryApprovals.remove(approvalKey);
@@ -104,19 +97,30 @@ public class UserApprovalManager extends ApplicationComponentBase implements Per
             throw new UserApprovalCancelledException();
         }
 
+        if (pendingApprovals.contains(approvalKey)) {
+            throw new ProcessCanceledException();
+        }
+
+        obtainUserApproval(approvable, approvalKey);
+    }
+
+    private <T extends UserApprovable> void obtainUserApproval(T approvable, String approvalKey) {
+        UserApprovalAdapter<T> adapter = UserApprovalAdapters.get(approvable);
+        pendingApprovals.add(approvalKey);
         int option = Messages.showAcknowledgementDialog(
                 null,
                 adapter.getApprovalTitle(approvable),
                 adapter.getApprovalMessage(approvable),
                 adapter.getApprovalOptions(approvable),
-                1);
+                1, o -> pendingApprovals.remove(approvalKey));
+
         if (option != 0) {
             rejections.put(approvalKey, System.currentTimeMillis());
             throw new UserApprovalCancelledException();
-        } else {
-            approvals.add(approvalKey);
-            rejections.remove(approvalKey);
         }
+
+        approvals.add(approvalKey);
+        rejections.remove(approvalKey);
     }
 
     /**

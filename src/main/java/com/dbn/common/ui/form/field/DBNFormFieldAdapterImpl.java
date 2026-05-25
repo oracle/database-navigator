@@ -32,6 +32,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.text.JTextComponent;
 import java.lang.reflect.Field;
@@ -152,6 +153,7 @@ class DBNFormFieldAdapterImpl implements DBNFormFieldAdapter {
         if (component instanceof HyperlinkLabel) return component;
         if (component instanceof JSpinner) return component;
         if (component instanceof JPanel) return component;
+        if (component instanceof JScrollPane) return component;
         // TODO....
 
         return null;

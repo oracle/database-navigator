@@ -40,7 +40,6 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.FileChoosers.addFileChooser;
-import static com.dbn.common.util.FileChoosers.extensionFilter;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.object.type.DBAIModelSourceType.MODEL_FILE;
@@ -84,10 +83,12 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
     }
 
     private static FileChooserDescriptor modelFileChooser() {
-        return FileChoosers.singleFile().
+        FileChooserDescriptor descriptor = FileChoosers.singleFile().
                 withTitle("Select Model File").
-                withDescription("Select an ONNX model file (.onnx)").
-                withFileFilter(extensionFilter("onnx"));
+                withDescription("Select an ONNX model file (.onnx)")/*.
+                withFileFilter(extensionFilter("onnx"))*/;
+
+        return FileChoosers.withExtensionFilter(descriptor, "onnx");
     }
 
     private void initHeaderForm() {

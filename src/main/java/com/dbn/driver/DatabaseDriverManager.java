@@ -25,6 +25,7 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.driver.approval.DriverLibraryApprovalUtil;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
@@ -86,6 +87,9 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
             }
             return drivers.computeIfAbsent(libraryFile, f -> new DriverBundle(f));
 
+        } catch (ProcessCanceledException e) {
+            conditionallyLog(e);
+            throw e;
         } catch (Exception e) {
             conditionallyLog(e);
             log.warn("failed to load drivers from library", e);

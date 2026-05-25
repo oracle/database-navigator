@@ -23,6 +23,7 @@
     <depends>com.intellij.modules.lang</depends>
     <depends optional="true" config-file="dbn-java-support.xml">com.intellij.modules.java</depends>
     <depends optional="true" config-file="dbn-json-support.xml">com.intellij.modules.json</depends>
+    <depends optional="true" config-file="dbn-maven-support.xml">org.jetbrains.idea.maven</depends>
     <depends optional="true" config-file="dbn-debugger-support.xml">com.intellij.modules.xdebugger</depends>
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
     <depends optional="true" config-file="dbn-oci-toolkit-support.xml">com.oracle.ocidbtest</depends>
@@ -204,6 +205,7 @@
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseFileEditorManager"/>
         <projectService serviceImplementation="com.dbn.event.notification.EventNotificationManager"/>
+        <projectService serviceImplementation="com.dbn.mcp.MCPServerManager"/>
         <projectService serviceImplementation="com.dbn.event.registration.EventRegistrationManager"/>
         <projectService serviceImplementation="com.dbn.editor.DatabaseEditorStateManager"/>
         <projectService serviceImplementation="com.dbn.vector.DatabaseVectorManager"/>
@@ -530,6 +532,7 @@
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift S"/>
             </action>
             <action class="com.dbn.menu.action.VectorToolboxOpenAction" text="Open Vector Toolbox..." id="DBNavigator.Actions.MainMenu.OpenVectorToolbox" icon="com.dbn.common.icon.Icons.VECTOR_TOOLBOX"/>
+            <action class="com.dbn.menu.action.McpBuilderOpenAction" text="Open MCP Server Builder..." id="DBNavigator.Actions.MainMenu.McpBuilderOpenAction"/>
             <separator/>
             <action class="com.dbn.menu.action.MethodExecutionHistoryAction" text="Method Execution History" id="DBNavigator.Actions.MainMenu.MethodExecutionHistory">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift M"/>
