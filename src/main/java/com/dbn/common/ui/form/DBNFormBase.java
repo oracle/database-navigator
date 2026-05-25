@@ -18,7 +18,6 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.ComponentDisposer;
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.latent.Latent;
@@ -60,6 +59,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
 
+import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.alignment.FieldAligner.alignFormFields;
 import static com.dbn.common.ui.form.DBNFormBinding.bindForm;
 import static com.dbn.common.ui.form.field.DBNFormFieldDisabler.disableFormField;
@@ -198,6 +198,8 @@ public abstract class DBNFormBase
     }
 
     public void revalidateForm() {
+        if (!isInitialized()) return;
+
         JComponent mainComponent = getMainComponent();
         mainComponent.revalidate();
         mainComponent.repaint();
@@ -282,6 +284,10 @@ public abstract class DBNFormBase
     }
 
 
+    public <D extends DBNDialog> D ensureParentDialog() {
+        return nd(getParentDialog());
+    }
+
     /**
      * Retrieves the parent dialog associated with the current form or component, if present.
      * The method attempts to determine the parent dialog by navigating the hierarchy of parent components.
@@ -315,7 +321,7 @@ public abstract class DBNFormBase
 
     @NotNull
     public final <F extends DBNForm> F ensureParentFrom(Class<F> formClass) {
-        return Failsafe.nd(getParentFrom(formClass));
+        return nd(getParentFrom(formClass));
     }
 
     protected static Action createAction(

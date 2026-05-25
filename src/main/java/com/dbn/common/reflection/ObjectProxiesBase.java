@@ -42,7 +42,7 @@ class ObjectProxiesBase {
         Class[] copy = new Class[classes.length];
         for (int i = 0; i < classes.length; i++) {
             Class<?> clazz = classes[i];
-            copy[i] = ObjectProxiesBase.unwrapClass(classLoader, clazz);
+            copy[i] = unwrapClass(classLoader, clazz);
         }
         return copy;
     }
@@ -50,18 +50,18 @@ class ObjectProxiesBase {
     private static Class<?> unwrapClass(ClassLoader classLoader, Class<?> clazz) {
         if (ProxyObject.class.isAssignableFrom(clazz)) {
             Class<ProxyObject> proxyClass = cast(clazz);
-            return ObjectProxiesBase.getDelegateClass(classLoader, proxyClass);
+            return getDelegateClass(classLoader, proxyClass);
         }
         return clazz;
     }
 
     protected static Class<?> getDelegateClass(ClassLoader classLoader, ProxyObject proxyObject) {
-        return ObjectProxiesBase.getDelegateClass(classLoader, proxyObject.getClass());
+        return getDelegateClass(classLoader, proxyObject.getClass());
     }
 
     @SneakyThrows
-    private static Class<?> getDelegateClass(ClassLoader classLoader, Class<? extends ProxyObject> proxyObjectClass) {
-        ProxyObjectInfo proxyObjectInfo = ObjectProxiesBase.getProxyObjectInfo(proxyObjectClass);
+    protected static Class<?> getDelegateClass(ClassLoader classLoader, Class<? extends ProxyObject> proxyObjectClass) {
+        ProxyObjectInfo proxyObjectInfo = getProxyObjectInfo(proxyObjectClass);
         if (proxyObjectInfo == null) {
             throw new IllegalArgumentException("Proxy class \"" + proxyObjectClass.getName() + "\" is not annotated with @ProxyClassInfo");
         }
@@ -69,7 +69,7 @@ class ObjectProxiesBase {
         return classLoader.loadClass(delegateClassName);
     }
 
-    private static ProxyObjectInfo getProxyObjectInfo(Class<?> objectClass) {
+    protected static ProxyObjectInfo getProxyObjectInfo(Class<?> objectClass) {
         ProxyObjectInfo proxyObjectInfo = objectClass.getAnnotation(ProxyObjectInfo.class);
         if (proxyObjectInfo != null) return proxyObjectInfo;
 
