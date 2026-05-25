@@ -258,13 +258,6 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
 
                 DBNHeaderForm header = headerForm;
                 if (header == null) return;
-
-                /* Update visibility when the user switches the database type
-                if (jsonButton != null && databaseType != null) {
-                    jsonButton.setVisible(databaseType == DatabaseType.ORACLE);
-                    headerPanel.revalidate();
-                    headerPanel.repaint();
-                }*/
                 if (name != null) header.setTitle(name);
                 if (icon != null) header.setIcon(icon);
                 if (color != null) header.setBackground(color); else header.setBackground(Colors.getPanelBackground());
@@ -285,50 +278,4 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     @Override
     public void applyFormChanges(ConnectionSettings configuration) throws ConfigurationException {
     }
-
-//    private void exportJsonAction(Project project, ConnectionSettings tmp) {
-//        var auth = tmp.getDatabaseSettings().getAuthenticationInfo();
-//        boolean passwordEligible =
-//                auth != null && auth.getType() == com.dbn.connection.AuthenticationType.USER_PASSWORD;
-//
-//        OracleJsonExportDialog dialog = new OracleJsonExportDialog(project, passwordEligible);
-//        if (!dialog.showAndGet()) return;
-//
-//        try {
-//            var b = com.dbn.connection.config.io.OracleConnectionJsonMapper.builderFrom(tmp);
-//
-//            if (dialog.isIncludePassword()) {
-//                char[] pwd = (auth == null) ? null : auth.getPassword();
-//                var pwRef = com.dbn.connection.config.io.OracleSecretRefFactory.base64Password(pwd);
-//
-//                if (pwRef != null) {
-//                    b.password(pwRef);
-//                } else {
-//                    Messages.showWarningDialog(project, "Password Not Available",
-//                            "Password is not available to export (credential manager / not entered).");
-//                }
-//            }
-//
-//            if (dialog.isIncludeWallet()) {
-//                var walletPath = dialog.getWalletFile();
-//                if (walletPath != null) {
-//                    var walletRef = com.dbn.connection.config.io.OracleSecretRefFactory.base64Wallet(walletPath);
-//                    b.walletLocation(walletRef);
-//                }
-//            }
-//
-//            OracleConnectionJsonConfig cfg = b.build();
-//
-//            com.dbn.connection.config.io.OracleConnectionJsonExporter.exportConfig(
-//                    cfg, dialog.getOutputFile(), dialog.getKeyOrNull());
-//
-//            Messages.showInfoDialog(project, "JSON Exported Successfully", "Export JSON");
-//        } catch (IllegalStateException ex) {
-//            Messages.showErrorDialog(project, "Export JSON",
-//                    "Connect_descriptor is required.\nfix URL/host/port/service(SID) or select a TNS profile.");
-//        } catch (Exception ex) {
-//            conditionallyLog(ex);
-//            Messages.showErrorDialog(project, "Export Failed", ex.getMessage());
-//        }
-//    }
 }
