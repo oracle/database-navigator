@@ -189,7 +189,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
 
     public String getConnectionUrlForConnect() {
         if (!isConfigFile() || databaseInfo.isCustomUrl()) {
-            return appendConfigHttpsAuthentication(getConnectionUrl());
+            return getConnectionUrl();
         }
 
         String connectionUrl = urlPattern.buildUrl(
