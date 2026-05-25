@@ -46,5 +46,9 @@ public interface DatabaseInterfacesProvider {
         return getInterfaces().getDataDefinitionInterface();
     }
 
+    default DatabaseJavaInterface getJavaInterface() {
+        return getInterfaces().getJavaInterface();
+    }
+
     DatabaseInterfaces getInterfaces();
 }

@@ -32,7 +32,16 @@ import com.dbn.object.type.DBObjectType;
 
 import java.sql.SQLException;
 
-public interface DatabaseDebuggerInterface extends DatabaseInterface{
+import static com.dbn.database.interfaces.DatabaseInterfaceType.DEBUGGER;
+
+/**
+ * Provides database-specific debugger operations for sessions, breakpoints, stepping, and runtime inspection.
+ */
+public interface DatabaseDebuggerInterface extends DatabaseInterface {
+    @Override
+    default DatabaseInterfaceType getInterfaceType() {
+        return DEBUGGER;
+    }
 
     DebuggerSessionInfo initializeSession(DBNConnection connection) throws SQLException;
 

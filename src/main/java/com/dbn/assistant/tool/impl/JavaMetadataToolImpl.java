@@ -26,6 +26,7 @@ import com.dbn.object.DBSchema;
 import lombok.SneakyThrows;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 
 public class JavaMetadataToolImpl extends AssistantToolBase implements JavaMetadataTool {
@@ -45,19 +46,20 @@ public class JavaMetadataToolImpl extends AssistantToolBase implements JavaMetad
     }
 
     @Override
-    public List<String> listClassNames(String schemaName) {
+    public List<String> listClassNames(String schemaName, String classNameRegex) {
         DBSchema schema = getSchema(schemaName);
 
         List<DBJavaClass> classes = schema.getJavaClasses();
-        return getObjectNames(classes, false);
+        Predicate<DBJavaClass> nameFilter = nameFilter(classNameRegex);
+        return getObjectNames(classes, false, nameFilter);
     }
 
     @Override
-    public List<String> listResourceNames(String schemaName) {
+    public List<String> listResourceNames(String schemaName, String resourceNameRegex) {
         DBSchema schema = getSchema(schemaName);
 
         List<DBJavaResource> resources = schema.getJavaResources();
-        return getObjectNames(resources, false);
+        Predicate<DBJavaResource> nameFilter = nameFilter(resourceNameRegex);
+        return getObjectNames(resources, false, nameFilter);
     }
 }
-

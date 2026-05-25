@@ -25,4 +25,8 @@ public class UserApprovalCancelledException extends RequestCancelledException {
     public UserApprovalCancelledException() {
         super("User has not approved this operation");
     }
+
+    public UserApprovalCancelledException(String message) {
+        super(message);
+    }
 }

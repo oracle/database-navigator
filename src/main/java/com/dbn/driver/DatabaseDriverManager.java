@@ -22,6 +22,7 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.util.Files;
 import com.dbn.connection.DatabaseType;
+import com.dbn.driver.approval.DriverLibraryApprovalUtil;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import lombok.SneakyThrows;
@@ -77,6 +78,7 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
 
     public DriverBundle loadDrivers(File libraryFile, boolean force) {
         try {
+            DriverLibraryApprovalUtil.ensureApproved(libraryFile);
             if (force) {
                 this.driverMetadata.remove(libraryFile);
                 DriverBundle drivers = this.drivers.remove(libraryFile);
