@@ -20,6 +20,7 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Write;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNFormModel;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -46,7 +47,6 @@ import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.ui.components.JBTextField;
-import lombok.Getter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +66,7 @@ import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -88,13 +89,14 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     private final ConnectionRef connection;
     private VirtualFile configFile;
-    private @Getter McpServerDefinition serverDefinition;
+    private final DBNFormModel<McpServerDefinition> formModel;
 
     public McpServerDefinitionForm(@NotNull McpServerDefinitionDialog parent, @NotNull ConnectionHandler connection, @Nullable McpServerDefinition serverDefinition) {
         super(parent);
         this.connection = ConnectionRef.of(connection);
-        this.serverDefinition = serverDefinition == null ? new McpServerDefinition() : serverDefinition;
 
+        serverDefinition = nvl(serverDefinition, () -> new McpServerDefinition());
+        this.formModel = new DBNFormModel<>(serverDefinition);
         this.nameInfoLabel.setVisible(false); // TODO crowded form, consider cleanup
 
         initHeaderPanel();
@@ -108,6 +110,10 @@ public class McpServerDefinitionForm extends DBNFormBase {
         whenFirstShown(() -> updateDialogButtons());
     }
 
+    McpServerDefinition getServerDefinition() {
+        return formModel.getData();
+        // TODO disable "Save" button until formModel is changed
+    }
 
     private void initHeaderPanel() {
         DBNHeaderForm headerForm = new DBNHeaderForm(this, getConnection());
@@ -132,6 +138,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
     }
 
     private void initToolDefinitionsPanel() {
+        McpServerDefinition serverDefinition = getServerDefinition();
         toolDefinitionListForm = new McpToolDefinitionListForm(this, getConnection(), serverDefinition);
         toolDefinitionsPanel.add(toolDefinitionListForm.getComponent());
     }
@@ -189,7 +196,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     private void updateConfiguration(VirtualFile file, McpServerDefinition serverDefinition) {
         this.configFile = file;
-        this.serverDefinition = serverDefinition;
+        this.formModel.setData(serverDefinition);
         resetFormChanges();
         updateConfigFileFields();
         rebuildToolDefinitionForms();
@@ -198,7 +205,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     private void rebuildToolDefinitionForms() {
         McpToolDefinitionListForm oldToolDefinitionListForm = toolDefinitionListForm;
-        toolDefinitionListForm = new McpToolDefinitionListForm(this, getConnection(), serverDefinition);
+        toolDefinitionListForm = new McpToolDefinitionListForm(this, getConnection(), getServerDefinition());
         toolDefinitionsPanel.removeAll();
         toolDefinitionsPanel.add(toolDefinitionListForm.getComponent());
         revalidateForm();
@@ -238,6 +245,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     @Override
     public void resetFormChanges() {
+        McpServerDefinition serverDefinition = getServerDefinition();
         setText(serverNameTextField, serverDefinition.getServerName());
         setSelection(transportTypeComboBox, serverDefinition.getTransportType());
         setText(httpPortField, serverDefinition.getHttpPort());
@@ -245,6 +253,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     @Override
     public void applyFormChanges() {
+        McpServerDefinition serverDefinition = getServerDefinition();
         serverDefinition.setServerName(getText(serverNameTextField));
         serverDefinition.setTransportType(getSelection(transportTypeComboBox));
         serverDefinition.setHttpPort(getText(httpPortField));
@@ -311,7 +320,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     public void saveConfigurationAs() {
         Project project = getProject();
-        String serverName = serverDefinition.getServerName();
+        String serverName = getServerDefinition().getServerName();
         FileSaverDescriptor fileSaverDescriptor = new FileSaverDescriptor(
                 Titles.signed(txt("msg.mcpServers.title.SaveToFile")),
                 txt("msg.mcpServers.info.SaveToFile", serverName), "xml");
@@ -332,7 +341,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
 
     private void saveConfiguration(VirtualFile file) {
         Element element = new Element("mcp-server-definition");
-        serverDefinition.writeState(element);
+        getServerDefinition().writeState(element);
 
         String xmlString = JDOMUtil.write(element);
         byte[] content = xmlString.getBytes();

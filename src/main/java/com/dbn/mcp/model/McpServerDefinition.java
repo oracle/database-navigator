@@ -18,8 +18,7 @@ package com.dbn.mcp.model;
 
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 
@@ -39,8 +38,7 @@ import static com.dbn.common.options.setting.Settings.writeCdata;
 import static com.dbn.common.util.Cloneable.cloneList;
 import static com.dbn.common.util.Unsafe.cast;
 
-@Getter
-@Setter
+@Data
 public class McpServerDefinition implements PersistentStateElement, Cloneable<McpServerDefinition> {
     private String serverName = "mcp-server";
     private String description;

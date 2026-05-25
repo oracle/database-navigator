@@ -4,8 +4,7 @@ import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Json;
 import com.dbn.mcp.util.SqlParameterParser;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 
@@ -25,13 +24,12 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.options.setting.Settings.writeCdata;
 import static com.dbn.common.util.Unsafe.cast;
 
-@Getter
-@Setter
+@Data
 public class McpToolDefinition implements PersistentStateElement, Cloneable<McpToolDefinition> {
     private String name;
     private String description;
     private String statement;
-    private boolean verified;
+    private transient boolean verified;
     private List<McpToolParam> parameters = new ArrayList<>();
 
     public void setStatement(String statement) {

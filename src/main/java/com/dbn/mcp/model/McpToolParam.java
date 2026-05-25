@@ -2,9 +2,8 @@ package com.dbn.mcp.model;
 
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Cloneable;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 
@@ -20,14 +19,13 @@ import static com.dbn.common.options.setting.Settings.writeCdata;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class McpToolParam implements PersistentStateElement, Cloneable<McpToolParam> {
     private McpToolParamType type;
     private String name;
     private String description;
-    private String testValue;
+    private transient String testValue;
     private boolean required;
 
     public McpToolParam(String name, McpToolParamType type, String testValue, String description, boolean required) {
