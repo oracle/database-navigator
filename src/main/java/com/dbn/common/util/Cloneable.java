@@ -18,6 +18,8 @@ package com.dbn.common.util;
 
 import org.jetbrains.annotations.Contract;
 
+import java.util.List;
+
 import static com.dbn.common.util.Unsafe.cast;
 
 public interface Cloneable<T> extends java.lang.Cloneable{
@@ -25,7 +27,11 @@ public interface Cloneable<T> extends java.lang.Cloneable{
 
 
     @Contract("null -> null")
-    static <T extends Cloneable> T clone(T object) {
+    static <T extends Cloneable<T>> T clone(T object) {
         return object == null ? null : cast(object.clone());
+    }
+
+    static <T extends Cloneable<T>> List<T> cloneList(List<T> objects) {
+        return objects.stream().map(c -> c.clone()).toList();
     }
 }

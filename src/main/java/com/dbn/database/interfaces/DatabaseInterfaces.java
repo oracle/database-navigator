@@ -43,17 +43,13 @@ public interface DatabaseInterfaces {
 
     DatabaseExecutionInterface getExecutionInterface();
 
-    default DatabaseDebuggerInterface getDebuggerInterface() {
-        return null;
-    }
+    DatabaseDebuggerInterface getDebuggerInterface();
 
-    default DatabaseAssistantInterface getAssistantInterface() {
-        return null;
-    }
+    DatabaseAssistantInterface getAssistantInterface();
 
-    default DatabaseVectorInterface getVectorInterface() {
-        return null;
-    }
+    DatabaseVectorInterface getVectorInterface();
+
+    DatabaseJavaInterface getJavaInterface();
 
 
     void reset();

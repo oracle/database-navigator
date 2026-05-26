@@ -1,0 +1,4 @@
+interface:
+  display_name: "DBN Codebase Guide"
+  short_description: "DBN Java patterns and shared utilities"
+  default_prompt: "Use $dbn-codebase-guide when changing or reviewing Database Navigator code."

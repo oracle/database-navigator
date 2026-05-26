@@ -64,6 +64,7 @@ public class QuotePair {
     }
 
     public String quote(String identifier) {
+        // TODO consider inner quotes escaping
         if (isQuoted(identifier)) return identifier;
 
         return beginQuote + identifier + endQuote;
@@ -101,6 +102,7 @@ public class QuotePair {
         return identifier;
     }
     public String unquote(String identifier) {
+        // TODO consider inner quotes unescaping
         if (!isQuoted(identifier)) return identifier;
 
         return identifier.substring(beginQuote.length(), identifier.length() - endQuote.length());

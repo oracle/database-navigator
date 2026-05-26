@@ -53,7 +53,8 @@ public interface ProgramMetadataTool extends AssistantTool {
             summary = "schema %s - %s")
     List<String> listProgramNames(
             @P("Schema name") String schemaName,
-            @P("Program type (FUNCTION, PROCEDURE, PACKAGE or TYPE)") String programType);
+            @P("Program type (FUNCTION, PROCEDURE, PACKAGE or TYPE)") String programType,
+            @P(value = "Optional name filter (see REGEX_NAME_EXPRESSION tool instruction)", required = false) String programNameRegex);
 
 
     @Tool(name = "LIST_TYPE_NAMES")
@@ -62,7 +63,9 @@ public interface ProgramMetadataTool extends AssistantTool {
             description = "Lists the names of declared data-types in a given schema",
             summary = "schema %s",
             discontinued = true) // token optimization (replaced by generic LIST_PROGRAM_NAMES)
-    List<String> listTypeNames(@P("Schema name") String schemaName);
+    List<String> listTypeNames(
+            @P("Schema name") String schemaName,
+            @P(value = "Optional name filter (see REGEX_NAME_EXPRESSION tool instruction)", required = false) String typeNameRegex);
 
 
     @Tool(name = "LIST_FUNCTION_NAMES")
@@ -71,7 +74,9 @@ public interface ProgramMetadataTool extends AssistantTool {
             description = "Lists the names of functions in a given schema",
             summary = "schema %s",
             discontinued = true) // token optimization (replaced by generic LIST_PROGRAM_NAMES)
-    List<String> listFunctionNames(@P("Schema name") String schemaName);
+    List<String> listFunctionNames(
+            @P("Schema name") String schemaName,
+            @P(value = "Optional name filter (see REGEX_NAME_EXPRESSION tool instruction)", required = false) String functionNameRegex);
 
 
     @Tool(name = "LIST_PROCEDURE_NAMES")
@@ -80,7 +85,9 @@ public interface ProgramMetadataTool extends AssistantTool {
             description = "Lists the names of stored procedures in a given schema",
             summary = "schema %s",
             discontinued = true) // token optimization (replaced by generic LIST_PROGRAM_NAMES)
-    List<String> listProcedureNames(@P("Schema name") String schemaName);
+    List<String> listProcedureNames(
+            @P("Schema name") String schemaName,
+            @P(value = "Optional name filter (see REGEX_NAME_EXPRESSION tool instruction)", required = false) String procedureNameRegex);
 
 
     @Tool(name = "LIST_PACKAGE_NAMES")
@@ -89,6 +96,8 @@ public interface ProgramMetadataTool extends AssistantTool {
             description = "Lists the names of packages in a given schema",
             summary = "schema %s",
             discontinued = true) // token optimization (replaced by generic LIST_PROGRAM_NAMES)
-    List<String> listPackageNames(@P("Schema name") String schemaName);
+    List<String> listPackageNames(
+            @P("Schema name") String schemaName,
+            @P(value = "Optional name filter (see REGEX_NAME_EXPRESSION tool instruction)", required = false) String packageNameRegex);
 
 }

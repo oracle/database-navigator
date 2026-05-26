@@ -28,7 +28,17 @@ import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface DatabaseExecutionInterface {
+import static com.dbn.database.interfaces.DatabaseInterfaceType.EXECUTION;
+
+/**
+ * Creates database-specific execution processors and command-line script inputs.
+ */
+public interface DatabaseExecutionInterface extends DatabaseInterface {
+    @Override
+    default DatabaseInterfaceType getInterfaceType() {
+        return EXECUTION;
+    }
+
     MethodExecutionProcessor createExecutionProcessor(DBMethod method);
     MethodExecutionProcessor createDebugExecutionProcessor(DBMethod method);
 

@@ -33,6 +33,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
+import static com.dbn.common.util.CollectionUtil.clear;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 /**
@@ -183,7 +184,7 @@ public abstract class ObjectPoolBase<O, E extends Throwable> extends StatefulDis
 
     @Override
     public void disposeInner() {
-        available.clear();
+        clear(available);
         Disposer.disposeCollection(objects);
     }
 

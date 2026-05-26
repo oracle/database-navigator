@@ -61,7 +61,6 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
 
     @Override
     public String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter) {
-        // TODO SQL-Injection
         if (isEmpty(alternativeDelimiter)) {
             alternativeDelimiter = getInterfaces().getCompatibilityInterface().getDefaultAlternativeStatementDelimiter();
         }
@@ -72,12 +71,11 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
 
         CodeStyleCaseSettings caseSettings = DBLCodeStyleManager.getInstance(project).getCodeStyleCaseSettings(SQLLanguage.INSTANCE);
         CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();
 
 
         if (objectTypeId == DatabaseObjectTypeId.VIEW) {
             return kco.format("create" + (makeRerunnable ? " or replace" : "") + " view ") +
-                    oco.format((useQualified ? schemaName + "." : "") + objectName) +
+                    (useQualified ? schemaName + "." : "") + objectName +
                     kco.format(" as\n") +
                     code;
         }
@@ -91,7 +89,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
             String delimiterChange = kco.format("delimiter ") + alternativeDelimiter + "\n";
             String dropStatement =
                     kco.format("drop " + objectType + " if exists ") +
-                    oco.format((useQualified ? schemaName + "." : "") + objectName) + alternativeDelimiter + "\n";
+                    (useQualified ? schemaName + "." : "") + objectName + alternativeDelimiter + "\n";
             String createStatement = kco.format("create definer=current_user\n") + code + alternativeDelimiter + "\n";
             String delimiterReset = kco.format("delimiter ;");
             return delimiterChange + (makeRerunnable ? dropStatement : "") + createStatement + delimiterReset;

@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 
 import static com.dbn.common.icon.Icons.ACTION_CHECK;
+import static com.dbn.common.util.Strings.truncateWithMiddleEllipsis;
 
 @BackgroundUpdate
 public class McpServerSelectionToggleAction extends ToggleAction implements AssistantActionSupport {
@@ -42,11 +43,13 @@ public class McpServerSelectionToggleAction extends ToggleAction implements Assi
         Presentation presentation = e.getPresentation();
 
         Icon icon = isSelected(e) ? ACTION_CHECK : null;
-        String text = mcpServer.getName();
-        String description = "<strong>" + mcpServer.getName() + "</strong><br>" + mcpServer.getEndpoint();
+
+        String name = mcpServer.getName();
+        String endpoint = truncateWithMiddleEllipsis(mcpServer.getEndpoint(), 60);
+        String description = "<strong>" + name + "</strong><br>" + endpoint;
 
         presentation.setIcon(icon);
-        presentation.setText(text);
+        presentation.setText(name);
         presentation.setDescription(description);
     }
 

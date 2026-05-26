@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 
+import static com.dbn.assistant.AssistantErrorMessages.sanitizeUrl;
 import static com.dbn.common.util.Streams.readInputStream;
 
 class AssistantHttpClient implements AssistantComponent, HttpClient {
@@ -104,7 +105,7 @@ class AssistantHttpClient implements AssistantComponent, HttpClient {
     private static <T> T handleError(HttpURLConnection connection, HttpRequest request) throws IOException {
         int responseCode = connection.getResponseCode();
         String responseMessage = connection.getResponseMessage();
-        String message = String.format("HTTP %d: %s (Request URL: %s)", responseCode, responseMessage, request.url());
+        String message = String.format("HTTP %d: %s (Request URL: %s)", responseCode, responseMessage, sanitizeUrl(request.url()));
 
         InputStream errorStream = connection.getErrorStream();
         String error = Unsafe.logged("", () -> readInputStream(errorStream));

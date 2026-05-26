@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-package com.dbn.driver.download.metadata;
+package com.dbn.common.ui.form;
 
+import com.dbn.common.util.Cloneable;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class License {
-    private final String name;
-    private final String url;
+@Setter
+public class DBNFormModel<D extends Cloneable<D>> {
+    private D data;
+    private D originalData;
 
-
-    public License(String name, String url) {
-        this.name = name;
-        this.url = url;
+    public DBNFormModel(D data) {
+        setData(data);
     }
 
-    @Override
-    public String toString() {
-        return String.format("License [name=%s, url=%s]", name, url);
+    public void setData(D data) {
+        this.data = data;
+        this.originalData = data.clone();
+    }
+
+    public boolean isChanged() {
+        return !data.equals(originalData);
     }
 }

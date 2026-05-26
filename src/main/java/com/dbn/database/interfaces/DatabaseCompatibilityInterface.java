@@ -46,8 +46,17 @@ import static com.dbn.assistant.tool.AssistantToolType.JAVA_SOURCE_CODE_EDITORS;
 import static com.dbn.assistant.tool.AssistantToolType.SEMANTIC_SEARCH;
 import static com.dbn.database.DatabaseFeature.JAVA_VIRTUAL_MACHINE;
 import static com.dbn.database.DatabaseFeature.VECTOR_SEARCH;
+import static com.dbn.database.interfaces.DatabaseInterfaceType.COMPATIBILITY;
 
+/**
+ * Describes database dialect capabilities and SQL compatibility rules used by higher-level database services.
+ */
 public interface DatabaseCompatibilityInterface extends DatabaseInterface {
+    @Override
+    default DatabaseInterfaceType getInterfaceType() {
+        return COMPATIBILITY;
+    }
+
     List<DatabaseObjectTypeId> getSupportedObjectTypes();
 
     List<DatabaseFeature> getSupportedFeatures();

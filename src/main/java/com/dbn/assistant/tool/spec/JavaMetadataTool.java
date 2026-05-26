@@ -60,7 +60,9 @@ public interface JavaMetadataTool extends AssistantTool {
             name = "List java class names",
             description = "Lists the names of OJVM java classes in a given schema",
             summary = "schema %s")
-    List<String> listClassNames(@P("Schema name") String schemaName);
+    List<String> listClassNames(
+            @P("Schema name") String schemaName,
+            @P(value = "Optional name filter (see REGEX_NAME_EXPRESSION tool instruction)", required = false) String classNameRegex);
 
 
     @Tool(name = "LIST_JAVA_RESOURCE_NAMES")
@@ -68,7 +70,9 @@ public interface JavaMetadataTool extends AssistantTool {
             name = "List java resource names",
             description = "Lists the names of OJVM java resources in a given schema",
             summary = "schema %s")
-    List<String> listResourceNames(@P("Schema name") String schemaName);
+    List<String> listResourceNames(
+            @P("Schema name") String schemaName,
+            @P(value = "Optional name filter (see REGEX_NAME_EXPRESSION tool instruction)", required = false) String resourceNameRegex);
 
 
     @Data
