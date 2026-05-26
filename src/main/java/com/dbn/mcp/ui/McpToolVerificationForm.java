@@ -11,6 +11,7 @@ import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.PooledConnection;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
@@ -67,7 +68,7 @@ public class McpToolVerificationForm extends DBNFormBase {
     private JPanel outputPanel;
     private DBNScrollPane outputScrollPane;
 
-    private final ConnectionHandler connection;
+    private final ConnectionRef connection;
     private final String statement;
 
     private final List<McpToolVerificationParamForm> variableValueForms = DisposableContainers.list(this);
@@ -85,8 +86,8 @@ public class McpToolVerificationForm extends DBNFormBase {
                                    @NotNull ConnectionHandler connection,
                                    @NotNull String statement,
                                    @NotNull List<McpToolParam> params) {
-        super(parent);
-        this.connection = connection;
+        super(parent, connection.getProject());
+        this.connection = connection.ref();
         this.statement = statement;
 
         for (McpToolParam row : params) {
@@ -106,6 +107,11 @@ public class McpToolVerificationForm extends DBNFormBase {
         });
     }
 
+    @NotNull
+    public ConnectionHandler getConnection() {
+        return ConnectionRef.ensure(connection);
+    }
+
     private void initHeaderPanel() {
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
@@ -116,6 +122,7 @@ public class McpToolVerificationForm extends DBNFormBase {
     }
 
     private void initResolvedPreviewViewer() {
+        ConnectionHandler connection = getConnection();
         Project project = getProject();
         if (project == null) return;
 
@@ -169,7 +176,6 @@ public class McpToolVerificationForm extends DBNFormBase {
             executionVariables.getVariables().add(variable);
 
             Project project = getProject();
-            if (project == null) project = connection.getProject();
             McpToolVerificationParamForm paramForm =
                     new McpToolVerificationParamForm(this, project, variable, this::updateResolvedPreview);
             variableValueForms.add(paramForm);
@@ -219,7 +225,7 @@ public class McpToolVerificationForm extends DBNFormBase {
 
     private void initOutputPanel() {
         RecordViewInfo recordViewInfo = new RecordViewInfo("Query data", null);
-        ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
+        ResultSetDataModel dataModel = new ResultSetDataModel<>(getConnection());
         outputTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
         outputScrollPane.setViewportView(outputTable);
         outputTable.installValuePopupAddon();
@@ -240,7 +246,7 @@ public class McpToolVerificationForm extends DBNFormBase {
             statementError = result.error;
 
             if (statementError != null) {
-                Messages.showErrorDialog(connection.getProject(), "Failed to verify query", result.error);
+                Messages.showErrorDialog(getProject(), "Failed to verify query", result.error);
             }
         } finally {
             stopActivityNotifier();
@@ -253,7 +259,7 @@ public class McpToolVerificationForm extends DBNFormBase {
             ResultSetDataModel result = executeStatement();
             return new QueryVerificationResult(result, null);
         } catch (Exception e) {
-            return new QueryVerificationResult(new ResultSetDataModel(connection), e);
+            return new QueryVerificationResult(new ResultSetDataModel(getConnection()), e);
         }
     }
 
@@ -264,7 +270,7 @@ public class McpToolVerificationForm extends DBNFormBase {
         if (executionVariables.hasErrors()) {
             throw new IllegalStateException(buildValidationMessage());
         }
-
+        ConnectionHandler connection = getConnection();
         return PooledConnection.call(connection.createConnectionContext(), conn -> {
             DBNPreparedStatement<?> statement = null;
             DBNResultSet resultSet = null;
@@ -316,7 +322,7 @@ public class McpToolVerificationForm extends DBNFormBase {
         }
 
         syncVariablesFromInput();
-        String previewText = executionVariables.preparePreviewStatementText(connection, sqlText);
+        String previewText = executionVariables.preparePreviewStatementText(getConnection(), sqlText);
 
         if (executionVariables.hasErrors()) {
             StringBuilder builder = new StringBuilder(previewText);
