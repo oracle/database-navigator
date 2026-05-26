@@ -260,7 +260,7 @@ public class McpToolVerificationForm extends DBNFormBase {
     private ResultSetDataModel executeStatement() throws SQLException {
         syncVariablesFromInput();
 
-        String sql = executionVariables.prepareStatementText(connection, getStatement(), false);
+        String sql = executionVariables.preparePreviewStatementText(connection, getStatement());
         if (executionVariables.hasErrors()) {
             throw new IllegalStateException(buildValidationMessage());
         }
@@ -297,7 +297,7 @@ public class McpToolVerificationForm extends DBNFormBase {
     private String buildValidationMessage() {
         StringBuilder builder = new StringBuilder("Please fix SQL parameter values before executing:\n");
         for (StatementExecutionVariable variable : executionVariables.getVariables()) {
-            String error = executionVariables.getError(variable);
+            String error = variable.getError();
             if (error != null) {
                 builder.append("- :").append(variable.getName()).append(" - ").append(error).append('\n');
             }
@@ -315,13 +315,13 @@ public class McpToolVerificationForm extends DBNFormBase {
         }
 
         syncVariablesFromInput();
-        String previewText = executionVariables.prepareStatementText(connection, sqlText, true);
+        String previewText = executionVariables.preparePreviewStatementText(connection, sqlText);
 
         if (executionVariables.hasErrors()) {
             StringBuilder builder = new StringBuilder(previewText);
             builder.append("\n\n-- Value issues\n");
             for (StatementExecutionVariable variable : executionVariables.getVariables()) {
-                String error = executionVariables.getError(variable);
+                String error = variable.getError();
                 if (error != null) {
                     builder.append("-- :").append(variable.getName()).append(" - ").append(error).append('\n');
                 }

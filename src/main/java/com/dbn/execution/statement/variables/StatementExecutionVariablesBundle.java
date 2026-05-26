@@ -18,14 +18,11 @@ package com.dbn.execution.statement.variables;
 
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.dispose.StatefulDisposableBase;
-import com.dbn.common.locale.Formatter;
 import com.dbn.common.util.Lists;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.data.type.DBDataType;
 import com.dbn.data.type.GenericDataType;
-import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.execution.statement.StatementExecutionManager;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.element.util.IdentifierCategory;
@@ -42,11 +39,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,7 +48,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Commons.nvl;
-import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.common.util.Strings.replaceIgnoreCase;
 import static com.dbn.execution.statement.variables.VariableNames.adjust;
 
 @Getter
@@ -63,7 +58,6 @@ public class StatementExecutionVariablesBundle extends StatefulDisposableBase im
     public static final Comparator<StatementExecutionVariable> OFFSET_COMPARATOR = Comparator.comparingInt(StatementExecutionVariable::getOffset);
     public static final Comparator<StatementExecutionVariable> NAME_LENGTH_COMPARATOR = (o1, o2) -> o2.getName().length() - o1.getName().length();
 
-    private Map<String, String> errors;
     private List<StatementExecutionVariable> variables = new ArrayList<>();
     private List<StatementExecutionVariable> boundVariables = new ArrayList<>();
 
@@ -151,7 +145,7 @@ public class StatementExecutionVariablesBundle extends StatefulDisposableBase im
     }
 
     public boolean hasErrors() {
-        return errors != null && !errors.isEmpty();
+        return variables.stream().anyMatch(v -> v.hasError());
     }
 
     private static final Pattern VARIABLE_PATTERN = Pattern.compile(":([\\w$]+)");
@@ -174,14 +168,10 @@ public class StatementExecutionVariablesBundle extends StatefulDisposableBase im
         return builder.toString();
     }
 
-    public boolean hasVariables() {
-        return !variables.isEmpty();
-    }
-
-    public void bindValues(PreparedStatement statement) throws SQLException {
+    public void bindVariables(ConnectionHandler connection, PreparedStatement statement) throws SQLException {
         for (int i = 0; i < boundVariables.size(); i++) {
-            String value = boundVariables.get(i).getValue();
-            statement.setObject(i + 1, Strings.isEmpty(value) ? null : value);
+            Object value = boundVariables.get(i).getExecutionValue(connection);
+            statement.setObject(i + 1, value);
         }
     }
 
@@ -211,71 +201,25 @@ public class StatementExecutionVariablesBundle extends StatefulDisposableBase im
         return null;
     }
 
-    public String prepareStatementText(@NotNull ConnectionHandler connection, String statementText, boolean forPreview) {
-        errors = null;
+    public String preparePreviewStatementText(@NotNull ConnectionHandler connection, String statementText) {
         List<StatementExecutionVariable> variables = new ArrayList<>(this.variables);
         variables.sort(NAME_LENGTH_COMPARATOR);
-        Formatter formatter = Formatter.getInstance(connection.getProject());
         for (StatementExecutionVariable variable : variables) {
-            VariableValueProvider previewValueProvider = variable.getPreviewValueProvider();
-
+            String value = variable.getPreviewValue(connection);
             String name = ":" + variable.getName();
-            String value = forPreview ? previewValueProvider.getValue() : variable.getValue();
-
-            if (Strings.isEmpty(value)) {
-                statementText = Strings.replaceIgnoreCase(statementText, name, "NULL /*" + variable.getName() + "*/");
+            if (isEmpty(value)) {
+                statementText = replaceIgnoreCase(statementText, name, "NULL /*" + variable.getName() + "*/");
             } else {
-
-                if (!Strings.isEmpty(value)) {
-                    GenericDataType genericDataType = forPreview ? previewValueProvider.getDataType() : variable.getDataType();
-                    if (genericDataType == GenericDataType.LITERAL) {
-                        value = Strings.replace(value, "'", "''");
-                        value = '\'' + value + '\'';
-                    } else {
-                        if (genericDataType == GenericDataType.DATE_TIME){
-                            DatabaseMetadataInterface dmi = connection.getMetadataInterface();
-                            try {
-                                Date date = formatter.parseDateTime(value);
-                                value = dmi.createDateString(date);
-                            } catch (ParseException e) {
-                                conditionallyLog(e);
-                                try {
-                                    Date date = formatter.parseDate(value);
-                                    value = dmi.createDateString(date);
-                                } catch (ParseException e1) {
-                                    conditionallyLog(e1);
-                                    addError(variable, "Invalid date");
-                                }
-                            }
-                        } else if (genericDataType == GenericDataType.NUMERIC){
-                            try {
-                                formatter.parseNumber(value);
-                            } catch (ParseException e) {
-                                conditionallyLog(e);
-                                addError(variable, "Invalid number");
-                            }
-
-                        } else {
-                            throw new IllegalArgumentException("Data type " + genericDataType.getName() + " not supported with execution variables.");
-                        }
-                    }
-
-                    statementText = Strings.replaceIgnoreCase(statementText, name, value + " /*" + name + "*/");
-                }
+                statementText = replaceIgnoreCase(statementText, name, value + " /*" + name + "*/");
             }
         }
         return statementText;
     }
 
-    private void addError(StatementExecutionVariable variable, String value) {
-        if (errors == null) {
-            errors = new HashMap<>();
+    public void verifyExecutionVariables(@NotNull ConnectionHandler connection) {
+        for (StatementExecutionVariable variable : this.variables) {
+            variable.getExecutionValue(connection);
         }
-        errors.put(variable.getName(), value);
-    }
-
-    public String getError(StatementExecutionVariable variable) {
-        return errors == null ? null : errors.get(variable.getName());
     }
 
     @Override

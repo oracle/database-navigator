@@ -24,8 +24,8 @@ import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.connection.jdbc.DBNResultSet;
-import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.execution.ExecutionStatus;
@@ -98,10 +98,17 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
                                     ConnectionHandler connection = getConnection();
                                     SchemaId currentSchema = getDatabaseSchema();
                                     DBNConnection conn = connection.getMainConnection(currentSchema);
-                                    DBNStatement<?> statement = conn.createStatement();
+
+                                    String statementText = executionInput.getExecutableStatementText();
+                                    DBNPreparedStatement<?> statement = conn.prepareStatement(statementText);
+                                    context.setStatement(statement);
+
+                                    executionInput.bindExecutionVariables(connection, statement);
+
                                     statement.setQueryTimeout(executionInput.getExecutionTimeout());
                                     statement.setFetchSize(executionInput.getResultSetFetchBlockSize());
-                                    statement.execute(executionInput.getExecutableStatementText());
+                                    statement.execute();
+
                                     DBNResultSet resultSet = statement.getResultSet();
                                     if (resultSet != null) {
                                         loadResultSet(resultSet);
