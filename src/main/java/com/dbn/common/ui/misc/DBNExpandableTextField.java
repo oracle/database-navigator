@@ -18,7 +18,6 @@ package com.dbn.common.ui.misc;
 
 import com.intellij.ui.Expandable;
 import com.intellij.ui.components.fields.ExpandableTextField;
-import com.intellij.util.ui.SwingUndoUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,6 +27,7 @@ import java.awt.Font;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dbn.common.compatibility.CompatibilityUtil.addUndoRedoActions;
 import static com.dbn.common.util.Commons.nvl;
 import static com.intellij.openapi.util.text.StringUtil.convertLineSeparators;
 
@@ -63,7 +63,8 @@ public class DBNExpandableTextField extends ExpandableTextField {
         area.setFont(font);
         area.setWrapStyleWord(true);
         area.setLineWrap(true);
-        SwingUndoUtil.addUndoRedoActions(area);
+
+        addUndoRedoActions(area);
         return area;
     }
 
