@@ -11,10 +11,11 @@ import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.PooledConnection;
 import com.dbn.connection.Resources;
+import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.connection.jdbc.DBNResultSet;
-import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.data.record.RecordViewInfo;
@@ -67,7 +68,7 @@ public class McpToolVerificationForm extends DBNFormBase {
     private JPanel outputPanel;
     private DBNScrollPane outputScrollPane;
 
-    private final ConnectionHandler connection;
+    private final ConnectionRef connection;
     private final String statement;
 
     private final List<McpToolVerificationParamForm> variableValueForms = DisposableContainers.list(this);
@@ -85,8 +86,8 @@ public class McpToolVerificationForm extends DBNFormBase {
                                    @NotNull ConnectionHandler connection,
                                    @NotNull String statement,
                                    @NotNull List<McpToolParam> params) {
-        super(parent);
-        this.connection = connection;
+        super(parent, connection.getProject());
+        this.connection = connection.ref();
         this.statement = statement;
 
         for (McpToolParam row : params) {
@@ -106,6 +107,11 @@ public class McpToolVerificationForm extends DBNFormBase {
         });
     }
 
+    @NotNull
+    public ConnectionHandler getConnection() {
+        return ConnectionRef.ensure(connection);
+    }
+
     private void initHeaderPanel() {
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
@@ -116,6 +122,7 @@ public class McpToolVerificationForm extends DBNFormBase {
     }
 
     private void initResolvedPreviewViewer() {
+        ConnectionHandler connection = getConnection();
         Project project = getProject();
         if (project == null) return;
 
@@ -169,7 +176,6 @@ public class McpToolVerificationForm extends DBNFormBase {
             executionVariables.getVariables().add(variable);
 
             Project project = getProject();
-            if (project == null) project = connection.getProject();
             McpToolVerificationParamForm paramForm =
                     new McpToolVerificationParamForm(this, project, variable, this::updateResolvedPreview);
             variableValueForms.add(paramForm);
@@ -219,7 +225,7 @@ public class McpToolVerificationForm extends DBNFormBase {
 
     private void initOutputPanel() {
         RecordViewInfo recordViewInfo = new RecordViewInfo("Query data", null);
-        ResultSetDataModel dataModel = new ResultSetDataModel<>(connection);
+        ResultSetDataModel dataModel = new ResultSetDataModel<>(getConnection());
         outputTable = new ResultSetTable<>(this, dataModel, true, recordViewInfo);
         outputScrollPane.setViewportView(outputTable);
         outputTable.installValuePopupAddon();
@@ -240,7 +246,7 @@ public class McpToolVerificationForm extends DBNFormBase {
             statementError = result.error;
 
             if (statementError != null) {
-                Messages.showErrorDialog(connection.getProject(), "Failed to verify query", result.error);
+                Messages.showErrorDialog(getProject(), "Failed to verify query", result.error);
             }
         } finally {
             stopActivityNotifier();
@@ -253,37 +259,38 @@ public class McpToolVerificationForm extends DBNFormBase {
             ResultSetDataModel result = executeStatement();
             return new QueryVerificationResult(result, null);
         } catch (Exception e) {
-            return new QueryVerificationResult(new ResultSetDataModel(connection), e);
+            return new QueryVerificationResult(new ResultSetDataModel(getConnection()), e);
         }
     }
 
     private ResultSetDataModel executeStatement() throws SQLException {
         syncVariablesFromInput();
 
-        String sql = executionVariables.prepareStatementText(connection, getStatement(), false);
+        String statementText = executionVariables.prepareExecutableStatementText(getStatement());
         if (executionVariables.hasErrors()) {
             throw new IllegalStateException(buildValidationMessage());
         }
-
+        ConnectionHandler connection = getConnection();
         return PooledConnection.call(connection.createConnectionContext(), conn -> {
-            DBNStatement<?> sqlStatement = null;
+            DBNPreparedStatement<?> statement = null;
             DBNResultSet resultSet = null;
             try {
-                sqlStatement = conn.createStatement();
-                sqlStatement.setFetchSize(PREVIEW_ROW_LIMIT);
+                statement = conn.prepareStatement(statementText);
+                statement.setFetchSize(PREVIEW_ROW_LIMIT);
+                executionVariables.bindVariables(connection, statement);
 
-                boolean hasResultSet = sqlStatement.execute(sql);
+                boolean hasResultSet = statement.execute();
                 if (!hasResultSet) {
                     throw new IllegalStateException("Only queries returning rows can be previewed.");
                 }
 
-                resultSet = sqlStatement.getResultSet();
+                resultSet = statement.getResultSet();
                 ResultSetDataModel dataModel = new ResultSetDataModel(resultSet, connection, -1);
                 dataModel.fetchNextRecords(PREVIEW_ROW_LIMIT, false);
                 return dataModel;
             } finally {
                 Resources.close(resultSet);
-                Resources.close(sqlStatement);
+                Resources.close(statement);
             }
         });
     }
@@ -297,7 +304,7 @@ public class McpToolVerificationForm extends DBNFormBase {
     private String buildValidationMessage() {
         StringBuilder builder = new StringBuilder("Please fix SQL parameter values before executing:\n");
         for (StatementExecutionVariable variable : executionVariables.getVariables()) {
-            String error = executionVariables.getError(variable);
+            String error = variable.getError();
             if (error != null) {
                 builder.append("- :").append(variable.getName()).append(" - ").append(error).append('\n');
             }
@@ -315,13 +322,13 @@ public class McpToolVerificationForm extends DBNFormBase {
         }
 
         syncVariablesFromInput();
-        String previewText = executionVariables.prepareStatementText(connection, sqlText, true);
+        String previewText = executionVariables.preparePreviewStatementText(getConnection(), sqlText);
 
         if (executionVariables.hasErrors()) {
             StringBuilder builder = new StringBuilder(previewText);
             builder.append("\n\n-- Value issues\n");
             for (StatementExecutionVariable variable : executionVariables.getVariables()) {
-                String error = executionVariables.getError(variable);
+                String error = variable.getError();
                 if (error != null) {
                     builder.append("-- :").append(variable.getName()).append(" - ").append(error).append('\n');
                 }
