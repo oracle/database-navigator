@@ -117,7 +117,7 @@ public class StatementExecutionVariable extends VariableValueProvider implements
         DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
         GenericDataType dataType = getDataType();
         String value = getValue();
-        if (isEmpty(value)) return "";
+        if (isEmpty(value)) return null;
 
         if (dataType == GenericDataType.LITERAL) {
             value = Strings.replace(value, "'", "''");
@@ -125,6 +125,8 @@ public class StatementExecutionVariable extends VariableValueProvider implements
         }
 
         Object executionValue = getExecutionValue(connection);
+        if (executionValue == null) return null;
+
         if (dataType == GenericDataType.DATE_TIME){
             Date date = (Date) executionValue;
             return metadataInterface.createDateString(date);
