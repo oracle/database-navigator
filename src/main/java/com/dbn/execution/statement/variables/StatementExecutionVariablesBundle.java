@@ -19,6 +19,7 @@ package com.dbn.execution.statement.variables;
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.util.Lists;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.data.type.DBDataType;
@@ -59,7 +60,7 @@ public class StatementExecutionVariablesBundle extends StatefulDisposableBase im
     public static final Comparator<StatementExecutionVariable> NAME_LENGTH_COMPARATOR = (o1, o2) -> o2.getName().length() - o1.getName().length();
 
     private List<StatementExecutionVariable> variables = new ArrayList<>();
-    private List<StatementExecutionVariable> boundVariables = new ArrayList<>();
+    private transient List<StatementExecutionVariable> bindVariables = new ArrayList<>();
 
     public StatementExecutionVariablesBundle(List<ExecVariablePsiElement> variablePsiElements) {
         initialize(variablePsiElements);
@@ -152,25 +153,27 @@ public class StatementExecutionVariablesBundle extends StatefulDisposableBase im
 
     public String prepareExecutableStatementText(String statementText) {
         StringBuilder builder = new StringBuilder();
-        List<StatementExecutionVariable> boundVariables = new ArrayList<>();
+        List<StatementExecutionVariable> bindVariables = new ArrayList<>();
         Matcher matcher = VARIABLE_PATTERN.matcher(statementText);
         int cursor = 0;
         while (matcher.find()) {
-            StatementExecutionVariable variable = getVariable(matcher.group(1));
+            String variableName = matcher.group(1);
+            StatementExecutionVariable variable = getVariable(variableName);
             if (variable == null) continue;
+
             builder.append(statementText, cursor, matcher.start()).append('?');
-            boundVariables.add(variable);
+            bindVariables.add(variable);
             cursor = matcher.end();
         }
         builder.append(statementText, cursor, statementText.length());
 
-        this.boundVariables = boundVariables;
+        this.bindVariables = bindVariables;
         return builder.toString();
     }
 
     public void bindVariables(ConnectionHandler connection, PreparedStatement statement) throws SQLException {
-        for (int i = 0; i < boundVariables.size(); i++) {
-            Object value = boundVariables.get(i).getExecutionValue(connection);
+        for (int i = 0; i < bindVariables.size(); i++) {
+            Object value = bindVariables.get(i).getExecutionValue(connection);
             statement.setObject(i + 1, value);
         }
     }
@@ -194,7 +197,7 @@ public class StatementExecutionVariablesBundle extends StatefulDisposableBase im
     public StatementExecutionVariable getVariable(String name) {
         name = adjust(name);
         for (StatementExecutionVariable variable : variables) {
-            if (Objects.equals(variable.getName(), name)) {
+            if (Strings.equalsIgnoreCase(variable.getName(), name)) {
                 return variable;
             }
         }

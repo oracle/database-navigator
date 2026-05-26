@@ -13,8 +13,8 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.PooledConnection;
 import com.dbn.connection.Resources;
+import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.connection.jdbc.DBNResultSet;
-import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.data.record.RecordViewInfo;
@@ -260,30 +260,31 @@ public class McpToolVerificationForm extends DBNFormBase {
     private ResultSetDataModel executeStatement() throws SQLException {
         syncVariablesFromInput();
 
-        String sql = executionVariables.preparePreviewStatementText(connection, getStatement());
+        String statementText = executionVariables.prepareExecutableStatementText(getStatement());
         if (executionVariables.hasErrors()) {
             throw new IllegalStateException(buildValidationMessage());
         }
 
         return PooledConnection.call(connection.createConnectionContext(), conn -> {
-            DBNStatement<?> sqlStatement = null;
+            DBNPreparedStatement<?> statement = null;
             DBNResultSet resultSet = null;
             try {
-                sqlStatement = conn.createStatement();
-                sqlStatement.setFetchSize(PREVIEW_ROW_LIMIT);
+                statement = conn.prepareStatement(statementText);
+                statement.setFetchSize(PREVIEW_ROW_LIMIT);
+                executionVariables.bindVariables(connection, statement);
 
-                boolean hasResultSet = sqlStatement.execute(sql);
+                boolean hasResultSet = statement.execute();
                 if (!hasResultSet) {
                     throw new IllegalStateException("Only queries returning rows can be previewed.");
                 }
 
-                resultSet = sqlStatement.getResultSet();
+                resultSet = statement.getResultSet();
                 ResultSetDataModel dataModel = new ResultSetDataModel(resultSet, connection, -1);
                 dataModel.fetchNextRecords(PREVIEW_ROW_LIMIT, false);
                 return dataModel;
             } finally {
                 Resources.close(resultSet);
-                Resources.close(sqlStatement);
+                Resources.close(statement);
             }
         });
     }
