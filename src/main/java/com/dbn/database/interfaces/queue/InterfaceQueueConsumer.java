@@ -22,7 +22,7 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.common.thread.ThreadProperty;
-import com.intellij.openapi.application.ModalityState;
+import com.dbn.common.util.Modality;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 
@@ -73,7 +73,7 @@ public class InterfaceQueueConsumer implements Consumer<InterfaceTask<?>>{
         if (progressManager.hasModalProgressIndicator()) return false;
 
         if (getRunningThreadCount(true) >= 10) return false;
-        if (getCurrentModalityState() != ModalityState.nonModal()) return false;
+        if (getCurrentModalityState() != Modality.nonModal()) return false;
 
         return true;
     }
