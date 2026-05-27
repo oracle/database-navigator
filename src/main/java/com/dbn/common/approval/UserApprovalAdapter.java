@@ -18,6 +18,9 @@ package com.dbn.common.approval;
 
 import com.dbn.common.extension.ExtensionPoint;
 import com.intellij.openapi.extensions.ExtensionPointName;
+import org.jetbrains.annotations.Nullable;
+
+import java.time.Duration;
 
 /**
  * Extension point for adapting a {@link UserApprovable} object into approval
@@ -49,4 +52,11 @@ public interface UserApprovalAdapter<T extends UserApprovable> extends Extension
     String getApprovalKey(T approvable);
 
     String[] getApprovalOptions(T approvable);
+
+    /**
+     * Returns how long to suppress repeat approval prompts after
+     * the user rejects this approvable.
+     */
+    @Nullable
+    Duration getRejectionCooldown(T approvable);
 }

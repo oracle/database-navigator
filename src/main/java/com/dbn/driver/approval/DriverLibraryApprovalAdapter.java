@@ -19,6 +19,9 @@ package com.dbn.driver.approval;
 import com.dbn.common.approval.UserApprovalAdapter;
 import com.dbn.common.util.Messages;
 import com.dbn.driver.DriverLibraryInfo;
+import org.jetbrains.annotations.Nullable;
+
+import java.time.Duration;
 
 public class DriverLibraryApprovalAdapter implements UserApprovalAdapter<DriverLibraryApproval> {
     private static final String[] APPROVAL_OPTIONS = Messages.options(
@@ -64,5 +67,11 @@ public class DriverLibraryApprovalAdapter implements UserApprovalAdapter<DriverL
     @Override
     public String[] getApprovalOptions(DriverLibraryApproval approvable) {
         return APPROVAL_OPTIONS;
+    }
+
+    @Override
+    @Nullable
+    public Duration getRejectionCooldown(DriverLibraryApproval approvable) {
+        return Duration.ofSeconds(10);
     }
 }
