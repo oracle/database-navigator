@@ -2,7 +2,7 @@
 
 ## Repository Shape
 
-- Product: Oracle Database Navigator for IntelliJ-based IDEs.
+- Product: Oracle© Database Navigator (DBN), a database development and management plugin for JetBrains IDEs.
 - Main code: `src/main/java/com/dbn`.
 - Main resources: `src/main/resources`, especially `META-INF/plugin.xml`, `messages/DBNResources.properties`, file templates, icons, text attributes, and language resources.
 - Public extension modules: `modules/dbn-api` and `modules/dbn-spi`.
