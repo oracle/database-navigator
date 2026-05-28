@@ -17,16 +17,24 @@
 package com.dbn.common.exception;
 
 import com.dbn.common.lookup.Visitor;
+import com.dbn.common.ui.tree.ExceptionTreeModel;
+import com.dbn.common.ui.tree.ExceptionTreeNode;
+import com.dbn.common.util.Adaptable;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.tree.TreeModel;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.SQLException;
 import java.sql.SQLNonTransientConnectionException;
 import java.sql.SQLTimeoutException;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
@@ -114,6 +122,54 @@ public class Exceptions {
 
     public static void illegalState(@NonNls String message) {
         throw new IllegalStateException(message);
+    }
+
+    public static ExceptionCauseChain causeChain(Throwable caught) {
+        return new ExceptionCauseChain(caught);
+    }
+
+    /**
+     * Contains the
+     */
+    public static class ExceptionCauseChain implements Adaptable {
+        private final Throwable caught;
+        private List<Throwable> causeChain = new LinkedList<Throwable>();
+
+        public ExceptionCauseChain(Throwable caught) {
+            this.caught = caught;
+            initChain();
+        }
+
+        private void initChain() {
+            Throwable current = this.caught;
+            // avoid cycles in the cause chain.  Many exceptions refer
+            // to themselves in their cause field.  Also, this avoids
+            // cycles
+            while(current != null && !causeChain.contains(current)) {
+                causeChain.add(current);
+                current = current.getCause();
+            }
+        }
+
+        /**
+         * @param type the class type to adapt the object to
+         * @return a version of the implementation of this as T or null if this object doesn't adapt to T
+         */
+        @Override
+        public <T> T adaptTo(Class<T> type) {
+            if (TreeModel.class.isAssignableFrom(type)) {
+                return (T) new ExceptionTreeModel(new ExceptionTreeNode(this.caught));
+            }
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter writer = new PrintWriter(stringWriter);
+            this.caught.printStackTrace(writer);
+            return stringWriter.toString();
+        }
     }
 
     /**
