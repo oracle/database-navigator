@@ -2,13 +2,14 @@
 
 ## Intro
 
-Oracle© Database Navigator (DBN) is a database development, exploration, and administration plugin for JetBrains IDEs. It brings database connections, object browsing, data editing, SQL and source-code editing, execution, debugging, transaction control, assistant workflows, vector search, and MCP server generation into the IDE so developers and database users can work with database systems without leaving their project workspace.
+Oracle© Database Navigator (DBN) is a database development, exploration, and administration plugin for JetBrains IDEs. It brings database connections, object browsing, data editing, SQL and source-code editing, execution, debugging, transaction control, database event monitoring, assistant workflows, vector search, and MCP server generation into the IDE so developers and database users can work with database systems without leaving their project workspace.
 
 ## Contents
 
 <!-- TOC -->
 - [Connection Management](#connection-management)
 - [Transaction Management](#transaction-management)
+- [Database Events](#database-events)
 - [Environment Types](#environment-types)
 - [Database Browser](#database-browser)
 - [Data Viewers and Editors](#data-viewers-and-editors)
@@ -32,6 +33,12 @@ Docs: [Connection Management](./connection-management.md) | [Settings](./connect
 Transaction Management keeps database changes visible and controlled across DBN workflows. It manages auto-commit, commit and rollback decisions, pending changes, connection sessions, and live resource monitoring. Editors, data grids, and execution actions share the same transaction awareness, so users can see where changes originated before deciding what to do. Resource Monitor and Session Browser help inspect open work, transaction sources, and database-side sessions before committing, rolling back, or interrupting activity.
 
 Docs: [Transaction Management](./transaction-management.md) | [Settings](./transaction-management-settings.md)
+
+## Database Events
+
+Database Events monitors Oracle table data-change notifications inside the IDE. It registers listeners on supported tables, tracks active event registrations, and shows received `INSERT`, `UPDATE`, and `DELETE` notifications in the `DB Events` tool window. Data editors can use received notifications to warn when loaded table data may be stale, helping users decide whether to inspect events or reload the editor.
+
+Docs: [Database Events](./database-events.md)
 
 ## Environment Types
 

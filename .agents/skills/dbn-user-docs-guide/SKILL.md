@@ -21,6 +21,7 @@ Use this map as a starting point when validating product behavior from source be
 | --- | --- |
 | Connection Management | `com.dbn.connection`, `com.dbn.connection.config`, `com.dbn.connection.action`, `com.dbn.connection.info`, `com.dbn.connection.jdbc`, `com.dbn.connection.ssh`, `com.dbn.connection.ssl`, `com.dbn.driver`, `com.dbn.database` |
 | Transaction Management | `com.dbn.connection.transaction`, `com.dbn.connection.transaction.options`, `com.dbn.connection.session`, `com.dbn.connection.resource`, `com.dbn.editor.session` |
+| Database Events | `com.dbn.event`, `com.dbn.event.registration`, `com.dbn.event.notification`, `com.dbn.event.prerequisite`, `com.dbn.editor.data`, `com.dbn.object.action`, `com.dbn.database.interfaces` |
 | Environment Types | `com.dbn.common.environment`, `com.dbn.common.environment.options`, `com.dbn.options.general`, `com.dbn.connection.config`; consumers also appear under `com.dbn.browser.ui`, `com.dbn.editor`, `com.dbn.data`, and `com.dbn.execution.common.ui` |
 | Database Browser | `com.dbn.browser`, `com.dbn.browser.model`, `com.dbn.browser.options`, `com.dbn.browser.ui`, `com.dbn.object`, `com.dbn.object.common`, `com.dbn.object.impl`, `com.dbn.object.type`, `com.dbn.object.filter`, `com.dbn.object.dependency`, `com.dbn.object.properties`, `com.dbn.object.management`, `com.dbn.navigation` |
 | Data Viewers and Editors | `com.dbn.editor.data`, `com.dbn.editor.json`, `com.dbn.data`, `com.dbn.data.grid`, `com.dbn.data.model`, `com.dbn.data.record`, `com.dbn.data.export`, `com.dbn.data.value`, `com.dbn.data.editor` |
@@ -131,16 +132,17 @@ Current topic order:
 
 1. Connection Management
 2. Transaction Management
-3. Environment Types
-4. Database Browser
-5. Data Viewers and Editors
-6. Code Editors
-7. Workspace Integration
-8. Execution Engine
-9. Debugging Engine
-10. Database Assistant
-11. Vector Toolbox
-12. MCP Server Builder
+3. Database Events
+4. Environment Types
+5. Database Browser
+6. Data Viewers and Editors
+7. Code Editors
+8. Workspace Integration
+9. Execution Engine
+10. Debugging Engine
+11. Database Assistant
+12. Vector Toolbox
+13. MCP Server Builder
 
 Insert new topics where they naturally belong rather than always appending. For example, transaction material belongs near Connection Management, data viewers near Database Browser, and execution/debugging after editor and workspace topics.
 
@@ -224,7 +226,7 @@ When adding a topic, link both directions where useful:
 
 - Feature page links to its settings page when one exists.
 - Settings page links back to the feature page.
-- Adjacent workflows link to each other, for example Connection Management, Transaction Management, Environment Types, Database Browser, Data Viewers and Editors, Code Editors, Workspace Integration, Execution Engine, Debugging Engine, Database Assistant, and Vector Toolbox.
+- Adjacent workflows link to each other, for example Connection Management, Transaction Management, Database Events, Environment Types, Database Browser, Data Viewers and Editors, Code Editors, Workspace Integration, Execution Engine, Debugging Engine, Database Assistant, and Vector Toolbox.
 - Avoid link spam; include pages that help the reader choose the next relevant task or configuration reference.
 
 ## Validation Checklist
