@@ -147,6 +147,9 @@ Insert new topics where they naturally belong rather than always appending. For 
 ## Formatting Rules
 
 - Use Confluence-friendly Markdown.
+- Add a `## Contents` section near the top of every documentation page, after `## Summary` for feature/settings pages or after `## Intro` for `docs/index.md`.
+- Wrap generated TOC links in `<!-- TOC -->` and `<!-- /TOC -->` markers so the block is easy to regenerate or replace with a Confluence macro later.
+- Build TOCs from H2 headings and useful H3 headings. Skip `Summary`, `Intro`, and `Contents`, and avoid linking duplicate page-local H3 anchors such as repeated `General` headings because Markdown and Confluence imports may resolve duplicates differently.
 - Use Title Case headings such as `## When To Use It`, `## Access Paths`, and `## Related Documentation`.
 - Use backticks for UI labels, settings, actions, shortcuts, file types, menu items, and code-like values.
 - Use `->` for menu paths, for example `DB Navigator` -> `Settings` -> `Connections`.

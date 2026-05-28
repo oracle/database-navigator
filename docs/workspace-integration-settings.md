@@ -13,6 +13,23 @@ Workspace Integration settings control how DBN connects local project files to d
 
 > **Note:** File Connection Mappings is a project dialog rather than a traditional settings page. It still behaves as persisted project configuration because mappings are saved with the project state.
 
+## Contents
+
+<!-- TOC -->
+- [Access Paths](#access-paths)
+- [DDL Files Settings](#ddl-files-settings)
+  - [General](#general)
+  - [Extensions](#extensions)
+- [Connection DDL Lookup](#connection-ddl-lookup)
+- [File Connection Mappings](#file-connection-mappings)
+  - [Mapping Table](#mapping-table)
+  - [Mapping Inheritance](#mapping-inheritance)
+- [Editor Context Selectors](#editor-context-selectors)
+- [Validation and Prompts](#validation-and-prompts)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## Access Paths
 
 - **DDL Files settings:** `DB Navigator` -> `Settings` -> `DDL Files`

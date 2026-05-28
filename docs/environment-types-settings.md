@@ -13,6 +13,21 @@ Environment Types settings define project-level database environment classificat
 
 > **Note:** Environment Types settings live under General settings because they apply across Database Browser, editors, execution results, dialogs, and connection mappings.
 
+## Contents
+
+<!-- TOC -->
+- [Access Paths](#access-paths)
+- [Environment Types Table](#environment-types-table)
+  - [Table Actions](#table-actions)
+- [Default Environment Types](#default-environment-types)
+- [Environment Applicability](#environment-applicability)
+- [Connection Details Setting](#connection-details-setting)
+- [Read-Only Behavior](#read-only-behavior)
+- [Validation Messages](#validation-messages)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## Access Paths
 
 - **Environment Types:** `DB Navigator` -> `Settings` -> `General` -> `Environment Types`

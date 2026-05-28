@@ -11,6 +11,18 @@ Oracle Select AI settings are database-side configuration for Oracle database-na
 | Oracle Select AI prerequisites | Database and DBA-managed security | Grant package execution and network ACL access needed by the database to call provider endpoints. |
 | Associated objects | Database profile | Select the tables and views exposed to natural language SQL generation. |
 
+## Contents
+
+<!-- TOC -->
+- [Access Paths](#access-paths)
+- [Select AI Credentials](#select-ai-credentials)
+- [Select AI Profiles](#select-ai-profiles)
+- [Select AI Prerequisites](#select-ai-prerequisites)
+- [Validation Messages](#validation-messages)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## Access Paths
 
 - **Oracle Select AI profile setup:** `DB Assistant` toolbar -> `Profile Setup...`.

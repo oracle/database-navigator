@@ -15,6 +15,32 @@ Database Browser settings control how DBN displays database connections, which o
 
 > **Note:** Settings can affect what appears in the `DB Browser` tool window immediately. If an object or object type is missing, check both project-level Database Browser filters and connection-level object filters.
 
+## Contents
+
+<!-- TOC -->
+- [Access Paths](#access-paths)
+- [Project-Level Settings](#project-level-settings)
+  - [General](#general)
+- [Filters](#filters)
+  - [Visible Object Types](#visible-object-types)
+- [Sorting](#sorting)
+  - [Sorting Types](#sorting-types)
+- [Default Editors](#default-editors)
+  - [Editor Choices](#editor-choices)
+- [Connection-Level Object Filters](#connection-level-object-filters)
+  - [Object Type Filter Inheritance](#object-type-filter-inheritance)
+  - [Basic Filters](#basic-filters)
+  - [Custom Object Filters](#custom-object-filters)
+- [Object List Filters](#object-list-filters)
+- [Browser Toolbar State](#browser-toolbar-state)
+  - [Autoscroll from Editor](#autoscroll-from-editor)
+  - [Autoscroll to Editor](#autoscroll-to-editor)
+  - [Show Object Properties](#show-object-properties)
+- [Recommended Configurations](#recommended-configurations)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## Access Paths
 
 - **Database Browser settings:** `DB Navigator` -> `Settings` -> `Database Browser`

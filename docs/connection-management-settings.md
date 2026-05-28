@@ -16,6 +16,32 @@ Connection Management settings define how DBN connects to databases, which drive
 
 > **Note:** Some tabs appear only when they apply to the selected connection type or database type. For example, the `Debugger` tab is available for Oracle connections.
 
+## Contents
+
+<!-- TOC -->
+- [Access Paths](#access-paths)
+- [Connection List Settings](#connection-list-settings)
+- [Database Tab](#database-tab)
+  - [General Fields](#general-fields)
+  - [Supported Database Types](#supported-database-types)
+- [URL Settings](#url-settings)
+  - [URL Templates](#url-templates)
+  - [URL Validation](#url-validation)
+- [Authentication Settings](#authentication-settings)
+  - [Oracle Token Authentication](#oracle-token-authentication)
+- [Driver Settings](#driver-settings)
+  - [Bundled Driver Defaults](#bundled-driver-defaults)
+  - [External Driver Rules](#external-driver-rules)
+- [SSH Tunnel Tab](#ssh-tunnel-tab)
+- [Properties Tab](#properties-tab)
+- [Details Tab](#details-tab)
+- [Debugger Tab](#debugger-tab)
+  - [Reverse SSH Tunnel Settings](#reverse-ssh-tunnel-settings)
+- [Filters Tab](#filters-tab)
+- [Validation Messages](#validation-messages)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## Access Paths
 
 - **Connection settings:** `DB Navigator` -> `Settings` -> `Connections`

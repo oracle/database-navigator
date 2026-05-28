@@ -12,6 +12,36 @@ Code Editors are the DBN editing surfaces for SQL, database source code, DDL-lin
 
 > **Note:** Available actions depend on the selected editor, database type, connection permissions, object type, DBN settings, and whether the target database supports the feature.
 
+## Contents
+
+<!-- TOC -->
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [Editor Types](#editor-types)
+- [Shared Editor Toolbar](#shared-editor-toolbar)
+- [SQL Consoles](#sql-consoles)
+  - [Console Types](#console-types)
+  - [Console Management](#console-management)
+- [SQL Script Files](#sql-script-files)
+  - [Supported File Types](#supported-file-types)
+  - [Execution Modes](#execution-modes)
+- [DDL File Editors](#ddl-file-editors)
+  - [What DDL Files Do](#what-ddl-files-do)
+  - [Default DDL File Mappings](#default-ddl-file-mappings)
+- [Program Editors](#program-editors)
+  - [Supported Program Source](#supported-program-source)
+  - [Source State](#source-state)
+- [Java Editors](#java-editors)
+- [Common Workflows](#common-workflows)
+  - [Execute A Statement From A SQL File](#execute-a-statement-from-a-sql-file)
+  - [Run A SQL Script File](#run-a-sql-script-file)
+  - [Save And Compile Program Source](#save-and-compile-program-source)
+  - [Attach A DDL File To A Program](#attach-a-ddl-file-to-a-program)
+  - [Execute Or Debug A Program Method](#execute-or-debug-a-program-method)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## When To Use It
 
 Use Code Editors when you need to:

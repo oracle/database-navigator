@@ -11,6 +11,21 @@ DBN supports two distinct assistant paths:
 
 > **Note:** The two paths share the `DB Assistant` user interface, but they do not share the same backend, profile storage, credential storage, prerequisites, or execution behavior.
 
+## Contents
+
+<!-- TOC -->
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [Assistant Paths](#assistant-paths)
+- [Choosing A Path](#choosing-a-path)
+- [Shared UI Concepts](#shared-ui-concepts)
+- [Common Workflows](#common-workflows)
+  - [Choose The Assistant Path](#choose-the-assistant-path)
+  - [Open Detailed Documentation](#open-detailed-documentation)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## When To Use It
 
 Use Database Assistant when you need to:

@@ -4,6 +4,23 @@
 
 Oracle© Database Navigator (DBN) is a database development, exploration, and administration plugin for JetBrains IDEs. It brings database connections, object browsing, data editing, SQL and source-code editing, execution, debugging, transaction control, assistant workflows, vector search, and MCP server generation into the IDE so developers and database users can work with database systems without leaving their project workspace.
 
+## Contents
+
+<!-- TOC -->
+- [Connection Management](#connection-management)
+- [Transaction Management](#transaction-management)
+- [Environment Types](#environment-types)
+- [Database Browser](#database-browser)
+- [Data Viewers and Editors](#data-viewers-and-editors)
+- [Code Editors](#code-editors)
+- [Workspace Integration](#workspace-integration)
+- [Execution Engine](#execution-engine)
+- [Debugging Engine](#debugging-engine)
+- [Database Assistant](#database-assistant)
+- [Vector Toolbox](#vector-toolbox)
+- [MCP Server Builder](#mcp-server-builder)
+<!-- /TOC -->
+
 ## Connection Management
 
 Connection Management is the starting point for connecting DBN to the databases you work with. It manages supported database types, JDBC drivers, authentication, SSH access, connection testing, and the lifecycle of saved connections. Saved definitions can be activated, duplicated, imported, reordered, and tested before use. Connection-level options shape browsing, execution, debugging, transactions, assistant workflows, and session behavior across the rest of the plugin.

@@ -8,6 +8,29 @@ The main goal is integration: the generated server can be used by consumer produ
 
 > **Note:** MCP Server Builder does not currently have a separate DBN settings page. Builder fields are part of the builder dialog, and generated runtime configuration is stored with the output package.
 
+## Contents
+
+<!-- TOC -->
+- [Mission](#mission)
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [Consumer And Client Integration](#consumer-and-client-integration)
+- [Core Concepts](#core-concepts)
+- [Builder Controls](#builder-controls)
+- [Tool Definitions](#tool-definitions)
+- [Transport Options](#transport-options)
+- [Build Output](#build-output)
+- [Generated Runtime Configuration](#generated-runtime-configuration)
+- [Common Workflows](#common-workflows)
+  - [Build A SQL-Backed MCP Server](#build-a-sql-backed-mcp-server)
+  - [Create And Verify A Tool](#create-and-verify-a-tool)
+  - [Use The Generated Server From An MCP Client](#use-the-generated-server-from-an-mcp-client)
+  - [Customize The Generated Server](#customize-the-generated-server)
+- [Security Notes](#security-notes)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## Mission
 
 The mission of MCP Server Builder is to make database knowledge available to external products and AI clients without requiring users to hand-code an MCP server. A user starts with SQL they already trust, gives each query a tool name, description, and typed inputs, verifies the query against the active connection, and lets DBN package the result as a runnable server.

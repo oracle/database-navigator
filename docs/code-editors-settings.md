@@ -14,6 +14,29 @@ Code Editors settings control DBN source editor behavior, code completion, execu
 
 > **Note:** Some execution choices are selected per run from the execution dialog. Project settings provide defaults and validation rules; the active connection, schema, session, and database capabilities still determine what can run.
 
+## Contents
+
+<!-- TOC -->
+- [Access Paths](#access-paths)
+- [Code Editor Settings](#code-editor-settings)
+  - [Confirmations](#confirmations)
+- [Code Completion Settings](#code-completion-settings)
+  - [Format](#format)
+  - [Filters](#filters)
+  - [Sorting](#sorting)
+- [Execution Engine Settings](#execution-engine-settings)
+  - [Statement Execution](#statement-execution)
+  - [Script Execution](#script-execution)
+  - [Method Execution](#method-execution)
+  - [Java Execution](#java-execution)
+  - [Per-Run Execution Options](#per-run-execution-options)
+- [DDL Files Settings](#ddl-files-settings)
+  - [Extensions](#extensions)
+- [Compiler Settings](#compiler-settings)
+- [Validation Messages](#validation-messages)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## Access Paths
 
 - **Code Editor:** `DB Navigator` -> `Settings` -> `Code Editor`

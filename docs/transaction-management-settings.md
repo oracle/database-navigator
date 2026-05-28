@@ -12,6 +12,25 @@ Transaction Management settings are spread across connection settings and operat
 | Operations - Session Browser | Project | Controls Session Browser reload and interruption defaults. |
 | Execution dialogs | Per run | Can commit after statement, method, or Java execution when the option is selected. |
 
+## Contents
+
+<!-- TOC -->
+- [Access Paths](#access-paths)
+- [Auto-Commit Setting](#auto-commit-setting)
+- [Session Management Settings](#session-management-settings)
+- [Transaction Manager Settings](#transaction-manager-settings)
+  - [Uncommitted Changes Handling](#uncommitted-changes-handling)
+  - [Multiple Open Transactions Handling](#multiple-open-transactions-handling)
+  - [Transaction Options](#transaction-options)
+- [Session Browser Settings](#session-browser-settings)
+  - [Session Interruption Options](#session-interruption-options)
+- [Resource Monitor Settings](#resource-monitor-settings)
+- [Execution Settings That Affect Transactions](#execution-settings-that-affect-transactions)
+- [Validation and Prompts](#validation-and-prompts)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## Access Paths
 
 - **Auto-commit:** `DB Navigator` -> `Settings` -> `Connections` -> selected connection -> `Properties`.

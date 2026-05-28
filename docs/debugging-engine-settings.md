@@ -9,6 +9,22 @@ Debugging settings are split between connection-level debugger options and Execu
 - **Run/debug configurations:** Store custom statement, method, and Java debug launch configuration.
 - **Prerequisite checks:** Validate required database packages, grants, Java support, and JDWP host access.
 
+## Contents
+
+<!-- TOC -->
+- [Access Paths](#access-paths)
+- [Connection Debugger Settings](#connection-debugger-settings)
+  - [Debug Engine Type](#debug-engine-type)
+- [JDWP Tunnel Settings](#jdwp-tunnel-settings)
+  - [TCP Host and Port Range](#tcp-host-and-port-range)
+- [Reverse SSH Tunnel Settings](#reverse-ssh-tunnel-settings)
+- [Execution Engine Debug Settings](#execution-engine-debug-settings)
+- [Run and Debug Configurations](#run-and-debug-configurations)
+- [Prerequisite Checks](#prerequisite-checks)
+- [Validation and Troubleshooting](#validation-and-troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## Access Paths
 
 - **Debugger type:** Connection settings -> selected Oracle connection -> Debugger tab.

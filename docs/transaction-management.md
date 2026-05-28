@@ -12,6 +12,27 @@ Transaction Management covers how DBN handles commit and rollback operations, au
 
 > **Note:** Available transaction and session actions depend on database support, connection settings, JDBC driver behavior, session permissions, and whether auto-commit is enabled.
 
+## Contents
+
+<!-- TOC -->
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [Transaction Model](#transaction-model)
+- [Auto-Commit](#auto-commit)
+- [Commit and Rollback](#commit-and-rollback)
+- [Pending Transactions](#pending-transactions)
+- [Resource Monitor](#resource-monitor)
+- [Session Management](#session-management)
+- [Session Browser](#session-browser)
+- [Common Workflows](#common-workflows)
+  - [Review Pending Changes Before Committing](#review-pending-changes-before-committing)
+  - [Use A Separate Session For A File](#use-a-separate-session-for-a-file)
+  - [Inspect Live Database Sessions](#inspect-live-database-sessions)
+  - [Switch Auto-Commit Safely](#switch-auto-commit-safely)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## When To Use It
 
 Use Transaction Management when you need to:

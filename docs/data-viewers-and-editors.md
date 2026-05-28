@@ -10,6 +10,33 @@ Data Viewers and Editors are the DBN surfaces for inspecting, filtering, editing
 
 > **Note:** Available actions depend on database type, object type, connection permissions, environment settings, transaction state, and whether the database supports updatable result sets.
 
+## Contents
+
+<!-- TOC -->
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [Editor and Viewer Types](#editor-and-viewer-types)
+- [Table Editors](#table-editors)
+  - [Editing Behavior](#editing-behavior)
+  - [Loading And Fetching](#loading-and-fetching)
+  - [Filters](#filters)
+  - [Sorting And Columns](#sorting-and-columns)
+- [JSON Editors](#json-editors)
+  - [Content Editor](#content-editor)
+- [Data Viewers](#data-viewers)
+  - [SQL Result Viewers](#sql-result-viewers)
+  - [Method And Java Cursor Viewers](#method-and-java-cursor-viewers)
+  - [Record Viewer](#record-viewer)
+- [Common Workflows](#common-workflows)
+  - [Open A Table Editor](#open-a-table-editor)
+  - [Edit And Commit Rows](#edit-and-commit-rows)
+  - [Filter A Dataset](#filter-a-dataset)
+  - [Inspect A JSON View](#inspect-a-json-view)
+  - [View SQL Results](#view-sql-results)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## When To Use It
 
 Use Data Viewers and Editors when you need to:

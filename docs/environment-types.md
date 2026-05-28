@@ -12,6 +12,26 @@ Environment Types classify DBN connections by purpose, risk, and visual identity
 
 > **Note:** Environment Types are project-level definitions, but they affect connection-owned objects and editors. A database object inherits its environment from the connection it belongs to.
 
+## Contents
+
+<!-- TOC -->
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [Environment Model](#environment-model)
+- [Default Environment Types](#default-environment-types)
+- [Environment Colors](#environment-colors)
+- [Read-Only Safeguards](#read-only-safeguards)
+  - [Temporary Edit Mode](#temporary-edit-mode)
+- [Connection Assignment](#connection-assignment)
+- [Common Workflows](#common-workflows)
+  - [Mark A Connection As Production](#mark-a-connection-as-production)
+  - [Create A Custom Environment Type](#create-a-custom-environment-type)
+  - [Enable Color Cues For Script Editors](#enable-color-cues-for-script-editors)
+  - [Temporarily Edit Read-Only Data](#temporarily-edit-read-only-data)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## When To Use It
 
 Use Environment Types when you need to:

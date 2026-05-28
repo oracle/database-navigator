@@ -13,6 +13,25 @@ Execution Engine settings define the defaults for statement execution, script ex
 
 > **Note:** Execution settings provide defaults and validation rules. The active connection, selected schema, selected session, database features, object type, and user privileges still determine what can be executed.
 
+## Contents
+
+<!-- TOC -->
+- [Access Paths](#access-paths)
+- [Statement Execution Settings](#statement-execution-settings)
+  - [Statement Dialog Behavior](#statement-dialog-behavior)
+- [Script Execution Settings](#script-execution-settings)
+  - [Command-Line Interface Fields](#command-line-interface-fields)
+  - [Built-In Defaults](#built-in-defaults)
+  - [User Approval](#user-approval)
+- [Method Execution Settings](#method-execution-settings)
+  - [Method History Behavior](#method-history-behavior)
+- [Java Execution Settings](#java-execution-settings)
+  - [Java History Behavior](#java-history-behavior)
+- [Per-Run Execution Options](#per-run-execution-options)
+- [Validation Messages](#validation-messages)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## Access Paths
 
 - **Execution Engine:** `DB Navigator` -> `Settings` -> `Execution Engine`

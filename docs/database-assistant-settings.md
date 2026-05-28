@@ -9,6 +9,16 @@ Database Assistant settings are split between DBN project configuration for the 
 | Generic assistant settings | Project | Configure DBN-managed provider credentials, assistant profiles, MCP servers, and tool approvals. |
 | Oracle Select AI settings | Database | Configure database-side Select AI profiles, credentials, prerequisites, and provider access. |
 
+## Contents
+
+<!-- TOC -->
+- [Access Paths](#access-paths)
+- [Settings Pages](#settings-pages)
+- [Choosing A Settings Page](#choosing-a-settings-page)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## Access Paths
 
 - **Assistant project settings:** `DB Navigator` -> `Settings` -> `Assistant`.

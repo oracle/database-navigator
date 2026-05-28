@@ -12,6 +12,25 @@ The toolbox connects three user workflows:
 
 > **Note:** Vector Toolbox does not currently have a separate DBN settings page. Connection support, database privileges, assistant profiles, and assistant tool approvals are configured through the related feature areas.
 
+## Contents
+
+<!-- TOC -->
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [Core Concepts](#core-concepts)
+- [Embedding Workflow](#embedding-workflow)
+- [Embedding Results](#embedding-results)
+- [Semantic Search Consoles](#semantic-search-consoles)
+- [RAG Database Assistant Mode](#rag-database-assistant-mode)
+- [Common Workflows](#common-workflows)
+  - [Create Embeddings For Database Content](#create-embeddings-for-database-content)
+  - [Create Embeddings For Files](#create-embeddings-for-files)
+  - [Search An Embeddings Table](#search-an-embeddings-table)
+  - [Ask Questions With RAG](#ask-questions-with-rag)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## When To Use It
 
 Use Vector Toolbox when you need to:

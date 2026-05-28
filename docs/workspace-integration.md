@@ -11,6 +11,31 @@ Workspace Integration connects DBN database context with local project files. It
 
 > **Note:** Workspace Integration depends on project files, connection availability, database object type, DBN file type recognition, and connection-level settings. A local SQL file can use an explicit editor toolbar selection, an inherited directory mapping, or an attached DDL object context.
 
+## Contents
+
+<!-- TOC -->
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [Workspace Context Model](#workspace-context-model)
+- [DDL File Management](#ddl-file-management)
+  - [Supported DDL Operations](#supported-ddl-operations)
+  - [File Lookup](#file-lookup)
+  - [Default DDL Extensions](#default-ddl-extensions)
+  - [Synchronization Behavior](#synchronization-behavior)
+- [Connection File Mapping](#connection-file-mapping)
+  - [What A Mapping Stores](#what-a-mapping-stores)
+  - [Folder Mapping](#folder-mapping)
+  - [File Connection Mappings Dialog](#file-connection-mappings-dialog)
+- [Common Workflows](#common-workflows)
+  - [Create A DDL File For A Database Object](#create-a-ddl-file-for-a-database-object)
+  - [Attach An Existing DDL File](#attach-an-existing-ddl-file)
+  - [Map A Folder To A Connection](#map-a-folder-to-a-connection)
+  - [Use A Mapped SQL File](#use-a-mapped-sql-file)
+  - [Review All File Mappings](#review-all-file-mappings)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## When To Use It
 
 Use Workspace Integration when you need to:

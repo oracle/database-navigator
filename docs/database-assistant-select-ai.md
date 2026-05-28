@@ -6,6 +6,23 @@ Oracle Select AI is the database-native Database Assistant path for Oracle conne
 
 Oracle Select AI is separate from the generic DBN assistant. It does not use DBN provider profiles, generic tool approvals, MCP servers, or `RAG` mode.
 
+## Contents
+
+<!-- TOC -->
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [How It Works](#how-it-works)
+- [Select AI Prompt Actions](#select-ai-prompt-actions)
+- [Editor Integration](#editor-integration)
+- [Profile And Credential Management](#profile-and-credential-management)
+- [Common Workflows](#common-workflows)
+  - [Start Oracle Select AI](#start-oracle-select-ai)
+  - [Generate SQL From An Editor Prompt](#generate-sql-from-an-editor-prompt)
+  - [Review Select AI Setup](#review-select-ai-setup)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## When To Use It
 
 Use Oracle Select AI when you need to:

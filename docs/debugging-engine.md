@@ -12,6 +12,24 @@ Debugging is available for database connections that support the DBN debugging f
 - **Java Debugger:** Debug database Java methods through JDWP.
 - **Breakpoints:** Use editor gutter breakpoints in database source files and debuggable SQL code.
 
+## Contents
+
+<!-- TOC -->
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [Debugger Types](#debugger-types)
+- [Debug Session Flow](#debug-session-flow)
+- [Breakpoints](#breakpoints)
+- [Statement Debugger](#statement-debugger)
+- [Method Debugger](#method-debugger)
+- [Java Debugger](#java-debugger)
+- [Debug Controls](#debug-controls)
+- [Prerequisites](#prerequisites)
+- [Common Workflows](#common-workflows)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## When To Use It
 
 Use the Debugging Engine when you need to:

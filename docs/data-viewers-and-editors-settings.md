@@ -13,6 +13,25 @@ Data Viewers and Editors settings control how DBN loads data, edits table and JS
 
 > **Note:** Table Editors and JSON Editors use Data Editor and Data Grid settings. SQL result viewers also use Execution Engine settings for statement execution and result fetching.
 
+## Contents
+
+<!-- TOC -->
+- [Access Paths](#access-paths)
+- [Data Editor Settings](#data-editor-settings)
+  - [Basic Text Editor Popup](#basic-text-editor-popup)
+  - [Value List Popup](#value-list-popup)
+  - [Filters](#filters)
+  - [Qualified Text Editor](#qualified-text-editor)
+  - [Record Navigation](#record-navigation)
+- [Data Grid Settings](#data-grid-settings)
+  - [Sorting](#sorting)
+  - [Audit Columns](#audit-columns)
+- [Data Grid Colors](#data-grid-colors)
+- [Execution Result Settings](#execution-result-settings)
+- [Validation Messages](#validation-messages)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## Access Paths
 
 - **Data Editor:** `DB Navigator` -> `Settings` -> `Data Editor`

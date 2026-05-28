@@ -6,6 +6,28 @@ The generic Database Assistant is the DBN-managed assistant path. DBN sends prom
 
 The generic assistant is separate from Oracle Select AI. It is not backed by Oracle `DBMS_CLOUD_AI`, and it does not create or require Oracle Select AI database profiles.
 
+## Contents
+
+<!-- TOC -->
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [How It Works](#how-it-works)
+- [Assistant Modes](#assistant-modes)
+- [Generic Assistant Tools](#generic-assistant-tools)
+- [MCP Support](#mcp-support)
+- [RAG Mode](#rag-mode)
+- [Chat Controls](#chat-controls)
+- [Common Workflows](#common-workflows)
+  - [Start A Generic Assistant Chat](#start-a-generic-assistant-chat)
+  - [Review Generic Assistant Tools](#review-generic-assistant-tools)
+  - [Use An MCP Server](#use-an-mcp-server)
+  - [Use A Generated SQL-Backed MCP Server](#use-a-generated-sql-backed-mcp-server)
+  - [Start A RAG Chat From Vector Toolbox](#start-a-rag-chat-from-vector-toolbox)
+  - [Configure A Generic Assistant Profile](#configure-a-generic-assistant-profile)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## When To Use It
 
 Use the generic assistant when you need to:

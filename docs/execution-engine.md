@@ -13,6 +13,38 @@ The Execution Engine runs SQL statements, SQL script files, database methods, an
 
 > **Note:** Available execution actions depend on the selected editor, database type, database capabilities, connection status, user privileges, selected schema, selected session, and DBN settings.
 
+## Contents
+
+<!-- TOC -->
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [Execution Console](#execution-console)
+- [Script Execution](#script-execution)
+  - [Script Execution Dialog](#script-execution-dialog)
+  - [Command-Line Interfaces](#command-line-interfaces)
+  - [Script Output And Safety](#script-output-and-safety)
+- [Statement Execution](#statement-execution)
+  - [Statement Selection](#statement-selection)
+  - [Statement Input Dialog](#statement-input-dialog)
+- [Method Execution](#method-execution)
+  - [Method Input Dialog](#method-input-dialog)
+  - [Target Context](#target-context)
+  - [Method Results](#method-results)
+- [Method Execution History](#method-execution-history)
+- [Java Execution](#java-execution)
+  - [Java Input Dialog](#java-input-dialog)
+  - [Java Results](#java-results)
+- [Java Execution History](#java-execution-history)
+- [Common Workflows](#common-workflows)
+  - [Execute A Statement](#execute-a-statement)
+  - [Run A Script](#run-a-script)
+  - [Execute A Method](#execute-a-method)
+  - [Reuse A Method Input](#reuse-a-method-input)
+  - [Execute A Java Method](#execute-a-java-method)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## When To Use It
 
 Use the Execution Engine when you need to:

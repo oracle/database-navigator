@@ -12,6 +12,21 @@ Generic Assistant settings are DBN project settings. They configure the DBN-mana
 | Tool approvals | Connection and assistant state | Control which DBN and MCP tools the generic assistant may invoke. |
 | Built-in tool controls | Assistant mode and connection context | Allow or block DBN metadata, source, editor, dataset, console, and semantic-search tools. |
 
+## Contents
+
+<!-- TOC -->
+- [Access Paths](#access-paths)
+- [Credentials](#credentials)
+- [Profiles](#profiles)
+- [MCP Servers](#mcp-servers)
+- [MCP Tool Approvals](#mcp-tool-approvals)
+- [Tool Approvals](#tool-approvals)
+- [Built-In Tool Controls](#built-in-tool-controls)
+- [Validation Messages](#validation-messages)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## Access Paths
 
 - **Assistant project settings:** `DB Navigator` -> `Settings` -> `Assistant`.

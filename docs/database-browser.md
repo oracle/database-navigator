@@ -11,6 +11,42 @@ The Database Browser is the DBN tool window for exploring configured database co
 
 > **Note:** Available objects and actions depend on the database type, connection permissions, enabled DBN features, and the object type selected in the tree.
 
+## Contents
+
+<!-- TOC -->
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [Database View](#database-view)
+  - [Open The Database View](#open-the-database-view)
+  - [Tree Structure](#tree-structure)
+  - [Display Modes](#display-modes)
+  - [Toolbar Actions](#toolbar-actions)
+  - [Navigation Behavior](#navigation-behavior)
+  - [Autoscroll Options](#autoscroll-options)
+  - [Database View Settings](#database-view-settings)
+- [Object Details View](#object-details-view)
+  - [Show Or Hide Object Details](#show-or-hide-object-details)
+  - [What The Panel Shows](#what-the-panel-shows)
+  - [Common Properties](#common-properties)
+  - [Navigate From Details](#navigate-from-details)
+- [Database Objects](#database-objects)
+  - [Common Object Categories](#common-object-categories)
+  - [Object Types](#object-types)
+  - [Object Hierarchy](#object-hierarchy)
+  - [Object Actions](#object-actions)
+  - [Object List Actions](#object-list-actions)
+  - [Browser-Level Object Filters](#browser-level-object-filters)
+- [Common Workflows](#common-workflows)
+  - [Create And Browse A Connection](#create-and-browse-a-connection)
+  - [Open A Table Or View](#open-a-table-or-view)
+  - [Open Source Code](#open-source-code)
+  - [Filter A Large Object List](#filter-a-large-object-list)
+  - [Inspect Object Details](#inspect-object-details)
+  - [Find The Browser Node For An Open Editor](#find-the-browser-node-for-an-open-editor)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## When To Use It
 
 Use the Database Browser when you need to:

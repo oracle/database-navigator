@@ -11,6 +11,34 @@ Connection Management is the DBN area for creating, organizing, configuring, tes
 
 > **Note:** Available fields and actions depend on the selected database type, connection type, installed drivers, enabled DBN features, and database permissions.
 
+## Contents
+
+<!-- TOC -->
+- [When To Use It](#when-to-use-it)
+- [Access Paths](#access-paths)
+- [Connection List](#connection-list)
+- [Supported Databases](#supported-databases)
+  - [Oracle](#oracle)
+  - [MySQL](#mysql)
+  - [PostgreSQL](#postgresql)
+  - [SQLite](#sqlite)
+  - [Generic JDBC](#generic-jdbc)
+- [Driver Management](#driver-management)
+  - [Driver Sources](#driver-sources)
+  - [Bundled Drivers](#bundled-drivers)
+  - [External Drivers](#external-drivers)
+  - [Download Driver Libraries](#download-driver-libraries)
+  - [Driver Validation](#driver-validation)
+- [Common Workflows](#common-workflows)
+  - [Create A Native Connection](#create-a-native-connection)
+  - [Create A Generic JDBC Connection](#create-a-generic-jdbc-connection)
+  - [Import Oracle TNS Names](#import-oracle-tns-names)
+  - [Duplicate A Connection](#duplicate-a-connection)
+- [Security Notes](#security-notes)
+- [Troubleshooting](#troubleshooting)
+- [Related Documentation](#related-documentation)
+<!-- /TOC -->
+
 ## When To Use It
 
 Use Connection Management when you need to:
