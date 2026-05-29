@@ -1,26 +1,23 @@
 package com.dbn.mcp.build;
 
 import com.dbn.common.template.TemplateUtilities;
-import com.intellij.ide.plugins.PluginManagerCore;
-import com.intellij.openapi.extensions.PluginId;
-import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import lombok.extern.slf4j.Slf4j;
+import com.intellij.util.Consumer;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Properties;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-@Slf4j
+import static com.dbn.mcp.build.McpJavaVersionManager.ensureSupportedJavaVersion;
+import static com.dbn.mcp.build.McpJavaVersionManager.resolveJavaVersion;
+
 public final class McpMavenBuild {
-    private static final PluginId MAVEN_PLUGIN_ID = PluginId.getId("org.jetbrains.idea.maven");
     private static final String POM_TEMPLATE = "DBN - MCP Server POM.xml";
     private static final Pattern PKG = Pattern.compile("\\bpackage\\s+([a-zA-Z_][a-zA-Z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z0-9_]*)*)\\s*;");
     private static final Pattern PUB_CLASS = Pattern.compile("\\bpublic\\s+class\\s+([A-Za-z_][A-Za-z0-9_]*)");
@@ -42,6 +39,7 @@ public final class McpMavenBuild {
         Coord sdk = Coord.parse(sdkCoord);
         Coord jdbc = Coord.parse(jdbcCoord);
         Info info = analyze(java);
+        ensureSupportedJavaVersion(project);
 
         Path projDir = uniqueDir(outDir, info.className);
         try {
@@ -145,37 +143,16 @@ public final class McpMavenBuild {
         p.setProperty("JDBC_ARTIFACT_ID", jdbc.a);
         p.setProperty("JDBC_VERSION", jdbc.v);
         p.setProperty("MAIN_CLASS_FQ", main);
+        p.setProperty("PROJECT_JAVA_VERSION", resolveJavaVersion(project));
         Files.writeString(dir.resolve("pom.xml"), TemplateUtilities.generateCode(project, POM_TEMPLATE, p));
     }
 
     private static void runMaven(Project project, Path dir, ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
-        McpMavenService mavenService = McpMavenService.getInstance(project);
-        if (mavenService == null) {
+        McpMavenBuildManager mavenManager = McpMavenBuildManager.getInstance(project);
+        if (mavenManager == null) {
             throw new IOException("Maven service is not available. Please enable the Maven plugin.");
         }
-        mavenService.runBuild(dir, indicator, outputHandler);
-    }
-
-
-    public static boolean isMavenAvailable(Project project) {
-        if (project == null) return false;
-        if (!isMavenPluginAvailable()) return false;
-
-        try {
-            McpMavenService mavenService = McpMavenService.getInstance(project);
-            return mavenService != null && mavenService.isRuntimeAvailable();
-        } catch (Throwable e) {
-            log.warn("Could not resolve Maven runtime", e);
-            return false;
-        }
-    }
-
-    public static boolean isMavenPluginAvailable() {
-        return PluginManagerCore.isPluginInstalled(MAVEN_PLUGIN_ID) && !PluginManagerCore.isDisabled(MAVEN_PLUGIN_ID);
-    }
-
-    public static void openMavenPluginSettings(Project project) {
-        ShowSettingsUtil.getInstance().showSettingsDialog(project, "preferences.pluginManager");
+        mavenManager.runBuild(dir, indicator, outputHandler);
     }
 
     private static Path copyJar(Path proj, Path out) throws IOException {

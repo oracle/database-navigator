@@ -6,11 +6,9 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
-import com.dbn.mcp.build.McpMavenBuild;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.ui.McpServerDefinitionDialog;
 import com.intellij.openapi.components.State;
@@ -29,24 +27,24 @@ import static com.dbn.common.options.setting.Settings.constantAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setConstantAttribute;
-import static com.dbn.mcp.MCPServerManager.COMPONENT_NAME;
+import static com.dbn.mcp.build.McpMavenPluginSupport.verifyMavenAvailability;
 
 @State(
-        name = COMPONENT_NAME,
+        name = "DBNavigator.Project.MCPServerManager",
         storages = @Storage(DatabaseNavigator.STORAGE_FILE)
 )
-public class MCPServerManager extends ProjectComponentBase implements PersistentState {
-    public static final String COMPONENT_NAME = "DBNavigator.Project.MCPServerManager";
+public class McpServerBuilderManager extends ProjectComponentBase implements PersistentState {
+    public static final String COMPONENT_NAME = "DBNavigator.Project.McpServerBuilderManager";
 
     private final Map<ConnectionId, McpServerDefinition> serverDefinitions = new ConcurrentHashMap<>();
 
-    public MCPServerManager(@NotNull Project project) {
+    public McpServerBuilderManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
         ProjectEvents.subscribe(project, this, ConnectionConfigListener.TOPIC, connectionConfigListener());
     }
 
-    public static MCPServerManager getInstance(Project project) {
-        return Components.projectService(project, MCPServerManager.class);
+    public static McpServerBuilderManager getInstance(Project project) {
+        return Components.projectService(project, McpServerBuilderManager.class);
     }
 
     @NotNull
@@ -70,32 +68,11 @@ public class MCPServerManager extends ProjectComponentBase implements Persistent
 
     public void openMCPBuilder(@NotNull ConnectionHandler connection) {
         Project project = connection.getProject();
-        if (!McpMavenBuild.isMavenPluginAvailable()) {
-            int option = Messages.showConfirmationDialog(project,
-                    "Maven Plugin Required",
-                    "This feature requires the Maven plugin (org.jetbrains.idea.maven).\n" +
-                            "Please enable or install it from IDE Plugins settings.",
-                    new String[]{"Open Plugins", "Cancel"}, 0);
-            if (option == 0) {
-                McpMavenBuild.openMavenPluginSettings(project);
-            }
-            return;
-        }
+        boolean available = verifyMavenAvailability(connection);
+        if (!available) return;
 
-        if (!McpMavenBuild.isMavenAvailable(project)) {
-            int option = Messages.showConfirmationDialog(project,
-                    "Maven Required",
-                    "Maven runtime is not available or invalid in IDE Maven settings.\n" +
-                            "Please verify Maven settings and try again.",
-                    new String[]{"Open Plugins", "Cancel"}, 0);
-            if (option == 0) {
-                McpMavenBuild.openMavenPluginSettings(project);
-            }
-            return;
-        }
-
-        MCPServerManager serverManager = MCPServerManager.getInstance(project);
-        McpServerDefinition serverDefinition = serverManager.getServerDefinition(connection.getConnectionId());
+        McpServerBuilderManager builderManager = McpServerBuilderManager.getInstance(project);
+        McpServerDefinition serverDefinition = builderManager.getServerDefinition(connection.getConnectionId());
         Dialogs.show(() -> new McpServerDefinitionDialog(connection, serverDefinition));
     }
 

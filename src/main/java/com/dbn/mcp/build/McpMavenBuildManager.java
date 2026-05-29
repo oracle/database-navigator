@@ -17,15 +17,17 @@
 package com.dbn.mcp.build;
 
 import com.dbn.common.component.ProjectComponentBase;
-import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
+import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
+import com.intellij.util.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
@@ -41,20 +43,25 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.component.Components.optionalProjectService;
+
 @Slf4j
-public class McpMavenPluginService extends ProjectComponentBase implements McpMavenService {
-    private static final String COMPONENT_NAME = "DBNavigator.Project.McpMavenPluginService";
+public class McpMavenBuildManager extends ProjectComponentBase {
+    private static final String COMPONENT_NAME = "DBNavigator.Project.McpMavenBuildManager";
     private static final long PROCESS_ATTACH_TIMEOUT_MILLIS = 30_000;
     private static final String BUILD_PROGRESS_TEXT = "Running Maven build (clean package)...";
 
-    public McpMavenPluginService(@NotNull Project project) {
+    private McpMavenBuildManager(@NotNull Project project) {
         super(project, COMPONENT_NAME);
     }
 
-    @Override
+    @Nullable
+    public static McpMavenBuildManager getInstance(@NotNull Project project) {
+        return optionalProjectService(project, McpMavenBuildManager.class);
+    }
+
     public boolean isRuntimeAvailable() {
         try {
             MavenDistribution distribution = resolveSettingsDistribution();
@@ -69,13 +76,10 @@ public class McpMavenPluginService extends ProjectComponentBase implements McpMa
         }
     }
 
-    @Override
     public void runBuild(@NotNull Path projectDir, @NotNull ProgressIndicator indicator, Consumer<String> outputHandler) throws IOException {
         indicator.setText2(BUILD_PROGRESS_TEXT);
 
-        MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(getProject());
-        MavenGeneralSettings generalSettings = projectsManager.getGeneralSettings().clone();
-        MavenRunnerSettings runnerSettings = MavenRunner.getInstance(getProject()).getSettings().clone();
+        Project project = getProject();
         MavenDistribution distribution = resolveSettingsDistribution();
         if (!distribution.isValid()) {
             throw new IOException("Maven runtime is not valid: " + describeDistribution(distribution));
@@ -102,9 +106,9 @@ public class McpMavenPluginService extends ProjectComponentBase implements McpMa
         AtomicInteger exitCode = new AtomicInteger(Integer.MIN_VALUE);
         CountDownLatch finished = new CountDownLatch(1);
 
-        com.intellij.util.Consumer<? super ProcessHandler> processConsumer = processHandler -> {
+        Consumer<? super ProcessHandler> processConsumer = processHandler -> {
             processRef.set(processHandler);
-            processHandler.addProcessListener(new ProcessAdapter() {
+            processHandler.addProcessListener(new ProcessListener() {
                 @Override
                 public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
                     String text = event.getText();
@@ -136,7 +140,10 @@ public class McpMavenPluginService extends ProjectComponentBase implements McpMa
             }
         };
 
-        boolean success = MavenRunner.getInstance(getProject()).runBatch(
+        MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
+        MavenGeneralSettings generalSettings = projectsManager.getGeneralSettings().clone();
+        MavenRunnerSettings runnerSettings = MavenRunner.getInstance(project).getSettings().clone();
+        boolean success = MavenRunner.getInstance(project).runBatch(
                 List.of(parameters),
                 generalSettings,
                 runnerSettings,

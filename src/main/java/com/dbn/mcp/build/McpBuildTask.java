@@ -43,6 +43,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.mcp.build.McpMavenPluginSupport.verifyMavenAvailability;
+
 @Slf4j
 public class McpBuildTask {
     private static final String DEFAULT_SEPS_USERNAME = "oracle.security.client.default_username";
@@ -68,19 +72,19 @@ public class McpBuildTask {
         String serverName = serverDefinition.getServerName();
         String serverNameError = McpServerName.validationError(serverName);
         if (serverNameError != null) {
-            showError(serverNameError);
+            showErrorDialog(project, "MCP Build Error", serverNameError);
             return;
         }
         String toolValidationError = McpToolDefinitions.validationError(serverDefinition.getTools());
         if (toolValidationError != null) {
-            showError(toolValidationError);
+            showErrorDialog(project, "MCP Build Error", toolValidationError);
             return;
         }
 
         try {
             resolveUrl(); // fail fast before any dialog or file writing
         } catch (UnsupportedOperationException e) {
-            showError(e.getMessage());
+            showErrorDialog(project, "MCP Build Error", e);
             return;
         }
 
@@ -92,7 +96,7 @@ public class McpBuildTask {
         Path distPath = basePath.resolve(DIST).toAbsolutePath().normalize();
         Path serverOutputDir = distPath.resolve(serverName).normalize();
         if (!serverOutputDir.startsWith(distPath)) {
-            showError("Invalid server name. Please choose a different name.");
+            showErrorDialog(project, "MCP Build Error", "Invalid server name. Please choose a different name.");
             return;
         }
 
@@ -107,8 +111,8 @@ public class McpBuildTask {
         try {
             config = createConfig();
         } catch (IOException e) {
-            log.error("Failed to write MCP config", e);
-            showError("Config write failed: " + e.getMessage());
+            conditionallyLog(e);
+            showErrorDialog(project, "MCP Build Error", "Could not write config file.", e);
             return;
         }
         build(config, template, serverOutputDir);
@@ -246,29 +250,9 @@ public class McpBuildTask {
     }
 
     private void build(McpBuildConfig cfg, String template, Path serverOutputDir) {
-        if (!McpMavenBuild.isMavenPluginAvailable()) {
-            int option = Messages.showConfirmationDialog(project,
-                    "Maven Plugin Required",
-                    "This feature requires the Maven plugin (org.jetbrains.idea.maven).\n" +
-                    "Please enable or install it from IDE Plugins settings.",
-                    new String[]{"Open Plugins", "Cancel"}, 0);
-            if (option == 0) {
-                McpMavenBuild.openMavenPluginSettings(project);
-            }
-            return;
-        }
+        boolean available = verifyMavenAvailability(connection);
+        if (!available) return;
 
-        if (!McpMavenBuild.isMavenAvailable(project)) {
-            int option = Messages.showConfirmationDialog(project,
-                    "Maven Required",
-                    "Maven runtime is not available or invalid in IDE Maven settings.\n" +
-                    "Please verify Maven settings and try again.",
-                    new String[]{"Open Plugins", "Cancel"}, 0);
-            if (option == 0) {
-                McpMavenBuild.openMavenPluginSettings(project);
-            }
-            return;
-        }
         runBuild(cfg, template, serverOutputDir);
     }
 
@@ -302,8 +286,8 @@ public class McpBuildTask {
                 indicator.setText2("Done");
                 showResult(serverOutputDir, finalJar);
             } catch (Throwable e) {
-                log.error("MCP build failed", e);
-                showError("Build failed: " + e.getMessage());
+                conditionallyLog(e);
+                showErrorDialog(project, "MCP Build Error", "Failed to build MCP Server", e);
             }
         });
     }
@@ -427,10 +411,6 @@ public class McpBuildTask {
         String clineSnippetJson = transportType.isHttp() ? buildClineJson(serverName) : null;
         Dialogs.show(() -> new McpBuildResultDialog(project, configPath, path, walletPath, sourceProjectPath, transportType.isHttp(),
                 claudeSnippetJson, clineSnippetJson));
-    }
-
-    private void showError(String msg) {
-        Messages.showErrorDialog(project, "MCP Build Error", msg);
     }
 
     private static char[] getPassword(ConnectionHandler conn) {

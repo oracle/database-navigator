@@ -18,7 +18,7 @@ package com.dbn.mcp.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.mcp.MCPServerManager;
+import com.dbn.mcp.McpServerBuilderManager;
 import com.dbn.mcp.build.McpBuildTask;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.intellij.openapi.ui.OptionAction;
@@ -95,8 +95,8 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
         form.applyFormChanges();
         McpServerDefinition serverDefinition = form.getServerDefinition();
 
-        MCPServerManager serverManager = MCPServerManager.getInstance(getProject());
-        serverManager.setServerDefinition(connection.getConnectionId(), serverDefinition);
+        McpServerBuilderManager builderManager = McpServerBuilderManager.getInstance(getProject());
+        builderManager.setServerDefinition(connection.getConnectionId(), serverDefinition);
         return serverDefinition;
     }
 }
