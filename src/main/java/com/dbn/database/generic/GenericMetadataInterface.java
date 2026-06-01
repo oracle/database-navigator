@@ -30,7 +30,7 @@ import com.dbn.database.common.util.MultipartResultSet;
 import com.dbn.database.common.util.ResultSetCondition;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseInterfaces;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuotePair;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -75,6 +75,7 @@ import static com.dbn.database.generic.GenericMetadataTranslators.TablesResultSe
 import static com.dbn.database.generic.GenericMetadataTranslators.ViewsResultSet;
 import static com.dbn.database.generic.GenericMetadataTranslators.resolveMethodType;
 import static com.dbn.database.generic.GenericMetadataTranslators.resolveOwner;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 
 @NonNls
 public class GenericMetadataInterface extends DatabaseMetadataInterfaceImpl {
@@ -160,7 +161,7 @@ public class GenericMetadataInterface extends DatabaseMetadataInterfaceImpl {
     @Override
     public void setCurrentSchema(String schemaName, DBNConnection connection) {
         QuotePair quotePair = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
-        String schema = quotePair.isQuoted(schemaName) ? quotePair.unquote(schemaName) : schemaName;
+        String schema = quotePair.isQuoted(schemaName) ? quotePair.unquote(schemaName, DATABASE) : schemaName;
         Unsafe.silent(() -> {
             try {
                 connection.setSchema(schema);

@@ -17,7 +17,7 @@
 package com.dbn.object.factory.model;
 
 import com.dbn.common.data.Data;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_TYPE;
 
@@ -129,7 +130,7 @@ public class DBObjectSpec extends DBObjectSpecBase{
         if (!quoted) return objectName;
 
         QuotePair quotes = getConnection().getCompatibilityInterface().getDefaultIdentifierQuotes();
-        return quotes.quote(objectName);
+        return quotes.quote(objectName, DATABASE);
     }
 
     public String getObjectDescription() {

@@ -24,7 +24,7 @@ import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.code.content.GuardedBlockMarker;
 import com.dbn.editor.code.content.SourceCodeContent;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.type.DBConstraintType;
 import org.jetbrains.annotations.NonNls;
@@ -35,6 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Strings.cachedUpperCase;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 
 @NonNls
 public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterfaceBase implements DatabaseDataDefinitionInterface {
@@ -113,9 +114,12 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
         StringBuilder buffer = new StringBuilder();
         QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
 
+        String rawSchemaName = quotes.unquote(schemaName, DATABASE);
+        String rawObjectName = quotes.unquote(objectName, DATABASE);
         String bq = "(" + Pattern.quote(quotes.beginQuote()) + ")?";
         String eq = "(" + Pattern.quote(quotes.endQuote()) + ")?";
-        String regex = objectType + "\\s+(" + bq + quotes.unquote(schemaName) + eq + "\\s*\\.)?\\s*" + bq + quotes.unquote(objectName) + eq;
+
+        String regex = objectType + "\\s+(" + bq + rawSchemaName + eq + "\\s*\\.)?\\s*" + bq + rawObjectName + eq;
 
         Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(code);
@@ -153,7 +157,7 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
 
     protected String quoted(String identifier) {
         QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
-        return quotes.quote(identifier);
+        return quotes.quote(identifier, DATABASE);
     }
 
 

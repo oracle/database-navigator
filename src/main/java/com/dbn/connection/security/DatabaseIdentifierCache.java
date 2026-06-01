@@ -19,12 +19,14 @@ package com.dbn.connection.security;
 import com.dbn.common.collections.ConcurrentStringInternMap;
 import com.dbn.connection.ConnectionComponentBase;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuotePair;
 
 import java.util.function.Function;
+
+import static com.dbn.connection.DatabaseType.GENERIC;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 
 /**
  * The DatabaseIdentifierCache class provides functionality to monitor and manage
@@ -81,13 +83,13 @@ public class DatabaseIdentifierCache extends ConnectionComponentBase {
     private String quoteIdentifier(String identifier) {
         ConnectionHandler connection = this.getConnection();
         ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
-        if (databaseSettings.getDatabaseType() == DatabaseType.GENERIC) {
-            String identifierQuotes = connection.getCompatibility().getIdentifierQuote();
-            return identifierQuotes + identifier + identifierQuotes;
+        if (databaseSettings.getDatabaseType() == GENERIC) {
+            QuotePair quotes = connection.getCompatibility().getIdentifierQuotes();
+            return quotes.quote(identifier, DATABASE);
         } else {
             DatabaseCompatibilityInterface compatibility = connection.getCompatibilityInterface();
             QuotePair quotes = compatibility.getDefaultIdentifierQuotes();
-            return quotes.quote(identifier);
+            return quotes.quote(identifier, DATABASE);
         }
     }
 

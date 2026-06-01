@@ -30,7 +30,7 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.model.DBObjectSpecList;
@@ -47,6 +47,7 @@ import static com.dbn.common.util.Lists.lastElement;
 import static com.dbn.common.util.Strings.cachedLowerCase;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_INPUT;
 import static com.dbn.object.factory.model.DBObjectAttributeType.IS_OUTPUT;
@@ -179,7 +180,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
             dropObjectIfExists(objectType, ownerName, tempObjectName, connection);
 
             QuotePair quotePair = getIdentifierEnquoter(connection);
-            String rawObjectName = quotePair.unquote(objectName);
+            String rawObjectName = quotePair.unquote(objectName, DATABASE);
 
             createObject(newCode.replaceFirst("(?i)" + rawObjectName, tempObjectName), connection);
             dropObjectIfExists(objectType, ownerName, tempObjectName, connection);

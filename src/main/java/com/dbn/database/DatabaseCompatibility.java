@@ -17,16 +17,21 @@
 package com.dbn.database;
 
 import com.dbn.common.property.PropertyHolderBase;
+import com.dbn.common.util.Strings;
 import com.dbn.common.util.TransientId;
+import com.dbn.language.common.quotes.QuotePair;
+import lombok.Getter;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+@Getter
 public class DatabaseCompatibility extends PropertyHolderBase.IntStore<JdbcProperty> {
 
-    private String identifierQuote;
+    private QuotePair identifierQuotes = QuotePair.DEFAULT_IDENTIFIER_QUOTE_PAIR;
     private final Map<TransientId, DatabaseActivityTrace> activityTraces = new ConcurrentHashMap<>();
 
     private DatabaseCompatibility() {}
@@ -58,10 +63,6 @@ public class DatabaseCompatibility extends PropertyHolderBase.IntStore<JdbcPrope
         return activityTraces.computeIfAbsent(operationId, id -> new DatabaseActivityTrace());
     }
 
-    public String getIdentifierQuote() {
-        return identifierQuote;
-    }
-
     @Override
     protected JdbcProperty[] properties() {
         return JdbcProperty.VALUES;
@@ -69,7 +70,9 @@ public class DatabaseCompatibility extends PropertyHolderBase.IntStore<JdbcPrope
 
     public void read(DatabaseMetaData metaData) throws SQLException {
         String quoteString = metaData.getIdentifierQuoteString();
-        identifierQuote = quoteString == null ? "" : quoteString.trim();
+        identifierQuotes = Strings.isEmptyOrSpaces(quoteString) ?
+                QuotePair.DEFAULT_IDENTIFIER_QUOTE_PAIR :
+                new QuotePair(quoteString.trim());
 
         //TODO JdbcProperty.SQL_DATASET_ALIASING (identify by database type?)
     }
