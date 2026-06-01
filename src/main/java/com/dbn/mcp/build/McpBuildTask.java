@@ -97,7 +97,7 @@ public class McpBuildTask {
         verifyConnectionUrl();
 
         indicator.setText2("Initializing output directory...");
-        initServerOutputDir();
+        initOutputDirectory();
 
         indicator.setText2("Preparing server configuration content...");
         initServerConfig();
@@ -154,18 +154,18 @@ public class McpBuildTask {
         }
     }
 
-    private void initServerOutputDir() {
+    private void initOutputDirectory() {
         String serverName = definition.getServerName();
         Path basePath = resolveBasePath();
         Path distPath = basePath.resolve(DIST).toAbsolutePath().normalize();
-        Path serverOutputDir = distPath.resolve(serverName).normalize();
-        if (!serverOutputDir.startsWith(distPath)) {
+        Path outputDirectory = distPath.resolve(serverName).normalize();
+        if (!outputDirectory.startsWith(distPath)) {
             showErrorDialog(project, "MCP Build Error", "Invalid server name. Please choose a different name.");
             cancelProcess();
         }
 
-        result.setServerOutputDir(serverOutputDir);
-        if (Files.exists(serverOutputDir)) {
+        result.setOutputDirectory(outputDirectory);
+        if (Files.exists(outputDirectory)) {
             int option = Messages.showConfirmationDialog(project,
                     "Override Existing Server",
                     "An MCP server named \"" + serverName + "\" already exists.\nDo you want to override it?",
@@ -335,8 +335,9 @@ public class McpBuildTask {
             indicator.setIndeterminate(true);
             try {
                 indicator.setText2("Preparing project...");
-                Path outputDir = result.getServerOutputDir();
-                Path sourceProjectDir = outputDir.resolve(SOURCE_PROJECT);
+                Path outputDirectory = result.getOutputDirectory();
+                Path sourceDirectory = outputDirectory.resolve(SOURCE_PROJECT).toAbsolutePath().normalize();
+                result.setSourceDirectory(sourceDirectory);
                 indicator.setText2("Running Maven build (clean package)...");
                 Path tempJar = McpMavenBuilder.build(
                         project,
@@ -345,24 +346,25 @@ public class McpBuildTask {
                         MCP_SDK,
                         JDBC,
                         result.getMainClassContent(),
-                        sourceProjectDir,
+                        sourceDirectory,
                         indicator,
                         null);
                 indicator.setText2("Finalizing output...");
-                Files.createDirectories(outputDir);
-                Path serverJar = outputDir.resolve(tempJar.getFileName());
+                Files.createDirectories(outputDirectory);
+                Path serverJar = outputDirectory.resolve(tempJar.getFileName());
                 result.setServerJar(serverJar);
 
                 Files.move(tempJar, serverJar, StandardCopyOption.REPLACE_EXISTING);
-                Files.copy(result.getConfigFile(), outputDir.resolve(CONFIG), StandardCopyOption.REPLACE_EXISTING);
+                Path outputConfigFile = outputDirectory.resolve(CONFIG).toAbsolutePath().normalize();
+                Files.copy(result.getConfigFile(), outputConfigFile, StandardCopyOption.REPLACE_EXISTING);
+                result.setConfigFile(outputConfigFile);
 
-
-                Files.deleteIfExists(outputDir.resolve("Main.java"));
+                Files.deleteIfExists(outputDirectory.resolve("Main.java"));
                 indicator.setText2("Creating wallet...");
-                createWallet(outputDir);
+                createWallet(outputDirectory);
 
                 indicator.setText2("Writing README...");
-                writeReadme(outputDir);
+                writeReadme(outputDirectory);
                 indicator.setText2("Done");
                 showResult();
             } catch (Throwable e) {
@@ -481,14 +483,12 @@ public class McpBuildTask {
     }
 
     private void showResult() {
-        Path outputDir = result.getServerOutputDir();
+        Path outputDirectory = result.getOutputDirectory();
 
         String serverName = definition.getServerName();
         McpTransportType transportType = definition.getTransportType();
 
-        result.setConfigPath(outputDir.resolve(CONFIG).toAbsolutePath().toString());
-        result.setWalletPath(outputDir.resolve("wallet").toAbsolutePath().toString());
-        result.setProjectPath(outputDir.resolve(SOURCE_PROJECT).toAbsolutePath().toString());
+        result.setWalletDirectory(outputDirectory.resolve("wallet").toAbsolutePath().normalize());
 
         result.setClaudeSnippetJson(buildClaudeJson(serverName, result.getServerJar().toString()));
         result.setClineSnippetJson(transportType.isHttp() ? buildClineJson(serverName) : null);

@@ -60,8 +60,8 @@ public class McpBuildResultForm extends DBNFormBase {
                 + "<b>MCP server built successfully.</b><br><br>"
                 + "Built JAR: " + escapeHtml(result.getServerJar().toString()) + "<br>"
                 + "Config: " + escapeHtml(result.getConfigFile().toString()) + "<br>"
-                + "Wallet: " + escapeHtml(result.getWalletPath()) + "<br>"
-                + "Source project: " + escapeHtml(result.getProjectPath()) + "<br><br>"
+                + "Wallet: " + escapeHtml(result.getWalletDirectory().toString()) + "<br>"
+                + "Source project: " + escapeHtml(result.getSourceDirectory().toString()) + "<br><br>"
                 + "<b>Next steps:</b><br>"
                 + transportSteps
                 + readmeStep + readmeMessage
