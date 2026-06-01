@@ -17,6 +17,7 @@
 package com.dbn.mcp.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.mcp.McpServerBuilderManager;
 import com.dbn.mcp.build.McpBuildTask;
@@ -31,7 +32,7 @@ import javax.swing.Action;
 public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm> {
 
     private final ConnectionHandler connection;
-    private final McpServerDefinition definition;
+    private McpServerDefinition definition;
 
     private Action saveAsAction;
 
@@ -84,19 +85,28 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
 
     @Override
     protected void doOKAction() {
-        McpServerDefinition serverDefinition = snapshotServerDefinition();
-        super.doOKAction();
+        snapshotServerDefinition();
 
-        new McpBuildTask(getProject(), connection, serverDefinition).execute();
+        McpBuildTask buildTask = new McpBuildTask(getProject(), connection, definition);
+        buildTask.execute(
+                () -> closeDialog(),
+                () -> reopenDialog());
     }
 
-    private McpServerDefinition snapshotServerDefinition() {
+    private void reopenDialog() {
+        dispatch(() -> Dialogs.show(()-> new McpServerDefinitionDialog(connection, definition)));
+    }
+
+    private void closeDialog() {
+        dispatch(() -> super.doOKAction());
+    }
+
+    private void snapshotServerDefinition() {
         McpServerDefinitionForm form = getForm();
         form.applyFormChanges();
-        McpServerDefinition serverDefinition = form.getServerDefinition();
+        definition = form.getServerDefinition();
 
         McpServerBuilderManager builderManager = McpServerBuilderManager.getInstance(getProject());
-        builderManager.setServerDefinition(connection.getConnectionId(), serverDefinition);
-        return serverDefinition;
+        builderManager.setServerDefinition(connection.getConnectionId(), definition);
     }
 }

@@ -18,12 +18,12 @@ package com.dbn.mcp.build;
 
 import com.dbn.common.util.Environment;
 import com.dbn.common.util.Messages;
-import com.dbn.connection.ConnectionHandler;
 import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ex.ApplicationEx;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.options.ShowSettingsUtil;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.updateSettings.impl.pluginsAdvertisement.PluginsAdvertiser;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +42,7 @@ public final class McpMavenPluginSupport {
 
     private McpMavenPluginSupport() {}
 
-    public static boolean verifyMavenAvailability(@NotNull ConnectionHandler connection) {
-        Project project = connection.getProject();
+    public static void verifyMavenAvailability(@NotNull Project project) {
         if (!isMavenPluginAvailable()) {
             int option = Messages.showConfirmationDialog(project,
                     "Maven Plugin Required",
@@ -53,7 +52,7 @@ public final class McpMavenPluginSupport {
             if (option == 0) {
                 openMavenPluginInstaller(project);
             }
-            return false;
+            throw new ProcessCanceledException();
         }
 
         if (!isMavenAvailable(project)) {
@@ -65,9 +64,8 @@ public final class McpMavenPluginSupport {
             if (option == 0) {
                 openMavenPluginSettings(project);
             }
-            return false;
+            throw new ProcessCanceledException();
         }
-        return true;
     }
 
     public static boolean isMavenAvailable(@Nullable Project project) {

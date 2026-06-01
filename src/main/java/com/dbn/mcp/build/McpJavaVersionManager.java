@@ -33,8 +33,9 @@ import static com.dbn.common.component.Components.optionalProjectService;
 
 @Slf4j
 public class McpJavaVersionManager extends ProjectComponentBase {
+    public static final int MIN_JAVA_VERSION = 17;
+
     private static final String COMPONENT_NAME = "DBNavigator.Project.McpJavaVersionManager";
-    private static final int MIN_JAVA_VERSION = 17;
     private static final String FALLBACK_JAVA_VERSION = String.valueOf(MIN_JAVA_VERSION);
     private static final Pattern JAVA_FEATURE = Pattern.compile("(?<!\\d)(?:1\\.)?(\\d{1,2})(?=\\D|$)");
 
@@ -48,22 +49,6 @@ public class McpJavaVersionManager extends ProjectComponentBase {
         return manager == null ? FALLBACK_JAVA_VERSION : manager.getProjectJavaVersion();
     }
 
-    public static void ensureSupportedJavaVersion(@NotNull Project project) {
-        McpJavaVersionManager manager = getInstance(project);
-        if (manager == null) return;
-
-        String javaVersion = manager.getConfiguredProjectJavaVersion();
-        if (javaVersion == null) return;
-
-        int feature = Integer.parseInt(javaVersion);
-        if (feature < MIN_JAVA_VERSION) {
-            throw new IllegalStateException(
-                    "MCP Server generation requires Java " + MIN_JAVA_VERSION + " or newer. " +
-                    "The current project SDK resolves to Java " + javaVersion + ". " +
-                    "Configure the project SDK to use JDK " + MIN_JAVA_VERSION + "+ and try again.");
-        }
-    }
-
     @Nullable
     public static McpJavaVersionManager getInstance(@NotNull Project project) {
         return optionalProjectService(project, McpJavaVersionManager.class);
@@ -75,7 +60,7 @@ public class McpJavaVersionManager extends ProjectComponentBase {
     }
 
     @Nullable
-    private String getConfiguredProjectJavaVersion() {
+    public String getConfiguredProjectJavaVersion() {
         try {
             Sdk sdk = Read.call(() -> ProjectRootManager.getInstance(getProject()).getProjectSdk());
             if (sdk == null) return null;

@@ -68,8 +68,7 @@ public class McpServerBuilderManager extends ProjectComponentBase implements Per
 
     public void openMCPBuilder(@NotNull ConnectionHandler connection) {
         Project project = connection.getProject();
-        boolean available = verifyMavenAvailability(connection);
-        if (!available) return;
+        verifyMavenAvailability(project);
 
         McpServerBuilderManager builderManager = McpServerBuilderManager.getInstance(project);
         McpServerDefinition serverDefinition = builderManager.getServerDefinition(connection.getConnectionId());
