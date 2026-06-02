@@ -18,7 +18,6 @@ package com.dbn.execution.statement.variables.ui;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.common.util.Messages;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.execution.statement.variables.StatementExecutionVariablesBundle;
@@ -28,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
+
+import static com.dbn.common.util.Messages.showErrorDialog;
 
 public class StatementExecutionInputsDialog extends DBNDialog<StatementExecutionInputForm> {
     private final StatementExecutionProcessor executionProcessor;
@@ -74,18 +75,16 @@ public class StatementExecutionInputsDialog extends DBNDialog<StatementExecution
             Project project = getProject();
             if (executionVariables != null) {
                 if (!executionVariables.isProvided()) {
-                    Messages.showErrorDialog(
+                    showErrorDialog(
                             project,
-                            "Statement execution",
-                            "You didn't specify values for all the variables. \n" +
-                                    "Please enter values for all the listed variables and try again."
+                            txt("msg.execution.title.StatementExecution"),
+                            txt("msg.execution.message.StatementVariablesMissing")
                     );
                 } else if (executionVariables.hasErrors()) {
-                    Messages.showErrorDialog(
+                    showErrorDialog(
                             project,
-                            "Statement execution",
-                            "You provided invalid/unsupported variable values. \n" +
-                                    "Please correct your input and try again."
+                            txt("msg.execution.title.StatementExecution"),
+                            txt("msg.execution.message.StatementVariablesInvalid")
                     );
                 } else {
                     doOKAction();

@@ -17,7 +17,6 @@
 package com.dbn.diagnostics.action;
 
 import com.dbn.common.action.ProjectAction;
-import com.dbn.common.util.Messages;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.diagnostics.DiagnosticsManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -26,6 +25,8 @@ import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.util.Messages.showInfoDialog;
+import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
@@ -47,20 +48,17 @@ public class DeveloperModeAction extends ProjectAction {
         boolean developerMode = Diagnostics.isDeveloperMode();
         if (developerMode) {
             String remainingTime = Diagnostics.getDeveloperMode().getRemainingTime();
-            Messages.showWarningDialog(project,
-                    "Developer Mode (ACTIVE)",
-                    "Developer Mode is currently ACTIVE.\n" +
-                            "It will be automatically disabled after " + remainingTime,
-                    new String[]{"Disable Now", "Cancel", "Open Settings..."}, 0,
+            showWarningDialog(project,
+                    txt("msg.diagnostics.title.DeveloperModeActive"),
+                    txt("msg.diagnostics.warning.DeveloperModeActive", remainingTime),
+                    new String[]{txt("msg.diagnostics.button.DisableNow"), txt("msg.shared.button.Cancel"), txt("msg.shared.button.OpenSettings")}, 0,
                     option -> actionPerformed(project, option, false));
         } else {
             int timeoutMinutes = Diagnostics.getDeveloperMode().getTimeout();
-            Messages.showInfoDialog(project,
-                    "Developer Mode (INACTIVE)",
-                    "Developer Mode is currently INACTIVE\n" +
-                            "Do NOT enable Developer Mode unless explicitly instructed to do so by the DBN plugin development team\n\n" +
-                            "If enabling, it will be automatically disabled after " + timeoutMinutes + " minutes",
-                    new String[]{"Enable", "Cancel", "Open Settings..."}, 0,
+            showInfoDialog(project,
+                    txt("msg.diagnostics.title.DeveloperModeInactive"),
+                    txt("msg.diagnostics.info.DeveloperModeInactive", timeoutMinutes),
+                    new String[]{txt("msg.shared.button.Enable"), txt("msg.shared.button.Cancel"), txt("msg.shared.button.OpenSettings")}, 0,
                     option -> actionPerformed(project, option, true));
         }
     }

@@ -28,7 +28,6 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Lists;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.connection.ConnectionAction;
@@ -69,6 +68,8 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.notification.NotificationCategory.SESSION_BROWSER;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Commons.array;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -260,7 +261,6 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
     }
 
     private void promptInterruptionResult(ConnectionHandler connection, List<SessionIdentifier> idenrifiers, Map<SessionIdentifier, SQLException> errors, SessionInterruptionType type) {
-        // TODO NLS
         DatabaseMessageParserInterface messageParserInterface = connection.getMessageParserInterface();
 
         Project project = getProject();
@@ -272,45 +272,36 @@ public class SessionBrowserManager extends ProjectComponentBase implements Persi
             SessionIdentifier identifier = idenrifiers.get(0);
             Object sessionId = identifier.getSessionId();
             if (errors.isEmpty()) {
-                Messages.showInfoDialog(project, "Info", "Session " + sessionId + " " + disconnectedAction + ".");
+                showInfoDialog(project, txt("msg.shared.title.Info"), txt("msg.sessions.info.SessionInterrupted", sessionId, disconnectedAction));
             } else {
                 SQLException exception = errors.get(identifier);
                 if (messageParserInterface.isSuccessException(exception)) {
-                    Messages.showInfoDialog(project, "Info", "Session " + sessionId + " " + disconnectingAction + " requested.\n" + exception.getMessage());
+                    showInfoDialog(project, txt("msg.shared.title.Info"), txt("msg.sessions.info.SessionInterruptionRequested", sessionId, disconnectingAction, exception.getMessage()));
                 } else {
-                    Messages.showErrorDialog(project, "Error " + disconnectingAction + " session " + sessionId + ".", exception);
+                    showErrorDialog(project, txt("msg.sessions.error.SessionInterruption", disconnectingAction, sessionId), exception);
                 }
 
             }
         } else {
             if (errors.isEmpty()) {
-                Messages.showInfoDialog(project, "Info", sessionCount + " sessions " + disconnectedAction + ".");
+                showInfoDialog(project, txt("msg.shared.title.Info"), txt("msg.sessions.info.SessionsInterrupted", sessionCount, disconnectedAction));
             } else {
                 StringBuilder message = new StringBuilder();
                 boolean success = Lists.allMatch(errors.values(), error -> messageParserInterface.isSuccessException(error));
                 if (success) {
-                    message.append(sessionCount);
-                    message.append(" sessions ");
-                    message.append(disconnectingAction);
-                    message.append(" requested:");
+                    message.append(txt("msg.sessions.info.SessionInterruptionRequests", sessionCount, disconnectingAction));
                 } else {
-                    message.append("Error ");
-                    message.append(disconnectingAction);
-                    message.append(" one or more of the selected sessions:");
+                    message.append(txt("msg.sessions.error.SessionInterruptionMultiple", disconnectingAction));
                 }
                 for (SessionIdentifier identifier : idenrifiers) {
                     SQLException exception = errors.get(identifier);
-                    message.append("\n - session id ").append(identifier).append(": ");
-                    if (exception == null) {
-                        message.append(disconnectedAction);
-                    } else {
-                        message.append(exception.getMessage().trim());
-                    }
+                    String result = exception == null ? disconnectedAction : exception.getMessage().trim();
+                    message.append(txt("msg.sessions.info.SessionInterruptionResultLine", identifier, result));
                 }
                 if (success) {
-                    Messages.showInfoDialog(project, "Info", message.toString());
+                    showInfoDialog(project, txt("msg.shared.title.Info"), message.toString());
                 } else {
-                    Messages.showErrorDialog(project, message.toString());
+                    showErrorDialog(project, message.toString());
                 }
             }
         }

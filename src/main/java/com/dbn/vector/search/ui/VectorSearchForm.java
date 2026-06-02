@@ -146,25 +146,25 @@ public class VectorSearchForm extends DBNFormBase {
 
         DBSchema selectedSchema = searchConsole.getSelectedSchema();
         if (selectedSchema == null) {
-            showErrorDialog(project, "No Schema Selection", "Please select a schema and a vector table to perform the similarity search on.");
+            showErrorDialog(project, txt("msg.vector.title.NoSchemaSelection"), txt("msg.vector.message.NoSchemaSelection"));
             return null;
         }
 
         DBTable selectedTable = searchConsole.getSelectedTable();
         if (selectedTable == null) {
-            showErrorDialog(project, "No Table Selection", "Please select a vector table to perform the similarity search on.");
+            showErrorDialog(project, txt("msg.vector.title.NoTableSelection"), txt("msg.vector.message.NoTableSelection"));
             return null;
         }
 
         DBVectorDistanceMetric distanceMetric = searchConsole.getSelectedMetric();
         if (distanceMetric == null) {
-            showErrorDialog(project, "No Metric Selection", "Please select a vector distance metric to use in the similarity search.");
+            showErrorDialog(project, txt("msg.vector.title.NoMetricSelection"), txt("msg.vector.message.NoMetricSelection"));
             return null;
         }
 
         String query = requestEditor.getDocument().getText().trim();
         if (Strings.isEmptyOrSpaces(query)) {
-            showErrorDialog(project, "Empty Query", "Please enter a query text to perform the similarity search for.");
+            showErrorDialog(project, txt("msg.vector.title.EmptyQuery"), txt("msg.vector.message.EmptyQuery"));
             return null;
         }
 
@@ -176,7 +176,7 @@ public class VectorSearchForm extends DBNFormBase {
             dataModel.fetchNextRecords(1000, false);
             return dataModel;
         } catch (Exception e) {
-            showErrorDialog(project, "Failed to perform similarity search", e);
+            showErrorDialog(project, txt("msg.vector.error.SimilaritySearchFailed"), e);
             return new ResultSetDataModel(connection);
         } finally {
             stopActivityNotifier();

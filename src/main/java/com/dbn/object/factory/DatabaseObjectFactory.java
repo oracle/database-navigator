@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
@@ -109,11 +110,9 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 ConnectionHandler connection = schema.getConnection();
                 DBSchema userSchema = connection.getUserSchema();
 
-                Messages.showQuestionDialog(project,
-                        "Owner Restriction",
-                        "The objects of type \"" + objectTypeName + "\" are owner restricted. " +
-                                "You can only create " + objectType.getListName() + " in your own schema.\n\n" +
-                                "Do you want to create the " + objectTypeName + " in your schema?",
+                showQuestionDialog(project,
+                        txt("msg.objects.title.OwnerRestriction"),
+                        txt("msg.objects.question.OwnerRestriction", objectTypeName, objectType.getListName()),
                         Messages.OPTIONS_YES_CANCEL, 0,
                         option -> when(option == 0, () ->
                                 openFactoryInputDialog(
@@ -161,7 +160,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     public void dropObject(DBSchemaObject object) {
         Project project = getProject();
-        Messages.showQuestionDialog(
+        showQuestionDialog(
                 project,
                 txt("msg.objects.title.DropObject"),
                 txt("msg.objects.question.DropObject", object.getQualifiedNameWithType()),
@@ -229,7 +228,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                     });
         } catch (SQLException e) {
             conditionallyLog(e);
-            String message = "Could not drop " + object.getQualifiedNameWithType() + ".";
+            String message = txt("msg.objects.error.CouldNotDropObject", object.getQualifiedNameWithType());
             Messages.showErrorDialog(project, message, e);
         }
     }

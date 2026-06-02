@@ -22,7 +22,6 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Json;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.data.model.resultSet.ResultSetColumnInfo;
@@ -46,6 +45,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class JsonDataEditorModelCell
@@ -107,7 +107,7 @@ public class JsonDataEditorModelCell
             resultSetAdapter.scroll(row.getResultSetRowIndex());
         } catch (Exception e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(project, "Failed to update JSON record", e);
+            showErrorDialog(project, txt("msg.dataEditor.error.FailedToUpdateJsonRecord"), e);
             return;
         }
 

@@ -207,15 +207,19 @@ public class AssistantMcpServerEditForm extends DBNFormBase {
             if (indicator.isCanceled()) return;
 
             int count = tools.size();
-            showSuccessDialog(getProject(), "MCP Server Config",
-                    "Successfully verified \"" + mcpServer.getName() + "\" MCP Server configuration. " +
-                            count + (count == 1 ? " tool" : " tools") + " found.");
+            String messageKey = count == 1 ?
+                    "msg.assistant.info.McpServerConfigVerifiedOne" :
+                    "msg.assistant.info.McpServerConfigVerifiedMany";
+            showSuccessDialog(getProject(),
+                    txt("msg.assistant.title.McpServerConfig"),
+                    txt(messageKey, mcpServer.getName(), count));
         } catch (Throwable e) {
             conditionallyLog(e);
 
             if (indicator.isCanceled()) return;
-            showErrorDialog(getProject(), "MCP Server Config",
-                    "Failed to validate \"" + mcpServer.getName() + "\" MCP Server configuration.", e);
+            showErrorDialog(getProject(),
+                    txt("msg.assistant.title.McpServerConfig"),
+                    txt("msg.assistant.error.McpServerConfigValidationFailed", mcpServer.getName()), e);
         }
     }
 

@@ -210,7 +210,7 @@ public class ProfileManagementForm extends DBNFormBase {
 
     private void handleLoadError(Throwable e) {
         conditionallyLog(e);
-        Dispatch.run(mainPanel, () -> Messages.showErrorDialog(getProject(), "Failed to load profiles.\nCause: " + Exceptions.causeMessage(e)));
+        Dispatch.run(mainPanel, () -> Messages.showErrorDialog(getProject(), txt("msg.assistant.error.ProfileLoadFailed", Exceptions.causeMessage(e))));
         afterProfilesLoad();
     }
 

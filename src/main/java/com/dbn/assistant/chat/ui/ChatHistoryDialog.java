@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.showQuestionDialog;
 
 public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
     private final List<Chat> chats;
@@ -90,12 +91,12 @@ public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
         if (selectedIds.length == 0) return;
 
         String confirmMessage = selectedIds.length == 1 ?
-                "Are you sure you want to delete this chat?" :
-                "Are you sure you want to delete the " + selectedIds.length + " selected chats?";
+                txt("msg.assistant.question.DeleteChat") :
+                txt("msg.assistant.question.DeleteChats", selectedIds.length);
 
-        Messages.showQuestionDialog(
+        showQuestionDialog(
                 getProject(),
-                "Delete Chats",
+                txt("msg.assistant.title.DeleteChats"),
                 confirmMessage,
                 Messages.OPTIONS_YES_NO,
                 0,

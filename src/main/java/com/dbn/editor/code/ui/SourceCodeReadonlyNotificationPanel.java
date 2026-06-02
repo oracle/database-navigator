@@ -18,7 +18,6 @@ package com.dbn.editor.code.ui;
 
 import com.dbn.common.environment.EnvironmentManager;
 import com.dbn.common.message.MessageType;
-import com.dbn.common.util.Messages;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.object.common.DBSchemaObject;
@@ -30,6 +29,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.nls.NlsResources.txt;
 
 public class SourceCodeReadonlyNotificationPanel extends SourceCodeEditorNotificationPanel{
@@ -44,10 +44,10 @@ public class SourceCodeReadonlyNotificationPanel extends SourceCodeEditorNotific
         if (isReadonly(sourceCodeEditor)) {
             setText("READONLY CODE - This is meant to prevent accidental code changes in \"" + environmentName + "\" environments (check environment settings)");
             createActionLabel("Edit mode", () ->
-                    Messages.showQuestionDialog(project,
-                            "Enable edit-mode",
-                            "Are you sure you want to enable editing for " + object.getQualifiedNameWithType(),
-                            new String[]{"Yes", "Cancel"}, 0,
+                    showQuestionDialog(project,
+                            txt("msg.codeEditor.title.EnableEditMode"),
+                            txt("msg.codeEditor.question.EnableEditMode", object.getQualifiedNameWithType()),
+                            new String[]{txt("msg.shared.button.Yes"), txt("msg.shared.button.Cancel")}, 0,
                             option -> when(option == 0, () -> {
                                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
                                 environmentManager.enableEditing(object, contentType);

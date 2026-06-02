@@ -22,7 +22,6 @@ import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.PooledConnection;
@@ -57,6 +56,7 @@ import static com.dbn.common.util.Editors.initEditorHighlighter;
 import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
+import static com.dbn.common.util.Messages.showErrorDialog;
 
 public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
     private JPanel mainPanel;
@@ -155,7 +155,7 @@ public class EmbeddingSourceInputQueryForm extends VectorToolboxFormBase {
         try {
             return executeStatement();
         } catch (Exception e) {
-            Messages.showErrorDialog(project, "Failed to verify query", e);
+            showErrorDialog(project, txt("msg.vector.error.QueryVerificationFailed"), e);
             return new ResultSetDataModel(connection);
         } finally {
             stopActivityNotifier();

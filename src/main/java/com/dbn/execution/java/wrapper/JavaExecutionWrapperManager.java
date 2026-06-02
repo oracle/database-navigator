@@ -22,7 +22,6 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
-import com.dbn.common.util.Messages;
 import com.dbn.execution.java.wrapper.support.WrapperSupportData;
 import com.dbn.execution.java.wrapper.ui.WrapperNamesEditorDialog;
 import com.dbn.execution.java.wrapper.ui.WrapperResultDialog;
@@ -41,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.java.wrapper.support.WrapperSupportEvaluator.evaluateWrapperSupport;
 import static com.dbn.nls.NlsResources.txt;
@@ -89,7 +89,7 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
                     if(!model.hasErrors()) {
                         verifyAndCreateExecutionWrappers(model);
                     } else {
-                        Messages.showErrorDialog(getProject(), "Wrapper Creation Error", String.join("\n", model.getErrors()));
+                        showErrorDialog(getProject(), txt("msg.java.title.WrapperCreationError"), String.join("\n", model.getErrors()));
                     }
                 });
     }
@@ -122,7 +122,7 @@ public class JavaExecutionWrapperManager extends ProjectComponentBase implements
             }
         } catch (Throwable e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), "Failed to create execution wrappers", e);
+            showErrorDialog(getProject(), txt("msg.java.error.ExecutionWrappersCreationFailed"), e);
         }
     }
 

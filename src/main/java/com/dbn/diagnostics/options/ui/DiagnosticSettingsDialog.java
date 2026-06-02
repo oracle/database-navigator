@@ -17,13 +17,13 @@
 package com.dbn.diagnostics.options.ui;
 
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.common.util.Messages;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class DiagnosticSettingsDialog extends DBNDialog<DiagnosticSettingsForm> {
@@ -59,7 +59,7 @@ public class DiagnosticSettingsDialog extends DBNDialog<DiagnosticSettingsForm> 
             super.doOKAction();
         } catch (ConfigurationException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(getProject(), "Invalid Configuration", e.getMessage());
+            showErrorDialog(getProject(), txt("msg.diagnostics.title.InvalidConfiguration"), e.getMessage());
         }
 
     }

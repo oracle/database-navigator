@@ -33,6 +33,8 @@ import javax.swing.JLabel;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class FileConnectionContextNotificationPanel extends EditorNotificationPanel {
     private final boolean inheritedContext;
@@ -79,10 +81,10 @@ public class FileConnectionContextNotificationPanel extends EditorNotificationPa
             VirtualFile mappingFile = nd(mapping.getFile());
             ConnectionHandler connection = nd(mapping.getConnection());
 
-            Messages.showQuestionDialog(
+            showQuestionDialog(
                     project,
-                    "Remove database context",
-                    "Are you sure you want to delink the database \"" + connection.getName() + "\" from the directory \"" + mappingFile.getPath() + "\"?",
+                    txt("msg.fileContext.title.RemoveDatabaseContext"),
+                    txt("msg.fileContext.question.RemoveDatabaseContext", connection.getName(), mappingFile.getPath()),
                     Messages.OPTIONS_YES_NO,
                     0,
                     option -> when(option == 0,

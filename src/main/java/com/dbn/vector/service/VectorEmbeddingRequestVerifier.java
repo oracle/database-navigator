@@ -41,7 +41,9 @@ public class VectorEmbeddingRequestVerifier {
             //..
 
         } catch (Exception e) {
-            showErrorDialog(project, "Verification Error", "Failed to verify embedding request", e);
+            showErrorDialog(project,
+                    txt("msg.vector.title.VerificationError"),
+                    txt("msg.vector.error.EmbeddingRequestVerificationFailed"), e);
             return false;
         }
 
@@ -72,10 +74,12 @@ public class VectorEmbeddingRequestVerifier {
         String requestModel = String.valueOf(requestModelConfig.get("model"));
 
 
-        showErrorDialog(project, "Inconsistent Model Selection",
-                "The embedding model you selected " +
-                        "does not match the one already recorded in the embedding destination table " + request.getDestinationConfig().getQualifiedTableName() + ". " +
-                        "\n\nThe requested model is \"" + requestModel + "\"\nThe model used in embedding table is \"" + destinationModel + "\"");
+        showErrorDialog(project,
+                txt("msg.vector.title.InconsistentModelSelection"),
+                txt("msg.vector.error.InconsistentModelSelection",
+                        request.getDestinationConfig().getQualifiedTableName(),
+                        requestModel,
+                        destinationModel));
         return false;
     }
 }

@@ -62,6 +62,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
@@ -253,7 +254,7 @@ public class CredentialManagementForm extends DBNFormBase {
 
   private void handleLoadError(Throwable e) {
     conditionallyLog(e);
-    Dispatch.run(mainPane, () -> Messages.showErrorDialog(getProject(), "Failed to load credentials.\nCause: " + Exceptions.causeMessage(e)));
+    Dispatch.run(mainPane, () -> showErrorDialog(getProject(), txt("msg.assistant.error.CredentialLoadFailed", Exceptions.causeMessage(e))));
     afterLoad();
   }
 

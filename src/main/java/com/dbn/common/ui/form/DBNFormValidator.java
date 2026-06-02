@@ -18,6 +18,7 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.ui.list.CheckBoxList;
 import com.intellij.openapi.ui.ValidationInfo;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
@@ -94,7 +95,7 @@ public interface DBNFormValidator {
      *                  It returns {@code true} if the input is valid, and {@code false} otherwise
      * @param message   the error message to display if the validation fails
      */
-    void addTextValidation(JTextComponent textField, Predicate<String> validator, String message);
+    void addTextValidation(JTextComponent textField, Predicate<String> validator, @Nls String message);
 
     void addTextValidation(JTextComponent textField, Function<JTextComponent, String> validator);
 

@@ -10,7 +10,6 @@ import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.ui.misc.DBNExpandableTextField;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.language.sql.SQLFileType;
@@ -61,6 +60,7 @@ import static com.dbn.common.ui.form.field.JComponentFilter.array;
 import static com.dbn.common.ui.link.Hyperlinks.onHyperlinkAccess;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
 import static com.dbn.mcp.util.SqlParameterParser.parseOccurrences;
@@ -178,13 +178,13 @@ public class McpToolDefinitionForm extends DBNFormBase {
         verifyHyperlink.setHyperlinkText("Verify");
         onHyperlinkAccess(verifyHyperlink, e -> {
             if (getSqlStatement().isBlank()) {
-                Messages.showErrorDialog(getProject(), "Please enter the SQL query first, then run Test SQL Query.");
+                showErrorDialog(getProject(), txt("msg.mcp.error.SqlQueryRequired"));
                 return;
             }
             try {
                 openSqlTestDialog();
             } catch (Exception ex) {
-                Messages.showErrorDialog(getProject(), "Failed to open SQL tester", ex);
+                showErrorDialog(getProject(), txt("msg.mcp.error.SqlTesterOpenFailed"), ex);
             }
         });
     }

@@ -9,7 +9,6 @@ import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.PooledConnection;
@@ -51,6 +50,7 @@ import java.util.Map;
 
 import static com.dbn.common.ui.util.Buttons.onButtonClickAsync;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.mcp.util.SqlParameterParser.parseOccurrences;
 import static com.dbn.mcp.util.SqlParameterParser.stripColon;
 import static com.dbn.mcp.util.SqlParameterParser.uniqueInOrder;
@@ -246,7 +246,7 @@ public class McpToolVerificationForm extends DBNFormBase {
             statementError = result.error;
 
             if (statementError != null) {
-                Messages.showErrorDialog(getProject(), "Failed to verify query", result.error);
+                showErrorDialog(getProject(), txt("msg.mcp.error.QueryVerificationFailed"), result.error);
             }
         } finally {
             stopActivityNotifier();

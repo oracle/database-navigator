@@ -22,7 +22,6 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManager;
@@ -45,6 +44,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Modality.nonModal;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -83,9 +83,8 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
                                 openCodeMergeDialog(databaseContent, sourceCodeFile, fileEditor, mergeAction);
                             } catch (Exception e1) {
                                 conditionallyLog(e1);
-                                Messages.showErrorDialog(
-                                        project, "Could not load sourcecode for " +
-                                                object.getQualifiedNameWithType() + " from database.", e1);
+                                showErrorDialog(
+                                        project, txt("msg.codeEditor.error.CouldNotLoadSourceCode", object.getQualifiedNameWithType()), e1);
                             }
                         }));
     }
@@ -188,9 +187,8 @@ public class SourceCodeDiffManager extends ProjectComponentBase implements Persi
 
                             } catch (Exception e1) {
                                 conditionallyLog(e1);
-                                Messages.showErrorDialog(
-                                        project, "Could not load sourcecode for " +
-                                                object.getQualifiedNameWithType() + " from database.", e1);
+                                showErrorDialog(
+                                        project, txt("msg.codeEditor.error.CouldNotLoadSourceCode", object.getQualifiedNameWithType()), e1);
                             }
                         }));
     }

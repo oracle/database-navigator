@@ -17,10 +17,12 @@
 package com.dbn.editor.code.ui;
 
 import com.dbn.common.message.MessageType;
-import com.dbn.common.util.Messages;
 import com.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.fileEditor.FileEditor;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class SourceCodeLoadErrorNotificationPanel extends SourceCodeEditorNotificationPanel{
     public SourceCodeLoadErrorNotificationPanel(DBSchemaObject object, @NotNull FileEditor fileEditor, Exception exception) {
@@ -31,6 +33,6 @@ public class SourceCodeLoadErrorNotificationPanel extends SourceCodeEditorNotifi
     }
 
     private void showErrorDetails(Exception exception) {
-        Messages.showErrorDialog(getProject(), "Source Load Error", exception.getMessage());
+        showErrorDialog(getProject(), txt("msg.codeEditor.title.SourceLoadError"), exception.getMessage());
     }
 }

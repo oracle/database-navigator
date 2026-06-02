@@ -82,6 +82,8 @@ import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.FilePermissions.ownDirectoryPermissions;
 import static com.dbn.common.util.FilePermissions.ownFilePermissions;
 import static com.dbn.common.util.FilePermissions.restrictToOwner;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.execution.logging.LogOutput.createSysOutput;
 import static com.dbn.execution.script.ScriptExecutionProcessHandler.startProcess;
@@ -129,7 +131,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
     public void executeScript(VirtualFile virtualFile) {
         Project project = getProject();
         if (activeProcesses.containsKey(virtualFile)) {
-            Messages.showInfoDialog(project, "Information", "SQL Script \"" + virtualFile.getPath() + "\" is already running. \nWait for the execution to finish before running again.");
+            showInfoDialog(project, txt("msg.shared.title.Info"), txt("msg.execution.info.ScriptAlreadyRunning", virtualFile.getPath()));
         } else {
             FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
 
@@ -166,7 +168,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                             conditionallyLog(e);
                         } catch (Exception e) {
                             conditionallyLog(e);
-                            Messages.showErrorDialog(getProject(),
+                            showErrorDialog(getProject(),
                                     txt("msg.execution.error.ErrorExecutingScript", virtualFile.getPath(), e.getMessage()));
                         }
                     });
@@ -255,9 +257,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                 @Override
                 public void handleTimeout() {
-                    Messages.showErrorDialog(project,
-                            "Script execution timeout",
-                            "The script execution has timed out",
+                    showErrorDialog(project,
+                            txt("msg.execution.title.ScriptExecutionTimeout"),
+                            txt("msg.execution.error.ScriptExecutionTimeout"),
                             Messages.OPTIONS_RETRY_CANCEL, 0,
                             option -> when(option == 0, () -> executeScript(sourceFile)));
 
@@ -265,9 +267,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
                 @Override
                 public void handleException(Throwable e) {
-                    Messages.showErrorDialog(project,
-                            "Script execution error",
-                            "Error executing SQL script \"" + sourceFile.getPath() + "\". \nDetails: " + e.getMessage(),
+                    showErrorDialog(project,
+                            txt("msg.execution.title.ScriptExecutionError"),
+                            txt("msg.execution.error.ScriptExecutionError", sourceFile.getPath(), e.getMessage()),
                             Messages.OPTIONS_RETRY_CANCEL, 0,
                             option -> when(option == 0, () -> executeScript(sourceFile)));
                 }

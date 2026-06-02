@@ -64,6 +64,7 @@ import static com.dbn.assistant.chat.ChatAvailability.NO_PROFILE_SELECTED;
 import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.options;
+import static com.dbn.common.util.Messages.showQuestionDialog;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -136,10 +137,10 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
                     List<DBAIProfile> profiles = SelectAiContextUtil.getProfiles(connectionId);
                     // no profiles created yet -> prompt profile creation
                     if (profiles.isEmpty()) {
-                        Messages.showQuestionDialog(project,
+                        showQuestionDialog(project,
                                 SELECT_AI.getName(),
                                 txt("msg.assistant.question.AcknowledgeAndCreateProfile"),
-                                options("Create Profile", "Cancel"), 0,
+                                options(txt("msg.assistant.button.CreateProfile"), txt("msg.shared.button.Cancel")), 0,
                                 option -> when(option == 0, () -> ProfileEditionWizard.showWizard(connection, null, Collections.emptySet(), null)));
                     }
                 });
@@ -148,7 +149,7 @@ public class SelectAiAssistantAdapter extends AssistantAdapterBase {
     private void promptAcknowledgement(ConnectionId connectionId) {
         ConnectionHandler connection = getConnection(connectionId);
         Project project = connection.getProject();
-        Messages.showQuestionDialog(project,
+        showQuestionDialog(project,
                 SELECT_AI.getName(),
                 txt("msg.assistant.question.AcknowledgeAndConfigure"),
                 Messages.OPTIONS_CONTINUE_CANCEL, 0,

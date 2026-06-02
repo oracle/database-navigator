@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.mcp.build.McpJavaVersionManager.MIN_JAVA_VERSION;
@@ -120,17 +121,16 @@ public class McpBuildTask {
 
             int feature = Integer.parseInt(javaVersion);
             if (feature < MIN_JAVA_VERSION) {
-                showErrorDialog(project, "MCP Build Error",
-                        "MCP server generation requires JDK " + MIN_JAVA_VERSION + " or newer. " +
-                                "The current project SDK is Java " + javaVersion + ". " +
-                                "Configure the project SDK to use JDK " + MIN_JAVA_VERSION + " or newer and try again.");
+                showErrorDialog(project,
+                        txt("msg.mcp.title.McpBuildError"),
+                        txt("msg.mcp.error.JdkVersionRequired", MIN_JAVA_VERSION, javaVersion));
                 cancelProcess();
             }
         } catch (ProcessCanceledException e) {
             throw e;
         } catch (Exception e) {
             conditionallyLog(e);
-            showErrorDialog(project, "MCP Build Error", "Failed to verify Java version.", e);
+            showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), txt("msg.mcp.error.JavaVersionVerificationFailed"), e);
             cancelProcess();
         }
     }
@@ -139,12 +139,12 @@ public class McpBuildTask {
         String serverName = definition.getServerName();
         String serverNameError = McpServerName.validationError(serverName);
         if (serverNameError != null) {
-            showErrorDialog(project, "MCP Build Error", serverNameError);
+            showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), serverNameError);
             cancelProcess();
         }
         String toolValidationError = McpToolDefinitions.validationError(definition.getTools());
         if (toolValidationError != null) {
-            showErrorDialog(project, "MCP Build Error", toolValidationError);
+            showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), toolValidationError);
             cancelProcess();
         }
     }
@@ -153,7 +153,7 @@ public class McpBuildTask {
         try {
             resolveConnectionUrl(); // fail fast before any dialog or file writing
         } catch (UnsupportedOperationException e) {
-            showErrorDialog(project, "MCP Build Error", e);
+            showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), e);
             cancelProcess();
         }
     }
@@ -164,16 +164,16 @@ public class McpBuildTask {
         Path distPath = basePath.resolve(DIST).toAbsolutePath().normalize();
         Path outputDirectory = distPath.resolve(serverName).normalize();
         if (!outputDirectory.startsWith(distPath)) {
-            showErrorDialog(project, "MCP Build Error", "Invalid server name. Please choose a different name.");
+            showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), txt("msg.mcp.error.InvalidServerName"));
             cancelProcess();
         }
 
         result.setOutputDirectory(outputDirectory);
         if (Files.exists(outputDirectory)) {
             int option = Messages.showConfirmationDialog(project,
-                    "Override Existing Server",
-                    "An MCP server named \"" + serverName + "\" already exists.\nDo you want to override it?",
-                    new String[]{"Override", "Cancel"}, 0);
+                    txt("msg.mcp.title.OverrideExistingServer"),
+                    txt("msg.mcp.question.OverrideExistingServer", serverName),
+                    options(txt("msg.mcp.button.Override"), txt("msg.shared.button.Cancel")), 0);
             if (option != 0) {
                 cancelProcess();
             }
@@ -194,7 +194,7 @@ public class McpBuildTask {
             result.setConfigFile(configFile);
         } catch (Exception e) {
             conditionallyLog(e);
-            showErrorDialog(project, "MCP Build Error", "Could not write config file.", e);
+            showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), txt("msg.mcp.error.ConfigFileWriteFailed"), e);
             cancelProcess();
         }
     }
@@ -208,7 +208,7 @@ public class McpBuildTask {
             result.setMainClassContent(mainClassContent);
         } catch (Exception e) {
             conditionallyLog(e);
-            showErrorDialog(project, "MCP Build Error", "Could not build main class content.", e);
+            showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), txt("msg.mcp.error.MainClassBuildFailed"), e);
             cancelProcess();
         }
 
@@ -376,7 +376,7 @@ public class McpBuildTask {
                 showResult();
             } catch (Throwable e) {
                 conditionallyLog(e);
-                showErrorDialog(project, "MCP Build Error", "Failed to build MCP Server", e);
+                showErrorDialog(project, txt("msg.mcp.title.McpBuildError"), txt("msg.mcp.error.McpServerBuildFailed"), e);
                 onBuildFailure.run();
             }
         });

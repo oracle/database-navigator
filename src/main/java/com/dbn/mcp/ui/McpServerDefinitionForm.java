@@ -27,7 +27,6 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.info.DBNCommentLabel;
 import com.dbn.common.ui.link.DBNHyperlinkLabel;
 import com.dbn.common.util.FileChoosers;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Titles;
 import com.dbn.connection.ConnectionHandler;
@@ -67,6 +66,7 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -183,13 +183,13 @@ public class McpServerDefinitionForm extends DBNFormBase {
                 updateConfiguration(file, serverDefinition);
                 return file;
             } else {
-                Messages.showErrorDialog(project, "Not an MCP Server Definition",
-                        "\"" + file.getPath() + "\" does not look like an MCP server definition file. " +
-                        "Choose an XML file created by MCP Server Builder.");
+                showErrorDialog(project,
+                        txt("msg.mcp.title.NotMcpServerDefinition"),
+                        txt("msg.mcp.error.InvalidServerDefinition", file.getPath()));
                 return null;
             }
         } catch (Throwable e) {
-            Messages.showErrorDialog(project, "Could not load MCP Server definition file", e);
+            showErrorDialog(project, txt("msg.mcp.error.McpServerDefinitionLoadFailed"), e);
             return null;
         }
     }
@@ -354,7 +354,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
             } catch (IOException e) {
                 conditionallyLog(e);
                 String fileName = file.getName();
-                Messages.showErrorDialog(project,
+                showErrorDialog(project,
                         txt("msg.consoles.title.CouldNotSaveToFile"),
                         txt("msg.consoles.error.CouldNotSaveToFile", fileName), e);
             }

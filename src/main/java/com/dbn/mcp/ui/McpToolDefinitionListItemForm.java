@@ -132,8 +132,8 @@ public class McpToolDefinitionListItemForm extends DBNFormBase {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             int exitCode = Messages.showConfirmationDialog(ensureProject(),
-                    "Remove Tool",
-                    "Are you sure you want to remove the tool \"" + getToolDefinition().getName() + "\"?",
+                    txt("msg.mcp.title.RemoveTool"),
+                    txt("msg.mcp.question.RemoveTool", getToolDefinition().getName()),
                     Messages.OPTIONS_YES_NO, 0);
 
             if (exitCode == 0) {

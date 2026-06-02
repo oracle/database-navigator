@@ -44,7 +44,9 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.options.Configs.fail;
+import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.common.util.Strings.isEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
 public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R extends JavaCodeGeneratorResult<I>> extends CodeGeneratorBase<I, R> {
     public JavaCodeGenerator(CodeGeneratorType type) {
@@ -94,9 +96,9 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
         String driverClassName = input.getDatabaseContext().ensureConnection().getSettings().getDatabaseSettings().getDriver();
 
         if (!isDriverOnClassPath(project, driverClassName)) {
-            Messages.showInfoDialog(project, "Can't Find JDBC Driver",
-                    "The driver \"" + driverClassName + "\" does not appear to be on your compile-time classpath." +
-                            " This may cause your generated code to have errors and may not run.");
+            showInfoDialog(project,
+                    txt("msg.codeGenerator.title.JdbcDriverNotFound"),
+                    txt("msg.codeGenerator.info.JdbcDriverNotFound", driverClassName));
         }
     }
 
@@ -157,8 +159,8 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
         Project project = input.getProject();
         int overwrite = Messages.showConfirmationDialog(
                 project,
-                "Overwrite Class",
-                "A class named \"" + className + "\" already exists in the target location. Do you want to overwrite it?",
+                txt("msg.codeGenerator.title.OverwriteClass"),
+                txt("msg.codeGenerator.question.OverwriteClass", className),
                 Messages.OPTIONS_YES_NO, 0);
 
         if (overwrite == 0) {

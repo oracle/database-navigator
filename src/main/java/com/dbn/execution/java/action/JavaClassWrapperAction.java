@@ -82,9 +82,9 @@ public class JavaClassWrapperAction extends AnObjectAction<DBJavaClass> {
         Dispatch.run(dataContext, true, () -> {
 			Project project = javaClass.getProject();
             if (objects.isEmpty()) {
-				showWarningDialog(project, "Create Execution Wrappers",
-						"Cannot create execution wrappers for java class \"" + javaClass.getCanonicalName() + "\". " +
-						"No public static methods found.");
+				showWarningDialog(project,
+                        txt("msg.java.title.CreateExecutionWrappers"),
+						txt("msg.java.error.NoPublicStaticMethods", javaClass.getCanonicalName()));
             } else {
 				Dialogs.show(() -> createDialog(javaClass, objects), createDialogCallback(javaClass));
 

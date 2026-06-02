@@ -20,7 +20,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.data.editor.text.TextContentType;
 import com.dbn.data.editor.text.TextContentTypeOwner;
@@ -41,6 +40,7 @@ import java.awt.BorderLayout;
 import java.sql.SQLException;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
@@ -65,7 +65,9 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase implements Te
                 text = largeObjectValue.read();
             } catch (SQLException e) {
                 conditionallyLog(e);
-                Messages.showWarningDialog(project, "Load error", "Could not load value for parameter " + parameter.getName() + ". Cause: " + e.getMessage());
+                showWarningDialog(project,
+                        txt("msg.execution.title.MethodArgumentLoadError"),
+                        txt("msg.execution.message.MethodArgumentLoadError", parameter.getName(), e.getMessage()));
             }
         } else if (value instanceof String) {
             text = (String) value;

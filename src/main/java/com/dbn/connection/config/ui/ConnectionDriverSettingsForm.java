@@ -25,7 +25,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Lists;
-import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
@@ -77,6 +76,7 @@ import static com.dbn.common.ui.util.TextFields.setTextSilently;
 import static com.dbn.common.util.FileChoosers.addFileChooser;
 import static com.dbn.common.util.FileChoosers.singleFolderOrJar;
 import static com.dbn.common.util.Lists.firstElement;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.connection.DatabaseType.GENERIC;
@@ -218,7 +218,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             dispatch(() -> showDownloadPopup(downloadButton, driverPackages));
         } catch (Exception e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(ensureProject(), "Failed to download driver libraries metadata", e);
+            showErrorDialog(ensureProject(), txt("msg.driver.error.DriverLibrariesMetadataDownloadFailed"), e);
         }
     }
 

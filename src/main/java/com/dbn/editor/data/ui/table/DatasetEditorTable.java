@@ -27,7 +27,6 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Messages;
 import com.dbn.data.grid.options.DataGridAuditColumnSettings;
 import com.dbn.data.grid.ui.table.basic.BasicTableCellRenderer;
 import com.dbn.data.grid.ui.table.basic.BasicTableGutter;
@@ -82,6 +81,7 @@ import java.util.EventObject;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.DataLoadInstruction.DELIBERATE_ACTION;
 import static com.dbn.editor.data.DataLoadInstruction.PRESERVE_CHANGES;
@@ -502,7 +502,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                             try {
                                 model.postInsertRecord(false, true, false);
                             } catch (SQLException e1) {
-                                Messages.showErrorDialog(getProject(), "Could not create row in " + dataset.getQualifiedNameWithType() + ".", e1);
+                                showErrorDialog(getProject(), txt("msg.dataEditor.error.CannotCreateRow", dataset.getQualifiedNameWithType()), e1);
                             }
                         });
             }

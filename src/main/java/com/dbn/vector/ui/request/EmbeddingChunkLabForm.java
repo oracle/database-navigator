@@ -25,7 +25,6 @@ import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
-import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.jdbc.DBNResultSet;
@@ -55,6 +54,7 @@ import static com.dbn.common.ui.util.Buttons.onButtonClickAsync;
 import static com.dbn.common.util.Editors.installEditorLayoutUpdater;
 import static com.dbn.common.util.Editors.restrictEditorHeight;
 import static com.dbn.common.util.Editors.updateEditorScrollPane;
+import static com.dbn.common.util.Messages.showErrorDialog;
 
 public class EmbeddingChunkLabForm extends DBNFormBase {
 
@@ -164,7 +164,7 @@ public class EmbeddingChunkLabForm extends DBNFormBase {
             dataModel.fetchNextRecords(1000, false);
             return dataModel;
         } catch (Exception e) {
-            Messages.showErrorDialog(project, "Failed to chunk data", e);
+            showErrorDialog(project, txt("msg.vector.error.DataChunkFailed"), e);
             return new ResultSetDataModel(connection);
         } finally {
             stopActivityNotifier();
