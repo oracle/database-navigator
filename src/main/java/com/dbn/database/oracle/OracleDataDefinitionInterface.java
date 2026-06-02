@@ -51,6 +51,7 @@ import static com.dbn.database.DatabaseObjectTypeId.JSON_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.MATERIALIZED_VIEW;
 import static com.dbn.database.DatabaseObjectTypeId.TRIGGER;
 import static com.dbn.database.DatabaseObjectTypeId.VIEW;
+import static com.dbn.database.oracle.OracleStatementWrappers.executeImmediate;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CONSTRAINT_COLUMNS;
 import static com.dbn.object.factory.model.DBObjectAttributeType.CONSTRAINT_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
@@ -74,6 +75,9 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
     @Override
     public String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter) {
+        schemaName = quoted(schemaName);
+        objectName = quoted(objectName);
+
         DDLFileSettings ddlFileSettings = DDLFileSettings.getInstance(project);
         boolean useQualified = ddlFileSettings.getGeneralSettings().isUseQualifiedObjectNames();
         boolean makeRerunnable = ddlFileSettings.getGeneralSettings().isMakeScriptsRerunnable();
@@ -87,24 +91,24 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
         if(objectTypeId == JAVA_CLASS){
             String className = objectName.replace("/", ".");
-            return kco.format("begin \n") +
-                    kco.format("execute immediate \n") +
-                    kco.format("' \n") +
+            return executeImmediate(
                     kco.format("create" + (makeRerunnable ? " or replace" : "") + " and compile java source named " ) +
-                    className +
-                    kco.format(" as\n") +
-                    code +
-                    "';\n" + "end;\n/";
-        } else if (objectTypeId == VIEW) {
-            return kco.format("create" + (makeRerunnable ? " or replace" : "") + " view ") + (useQualified ? schemaName + "." : "") + objectName + kco.format(" as\n") + code + "\n/";
-        } else {
-            String objectType = cachedLowerCase(objectTypeId.toString());
-            if (contentType == DBContentType.CODE_BODY) {
-                objectType = objectType + " body";
-            }
-            code = updateNameQualification(code, useQualified, objectType, schemaName, objectName, styleCaseSettings);
-            return kco.format("create" + (makeRerunnable ? " or replace" : "") + " ") + code + "\n/";
+                            className +
+                            kco.format(" as\n") +
+                            code,
+                    kco);
         }
+
+        if (objectTypeId == VIEW) {
+            return kco.format("create" + (makeRerunnable ? " or replace" : "") + " view ") + (useQualified ? schemaName + "." : "") + objectName + kco.format(" as\n") + code + "\n/";
+        }
+
+        String objectType = cachedLowerCase(objectTypeId.toString());
+        if (contentType == DBContentType.CODE_BODY) {
+            objectType = objectType + " body";
+        }
+        code = updateNameQualification(code, useQualified, objectType, schemaName, objectName, styleCaseSettings);
+        return kco.format("create" + (makeRerunnable ? " or replace" : "") + " ") + code + "\n/";
     }
 
     @Override

@@ -155,12 +155,6 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
         executeUpdate(connection, "compile-object-body", ownerName, objectName, objectType, debug ? "DEBUG" : "");
     }
 
-    protected String quoted(String identifier) {
-        QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
-        return quotes.quote(identifier, DATABASE);
-    }
-
-
     /*********************************************************
      *                   CREATE statements                   *
      *********************************************************/

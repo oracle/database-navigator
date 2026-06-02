@@ -151,6 +151,11 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
         return null;
     }
 
+    protected String quoted(String identifier) {
+        QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
+        return quotes.quote(identifier, DATABASE);
+    }
+
     protected final String unquoted(String identifier) {
         QuoteDefinition identifierQuotes = getInterfaces().getCompatibilityInterface().getIdentifierQuotes();
         return identifierQuotes.unquote(identifier, DATABASE);
