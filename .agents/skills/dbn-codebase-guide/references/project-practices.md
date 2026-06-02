@@ -96,6 +96,13 @@
 - Prefer parameterized values over string concatenation in user-visible text: `txt("prc.object.text.CreatingObjectDescription", description)` rather than `"Creating " + description`.
 - `txt(...)` falls back to literal text for non-key strings, but new user-visible strings should still get real keys when nearby code is localized.
 - Use DBN `Messages`, `Dialogs`, and `MessageBundle` helpers for user-facing notifications/dialogs.
+- Follow JetBrains UI writing rules when adding or editing NLS values:
+  - Use title capitalization for actions in buttons, menus, and tooltips, and for table, popup, message-box, dialog, and control-group headers. Capitalize the first and last word; do not capitalize short articles, conjunctions, or non-phrasal prepositions in the middle. In hyphenated titles, capitalize nouns/adjectives/adverbs, for example `Command-Line Client`.
+  - Use sentence capitalization for UI control labels, combo/list/tree/table items, links, notification headers/body, error body text, tooltips, status descriptions, instructions, inspections, quick-fixes, and editor messages. Capitalize only the first word, proper nouns/adjectives, and abbreviations.
+  - Keep UI text short and clear: present tense, one idea per sentence, active voice, user-perspective wording, no unnecessary generic words like `general` or `options`, no redundant words such as `specify` when the control already implies input, and no direct address to the user unless needed.
+  - Punctuation: use the ellipsis character `…` only for actions that open input-capable dialogs, truncated text without a scrollbar, or ongoing progress text. Do not end a single sentence or IDE action with a period; use periods between multiple sentences. Use commas in lists of three or more items. Use colons after labels for input fields or checkbox/radio groups unless the label and input text form one phrase. Avoid contractions except established UI phrases like `Don't ask again`.
+  - Use straight single quotes for referenced code or values in messages and quick-fixes; do not quote keyboard key names and do not use double quotes. Use question marks only for confirmation alerts, and do not use exclamation points.
+  - Inspection NLS: keep names under about 50 characters, sentence-cased, problem-focused, and specific. Do not repeat the group name, include words like `problem`, `check`, `inspection`, `issue`, `warning`, or `error`, or use parentheses. Descriptions should start with a verb such as `Reports`, avoid `This inspection`, avoid repeating the inspection name, and mention quick-fixes or docs when helpful. Editor messages describe the highlighted problem in context; quick-fix text describes the action and uses button-style wording.
 
 ## IntelliJ Plugin XML
 
