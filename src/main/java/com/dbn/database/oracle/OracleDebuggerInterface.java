@@ -187,7 +187,6 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
     @Override
     public String getDebugConsoleTemplate(CodeStyleCaseSettings settings) {
         CodeStyleCaseOption kco = settings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = settings.getObjectCaseOption();
         return START_OFFSET_IDENTIFIER +
                 kco.format("DECLARE\n") +
                 END_OFFSET_IDENTIFIER +

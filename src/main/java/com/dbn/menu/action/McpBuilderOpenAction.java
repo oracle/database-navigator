@@ -21,7 +21,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.action.AbstractConnectionAction;
-import com.dbn.mcp.MCPServerManager;
+import com.dbn.mcp.McpServerBuilderManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -86,6 +86,8 @@ public class McpBuilderOpenAction extends ProjectAction {
     }
 
     private static void openMcpBuilder(ConnectionHandler connection) {
-        MCPServerManager.getInstance(connection.getProject()).openMCPBuilder(connection);
+        Project project = connection.getProject();
+        McpServerBuilderManager builderManager = McpServerBuilderManager.getInstance(project);
+        builderManager.openMCPBuilder(connection);
     }
 }

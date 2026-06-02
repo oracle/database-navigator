@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2026 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.language.common;
+package com.dbn.language.common.quotes;
 
 import org.jetbrains.annotations.NonNls;
 
@@ -48,9 +48,13 @@ public class QuoteDefinition {
     }
 
     public String unquote(String objectName) {
+        return unquote(objectName, QuoteEscaping.NONE);
+    }
+
+    public String unquote(String objectName, QuoteEscaping escaping) {
         for (QuotePair quotePair : quotePairs) {
             if (quotePair.isQuoted(objectName)) {
-                objectName = quotePair.unquote(objectName);
+                objectName = quotePair.unquote(objectName, escaping);
             }
         }
         return objectName;

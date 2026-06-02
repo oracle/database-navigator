@@ -26,11 +26,11 @@ import org.codehaus.groovy.ast.expr.ConstantExpression;
 import org.codehaus.groovy.ast.expr.ListExpression;
 import org.codehaus.groovy.ast.expr.NotExpression;
 import org.codehaus.groovy.ast.expr.VariableExpression;
-import org.codehaus.groovy.ast.stmt.SynchronizedStatement;
-import org.codehaus.groovy.ast.stmt.ThrowStatement;
-import org.codehaus.groovy.ast.stmt.TryCatchStatement;
+import org.codehaus.groovy.ast.stmt.BlockStatement;
+import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.SecureASTCustomizer;
+import org.codehaus.groovy.syntax.Types;
 
 import java.util.List;
 
@@ -50,12 +50,17 @@ public final class GroovySandboxFactory {
         secure.setStaticImportsWhitelist(emptyList());
         secure.setStaticStarImportsWhitelist(emptyList());
 
-        // Disallow new instance creation
+        // Disallow new instance creation and executable definitions
         secure.setIndirectImportCheckEnabled(true);
         secure.setClosuresAllowed(false);
-        secure.setMethodDefinitionAllowed(false); // no user‑defined methods
+        secure.setMethodDefinitionAllowed(false);
 
-        // Allowed expression types (whitelist);
+        // Groovy wraps evaluated snippets in a block; allow only plain expression statements inside it
+        secure.setAllowedStatements(List.of(
+                BlockStatement.class,
+                ExpressionStatement.class));
+
+        // Allowed expression types
         secure.setAllowedExpressions(List.of(
                 NotExpression.class,
                 BinaryExpression.class,
@@ -65,19 +70,28 @@ public final class GroovySandboxFactory {
                 ListExpression.class,
                 ArgumentListExpression.class));
 
-        // Disallow things that are obviously dangerous
+        // Allowed operators for SQL-filter style predicates
+        secure.setAllowedTokens(List.of(
+                Types.COMPARE_EQUAL,
+                Types.COMPARE_NOT_EQUAL,
+                Types.COMPARE_LESS_THAN,
+                Types.COMPARE_LESS_THAN_EQUAL,
+                Types.COMPARE_GREATER_THAN,
+                Types.COMPARE_GREATER_THAN_EQUAL,
+                Types.KEYWORD_IN,
+                Types.LOGICAL_AND,
+                Types.LOGICAL_OR,
+                Types.MATCH_REGEX,
+                Types.NOT,
+                Types.PREFIX_MINUS,
+                Types.PREFIX_PLUS));
+
         secure.setReceiversBlackList(List.of("java.lang.System"));
-        secure.setStatementsBlacklist(List.of(
-                ThrowStatement.class,
-                TryCatchStatement.class,
-                SynchronizedStatement.class));
 
         // Prevent package declarations
         secure.setPackageAllowed(false);
 
-        // using an additional customizer (not shown here for brevity).
         config.addCompilationCustomizers(secure);
-
         return new GroovyShell(binding, config);
     }
 }

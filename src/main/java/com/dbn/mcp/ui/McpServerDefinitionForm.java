@@ -340,6 +340,7 @@ public class McpServerDefinitionForm extends DBNFormBase {
     }
 
     private void saveConfiguration(VirtualFile file) {
+        applyFormChanges();
         Element element = new Element("mcp-server-definition");
         getServerDefinition().writeState(element);
 

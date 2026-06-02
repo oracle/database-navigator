@@ -144,7 +144,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         Project project = getProject();
 
         DBObjectType objectType = input.getObjectType();
-        ObjectFactoryAdapter<DBObjectSpec, ?> factoryAdapter = ObjectFactoryAdapters.get(objectType);
+        ObjectFactoryAdapter factoryAdapter = ObjectFactoryAdapters.get(objectType);
 
         List<String> errors = new ArrayList<>();
         factoryAdapter.validateInput(input, errors);
