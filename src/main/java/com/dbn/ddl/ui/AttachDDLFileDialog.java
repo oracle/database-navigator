@@ -33,6 +33,7 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.nls.NlsResources.txt;
 
 public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     private final DBObjectRef<DBSchemaObject> object;
@@ -40,7 +41,7 @@ public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     private final List<VirtualFileInfo> fileInfos;
 
     public AttachDDLFileDialog(List<VirtualFileInfo> fileInfos, @NotNull DBSchemaObject object, boolean showLookupOption) {
-        super(object.getProject(), "Attach DDL file", true);
+        super(object.getProject(), txt("msg.ddlFiles.title.AttachDdlFile"), true);
         this.fileInfos = fileInfos;
         this.object = DBObjectRef.of(object);
         this.showLookupOption = showLookupOption;

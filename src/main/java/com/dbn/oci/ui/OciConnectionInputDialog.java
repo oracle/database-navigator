@@ -26,6 +26,7 @@ import java.io.IOException;
 
 import static com.dbn.browser.DatabaseBrowserUtils.promoteNewConnection;
 import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.oci.util.WalletPasswordGenerator.generateRandomPassword;
 
 public class OciConnectionInputDialog extends DBNDialog<OciConnectionInputForm> implements NotificationSupport {

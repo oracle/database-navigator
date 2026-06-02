@@ -31,6 +31,8 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import java.awt.event.ActionEvent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JavaExecutionBrowserDialog extends DBNDialog<JavaExecutionBrowserForm> implements Disposable {
     private SelectAction selectAction;
     private DBObjectRef<DBJavaMethod> methodRef;  // TODO dialog result - Disposable.nullify(...)
@@ -38,7 +40,7 @@ public class JavaExecutionBrowserDialog extends DBNDialog<JavaExecutionBrowserFo
     private final boolean debug;
 
     public JavaExecutionBrowserDialog(Project project, ObjectTreeModel objectTreeModel, boolean debug) {
-        super(project, "Method browser", true);
+        super(project, txt("msg.execution.title.MethodBrowser"), true);
         setModal(true);
         setResizable(true);
         this.objectTreeModel = objectTreeModel;

@@ -26,12 +26,14 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class CodeGeneratorInputDialog extends DBNDialog<CodeGeneratorInputForm> {
     private final CodeGeneratorContext context;
 
     public CodeGeneratorInputDialog(CodeGeneratorContext context) {
-        super(context.getProject(), "Generate Code (" + context.getGeneratorName() + ")", false);
+        super(context.getProject(), txt("msg.codeGenerator.title.GenerateCode", context.getGeneratorName()), false);
         this.context = context;
 
         // add handler to close the dialog on success

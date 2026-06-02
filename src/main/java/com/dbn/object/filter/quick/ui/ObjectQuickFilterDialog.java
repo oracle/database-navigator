@@ -27,10 +27,12 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectQuickFilterDialog extends DBNDialog<ObjectQuickFilterForm> {
     private final DBObjectList<?> objectList;
     public ObjectQuickFilterDialog(Project project, DBObjectList<?> objectList) {
-        super(project, "Quick filter", true);
+        super(project, txt("msg.objects.title.QuickFilter"), true);
         this.objectList = objectList;
         setModal(true);
         //setResizable(false);

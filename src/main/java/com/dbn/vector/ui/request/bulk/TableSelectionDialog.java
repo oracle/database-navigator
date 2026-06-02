@@ -26,13 +26,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.util.Messages.showWarningDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class TableSelectionDialog extends DBNDialog<TableSelectionForm> {
     // Store selected tables BEFORE dialog closes (components get disposed after close)
     private List<EmbeddingSourceTable> selectedTableSources = new ArrayList<>();
 
     public TableSelectionDialog(@NotNull ConnectionHandler connection) {
-        super(connection, "Add Tables", true);
+        super(connection, txt("msg.vector.title.AddTables"), true);
         setDefaultSize(650, 550);
         init();
     }

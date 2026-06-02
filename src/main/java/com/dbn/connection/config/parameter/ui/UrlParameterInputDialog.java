@@ -24,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 import java.util.Map;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * A dialog that collects Easy Connect URL-specific parameters.  These are distinct from the regular driver
  * "properties" that are set elsewhere.  The dialog is meant be called with any existing set parameters
@@ -34,7 +36,7 @@ public class UrlParameterInputDialog extends DBNDialog<UrlParameterInputForm> {
     private final Map<String, String> parameters;
 
     public UrlParameterInputDialog(Project project, Map<String, String> parameters) {
-        super(project, "Easy-Connect Parameters", false); // TODO specific to EZ_CONNECT - make more generic
+        super(project, txt("msg.connection.title.EasyConnectParameters"), false); // TODO specific to EZ_CONNECT - make more generic
         this.parameters = parameters;
 
         init();

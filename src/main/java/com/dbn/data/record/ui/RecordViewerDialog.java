@@ -28,11 +28,13 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class RecordViewerDialog extends DBNDialog<RecordViewerForm> {
     private final DatasetRecord record;
 
     public RecordViewerDialog(Project project, DatasetRecord record) {
-        super(project, "View record", true);
+        super(project, txt("msg.dataEditor.title.ViewRecord"), true);
         this.record = record; 
         setModal(false);
         setResizable(true);

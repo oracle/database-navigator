@@ -30,6 +30,8 @@ import javax.swing.Action;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
 
   private final DBObjectRef<DBCredential> credential;
@@ -47,7 +49,9 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
   }
 
   private static String getDialogTitle(@Nullable DBCredential credential) {
-    return credential == null ? "Create Credential" : "Update Credential";
+    return credential == null ?
+            com.dbn.nls.NlsResources.txt("msg.assistant.title.CreateCredential") :
+            com.dbn.nls.NlsResources.txt("msg.assistant.title.UpdateCredential");
   }
 
   /**

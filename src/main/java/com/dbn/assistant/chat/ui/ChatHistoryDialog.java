@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
     private final List<Chat> chats;
@@ -40,7 +41,7 @@ public class ChatHistoryDialog extends DBNDialog<ChatHistoryForm> {
             List<Chat> chats,
             Consumer<String> openAction,
             Consumer<List<String>> deleteAction) {
-        super(project, "Chat History", true);
+        super(project, txt("msg.assistant.title.ChatHistory"), true);
         this.chats = chats;
         this.openAction = openAction;
         this.deleteAction = deleteAction;

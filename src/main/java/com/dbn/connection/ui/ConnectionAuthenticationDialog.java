@@ -28,13 +28,15 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class ConnectionAuthenticationDialog extends DBNDialog<ConnectionAuthenticationForm> {
     private boolean rememberCredentials;
     private final WeakRef<AuthenticationInfo> authenticationInfo; // TODO dialog result - Disposable.nullify(...)
 
     public ConnectionAuthenticationDialog(Project project, @Nullable ConnectionHandler connection, @NotNull AuthenticationInfo authenticationInfo) {
-        super(project, "Enter credentials", true);
+        super(project, txt("msg.connection.title.EnterCredentials"), true);
         this.authenticationInfo = WeakRef.of(authenticationInfo);
         setModal(true);
         setResizable(true);

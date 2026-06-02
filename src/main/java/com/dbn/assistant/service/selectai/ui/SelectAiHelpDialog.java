@@ -22,10 +22,12 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SelectAiHelpDialog extends DBNDialog<SelectAiHelpForm> {
 
   public SelectAiHelpDialog(ConnectionHandler connection) {
-    super(connection, "Select AI Help", true);
+    super(connection, txt("msg.assistant.title.SelectAiHelp"), true);
 
     setResizable(false);
     init();

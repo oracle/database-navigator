@@ -26,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class EmbeddingSourceInputQueryDialog extends DBNDialog<EmbeddingSourceInputQueryForm> {
     private final EmbeddingSourceQuery sourceQuery;
@@ -41,9 +43,9 @@ public class EmbeddingSourceInputQueryDialog extends DBNDialog<EmbeddingSourceIn
     }
 
     private static String getDialogTitle(RecordOperation operation) {
-        return operation == RecordOperation.CREATE ? "Add Source Query" :
-                operation == RecordOperation.UPDATE ? "Update Source Query" :
-                "Source Query";
+        return operation == RecordOperation.CREATE ? txt("msg.vector.title.AddSourceQuery") :
+                operation == RecordOperation.UPDATE ? txt("msg.vector.title.UpdateSourceQuery") :
+                txt("msg.vector.title.SourceQuery");
     }
 
 

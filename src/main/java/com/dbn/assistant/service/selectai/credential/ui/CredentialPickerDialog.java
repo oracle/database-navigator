@@ -25,11 +25,13 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CredentialPickerDialog extends DBNDialog<CredentialPickerForm> {
   private final Consumer<AssistantCredential> callback;
 
   public CredentialPickerDialog(Project project, Consumer<AssistantCredential> callback) {
-    super(project, "Credential Templates", true);
+    super(project, txt("msg.assistant.title.CredentialTemplates"), true);
 
     Action okAction = getOKAction();
     okAction.setEnabled(false);

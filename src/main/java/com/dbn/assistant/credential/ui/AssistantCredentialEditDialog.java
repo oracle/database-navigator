@@ -24,13 +24,17 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredentialEditForm> {
     private final AssistantCredential credential;
     private final AssistantCredentialEditRequest request;
 
     public AssistantCredentialEditDialog(Project project, AssistantCredentialEditRequest request) {
-        super(project, request.isNewCredential() ? "Create Credential" : "Update Credential", true);
+        super(project, request.isNewCredential() ?
+                txt("msg.assistant.title.CreateCredential") :
+                txt("msg.assistant.title.UpdateCredential"), true);
         this.request = request;
         this.credential = initCredential();
 
@@ -77,4 +81,3 @@ public class AssistantCredentialEditDialog extends DBNDialog<AssistantCredential
         super.doOKAction();
     }
 }
-

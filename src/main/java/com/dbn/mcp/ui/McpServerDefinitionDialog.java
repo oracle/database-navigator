@@ -29,6 +29,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm> {
 
     private final ConnectionHandler connection;
@@ -37,7 +39,7 @@ public class McpServerDefinitionDialog extends DBNDialog<McpServerDefinitionForm
     private Action saveAsAction;
 
     public McpServerDefinitionDialog(@NotNull ConnectionHandler connection, McpServerDefinition definition) {
-        super(connection, "MCP Server Builder", true);
+        super(connection, txt("msg.mcp.title.McpServerBuilder"), true);
         this.connection = connection;
         this.definition = definition;
         setDefaultSize(600, 600);

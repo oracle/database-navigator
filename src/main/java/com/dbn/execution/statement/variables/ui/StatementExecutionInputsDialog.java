@@ -29,6 +29,7 @@ import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
 import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class StatementExecutionInputsDialog extends DBNDialog<StatementExecutionInputForm> {
     private final StatementExecutionProcessor executionProcessor;
@@ -38,7 +39,9 @@ public class StatementExecutionInputsDialog extends DBNDialog<StatementExecution
     private boolean reuseVariables = false;
 
     public StatementExecutionInputsDialog(StatementExecutionProcessor executionProcessor, DBDebuggerType debuggerType, boolean bulkExecution) {
-        super(executionProcessor.getProject(), (debuggerType.isDebug() ? "Debug" : "Execute") + " statement", true);
+        super(executionProcessor.getProject(), debuggerType.isDebug() ?
+                txt("msg.execution.title.DebugStatement") :
+                txt("msg.execution.title.ExecuteStatement"), true);
         this.executionProcessor = executionProcessor;
         this.debuggerType = debuggerType;
         this.bulkExecution = bulkExecution;

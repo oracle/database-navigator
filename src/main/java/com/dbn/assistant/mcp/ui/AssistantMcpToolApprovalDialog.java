@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 
 import static com.dbn.help.HelpTopic.DATABASE_ASSISTANT_TOOLS;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Wrapper factory result dialog
@@ -36,7 +37,7 @@ public class AssistantMcpToolApprovalDialog extends DBNDialog<AssistantMcpToolAp
   private final AssistantMcpServer mcpServer;
 
   public AssistantMcpToolApprovalDialog(Project project, AssistantMcpServer mcpServer) {
-    super(project, "Assistant MCP Tool Approvals", false);
+    super(project, txt("msg.assistant.title.AssistantMcpToolApprovals"), false);
     this.setDefaultSize(640,  800);
     this.setModal(true);
     this.setAutoSize(true);

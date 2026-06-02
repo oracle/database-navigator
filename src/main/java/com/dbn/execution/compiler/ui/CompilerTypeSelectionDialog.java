@@ -30,13 +30,15 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class CompilerTypeSelectionDialog extends DBNDialog<CompilerTypeSelectionForm> {
     private CompileType selection;
     private DBObjectRef<DBSchemaObject> object;
 
     public CompilerTypeSelectionDialog(Project project, @Nullable DBSchemaObject object) {
-        super(project, "Compile type", true);
+        super(project, txt("msg.compiler.title.CompileType"), true);
         setModal(true);
         setResizable(false);
         this.object = DBObjectRef.of(object);

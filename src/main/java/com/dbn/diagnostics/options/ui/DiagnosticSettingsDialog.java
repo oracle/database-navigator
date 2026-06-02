@@ -25,11 +25,12 @@ import javax.swing.Action;
 
 import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DiagnosticSettingsDialog extends DBNDialog<DiagnosticSettingsForm> {
 
     public DiagnosticSettingsDialog(Project project) {
-        super(project, "Diagnostic Settings", true);
+        super(project, txt("msg.diagnostics.title.DiagnosticSettings"), true);
         setModal(false);
         setResizable(true);
         setCancelButtonText("Cancel");

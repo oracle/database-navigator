@@ -25,12 +25,14 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class EmbeddingChunkLabDialog extends DBNDialog<EmbeddingChunkLabForm> {
   private EmbeddingChunkingConfig chunkConfig;
 
   public EmbeddingChunkLabDialog(ConnectionHandler connection, EmbeddingChunkingConfig chunkConfig) {
-    super(connection, "Chunk Lab", true);
+    super(connection, txt("msg.vector.title.ChunkLab"), true);
     this.chunkConfig = chunkConfig;
     renameAction(getOKAction(), "Use Configuration");
     init();

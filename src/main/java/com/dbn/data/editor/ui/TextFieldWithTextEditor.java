@@ -39,6 +39,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class TextFieldWithTextEditor extends TextFieldWithButtons {
     private final JComponent button;
@@ -53,7 +55,7 @@ public class TextFieldWithTextEditor extends TextFieldWithButtons {
         this.displayValue = displayValue;
         setBounds(0, 0, 0, 0);
 
-        button = createButton(Icons.DATA_EDITOR_BROWSE, "Text Editor");
+        button = createButton(Icons.DATA_EDITOR_BROWSE, txt("msg.dataEditor.title.TextEditor"));
         button.addMouseListener(mouseListener);
         Shortcut[] shortcuts = Keyboard.getShortcuts(IdeActions.ACTION_SHOW_INTENTION_ACTIONS);
         String shortcutText = KeymapUtil.getShortcutsText(shortcuts);

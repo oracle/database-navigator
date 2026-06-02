@@ -5,7 +5,6 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.mcp.model.McpServerDefinition;
 import com.dbn.mcp.model.McpToolDefinition;
-import com.dbn.nls.NlsResources;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Action;
 
 import static com.dbn.common.util.Messages.options;
+import static com.dbn.nls.NlsResources.txt;
 
 
 public class McpToolDefinitionDialog extends DBNDialog<McpToolDefinitionForm> {
@@ -24,7 +24,7 @@ public class McpToolDefinitionDialog extends DBNDialog<McpToolDefinitionForm> {
                                    @NotNull ConnectionHandler connection,
                                    @NotNull McpServerDefinition serverDefinition,
                                    @Nullable McpToolDefinition toolDefinition) {
-        super(project, toolDefinition == null ? NlsResources.txt("msg.mcp.title.CreateMcpTool") : NlsResources.txt("msg.mcp.title.EditMcpTool"), true);
+        super(project, toolDefinition == null ? txt("msg.mcp.title.CreateMcpTool") : txt("msg.mcp.title.EditMcpTool"), true);
         this.connection = connection;
         this.serverDefinition = serverDefinition;
         this.toolDefinition = toolDefinition;

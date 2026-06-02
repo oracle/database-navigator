@@ -24,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm> {
     private final ObjectFilter<?> filter;
@@ -62,7 +64,9 @@ public class ObjectFilterDetailsDialog extends DBNDialog<ObjectFilterDetailsForm
     }
 
     private static String getTitle(boolean create) {
-        return create ? "Create Filter" : "Edit Filter";
+        return create ?
+                txt("msg.objects.title.CreateFilter") :
+                txt("msg.objects.title.EditFilter");
     }
 
     public void setActionEnabled(boolean enabled) {

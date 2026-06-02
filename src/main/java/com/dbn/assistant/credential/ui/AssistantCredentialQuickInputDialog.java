@@ -40,6 +40,7 @@ import javax.swing.Action;
 
 import static com.dbn.assistant.profile.AssistantProfileLookup.getImplicitProfile;
 import static com.dbn.common.util.Modality.nonModal;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCredentialQuickInputForm> {
@@ -54,7 +55,7 @@ public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCred
             AssistantProfile profile,
             Consumer<AssistantProfile> profileConsumer,
             Consumer<AssistantCredential> credentialConsumer) {
-        super(project, "Provide Credential", true);
+        super(project, txt("msg.assistant.title.ProvideCredential"), true);
         this.provider = provider;
         this.profile = profile;
         this.profileConsumer = profileConsumer;
@@ -155,4 +156,3 @@ public class AssistantCredentialQuickInputDialog extends DBNDialog<AssistantCred
         Dialogs.show(() -> new AssistantCredentialQuickInputDialog(project, provider, profile, profileConsumer, cretentialConsumer));
     }
 }
-

@@ -32,6 +32,8 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JavaExecutionHistoryDialog extends DBNDialog<JavaExecutionHistoryForm> {
 	private SelectAction selectAction;
 	private ExecuteAction executeAction;
@@ -44,7 +46,7 @@ public class JavaExecutionHistoryDialog extends DBNDialog<JavaExecutionHistoryFo
 
 	public JavaExecutionHistoryDialog(@NotNull Project project, @Nullable JavaExecutionInput executionInput, boolean editable, boolean modal, boolean debug) {
 
-		super(project, "Java execution history", true);
+		super(project, txt("msg.java.title.JavaExecutionHistory"), true);
 		this.selectedExecutionInput = WeakRef.of(executionInput);
 		this.editable = editable;
 		this.debug = debug;

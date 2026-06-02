@@ -26,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class EmbeddingSourceInputTableDialog extends DBNDialog<EmbeddingSourceInputTableForm> {
     private final EmbeddingSourceTable tableSource;
@@ -41,9 +43,9 @@ public class EmbeddingSourceInputTableDialog extends DBNDialog<EmbeddingSourceIn
     }
 
     private static String getDialogTitle(RecordOperation operation) {
-        return operation == RecordOperation.CREATE ? "Add Source Table" :
-                operation == RecordOperation.UPDATE ? "Update Source Table" :
-                "Source Table";
+        return operation == RecordOperation.CREATE ? txt("msg.vector.title.AddSourceTable") :
+                operation == RecordOperation.UPDATE ? txt("msg.vector.title.UpdateSourceTable") :
+                txt("msg.vector.title.SourceTable");
     }
 
 

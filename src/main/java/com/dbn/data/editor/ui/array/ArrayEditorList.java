@@ -29,7 +29,7 @@ import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 public class ArrayEditorList extends EditableStringList {
     public ArrayEditorList(ArrayEditorPopupProviderForm parent, ListProperty ... properties) {
         super(parent, properties);
-        setAccessibleName(this, "Array Editor");
+        setAccessibleName(this, txt("msg.dataEditor.title.ArrayEditor"));
     }
 
     @Override

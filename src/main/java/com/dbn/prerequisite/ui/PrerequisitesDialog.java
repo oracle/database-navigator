@@ -27,12 +27,14 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class PrerequisitesDialog extends DBNDialog<PrerequisitesForm> implements PrerequisiteEventListener {
     private final PrerequisiteGroup prerequisiteGroup;
 
     public PrerequisitesDialog(PrerequisiteGroup prerequisiteGroup) {
-        super(prerequisiteGroup.getProject(), "Prerequisite Verification", false);
+        super(prerequisiteGroup.getProject(), txt("msg.prerequisites.title.PrerequisiteVerification"), false);
         this.setModal(false);
         this.prerequisiteGroup = prerequisiteGroup;
         this.prerequisiteGroup.addEventListener(this);

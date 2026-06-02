@@ -33,7 +33,6 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.help.HelpTopic;
-import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -91,7 +90,7 @@ import static com.dbn.common.util.Unsafe.cast;
 
 @Getter
 @Setter
-public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, NlsSupport, UserDataHolder {
+public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper implements DBNComponent, UserDataHolder {
     public static final String HIDDEN = "HIDDEN";
     public static final String PARENT = "PARENT";
 

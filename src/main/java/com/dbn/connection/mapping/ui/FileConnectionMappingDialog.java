@@ -25,12 +25,14 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class FileConnectionMappingDialog extends DBNDialog<FileConnectionMappingForm> {
     private final FileConnectionContext selectedContext;
 
     public FileConnectionMappingDialog(Project project, @Nullable FileConnectionContext selectedContext) {
-        super(project, "File connection mappings", true);
+        super(project, txt("msg.fileContext.title.FileConnectionMappings"), true);
         setModal(false);
         setResizable(true);
         setDefaultSize(1200, 700);

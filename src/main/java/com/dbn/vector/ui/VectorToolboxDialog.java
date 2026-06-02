@@ -11,11 +11,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class VectorToolboxDialog extends DBNDialog<VectorToolboxForm> {
   private final VectorEmbeddingRequest request;
 
   public VectorToolboxDialog(ConnectionHandler connection, VectorEmbeddingRequest request) {
-    super(connection, "Vector Toolbox", true);
+    super(connection, txt("msg.vector.title.VectorToolbox"), true);
     this.request = request;
 
     setDefaultSize(680, 1000);

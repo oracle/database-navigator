@@ -45,6 +45,7 @@ import java.awt.event.ActionEvent;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
@@ -94,7 +95,9 @@ public class ProjectSettingsDialog extends DBNDialog<ProjectSettingsForm> {
     }
 
     public ProjectSettingsDialog(Project project) {
-        super(project, project.isDefault() ? "Default Settings" : "Settings", true);
+        super(project, project.isDefault() ?
+                txt("msg.settings.title.DefaultSettings") :
+                txt("msg.settings.title.Settings"), true);
         setModal(true);
         setResizable(true);
         //setHorizontalStretch(1.5f);

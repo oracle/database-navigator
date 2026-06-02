@@ -29,6 +29,8 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Main Database Assistant settings dialog
  * Features profiles and credential visualisation and management
@@ -38,7 +40,7 @@ import java.awt.event.ActionEvent;
 public class ProfilesAndCredentialsDialog extends DBNDialog<ProfilesAndCredentialsForm> {
 
   public ProfilesAndCredentialsDialog(ConnectionHandler connection) {
-    super(connection, "Select AI Profiles and Credentials", true);
+    super(connection, txt("msg.assistant.title.SelectAiProfilesAndCredentials"), true);
     setDefaultSize(800, 600);
     init();
   }

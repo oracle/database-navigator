@@ -24,11 +24,13 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JavaUploadResultDialog extends DBNDialog<JavaUploadResultForm> {
 	private final JavaUploadBatch batch;
 
 	public JavaUploadResultDialog(JavaUploadBatch batch) {
-		super(batch.getProject(), "Java Upload Result", false);
+		super(batch.getProject(), txt("msg.java.title.JavaUploadResult"), false);
 		//this.setDefaultSize(380, 420);
 		this.setModal(true);
 		this.setAutoSize(true);

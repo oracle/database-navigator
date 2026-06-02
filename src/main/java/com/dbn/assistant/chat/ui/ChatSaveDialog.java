@@ -27,6 +27,8 @@ import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.util.Set;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
     private final ChatInterruptionReason changedField;
@@ -34,7 +36,7 @@ public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
     private String title;
 
     public ChatSaveDialog(Project project, ChatInterruptionReason changedField, Set<String> usedTitles) {
-        super(project, "Save Chat", true);
+        super(project, txt("msg.assistant.title.SaveChat"), true);
         this.changedField = changedField;
         this.usedTitles = usedTitles;
         setModal(true);
@@ -81,4 +83,3 @@ public class ChatSaveDialog extends DBNDialog<ChatSaveForm> {
         return super.getOKAction();
     }
 }
-

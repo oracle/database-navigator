@@ -22,11 +22,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ResultSetRecordViewerDialog extends DBNDialog<ResultSetRecordViewerForm> {
     private final ResultSetTable<?> table;
     private final boolean showDataTypes;
     public ResultSetRecordViewerDialog(ResultSetTable<?> table, boolean showDataTypes) {
-        super(table.getProject(), "View record", true);
+        super(table.getProject(), txt("msg.dataEditor.title.ViewRecord"), true);
         this.table = table;
         this.showDataTypes = showDataTypes;
         setModal(true);

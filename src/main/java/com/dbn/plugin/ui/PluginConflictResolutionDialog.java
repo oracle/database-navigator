@@ -24,9 +24,11 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class PluginConflictResolutionDialog extends DBNDialog<PluginConflictResolutionForm> {
     public PluginConflictResolutionDialog() {
-        super((Project) null, "Plugin Conflict Resolution", true);
+        super((Project) null, txt("msg.plugin.title.PluginConflictResolution"), true);
         setModal(true);
         setResizable(false);
         //setDefaultSize(700, 400);

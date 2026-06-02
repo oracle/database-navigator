@@ -24,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Wrapper factory result dialog
  * Lists all the database objects that were created as part of execution wrapper factory activity
@@ -35,7 +37,7 @@ public class WrapperResultDialog extends DBNDialog<WrapperResultForm> {
   private final WrapperModel model;
 
   public WrapperResultDialog(Project project, WrapperModel model) {
-    super(project, "Wrapper Result", false);
+    super(project, txt("msg.java.title.WrapperResult"), false);
     //this.setDefaultSize(380, 420);
     this.setModal(true);
     this.setAutoSize(true);

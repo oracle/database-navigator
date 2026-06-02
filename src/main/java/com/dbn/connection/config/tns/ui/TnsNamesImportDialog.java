@@ -31,6 +31,8 @@ import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class TnsNamesImportDialog extends DBNDialog<TnsNamesImportForm> {
     private final TnsImportData importData = new TnsImportData();
@@ -40,7 +42,7 @@ public class TnsNamesImportDialog extends DBNDialog<TnsNamesImportForm> {
     private final File file;
 
     public TnsNamesImportDialog(Project project, @Nullable File file) {
-        super(project, "Import TNS names", true);
+        super(project, txt("msg.connection.title.ImportTnsNames"), true);
         this.file = file;
         setModal(true);
         init();

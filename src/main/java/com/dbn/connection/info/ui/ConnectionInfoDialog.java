@@ -28,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Action;
 import java.sql.SQLException;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ConnectionInfoDialog extends DBNDialog<ConnectionInfoForm> {
     private ConnectionRef connection;
     private ConnectionInfo connectionInfo;
@@ -36,7 +38,7 @@ public class ConnectionInfoDialog extends DBNDialog<ConnectionInfoForm> {
     private EnvironmentType environmentType;
 
     public ConnectionInfoDialog(@NotNull ConnectionHandler connection, @Nullable ConnectionInfo connectionInfo, @Nullable SQLException connectionError) {
-        super(connection.getProject(), "Connection information", true);
+        super(connection.getProject(), txt("msg.connection.title.ConnectionInformation"), true);
         this.connection = connection.ref();
         this.connectionInfo = connectionInfo;
         this.connectionError = connectionError;
@@ -45,7 +47,7 @@ public class ConnectionInfoDialog extends DBNDialog<ConnectionInfoForm> {
     }
 
     public ConnectionInfoDialog(Project project, ConnectionInfo connectionInfo, String connectionName, EnvironmentType environmentType) {
-        super(project, "Connection information", true);
+        super(project, txt("msg.connection.title.ConnectionInformation"), true);
         this.connectionInfo = connectionInfo;
         this.connectionName = connectionName;
         this.environmentType = environmentType;

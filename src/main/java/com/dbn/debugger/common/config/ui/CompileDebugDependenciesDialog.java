@@ -28,6 +28,8 @@ import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CompileDebugDependenciesDialog extends DBNDialog<CompileDebugDependenciesForm> {
     private final DBRunConfig runConfiguration;
     private final List<DBSchemaObject> compileList;
@@ -36,7 +38,7 @@ public class CompileDebugDependenciesDialog extends DBNDialog<CompileDebugDepend
     private DBObjectRef<DBSchemaObject>[] selection;
 
     public CompileDebugDependenciesDialog(DBRunConfig runConfiguration, List<DBSchemaObject> compileList) {
-        super(runConfiguration.getProject(), "Compile object dependencies", true);
+        super(runConfiguration.getProject(), txt("msg.debugger.title.CompileObjectDependencies"), true);
         this.runConfiguration = runConfiguration;
         this.compileList = compileList;
         init();

@@ -30,12 +30,14 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ExportDataDialog extends DBNDialog<ExportDataForm> {
     private final DataExportSource source;
     private DataExportInstructions instructions;
 
     public ExportDataDialog(@NotNull DataExportSource source, @Nullable DataExportInstructions instructions) {
-        super(source.getProject(), "Export data", true);
+        super(source.getProject(), txt("msg.dataExport.title.ExportData"), true);
         this.source = source;
         this.instructions = instructions;
         init();

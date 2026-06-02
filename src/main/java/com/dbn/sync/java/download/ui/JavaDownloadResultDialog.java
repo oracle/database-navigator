@@ -25,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Wrapper factory result dialog
  * Lists all the database objects that were created as part of execution wrapper factory activity
@@ -39,7 +41,7 @@ public class JavaDownloadResultDialog extends DBNDialog<JavaDownloadResultForm> 
     private final Action openSelectedAction = createAction("Open Selected", () -> openJavaEditors(true));
 
     public JavaDownloadResultDialog(JavaDownloadBatch batch) {
-        super(batch.getProject(), "Java Download Result", false);
+        super(batch.getProject(), txt("msg.java.title.JavaDownloadResult"), false);
         //this.setDefaultSize(380, 420);
         this.setModal(false);  // non-modal: to allow opening the editors from the dialog
         this.setAutoSize(true);

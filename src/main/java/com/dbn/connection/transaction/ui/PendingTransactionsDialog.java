@@ -36,12 +36,13 @@ import java.util.List;
 
 import static com.dbn.connection.transaction.TransactionAction.COMMIT;
 import static com.dbn.connection.transaction.TransactionAction.ROLLBACK;
+import static com.dbn.nls.NlsResources.txt;
 
 public class PendingTransactionsDialog extends DBNDialog<PendingTransactionsForm> {
     private final TransactionAction additionalOperation;
 
     public PendingTransactionsDialog(Project project, TransactionAction additionalOperation) {
-        super(project, "Open transactions overview", true);
+        super(project, txt("msg.transactions.title.OpenTransactionsOverview"), true);
         this.additionalOperation = additionalOperation;
         setModal(false);
         setResizable(true);

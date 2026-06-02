@@ -33,6 +33,7 @@ import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
 import static com.dbn.help.HelpTopic.METHOD_EXECUTION_HISTORY;
+import static com.dbn.nls.NlsResources.txt;
 
 public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHistoryForm> {
     private SelectAction selectAction;
@@ -51,7 +52,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog<MethodExecutionHisto
             boolean modal,
             boolean debug) {
 
-        super(project, "Method execution history", true);
+        super(project, txt("msg.execution.title.MethodExecutionHistory"), true);
         this.selectedExecutionInput = WeakRef.of(executionInput);
         this.editable = editable;
         this.debug = debug;

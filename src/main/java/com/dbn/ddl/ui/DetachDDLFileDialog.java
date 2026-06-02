@@ -31,12 +31,13 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 import static com.dbn.common.text.TextContent.plain;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DetachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     private final List<VirtualFileInfo> fileInfos;
     private final DBObjectRef<DBSchemaObject> objectRef;
     public DetachDDLFileDialog(@NotNull List<VirtualFileInfo> fileInfos, @NotNull DBSchemaObject object) {
-        super(object.getProject(), "Detach DDL files", true);
+        super(object.getProject(), txt("msg.ddlFiles.title.DetachDdlFiles"), true);
         this.fileInfos = fileInfos;
         this.objectRef = DBObjectRef.of(object);
         setDefaultSize(700, 400);

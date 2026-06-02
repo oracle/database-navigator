@@ -32,13 +32,14 @@ import java.util.List;
 
 import static com.dbn.connection.transaction.TransactionAction.COMMIT;
 import static com.dbn.connection.transaction.TransactionAction.ROLLBACK;
+import static com.dbn.nls.NlsResources.txt;
 
 public class PendingTransactionsDetailDialog extends DBNDialog<PendingTransactionsDetailForm> {
     private final TransactionAction additionalOperation;
     private final boolean showActions;
 
     public PendingTransactionsDetailDialog(ConnectionHandler connection, TransactionAction additionalOperation, boolean showActions) {
-        super(connection, "Open transactions", true);
+        super(connection, txt("msg.transactions.title.OpenTransactions"), true);
         this.additionalOperation = additionalOperation;
         this.showActions = showActions;
         setModal(false);

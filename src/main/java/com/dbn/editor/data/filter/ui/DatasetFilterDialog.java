@@ -34,6 +34,7 @@ import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatasetFilterDialog extends DBNDialog<DatasetFilterForm> {
     private final boolean automaticPrompt;
@@ -41,7 +42,7 @@ public class DatasetFilterDialog extends DBNDialog<DatasetFilterForm> {
     private DatasetFilterGroup filterGroup;
 
     public DatasetFilterDialog(@NotNull DBDataset dataset, boolean automaticPrompt, boolean createNewFilter, DatasetFilterType defaultFilterType) {
-        super(dataset.getProject(), "Data filters", true);
+        super(dataset.getProject(), txt("msg.dataEditor.title.DataFilters"), true);
         this.dataset = DBObjectRef.of(dataset);
         this.automaticPrompt = automaticPrompt;
         setDefaultSize(1000, 700);
@@ -57,7 +58,7 @@ public class DatasetFilterDialog extends DBNDialog<DatasetFilterForm> {
     }
 
     public DatasetFilterDialog(DBDataset dataset, DatasetBasicFilter basicFilter) {
-        super(dataset.getProject(), "Data filters", true);
+        super(dataset.getProject(), txt("msg.dataEditor.title.DataFilters"), true);
         this.dataset = DBObjectRef.of(dataset);
         this.automaticPrompt = false;
         getForm().getFilterList().setSelectedValue(basicFilter, true);

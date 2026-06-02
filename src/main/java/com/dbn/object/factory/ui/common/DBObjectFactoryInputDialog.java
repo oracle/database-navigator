@@ -41,6 +41,7 @@ import java.sql.SQLException;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputForm> {
@@ -49,7 +50,7 @@ public class DBObjectFactoryInputDialog extends DBNDialog<DBObjectFactoryInputFo
     private final DBObjectSpec initialInput;
 
     public DBObjectFactoryInputDialog(@NotNull Project project, DBSchema schema, DBObjectType objectType, DBObjectSpec initialInput) {
-        super(project, "Create " + objectType.getName(), true);
+        super(project, txt("msg.objects.title.CreateObject", objectType.getName()), true);
         this.schema = DBObjectRef.of(schema);
         this.objectType = objectType;
         this.initialInput = initialInput;

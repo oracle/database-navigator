@@ -26,13 +26,15 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CreateRenameConsoleDialog extends DBNDialog<CreateRenameConsoleForm> {
     private final ConnectionRef connection;
     private DBConsole console;
     private DBConsoleType consoleType;
 
     public CreateRenameConsoleDialog(ConnectionHandler connection, @NotNull DBConsoleType consoleType) {
-        super(connection.getProject(), "Create " + consoleType.getName(), true);
+        super(connection.getProject(), txt("msg.consoles.title.CreateConsole", consoleType.getName()), true);
         this.connection = connection.ref();
         this.consoleType = consoleType;
         setModal(true);
@@ -40,7 +42,7 @@ public class CreateRenameConsoleDialog extends DBNDialog<CreateRenameConsoleForm
     }
 
     public CreateRenameConsoleDialog(ConnectionHandler connection, @NotNull DBConsole console) {
-        super(connection.getProject(), "Rename " + console.getConsoleType().getName(), true);
+        super(connection.getProject(), txt("msg.consoles.title.RenameConsole", console.getConsoleType().getName()), true);
         this.connection = connection.ref();
         this.console = console;
         setModal(true);

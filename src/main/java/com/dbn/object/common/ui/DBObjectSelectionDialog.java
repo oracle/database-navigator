@@ -25,13 +25,15 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Action;
 import java.util.function.Consumer;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 public class DBObjectSelectionDialog<T extends DBObject> extends DBNDialog<DBObjectSelectionForm<T>> {
     private final DBObjectSelectionInput<T> input;
     private final Consumer<T> callback;
 
     public DBObjectSelectionDialog(DBObjectSelectionInput<T> input, Consumer<T> callback) {
-        super(input.getConnection(), "Select " + input.getObjectType().getTitleCasedName(), false);
+        super(input.getConnection(), txt("msg.objects.title.SelectObject", input.getObjectType().getTitleCasedName()), false);
         this.input = input;
         this.callback = callback;
         init();
