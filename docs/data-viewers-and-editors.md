@@ -245,6 +245,7 @@ The Record Viewer displays one row as a vertical list of columns and values. It 
 ## Related Documentation
 
 - [Data Viewers and Editors Settings](./data-viewers-and-editors-settings.md): Settings reference for Data Editor, Data Grid, record navigation, filters, popups, and grid behavior.
+- [Database Events](./database-events.md): Guide to table change notifications and stale-data warnings in data editors.
 - [Environment Types](./environment-types.md): Guide to read-only data safeguards that affect Table Editors and JSON Editors.
 - [Transaction Management](./transaction-management.md): Guide to committing, rolling back, and reviewing pending data changes.
 - [Database Browser](./database-browser.md): Guide to opening table, view, materialized view, and JSON view data from the browser.
