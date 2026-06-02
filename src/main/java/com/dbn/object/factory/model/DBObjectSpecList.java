@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 @Getter
 @Setter
-public class DBObjectSpecList<T extends DBObjectSpec> extends ArrayList<T> {
+public class DBObjectSpecList extends ArrayList<DBObjectSpec> {
     private final DBObjectSpec parent;
     private boolean readonly;
 
