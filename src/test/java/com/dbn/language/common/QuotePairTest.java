@@ -16,8 +16,10 @@
 
 package com.dbn.language.common;
 
+import com.dbn.language.common.quotes.QuotePair;
 import org.junit.Test;
 
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -137,6 +139,20 @@ public class QuotePairTest {
     }
 
     @Test
+    public void quoteWithDatabaseEscaping() {
+        // Arrange
+        QuotePair simpleQuotePair = new QuotePair('"', '"');
+        QuotePair backTickPair = new QuotePair('`', '`');
+        QuotePair squareBracketPair = new QuotePair('[', ']');
+
+        // Act & Assert
+        assertEquals("\"a\"\"b\"", simpleQuotePair.quote("a\"b", DATABASE));
+        assertEquals("`a``b`", backTickPair.quote("a`b", DATABASE));
+        assertEquals("[a]]b]", squareBracketPair.quote("a]b", DATABASE));
+        assertEquals("\"a\"\"b\"", simpleQuotePair.quote("\"a\"\"b\"", DATABASE));
+    }
+
+    @Test
     public void unquote() {
         // Arrange
         QuotePair backTickPair = new QuotePair('`', '`');
@@ -163,6 +179,20 @@ public class QuotePairTest {
         // Assert (Square Brackets)
         assertEquals("test", squareBracketResult1);
         assertEquals("test", squareBracketResult2);
+    }
+
+    @Test
+    public void unquoteWithDatabaseEscaping() {
+        // Arrange
+        QuotePair simpleQuotePair = new QuotePair('"', '"');
+        QuotePair backTickPair = new QuotePair('`', '`');
+        QuotePair squareBracketPair = new QuotePair('[', ']');
+
+        // Act & Assert
+        assertEquals("a\"b", simpleQuotePair.unquote("\"a\"\"b\"", DATABASE));
+        assertEquals("a`b", backTickPair.unquote("`a``b`", DATABASE));
+        assertEquals("a]b", squareBracketPair.unquote("[a]]b]", DATABASE));
+        assertEquals("a]b", squareBracketPair.unquote("a]b", DATABASE));
     }
 
     @Test

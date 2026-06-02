@@ -26,9 +26,7 @@ abstract class PresentationProviderBase<T> implements PresentationProvider<T> {
     }
 
     @Override
-    public final boolean supports(Class objectType) {
-        return this.objectType.isAssignableFrom(objectType);
+    public final Class<T> getObjectType() {
+        return objectType;
     }
-
-
 }

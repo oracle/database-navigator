@@ -70,27 +70,28 @@ public class StatementExecutionProcessor {
         List<Element> children = element.getChildren();
         if (children.isEmpty()) {
             String statementText = element.getTextTrim();
-            readStatements(statementText, null, 0.0);
+            readStatements(statementText, null, null, 0.0);
         } else {
             for (Element child : children) {
                 String statementText = child.getTextTrim();
                 double sinceVersion = doubleAttribute(child, "since-version", 0.0);
                 String prefixes = stringAttribute(child, "prefixes");
-                readStatements(statementText, prefixes, sinceVersion);
+                String silentErrorCodes = stringAttribute(child, "silent-error-codes");
+                readStatements(statementText, prefixes, silentErrorCodes, sinceVersion);
             }
         }
         statementDefinitions = Compactables.compact(statementDefinitions);
     }
 
-    private void readStatements(String statementText, String prefixes, double sinceVersion) {
+    private void readStatements(String statementText, String prefixes, String silentErrorCodes, double sinceVersion) {
         if (prefixes == null) {
-            StatementDefinition statementDefinition = new StatementDefinition(statementText, null, sinceVersion);
+            StatementDefinition statementDefinition = new StatementDefinition(statementText, null, silentErrorCodes, sinceVersion);
             statementDefinitions.add(statementDefinition);
         } else {
             StringTokenizer tokenizer = new StringTokenizer(prefixes, ",");
             while (tokenizer.hasMoreTokens()) {
                 String prefix = tokenizer.nextToken().trim();
-                StatementDefinition statementDefinition = new StatementDefinition(statementText, prefix, sinceVersion);
+                StatementDefinition statementDefinition = new StatementDefinition(statementText, prefix, silentErrorCodes, sinceVersion);
                 statementDefinitions.add(statementDefinition);
             }
         }
@@ -195,7 +196,7 @@ public class StatementExecutionProcessor {
 
         StatementExecutorContext context = createContext(connection);
         SQLException exception = NO_STATEMENT_DEFINITION_EXCEPTION;
-        for (StatementDefinition definition : statementDefinitions) {
+        for (StatementDefinition definition : getStatementDefinitions(connection)) {
             try {
                 return executeCall(definition, context, outputReader, arguments);
             } catch (SQLException e){
@@ -260,6 +261,8 @@ public class StatementExecutionProcessor {
             } catch (SQLException e){
                 conditionallyLog(e);
                 exception = e;
+
+                if (statementDefinition.isSilentError(e)) return 0;
             }
         }
         throw exception;
@@ -295,12 +298,14 @@ public class StatementExecutionProcessor {
     public int executeStatement(@NotNull DBNConnection connection, Object... arguments) throws SQLException {
         StatementExecutorContext context = createContext(connection);
         SQLException exception = NO_STATEMENT_DEFINITION_EXCEPTION;
-        for (StatementDefinition statementDefinition : statementDefinitions) {
+        for (StatementDefinition statementDefinition : getStatementDefinitions(connection)) {
             try {
                 return executeStatement(statementDefinition, context, arguments);
             } catch (SQLException e){
                 conditionallyLog(e);
                 exception = e;
+
+                if (statementDefinition.isSilentError(e)) return 0;
             }
         }
         throw exception;

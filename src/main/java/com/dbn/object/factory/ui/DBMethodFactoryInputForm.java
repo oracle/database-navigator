@@ -17,26 +17,33 @@
 package com.dbn.object.factory.ui;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
 import com.dbn.data.type.ui.DataTypeEditor;
 import com.dbn.database.DatabaseFeature;
+import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.object.DBSchema;
+import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBObjectSpec;
-import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.TextFields.getText;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
@@ -44,17 +51,19 @@ import static com.dbn.common.util.Strings.isWord;
 import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
 
-public class DBMethodFactoryInputForm extends DBObjectFactoryInputForm<DBObjectSpec> {
+public class DBMethodFactoryInputForm extends DBSchemaObjectFactoryInputForm {
     private JPanel mainPanel;
-    private JTextField nameTextField;
+    private @Getter JPanel headerPanel;
+    private @Getter JTextField nameTextField;
     private JPanel returnDataTypeEditor;
     private JPanel returnArgumentPanel;
+    private JLabel nameLabel;
     private JLabel returnArgumentIconLabel;
     private JPanel argumentListComponent;
-    private JPanel headerPanel;
-    private JLabel nameLabel;
-    private DBNComboBox<ConnectionHandler> connectionComboBox;
-    private DBNComboBox<SchemaId> schemaComboBox;
+    private @Getter DBNComboBox<ConnectionHandler> connectionComboBox;
+    private @Getter DBNComboBox<SchemaId> schemaComboBox;
+    private JCheckBox preserveCaseCheckBox;
+    private DBNInfoLabel preserveCaseInfoLabel;
 
 
     private DBArgumentFactoryInputListForm argumentListForm;
@@ -75,6 +84,7 @@ public class DBMethodFactoryInputForm extends DBObjectFactoryInputForm<DBObjectS
         schemaComboBox.set(HIDE_DESCRIPTION, true);
         schemaComboBox.setEnabled(false); // TODO support connection switch
 
+        initPreserveCaseFields();
 
         returnArgumentPanel.setVisible(hasReturnArgument());
         returnArgumentPanel.setBorder(Borders.BOTTOM_LINE_BORDER);
@@ -92,6 +102,19 @@ public class DBMethodFactoryInputForm extends DBObjectFactoryInputForm<DBObjectS
         onTextChange(nameTextField, e -> headerForm.setTitle(buildHeaderTitle()));
 
         resetFormChanges();
+    }
+
+    private void initPreserveCaseFields() {
+        preserveCaseInfoLabel.setContent(getPreserveCaseInfoText());
+    }
+
+    @Override
+    protected void initStatePersistence() {
+        Project project = ensureProject();
+        ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
+
+        StateAttributes state = factoryManager.getState(getObjectType());
+        initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
 
     @Override
@@ -112,6 +135,7 @@ public class DBMethodFactoryInputForm extends DBObjectFactoryInputForm<DBObjectS
     @Override
     public void applyFormChanges() throws ConfigurationException {
         input.setObjectName(getText(nameTextField));
+        input.setIdentifierCase(getSelectedIdentifierCase());
         argumentListForm.applyFormChanges();
 
         DBObjectSpec returnArgument = RETURN_ARGUMENT.of(input);
@@ -133,6 +157,7 @@ public class DBMethodFactoryInputForm extends DBObjectFactoryInputForm<DBObjectS
         }
     }
 
+    @Override
     protected String getSchemaName() {
         return getInput().getSchema().getName();
     }
@@ -140,6 +165,13 @@ public class DBMethodFactoryInputForm extends DBObjectFactoryInputForm<DBObjectS
     @Override
     protected String getObjectName() {
         return getText(nameTextField);
+    }
+
+    @Override
+    protected DatabaseIdentifierCase getSelectedIdentifierCase() {
+        return preserveCaseCheckBox.isSelected() ?
+                DatabaseIdentifierCase.PRESERVE :
+                getDefaultIdentifierCase();
     }
 
     public boolean hasReturnArgument() {

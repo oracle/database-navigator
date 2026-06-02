@@ -19,10 +19,12 @@ package com.dbn.oci.config.ui;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.util.FileChoosers;
 import com.dbn.oci.config.OciConfig;
 import com.dbn.oci.config.OciConfigFileUtil;
 import com.dbn.oci.config.OciConfigType;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +47,6 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.ui.util.TextFields.setText;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.FileChoosers.addSingleFileChooser;
-import static com.dbn.common.util.FileChoosers.extensionFilter;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
 public class OciConfigForm extends DBNFormBase {
@@ -73,14 +74,24 @@ public class OciConfigForm extends DBNFormBase {
         this.config = config;
 
         initComboBox(configTypeComboBox, OciConfigType.values());
-        addSingleFileChooser(getProject(), configFileTextField, "Select OCI configuration file", "");
-        addSingleFileChooser(getProject(), privateKeyFileTextField, "Select OCI private key file (.pem)", "").withFileFilter(extensionFilter("pem"));
+        initConfigFileChooser();
+        initPrivateKeyFileChooser();
 
         userIdTextField.getEmptyText().setText("ocid1.user.oc1..");
         tenancyIdTextField.getEmptyText().setText("ocid1.tenancy.oc1..");
         compartmentIdTextField.getEmptyText().setText("ocid1.compartment.oc1..");
         onTextChange(configFileTextField, e -> configProfileComboBox.reloadValues());
         onSelectionChange(configTypeComboBox, v -> updateFieldAvailability());
+    }
+
+    private void initConfigFileChooser() {
+        addSingleFileChooser(getProject(), configFileTextField, "Select OCI configuration file", "");
+    }
+
+    private void initPrivateKeyFileChooser() {
+        FileChooserDescriptor descriptor = addSingleFileChooser(getProject(), privateKeyFileTextField, "Select OCI private key file (.pem)", "");
+        //descriptor.withFileFilter(extensionFilter("pem"));
+        FileChoosers.withExtensionFilter(descriptor, "pem");
     }
 
     @Override

@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import static com.dbn.common.util.TimeUtil.Millis.ONE_HOUR;
 import static com.dbn.common.util.TimeUtil.Millis.ONE_MINUTE;
 import static com.dbn.common.util.TimeUtil.Millis.ONE_SECOND;
+import static java.lang.System.currentTimeMillis;
 
 @UtilityClass
 public class TimeUtil {
@@ -50,15 +51,19 @@ public class TimeUtil {
     }
 
     public static boolean isOlderThan(long timestamp, long millis) {
-        return System.currentTimeMillis() - millis > timestamp;
+        return currentTimeMillis() - millis > timestamp;
+    }
+
+    public static boolean isOlderThan(long timestamp, Duration duration) {
+        return currentTimeMillis() - timestamp > duration.toMillis();
     }
 
     public static boolean isOlderThan(long timestamp, long duration, TimeUnit timeUnit) {
-        return System.currentTimeMillis() - timeUnit.toMillis(duration) > timestamp;
+        return currentTimeMillis() - timeUnit.toMillis(duration) > timestamp;
     }
 
     public static long millisSince(long start) {
-        return System.currentTimeMillis() - start;
+        return currentTimeMillis() - start;
     }
 
     public static long secondsSince(long start) {

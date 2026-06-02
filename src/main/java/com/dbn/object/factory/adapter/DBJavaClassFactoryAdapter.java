@@ -21,14 +21,14 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.security.DatabaseIdentifierCache;
-import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseJavaInterface;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeEvent;
 import com.dbn.object.factory.ObjectFactoryAdapter;
-import com.dbn.object.factory.model.DBJavaClassSpec;
+import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.DBJavaClassFactoryInputForm;
 import com.dbn.object.type.DBJavaClassType;
 import com.dbn.object.type.DBObjectType;
@@ -38,36 +38,47 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.common.util.Java.getQualifiedClassName;
+import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_CLASS_NAME;
+import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_CLASS_TYPE;
+import static com.dbn.object.factory.model.DBObjectAttributeType.JAVA_PACKAGE_NAME;
+import static com.dbn.object.type.DBJavaClassType.CLASS;
+import static com.dbn.object.type.DBJavaClassType.EXCEPTION;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 
-public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter<DBJavaClassSpec, DBJavaClassFactoryInputForm> {
+public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter {
 
     @Override
     public DBObjectType getObjectType() {
         return JAVA_CLASS;
     }
 
-    public DBJavaClassSpec createInput(DBSchema schema) {
-        return new DBJavaClassSpec(schema);
+    public DBObjectSpec createInput(DBSchema schema) {
+        DBObjectSpec input = new DBObjectSpec(schema, JAVA_CLASS);
+        input.setAttributeValue(JAVA_CLASS_TYPE, CLASS);
+        return input;
     }
 
-    public DBJavaClassFactoryInputForm createInputForm(DBNComponent parent, DBJavaClassSpec input) {
+    public DBJavaClassFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec input) {
         return new DBJavaClassFactoryInputForm(parent, input);
     }
 
     @Override
-    public void validateInput(DBJavaClassSpec input, List<String> errors) {
+    public void validateInput(DBObjectSpec input, List<String> errors) {
         // TODO
     }
 
     @Override
-    public void createObject(DBJavaClassSpec input) throws SQLException {
-        String className = input.getClassName();
-        String packageName = input.getPackageName();
-        String classType = getTypeIdentifier(input.getClassType());
-        String extendsSuffix = input.getExtendsSuffix();
+    public void createObject(DBObjectSpec input) throws SQLException {
+        String className = JAVA_CLASS_NAME.of(input);
+        String packageName = JAVA_PACKAGE_NAME.of(input);
+
+        DBJavaClassType javaClassType = getClassType(input);
+        String classType = getTypeIdentifier(javaClassType);
+        String extendsSuffix = getExtendsSuffix(javaClassType);
         DBSchema schema = input.getSchema();
 
         StringBuilder javaCode = new StringBuilder();
@@ -80,21 +91,22 @@ public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter<DBJavaCla
                 .append("\n")
                 .append("}");
 
-        String objectName = input.getDatabaseObjectName();
+        String objectName = getDatabaseObjectName(input);
         ConnectionId connectionId = schema.getConnectionId();
         SchemaId schemaId = schema.getSchemaId();
 
         DatabaseInterfaceInvoker.execute(HIGHEST,
                 "Creating " + input.getObjectType().getTitleCasedName(),
-                "Creating " + input.getObjectDescription(),
+                "Creating " + getObjectDescription(input),
                 schema.getProject(),
                 connectionId,
                 conn -> {
                     ConnectionHandler connection = schema.getConnection();
-                    DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
                     DatabaseIdentifierCache identifierCache = connection.getIdentifierCache();
                     String quotedObjectName = identifierCache.getQuotedIdentifier(objectName);
-                    dataDefinition.createJavaSource(schema.getName(), quotedObjectName, javaCode.toString().getBytes(), conn);
+
+                    DatabaseJavaInterface javaInterface = connection.getJavaInterface();
+                    javaInterface.createJavaSource(schema.getName(true), quotedObjectName, javaCode.toString().getBytes(), conn);
                 });
 
         ObjectChangeEvent.notify(CREATE, JAVA_CLASS, connectionId, schemaId);
@@ -108,7 +120,36 @@ public class DBJavaClassFactoryAdapter implements ObjectFactoryAdapter<DBJavaCla
     }
 
 
-    public String getTypeIdentifier(DBJavaClassType classType) {
+    private static DBJavaClassType getClassType(DBObjectSpec input) {
+        DBJavaClassType classType = JAVA_CLASS_TYPE.of(input);
+        return classType == null ? CLASS : classType;
+    }
+
+    private static String getExtendsSuffix(DBJavaClassType classType) {
+        return classType == EXCEPTION ? " extends Exception " : "";
+    }
+
+    private static String getDatabaseObjectName(DBObjectSpec input) {
+        String packageName = JAVA_PACKAGE_NAME.of(input);
+        String className = JAVA_CLASS_NAME.of(input);
+        if (isEmpty(packageName)) return className;
+
+        return packageName.replace(".", "/") + "/" + className;
+    }
+
+    private static String getObjectDescription(DBObjectSpec input) {
+        String objectName = "\"" + getQualifiedClassName(JAVA_PACKAGE_NAME.of(input), JAVA_CLASS_NAME.of(input)) + "\"";
+        return switch (getClassType(input)) {
+            case INTERFACE -> "java interface " + objectName;
+            case ANNOTATION -> "java annotation " + objectName;
+            case EXCEPTION -> "java exception " + objectName;
+//            case RECORD -> "java record " + objectName;
+            case ENUM -> "java enumeration " + objectName;
+            default -> "java class " + objectName;
+        };
+    }
+
+    private static String getTypeIdentifier(DBJavaClassType classType) {
         return switch (classType) {
             case INTERFACE -> "interface";
             case ANNOTATION -> "@interface";

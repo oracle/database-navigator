@@ -17,9 +17,9 @@
 package com.dbn.driver.download.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.driver.download.metadata.Developer;
 import com.dbn.driver.download.metadata.Library;
-import com.dbn.driver.download.metadata.License;
+import com.dbn.driver.download.metadata.LibraryDeveloper;
+import com.dbn.driver.download.metadata.LibraryLicense;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -40,8 +40,8 @@ public class LibraryInfoForm extends DBNFormBase {
         this.library = library;
     }
     private JPanel setupDynamicFields() {
-        List<Developer> devs = library.getDevelopers();
-        List<License> licenses = library.getLicenses();
+        List<LibraryDeveloper> devs = library.getDevelopers();
+        List<LibraryLicense> licenses = library.getLicenses();
         int rowCount = devs.size() + licenses.size() + 1;
 
         libraryInfoPanel.setLayout(new GridLayoutManager(rowCount, 2, new Insets(0, 0, 0, 0), -1, -1));

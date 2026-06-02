@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class ExtensionPointCache<K, E> {
+public abstract class ExtensionPointCache<K, E extends ExtensionPoint> {
     private final ExtensionPointName<E> extensionPointName;
     private final Set<K> keys;
     private final Map<K, E> cache = new ConcurrentHashMap<>();

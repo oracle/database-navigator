@@ -20,10 +20,10 @@ import com.intellij.openapi.progress.ProcessCanceledException;
 
 public class RequestCancelledException extends ProcessCanceledException {
     public RequestCancelledException() {
-        this("Request cancelled by user");
+        super("Request cancelled by user");
     }
 
     public RequestCancelledException(String message) {
-        super(new IllegalStateException(message));
+        super(message);
     }
 }

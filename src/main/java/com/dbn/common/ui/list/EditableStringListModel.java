@@ -98,4 +98,9 @@ public class EditableStringListModel extends DBNEditableTableModel {
         notifyListeners(rowIndex, data.size() + 1, -1);
     }
 
+    public void setValues(List<String> values) {
+        data.clear();
+        data.addAll(values);
+        notifyListeners(0, data.size(), -1);
+    }
 }

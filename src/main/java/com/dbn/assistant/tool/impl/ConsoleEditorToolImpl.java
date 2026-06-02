@@ -25,6 +25,7 @@ import com.dbn.editor.console.SQLConsoleEditor;
 import com.dbn.object.DBConsole;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.DBConsoleType;
+import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -76,7 +77,8 @@ public class ConsoleEditorToolImpl extends AssistantToolBase implements ConsoleE
 
         // line breaks are sometimes received as \\n
         String consoleContent = newContent.replace("\\n", "\n");
-        console.getVirtualFile().updateContent(consoleContent);
+        DBConsoleVirtualFile consoleFile = console.getVirtualFile();
+        consoleFile.updateContent(consoleContent);
     }
 
     @Override

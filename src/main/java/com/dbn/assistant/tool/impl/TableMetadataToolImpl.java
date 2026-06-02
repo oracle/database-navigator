@@ -33,14 +33,15 @@ import static com.dbn.common.util.Lists.convert;
 public class TableMetadataToolImpl extends AssistantToolBase implements TableMetadataTool {
 
     @Override
-    public List<String> listTableNames(String schemaName, boolean includeRegularTables, boolean includeTemporaryTables) {
+    public List<String> listTableNames(String schemaName, boolean includeRegularTables, boolean includeTemporaryTables, String tableNameRegex) {
         DBSchema schema = getSchema(schemaName);
 
         List<DBTable> tables = schema.getTables();
+        Predicate<DBTable> nameFilter = nameFilter(tableNameRegex);
         Predicate<DBTable> filter = t -> {
-            if (includeTemporaryTables && t.isTemporary()) return true;
-            if (includeRegularTables && !t.isTemporary()) return true;
-            return false;
+            if (!includeRegularTables && !t.isTemporary()) return false;
+            if (!includeTemporaryTables && t.isTemporary()) return false;
+            return nameFilter.test(t);
         };
         return getObjectNames(tables, false, filter);
     }

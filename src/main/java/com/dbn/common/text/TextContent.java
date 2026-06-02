@@ -107,7 +107,7 @@ public class TextContent {
                         "font-size: " + (fontSize + JBUI.scale(2)) + "pt; " +
                         "color: #" + colorHex + ";");
 
-        replaceFields("TABLE_GRID_COLOR", toHex(UIUtil.getLabelDisabledForeground()));
+        replaceFields("TABLE_GRID_COLOR", "#" + toHex(UIUtil.getLabelDisabledForeground()));
     }
 
     private void replaceFields(String identifier, String replacement) {

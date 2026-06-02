@@ -40,6 +40,7 @@ import javax.swing.text.JTextComponent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
+import java.util.function.Function;
 
 import static com.dbn.common.ui.util.ClientProperty.FIELD_ERROR;
 
@@ -91,6 +92,11 @@ public class TextFields {
     }
 
 
+    public static boolean isEmptyText(TextFieldWithBrowseButton textComponent) {
+        if (textComponent == null) return false;
+        return isEmptyText(textComponent.getTextField());
+    }
+
     public static boolean isEmptyText(JTextComponent textComponent) {
         if (textComponent == null) return true;
 
@@ -126,6 +132,10 @@ public class TextFields {
         setText(textComponent.getTextField(), text);
     }
 
+    public static void setTextSilently(TextFieldWithBrowseButton textComponent, String text) {
+        setTextSilently(textComponent.getTextField(), text);
+    }
+
     public static void setTextSilently(JTextComponent textComponent, String text) {
         Document document = textComponent.getDocument();
         if (document instanceof AbstractDocument abstractDocument) {
@@ -154,5 +164,17 @@ public class TextFields {
         if (textField instanceof JBTextField jbTextField) {
             jbTextField.getEmptyText().setText(emptyText);
         }
+    }
+
+    public static void installErrorHighlighting(TextFieldWithBrowseButton textField, Function<String, String> verifier) {
+        installErrorHighlighting(textField.getTextField(), verifier);
+    }
+
+    public static void installErrorHighlighting(JTextField textComponent, Function<String, String> verifier) {
+        onTextChange(textComponent, e -> {
+            String errorMessage = verifier.apply(textComponent.getText());
+            updateFieldError(textComponent, errorMessage);
+        });
+
     }
 }

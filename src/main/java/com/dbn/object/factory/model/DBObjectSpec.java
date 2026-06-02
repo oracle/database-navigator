@@ -17,7 +17,9 @@
 package com.dbn.object.factory.model;
 
 import com.dbn.common.data.Data;
-import com.dbn.language.common.QuotePair;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.database.DatabaseIdentifierCase;
+import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -31,15 +33,19 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
+import static com.dbn.object.factory.ObjectFactoryIdentifiers.canUseDefaultCase;
+import static com.dbn.object.factory.ObjectFactoryIdentifiers.quoteIdentifier;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IDENTIFIER_CASE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_TYPE;
 
 @Getter
 @Setter
-public class DBObjectSpec extends DBObjectSpecBase{
+public final class DBObjectSpec extends DBObjectSpecBase{
     private boolean readonly;
 
-    private final Map<DBObjectType, DBObjectSpecList<DBObjectSpec>> children = new EnumMap<>(DBObjectType.class);
+    private final Map<DBObjectType, DBObjectSpecList> children = new EnumMap<>(DBObjectType.class);
     private final Map<DBObjectAttributeType, DBObjectAttribute> attributes = new HashMap<>();
 
     public DBObjectSpec(DBObjectSpec parent) {
@@ -88,15 +94,15 @@ public class DBObjectSpec extends DBObjectSpecBase{
         getChildren(objectType).setReadonly(readonly);
     }
 
-    public DBObjectSpecList<DBObjectSpec> getChildren(DBObjectType type) {
-        return this.children.computeIfAbsent(type, t -> new DBObjectSpecList<>(this));
+    public DBObjectSpecList getChildren(DBObjectType type) {
+        return this.children.computeIfAbsent(type, t -> new DBObjectSpecList(this));
     }
 
     public int getIndex() {
         DBObjectSpec parent = getParent();
         if (parent == null) return 0;
 
-        DBObjectSpecList<DBObjectSpec> children = parent.getChildren(getObjectType());
+        DBObjectSpecList children = parent.getChildren(getObjectType());
         return children.indexOf(this);
     }
 
@@ -129,7 +135,43 @@ public class DBObjectSpec extends DBObjectSpecBase{
         if (!quoted) return objectName;
 
         QuotePair quotes = getConnection().getCompatibilityInterface().getDefaultIdentifierQuotes();
-        return quotes.quote(objectName);
+        return quotes.quote(objectName, DATABASE);
+    }
+
+    /**
+     * Returns the object name for CREATE statements.
+     * <p>
+     * Applies the database default identifier case only when the requested case
+     * matches that default and the identifier can be created unquoted. Otherwise,
+     * preserves the raw object name. The returned identifier is always quoted.
+     */
+    public String getAdjustedObjectName() {
+        ConnectionHandler connection = getConnection();
+
+        DatabaseIdentifierCase defaultCase = connection.getCompatibility().getIdentifierCase();
+        DatabaseIdentifierCase requestedCase = getIdentifierCase();
+
+        String objectName = getObjectName();
+        boolean adjustCase = requestedCase == defaultCase && canUseDefaultCase(connection, objectName);
+        DatabaseIdentifierCase identifierCase = adjustCase ?
+                requestedCase :
+                DatabaseIdentifierCase.PRESERVE;
+
+        String adjustedIdentifier = identifierCase.format(objectName);
+
+        return quoteIdentifier(connection, adjustedIdentifier);
+    }
+
+    public DatabaseIdentifierCase getIdentifierCase() {
+        DatabaseIdentifierCase identifierCase = IDENTIFIER_CASE.of(this);
+        if (identifierCase != null) return identifierCase;
+
+        DBObjectSpec parent = getParent();
+        return parent == null ? DatabaseIdentifierCase.PRESERVE : parent.getIdentifierCase();
+    }
+
+    public void setIdentifierCase(DatabaseIdentifierCase identifierCase) {
+        setAttributeValue(IDENTIFIER_CASE, identifierCase);
     }
 
     public String getObjectDescription() {
@@ -154,7 +196,7 @@ public class DBObjectSpec extends DBObjectSpecBase{
         }
 
         for (DBObjectType objectType : children.keySet()) {
-            DBObjectSpecList<DBObjectSpec> objectSpecs = children.get(objectType);
+            DBObjectSpecList objectSpecs = children.get(objectType);
             for (DBObjectSpec objectSpec : objectSpecs) {
                 DBObjectAttribute<Object> attribute = objectSpec.findAttribute(attributeId);
                 if (attribute != null) return cast(attribute);

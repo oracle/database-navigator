@@ -39,7 +39,7 @@ import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.database.interfaces.DatabaseInterface.Callable;
 import com.dbn.database.interfaces.DatabaseInterface.Runnable;
 import com.dbn.database.interfaces.DatabaseInterfaces;
-import com.dbn.language.common.QuotePair;
+import com.dbn.language.common.quotes.QuotePair;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
@@ -67,6 +67,7 @@ import static com.dbn.connection.jdbc.ResourceStatus.CLOSED;
 import static com.dbn.connection.jdbc.ResourceStatus.RESERVED;
 import static com.dbn.connection.jdbc.ResourceStatus.VALID;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
 
 @Slf4j
 @Getter
@@ -382,7 +383,7 @@ public class DBNConnection extends DBNConnectionBase {
     }
 
     public String enquoteIdentifier(String identifier) throws SQLException {
-        if (identifierEnquoter != null) return identifierEnquoter.quote(identifier);
+        if (identifierEnquoter != null) return identifierEnquoter.quote(identifier, DATABASE);
 
         if (enquoteStatement == null) enquoteStatement = createStatement();
         return enquoteStatement.enquoteIdentifier(identifier, true);
