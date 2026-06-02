@@ -105,15 +105,14 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
     public void createMethod(@NotNull DBObjectSpec methodSpec, DBNConnection connection) throws SQLException {
         Project project = methodSpec.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
-        CodeStyleCaseOption keywordCaseOption = styleCaseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption objectCaseOption = styleCaseSettings.getObjectCaseOption();
-        CodeStyleCaseOption dataTypeCaseOption = styleCaseSettings.getDatatypeCaseOption();
+        CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();
+        CodeStyleCaseOption dco = styleCaseSettings.getDatatypeCaseOption();
         boolean function = methodSpec.getObjectType() == DBObjectType.FUNCTION;
 
         StringBuilder buffer = new StringBuilder();
         String methodType = function ? "function " : "procedure ";
-        buffer.append(keywordCaseOption.format(methodType));
-        buffer.append(objectCaseOption.format(methodSpec.getObjectName()));
+        buffer.append(kco.format(methodType));
+        buffer.append(methodSpec.getAdjustedObjectName());
         buffer.append("(");
 
         int maxArgNameLength = 0;
@@ -122,7 +121,8 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         for (DBObjectSpec argument : arguments) {
             boolean in = IS_INPUT.is(argument);
             boolean out = IS_OUTPUT.is(argument);
-            maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
+            String argumentName = argument.getAdjustedObjectName();
+            maxArgNameLength = Math.max(maxArgNameLength, argumentName.length());
             maxArgDirectionLength = Math.max(maxArgDirectionLength, in && out ? 5 : in ? 2 : out ? 3 : 0);
         }
 
@@ -134,18 +134,19 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
             buffer.append("\n    ");
             if (!function) {
                 String direction =
-                        in && out ? keywordCaseOption.format("inout") :
-                        in ? keywordCaseOption.format("in") :
-                        out ? keywordCaseOption.format("out") : "";
+                        in && out ? kco.format("inout") :
+                        in ? kco.format("in") :
+                        out ? kco.format("out") : "";
                 buffer.append(direction);
                 buffer.append(Strings.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
             }
 
-            buffer.append(objectCaseOption.format(argumentSpec.getObjectName()));
-            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argumentSpec.getObjectName().length() + 1));
+            String argumentName = argumentSpec.getAdjustedObjectName();
+            buffer.append(argumentName);
+            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argumentName.length() + 1));
 
             String dataType = DATA_TYPE.of(argumentSpec);
-            buffer.append(dataTypeCaseOption.format(dataType));
+            buffer.append(dco.format(dataType));
             if (argumentSpec != Lists.lastElement(arguments)) {
                 buffer.append(",");
             }
@@ -154,13 +155,13 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
         buffer.append(")\n");
         if (function) {
             DBObjectSpec returnArgument = RETURN_ARGUMENT.of(methodSpec);
-            buffer.append(keywordCaseOption.format("returns "));
-            buffer.append(dataTypeCaseOption.format(DATA_TYPE.of(returnArgument)));
+            buffer.append(kco.format("returns "));
+            buffer.append(dco.format(DATA_TYPE.of(returnArgument)));
             buffer.append("\n");
         }
-        buffer.append(keywordCaseOption.format("begin\n\n"));
+        buffer.append(kco.format("begin\n\n"));
         if (function) {
-            buffer.append(keywordCaseOption.format("    return null;\n\n"));
+            buffer.append(kco.format("    return null;\n\n"));
         }
         buffer.append("end");
         

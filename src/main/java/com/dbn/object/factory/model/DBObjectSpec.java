@@ -17,6 +17,8 @@
 package com.dbn.object.factory.model;
 
 import com.dbn.common.data.Data;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.language.common.quotes.QuotePair;
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
@@ -32,6 +34,9 @@ import java.util.Objects;
 
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.language.common.quotes.QuoteEscaping.DATABASE;
+import static com.dbn.object.factory.ObjectFactoryIdentifiers.canUseDefaultCase;
+import static com.dbn.object.factory.ObjectFactoryIdentifiers.quoteIdentifier;
+import static com.dbn.object.factory.model.DBObjectAttributeType.IDENTIFIER_CASE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_NAME;
 import static com.dbn.object.factory.model.DBObjectAttributeType.OBJECT_TYPE;
 
@@ -131,6 +136,42 @@ public class DBObjectSpec extends DBObjectSpecBase{
 
         QuotePair quotes = getConnection().getCompatibilityInterface().getDefaultIdentifierQuotes();
         return quotes.quote(objectName, DATABASE);
+    }
+
+    /**
+     * Returns the object name for CREATE statements.
+     * <p>
+     * Applies the database default identifier case only when the requested case
+     * matches that default and the identifier can be created unquoted. Otherwise,
+     * preserves the raw object name. The returned identifier is always quoted.
+     */
+    public String getAdjustedObjectName() {
+        ConnectionHandler connection = getConnection();
+
+        DatabaseIdentifierCase defaultCase = connection.getCompatibility().getIdentifierCase();
+        DatabaseIdentifierCase requestedCase = getIdentifierCase();
+
+        String objectName = getObjectName();
+        boolean adjustCase = requestedCase == defaultCase && canUseDefaultCase(connection, objectName);
+        DatabaseIdentifierCase identifierCase = adjustCase ?
+                requestedCase :
+                DatabaseIdentifierCase.PRESERVE;
+
+        String adjustedIdentifier = identifierCase.format(objectName);
+
+        return quoteIdentifier(connection, adjustedIdentifier);
+    }
+
+    public DatabaseIdentifierCase getIdentifierCase() {
+        DatabaseIdentifierCase identifierCase = IDENTIFIER_CASE.of(this);
+        if (identifierCase != null) return identifierCase;
+
+        DBObjectSpec parent = getParent();
+        return parent == null ? DatabaseIdentifierCase.PRESERVE : parent.getIdentifierCase();
+    }
+
+    public void setIdentifierCase(DatabaseIdentifierCase identifierCase) {
+        setAttributeValue(IDENTIFIER_CASE, identifierCase);
     }
 
     public String getObjectDescription() {

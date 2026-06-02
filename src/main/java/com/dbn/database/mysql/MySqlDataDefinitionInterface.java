@@ -214,14 +214,13 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
         Project project = methodSpec.getSchema().getProject();
         CodeStyleCaseSettings caseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();
         CodeStyleCaseOption dco = caseSettings.getDatatypeCaseOption();
         boolean function = methodSpec.getObjectType() == DBObjectType.FUNCTION;
 
         StringBuilder buffer = new StringBuilder();
         String methodType = function ? "function " : "procedure ";
         buffer.append(kco.format(methodType));
-        buffer.append(oco.format(methodSpec.getObjectName()));
+        buffer.append(methodSpec.getAdjustedObjectName());
         buffer.append("(");
 
         int maxArgNameLength = 0;
@@ -231,7 +230,8 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
             boolean in = IS_INPUT.is(argument);
             boolean out = IS_OUTPUT.is(argument);
 
-            maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
+            String argumentName = argument.getAdjustedObjectName();
+            maxArgNameLength = Math.max(maxArgNameLength, argumentName.length());
             maxArgDirectionLength = Math.max(maxArgDirectionLength, in && out ? 5 : in ? 2 : out ? 3 : 0);
         }
 
@@ -250,8 +250,9 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
                 buffer.append(Strings.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
             }
 
-            buffer.append(oco.format(argument.getObjectName()));
-            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
+            String argumentName = argument.getAdjustedObjectName();
+            buffer.append(argumentName);
+            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argumentName.length() + 1));
 
             buffer.append(dco.format(DATA_TYPE.of(argument)));
             if (argument != lastElement(arguments)) {

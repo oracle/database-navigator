@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DatabaseCompatibility extends PropertyHolderBase.IntStore<JdbcProperty> {
 
     private QuotePair identifierQuotes = QuotePair.DEFAULT_IDENTIFIER_QUOTE_PAIR;
+    private DatabaseIdentifierCase identifierCase = DatabaseIdentifierCase.PRESERVE;
     private final Map<TransientId, DatabaseActivityTrace> activityTraces = new ConcurrentHashMap<>();
 
     private DatabaseCompatibility() {}
@@ -73,6 +74,11 @@ public class DatabaseCompatibility extends PropertyHolderBase.IntStore<JdbcPrope
         identifierQuotes = Strings.isEmptyOrSpaces(quoteString) ?
                 QuotePair.DEFAULT_IDENTIFIER_QUOTE_PAIR :
                 new QuotePair(quoteString.trim());
+
+        identifierCase =
+                metaData.storesUpperCaseIdentifiers() ? DatabaseIdentifierCase.UPPER :
+                metaData.storesLowerCaseIdentifiers() ? DatabaseIdentifierCase.LOWER :
+                        DatabaseIdentifierCase.PRESERVE;
 
         //TODO JdbcProperty.SQL_DATASET_ALIASING (identify by database type?)
     }

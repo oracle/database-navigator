@@ -86,12 +86,13 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         }
 
         if(objectTypeId == JAVA_CLASS){
+            String className = objectName.replace("/", ".");
             return kco.format("begin \n") +
                     kco.format("execute immediate \n") +
                     kco.format("' \n") +
-                    kco.format("create" + (makeRerunnable ? " or replace" : "") + " and compile java source named " )
-                    + "\"" + objectName.replace("/", ".") + "\""
-                    + kco.format(" as\n") +
+                    kco.format("create" + (makeRerunnable ? " or replace" : "") + " and compile java source named " ) +
+                    className +
+                    kco.format(" as\n") +
                     code +
                     "';\n" + "end;\n/";
         } else if (objectTypeId == VIEW) {
@@ -185,14 +186,13 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         Project project = methodSpec.getSchema().getProject();
         CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyle.caseSettings(project);
         CodeStyleCaseOption kco = styleCaseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption oco = styleCaseSettings.getObjectCaseOption();
         CodeStyleCaseOption dco = styleCaseSettings.getDatatypeCaseOption();
         boolean function = methodSpec.getObjectType() == FUNCTION;
 
         StringBuilder buffer = new StringBuilder();
         String methodType = function ? "function " : "procedure ";
         buffer.append(kco.format(methodType));
-        buffer.append(oco.format(methodSpec.getObjectName()));
+        buffer.append(methodSpec.getAdjustedObjectName());
         buffer.append("(");
         
         int maxArgNameLength = 0;
@@ -201,7 +201,8 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         for (DBObjectSpec argument : arguments) {
             boolean in = IS_INPUT.is(argument);
             boolean out = IS_OUTPUT.is(argument);
-            maxArgNameLength = Math.max(maxArgNameLength, argument.getObjectName().length());
+            String argumentName = argument.getAdjustedObjectName();
+            maxArgNameLength = Math.max(maxArgNameLength, argumentName.length());
             maxArgDirectionLength = Math.max(maxArgDirectionLength, in && out ? 6 : in ? 2 : out ? 3 : 0);
         }
 
@@ -210,8 +211,9 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
             boolean out = IS_OUTPUT.is(argument);
 
             buffer.append("\n    ");
-            buffer.append(oco.format(argument.getObjectName()));
-            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
+            String argumentName = argument.getAdjustedObjectName();
+            buffer.append(argumentName);
+            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argumentName.length() + 1));
             String direction =
                     in && out ? kco.format("in out") :
                     in ? kco.format("in") :
@@ -243,7 +245,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         builder.append("table ");
         builder.append(tableSpec.getSchemaName(true));
         builder.append(".");
-        builder.append(tableSpec.getObjectName(true));
+        builder.append(tableSpec.getAdjustedObjectName());
         builder.append(" (\n");
 
         boolean first = true;
@@ -255,7 +257,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
                 builder.append(",\n");
             }
             builder.append("    ");
-            builder.append(columnSpec.getObjectName(true));
+            builder.append(columnSpec.getAdjustedObjectName());
             builder.append(" ");
             builder.append(DATA_TYPE.of(columnSpec));
             builder.append(IS_NOT_NULL.is(columnSpec) ? " not null" : "");
@@ -287,8 +289,8 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     public void createIndex(DBObjectSpec indexSpec, DBNConnection connection) throws SQLException {
         DBObjectSpec tableSpec = indexSpec.getParent();
         String schemaName = tableSpec.getSchemaName(true);
-        String indexName = indexSpec.getObjectName(true);
-        String tableName = tableSpec.getObjectName(true);
+        String indexName = indexSpec.getAdjustedObjectName();
+        String tableName = tableSpec.getAdjustedObjectName();
 
         StringBuilder builder = new StringBuilder();
         builder.append("index ");

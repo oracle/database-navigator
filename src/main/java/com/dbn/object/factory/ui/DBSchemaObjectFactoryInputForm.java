@@ -16,11 +16,13 @@
 
 package com.dbn.object.factory.ui;
 
+import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
+import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.object.factory.model.DBObjectSpec;
 import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.intellij.openapi.options.ConfigurationException;
@@ -80,6 +82,23 @@ public abstract class DBSchemaObjectFactoryInputForm<T extends DBObjectSpec> ext
     @Override
     protected String getSchemaName() {
         return input.getSchemaName();
+    }
+
+    protected final DatabaseIdentifierCase getDefaultIdentifierCase() {
+        return getConnection().getCompatibility().getIdentifierCase();
+    }
+
+    protected abstract DatabaseIdentifierCase getSelectedIdentifierCase();
+
+    protected final TextContent getPreserveCaseInfoText() {
+        String databaseTypeName = getConnection().getDatabaseType().getName();
+        String infoText = String.format(
+                "<strong>Preserve identifier case</strong><br><br>" +
+                "Preserve identifier names exactly as typed, instead of applying the %s default identifier casing (%s) before creation.<br><br>" +
+                "Note: Identifiers that require quoting, such as reserved words or names containing non-alphanumeric characters, are preserved automatically.",
+                databaseTypeName,
+                getDefaultIdentifierCase());
+        return TextContent.tooltip(infoText, "width:200px");
     }
 
     @Override

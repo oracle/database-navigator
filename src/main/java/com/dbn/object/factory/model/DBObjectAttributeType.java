@@ -17,6 +17,7 @@
 package com.dbn.object.factory.model;
 
 import com.dbn.common.constant.PseudoConstant;
+import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.object.type.DBCredentialType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -59,6 +60,7 @@ public class DBObjectAttributeType<T> extends PseudoConstant<DBObjectAttributeTy
     public static final DBObjectAttributeType<String> FINGERPRINT = new DBObjectAttributeType<>("FINGERPRINT", String.class);
     public static final DBObjectAttributeType<char[]> PASSWORD = new DBObjectAttributeType<>("PASSWORD", char[].class);
     public static final DBObjectAttributeType<char[]> ACCESS_TOKEN = new DBObjectAttributeType<>("ACCESS_TOKEN", char[].class);
+    public static final DBObjectAttributeType<DatabaseIdentifierCase> IDENTIFIER_CASE = new DBObjectAttributeType<>("IDENTIFIER_CASE", DatabaseIdentifierCase.class);
 
     private final Class<T> type;
 

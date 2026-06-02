@@ -22,12 +22,13 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
+import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBJavaClassSpec;
-import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.type.DBJavaClassType;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,13 +48,13 @@ import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 
-public class DBJavaClassFactoryInputForm extends DBObjectFactoryInputForm<DBJavaClassSpec> {
+public class DBJavaClassFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBJavaClassSpec> {
     private JPanel mainPanel;
-    private JPanel headerPanel;
-    private JTextField nameTextField;
-    private JTextField packageTextField;
-    private DBNComboBox<ConnectionHandler> connectionComboBox;
-    private DBNComboBox<SchemaId> schemaComboBox;
+    private @Getter JPanel headerPanel;
+    private @Getter JTextField packageTextField;
+    private @Getter JTextField nameTextField;
+    private @Getter DBNComboBox<ConnectionHandler> connectionComboBox;
+    private @Getter DBNComboBox<SchemaId> schemaComboBox;
     private DBNComboBox<DBJavaClassType> classTypeComboBox;
 
     public DBJavaClassFactoryInputForm(DBNComponent parent, DBSchema schema) {
@@ -110,6 +111,11 @@ public class DBJavaClassFactoryInputForm extends DBObjectFactoryInputForm<DBJava
     @Override
     protected String getSchemaName() {
         return getInput().getSchema().getName();
+    }
+
+    @Override
+    protected DatabaseIdentifierCase getSelectedIdentifierCase() {
+        return DatabaseIdentifierCase.PRESERVE;
     }
 
     @Override

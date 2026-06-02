@@ -88,7 +88,7 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelSp
                     if (modelSourceType == DBAIModelSourceType.OBJECT_STORAGE) {
                         dataDefinition.createModelFromStorage(conn,
                                 input.getSchemaName(true),
-                                input.getObjectName(true),
+                                input.getAdjustedObjectName(),
                                 input.getSourceLocation(),
                                 input.getCredentialName());
 
@@ -96,7 +96,7 @@ public class DBAIModelFactoryAdapter implements ObjectFactoryAdapter<DBAIModelSp
                         Blob modelBlob = uploadOnnxModel(conn, input, progress);
                         dataDefinition.createModelFromFile(conn,
                                 input.getSchemaName(true),
-                                input.getObjectName(true),
+                                input.getAdjustedObjectName(),
                                 modelBlob);
 
                     } else {

@@ -2,27 +2,29 @@ package com.dbn.object.factory.ui;
 
 import com.dbn.common.state.StateAttributes;
 import com.dbn.common.ui.component.DBNComponent;
-import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.info.DBNInfoLabel;
 import com.dbn.common.ui.link.HyperLinkForm;
 import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.FileChoosers;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SchemaId;
+import com.dbn.database.DatabaseIdentifierCase;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.ui.DBObjectSelector;
 import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.model.DBAIModelSpec;
-import com.dbn.object.factory.ui.common.DBObjectFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBAIModelSourceType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -38,7 +40,6 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.onSelectionChange;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.getText;
-import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.FileChoosers.addFileChooser;
 import static com.dbn.common.util.Lists.filter;
 import static com.dbn.common.util.Strings.isNotEmptyOrSpaces;
@@ -50,14 +51,14 @@ import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.dbn.object.type.DBObjectType.SCHEMA;
 import static java.util.Collections.emptyList;
 
-public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIModelSpec> {
+public class DBAIModelFactoryInputForm extends DBSchemaObjectFactoryInputForm<DBAIModelSpec> {
     private JPanel mainPanel;
-    private JPanel headerPanel;
-    private DBNComboBox<ConnectionHandler> connectionComboBox;
-    private DBNComboBox<SchemaId> schemaComboBox;
+    private @Getter JPanel headerPanel;
+    private @Getter DBNComboBox<ConnectionHandler> connectionComboBox;
+    private @Getter DBNComboBox<SchemaId> schemaComboBox;
+    private @Getter JTextField nameTextField;
 
     private DBNComboBox<DBAIModelSourceType> sourceComboBox;
-    private JTextField nameTextField;
     private TextFieldWithBrowseButton modelFileTextField;
     private JTextField objectUrlTextField;
     private JLabel modelFileLabel;
@@ -68,6 +69,8 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
 
     private DBObjectSelector<DBSchema> credentialSchemaComboBox;
     private DBObjectSelector<DBCredential> credentialComboBox;
+    private JCheckBox preserveCaseCheckBox;
+    private DBNInfoLabel preserveCaseInfoLabel;
 
     public DBAIModelFactoryInputForm(DBNComponent parent, DBAIModelSpec input) {
         super(parent, input);
@@ -76,6 +79,7 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
         initComboBoxes();
         initModelFileBrowser();
         initDocumentationLink();
+        initPreserveCaseFields();
     }
 
     private void initModelFileBrowser() {
@@ -91,18 +95,18 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
         return FileChoosers.withExtensionFilter(descriptor, "onnx");
     }
 
-    private void initHeaderForm() {
-        DBNHeaderForm headerForm = createHeaderForm();
-        headerPanel.add(headerForm.getComponent());
-        onTextChange(nameTextField, e -> headerForm.setTitle(buildHeaderTitle()));
+    private void initPreserveCaseFields() {
+        preserveCaseInfoLabel.setContent(getPreserveCaseInfoText());
     }
 
+    @Override
     protected void initStatePersistence() {
         Project project = ensureProject();
         ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
 
         StateAttributes state = factoryManager.getState(getObjectType());
         initPersistence(sourceComboBox, state, "model-source-selection");
+        initPersistence(preserveCaseCheckBox, state, "preserve-identifier-case");
     }
 
     private void initComboBoxes() {
@@ -240,6 +244,7 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
     @Override
     public void applyFormChanges() {
         input.setObjectName(getText(nameTextField));
+        input.setIdentifierCase(getSelectedIdentifierCase());
         input.setCredential(getCredential());
         input.setSourceType(getModelSourceType());
         input.setSourceLocation(getModelSourceLocation());
@@ -264,6 +269,13 @@ public class DBAIModelFactoryInputForm extends DBObjectFactoryInputForm<DBAIMode
         return sourceType == MODEL_FILE ?
                 modelFileTextField.getText() :
                 objectUrlTextField.getText();
+    }
+
+    @Override
+    protected DatabaseIdentifierCase getSelectedIdentifierCase() {
+        return preserveCaseCheckBox.isSelected() ?
+                DatabaseIdentifierCase.PRESERVE :
+                getDefaultIdentifierCase();
     }
 
     @Override

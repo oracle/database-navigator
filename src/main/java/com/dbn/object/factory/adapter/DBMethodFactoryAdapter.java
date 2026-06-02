@@ -43,7 +43,6 @@ import static com.dbn.object.factory.model.DBObjectAttributeType.DATA_TYPE;
 import static com.dbn.object.factory.model.DBObjectAttributeType.RETURN_ARGUMENT;
 import static com.dbn.object.type.DBObjectType.ARGUMENT;
 
-// TODO consider DatabaseMetaData.storesLowerCaseIdentifiers / storesUpperCaseIdentifiers in object factories
 public abstract class DBMethodFactoryAdapter implements ObjectFactoryAdapter<DBObjectSpec, DBMethodFactoryInputForm> {
 
     public DBMethodFactoryInputForm createInputForm(DBNComponent parent, DBObjectSpec input) {
